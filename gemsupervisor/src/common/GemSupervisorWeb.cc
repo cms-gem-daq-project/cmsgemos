@@ -1,33 +1,128 @@
 #include "gemsupervisor/GemSupervisorWeb.h"
 #include <sstream>
+#include <cstdlib>
+#include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
 XDAQ_INSTANTIATOR_IMPL(gemsupervisor::GemSupervisorWeb)
 
 gemsupervisor::GemSupervisorWeb::GemSupervisorWeb(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception):
-    xdaq::Application(s), xgi::framework::UIManager(this)
+  //gem::base::GEMApplication(s)
+  xdaq::Application(s), xgi::framework::UIManager(this)
 {
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Default,      "Default");
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::setParameter, "setParameter");
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Views,      "Views");
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Read, "Read");
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Write, "Write");
+  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Default,       "Default"       );
+  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::setParameter,  "setParameter"  );
+  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::writeUserRegs, "writeUserRegs" );
+  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Views,         "Views"         );
+  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Read,          "Read"          );
+  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Write,         "Write"         );
 
   myAction_         = "";
   myParameter_      = 0;
+
+  //read-only registers may not need this treatment
   testReg_          = 0;
   boardID_          = 0;
   systemID_         = 0;
   systemFirmwareID_ = 0;
+  userFirmwareID_   = 0;
+  
+  xreg_ctrl_        = 0;
+  xreg_ctrl2_       = 0;
+  xreg_status_      = 0;
+  xreg_status2_     = 0;
+  xreg_ctrl_sram_   = 0;
+  xreg_status_sram_ = 0;
 
-  getApplicationInfoSpace()->fireItemAvailable("myParameter",      &myParameter_);
-  getApplicationInfoSpace()->fireItemAvailable("testReg",          &testReg_);
-  getApplicationInfoSpace()->fireItemAvailable("boardID",          &boardID_);
-  getApplicationInfoSpace()->fireItemAvailable("systemID",         &systemID_);
-  getApplicationInfoSpace()->fireItemAvailable("systemFirmwareID", &systemFirmwareID_);
+  xreg_spi_txdata_  = 0;
+  xreg_spi_command_ = 0;
+  xreg_spi_rxdata_  = 0;
 
+  xreg_i2c_settings_ = 0;
+  xreg_i2c_command_  = 0;
+  xreg_i2c_reply_    = 0;
+
+  xreg_sfp_phase_mon_ctrl_  = 0;
+  xreg_sfp_phase_mon_stats_ = 0;
+  xreg_fmc_phase_mon_ctrl_  = 0;
+  xreg_fmc_phase_mon_stats_ = 0;
+  
+  xreg_mac_info1_ = 0;
+  xreg_mac_info2_ = 0;
+  xreg_ip_info_   = 0;
+  
+  xreg_sram1_ = 0;
+  xreg_sram2_ = 0;
+  xreg_icap_  = 0;
+  
+  xreg_users_.reserve(100);  xreg_users_.clear();
+
+  getApplicationInfoSpace()->fireItemAvailable("myParameter",      &myParameter_      );
+  getApplicationInfoSpace()->fireItemAvailable("testReg",          &testReg_          );
+  getApplicationInfoSpace()->fireItemAvailable("boardID",          &boardID_          );
+  getApplicationInfoSpace()->fireItemAvailable("systemID",         &systemID_         );
+  getApplicationInfoSpace()->fireItemAvailable("systemFirmwareID", &systemFirmwareID_ );
+  getApplicationInfoSpace()->fireItemAvailable("userFirmwareID",   &userFirmwareID_   );
+
+  getApplicationInfoSpace()->fireItemAvailable("xreg_ctrl"        , &xreg_ctrl_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_ctrl2"       , &xreg_ctrl2_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_status_"     , &xreg_status_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_status2_"    , &xreg_status2_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_ctrl_sram_"  , &xreg_ctrl_sram_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_status_sram_", &xreg_status_sram_);
+
+  getApplicationInfoSpace()->fireItemAvailable("xreg_spi_txdata_" , &xreg_spi_txdata_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_spi_command_", &xreg_spi_command_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_spi_rxdata_" , &xreg_spi_rxdata_);
+
+  getApplicationInfoSpace()->fireItemAvailable("xreg_i2c_settings_", &xreg_i2c_settings_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_i2c_command_" , &xreg_i2c_command_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_i2c_reply_"   , &xreg_i2c_reply_);
+
+  getApplicationInfoSpace()->fireItemAvailable("xreg_sfp_phase_mon_ctrl_" , &xreg_sfp_phase_mon_ctrl_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_sfp_phase_mon_stats_", &xreg_sfp_phase_mon_stats_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_fmc_phase_mon_ctrl_" , &xreg_fmc_phase_mon_ctrl_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_fmc_phase_mon_stats_", &xreg_fmc_phase_mon_stats_);
+  						                     
+  getApplicationInfoSpace()->fireItemAvailable("xreg_mac_info1_", &xreg_mac_info1_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_mac_info2_", &xreg_mac_info2_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_ip_info_"  , &xreg_ip_info_);
+  						                     
+  getApplicationInfoSpace()->fireItemAvailable("xreg_sram1_", &xreg_sram1_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_sram2_", &xreg_sram2_);
+  getApplicationInfoSpace()->fireItemAvailable("xreg_icap_" , &xreg_icap_);
+  
+  std::vector<xdata::UnsignedInteger32>::const_iterator uiter = xreg_users_.begin();
+  unsigned int ureg = 0;
+  //for (; uiter != xreg_users_.end(); ++uiter,++ureg)  {
+  for (; ureg < 100; ++ureg)  {
+    xreg_users_.push_back(0);
+    getApplicationInfoSpace()->fireItemAvailable(boost::str(boost::format("xreg_user_%x")%ureg),
+						 &(xreg_users_.at(ureg)));
+  }
+  
+  // Detect when the setting of default parameters has been performed
+  this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
+  
   gemsupervisor::GemSupervisorWeb::initializeConnection();
+}
+
+void gemsupervisor::GemSupervisorWeb::actionPerformed (xdata::Event& event)
+{
+  if ( event.type() == "urn:xdaq-event:setDefaultValues" )
+    {
+      std::stringstream ss;
+      ss << "myParameter=[" << myParameter_ << "]" << std::endl;
+      
+      /*
+      for ( std::vector<xdata::UnsignedInteger>::size_t i = 0;  i != myVector_.size() ; i++ )
+	{
+	  ss << "myVector=[" << i << "]=[" << myVector_[i] << "]"      << std::endl;
+	}
+      */
+      LOG4CPLUS_INFO(this->getApplicationLogger(), ss.str());
+    }
 }
 
 void gemsupervisor::GemSupervisorWeb::initializeConnection() 
@@ -61,6 +156,9 @@ void gemsupervisor::GemSupervisorWeb::initializeConnection()
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong initializing the connection: " << e.what());
     std::cout << "Something went wrong initializing the connection: " << e.what() << std::endl;
   }
+
+  this->getTestReg();
+  
 }
 
 
@@ -223,27 +321,41 @@ void gemsupervisor::GemSupervisorWeb::Views(xgi::Input * in, xgi::Output * out )
   *out << "  </div>" << std::endl;
 
   *out << "  <div class=\"xdaq-tab\" title=\"GLIB User Registers\" >"     << std::endl;
+
+  std::string method = toolbox::toString("/%s/writeUserRegs",getApplicationDescriptor()->getURN().c_str());
+  *out << cgicc::fieldset().set("style","font-size: 10pt; font-family: arial;") << std::endl;
+  *out << cgicc::legend("Read/Write VFAT user registers") << cgicc::p() << std::endl;
+  *out << cgicc::form().set("method","GET").set("action", method) << "</br>" << std::endl;
+
   *out << "    <table class=\"xdaq-table\" caption=\"GLIB User Registers\" >"     << std::endl;
   *out << "      <thead>" << std::endl;
   *out << "        <tr>" << std::endl;
   *out << "          <th class=\"xdaq-sortable\">Register name</th>" << std::endl;
   *out << "          <th class=\"xdaq-sortable\">Read value</th>" << std::endl;
   *out << "          <th class=\"xdaq-sortable\">Value to write</th>" << std::endl;
+  //*out << "          <th class=\"xdaq-sortable\">Execute</th>" << std::endl;
   *out << "        </tr>" << std::endl;
   *out << "      </thead>" << std::endl;
   *out << "      </br>" << std::endl;
 
   *out << "      <tbody>" << std::endl;
   unsigned int uregoffset = 0x40010000;
+  boost::format uregform("ureg0x%x");
   for (unsigned int ureg = 0; ureg < 16; ++ureg) {
     *out << "      <tr>" << std::endl;
-    *out << "        <td>User register 0x" << std::hex << uregoffset+ureg <<std::dec << "</td>" << std::endl;
-    *out << "        <td>First value 2</td>" << std::endl;
-    *out << "        <td>First value 3</td>" << std::endl;
+    *out << "        <td>User register 0x" << std::hex << uregoffset+(ureg<<0x8) << std::dec << "</td>" << std::endl;
+    *out << "        <td>0x" << std::setfill('0') << std::setw(8) << std::hex << r_users.at(ureg).value() << std::dec << "</td>" << std::endl;
+    *out << "        <td>" << cgicc::input().set("type","text"
+						 ).set("name",boost::str(uregform%ureg)
+						       ).set("value", boost::str(boost::format("0x%08x")%xreg_users_.at(ureg))
+							     ).set("size","10").set("maxlength","32")
+	 << "        </td>" << std::endl;
     *out << "      </tr>" << std::endl;
   }
   *out << "      </br>" << std::endl;
   *out << "      </tbody>" << std::endl;
+  *out << cgicc::input().set("type","submit").set("value","Write") << std::endl;
+  *out << cgicc::input().set("type","reset").set("value","Clear") << std::endl;
   *out << "    </table>" << std::endl;
   *out << "    </br>" << std::endl;
   *out << "  </div>" << std::endl;
@@ -523,32 +635,32 @@ void gemsupervisor::GemSupervisorWeb::Default(xgi::Input * in, xgi::Output * out
   *out << cgicc::form().set("method","GET").set("action", method) << "</br>" << std::endl;
   
   *out << "myParameter:" << cgicc::input().set("type","text"
-					       ).set("name","value"
-						     ).set("value", boost::str(boost::format("0x%X")%myParameter_)
+					       ).set("name","myParam"
+						     ).set("value", boost::str(boost::format("0x%08x")%myParameter_)
 							   ).set("size","10").set("maxlength","32") << "</br>" << std::endl;
   *out << std::endl;
 
   *out << "<br>testReg:" << cgicc::input().set("type","text"
 					       ).set("name","testReg"
-						     ).set("value", boost::str(boost::format("0x%X")%testReg_)
+						     ).set("value", boost::str(boost::format("0x%08x")%testReg_)
 							   ).set("size","10").set("maxlength","32") << "</br>" << std::endl;
   *out << "</br>" << std::endl;
 
   *out << "<br>SystemID:" << cgicc::input().set("type","text"
 						).set("name","systemID"
-						      ).set("value", boost::str(boost::format("0x%X")%systemID_)
+						      ).set("value", boost::str(boost::format("0x%08x")%systemID_)
 							    ).set("size","10").set("maxlength","32").set("readonly") << "</br>" << std::endl;
   *out << "</br>" << std::endl;
 
   *out << "<br>BoardID:" << cgicc::input().set("type","text"
 					       ).set("name","boardID"
-						     ).set("value", boost::str(boost::format("0x%X")%boardID_)
+						     ).set("value", boost::str(boost::format("0x%08x")%boardID_)
 							   ).set("size","10").set("maxlength","32").set("readonly") << "</br>" << std::endl;
   *out << "</br>" << std::endl;
 
   *out << "<br>SystemFW:" << cgicc::input().set("type","text"
 						).set("name","systemFirmwareID"
-						      ).set("value", boost::str(boost::format("0x%X")%systemFirmwareID_)
+						      ).set("value", boost::str(boost::format("0x%08x")%systemFirmwareID_)
 							    ).set("size","10").set("maxlength","32").set("readonly") << "</br>" << std::endl;
   *out << "</br>" << std::endl;
   
@@ -604,7 +716,7 @@ void gemsupervisor::GemSupervisorWeb::Read(xgi::Input * in, xgi::Output * out )
   try
     {
       cgicc::Cgicc cgi(in);
-      this->getTestReg();      
+      this->getTestReg();
       this->Default(in,out);
     }
   catch (const std::exception & e)
@@ -620,7 +732,12 @@ void gemsupervisor::GemSupervisorWeb::Write(xgi::Input * in, xgi::Output * out )
   try
     {
       cgicc::Cgicc cgi(in);
-      myParameter_ = cgi["value"]->getIntegerValue();
+      std::stringstream stream;
+      stream << cgi["myParam"]->getValue();
+      int writeVal;
+      stream >> std::hex >> writeVal;
+      myParameter_ = writeVal;
+      //myParameter_ = cgi["myParam"]->getIntegerValue();
       this->setTestReg(myParameter_);
       this->Default(in,out);
     }
@@ -628,6 +745,70 @@ void gemsupervisor::GemSupervisorWeb::Write(xgi::Input * in, xgi::Output * out )
     {
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
+}
+
+void gemsupervisor::GemSupervisorWeb::writeUserRegs(xgi::Input * in, xgi::Output * out )
+  throw (xgi::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing values to user registers");
+  
+  boost::format uregform("vfat.ureg0x%x");
+  boost::format writeform("ureg0x%x");
+  
+  try {
+    cgicc::Cgicc cgi(in);
+    /*
+    cgicc::const_form_iterator cgiter = cgi.getElements().begin();
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"looping over form values");
+    for (;cgiter != cgi.getElements().end(); ++cgiter) {
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"form name " << cgiter->getName());
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"form value " << cgiter->getValue());
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"form value " << cgiter->getIntegerValue());
+    }
+    */
+    for (unsigned int ureg = 0; ureg < 16; ++ureg) {
+      //int writeVal = atoi(cgi[boost::str(writeform%ureg)]->getValue().c_str());
+      std::stringstream stream;
+      stream << cgi[boost::str(writeform%ureg)]->getValue();
+      int writeVal;
+      stream >> std::hex >> writeVal;
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"filling register " << boost::str(writeform % ureg));
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"sees string as "   << cgi[boost::str(writeform % ureg)]->getValue());
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"sees integer as "  << cgi[boost::str(writeform % ureg)]->getIntegerValue());
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"with value "       << writeVal);
+      hw->getNode ( boost::str(uregform%ureg) ).write(writeVal);
+    }
+    hw->dispatch();
+  }
+  catch (const std::exception& e) {
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong writing the user register: " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  }
+    
+  try {
+    cgicc::Cgicc cgi(in);
+    for (unsigned int ureg = 0; ureg < 16; ++ureg)
+      r_users.at(ureg) = hw->getNode ( boost::str(uregform%ureg) ).read();
+    hw->dispatch();
+    for (unsigned int ureg = 0; ureg < 16; ++ureg) {
+      std::stringstream stream;
+      stream << cgi[boost::str(writeform%ureg)]->getValue();
+      int writeVal;
+      stream >> std::hex >> writeVal;
+      //uint32_t writeVal = cgi[boost::str(writeform%ureg)]->getIntegerValue();
+      if (writeVal != r_users.at(ureg).value()) {
+	boost::format logmessage("Read back value 0x%08x does not match set value 0x%08x on register %s");
+	LOG4CPLUS_INFO(this->getApplicationLogger(),boost::str(logmessage % r_users.at(ureg).value() % writeVal % boost::str(uregform%ureg)));
+      }
+      xreg_users_.at(ureg) = r_users.at(ureg).value();
+    }
+    this->Views(in,out);
+
+  }
+  catch (const std::exception& e) {
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong reading the user register: " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  }
 }
 
 void gemsupervisor::GemSupervisorWeb::getTestReg()
@@ -669,11 +850,11 @@ void gemsupervisor::GemSupervisorWeb::getTestReg()
     r_sram1 = hw->getNode ( "sram1" ).read();
     r_sram2 = hw->getNode ( "sram2" ).read();
     //r_icap  = hw->getNode ( "icap"  ).read();
-
-    //unsigned int uregoffset = 0x40010000;
-    //for (unsigned int ureg = 0; ureg < 16; ++ureg) {
-    //  r_users.push_back(hw->getNode ( "test" ).read());
-    //}
+    
+    boost::format uregform("vfat.ureg0x%x");
+    for (unsigned int ureg = 0; ureg < 16; ++ureg) {
+      r_users.push_back(hw->getNode ( boost::str(uregform%ureg) ).read());
+    }
     hw->dispatch();
   }
   catch (const std::exception& e) {
@@ -689,6 +870,38 @@ void gemsupervisor::GemSupervisorWeb::getTestReg()
   boardID_          = r_boardid.value();
   systemFirmwareID_ = r_fwid.value();
   testReg_          = r_test.value();
+
+  xreg_ctrl_        = r_ctrl.value();                 
+  xreg_ctrl2_       = r_ctrl2.value();                
+  xreg_status_      = r_status.value();               
+  xreg_status2_     = r_status2.value();              
+  xreg_ctrl_sram_   = r_ctrl_sram.value();            
+  xreg_status_sram_ = r_status_sram.value();          
+
+  xreg_spi_txdata_  = r_spi_txdata.value();           
+  xreg_spi_command_ = r_spi_command.value();          
+  xreg_spi_rxdata_  = r_spi_rxdata.value();           
+
+  xreg_i2c_settings_ = r_i2c_settings.value();         
+  xreg_i2c_command_  = r_i2c_command.value();          
+  xreg_i2c_reply_    = r_i2c_reply.value();            
+
+  xreg_sfp_phase_mon_ctrl_  = r_sfp_phase_mon_ctrl.value();   
+  xreg_sfp_phase_mon_stats_ = r_sfp_phase_mon_stats.value();  
+  xreg_fmc_phase_mon_ctrl_  = r_fmc_phase_mon_ctrl.value();   
+  xreg_fmc_phase_mon_stats_ = r_fmc_phase_mon_stats.value();  
+  				                           
+  xreg_mac_info1_ = r_mac_info1.value();            
+  xreg_mac_info2_ = r_mac_info2.value();            
+  xreg_ip_info_   = r_ip_info.value();              
+  				                           
+  xreg_sram1_ = r_sram1.value();
+  xreg_sram2_ = r_sram2.value();
+  //xreg_icap_  = r_icap.value();
+  
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"xreg_users_.size:" << xreg_users_.size());
+  for (unsigned int ureg = 0; ureg < 16; ++ureg)
+    xreg_users_.at(ureg) = r_users.at(ureg).value();
 }
 
 void gemsupervisor::GemSupervisorWeb::setTestReg(uint32_t myValue)
@@ -747,17 +960,17 @@ std::string gemsupervisor::GemSupervisorWeb::getIPAddress()
   uint32_t second = (ipInfo>>16)&0xff;
   uint32_t first  = (ipInfo>>24)&0xff;
 
-  LOG4CPLUS_DEBUG(this->getApplicationLogger(),"ip_info: 0x" << std::hex << ipInfo << std::dec );
-  LOG4CPLUS_DEBUG(this->getApplicationLogger(),"ip_addr: "   << boost::str(boost::format("%d.%d.%d.%d") % first % second % third % fourth) );
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"ip_info: 0x" << std::hex << ipInfo << std::dec );
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"ip_addr: "   << boost::str(boost::format("%d.%d.%d.%d") % first % second % third % fourth) );
   
   return boost::str(boost::format("%d.%d.%d.%d") % first % second % third % fourth);
 }
-
+ 
 std::string gemsupervisor::GemSupervisorWeb::formatSystemID(xdata::UnsignedInteger32 myValue)
 {
   return registerToChar(myValue);
 }
-
+ 
 std::string gemsupervisor::GemSupervisorWeb::formatBoardID(xdata::UnsignedInteger32 myValue)
 {
   return registerToChar(myValue);
@@ -800,4 +1013,3 @@ std::string gemsupervisor::GemSupervisorWeb::formatFW(xdata::UnsignedInteger32 m
   else
     return "unsupported type";
 }
-

@@ -1,7 +1,8 @@
-#ifndef _gemsupervisor_SimpleWeb_h
-#define _gemsupervisor_SimpleWeb_h
+#ifndef _gemsupervisor_GemSupervisorWeb_h
+#define _gemsupervisor_GemSupervisorWeb_h
 
 #include "xdaq/Application.h"
+//#include "gem/base/GEMApplication.h"
 #include "xdaq/WebApplication.h"
 
 #include "xdata/String.h"
@@ -18,7 +19,8 @@ typedef uhal::exception::exception uhalException;
 
 namespace gemsupervisor {
   
-  class GemSupervisorWeb: public xdaq::Application, public xgi::framework::UIManager
+  class GemSupervisorWeb: public xdaq::Application, public xgi::framework::UIManager, public xdata::ActionListener
+  //class GemSupervisorWeb: public gem::base::GEMApplication, public xdata::ActionListener
   {
     public:
       XDAQ_INSTANTIATOR();
@@ -32,6 +34,8 @@ namespace gemsupervisor {
 	throw (xgi::exception::Exception);
       void setParameter(xgi::Input * in, xgi::Output * out)
 	throw (xgi::exception::Exception);
+      void writeUserRegs(xgi::Input * in, xgi::Output * out)
+	throw (xgi::exception::Exception);
       void Read(xgi::Input * in, xgi::Output * out )
 	throw (xgi::exception::Exception);
       void Write(xgi::Input * in, xgi::Output * out )
@@ -39,6 +43,8 @@ namespace gemsupervisor {
 
       void getTestReg();
       void setTestReg(uint32_t);
+
+      void actionPerformed(xdata::Event& event);
       
     protected:
       xdata::UnsignedLong myParameter_;
@@ -50,32 +56,32 @@ namespace gemsupervisor {
       xdata::UnsignedInteger32 systemFirmwareID_;
       xdata::UnsignedInteger32 userFirmwareID_;
 
-      xdata::UnsignedInteger32 xreg_ctrl;
-      xdata::UnsignedInteger32 xreg_ctrl2;
-      xdata::UnsignedInteger32 xreg_status;
-      xdata::UnsignedInteger32 xreg_status2;
-      xdata::UnsignedInteger32 xreg_ctrl_sram;
-      xdata::UnsignedInteger32 xreg_status_sram;
-      xdata::UnsignedInteger32 xreg_spi_txdata;
-      xdata::UnsignedInteger32 xreg_spi_command;
-      xdata::UnsignedInteger32 xreg_spi_rxdata;
-      xdata::UnsignedInteger32 xreg_i2c_settings;
-      xdata::UnsignedInteger32 xreg_i2c_command;
-      xdata::UnsignedInteger32 xreg_i2c_reply;
-      xdata::UnsignedInteger32 xreg_sfp_phase_mon_ctrl;
-      xdata::UnsignedInteger32 xreg_sfp_phase_mon_stats;
-      xdata::UnsignedInteger32 xreg_fmc_phase_mon_ctrl;
-      xdata::UnsignedInteger32 xreg_fmc_phase_mon_stats;
+      xdata::UnsignedInteger32 xreg_ctrl_;
+      xdata::UnsignedInteger32 xreg_ctrl2_;
+      xdata::UnsignedInteger32 xreg_status_;
+      xdata::UnsignedInteger32 xreg_status2_;
+      xdata::UnsignedInteger32 xreg_ctrl_sram_;
+      xdata::UnsignedInteger32 xreg_status_sram_;
+      xdata::UnsignedInteger32 xreg_spi_txdata_;
+      xdata::UnsignedInteger32 xreg_spi_command_;
+      xdata::UnsignedInteger32 xreg_spi_rxdata_;
+      xdata::UnsignedInteger32 xreg_i2c_settings_;
+      xdata::UnsignedInteger32 xreg_i2c_command_;
+      xdata::UnsignedInteger32 xreg_i2c_reply_;
+      xdata::UnsignedInteger32 xreg_sfp_phase_mon_ctrl_;
+      xdata::UnsignedInteger32 xreg_sfp_phase_mon_stats_;
+      xdata::UnsignedInteger32 xreg_fmc_phase_mon_ctrl_;
+      xdata::UnsignedInteger32 xreg_fmc_phase_mon_stats_;
 
-      xdata::UnsignedInteger32 xreg_mac_info1;
-      xdata::UnsignedInteger32 xreg_mac_info2;
-      xdata::UnsignedInteger32 xreg_ip_info;
+      xdata::UnsignedInteger32 xreg_mac_info1_;
+      xdata::UnsignedInteger32 xreg_mac_info2_;
+      xdata::UnsignedInteger32 xreg_ip_info_;
 
-      xdata::UnsignedInteger32 xreg_sram1;
-      xdata::UnsignedInteger32 xreg_sram2;
-      xdata::UnsignedInteger32 xreg_icap;
+      xdata::UnsignedInteger32 xreg_sram1_;
+      xdata::UnsignedInteger32 xreg_sram2_;
+      xdata::UnsignedInteger32 xreg_icap_;
 
-      std::vector<xdata::UnsignedInteger32 > xreg_users;
+      std::vector<xdata::UnsignedInteger32 > xreg_users_;
 
     private:
       void initializeConnection();
@@ -114,7 +120,7 @@ namespace gemsupervisor {
 
       uhal::ValWord< uint32_t > r_sram1;
       uhal::ValWord< uint32_t > r_sram2;
-      uhal::ValWord< uint32_t > r_icap;
+      uhal::ValWord< uint32_t > r_icap;                 
 
       std::vector<uhal::ValWord< uint32_t > > r_users;
 
