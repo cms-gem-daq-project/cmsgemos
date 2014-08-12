@@ -16,11 +16,21 @@
   <xs:import schemaLocation="vfat_channel_registers.xsd" 
 	     namespace="gemhardware:vfat:vfat_channel_registers"/>
   
+  <xs:simpleType name="hexString">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="0x([0-9a-fA-F]){4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:element name="VFATSettings">
     <xs:complexType>
       <xs:all>
-	<xs:element type="xs:string" name="ChipID" id="ChipID"/>
-	
+	<xs:element type="vfat:hexString" name="ChipID" id="ChipID">
+	  <xs:unique name="uniqueChipID">
+	    <xs:selector xpath="ChipID"/>
+	    <xs:field xpath="ChipID"/>
+	  </xs:unique>
+	</xs:element>
 	<xs:element name="ControlRegisters" type="vfatregs:ControlRegisters"/>
 	
 	<xs:element name="BiasSettings" type="vfatbias:BiasSettings"/>

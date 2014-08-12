@@ -4,6 +4,7 @@
 		 xmlns:vf="gemhardware:vfat:vfat_settings_template"
 		 xmlns:vfchan="gemhardware:vfat:vfat_channel_register_types"
 		 >
+
   <ChipID>0x87fd</ChipID>
 
   <ControlRegisters>
