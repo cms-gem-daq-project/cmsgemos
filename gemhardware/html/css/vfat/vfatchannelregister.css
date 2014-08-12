@@ -1,0 +1,90 @@
+.vfatChannelSettings {
+    display:block;
+    padding: 5px;
+    margin : 5px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+
+.vfatChannelSettings div {
+    display:inline-table;
+    padding: 5px;
+    margin : 5px;
+    float:left;
+}
+
+.vfatChannelSettings legend {
+    padding: 5px;
+    margin : 5px;
+    font-size:18px;
+    font-style:normal;
+}
+
+.vfatChannelRegisters {
+    display:inline;
+    padding: 5px;
+    margin : 5px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+
+.vfatChannelRegisters legend {
+    padding: 5px;
+    margin : 5px;
+    font-size:20px;
+    font-style:normal;
+}
+
+.vfatChannelCheckbox {
+    display:inline;
+    padding:10px;
+    margin :10px;
+    float:right;
+}
+
+.vfatChannelInput {
+    width:50px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+
+.vfatChannelButton {
+    display:block;
+    width:125px;
+    margin-right:25px
+    margin-left:25px
+    float:center;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+
+.vfatTrimDACLabel {
+    display:block;
+}
+
+.vfatCheckboxLabel {
+    display:inline;
+    margin:5px;
+    float:left;
+}
+
