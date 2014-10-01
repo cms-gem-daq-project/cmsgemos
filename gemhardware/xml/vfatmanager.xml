@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+  <xc:Context url="http://localhost:1977">
+
+    <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3254" instance="1" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
+		  xsi:type="soapenc:Struct">
+	<device xsi:type="xsd:string">CMS_hybrid_J8</device>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/cfat_settings.xml</settingsFile>
+      </properties>
+    </xc:Application>
+
+    <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3255" instance="2" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
+		  xsi:type="soapenc:Struct">
+	<device xsi:type="xsd:string">CMS_hybrid_J26</device>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/cfat_settings.xml</settingsFile>
+      </properties>
+    </xc:Application>
+    
+    <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3256" instance="3" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
+		  xsi:type="soapenc:Struct">
+	<device xsi:type="xsd:string">CMS_hybrid_J44</device>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/cfat_settings.xml</settingsFile>
+      </properties>
+    </xc:Application>
+    
+    <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3257" instance="4" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
+		  xsi:type="soapenc:Struct">
+	<device xsi:type="xsd:string">TOTEM_hybrid_J58</device>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/cfat_settings.xml</settingsFile>
+      </properties>
+    </xc:Application>
+    
+    <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3258" instance="5" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
+		  xsi:type="soapenc:Struct">
+	<device xsi:type="xsd:string">TOTEM_hybrid_J57</device>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/cfat_settings.xml</settingsFile>
+      </properties>
+    </xc:Application>
+    
+    <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3259" instance="6" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
+		  xsi:type="soapenc:Struct">
+	<device xsi:type="xsd:string">TOTEM_hybrid_J55</device>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/cfat_settings.xml</settingsFile>
+      </properties>
+    </xc:Application>
+    <!--
+    -->
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/linux/x86_64_slc6/libgem_hw.so</xc:Module>
+  </xc:Context>
+</xc:Partition>
