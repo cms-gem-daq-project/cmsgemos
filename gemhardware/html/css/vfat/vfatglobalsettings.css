@@ -1,4 +1,5 @@
 .vfatGlobalSettings {
+    vertical-align:top;
     display:inline-block;
     padding: 5px;
     margin : 5px;
@@ -103,7 +104,7 @@
 
 .vfatButtonInput {
     display:inline-block;
-    width:150px;
+    /*width:150px;*/
     margin-right:25px
     margin-left:25px
     float:center;

@@ -1,5 +1,5 @@
-#ifndef _gem_hw_vfat_VFAT2EnumStrings_h
-#define _gem_hw_vfat_VFAT2EnumStrings_h
+#ifndef gem_hw_vfat_VFAT2Enums2Strings_h
+#define gem_hw_vfat_VFAT2Enums2Strings_h
 
 #include "gem/hw/vfat/VFAT2SettingsEnums.h"
 #include <boost/assign/list_of.hpp>
@@ -10,24 +10,24 @@ namespace gem {
   namespace hw {
     namespace vfat {
       //VFAT2ChannelSettings
-      typedef boost::unordered_map<VFAT2ChannelSettings::ChannelBitMasks::EChannelBitMasks, const char*> enumChBitMaskToString;
-      typedef boost::unordered_map<VFAT2Settings::ContRegBitMasks::EContRegBitMasks       , const char*> enumContRegBitMaskToString;
-      typedef boost::unordered_map<VFAT2Settings::ContRegBitShifts::EContRegBitShifts     , const char*> enumContRegBitShiftToString;
-      typedef boost::unordered_map<VFAT2Settings::RunMode::ERunMode                       , const char*> enumRunModeToString;
-      typedef boost::unordered_map<VFAT2Settings::TriggerMode::ETriggerMode               , const char*> enumTrigModeToString;
-      typedef boost::unordered_map<VFAT2Settings::CalibrationMode::ECalibrationMode       , const char*> enumCalibModeToString;
-      typedef boost::unordered_map<VFAT2Settings::MSPolarity::EMSPolarity                 , const char*> enumMSPolToString;
-      typedef boost::unordered_map<VFAT2Settings::CalPolarity::ECalPolarity               , const char*> enumCalPolToString;
-      typedef boost::unordered_map<VFAT2Settings::ProbeMode::EProbeMode                   , const char*> enumProbeModeToString;
-      typedef boost::unordered_map<VFAT2Settings::LVDSPowerSave::ELVDSPowerSave           , const char*> enumLVDSPSToString;
-      typedef boost::unordered_map<VFAT2Settings::DACMode::EDACMode                       , const char*> enumDACModeToString;
-      typedef boost::unordered_map<VFAT2Settings::HitCountMode::EHitCountMode             , const char*> enumHitCountModeToString;
-      typedef boost::unordered_map<VFAT2Settings::MSPulseLength::EMSPulseLength           , const char*> enumMSPulseLenToString;
-      typedef boost::unordered_map<VFAT2Settings::ReHitCT::EReHitCT                       , const char*> enumReHitCTToString;
-      typedef boost::unordered_map<VFAT2Settings::DigInSel::EDigInSel                     , const char*> enumDigInSelToString;
-      typedef boost::unordered_map<VFAT2Settings::TrimDACRange::ETrimDACRange             , const char*> enumTrimDACRangeToString;
-      typedef boost::unordered_map<VFAT2Settings::PbBG::EPbBG                             , const char*> enumPbBGToString;
-      typedef boost::unordered_map<VFAT2Settings::DFTestPattern::EDFTestPattern           , const char*> enumDFTestToString;
+      typedef boost::unordered_map<VFAT2ChannelSettings::ChannelBitMasks::EChannelBitMasks, std::string> enumChBitMaskToString;
+      typedef boost::unordered_map<VFAT2Settings::ContRegBitMasks::EContRegBitMasks       , std::string> enumContRegBitMaskToString;
+      typedef boost::unordered_map<VFAT2Settings::ContRegBitShifts::EContRegBitShifts     , std::string> enumContRegBitShiftToString;
+      typedef boost::unordered_map<VFAT2Settings::RunMode::ERunMode                       , std::string> enumRunModeToString;
+      typedef boost::unordered_map<VFAT2Settings::TriggerMode::ETriggerMode               , std::string> enumTrigModeToString;
+      typedef boost::unordered_map<VFAT2Settings::CalibrationMode::ECalibrationMode       , std::string> enumCalibModeToString;
+      typedef boost::unordered_map<VFAT2Settings::MSPolarity::EMSPolarity                 , std::string> enumMSPolToString;
+      typedef boost::unordered_map<VFAT2Settings::CalPolarity::ECalPolarity               , std::string> enumCalPolToString;
+      typedef boost::unordered_map<VFAT2Settings::ProbeMode::EProbeMode                   , std::string> enumProbeModeToString;
+      typedef boost::unordered_map<VFAT2Settings::LVDSPowerSave::ELVDSPowerSave           , std::string> enumLVDSPSToString;
+      typedef boost::unordered_map<VFAT2Settings::DACMode::EDACMode                       , std::string> enumDACModeToString;
+      typedef boost::unordered_map<VFAT2Settings::HitCountMode::EHitCountMode             , std::string> enumHitCountModeToString;
+      typedef boost::unordered_map<VFAT2Settings::MSPulseLength::EMSPulseLength           , std::string> enumMSPulseLenToString;
+      typedef boost::unordered_map<VFAT2Settings::ReHitCT::EReHitCT                       , std::string> enumReHitCTToString;
+      typedef boost::unordered_map<VFAT2Settings::DigInSel::EDigInSel                     , std::string> enumDigInSelToString;
+      typedef boost::unordered_map<VFAT2Settings::TrimDACRange::ETrimDACRange             , std::string> enumTrimDACRangeToString;
+      typedef boost::unordered_map<VFAT2Settings::PbBG::EPbBG                             , std::string> enumPbBGToString;
+      typedef boost::unordered_map<VFAT2Settings::DFTestPattern::EDFTestPattern           , std::string> enumDFTestToString;
 
       const enumChBitMaskToString ChBitMaskToString = boost::assign::map_list_of
 	(VFAT2ChannelSettings::ChannelBitMasks::TRIMDAC , "TRIMDAC" )
@@ -43,12 +43,12 @@ namespace gem {
 	(VFAT2Settings::ContRegBitMasks::CALPOL        , "CALPOL"        )
 	(VFAT2Settings::ContRegBitMasks::CALMODE       , "CALMODE"       )
 					              	               
-	(VFAT2Settings::ContRegBitMasks::DACSEL        , "DACSEL"        )
+	(VFAT2Settings::ContRegBitMasks::DACMODE       , "DACMODE"       )
 	(VFAT2Settings::ContRegBitMasks::PROBEMODE     , "PROBEMODE"     )
 	(VFAT2Settings::ContRegBitMasks::LVDSMODE      , "LVDSMODE"      )
 	(VFAT2Settings::ContRegBitMasks::REHITCT       , "REHITCT"       )
 					              	               
-	(VFAT2Settings::ContRegBitMasks::HITCOUNTSEL   , "HITCOUNTSEL"   )
+	(VFAT2Settings::ContRegBitMasks::HITCOUNTMODE  , "HITCOUNTMODE"  )
 	(VFAT2Settings::ContRegBitMasks::MSPULSELENGTH , "MSPULSELENGTH" )
 	(VFAT2Settings::ContRegBitMasks::DIGINSEL      , "DIGINSEL"      )
 
@@ -64,12 +64,12 @@ namespace gem {
 	(VFAT2Settings::ContRegBitShifts::CALPOL        , "CALPOL"        )
 	(VFAT2Settings::ContRegBitShifts::CALMODE       , "CALMODE"       )
 					              	               
-	(VFAT2Settings::ContRegBitShifts::DACSEL        , "DACSEL"        )
+	(VFAT2Settings::ContRegBitShifts::DACMODE       , "DACMODE"       )
 	(VFAT2Settings::ContRegBitShifts::PROBEMODE     , "PROBEMODE"     )
 	(VFAT2Settings::ContRegBitShifts::LVDSMODE      , "LVDSMODE"      )
 	(VFAT2Settings::ContRegBitShifts::REHITCT       , "REHITCT"       )
 					              	               
-	(VFAT2Settings::ContRegBitShifts::HITCOUNTSEL   , "HITCOUNTSEL"   )
+	(VFAT2Settings::ContRegBitShifts::HITCOUNTMODE  , "HITCOUNTMODE"  )
 	(VFAT2Settings::ContRegBitShifts::MSPULSELENGTH , "MSPULSELENGTH" )
 	(VFAT2Settings::ContRegBitShifts::DIGINSEL      , "DIGINSEL"      )
 
@@ -88,7 +88,11 @@ namespace gem {
 	(VFAT2Settings::TriggerMode::ONEMODE   , "ONEMODE"   )
 	(VFAT2Settings::TriggerMode::FOURMODE  , "FOURMODE"  )
 	(VFAT2Settings::TriggerMode::EIGHTMODE , "EIGHTMODE" )
-	(VFAT2Settings::TriggerMode::GEMMODE   , "GEMMODE"   );
+	(VFAT2Settings::TriggerMode::GEMMODE   , "GEMMODE"   )
+	//need logic to handle these, to remap to GEMMODE
+        (VFAT2Settings::TriggerMode::SPARE0    , "GEMMODE"    )
+	(VFAT2Settings::TriggerMode::SPARE1    , "GEMMODE"    )
+	(VFAT2Settings::TriggerMode::SPARE2    , "GEMMODE"    );
       
       const enumCalibModeToString CalibrationModeToString = boost::assign::map_list_of
 	(VFAT2Settings::CalibrationMode::NORMAL   , "NORMAL"   )
@@ -113,17 +117,23 @@ namespace gem {
 	(VFAT2Settings::LVDSPowerSave::POWERSAVE , "POWERSAVE" );
 
       const enumDACModeToString DACModeToString = boost::assign::map_list_of
-	(VFAT2Settings::DACMode::NORMAL    , "NORMAL"    )
-	(VFAT2Settings::DACMode::IPREIN    , "IPREIN"    )
-	(VFAT2Settings::DACMode::IPREFEED  , "IPREFEED"  )
-	(VFAT2Settings::DACMode::IPREOUT   , "IPREOUT"   )
-	(VFAT2Settings::DACMode::ISHAPER   , "ISHAPER"   )
-	(VFAT2Settings::DACMode::ISHAPFEED , "ISHAPFEED" )
-	(VFAT2Settings::DACMode::ICOMP     , "ICOMP"     )
-	(VFAT2Settings::DACMode::ITHRESH1  , "ITHRESH1"  )
-	(VFAT2Settings::DACMode::ITHRESH2  , "ITHRESH2"  )
-	(VFAT2Settings::DACMode::VCAL      , "VCAL  "    )
-	(VFAT2Settings::DACMode::CALOUT    , "CALOUT"    );
+	(VFAT2Settings::DACMode::NORMAL      , "NORMAL"      )
+	(VFAT2Settings::DACMode::IPREAMPIN   , "IPREAMPIN"   )
+	(VFAT2Settings::DACMode::IPREAMPFEED , "IPREAMPFEED" )
+	(VFAT2Settings::DACMode::IPREAMPOUT  , "IPREAMPOUT"  )
+	(VFAT2Settings::DACMode::ISHAPER     , "ISHAPER"     )
+	(VFAT2Settings::DACMode::ISHAPERFEED , "ISHAPERFEED" )
+	(VFAT2Settings::DACMode::ICOMP       , "ICOMP"       )
+	(VFAT2Settings::DACMode::ITHRESHOLD1 , "ITHRESHOLD1" )
+	(VFAT2Settings::DACMode::ITHRESHOLD2 , "ITHRESHOLD2" )
+	(VFAT2Settings::DACMode::VCAL        , "VCAL"        )
+	(VFAT2Settings::DACMode::CALOUT      , "CALOUT"      )
+	//need logic to prevent these from being set until they are actually used
+	(VFAT2Settings::DACMode::SPARE0    , "SPARE0"    )
+	(VFAT2Settings::DACMode::SPARE2    , "SPARE1"    )
+	(VFAT2Settings::DACMode::SPARE2    , "SPARE2"    )
+	(VFAT2Settings::DACMode::SPARE3    , "SPARE3"    )
+	(VFAT2Settings::DACMode::SPARE4    , "SPARE4"    );
 
       const enumHitCountModeToString HitCountModeToString = boost::assign::map_list_of
 	(VFAT2Settings::HitCountMode::FASTOR128 , "FASTOR128" )
@@ -134,7 +144,15 @@ namespace gem {
 	(VFAT2Settings::HitCountMode::COUNTS5   , "COUNTS5"   )
 	(VFAT2Settings::HitCountMode::COUNTS6   , "COUNTS6"   )
 	(VFAT2Settings::HitCountMode::COUNTS7   , "COUNTS7"   )
-	(VFAT2Settings::HitCountMode::COUNTS8   , "COUNTS8"   );
+	(VFAT2Settings::HitCountMode::COUNTS8   , "COUNTS8"   )
+	//need logic to handle these, as they should be mapped to COUNTS8
+	(VFAT2Settings::HitCountMode::REDUNDANT0   , "COUNTS8"   )
+	(VFAT2Settings::HitCountMode::REDUNDANT1   , "COUNTS8"   )
+	(VFAT2Settings::HitCountMode::REDUNDANT2   , "COUNTS8"   )
+	(VFAT2Settings::HitCountMode::REDUNDANT3   , "COUNTS8"   )
+	(VFAT2Settings::HitCountMode::REDUNDANT4   , "COUNTS8"   )
+	(VFAT2Settings::HitCountMode::REDUNDANT5   , "COUNTS8"   )
+	(VFAT2Settings::HitCountMode::REDUNDANT6   , "COUNTS8"   );
 	
       const enumMSPulseLenToString MSPulseLengthToString = boost::assign::map_list_of
 	(VFAT2Settings::MSPulseLength::CLOCK1 , "CLOCK1" )

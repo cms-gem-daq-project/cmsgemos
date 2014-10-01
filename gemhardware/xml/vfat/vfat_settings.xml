@@ -58,25 +58,25 @@
       <Ch0Cal>1</Ch0Cal>
       <Ch1Cal>1</Ch1Cal>
       <Mask>0</Mask>
-      <TrimDAC>128</TrimDAC>
+      <TrimDAC>12</TrimDAC>
     </Channel1Settings>
     
     <ChannelSetting ChannelID="2">
       <ChCal>1</ChCal>
       <Mask>0</Mask>
-      <TrimDAC>128</TrimDAC>
+      <TrimDAC>12</TrimDAC>
     </ChannelSetting>
     
     <ChannelSetting ChannelID="6">
       <ChCal>1</ChCal>
       <Mask>0</Mask>
-      <TrimDAC>128</TrimDAC>
+      <TrimDAC>12</TrimDAC>
     </ChannelSetting>
     
     <ChannelSetting ChannelID="5">
       <ChCal>1</ChCal>
       <Mask>0</Mask>
-      <TrimDAC>128</TrimDAC>
+      <TrimDAC>12</TrimDAC>
     </ChannelSetting>
   </ChannelSettings>
 

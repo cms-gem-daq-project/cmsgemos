@@ -1,25 +1,28 @@
-#include "gemsupervisor/GemSupervisorWeb.h"
+#include "gem/supervisor/GemSupervisorWeb.h"
 #include <sstream>
 #include <cstdlib>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-XDAQ_INSTANTIATOR_IMPL(gemsupervisor::GemSupervisorWeb)
+XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GemSupervisorWeb)
 
-gemsupervisor::GemSupervisorWeb::GemSupervisorWeb(xdaq::ApplicationStub * s)
+gem::supervisor::GemSupervisorWeb::GemSupervisorWeb(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception):
   //gem::base::GEMApplication(s)
-  xdaq::Application(s), xgi::framework::UIManager(this)
+  xdaq::WebApplication(s)
+//, xgi::framework::UIManager(this)
 {
   xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Default,       "Default"       );
   xgi::framework::deferredbind(this, this, &GemSupervisorWeb::setParameter,  "setParameter"  );
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::writeUserRegs, "writeUserRegs" );
+  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::writeVFATRegs, "writeVFATRegs" );
+  //xgi::framework::deferredbind(this, this, &GemSupervisorWeb::writeUserRegs, "writeUserRegs" );
   xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Views,         "Views"         );
   xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Read,          "Read"          );
   xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Write,         "Write"         );
 
-  myAction_         = "";
-  myParameter_      = 0;
+  myAction_    = "";
+  myParameter_ = 0;
+  vfatSleep_   = 1.0;
 
   //read-only registers may not need this treatment
   testReg_          = 0;
@@ -56,9 +59,10 @@ gemsupervisor::GemSupervisorWeb::GemSupervisorWeb(xdaq::ApplicationStub * s)
   xreg_sram2_ = 0;
   xreg_icap_  = 0;
   
-  xreg_users_.reserve(100);  xreg_users_.clear();
+  //xreg_users_.reserve(100);  xreg_users_.clear();
 
   getApplicationInfoSpace()->fireItemAvailable("myParameter",      &myParameter_      );
+  getApplicationInfoSpace()->fireItemAvailable("vfatSleep",        &vfatSleep_        );
   getApplicationInfoSpace()->fireItemAvailable("testReg",          &testReg_          );
   getApplicationInfoSpace()->fireItemAvailable("boardID",          &boardID_          );
   getApplicationInfoSpace()->fireItemAvailable("systemID",         &systemID_         );
@@ -93,27 +97,29 @@ gemsupervisor::GemSupervisorWeb::GemSupervisorWeb(xdaq::ApplicationStub * s)
   getApplicationInfoSpace()->fireItemAvailable("xreg_sram2_", &xreg_sram2_);
   getApplicationInfoSpace()->fireItemAvailable("xreg_icap_" , &xreg_icap_);
   
-  std::vector<xdata::UnsignedInteger32>::const_iterator uiter = xreg_users_.begin();
-  unsigned int ureg = 0;
-  //for (; uiter != xreg_users_.end(); ++uiter,++ureg)  {
-  for (; ureg < 100; ++ureg)  {
-    xreg_users_.push_back(0);
-    getApplicationInfoSpace()->fireItemAvailable(boost::str(boost::format("xreg_user_%x")%ureg),
-						 &(xreg_users_.at(ureg)));
-  }
-  
+  //std::vector<xdata::UnsignedInteger32>::const_iterator uiter = xreg_users_.begin();
+  //unsigned int ureg = 0;
+  ////for (; uiter != xreg_users_.end(); ++uiter,++ureg)  {
+  //for (; ureg < 100; ++ureg)  {
+  //  xreg_users_.push_back(0);
+  //  getApplicationInfoSpace()->fireItemAvailable(boost::str(boost::format("xreg_user_%x")%ureg),
+  //						 &(xreg_users_.at(ureg)));
+  //}
+
   // Detect when the setting of default parameters has been performed
   this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
   
-  gemsupervisor::GemSupervisorWeb::initializeConnection();
+  gem::supervisor::GemSupervisorWeb::initializeConnection();
 }
 
-void gemsupervisor::GemSupervisorWeb::actionPerformed (xdata::Event& event)
+void gem::supervisor::GemSupervisorWeb::actionPerformed (xdata::Event& event)
 {
   if ( event.type() == "urn:xdaq-event:setDefaultValues" )
     {
       std::stringstream ss;
       ss << "myParameter=[" << myParameter_ << "]" << std::endl;
+      ss.str(std::string());
+      ss << "vfatSleep=[" << vfatSleep_ << "]" << std::endl;
       
       /*
       for ( std::vector<xdata::UnsignedInteger>::size_t i = 0;  i != myVector_.size() ; i++ )
@@ -125,7 +131,7 @@ void gemsupervisor::GemSupervisorWeb::actionPerformed (xdata::Event& event)
     }
 }
 
-void gemsupervisor::GemSupervisorWeb::initializeConnection() 
+void gem::supervisor::GemSupervisorWeb::initializeConnection() 
 {
   char * val;
   val = std::getenv( "GLIBTEST" );
@@ -145,7 +151,7 @@ void gemsupervisor::GemSupervisorWeb::initializeConnection()
   try {
     sprintf(connectionPath,"file://%s/data/myconnections.xml;",dirVal.c_str());
     manager = new uhal::ConnectionManager( connectionPath );
-    hw = new uhal::HwInterface(manager->getDevice("gemsupervisor.udp.0"));
+    hw = new uhal::HwInterface(manager->getDevice("gemsupervisor.controlhub.0"));
   }
   catch (uhalException& e) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong initializing the connection: " << e.what());
@@ -156,13 +162,33 @@ void gemsupervisor::GemSupervisorWeb::initializeConnection()
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong initializing the connection: " << e.what());
     std::cout << "Something went wrong initializing the connection: " << e.what() << std::endl;
   }
+  
+  vfatNodes = hw->getNodes("user_regs.vfats.CMS_hybrid_J8.*");
+  vfatNodes.erase( std::remove(vfatNodes.begin(),
+			       vfatNodes.end(),
+			       "user_regs.vfats.CMS_hybrid_J8"),
+		   vfatNodes.end() );
 
+  //vfatNodes.erase("user_regs.vfats.CMS_hybrid_J8");
+  std::vector<std::string>::const_iterator node  = vfatNodes.begin();
+  std::cout << "getNodes(): ";
+  std::copy(vfatNodes.begin(),vfatNodes.end(),std::ostream_iterator<std::string>(std::cout,", "));
+  for (; node != vfatNodes.end(); ++node) {
+    xreg_vfats_[*node] = 0;
+    getApplicationInfoSpace()->fireItemAvailable(boost::str(boost::format("xreg_vfat_%x")%(*node)),
+						 &(xreg_vfats_[*node]));
+    
+    //uint32_t r_value = (vfatDevice->hw->read(*node));
+    //r_vfats[*node]  = r_value;
+    //vfatRegs[*node] = r_value&0x000000ff;
+  }
+  
   this->getTestReg();
   
 }
 
 
-void gemsupervisor::GemSupervisorWeb::Views(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GemSupervisorWeb::Views(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
   *out << "<div class=\"xdaq-tab-wrapper\">"             << std::endl;
@@ -320,38 +346,52 @@ void gemsupervisor::GemSupervisorWeb::Views(xgi::Input * in, xgi::Output * out )
   *out << "    </br>" << std::endl;
   *out << "  </div>" << std::endl;
 
-  *out << "  <div class=\"xdaq-tab\" title=\"GLIB User Registers\" >"     << std::endl;
-
-  std::string method = toolbox::toString("/%s/writeUserRegs",getApplicationDescriptor()->getURN().c_str());
+  *out << "  <div class=\"xdaq-tab\" title=\"VFAT Registers\" >"     << std::endl;
+  
+  std::string method = toolbox::toString("/%s/writeVFATRegs",getApplicationDescriptor()->getURN().c_str());
   *out << cgicc::fieldset().set("style","font-size: 10pt; font-family: arial;") << std::endl;
-  *out << cgicc::legend("Read/Write VFAT user registers") << cgicc::p() << std::endl;
+  *out << cgicc::legend("Read/Write VFAT registers") << cgicc::p() << std::endl;
   *out << cgicc::form().set("method","GET").set("action", method) << "</br>" << std::endl;
-
-  *out << "    <table class=\"xdaq-table\" caption=\"GLIB User Registers\" >"     << std::endl;
+  
+  *out << "    <table class=\"xdaq-table\" caption=\"VFAT Registers\" >"     << std::endl;
   *out << "      <thead>" << std::endl;
   *out << "        <tr>" << std::endl;
   *out << "          <th class=\"xdaq-sortable\">Register name</th>" << std::endl;
-  *out << "          <th class=\"xdaq-sortable\">Read value</th>" << std::endl;
+  *out << "          <th class=\"xdaq-sortable\">IPBus Read value</th>" << std::endl;
+  *out << "          <th class=\"xdaq-sortable\">VFAT Read value</th>" << std::endl;
   *out << "          <th class=\"xdaq-sortable\">Value to write</th>" << std::endl;
   //*out << "          <th class=\"xdaq-sortable\">Execute</th>" << std::endl;
   *out << "        </tr>" << std::endl;
   *out << "      </thead>" << std::endl;
   *out << "      </br>" << std::endl;
-
+  
   *out << "      <tbody>" << std::endl;
-  unsigned int uregoffset = 0x40010000;
-  boost::format uregform("ureg0x%x");
-  for (unsigned int ureg = 0; ureg < 16; ++ureg) {
-    *out << "      <tr>" << std::endl;
-    *out << "        <td>User register 0x" << std::hex << uregoffset+(ureg<<0x8) << std::dec << "</td>" << std::endl;
-    *out << "        <td>0x" << std::setfill('0') << std::setw(8) << std::hex << r_users.at(ureg).value() << std::dec << "</td>" << std::endl;
-    *out << "        <td>" << cgicc::input().set("type","text"
-						 ).set("name",boost::str(uregform%ureg)
-						       ).set("value", boost::str(boost::format("0x%08x")%xreg_users_.at(ureg))
-							     ).set("size","10").set("maxlength","32")
-	 << "        </td>" << std::endl;
+  
+  std::vector<std::string>::const_iterator node  = vfatNodes.begin();
+  for (; node != vfatNodes.end(); ++node) {
+    *out << "      <tr>"     << std::endl;
+    *out << "        <td>"   << *node << "</td>"  << std::endl;
+    *out << "        <td>0x" << std::setfill('0') << std::setw(8)
+      //<< std::hex << r_vfats[*node].value() 
+	 << std::hex << xreg_vfats_[*node]
+	 << std::dec << "</td>"                   << std::endl;
+    *out << "        <td>0x" << std::setfill('0') << std::setw(2)
+	 << std::hex << (xreg_vfats_[*node] &0x000000ff)
+	 << std::dec << "</td>"                   << std::endl;
+    if ( !(hw->getNode(*node).getPermission() == uhal::defs::READ) )
+      *out << "        <td>" << cgicc::input().set("type","text"
+						   ).set("name",(*node)
+							 ).set("value", boost::str(boost::format("0x%02x")%(xreg_vfats_[*node]&0x000000ff))
+							       ).set("size","10").set("maxlength","32");
+    else
+      *out << "        <td>" << cgicc::input().set("type","text"
+						   ).set("name",(*node)
+							 ).set("value", boost::str(boost::format("0x%02x")%(xreg_vfats_[*node]&0x000000ff))
+							       ).set("size","10").set("maxlength","32").set("readonly");
+    *out << "        </td>" << std::endl;
     *out << "      </tr>" << std::endl;
   }
+
   *out << "      </br>" << std::endl;
   *out << "      </tbody>" << std::endl;
   *out << cgicc::input().set("type","submit").set("value","Write") << std::endl;
@@ -359,6 +399,47 @@ void gemsupervisor::GemSupervisorWeb::Views(xgi::Input * in, xgi::Output * out )
   *out << "    </table>" << std::endl;
   *out << "    </br>" << std::endl;
   *out << "  </div>" << std::endl;
+  /****************************/
+
+  //*out << "  <div class=\"xdaq-tab\" title=\"GLIB User Registers\" >"     << std::endl;
+  //
+  //std::string method = toolbox::toString("/%s/writeUserRegs",getApplicationDescriptor()->getURN().c_str());
+  //*out << cgicc::fieldset().set("style","font-size: 10pt; font-family: arial;") << std::endl;
+  //*out << cgicc::legend("Read/Write VFAT user registers") << cgicc::p() << std::endl;
+  //*out << cgicc::form().set("method","GET").set("action", method) << "</br>" << std::endl;
+  //
+  //*out << "    <table class=\"xdaq-table\" caption=\"GLIB User Registers\" >"     << std::endl;
+  //*out << "      <thead>" << std::endl;
+  //*out << "        <tr>" << std::endl;
+  //*out << "          <th class=\"xdaq-sortable\">Register name</th>" << std::endl;
+  //*out << "          <th class=\"xdaq-sortable\">Read value</th>" << std::endl;
+  //*out << "          <th class=\"xdaq-sortable\">Value to write</th>" << std::endl;
+  ////*out << "          <th class=\"xdaq-sortable\">Execute</th>" << std::endl;
+  //*out << "        </tr>" << std::endl;
+  //*out << "      </thead>" << std::endl;
+  //*out << "      </br>" << std::endl;
+  //
+  //*out << "      <tbody>" << std::endl;
+  //unsigned int uregoffset = 0x40010000;
+  //boost::format uregform("ureg0x%x");
+  //for (unsigned int ureg = 0; ureg < 16; ++ureg) {
+  //  *out << "      <tr>" << std::endl;
+  //  *out << "        <td>User register 0x" << std::hex << uregoffset+(ureg<<0x8) << std::dec << "</td>" << std::endl;
+  //  *out << "        <td>0x" << std::setfill('0') << std::setw(8) << std::hex << r_users.at(ureg).value() << std::dec << "</td>" << std::endl;
+  //  *out << "        <td>" << cgicc::input().set("type","text"
+  //						 ).set("name",boost::str(uregform%ureg)
+  //						       ).set("value", boost::str(boost::format("0x%08x")%xreg_users_.at(ureg))
+  //							     ).set("size","10").set("maxlength","32")
+  //	 << "        </td>" << std::endl;
+  //  *out << "      </tr>" << std::endl;
+  //}
+  //*out << "      </br>" << std::endl;
+  //*out << "      </tbody>" << std::endl;
+  //*out << cgicc::input().set("type","submit").set("value","Write") << std::endl;
+  //*out << cgicc::input().set("type","reset").set("value","Clear") << std::endl;
+  //*out << "    </table>" << std::endl;
+  //*out << "    </br>" << std::endl;
+  //*out << "  </div>" << std::endl;
 
   *out << "  <div class=\"xdaq-tab\" title=\"Expert\" >"   << std::endl;
   *out << "  Content of the expert view" << std::endl;
@@ -616,7 +697,7 @@ void gemsupervisor::GemSupervisorWeb::Views(xgi::Input * in, xgi::Output * out )
   *out << "</div>" << std::endl;
 }
 
-void gemsupervisor::GemSupervisorWeb::Default(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GemSupervisorWeb::Default(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
   //uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
@@ -631,34 +712,40 @@ void gemsupervisor::GemSupervisorWeb::Default(xgi::Input * in, xgi::Output * out
   // set parameter callback
   std::string method = toolbox::toString("/%s/setParameter",getApplicationDescriptor()->getURN().c_str());
   *out << cgicc::fieldset().set("style","font-size: 10pt; font-family: arial;") << std::endl;
-  *out << cgicc::legend("Set the value of myParameter") << cgicc::p() << std::endl;
+  *out << cgicc::legend("Set the parameters") << cgicc::p() << std::endl;
   *out << cgicc::form().set("method","GET").set("action", method) << "</br>" << std::endl;
   
-  *out << "myParameter:" << cgicc::input().set("type","text"
+  *out << "myParameter:" << cgicc::input().set("type","number"
 					       ).set("name","myParam"
 						     ).set("value", boost::str(boost::format("0x%08x")%myParameter_)
 							   ).set("size","10").set("maxlength","32") << "</br>" << std::endl;
   *out << std::endl;
 
-  *out << "<br>testReg:" << cgicc::input().set("type","text"
+  *out << "vfatSleep:" << cgicc::input().set("type","number"
+					     ).set("name","vfatSleep"
+						   ).set("value", boost::str(boost::format("%f")%vfatSleep_)
+							 ).set("size","10").set("maxlength","32") << "</br>" << std::endl;
+  *out << std::endl;
+
+  *out << "<br>testReg:" << cgicc::input().set("type","number"
 					       ).set("name","testReg"
 						     ).set("value", boost::str(boost::format("0x%08x")%testReg_)
 							   ).set("size","10").set("maxlength","32") << "</br>" << std::endl;
   *out << "</br>" << std::endl;
 
-  *out << "<br>SystemID:" << cgicc::input().set("type","text"
+  *out << "<br>SystemID:" << cgicc::input().set("type","number"
 						).set("name","systemID"
 						      ).set("value", boost::str(boost::format("0x%08x")%systemID_)
 							    ).set("size","10").set("maxlength","32").set("readonly") << "</br>" << std::endl;
   *out << "</br>" << std::endl;
 
-  *out << "<br>BoardID:" << cgicc::input().set("type","text"
+  *out << "<br>BoardID:" << cgicc::input().set("type","number"
 					       ).set("name","boardID"
 						     ).set("value", boost::str(boost::format("0x%08x")%boardID_)
 							   ).set("size","10").set("maxlength","32").set("readonly") << "</br>" << std::endl;
   *out << "</br>" << std::endl;
 
-  *out << "<br>SystemFW:" << cgicc::input().set("type","text"
+  *out << "<br>SystemFW:" << cgicc::input().set("type","number"
 						).set("name","systemFirmwareID"
 						      ).set("value", boost::str(boost::format("0x%08x")%systemFirmwareID_)
 							    ).set("size","10").set("maxlength","32").set("readonly") << "</br>" << std::endl;
@@ -672,6 +759,7 @@ void gemsupervisor::GemSupervisorWeb::Default(xgi::Input * in, xgi::Output * out
   
   // print out basic information
   *out << "Current value of myParameter_ = "   << myParameter_                  << "</br>" << std::endl;
+  *out << "Current value of vfatSleep_ =   "   << vfatSleep_                    << "</br>" << std::endl;
   *out << "System ID:               "          << formatSystemID(systemID_)     << "</br>" << std::endl;
   *out << "Board ID:                "          << formatBoardID(boardID_)       << "</br>" << std::endl;
   *out << "System firmware version: "          << formatFW(systemFirmwareID_,0) << "</br>" << std::endl;
@@ -682,7 +770,7 @@ void gemsupervisor::GemSupervisorWeb::Default(xgi::Input * in, xgi::Output * out
        << registerToChar(testReg_) << ")"  << "</br>" << std::endl;
 }
 
-void gemsupervisor::GemSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out)
+void gem::supervisor::GemSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   try
@@ -709,7 +797,7 @@ void gemsupervisor::GemSupervisorWeb::setParameter(xgi::Input * in, xgi::Output 
     }
 }
 
-void gemsupervisor::GemSupervisorWeb::Read(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GemSupervisorWeb::Read(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Reading parameters");
@@ -725,17 +813,23 @@ void gemsupervisor::GemSupervisorWeb::Read(xgi::Input * in, xgi::Output * out )
     }
 }
 
-void gemsupervisor::GemSupervisorWeb::Write(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GemSupervisorWeb::Write(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing value to myParameter_");
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing parameter values");
   try
     {
       cgicc::Cgicc cgi(in);
       std::stringstream stream;
+      stream << cgi["vfatSleep"]->getValue();
+      float sleepVal;
+      stream >> sleepVal;
+      vfatSleep_ = sleepVal;
+      
+      stream.str(std::string());
       stream << cgi["myParam"]->getValue();
-      int writeVal;
-      stream >> std::hex >> writeVal;
+      uint writeVal;
+      stream >> std::hex >> writeVal >> std::dec;
       myParameter_ = writeVal;
       //myParameter_ = cgi["myParam"]->getIntegerValue();
       this->setTestReg(myParameter_);
@@ -747,121 +841,236 @@ void gemsupervisor::GemSupervisorWeb::Write(xgi::Input * in, xgi::Output * out )
     }
 }
 
-void gemsupervisor::GemSupervisorWeb::writeUserRegs(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GemSupervisorWeb::writeVFATRegs(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing values to user registers");
-  
-  boost::format uregform("vfat.ureg0x%x");
-  boost::format writeform("ureg0x%x");
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing values to vfat registers");
   
   try {
     cgicc::Cgicc cgi(in);
     /*
-    cgicc::const_form_iterator cgiter = cgi.getElements().begin();
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"looping over form values");
-    for (;cgiter != cgi.getElements().end(); ++cgiter) {
+      cgicc::const_form_iterator cgiter = cgi.getElements().begin();
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"looping over form values");
+      for (;cgiter != cgi.getElements().end(); ++cgiter) {
       LOG4CPLUS_INFO(this->getApplicationLogger(),"form name " << cgiter->getName());
       LOG4CPLUS_INFO(this->getApplicationLogger(),"form value " << cgiter->getValue());
       LOG4CPLUS_INFO(this->getApplicationLogger(),"form value " << cgiter->getIntegerValue());
-    }
+      }
     */
-    for (unsigned int ureg = 0; ureg < 16; ++ureg) {
-      //int writeVal = atoi(cgi[boost::str(writeform%ureg)]->getValue().c_str());
+    std::vector<std::string>::const_iterator node  = vfatNodes.begin();
+    for (; node != vfatNodes.end(); ++node) {
       std::stringstream stream;
-      stream << cgi[boost::str(writeform%ureg)]->getValue();
-      int writeVal;
-      stream >> std::hex >> writeVal;
-      LOG4CPLUS_INFO(this->getApplicationLogger(),"filling register " << boost::str(writeform % ureg));
-      LOG4CPLUS_INFO(this->getApplicationLogger(),"sees string as "   << cgi[boost::str(writeform % ureg)]->getValue());
-      LOG4CPLUS_INFO(this->getApplicationLogger(),"sees integer as "  << cgi[boost::str(writeform % ureg)]->getIntegerValue());
+      stream << cgi[*node]->getValue();
+      uint writeVal;
+      stream >> std::hex >> writeVal >> std::dec;
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"filling register " << *node);
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"sees string as "   << cgi[*node]->getValue());
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"sees integer as "  << cgi[*node]->getIntegerValue());
       LOG4CPLUS_INFO(this->getApplicationLogger(),"with value "       << writeVal);
-      hw->getNode ( boost::str(uregform%ureg) ).write(writeVal);
+      if ( !(hw->getNode(*node).getPermission() == uhal::defs::READ) )
+	hw->getNode(*node ).write(writeVal);
     }
     hw->dispatch();
   }
   catch (const std::exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong writing the user register: " << e.what());
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong writing the vfat register: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
     
   try {
     cgicc::Cgicc cgi(in);
-    for (unsigned int ureg = 0; ureg < 16; ++ureg)
-      r_users.at(ureg) = hw->getNode ( boost::str(uregform%ureg) ).read();
-    hw->dispatch();
-    for (unsigned int ureg = 0; ureg < 16; ++ureg) {
+    std::vector<std::string>::const_iterator node  = vfatNodes.begin();
+    for (; node != vfatNodes.end(); ++node) {
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"Read executed on vfat register " << (*node)
+		     << ".  Sleep value is " << vfatSleep_);
+      r_vfats[*node] = hw->getNode(*node).read();
+      hw->dispatch();
+      sleep(vfatSleep_);
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"Read executed on vfat_response register"
+		     << ".  Sleep value is " << vfatSleep_);
+      r_vfats[*node] = hw->getNode("user_regs.vfats.vfat_response").read();
+      hw->dispatch();
+      sleep(vfatSleep_);
+    }
+
+    node  = vfatNodes.begin();
+    for (; node != vfatNodes.end(); ++node) {
       std::stringstream stream;
-      stream << cgi[boost::str(writeform%ureg)]->getValue();
-      int writeVal;
-      stream >> std::hex >> writeVal;
-      //uint32_t writeVal = cgi[boost::str(writeform%ureg)]->getIntegerValue();
-      if (writeVal != r_users.at(ureg).value()) {
-	boost::format logmessage("Read back value 0x%08x does not match set value 0x%08x on register %s");
-	LOG4CPLUS_INFO(this->getApplicationLogger(),boost::str(logmessage % r_users.at(ureg).value() % writeVal % boost::str(uregform%ureg)));
+      stream << cgi[*node]->getValue();
+      uint writeVal;
+      stream >> std::hex >> writeVal >> std::dec;
+      if (writeVal != ((r_vfats[*node].value())&0x000000ff) ) {
+	boost::format logmessage("Read back value 0x%02x does not match set value 0x%02x on register %s");
+	LOG4CPLUS_INFO(this->getApplicationLogger(),boost::str(logmessage % r_vfats[*node].value() % writeVal % (*node)));
       }
-      xreg_users_.at(ureg) = r_users.at(ureg).value();
+      xreg_vfats_[*node] = r_vfats[*node].value();
     }
     this->Views(in,out);
 
   }
   catch (const std::exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong reading the user register: " << e.what());
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong reading the vfat register: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
 
-void gemsupervisor::GemSupervisorWeb::getTestReg()
+//void gem::supervisor::GemSupervisorWeb::writeUserRegs(xgi::Input * in, xgi::Output * out )
+//  throw (xgi::exception::Exception)
+//{
+//  LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing values to user registers");
+//  
+//  boost::format uregform("vfat.ureg0x%x");
+//  boost::format writeform("ureg0x%x");
+//  
+//  try {
+//    cgicc::Cgicc cgi(in);
+//    /*
+//    cgicc::const_form_iterator cgiter = cgi.getElements().begin();
+//    LOG4CPLUS_INFO(this->getApplicationLogger(),"looping over form values");
+//    for (;cgiter != cgi.getElements().end(); ++cgiter) {
+//      LOG4CPLUS_INFO(this->getApplicationLogger(),"form name " << cgiter->getName());
+//      LOG4CPLUS_INFO(this->getApplicationLogger(),"form value " << cgiter->getValue());
+//      LOG4CPLUS_INFO(this->getApplicationLogger(),"form value " << cgiter->getIntegerValue());
+//    }
+//    */
+//    for (unsigned int ureg = 0; ureg < 16; ++ureg) {
+//      //int writeVal = atoi(cgi[boost::str(writeform%ureg)]->getValue().c_str());
+//      std::stringstream stream;
+//      stream << cgi[boost::str(writeform%ureg)]->getValue();
+//      uint writeVal;
+//      stream >> std::hex >> writeVal >> std::dec;
+//      LOG4CPLUS_INFO(this->getApplicationLogger(),"filling register " << boost::str(writeform % ureg));
+//      LOG4CPLUS_INFO(this->getApplicationLogger(),"sees string as "   << cgi[boost::str(writeform % ureg)]->getValue());
+//      LOG4CPLUS_INFO(this->getApplicationLogger(),"sees integer as "  << cgi[boost::str(writeform % ureg)]->getIntegerValue());
+//      LOG4CPLUS_INFO(this->getApplicationLogger(),"with value "       << writeVal);
+//      hw->getNode ( boost::str(uregform%ureg) ).write(writeVal);
+//    }
+//    hw->dispatch();
+//  }
+//  catch (const std::exception& e) {
+//    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong writing the user register: " << e.what());
+//    XCEPT_RAISE(xgi::exception::Exception, e.what());
+//  }
+//    
+//  try {
+//    cgicc::Cgicc cgi(in);
+//    for (unsigned int ureg = 0; ureg < 16; ++ureg)
+//      r_users.at(ureg) = hw->getNode ( boost::str(uregform%ureg) ).read();
+//    hw->dispatch();
+//    for (unsigned int ureg = 0; ureg < 16; ++ureg) {
+//      std::stringstream stream;
+//      stream << cgi[boost::str(writeform%ureg)]->getValue();
+//      uint writeVal;
+//      stream >> std::hex >> writeVal >> std::dec;
+//      //uint32_t writeVal = cgi[boost::str(writeform%ureg)]->getIntegerValue();
+//      if (writeVal != r_users.at(ureg).value()) {
+//	boost::format logmessage("Read back value 0x%08x does not match set value 0x%08x on register %s");
+//	LOG4CPLUS_INFO(this->getApplicationLogger(),boost::str(logmessage % r_users.at(ureg).value() % writeVal % boost::str(uregform%ureg)));
+//      }
+//      xreg_users_.at(ureg) = r_users.at(ureg).value();
+//    }
+//    this->Views(in,out);
+//
+//  }
+//  catch (const std::exception& e) {
+//    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong reading the user register: " << e.what());
+//    XCEPT_RAISE(xgi::exception::Exception, e.what());
+//  }
+//}
+
+  void gem::supervisor::GemSupervisorWeb::getTestReg()
 {
   //uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
   try {
-    r_sysid   = hw->getNode ( "sysregs.system_id"   ).read();
-    r_boardid = hw->getNode ( "sysregs.board_id"    ).read();
-    r_fwid    = hw->getNode ( "sysregs.firmware_id" ).read();
-    r_test    = hw->getNode ( "test"                ).read();
+    
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"reading the GLIB registers");
+    
+    r_sysid   = hw->getNode ( "glib_regs.sysregs.system_id"   ).read();
+    r_boardid = hw->getNode ( "glib_regs.sysregs.board_id"    ).read();
+    r_fwid    = hw->getNode ( "glib_regs.sysregs.firmware_id" ).read();
+    r_test    = hw->getNode ( "glib_regs.test"                ).read();
 
-    r_ctrl    = hw->getNode ( "ctrl"                ).read();
-    r_ctrl2   = hw->getNode ( "ctrl_2"              ).read();
+    r_ctrl    = hw->getNode ( "glib_regs.ctrl"                ).read();
+    r_ctrl2   = hw->getNode ( "glib_regs.ctrl_2"              ).read();
 
-    r_status    = hw->getNode ( "status"            ).read();
-    r_status2   = hw->getNode ( "status_2"          ).read();
+    r_status    = hw->getNode ( "glib_regs.status"            ).read();
+    r_status2   = hw->getNode ( "glib_regs.status_2"          ).read();
     
-    r_ctrl_sram    = hw->getNode ( "ctrl_sram"      ).read();
-    r_status_sram  = hw->getNode ( "status_sram"    ).read();
+    r_ctrl_sram    = hw->getNode ( "glib_regs.ctrl_sram"      ).read();
+    r_status_sram  = hw->getNode ( "glib_regs.status_sram"    ).read();
     
-    r_spi_txdata  = hw->getNode ( "spi_txdata"  ).read();
-    r_spi_command = hw->getNode ( "spi_command" ).read();
-    r_spi_rxdata  = hw->getNode ( "spi_rxdata"  ).read();
+    r_spi_txdata  = hw->getNode ( "glib_regs.spi_txdata"  ).read();
+    r_spi_command = hw->getNode ( "glib_regs.spi_command" ).read();
+    r_spi_rxdata  = hw->getNode ( "glib_regs.spi_rxdata"  ).read();
     
-    r_i2c_settings = hw->getNode ( "i2c_settings" ).read();
-    r_i2c_command  = hw->getNode ( "i2c_command"  ).read();
-    r_i2c_reply    = hw->getNode ( "i2c_reply"    ).read();
+    r_i2c_settings = hw->getNode ( "glib_regs.i2c_settings" ).read();
+    r_i2c_command  = hw->getNode ( "glib_regs.i2c_command"  ).read();
+    r_i2c_reply    = hw->getNode ( "glib_regs.i2c_reply"    ).read();
     
-    r_sfp_phase_mon_ctrl  = hw->getNode ( "sfp_phase_mon_ctrl"  ).read();
-    r_sfp_phase_mon_stats = hw->getNode ( "sfp_phase_mon_stats" ).read();
+    r_sfp_phase_mon_ctrl  = hw->getNode ( "glib_regs.sfp_phase_mon_ctrl"  ).read();
+    r_sfp_phase_mon_stats = hw->getNode ( "glib_regs.sfp_phase_mon_stats" ).read();
     
-    r_fmc_phase_mon_ctrl  = hw->getNode ( "fmc1_phase_mon_ctrl"  ).read();
-    r_fmc_phase_mon_stats = hw->getNode ( "fmc1_phase_mon_stats" ).read();
+    r_fmc_phase_mon_ctrl  = hw->getNode ( "glib_regs.fmc1_phase_mon_ctrl"  ).read();
+    r_fmc_phase_mon_stats = hw->getNode ( "glib_regs.fmc1_phase_mon_stats" ).read();
     
-    r_mac_info1 = hw->getNode ( "mac_info1" ).read();
-    r_mac_info2 = hw->getNode ( "mac_info2" ).read();
-    r_ip_info   = hw->getNode ( "ip_info"   ).read();
+    r_mac_info1 = hw->getNode ( "glib_regs.mac_info1" ).read();
+    r_mac_info2 = hw->getNode ( "glib_regs.mac_info2" ).read();
+    r_ip_info   = hw->getNode ( "glib_regs.ip_info"   ).read();
     
-    r_sram1 = hw->getNode ( "sram1" ).read();
-    r_sram2 = hw->getNode ( "sram2" ).read();
-    //r_icap  = hw->getNode ( "icap"  ).read();
+    r_sram1 = hw->getNode ( "glib_regs.sram1" ).read();
+    r_sram2 = hw->getNode ( "glib_regs.sram2" ).read();
+    //r_icap  = hw->getNode ( "glib_regs.icap"  ).read();
     
-    boost::format uregform("vfat.ureg0x%x");
-    for (unsigned int ureg = 0; ureg < 16; ++ureg) {
-      r_users.push_back(hw->getNode ( boost::str(uregform%ureg) ).read());
-    }
+    //boost::format uregform("vfat.ureg0x%x");
+    //for (unsigned int ureg = 0; ureg < 16; ++ureg) {
+    //  r_users.push_back(hw->getNode ( boost::str(uregform%ureg) ).read());
+    //}
+
     hw->dispatch();
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"done reading the GLIB registers");
   }
+
   catch (const std::exception& e) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong reading the registers: " << e.what());
     std::cout << "Something went wrong reading the registers: " << e.what() << std::endl;
   }
 
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"reading the VFAT registers");
+  int count = 0;
+  std::vector<std::string>::const_iterator node  = vfatNodes.begin();
+  for (; node != vfatNodes.end(); ++node) {
+    ++count;
+    try {
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"Read executed on vfat register " << (*node)
+		     << ".  Sleep value is " << vfatSleep_);
+      r_vfats[*node] = hw->getNode(*node).read();
+      hw->dispatch();
+      sleep(vfatSleep_);
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"Read executed on vfat_response register"
+		     << ".  Sleep value is " << vfatSleep_);
+      r_vfats[*node] = hw->getNode("user_regs.vfats.vfat_response").read();
+      hw->dispatch();
+      sleep(vfatSleep_);
+    }
+    catch (uhal::exception::exception const& e) {
+      LOG4CPLUS_INFO(this->getApplicationLogger(), "uhal::exception: " << count << "/" 
+		     << vfatNodes.size() << ") Something went wrong reading the VFAT register "
+		     << (*node) << ": " << e.what());
+      std::cout << "uhal::exception: " << count << "/"
+		<< vfatNodes.size() << ") Something went wrong reading the VFAT register "
+		<< (*node) << ": " << e.what() << std::endl;
+    }
+    catch (std::exception const& e) {
+      LOG4CPLUS_INFO(this->getApplicationLogger(), "std::exception: " << count << "/"
+		     << vfatNodes.size() << ") Something went wrong reading the VFAT register "
+		     << (*node) << ": " << e.what());
+      std::cout << "std::exception: " << count << "/"
+		<< vfatNodes.size() << ") Something went wrong reading the VFAT register "
+		<< (*node) << ": " << e.what() << std::endl;
+    }
+  }
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"done reading the VFAT registers");
+  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"mac_info1: 0x" << std::hex << r_mac_info1.value() << std::dec);
   LOG4CPLUS_INFO(this->getApplicationLogger(),"mac_info2: 0x" << std::hex << r_mac_info2.value() << std::dec);
   LOG4CPLUS_INFO(this->getApplicationLogger(),"ip_info: 0x"   << std::hex << r_ip_info.value()   << std::dec);
@@ -899,16 +1108,22 @@ void gemsupervisor::GemSupervisorWeb::getTestReg()
   xreg_sram2_ = r_sram2.value();
   //xreg_icap_  = r_icap.value();
   
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"xreg_users_.size:" << xreg_users_.size());
-  for (unsigned int ureg = 0; ureg < 16; ++ureg)
-    xreg_users_.at(ureg) = r_users.at(ureg).value();
+  //LOG4CPLUS_INFO(this->getApplicationLogger(),"xreg_users_.size:" << xreg_users_.size());
+  //for (unsigned int ureg = 0; ureg < 16; ++ureg)
+  //  xreg_users_.at(ureg) = r_users.at(ureg).value();
+  node  = vfatNodes.begin();
+  for (; node != vfatNodes.end(); ++node) {
+    LOG4CPLUS_DEBUG(this->getApplicationLogger(),"storing r_vfats[" << *node << "].value() in xreg_vfats_[" << *node << "]\n");
+    std::cout << "storing r_vfats[" << *node << "].value() in xreg_vfats_[" << *node << "]" << std::endl;
+    xreg_vfats_[*node] = r_vfats[*node].value();
+  }
 }
 
-void gemsupervisor::GemSupervisorWeb::setTestReg(uint32_t myValue)
+void gem::supervisor::GemSupervisorWeb::setTestReg(uint32_t myValue)
 {
   //uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
   try {
-    hw->getNode ( "test" ).write(myValue);
+    hw->getNode ( "glib_regs.test" ).write(myValue);
     hw->dispatch();
   }
   catch (const std::exception& e) {
@@ -916,7 +1131,7 @@ void gemsupervisor::GemSupervisorWeb::setTestReg(uint32_t myValue)
   }
   
   try {
-    r_test = hw->getNode ( "test" ).read();
+    r_test = hw->getNode ( "glib_regs.test" ).read();
     hw->dispatch();
     if (myValue != r_test.value())
       LOG4CPLUS_INFO(this->getApplicationLogger(),"Read back value does not match set value");
@@ -927,7 +1142,7 @@ void gemsupervisor::GemSupervisorWeb::setTestReg(uint32_t myValue)
   }
 }
 
-std::string gemsupervisor::GemSupervisorWeb::registerToChar(xdata::UnsignedInteger32 registerValue)
+std::string gem::supervisor::GemSupervisorWeb::registerToChar(xdata::UnsignedInteger32 registerValue)
 {
   std::string regToChars;
   char fourth = char(registerValue&0xff);
@@ -942,11 +1157,11 @@ std::string gemsupervisor::GemSupervisorWeb::registerToChar(xdata::UnsignedInteg
   return regToChars;
 }
 
-std::string gemsupervisor::GemSupervisorWeb::getIPAddress()
+std::string gem::supervisor::GemSupervisorWeb::getIPAddress()
 {
   uint32_t ipInfo;
   try {
-    r_ip_info = hw->getNode ( "ip_info" ).read();
+    r_ip_info = hw->getNode ( "glib_regs.ip_info" ).read();
     hw->dispatch();
     ipInfo    = r_ip_info.value();
   }
@@ -966,17 +1181,17 @@ std::string gemsupervisor::GemSupervisorWeb::getIPAddress()
   return boost::str(boost::format("%d.%d.%d.%d") % first % second % third % fourth);
 }
  
-std::string gemsupervisor::GemSupervisorWeb::formatSystemID(xdata::UnsignedInteger32 myValue)
+std::string gem::supervisor::GemSupervisorWeb::formatSystemID(xdata::UnsignedInteger32 myValue)
 {
   return registerToChar(myValue);
 }
  
-std::string gemsupervisor::GemSupervisorWeb::formatBoardID(xdata::UnsignedInteger32 myValue)
+std::string gem::supervisor::GemSupervisorWeb::formatBoardID(xdata::UnsignedInteger32 myValue)
 {
   return registerToChar(myValue);
 }
 
-std::string gemsupervisor::GemSupervisorWeb::formatFW(xdata::UnsignedInteger32 myValue, int type)
+std::string gem::supervisor::GemSupervisorWeb::formatFW(xdata::UnsignedInteger32 myValue, int type)
 {
   std::string fwVer = "";
   std::string fwDate = "";

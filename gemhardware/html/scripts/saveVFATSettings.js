@@ -1,4 +1,4 @@
-$(document).ready(function(){
+$(function(){
 	$.ajax({
 		type: "GET",
 		url: "$BUILD_HOME/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml",
