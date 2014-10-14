@@ -1,5 +1,4 @@
 $(document).ready( function () {
-	alert("JQuery is working from file! :D");
 	var registerSetBoxes = [$("#CR0Set"),$("#CR1Set"),$("#CR2Set"),$("#CR3Set"),
 				$("#SetIPreampIn"),$("#SetIPreampFeed"),$("#SetIPreampOut"),
 				$("#SetIShaper"),$("#SetIShaperFeed"),
