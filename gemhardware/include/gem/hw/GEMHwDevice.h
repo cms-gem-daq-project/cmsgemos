@@ -8,6 +8,8 @@
 
 #include "uhal/uhal.hpp"
 
+#define MAX_VFAT_RETRIES 25
+
 typedef uhal::exception::exception uhalException;
 
 namespace uhal {
@@ -22,13 +24,10 @@ namespace gem {
   
   namespace hw {
     
-    class GEMHwDevice//: public xdaq::Application, public xdata::ActionListener
+    class GEMHwDevice
       {
       public:
-	//XDAQ_INSTANTIATOR();
-	
 	GEMHwDevice(xdaq::Application* xdaqApp);
-	  //throw (xdaq::exception::Exception);
 
 	virtual ~GEMHwDevice();
 	
