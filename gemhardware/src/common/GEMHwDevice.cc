@@ -140,11 +140,11 @@ void gem::hw::GEMHwDevice::releaseDevice()
 void gem::hw::GEMHwDevice::enableDevice()
 {
   if (!isGEMHwDeviceConnected()){
-      std::string msg = "Could not enable the hardware. " \
-        "(No hardware is connected.)";
-      FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-    }
+    std::string msg = "Could not enable the hardware. " \
+      "(No hardware is connected.)";
+    FATAL(msg);
+    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  }
 }
 
 //void gem::hw::GEMHwDevice::disableDevice()
@@ -178,30 +178,30 @@ void gem::hw::GEMHwDevice::enableDevice()
 //}
 
 /**
-void gem::hw::GEMHwDevice::initDevice() 
-{
-  char * val;
-  val = std::getenv( "BUILD_HOME" );
-  std::string dirVal = "";
-  if (val != NULL) {
-    dirVal = val;
-  }
-  else {
-    std::cout<<"$BUILD_HOME not set, exiting"<<std::endl;
-    exit(1);
-  }
+   void gem::hw::GEMHwDevice::initDevice() 
+   {
+   char * val;
+   val = std::getenv( "BUILD_HOME" );
+   std::string dirVal = "";
+   if (val != NULL) {
+   dirVal = val;
+   }
+   else {
+   std::cout<<"$BUILD_HOME not set, exiting"<<std::endl;
+   exit(1);
+   }
   
-  //setLogLevelTo(uhal::Debug());  // Maximise uHAL logging
-  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
-  char connectionPath[128];
-  try {
-    sprintf(connectionPath,"file://%s/data/myconnections.xml;",dirVal.c_str());
-    manageGLIBConnection = new uhal::ConnectionManager( connectionPath );
-  }
-  catch (const std::exception& e) {
-    std::cout << "Something went wrong initializing the connection: " << e.what() << std::endl;
-  }
-}
+   //setLogLevelTo(uhal::Debug());  // Maximise uHAL logging
+   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+   char connectionPath[128];
+   try {
+   sprintf(connectionPath,"file://%s/data/myconnections.xml;",dirVal.c_str());
+   manageGLIBConnection = new uhal::ConnectionManager( connectionPath );
+   }
+   catch (const std::exception& e) {
+   std::cout << "Something went wrong initializing the connection: " << e.what() << std::endl;
+   }
+   }
 **/
 
 uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface()// const
@@ -248,19 +248,19 @@ std::string gem::hw::GEMHwDevice::getFirmwareDate(std::string const& regNamePref
   std::stringstream res;
   std::stringstream regName;
   /**
-  regName << regNamePrefix << ".firmware_id.date_yy";
-  uint32_t yy = readReg(regName.str());
-  regName.str("");
-  regName << regNamePrefix << ".firmware_id.date_mm";
-  uint32_t mm = readReg(regName.str());
-  regName.str("");
-  regName << regNamePrefix << ".firmware_id.date_dd";
-  uint32_t dd = readReg(regName.str());
-  res << "20" << std::setfill('0') << std::setw(2) << yy
-      << "-"
-      << std::setw(2) << mm
-      << "-"
-      << std::setw(2) << dd;
+     regName << regNamePrefix << ".firmware_id.date_yy";
+     uint32_t yy = readReg(regName.str());
+     regName.str("");
+     regName << regNamePrefix << ".firmware_id.date_mm";
+     uint32_t mm = readReg(regName.str());
+     regName.str("");
+     regName << regNamePrefix << ".firmware_id.date_dd";
+     uint32_t dd = readReg(regName.str());
+     res << "20" << std::setfill('0') << std::setw(2) << yy
+     << "-"
+     << std::setw(2) << mm
+     << "-"
+     << std::setw(2) << dd;
   **/
   regName.str("");
   regName << regNamePrefix << ".firmware_id";
@@ -282,15 +282,15 @@ std::string gem::hw::GEMHwDevice::getFirmwareVer(std::string const& regNamePrefi
   std::stringstream res;
   std::stringstream regName;
   /***
-  regName << regNamePrefix << ".firmware_id.ver_major";
-  uint32_t versionMajor = readReg(regName.str());
-  regName.str("");
-  regName << regNamePrefix << ".firmware_id.ver_minor";
-  uint32_t versionMinor = readReg(regName.str());
-  regName.str("");
-  regName << regNamePrefix << ".firmware_id.ver_build";
-  uint32_t versionBuild = readReg(regName.str());
-  res << versionMajor << "." << versionMinor << "." << versionBuild;
+      regName << regNamePrefix << ".firmware_id.ver_major";
+      uint32_t versionMajor = readReg(regName.str());
+      regName.str("");
+      regName << regNamePrefix << ".firmware_id.ver_minor";
+      uint32_t versionMinor = readReg(regName.str());
+      regName.str("");
+      regName << regNamePrefix << ".firmware_id.ver_build";
+      uint32_t versionBuild = readReg(regName.str());
+      res << versionMajor << "." << versionMinor << "." << versionBuild;
   ***/
 
   regName.str("");
@@ -317,17 +317,17 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
   int retryCount = 0;
   uint32_t res;
   while (retryCount < MAX_VFAT_RETRIES) {
-  try {
-    uhal::ValWord<uint32_t> val = hw.getNode(name).read();
-    hw.dispatch();
-    res = val.value();
-    break;
-  }
-  catch (uhal::exception::exception const& err) {
-    std::string msgBase = toolbox::toString("Could not read register '%s' (uHAL)", name.c_str());
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    std::string errCode = toolbox::toString("%s",err.what());
-    //if (retryCount < MAX_VFAT_RETRIES) {
+    try {
+      uhal::ValWord<uint32_t> val = hw.getNode(name).read();
+      hw.dispatch();
+      res = val.value();
+      break;
+    }
+    catch (uhal::exception::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not read register '%s' (uHAL)", name.c_str());
+      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -341,18 +341,18 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
 	//}
+      }
+      else {
+	FATAL(msg);
+	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
     }
-    else {
+    catch (std::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not read register '%s' (std)", name.c_str());
+      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
-  }
-  catch (std::exception const& err) {
-    std::string msgBase = toolbox::toString("Could not read register '%s' (std)", name.c_str());
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    FATAL(msg);
-    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  }
   }
   return res;
 }
@@ -369,28 +369,28 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
   //uint32_t res;
   int retryCount = 0;
   while (retryCount < MAX_VFAT_RETRIES) {
-  try {
-    std::vector<std::pair<std::string, uint32_t> >::iterator curReg = regList.begin();
-    std::vector<std::pair<std::string,uhal::ValWord<uint32_t> > > vals;
-    //vals.reserve(regList.size());
-    for (; curReg != regList.end(); ++curReg) 
-      vals.push_back(std::make_pair(curReg->first,hw.getNode(curReg->first).read()));
-    hw.dispatch();
+    try {
+      std::vector<std::pair<std::string, uint32_t> >::iterator curReg = regList.begin();
+      std::vector<std::pair<std::string,uhal::ValWord<uint32_t> > > vals;
+      //vals.reserve(regList.size());
+      for (; curReg != regList.end(); ++curReg) 
+	vals.push_back(std::make_pair(curReg->first,hw.getNode(curReg->first).read()));
+      hw.dispatch();
 
-    std::vector<std::pair<std::string, uhal::ValWord<uint32_t> > >::const_iterator curVal = vals.begin();
-    curReg = regList.begin();
-    for (; curReg != regList.end(); ++curReg,++curVal) 
-      curReg->second = (curVal->second).value();
-    break;
-  }
-  catch (uhal::exception::exception const& err) {
-    std::string msgBase = "Could not read from register in list:";
-    std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
-    for (; curReg != regList.end(); ++curReg) 
-      msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-    std::string msg = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
-    std::string errCode = toolbox::toString("%s",err.what());
-    //if (retryCount < MAX_VFAT_RETRIES) {
+      std::vector<std::pair<std::string, uhal::ValWord<uint32_t> > >::const_iterator curVal = vals.begin();
+      curReg = regList.begin();
+      for (; curReg != regList.end(); ++curReg,++curVal) 
+	curReg->second = (curVal->second).value();
+      break;
+    }
+    catch (uhal::exception::exception const& err) {
+      std::string msgBase = "Could not read from register in list:";
+      std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
+      for (; curReg != regList.end(); ++curReg) 
+	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
+      std::string msg = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -404,21 +404,21 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
 	//}
+      }
+      else {
+	FATAL(msg);
+	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
     }
-    else {
+    catch (std::exception const& err) {
+      std::string msgBase = "Could not read from register in list:";
+      std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
+      for (; curReg != regList.end(); ++curReg) 
+	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
+      std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
-  }
-  catch (std::exception const& err) {
-    std::string msgBase = "Could not read from register in list:";
-    std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
-    for (; curReg != regList.end(); ++curReg) 
-      msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-    std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
-    FATAL(msg);
-    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  }
   }
   //return res;
 }
@@ -430,16 +430,16 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name,
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
   while (retryCount < MAX_VFAT_RETRIES) {
-  try {
-    hw.getNode(name).write(val);
-    hw.dispatch();
-    break;
-  }
-  catch (uhal::exception::exception const& err) {
-    std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    std::string errCode = toolbox::toString("%s",err.what());
-    //if (retryCount < MAX_VFAT_RETRIES) {
+    try {
+      hw.getNode(name).write(val);
+      hw.dispatch();
+      break;
+    }
+    catch (uhal::exception::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
+      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -453,18 +453,18 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name,
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
 	//}
+      }
+      else {
+	FATAL(msg);
+	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
     }
-    else {
+    catch (std::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
+      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
-  }
-  catch (std::exception const& err) {
-    std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    FATAL(msg);
-    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  }
   }
 }
 
@@ -568,17 +568,17 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
   }
 
   while (retryCount < MAX_VFAT_RETRIES) {
-  try {
-    uhal::ValVector<uint32_t> values = hw.getNode(name).readBlock(numWords);
-    hw.dispatch();
-    std::copy(values.begin(), values.end(), res.begin());
-    break;
-  }
-  catch (uhal::exception::exception const& err) {
-    std::string msgBase = toolbox::toString("Could not read block '%s' (uHAL)", name.c_str());
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    std::string errCode = toolbox::toString("%s",err.what());
-    //if (retryCount < MAX_VFAT_RETRIES) {
+    try {
+      uhal::ValVector<uint32_t> values = hw.getNode(name).readBlock(numWords);
+      hw.dispatch();
+      std::copy(values.begin(), values.end(), res.begin());
+      break;
+    }
+    catch (uhal::exception::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not read block '%s' (uHAL)", name.c_str());
+      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -592,18 +592,18 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
 	//}
+      }
+      else {
+	FATAL(msg);
+	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
     }
-    else {
+    catch (std::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not read block '%s' (std)", name.c_str());
+      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
-  }
-  catch (std::exception const& err) {
-    std::string msgBase = toolbox::toString("Could not read block '%s' (std)", name.c_str());
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    FATAL(msg);
-    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  }
   }
   return res;
 }
@@ -619,16 +619,16 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
   while (retryCount < MAX_VFAT_RETRIES) {
-  try {
-    hw.getNode(name).writeBlock(values);
-    hw.dispatch();
-    break;
-  }
-  catch (uhal::exception::exception const& err) {
-    std::string msgBase = toolbox::toString("Could not write to block '%s' (uHAL)", name.c_str());
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    std::string errCode = toolbox::toString("%s",err.what());
-    //if (retryCount < MAX_VFAT_RETRIES) {
+    try {
+      hw.getNode(name).writeBlock(values);
+      hw.dispatch();
+      break;
+    }
+    catch (uhal::exception::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not write to block '%s' (uHAL)", name.c_str());
+      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -642,18 +642,18 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
 	//}
+      }
+      else {
+	FATAL(msg);
+	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
     }
-    else {
+    catch (std::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not write to block '%s' (std)", name.c_str());
+      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-    }
-  }
-  catch (std::exception const& err) {
-    std::string msgBase = toolbox::toString("Could not write to block '%s' (std)", name.c_str());
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  }
+    }
   }
 }
 
@@ -684,7 +684,7 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
 /***********my versions
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& regName)
 {
-  //Maybe want to use a lock to prevent hammering the HW device
+//Maybe want to use a lock to prevent hammering the HW device
   uhal::HwInterface& hw = getGEMHwInterface();
   uint32_t regValue;
   try {
@@ -718,7 +718,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& regName)
 void gem::hw::vfat::HwVFAT2::writeReg(std::string const& regName
 				      uint32_t const writeValue)
 {
-  //Maybe want to use a lock to prevent hammering the HW device
+//Maybe want to use a lock to prevent hammering the HW device
   uhal::HwInterface& hw = getGEMHwInterface();
   try {
     hw.getNode(regName).write(writeValue);
@@ -766,41 +766,41 @@ void gem::hw::GEMHwDevice::main()
 }
 ***/
 /***
-void gem::hw::GEMHwDevice::getTestReg()
-//uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-{
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  try {
+    void gem::hw::GEMHwDevice::getTestReg()
+    //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
+    {
+    uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
+    try {
     r_test = hw.getNode ( "test" ).read();
     hw.dispatch();
     testReg_ = r_test.value();
-  }
-  catch (const std::exception& e) {
+    }
+    catch (const std::exception& e) {
     std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-  }
+    }
   
-}
-void gem::hw::GEMHwDevice::setTestReg(uint32_t setVal)
-//uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-{
-  testReg_ = setVal;
+    }
+    void gem::hw::GEMHwDevice::setTestReg(uint32_t setVal)
+    //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
+    {
+    testReg_ = setVal;
   
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  try {
+    uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
+    try {
     hw.getNode ( "test" ).write(testReg_);
     hw.dispatch();
-  }
-  catch (const std::exception& e) {
+    }
+    catch (const std::exception& e) {
     std::cout << "Something went wrong writing the test register: " << e.what() << std::endl;
-  }
+    }
   
-  try {
+    try {
     r_test = hw.getNode ( "test" ).read();
     hw.dispatch();
     testReg_ = r_test.value();
-  }
-  catch (const std::exception& e) {
+    }
+    catch (const std::exception& e) {
     std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-  }
-}
+    }
+    }
 ***/
