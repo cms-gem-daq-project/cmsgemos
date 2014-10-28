@@ -19,6 +19,12 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   setIPbusProtocolVersion("2.0");
   setDeviceBaseNode("");
   setDeviceID("GEMHwDevice");
+
+  ipBusErrs.badHeader_     = 0;
+  ipBusErrs.readError_     = 0;
+  ipBusErrs.timeouts_      = 0;
+  ipBusErrs.controlHubErr_ = 0;
+
   //gem::hw::GEMHwDevice::initDevice();
   /** 
    * what's the difference between connect, init, enable for GLIB, VFAT, other devices?
@@ -44,6 +50,17 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
 gem::hw::GEMHwDevice::~GEMHwDevice()
 {
   releaseDevice();
+}
+
+std::string gem::hw::GEMHwDevice::printErrorCounts() {
+  std::stringstream errstream;
+  errstream << "errors while accessing registers:"    << std::endl 
+	    << "Bad header:  " <<ipBusErrs.badHeader_ << std::endl
+	    << "Read errors: " <<ipBusErrs.readError_ << std::endl
+	    << "Timeouts:    " <<ipBusErrs.timeouts_  << std::endl
+	    << "Controlhub errors: " <<ipBusErrs.controlHubErr_ << std::endl;
+  INFO(errstream);
+  return errstream.str();
 }
 
 void gem::hw::GEMHwDevice::connectDevice()
@@ -187,7 +204,7 @@ void gem::hw::GEMHwDevice::initDevice()
 }
 **/
 
-uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
+uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface()// const
 {
   if (gemHWP_ == 0)
     {
@@ -202,7 +219,7 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
     }
 }
 
-std::string gem::hw::GEMHwDevice::getBoardID() const
+std::string gem::hw::GEMHwDevice::getBoardID()
 {
   //LockGuard<Lock> guardedLock(lock_);
   // The board ID consists of four characters encoded as a 32-bit
@@ -213,7 +230,7 @@ std::string gem::hw::GEMHwDevice::getBoardID() const
   return res;
 }
 
-std::string gem::hw::GEMHwDevice::getSystemID() const
+std::string gem::hw::GEMHwDevice::getSystemID()
 {
   //LockGuard<Lock> guardedLock(lock_);
   std::string res = "???";
@@ -222,7 +239,7 @@ std::string gem::hw::GEMHwDevice::getSystemID() const
   return res;
 }
 
-std::string gem::hw::GEMHwDevice::getFirmwareDate(std::string const& regNamePrefix) const
+std::string gem::hw::GEMHwDevice::getFirmwareDate(std::string const& regNamePrefix)
 {
   // This returns the firmware build date. If no register name prefix
   // is given, 'glib' is used, and the build date returned is that of
@@ -256,7 +273,7 @@ std::string gem::hw::GEMHwDevice::getFirmwareDate(std::string const& regNamePref
   return res.str();
 }
 
-std::string gem::hw::GEMHwDevice::getFirmwareVer(std::string const& regNamePrefix) const
+std::string gem::hw::GEMHwDevice::getFirmwareVer(std::string const& regNamePrefix)
 {
   // This returns the firmware version number. If no register name
   // prefix is given, 'glib' is used, and the version number returned
@@ -287,7 +304,7 @@ std::string gem::hw::GEMHwDevice::getFirmwareVer(std::string const& regNamePrefi
   return res.str();
 }
 
-uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name) const
+uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -299,22 +316,32 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name) const
   // object as unvalidated memory.
   int retryCount = 0;
   uint32_t res;
+  while (retryCount < MAX_VFAT_RETRIES) {
   try {
     uhal::ValWord<uint32_t> val = hw.getNode(name).read();
     hw.dispatch();
     res = val.value();
+    break;
   }
   catch (uhal::exception::exception const& err) {
     std::string msgBase = toolbox::toString("Could not read register '%s' (uHAL)", name.c_str());
     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     std::string errCode = toolbox::toString("%s",err.what());
-    if (((errCode.find("amount of data")              != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
-	 (errCode.find("timed out")                   != std::string::npos) ||
-	 (errCode.find("ControlHub error code is: 4") != std::string::npos)) &&
-	(retryCount < MAX_VFAT_RETRIES))
-      ++retryCount;
+    //if (retryCount < MAX_VFAT_RETRIES) {
+      if ((errCode.find("amount of data")              != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
+	  (errCode.find("timed out")                   != std::string::npos) ||
+	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
+	++retryCount;
+	INFO("Failed to read register " << name <<
+	     ", retrying. retryCount("<<retryCount<<")"
+	     << std::endl);
+	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	continue;
+	//}
+    }
     else {
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
@@ -326,10 +353,11 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name) const
     FATAL(msg);
     XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   }
+  }
   return res;
 }
 
-void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t> > &regList) const
+void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t> > &regList)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -340,6 +368,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
   // object as unvalidated memory.
   //uint32_t res;
   int retryCount = 0;
+  while (retryCount < MAX_VFAT_RETRIES) {
   try {
     std::vector<std::pair<std::string, uint32_t> >::iterator curReg = regList.begin();
     std::vector<std::pair<std::string,uhal::ValWord<uint32_t> > > vals;
@@ -352,6 +381,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
     curReg = regList.begin();
     for (; curReg != regList.end(); ++curReg,++curVal) 
       curReg->second = (curVal->second).value();
+    break;
   }
   catch (uhal::exception::exception const& err) {
     std::string msgBase = "Could not read from register in list:";
@@ -360,13 +390,21 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
       msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
     std::string msg = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
     std::string errCode = toolbox::toString("%s",err.what());
-    if (((errCode.find("amount of data")              != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
-	 (errCode.find("timed out")                   != std::string::npos) ||
-	 (errCode.find("ControlHub error code is: 4") != std::string::npos)) &&
-	(retryCount < MAX_VFAT_RETRIES))
-      ++retryCount;
+    //if (retryCount < MAX_VFAT_RETRIES) {
+      if ((errCode.find("amount of data")              != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
+	  (errCode.find("timed out")                   != std::string::npos) ||
+	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
+	++retryCount;
+	INFO("Failed to read register " << curReg->first <<
+	     ", retrying. retryCount("<<retryCount<<")"
+	     << std::endl);
+	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	continue;
+	//}
+    }
     else {
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
@@ -381,30 +419,41 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
     FATAL(msg);
     XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   }
+  }
   //return res;
 }
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name,
-				    uint32_t const val) const
+				    uint32_t const val)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
+  while (retryCount < MAX_VFAT_RETRIES) {
   try {
     hw.getNode(name).write(val);
     hw.dispatch();
+    break;
   }
   catch (uhal::exception::exception const& err) {
     std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     std::string errCode = toolbox::toString("%s",err.what());
-    if (((errCode.find("amount of data")              != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
-	 (errCode.find("timed out")                   != std::string::npos) ||
-	 (errCode.find("ControlHub error code is: 4") != std::string::npos)) &&
-	(retryCount < MAX_VFAT_RETRIES))
-      ++retryCount;
+    //if (retryCount < MAX_VFAT_RETRIES) {
+      if ((errCode.find("amount of data")              != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
+	  (errCode.find("timed out")                   != std::string::npos) ||
+	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
+	++retryCount;
+	INFO("Failed to write value 0x" << std::hex<< val << std::dec << " to register " << name <<
+	     ", retrying. retryCount("<<retryCount<<")"
+	     << std::endl);
+	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	continue;
+	//}
+    }
     else {
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
@@ -416,51 +465,65 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name,
     FATAL(msg);
     XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   }
+  }
 }
 
-void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList) const
+void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
-  try {
-    std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
-    for (; curReg != regList.end(); ++curReg) 
-      hw.getNode(curReg->first).write(curReg->second);
-    hw.dispatch();
-  }
-  catch (uhal::exception::exception const& err) {
-    std::string msgBase = "Could not write to register in list:";
-    std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
-    for (; curReg != regList.end(); ++curReg) 
-      msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-    std::string msg = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
-    std::string errCode = toolbox::toString("%s",err.what());
-    if (((errCode.find("amount of data")              != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
-	 (errCode.find("timed out")                   != std::string::npos) ||
-	 (errCode.find("ControlHub error code is: 4") != std::string::npos)) &&
-	(retryCount < MAX_VFAT_RETRIES))
-      ++retryCount;
-    else {
-      FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+  while (retryCount < MAX_VFAT_RETRIES) {
+    try {
+      std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
+      for (; curReg != regList.end(); ++curReg) 
+	hw.getNode(curReg->first).write(curReg->second);
+      hw.dispatch();
+      break;
     }
-  }
-  catch (std::exception const& err) {
-    std::string msgBase = "Could not write to register in list:";
-    std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
-    //std::vector<std::pair<std::string,uint32_t> >::const_iterator curReg = regList.begin();
-    for (; curReg != regList.end(); ++curReg) 
-      msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-    std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
-    FATAL(msg);
-    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+    catch (uhal::exception::exception const& err) {
+      std::string msgBase = "Could not write to register in list:";
+      std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
+      for (; curReg != regList.end(); ++curReg) 
+	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
+      std::string msg = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      //if (retryCount < MAX_VFAT_RETRIES) {
+      if ((errCode.find("amount of data")              != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
+	  (errCode.find("timed out")                   != std::string::npos) ||
+	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
+	++retryCount;
+	INFO("Failed to write value 0x" << std::hex <<
+	     curReg->second << std::dec <<
+	     " to register " << curReg->first <<
+	     ", retrying. retryCount("<<retryCount<<")"
+	     << std::endl);
+	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	continue;
+	//}
+      }
+      else {
+	FATAL(msg);
+	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
+    }
+    catch (std::exception const& err) {
+      std::string msgBase = "Could not write to register in list:";
+      std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
+      //std::vector<std::pair<std::string,uint32_t> >::const_iterator curReg = regList.begin();
+      for (; curReg != regList.end(); ++curReg) 
+	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
+      std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
+      FATAL(msg);
+      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+    }
   }
 }
 
-void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regNames, uint32_t const& regValue) const
+void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regNames, uint32_t const& regValue)
 {
   std::vector<std::pair<std::string, uint32_t> > regsToWrite;
   std::vector<std::string>::const_iterator curReg = regNames.begin();
@@ -469,12 +532,12 @@ void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regN
   writeRegs(regsToWrite);
 }
 
-void gem::hw::GEMHwDevice::zeroReg(std::string const& name) const
+void gem::hw::GEMHwDevice::zeroReg(std::string const& name)
 {
   writeReg(name,0);
 }
 
-void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames) const
+void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames)
 {
   std::vector<std::pair<std::string, uint32_t> > regsToZero;
   std::vector<std::string>::const_iterator curReg = regNames.begin();
@@ -483,7 +546,7 @@ void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames) co
   writeRegs(regsToZero);
 }
 
-std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name) const
+std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -492,7 +555,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name) c
 }
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
-						      size_t const numWords) const
+						      size_t const numWords)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -504,22 +567,32 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
     return res;
   }
 
+  while (retryCount < MAX_VFAT_RETRIES) {
   try {
     uhal::ValVector<uint32_t> values = hw.getNode(name).readBlock(numWords);
     hw.dispatch();
     std::copy(values.begin(), values.end(), res.begin());
+    break;
   }
   catch (uhal::exception::exception const& err) {
     std::string msgBase = toolbox::toString("Could not read block '%s' (uHAL)", name.c_str());
     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     std::string errCode = toolbox::toString("%s",err.what());
-    if (((errCode.find("amount of data")              != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
-	 (errCode.find("timed out")                   != std::string::npos) ||
-	 (errCode.find("ControlHub error code is: 4") != std::string::npos)) &&
-	(retryCount < MAX_VFAT_RETRIES))
-      ++retryCount;
+    //if (retryCount < MAX_VFAT_RETRIES) {
+      if ((errCode.find("amount of data")              != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
+	  (errCode.find("timed out")                   != std::string::npos) ||
+	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
+	++retryCount;
+	INFO("Failed to block " << name << " with " << numWords << " words" <<
+	     ", retrying. retryCount("<<retryCount<<")"
+	     << std::endl);
+	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	continue;
+	//}
+    }
     else {
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
@@ -531,12 +604,12 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
     FATAL(msg);
     XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   }
-  
+  }
   return res;
 }
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
-				      std::vector<uint32_t> const values) const
+				      std::vector<uint32_t> const values)
 {
   //LockGuard<Lock> guardedLock(lock_);
   if (values.size() < 1) {
@@ -545,21 +618,31 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
   
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
+  while (retryCount < MAX_VFAT_RETRIES) {
   try {
     hw.getNode(name).writeBlock(values);
     hw.dispatch();
+    break;
   }
   catch (uhal::exception::exception const& err) {
     std::string msgBase = toolbox::toString("Could not write to block '%s' (uHAL)", name.c_str());
     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     std::string errCode = toolbox::toString("%s",err.what());
-    if (((errCode.find("amount of data")              != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
-	 (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
-	 (errCode.find("timed out")                   != std::string::npos) ||
-	 (errCode.find("ControlHub error code is: 4") != std::string::npos)) &&
-	(retryCount < MAX_VFAT_RETRIES))
-      ++retryCount;
+    //if (retryCount < MAX_VFAT_RETRIES) {
+      if ((errCode.find("amount of data")              != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
+	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
+	  (errCode.find("timed out")                   != std::string::npos) ||
+	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
+	++retryCount;
+	INFO("Failed to write block " << name <<
+	     ", retrying. retryCount("<<retryCount<<")"
+	     << std::endl);
+	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	continue;
+	//}
+    }
     else {
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
@@ -571,9 +654,25 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
     FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   }
+  }
 }
 
-//void gem::hw::GEMHwDevice::zeroBlock(std::string const& name) const
+void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
+  if ((errCode.find("amount of data")    != std::string::npos) ||
+      (errCode.find("had response field = 0x04")   != std::string::npos))
+    ++ipBusErrs.badHeader_;
+  if (errCode.find("INFO CODE = 0x4L")  != std::string::npos)
+    ++ipBusErrs.readError_;
+  if ((errCode.find("INFO CODE = 0x6L") != std::string::npos) ||
+      (errCode.find("timed out")        != std::string::npos))
+    ++ipBusErrs.timeouts_;
+  if (errCode.find("ControlHub error code is: 4") != std::string::npos)
+    ++ipBusErrs.controlHubErr_;
+  if (errCode.find("had response field = 0x04") != std::string::npos)
+    ++ipBusErrs.controlHubErr_;
+}
+
+//void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
 //{
 //  //LockGuard<Lock> guardedLock(lock_);
 //  uhal::HwInterface& hw = getGEMHwInterface();
@@ -617,7 +716,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& regName)
 }
 
 void gem::hw::vfat::HwVFAT2::writeReg(std::string const& regName
-				      uint32_t const writeValue) const
+				      uint32_t const writeValue)
 {
   //Maybe want to use a lock to prevent hammering the HW device
   uhal::HwInterface& hw = getGEMHwInterface();
