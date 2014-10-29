@@ -1,5 +1,5 @@
-#ifndef gem_hw_vfat_exception_Exception_h_
-#define gem_hw_vfat_exception_Exception_h_
+#ifndef gem_hw_vfat_exception_Exception_h
+#define gem_hw_vfat_exception_Exception_h
 
 #include <string>
 

@@ -193,7 +193,10 @@ namespace gem {
       class VFAT2Setttings
       {
 	
-      public:  void registerFields(xdata::Bag<VFAT2Settings> *vfatbag);
+      public:
+	void registerFields(xdata::Bag<VFAT2Settings> *vfatbag);
+	void readSettingsFromXML(std::string const& xmlSettings);
+	//void readSettingsFromDB(std::string const& dbTagName);
 	xdata::String vfatLabel_;
 	xdata::UnsignedShort control0_;
 	xdata::UnsignedShort control1_;

@@ -308,12 +308,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
-  //INFO(toolbox::toString("GEMHwDevice::readReg(%s)",name));
 
-  // NOTE: The read(), dispatch() and value() all have to be together
-  // inside the try block. Why? In case the getNode() or the read()
-  // fails and the dispatch() never happens, leaving the returned
-  // object as unvalidated memory.
   int retryCount = 0;
   uint32_t res;
   while (retryCount < MAX_VFAT_RETRIES) {
@@ -325,9 +320,8 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
     }
     catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '%s' (uHAL)", name.c_str());
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
-      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -340,7 +334,6 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 	     << std::endl);
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
-	//}
       }
       else {
 	FATAL(msg);
@@ -349,7 +342,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
     }
     catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '%s' (std)", name.c_str());
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
@@ -362,11 +355,6 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
 
-  // NOTE: The read(), dispatch() and value() all have to be together
-  // inside the try block. Why? In case the getNode() or the read()
-  // fails and the dispatch() never happens, leaving the returned
-  // object as unvalidated memory.
-  //uint32_t res;
   int retryCount = 0;
   while (retryCount < MAX_VFAT_RETRIES) {
     try {
@@ -388,9 +376,8 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
       std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
       for (; curReg != regList.end(); ++curReg) 
 	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-      std::string msg = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
-      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -403,7 +390,6 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
 	     << std::endl);
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
-	//}
       }
       else {
 	FATAL(msg);
@@ -420,7 +406,6 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
-  //return res;
 }
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name,
@@ -437,9 +422,8 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name,
     }
     catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
-      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -452,7 +436,6 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name,
 	     << std::endl);
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
-	//}
       }
       else {
 	FATAL(msg);
@@ -461,7 +444,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name,
     }
     catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
@@ -486,9 +469,8 @@ void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t
       std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
       for (; curReg != regList.end(); ++curReg) 
 	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
-      std::string msg = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
-      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -503,7 +485,6 @@ void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t
 	     << std::endl);
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
-	//}
       }
       else {
 	FATAL(msg);
@@ -513,7 +494,6 @@ void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t
     catch (std::exception const& err) {
       std::string msgBase = "Could not write to register in list:";
       std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
-      //std::vector<std::pair<std::string,uint32_t> >::const_iterator curReg = regList.begin();
       for (; curReg != regList.end(); ++curReg) 
 	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
@@ -550,7 +530,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
-  size_t numWords = hw.getNode(name).getSize();
+  size_t numWords       = hw.getNode(name).getSize();
   return readBlock(name, numWords);
 }
 
@@ -576,9 +556,8 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
     }
     catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read block '%s' (uHAL)", name.c_str());
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
-      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -591,7 +570,6 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
 	     << std::endl);
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
-	//}
       }
       else {
 	FATAL(msg);
@@ -600,7 +578,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
     }
     catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read block '%s' (std)", name.c_str());
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
@@ -626,9 +604,8 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
     }
     catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to block '%s' (uHAL)", name.c_str());
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
-      //if (retryCount < MAX_VFAT_RETRIES) {
       if ((errCode.find("amount of data")              != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x4L")            != std::string::npos) ||
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
@@ -641,7 +618,6 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
 	     << std::endl);
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
-	//}
       }
       else {
 	FATAL(msg);
@@ -650,7 +626,7 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
     }
     catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to block '%s' (std)", name.c_str());
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
