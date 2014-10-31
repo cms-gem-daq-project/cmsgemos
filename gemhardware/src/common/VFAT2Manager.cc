@@ -323,6 +323,14 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input * in, xgi::Output * ou
     */
     LOG4CPLUS_INFO(this->getApplicationLogger(),"building the CommandLayout");
     gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(out, vfatParams_);
+    
+    *out << cgicc::section() << std::endl
+	 << "Bad headers:: " << (vfatDevice->ipBusErrs).badHeader_     << cgicc::br() << std::endl
+	 << "Read errors:: " << (vfatDevice->ipBusErrs).readError_     << cgicc::br() << std::endl
+	 << "Timeouts   :: " << (vfatDevice->ipBusErrs).timeouts_      << cgicc::br() << std::endl
+	 << "CH errors  :: " << (vfatDevice->ipBusErrs).controlHubErr_ << cgicc::br() << std::endl
+	 << cgicc::section() << std::endl;
+    
     *out << cgicc::form() << cgicc::br() << std::endl;
     *out << cgicc::script().set("type","text/javascript")
                            .set("src","http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js")
@@ -812,14 +820,17 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     //apply provided settings to all channels (2-128 or 1-128?)
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
     int min_chan = 2;
+    bool setMasked(false), setCalPulse(false);
     if (cgi.queryCheckbox("ChCal") )
-      for (int chan = min_chan; chan < 129; ++chan) {
-	if (chan == 1)
-	  vfatDevice->sendCalPulseToChannel(chan-1);
-	vfatDevice->sendCalPulseToChannel(chan); }
+      setCalPulse = true;
+    for (int chan = min_chan; chan < 129; ++chan) {
+      if (chan == 1)
+	vfatDevice->sendCalPulseToChannel(chan-1,setCalPulse);
+      vfatDevice->sendCalPulseToChannel(chan,setCalPulse); }
     if (cgi.queryCheckbox("ChMask") )
-      for (int chan = min_chan; chan < 129; ++chan)
-	vfatDevice->maskChannel(chan);
+      setMasked = true;
+    for (int chan = min_chan; chan < 129; ++chan)
+      vfatDevice->maskChannel(chan,setMasked);
     if (cgi.queryCheckbox("SetTrimDAC")) 
       for (int chan = min_chan; chan < 129; ++chan)
 	vfatDevice->setChannelTrimDAC(chan,cgi["TrimDAC"]->getIntegerValue());

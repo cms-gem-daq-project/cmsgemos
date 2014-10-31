@@ -1,17 +1,17 @@
-#ifndef gem_hw_vfat_exception_Exception_h
-#define gem_hw_vfat_exception_Exception_h
+#ifndef gem_hw_glib_exception_Exception_h
+#define gem_hw_glib_exception_Exception_h
 
 #include <string>
 
 #include "gem/hw/exception/Exception.h"
 
 // Mimick XCEPT_DEFINE_EXCEPTION from xcept/Exception.h.
-#define GEM_HW_VFAT_DEFINE_EXCEPTION(EXCEPTION_NAME)	                    \
+#define GEM_HW_GLIB_DEFINE_EXCEPTION(EXCEPTION_NAME)	                    \
   namespace gem {					                    \
     namespace hw {					                    \
-      namespace vfat {					                    \
+      namespace glib {					                    \
 	namespace exception {                                               \
-	  class EXCEPTION_NAME : public gem::hw::vfat::exception::Exception \
+	  class EXCEPTION_NAME : public gem::hw::glib::exception::Exception \
 	    {								\
 	    public :							\
 	    EXCEPTION_NAME(std::string name,				\
@@ -19,7 +19,7 @@
 			   std::string module,				\
 			   int line,					\
 			   std::string function) :			\
-	      gem::hw::vfat::exception::Exception(name, message, module, line, function) \
+	      gem::hw::glib::exception::Exception(name, message, module, line, function) \
 		{};							\
 	    EXCEPTION_NAME(std::string name,				\
 			   std::string message,				\
@@ -27,7 +27,7 @@
 			   int line,					\
 			   std::string function,			\
 			   gem::hw::exception::Exception& err) :	\
-	      gem::hw::vfat::exception::Exception(name, message, module, line, function, err) \
+	      gem::hw::glib::exception::Exception(name, message, module, line, function, err) \
 		{};							\
 	    };								\
 	}                                                               \
@@ -38,11 +38,11 @@
 
 
 // And a little helper to save us some typing.
-#define GEM_HW_VFAT_DEFINE_ALARM(ALARM_NAME) GEM_HW_VFAT_DEFINE_EXCEPTION(ALARM_NAME)
+#define GEM_HW_GLIB_DEFINE_ALARM(ALARM_NAME) GEM_HW_GLIB_DEFINE_EXCEPTION(ALARM_NAME)
 
 namespace gem {
   namespace hw {
-    namespace vfat {
+    namespace glib {
       namespace exception {
 	
 	class Exception : public gem::hw::exception::Exception
@@ -65,27 +65,27 @@ namespace gem {
 	      {};
 	  };
 	
-      } // namespace gem::hw::vfat::exception
-    } // namespace gem::hw::vfat
+      } // namespace gem::hw::glib::exception
+    } // namespace gem::hw::glib
   } // namespace gem::hw
 } // namespace gem
 
 // The GEM HW exceptions.
-GEM_HW_VFAT_DEFINE_EXCEPTION(ConfigurationParseProblem)
-GEM_HW_VFAT_DEFINE_EXCEPTION(ConfigurationProblem)
-GEM_HW_VFAT_DEFINE_EXCEPTION(ConfigurationValidationProblem)
+GEM_HW_GLIB_DEFINE_EXCEPTION(ConfigurationParseProblem)
+GEM_HW_GLIB_DEFINE_EXCEPTION(ConfigurationProblem)
+GEM_HW_GLIB_DEFINE_EXCEPTION(ConfigurationValidationProblem)
 
-GEM_HW_VFAT_DEFINE_EXCEPTION(HardwareProblem)
-GEM_HW_VFAT_DEFINE_EXCEPTION(NonexistentChannel)
+GEM_HW_GLIB_DEFINE_EXCEPTION(HardwareProblem)
+GEM_HW_GLIB_DEFINE_EXCEPTION(NonexistentChannel)
 
-GEM_HW_VFAT_DEFINE_EXCEPTION(RCMSNotificationError)
-GEM_HW_VFAT_DEFINE_EXCEPTION(SOAPTransitionProblem)
-GEM_HW_VFAT_DEFINE_EXCEPTION(TransitionProblem)
+GEM_HW_GLIB_DEFINE_EXCEPTION(RCMSNotificationError)
+GEM_HW_GLIB_DEFINE_EXCEPTION(SOAPTransitionProblem)
+GEM_HW_GLIB_DEFINE_EXCEPTION(TransitionProblem)
 
-GEM_HW_VFAT_DEFINE_EXCEPTION(SoftwareProblem)
-GEM_HW_VFAT_DEFINE_EXCEPTION(ValueError)
+GEM_HW_GLIB_DEFINE_EXCEPTION(SoftwareProblem)
+GEM_HW_GLIB_DEFINE_EXCEPTION(ValueError)
 
 // The GEM HW alarms.
-GEM_HW_VFAT_DEFINE_ALARM(MonitoringFailureAlarm)
+GEM_HW_GLIB_DEFINE_ALARM(MonitoringFailureAlarm)
 
-#endif // gem_hw_vfat_exception_Exception_h
+#endif // gem_hw_glib_exception_Exception_h

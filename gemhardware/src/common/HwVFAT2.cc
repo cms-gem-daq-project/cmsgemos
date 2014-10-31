@@ -47,7 +47,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(xdaq::Application* vfat2App,
 //  releaseDevice();
 //}
 
-uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName) const
+uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
 {
   //Maybe want to use a lock to prevent hammering the HW device
   uint32_t regValue;
@@ -178,47 +178,47 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
   uint8_t cont2 = readVFATReg("ContReg2");
   uint8_t cont3 = readVFATReg("ContReg3");
   
-  //INFO("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   vfatParams_.control0 = static_cast<unsigned>(cont0);
-  //INFO("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   vfatParams_.control1 = static_cast<unsigned>(cont1);
-  //INFO("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   vfatParams_.control2 = static_cast<unsigned>(cont2);
-  //INFO("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   vfatParams_.control3 = static_cast<unsigned>(cont3);
 
-  //INFO("storing RunMode in HwVFAT2.cc");
+  INFO("storing RunMode in HwVFAT2.cc");
   vfatParams_.runMode   = static_cast<VFAT2RunMode  >(getRunMode(        cont0));
-  //INFO("storing TriggerMode in HwVFAT2.cc");
+  INFO("storing TriggerMode in HwVFAT2.cc");
   vfatParams_.trigMode  = static_cast<VFAT2TrigMode >(getTriggerMode(    cont0));
-  //INFO("storing MSPolarity in HwVFAT2.cc");
+  INFO("storing MSPolarity in HwVFAT2.cc");
   vfatParams_.msPol     = static_cast<VFAT2MSPol    >(getMSPolarity(     cont0));
-  //INFO("storing CalPolarity in HwVFAT2.cc");
+  INFO("storing CalPolarity in HwVFAT2.cc");
   vfatParams_.calPol    = static_cast<VFAT2CalPol   >(getCalPolarity(    cont0));
-  //INFO("storing CalibrationMode in HwVFAT2.cc");
+  INFO("storing CalibrationMode in HwVFAT2.cc");
   vfatParams_.calibMode = static_cast<VFAT2CalibMode>(getCalibrationMode(cont0));
   
-  //INFO("storing DACMode in HwVFAT2.cc");
+  INFO("storing DACMode in HwVFAT2.cc");
   vfatParams_.dacMode   = static_cast<VFAT2DACMode  >(getDACMode(          cont1));
-  //INFO("storing ProbeMode in HwVFAT2.cc");
+  INFO("storing ProbeMode in HwVFAT2.cc");
   vfatParams_.probeMode = static_cast<VFAT2ProbeMode>(getProbeMode(        cont1));
-  //INFO("storing LVDSMode in HwVFAT2.cc");
+  INFO("storing LVDSMode in HwVFAT2.cc");
   vfatParams_.lvdsMode  = static_cast<VFAT2LVDSMode >(getLVDSMode(         cont1));
-  //INFO("storing HitCycleTime in HwVFAT2.cc");
+  INFO("storing HitCycleTime in HwVFAT2.cc");
   vfatParams_.reHitCT   = static_cast<VFAT2ReHitCT  >(getHitCountCycleTime(cont1));
   
-  //INFO("storing HitCountMode in HwVFAT2.cc");
+  INFO("storing HitCountMode in HwVFAT2.cc");
   vfatParams_.hitCountMode = static_cast<VFAT2HitCountMode >(getHitCountMode( cont2));
-  //INFO("storing MSPulseLength in HwVFAT2.cc");
+  INFO("storing MSPulseLength in HwVFAT2.cc");
   vfatParams_.msPulseLen   = static_cast<VFAT2MSPulseLength>(getMSPulseLength(cont2));
-  //INFO("storing DigInSel in HwVFAT2.cc");
+  INFO("storing DigInSel in HwVFAT2.cc");
   vfatParams_.digInSel     = static_cast<VFAT2DigInSel     >(getInputPadMode( cont2));
   
-  //INFO("storing TrimDACRange in HwVFAT2.cc");
+  INFO("storing TrimDACRange in HwVFAT2.cc");
   vfatParams_.trimDACRange    = static_cast<VFAT2TrimDACRange >(getTrimDACRange(   cont3));
-  //INFO("storing PadBandgap in HwVFAT2.cc");
+  INFO("storing PadBandgap in HwVFAT2.cc");
   vfatParams_.padBandGap      = static_cast<VFAT2PadBandgap   >(getBandgapPad(     cont3));
-  //INFO("storing DFTestPattern HwVFAT2.cc");
+  INFO("storing DFTestPattern HwVFAT2.cc");
   vfatParams_.sendTestPattern = static_cast<VFAT2DFTestPattern>(getTestPatternMode(cont3));
   
   vfatParams_.latency = getLatency();
@@ -248,7 +248,7 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
 }
 
 //channel specific settings
-void gem::hw::vfat::HwVFAT2::sendCalPulseToChannel(uint8_t channel, bool on) const {
+void gem::hw::vfat::HwVFAT2::sendCalPulseToChannel(uint8_t channel, bool on) {
   INFO(toolbox::toString("setting cal pulse for channel %d HwVFAT2.cc",(unsigned)channel));
   //channel should be 0 to 128
   if (channel > 128) {
@@ -272,7 +272,7 @@ void gem::hw::vfat::HwVFAT2::sendCalPulseToChannel(uint8_t channel, bool on) con
     writeReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL)|(on ? 0x40 : 0x0));
 }
 
-void gem::hw::vfat::HwVFAT2::maskChannel(uint8_t channel, bool on) const {
+void gem::hw::vfat::HwVFAT2::maskChannel(uint8_t channel, bool on) {
   INFO(toolbox::toString("setting mask for channel %d HwVFAT2.cc",(unsigned)channel));
   //channel should be 1 to 128
   if ((channel > 128) || (channel < 1)) {
@@ -286,7 +286,7 @@ void gem::hw::vfat::HwVFAT2::maskChannel(uint8_t channel, bool on) const {
   writeReg(registerName,channelSettings|(on ? 0x20 : 0x0));
 }
 
-uint8_t gem::hw::vfat::HwVFAT2::getChannelTrimDAC(uint8_t channel) const {
+uint8_t gem::hw::vfat::HwVFAT2::getChannelTrimDAC(uint8_t channel) {
   INFO(toolbox::toString("getting trim DAC for channel %d HwVFAT2.cc",(unsigned)channel));
   //channel should be 1 to 128
   if ((channel > 128) || (channel < 1)) {
@@ -299,7 +299,7 @@ uint8_t gem::hw::vfat::HwVFAT2::getChannelTrimDAC(uint8_t channel) const {
   return (readVFATReg(registerName)&VFAT2ChannelBitMasks::TRIMDAC);
 }
 
-void gem::hw::vfat::HwVFAT2::setChannelTrimDAC(uint8_t channel, uint8_t trimDAC) const {
+void gem::hw::vfat::HwVFAT2::setChannelTrimDAC(uint8_t channel, uint8_t trimDAC) {
   INFO(toolbox::toString("setting trim DAC for channel %d HwVFAT2.cc",(unsigned)channel));
   //channel should be 1 to 128
   if ((channel > 128) || (channel < 1)) {

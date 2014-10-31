@@ -93,6 +93,7 @@ namespace gem {
         (VFAT2Settings::TriggerMode::SPARE0    , "GEMMODE"    )
 	(VFAT2Settings::TriggerMode::SPARE1    , "GEMMODE"    )
 	(VFAT2Settings::TriggerMode::SPARE2    , "GEMMODE"    );
+      //(VFAT2Settings::TriggerMode::SPARE3    , "GEMMODE"    );
       
       const enumCalibModeToString CalibrationModeToString = boost::assign::map_list_of
 	(VFAT2Settings::CalibrationMode::NORMAL   , "NORMAL"   )
@@ -130,7 +131,7 @@ namespace gem {
 	(VFAT2Settings::DACMode::CALOUT      , "CALOUT"      )
 	//need logic to prevent these from being set until they are actually used
 	(VFAT2Settings::DACMode::SPARE0    , "SPARE0"    )
-	(VFAT2Settings::DACMode::SPARE2    , "SPARE1"    )
+	(VFAT2Settings::DACMode::SPARE1    , "SPARE1"    )
 	(VFAT2Settings::DACMode::SPARE2    , "SPARE2"    )
 	(VFAT2Settings::DACMode::SPARE3    , "SPARE3"    )
 	(VFAT2Settings::DACMode::SPARE4    , "SPARE4"    );

@@ -848,6 +848,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(xgi:
        << cgicc::br() << std::endl
        << cgicc::comment() << "ending the XML file upload fieldset" << cgicc::comment() << std::endl
        << cgicc::fieldset() << std::endl
+    
        << cgicc::comment() << "ending the Commands section" << cgicc::comment() << std::endl
        << cgicc::section() << std::endl;
 }

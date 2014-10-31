@@ -20,10 +20,10 @@ namespace gem {
 	  ONEMODE   = 0x1, //One sector (S1)
 	  FOURMODE  = 0x2, //Four sectors (S1-S4)
 	  GEMMODE   = 0x3, //Eight sectors (S1-S8
-	  //SPARE0    = 0x4, //GEM mode (S1 to S8 as defined in the HitCountMode)
-	  //SPARE1    = 0x5, //GEM mode (S1 to S8 as defined in the HitCountMode)
-	  //SPARE2    = 0x6, //GEM mode (S1 to S8 as defined in the HitCountMode)
-	  //SPARE3    = 0x7, //GEM mode (S1 to S8 as defined in the HitCountMode)
+	  SPARE0    = 0x4, //GEM mode (S1 to S8 as defined in the HitCountMode)
+	  SPARE1    = 0x5, //GEM mode (S1 to S8 as defined in the HitCountMode)
+	  SPARE2    = 0x6, //GEM mode (S1 to S8 as defined in the HitCountMode)
+	  SPARE3    = 0x7, //GEM mode (S1 to S8 as defined in the HitCountMode)
 	}
 
 	enum CalibrationMode { //Calibration settings
@@ -60,11 +60,11 @@ namespace gem {
  	  ITHRESH2  = 0x8, //IThreshold2 to DACo-I, DACo-V "low"
  	  VCAL      = 0x9, //VCal to DACo-V,        DACo-I "Hi Z"
  	  CALOUT    = 0xa, //CalOut to DACo-V,      DACo-I "Hi Z"
- 	  //SPARE0 = 0xb, //Spare
- 	  //SPARE1 = 0xc, //Spare
- 	  //SPARE2 = 0xd, //Spare
- 	  //SPARE3 = 0xe, //Spare
- 	  //SPARE4 = 0xf, //Spare
+ 	  SPARE0 = 0xb, //Spare
+ 	  SPARE1 = 0xc, //Spare
+ 	  SPARE2 = 0xd, //Spare
+ 	  SPARE3 = 0xe, //Spare
+ 	  SPARE4 = 0xf, //Spare
 	}
 
 	enum HitCountMode {  //Defines the input for the Hitounter
@@ -77,13 +77,13 @@ namespace gem {
 	  COUNTS6     = 0x6, //HitCounter counts S6 (19, 20, 21, 43, 44, 45, 67, 68, 69, 91, 92, 93, 115, 116, 117)
 	  COUNTS7     = 0x7, //HitCounter counts S7 (22, 23, 24, 46, 47, 48, 70, 71, 72, 94, 95, 96, 118, 119, 120)
 	  COUNTS8     = 0x8, //HitCounter counts S8 (25, 26, 27, 49, 50, 51, 73, 74, 75, 97, 98, 99, 121, 122, 123)
-	  //REDUNDANT0  = 0x9, //HitCounter counts S8
-	  //REDUNDANT1  = 0xa, //HitCounter counts S8
-	  //REDUNDANT2  = 0xb, //HitCounter counts S8
-	  //REDUNDANT3  = 0xc, //HitCounter counts S8
-	  //REDUNDANT4  = 0xd, //HitCounter counts S8
-	  //REDUNDANT5  = 0xe, //HitCounter counts S8
-	  //REDUNDANT6  = 0xf, //HitCounter counts S8
+	  REDUNDANT0  = 0x9, //HitCounter counts S8
+	  REDUNDANT1  = 0xa, //HitCounter counts S8
+	  REDUNDANT2  = 0xb, //HitCounter counts S8
+	  REDUNDANT3  = 0xc, //HitCounter counts S8
+	  REDUNDANT4  = 0xd, //HitCounter counts S8
+	  REDUNDANT5  = 0xe, //HitCounter counts S8
+	  REDUNDANT6  = 0xf, //HitCounter counts S8
 	}
 
 	enum MSPulseLength { //Defines the length of the monostable pulse
