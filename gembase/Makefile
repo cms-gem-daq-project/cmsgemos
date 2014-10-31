@@ -13,7 +13,7 @@ LongPackage=gembase
 ShortPackage=base
 PackageName=base
 
-#Sources= GEMApplication.cc GEMWebApplication.cc CfgParser.cc version.cc
+#Sources= GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc CfgParser.cc version.cc
 Sources= GEMFSM.cc utils/GEMSOAPToolBox.cc version.cc
 
 DynamicLibrary=gem_base

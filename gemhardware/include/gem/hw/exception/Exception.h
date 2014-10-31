@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "xcept/Exception.h"
+#include "gem/base/exception/Exception.h"
 
 // Mimick XCEPT_DEFINE_EXCEPTION from xcept/Exception.h.
 
@@ -26,7 +26,7 @@
 			 std::string module,				\
 			 int line,					\
 			 std::string function,				\
-			 xcept::Exception& err) :			\
+			 gem::base::exception::Exception& err) :	\
 	    gem::hw::exception::Exception(name, message, module, line, function, err) \
 	      {};							\
 	  };								\
@@ -42,7 +42,7 @@ namespace gem {
   namespace hw {
     namespace exception {
       
-      class Exception : public xcept::Exception
+      class Exception : public gem::base::exception::Exception
 	{
 	public:
 	Exception(std::string name,
@@ -50,15 +50,15 @@ namespace gem {
 		  std::string module,
 		  int line,
 		  std::string function) :
-	  xcept::Exception(name, message, module, line, function)
+	  gem::base::exception::Exception(name, message, module, line, function)
 	    {};
 	Exception(std::string name,
 		  std::string message,
 		  std::string module,
 		  int line,
 		  std::string function,
-		  xcept::Exception& err) :
-	  xcept::Exception(name, message, module, line, function, err)
+		  gem::base::exception::Exception& err) :
+	  gem::base::exception::Exception(name, message, module, line, function, err)
 	    {};
 	};
       

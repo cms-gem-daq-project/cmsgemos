@@ -3,6 +3,8 @@
 #include "gem/base/GEMFSMApplication.h"
 
 #include "gem/base/utils/GEMLogging.h"
+#include "gem/base/utils/GEMSOAPToolBox.h"
+#include "gem/base/utils/exception/Exception.h"
 
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"
 #include "toolbox/fsm/InvalidInputEvent.h"
@@ -133,7 +135,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   
   std::string commandName = "undefined";
   try {
-    commandName = gem::base::util::GEMSOAPToolBox::extractFSMCommandName(msg);
+    commandName = gem::base::utils::GEMSOAPToolBox::extractFSMCommandName(msg);
   }
   catch(xoap::exception::Exception& err) {
     std::string msgBase =

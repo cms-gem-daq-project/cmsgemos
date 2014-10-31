@@ -65,7 +65,7 @@ namespace gem {
 	log4cplus::Logger gemlogger_;
 
 	//virtual ConfigurationInfoSpaceHandler* getCfgInfoSpace() const;
-	virtual GEMHwDevice* getHw() const;
+	virtual gem::hw::GEMHwDevice* getHw() const;
 	//virtual Monitor* getMonitor() const;
 
       private:
