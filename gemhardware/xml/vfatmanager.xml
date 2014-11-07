@@ -2,8 +2,17 @@
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
-  <xc:Context url="http://localhost:1977">
+  <xc:Context url="http://localhost:3457">
 
+    <xc:Application class="gem::hw::vfat::VFAT2ThresholdScan" id="3253" instance="1" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2hresholdScan"
+		  xsi:type="soapenc:Struct">
+	<device xsi:type="xsd:string">CMS_hybrid_J8</device>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
+      </properties>
+    </xc:Application>
+
+<!--
     <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3254" instance="1" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
@@ -51,6 +60,7 @@
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
+-->
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/linux/x86_64_slc6/libgem_hw.so</xc:Module>
   </xc:Context>
 </xc:Partition>
