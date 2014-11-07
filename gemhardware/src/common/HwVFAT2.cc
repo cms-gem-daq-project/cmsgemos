@@ -39,13 +39,18 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(xdaq::Application* vfat2App,
   //hardware is running
 }
 
-//gem::hw::vfat::HwVFAT2::~HwVFAT2()
-//{
-//  //what does release device do to the hardware?
-//  //does it turn it off?  it probably shouldn't, in case code crashes but
-//  //hardware should still take data
-//  releaseDevice();
-//}
+gem::hw::vfat::HwVFAT2::~HwVFAT2()
+{
+  //what does release device do to the hardware?
+  //does it turn it off?  it probably shouldn't, in case code crashes but
+  //hardware should still take data
+  releaseDevice();
+}
+
+void gem::hw::vfat::HwVFAT2::configureDevice()
+{
+  
+}
 
 uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
 {

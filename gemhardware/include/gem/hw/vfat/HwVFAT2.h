@@ -49,11 +49,14 @@ namespace gem {
 		  std::string const& vfatDevice="CMS_hybrid_J8");
 	  //HwVFAT2(xdaq::Application * vfat2App);
 	  //throw (xdaq::exception::Exception);
+
+	  ~HwVFAT2();
 	
 	  //void connectDevice();
 	  //void releaseDevice();
 	  //void initDevice();
 	  //void enableDevice();
+	  virtual void configureDevice();
 	  //void disableDevice();
 	  //void pauseDevice();
 	  //void startDevice();

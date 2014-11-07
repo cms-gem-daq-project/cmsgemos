@@ -129,6 +129,11 @@ void gem::hw::GEMHwDevice::connectDevice()
 
 }
 
+void gem::hw::GEMHwDevice::configureDevice()
+{
+  
+}
+
 void gem::hw::GEMHwDevice::releaseDevice()
 {
   if (gemHWP_ != 0) {

@@ -21,7 +21,6 @@ namespace xdaq {
 }
 
 namespace gem {
-  
   namespace hw {
     
     class GEMHwDevice
@@ -41,7 +40,7 @@ namespace gem {
 	virtual void connectDevice();
 	virtual void releaseDevice();
 	//virtual void initDevice();
-	//virtual void configureDevice();
+	virtual void configureDevice()=0;
 	virtual void enableDevice();
 	//virtual void disableDevice();
 	//virtual void startDevice();
@@ -52,11 +51,11 @@ namespace gem {
 	
 	bool isGEMHwDeviceConnected() { return gemHWP_ != 0; };
 	
-	std::string getBoardID()   ;
-	std::string getSystemID()  ;
-	std::string getIPAddress() ;
-	std::string getFirmwareVer( std::string const& fwRegPrefix="glib_regs.sysregs") ;
-	std::string getFirmwareDate(std::string const& fwRegPrefix="glib_regs.sysregs") ;
+	virtual std::string getBoardID()   ;
+	virtual std::string getSystemID()  ;
+	virtual std::string getIPAddress() ;
+	virtual std::string getFirmwareVer( std::string const& fwRegPrefix="glib_regs.sysregs") ;
+	virtual std::string getFirmwareDate(std::string const& fwRegPrefix="glib_regs.sysregs") ;
 
 	/**
 	 *Generic read/write functions or IPBus devices

@@ -14,26 +14,31 @@
 #include "xgi/framework/Method.h"
 #include "cgicc/HTMLClasses.h"
 
-#include "gem/hw/vfat/HwVFAT2.h"
-//#include "gem/hw/vfat/VFAT2Settings.h"
-//#include "gem/hw/vfat/VFAT2SettingsEnums.h"
-//#include "gem/hw/vfat/VFAT2Enums2Strings.h"
-//#include "gem/hw/vfat/VFAT2Strings2Enums.h"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+
+#include "gem/hw/vfat/VFAT2Settings.h"
 
 //typedef uhal::exception::exception uhalException;
 
 namespace cgicc {
   BOOLEAN_ELEMENT(section,"section");
 }
+
 namespace gem {
+  namespace base {
+    class GEMApplication;
+    class GEMFSM;
+    class GEMFSMApplication;
+    class GEMWebApplication;
+  }
+  
   namespace hw {
     namespace vfat {
       class HwVFAT2;
       
+      //class VFAT2Manager: public gem::base::GEMWebApplication, public gem::base::GEMFSMApplication
       class VFAT2Manager: public xdaq::WebApplication, public xdata::ActionListener
 	{
 	  

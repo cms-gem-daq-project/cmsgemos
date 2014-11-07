@@ -1,5 +1,7 @@
 #include "gem/hw/vfat/VFAT2Manager.h"
 
+#include "gem/hw/vfat/HwVFAT2.h"
+
 //#include <boost/lexical_cast.hpp>
 //#include <boost/format.hpp>
 
@@ -217,13 +219,13 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
     std::string msg =
       toolbox::toString("unable to access VFAT2 hardware %s",(device_.toString()).c_str());
     //remove fatals//LOG4CPLUS_FATAL(this->getApplicationLogger(),msg);
-    XCEPT_RAISE(gem::hw::vfat::exception::HardwareProblem, msg);
+    XCEPT_RAISE(gem::hw::vfat::exception::VFATHwProblem, msg);
   }
   catch (std::exception const& err) {
     std::string msg =
       toolbox::toString("unable to access VFAT2 hardware %s",(device_.toString()).c_str());
     //remove fatals//LOG4CPLUS_FATAL(this->getApplicationLogger(),msg);
-    XCEPT_RAISE(gem::hw::vfat::exception::HardwareProblem, msg);
+    XCEPT_RAISE(gem::hw::vfat::exception::VFATHwProblem, msg);
   }
   LOG4CPLUS_INFO(this->getApplicationLogger(),"ending constructor::getNodes(): " << std::endl
 		 << "nodes_.size() = " << nodes_.size() << std::endl);
@@ -533,7 +535,7 @@ void gem::hw::vfat::VFAT2Manager::getCheckedRegisters(cgicc::Cgicc cgi, std::vec
 
    Latency     - SetLatency      - Latency     
    VCal        - SetVCal         - VCal        
-   VThreshold1 - SetVThreshold1  - VThreshold1 
+    VThreshold1 - SetVThreshold1  - VThreshold1 
    VThreshold2 - SetVThreshold2  - VThreshold2 
    
    CalPhase - SetCalPhase - CalPhase
