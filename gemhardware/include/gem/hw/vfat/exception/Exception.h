@@ -28,7 +28,7 @@
 			   std::string module,				\
 			   int line,					\
 			   std::string function,			\
-			   gem::base::exception::Exception& err) :	\
+			   gem::hw::exception::Exception& err) :	\
 	      xcept::Exception(name, message, module, line, function, err) \
 		{};							\
 	    };								\

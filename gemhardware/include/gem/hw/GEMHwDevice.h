@@ -53,7 +53,7 @@ namespace gem {
 	
 	virtual std::string getBoardID()   ;
 	virtual std::string getSystemID()  ;
-	virtual std::string getIPAddress() ;
+	//virtual std::string getIPAddress() ;
 	virtual std::string getFirmwareVer( std::string const& fwRegPrefix="glib_regs.sysregs") ;
 	virtual std::string getFirmwareDate(std::string const& fwRegPrefix="glib_regs.sysregs") ;
 

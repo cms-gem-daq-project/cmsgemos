@@ -3,7 +3,8 @@
 
 #include <string>
 
-#include "gem/base/exception/Exception.h"
+//#include "gem/base/exception/Exception.h"
+#include "xcept/Exception.h"
 
 #define GEM_HW_DEFINE_EXCEPTION(EXCEPTION_NAME)                         \
   namespace gem {				                        \
@@ -27,7 +28,7 @@
 			 std::string module,				\
 			 int line,					\
 			 std::string function,				\
-			 gem::base::exception::Exception& err) :	\
+			 xcept::Exception& err) :			\
 	    xcept::Exception(name, message, module, line, function, err) \
 	      {};							\
 	  };								\
