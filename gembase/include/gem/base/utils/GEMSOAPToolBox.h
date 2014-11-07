@@ -8,6 +8,8 @@
 #include "xcept/Exception.h"
 #include "xcept/tools.h"
 
+#include "gem/base/utils/exception/Exception.h"
+
 //#include "xdaq/NamespaceURI.h"
 
 #include "xoap/MessageFactory.h"

@@ -20,12 +20,12 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   //appStateInfoSpaceHandlerP_(appStateInfoSpaceHanderP),
   gemfsmP_(0),
   gemAppP_(gemAppP),
-  gemLogger_(gemAppP->getApplicationLogger()),
+  gemFSMLogger_(gemAppP->getApplicationLogger()),
   gemRCMSNotifier_(gemAppP_->getApplicationLogger(),
 		   gemAppP_->getApplicationDescriptor(),
 		   gemAppP_->getApplicationContext())
 {
-  DEBUG("GEMFSM ctor begin");
+  LOG4CPLUS_DEBUG(gemFSMLogger_,"GEMFSM ctor begin");
   
   // Create the underlying Finite State Machine itself.
   std::stringstream commandLoopName;
@@ -130,7 +130,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
 //throw (toolbox::fsm::exception::Exception)
 {
   if (msg.isNull()) {
-    XCEPT_RAISE(xoap::exception::Exception,"Null Message!");
+    XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
   }
   
   std::string commandName = "undefined";
@@ -140,11 +140,12 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   catch(xoap::exception::Exception& err) {
     std::string msgBase =
       toolbox::toString("Unable to extract command from GEMFSM SOAP message");
-    ERROR(toolbox::toString("%s: %s.",
-			    msgBase.c_str(),
+    LOG4CPLUS_ERROR(gemFSMLogger_,toolbox::toString("%s: %s.", msgBase.c_str(),
 			    xcept::stdformat_exception_history(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
 			 toolbox::toString("%s.", msgBase.c_str()), err);
+    //XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
+    //			 toolbox::toString("%s.", msgBase.c_str()), err);
     gemAppP_->notifyQualified("error", top);
     std::string faultString = toolbox::toString("%s failed", commandName.c_str());
     std::string faultCode   = "Client";
@@ -157,7 +158,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     return reply;
   }
   
-  DEBUG(toolbox::toString("GEMFSM::changeState() received command '%s'.",
+  LOG4CPLUS_DEBUG(gemFSMLogger_,toolbox::toString("GEMFSM::changeState() received command '%s'.",
                           commandName.c_str()));
   
   try {
@@ -168,7 +169,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     std::string msgBase =
       toolbox::toString("Problem executing the GEMFSM '%s' command",
 			commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.",
+    LOG4CPLUS_ERROR(gemFSMLogger_,toolbox::toString("%s: %s.",
 			    msgBase.c_str(),
 			    xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
@@ -199,7 +200,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     std::string msgBase =
       toolbox::toString("Failed to create GEMFSM SOAP reply for command '%s'",
 			commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.",
+    LOG4CPLUS_ERROR(gemFSMLogger_,toolbox::toString("%s: %s.",
 			    msgBase.c_str(),
 			    xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem, top,
@@ -217,7 +218,6 @@ std::string gem::base::GEMFSM::getCurrentState() const
   return gemfsmP_->getStateName(gemfsmP_->getCurrentState());
 }
 
-
 void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::string const msg)
   throw (toolbox::fsm::exception::Exception)
 {
@@ -227,14 +227,14 @@ void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::s
   //toolbox::fsm::State currentState = fsm.getCurrentState();
   //std::string stateName            = fsm.getStateName(currentState);
   std::string stateName = fsm.getStateName(fsm.getCurrentState());
-  DEBUG("notifyRCMS() called with msg = " << msg);
+  LOG4CPLUS_DEBUG(gemFSMLogger_,"notifyRCMS() called with msg = " << msg);
   try
     {
       gemRCMSNotifier_.stateChanged(stateName, msg);
     }
   catch(xcept::Exception& err)
     {
-      ERROR("Failed to notify RCMS of state change: "
+      LOG4CPLUS_ERROR(gemFSMLogger_,"Failed to notify RCMS of state change: "
             << xcept::stdformat_exception_history(err));
       XCEPT_DECLARE_NESTED(gem::base::utils::exception::RCMSNotificationError, top,
                            "Failed to notify RCMS of state change.", err);
@@ -246,21 +246,21 @@ void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::s
 void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   throw (toolbox::fsm::exception::Exception)
 {
-  state_=fsm.getStateName(fsm.getCurrentState());
+  std::string state_=fsm.getStateName(fsm.getCurrentState());
   //appStateInfoSpaceHandlerP_->setFSMState(state_);
-  DEBUG("Current state is: [" << state_ << "]");
+  LOG4CPLUS_DEBUG(gemFSMLogger_,"Current state is: [" << state_ << "]");
   // Send notification to Run Control
   try {
-    DEBUG("Notifying Run Control of state change.");
+    LOG4CPLUS_DEBUG(gemFSMLogger_,"Notifying Run Control of state change.");
     gemRCMSNotifier_.stateChanged((std::string)state_,"");
   }
   catch(xcept::Exception &e) {
-    ERROR("Failed to notify Run Control of state change."
+    LOG4CPLUS_ERROR(gemFSMLogger_,"Failed to notify Run Control of state change."
 	  << xcept::stdformat_exception_history(e));
-    stringstream ss2;
+    std::stringstream ss2;
     ss2 << "Failed to notify Run Control of state change.";
     XCEPT_DECLARE_NESTED( gem::base::exception::Exception, eObj, ss2.str(), e );
-    this->notifyQualified( "error", eObj );
+    gemAppP_->notifyQualified( "error", eObj );
   }
 }
 
@@ -272,12 +272,12 @@ void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
    * should we go to failed or try to ensure no action is taken and the initial state is preserved?
    */
   toolbox::fsm::InvalidInputEvent& invalidInputEvent = dynamic_cast<toolbox::fsm::InvalidInputEvent&>(*event);
-  std::string initialState   = gemfsmP_->getStateName(invalidInputEvent.fromState());
+  std::string initialState   = gemfsmP_->getStateName(invalidInputEvent.getFromState());
   std::string requestedState = invalidInputEvent.getInput();
   
   std::string message = toolbox::toString("An invalid state transition has been received:"
 					  "requested transition to '%s' from '%s'.",
 					  requestedState.c_str(), initialState.c_str());
-  ERROR(message);
+  LOG4CPLUS_ERROR(gemFSMLogger_,message);
   gotoFailed(message);
 }
