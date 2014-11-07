@@ -1,12 +1,13 @@
 #ifndef gem_base_GEMFSMApplication_h
 #define gem_base_GEMFSMApplication_h
 
+#include "gem/base/GEMFSM.h"
 #include "gem/base/GEMApplication.h"
 
 namespace gem {
   namespace base {
     
-    class GEMFSMApplication: public gem::base::GEMApplication
+    class GEMFSMApplication: virtual public gem::base::GEMApplication//, virtual public gem::base::GEMFSM
       {
       public:
 	friend class GEMFSM;
@@ -20,6 +21,28 @@ namespace gem {
 	//virtual void actionPerformed(xdata::Event&);
 	
       protected:
+	// hyperdaq action callbacks
+	virtual void webInitialize(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webHalt(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webEnable(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webConfigure(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webStart(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webPause(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webResume(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webStop(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webReset(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	//virtual void webDisable(xgi::Input *in, xgi::Output *out)
+	//  throw (xgi::exception::Exception);
+
 	// SOAP interface
 	virtual xoap::MessageReference onEnable(     xoap::MessageReference message)
 	  throw (xoap::exception::Exception);
@@ -63,30 +86,30 @@ namespace gem {
 	//bool calibrationSequencer(toolbox::task::WorkLoop *wl);
 	
 	//state transitions
-	virtual void initializeAction(   toolbox::Event::Reference e)
+	virtual void initializeAction(toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void enableAction(   toolbox::Event::Reference e)
+	virtual void enableAction(    toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void configureAction(toolbox::Event::Reference e)
+	virtual void configureAction( toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void startAction(    toolbox::Event::Reference e)
+	virtual void startAction(     toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void pauseAction(    toolbox::Event::Reference e)
+	virtual void pauseAction(     toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void resumeAction(   toolbox::Event::Reference e)
+	virtual void resumeAction(    toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void stopAction(     toolbox::Event::Reference e)
+	virtual void stopAction(      toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void haltAction(     toolbox::Event::Reference e)
+	virtual void haltAction(      toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void noAction(       toolbox::Event::Reference e) 
+	virtual void noAction(        toolbox::Event::Reference e) 
 	  throw (toolbox::fsm::exception::Exception);
-	virtual void failAction(       toolbox::Event::Reference e) 
+	virtual void failAction(      toolbox::Event::Reference e) 
 	  throw (toolbox::fsm::exception::Exception);
-
+	
 	virtual void resetAction()//toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
-
+	
 	virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
 	  throw (toolbox::fsm::exception::Exception);
 	virtual void transitionFailed(toolbox::Event::Reference event)

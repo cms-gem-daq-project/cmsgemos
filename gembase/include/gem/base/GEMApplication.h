@@ -51,10 +51,15 @@ namespace gem {
     //class Monitor;
     //class WebServer;
     
-    class GEMApplication : public xdaq::Application, public xdata::ActionListener
+    class GEMApplication : virtual public xdaq::Application, virtual public xdata::ActionListener
       {
       public:
-	GEMApplication(xdaq::ApplicationStub *stub);
+	GEMApplication(xdaq::ApplicationStub *stub)
+	  throw (xdaq::exception::Exception);
+
+	virtual ~GEMApplication();
+
+	std::string getFullURL();
 	
 	virtual void init() = 0;
 	
@@ -62,21 +67,21 @@ namespace gem {
 	
       protected:
 	gem::hw::GEMHwDevice* gemHWP_;
-	log4cplus::Logger gemlogger_;
+	log4cplus::Logger gemLogger_;
 
 	//virtual ConfigurationInfoSpaceHandler* getCfgInfoSpace() const;
-	virtual gem::hw::GEMHwDevice* getHw() const;
+	//virtual gem::hw::GEMHwDevice* getHw() const;
 	//virtual Monitor* getMonitor() const;
 
       private:
-
-	/**** application properties ****/
+	
 	i2o::utils::AddressMap *i2oAddressMap_;
 	toolbox::mem::MemoryPoolFactory *poolFactory_;
 	
+	/**** application properties ****/
 	xdata::InfoSpace *appInfoSpace_;
 
-        xdaq::ApplicationDescriptor *appDescriptor_;
+	xdaq::ApplicationDescriptor *appDescriptor_;
 	xdaq::ApplicationContext    *appContext_;
 	xdaq::ApplicationGroup      *appGroup_;
 
@@ -84,6 +89,7 @@ namespace gem {
 	unsigned long instance_;
 	std::string urn_;	
 	
+	gem::base::GEMWebApplication* gemWebInterface_;
 
 	xdata::String          run_type_;
 	xdata::UnsignedInteger run_number_;
@@ -94,7 +100,7 @@ namespace gem {
         xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
 
 	toolbox::BSem wl_semaphore_;
-
+	
 	toolbox::task::WorkLoop *wl_;
 
 	toolbox::task::ActionSignature *enable_sig_, *configure_sig_, *initialize_sig_;

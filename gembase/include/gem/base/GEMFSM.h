@@ -25,9 +25,10 @@ namespace toolbox {
 namespace gem {
   namespace base {
 
+    class GEMWebApplication;
     class GEMFSMApplication;
     
-    class GEMFSM : public virtual toolbox::lang::Class
+    class GEMFSM : virtual public toolbox::lang::Class
       {
       public:
   	GEMFSM(GEMFSMApplication* const gemAppP);//,
@@ -36,7 +37,7 @@ namespace gem {
 	
 	xoap::MessageReference changeState(xoap::MessageReference msg);
 	
-	std::string getCurrentStateName() const;
+	std::string getCurrentState() const;
 	
 	/*may not need (all of) these, no need to just blindly copy TCDS :-)*/
 	//void configureAndEnable();
@@ -45,8 +46,10 @@ namespace gem {
 	void gotoFailedAsynchronously(xcept::Exception& err);
 
       protected:
-	void notifyRCMS(toolbox::fsm::FiniteStateMachine& fsm, std::string const msg);
-	void stateChanged(toolbox::fsm::FiniteStateMachine& fsm);
+	void notifyRCMS(toolbox::fsm::FiniteStateMachine& fsm, std::string const msg)
+	  throw(toolbox::fsm::exception::Exception);
+	void stateChanged(toolbox::fsm::FiniteStateMachine& fsm)
+	  throw(toolbox::fsm::exception::Exception);
 	//void stateChangedWithNotification(toolbox::fsm::FiniteStateMachine& fsm);
 	//void stateChangedToFailedWithNotification(toolbox::fsm::FiniteStateMachine& fsm);
 	
@@ -55,8 +58,12 @@ namespace gem {
       private:
 	//gem::base::utils::ApplicationStateInfoSpaceHandler* appStateInfoSpaceHandlerP_;
 	toolbox::fsm::AsynchronousFiniteStateMachine* gemfsmP_;
+
+	//xdata::String state_;
+	//xdata::String reasonForFailure_;
+
 	GEMFSMApplication* gemAppP_;
-	log4cplus::Logger gemLogger_;
+	log4cplus::Logger gemFSMLogger_;
 	std::map<std::string, std::string> lookupMap_;
 	xdaq2rc::RcmsStateNotifier gemRCMSNotifier_;
       };
