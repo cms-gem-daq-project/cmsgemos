@@ -8,29 +8,31 @@
 #define GEM_HW_VFAT_DEFINE_EXCEPTION(EXCEPTION_NAME)			\
   namespace gem {				                        \
     namespace hw {				                        \
-      namespace exception {					        \
-	class EXCEPTION_NAME : virtual public xcept::Exception		\
-	  {								\
-	  public :							\
-	  EXCEPTION_NAME() :						\
-	    xcept::Exception()						\
-	      {};							\
-	  EXCEPTION_NAME(std::string name,				\
-			 std::string message,				\
-			 std::string module,				\
-			 int line,					\
-			 std::string function) :			\
-	    xcept::Exception(name, message, module, line, function)	\
-	      {};							\
-	  EXCEPTION_NAME(std::string name,				\
-			 std::string message,				\
-			 std::string module,				\
-			 int line,					\
-			 std::string function,				\
-			 gem::base::exception::Exception& err) :	\
-	    xcept::Exception(name, message, module, line, function, err) \
-	      {};							\
-	  };								\
+      namespace vfat {				                        \
+	namespace exception {					        \
+	  class EXCEPTION_NAME : virtual public xcept::Exception	\
+	    {								\
+	    public :							\
+	    EXCEPTION_NAME() :						\
+	      xcept::Exception()					\
+		{};							\
+	    EXCEPTION_NAME(std::string name,				\
+			   std::string message,				\
+			   std::string module,				\
+			   int line,					\
+			   std::string function) :			\
+	      xcept::Exception(name, message, module, line, function)	\
+		{};							\
+	    EXCEPTION_NAME(std::string name,				\
+			   std::string message,				\
+			   std::string module,				\
+			   int line,					\
+			   std::string function,			\
+			   gem::base::exception::Exception& err) :	\
+	      xcept::Exception(name, message, module, line, function, err) \
+		{};							\
+	    };								\
+	}								\
       }									\
     }									\
   } 
