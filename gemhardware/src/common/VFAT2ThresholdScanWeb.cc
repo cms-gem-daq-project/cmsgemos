@@ -103,6 +103,7 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCounterLayo
   *out << std::endl << cgicc::br() << std::endl
        << std::endl << cgicc::br() << std::endl
        << std::endl << cgicc::br() << std::endl
+       << std::endl
        << "          <fieldset class=\"vfatCounters\">" << std::endl
        << cgicc::legend("TS: Latency Value") << std::endl
        << cgicc::label("TS: Initial Threshold").set("for","InitialThreshold") << std::endl
@@ -110,46 +111,50 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCounterLayo
                         .set("type","number").set("min","-255").set("max","0")
                         .set("id","InitialThreshold").set("name","InitialThreshold")
        //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
-       << std::endl
-       << cgicc::br() << std::endl
+       << std::endl << cgicc::br() << std::endl
        << std::endl
        << cgicc::label("TS: Final Threshold").set("for","FinalThreshold") << std::endl
        << cgicc::input().set("class","vfatBiasInput").set("type","text")
                         .set("type","number").set("min","-255").set("max","0")
                         .set("id","FinalThreshold").set("name","FinalThreshold")
        //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
-       << std::endl
-       << cgicc::br() << std::endl
+       << std::endl<< cgicc::br() << std::endl
        << std::endl
        << cgicc::label("TS: Threshold Step").set("for","ThresholdStep") << std::endl
        << cgicc::input().set("class","vfatBiasInput").set("type","text")
                         .set("type","number").set("min","0").set("max","255")
                         .set("id","ThresholdStep").set("name","ThresholdStep")
        //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
-    /*
+       << std::endl<< cgicc::br() << std::endl
        << std::endl
-       << cgicc::br() << std::endl
+       << cgicc::label("TS: VTH1").set("for","ThresholdVTH1") << std::endl
+       << cgicc::input().set("class","vfatBiasInput").set("type","text") 
+                        .set("type","submit").set("value","FIXED").set("name","FIXED")
+                        .set("id","ThresholdVTH1").set("name","ThresholdVTH1")
        << std::endl
-       << cgicc::label("HitCount0").set("for","HitCount0") << std::endl
+       << cgicc::label("TS: VTH2").set("for","ThresholdVTH2") << std::endl
        << cgicc::input().set("class","vfatBiasInput").set("type","text")
-                        .set("name","HitCount0").set("readonly")
-                        .set("value",boost::str(boost::format("0x%02x")%(params.hitCounter&0x000000ff)))
+                        .set("type","submit").set("value","SCANNED").set("name","SCANNED")
+                        .set("id","ThresholdVTH2").set("name","ThresholdVTH2")
+       << std::endl<< cgicc::br() << std::endl
        << std::endl
-       << cgicc::br() << std::endl
+       << cgicc::label("TS: Threshold Fixed").set("for","ThresholdFixed") << std::endl
+       << cgicc::input().set("class","vfatBiasInput").set("type","text").set("type","readonly")
+                        .set("id","ThresholdFixed").set("name","ThresholdFixed")
+       //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
+       << std::endl<< cgicc::br() << std::endl
        << std::endl
-       << cgicc::label("HitCount1").set("for","HitCount1") << std::endl
-       << cgicc::input().set("class","vfatBiasInput").set("type","text")
-                        .set("name","HitCount1").set("readonly")
-                        .set("value",boost::str(boost::format("0x%02x")%(params.hitCounter&0x0000ff00)))
+       << cgicc::label("TS: Threshold Initial").set("for","ThresholdInitial") << std::endl
+       << cgicc::input().set("class","vfatBiasInput").set("type","text").set("type","readonly")
+                        .set("id","ThresholdInitial").set("name","ThresholdInitial")
+       //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
+       << std::endl<< cgicc::br() << std::endl
        << std::endl
-       << cgicc::br() << std::endl
-       << std::endl
-       << cgicc::label("HitCount2").set("for","HitCount2") << std::endl
-       << cgicc::input().set("class","vfatBiasInput").set("type","text")
-                        .set("name","HitCount2").set("readonly")
-                        .set("value",boost::str(boost::format("0x%02x")%(params.hitCounter&0x00ff0000)))
-       << std::endl
-    */
+       << cgicc::label("TS: Threshold Actual").set("for","ThresholdActual") << std::endl
+       << cgicc::input().set("class","vfatBiasInput").set("type","text").set("type","readonly")
+                        .set("id","ThresholdActual").set("name","ThresholdActual")
+       //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
+
        << cgicc::br() << std::endl
        << std::endl
     
