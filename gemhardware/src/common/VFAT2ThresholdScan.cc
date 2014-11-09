@@ -1,9 +1,5 @@
 #include "gem/hw/vfat/VFAT2ThresholdScan.h"
-
 #include "gem/hw/vfat/HwVFAT2.h"
-
-//#include <boost/lexical_cast.hpp>
-//#include <boost/format.hpp>
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::vfat::VFAT2ThresholdScan)
 
@@ -17,7 +13,6 @@ xdaq::WebApplication(s)
   xgi::framework::deferredbind(this, this, &VFAT2ThresholdScan::ExpertView,    "ExpertView"  );
   xgi::framework::deferredbind(this, this, &VFAT2ThresholdScan::Peek,          "Peek"        ); 
   xgi::framework::deferredbind(this, this, &VFAT2ThresholdScan::controlVFAT2,  "controlVFAT2");
-
   device_ = "CMS_hybrid_J8";
   settingsFile_ = "";
 

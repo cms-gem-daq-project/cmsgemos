@@ -26,7 +26,6 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createHeader(xgi:
      << "    <link href=\"/hyperdaq/html/css/xdaq-console.css\" rel=\"stylesheet\" />" << std::endl
      << "    <link href=\"/hyperdaq/html/css/xdaq-hyperdaq-app-widgets.css\" rel=\"stylesheet\" />" << std::endl
      << "    <script type=\"text/javascript\" src=\"/hyperdaq/html/js/jquery-2.1.0.js\"></script>" << std::endl
-  //<< "    <script type=\"text/javascript\" src=\"/hyperdaq/html/js/jquery-2.1.0.min.js\"></script>" << std::endl
      << "    <script type=\"text/javascript\" src=\"/hyperdaq/html/js/xdaq-utils.js\"></script>" << std::endl
      << "    <script type=\"text/javascript\" src=\"/hyperdaq/html/js/xdaq-main-layout.js\"></script>" << std::endl
      << "    <script type=\"text/javascript\" src=\"/hyperdaq/html/js/xdaq-tabs.js\"></script>" << std::endl
@@ -66,7 +65,8 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createVFATInfoLay
        << cgicc::input().set("type","text").set("id","ChipID")
                         .set("name","ChipID").set("readonly")
                         .set("value",boost::str(boost::format("0x%04x")%(params.chipID)))
-       << std::endl
+       << std::endl;
+  /*
        << cgicc::br() << std::endl
        << "          <fieldset class=\"vfatPosition\">" << std::endl
        << cgicc::legend("VFAT2 Position") << std::endl
@@ -95,23 +95,37 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createVFATInfoLay
        << "            </div>" << std::endl
        << cgicc::comment() << "ending the VFAT2 Position fieldset" << cgicc::comment() << std::endl
        << "          </fieldset>" << std::endl;
+  */
 }
 
 //building the counter view
 void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCounterLayout(xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams params) {
-  *out << "          <fieldset class=\"vfatCounters\">" << std::endl
-       << cgicc::legend("VFAT2 Counters") << std::endl
-       << cgicc::label("Upset counter").set("for","Upset") << std::endl
+  *out << std::endl << cgicc::br() << std::endl
+       << std::endl << cgicc::br() << std::endl
+       << std::endl << cgicc::br() << std::endl
+       << "          <fieldset class=\"vfatCounters\">" << std::endl
+       << cgicc::legend("TS: Latency Value") << std::endl
+       << cgicc::label("TS: Initial Threshold").set("for","InitialThreshold") << std::endl
        << cgicc::input().set("class","vfatBiasInput").set("type","text")
-                        .set("id","Upset").set("name","Upset").set("readonly")
-    .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
+                        .set("type","number").set("min","-255").set("max","0")
+                        .set("id","InitialThreshold").set("name","InitialThreshold")
+       //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
        << std::endl
        << cgicc::br() << std::endl
        << std::endl
-       << cgicc::label("HitCount").set("for","HitCount") << std::endl
+       << cgicc::label("TS: Final Threshold").set("for","FinalThreshold") << std::endl
        << cgicc::input().set("class","vfatBiasInput").set("type","text")
-                        .set("name","HitCount").set("readonly")
-                        .set("value",boost::str(boost::format("0x%06x")%(params.hitCounter)))
+                        .set("type","number").set("min","-255").set("max","0")
+                        .set("id","FinalThreshold").set("name","FinalThreshold")
+       //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
+       << std::endl
+       << cgicc::br() << std::endl
+       << std::endl
+       << cgicc::label("TS: Threshold Step").set("for","ThresholdStep") << std::endl
+       << cgicc::input().set("class","vfatBiasInput").set("type","text")
+                        .set("type","number").set("min","0").set("max","255")
+                        .set("id","ThresholdStep").set("name","ThresholdStep")
+       //               .set("value",boost::str(boost::format("0x%02x")%(static_cast<unsigned>(params.upsetCounter))))
     /*
        << std::endl
        << cgicc::br() << std::endl
@@ -149,6 +163,7 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCounterLayo
 
 //building the control register view
 void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createControlRegisterLayout(xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams params) {
+  /*
   *out << "          <fieldset class=\"vfatControl\">"           << std::endl
        << cgicc::legend("VFAT2 Control registers") << std::endl
        << "            <section>"                                << std::endl
@@ -561,12 +576,13 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createControlRegi
        << "            </section>"                                     << std::endl
        << cgicc::comment() << "ending the Control registers fieldset" << cgicc::comment() << std::endl
        << "          </fieldset>"                                      << std::endl;  
+  */
 }
 
 //building the settings view
 void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createSettingsLayout(xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams params) {
   boost::format inputform("%1%");
-
+  /*
   *out << "          <fieldset class=\"vfatBiasing\">"               << std::endl
        << "            <legend>VFAT2 Biasing</legend>"               << std::endl
        << "            <div  class=\"vfatCurrentBiasing\">"          << std::endl
@@ -676,13 +692,13 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createSettingsLay
        << "            </div>" << std::endl
        << cgicc::comment() << "ending the Biasing fieldset" << cgicc::comment() << std::endl
        << "          </fieldset>" << std::endl;
-  
+  */
 }
 
 //building the channel view
-void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createChannelRegisterLayout(xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams params) {
+void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createChannelRegisterLayout(xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams params) {/*
   boost::format inputform("%1%");
-  
+
   *out << "        <fieldset class=\"vfatChannelRegisters\">" << std::endl
        << cgicc::legend("VFAT2 Channel registers") << std::endl
        << "          <fieldset class=\"vfatChannelSettings\">" << std::endl
@@ -781,10 +797,12 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createChannelRegi
        << "          </fieldset>" << std::endl
        << cgicc::comment() << "ending the Channel registers fieldset" << cgicc::comment() << std::endl
        << "        </fieldset>" << std::endl;
+  */
 }
 
 //building the command view
 void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCommandLayout(xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams params) {
+  /*
   *out << cgicc::section().set("class","vfatCommands") << std::endl
        << cgicc::h3() << "Commands" << cgicc::h3()
        << std::endl << std::endl
@@ -851,6 +869,7 @@ void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCommandLayo
     
        << cgicc::comment() << "ending the Commands section" << cgicc::comment() << std::endl
        << cgicc::section() << std::endl;
+  */
 }
 
 void gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::getCurrentParametersAsXML( ) {
