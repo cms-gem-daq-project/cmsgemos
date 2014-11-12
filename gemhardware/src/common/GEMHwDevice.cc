@@ -74,14 +74,14 @@ void gem::hw::GEMHwDevice::connectDevice()
   std::stringstream tmpUri;
   if (controlhubAddress.size() > 0)
     {
-      INFO("Using control hub at address '" << controlhubAddress
+      DEBUG("Using control hub at address '" << controlhubAddress
 	   << ", port number " << controlhubPort << "'.");
       tmpUri << "chtcp-"<< getIPbusProtocolVersion() << "://" << controlhubAddress << ":" << controlhubPort
              << "?target=" << deviceAddress << ":" << ipbusPort;
     }
   else
     {
-      INFO("No control hub address specified -> "
+      DEBUG("No control hub address specified -> "
 	   "continuing with a direct connection.");
       tmpUri << "ipbusudp-" << getIPbusProtocolVersion() << "://"
              << deviceAddress << ":" << ipbusPort;

@@ -725,8 +725,11 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLay
        << "          </fieldset>" << std::endl;
   
   int chanID = params.activeChannel;
-  std::cout <<
-    "chan = "<< std::dec << (unsigned)chanID << "; activeChannel = " << std::dec<< (unsigned)params.activeChannel << std::endl;
+  /*
+  std::cout << "chan = "<< std::dec << (unsigned)chanID
+	    << "; activeChannel = " << std::dec<< (unsigned)params.activeChannel
+	    << std::endl;
+  */
   *out << "          <fieldset class=\"vfatChannelSettings\">" << std::endl
        << cgicc::legend("Ch. # (2-128)")         << std::endl
        << "            <div>"                                  << std::endl
