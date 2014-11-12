@@ -25,6 +25,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   ipBusErrs.timeouts_      = 0;
   ipBusErrs.controlHubErr_ = 0;
 
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
   /** 
    * what's the difference between connect, init, enable for GLIB, VFAT, other devices?
