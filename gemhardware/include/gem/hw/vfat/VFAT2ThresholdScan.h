@@ -99,7 +99,7 @@ namespace gem {
 	    static void createHeader(xgi::Output *out );
 	    static void createVFATInfoLayout( xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams&       params);
 	    static void createCounterLayout(  xgi::Output *out, const gem::hw::vfat::VFAT2ThresholdScanParams& params);
-	    static void createCommandLayout(  xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams&        params);
+	    static void createCommandLayout(  xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams&       params);
 
 	  };//end class VFAT2ThresholdScanWeb
 	}; //end class VFAT2ThresholdScan
