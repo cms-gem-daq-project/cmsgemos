@@ -13,7 +13,7 @@ LongPackage=gemhardware
 ShortPackage=hw
 PackageName=hw
 
-Sources= GEMHwDevice.cc HwVFAT2.cc VFAT2ThresholdScanWeb.cc VFAT2ThresholdScan.cc 
+Sources= GEMHwDevice.cc HwVFAT2.cc VFAT2ThresholdScanWeb.cc VFAT2ThresholdScan.cc
 ##version.cc
 
 DynamicLibrary=gem_hw
