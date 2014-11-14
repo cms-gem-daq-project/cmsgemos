@@ -80,7 +80,7 @@ void gem::hw::vfat::HwVFAT2::readVFAT2Channel(uint8_t channel)
   vfatParams_.channels[channel-1].fullChannelReg = chanSettings;
   vfatParams_.channels[channel-1].calPulse0 = false;
   if (channel == 1)
-    vfatParams_.channels[channel-1].calPulse0 = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL0)>>VFAT2ChannelBitShifts::CHANCAL0);
+  vfatParams_.channels[channel-1].calPulse0   = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL0)>>VFAT2ChannelBitShifts::CHANCAL0);
   vfatParams_.channels[channel-1].calPulse    = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL )>>VFAT2ChannelBitShifts::CHANCAL );
   vfatParams_.channels[channel-1].mask        = ((chanSettings&VFAT2ChannelBitMasks::ISMASKED)>>VFAT2ChannelBitShifts::ISMASKED);
   vfatParams_.channels[channel-1].trimDAC     = ((chanSettings&VFAT2ChannelBitMasks::TRIMDAC )>>VFAT2ChannelBitShifts::TRIMDAC );
@@ -248,7 +248,8 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
   //set the channel settings here
   INFO("getting all channel settings in HwVFAT2.cc");
   //readVFAT2Channels(params);
-  readVFAT2Channels();
+
+  //SB   readVFAT2Channels();
   INFO("done getting all settings in HwVFAT2.cc");
 }
 
