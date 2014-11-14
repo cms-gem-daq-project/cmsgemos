@@ -11,13 +11,13 @@
 namespace gem {
   namespace hw {
     namespace vfat {
+
       typedef struct {
 	uint8_t fullChannelReg;
 	uint8_t trimDAC;
 	bool    mask;
 	bool    calPulse;
 	bool    calPulse0;
-	
       } VFAT2ChannelParams;
       
       inline std::ostream& operator<<(std::ostream& os, const VFAT2ChannelParams& chanParams)
@@ -32,7 +32,7 @@ namespace gem {
 	return os;
       };
       
-      //class VFAT2Settings;
+      class VFAT2Settings;
 
       typedef struct {
 	/*
@@ -93,7 +93,7 @@ namespace gem {
 	uint8_t vThresh1;
 	uint8_t vThresh2;
 	uint8_t calPhase;
-	
+
 	//counters
 	uint16_t chipID;
 	uint8_t  upsetCounter;
@@ -181,14 +181,26 @@ namespace gem {
 	os << "ChipID::0x"<<std::hex<<(unsigned)controlParams.chipID<<std::dec<<std::endl;
 	os << "UpsetCounter::0x"<<std::hex<<(unsigned)controlParams.upsetCounter<<std::dec<<std::endl;
 	os << "HitCounter::0x"<<std::hex<<(unsigned)controlParams.hitCounter<<std::dec<<std::endl;
-	
+
+	/* SB	
 	for (uint8_t chan = 1; chan < 129; ++chan)
 	  os << "Channel" << (unsigned)chan << "::" << controlParams.channels[chan-1];
-	  
+	*/
+
 	os << "active display channel: "<<(unsigned)controlParams.activeChannel<<std::endl;;
 	
 	return os;
       };
+
+      typedef struct {
+	uint8_t  thresholdLatency;
+	int      thresholdMin;
+	int      thresholdMax;
+	uint32_t thresholdStep;
+	uint32_t thresholdNTriggers;
+	uint8_t  thresholdVTH1;
+	uint8_t  thresholdVTH2;
+      } VFAT2ThresholdScanParams;
 
       class VFAT2Setttings
       {
