@@ -36,7 +36,6 @@ namespace gem {
     namespace vfat {
       class HwVFAT2;
       
-      //class VFAT2ThresholdScan: public gem::base::GEMWebApplication, public gem::base::GEMFSMApplication
       class VFAT2ThresholdScan: public xdaq::WebApplication, public xdata::ActionListener
 	{
 	  
@@ -74,11 +73,13 @@ namespace gem {
 	  
 	  std::map<std::string,uint32_t>    vfatFullRegs_;
 	  std::map<std::string,uint8_t>     vfatRegs_;
-	  gem::hw::vfat::VFAT2ControlParams vfatParams_;
 
+	  VFAT2ControlParams vfatParams_;
+	  VFAT2ThresholdScanParams scanParams_;
+	  
 	private:
 	  std::vector<std::string>          nodes_;
-
+	  
 	protected:
 	  /**
 	   * Create a mapping between the VFAT2 chipID and the connection name specified in the
@@ -87,38 +88,22 @@ namespace gem {
 	   * This mapping can be used to send commands to specific chips through the manager interface
 	   * the string is the name in the connection file, while the uint16_t is the chipID, though
 	   * it need only be a uint12_t
-	  **/
+	   **/
 	  std::map<std::string, uint16_t> systemMap;
 	  
-	  //xdata::UnsignedLong myParameter_;
 	  xdata::String device_;
 	  xdata::String settingsFile_;
 	  
 	  class VFAT2ThresholdScanWeb {
-  	    public:
-	      static void createHeader(xgi::Output *out );
-	      
-	      static void createVFATInfoLayout(       xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
-	      static void createControlRegisterLayout(xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
-	      static void createSettingsLayout(       xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
-	      static void createCounterLayout(        xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
-	      static void createChannelRegisterLayout(xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
-	      static void createCommandLayout(        xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
-	      
-	      static void getCurrentParametersAsXML();
-	      static void saveCurrentParametersAsXML();
-	      static void setParametersByXML();
-	      
-	      
+	  public:
+	    static void createHeader(xgi::Output *out );
+	    static void createVFATInfoLayout( xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams&       params);
+	    static void createCounterLayout(  xgi::Output *out, const gem::hw::vfat::VFAT2ThresholdScanParams& params);
+	    static void createCommandLayout(  xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams&        params);
+
 	  };//end class VFAT2ThresholdScanWeb
 	}; //end class VFAT2ThresholdScan
-
+      
     }//end namespace gem::hw::vfat
     
   }//end namespace gem::hw
