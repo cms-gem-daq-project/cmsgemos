@@ -55,16 +55,26 @@ void gem::hw::vfat::VFAT2ThresholdScan::actionPerformed(xdata::Event& event)
   //initialize the vfatParameters struct
   //readVFAT2Registers(vfatParams);
   vfatDevice->getAllSettings();
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"vfatParams:" << std::endl
-		 << vfatDevice->getVFAT2Params() << std::endl);
+
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"vfatParams:" << std::endl 
+    << vfatDevice->getVFAT2Params() << std::endl);
+
   //readVFAT2Registers();
   vfatParams_ = vfatDevice->getVFAT2Params();
+
+  scanParams_.thresholdLatency   = 128U;
+  scanParams_.thresholdMin       = -255;
+  scanParams_.thresholdMax       = 0;
+  scanParams_.thresholdStep      = 1U;
+  scanParams_.thresholdNTriggers = 10000U;
+  scanParams_.thresholdVTH1      = vfatParams_.vThresh1;
+  scanParams_.thresholdVTH2      = vfatParams_.vThresh2;
+
   LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2ThresholdScan::VFAT2ThresholdScan::6 device_ = " << device_.toString() << std::endl);
 
 }
 
 void gem::hw::vfat::VFAT2ThresholdScan::readVFAT2Registers(gem::hw::vfat::VFAT2ControlParams& params)
-//void gem::hw::vfat::VFAT2ThresholdScan::readVFAT2Registers()
 {
   //boost::format vfatregform("user_regs.vfats.%1%.%2%");
   boost::format vfatregform("user_regs.vfats.%1%.%2%");
@@ -116,7 +126,6 @@ void gem::hw::vfat::VFAT2ThresholdScan::readVFAT2Registers(gem::hw::vfat::VFAT2C
     LOG4CPLUS_INFO(this->getApplicationLogger(),"done reading::getNodes(): " << std::endl
 		   << "nodes_.size() = " << nodes_.size() << std::endl);
     
-    
     LOG4CPLUS_INFO(getApplicationLogger(), "VFAT2ThresholdScan::readVFAT2Registers() --> read in current parameters");
     //std::string key = boost::str(vfatregform % device_.toString() % "Latency");
     //key = "Latency";
@@ -133,7 +142,7 @@ void gem::hw::vfat::VFAT2ThresholdScan::readVFAT2Registers(gem::hw::vfat::VFAT2C
     params.vThresh1 = static_cast<unsigned>(vfatRegs_["VThreshold1"]);
     params.vThresh2 = static_cast<unsigned>(vfatRegs_["VThreshold2"]);
     params.calPhase = static_cast<unsigned>(vfatRegs_["CalPhase"]);
-    
+
     //counters
     
     //uint16_t myChipID;
@@ -260,10 +269,6 @@ void gem::hw::vfat::VFAT2ThresholdScan::ControlPanel(xgi::Input * in, xgi::Outpu
                          //.set("action","")
                          //.set("onsubmit","return false;")
 	 << std::endl;
-    //.set("onsubmit","return false;")
-    //     << cgicc::br() << std::endl;
-    //.set("action", method) << "</br>" << std::endl;
-    //*out << "    <form>" << std::endl;
     /*
       cgicc::section *leftSide = new cgicc::section();
       leftSide->set("style","display:inline-block;float:left");
@@ -286,38 +291,13 @@ void gem::hw::vfat::VFAT2ThresholdScan::ControlPanel(xgi::Input * in, xgi::Outpu
     *out << std::endl;
     *out << cgicc::span().set("style","display:block;float:right") << std::endl;
     LOG4CPLUS_INFO(this->getApplicationLogger(),"building the CounterLayout");
-    gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCounterLayout(out, vfatParams_);
+    gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCounterLayout(out, scanParams_);
+
     *out << cgicc::span()     << std::endl;
     *out << cgicc::comment() << "ending the VFAT2 Parameters fieldset" << cgicc::comment() << std::endl
 	 << cgicc::fieldset() << std::endl;
     *out << std::endl;
-    *out << "      <section class=\"vfatSettings\">" << std::endl;
-    *out << "        <fieldset class=\"vfatGlobalSettings\">" << std::endl
-	 << cgicc::legend("Global settings")      << std::endl;
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"building the ControlRegisterLayout");
-    gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createControlRegisterLayout(out, vfatParams_);
-    *out << cgicc::br() << std::endl
-	 << std::endl;
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"building the SettingsLayout");
-    gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createSettingsLayout(out, vfatParams_);
 
-    *out << cgicc::comment() << "ending the Global settings fieldset" << cgicc::comment() << std::endl
-	 << "	     </fieldset>" << std::endl;
-    
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"building the ChannelRegisterLayout");
-    gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createChannelRegisterLayout(out, vfatParams_);
-    *out << cgicc::comment() << "ending the vfatSettings section" << cgicc::comment() << std::endl
-	 << "      </section>" << std::endl
-    
-	 << cgicc::comment() << "ending the left side section" << cgicc::comment() << std::endl
-      //<< "    </section>" << std::endl;
-	 << cgicc::section()  << std::endl;
-    
-
-    /*
-      cgicc::section *rightSide = new cgicc::section();
-      rightSide->set("class","vfatCommands");
-    */
     LOG4CPLUS_INFO(this->getApplicationLogger(),"building the CommandLayout");
     gem::hw::vfat::VFAT2ThresholdScan::VFAT2ThresholdScanWeb::createCommandLayout(out, vfatParams_);
     
@@ -325,7 +305,7 @@ void gem::hw::vfat::VFAT2ThresholdScan::ControlPanel(xgi::Input * in, xgi::Outpu
 	 << "Bad headers:: " << (vfatDevice->ipBusErrs).badHeader_     << cgicc::br() << std::endl
 	 << "Read errors:: " << (vfatDevice->ipBusErrs).readError_     << cgicc::br() << std::endl
 	 << "Timeouts   :: " << (vfatDevice->ipBusErrs).timeouts_      << cgicc::br() << std::endl
-	 << "CH errors  :: " << (vfatDevice->ipBusErrs).controlHubErr_ << cgicc::br() << std::endl
+         //SB << "CH errors  :: " << (vfatDevice->ipBusErrs).controlHubErr_ << cgicc::br() << std::endl
 	 << cgicc::section() << std::endl;
     
     *out << cgicc::form() << cgicc::br() << std::endl;
@@ -336,12 +316,6 @@ void gem::hw::vfat::VFAT2ThresholdScan::ControlPanel(xgi::Input * in, xgi::Outpu
                            .set("src","http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js")
 	 << cgicc::script() << std::endl;
 
-    /*
-    *out << cgicc::script().set("type","text/javascript")
-                           .set("src","gemdaq/gemhardware/html/scripts/loadVFATSettings.js")
-	 << cgicc::script() << cgicc::br()
-	 << std::endl;
-    */
     *out << cgicc::script().set("type","text/javascript")
                            .set("src","/gemdaq/gemhardware/html/scripts/toggleVFATCheckboxes.js")
 	 << cgicc::script() << cgicc::br()
@@ -530,7 +504,7 @@ void gem::hw::vfat::VFAT2ThresholdScan::getCheckedRegisters(cgicc::Cgicc cgi, st
 
    Latency     - SetLatency      - Latency     
    VCal        - SetVCal         - VCal        
-    VThreshold1 - SetVThreshold1  - VThreshold1 
+   VThreshold1 - SetVThreshold1  - VThreshold1 
    VThreshold2 - SetVThreshold2  - VThreshold2 
    
    CalPhase - SetCalPhase - CalPhase
@@ -553,106 +527,36 @@ void gem::hw::vfat::VFAT2ThresholdScan::getCheckedRegisters(cgicc::Cgicc cgi, st
   LOG4CPLUS_INFO(this->getApplicationLogger(), "getCheckedRegisters::Getting list of checked registers and values to read/write");
   try
     {
-      //cgicc::Cgicc cgi(in);
       std::vector<cgicc::FormEntry> vfat2FormEntries = cgi.getElements();
+ 
+        uint8_t oldThresholdLatency = vfatDevice->getLatency();
+	uint8_t newThresholdLatency = cgi["ThresholdLatency"     ]->getIntegerValue();
+        LOG4CPLUS_INFO(getApplicationLogger(), "Setting the ThresholdLatency to :"<<std::dec<<static_cast<int>(oldThresholdLatency)<<std::dec);
+	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the ThresholdLatency to :"<<std::dec<<static_cast<int>(newThresholdLatency)<<std::dec);
+	vfatDevice->setLatency(newThresholdLatency);
 
-      if (cgi.queryCheckbox("CR0Set") ) {
-	uint8_t regToSet = vfatDevice->getVFAT2Params().control0;
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the run mode to :"+
-		       boost::to_upper_copy(cgi["RunMode"      ]->getValue()));
-	vfatDevice->setRunMode(        (gem::hw::vfat::StringToRunMode        .at(boost::to_upper_copy(cgi["RunMode"    ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the trigger mode to :"+
-		       boost::to_upper_copy(cgi["TriggerMode"      ]->getValue()));
-	vfatDevice->setTriggerMode(    (gem::hw::vfat::StringToTriggerMode    .at(boost::to_upper_copy(cgi["TriggerMode"]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the monostable pulse polarity to :"+
-		       boost::to_upper_copy(cgi["MSPolarity"      ]->getValue()));
-	vfatDevice->setMSPolarity(     (gem::hw::vfat::StringToMSPolarity     .at(boost::to_upper_copy(cgi["MSPolarity" ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the calibration pulse polarity to :"+
-		       boost::to_upper_copy(cgi["CalPolarity"      ]->getValue()));
-	vfatDevice->setCalPolarity(    (gem::hw::vfat::StringToCalPolarity    .at(boost::to_upper_copy(cgi["CalPolarity"]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting calibration mode to :"+
-		       boost::to_upper_copy(cgi["CalMode"      ]->getValue()));
-	vfatDevice->setCalibrationMode((gem::hw::vfat::StringToCalibrationMode.at(boost::to_upper_copy(cgi["CalMode"    ]->getValue()))),regToSet);
+	int newInitialThreshold = cgi["InitialThreshold"     ]->getIntegerValue();
+	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the InitialThreshold to :"<<std::dec<<static_cast<int>(newInitialThreshold)<<std::dec);
+	
+	int newFinalThreshold = cgi["FinalThreshold"     ]->getIntegerValue();
+	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the FinalThreshold to :"<<std::dec<<static_cast<int>(newFinalThreshold)<<std::dec);
+	
+	int newThresholdStep = cgi["ThresholdStep"     ]->getIntegerValue();
+	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the ThresholdStep to :"<<std::dec<<static_cast<int>(newThresholdStep)<<std::dec);
+	
+	uint8_t newThresholdVTH1 = cgi["ThresholdVTH1"     ]->getIntegerValue();
+	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the ThresholdVTH1 to :"<<std::dec<<static_cast<int>(newThresholdVTH1)<<std::dec);
+	vfatDevice->setVThreshold1(newThresholdVTH1);
+	
+	uint8_t newThresholdVTH2 = cgi["ThresholdVTH2"     ]->getIntegerValue();
+	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the ThresholdVTH2 to :"<<std::dec<<static_cast<int>(newThresholdVTH2)<<std::dec);
+	vfatDevice->setVThreshold2(newThresholdVTH2);
+	
+	uint8_t newMinTriggersThreshold = cgi["MinTriggersThreshold"     ]->getIntegerValue();
+	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the MinTriggersThreshold to :"<<std::dec<<static_cast<int>(newMinTriggersThreshold)<<std::dec);
 
-	LOG4CPLUS_INFO(getApplicationLogger(), boost::str(boost::format("with value 0x%02x")%(unsigned)regToSet));
-	regValsToSet.push_back(std::make_pair("ContReg0",regToSet));
-      }
-
-      if (cgi.queryCheckbox("CR1Set") ) {
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting control register 1");
-	uint8_t regToSet = vfatDevice->getVFAT2Params().control1;
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the probe mode to :"+
-		       boost::to_upper_copy(cgi["ProbeMode"      ]->getValue()));
-	vfatDevice->setProbeMode(        (gem::hw::vfat::StringToProbeMode    .at(boost::to_upper_copy(cgi["ProbeMode"    ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the lvds power save state to :"+
-		       boost::to_upper_copy(cgi["LVDSPowerSave"      ]->getValue()));
-	vfatDevice->setLVDSMode(         (gem::hw::vfat::StringToLVDSPowerSave.at(boost::to_upper_copy(cgi["LVDSPowerSave"]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the hit count cycle time to :"+
-		       boost::to_upper_copy(cgi["ReHitCT"      ]->getValue()));
-	vfatDevice->setHitCountCycleTime((gem::hw::vfat::StringToReHitCT      .at(boost::to_upper_copy(cgi["ReHitCT"      ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the DAC mode to :"+
-		       boost::to_upper_copy(cgi["DACMode"      ]->getValue()));
-	LOG4CPLUS_INFO(getApplicationLogger(), boost::to_upper_copy(cgi["DACMode"      ]->getValue()));
-	vfatDevice->setDACMode(          (gem::hw::vfat::StringToDACMode      .at(boost::to_upper_copy(cgi["DACMode"      ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), boost::str(boost::format("with value 0x%02x")%(unsigned)regToSet));
-	regValsToSet.push_back(std::make_pair("ContReg1",regToSet));
-      }
-
-      if (cgi.queryCheckbox("CR2Set") ) {
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting control register 2");
-	uint8_t regToSet = vfatDevice->getVFAT2Params().control2;
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the monostable pulse length to :"+
-		       boost::to_upper_copy(cgi["MSPulseLength"      ]->getValue()));
-	vfatDevice->setMSPulseLength((gem::hw::vfat::StringToMSPulseLength.at(boost::to_upper_copy(cgi["MSPulseLength"]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the digital input pad to :"+
-		       boost::to_upper_copy(cgi["DigInSel"      ]->getValue()));
-	vfatDevice->setInputPadMode( (gem::hw::vfat::StringToDigInSel     .at(boost::to_upper_copy(cgi["DigInSel"     ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the hit count mode to :"+
-		       boost::to_upper_copy(cgi["HitCountMode"      ]->getValue()));
-	vfatDevice->setHitCountMode( (gem::hw::vfat::StringToHitCountMode .at(boost::to_upper_copy(cgi["HitCountMode" ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), boost::str(boost::format("with value 0x%02x")%(unsigned)regToSet));
-	regValsToSet.push_back(std::make_pair("ContReg2",regToSet));
-      }
-
-      if (cgi.queryCheckbox("CR3Set") ) {
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting control register 3");
-	uint8_t regToSet = vfatDevice->getVFAT2Params().control3;
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the trim dac range to :"+
-		       boost::to_upper_copy(cgi["TrimDACRange"      ]->getValue()));
-	vfatDevice->setTrimDACRange((gem::hw::vfat::StringToTrimDACRange .at(boost::to_upper_copy(cgi["TrimDACRange"]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the pad band gap to :"+
-		       boost::to_upper_copy(cgi["PbBG"      ]->getValue()));
-	vfatDevice->setBandgapPad(  (gem::hw::vfat::StringToPbBG         .at(boost::to_upper_copy(cgi["PbBG"        ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), "Setting the test pattern mode to :"+
-		       boost::to_upper_copy(cgi["DFTest"      ]->getValue()));
-	vfatDevice->sendTestPattern((gem::hw::vfat::StringToDFTestPattern.at(boost::to_upper_copy(cgi["DFTest"      ]->getValue()))),regToSet);
-	LOG4CPLUS_INFO(getApplicationLogger(), boost::str(boost::format("with value 0x%02x")%(unsigned)regToSet));
-	regValsToSet.push_back(std::make_pair("ContReg3",regToSet));
-      }
-
-      if (cgi.queryCheckbox("SetIPreampIn") )
-	regValsToSet.push_back(std::make_pair("IPreampIn"   , cgi["IPreampIn"   ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetIPreampFeed") )
-	regValsToSet.push_back(std::make_pair("IPreampFeed" , cgi["IPreampFeed" ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetIPreampOut") )
-	regValsToSet.push_back(std::make_pair("IPreampOut"  , cgi["IPreampOut"  ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetIShaper") )
-	regValsToSet.push_back(std::make_pair("IShaper"     , cgi["IShaper"     ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetIShaperFeed") )
-	regValsToSet.push_back(std::make_pair("IShaperFeed" , cgi["IShaperFeed" ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetIComp") )
-	regValsToSet.push_back(std::make_pair("IComp"       , cgi["IComp"       ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetLatency") )
-	regValsToSet.push_back(std::make_pair("Latency"     , cgi["Latency"     ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetVCal") )
-	regValsToSet.push_back(std::make_pair("VCal"        , cgi["VCal"        ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetVThreshold1") )
-	regValsToSet.push_back(std::make_pair("VThreshold1" , cgi["VThreshold1" ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetVThreshold2") )
-	regValsToSet.push_back(std::make_pair("VThreshold2" , cgi["VThreshold2" ]->getIntegerValue()));
-      if (cgi.queryCheckbox("SetCalPhase") )
-	regValsToSet.push_back(std::make_pair("CalPhase"    , cgi["CalPhase"    ]->getIntegerValue()));
     }
+
   /*
   catch (const boost::exception & e)
     {
@@ -702,36 +606,16 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
   LOG4CPLUS_INFO(this->getApplicationLogger(), "performAction::reading options");
   std::string controlOption = "";
   std::string channelOption = "";
-  //try {
-  //  controlOption = cgi["VFAT2ControlOption"]->getValue();
-  //}
-  //catch (const xgi::exception::Exception& e) {
-  //  LOG4CPLUS_INFO(this->getApplicationLogger(),"Unable to find VFAT2ControlOption, possibly pressed the channel button " << e.what());
-  //  XCEPT_RAISE(xgi::exception::Exception, e.what());
-  //}
-  //catch (const std::exception& e) {
-  //  LOG4CPLUS_INFO(this->getApplicationLogger(),"Unable to find VFAT2ControlOption, possibly pressed the channel button " << e.what());
-  //  XCEPT_RAISE(xgi::exception::Exception, e.what());
-  //}
-  //
-  //try {
-  //  channelOption = cgi["VFAT2ChannelOption"]->getValue();
-  //}
-  //catch (const xgi::exception::Exception& e) {
-  //  LOG4CPLUS_INFO(this->getApplicationLogger(),"Unable to find VFAT2ChannelOption, possibly pressed the control button " << e.what());
-  //  XCEPT_RAISE(xgi::exception::Exception, e.what());
-  //}
-  //catch (const std::exception& e) {
-  //  LOG4CPLUS_INFO(this->getApplicationLogger(),"Unable to find VFAT2ChannelOption, possibly pressed the control button " << e.what());
-  //  XCEPT_RAISE(xgi::exception::Exception, e.what());
-  //}
 
   controlOption = cgi["VFAT2ControlOption"]->getValue();
   LOG4CPLUS_INFO(this->getApplicationLogger(),"performAction::Control option " << controlOption);
+
+  /* SB
   LOG4CPLUS_INFO(this->getApplicationLogger(),"performAction::Channel option " << channelOption);
+  */
+
   if (strcmp(controlOption.c_str(),"Read counters") == 0) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Read counters button pressed");
-    //vfatDevice->readVFAT2Counters(vfatDevice->getVFAT2Params());
     vfatDevice->readVFAT2Counters();
   }
 
@@ -755,6 +639,10 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
     
     vfatDevice->readVFAT2Channel(1);
     vfatParams_ = vfatDevice->getVFAT2Params();
+    scanParams_.thresholdLatency = vfatParams_.latency;
+    scanParams_.thresholdVTH1    = vfatParams_.vThresh1;
+    scanParams_.thresholdVTH2    = vfatParams_.vThresh2;
+
     LOG4CPLUS_INFO(this->getApplicationLogger(),"set channel 0/1 - 0x"
 		   <<std::hex<<static_cast<unsigned>(vfatParams_.channels[0].fullChannelReg)<<std::dec<<"::<"
 		   <<std::hex<<static_cast<unsigned>(vfatParams_.channels[0].calPulse0     )<<std::dec<<":"
@@ -768,12 +656,21 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
     //shouldn't need to query the device here, just read the properties from the 
     //stored values, and ensure the web page displays that channel
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Get channel button pressed");
+
+    /* SB
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
     uint8_t chanSettings = vfatDevice->getChannelSettings(chan);
-    
+    */
+
     vfatParams_ = vfatDevice->getVFAT2Params();
+    scanParams_.thresholdLatency = vfatParams_.latency;
+    scanParams_.thresholdVTH1    = vfatParams_.vThresh1;
+    scanParams_.thresholdVTH2    = vfatParams_.vThresh2;
+
+    /* SB
     vfatParams_.activeChannel = chan;
-    //vfatDevice->setActiveChannelWeb(chan);
+    vfatDevice->setActiveChannelWeb(chan);
+    */
   }
 
   else if (strcmp(controlOption.c_str(),"Set This Channel") == 0) {
@@ -798,6 +695,8 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
     
     //vfatDevice->getVFAT2Params().activeChannel = chan;
     //vfatDevice->readVFAT2Channel(vfatDevice->getVFAT2Params(),chan);
+
+    /* SB
     vfatDevice->readVFAT2Channel(chan);
     vfatParams_ = vfatDevice->getVFAT2Params();
     vfatParams_.activeChannel = chan;
@@ -810,12 +709,13 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
 		   <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].mask          )<<std::dec<<":"
 		   <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].trimDAC       )<<std::dec<<">"
 		   << std::endl);
+    */
   }
   
   else if (strcmp(controlOption.c_str(),"Set All Channels") == 0) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Set all channels button pressed");
     //apply provided settings to all channels (2-128 or 1-128?)
-    uint8_t chan = cgi["ChanSel"]->getIntegerValue();
+    //SB  uint8_t chan = cgi["ChanSel"]->getIntegerValue();
     int min_chan = 2;
     bool setMasked(false), setCalPulse(false);
     if (cgi.queryCheckbox("ChCal") )
@@ -835,7 +735,12 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
     //vfatDevice->readVFAT2Channels(vfatDevice->getVFAT2Params());
     vfatDevice->readVFAT2Channels();
     vfatParams_ = vfatDevice->getVFAT2Params();
-    vfatParams_.activeChannel = chan;
+    scanParams_.thresholdLatency = vfatParams_.latency;
+    scanParams_.thresholdVTH1  = vfatParams_.vThresh1;
+    scanParams_.thresholdVTH2  = vfatParams_.vThresh2;
+
+    /* SB
+    vfatParams_.activeChannel  = chan;
     LOG4CPLUS_INFO(this->getApplicationLogger(),"set all channels " << (unsigned)chan << " - 0x"
 		   <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].fullChannelReg)<<std::dec<<"::<"
 		   <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].calPulse0     )<<std::dec<<":"
@@ -843,6 +748,7 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
 		   <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].mask          )<<std::dec<<":"
 		   <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].trimDAC       )<<std::dec<<">"
 		   << std::endl);
+    */
   }
 
   else if (strcmp(controlOption.c_str(),"Read VFAT") == 0) {
@@ -857,6 +763,9 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
     //readVFAT2Registers(vfatDevice->getVFAT2Params());
     vfatDevice->getAllSettings();
     vfatParams_ = vfatDevice->getVFAT2Params();
+    scanParams_.thresholdLatency = vfatParams_.latency;
+    scanParams_.thresholdVTH1    = vfatParams_.vThresh1;
+    scanParams_.thresholdVTH2    = vfatParams_.vThresh2;
   }
   else if (strcmp(controlOption.c_str(),"Write VFAT") == 0) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Write VFAT button pressed with following registers");
@@ -866,7 +775,7 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
       std::string msg =
 	toolbox::toString("%s - 0x%02x",(curReg->first).c_str(),static_cast<unsigned>(curReg->second));
       LOG4CPLUS_INFO(this->getApplicationLogger(),msg);
-    }
+  }
     
     //do a single transaction
     //vfatDevice->writeVFATRegs(regValsToSet);
@@ -875,9 +784,10 @@ void gem::hw::vfat::VFAT2ThresholdScan::performAction(cgicc::Cgicc cgi, std::vec
     for (; curReg != regValsToSet.end(); ++curReg)
       vfatDevice->writeVFATReg(curReg->first,curReg->second);
 
-    //readVFAT2Registers(vfatDevice->getVFAT2Params());
+    /* SB
     vfatDevice->getAllSettings();
     vfatParams_ = vfatDevice->getVFAT2Params();
+    */
   }
   //vfatParams_ = vfatDevice->getVFAT2Params();
 }
