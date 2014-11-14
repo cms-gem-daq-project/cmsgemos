@@ -774,7 +774,7 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     //stored values, and ensure the web page displays that channel
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Get channel button pressed");
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
-    uint8_t chanSettings = vfatDevice->getChannelSettings(chan);
+    //SB uint8_t chanSettings = vfatDevice->getChannelSettings(chan);
     
     vfatParams_ = vfatDevice->getVFAT2Params();
     vfatParams_.activeChannel = chan;
@@ -806,6 +806,7 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     vfatDevice->readVFAT2Channel(chan);
     vfatParams_ = vfatDevice->getVFAT2Params();
     vfatParams_.activeChannel = chan;
+
     LOG4CPLUS_INFO(this->getApplicationLogger(),
 		   "chan = "<< (unsigned)chan << "; activeChannel = " <<(unsigned)vfatParams_.activeChannel << std::endl);
     LOG4CPLUS_INFO(this->getApplicationLogger(),"set this channel " << (unsigned)chan << " - 0x"
@@ -881,8 +882,10 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
       vfatDevice->writeVFATReg(curReg->first,curReg->second);
 
     //readVFAT2Registers(vfatDevice->getVFAT2Params());
+
     vfatDevice->getAllSettings();
     vfatParams_ = vfatDevice->getVFAT2Params();
+
   }
   //vfatParams_ = vfatDevice->getVFAT2Params();
 }
