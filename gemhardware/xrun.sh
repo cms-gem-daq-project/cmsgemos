@@ -1,0 +1,1 @@
+/afs/cern.ch/user/b/baranov/public/CMS/xdaq/vfat/xrun.sh
