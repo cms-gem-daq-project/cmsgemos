@@ -93,6 +93,7 @@ void gem::hw::GEMHwDevice::connectDevice()
   //int retryCount = 0;
   
   uhal::HwInterface* tmpHWP = 0;
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
 
   try {
     tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
