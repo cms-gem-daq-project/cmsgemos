@@ -1,6 +1,8 @@
 #include "gem/supervisor/tbutils/ThresholdScan.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
+#include <algorithm>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -265,13 +267,13 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   vfatDevice_->setRunMode(0);
   sleep(5);
   //read the fifo (x3 times fifo depth), add headers, write to disk, save disk
-  boost::format linkForm = "glib_links.link%d";
+  boost::format linkForm("glib_links.link%d");
   //should all links have the same fifo depth? if not is this an error?
 
   uint32_t fifoDepth[3];
-  fifoDepth[0] = vfatDevice_->readReg(boost::str(linkForm%(link)+".tracking_data.FIFO_depth"));
-  fifoDepth[1] = vfatDevice_->readReg(boost::str(linkForm%(link)+".tracking_data.FIFO_depth"));
-  fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link)+".tracking_data.FIFO_depth"));
+  fifoDepth[0] = vfatDevice_->readReg(boost::str(linkForm%(link))+".tracking_data.FIFO_depth");
+  fifoDepth[1] = vfatDevice_->readReg(boost::str(linkForm%(link))+".tracking_data.FIFO_depth");
+  fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link))+".tracking_data.FIFO_depth");
 
   //check that the fifos are all the same size?
   int bufferDepth = 0;
@@ -283,24 +285,27 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 		   << fifoDepth[0] << ","
 		   << fifoDepth[0]);
     //use the minimum
-    bufferDepth = min(fifoDepth[0],min(fifoDepth[1],fifoDepth[2]));
+    bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
   }
     
   //grab events from the fifo
   for ( int fiEvt = 0; fiEvt < bufferDepth; ++fiEvt) {
     //create the event header (run number, event number, anything else?
     
-    createCommonEventHeader();
+    //createCommonEventHeader();
     //loop over the links
     for (int link = 0; link < 3; ++link) {
-      fifoDepth[link] = vfatDevice_->readReg(boost::str(linkForm%(link)+".TRK_FIFO.DEPTH"));
-      vfatDevice_->readReg("tracking_data.COL"+link+".DATA_RDY");
+      fifoDepth[link] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
+      std::stringstream regname;
+      regname << "tracking_data.COL" << link << ".DATA_RDY";
+      vfatDevice_->readReg(regname.str());
       //block read the 6 words (are the words from each vfat read in sequentially?
       
       //how do we put all the data from a single trigger into a single event?
-      vfatPacket = vfatDevice_->readReg("tracking_data.COL"+link+".DATA");
+      //block read
+      //vfatPacket = vfatDevice_->readReg("tracking_data.COL" << link << ".DATA");
     }
-    createCommonEventTrailer();
+    //createCommonEventTrailer();
   }
   //header should have event number...
   //return to running
