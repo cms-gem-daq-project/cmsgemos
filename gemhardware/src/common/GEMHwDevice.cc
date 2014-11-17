@@ -25,6 +25,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   ipBusErrs.timeouts_      = 0;
   ipBusErrs.controlHubErr_ = 0;
 
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
   /** 
    * what's the difference between connect, init, enable for GLIB, VFAT, other devices?
@@ -74,14 +75,14 @@ void gem::hw::GEMHwDevice::connectDevice()
   std::stringstream tmpUri;
   if (controlhubAddress.size() > 0)
     {
-      INFO("Using control hub at address '" << controlhubAddress
+      DEBUG("Using control hub at address '" << controlhubAddress
 	   << ", port number " << controlhubPort << "'.");
       tmpUri << "chtcp-"<< getIPbusProtocolVersion() << "://" << controlhubAddress << ":" << controlhubPort
              << "?target=" << deviceAddress << ":" << ipbusPort;
     }
   else
     {
-      INFO("No control hub address specified -> "
+      DEBUG("No control hub address specified -> "
 	   "continuing with a direct connection.");
       tmpUri << "ipbusudp-" << getIPbusProtocolVersion() << "://"
              << deviceAddress << ":" << ipbusPort;

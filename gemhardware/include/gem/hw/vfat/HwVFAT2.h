@@ -57,6 +57,8 @@ namespace gem {
 	  //void initDevice();
 	  //void enableDevice();
 	  virtual void configureDevice();
+	  virtual void configureDevice(std::string const& xmlSettings);
+	  //virtual void configureDevice(std::string const& dbConnectionString);
 	  //void disableDevice();
 	  //void pauseDevice();
 	  //void startDevice();
@@ -75,7 +77,7 @@ namespace gem {
 	  //void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
 
 	  uint8_t  readVFATReg( std::string const& regName) {
-	    std::cout << "readVFATReg(" << regName << ")" << std::endl;
+	    //std::cout << "readVFATReg(" << regName << ")" << std::endl;
 	    return readReg(regName)&0x000000ff; };
 	  void     readVFATRegs( std::vector<std::pair<std::string, uint8_t> > &regList) {
 	    std::vector<std::pair<std::string,uint32_t> > fullRegList;
