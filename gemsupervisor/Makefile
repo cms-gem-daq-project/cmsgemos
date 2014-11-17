@@ -13,29 +13,33 @@ LongPackage=gemsupervisor
 ShortPackage=supervisor
 PackageName=supervisor
 
-Sources= GemSupervisorWeb.cc version.cc
+#Sources= GemSupervisorWeb.cc version.cc
+#Sources= GEMTestBeamSupervisor.cc GEMTestBeamSupervisorWeb.cc
+Sources= tbutils/ThresholdScan.cc
 
 DynamicLibrary=gem_supervisor
 
-IncludeDirs = $(uHALROOT)/include
-DependentLibraryDirs = $(uHALROOT)/lib
+#IncludeDirs = $(uHALROOT)/include
+#DependentLibraryDirs = $(uHALROOT)/lib
+#
+IncludeDirs = \
+        $(BUILD_HOME)/$(Project)/$(Package)/include \
+        $(BUILD_HOME)/$(Project)/gemhardware/include \
+        $(XDAQ_ROOT)/include \
+        $(uHALROOT)/include 
+#        $(BUILD_HOME)/gembase/include
 
-#IncludeDirs = \
-#        $(BUILD_HOME)/$(Project)/$(Package)/include \
-#        #$(BUILD_HOME)/$(Project)/$(Package)/include \
-#        $(XDAQ_ROOT)/include \
-#        $(uHALROOT)/include 
-##        $(GLIBTEST)/gembase/include
-#
-#DependentLibraryDirs = \
-#        $(XDAQ_ROOT)/lib \
-#        $(uHALROOT)/lib 
-##        $(GLIBTEST)/gembase/lib 
-#
-#LibraryDirs = \
-#        $(XDAQ_ROOT)/lib \
-#        $(uHALROOT)/lib 
-##        $(GLIBTEST)/gembase/lib 
+DependentLibraryDirs = \
+        $(XDAQ_ROOT)/lib \
+        $(BUILD_HOME)/$(Project)/gemhardware/lib \
+        $(uHALROOT)/lib 
+#        $(BUILD_HOME)/gembase/lib 
+
+LibraryDirs = \
+        $(XDAQ_ROOT)/lib \
+        $(BUILD_HOME)/$(Project)/gemhardware/lib \
+        $(uHALROOT)/lib 
+#        $(BUILD_HOME)/gembase/lib 
 
 UserCFlags = -O0 -g3 -fno-inline
 UserCCFlags = -O0 -g3 -fno-inline
