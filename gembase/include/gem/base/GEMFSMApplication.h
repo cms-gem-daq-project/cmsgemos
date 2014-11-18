@@ -24,8 +24,6 @@ namespace gem {
 	// hyperdaq action callbacks
 	virtual void webInitialize(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
-	virtual void webHalt(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
 	virtual void webEnable(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
 	virtual void webConfigure(xgi::Input *in, xgi::Output *out)
@@ -37,6 +35,8 @@ namespace gem {
 	virtual void webResume(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
 	virtual void webStop(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
+	virtual void webHalt(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
 	virtual void webReset(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
