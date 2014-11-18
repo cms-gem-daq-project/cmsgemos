@@ -39,6 +39,10 @@ namespace toolbox {
   }
 }
 
+namespace cgicc {
+  BOOLEAN_ELEMENT(section,"section");
+}
+
 namespace gem {
   
   namespace hw {
@@ -75,6 +79,8 @@ namespace gem {
 	    throw (xoap::exception::Exception);
 	  xoap::MessageReference onHalt(xoap::MessageReference message)
 	    throw (xoap::exception::Exception);
+	  xoap::MessageReference onReset(xoap::MessageReference message)
+	    throw (xoap::exception::Exception);
 
 	  // HyperDAQ interface
 	  void webDefault(xgi::Input *in, xgi::Output *out)
@@ -89,6 +95,8 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void webHalt(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);
+	  void webReset(xgi::Input *in, xgi::Output *out)
+	    throw (xgi::exception::Exception);
 
 
 	  bool initialize(toolbox::task::WorkLoop* wl);
@@ -96,6 +104,7 @@ namespace gem {
 	  bool start(     toolbox::task::WorkLoop* wl);
 	  bool stop(      toolbox::task::WorkLoop* wl);
 	  bool halt(      toolbox::task::WorkLoop* wl);
+	  bool reset(     toolbox::task::WorkLoop* wl);
 	  bool run(       toolbox::task::WorkLoop* wl);
 	  bool readFIFO(  toolbox::task::WorkLoop* wl);
 
@@ -110,6 +119,8 @@ namespace gem {
 	    throw (toolbox::fsm::exception::Exception);
 	  void haltAction(toolbox::Event::Reference e)
 	    throw (toolbox::fsm::exception::Exception);
+	  void resetAction(toolbox::Event::Reference e)
+	    throw (toolbox::fsm::exception::Exception);
 	  void noAction(toolbox::Event::Reference e)
 	    throw (toolbox::fsm::exception::Exception);
 	  
@@ -119,6 +130,9 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void scanParameters(xgi::Output* out)
 	    throw (xgi::exception::Exception);
+	  void showCounterLayout(xgi::Output* out)
+	    throw (xgi::exception::Exception);
+	  void redirect(xgi::Input* in, xgi::Output* out);
 	  
 	  void actionPerformed(xdata::Event& event);
 
@@ -149,12 +163,15 @@ namespace gem {
 
 	  toolbox::task::WorkLoop *wl_;
 	  toolbox::BSem wl_semaphore_;
+
+	  toolbox::BSem hw_semaphore_;
 	  
 	  toolbox::task::ActionSignature* initSig_;
 	  toolbox::task::ActionSignature* confSig_;
 	  toolbox::task::ActionSignature* startSig_;
 	  toolbox::task::ActionSignature* stopSig_;
 	  toolbox::task::ActionSignature* haltSig_;
+	  toolbox::task::ActionSignature* resetSig_;
 	  toolbox::task::ActionSignature* runSig_;
 	  toolbox::task::ActionSignature* readSig_;
 

@@ -50,7 +50,8 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
 
 gem::hw::GEMHwDevice::~GEMHwDevice()
 {
-  releaseDevice();
+  if (gemHWP_)
+    releaseDevice();
 }
 
 std::string gem::hw::GEMHwDevice::printErrorCounts() {
@@ -96,6 +97,36 @@ void gem::hw::GEMHwDevice::connectDevice()
   uhal::HwInterface* tmpHWP = 0;
 
   try {
+    //maybe create an address table file here that loads the specific chip addresss table options
+    //file has to be based on the chip location, specify the memory root, then will import the main vfat address table
+    /**
+       something like:
+       locAddrFile
+       << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" << std::endl
+       << "<node id=\"top\">" << std::endl
+       << "<node id=\"VFATS\"  address=\"0x40010000\"" << std::endl
+       << "      description=\"VFAT registers controled by the GLIB user registers\">" << std::endl
+       << "  <node id=\"" << deviceID_ << "\"" << std::endl
+       << "	address=\"0x"<< std::hex << chipLocation << "00\"  " << std::endl
+       << "	module=\"file://${BUILD_HOME}/data/vfatregs.xml\"" << std::endl
+       << "	description=\"column 1, TOTEM hybrid VFAT chip J57 connector\"/>" << std::endl
+       << "  " << std::endl
+       << "  <node id=\"ADC\"  address=\"0x2014C\"" << std::endl
+       << "	description=\"VFAT2 ADC values (absolute register start 0x4003014C)\">" << std::endl
+       << "    <node id=\"Voltage\"  address=\"0x0\"  mask=\"0xFFFFFFFF\"  permission=\"r\"" << std::endl
+       << "	  description=\"read the voltage ADC off the VFAT chip\" />" << std::endl
+       << "    <node id=\"Current\"  address=\"0x1\"  mask=\"0xFFFFFFFF\"  permission=\"w\"" << std::endl
+       << "	  description=\"send CalPulse command to system\" />" << std::endl
+       << "  </node> <!-- end ADC block -->" << std::endl
+       << "  " << std::endl
+       << "  <node id=\"VFAT_RESP\"" << std::endl
+       << "	address=\"0x20000\"  mask=\"0xFFFFFFFF\"  permission=\"r\"" << std::endl
+       << "	description=\"read the response from the VFAT transaction\"/>" << std::endl
+       << "  " << std::endl
+       << "</node>" << std::endl;
+       << "</node>" << std::endl;
+       tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, locAddrFile));
+    **/
     tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
   }
   catch (uhal::exception::FileNotFound const& err)

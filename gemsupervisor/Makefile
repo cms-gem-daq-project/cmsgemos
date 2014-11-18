@@ -1,5 +1,5 @@
-#CFLAGS = -g3 -O0 -fno-inline
-#CXXFLAGS = -g3 -O0 -fno-inline
+CFLAGS   = -g3 -O0 -fno-inline
+CXXFLAGS = -g3 -O0 -fno-inline
 
 BUILD_HOME:=$(shell pwd)/../..
 
