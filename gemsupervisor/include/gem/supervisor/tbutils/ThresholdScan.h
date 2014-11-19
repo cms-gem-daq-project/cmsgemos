@@ -97,6 +97,10 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void webReset(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);
+	  void webResetCounters(xgi::Input *in, xgi::Output *out)
+	    throw (xgi::exception::Exception);
+	  void webSendFastCommands(xgi::Input *in, xgi::Output *out)
+	    throw (xgi::exception::Exception);
 
 
 	  bool initialize(toolbox::task::WorkLoop* wl);
@@ -132,6 +136,10 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void showCounterLayout(xgi::Output* out)
 	    throw (xgi::exception::Exception);
+	  void fastCommandLayout(xgi::Output* out)
+	    throw (xgi::exception::Exception);
+	  void showBufferLayout(xgi::Output* out)
+	    throw (xgi::exception::Exception);
 	  void redirect(xgi::Input* in, xgi::Output* out);
 	  
 	  void actionPerformed(xdata::Event& event);
@@ -152,12 +160,28 @@ namespace gem {
 	    xdata::Integer maxThresh;
 	    
 	    xdata::String        deviceName;
+	    xdata::Integer       deviceNum;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
 	    xdata::UnsignedInteger64 triggersSeen;
 	  };
-	  
+	  /*
+	  class DeviceParams 
+	  {
+	  public:
+	    //void getFromFile(const std::string& fileName);
+	    void registerFields(xdata::Bag<DeviceParams> *bag);
+	    
+	    xdata::UnsignedInteger latency;
+	    xdata::UnsignedShort deviceVT1;
+	    xdata::UnsignedShort deviceVT2;
+	    xdata::UnsignedInteger64 triggersSeen;
+	    xdata::UnsignedInteger64 bufferDepth;
+	    
+	    
+	  };
+	  */
 	private:
 	  toolbox::fsm::AsynchronousFiniteStateMachine* fsmP_;
 
