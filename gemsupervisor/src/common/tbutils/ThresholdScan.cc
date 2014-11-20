@@ -1,6 +1,10 @@
 #include "gem/supervisor/tbutils/ThresholdScan.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
+#include "TH1.h"
+#include "TFile.h"
+#include "TROOT.h"
+
 #include <algorithm>
 
 #include <boost/algorithm/string.hpp>
@@ -141,6 +145,7 @@ gem::supervisor::tbutils::ThresholdScan::ThresholdScan(xdaq::ApplicationStub * s
 
   wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:ThresholdScan","waiting");
   wl_->activate();
+
 }
 
 gem::supervisor::tbutils::ThresholdScan::~ThresholdScan()
@@ -303,7 +308,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   fifoDepth[0] = vfatDevice_->readReg(boost::str(linkForm%(link))+".tracking_data.FIFO_depth");
   fifoDepth[1] = vfatDevice_->readReg(boost::str(linkForm%(link))+".tracking_data.FIFO_depth");
   fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link))+".tracking_data.FIFO_depth");
-
+  
+  
   //check that the fifos are all the same size?
   int bufferDepth = 0;
   if (fifoDepth[0] != fifoDepth[1] || 
@@ -321,6 +327,9 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   for ( int fiEvt = 0; fiEvt < bufferDepth; ++fiEvt) {
     //create the event header (run number, event number, anything else?
     
+    for (int chan = 0; chan < 128; ++chan) {
+      //histos[chan]->Fill(thrsh,val);
+    }
     //createCommonEventHeader();
     //loop over the links
     for (int link = 0; link < 3; ++link) {
@@ -338,6 +347,10 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   }
   //header should have event number...
   //return to running
+  
+  for (int chan = 0; chan < 128; ++chan) {
+    //histos[chan]->SaveAs("chanthresh"+chan+".png");
+  }
   hw_semaphore_.give();
   wl_semaphore_.give();
   return false;
@@ -1008,7 +1021,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
 	 << "</tr>"    << std::endl
 	 << "</tbody>" << std::endl
 	 << "</table>" << cgicc::br() << std::endl;
-
+    
     *out << "</div>" << std::endl;
     
     *out << "<div class=\"xdaq-tab\" title=\"Counters\">"  << std::endl;
@@ -1020,6 +1033,14 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
     if (is_initialized_)
       fastCommandLayout(out);
     *out << "</div>" << std::endl;
+
+    //place new div class=xdaq-tab here to hold the histograms
+    /*
+      display a single histogram and have a form that selects which channel you want to display
+      use the file name of the histogram that is saved in readFIFO
+    */
+    
+    //</div> //close the new div xdaq-tab
 
     *out << cgicc::br() << cgicc::br() << std::endl;
     
@@ -1492,6 +1513,10 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   vfatDevice_->setVThreshold2(0);
   is_configured_ = true;
   hw_semaphore_.give();
+
+  for (int hi=0;hi<128;++hi){
+    histos[hi] = new TH1F("channel"+hi,"Scan for channel "+hi,50,-50.5,-0.5);
+  }
   
   is_working_    = false;
 }
