@@ -35,6 +35,7 @@
 
 class TH1F;
 class TFile;
+class TCanvas;
 
 namespace toolbox {
   namespace fsm {
@@ -143,6 +144,8 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void showBufferLayout(xgi::Output* out)
 	    throw (xgi::exception::Exception);
+	  void displayHistograms(xgi::Output* out)
+	    throw (xgi::exception::Exception);
 	  void redirect(xgi::Input* in, xgi::Output* out);
 	  
 	  void actionPerformed(xdata::Event& event);
@@ -212,6 +215,7 @@ namespace gem {
 	  gem::hw::vfat::HwVFAT2* vfatDevice_;
 	  
 	  TH1F* histos[128];
+	  TCanvas* outputCanvas;
 	protected:
 	  
 	  

@@ -72,7 +72,7 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
 //void gem::hw::vfat::VFAT2Manager::readVFAT2Registers()
 {
   //boost::format vfatregform("user_regs.vfats.%1%.%2%");
-  boost::format vfatregform("user_regs.vfats.%1%.%2%");
+  boost::format vfatregform("VFATS.%1%.%2%");
   
   //try the hardware connection
   try {

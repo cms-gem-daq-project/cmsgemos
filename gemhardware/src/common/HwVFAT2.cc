@@ -21,7 +21,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(xdaq::Application* vfatApp,
   setAddressTableFileName("geb_vfat_address_table.xml");
   setIPbusProtocolVersion("2.0");
   setDeviceID("VFAT2Hw");
-  setDeviceBaseNode("vfats."+vfatDevice);
+  setDeviceBaseNode("VFATS."+vfatDevice);
 
   //what's the difference between connect, init, enable for VFAT?
   //check that register values are hardware default values, if not, something may be amiss
