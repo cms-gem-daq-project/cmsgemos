@@ -568,6 +568,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
   size_t numWords       = hw.getNode(name).getSize();
+  INFO("reading block " << name << " which has size "<<numWords);
   return readBlock(name, numWords);
 }
 
@@ -602,8 +603,9 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
-	INFO("Failed to block " << name << " with " << numWords << " words" <<
-	     ", retrying. retryCount("<<retryCount<<")"
+	INFO("Failed to read block " << name << " with " << numWords << " words" <<
+	     ", retrying. retryCount("<<retryCount<<")" << std::endl
+	     << "error was " << errCode
 	     << std::endl);
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;

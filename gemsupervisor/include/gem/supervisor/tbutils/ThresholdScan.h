@@ -160,11 +160,13 @@ namespace gem {
 
 	    xdata::UnsignedInteger latency;
 	    xdata::UnsignedInteger nTriggers;
-	    xdata::UnsignedInteger stepSize;
+	    xdata::UnsignedShort stepSize;
 
 	    xdata::Integer minThresh;
 	    xdata::Integer maxThresh;
 	    
+	    xdata::String        outFileName;
+
 	    xdata::String        deviceName;
 	    xdata::Integer       deviceNum;
 	    xdata::UnsignedShort deviceChipID;
@@ -172,22 +174,27 @@ namespace gem {
 	    xdata::UnsignedShort deviceVT2;
 	    xdata::UnsignedInteger64 triggersSeen;
 	  };
+
 	  /*
-	  class DeviceParams 
-	  {
+	  class VFAT2Event {
 	  public:
-	    //void getFromFile(const std::string& fileName);
-	    void registerFields(xdata::Bag<DeviceParams> *bag);
 	    
-	    xdata::UnsignedInteger latency;
-	    xdata::UnsignedShort deviceVT1;
-	    xdata::UnsignedShort deviceVT2;
-	    xdata::UnsignedInteger64 triggersSeen;
-	    xdata::UnsignedInteger64 bufferDepth;
-	    
-	    
+	    class VFAT2Data {
+	    public:
+	      uint16_t crc;
+	      uint16_t crc;
+	      uint16_t crc;
+	      uint16_t crc;
+	    }
+ 
+	    uint32_t header;
+	    std::vector<VFATData> data;
+	    ;
+	    ;
+	    uint32_t footer;
 	  };
 	  */
+	  
 	private:
 	  toolbox::fsm::AsynchronousFiniteStateMachine* fsmP_;
 
@@ -208,6 +215,9 @@ namespace gem {
 	  //ConfigParams confParams_;
 	  xdata::Bag<ConfigParams> confParams_;
 
+	  FILE* outputFile;
+	  //std::fstream* scanStream;
+	  //0xdeadbeef
 
 	  int minThresh_, maxThresh_;
 	  uint64_t nTriggers_, stepSize_, latency_;
