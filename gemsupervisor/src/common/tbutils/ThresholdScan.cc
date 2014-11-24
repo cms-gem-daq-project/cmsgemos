@@ -471,7 +471,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 	  (((data.at(5)&0x0000F000)>>12)==0xc) && 
 	  (((data.at(4)&0xF0000000)>>28)==0xe)
 	   )) {
-      //--bufferDepth;
+      //--bufferDepth; 
+      LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
       continue;
@@ -507,16 +508,17 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
 
     LOG4CPLUS_INFO(getApplicationLogger(),
-		   "Received tracking data word:" << 
-		   "bxn     :: 0x" << std::hex << bxNum  << std::dec << std::endl <<
-		   "bcn     :: 0x" << std::hex << bcn    << std::dec << std::endl <<
-		   "evn     :: 0x" << std::hex << evn    << std::dec << std::endl <<
-		   "flags   :: 0x" << std::hex << (unsigned)flags  << std::dec << std::endl <<
-		   "chipid  :: 0x" << std::hex << chipid << std::dec << std::endl <<
-		   "<127:0> :: 0x" << std::hex << msData << lsData   << std::dec  << std::endl <<
-		   "<127:64>:: 0x" << std::hex << msData << std::dec << std::endl <<
-		   "<63:0>  :: 0x" << std::hex << lsData << std::dec << std::endl <<
-		   "crc     :: 0x" << std::hex << crc    << std::dec << std::endl
+		   "Received tracking data word:" << std::endl
+		   << "bxn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << bxNum  << std::dec << std::endl
+		   << "bcn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << bcn    << std::dec << std::endl
+		   << "evn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << evn    << std::dec << std::endl
+		   << "flags   :: 0x" << std::setfill('0') << std::setw(2) << std::hex << (unsigned)flags  << std::dec << std::endl
+		   << "chipid  :: 0x" << std::setfill('0') << std::setw(4) << std::hex << chipid << std::dec << std::endl
+		   << "<127:0> :: 0x" << std::setfill('0') << std::setw(8) << std::hex << msData << 
+		   std::dec << std::setfill('0') << std::setw(8) << std::hex << lsData << std::dec << std::endl
+		   << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << msData << std::dec << std::endl
+		   << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << lsData << std::dec << std::endl
+		   << "crc     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << crc    << std::dec << std::endl
 		   );
     //while (bxNum == bxExp) {
     
