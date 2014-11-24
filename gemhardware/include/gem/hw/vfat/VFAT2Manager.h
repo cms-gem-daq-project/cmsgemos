@@ -79,12 +79,12 @@ namespace gem {
 
 	  HwVFAT2* vfatDevice;
 
-	  void readVFAT2Registers(gem::hw::vfat::VFAT2ControlParams& params);
+	  void readVFAT2Registers(VFAT2ControlParams& params);
 	  //void readVFAT2Registers();
 	  
 	  std::map<std::string,uint32_t>    vfatFullRegs_;
 	  std::map<std::string,uint8_t>     vfatRegs_;
-	  gem::hw::vfat::VFAT2ControlParams vfatParams_;
+	  VFAT2ControlParams vfatParams_;
 
 	private:
 	  std::vector<std::string>          nodes_;
@@ -113,17 +113,17 @@ namespace gem {
 	      static void createHeader(xgi::Output *out );
 	      
 	      static void createVFATInfoLayout(       xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createControlRegisterLayout(xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createSettingsLayout(       xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createCounterLayout(        xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createChannelRegisterLayout(xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createCommandLayout(        xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      
 	      static void getCurrentParametersAsXML();
 	      static void saveCurrentParametersAsXML();

@@ -33,10 +33,18 @@
 #include "xdata/UnsignedShort.h"
 #include "xdata/Integer.h"
 
+class TH1F;
+class TFile;
+class TCanvas;
+
 namespace toolbox {
   namespace fsm {
     class AsynchronousFiniteStateMachine;
   }
+}
+
+namespace cgicc {
+  BOOLEAN_ELEMENT(section,"section");
 }
 
 namespace gem {
@@ -75,6 +83,8 @@ namespace gem {
 	    throw (xoap::exception::Exception);
 	  xoap::MessageReference onHalt(xoap::MessageReference message)
 	    throw (xoap::exception::Exception);
+	  xoap::MessageReference onReset(xoap::MessageReference message)
+	    throw (xoap::exception::Exception);
 
 	  // HyperDAQ interface
 	  void webDefault(xgi::Input *in, xgi::Output *out)
@@ -89,6 +99,12 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void webHalt(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);
+	  void webReset(xgi::Input *in, xgi::Output *out)
+	    throw (xgi::exception::Exception);
+	  void webResetCounters(xgi::Input *in, xgi::Output *out)
+	    throw (xgi::exception::Exception);
+	  void webSendFastCommands(xgi::Input *in, xgi::Output *out)
+	    throw (xgi::exception::Exception);
 
 
 	  bool initialize(toolbox::task::WorkLoop* wl);
@@ -96,6 +112,7 @@ namespace gem {
 	  bool start(     toolbox::task::WorkLoop* wl);
 	  bool stop(      toolbox::task::WorkLoop* wl);
 	  bool halt(      toolbox::task::WorkLoop* wl);
+	  bool reset(     toolbox::task::WorkLoop* wl);
 	  bool run(       toolbox::task::WorkLoop* wl);
 	  bool readFIFO(  toolbox::task::WorkLoop* wl);
 
@@ -110,6 +127,8 @@ namespace gem {
 	    throw (toolbox::fsm::exception::Exception);
 	  void haltAction(toolbox::Event::Reference e)
 	    throw (toolbox::fsm::exception::Exception);
+	  void resetAction(toolbox::Event::Reference e)
+	    throw (toolbox::fsm::exception::Exception);
 	  void noAction(toolbox::Event::Reference e)
 	    throw (toolbox::fsm::exception::Exception);
 	  
@@ -119,6 +138,15 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void scanParameters(xgi::Output* out)
 	    throw (xgi::exception::Exception);
+	  void showCounterLayout(xgi::Output* out)
+	    throw (xgi::exception::Exception);
+	  void fastCommandLayout(xgi::Output* out)
+	    throw (xgi::exception::Exception);
+	  void showBufferLayout(xgi::Output* out)
+	    throw (xgi::exception::Exception);
+	  void displayHistograms(xgi::Output* out)
+	    throw (xgi::exception::Exception);
+	  void redirect(xgi::Input* in, xgi::Output* out);
 	  
 	  void actionPerformed(xdata::Event& event);
 
@@ -132,41 +160,72 @@ namespace gem {
 
 	    xdata::UnsignedInteger latency;
 	    xdata::UnsignedInteger nTriggers;
-	    xdata::UnsignedInteger stepSize;
+	    xdata::UnsignedShort stepSize;
 
 	    xdata::Integer minThresh;
 	    xdata::Integer maxThresh;
 	    
+	    xdata::String        outFileName;
+
 	    xdata::String        deviceName;
+	    xdata::Integer       deviceNum;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
 	    xdata::UnsignedInteger64 triggersSeen;
 	  };
+
+	  /*
+	  class VFAT2Event {
+	  public:
+	    
+	    class VFAT2Data {
+	    public:
+	      uint16_t crc;
+	      uint16_t crc;
+	      uint16_t crc;
+	      uint16_t crc;
+	    }
+ 
+	    uint32_t header;
+	    std::vector<VFATData> data;
+	    ;
+	    ;
+	    uint32_t footer;
+	  };
+	  */
 	  
 	private:
 	  toolbox::fsm::AsynchronousFiniteStateMachine* fsmP_;
 
 	  toolbox::task::WorkLoop *wl_;
 	  toolbox::BSem wl_semaphore_;
+
+	  toolbox::BSem hw_semaphore_;
 	  
 	  toolbox::task::ActionSignature* initSig_;
 	  toolbox::task::ActionSignature* confSig_;
 	  toolbox::task::ActionSignature* startSig_;
 	  toolbox::task::ActionSignature* stopSig_;
 	  toolbox::task::ActionSignature* haltSig_;
+	  toolbox::task::ActionSignature* resetSig_;
 	  toolbox::task::ActionSignature* runSig_;
 	  toolbox::task::ActionSignature* readSig_;
 
 	  //ConfigParams confParams_;
 	  xdata::Bag<ConfigParams> confParams_;
 
+	  FILE* outputFile;
+	  //std::fstream* scanStream;
+	  //0xdeadbeef
 
 	  int minThresh_, maxThresh_;
 	  uint64_t nTriggers_, stepSize_, latency_;
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
 	  gem::hw::vfat::HwVFAT2* vfatDevice_;
 	  
+	  TH1F* histos[128];
+	  TCanvas* outputCanvas;
 	protected:
 	  
 	  
