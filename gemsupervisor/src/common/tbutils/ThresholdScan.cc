@@ -1403,6 +1403,12 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
 	 << "</table>" << std::endl;
       //<< "</div>"   << std::endl;
     *out << cgicc::script().set("type","text/javascript")
+                           .set("src","http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js")
+	 << cgicc::script() << std::endl;
+    *out << cgicc::script().set("type","text/javascript")
+                           .set("src","http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js")
+	 << cgicc::script() << std::endl;
+    *out << cgicc::script().set("type","text/javascript")
                            .set("src","/gemdaq/gemsupervisor/html/scripts/tbutils/changeImage.js")
 	 << cgicc::script() << std::endl;
   }
