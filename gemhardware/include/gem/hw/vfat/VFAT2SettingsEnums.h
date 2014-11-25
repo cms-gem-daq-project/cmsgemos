@@ -97,8 +97,8 @@ namespace gem {
 	    NOTRIGGER = 0x0, //No trigger (default)
 	    ONEMODE   = 0x1, //One sector (S1)
 	    FOURMODE  = 0x2, //Four sectors (S1-S4)
-	    EIGHTMODE = 0x3,  //Eight sectors (S1-S8
-	    GEMMODE   = 0x4,//GEM mode (S1 to S8 as defined in the HitCountMode)
+	    EIGHTMODE = 0x3, //Eight sectors (S1-S8
+	    GEMMODE   = 0x4, //GEM mode (S1 to S8 as defined in the HitCountMode)
 	    SPARE0    = 0x5, //GEM mode (S1 to S8 as defined in the HitCountMode)
 	    SPARE1    = 0x6, //GEM mode (S1 to S8 as defined in the HitCountMode)
 	    SPARE2    = 0x7  //GEM mode (S1 to S8 as defined in the HitCountMode)

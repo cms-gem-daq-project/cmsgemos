@@ -725,8 +725,11 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLay
        << "          </fieldset>" << std::endl;
   
   int chanID = params.activeChannel;
-  std::cout <<
-    "chan = "<< std::dec << (unsigned)chanID << "; activeChannel = " << std::dec<< (unsigned)params.activeChannel << std::endl;
+  /*
+  std::cout << "chan = "<< std::dec << (unsigned)chanID
+	    << "; activeChannel = " << std::dec<< (unsigned)params.activeChannel
+	    << std::endl;
+  */
   *out << "          <fieldset class=\"vfatChannelSettings\">" << std::endl
        << cgicc::legend("Ch. # (2-128)")         << std::endl
        << "            <div>"                                  << std::endl
@@ -848,6 +851,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(xgi:
        << cgicc::br() << std::endl
        << cgicc::comment() << "ending the XML file upload fieldset" << cgicc::comment() << std::endl
        << cgicc::fieldset() << std::endl
+    
        << cgicc::comment() << "ending the Commands section" << cgicc::comment() << std::endl
        << cgicc::section() << std::endl;
 }

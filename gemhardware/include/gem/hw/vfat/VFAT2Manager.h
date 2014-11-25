@@ -14,26 +14,31 @@
 #include "xgi/framework/Method.h"
 #include "cgicc/HTMLClasses.h"
 
-#include "gem/hw/vfat/HwVFAT2.h"
-//#include "gem/hw/vfat/VFAT2Settings.h"
-//#include "gem/hw/vfat/VFAT2SettingsEnums.h"
-//#include "gem/hw/vfat/VFAT2Enums2Strings.h"
-//#include "gem/hw/vfat/VFAT2Strings2Enums.h"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+
+#include "gem/hw/vfat/VFAT2Settings.h"
 
 //typedef uhal::exception::exception uhalException;
 
 namespace cgicc {
   BOOLEAN_ELEMENT(section,"section");
 }
+
 namespace gem {
+  namespace base {
+    class GEMApplication;
+    class GEMFSM;
+    class GEMFSMApplication;
+    class GEMWebApplication;
+  }
+  
   namespace hw {
     namespace vfat {
       class HwVFAT2;
       
+      //class VFAT2Manager: public gem::base::GEMWebApplication, public gem::base::GEMFSMApplication
       class VFAT2Manager: public xdaq::WebApplication, public xdata::ActionListener
 	{
 	  
@@ -74,12 +79,12 @@ namespace gem {
 
 	  HwVFAT2* vfatDevice;
 
-	  void readVFAT2Registers(gem::hw::vfat::VFAT2ControlParams& params);
+	  void readVFAT2Registers(VFAT2ControlParams& params);
 	  //void readVFAT2Registers();
 	  
 	  std::map<std::string,uint32_t>    vfatFullRegs_;
 	  std::map<std::string,uint8_t>     vfatRegs_;
-	  gem::hw::vfat::VFAT2ControlParams vfatParams_;
+	  VFAT2ControlParams vfatParams_;
 
 	private:
 	  std::vector<std::string>          nodes_;
@@ -108,17 +113,17 @@ namespace gem {
 	      static void createHeader(xgi::Output *out );
 	      
 	      static void createVFATInfoLayout(       xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createControlRegisterLayout(xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createSettingsLayout(       xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createCounterLayout(        xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createChannelRegisterLayout(xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      static void createCommandLayout(        xgi::Output *out,
-						      const gem::hw::vfat::VFAT2ControlParams params);
+						      const VFAT2ControlParams params);
 	      
 	      static void getCurrentParametersAsXML();
 	      static void saveCurrentParametersAsXML();
