@@ -1117,7 +1117,7 @@ void gem::supervisor::tbutils::ThresholdScan::displayHistograms(xgi::Output *out
     *out << cgicc::td()
 	 << cgicc::label("Channel").set("for","ChannelHist") << std::endl
 	 << cgicc::input().set("id","ChannelHist").set("name","ChannelHist")
-                          .set("type","number").set("min","1").set("max","128")
+                          .set("type","number").set("min","0").set("max","127")
                           .set("value","1") << std::endl
 	 << cgicc::br() << std::endl;
     *out << cgicc::input().set("class","button").set("type","button")
@@ -1402,6 +1402,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
 	 << "</tbody>" << std::endl
 	 << "</table>" << std::endl;
       //<< "</div>"   << std::endl;
+
     *out << cgicc::script().set("type","text/javascript")
                            .set("src","http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js")
 	 << cgicc::script() << std::endl;

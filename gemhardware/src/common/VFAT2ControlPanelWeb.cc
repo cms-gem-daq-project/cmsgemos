@@ -821,12 +821,14 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(xgi:
        //changed from type submit to type button
        << cgicc::input().set("class","vfatButtonInput")////.set("style","width:auto")
                         .set("type","button").set("value","Select All Registers")
+                        .set("onClick","toggleVFATCheckboxes(true)")
 			.set("name","SelectAll")
        << std::endl
        << cgicc::br() << std::endl
        //changed from type submit to type button
        << cgicc::input().set("class","vfatButtonInput")////.set("style","width:auto")
 			.set("type","button").set("value","Select None")
+                        .set("onClick","toggleVFATCheckboxes(false)")
                         .set("name","SelectNone")
        << std::endl
        << cgicc::comment() << "ending the Selected chip fieldset" << cgicc::comment()
