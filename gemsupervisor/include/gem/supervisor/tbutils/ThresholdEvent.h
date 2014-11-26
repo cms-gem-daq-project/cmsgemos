@@ -20,41 +20,26 @@ namespace gem {
            ofstream outf(file.c_str(), ios_base::app | ios::binary );
            if(!outf.is_open()) return(false);
            if( event<0) return(false);
-           outf<<Che1<< endl;
+           outf<<che1<< endl;
            outf<<BXH<< endl;
-           outf<<Che2<< endl;
+           outf<<che2<< endl;
            outf<<EC<< endl;
-           outf<<Che3<< endl;
+           outf<<che3<< endl;
            outf<<NumData<< endl;
            outf<<SBit<< endl;
-           outf<<Che4<< endl;
+           outf<<che4<< endl;
            outf.close();
            return(true);
          };
 
-         bool PrintHeader(int event){
-           if( event<0 ) return(false);
-           cout << " " << endl; cout << "VFAT Event Heder " << event << endl;
-           cout << Che1<< endl;
-           cout << BXH<< endl;
-           cout << Che2<< endl;
-           cout << EC<< endl;
-           cout << Che3<< endl;
-           cout << NumData<< endl;
-           cout << SBit<< endl;
-           cout << Che4<< endl;
-           cout << "END of Heder" << endl;
-           return(true);
-         };
-
-          uint32_t Che1:4;
+          uint32_t che1:4;
           uint32_t BXH:28;
-          uint32_t Che2:4;
+          uint32_t che2:4;
           uint32_t EC:8;
-  	  uint32_t Che3:4;
+  	  uint32_t che3:4;
           uint32_t NumData:6;
           uint32_t SBit:6;
-          uint32_t Che4:4;
+          uint32_t che4:4;
           
       }; //End of ThresholdEventHeader
 
@@ -82,26 +67,6 @@ namespace gem {
            return(true);
          };	  
        
-         bool PrintData(int event){
-           if( event<0 ) return(false);
-           cout << " " << endl; cout << "VFAT Block " << event << endl;
-           cout << " BC " << BC << endl;
-           cout << " EC " << EC << endl;
-           cout << " Flag " << Flag << endl;
-           cout << " ChipID " << ChipID << endl;
-           cout << " data0 " << data0 << endl;
-           cout << " data1 " << data1 << endl;
-           cout << " data2 " << data2 << endl;
-           cout << " data3 " << data3 << endl;
-           cout << " data4 " << data4 << endl;
-           cout << " data5 " << data5 << endl;
-           cout << " data6 " << data6 << endl;
-           cout << " data7 " << data7 << endl;
-           cout << "checkSum  " << checkSum << endl;
-           cout << "END of Block" << endl;
-           return(true);
-         };
-
          uint32_t BC:12;
          uint32_t EC:8;
          uint32_t Flag:4;
