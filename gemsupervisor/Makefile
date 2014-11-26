@@ -20,7 +20,7 @@ PackageName=supervisor
 
 #Sources= GemSupervisorWeb.cc version.cc
 #Sources= GEMTestBeamSupervisor.cc GEMTestBeamSupervisorWeb.cc
-Sources= tbutils/ThresholdScan.cc
+Sources= tbutils/VFAT2XMLParser.cc tbutils/ThresholdScan.cc
 
 DynamicLibrary=gem_supervisor
 
@@ -57,8 +57,8 @@ UserStaticLinkFlags =
 #                          -L$(CACTUS_HOME)/lib \
 #                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 #LDFLAGS=`root-config --libs --glibs`
-DependentLibraries = config xcept boost_system cactus_uhal_uhal
-Libraries = config xcept numa toolbox asyncresolv uuid log4cplus
+DependentLibraries = config xcept boost_system cactus_uhal_uhal xerces-c
+Libraries = config xcept numa toolbox asyncresolv uuid log4cplus xerces-c
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules

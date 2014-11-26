@@ -16,6 +16,8 @@
 
 #include "cgicc/HTTPRedirectHeader.h"
 
+#include "gem/supervisor/tbutils/VFAT2XMLParser.h"
+
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::ThresholdScan)
 
 void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
@@ -39,13 +41,15 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
   std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
   //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
 
-  outFileName = tmpFileName;
+  outFileName  = tmpFileName;
+  settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
 
-  deviceName   = "";
-  deviceNum    = -1;
-  deviceChipID = 0x0;
-  deviceVT1    = 0x0;
-  deviceVT2    = 0x0;
+  deviceName    = "";
+  deviceNum     = -1;
+  triggerSource = 0x2;
+  deviceChipID  = 0x0;
+  deviceVT1     = 0x0;
+  deviceVT2     = 0x0;
 
   triggersSeen = 0;
   
@@ -57,6 +61,7 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
   bag->addField("stepSize",    &stepSize );
 
   bag->addField("outFileName",   &outFileName );
+  bag->addField("settingsFile",  &settingsFile);
 
   bag->addField("deviceName",   &deviceName  );
   bag->addField("deviceNum",    &deviceNum   );
@@ -558,7 +563,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     ss << "chanthresh" << chan << ".png";
     std::string imgName = ss.str();
     outputCanvas->cd();
-    histos[chan]->Draw("hist");
+    histos[chan]->Draw("histfill");
+    outputCanvas->Update();
     outputCanvas->SaveAs(TString(imgRoot+imgName));
   }
 
@@ -1049,14 +1055,18 @@ void gem::supervisor::tbutils::ThresholdScan::fastCommandLayout(xgi::Output *out
       *out << cgicc::td() << std::endl
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
                             .set("id","GLIBsrc").set("value","GLIB")
+	                    .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x0 ? "checked" : "")
+
 	   << cgicc::label("GLIB").set("for","GLIBSrc") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
 	                    .set("id","ExtSrc").set("value","Ext")
+                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x1 ? "checked" : "")
 	   << cgicc::label("Ext (LEMO)").set("for","ExtSrc") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("type","radio").set("name","trgSrc").set("checked")
                             .set("id","BothSrc").set("value","Both")
+                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x2 ? "checked" : "")
 	   << cgicc::label("Both").set("for","BothSrc") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("class","button").set("type","submit")
@@ -1206,11 +1216,23 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
     
     else if (!is_configured_) {
       //this will allow the parameters to be set to the chip and scan routine
+
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
       
       selectVFAT(out);
       scanParameters(out);
       
+      //adding aysen's xml parser
+      //std::string setConfFile = toolbox::toString("/%s/setConfFile",getApplicationDescriptor()->getURN().c_str());
+      //*out << cgicc::form().set("method","POST").set("action",setConfFile) << std::endl ;
+      
+      *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80")
+ 	                    .set("ENCTYPE","multipart/form-data").set("readonly")
+                            .set("value",confParams_.bag.settingsFile.toString()) << std::endl;
+      //*out << cgicc::input().set("type","submit").set("value","Set configuration file") << std::endl ;
+      //*out << cgicc::form() << std::endl ;
+      
+      *out << cgicc::br() << std::endl;
       *out << cgicc::input().set("type", "submit")
 	.set("name", "command").set("title", "Configure threshold scan.")
 	.set("value", "Configure") << std::endl;
@@ -1478,7 +1500,10 @@ void gem::supervisor::tbutils::ThresholdScan::webConfigure(xgi::Input *in, xgi::
 
   try {
     cgicc::Cgicc cgi(in);
-
+    
+    //aysen's xml parser
+    confParams_.bag.settingsFile = cgi.getElement("xmlFilename")->getValue();
+    
     cgicc::const_form_iterator element = cgi.getElement("Latency");
     if (element != cgi.getElements().end())
       confParams_.bag.latency   = element->getIntegerValue();
@@ -1687,12 +1712,18 @@ void gem::supervisor::tbutils::ThresholdScan::webSendFastCommands(xgi::Input *in
       
       cgicc::form_iterator fi = cgi.getElement("trgSrc");
       if( !fi->isEmpty() && fi != (*cgi).end()) {  
-	if (strcmp((**fi).c_str(),"GLIB") == 0)
+	if (strcmp((**fi).c_str(),"GLIB") == 0) {
+	  confParams_.bag.triggerSource = 0x0;
 	  vfatDevice_->writeReg("SOURCE",0x0);
-	else if (strcmp((**fi).c_str(),"Ext") == 0)
+	}
+	else if (strcmp((**fi).c_str(),"Ext") == 0) {
+	  confParams_.bag.triggerSource = 0x1;
 	  vfatDevice_->writeReg("SOURCE",0x1);
-	else if (strcmp((**fi).c_str(),"Both") == 0)
+	}
+	else if (strcmp((**fi).c_str(),"Both") == 0) {
+	  confParams_.bag.triggerSource = 0x2;
 	  vfatDevice_->writeReg("SOURCE",0x2);
+	}
       }
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       hw_semaphore_.give();
@@ -1700,9 +1731,11 @@ void gem::supervisor::tbutils::ThresholdScan::webSendFastCommands(xgi::Input *in
     
     else if (strcmp(fastCommand.c_str(),"SBitSelect") == 0) {
       LOG4CPLUS_INFO(this->getApplicationLogger(),"SBitSelect button pressed");
+      uint32_t value = cgi["SBitSelect"]->getIntegerValue();
       hw_semaphore_.take();
       vfatDevice_->setDeviceBaseNode("OptoHybrid.TRIGGER");
-      uint32_t value = cgi["SBitSelect"]->getIntegerValue();
+      vfatDevice_->writeReg("TDC_SBits",value);
+      vfatDevice_->setDeviceBaseNode("GLIB");
       vfatDevice_->writeReg("TDC_SBits",value);
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       hw_semaphore_.give();
@@ -1750,6 +1783,7 @@ void gem::supervisor::tbutils::ThresholdScan::initializeAction(toolbox::Event::R
   //read in default parameters from an xml file?
   //vfatDevice_->setRegisters(xmlFile);
   vfatDevice_->readVFAT2Counters();
+  vfatDevice_->setRunMode(0);
   confParams_.bag.deviceChipID = vfatDevice_->getChipID();
   is_initialized_ = true;
   hw_semaphore_.give();
@@ -1771,43 +1805,69 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   
   hw_semaphore_.take();
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
+  //make sure device is not running
+  vfatDevice_->setRunMode(0);
 
-  //default settings for the frontend
-  vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
-  vfatDevice_->setCalibrationMode(0x0); //set to normal
-  vfatDevice_->setMSPolarity(     0x1); //negative
-  vfatDevice_->setCalPolarity(    0x1); //negative
+  /****unimplemented at the moment
+  if ((confParams_.bag.settingsFile.toString()).rfind("xml") != std::string::npos) {
+    LOG4CPLUS_INFO(getApplicationLogger(),"loading settings from XML file");
+    gem::supervisor::tbutils::VFAT2XMLParser::VFAT2XMLParser theParser(confParams_.bag.settingsFile.toString(),
+								       vfatDevice_);
+    theParser.parseXMLFile();
+  }
+  */
+  
+  //else {
+    LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
+    //default settings for the frontend
+    vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
+    vfatDevice_->setCalibrationMode(0x0); //set to normal
+    vfatDevice_->setMSPolarity(     0x1); //negative
+    vfatDevice_->setCalPolarity(    0x1); //negative
+    
+    vfatDevice_->setProbeMode(        0x0);
+    vfatDevice_->setLVDSMode(         0x0);
+    vfatDevice_->setDACMode(          0x0);
+    vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
+    
+    vfatDevice_->setHitCountMode( 0x0);
+    vfatDevice_->setMSPulseLength(0x3);
+    vfatDevice_->setInputPadMode( 0x0);
+    vfatDevice_->setTrimDACRange( 0x0);
+    vfatDevice_->setBandgapPad(   0x0);
+    vfatDevice_->sendTestPattern( 0x0);
+    
+    
+    vfatDevice_->setIPreampIn(  168);
+    vfatDevice_->setIPreampFeed(150);
+    vfatDevice_->setIPreampOut(  80);
+    vfatDevice_->setIShaper(    150);
+    vfatDevice_->setIShaperFeed(100);
+    vfatDevice_->setIComp(      120);
 
-  vfatDevice_->setProbeMode(        0x0);
-  vfatDevice_->setLVDSMode(         0x0);
-  vfatDevice_->setDACMode(          0x0);
-  vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
-
-  vfatDevice_->setHitCountMode( 0x0);
-  vfatDevice_->setMSPulseLength(0x3);
-  vfatDevice_->setInputPadMode( 0x0);
-  vfatDevice_->setTrimDACRange( 0x0);
-  vfatDevice_->setBandgapPad(   0x0);
-  vfatDevice_->sendTestPattern( 0x0);
-
-
-  vfatDevice_->setIPreampIn(  168);
-  vfatDevice_->setIPreampFeed(150);
-  vfatDevice_->setIPreampOut(  80);
-  vfatDevice_->setIShaper(    150);
-  vfatDevice_->setIShaperFeed(100);
-  vfatDevice_->setIComp(      120);
-
-  vfatDevice_->setLatency(latency_);
+    vfatDevice_->setLatency(latency_);
+    //}
   
   vfatDevice_->setVThreshold1(0-minThresh_);
   confParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
   vfatDevice_->setVThreshold2(0);
+  confParams_.bag.latency = vfatDevice_->getLatency();
   is_configured_ = true;
   hw_semaphore_.give();
 
   for (int hi = 0; hi < 128; ++hi) {
-    histos[hi] = new TH1F("channel"+hi,"Scan for channel "+hi,50,-50.5,-0.5);
+    if (histos[hi]) {
+      histos[hi]->Delete();
+      delete histos[hi];
+      histos[hi] = 0;
+    }
+    TString histName  = "channel"+hi;
+    TString histTitle = "Threshold scan for channel "+hi;
+    int minTh = confParams_.bag.minThresh;
+    int maxTh = confParams_.bag.maxThresh;
+    int nBins = (maxTh - minTh +1)/(confParams_.bag.stepSize);
+    //((max-min)+1)/stepSize+1
+    histos[hi] = new TH1F(histName, histTitle, nBins, minTh-0.5, maxTh+0.5);
   }
   outputCanvas = new TCanvas("outputCanvas","outputCanvas",600,800);
   
@@ -1882,6 +1942,9 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   //set trigger source
   vfatDevice_->setDeviceBaseNode("OptoHybrid.TRIGGER");
   vfatDevice_->writeReg("SOURCE",   0x2);
+  vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum);
+  
+  vfatDevice_->setDeviceBaseNode("GLIB");
   vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum);
   
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
