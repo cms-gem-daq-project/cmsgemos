@@ -29,6 +29,7 @@ namespace gem {
            outf<<SBit<< endl;
            outf<<Che4<< endl;
            outf.close();
+           return(true);
          };
 
          bool PrintHeader(int event){
@@ -43,6 +44,7 @@ namespace gem {
            cout << SBit<< endl;
            cout << Che4<< endl;
            cout << "END of Heder" << endl;
+           return(true);
          };
 
           uint32_t Che1:4;
@@ -77,6 +79,7 @@ namespace gem {
            outf << data7 << endl;
            outf << checkSum << endl;
            outf.close();
+           return(true);
          };	  
        
          bool PrintData(int event){
@@ -96,6 +99,7 @@ namespace gem {
            cout << " data7 " << data7 << endl;
            cout << "checkSum  " << checkSum << endl;
            cout << "END of Block" << endl;
+           return(true);
          };
 
          uint32_t BC:12;
