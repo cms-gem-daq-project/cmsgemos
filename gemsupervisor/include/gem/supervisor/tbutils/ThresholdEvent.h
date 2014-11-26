@@ -21,11 +21,11 @@ namespace gem {
            if(!outf.is_open()) return(false);
            if( event<0) return(false);
            outf<<che1<< endl;
-           outf<<BXH<< endl;
+           outf<<bcn<< endl;
            outf<<che2<< endl;
            outf<<EC<< endl;
            outf<<che3<< endl;
-           outf<<NumData<< endl;
+           outf<<bxNum<< endl;
            outf<<SBit<< endl;
            outf<<che4<< endl;
            outf.close();
@@ -33,11 +33,11 @@ namespace gem {
          };
 
           uint32_t che1:4;
-          uint32_t BXH:28;
+          uint32_t bcn:28;
           uint32_t che2:4;
           uint32_t EC:8;
   	  uint32_t che3:4;
-          uint32_t NumData:6;
+          uint32_t bxNum:6;
           uint32_t SBit:6;
           uint32_t che4:4;
           
