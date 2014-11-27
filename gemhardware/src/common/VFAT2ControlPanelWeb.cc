@@ -163,13 +163,15 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
 	   (cgicc::option("Normal").set("value","Normal").set("selected")) :
 	   (cgicc::option("Normal").set("value","Normal"))) << std::endl
        //<< cgicc::option("Normal"    ).set("value","Normal"    )   << std::endl
-       << ((gem::hw::vfat::CalibrationModeToString.at(params.calibMode).compare("VCAL")) == 0 ?
-	   (cgicc::option("VCal").set("value","VCal").set("selected")) :
-	   (cgicc::option("VCal").set("value","VCal"))) << std::endl
+       //<< ((gem::hw::vfat::CalibrationModeToString.at(params.calibMode).compare("VCAL")) == 0 ?
+       << ((gem::hw::vfat::CalibrationModeToString.at(params.calibMode).compare("VHI")) == 0 ?
+	   (cgicc::option("VCal").set("value","VHi").set("selected")) :
+	   (cgicc::option("VCal").set("value","VHi"))) << std::endl
        //<< cgicc::option("Baseline").set("value","Baseline")   << std::endl
-       << ((gem::hw::vfat::CalibrationModeToString.at(params.calibMode).compare("BASELINE")) == 0 ?
-	   (cgicc::option("Baseline").set("value","Baseline").set("selected")) :
-	   (cgicc::option("Baseline").set("value","Baseline"))) << std::endl
+       //<< ((gem::hw::vfat::CalibrationModeToString.at(params.calibMode).compare("BASELINE")) == 0 ?
+       << ((gem::hw::vfat::CalibrationModeToString.at(params.calibMode).compare("VLOW")) == 0 ?
+	   (cgicc::option("Baseline").set("value","VLow").set("selected")) :
+	   (cgicc::option("Baseline").set("value","VLow"))) << std::endl
        //<< cgicc::option("External").set("value","External")   << std::endl
        << ((gem::hw::vfat::CalibrationModeToString.at(params.calibMode).compare("EXTERNAL")) == 0 ?
 	   (cgicc::option("External").set("value","External").set("selected")) :
@@ -210,20 +212,23 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << cgicc::select().set("id","TriggerMode").set("name","TriggerMode")   << std::endl
        //<< cgicc::option("NoTrigger"  ).set("value","NoTrigger"  ).set("selected") << std::endl
        << ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("NOTRIGGER")) == 0 ?
-	   (cgicc::option("NoTrigger").set("value","NoTrigger").set("selected")) :
-	   (cgicc::option("NoTrigger").set("value","NoTrigger"))) << std::endl
+	   (cgicc::option("No Trigger").set("value","NoTrigger").set("selected")) :
+	   (cgicc::option("No Trigger").set("value","NoTrigger"))) << std::endl
        //<< cgicc::option("S1Only"     ).set("value","S1Only"     ) << std::endl
-       << ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("ONEMODE")) == 0 ?
-	   (cgicc::option("S1Only").set("value","OneMode").set("selected")) :
-	   (cgicc::option("S1Only").set("value","OneMode"))) << std::endl
+       //<< ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("ONEMODE")) == 0 ?
+       << ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("S1")) == 0 ?
+	   (cgicc::option("S1 Only").set("value","S1").set("selected")) :
+	   (cgicc::option("S1 Only").set("value","S1"))) << std::endl
        //<< cgicc::option("FourS1toS4" ).set("value","FourS1toS4" ) << std::endl
-       << ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("FOURMODE")) == 0 ?
-	   (cgicc::option("FourS1ToS4").set("value","FourMode").set("selected")) :
-	   (cgicc::option("FourS1ToS4").set("value","FourMode"))) << std::endl
+       //<< ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("FOURMODE")) == 0 ?
+       << ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("S1-S4")) == 0 ?
+	   (cgicc::option("Four (S1 to S4)").set("value","S1-S4").set("selected")) :
+	   (cgicc::option("Four (S1 to S4)").set("value","S1-S4"))) << std::endl
        //<< cgicc::option("EightS1toS8").set("value","EightS1toS8") << std::endl
-       << ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("EIGHTMODE")) == 0 ?
-	   (cgicc::option("EightS1ToS8").set("value","EightMode").set("selected")) :
-	   (cgicc::option("EightS1ToS8").set("value","EightMode"))) << std::endl
+       //<< ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("EIGHTMODE")) == 0 ?
+       << ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("S1-S8")) == 0 ?
+	   (cgicc::option("Eight (S1 to S8)").set("value","S1-S8").set("selected")) :
+	   (cgicc::option("Eight (S1 to S8)").set("value","S1-S8"))) << std::endl
        //<< cgicc::option("GEMMode"    ).set("value","GEMMode"    ) << std::endl
        << ((gem::hw::vfat::TriggerModeToString.at(params.trigMode).compare("GEMMODE")) == 0 ?
 	   (cgicc::option("GEMMode").set("value","GEMMode").set("selected")) :
@@ -262,47 +267,45 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << "            	     <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("ReHitCT &lt;7:6&gt;").set("for","ReHitCT")         << std::endl
        << cgicc::select().set("id","ReHitCT").set("name","ReHitCT")        << std::endl
-       //<< cgicc::option("Cycle0").set("value","Cycle0").set("selected")    << std::endl
-       << ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("CYCLE0")) == 0 ?
-	   (cgicc::option("Cycle0").set("value","Cycle0").set("selected")) :
-	   (cgicc::option("Cycle0").set("value","Cycle0"))) << std::endl
-       //<< cgicc::option("Cycle1").set("value","Cycle1")                    << std::endl
-       << ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("CYCLE1")) == 0 ?
-	   (cgicc::option("Cycle1").set("value","Cycle1").set("selected")) :
-	   (cgicc::option("Cycle1").set("value","Cycle1"))) << std::endl
-       //<< cgicc::option("Cycle2").set("value","Cycle2")                    << std::endl
-       << ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("CYCLE2")) == 0 ?
-	   (cgicc::option("Cycle2").set("value","Cycle2").set("selected")) :
-	   (cgicc::option("Cycle2").set("value","Cycle2"))) << std::endl
-       //<< cgicc::option("Cycle3").set("value","Cycle3")                    << std::endl
-       << ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("CYCLE3")) == 0 ?
-	   (cgicc::option("Cycle3").set("value","Cycle3").set("selected")) :
-	   (cgicc::option("Cycle3").set("value","Cycle3"))) << std::endl
+       //<< ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("CYCLE0")) == 0 ?
+       << ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("6.4MICROSEC")) == 0 ?
+	   (cgicc::option("6.4 us").set("value","6.4microsec").set("selected")) :
+	   (cgicc::option("6.4 us").set("value","6.4microsec"))) << std::endl
+       //<< ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("CYCLE1")) == 0 ?
+       << ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("1.6MILLISEC")) == 0 ?
+	   (cgicc::option("1.6 ms").set("value","1.6millesec").set("selected")) :
+	   (cgicc::option("1.6 ms").set("value","1.6millesec"))) << std::endl
+       //<< ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("CYCLE2")) == 0 ?
+       << ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("0.4SEC")) == 0 ?
+	   (cgicc::option("0.4 s").set("value","0.4sec").set("selected")) :
+	   (cgicc::option("0.4 s").set("value","0.4sec"))) << std::endl
+       //<< ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("CYCLE3")) == 0 ?
+       << ((gem::hw::vfat::ReHitCTToString.at(params.reHitCT).compare("107SEC")) == 0 ?
+	   (cgicc::option("107 s").set("value","107sec").set("selected")) :
+	   (cgicc::option("107 s").set("value","107sec"))) << std::endl
        << cgicc::select()                                                  << std::endl
        << "            	     </div>"                                       << std::endl;
 	               
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">"      << std::endl
        << cgicc::label("LVDSPowerSave &lt;5&gt;").set("for","LVDSPowerSave")    << std::endl
        << cgicc::select().set("id","LVDSPowerSave").set("name","LVDSPowerSave") << std::endl
-    //<< cgicc::option("Off"    ).set("value","Off"    ).set("selected")       << std::endl
-       << ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("ENABLEALL")) == 0 ?
-	   (cgicc::option("Off").set("value","EnableAll").set("selected")) :
-	   (cgicc::option("Off").set("value","EnableAll"))) << std::endl
-    //<< cgicc::option("Enabled").set("value","Enabled")                       << std::endl
-       << ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("POWERSAVE")) == 0 ?
-	   (cgicc::option("Enabled").set("value","PowerSave").set("selected")) :
-	   (cgicc::option("Enabled").set("value","PowerSave"))) << std::endl
+    //<< ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("ENABLEALL")) == 0 ?
+       << ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("OFF")) == 0 ?
+	   (cgicc::option("Off").set("value","Off").set("selected")) :
+	   (cgicc::option("Off").set("value","Off"))) << std::endl
+    //<< ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("POWERSAVE")) == 0 ?
+       << ((gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode).compare("ON")) == 0 ?
+	   (cgicc::option("Enabled").set("value","On").set("selected")) :
+	   (cgicc::option("Enabled").set("value","On"))) << std::endl
        << cgicc::select()                                                       << std::endl
        << "            	     </div>"                                            << std::endl;
   
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("ProbeMode &lt;4&gt;").set("for","ProbeMode")       << std::endl
        << cgicc::select().set("id","ProbeMode").set("name","ProbeMode")    << std::endl
-       //<< cgicc::option("Off"    ).set("value","Off"    ).set("selected")  << std::endl
        << ((gem::hw::vfat::ProbeModeToString.at(params.probeMode).compare("OFF")) == 0 ?
 	   (cgicc::option("Off").set("value","Off").set("selected")) :
 	   (cgicc::option("Off").set("value","Off"))) << std::endl
-       //<< cgicc::option("Enabled").set("value","Enabled")                  << std::endl
        << ((gem::hw::vfat::ProbeModeToString.at(params.probeMode).compare("ON")) == 0 ?
 	   (cgicc::option("Enabled").set("value","On").set("selected")) :
 	   (cgicc::option("Enabled").set("value","On"))) << std::endl
@@ -312,47 +315,39 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("DACMode &lt;3:0&gt;").set("for","DACMode")         << std::endl
        << cgicc::select().set("id","DACMode").set("name","DACMode")               << std::endl
-       //<< cgicc::option("Normal"     ).set("value","Normal"     ).set("selected") << std::endl
-       << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("NORMAL")) == 0 ?
-	   (cgicc::option("Normal").set("value","Normal").set("selected")) :
-	   (cgicc::option("Normal").set("value","Normal"))) << std::endl
-       //<< cgicc::option("IPreampIn"  ).set("value","IPreampIn"  )   << std::endl
+       //<< ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("NORMAL")) == 0 ?
+       << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("OFF")) == 0 ?
+	   (cgicc::option("Normal").set("value","Off").set("selected")) :
+	   (cgicc::option("Normal").set("value","Off"))) << std::endl
        << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("IPREAMPIN")) == 0 ?
 	   (cgicc::option("IPreampIn").set("value","IPreampIn").set("selected")) :
 	   (cgicc::option("IPreampIn").set("value","IPreampIn"))) << std::endl
-       //<< cgicc::option("IPreampFeed").set("value","IPreampFeed")   << std::endl
        << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("IPREAMPFEED")) == 0 ?
 	   (cgicc::option("IPreampFeed").set("value","IPreampFeed").set("selected")) :
 	   (cgicc::option("IPreampFeed").set("value","IPreampFeed"))) << std::endl
-       //<< cgicc::option("IPreampOut" ).set("value","IPreampOut" )   << std::endl
        << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("IPREAMPOUT")) == 0 ?
 	   (cgicc::option("IPreampOut").set("value","IPreampOut").set("selected")) :
 	   (cgicc::option("IPreampOut").set("value","IPreampOut"))) << std::endl
-       //<< cgicc::option("IShaper"    ).set("value","IShaper"    )   << std::endl
        << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("ISHAPER")) == 0 ?
 	   (cgicc::option("IShaper").set("value","IShaper").set("selected")) :
 	   (cgicc::option("IShaper").set("value","IShaper"))) << std::endl
-       //<< cgicc::option("IShaperFeed").set("value","IShaperFeed")   << std::endl
        << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("ISHAPERFEED")) == 0 ?
 	   (cgicc::option("IShaperFeed").set("value","IShaperFeed").set("selected")) :
 	   (cgicc::option("IShaperFeed").set("value","IShaperFeed"))) << std::endl
-       //<< cgicc::option("IComp"      ).set("value","IComp"      )   << std::endl
        << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("ICOMP")) == 0 ?
 	   (cgicc::option("IComp").set("value","IComp").set("selected")) :
 	   (cgicc::option("IComp").set("value","IComp"))) << std::endl
-       //<< cgicc::option("IThreshold1").set("value","IThreshold1")   << std::endl
-       << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("ITHRESHOLD1")) == 0 ?
-	   (cgicc::option("IThreshold1").set("value","IThreshold1").set("selected")) :
-	   (cgicc::option("IThreshold1").set("value","IThreshold1"))) << std::endl
-       //<< cgicc::option("IThreshold2").set("value","IThreshold2")   << std::endl
-       << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("ITHRESHOLD2")) == 0 ?
-	   (cgicc::option("IThreshold2").set("value","IThreshold2").set("selected")) :
-	   (cgicc::option("IThreshold2").set("value","IThreshold2"))) << std::endl
-       //<< cgicc::option("VCal"       ).set("value","VCal"       )   << std::endl
+       //<< ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("ITHRESHOLD1")) == 0 ?
+       << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("VTHRESHOLD1")) == 0 ?
+	   (cgicc::option("VThreshold1").set("value","VThreshold1").set("selected")) :
+	   (cgicc::option("VThreshold1").set("value","VThreshold1"))) << std::endl
+       //<< ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("ITHRESHOLD2")) == 0 ?
+       << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("VTHRESHOLD2")) == 0 ?
+	   (cgicc::option("VThreshold2").set("value","VThreshold2").set("selected")) :
+	   (cgicc::option("VThreshold2").set("value","VThreshold2"))) << std::endl
        << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("VCAL")) == 0 ?
 	   (cgicc::option("VCal").set("value","VCal").set("selected")) :
 	   (cgicc::option("VCal").set("value","VCal"))) << std::endl
-       //<< cgicc::option("CalOut"     ).set("value","CalOut"     )   << std::endl
        << ((gem::hw::vfat::DACModeToString.at(params.dacMode).compare("CALOUT")) == 0 ?
 	   (cgicc::option("CalOut").set("value","CalOut").set("selected")) :
 	   (cgicc::option("CalOut").set("value","CalOut"))) << std::endl
@@ -377,94 +372,92 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << "            	     <div class=\"controlRegisterDropdownEntry\">"          << std::endl
        << cgicc::label("DigInSel &lt;7&gt;"  ).set("for","DigInSel" )    << std::endl
        << cgicc::select().set("id","DigInSel").set("name","DigInSel")    << std::endl
-       //<< cgicc::option("Analog" ).set("value","Analog").set("selected") << std::endl
-       << ((gem::hw::vfat::DigInSelToString.at(params.digInSel).compare("ANALOG")) == 0 ?
-	   (cgicc::option("Analog").set("value","Analog").set("selected")) :
-	   (cgicc::option("Analog").set("value","Analog"))) << std::endl
-       //<< cgicc::option("Digital").set("value","Digital")                << std::endl
-       << ((gem::hw::vfat::DigInSelToString.at(params.digInSel).compare("DIGITAL")) == 0 ?
-	   (cgicc::option("Digital").set("value","Digital").set("selected")) :
-	   (cgicc::option("Digital").set("value","Digital"))) << std::endl
+       << ((gem::hw::vfat::DigInSelToString.at(params.digInSel).compare("ANIP")) == 0 ?
+	   (cgicc::option("Analog").set("value","AnIP").set("selected")) :
+	   (cgicc::option("Analog").set("value","AnIP"))) << std::endl
+       << ((gem::hw::vfat::DigInSelToString.at(params.digInSel).compare("DIGIP")) == 0 ?
+	   (cgicc::option("Digital").set("value","DigIP").set("selected")) :
+	   (cgicc::option("Digital").set("value","DigIP"))) << std::endl
        << cgicc::select()                                                << std::endl
        << "            	     </div>"                                     << std::endl;
 	               
   *out << "                  <div class=\"controlRegisterDropdownEntry\">"      << std::endl
        << cgicc::label("MSPulseLength &lt;6:4&gt;").set("for","MSPulseLength")  << std::endl
        << cgicc::select().set("id","MSPulseLength").set("name","MSPulseLength") << std::endl
-       //<< cgicc::option("Clock1").set("value","Clock1").set("selected")         << std::endl
-       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK1")) == 0 ?
-	   (cgicc::option("Clock1").set("value","Clock1").set("selected")) :
-	   (cgicc::option("Clock1").set("value","Clock1"))) << std::endl
-       //<< cgicc::option("Clock2").set("value","Clock2") << std::endl
-       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK2")) == 0 ?
-	   (cgicc::option("Clock2").set("value","Clock2").set("selected")) :
-	   (cgicc::option("Clock2").set("value","Clock2"))) << std::endl
-       //<< cgicc::option("Clock3").set("value","Clock3") << std::endl
-       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK3")) == 0 ?
-	   (cgicc::option("Clock3").set("value","Clock3").set("selected")) :
-	   (cgicc::option("Clock3").set("value","Clock3"))) << std::endl
-       //<< cgicc::option("Clock4").set("value","Clock4") << std::endl
-       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK4")) == 0 ?
-	   (cgicc::option("Clock4").set("value","Clock4").set("selected")) :
-	   (cgicc::option("Clock4").set("value","Clock4"))) << std::endl
-       //<< cgicc::option("Clock5").set("value","Clock5") << std::endl
-       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK5")) == 0 ?
-	   (cgicc::option("Clock5").set("value","Clock5").set("selected")) :
-	   (cgicc::option("Clock5").set("value","Clock5"))) << std::endl
-       //<< cgicc::option("Clock6").set("value","Clock6") << std::endl
-       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK6")) == 0 ?
-	   (cgicc::option("Clock6").set("value","Clock6").set("selected")) :
-	   (cgicc::option("Clock6").set("value","Clock6"))) << std::endl
-       //<< cgicc::option("Clock7").set("value","Clock7") << std::endl
-       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK7")) == 0 ?
-	   (cgicc::option("Clock7").set("value","Clock7").set("selected")) :
-	   (cgicc::option("Clock7").set("value","Clock7"))) << std::endl
-       //<< cgicc::option("Clock8").set("value","Clock8") << std::endl
-       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK8")) == 0 ?
-	   (cgicc::option("Clock8").set("value","Clock8").set("selected")) :
-	   (cgicc::option("Clock8").set("value","Clock8"))) << std::endl
+       //<< ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK1")) == 0 ?
+       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("1")) == 0 ?
+	   (cgicc::option("1 Clock").set("value","1").set("selected")) :
+	   (cgicc::option("1 Clock").set("value","1"))) << std::endl
+       //<< ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK2")) == 0 ?
+       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("2")) == 0 ?
+	   (cgicc::option("2 Clocks").set("value","2").set("selected")) :
+	   (cgicc::option("2 Clocks").set("value","2"))) << std::endl
+       //<< ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK3")) == 0 ?
+       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("3")) == 0 ?
+	   (cgicc::option("3 Clocks").set("value","3").set("selected")) :
+	   (cgicc::option("3 Clocks").set("value","3"))) << std::endl
+       //<< ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK4")) == 0 ?
+       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("4")) == 0 ?
+	   (cgicc::option("4 Clocks").set("value","4").set("selected")) :
+	   (cgicc::option("4 Clocks").set("value","4"))) << std::endl
+       //<< ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK5")) == 0 ?
+       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("5")) == 0 ?
+	   (cgicc::option("5 Clocks").set("value","5").set("selected")) :
+	   (cgicc::option("5 Clocks").set("value","5"))) << std::endl
+       //<< ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK6")) == 0 ?
+       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("6")) == 0 ?
+	   (cgicc::option("6 Clocks").set("value","6").set("selected")) :
+	   (cgicc::option("6 Clocks").set("value","6"))) << std::endl
+       //<< ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK7")) == 0 ?
+       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("7")) == 0 ?
+	   (cgicc::option("7 Clocks").set("value","7").set("selected")) :
+	   (cgicc::option("7 Clocks").set("value","7"))) << std::endl
+       //<< ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("CLOCK8")) == 0 ?
+       << ((gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen).compare("8")) == 0 ?
+	   (cgicc::option("8 Clocks").set("value","8").set("selected")) :
+	   (cgicc::option("8 Clocks").set("value","8"))) << std::endl
        << cgicc::select()                               << std::endl
        << "                  </div>"                    << std::endl;
   	               
   *out << "                  <div class=\"controlRegisterDropdownEntry\">"  << std::endl
        << cgicc::label("HitCountMode &lt;3:0&gt;").set("for","HitCountMode")  << std::endl
        << cgicc::select().set("id","HitCountMode").set("name","HitCountMode") << std::endl
-       //<< cgicc::option("FastOR" ).set("value","FastOR" ).set("selected")   << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("FASTOR128")) == 0 ?
-	   (cgicc::option("FastOR").set("value","FastOR128").set("selected")) :
-	   (cgicc::option("FastOR").set("value","FastOR128"))) << std::endl
-       //<< cgicc::option("CountS1").set("value","CountS1") << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS1")) == 0 ?
-	   (cgicc::option("CountS1").set("value","CountS1").set("selected")) :
-	   (cgicc::option("CountS1").set("value","CountS1"))) << std::endl
-       //<< cgicc::option("CountS2").set("value","CountS2") << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS2")) == 0 ?
-	   (cgicc::option("CountS2").set("value","CountS2").set("selected")) :
-	   (cgicc::option("CountS2").set("value","CountS2"))) << std::endl
-       //<< cgicc::option("CountS3").set("value","CountS3") << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS3")) == 0 ?
-	   (cgicc::option("CountS3").set("value","CountS3").set("selected")) :
-	   (cgicc::option("CountS3").set("value","CountS3"))) << std::endl
-       //<< cgicc::option("CountS4").set("value","CountS4") << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS4")) == 0 ?
-	   (cgicc::option("CountS4").set("value","CountS4").set("selected")) :
-	   (cgicc::option("CountS4").set("value","CountS4"))) << std::endl
-       //<< cgicc::option("CountS5").set("value","CountS5") << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS5")) == 0 ?
-	   (cgicc::option("CountS5").set("value","CountS5").set("selected")) :
-	   (cgicc::option("CountS5").set("value","CountS5"))) << std::endl
-       //<< cgicc::option("CountS6").set("value","CountS6") << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS6")) == 0 ?
-	   (cgicc::option("CountS6").set("value","CountS6").set("selected")) :
-	   (cgicc::option("CountS6").set("value","CountS6"))) << std::endl
-       //<< cgicc::option("CountS7").set("value","CountS7") << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS7")) == 0 ?
-	   (cgicc::option("CountS7").set("value","CountS7").set("selected")) :
-	   (cgicc::option("CountS7").set("value","CountS7"))) << std::endl
-       //<< cgicc::option("CountS8").set("value","CountS8") << std::endl
-       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS8")) == 0 ?
-	   (cgicc::option("CountS8").set("value","CountS8").set("selected")) :
-	   (cgicc::option("CountS8").set("value","CountS8"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("FASTOR128")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("FASTOR")) == 0 ?
+	   (cgicc::option("Fast OR(128)").set("value","FastOR").set("selected")) :
+	   (cgicc::option("Fast OR(128)").set("value","FastOR"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS1")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("S1")) == 0 ?
+	   (cgicc::option("Count S1").set("value","S1").set("selected")) :
+	   (cgicc::option("Count S1").set("value","S1"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS2")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("S2")) == 0 ?
+	   (cgicc::option("Count S2").set("value","S2").set("selected")) :
+	   (cgicc::option("Count S2").set("value","S2"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS3")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("S3")) == 0 ?
+	   (cgicc::option("Count S3").set("value","S3").set("selected")) :
+	   (cgicc::option("Count S3").set("value","S3"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS4")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("S4")) == 0 ?
+	   (cgicc::option("Count S4").set("value","S4").set("selected")) :
+	   (cgicc::option("Count S4").set("value","S4"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS5")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("S5")) == 0 ?
+	   (cgicc::option("Count S5").set("value","S5").set("selected")) :
+	   (cgicc::option("Count S5").set("value","S5"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS6")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("S6")) == 0 ?
+	   (cgicc::option("Count S6").set("value","S6").set("selected")) :
+	   (cgicc::option("Count S6").set("value","S6"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS7")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("S7")) == 0 ?
+	   (cgicc::option("Count S7").set("value","S7").set("selected")) :
+	   (cgicc::option("Count S7").set("value","S7"))) << std::endl
+       //<< ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("COUNTS8")) == 0 ?
+       << ((gem::hw::vfat::HitCountModeToString.at(params.hitCountMode).compare("S8")) == 0 ?
+	   (cgicc::option("Count S8").set("value","S8").set("selected")) :
+	   (cgicc::option("Count S8").set("value","S8"))) << std::endl
        << cgicc::select()                                 << std::endl
        << "                  </div>"                      << std::endl
        << "                </div>"                        << std::endl;
@@ -486,66 +479,66 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << "            	     <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("DFTest &lt;4&gt;"  ).set("for","DFTest")    << std::endl
        << cgicc::select().set("id","DFTest").set("name","DFTest")   << std::endl
-       //<< cgicc::option("Idle").set("value","Idle").set("selected") << std::endl
-       << ((gem::hw::vfat::DFTestPatternToString.at(params.sendTestPattern).compare("IDLE")) == 0 ?
-	   (cgicc::option("Idle").set("value","Idle").set("selected")) :
-	   (cgicc::option("Idle").set("value","Idle"))) << std::endl
-       //<< cgicc::option("Send").set("value","Send")                 << std::endl
-       << ((gem::hw::vfat::DFTestPatternToString.at(params.sendTestPattern).compare("SEND")) == 0 ?
-	   (cgicc::option("Send").set("value","Send").set("selected")) :
-	   (cgicc::option("Send").set("value","Send"))) << std::endl
+       //<< ((gem::hw::vfat::DFTestPatternToString.at(params.sendTestPattern).compare("IDLE")) == 0 ?
+       << ((gem::hw::vfat::DFTestPatternToString.at(params.sendTestPattern).compare("OFF")) == 0 ?
+	   (cgicc::option("Idle").set("value","Off").set("selected")) :
+	   (cgicc::option("Idle").set("value","Off"))) << std::endl
+       //<< ((gem::hw::vfat::DFTestPatternToString.at(params.sendTestPattern).compare("SEND")) == 0 ?
+       << ((gem::hw::vfat::DFTestPatternToString.at(params.sendTestPattern).compare("ON")) == 0 ?
+	   (cgicc::option("Send").set("value","On").set("selected")) :
+	   (cgicc::option("Send").set("value","On"))) << std::endl
        << cgicc::select()                                           << std::endl
        << "                  </div>"                                << std::endl;
 	               
   *out << "                  <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("PbBG &lt;3&gt;").set("for","PbBG")                 << std::endl
        << cgicc::select().set("id","PbBG").set("name","PbBG")              << std::endl
-       //<< cgicc::option("Unconnected").set("value","Unconnected").set("selected") << std::endl
-       << ((gem::hw::vfat::PbBGToString.at(params.padBandGap).compare("UNCONNECTED")) == 0 ?
-	   (cgicc::option("Unconnected").set("value","Unconnected").set("selected")) :
-	   (cgicc::option("Unconnected").set("value","Unconnected"))) << std::endl
-       //<< cgicc::option("Connected"  ).set("value","Connected"  )                 << std::endl
-       << ((gem::hw::vfat::PbBGToString.at(params.padBandGap).compare("CONNECTED")) == 0 ?
-	   (cgicc::option("Connected").set("value","Connected").set("selected")) :
-	   (cgicc::option("Connected").set("value","Connected"))) << std::endl
+       //<< ((gem::hw::vfat::PbBGToString.at(params.padBandGap).compare("UNCONNECTED")) == 0 ?
+       << ((gem::hw::vfat::PbBGToString.at(params.padBandGap).compare("OFF")) == 0 ?
+	   (cgicc::option("Unconnected").set("value","Off").set("selected")) :
+	   (cgicc::option("Unconnected").set("value","Off"))) << std::endl
+       //<< ((gem::hw::vfat::PbBGToString.at(params.padBandGap).compare("CONNECTED")) == 0 ?
+       << ((gem::hw::vfat::PbBGToString.at(params.padBandGap).compare("ON")) == 0 ?
+	   (cgicc::option("Connected").set("value","On").set("selected")) :
+	   (cgicc::option("Connected").set("value","On"))) << std::endl
        << cgicc::select()            << std::endl
        << "                  </div>" << std::endl;
 	               
   *out << "                  <div class=\"controlRegisterDropdownEntry\">"    << std::endl
        << cgicc::label("TrimDACRange &lt;2:0&gt;").set("for","TrimDACRange")  << std::endl
        << cgicc::select().set("id","TrimDACRange").set("name","TrimDACRange") << std::endl
-       //<< cgicc::option("Default").set("value","Default").set("selected")     << std::endl
-       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("DEFAULT")) == 0 ?
-	   (cgicc::option("Default").set("value","Default").set("selected")) :
-	   (cgicc::option("Default").set("value","Default"))) << std::endl
-       //<< cgicc::option("Value1" ).set("value","Value1" ) << std::endl
-       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE1")) == 0 ?
-	   (cgicc::option("Value1").set("value","Value1").set("selected")) :
-	   (cgicc::option("Value1").set("value","Value1"))) << std::endl
-       //<< cgicc::option("Value2" ).set("value","Value2" ) << std::endl
-       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE2")) == 0 ?
-	   (cgicc::option("Value2").set("value","Value2").set("selected")) :
-	   (cgicc::option("Value2").set("value","Value2"))) << std::endl
-       //<< cgicc::option("Value3" ).set("value","Value3" ) << std::endl
-       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE3")) == 0 ?
-	   (cgicc::option("Value3").set("value","Value3").set("selected")) :
-	   (cgicc::option("Value3").set("value","Value3"))) << std::endl
-       //<< cgicc::option("Value4" ).set("value","Value4" ) << std::endl
-       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE4")) == 0 ?
-	   (cgicc::option("Value4").set("value","Value4").set("selected")) :
-	   (cgicc::option("Value4").set("value","Value4"))) << std::endl
-       //<< cgicc::option("Value5" ).set("value","Value5" ) << std::endl
-       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE5")) == 0 ?
-	   (cgicc::option("Value5").set("value","Value5").set("selected")) :
-	   (cgicc::option("Value5").set("value","Value5"))) << std::endl
-       //<< cgicc::option("Value6" ).set("value","Value6" ) << std::endl
-       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE6")) == 0 ?
-	   (cgicc::option("Value6").set("value","Value6").set("selected")) :
-	   (cgicc::option("Value6").set("value","Value6"))) << std::endl
-       //<< cgicc::option("Value7" ).set("value","Value7" ) << std::endl
-       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE7")) == 0 ?
-	   (cgicc::option("Value7").set("value","Value7").set("selected")) :
-	   (cgicc::option("Value7").set("value","Value7"))) << std::endl
+       //<< ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("DEFAULT")) == 0 ?
+       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("0")) == 0 ?
+	   (cgicc::option("Default").set("value","0").set("selected")) :
+	   (cgicc::option("Default").set("value","0"))) << std::endl
+       //<< ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE1")) == 0 ?
+       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("1")) == 0 ?
+	   (cgicc::option("Value1").set("value","1").set("selected")) :
+	   (cgicc::option("Value1").set("value","1"))) << std::endl
+       //<< ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE2")) == 0 ?
+       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("2")) == 0 ?
+	   (cgicc::option("Value2").set("value","2").set("selected")) :
+	   (cgicc::option("Value2").set("value","2"))) << std::endl
+       //<< ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE3")) == 0 ?
+       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("3")) == 0 ?
+	   (cgicc::option("Value3").set("value","3").set("selected")) :
+	   (cgicc::option("Value3").set("value","3"))) << std::endl
+       //<< ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE4")) == 0 ?
+       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("4")) == 0 ?
+	   (cgicc::option("Value4").set("value","4").set("selected")) :
+	   (cgicc::option("Value4").set("value","4"))) << std::endl
+       //<< ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE5")) == 0 ?
+       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("5")) == 0 ?
+	   (cgicc::option("Value5").set("value","5").set("selected")) :
+	   (cgicc::option("Value5").set("value","5"))) << std::endl
+       //<< ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE6")) == 0 ?
+       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("6")) == 0 ?
+	   (cgicc::option("Value6").set("value","6").set("selected")) :
+	   (cgicc::option("Value6").set("value","6"))) << std::endl
+       //<< ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("VALUE7")) == 0 ?
+       << ((gem::hw::vfat::TrimDACRangeToString.at(params.trimDACRange).compare("7")) == 0 ?
+	   (cgicc::option("Value7").set("value","7").set("selected")) :
+	   (cgicc::option("Value7").set("value","7"))) << std::endl
        << cgicc::select()                                 << std::endl
        << "                  </div>"                      << std::endl
        << "                </div>"                        << std::endl;
@@ -821,12 +814,14 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(xgi:
        //changed from type submit to type button
        << cgicc::input().set("class","vfatButtonInput")////.set("style","width:auto")
                         .set("type","button").set("value","Select All Registers")
+                        .set("onClick","toggleVFATCheckboxes(true)")
 			.set("name","SelectAll")
        << std::endl
        << cgicc::br() << std::endl
        //changed from type submit to type button
        << cgicc::input().set("class","vfatButtonInput")////.set("style","width:auto")
 			.set("type","button").set("value","Select None")
+                        .set("onClick","toggleVFATCheckboxes(false)")
                         .set("name","SelectNone")
        << std::endl
        << cgicc::comment() << "ending the Selected chip fieldset" << cgicc::comment()

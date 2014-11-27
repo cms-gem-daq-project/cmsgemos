@@ -473,7 +473,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 	std::stringstream ss9;
 	ss9 << "DATA." << word;
 	data.push_back(vfatDevice_->readReg(ss9.str()));
-        LOG4CPLUS_INFO(getApplicationLogger(),"/n data.at "<< data.at(word));
       }
     }
     //make sure we are aligned
@@ -519,37 +518,31 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     if (isFirst) {
       bxExp = bxNum;
 
+      hd.che1 = 0x00;
       hd.bcn = bcn;
+      hd.che2 = 0x00;
+      hd.EC = 0x00;
+      hd.che3 = 0x00;
       hd.bxNum = bxNum;
-      /* Header
-      hd.che1 = ;
-      hd.bcn = bcn;
-      hd.che2 = ;
-      hd.EC = ;
-      hd.che3 = ;
-      hd.bxNum = bxNum;
-      hd.SBit = ;
-      hd.che4 = ;
-       */
+      hd.SBit = 0x00;
+      hd.che4 = 0x00;
+
       hd.keepHeader(tmpFileName, event);
     }
 
-    evd.ChipID = chipid;
-    /*
-    evd.BC = 
-    evd.EC = 
+    evd.BC = 0x00;
+    evd.EC = 0x00;
     evd.Flag = flags;
     evd.ChipID = chipid;
-    evd.data0 = 
-    evd.data1 = 
-    evd.data2 = 
-    evd.data3 = 
-    evd.data4 = 
-    evd.data5 = 
-    evd.data6 = 
-    evd.data7 = 
-    evd.checkSum = 
-    */
+    evd.data0 = 0x00;
+    evd.data1 = 0x00;
+    evd.data2 = 0x00;
+    evd.data3 = 0x00;
+    evd.data4 = 0x00;
+    evd.data5 = 0x00;
+    evd.data6 = 0x00;
+    evd.data7 = 0x00;
+    evd.checkSum = 0x00;
 
     evd.keepData(tmpFileName, event);
 
@@ -1167,7 +1160,7 @@ void gem::supervisor::tbutils::ThresholdScan::displayHistograms(xgi::Output *out
     *out << cgicc::td()
 	 << cgicc::label("Channel").set("for","ChannelHist") << std::endl
 	 << cgicc::input().set("id","ChannelHist").set("name","ChannelHist")
-                          .set("type","number").set("min","1").set("max","128")
+                          .set("type","number").set("min","0").set("max","127")
                           .set("value","1") << std::endl
 	 << cgicc::br() << std::endl;
     *out << cgicc::input().set("class","button").set("type","button")
@@ -1452,6 +1445,13 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
 	 << "</tbody>" << std::endl
 	 << "</table>" << std::endl;
       //<< "</div>"   << std::endl;
+
+    *out << cgicc::script().set("type","text/javascript")
+                           .set("src","http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js")
+	 << cgicc::script() << std::endl;
+    *out << cgicc::script().set("type","text/javascript")
+                           .set("src","http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js")
+	 << cgicc::script() << std::endl;
     *out << cgicc::script().set("type","text/javascript")
                            .set("src","/gemdaq/gemsupervisor/html/scripts/tbutils/changeImage.js")
 	 << cgicc::script() << std::endl;
