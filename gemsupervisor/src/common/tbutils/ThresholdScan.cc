@@ -530,18 +530,12 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       hd.keepHeader(tmpFileName, event);
     }
 
-    evd.BC = 0x00;
-    evd.EC = 0x00;
+    evd.BC = bcn;
+    evd.EC = evn;
     evd.Flag = flags;
     evd.ChipID = chipid;
-    evd.data0 = 0x00;
-    evd.data1 = 0x00;
-    evd.data2 = 0x00;
-    evd.data3 = 0x00;
-    evd.data4 = 0x00;
-    evd.data5 = 0x00;
-    evd.data6 = 0x00;
-    evd.data7 = 0x00;
+    evd.lsdata = lsData;
+    evd.msdata = msData;
     evd.checkSum = 0x00;
 
     evd.keepData(tmpFileName, event);
