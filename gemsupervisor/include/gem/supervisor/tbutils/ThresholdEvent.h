@@ -32,14 +32,14 @@ namespace gem {
            return(true);
          };
 
-          uint32_t che1:4;
+          uint8_t che1:4;
           uint32_t bcn:28;
-          uint32_t che2:4;
-          uint32_t EC:8;
-  	  uint32_t che3:4;
-          uint32_t bxNum:6;
-          uint32_t SBit:6;
-          uint32_t che4:4;
+          uint8_t che2:4;
+          uint16_t EC:8;
+  	  uint8_t che3:4;
+          uint16_t bxNum:6;
+          uint16_t SBit:6;
+          uint8_t che4:4;
           
       }; //End of ThresholdEventHeader
 
@@ -54,34 +54,20 @@ namespace gem {
            outf << EC << endl;
            outf << Flag << endl;
            outf << ChipID << endl;
-           outf << data0 << endl;
-           outf << data1 << endl;
-           outf << data2 << endl;
-           outf << data3 << endl;
-           outf << data4 << endl;
-           outf << data5 << endl;
-           outf << data6 << endl;
-           outf << data7 << endl;
+           outf << lsdata << endl;
+           outf << msdata << endl;
            outf << checkSum << endl;
            outf.close();
            return(true);
          };	  
        
-         uint32_t BC:12;
-         uint32_t EC:8;
-         uint32_t Flag:4;
-         uint32_t ChipID:12;
-
-         uint32_t data0:16;
-         uint32_t data1:16;
-         uint32_t data2:16;
-         uint32_t data3:16;
-         uint32_t data4:16;
-         uint32_t data5:16;
-         uint32_t data6:16;
-         uint32_t data7:16;
-       
-         uint32_t checkSum:16;
+         uint16_t BC:12;
+         uint16_t EC:8;
+         uint8_t  Flag:4;
+         uint16_t ChipID:12;
+         uint64_t lsdata:64;
+         uint64_t msdata:64;
+         uint16_t checkSum:16;
 
       }; //End of ThresholdEvent
 
