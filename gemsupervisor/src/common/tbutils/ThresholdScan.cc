@@ -487,10 +487,29 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     
     uint16_t bcn, evn, crc, chipid;
     uint64_t msData, lsData;
-    uint8_t  flags;
+    uint8_t  flags, Sbit;
     
-    if (isFirst)
+    if (isFirst){
       bxExp = bxNum;
+
+      // keeping event heades
+      hd.BC = 0x0A << 12;  // 1010
+      hd.BC = (hd.BC | bcn);
+
+      hd.EC = 0x0A << 12;  // 1100
+      hd.EC = (hd.EC | evn) << 4;
+      hd.EC = (hd.EC | Flags);
+     
+      hd.bxExp = bxExp;
+      hd.bxNum = bxNum << 6;
+      hd.bxNum = (hd.bxNum | Sbit);
+
+      hd.ChipID = 0x0E << 12; // 1110
+      hd.ChipID = (hd.ChipID | chipid);
+      hd.crc = crc;
+      hd.keepHeader(tmpFileName, event);
+
+    }
     
     if (bxNum == bxExp)
       isFirst = false;
