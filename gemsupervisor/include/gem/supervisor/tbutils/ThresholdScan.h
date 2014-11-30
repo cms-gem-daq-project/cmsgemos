@@ -160,15 +160,17 @@ namespace gem {
 
 	    xdata::UnsignedInteger latency;
 	    xdata::UnsignedInteger nTriggers;
-	    xdata::UnsignedShort stepSize;
+	    xdata::UnsignedShort   stepSize;
 
 	    xdata::Integer minThresh;
 	    xdata::Integer maxThresh;
 	    
 	    xdata::String        outFileName;
+	    xdata::String        settingsFile;
 
 	    xdata::String        deviceName;
 	    xdata::Integer       deviceNum;
+	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
