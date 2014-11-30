@@ -577,7 +577,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   hw_semaphore_.give();
 
   for (int chan = 0; chan < 128; ++chan) {
-    std::string imgRoot = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/tscan/";
+    std::string imgRoot = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/baranov/images/tbutils/tscan/";
     std::stringstream ss;
     ss << "chanthresh" << chan << ".png";
     std::string imgName = ss.str();
