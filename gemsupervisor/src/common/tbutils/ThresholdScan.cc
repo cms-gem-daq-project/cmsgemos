@@ -419,9 +419,9 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   /* SB
   std::fstream scanStream(tmpFileName.c_str(),
 			  std::ios::app | std::ios::binary);
-  */
   if (scanStream.is_open())
     LOG4CPLUS_INFO(getApplicationLogger(),"file " << tmpFileName << "opened to write from FIFO ");
+  */
   
   //maybe not even necessary?
   //vfatDevice_->setRunMode(0);
