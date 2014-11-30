@@ -519,7 +519,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     crc    = 0x0000ffff & data.at(0);
 
-
     if (isFirst){
 
       // keeping event heades
@@ -537,7 +536,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       hd.ChipID = 0x0E << 12; // 1110
       hd.ChipID = (hd.ChipID | chipid);
       hd.crc = crc;
-      hd.keepHeader(tmpFileName, event);
+      hd.keepHeader(tmpFileName, evn);
 
     }
     
