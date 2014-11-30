@@ -488,6 +488,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+      //bufferDepth = vfatDevice_->readReg("TRK_DATA.DATA");
       continue;
     }
     
@@ -495,7 +496,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     
     uint16_t bcn, evn, crc, chipid;
     uint64_t msData, lsData;
-    uint8_t  flags, Sbit;
+    uint8_t  flags, Sbit=0x0;
     
     if (isFirst)
       bxExp = bxNum;
