@@ -521,7 +521,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     if (isFirst){
 
-      // keeping event heades
+      // keeping event heades and data
       hd.BC = 0x0A << 12;  // 1010
       hd.BC = (hd.BC | bcn);
 
@@ -538,6 +538,10 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       hd.crc = crc;
       hd.keepHeader(tmpFileName, evn);
 
+    } else {
+      ev.lsData = lsData;
+      ev.lmData = lmData;
+      ev.keepEvent(tmpFileName, evn);
     }
     
     LOG4CPLUS_INFO(getApplicationLogger(),
