@@ -528,7 +528,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
       hd.EC = 0x0A << 12;  // 1100
       hd.EC = (hd.EC | evn) << 4;
-      hd.EC = (hd.EC | Flags);
+      hd.EC = (hd.EC | flags);
      
       hd.bxExp = bxExp;
       hd.bxNum = bxNum << 6;
