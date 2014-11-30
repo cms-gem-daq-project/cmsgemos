@@ -1,5 +1,5 @@
 #include "gem/supervisor/tbutils/ThresholdScan.h"
-#include "gem/supervisor/tbutils/ThresholdScanEvent.h"
+#include "gem/supervisor/tbutils/ThresholdEvent.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
 #include "TH1.h"
