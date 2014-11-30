@@ -412,7 +412,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   hw_semaphore_.take();
 
   ThresholdEventHeader hd;
-  ThresholdEvent ev;
+  ThresholdEvent evnt;
     
   std::string tmpFileName = confParams_.bag.outFileName.toString();
 
@@ -539,9 +539,9 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       hd.keepHeader(tmpFileName, evn);
 
     } else {
-      ev.lsdata = lsData;
-      ev.lmdata = lmData;
-      ev.keepData(tmpFileName, evn);
+      evnt.lsdata = lsData;
+      evnt.lmdata = lmData;
+      evnt.keepData(tmpFileName, evn);
     }
     
     LOG4CPLUS_INFO(getApplicationLogger(),
