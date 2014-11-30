@@ -539,8 +539,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       hd.keepHeader(tmpFileName, evn);
 
     } else {
-      ev.lsData = lsData;
-      ev.lmData = lmData;
+      ev.lsdata = lsData;
+      ev.lmdata = lmData;
       ev.keepEvent(tmpFileName, evn);
     }
     
