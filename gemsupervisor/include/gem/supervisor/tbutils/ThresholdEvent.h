@@ -20,27 +20,23 @@ namespace gem {
            ofstream outf(file.c_str(), ios_base::app | ios::binary );
            if(!outf.is_open()) return(false);
            if( event<0) return(false);
-           outf<<che1<< endl;
-           outf<<bcn<< endl;
-           outf<<che2<< endl;
+           outf<<BC<< endl;
            outf<<EC<< endl;
-           outf<<che3<< endl;
+           outf<<bxExp<< endl;
            outf<<bxNum<< endl;
-           outf<<SBit<< endl;
-           outf<<che4<< endl;
+           outf<<ChipID<< endl;
+           outf<<crc<< endl;
            outf.close();
            return(true);
          };
 
-          uint8_t che1:4;
-          uint32_t bcn:28;
-          uint8_t che2:4;
-          uint16_t EC:8;
-  	  uint8_t che3:4;
-          uint16_t bxNum:6;
-          uint16_t SBit:6;
-          uint8_t che4:4;
-          
+	 uint16_t BC;     // 1010:4, BC:12 
+         uint16_t EC;     // 1100:4, EC:8, Flags:4
+         uint32_t bxExp;  // :28
+         uint16_t bxNum;  // :6, Sbit:6
+         uint16_t ChipID; // 1110, :12
+         uint16_t crc;    // :16
+	 
       }; //End of ThresholdEventHeader
 
        class ThresholdEvent {
@@ -50,24 +46,14 @@ namespace gem {
            ofstream outf(file.c_str(), ios_base::app | ios::binary );
            if(!outf.is_open()) return(false);
            if( event<0) return(false);
-           outf << BC << endl;
-           outf << EC << endl;
-           outf << Flag << endl;
-           outf << ChipID << endl;
            outf << lsdata << endl;
            outf << msdata << endl;
-           outf << checkSum << endl;
            outf.close();
            return(true);
          };	  
        
-         uint16_t BC:12;
-         uint16_t EC:8;
-         uint8_t  Flag:4;
-         uint16_t ChipID:12;
-         uint64_t lsdata:64;
-         uint64_t msdata:64;
-         uint16_t checkSum:16;
+         uint64_t lsdata; // :64
+         uint64_t msdata; // :64
 
       }; //End of ThresholdEvent
 
