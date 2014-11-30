@@ -409,9 +409,16 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 {
   wl_semaphore_.take();
   hw_semaphore_.take();
+
+  ThresholdEventHeader hd;
+  ThresholdEvent ev;
+    
   std::string tmpFileName = confParams_.bag.outFileName.toString();
+
+  /* SB
   std::fstream scanStream(tmpFileName.c_str(),
 			  std::ios::app | std::ios::binary);
+  */
   if (scanStream.is_open())
     LOG4CPLUS_INFO(getApplicationLogger(),"file " << tmpFileName << "opened to write from FIFO ");
   
@@ -489,27 +496,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     uint64_t msData, lsData;
     uint8_t  flags, Sbit;
     
-    if (isFirst){
+    if (isFirst)
       bxExp = bxNum;
-
-      // keeping event heades
-      hd.BC = 0x0A << 12;  // 1010
-      hd.BC = (hd.BC | bcn);
-
-      hd.EC = 0x0A << 12;  // 1100
-      hd.EC = (hd.EC | evn) << 4;
-      hd.EC = (hd.EC | Flags);
-     
-      hd.bxExp = bxExp;
-      hd.bxNum = bxNum << 6;
-      hd.bxNum = (hd.bxNum | Sbit);
-
-      hd.ChipID = 0x0E << 12; // 1110
-      hd.ChipID = (hd.ChipID | chipid);
-      hd.crc = crc;
-      hd.keepHeader(tmpFileName, event);
-
-    }
     
     if (bxNum == bxExp)
       isFirst = false;
@@ -531,6 +519,27 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     crc    = 0x0000ffff & data.at(0);
 
 
+    if (isFirst){
+
+      // keeping event heades
+      hd.BC = 0x0A << 12;  // 1010
+      hd.BC = (hd.BC | bcn);
+
+      hd.EC = 0x0A << 12;  // 1100
+      hd.EC = (hd.EC | evn) << 4;
+      hd.EC = (hd.EC | Flags);
+     
+      hd.bxExp = bxExp;
+      hd.bxNum = bxNum << 6;
+      hd.bxNum = (hd.bxNum | Sbit);
+
+      hd.ChipID = 0x0E << 12; // 1110
+      hd.ChipID = (hd.ChipID | chipid);
+      hd.crc = crc;
+      hd.keepHeader(tmpFileName, event);
+
+    }
+    
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "Received tracking data word:" << std::endl
 		   << "bxn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << bxNum  << std::dec << std::endl
@@ -587,7 +596,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     outputCanvas->SaveAs(TString(imgRoot+imgName));
   }
 
-  scanStream.close();
+  //SB scanStream.close();
 
   wl_semaphore_.give();
   return false;
