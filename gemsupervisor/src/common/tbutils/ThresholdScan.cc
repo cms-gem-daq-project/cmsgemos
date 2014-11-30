@@ -541,7 +541,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     } else {
       ev.lsdata = lsData;
       ev.lmdata = lmData;
-      ev.keepEvent(tmpFileName, evn);
+      ev.keepData(tmpFileName, evn);
     }
     
     LOG4CPLUS_INFO(getApplicationLogger(),
