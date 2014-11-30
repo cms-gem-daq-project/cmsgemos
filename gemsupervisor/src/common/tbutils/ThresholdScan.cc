@@ -540,7 +540,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     } else {
       evnt.lsdata = lsData;
-      evnt.lmdata = lmData;
+      evnt.msdata = msData;
       evnt.keepData(tmpFileName, evn);
     }
     
