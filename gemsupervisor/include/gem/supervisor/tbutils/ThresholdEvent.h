@@ -57,6 +57,27 @@ namespace gem {
 
       }; //End of ThresholdEvent
 
+      struct ChannelData {
+        uint64_t lsdata;  // ch1to64
+        uint64_t msdata;  // ch65to128
+      };
+
+      struct VFATEvent {
+ 	uint16_t BC;      // 1010:4, BC:12 
+        uint16_t EC;      // 1100:4, EC:8, Flags:4
+        uint32_t bxExp;   // :28
+        uint16_t bxNum;   // :6, Sbit:6
+        uint16_t ChipID;  // 1110, :12
+        ChannelData data;
+        uint16_t crc;     // :16
+      };    
+
+      struct GEMEvent {
+        uint32_t header1;
+        std::vector<VFATEvent> vfats;
+        uint32_t trailer1;
+      };
+
     } //end namespace gem::supervisor::tbutils
   } //end namespace gem::supervisor
 } //end namespace gem
