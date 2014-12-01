@@ -411,9 +411,10 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  ThresholdEventHeader hd;
-  ThresholdEvent evnt;
-    
+  ChannelData chdata;
+  VFATEvent vfatev;
+  GEMEvent gemev;
+
   std::string tmpFileName = confParams_.bag.outFileName.toString();
 
   /* SB
@@ -520,29 +521,26 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     crc    = 0x0000ffff & data.at(0);
 
-    if (isFirst){
+    chdata.lsdata = lsData;
+    chdata.msdata = msData;
 
-      // keeping event heades and data
-      hd.BC = 0x0A << 12;  // 1010
-      hd.BC = (hd.BC | bcn);
-      hd.EC = 0x0A << 12;  // 1100
-      hd.EC = (hd.EC | evn) << 4;
-      hd.EC = (hd.EC | flags);
-      hd.bxExp = bxExp;
-      hd.bxNum = bxNum << 6;
-      hd.bxNum = (hd.bxNum | Sbit);
-      hd.ChipID = 0x0E << 12; // 1110
-      hd.ChipID = (hd.ChipID | chipid);
-      hd.crc = crc;
+    vfatev.BC = 0x0A << 12;     // 1010
+    vfatev.BC = (vfatev.BC | bcn);
+    vfatev.EC = 0x0A << 12;     // 1100
+    vfatev.EC = (vfatev.EC | evn) << 4;
+    vfatev.EC = (vfatev.EC | flags);
+    vfatev.bxExp = bxExp;
+    vfatev.bxNum = bxNum << 6;
+    vfatev.bxNum = (vfatev.bxNum | Sbit);
+    vfatev.ChipID = 0x0E << 12; // 1110
+    vfatev.ChipID = (vfatev.ChipID | chipid);
+    vfatev.data = chdata;
+    vfatev.crc = crc;
 
-      hd.keepHeader(tmpFileName, evn);
+    gemev.header1 = 0x0;
+    gemev.vfats.push_back (vfatev);
+    gemev.trailer1 = 0x0;
 
-    } else {
-      evnt.lsdata = lsData;
-      evnt.msdata = msData;
-      evnt.keepData(tmpFileName, evn);
-    }
-    
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "Received tracking data word:" << std::endl
 		   << "bxn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << bxNum  << std::dec << std::endl
