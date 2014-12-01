@@ -525,18 +525,16 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       // keeping event heades and data
       hd.BC = 0x0A << 12;  // 1010
       hd.BC = (hd.BC | bcn);
-
       hd.EC = 0x0A << 12;  // 1100
       hd.EC = (hd.EC | evn) << 4;
       hd.EC = (hd.EC | flags);
-     
       hd.bxExp = bxExp;
       hd.bxNum = bxNum << 6;
       hd.bxNum = (hd.bxNum | Sbit);
-
       hd.ChipID = 0x0E << 12; // 1110
       hd.ChipID = (hd.ChipID | chipid);
       hd.crc = crc;
+
       hd.keepHeader(tmpFileName, evn);
 
     } else {
