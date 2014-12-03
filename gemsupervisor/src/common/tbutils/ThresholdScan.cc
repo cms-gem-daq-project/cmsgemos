@@ -1,5 +1,4 @@
 #include "gem/supervisor/tbutils/ThresholdScan.h"
-#include "gem/supervisor/tbutils/ThresholdEvent.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
 #include "TH1.h"
@@ -410,13 +409,12 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 {
   wl_semaphore_.take();
   hw_semaphore_.take();
-
-  ChannelData ch;
-  VFATEvent ev;
-  int event=0;
-
   std::string tmpFileName = confParams_.bag.outFileName.toString();
-
+  std::fstream scanStream(tmpFileName.c_str(),
+			  std::ios::app | std::ios::binary);
+  if (scanStream.is_open())
+    LOG4CPLUS_INFO(getApplicationLogger(),"file " << tmpFileName << "opened to write from FIFO ");
+  
   //maybe not even necessary?
   //vfatDevice_->setRunMode(0);
   sleep(5);
@@ -430,6 +428,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   fifoDepth[0] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
   fifoDepth[1] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
   fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
+  
   
   //check that the fifos are all the same size?
   int bufferDepth = 0;
@@ -469,16 +468,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 	data.push_back(vfatDevice_->readReg(ss9.str()));
       }
     }
-
-    uint32_t TrigReg, bxNumTr;
-    uint8_t SBit;
-
-    //set proper base address
-    vfatDevice_->setDeviceBaseNode("GLIB");
-    TrigReg = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_DATA.DATA");
-    bxNumTr = TrigReg >> 6;
-    SBit = TrigReg & 0x0000003F;
-
     //make sure we are aligned
 
     //if (!checkHeaders(data)) 
@@ -522,28 +511,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     crc    = 0x0000ffff & data.at(0);
 
-    ch.lsdata = lsData;
-    ch.msdata = msData;
-
-    ev.BC = ((data.at(5)&0xF0000000)>>28) << 12; // 1010
-    ev.BC = (ev.BC | bcn);
-    ev.EC = ((data.at(5)&0x0000F000)>>12) << 12; // 1100
-    ev.EC = (ev.EC | evn) << 4;
-    ev.EC = (ev.EC | flags);
-    ev.bxExp = bxExp;
-    ev.bxNum = bxNum << 6;
-    ev.bxNum = (ev.bxNum | SBit);
-    ev.ChipID = ((data.at(4)&0xF0000000)>>28) << 12; // 1110
-    ev.ChipID = (ev.ChipID | chipid);
-    ev.crc = crc;
-
-    /*
-    gemev.header = 0x0;
-    gemev.vfats.push_back (ev);
-    gemev.trailer = 0x0;
-    */
-
-    keepEvent(tmpFileName, event, ev, ch);
 
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "Received tracking data word:" << std::endl
@@ -600,6 +567,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     outputCanvas->Update();
     outputCanvas->SaveAs(TString(imgRoot+imgName));
   }
+
+  scanStream.close();
 
   wl_semaphore_.give();
   return false;
