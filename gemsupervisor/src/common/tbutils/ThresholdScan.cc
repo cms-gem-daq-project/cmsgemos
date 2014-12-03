@@ -478,7 +478,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     TrigReg = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_DATA.DATA");
     bxNumTr = TrigReg >> 6;
     SBit = TrigReg & 0x0000003F;
-
+    
     //make sure we are aligned
 
     //if (!checkHeaders(data)) 
