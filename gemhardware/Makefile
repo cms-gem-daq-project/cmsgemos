@@ -25,6 +25,7 @@ IncludeDirs = \
         $(BUILD_HOME)/$(Project)/$(Package)/include \
         $(XDAQ_ROOT)/include \
         $(uHALROOT)/include
+#        $(BUILD_HOME)/$(Project)/gembase/include \
 
 DependentLibraryDirs = \
         $(XDAQ_ROOT)/lib \
