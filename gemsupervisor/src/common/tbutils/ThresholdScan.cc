@@ -411,19 +411,12 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  ChannelData chdata;
-  VFATEvent vfatev;
-  GEMEvent gemev;
+  ChannelData ch;
+  VFATEvent ev;
+  int event=0;
 
   std::string tmpFileName = confParams_.bag.outFileName.toString();
 
-  /* SB
-  std::fstream scanStream(tmpFileName.c_str(),
-			  std::ios::app | std::ios::binary);
-  if (scanStream.is_open())
-    LOG4CPLUS_INFO(getApplicationLogger(),"file " << tmpFileName << "opened to write from FIFO ");
-  */
-  
   //maybe not even necessary?
   //vfatDevice_->setRunMode(0);
   sleep(5);
@@ -437,7 +430,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   fifoDepth[0] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
   fifoDepth[1] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
   fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
-  
   
   //check that the fifos are all the same size?
   int bufferDepth = 0;
@@ -477,6 +469,16 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 	data.push_back(vfatDevice_->readReg(ss9.str()));
       }
     }
+
+    uint32_t TrigReg, bxNumTr;
+    uint8_t SBit;
+
+    //set proper base address
+    vfatDevice_->setDeviceBaseNode("GLIB");
+    TrigReg = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_DATA.DATA");
+    bxNumTr = TrigReg >> 6;
+    SBit = TrigReg & 0x0000003F;
+
     //make sure we are aligned
 
     //if (!checkHeaders(data)) 
@@ -489,7 +491,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
-      //bufferDepth = vfatDevice_->readReg("TRK_DATA.DATA");
       continue;
     }
     
@@ -497,7 +498,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     
     uint16_t bcn, evn, crc, chipid;
     uint64_t msData, lsData;
-    uint8_t  flags, Sbit=0x0;
+    uint8_t  flags;
     
     if (isFirst)
       bxExp = bxNum;
@@ -521,25 +522,28 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     crc    = 0x0000ffff & data.at(0);
 
-    chdata.lsdata = lsData;
-    chdata.msdata = msData;
+    ch.lsdata = lsData;
+    ch.msdata = msData;
 
-    vfatev.BC = 0x0A << 12;     // 1010
-    vfatev.BC = (vfatev.BC | bcn);
-    vfatev.EC = 0x0A << 12;     // 1100
-    vfatev.EC = (vfatev.EC | evn) << 4;
-    vfatev.EC = (vfatev.EC | flags);
-    vfatev.bxExp = bxExp;
-    vfatev.bxNum = bxNum << 6;
-    vfatev.bxNum = (vfatev.bxNum | Sbit);
-    vfatev.ChipID = 0x0E << 12; // 1110
-    vfatev.ChipID = (vfatev.ChipID | chipid);
-    vfatev.data = chdata;
-    vfatev.crc = crc;
+    ev.BC = ((data.at(5)&0xF0000000)>>28) << 12; // 1010
+    ev.BC = (ev.BC | bcn);
+    ev.EC = ((data.at(5)&0x0000F000)>>12) << 12; // 1100
+    ev.EC = (ev.EC | evn) << 4;
+    ev.EC = (ev.EC | flags);
+    ev.bxExp = bxExp;
+    ev.bxNum = bxNum << 6;
+    ev.bxNum = (ev.bxNum | SBit);
+    ev.ChipID = ((data.at(4)&0xF0000000)>>28) << 12; // 1110
+    ev.ChipID = (ev.ChipID | chipid);
+    ev.crc = crc;
 
-    gemev.header1 = 0x0;
-    gemev.vfats.push_back (vfatev);
-    gemev.trailer1 = 0x0;
+    /*
+    gemev.header = 0x0;
+    gemev.vfats.push_back (ev);
+    gemev.trailer = 0x0;
+    */
+
+    keepEvent(tmpFileName, event, ev, ch);
 
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "Received tracking data word:" << std::endl
@@ -596,8 +600,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     outputCanvas->Update();
     outputCanvas->SaveAs(TString(imgRoot+imgName));
   }
-
-  //SB scanStream.close();
 
   wl_semaphore_.give();
   return false;
