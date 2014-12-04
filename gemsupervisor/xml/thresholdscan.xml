@@ -7,7 +7,7 @@
       <properties xmlns="urn:xdaq-application:ThresholdScan"
 		  xsi:type="soapenc:Struct">
 	<!--71 69 77 33-->
-	<!--Ok myVector xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[2]">
+	<!--myVector xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[2]">
 	<item xsi:type="xsd:integer" soapenc:position="[0]">1234</item>
 	<item xsi:type="xsd:integer" soapenc:position="[1]">4321</item>
 	</myVector-->
