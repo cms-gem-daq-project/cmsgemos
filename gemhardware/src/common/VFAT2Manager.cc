@@ -19,15 +19,18 @@ xdaq::WebApplication(s)
   xgi::framework::deferredbind(this, this, &VFAT2Manager::controlVFAT2,  "controlVFAT2");
 
   device_ = "CMS_hybrid_J8";
+  ipAddr_ = "192.168.0.115";
   settingsFile_ = "";
 
   // Detect when the setting of default parameters has been performed
   this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
 
   getApplicationInfoSpace()->fireItemAvailable("device", &device_);
+  getApplicationInfoSpace()->fireItemAvailable("ipAddr", &ipAddr_);
   getApplicationInfoSpace()->fireItemAvailable("settingsFile", &settingsFile_);
 
   getApplicationInfoSpace()->fireItemValueRetrieve("device", &device_);
+  getApplicationInfoSpace()->fireItemValueRetrieve("ipAddr", &ipAddr_);
   getApplicationInfoSpace()->fireItemValueRetrieve("settingsFile", &settingsFile_);
 
 }
@@ -44,6 +47,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   if (event.type() == "urn:xdaq-event:setDefaultValues") {
       std::stringstream ss;
       ss << "device_=[" << device_.toString() << "]" << std::endl;
+      ss << "ipAddr_=[" << ipAddr_.toString() << "]" << std::endl;
       ss << "settingsFile_=[" << settingsFile_.toString() << "]" << std::endl;
       LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::actionPerformed() Default configuration values have been loaded");
       LOG4CPLUS_DEBUG(this->getApplicationLogger(), ss.str());
@@ -53,6 +57,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   //Initialize the HW device, should have picked up the device string from the xml file by now
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::4 device_ = " << device_.toString() << std::endl);
   vfatDevice = new HwVFAT2(this, device_.toString());
+  vfatDevice->setDeviceIPAddress(ipAddr_.toString());
   vfatDevice->connectDevice();
   setLogLevelTo(uhal::Error());  // Maximise uHAL logging
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::5 device_ = " << device_.toString() << std::endl);
