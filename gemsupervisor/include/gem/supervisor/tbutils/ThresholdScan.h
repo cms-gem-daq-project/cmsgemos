@@ -107,6 +107,7 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 
 
+	  //workloop functions
 	  bool initialize(toolbox::task::WorkLoop* wl);
 	  bool configure( toolbox::task::WorkLoop* wl);
 	  bool start(     toolbox::task::WorkLoop* wl);
@@ -148,6 +149,7 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void redirect(xgi::Input* in, xgi::Output* out);
 	  
+	  //action performed callback
 	  void actionPerformed(xdata::Event& event);
 
 	  class ConfigParams 
@@ -169,9 +171,11 @@ namespace gem {
 	    xdata::String        settingsFile;
 
 	    xdata::String        deviceName;
+	    xdata::String        deviceIP;
 	    xdata::Integer       deviceNum;
 	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
+	    xdata::UnsignedShort currentHisto;
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
 	    xdata::UnsignedInteger64 triggersSeen;
@@ -216,7 +220,8 @@ namespace gem {
 
 	  //ConfigParams confParams_;
 	  xdata::Bag<ConfigParams> confParams_;
-
+	  xdata::String ipAddr_;
+	  
 	  FILE* outputFile;
 	  //std::fstream* scanStream;
 	  //0xdeadbeef
@@ -226,6 +231,7 @@ namespace gem {
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
 	  gem::hw::vfat::HwVFAT2* vfatDevice_;
 	  
+	  TH1F* histo;
 	  TH1F* histos[128];
 	  TCanvas* outputCanvas;
 	protected:

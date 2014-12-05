@@ -3,28 +3,25 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
   <xc:Context url="http://xdaqgem:1978">
-<!--
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan"
 		  xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">137.138.115.146</ipAddr>
-	< ! - -71 69 77 33 - - >
-	< ! - -myVector xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[2]">
-	<item xsi:type="xsd:integer" soapenc:position="[0]">1234</item>
-	<item xsi:type="xsd:integer" soapenc:position="[1]">4321</item>
-	</myVector - - >
+	<ipAddr xsi:type="xsd:string">192.168.0.115</ipAddr>
+	<!--ipAddr xsi:type="xsd:string">137.138.115.146</ipAddr-->
       </properties>
     </xc:Application>
--->
+
     <xc:Application class="gem::supervisor::tbutils::ADCScan" id="255" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ADCScan"
 		  xsi:type="soapenc:Struct">
 	<ipAddr xsi:type="xsd:string">192.168.0.115</ipAddr>
-	<!--71 69 77 33-->
-	<!--myVector xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[2]">
-	<item xsi:type="xsd:integer" soapenc:position="[0]">1234</item>
-	<item xsi:type="xsd:integer" soapenc:position="[1]">4321</item>
-	</myVector-->
+      </properties>
+    </xc:Application>
+    
+    <xc:Application class="gem::supervisor::tbutils::LatencyScan" id="256" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:LatencyScan"
+		  xsi:type="soapenc:Struct">
+	<ipAddr xsi:type="xsd:string">192.168.0.115</ipAddr>
       </properties>
     </xc:Application>
     
