@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" user="gempro" path="904/xdaqgem/levelOne/test">
+  <FunctionManager name="GEMFM"
+		   hostname="localhost"
+		   port="10000"
+		   qualifiedResourceType="rcms.fm.resource.qualifiedresource.FunctionManager"
+		   sourceURL="http://localhost:10000/functionmanagers/GEMLevelOneFM.jar"
+				 className="rcms.fm.app.level1.GEMLevelOneFM">
+  </FunctionManager>
+</Configuration>
