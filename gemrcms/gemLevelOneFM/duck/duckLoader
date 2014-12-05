@@ -1,0 +1,28 @@
+#!/bin/sh -xv
+
+duck_jar=$RCMS_HOME/framework/resourceservice/db/tools/parser/script/duck.jar
+
+host=localhost
+port=3306
+name=rs3
+user=rcms
+type=MYSQL
+
+if [[ $1 = --* ]]
+then
+    if [[ $1 = --usc55 ]]
+    then
+	host=cmsonr1-v
+	port=10121
+	name=cms_rcms.cern.ch
+	user=cms_gem_rs_w
+	type=ORACLE
+    fi
+    shift
+fi
+
+pass=$1
+xml=$2
+
+java -jar $duck_jar $xml $host $port $name $user $pass $type
+
