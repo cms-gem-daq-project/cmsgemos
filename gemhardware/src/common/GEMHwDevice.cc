@@ -18,6 +18,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   setAddressTableFileName("allregsnonfram.xml");
   setIPbusProtocolVersion("2.0");
   setDeviceBaseNode("");
+  setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
 
   ipBusErrs.badHeader_     = 0;
@@ -69,7 +70,7 @@ void gem::hw::GEMHwDevice::connectDevice()
 {
   //std::string const addressTable      = "allregsnonfram.xml";    //cfgInfoSpaceP_->getString("addressTable");
   std::string const controlhubAddress = "localhost";    //cfgInfoSpaceP_->getString("controlhubAddress");
-  std::string const deviceAddress     = "192.168.0.115";//cfgInfoSpaceP_->getString("deviceAddress");
+  std::string const deviceAddress     = deviceIPAddr_;  //cfgInfoSpaceP_->getString("deviceAddress");
   uint32_t    const controlhubPort    = 10203;          //cfgInfoSpaceP_->getUInt32("controlhubPort");
   uint32_t    const ipbusPort         = 50001;          //cfgInfoSpaceP_->getUInt32("ipbusPort");
   

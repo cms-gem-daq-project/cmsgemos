@@ -95,6 +95,7 @@ namespace gem {
 	std::string getAddressTableFileName() { return addressTable_;   };
 	std::string getIPbusProtocolVersion() { return ipbusProtocol_;  };
 	std::string getDeviceBaseNode()       { return deviceBaseNode_; };
+	std::string getDeviceIPAddress()      { return deviceIPAddr_;   };
 	std::string getDeviceID()             { return deviceID_;       };
 
 	void setAddressTableFileName(std::string const& name) {
@@ -103,6 +104,8 @@ namespace gem {
 	  ipbusProtocol_ = version; };
 	void setDeviceBaseNode(std::string const& deviceBase) {
 	  deviceBaseNode_ = deviceBase; };
+	void setDeviceIPAddress(std::string const& deviceIPAddr) {
+	  deviceIPAddr_ = deviceIPAddr; };
 	void setDeviceID(std::string const& deviceID) {
 	  deviceID_ = deviceID; };
 	
@@ -123,6 +126,7 @@ namespace gem {
 	std::string addressTable_;
 	std::string ipbusProtocol_;
 	std::string deviceBaseNode_;
+	std::string deviceIPAddr_;
 	std::string deviceID_;
 		
 	//std::string registerToChar(uint32_t value);

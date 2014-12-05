@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_tbutils_LatencyScan_h
-#define gem_supervisor_tbutils_LatencyScan_h
+#ifndef gem_supervisor_tbutils_ADCScan_h
+#define gem_supervisor_tbutils_ADCScan_h
 
 #include <map>
 #include <string>
@@ -33,7 +33,8 @@
 #include "xdata/UnsignedShort.h"
 #include "xdata/Integer.h"
 
-class TH1D;
+class TH1F;
+class TH2F;
 class TFile;
 class TCanvas;
 
@@ -58,14 +59,14 @@ namespace gem {
   namespace supervisor {
     namespace tbutils {
 
-      class LatencyScan : public xdaq::WebApplication, public xdata::ActionListener
+      class ADCScan : public xdaq::WebApplication, public xdata::ActionListener
 	{
 	  
 	public:
 	  XDAQ_INSTANTIATOR();
-	  LatencyScan(xdaq::ApplicationStub * s)
+	  ADCScan(xdaq::ApplicationStub * s)
 	    throw (xdaq::exception::Exception);
-	  ~LatencyScan();
+	  ~ADCScan();
 
 	  xoap::MessageReference changeState(xoap::MessageReference msg);
 	  void stateChanged(toolbox::fsm::FiniteStateMachine& fsm);
@@ -101,10 +102,6 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void webReset(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);
-	  void webResetCounters(xgi::Input *in, xgi::Output *out)
-	    throw (xgi::exception::Exception);
-	  void webSendFastCommands(xgi::Input *in, xgi::Output *out)
-	    throw (xgi::exception::Exception);
 
 
 	  //workloop functions
@@ -138,12 +135,6 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  void scanParameters(xgi::Output* out)
 	    throw (xgi::exception::Exception);
-	  void showCounterLayout(xgi::Output* out)
-	    throw (xgi::exception::Exception);
-	  void fastCommandLayout(xgi::Output* out)
-	    throw (xgi::exception::Exception);
-	  void showBufferLayout(xgi::Output* out)
-	    throw (xgi::exception::Exception);
 	  void displayHistograms(xgi::Output* out)
 	    throw (xgi::exception::Exception);
 	  void redirect(xgi::Input* in, xgi::Output* out);
@@ -156,24 +147,23 @@ namespace gem {
 	  public:
 	    //void getFromFile(const std::string& fileName);
 	    void registerFields(xdata::Bag<ConfigParams> *bag);
-	    
+
 	    xdata::UnsignedShort  stepSize;
-	    xdata::UnsignedShort  minLatency;
-	    xdata::UnsignedShort  maxLatency;
+	    xdata::UnsignedShort  minDACValue;
+	    xdata::UnsignedShort  maxDACValue;
 	    
 	    xdata::String        outFileName;
 	    xdata::String        settingsFile;
-	    
+
+	    xdata::String        dacToScan;
 	    xdata::String        deviceName;
 	    xdata::String        deviceIP;
 	    xdata::Integer       deviceNum;
 	    xdata::UnsignedShort deviceChipID;
-	    
-	    xdata::UnsignedShort   triggerSource;
-	    xdata::UnsignedInteger nEvents;
-	    xdata::UnsignedInteger nTriggers;
+
+	    xdata::UnsignedInteger nSamples;
 	  };
-	  
+
 	private:
 	  toolbox::fsm::AsynchronousFiniteStateMachine* fsmP_;
 
@@ -198,13 +188,18 @@ namespace gem {
 	  //std::fstream* scanStream;
 	  //0xdeadbeef
 
-	  int minLatency_, maxLatency_;
-	  uint8_t  currentLatency_;
-	  uint64_t stepSize_, triggersSeen_, eventsSeen_;
+	  int minDACValue_, maxDACValue_;
+	  uint8_t  curDACRegValue;
+	  uint32_t curDACValue;
+	  uint64_t stepSize_, samplesTaken_;
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
 	  gem::hw::vfat::HwVFAT2* vfatDevice_;
 	  
-	  TH1D* histo;
+	  //dac register mapping
+	  //dacMap[regName] = <ADC to read, DAC Mode>
+	  std::map<std::string,std::pair<std::string, std::string> > dacMap;
+	  
+	  TH2F* histo;
 	  TCanvas* outputCanvas;
 	protected:
 	  

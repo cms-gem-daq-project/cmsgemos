@@ -106,6 +106,7 @@ namespace gem {
 	  
 	  //xdata::UnsignedLong myParameter_;
 	  xdata::String device_;
+	  xdata::String ipAddr_;
 	  xdata::String settingsFile_;
 	  
 	  class VFAT2ControlPanelWeb {
