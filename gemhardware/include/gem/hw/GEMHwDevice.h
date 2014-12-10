@@ -21,7 +21,6 @@ namespace xdaq {
 }
 
 namespace gem {
-  
   namespace hw {
     
     class GEMHwDevice
@@ -41,7 +40,7 @@ namespace gem {
 	virtual void connectDevice();
 	virtual void releaseDevice();
 	//virtual void initDevice();
-	//virtual void configureDevice();
+	virtual void configureDevice()=0;
 	virtual void enableDevice();
 	//virtual void disableDevice();
 	//virtual void startDevice();
@@ -52,11 +51,11 @@ namespace gem {
 	
 	bool isGEMHwDeviceConnected() { return gemHWP_ != 0; };
 	
-	std::string getBoardID()   ;
-	std::string getSystemID()  ;
-	std::string getIPAddress() ;
-	std::string getFirmwareVer( std::string const& fwRegPrefix="glib_regs.sysregs") ;
-	std::string getFirmwareDate(std::string const& fwRegPrefix="glib_regs.sysregs") ;
+	virtual std::string getBoardID()   ;
+	virtual std::string getSystemID()  ;
+	//virtual std::string getIPAddress() ; //need to implement!!!
+	virtual std::string getFirmwareVer( std::string const& fwRegPrefix="glib_regs.sysregs") ;
+	virtual std::string getFirmwareDate(std::string const& fwRegPrefix="glib_regs.sysregs") ;
 
 	/**
 	 *Generic read/write functions or IPBus devices
@@ -96,6 +95,7 @@ namespace gem {
 	std::string getAddressTableFileName() { return addressTable_;   };
 	std::string getIPbusProtocolVersion() { return ipbusProtocol_;  };
 	std::string getDeviceBaseNode()       { return deviceBaseNode_; };
+	std::string getDeviceIPAddress()      { return deviceIPAddr_;   };
 	std::string getDeviceID()             { return deviceID_;       };
 
 	void setAddressTableFileName(std::string const& name) {
@@ -104,6 +104,8 @@ namespace gem {
 	  ipbusProtocol_ = version; };
 	void setDeviceBaseNode(std::string const& deviceBase) {
 	  deviceBaseNode_ = deviceBase; };
+	void setDeviceIPAddress(std::string const& deviceIPAddr) {
+	  deviceIPAddr_ = deviceIPAddr; };
 	void setDeviceID(std::string const& deviceID) {
 	  deviceID_ = deviceID; };
 	
@@ -124,6 +126,7 @@ namespace gem {
 	std::string addressTable_;
 	std::string ipbusProtocol_;
 	std::string deviceBaseNode_;
+	std::string deviceIPAddr_;
 	std::string deviceID_;
 		
 	//std::string registerToChar(uint32_t value);

@@ -34,12 +34,14 @@
 #include "xdata/Double.h" 
 #include "xdata/Boolean.h"
 
-XDAQ_INSTANTIATOR_IMPL(gem::base::GEMWebApplication)
+//XDAQ_INSTANTIATOR_IMPL(gem::base::GEMWebApplication)
 
 gem::base::GEMWebApplication::GEMWebApplication(xdaq::ApplicationStub *stub)
   throw (xdaq::exception::Exception) :
-  gem::base::GEMApplication(stub), xgi::framework::UIManager(this)
-  //xdaq::WebApplication(stub)
+  gem::base::GEMApplication(stub),
+  //xgi::framework::UIManager(this)
+  xdaq::WebApplication(stub),
+  gemWebLogger_(gemLogger_)
 {
   xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::Default,      "Default"  );
   xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webEnable,    "Enable"   );
@@ -51,7 +53,7 @@ gem::base::GEMWebApplication::GEMWebApplication(xdaq::ApplicationStub *stub)
   xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webHalt,      "Halt"     );
   xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webReset,     "Reset"    );
 
-  LOG4CPLUS_INFO(getApplicationLogger(), "GEMWebApplication");
+  LOG4CPLUS_INFO(gemWebLogger_, "GEMWebApplication");
 }
 
 
@@ -73,7 +75,7 @@ void gem::base::GEMWebApplication::webRedirect(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::Default(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "Default");
+  LOG4CPLUS_INFO (gemWebLogger_, "Default");
   *out << "Default</br>" << std::endl;
 }
 
@@ -81,7 +83,7 @@ void gem::base::GEMWebApplication::Default(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "webEnable");
+  LOG4CPLUS_INFO (gemWebLogger_, "webEnable");
   try{
     fireEvent("Enable");
   }
@@ -95,7 +97,7 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "webConfigure");
+  LOG4CPLUS_INFO (gemWebLogger_, "webConfigure");
   try{
     fireEvent("Configure");
   }
@@ -109,7 +111,7 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * o
 void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "webStart");
+  LOG4CPLUS_INFO (gemWebLogger_, "webStart");
   try{
     fireEvent("Start");
   }
@@ -122,7 +124,7 @@ void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "webPause");
+  LOG4CPLUS_INFO (gemWebLogger_, "webPause");
   try{
     fireEvent("Pause");
   }
@@ -136,7 +138,7 @@ void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "webResume");
+  LOG4CPLUS_INFO (gemWebLogger_, "webResume");
   try{
     fireEvent("Resume");
   }
@@ -150,7 +152,7 @@ void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "webStop");
+  LOG4CPLUS_INFO (gemWebLogger_, "webStop");
   try{
     fireEvent("Stop");
   }
@@ -164,7 +166,7 @@ void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "webHalt");
+  LOG4CPLUS_INFO (gemWebLogger_, "webHalt");
   try{
     fireEvent("Halt");
   }
@@ -178,7 +180,7 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  LOG4CPLUS_INFO (getApplicationLogger(), "webReset");
+  LOG4CPLUS_INFO (gemWebLogger_, "webReset");
   try{
     fireEvent("Reset");
   }

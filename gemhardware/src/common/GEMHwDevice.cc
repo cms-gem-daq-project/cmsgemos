@@ -18,6 +18,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   setAddressTableFileName("allregsnonfram.xml");
   setIPbusProtocolVersion("2.0");
   setDeviceBaseNode("");
+  setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
 
   ipBusErrs.badHeader_     = 0;
@@ -25,6 +26,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   ipBusErrs.timeouts_      = 0;
   ipBusErrs.controlHubErr_ = 0;
 
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
   /** 
    * what's the difference between connect, init, enable for GLIB, VFAT, other devices?
@@ -49,7 +51,8 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
 
 gem::hw::GEMHwDevice::~GEMHwDevice()
 {
-  releaseDevice();
+  if (gemHWP_)
+    releaseDevice();
 }
 
 std::string gem::hw::GEMHwDevice::printErrorCounts() {
@@ -67,21 +70,21 @@ void gem::hw::GEMHwDevice::connectDevice()
 {
   //std::string const addressTable      = "allregsnonfram.xml";    //cfgInfoSpaceP_->getString("addressTable");
   std::string const controlhubAddress = "localhost";    //cfgInfoSpaceP_->getString("controlhubAddress");
-  std::string const deviceAddress     = "192.168.0.115";//cfgInfoSpaceP_->getString("deviceAddress");
+  std::string const deviceAddress     = deviceIPAddr_;  //cfgInfoSpaceP_->getString("deviceAddress");
   uint32_t    const controlhubPort    = 10203;          //cfgInfoSpaceP_->getUInt32("controlhubPort");
   uint32_t    const ipbusPort         = 50001;          //cfgInfoSpaceP_->getUInt32("ipbusPort");
   
   std::stringstream tmpUri;
   if (controlhubAddress.size() > 0)
     {
-      INFO("Using control hub at address '" << controlhubAddress
+      DEBUG("Using control hub at address '" << controlhubAddress
 	   << ", port number " << controlhubPort << "'.");
       tmpUri << "chtcp-"<< getIPbusProtocolVersion() << "://" << controlhubAddress << ":" << controlhubPort
              << "?target=" << deviceAddress << ":" << ipbusPort;
     }
   else
     {
-      INFO("No control hub address specified -> "
+      DEBUG("No control hub address specified -> "
 	   "continuing with a direct connection.");
       tmpUri << "ipbusudp-" << getIPbusProtocolVersion() << "://"
              << deviceAddress << ":" << ipbusPort;
@@ -95,6 +98,36 @@ void gem::hw::GEMHwDevice::connectDevice()
   uhal::HwInterface* tmpHWP = 0;
 
   try {
+    //maybe create an address table file here that loads the specific chip addresss table options
+    //file has to be based on the chip location, specify the memory root, then will import the main vfat address table
+    /**
+       something like:
+       locAddrFile
+       << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" << std::endl
+       << "<node id=\"top\">" << std::endl
+       << "<node id=\"VFATS\"  address=\"0x40010000\"" << std::endl
+       << "      description=\"VFAT registers controled by the GLIB user registers\">" << std::endl
+       << "  <node id=\"" << deviceID_ << "\"" << std::endl
+       << "	address=\"0x"<< std::hex << chipLocation << "00\"  " << std::endl
+       << "	module=\"file://${BUILD_HOME}/data/vfatregs.xml\"" << std::endl
+       << "	description=\"column 1, TOTEM hybrid VFAT chip J57 connector\"/>" << std::endl
+       << "  " << std::endl
+       << "  <node id=\"ADC\"  address=\"0x2014C\"" << std::endl
+       << "	description=\"VFAT2 ADC values (absolute register start 0x4003014C)\">" << std::endl
+       << "    <node id=\"Voltage\"  address=\"0x0\"  mask=\"0xFFFFFFFF\"  permission=\"r\"" << std::endl
+       << "	  description=\"read the voltage ADC off the VFAT chip\" />" << std::endl
+       << "    <node id=\"Current\"  address=\"0x1\"  mask=\"0xFFFFFFFF\"  permission=\"w\"" << std::endl
+       << "	  description=\"send CalPulse command to system\" />" << std::endl
+       << "  </node> <!-- end ADC block -->" << std::endl
+       << "  " << std::endl
+       << "  <node id=\"VFAT_RESP\"" << std::endl
+       << "	address=\"0x20000\"  mask=\"0xFFFFFFFF\"  permission=\"r\"" << std::endl
+       << "	description=\"read the response from the VFAT transaction\"/>" << std::endl
+       << "  " << std::endl
+       << "</node>" << std::endl;
+       << "</node>" << std::endl;
+       tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, locAddrFile));
+    **/
     tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
   }
   catch (uhal::exception::FileNotFound const& err)
@@ -127,6 +160,11 @@ void gem::hw::GEMHwDevice::connectDevice()
   
   INFO("Successfully connected to the hardware.");
 
+}
+
+void gem::hw::GEMHwDevice::configureDevice()
+{
+  
 }
 
 void gem::hw::GEMHwDevice::releaseDevice()
@@ -531,6 +569,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
   size_t numWords       = hw.getNode(name).getSize();
+  INFO("reading block " << name << " which has size "<<numWords);
   return readBlock(name, numWords);
 }
 
@@ -565,8 +604,9 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
-	INFO("Failed to block " << name << " with " << numWords << " words" <<
-	     ", retrying. retryCount("<<retryCount<<")"
+	INFO("Failed to read block " << name << " with " << numWords << " words" <<
+	     ", retrying. retryCount("<<retryCount<<")" << std::endl
+	     << "error was " << errCode
 	     << std::endl);
 	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
 	continue;
