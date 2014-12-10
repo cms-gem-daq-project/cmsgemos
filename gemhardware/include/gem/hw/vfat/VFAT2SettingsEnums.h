@@ -122,6 +122,7 @@ namespace gem {
 	struct CalibrationMode { //Calibration settings
 	  enum ECalibrationMode { //Calibration settings
 	    NORMAL   = 0x0,      //Normal running (default)
+	    // in the latest version of VFATManual, the following two are switched, need clarification
 	    VCAL     = 0x1,      //CalOut = VCal (programmable voltage level, possible to connect to DACo-V)
 	    BASELINE = 0x2,      //CalOut = Baseline (fixed voltage level, possible to connect to DACo-V)
 	    EXTERNAL = 0x3       //CalOut = External calibration pulse (not possible to connect to DACoV)

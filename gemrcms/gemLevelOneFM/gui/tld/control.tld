@@ -1,0 +1,780 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+ version="2.0">
+ <display-name>rcms.control</display-name>
+	<short-name>rcms.control</short-name>
+	<tlib-version>1.2</tlib-version>
+	<jsp-version>2.0</jsp-version>
+	<uri>rcms.control</uri>
+	<description>
+Collection of JSP Tag Library tags useful to display RCMS Control Page information.
+<![CDATA[<br>]]>
+Most of the tags work properly assuming that a rcms.gui.servlet.pilot.FMPilotBean
+<![CDATA[<br>]]>
+Java Bean is stored in HttpRequest with the label FM_PILOT_BEAN.
+	</description>
+	
+	<tag>
+	<description>
+Renders the action hidden input.
+	</description>
+		<name>actionHiddenInputRenderer</name>
+		<tag-class>rcms.gui.tag.control.ActionHiddenInputRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+	<description>
+Renders the code for ATTACH button.
+	</description>
+		<name>attachButtonRenderer</name>
+		<tag-class>rcms.gui.tag.control.AttachButtonRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>onClickFunction</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The javascript function to be invoked on click event.
+			</description>
+		</attribute>
+		<attribute>
+			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The name to be displayed for this button.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+	<description>
+Renders the javascript code for control page buttons.
+	</description>
+		<name>buttonsJSRenderer</name>
+		<tag-class>rcms.gui.tag.control.ButtonsJSRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+	<description>
+Renders the HTML code for COMMAND buttons.
+	</description>
+		<name>commandButtonsRenderer</name>
+		<tag-class>rcms.gui.tag.control.CommandButtonsRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the buttons shown.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+	<description>
+Renders the COMMAND hidden input.
+The command buttons available in a given state
+are derived from the transitions and inputs
+specified in the statemachine.
+The visibility of the available command buttons in a given
+state can be furtherly modified specifying at the
+the beginning of a the involved JSP
+a list (identified by "VISIBLE_COMMANDS" in HttpRequest)
+of visible buttons when enabled.
+An example JSP scriplet code to add this feature is: 
+
+	List visibleCommandList = new ArrayList();
+	visibleCommandList.add("TurnOn");
+	visibleCommandList.add("TurnOff");
+	pageContext.setAttribute(FMPilotConstants.VISIBLE_COMMANDS, visibleCommandList);
+
+A command button is thus visible if it is enabled
+by the statemachine constraints and if it is set as visible
+whenever a list of visible buttons is exlicitly
+present in the HttpRequest.
+	</description>
+		<name>commandHiddenInputRenderer</name>
+		<tag-class>rcms.gui.tag.control.CommandHiddenInputRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+	<description>
+Renders the code for command parameter checkbox,
+which allows to disclose or hide the command parameter section.
+	</description>
+		<name>commandParameterCheckboxRenderer</name>
+		<tag-class>rcms.gui.tag.control.CommandParameterCheckboxRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>title</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The title for this section.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+	<description>
+Renders the code for command parameters section.
+As many table rows are produced as the number of parameters that can be passed
+along with a given command according to the state machine design.
+	</description>
+		<name>commandParametersRenderer</name>
+		<tag-class>rcms.gui.tag.control.CommandParametersRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>tdClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the name field of each optional parameter.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<description>
+Renders the configuration key.
+		</description>
+		<name>configurationKeyRenderer</name>
+		<tag-class>rcms.gui.tag.control.ConfigurationKeyRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>hidden</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+				if true text in rendered, if false no text is rendered but
+				in both case hidden information is added.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>label</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The label to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>titleClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the label field of this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>contentClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the value field of this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+		<attribute>
+			<name>hidden</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+Render or hide.
+			</description>
+		</attribute>
+		
+	</tag>
+	
+	<tag>
+		<description>
+Renders the configuration name.
+		</description>
+		<name>configurationNameRenderer</name>
+		<tag-class>rcms.gui.tag.control.ConfigurationNameRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>label</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The label to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>titleClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the label field of this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>contentClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the value field of this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<description>
+Renders the configuration path.
+		</description>
+		<name>configurationPathRenderer</name>
+		<tag-class>rcms.gui.tag.control.ConfigurationPathRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>label</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The label to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>titleClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the label field of this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>contentClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the value field of this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<description>
+Renders the code for CREATE button.
+		</description>
+		<name>createButtonRenderer</name>
+		<tag-class>rcms.gui.tag.control.CreateButtonRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>onClickFunction</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The javascript function to be invoked on click event.
+			</description>
+		</attribute>
+		<attribute>
+			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The name to be displayed for this button.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<description>
+Renders the code for DESTROY button.
+		</description>
+		<name>destroyButtonRenderer</name>
+		<tag-class>rcms.gui.tag.control.DestroyButtonRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>onClickFunction</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The javascript function to be invoked on click event.
+			</description>
+		</attribute>
+		<attribute>
+			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The name to be displayed for this button.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<description>
+Renders the code for DETACH button.
+		</description>
+		<name>detachButtonRenderer</name>
+		<tag-class>rcms.gui.tag.control.DetachButtonRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>onClickFunction</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The javascript function to be invoked on click event.
+			</description>
+		</attribute>
+		<attribute>
+			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The name to be displayed for this button.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+
+	<tag>
+		<description>
+Sets the proper menu for the page
+in the HttpRequest with label MENU_ITEMS.
+		</description>
+		<name>menuCreator</name>
+		<tag-class>rcms.gui.tag.control.MenuCreator</tag-class>
+		<body-content>EMPTY</body-content>
+	</tag>
+
+	<tag>
+		<description>
+Renders the javascript for onLoad function in Control page.
+Moreover it produces all the necessary javascript code
+to manage an asynchronous state notification.
+		</description>
+		<name>onLoadJSRenderer</name>
+		<tag-class>rcms.gui.tag.control.OnLoadJSRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+		<attribute>
+			<name>reloadOnStateChange</name>
+			<rtexprvalue>true</rtexprvalue>
+			<required>true</required>
+			<type>boolean</type>
+			<description>
+True if it is explicitly required a page reloading
+on an asynchronous state notification.
+			</description>
+		</attribute>
+		<attribute>
+			<name>commandButtonCssClass</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for command buttons.
+			</description>
+		</attribute>
+		<attribute>
+			<name>commandParameterCssClass</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for command parameters.
+			</description>
+		</attribute>
+		<attribute>
+			<name>commandParameterCheckBoxTitle</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The title for the checkbox displaying command parameters.
+			</description>
+		</attribute>
+	</tag>
+
+	<tag>
+		<description>
+Renders the code for REFRESH button.
+		</description>
+		<name>refreshButtonRenderer</name>
+		<tag-class>rcms.gui.tag.control.RefreshButtonRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>onClickFunction</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The javascript function to be invoked on click event.
+			</description>
+		</attribute>
+		<attribute>
+			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The name to be displayed for this button.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<description>
+Renders the code for SHOW PARAMETER button.
+		</description>
+		<name>showParameterButtonRenderer</name>
+		<tag-class>rcms.gui.tag.control.ShowParameterButtonRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>onClickFunction</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The javascript function to be invoked on click event.
+			</description>
+		</attribute>
+		<attribute>
+			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The name to be displayed for this button.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<description>
+Renders the code for SHOW TREE button.
+		</description>
+		<name>showTreeButtonRenderer</name>
+		<tag-class>rcms.gui.tag.control.ShowTreeButtonRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>cssClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>onClickFunction</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The javascript function to be invoked on click event.
+			</description>
+		</attribute>
+		<attribute>
+			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The name to be displayed for this button.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+
+	<tag>
+		<description>
+Renders the current state.
+		</description>
+		<name>stateRenderer</name>
+		<tag-class>rcms.gui.tag.control.StateRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>label</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The label to be used for this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>titleClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the label field of this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>contentClass</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The CSS class to be used for the value field of this element.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<description>
+Class rendering the reference in a HTML page to a web resource like a css or js file.
+		</description>
+		<name>customResourceRenderer</name>
+		<tag-class>rcms.gui.tag.control.CustomResourceRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>type</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The type of resource: js or css.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The resource path: /js/xyz.js or /css/xyz.css.
+			</description>
+		</attribute>
+		<attribute>
+			<name>align</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+HMTML align.
+			</description>
+		</attribute>
+		<attribute>
+			<name>alt</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+HTML alt.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>width</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+HTML width.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>height</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+HTML height.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>border</name>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+HTML border.
+			</description>
+		</attribute>
+
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+		<attribute>
+			<name>htmlId</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+			The HTML id to reference the customPath object
+			</description>
+		</attribute>
+	</tag>	
+</taglib>
+
+
+

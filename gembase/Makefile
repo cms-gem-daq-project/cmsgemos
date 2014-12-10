@@ -14,7 +14,7 @@ ShortPackage=base
 PackageName=base
 
 #Sources= GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc CfgParser.cc version.cc
-Sources= GEMFSM.cc utils/GEMSOAPToolBox.cc version.cc
+Sources= GEMFSM.cc utils/GEMSOAPToolBox.cc GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc
 
 DynamicLibrary=gem_base
 
@@ -23,16 +23,17 @@ DynamicLibrary=gem_base
 
 IncludeDirs = \
         $(BUILD_HOME)/$(Project)/$(Package)/include \
-        $(XDAQ_ROOT)/include
-#        $(uHALROOT)/include
+        $(BUILD_HOME)/$(Project)/gemhardware/include \
+        $(XDAQ_ROOT)/include \
+        $(uHALROOT)/include
 
 DependentLibraryDirs = \
-        $(XDAQ_ROOT)/lib
-#        $(uHALROOT)/lib
+        $(XDAQ_ROOT)/lib \
+        $(uHALROOT)/lib
 
 LibraryDirs = \
-        $(XDAQ_ROOT)/lib
-#        $(uHALROOT)/lib
+        $(XDAQ_ROOT)/lib \
+        $(uHALROOT)/lib
 
 UserCFlags = -O0 -g3 -fno-inline
 UserCCFlags = -O0 -g3 -fno-inline
@@ -42,8 +43,7 @@ UserStaticLinkFlags =
 #                          -L$(CACTUS_HOME)/lib \
 #                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
-DependentLibraries = config xcept boost_system 
-#cactus_uhal_uhal
+DependentLibraries = config xcept boost_system cactus_uhal_uhal
 Libraries = config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus
 
 include $(XDAQ_ROOT)/config/Makefile.rules
