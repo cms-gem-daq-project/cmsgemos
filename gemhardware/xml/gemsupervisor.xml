@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+  <xc:Context url="http://localhost:1978">
+    <xc:Application class="gem::supervisor::GemSupervisorWeb" id="254" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:GEMSupervisor"
+		  xsi:type="soapenc:Struct">
+	<myParameter xsi:type="xsd:unsignedLong">0x47454d73</myParameter>
+	<!--71 69 77 33-->
+	<!--myVector xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[2]">
+	  <item xsi:type="xsd:integer" soapenc:position="[0]">1234</item>
+	  <item xsi:type="xsd:integer" soapenc:position="[1]">4321</item>
+	</myVector-->
+      </properties>
+    </xc:Application>
+    
+    <xc:Module>${GLIBTEST}/gemdaq-testing/gemsupervisor/lib/linux/x86_64_slc6/libgem_supervisor.so</xc:Module>
+    <!--
+    <xc:Application class="gem::base::GEMApplication" id="255" instance="0" network="local">
+    </xc:Application>
+    <xc:Module>${GLIBTEST}/gemdaq-testing/gembase/lib/linux/x86_64_slc6/libgembase.so</xc:Module>
+    -->
+  </xc:Context>
+</xc:Partition>
