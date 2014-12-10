@@ -1,0 +1,89 @@
+<project name="RCMS function manager" default="jar" basedir=".">
+  <property environment="env" />
+  <property file="${env.RCMS_HOME}/framework/installation/configuration/RCMS.properties" /> 
+  <!--/nfshome0/gempro/tomcat/webapps/rcms/WEB-INF/conf/RCMS.properties-->
+  <property name="package.name"   value="gemLevelOneFM" />
+  <property name="package.path"   value="rcms.fm.app.gemLevelOne" />
+  <property name="src.dir"        value="${basedir}/src" />
+  <property name="fm.classes"     value="${basedir}/classes" />
+  <property name="fm.gui"         value="${basedir}/gui" />
+  <property name="lib.dir"        value="${basedir}/lib" />
+  <property name="fm.deploy.dir"
+	    value="${env.CATALINA_HOME}/webapps/ROOT/functionmanagers" />
+  <property name="duck.jar" value="${env.RCMS_HOME}/framework/resourceservice/db/tools/parser/script/duck.jar" />
+  <property name="duck.xml" value="simple.xml" />
+
+  <!-- rcms framework properties -->
+  <property name="rcms.webapp"  value="${rcms.framework}/rcms" />
+  <property name="rcms.classes" value="${rcms.webapp}/WEB-INF/classes" />
+  <property name="rcms.libs"    value="${rcms.webapp}/WEB-INF/lib" />
+
+  <!-- jakarta tomcat properties -->
+  <property name="jakarta.common" value="${jakarta.home}/common/lib" />
+  <property name="jakarta.fmdeploy" value="${jakarta.home}/webapps/ROOT/functionmanagers" />
+  <property name="jakarta.rcmslib" value="${jakarta.home}/webapps/rcms/WEB-INF/lib" />
+  
+  <!-- classpath for the RCMS services libraries -->
+  <path id="rcms.classpath">
+    <fileset dir="${rcms.libs}">
+      <include name="*.jar" />
+    </fileset>
+
+    <!--classpath for jakarta libs -->
+    <fileset dir="${jakarta.common}">
+      <include name="*.jar" />
+    </fileset>
+
+    <pathelement location="${rcms.classes}" />
+  </path>
+
+  <!-- Compiles the Function Manager -->
+  <target name="compile">
+    <echo message="Compiling ${package.name} FunctionManager" />
+    <echo message="using gui ${fm.gui}" />
+
+    <mkdir dir="${fm.classes}" />
+    <javac
+       debug="on" 
+       debuglevel="lines,vars,source"
+       srcdir="${src.dir}"
+       destdir="${fm.classes}"
+       failonerror="true">
+      <classpath refid="rcms.classpath" />
+    </javac>
+  </target>
+
+  <!-- Builds the jar file for this Function Manager -->
+  <!-- specific fm code properties -->
+  <target name="jar" depends="compile">			
+    <echo message="Creating ${package.name}.jar" />
+    <echo message="using gui ${fm.gui}" />
+    <mkdir dir="${lib.dir}" />
+    <jar file="${lib.dir}/${package.name}.jar">
+      <fileset dir="${fm.classes}" />
+      <fileset dir="${fm.gui}" />
+    </jar>
+  </target>
+
+  <!--Clean-->
+  <target name="clean">
+    <echo message="Cleaning ${package.name} FunctionManager" />
+    <delete dir="${fm.classes}" />
+    <delete dir="${lib.dir}" />
+  </target>
+
+  <!-- deploy-->
+  <target name="deploy" depends="jar">
+    <mkdir dir="${fm.deploy.dir}" />
+    <copy file="${lib.dir}/${package.name}.jar" todir="${fm.deploy.dir}" />
+    <copy file="${lib.dir}/${package.name}.jar" todir="${jakarta.rcmslib}"/> 
+  </target>
+  
+  <target name="duck">
+    <java jar="${duck.jar}" fork="true">
+      <arg line="${duck.xml} localhost 3306 gem_rcms_rs gempro ${rs.pass} MYSQL" />
+    </java>
+  </target>
+</project>
+
+<!-- vim: set sw=4 ts=4: -->

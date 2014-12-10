@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+
+	<display-name>rcms.menu</display-name>
+	<short-name>rcms.menu</short-name>
+	<tlib-version>1.2</tlib-version>
+	<jsp-version>2.0</jsp-version>
+	<uri>rcms.menu</uri>
+	<description>
+Tag Library useful to dinamically display menu
+<![CDATA[<br>]]>
+on the left of most of RCMS's pages.
+<![CDATA[<br>]]>
+The map of menu entries is derived form java.util.Map
+<![CDATA[<br>]]>
+Each entry isdescribed by a rcms.gui.servlet.menu.MenuItem object.
+	</description>
+
+	<tag>
+		<description>
+Renders the menu links on the main pages.
+The map of the menu entries is derived from 
+HttpRequest getting an attribute with label specified 
+by the tag parameter "menu" (default is "MENU_ITEMS").
+		</description>
+		<name>menuRenderer</name>
+		<tag-class>rcms.gui.tag.menu.MenuRenderer</tag-class>
+		<body-content>EMPTY</body-content>
+		<attribute>
+			<name>menu</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>
+The label with which the map of menu entries
+is stored in HttpRequest.
+			</description>
+		</attribute>
+		<attribute>
+			<name>indentation</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>int</type>
+			<description>
+The number of "tabs" to be prefixed to the generated HTML code.
+			</description>
+		</attribute>
+	</tag>
+</taglib>

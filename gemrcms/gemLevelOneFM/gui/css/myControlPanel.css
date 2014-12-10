@@ -1,0 +1,441 @@
+.body    { 
+	color: #000000; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	background-color: #F0FFFF; 
+	margin: 0 
+}
+
+
+.In {
+	background-color: green;
+	color: blue;	
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	position: relative;
+	top: 0px; 
+	left: 0px; 
+	height: 20px; 
+	width:  40px
+}
+
+.Out {
+	background-color: red;
+	color: blue;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	position: relative;
+	top: 0px; 
+	left: 0px; 
+	height: 20px; 
+	width:  40px
+}
+
+.Initial {
+	background-color: #006600;
+	color: yellow;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+	font-size: 1.5em;	
+
+}
+.Initializing {
+	background-color: white;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Initialized {
+	background-color: white;
+	color: black;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+	font-size: 1.5em;
+}
+.Connecting {
+	background-color: pink;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.GettingReady {
+	background-color: pink;
+	color: red;
+	font-family: monospace;
+	font-size: 0.7em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Stopping {
+	background-color: black;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Ready {
+	background-color: pink;
+	color: green;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Running {
+	background-color: green;
+	color: white;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Starting {
+	background-color: green;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Halted {
+	background-color: blue;
+	color: white;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Halting {
+	background-color: blue;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Stopped {
+	background-color: white;
+	color: black;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Error {
+	background-color: red;
+	color: blue;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Paused {
+	background-color: yellow;
+	color: blue;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Pausing {
+	background-color: yellow;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Resuming {
+	background-color: yellow;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+	
+}
+.Resetting {
+	background-color: yellow;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+	 
+}
+.Configured {
+	background-color: #1E90FF;	
+	color: white;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+
+}
+.Configuring {
+	background-color: #1E90FF;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+.Configuring {
+	background-color: #1E90FF;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+.TTSTestMode {
+	background-color: orange;
+	color: black;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+.PreparingTTSTestMode {
+	background-color: orange;
+	color: red;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+.TestingTTS {
+	background-color: pink;
+	color: black;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+.Undefined {
+	background-color: gray;
+	color: blue;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+.Faulty {
+	background-color: red;
+	color: white;
+	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+.ParaTableName{
+	background-color: #FFFFFF;
+	color: #0000FF;
+	font-family: monospace;
+	font-size: 1.2em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	line-height: 1em; 
+}
+.ParaTableValue{
+	background-color: #FFFFFF;
+	color: blue;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	line-height: 1em; 
+}
+.HeaderTable{
+	background-color: #87CEFA;
+	color: blue;
+	font-family: monospace;
+	font-size: 1.5em; 
+	text-align : center;	
+	font-family: Helvetica, Verdana, sans-serif; 
+	line-height: 1em; 
+}
+
+.PercentageProgressBar{
+	background-color: blue;
+	color: red;
+	font-family: monospace;
+	font-size: 0.3em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	line-height: 1em; 	
+}
+
+.MyControlButton {
+	font-family : arial, helvetica, sans-serif;
+	color : white;
+	font-size : 1.5em;
+	text-align : center;
+	background-color: #0000CD;	 
+}
+.MenuButton {
+	font-family : arial, helvetica, sans-serif;
+	color : yellow;
+	font-size : 1em;
+	text-align : center;
+	background-color: #008000;	 
+	position: relative;
+	top: 0px; 
+	left: 0px;  
+
+}
+.SubdetTableHeader{
+	color: white;
+	background-color: #111111;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	line-height: 1em; 	
+}
+.SubdetMessageKey{
+	color: grey;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	line-height: 1em; 	
+}
+
+.SubdetMessageValue{
+	color: blue;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+
+.SubdetErrorMessageValue{
+	color: red;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+
+.RunDataInputTable{
+	color: blue;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+
+.BlackBoardTable{
+	color: white;
+	background-color: black;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+}
+
+.ttsReady{
+	background-color: lime;
+	color: black;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	position: relative;
+	top: 0px; 
+	left: -3px; 
+	height: 7px; 
+	width:  5px;	
+	padding: 1px 1px;
+	border: none;
+}
+
+.ttsWarn{
+	background-color: yellow;
+	color: black;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	position: relative;
+	top: 0px; 
+	left: -3px; 
+	height: 7px; 
+	width:  5px;	
+	padding: 1px 1px;
+	border: none;
+}
+.ttsBusy{
+	background-color: red;
+	color: black;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	position: relative;
+	top: 0px; 
+	left: -3px; 
+	height: 7px; 
+	width:  5px;	
+	padding: 1px 1px;
+	border: none;
+}
+.ttsSync{
+	background-color: purple;
+	color: white;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	position: relative;
+	top: 0px; 
+	left: -3px; 
+	height: 10px; 
+	width:  5px;	
+	padding: 1px 1px;
+	border: none;
+}
+.ttsErr{
+	background-color: fuchsia;
+	color: black;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	position: relative;
+	top: 0px; 
+	left: -3px; 
+	height: 10px; 
+	width:  5px;	
+	padding: 1px 1px;
+	border: none;
+}
+.ttsDisconnected{
+	background-color: navy;
+	color: white;
+	font-family: monospace;
+	font-size: 0.8em; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	position: relative;
+	top: 0px; 
+	left: -3px; 
+	height: 10px; 
+	width:  5px;	
+	padding: 1px 1px;
+	border: none;
+}
+.ttcInput{
+	background-color: white;
+	color: red;
+	font-family: monospace;
+	font-size: 10px; 
+	font-family: Helvetica, Verdana, sans-serif; 
+	line-height: 1em; 	
+}
+.label {
+ 	color: white;
+ 	background-color: #008B8B;
+    font-weight: bold;
+ 	font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif;
+	font-size: 1em;
+    text-align: center;
+    height: 10px;
+    width: 80px;
+}
+.subdetState {
+    font-family: monospace;
+    font-family: Helvetica, Verdana, sans-serif;
+    text-align: center;
+	font-size: 0.8em;
+}
+.subsys {
+ 	color: black;
+ 	background-color: #999966;
+    font-family: monospace;
+    font-family: Helvetica, Verdana, sans-serif;
+    text-align: center;
+	font-size: 0.8em;
+    height: 20px;
+    width: 80px;
+}
+.msg {
+ 	color: black;
+ 	background-color: white;
+    font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif;
+    text-align: center;
+  	font-size: 0.8em;
+}
+
+.state {
+ 	background-color: white;
+    font-family: monospace;
+	font-family: Helvetica, Verdana, sans-serif;
+    text-align: center;
+   	font-size: 0.8em;
+    height: 20px;
+    width: 60px;
+}
+
