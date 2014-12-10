@@ -1,0 +1,116 @@
+.vfatGlobalSettings {
+    vertical-align:top;
+    display:inline-block;
+    padding: 5px;
+    margin : 5px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+
+.vfatBiasing {
+    display:inline-block;
+    display:block;
+    padding: 5px;
+    margin : 5px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+    float:left
+}
+
+.vfatCurrentBiasing {
+    display:block;
+    float:left;
+    width:300px;
+}
+
+.vfatOtherBiasing {
+    display:block;
+    float:right;
+    width:300px;
+}
+
+.vfatCounters {
+    display:block;
+    padding: 5px;
+    margin : 5px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+    float:right
+}
+
+.vfatCounters label {
+    display:inline-block;
+    width:100px;
+    margin-right:5px
+    float:none;
+}
+
+.vfatBiasInput {
+    display:inline-block;
+    width:100px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+
+.vfatCurrentBiasing label {
+    display:inline-block;
+    width:100px;
+    margin-right:5px
+    float:none;
+}
+
+.vfatOtherBiasing label {
+    display:inline-block;
+    width:100px;
+    margin-right:5px
+    float:none;
+}
+
+.vfatOtherBiasing select {
+    display:inline-block;
+    width:100px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+
+.vfatBiasCheckbox input {
+    display:block;
+    width:25px;
+    margin-right:5px
+    float:right;
+}
+
+.vfatButtonInput {
+    display:inline-block;
+    /*width:150px;*/
+    margin-right:25px
+    margin-left:25px
+    float:center;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+

@@ -1,0 +1,45 @@
+.vfatCommands {
+    display:block;
+    padding: 5px;
+    margin : 5px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+    float:right
+}
+
+.selectedChipControl, .xmlSettingsUpload {
+    display:inline-block;
+    padding: 5px;
+    margin : 5px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    border-style:outset;
+    border-width: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
+
+.xmlSettingsUpload input {
+    padding: 5px;
+    margin : 5px;
+    list-style-type: none;
+    margin-bottom:5px;
+    line-height:18px;
+    padding:2px 5px;
+    border-style:outset;
+    border-width: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border:medium outset #CCC;
+}
