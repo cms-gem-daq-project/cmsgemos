@@ -36,6 +36,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
     bag->addField("deviceVT2",     &deviceVT2   );
 }
 
+// Main constructor
 gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStub * s)
     throw (xdaq::exception::Exception):
         xdaq::WebApplication(s),
@@ -46,6 +47,7 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
         is_configured_ (false),
         is_running_ (false)
 {
+    // HyperDAQ bindings
     xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webDefault,     "Default");
     xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webConfigure,   "Configure");
     xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webStart,       "Start");
@@ -53,14 +55,17 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
     xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webHalt,        "Halt");
     xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webTrigger,     "Trigger");
 
+    // SOAP bindings
     xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onConfigure,   "Configure",   XDAQ_NS_URI);
     xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStart,       "Start",       XDAQ_NS_URI);
     xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStop,        "Stop",        XDAQ_NS_URI);
     xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onHalt,        "Halt",        XDAQ_NS_URI);
 
+    // Initiate and activate main workloop
     wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("GEMGLIBSupervisorWebWorkLoop", "waiting");
     wl_->activate();
 
+    // Workloop bindings
     configure_signature_   = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction, "configureAction");
     start_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::startAction,     "startAction");
     stop_signature_        = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::stopAction,      "stopAction");
@@ -68,14 +73,17 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
     run_signature_         = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction");
     read_signature_        = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction");
 
+    // Define FSM states
     fsm_.addState('H', "Halted",     this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
     fsm_.addState('C', "Configured", this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
     fsm_.addState('R', "Running",    this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
 
+    // Define error FSM state
     fsm_.setStateName('F', "Error");
     fsm_.setFailedStateTransitionAction(this, &gem::supervisor::GEMGLIBSupervisorWeb::transitionFailed);
     fsm_.setFailedStateTransitionChanged(this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
 
+    // Define allowed FSM state transitions
     fsm_.addStateTransition('H', 'C', "Configure", this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction);
     fsm_.addStateTransition('H', 'H', "Halt",      this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction);
     fsm_.addStateTransition('C', 'C', "Configure", this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction);
@@ -84,12 +92,14 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
     fsm_.addStateTransition('R', 'C', "Stop",      this, &gem::supervisor::GEMGLIBSupervisorWeb::stopAction);
     fsm_.addStateTransition('R', 'H', "Halt",      this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction);
 
+    // Define forbidden FSM state transitions
     fsm_.addStateTransition('H', 'H', "Start"    , this, &gem::supervisor::GEMGLIBSupervisorWeb::noAction);
     fsm_.addStateTransition('H', 'H', "Stop"     , this, &gem::supervisor::GEMGLIBSupervisorWeb::noAction);
     fsm_.addStateTransition('C', 'C', "Stop"     , this, &gem::supervisor::GEMGLIBSupervisorWeb::noAction);
     fsm_.addStateTransition('R', 'R', "Configure", this, &gem::supervisor::GEMGLIBSupervisorWeb::noAction);
     fsm_.addStateTransition('R', 'R', "Start"    , this, &gem::supervisor::GEMGLIBSupervisorWeb::noAction);
 
+    // Set initial FSM state and reset FSM
     fsm_.setInitialState('H');
     fsm_.reset();
 
@@ -137,27 +147,35 @@ throw (xoap::exception::Exception)
     void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    // Define how often main web interface refreshes
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
     head.addHeader("Refresh","2");
 
+    // If we are in "Running" state, check if GLIB has any data available
     if (is_running_) wl_->submit(run_signature_);
 
+    // Page title
     *out << cgicc::h1("GEM DAQ Supervisor")<< std::endl;
 
+    // Choose DAQ type: Spy or Global
     *out << "DAQ type: " << cgicc::select().set("name", "runtype");
     *out << cgicc::option().set("value", "Spy").set("selected","") << "Spy" << cgicc::option();
     *out << cgicc::option().set("value", "Global") << "Global" << cgicc::option();
     *out << cgicc::select() << endl;
     *out << cgicc::input().set("type", "submit").set("name", "command").set("title", "Set DAQ type").set("value", "Set DAQ type") << cgicc::br() << cgicc::br();
 
+    // Show current state, counter, output filename
     *out << "Current state: " << fsm_.getStateName(fsm_.getCurrentState()) << cgicc::br();
     *out << "Current counter: " << counter_ << " events dumped to disk"  << cgicc::br();
     *out << "Output filename: " << confParams_.bag.outFileName.toString() << cgicc::br();
 
+    // Table with action buttons
     *out << cgicc::table().set("border","0");
 
+    // Row with action buttons
     *out << cgicc::tr();
 
+    // Configure button
     *out << cgicc::td();
     std::string configureButton = toolbox::toString("/%s/Configure",getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","GET").set("action",configureButton) << std::endl ;
@@ -165,6 +183,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::form();
     *out << cgicc::td();
 
+    // Start button
     *out << cgicc::td();
     std::string startButton = toolbox::toString("/%s/Start",getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","GET").set("action",startButton) << std::endl ;
@@ -172,6 +191,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::form();
     *out << cgicc::td();
 
+    // Stop button
     *out << cgicc::td();
     std::string stopButton = toolbox::toString("/%s/Stop",getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","GET").set("action",stopButton) << std::endl ;
@@ -179,6 +199,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::form();
     *out << cgicc::td();
 
+    // Halt button
     *out << cgicc::td();
     std::string haltButton = toolbox::toString("/%s/Halt",getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","GET").set("action",haltButton) << std::endl ;
@@ -186,6 +207,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::form();
     *out << cgicc::td();
 
+    // Send L1A signal
     *out << cgicc::td();
     std::string triggerButton = toolbox::toString("/%s/Trigger",getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","GET").set("action",triggerButton) << std::endl ;
@@ -193,14 +215,17 @@ throw (xgi::exception::Exception)
     *out << cgicc::form();
     *out << cgicc::td();
 
+    // Finish row with action buttons
     *out << cgicc::tr();
 
+    // Finish table with action buttons
     *out << cgicc::table();
 }
 
     void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    // Derive device number from device name
     std::string tmpDeviceName = confParams_.bag.deviceName.toString();
     int tmpDeviceNum = -1;
     tmpDeviceName.erase(0,4);
@@ -208,34 +233,47 @@ throw (xgi::exception::Exception)
     tmpDeviceNum -= 8;
     confParams_.bag.deviceNum = tmpDeviceNum;
 
+    // Initiate configure workloop
     wl_->submit(configure_signature_);
+
+    // Go back to main web interface
     this->webRedirect(in, out);
 }
 
     void gem::supervisor::GEMGLIBSupervisorWeb::webStart(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    // Initiate start workloop
     wl_->submit(start_signature_);
+    
+    // Go back to main web interface
     this->webRedirect(in, out);
 }
 
     void gem::supervisor::GEMGLIBSupervisorWeb::webStop(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    // Initiate stop workloop
     wl_->submit(stop_signature_);
+
+    // Go back to main web interface
     this->webRedirect(in, out);
 }
 
     void gem::supervisor::GEMGLIBSupervisorWeb::webHalt(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    // Initiate halt workloop
     wl_->submit(halt_signature_);
+
+    // Go back to main web interface
     this->webRedirect(in, out);
 }
 
     void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    // Send L1A signal
     hw_semaphore_.take();
     vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
     //for (unsigned int com = 0; com < 15; ++com) vfatDevice_->writeReg("Send.L1ACalPulse",1);
@@ -243,38 +281,45 @@ throw (xgi::exception::Exception)
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
     hw_semaphore_.give();
 
+    // Go back to main web interface
     this->webRedirect(in, out);
 }
 
     void gem::supervisor::GEMGLIBSupervisorWeb::webRedirect(xgi::Input *in, xgi::Output* out) 
 throw (xgi::exception::Exception)
 {
+    // Redirect to main web interface
     std::string url = "/" + getApplicationDescriptor()->getURN() + "/Default";
     *out << "<meta http-equiv=\"refresh\" content=\"0;" << url << "\">" << std::endl;
+
     this->webDefault(in,out);
 }
 
 // work loop call-back functions
 bool gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::task::WorkLoop *wl)
 {
+    // fire "Configure" event to FSM
     fireEvent("Configure");
     return false;
 }
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::task::WorkLoop *wl)
 {
+    // fire "Start" event to FSM
     fireEvent("Start");
     return false;
 }
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::task::WorkLoop *wl)
 {
+    // Fire "Stop" event to FSM
     fireEvent("Stop");
     return false;
 }
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::task::WorkLoop *wl)
 {
+    // Fire "Halt" event to FSM
     fireEvent("Halt");
     return false;
 }
@@ -284,6 +329,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
     wl_semaphore_.take();
     hw_semaphore_.take();
 
+    // Get the size of GLIB data buffer
     vfatDevice_->setDeviceBaseNode("GLIB");
     uint32_t bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
 
@@ -292,6 +338,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
     LOG4CPLUS_INFO(this->getApplicationLogger(),"bufferDepth = " << bufferDepth << std::endl);
 
+    // If GLIB data buffer has non-zero size, initiate read workloop
     if (bufferDepth) {
         wl_->submit(read_signature_);
     }
@@ -304,13 +351,16 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
     wl_semaphore_.take();
     hw_semaphore_.take();
 
+    // Book event variables
     tbutils::ChannelData ch;
     tbutils::VFATEvent ev;
     int event=0;
 
+    // Output filename
     std::string tmpFileName = confParams_.bag.outFileName.toString();
     LOG4CPLUS_INFO(getApplicationLogger(),"file " << tmpFileName << " opened to write from FIFO ");
 
+    // GLIB data buffer validation
     boost::format linkForm("LINK%d");
     uint32_t fifoDepth[3];
     vfatDevice_->setDeviceBaseNode("GLIB");
@@ -333,6 +383,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
     bool isFirst = true;
     uint32_t bxNum, bxExp;
 
+    // For each event in GLIB data buffer
     while (bufferDepth) {
         std::vector<uint32_t> data;
         vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
@@ -350,6 +401,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
         uint32_t TrigReg, bxNumTr;
         uint8_t SBit;
 
+        // read trigger data
         vfatDevice_->setDeviceBaseNode("GLIB");
         //TrigReg = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRG_DATA.DATA");
         TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
@@ -410,6 +462,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
         ev.ChipID = (ev.ChipID | chipid);
         ev.crc = crc;
 
+        // dump event to disk
         keepEvent(tmpFileName, event, ev, ch);
         counter_++;
 
@@ -447,6 +500,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
             hw_semaphore_.take();
 
+            // Define device
             vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
 
             vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
@@ -459,6 +513,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
             latency_   = confParams_.bag.latency;
 
+            // Set VFAT2 registers
             vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
             vfatDevice_->setCalibrationMode(0x0); //set to normal
             vfatDevice_->setMSPolarity(     0x1); //negative
@@ -492,6 +547,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
             confParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
             confParams_.bag.latency = vfatDevice_->getLatency();
 
+            // Create a new output file
             time_t now  = time(0);
             tm    *gmtm = gmtime(&now);
             char* utcTime = asctime(gmtm);
