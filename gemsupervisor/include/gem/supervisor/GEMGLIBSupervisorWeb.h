@@ -71,38 +71,95 @@ namespace gem {
                     throw (xoap::exception::Exception);
 
                 // HyperDAQ interface
+                /**
+                *    Generate main web interface
+                */
                 void webDefault(xgi::Input *in, xgi::Output *out)
                     throw (xgi::exception::Exception);
+                /**
+                *    Initiate configuration workloop and return to main web interface
+                */
                 void webConfigure(xgi::Input *in, xgi::Output *out)
                     throw (xgi::exception::Exception);
+                /**
+                *    Initiate start workloop and return to main web interface
+                */
                 void webStart(xgi::Input *in, xgi::Output *out)
                     throw (xgi::exception::Exception);
+                /**
+                *    Initiate stop workloop and return to main web interface
+                */
                 void webStop(xgi::Input *in, xgi::Output *out)
                     throw (xgi::exception::Exception);
+                /**
+                *    Initiate halt workloop and return to main web interface
+                */
                 void webHalt(xgi::Input *in, xgi::Output *out)
                     throw (xgi::exception::Exception);
+                /**
+                *    Send L1A signal and return to main web interface
+                */
                 void webTrigger(xgi::Input *in, xgi::Output *out)
                     throw (xgi::exception::Exception);
+                /**
+                *    Redirect to main web interface
+                */
                 void webRedirect(xgi::Input *in, xgi::Output *out)
                     throw (xgi::exception::Exception);
 
                 // work loop call-back functions
+                /**
+                *    Fire configure action to FSM
+                */
                 bool configureAction(toolbox::task::WorkLoop *wl);
-                bool stopAction(toolbox::task::WorkLoop *wl);
-                bool haltAction(toolbox::task::WorkLoop *wl);
+                /**
+                *    Fire start action to FSM
+                */
                 bool startAction(toolbox::task::WorkLoop *wl);
+                /**
+                *    Fire stop action to FSM
+                */
+                bool stopAction(toolbox::task::WorkLoop *wl);
+                /**
+                *    Fire halt action to FSM
+                */
+                bool haltAction(toolbox::task::WorkLoop *wl);
+                /**
+                *    Check if GLIB has any data available
+                *    If it does, initiate read workloop
+                */
                 bool runAction(toolbox::task::WorkLoop *wl);
+                /**
+                *    Dump to disk all data available in GLIB data buffer
+                */
                 bool readAction(toolbox::task::WorkLoop *wl);
 
                 // State transitions
+                /**
+                *    Prepare the system to data acquisition:
+                *      - Write predefined values to VFAT2 registers
+                *      - Create a new output file
+                */
                 void configureAction(toolbox::Event::Reference e)
                     throw (toolbox::fsm::exception::Exception);
+                /**
+                *    Prepare Opto-hybrid Board and GLIB to data acquisition
+                */
                 void startAction(toolbox::Event::Reference e)
                     throw (toolbox::fsm::exception::Exception);
+                /**
+                *    Action during transition to "Stopped" state
+                */
                 void stopAction(toolbox::Event::Reference e)
                     throw (toolbox::fsm::exception::Exception);
+                /*
+                *    Action during transition to "Halted" state
+                */
                 void haltAction(toolbox::Event::Reference e)
                     throw (toolbox::fsm::exception::Exception);
+                /*
+                *    Empty action for forbidden state transitions in FSM
+                */
                 void noAction(toolbox::Event::Reference e)
                     throw (toolbox::fsm::exception::Exception);
 
