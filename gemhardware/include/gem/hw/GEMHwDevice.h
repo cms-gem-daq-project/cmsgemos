@@ -99,7 +99,7 @@ namespace gem {
 	std::string getDeviceID()             { return deviceID_;       };
 
 	void setAddressTableFileName(std::string const& name) {
-	  addressTable_ = "file://${BUILD_HOME}/data/"+name; };
+	  addressTable_ = "file:///home/aysen/supervisor/gem-daq-code/data/"+name; };
 	void setIPbusProtocolVersion(std::string const& version) {
 	  ipbusProtocol_ = version; };
 	void setDeviceBaseNode(std::string const& deviceBase) {
