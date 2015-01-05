@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+  <xc:Context url="http://xdaqgem:1984">
+    <xc:Application class="gem::hw::vfat::GEMController" id="254" instance="0" network="local"></xc:Application>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/linux/x86_64_slc6/libgem_hw.so</xc:Module>
+  </xc:Context>
+</xc:Partition>
