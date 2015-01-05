@@ -46,172 +46,172 @@ namespace gem {
                     ~GEMController();
 
                     /**
-                    *   Generate default web interface, currently generates control panel web interface
-                    */
+                     *   Generate default web interface, currently generates control panel web interface
+                     */
                     void Default(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Generate empty dummy web interface, useful for future and not implemented features
-                    */
+                     *   Generate empty dummy web interface, useful for future and not implemented features
+                     */
                     void Dummy(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Generate control panel web interface
-                    */
+                     *   Generate control panel web interface
+                     */
                     void ControlPanel(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Select one of available crates
-                    */
+                     *   Select one of available crates
+                     */
                     void CrateSelection(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Set XML configuration file
-                    */
+                     *   Set XML configuration file
+                     */
                     void setConfFile(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Status of MCH board(s)
-                    */
+                     *   Status of MCH board(s)
+                     */
                     void MCHStatus(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Access to MCH board(s) utils
-                    */
+                     *   Access to MCH board(s) utils
+                     */
                     void MCHUtils(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Status of AMC board(s)
-                    */
+                     *   Status of AMC board(s)
+                     */
                     void AMCStatus(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Access to AMC board(s) utils
-                    */
+                     *   Access to AMC board(s) utils
+                     */
                     void AMCUtils(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Status of GLIB board(s)
-                    */
+                     *   Status of GLIB board(s)
+                     */
                     void GLIBStatus(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Access to GLIB board(s) utils
-                    */
+                     *   Access to GLIB board(s) utils
+                     */
                     void GLIBUtils(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Status of OH board(s)
-                    */
+                     *   Status of OH board(s)
+                     */
                     void OHStatus(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Access to OH board(s) utils
-                    */
+                     *   Access to OH board(s) utils
+                     */
                     void OHUtils(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Access to VFAT2 manager
-                    */
+                     *   Access to VFAT2 manager
+                     */
                     void VFAT2Manager(xgi::Input *in, xgi::Output *out )
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   The main function behind VFAT2 manager
-                    */
+                     *   The main function behind VFAT2 manager
+                     */
                     void controlVFAT2(xgi::Input * in, xgi::Output * out)
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Check what registers are selected in VFAT2 manager
-                    */
+                     *   Check what registers are selected in VFAT2 manager
+                     */
                     void getCheckedRegisters(cgicc::Cgicc cgi, std::vector<std::pair<std::string,uint8_t> > &regValsToSet)
                         throw (xgi::exception::Exception);
 
                     /**
-                    *   Perform selected action on selected registers in VFAT2 manager
-                    */
+                     *   Perform selected action on selected registers in VFAT2 manager
+                     */
                     void performAction(cgicc::Cgicc cgi, std::vector<std::pair<std::string,uint8_t> > regValsToSet)
                         throw (xgi::exception::Exception);
 
                     HwVFAT2* vfatDevice;
 
                     /**
-                    *   Parse XML configuration file
-                    */
+                     *   Parse XML configuration file
+                     */
                     void parseXMLFile();
 
                     /**
-                    *   Parse section of XML configuration file describing GEM system
-                    */
+                     *   Parse section of XML configuration file describing GEM system
+                     */
                     void parseGEMSystem(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing available uTCA crates
-                    */
+                     *   Parse section of XML configuration file describing available uTCA crates
+                     */
                     void parseCrate(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing available GLIB board(s)
-                    */
+                     *   Parse section of XML configuration file describing available GLIB board(s)
+                     */
                     void parseGLIB(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing available OH board(s)
-                    */
+                     *   Parse section of XML configuration file describing available OH board(s)
+                     */
                     void parseOH(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing VFAT2 registers
-                    */
+                     *   Parse section of XML configuration file describing VFAT2 registers
+                     */
                     void parseVFAT2Settings(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing VFAT2 control registers
-                    */
+                     *   Parse section of XML configuration file describing VFAT2 control registers
+                     */
                     void parseControlRegisters(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing VFAT2 control register 0
-                    */
+                     *   Parse section of XML configuration file describing VFAT2 control register 0
+                     */
                     void parseControlRegister0(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing VFAT2 control register 1
-                    */
+                     *   Parse section of XML configuration file describing VFAT2 control register 1
+                     */
                     void parseControlRegister1(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing VFAT2 control register 2
-                    */
+                     *   Parse section of XML configuration file describing VFAT2 control register 2
+                     */
                     void parseControlRegister2(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing VFAT2 control register 3
-                    */
+                     *   Parse section of XML configuration file describing VFAT2 control register 3
+                     */
                     void parseControlRegister3(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing VFAT2 bias settings
-                    */
+                     *   Parse section of XML configuration file describing VFAT2 bias settings
+                     */
                     void parseBiasSettings(xercesc::DOMNode * pNode);
 
                     /**
-                    *   Parse section of XML configuration file describing VFAT2 current bias settings
-                    */
+                     *   Parse section of XML configuration file describing VFAT2 current bias settings
+                     */
                     void parseCurrentBias(xercesc::DOMNode * pNode);
 
                     void actionPerformed(xdata::Event& event);
@@ -282,3 +282,4 @@ namespace gem {
 }//end namespace gem
 
 #endif
+
