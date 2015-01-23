@@ -18,7 +18,7 @@ xdaq::WebApplication(s)
   xgi::framework::deferredbind(this, this, &VFAT2Manager::Peek,          "Peek"        ); 
   xgi::framework::deferredbind(this, this, &VFAT2Manager::controlVFAT2,  "controlVFAT2");
 
-  device_ = "CMS_hybrid_J8";
+  device_ = "VFAT13";
   ipAddr_ = "192.168.0.115";
   settingsFile_ = "";
 

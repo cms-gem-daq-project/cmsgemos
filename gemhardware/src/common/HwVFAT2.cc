@@ -47,6 +47,41 @@ gem::hw::vfat::HwVFAT2::~HwVFAT2()
   releaseDevice();
 }
 
+void gem::hw::vfat::HwVFAT2::loadDefaults()
+{
+  //here load the default settings
+  setTriggerMode(    0x3); //set to S1 to S8
+  setCalibrationMode(0x0); //set to normal
+  setMSPolarity(     0x1); //negative
+  setCalPolarity(    0x1); //negative
+  
+  setProbeMode(        0x0);
+  setLVDSMode(         0x0);
+  setDACMode(          0x0);
+  setHitCountCycleTime(0x0); //maximum number of bits
+  
+  setHitCountMode( 0x0);
+  setMSPulseLength(0x3);
+  setInputPadMode( 0x0);
+  setTrimDACRange( 0x0);
+  setBandgapPad(   0x0);
+  sendTestPattern( 0x0);
+  
+  
+  setIPreampIn(  168);
+  setIPreampFeed(150);
+  setIPreampOut(  80);
+  setIShaper(    150);
+  setIShaperFeed(100);
+  setIComp(       75);
+  
+  setLatency(15);
+  
+  setVThreshold1(25);
+  setVThreshold2(0);
+
+}
+
 void gem::hw::vfat::HwVFAT2::configureDevice(std::string const& xmlSettings)
 {
   //here load the xml file settings onto the chip
