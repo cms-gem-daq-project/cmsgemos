@@ -18,7 +18,6 @@ Sources= gemHwMonitorWeb.cc gemHwMonitorBase.cc
 ##version.cc
 
 DynamicLibrary=gem_hwMonitor
-
 #IncludeDirs = $(uHALROOT)/include
 #DependentLibraryDirs = $(uHALROOT)/lib
 
