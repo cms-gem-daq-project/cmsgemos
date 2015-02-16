@@ -18,7 +18,7 @@ namespace gem {
                 friend class gem::base::utils::gemXMLparser;
                 gemCrateProperties(){}
                 ~gemCrateProperties(){}
-                const std::vector<gem::base::utils::gemGLIBProperties>& getGLIBRefs(return subDevicesIDs_;)
+                const std::vector<gem::base::utils::gemGLIBProperties>& getGLIBRefs(return subDevicesRefs_;)
 
                 private:
                 std::vector <gem::base::utils::gemGLIBProperties> subDevicesRefs_;
