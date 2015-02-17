@@ -4,18 +4,32 @@
 //
 ///////////////////////////////////////////////
 #include "gem/utils/gemXMLparser.h"
-#include "gem/hw/vfat/HwVFAT2.h"
+#include "gem/utils/gemDeviceProperties.h"
+#include "gem/utils/gemCrateProperties.h"
+#include "gem/utils/gemGLIBProperties.h"
+#include "gem/utils/gemOHProperties.h"
+#include "gem/utils/gemVFATProperties.h"
 
-gem::base::utils::gemXMLparser::gemXMLparser(std::string& xmlFile, gem::hw::vfat::HwVFAT2 *vfatDevice)
+gem::base::utils::gemXMLparser::gemXMLparser(std::string& xmlFile)
 {
-    xmlFile_    = xmlFile;  
-    //vfatDevice_ = vfatDevice;
+    xmlFile_ = xmlFile;
 }
 
 
 gem::base::utils::gemXMLparser::~gemXMLparser()
 {
-    //vfatDevice_ = 0;
+    for (std::vector<gemCrateProperties*>::iterator crate = crateRefs_.begin(); crate != crateRefs_.end(); ++crate) {
+        for (std::vector<gem::base::utils::gemGLIBProperties*>::iterator glib = (*crate)->subDevicesRefs_.begin(); glib != (*crate)->subDevicesRefs_.end(); ++glib) {
+            for (std::vector<gem::base::utils::gemOHProperties*>::iterator oh = (*glib)->subDevicesRefs_.begin(); oh != (*glib)->subDevicesRefs_.end(); ++oh) {
+                for (std::vector<gem::base::utils::gemVFATProperties*>::iterator vfat = (*oh)->subDevicesRefs_.begin(); vfat != (*oh)->subDevicesRefs_.end(); ++vfat) {
+                    delete *vfat;
+                }
+                delete *oh;
+            }
+            delete *glib;
+        }
+        delete *crate;
+    }
 }
 
 void gem::base::utils::gemXMLparser::parseXMLFile()
@@ -95,11 +109,8 @@ void gem::base::utils::gemXMLparser::parseXMLFile()
         } 
     } 
 
-    //delete parser;
-    //xercesc::XMLPlatformUtils::Terminate();
-
-    vfatDevice_->getAllSettings();
-    //vfatParams_ = vfatDevice_->getVFAT2Params();
+    delete parser;
+    xercesc::XMLPlatformUtils::Terminate();
 }
 
 void gem::base::utils::gemXMLparser::parseGEMSystem(xercesc::DOMNode * pNode)
@@ -117,7 +128,12 @@ void gem::base::utils::gemXMLparser::parseGEMSystem(xercesc::DOMNode * pNode)
                     //currentCrate = 0;
                     //currentCrateId = crateIds[0];
                 //}
-                parseCrate(n);
+                if (n->hasChildNodes()) {
+                    gem::base::utils::gemCrateProperties* crate = new gem::base::utils::gemCrateProperties::gemCrateProperties();
+                    crate->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateId"))->getNodeValue());
+                    crateRefs_.push_back(crate);
+                    parseCrate(n);
+                }
             }
         }    
         n = n->getNextSibling();
@@ -153,7 +169,13 @@ void gem::base::utils::gemXMLparser::parseCrate(xercesc::DOMNode * pNode)
                 //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseGLIB");
                 //GLIBIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue()));
                 //if (cur) parseGLIB(n);
-                parseGLIB(n);
+                if (n->hasChildNodes()) {
+                    gem::base::utils::gemGLIBProperties* glib = new gem::base::utils::gemGLIBProperties::gemGLIBProperties();
+                    glib->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue());
+                    crateRefs_.back()->subDevicesRefs_.push_back(glib);
+                    crateRefs_.back()->subDevicesIDs_.push_back(glib->deviceId_);
+                    parseGLIB(n);
+                }
             } 
         }
         n = n->getNextSibling();
@@ -171,7 +193,13 @@ void gem::base::utils::gemXMLparser::parseGLIB(xercesc::DOMNode * pNode)
         {    
             if (strcmp("OH",xercesc::XMLString::transcode(n->getNodeName()))==0) {
                 //OHIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue()));
-                parseOH(n);
+                if (n->hasChildNodes()) {
+                    gem::base::utils::gemOHProperties* oh = new gem::base::utils::gemOHProperties::gemOHProperties();
+                    oh->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue());
+                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(oh);
+                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesIDs_.push_back(oh->deviceId_);
+                    parseOH(n);
+                }
             }
         }    
         n = n->getNextSibling();
@@ -186,7 +214,14 @@ void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
     while (n) {
         if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
         {    
-            if (strcmp("VFATSettings",xercesc::XMLString::transcode(n->getNodeName()))==0) parseVFAT2Settings(n);
+            if (strcmp("VFATSettings",xercesc::XMLString::transcode(n->getNodeName()))==0) 
+                if (n->hasChildNodes()) {
+                    gem::base::utils::gemVFATProperties* vfat = new gem::base::utils::gemVFATProperties::gemVFATProperties();
+                    vfat->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("VFATId"))->getNodeValue());
+                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(vfat);
+                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesIDs_.push_back(vfat->deviceId_);
+                    parseVFAT2Settings(n);
+                }
         }    
         n = n->getNextSibling();
     }    
@@ -194,189 +229,141 @@ void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
 
 void gem::base::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
 {
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseVFAT2Settings");
     xercesc::DOMNode * n = pNode->getFirstChild();
-    while (n) {
-        if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {
-            //if (strcmp("ChipID",xercesc::XMLString::transcode(n->getNodeName()))==0) VFAT2Ids.push_back(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-            if (strcmp("ControlRegisters",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegisters(n);
-            if (strcmp("BiasSettings",xercesc::XMLString::transcode(n->getNodeName()))==0) parseBiasSettings(n);
-        }
-        n = n->getNextSibling();
-    }
-}
-
-void gem::base::utils::gemXMLparser::parseControlRegisters(xercesc::DOMNode * pNode)
-{
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseControlRegisters");
-    xercesc::DOMNode * n = pNode->getFirstChild();
-    while (n) {
-        if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {   
-            if (strcmp("ControlRegister0",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegister0(n);
-            if (strcmp("ControlRegister1",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegister1(n);
-            if (strcmp("ControlRegister2",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegister2(n);
-            if (strcmp("ControlRegister3",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegister3(n);
-        }   
-        n = n->getNextSibling();
-    }
-}
-
-void gem::base::utils::gemXMLparser::parseControlRegister0(xercesc::DOMNode * pNode)
-{
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseControlRegister0");
-    xercesc::DOMNode * n = pNode->getFirstChild();
+    gemVFATProperties* vfat = crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back();
     while (n) {
         if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
         {    
             if (strcmp("CalMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "CalMode: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setCalibrationMode((gem::hw::vfat::StringToCalibrationMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("CalMode",value));
             }
             if (strcmp("CalPolarity",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "CalPolarity: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setCalPolarity((gem::hw::vfat::StringToCalPolarity.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("CalPolarity",value));
             }
             if (strcmp("MSPolarity",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "MSPolarity: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setMSPolarity((gem::hw::vfat::StringToMSPolarity.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("MSPolarity",value));
             }
             if (strcmp("TriggerMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "TriggerMode: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setTriggerMode((gem::hw::vfat::StringToTriggerMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("TriggerMode",value));
             }
             if (strcmp("RunMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "RunMode: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setRunMode((gem::hw::vfat::StringToRunMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("RunMode",value));
             }
-        }    
-        n = n->getNextSibling();
-    }
-}
-
-void gem::base::utils::gemXMLparser::parseControlRegister1(xercesc::DOMNode * pNode)
-{
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseControlRegister1");
-    xercesc::DOMNode * n = pNode->getFirstChild();
-    while (n) {
-        if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {    
             if (strcmp("ReHitCT",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "ReHitCT: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setHitCountCycleTime((gem::hw::vfat::StringToReHitCT.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("ReHitCT",value));
             }
             if (strcmp("LVDSPowerSave",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "LVDSPowerSave: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setLVDSMode((gem::hw::vfat::StringToLVDSPowerSave.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("LVDSPowerSave",value));
             }
             if (strcmp("ProbeMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "ProbeMode: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setProbeMode((gem::hw::vfat::StringToProbeMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("ProbeMode",value));
             }
             if (strcmp("DACSel",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "DACSel: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setDACMode((gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("DACSel",value));
             }
-        }    
-        n = n->getNextSibling();
-    }
-}
-
-void gem::base::utils::gemXMLparser::parseControlRegister2(xercesc::DOMNode * pNode)
-{
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseControlRegister2");
-    xercesc::DOMNode * n = pNode->getFirstChild();
-    while (n) {
-        if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {    
             if (strcmp("DigInSel",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "DigInSel: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setInputPadMode((gem::hw::vfat::StringToDigInSel.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("DigInSel",value));
             }
             if (strcmp("MSPulseLength",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "MSPulseLength: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setMSPulseLength((gem::hw::vfat::StringToMSPulseLength.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("MSPulseLength",value));
             }
             if (strcmp("HitCountSel",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "HitCountSel: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setHitCountMode((gem::hw::vfat::StringToHitCountMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("HitCountSel",value));
             }
-        }    
-        n = n->getNextSibling();
-    }
-}
-
-void gem::base::utils::gemXMLparser::parseControlRegister3(xercesc::DOMNode * pNode)
-{
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseControlRegister3");
-    xercesc::DOMNode * n = pNode->getFirstChild();
-    while (n) {
-        if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {    
             if (strcmp("DFTest",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "DFTest: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->sendTestPattern((gem::hw::vfat::StringToDFTestPattern.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("DFTest",value));
             }
             if (strcmp("PbBG",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "PbBG: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setBandgapPad((gem::hw::vfat::StringToPbBG.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("PbBG",value));
             }
             if (strcmp("TrimDACRange",xercesc::XMLString::transcode(n->getNodeName()))==0)
             {
-                //LOG4CPLUS_INFO(this->getApplicationLogger(), "TrimDACRange: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
-                vfatDevice_->setTrimDACRange((gem::hw::vfat::StringToTrimDACRange.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("TrimDACRange",value));
             }
-        }    
-        n = n->getNextSibling();
-    }
-}
-
-void gem::base::utils::gemXMLparser::parseBiasSettings(xercesc::DOMNode * pNode)
-{
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseBiasSettings");
-    xercesc::DOMNode * n = pNode->getFirstChild();
-    while (n) {
-        if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {    
-            if (strcmp("CurrentBias",xercesc::XMLString::transcode(n->getNodeName()))==0) parseCurrentBias(n);
-            if (strcmp("Latency",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("Latency",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("VCal",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("VCal",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("VThreshold1",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("VThreshold1",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("VThreshold2",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("VThreshold2",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("CalPhase",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("CalPhase",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-        }    
-        n = n->getNextSibling();
-    }
-}
-
-void gem::base::utils::gemXMLparser::parseCurrentBias(xercesc::DOMNode * pNode)
-{
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseCurrentBias");
-    xercesc::DOMNode * n = pNode->getFirstChild();
-    while (n) {
-        if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {    
-            if (strcmp("IPreampIn",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("IPreampIn",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("IPreampFeed",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("IPreampFeed",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("IPreampOut",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("IPreampOut",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("IShaper",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("IShaper",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("IShaperFeed",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("IShaperFeed",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-            if (strcmp("IComp",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice_->writeVFATReg("IComp",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
+            if (strcmp("IPreampIn",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IPreampIn",value));
+            }
+            if (strcmp("IPreampFeed",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IPreampFeed",value));
+            }
+            if (strcmp("IPreampOut",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IPreampOut",value));
+            }
+            if (strcmp("IShaper",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IShaper",value));
+            }
+            if (strcmp("IShaperFeed",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IShaperFeed",value));
+            }
+            if (strcmp("IComp",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IComp",value));
+            }
+            if (strcmp("Latency",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("Latency",value));
+            }
+            if (strcmp("VCal",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("VCal",value));
+            }
+            if (strcmp("VThreshold1",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("VThreshold1",value));
+            }
+            if (strcmp("VThreshold2",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("VThreshold2",value));
+            }
+            if (strcmp("CalPhase",xercesc::XMLString::transcode(n->getNodeName()))==0)
+            {
+                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("CalPhase",value));
+            }
         }    
         n = n->getNextSibling();
     }
