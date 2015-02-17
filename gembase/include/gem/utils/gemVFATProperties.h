@@ -13,11 +13,11 @@
 namespace gem {
     namespace base {
         namespace utils {
-            class gemVFATProperties public gemDeviceProperties {
+            class gemVFATProperties: public gemDeviceProperties {
                 friend class gem::base::utils::gemXMLparser;
-                gemVFATProperties(){}
-                ~gemVFATProperties(){}
-            }
+                gemVFATProperties();
+                ~gemVFATProperties();
+            };
         }
     }
 }

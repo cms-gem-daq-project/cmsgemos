@@ -12,18 +12,19 @@ namespace gem {
     namespace base {
         namespace utils {
             class gemDeviceProperties {
-                gemDeviceProperties(){}
-                ~gemDeviceProperties(){}
+                friend class gem::base::utils::gemXMLparser;
+                gemDeviceProperties();
+                ~gemDeviceProperties();
                 const std::string& getDeviceId() const {return deviceId_;}
                 void setDeviceId(std::string deviceId) {deviceId_ = deviceId;}
-                const std::vector<std::string>& getSubDevicesIDs(return subDevicesIDs_;)
-                const std::map<std::string, std::string>& getDeviceProperties(){return deviceProperties_;}
+                const std::vector<std::string>& getSubDevicesIDs() {return subDevicesIDs_;}
+                const std::map<std::string, std::string>& getDeviceProperties() {return deviceProperties_;}
 
                 private:
                 std::string deviceId_;
                 std::vector <std::string> subDevicesIDs_;
                 std::map <std::string, std::string> deviceProperties_;
-            }
+            };
         }
     }
 }
