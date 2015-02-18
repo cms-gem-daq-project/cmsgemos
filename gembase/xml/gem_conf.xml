@@ -8,7 +8,7 @@
 	</AMC>
 	<GLIB GLIBId="GLIB01">
 		<OH OHId="OH01">
-			<VFATSettings ChipId="VFAT9">
+			<VFATSettings VFATId="VFAT9">
 				<CalMode>Normal</CalMode>
 				<CalPolarity>Negative</CalPolarity>
 				<MSPolarity>Negative</MSPolarity>
@@ -39,8 +39,10 @@
 		</OH>
 	</GLIB>
 </uTCACrate>
+<!--
 <uTCACrate CrateID="Crate02">
 </uTCACrate>
 <uTCACrate CrateID="Crate03">
 </uTCACrate>
+-->
 </GEMSystem>

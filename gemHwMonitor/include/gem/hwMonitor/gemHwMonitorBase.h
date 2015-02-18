@@ -2,14 +2,19 @@
 #define gem_hwMonitor_gemHwMonitorBase_h
 
 #include <string>
+#include <vector>
 
 #include "xdaq/Application.h"
 #include "xgi/framework/Method.h"
+
+#include "gem/utils/gemXMLparser.h"
+#include "gem/utils/gemCrateProperties.h"
 
 namespace gem {
     namespace base {
         namespace utils {
             class gemXMLparcer;
+            class gemCrateProperties;
         }
     }
     namespace hwMonitor {
@@ -21,7 +26,7 @@ namespace gem {
                 gemHwMonitorBase()
                     throw (xdaq::exception::Exception);
 
-                ~gemHwMonitorBase(){}
+                ~gemHwMonitorBase(){delete gemXMLparser_;}
                 /**
                  *   Select one of available crates
                  */
@@ -57,11 +62,24 @@ namespace gem {
                 unsigned int getBoardStatus ()
                     throw (xgi::exception::Exception)
 		            {return boardStatus_;}
+
+                /*
+                 *   Initialize XML parser
+                 */
+                void initParser()
+                    throw (xgi::exception::Exception);
+                /*
+                 *   Get system configuration
+                 */
+                void getSystemConfiguration()
+                    throw (xgi::exception::Exception);
                 /**
                  *   Access to board utils
                 virtual void boardUtils ()
                     throw (xgi::exception::Exception);
                  */
+                int getNumberOfCrates()
+                    throw (xgi::exception::Exception);
 
             protected:
             private:
@@ -69,6 +87,8 @@ namespace gem {
                 unsigned int boardStatus_;
                 std::string boardID_;
                 std::string xmlConfigFileName_;
+                gem::base::utils::gemXMLparser *gemXMLparser_;
+                std::vector<gem::base::utils::gemCrateProperties*> crateRefs_;
         }; // end namespace hwMon
     }
 } // end namespace gem

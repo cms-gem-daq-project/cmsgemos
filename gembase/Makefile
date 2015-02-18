@@ -15,7 +15,7 @@ PackageName=base
 
 #Sources= GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc CfgParser.cc version.cc
 #Sources= GEMFSM.cc utils/GEMSOAPToolBox.cc GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc
-Sources= utils/gemXMLparser.cc
+Sources= utils/gemXMLparser.cc utils/gemDeviceProperties.cc utils/gemCrateProperties.cc utils/gemGLIBProperties.cc utils/gemOHProperties.cc utils/gemVFATProperties.cc
 
 DynamicLibrary=gem_base
 

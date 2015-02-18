@@ -9,7 +9,9 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::Default, "Default");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::controlPanel, "Control Panel");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::setConfFile,"setConfFile");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::getCratesConfiguration,"getCratesConfiguration");
     gemHwMonitorBase_ = new gem::hwMonitor::gemHwMonitorBase();
+    crateCfgAvailable_ = false;
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::Default(xgi::Input * in, xgi::Output * out )
@@ -45,13 +47,13 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
         *out << cgicc::br()<< std::endl;
         *out << cgicc::br()<< std::endl;
 
-        std::string metho = toolbox::toString("/%s/setConfFile",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","POST").set("action",metho) << std::endl ;
+        std::string methodText = toolbox::toString("/%s/setConfFile",getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::form().set("method","POST").set("action",methodText) << std::endl ;
         *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80").set("ENCTYPE","multipart/form-data").set("value",gemHwMonitorBase_->getXMLconfigFile()) << std::endl;
         *out << cgicc::input().set("type","submit").set("value","Set configuration file") << std::endl ;
         *out << cgicc::form() << std::endl ;
 
-        std::string methodUpload = toolbox::toString("/%s/UploadConfFile",getApplicationDescriptor()->getURN().c_str());
+        std::string methodUpload = toolbox::toString("/%s/uploadConfFile",getApplicationDescriptor()->getURN().c_str());
         *out << cgicc::form().set("method","POST").set("enctype","multipart/form-data").set("action",methodUpload) << std::endl ;
         *out << cgicc::input().set("type","file").set("name","xmlFilenameUpload").set("size","80") << std::endl;
         *out << cgicc::input().set("type","submit").set("value","Submit") << std::endl ;
@@ -60,86 +62,18 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
         *out << cgicc::hr()<< std::endl;
         *out << cgicc::br();
 
-        *out << cgicc::h1("Connected crates")<< std::endl;
+        *out << cgicc::h1("Crates configuration")<< std::endl;
 	    this->showCratesAvailability(in,out);
         *out << cgicc::hr()<< std::endl;
         *out << cgicc::br();
+
+	    this->showCrateUtilities(in,out);
 
         ///////////////////////////////////////////////
         //
         // Crate Utilities
         //
         ///////////////////////////////////////////////
-
-        *out << cgicc::h1("Crate Utilities")<< std::endl;
-        //
-        *out << cgicc::span().set("style","color:blue");
-        *out << cgicc::b(cgicc::i("Current crate : ")) ;
-        *out << gemHwMonitorBase_->getCurrentCrate() << cgicc::span() << std::endl ;
-        //
-        *out << cgicc::br();
-
-        // Begin select crate
-        // Config listbox
-        *out << cgicc::form().set("action",
-                "/" + getApplicationDescriptor()->getURN() + "/CrateSelection") << std::endl;
-
-        //int n_keys = crateIds.size();
-
-        *out << "Choose crate: " << std::endl;
-        *out << cgicc::select().set("name", "chosenCrateId") << std::endl;
-
-        //int selected_index = currentCrate;
-        std::string CrateName;
-        /*for (int i = 0; i < n_keys; ++i) {
-            CrateName = crateIds[i];
-            if (i == selected_index) {
-                *out << cgicc::option()
-                    .set("value", CrateName)
-                    .set("selected", "");
-            } else {
-                *out << cgicc::option()
-                    .set("value", CrateName);
-            }
-            *out << CrateName << cgicc::option() << std::endl;
-        }*/
-
-        *out << cgicc::select() << std::endl;
-
-        *out << cgicc::input().set("type", "submit")
-            .set("name", "command")
-            .set("value", "Select crate") << std::endl;
-        *out << cgicc::form() << std::endl;
-        //End select crate
-
-        *out << cgicc::br();
-        *out << cgicc::table().set("border","0");
-
-        *out << cgicc::td();
-        std::string b21 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","GET").set("action",b21) << std::endl ;
-        *out << cgicc::input().set("type","submit").set("value","Check availability of crates") << std::endl ;
-        *out << cgicc::form();
-        *out << cgicc::td();
-
-        *out << cgicc::td();
-        std::string b22 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","GET").set("action",b22) << std::endl ;
-        *out << cgicc::input().set("type","submit").set("value","Check availability of selected crate") << std::endl ;
-        *out << cgicc::form();
-        *out << cgicc::td();
-
-        *out << cgicc::td();
-        std::string b23 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","GET").set("action",b23) << std::endl ;
-        *out << cgicc::input().set("type","submit").set("value","Crate Tests") << std::endl ;
-        *out << cgicc::form();
-        *out << cgicc::td();
-
-        *out << cgicc::table();
-        *out << cgicc::br();
-        *out << cgicc::hr()<< std::endl;
-        *out << cgicc::br();
 
         ///////////////////////////////////////////////
         //
@@ -274,42 +208,135 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
 void gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
-    *out << "Dummy: will show crates from the CFG and their status" <<
+    std::string methodGetCratesCfg = toolbox::toString("/%s/getCratesConfiguration", getApplicationDescriptor()->getURN().c_str());
+    *out << cgicc::form().set("method","POST").set("action", methodGetCratesCfg) << std::endl ;
+    *out << cgicc::input().set("type","submit").set("value","Get crates configuration") << "    " << std::endl;
+    *out << cgicc::form() << std::endl ;
+    *out << cgicc::input().set("type","submit").set("value","Test all crates") << 
+        cgicc::br() << std::endl;
+    // If crates config is not available yet prompt to get it
+    if (!crateCfgAvailable_) {
+        *out << "Crate configuration isn't available. Please, get the crates configuration" << cgicc::br() <<std::endl;
+    } else {
+        *out << "Number of crates = " << nCrates_ << cgicc::br() << std::endl;
+    }
+/*    *out << "Dummy: will show crates from the CFG and their status" <<
         cgicc::br() << "The color of the button will show crate state (OK, ERROR, N/A)" << 
-        cgicc::br() << "For the moment image upload doesn't work" << 
+        cgicc::br() << "&nbsp" << 
         cgicc::br() << std::endl;
     *out << cgicc::input().set("type","submit").set("value","Crate #1") << "    " <<
-        cgicc::input().set("type","submit").set("value","Crate #2").set("background-color", "red") << "    " <<
-        cgicc::input().set("type","submit").set("value","Crate #3") << std::endl ;
+        cgicc::input().set("type","submit").set("value","Crate #2") << "    " <<
+        cgicc::input().set("type","submit").set("value","Crate #3") << "    " << std::endl;
     *out << cgicc::br() << std::endl;
-    *out << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/green.jpg") << "    " << cgicc::img().set("src", "./images/yellow.jpg") << "    " << cgicc::img().set("src", "./images/red.jpg") << std::endl;
-        
+    *out << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/green.jpg").set("width","88") << 
+    "    " << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/yellow.jpg").set("width","88") << 
+    "    " << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/red.jpg").set("width","88") << std::endl;
+*/      
 }
 
-gem::hwMonitor::gemHwMonitorWeb::setConfFile(xgi::Input * in, xgi::Output * out )
+void gem::hwMonitor::gemHwMonitorWeb::showCrateUtilities(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    *out << cgicc::h1("Crate Utilities")<< std::endl;
+    //
+    *out << cgicc::span().set("style","color:blue");
+    *out << cgicc::b(cgicc::i("Current crate : ")) ;
+    *out << gemHwMonitorBase_->getCurrentCrate() << cgicc::span() << std::endl ;
+    //
+    *out << cgicc::br();
+    
+    // Begin select crate
+    // Config listbox
+    *out << cgicc::form().set("action",
+            "/" + getApplicationDescriptor()->getURN() + "/CrateSelection") << std::endl;
+    
+    //int n_keys = crateIds.size();
+    
+    *out << "Choose crate: " << std::endl;
+    *out << cgicc::select().set("name", "chosenCrateId") << std::endl;
+    
+    //int selected_index = currentCrate;
+    std::string CrateName;
+    /*for (int i = 0; i < n_keys; ++i) {
+        CrateName = crateIds[i];
+        if (i == selected_index) {
+            *out << cgicc::option()
+                .set("value", CrateName)
+                .set("selected", "");
+        } else {
+            *out << cgicc::option()
+                .set("value", CrateName);
+        }
+        *out << CrateName << cgicc::option() << std::endl;
+    }*/
+    
+    *out << cgicc::select() << std::endl;
+    
+    *out << cgicc::input().set("type", "submit")
+        .set("name", "command")
+        .set("value", "Select crate") << std::endl;
+    *out << cgicc::form() << std::endl;
+    //End select crate
+    
+    *out << cgicc::br();
+    *out << cgicc::table().set("border","0");
+    
+    *out << cgicc::td();
+    std::string b22 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
+    *out << cgicc::form().set("method","GET").set("action",b22) << std::endl ;
+    *out << cgicc::input().set("type","submit").set("value","Check availability of selected crate") << std::endl ;
+    *out << cgicc::form();
+    *out << cgicc::td();
+    
+    *out << cgicc::td();
+    std::string b23 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
+    *out << cgicc::form().set("method","GET").set("action",b23) << std::endl ;
+    *out << cgicc::input().set("type","submit").set("value","Test selected crate") << std::endl ;
+    *out << cgicc::form();
+    *out << cgicc::td();
+    
+    *out << cgicc::table();
+    *out << cgicc::br();
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::br();
+}
+void gem::hwMonitor::gemHwMonitorWeb::setConfFile(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
     cgicc::Cgicc cgi(in);
-    std::string oldFile = settingsFile_;
     std::string newFile = cgi.getElement("xmlFilename")->getValue();
     struct stat buffer;
     if (stat(newFile.c_str(), &buffer) == 0) {
-        settingsFile_ = newFile;
-        parseXMLFile();
-        if (fileError.size()) fileWarning = fileError;
-        else {
-            if (crateIds.size() == 0) {
-                fileWarning = "Selected file doesn't have any crate information. Please select another configuration file.";
-                settingsFile_ = oldFile;
-            }
-            else {
-                fileWarning = "";
-                settingsFile_ = newFile;
-            }
-        }
+        gemHwMonitorBase_->setXMLconfigFile(newFile);
     }
     else {
-        filewarning = "selected file doesn't exist. please select another configuration file.";
+        //filewarning = "selected file doesn't exist. please select another configuration file.";
+        XCEPT_RAISE(xgi::exception::Exception, "File not found");
     }
-    this->ControlPanel(in,out);
+    this->controlPanel(in,out);
+}
+
+void gem::hwMonitor::gemHwMonitorWeb::uploadConfFile(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    cgicc::Cgicc cgi(in);
+    std::string newFile = cgi.getElement("xmlFilenameUpload")->getValue();
+    struct stat buffer;
+    if (stat(newFile.c_str(), &buffer) == 0) {
+        gemHwMonitorBase_->setXMLconfigFile(newFile);
+    }
+    else {
+        //filewarning = "selected file doesn't exist. please select another configuration file.";
+        XCEPT_RAISE(xgi::exception::Exception, "File not found");
+    }
+    this->controlPanel(in,out);
+}
+void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    gemHwMonitorBase_->initParser();
+    gemHwMonitorBase_->getSystemConfiguration();
+    crateCfgAvailable_ = true;
+    nCrates_ = gemHwMonitorBase_->getNumberOfCrates();
+    this->controlPanel(in,out);
 }

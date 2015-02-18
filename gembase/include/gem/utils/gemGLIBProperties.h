@@ -14,15 +14,15 @@
 namespace gem {
     namespace base {
         namespace utils {
-            class gemGLIBProperties public gemDeviceProperties {
-                friend class gem::base::utils::gemXMLparser;
-                gemGLIBProperties(){}
-                ~gemGLIBProperties(){}
-                const std::vector<gem::base::utils::gemOHProperties>& getOHRefs(return subDevicesRefs_;)
+            class gemGLIBProperties: public gemDeviceProperties {
+                friend class gemXMLparser;
+                gemGLIBProperties();
+                ~gemGLIBProperties();
+                const std::vector<gem::base::utils::gemOHProperties*>& getOHRefs() {return subDevicesRefs_;}
 
                 private:
-                std::vector <gem::base::utils::gemOHProperties> subDevicesRefs_;
-            }
+                std::vector <gem::base::utils::gemOHProperties*> subDevicesRefs_;
+            };
         }
     }
 }
