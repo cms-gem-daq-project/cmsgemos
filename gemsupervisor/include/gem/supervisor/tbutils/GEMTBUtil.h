@@ -169,8 +169,8 @@ namespace gem {
 	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedInteger64 triggersSeen;
-	    xdata::UnsignedShort ADCVoltage;
-	    xdata::UnsignedShort ADCCurrent;
+	    xdata::Integer       ADCVoltage;
+	    xdata::Integer       ADCurrent;
 	    
 	  };
 	  
