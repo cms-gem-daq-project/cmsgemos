@@ -49,7 +49,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
 
   triggersSeen = 0;
   ADCVoltage = 0;
-  ADCCurrent = 0;
+  ADCurrent = 0;
 
   bag->addField("readoutDelay",   &readoutDelay);
 
@@ -64,7 +64,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   bag->addField("deviceChipID", &deviceChipID);
   bag->addField("triggersSeen", &triggersSeen);
   bag->addField("ADCVoltage",   &ADCVoltage);
-  bag->addField("ADCCurrent",   &ADCCurrent);
+  bag->addField("ADCurrent",   &ADCurrent);
 
 }
 
@@ -682,7 +682,7 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
 	   << cgicc::br()  << std::endl
 	   << cgicc::input().set("id","CalPulseDelay").set("name","CalPulseDelay")
                             .set("type","number").set("min","0").set("max","255")
-                            .set("value","1")
+                            .set("value","4")
 	   << cgicc::td()  << std::endl;
 
       *out << cgicc::tr()    << std::endl
@@ -1396,13 +1396,13 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
     is_running_ = false;
   }
   
-  if (histo)
-    delete histo;
+  //  if (histo)
+  delete histo;
   histo = 0;
   
   for (int hi = 0; hi < 128; ++hi) {
-    if (histos[hi])
-      delete histos[hi];
+    //  if (histos[hi])
+    delete histos[hi];
     histos[hi] = 0;
   }
   //if (scanStream->is_open())
@@ -1427,9 +1427,9 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
   is_configured_ = false;
   is_running_    = false;
 
-  if (histo)
-    delete histo;
-  histo = 0;
+  //  if (histo)
+  //delete histo;
+  //histo = 0;
   
   for (int hi = 0; hi < 128; ++hi) {
     if (histos[hi])
