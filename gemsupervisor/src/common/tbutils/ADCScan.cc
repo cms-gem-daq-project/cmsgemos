@@ -524,7 +524,7 @@ void gem::supervisor::tbutils::ADCScan::scanParameters(xgi::Output *out)
 	 << ((confParams_.bag.dacToScan.toString().compare("IShaperFeed")) == 0 ?
 	     (cgicc::option("IShaperFeed").set(isDisabled).set("value","IShaperFeed").set("selected")) :
 	     (cgicc::option("IShaperFeed").set(isDisabled).set("value","IShaperFeed"))) << std::endl
-	 << ((confParams_.bag.dacToScan.toString().compare("ICOMP")) == 0 ?
+	 << ((confParams_.bag.dacToScan.toString().compare("IComp")) == 0 ?
 	     (cgicc::option("IComp").set(isDisabled).set("value","IComp").set("selected")) :
 	     (cgicc::option("IComp").set(isDisabled).set("value","IComp"))) << std::endl
 	 << ((confParams_.bag.dacToScan.toString().compare("VThreshold1")) == 0 ?
@@ -533,7 +533,7 @@ void gem::supervisor::tbutils::ADCScan::scanParameters(xgi::Output *out)
 	 << ((confParams_.bag.dacToScan.toString().compare("VThreshold2")) == 0 ?
 	     (cgicc::option("VThreshold2").set(isDisabled).set("value","VThreshold2").set("selected")) :
 	     (cgicc::option("VThreshold2").set(isDisabled).set("value","VThreshold2"))) << std::endl
-	 << ((confParams_.bag.dacToScan.toString().compare("VCAL")) == 0 ?
+	 << ((confParams_.bag.dacToScan.toString().compare("VCal")) == 0 ?
 	     (cgicc::option("VCal").set(isDisabled).set("value","VCal").set("selected")) :
 	     (cgicc::option("VCal").set(isDisabled).set("value","VCal"))) << std::endl
 	 << cgicc::select() << std::endl
@@ -1134,7 +1134,7 @@ void gem::supervisor::tbutils::ADCScan::configureAction(toolbox::Event::Referenc
   vfatDevice_->setIShaperFeed(100);
   vfatDevice_->setIComp(      120);
   
-  vfatDevice_->setLatency(    128);
+  vfatDevice_->setLatency(     12);
   vfatDevice_->setVThreshold1( 25);
   vfatDevice_->setVThreshold2(  0);
   //}
