@@ -4,6 +4,7 @@
 #include "xdaq/WebApplication.h"
 #include "xgi/framework/Method.h"
 #include "cgicc/HTMLClasses.h"
+#include <sys/stat.h>
 
 #include "gemHwMonitorBase.h"
 
@@ -27,7 +28,13 @@ namespace gem {
 		            throw (xgi::exception::Exception);
 		        void showCratesAvailability(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
+		        void showCrateUtilities(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
                 void setConfFile(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void uploadConfFile(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void getCratesConfiguration(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
 /*
                 static void createVFATInfoLayout(       xgi::Output *out,
@@ -49,6 +56,8 @@ namespace gem {
 */
             private:
                 gem::hwMonitor::gemHwMonitorBase *gemHwMonitorBase_;
+                bool crateCfgAvailable_;
+                int nCrates_;
         };// end class gemHwMonitorWeb
     }// end namespace hwMonitor
 }// end namespace gem

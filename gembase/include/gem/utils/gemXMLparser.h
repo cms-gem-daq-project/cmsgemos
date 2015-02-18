@@ -2,6 +2,7 @@
 #define gem_base_utils_gemXMLparser_h
 
 #include <string>
+#include <map>
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMElement.hpp>
@@ -12,19 +13,14 @@
 #include <boost/format.hpp>
 
 namespace gem {
-    namespace hw {
-        namespace vfat {
-            class HwVFAT2;
-        }   
-    }
     namespace base {
         namespace utils {
+            class gemCrateProperties;
             class gemXMLparser
             {
 
                 public:
-                    //gemXMLparser(std::string& xmlFile, gem::hw::vfat::HwVFAT2* vfatDevice);
-                    gemXMLparser(std::string& xmlFile);
+                    gemXMLparser(const std::string& xmlFile);
 
                     ~gemXMLparser();
 
@@ -55,48 +51,14 @@ namespace gem {
                      */
                     void parseVFAT2Settings(xercesc::DOMNode * pNode);
 
-                    /**
-                     *   Parse section of XML configuration file describing VFAT2 control registers
-                     */
-                    void parseControlRegisters(xercesc::DOMNode * pNode);
-
-                    /**
-                     *   Parse section of XML configuration file describing VFAT2 control register 0
-                     */
-                    void parseControlRegister0(xercesc::DOMNode * pNode);
-
-                    /**
-                     *   Parse section of XML configuration file describing VFAT2 control register 1
-                     */
-                    void parseControlRegister1(xercesc::DOMNode * pNode);
-
-                    /**
-                     *   Parse section of XML configuration file describing VFAT2 control register 2
-                     */
-                    void parseControlRegister2(xercesc::DOMNode * pNode);
-
-                    /**
-                     *   Parse section of XML configuration file describing VFAT2 control register 3
-                     */
-                    void parseControlRegister3(xercesc::DOMNode * pNode);
-
-                    /**
-                     *   Parse section of XML configuration file describing VFAT2 bias settings
-                     */
-                    void parseBiasSettings(xercesc::DOMNode * pNode);
-
-                    /**
-                     *   Parse section of XML configuration file describing VFAT2 current bias settings
-                     */
-                    void parseCurrentBias(xercesc::DOMNode * pNode);
+                    const std::vector<gemCrateProperties*>& getCrateRefs() {return crateRefs_;}
 
                 private:
                     std::string xmlFile_;
-                    //gem::hw::vfat::HwVFAT2* vfatDevice_;
+                    std::vector <gemCrateProperties*> crateRefs_;
             };
         }
     }
 }
 
 #endif
-
