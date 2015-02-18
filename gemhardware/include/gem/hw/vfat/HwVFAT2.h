@@ -46,12 +46,14 @@ namespace gem {
 	  //XDAQ_INSTANTIATOR();
 	
 	  HwVFAT2(xdaq::Application * vfat2App,
-		  std::string const& vfatDevice="CMS_hybrid_J8");
+		  std::string const& vfatDevice="VFAT13");
 	  //HwVFAT2(xdaq::Application * vfat2App);
 	  //throw (xdaq::exception::Exception);
 
 	  ~HwVFAT2();
-	
+	  
+	  //where can we load default parameters?
+	  void loadDefaults();
 	  //void connectDevice();
 	  //void releaseDevice();
 	  //void initDevice();
