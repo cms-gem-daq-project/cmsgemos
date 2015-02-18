@@ -31,21 +31,6 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
   stepSize  = 1U;
   currentHisto = 0U;
 
-  /*
-  time_t now  = time(0);
-  tm    *gmtm = gmtime(&now);
-  char* utcTime = asctime(gmtm);
-  std::string tmpFileName = "ThresholdScan_";
-  tmpFileName.append(utcTime);
-  tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
-  tmpFileName.append(".dat");
-  std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
-  std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
-  //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
-
-  outFileName  = tmpFileName;
-  */
-  
   deviceVT1     = 0x0;
   deviceVT2     = 0x0;
 
@@ -53,7 +38,6 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
   bag->addField("maxThresh",   &maxThresh);
   bag->addField("stepSize",    &stepSize );
 
-  // bag->addField("outFileName",   &outFileName );
   bag->addField("currentHisto",  &currentHisto);
 
   bag->addField("deviceVT1",    &deviceVT1   );
@@ -131,9 +115,17 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   //send triggers
   hw_semaphore_.take();
   vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
-  for (size_t trig = 0; trig < 1000; ++trig)
+  for (size_t trig = 0; trig < 250; ++trig)
     vfatDevice_->writeReg("Send.L1A",0x1);
-  
+
+  //ADC Voltage, Current, monitoring
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB");
+  confParams_.bag.ADCVoltage = vfatDevice_->readReg("VFAT_ADC.Voltage");
+  confParams_.bag.ADCurrent = vfatDevice_->readReg("VFAT_ADC.Current");
+
+  LOG4CPLUS_DEBUG(getApplicationLogger(),
+    "\n ADCVoltage " << confParams_.bag.ADCVoltage  << "\n ADCurrent " << confParams_.bag.ADCurrent );
+
   //count triggers
   vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
   confParams_.bag.triggersSeen = vfatDevice_->readReg("L1A.Internal");
@@ -150,13 +142,22 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
     hw_semaphore_.give();
     if (bufferDepth < 10) {
-      //update triggersSeen
+      //update
       sleep(1);
       hw_semaphore_.take();
+
+      //ADC Voltage, Current, update
+      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB");
+      confParams_.bag.ADCVoltage = vfatDevice_->readReg("VFAT_ADC.Voltage");
+      confParams_.bag.ADCurrent = vfatDevice_->readReg("VFAT_ADC.Current");
+
+      //triggersSeen update 
       vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
       confParams_.bag.triggersSeen = vfatDevice_->readReg("L1A.Internal");
+
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       LOG4CPLUS_DEBUG(getApplicationLogger(),"Not enough entries in the buffer, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
+
       hw_semaphore_.give();
       wl_semaphore_.give();
       return true;
@@ -164,6 +165,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     else {
       //maybe don't do the readout as a workloop?
       hw_semaphore_.take();
+
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       LOG4CPLUS_DEBUG(getApplicationLogger(),"Buffer full, reading out, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
       hw_semaphore_.give();
@@ -192,6 +194,12 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     if ((unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0) {
       //wl_semaphore_.take();
       hw_semaphore_.take();
+
+      //ADC Voltage, Current, update
+      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB");
+      confParams_.bag.ADCVoltage = vfatDevice_->readReg("VFAT_ADC.Voltage");
+      confParams_.bag.ADCurrent = vfatDevice_->readReg("VFAT_ADC.Current");
+
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       LOG4CPLUS_DEBUG(getApplicationLogger(),"VT1 is 0, reading out, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
       hw_semaphore_.give();
@@ -229,6 +237,15 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     else {
       //wl_semaphore_.take();
       hw_semaphore_.take();
+
+      //ADC Voltage, Current, update
+      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB");
+      confParams_.bag.ADCVoltage = vfatDevice_->readReg("VFAT_ADC.Voltage");
+      confParams_.bag.ADCurrent = vfatDevice_->readReg("VFAT_ADC.Current");
+
+      LOG4CPLUS_DEBUG(getApplicationLogger(),
+        "\n ADCVoltage " << confParams_.bag.ADCVoltage  << "\n ADCurrent " << confParams_.bag.ADCurrent );
+
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       LOG4CPLUS_DEBUG(getApplicationLogger(),"reached max threshold, stopping out, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
       hw_semaphore_.give();
@@ -247,7 +264,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
   ChannelData ch;
   VFATEvent ev;
-  int event=0;
+  int ievent=0;
 
   std::string tmpFileName = confParams_.bag.outFileName.toString();
   LOG4CPLUS_INFO(getApplicationLogger(),"file " << tmpFileName << "opened to write from FIFO ");
@@ -303,14 +320,14 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       }
     }
 
-    uint32_t trigReg, bxNumTr;
+    uint32_t TrigReg, bxNumTr;
     uint8_t sBit;
 
-    //set proper base address
+    // read trigger data
     vfatDevice_->setDeviceBaseNode("GLIB");
-    trigReg = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRG_DATA.DATA");
-    bxNumTr = trigReg >> 6;
-    sBit = trigReg & 0x0000003F;
+    TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
+    bxNumTr = TrigReg >> 6;
+    sBit = TrigReg & 0x0000003F;
 
     //make sure we are aligned
 
@@ -324,6 +341,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+      TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
       continue;
     }
     
@@ -332,7 +350,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     uint16_t bcn, evn, crc, chipid;
     uint64_t msData, lsData;
     uint8_t  flags;
-    
+    double   delVT;
+
     if (isFirst)
       bxExp = bxNum;
     
@@ -354,9 +373,12 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     msData = (data1 << 32) | (data2);
 
     crc    = 0x0000ffff & data.at(0);
+    delVT = (scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1);
 
-    ch.lsdata = lsData;
-    ch.msdata = msData;
+    // GEM Event Format, Output
+    ch.lsData = lsData;
+    ch.msData = msData;
+    ch.delVT = delVT;
 
     ev.BC = ((data.at(5)&0xF0000000)>>28) << 12; // 1010
     ev.BC = (ev.BC | bcn);
@@ -376,7 +398,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     gemev.trailer = 0x0;
     */
 
-    keepEvent(tmpFileName, event, ev, ch);
+    keepEvent(tmpFileName, ievent, ev, ch);
 
     LOG4CPLUS_INFO(getApplicationLogger(),
 		   "Received tracking data word:" << std::endl
@@ -390,17 +412,20 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 		   << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << msData << std::dec << std::endl
 		   << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << lsData << std::dec << std::endl
 		   << "crc     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << crc    << std::dec << std::endl
+                   << "dVT2-1  ::   " << std::setfill(' ') << std::setw(4) << delVT << std::endl
 		   );
+
     //while (bxNum == bxExp) {
     
     //Maybe add another histogramt that is a combined all channels histogram
-    histo->Fill(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1,(lsData||msData));
+    histo->Fill(delVT,(lsData||msData));
+
     //I think it would be nice to time this...
     for (int chan = 0; chan < 128; ++chan) {
       if (chan < 64)
-	histos[chan]->Fill(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1,((lsData>>chan))&0x1);
+	histos[chan]->Fill(delVT,((lsData>>chan))&0x1);
       else
-	histos[chan]->Fill(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1,((msData>>(chan-64)))&0x1);
+	histos[chan]->Fill(delVT,((msData>>(chan-64)))&0x1);
     }
 
     vfatDevice_->setDeviceBaseNode("GLIB");
@@ -410,7 +435,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
   hw_semaphore_.give();
 
-  std::string imgRoot = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/baranov/images/tbutils/tscan/";
+  std::string imgRoot = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/tscan/";
   std::stringstream ss;
   ss << "chanthresh0.png";
   std::string imgName = ss.str();
@@ -420,7 +445,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   outputCanvas->SaveAs(TString(imgRoot+imgName));
 
   for (int chan = 0; chan < 128; ++chan) {
-    imgRoot = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/baranov/images/tbutils/tscan/";
+    imgRoot = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/tscan/";
     ss.clear();
     ss.str(std::string());
     ss << "chanthresh" << (chan+1) << ".png";
@@ -491,18 +516,15 @@ void gem::supervisor::tbutils::ThresholdScan::scanParameters(xgi::Output *out)
                           .set("type","number").set("min","0").set("readonly")
                           .set("value",boost::str(boost::format("%d")%(confParams_.bag.triggersSeen)))
 	 << cgicc::br() << std::endl
-      /* SB
 	 << cgicc::label("ADCVoltage").set("for","ADCVoltage") << std::endl
 	 << cgicc::input().set("id","ADCVoltage").set("name","ADCVoltage")
                           .set("type","number").set("min","0").set("readonly")
                           .set("value",boost::str(boost::format("%d")%(confParams_.bag.ADCVoltage)))
-	 << cgicc::br() << std::endl
-	 << cgicc::label("ADCCurrent").set("for","ADCCurrent") << std::endl
-	 << cgicc::input().set("id","ADCCurrent").set("name","ADCCurrent")
+	 << cgicc::label("ADCurrent").set("for","ADCurrent") << std::endl
+	 << cgicc::input().set("id","ADCurrent").set("name","ADCurrent")
                           .set("type","number").set("min","0").set("readonly")
-                          .set("value",boost::str(boost::format("%d")%(confParams_.bag.ADCCurrent)))
+                          .set("value",boost::str(boost::format("%d")%(confParams_.bag.ADCurrent)))
 	 << cgicc::br() << std::endl
-      */
 	 << cgicc::span()   << std::endl;
   }
   catch (const xgi::exception::Exception& e) {
@@ -545,7 +567,7 @@ void gem::supervisor::tbutils::ThresholdScan::displayHistograms(xgi::Output *out
     *out << cgicc::td() << std::endl;
 
     *out << cgicc::td()  << std::endl
-	 << cgicc::img().set("src","/gemdaq/gemsupervisor/baranov/images/tbutils/tscan/chanthresh"+scanParams_.bag.currentHisto.toString()+".png")
+	 << cgicc::img().set("src","/gemdaq/gemsupervisor/html/images/tbutils/tscan/chanthresh"+scanParams_.bag.currentHisto.toString()+".png")
                         .set("id","vfatChannelHisto")
 	 << cgicc::td()    << std::endl;
     *out << cgicc::tr()    << std::endl
@@ -864,11 +886,6 @@ void gem::supervisor::tbutils::ThresholdScan::webConfigure(xgi::Input *in, xgi::
     element = cgi.getElement("NTrigsStep");
     if (element != cgi.getElements().end())
       confParams_.bag.nTriggers  = element->getIntegerValue();
-    /* SB
-    element = cgi.getElement("ADCCurrent");
-    if (element != cgi.getElements().end())
-      confParams_.bag.ADCCurrent  = element->getIntegerValue();
-    */
   }
   catch (const xgi::exception::Exception & e) {
     XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -908,12 +925,6 @@ void gem::supervisor::tbutils::ThresholdScan::webStart(xgi::Input *in, xgi::Outp
     element = cgi.getElement("NTrigsStep");
     if (element != cgi.getElements().end())
       confParams_.bag.nTriggers  = element->getIntegerValue();
-
-    /* SB
-    element = cgi.getElement("ADCCurrent");
-    if (element != cgi.getElements().end())
-      confParams_.bag.ADCCurrent  = element->getIntegerValue();
-    */
   }
   catch (const xgi::exception::Exception & e) {
     XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -1039,6 +1050,8 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   
   is_working_ = true;
 
+  AppHeader ah;
+
   latency_   = scanParams_.bag.latency;
   nTriggers_ = confParams_.bag.nTriggers;
   stepSize_  = scanParams_.bag.stepSize;
@@ -1063,9 +1076,9 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   confParams_.bag.outFileName = tmpFileName;
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Creating file " << confParams_.bag.outFileName.toString());
+
   //std::fstream scanStream(confParams_.bag.outFileName.c_str(),
-  std::fstream scanStream(tmpFileName.c_str(),
-			  std::ios::app | std::ios::binary);
+  std::fstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
   if (scanStream.is_open())
     LOG4CPLUS_INFO(getApplicationLogger(),"file " << confParams_.bag.outFileName.toString() << " opened");
 
@@ -1136,9 +1149,19 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   int minTh = scanParams_.bag.minThresh;
   int maxTh = scanParams_.bag.maxThresh;
   int nBins = ((maxTh - minTh) + 1)/(scanParams_.bag.stepSize);
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"histogram name and title: " << histName.str() 
-		  << ", " << histTitle.str()
-		  << "(" << nBins << " bins)");
+
+  //write Applicatie  header
+  ah.minTh = minTh;
+  ah.maxTh = maxTh;
+  ah.stepSize = scanParams_.bag.stepSize;
+  keepAppHeader(tmpFileName, ah);
+
+  LOG4CPLUS_INFO(getApplicationLogger(),"histogram name and title: " << histName.str() << ", " << histTitle.str()
+		 << " minTh " << minTh << " maxTh " << maxTh << " stepSize " << scanParams_.bag.stepSize << " nBins " << nBins );
+
+  LOG4CPLUS_INFO(getApplicationLogger(),"histogram name and title: " << histName.str() << ", " << histTitle.str()
+                 << "(" << nBins << " bins)");
+
   histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
   
   for (unsigned int hi = 0; hi < 128; ++hi) {
@@ -1155,9 +1178,10 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
     histName  << "channel"<<(hi+1);
     histTitle << "Threshold scan for channel "<<(hi+1);
-    LOG4CPLUS_DEBUG(getApplicationLogger(),"histogram name and title: " << histName.str() 
-		   << ", " << histTitle.str()
-		   << "(" << nBins << " bins)");
+    
+    LOG4CPLUS_DEBUG(getApplicationLogger(),"histogram name and title: " << histName.str() << ", " << histTitle.str()
+      << "(" << nBins << " bins)");
+
     histos[hi] = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
   }
 
