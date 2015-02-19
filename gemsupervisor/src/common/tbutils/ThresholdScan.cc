@@ -25,7 +25,7 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::ThresholdScan)
 
 void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
-  latency   = 128U;
+  latency   = 12U;
   minThresh = -25;
   maxThresh = 0;
   stepSize  = 1U;
@@ -440,7 +440,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   ss << "chanthresh0.png";
   std::string imgName = ss.str();
   outputCanvas->cd();
-  histo->Draw("histfill");
+  histo->Draw("ep0l");
   outputCanvas->Update();
   outputCanvas->SaveAs(TString(imgRoot+imgName));
 
@@ -451,7 +451,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     ss << "chanthresh" << (chan+1) << ".png";
     imgName = ss.str();
     outputCanvas->cd();
-    histos[chan]->Draw("histfill");
+    histos[chan]->Draw("ep0l");
     outputCanvas->Update();
     outputCanvas->SaveAs(TString(imgRoot+imgName));
   }
@@ -1198,7 +1198,7 @@ void gem::supervisor::tbutils::ThresholdScan::resetAction(toolbox::Event::Refere
   is_working_ = true;
   gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
   
-  scanParams_.bag.latency   = 128U;
+  scanParams_.bag.latency   = 12U;
   scanParams_.bag.minThresh = -25;
   scanParams_.bag.maxThresh = 0;
   scanParams_.bag.stepSize  = 1U;
