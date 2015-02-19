@@ -80,6 +80,10 @@ namespace gem {
                  */
                 int getNumberOfCrates()
                     throw (xgi::exception::Exception);
+                std::string getCurrentCrateId(unsigned int crateNumber)
+                    throw (xgi::exception::Exception);
+                int getCurrentCrateNumberOfGLIBs(std::string& crateID)
+                    throw (xgi::exception::Exception);
 
             protected:
             private:
@@ -89,6 +93,7 @@ namespace gem {
                 std::string xmlConfigFileName_;
                 gem::base::utils::gemXMLparser *gemXMLparser_;
                 std::vector<gem::base::utils::gemCrateProperties*> crateRefs_;
+                std::vector<gem::base::utils::gemGLIBProperties*> glibRefs_;
         }; // end namespace hwMon
     }
 } // end namespace gem

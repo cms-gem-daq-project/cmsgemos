@@ -36,6 +36,10 @@ namespace gem {
 		            throw (xgi::exception::Exception);
                 void getCratesConfiguration(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
+                void expandCrate(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void cratePanel(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
 /*
                 static void createVFATInfoLayout(       xgi::Output *out,
                         const gem::hw::vfat::VFAT2ControlParams params){}
@@ -58,6 +62,7 @@ namespace gem {
                 gem::hwMonitor::gemHwMonitorBase *gemHwMonitorBase_;
                 bool crateCfgAvailable_;
                 int nCrates_;
+                std::string crateToShow;
         };// end class gemHwMonitorWeb
     }// end namespace hwMonitor
 }// end namespace gem
