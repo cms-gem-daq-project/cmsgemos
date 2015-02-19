@@ -25,6 +25,25 @@ void gem::hwMonitor::gemHwMonitorBase::getSystemConfiguration()
 int gem::hwMonitor::gemHwMonitorBase::getNumberOfCrates()
     throw (xgi::exception::Exception)
 { 
-    return (crateRefs_.end() - crateRefs_.begin());
+    return crateRefs_.size();
     //return 0;
+}
+std::string gem::hwMonitor::gemHwMonitorBase::getCurrentCrateId(unsigned int crateNumber)
+    throw (xgi::exception::Exception)
+{
+    return crateRefs_.at(crateNumber)->getDeviceId();
+}
+int gem::hwMonitor::gemHwMonitorBase::getCurrentCrateNumberOfGLIBs(std::string& crateID)
+    throw (xgi::exception::Exception)
+{
+    int crateNumber=0;
+    for (unsigned int i = 0; i<crateRefs_.size(); i++)
+        {
+            if (crateID==crateRefs_.at(i)->getDeviceId()) {
+                crateNumber = i;
+                break;
+            }
+        }
+    glibRefs_ = crateRefs_.at(crateNumber)->getGLIBRefs(); 
+    return glibRefs_.size();
 }

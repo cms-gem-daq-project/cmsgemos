@@ -10,6 +10,8 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::controlPanel, "Control Panel");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::setConfFile,"setConfFile");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::getCratesConfiguration,"getCratesConfiguration");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandCrate,"expandCrate");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::cratePanel,"cratePanel");
     gemHwMonitorBase_ = new gem::hwMonitor::gemHwMonitorBase();
     crateCfgAvailable_ = false;
 }
@@ -208,30 +210,76 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
 void gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    //*out << cgicc::table().set("border","0");
+    // Cell with "Get crates configuration" button
+    //*out << cgicc::td();
     std::string methodGetCratesCfg = toolbox::toString("/%s/getCratesConfiguration", getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","POST").set("action", methodGetCratesCfg) << std::endl ;
     *out << cgicc::input().set("type","submit").set("value","Get crates configuration") << "    " << std::endl;
     *out << cgicc::form() << std::endl ;
-    *out << cgicc::input().set("type","submit").set("value","Test all crates") << 
-        cgicc::br() << std::endl;
+    //*out << cgicc::td();
+    // Cell with "Test all crates" button
+    //*out << cgicc::td();
+    //std::string methodTestAllCrates = toolbox::toString("/%s/testAllCrates", getApplicationDescriptor()->getURN().c_str());
+    //*out << cgicc::form().set("method","POST").set("action", methodTestAllCrates) << std::endl ;
+    //*out << cgicc::input().set("type","submit").set("value","Test all crates") << "    " << std::endl;
+    //*out << cgicc::form() << std::endl ;
+    //*out << cgicc::td();
+    //*out << cgicc::table();
     // If crates config is not available yet prompt to get it
     if (!crateCfgAvailable_) {
         *out << "Crate configuration isn't available. Please, get the crates configuration" << cgicc::br() <<std::endl;
     } else {
-        *out << "Number of crates = " << nCrates_ << cgicc::br() << std::endl;
+        *out << "&nbsp" << cgicc::br() << std::endl;
+        *out << "Crates configuration from XML. In order to check their state press 'Test all crates' button" << 
+            cgicc::br() << std::endl;
+        *out << cgicc::table().set("border","0");
+        std::string methodExpandCrate = toolbox::toString("/%s/expandCrate", getApplicationDescriptor()->getURN().c_str());
+        std::string methodSelectCrate = toolbox::toString("/%s/selectCrate", getApplicationDescriptor()->getURN().c_str());
+        for (int i=0; i<nCrates_; i++) {
+            std::string currentCrateID;
+            currentCrateID += gemHwMonitorBase_->getCurrentCrateId(i);
+            *out << cgicc::td();
+                *out << cgicc::table().set("border","0");
+                *out << cgicc::tr();
+                    *out << cgicc::td().set("align","center");
+                    *out << cgicc::form().set("method","POST").set("action", methodSelectCrate) << std::endl ;
+                    *out << cgicc::input().set("type","checkbox").set("name","crateCheckBox").set("value",currentCrateID) << std::endl;
+                    *out << cgicc::form() << std::endl ;
+                    *out << cgicc::td();
+                *out << cgicc::tr();
+                *out << cgicc::tr();
+                    *out << cgicc::form().set("method","POST").set("action", methodExpandCrate) << std::endl ;
+                    *out << cgicc::input().set("type","submit").set("name","crateButton").set("value",currentCrateID) << std::endl;
+                    *out << cgicc::form() << std::endl ;
+                *out << cgicc::tr();
+                *out << cgicc::tr();
+                    *out << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/green.jpg").set("width","84") << std::endl;
+                *out << cgicc::tr();
+                *out << cgicc::table();
+            *out << cgicc::td();
+        }
+        *out << cgicc::table();
+        *out << cgicc::br();
+        *out << cgicc::table().set("border","0");
+        
+        *out << cgicc::td();
+        std::string b22 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::form().set("method","GET").set("action",b22) << std::endl ;
+        *out << cgicc::input().set("type","submit").set("value","Check availability of selected crates") << std::endl ;
+        *out << cgicc::form();
+        *out << cgicc::td();
+        
+        *out << cgicc::td();
+        std::string b23 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::form().set("method","GET").set("action",b23) << std::endl ;
+        *out << cgicc::input().set("type","submit").set("value","Test selected crates") << std::endl ;
+        *out << cgicc::form();
+        *out << cgicc::td();
+        
+        *out << cgicc::table();
+        *out << cgicc::br();
     }
-/*    *out << "Dummy: will show crates from the CFG and their status" <<
-        cgicc::br() << "The color of the button will show crate state (OK, ERROR, N/A)" << 
-        cgicc::br() << "&nbsp" << 
-        cgicc::br() << std::endl;
-    *out << cgicc::input().set("type","submit").set("value","Crate #1") << "    " <<
-        cgicc::input().set("type","submit").set("value","Crate #2") << "    " <<
-        cgicc::input().set("type","submit").set("value","Crate #3") << "    " << std::endl;
-    *out << cgicc::br() << std::endl;
-    *out << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/green.jpg").set("width","88") << 
-    "    " << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/yellow.jpg").set("width","88") << 
-    "    " << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/red.jpg").set("width","88") << std::endl;
-*/      
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::showCrateUtilities(xgi::Input * in, xgi::Output * out )
@@ -339,4 +387,29 @@ throw (xgi::exception::Exception)
     crateCfgAvailable_ = true;
     nCrates_ = gemHwMonitorBase_->getNumberOfCrates();
     this->controlPanel(in,out);
+}
+void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    cgicc::Cgicc cgi(in);
+    crateToShow = cgi.getElement("crateButton")->getValue();
+    this->cratePanel(in,out);
+}
+void gem::hwMonitor::gemHwMonitorWeb::cratePanel(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    int nGLIBs = gemHwMonitorBase_->getCurrentCrateNumberOfGLIBs(crateToShow);
+    *out << cgicc::h1("Crate ID: "+crateToShow)<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::h2("Basic crate variables")<< std::endl;
+    *out << cgicc::br()<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::h2("Connected AMC13")<< std::endl;
+    *out << cgicc::br()<< std::endl;
+    *out << "There are no AMC13 boards" << cgicc::br();
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::h2("Connected GLIB's")<< std::endl;
+    *out << cgicc::br()<< std::endl;
+    *out << "Number of connected GLIBs: " << nGLIBs << cgicc::br();
+    *out << cgicc::hr()<< std::endl;
 }
