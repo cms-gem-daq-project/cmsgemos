@@ -63,6 +63,9 @@ namespace gem {
                     throw (xgi::exception::Exception)
 		            {return boardStatus_;}
 
+                void setBoardStatus (unsigned int boardStatus)
+                    throw (xgi::exception::Exception)
+		            {boardStatus_ = boardStatus;}
                 /*
                  *   Initialize XML parser
                  */

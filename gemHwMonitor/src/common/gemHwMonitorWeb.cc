@@ -69,133 +69,7 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
         *out << cgicc::hr()<< std::endl;
         *out << cgicc::br();
 
-	    this->showCrateUtilities(in,out);
-
-        ///////////////////////////////////////////////
-        //
-        // Crate Utilities
-        //
-        ///////////////////////////////////////////////
-
-        ///////////////////////////////////////////////
-        //
-        // Crate Configuration
-        //
-        ///////////////////////////////////////////////
-
-        *out << cgicc::h1("Current Crate Configuration");
-
-        *out << cgicc::h2("MCH Boards");
-        /*if (MCHIds.size()) {
-            for (unsigned int i = 0; i < MCHIds.size(); i++) {
-                *out << "MCH Board: " << MCHIds[i] << cgicc::br();
-
-                *out << cgicc::table().set("border","0");
-
-                *out << cgicc::td();
-                std::string f1 = toolbox::toString("/%s/MCHStatus",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f1) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","MCH Status") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::td();
-                std::string f2 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f2) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","MCH Tests") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::td();
-                std::string f3 = toolbox::toString("/%s/MCHUtils",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f3) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","MCH Utils") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::table();
-            }
-        }
-        else */
-	*out << "There are no MCH boards" << cgicc::br();
-        *out << cgicc::br();
-
-        *out << cgicc::h2("AMC13 Boards");
-        /*if (AMCIds.size()) {
-            for (unsigned int i = 0; i < AMCIds.size(); i++) {
-                *out << "AMC13 Board: " << AMCIds[i] << cgicc::br();
-
-                *out << cgicc::table().set("border","0");
-
-                *out << cgicc::td();
-                std::string f1 = toolbox::toString("/%s/AMCStatus",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f1) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","AMC13 Status") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::td();
-                std::string f2 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f2) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","AMC13 Tests") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::td();
-                std::string f3 = toolbox::toString("/%s/AMCUtils",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f3) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","AMC13 Utils") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::table();
-            }
-        }
-        else*/ *out << "There are no AMC13 boards" << cgicc::br();
-        *out << cgicc::br();
-
-        *out << cgicc::h2("GLIB Boards");
-        /*if (GLIBIds.size()) {
-            for (unsigned int i = 0; i < GLIBIds.size(); i++) {
-                *out << "GLIB Board: " << GLIBIds[i] << cgicc::br();
-
-                *out << cgicc::table().set("border","0");
-
-                *out << cgicc::td();
-                std::string f1 = toolbox::toString("/%s/GLIBStatus",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f1) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","GLIB Status") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::td();
-                std::string f2 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f2) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","GLIB Tests") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::td();
-                std::string f3 = toolbox::toString("/%s/GLIBUtils",getApplicationDescriptor()->getURN().c_str());
-                *out << cgicc::form().set("method","GET").set("action",f3) << std::endl ;
-                *out << cgicc::input().set("type","submit").set("value","GLIB Utils") << std::endl ;
-                *out << cgicc::form();
-                *out << cgicc::td();
-
-                *out << cgicc::table();
-            }
-        }
-        else */*out << "There are no GLIB boards" << cgicc::br();
-        *out << cgicc::br();
-
-        std::string method = toolbox::toString("/%s/controlVFAT2",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","POST")
-            .set("action",method)
-            << std::endl;
-        *out << cgicc::script().set("type","text/javascript")
-            .set("src","/gemdaq/gemhardware/html/scripts/toggleVFATCheckboxes.js")
-            << cgicc::script() << cgicc::br()
-            << std::endl;
+	    //this->showCrateUtilities(in,out);
     }
 
     catch (const xgi::exception::Exception& e) {
@@ -210,32 +84,21 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
 void gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
-    //*out << cgicc::table().set("border","0");
-    // Cell with "Get crates configuration" button
-    //*out << cgicc::td();
     std::string methodGetCratesCfg = toolbox::toString("/%s/getCratesConfiguration", getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","POST").set("action", methodGetCratesCfg) << std::endl ;
     *out << cgicc::input().set("type","submit").set("value","Get crates configuration") << "    " << std::endl;
     *out << cgicc::form() << std::endl ;
-    //*out << cgicc::td();
-    // Cell with "Test all crates" button
-    //*out << cgicc::td();
-    //std::string methodTestAllCrates = toolbox::toString("/%s/testAllCrates", getApplicationDescriptor()->getURN().c_str());
-    //*out << cgicc::form().set("method","POST").set("action", methodTestAllCrates) << std::endl ;
-    //*out << cgicc::input().set("type","submit").set("value","Test all crates") << "    " << std::endl;
-    //*out << cgicc::form() << std::endl ;
-    //*out << cgicc::td();
-    //*out << cgicc::table();
     // If crates config is not available yet prompt to get it
     if (!crateCfgAvailable_) {
         *out << "Crate configuration isn't available. Please, get the crates configuration" << cgicc::br() <<std::endl;
     } else {
         *out << "&nbsp" << cgicc::br() << std::endl;
-        *out << "Crates configuration from XML. In order to check their state press 'Test all crates' button" << 
+        *out << "Crates configuration is taken from XML. In order to check their availability please select needed crates and press 'Check selected crates availability' button. " << 
+        "To have more information about their state press 'Test selected crates' button" << 
             cgicc::br() << std::endl;
-        *out << cgicc::table().set("border","0");
         std::string methodExpandCrate = toolbox::toString("/%s/expandCrate", getApplicationDescriptor()->getURN().c_str());
         std::string methodSelectCrate = toolbox::toString("/%s/selectCrate", getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::table().set("border","0");
         for (int i=0; i<nCrates_; i++) {
             std::string currentCrateID;
             currentCrateID += gemHwMonitorBase_->getCurrentCrateId(i);
@@ -261,8 +124,8 @@ throw (xgi::exception::Exception)
         }
         *out << cgicc::table();
         *out << cgicc::br();
+
         *out << cgicc::table().set("border","0");
-        
         *out << cgicc::td();
         std::string b22 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
         *out << cgicc::form().set("method","GET").set("action",b22) << std::endl ;
