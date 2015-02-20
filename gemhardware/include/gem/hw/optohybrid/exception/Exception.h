@@ -1,14 +1,14 @@
-#ifndef gem_hw_glib_exception_Exception_h
-#define gem_hw_glib_exception_Exception_h
+#ifndef gem_hw_optohybrid_exception_Exception_h
+#define gem_hw_optohybrid_exception_Exception_h
 
 #include <string>
 
 #include "gem/hw/exception/Exception.h"
 
-#define GEM_HW_GLIB_DEFINE_EXCEPTION(EXCEPTION_NAME)			\
+#define GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(EXCEPTION_NAME)			\
   namespace gem {							\
     namespace hw {							\
-      namespace glib {							\
+      namespace optohybrid {							\
 	namespace exception {						\
 	  class EXCEPTION_NAME : virtual public xcept::Exception	\
 	    {								\
@@ -37,25 +37,25 @@
     }                                                                   \
   } 
 
-// The gem::hw::glib exceptions.
-GEM_HW_GLIB_DEFINE_EXCEPTION(Exception)
-GEM_HW_GLIB_DEFINE_EXCEPTION(ConfigurationParseProblem)
-GEM_HW_GLIB_DEFINE_EXCEPTION(ConfigurationProblem)
-GEM_HW_GLIB_DEFINE_EXCEPTION(ConfigurationValidationProblem)
+// The gem::hw::optohybrid exceptions.
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(Exception)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ConfigurationParseProblem)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ConfigurationProblem)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ConfigurationValidationProblem)
 
-GEM_HW_GLIB_DEFINE_EXCEPTION(HardwareProblem)
-GEM_HW_GLIB_DEFINE_EXCEPTION(NonexistentChannel)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(HardwareProblem)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(InvalidLink)
 
-GEM_HW_GLIB_DEFINE_EXCEPTION(RCMSNotificationError)
-GEM_HW_GLIB_DEFINE_EXCEPTION(SOAPTransitionProblem)
-GEM_HW_GLIB_DEFINE_EXCEPTION(TransitionProblem)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(RCMSNotificationError)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(SOAPTransitionProblem)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(TransitionProblem)
 
-GEM_HW_GLIB_DEFINE_EXCEPTION(SoftwareProblem)
-GEM_HW_GLIB_DEFINE_EXCEPTION(ValueError)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(SoftwareProblem)
+GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ValueError)
 
-// The gem::hw::glib alarms.
-#define GEM_HW_GLIB_DEFINE_ALARM(ALARM_NAME) GEM_HW_GLIB_DEFINE_EXCEPTION(ALARM_NAME)
+// The gem::hw::optohybrid alarms.
+#define GEM_HW_OPTOHYBRID_DEFINE_ALARM(ALARM_NAME) GEM_HW_OPTOHYBRID_DEFINE_EXCEPTION(ALARM_NAME)
 
-GEM_HW_GLIB_DEFINE_ALARM(MonitoringFailureAlarm)
+GEM_HW_OPTOHYBRID_DEFINE_ALARM(MonitoringFailureAlarm)
 
-#endif // gem_hw_glib_exception_Exception_h
+#endif // gem_hw_optohybrid_exception_Exception_h
