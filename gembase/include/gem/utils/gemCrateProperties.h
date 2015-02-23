@@ -15,7 +15,7 @@ namespace gem {
     namespace base {
         namespace utils {
             class gemCrateProperties: public gemDeviceProperties {
-                friend class gem::base::utils::gemXMLparser;
+                friend class gemXMLparser;
                 gemCrateProperties();
                 ~gemCrateProperties();
                 const std::vector<gem::base::utils::gemGLIBProperties*>& getGLIBRefs() {return subDevicesRefs_;}

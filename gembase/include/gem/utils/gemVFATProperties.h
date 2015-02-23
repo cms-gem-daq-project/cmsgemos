@@ -14,9 +14,10 @@ namespace gem {
     namespace base {
         namespace utils {
             class gemVFATProperties: public gemDeviceProperties {
-                friend class gem::base::utils::gemXMLparser;
-                gemVFATProperties();
-                ~gemVFATProperties();
+                friend class gemXMLparser;
+                public:
+                    gemVFATProperties();
+                    ~gemVFATProperties();
             };
         }
     }

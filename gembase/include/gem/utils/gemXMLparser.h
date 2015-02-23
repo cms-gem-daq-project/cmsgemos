@@ -20,7 +20,7 @@ namespace gem {
             {
 
                 public:
-                    gemXMLparser(std::string& xmlFile);
+                    gemXMLparser(const std::string& xmlFile);
 
                     ~gemXMLparser();
 
