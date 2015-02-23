@@ -12,7 +12,8 @@ namespace gem {
     namespace base {
         namespace utils {
             class gemDeviceProperties {
-                friend class gem::base::utils::gemXMLparser;
+                friend class gemXMLparser;
+                public:
                 gemDeviceProperties();
                 ~gemDeviceProperties();
                 const std::string& getDeviceId() const {return deviceId_;}
