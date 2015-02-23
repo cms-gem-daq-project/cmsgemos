@@ -51,6 +51,11 @@ namespace gem {
                      */
                     void parseVFAT2Settings(xercesc::DOMNode * pNode);
 
+                    /**
+                     *   Count child nodes of element type of the given XML node
+                     */
+                    int countChildElementNodes(xercesc::DOMNode * pNode);
+
                     const std::vector<gemCrateProperties*>& getCrateRefs() {return crateRefs_;}
 
                 private:
