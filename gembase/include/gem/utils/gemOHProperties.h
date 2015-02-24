@@ -16,6 +16,7 @@ namespace gem {
         namespace utils {
             class gemOHProperties: public gemDeviceProperties {
                 friend class gemXMLparser;
+                public:
                 gemOHProperties();
                 ~gemOHProperties();
                 const std::vector<gem::base::utils::gemVFATProperties*>& getVFATRefs() {return subDevicesRefs_;}

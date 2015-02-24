@@ -7,6 +7,7 @@ namespace gem {
     namespace base {
        namespace utils {
            class gemXMLparcer;
+           class gemCrateProperties;
            class gemGLIBProperties;
         }
     }
@@ -14,18 +15,18 @@ namespace gem {
         class gemGLIBMonitor: public gemHwMonitorBase
             {
                 public:
-                gemGLIBMonitor()
+                gemGLIBMonitor(gem::base::utils::gemGLIBProperties& glibRef)
                     throw (xgi::exception::Exception);
                 ~gemGLIBMonitor()
                     throw (xgi::exception::Exception);
 
-                void setGLIBRefs()
+                void setGLIBRef()
                     throw (xgi::exception::Exception);
-                void getGLIBRefs()
+                void getGLIBRef()
                     throw (xgi::exception::Exception);
                 
                 private:
-                std::vector<gem::base::utils::gemGLIBProperties*> glibRefs_;
+                gem::base::utils::gemGLIBProperties glibRef_;
             }
     }
 }
