@@ -16,6 +16,7 @@ namespace gem {
         namespace utils {
             class gemGLIBProperties: public gemDeviceProperties {
                 friend class gemXMLparser;
+                public:
                 gemGLIBProperties();
                 ~gemGLIBProperties();
                 const std::vector<gem::base::utils::gemOHProperties*>& getOHRefs() {return subDevicesRefs_;}
