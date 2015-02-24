@@ -28,7 +28,8 @@ gem::hw::vfat::GEMController::GEMController(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &GEMController::OHUtils,"OHUtils"); 
     xgi::framework::deferredbind(this, this, &GEMController::VFAT2Manager,"VFAT2Manager"); 
 
-    device_ = "CMS_hybrid_J8";
+    //device_ = "CMS_hybrid_J8";
+    device_ = "VFAT9";
     settingsFile_ = "";
 
     // Detect when the setting of default parameters has been performed
@@ -432,7 +433,7 @@ throw (xgi::exception::Exception)
     struct stat buffer;
     if (stat(newFile.c_str(), &buffer) == 0) {
         settingsFile_ = newFile;
-        parseXMLFile();
+        //parseXMLFile();
         if (fileError.size()) fileWarning = fileError;
         else {
             if (crateIds.size() == 0) {
@@ -761,7 +762,7 @@ throw (xgi::exception::Exception)
     void gem::hw::vfat::GEMController::Default(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
-    parseXMLFile();
+    //parseXMLFile();
 
     this->ControlPanel(in,out);
 }
