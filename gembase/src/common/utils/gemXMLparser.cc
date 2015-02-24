@@ -141,7 +141,7 @@ void gem::base::utils::gemXMLparser::parseGEMSystem(xercesc::DOMNode * pNode)
                     //currentCrateId = crateIds[0];
                 //}
                 std::cout << "[XML PARSER]: GEM system parsing: uTCA crate found" << std::endl;
-                if (n->hasChildNodes()) {
+                if (countChildElementNodes(n)) {
                     std::cout << "[XML PARSER]: GEM system parsing: uTCA crate is not empty" << std::endl;
                     gem::base::utils::gemCrateProperties* crate = new gem::base::utils::gemCrateProperties::gemCrateProperties();
                     std::cout << "[XML PARSER]: GEM system parsing: new crate properties object created" << std::endl;
@@ -188,7 +188,7 @@ void gem::base::utils::gemXMLparser::parseCrate(xercesc::DOMNode * pNode)
                 //GLIBIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue()));
                 //if (cur) parseGLIB(n);
                 std::cout << "[XML PARSER]: crate parsing: GLIB found" << std::endl;
-                if (n->hasChildNodes()) {
+                if (countChildElementNodes(n)) {
                     std::cout << "[XML PARSER]: crate parsing: GLIB is not empty" << std::endl;
                     gem::base::utils::gemGLIBProperties* glib = new gem::base::utils::gemGLIBProperties::gemGLIBProperties();
                     std::cout << "[XML PARSER]: crate parsing: create new GLIBproperties object" << std::endl;
@@ -217,7 +217,7 @@ void gem::base::utils::gemXMLparser::parseGLIB(xercesc::DOMNode * pNode)
             if (strcmp("OH",xercesc::XMLString::transcode(n->getNodeName()))==0) {
                 //OHIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue()));
                 std::cout << "[XML PARSER]: GLIB parsing: OH found" << std::endl;
-                if (n->hasChildNodes()) {
+                if (countChildElementNodes(n)) {
                     gem::base::utils::gemOHProperties* oh = new gem::base::utils::gemOHProperties::gemOHProperties();
                     std::cout << "[XML PARSER]: GLIB parsing: create new OHproperties obect" << std::endl;
                     oh->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue());
@@ -243,7 +243,7 @@ void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
         {    
             if (strcmp("VFATSettings",xercesc::XMLString::transcode(n->getNodeName()))==0) 
                 std::cout << "[XML PARSER]: OH parsing: VFATSettings tag found" << std::endl;
-                if (n->hasChildNodes()) {
+                if (countChildElementNodes(n)) {
                     gem::base::utils::gemVFATProperties* vfat = new gem::base::utils::gemVFATProperties::gemVFATProperties();
                     std::cout << "[XML PARSER]: OH parsing: create new VFATproperties object" << std::endl;
                     vfat->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("VFATId"))->getNodeValue());
@@ -401,4 +401,16 @@ void gem::base::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode
         }    
         n = n->getNextSibling();
     }
+}
+
+int gem::base::utils::gemXMLparser::countChildElementNodes(xercesc::DOMNode * pNode) {
+    int count = 0;
+    if (pNode->hasChildNodes()) {
+        xercesc::DOMNode * n = pNode->getFirstChild();
+        while (n) {
+            if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) count++;
+            n = n->getNextSibling();
+        }
+    }
+    return count;
 }
