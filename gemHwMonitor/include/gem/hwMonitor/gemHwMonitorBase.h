@@ -9,7 +9,7 @@
 #include "xgi/framework/Method.h"
 
 #include "gem/utils/gemXMLparser.h"
-#include "gem/utils/gemHwProperties.h"
+#include "gem/utils/gemCrateProperties.h"
 
 namespace gem {
     namespace base {
@@ -46,15 +46,15 @@ namespace gem {
                 /**
                  *   Select one of available devices
                  */
-                void setDeviceID(std::string deviceID)
+                void setDeviceId(std::string deviceId)
                     throw (xgi::exception::Exception)
-		            {deviceID_ = deviceID;}
+		            {deviceId_ = deviceId;}
                 /**
                  *   Get selected device
                  */
-                std::string getDeviceID()
+                std::string getDeviceId()
                     throw (xgi::exception::Exception)
-		            {return deviceID_;}
+		            {return deviceId_;}
                 /**
                  *   Get device status
                  *   0 - device is working well, 1 - device has errors, 2 - device status unknown
@@ -85,6 +85,9 @@ namespace gem {
                     throw (xgi::exception::Exception)
                     {return subDevicesRefs_.size();}
 
+                std::string getCurrentSubDeviceId(unsigned int subDeviceNumber)
+                                    throw (xgi::exception::Exception);
+
                 /**
                  *   Access to board utils
                 virtual void boardUtils ()
@@ -92,12 +95,11 @@ namespace gem {
                  */
             protected:
             private:
-                std::string currentDeviceID_;
                 unsigned int deviceStatus_; // 0 - device is working well, 1 - device has errors, 2 - device status unknown
-                std::string deviceID_;
+                std::string deviceId_;
                 std::string xmlConfigFileName_;
                 gem::base::utils::gemXMLparser *gemXMLparser_;
-                std::vector<gem::base::utils::gemDeviceProperties*> subDevicesRefs_;
+                std::vector<gem::base::utils::gemCrateProperties*> subDevicesRefs_;
         }; // end namespace hwMon
     }
 } // end namespace gem

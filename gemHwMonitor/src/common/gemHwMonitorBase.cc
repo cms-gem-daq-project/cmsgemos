@@ -6,7 +6,8 @@
 gem::hwMonitor::gemHwMonitorBase::gemHwMonitorBase()
     throw (xdaq::exception::Exception)
 {
-    std::string defaulXMLcfgFile = std::getenv("BUILD_HOME")+"gemdaq-testing/gembase/xml/gem_conf.xml";
+    std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
+    defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf.xml";
     this->setXMLconfigFile(defaulXMLcfgFile);
     this->setDeviceId("GEM");
     this->setDeviceStatus(2);
@@ -24,7 +25,7 @@ void gem::hwMonitor::gemHwMonitorBase::getDeviceConfiguration()
     gemXMLparser_->parseXMLFile();
     subDevicesRefs_ = gemXMLparser_->getCrateRefs();
 }
-std::string gem::hwMonitor::gemHwMonitorBase::getCurrentSubdeviceId(unsigned int subDeviceNumber)
+std::string gem::hwMonitor::gemHwMonitorBase::getCurrentSubDeviceId(unsigned int subDeviceNumber)
     throw (xgi::exception::Exception)
 {
     return subDevicesRefs_.at(subDeviceNumber)->getDeviceId();
