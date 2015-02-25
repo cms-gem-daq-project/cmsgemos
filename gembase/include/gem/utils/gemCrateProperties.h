@@ -19,10 +19,8 @@ namespace gem {
                 public:
                 gemCrateProperties();
                 ~gemCrateProperties();
-                const std::vector<gem::base::utils::gemGLIBProperties*>& getGLIBRefs() {return subDevicesRefs_;}
 
                 private:
-                std::vector <gem::base::utils::gemGLIBProperties*> subDevicesRefs_;
             };
         }
     }
