@@ -12,11 +12,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
+#include "gem/utils/gemComplexDeviceProperties.h"
 namespace gem {
     namespace base {
         namespace utils {
-            //class gemCrateProperties;
-            class gemSystemProperties;
             class gemXMLparser
             {
 
@@ -56,6 +55,7 @@ namespace gem {
                     const gemSystemProperties* getGEMDevice() {return gemSystem_;}
 
                 private:
+                    static void addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat);
                     std::string xmlFile_;
                     gemSystemProperties *gemSystem_;
                     //std::vector <gemCrateProperties*> crateRefs_;

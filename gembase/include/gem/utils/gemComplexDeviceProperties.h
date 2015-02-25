@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <cstdlib>
 
 #include "gemDeviceProperties.h"
 
@@ -15,19 +17,20 @@ namespace gem {
         namespace utils {
             template <class T>
             class gemComplexDeviceProperties: public gemDeviceProperties {
-                friend class gemXMLparser;
                 public:
-                gemComplexDeviceProperties();
-                ~gemComplexDeviceProperties();
+                gemComplexDeviceProperties(){}
+                ~gemComplexDeviceProperties(){for_each(subDevicesRefs_.begin(), subDevicesRefs_.end(), free);} //Unsafe code
                 const std::vector<T*>& getSubDevicesRefs() {return subDevicesRefs_;}
+                void addSubDeviceRef(T* &&subDeviceRef) {subDevicesRefs_.push_back(subDeviceRef);}
     
                 private:
                 std::vector <T*> subDevicesRefs_;
             };
-            typedef gemComplexDeviceProperties<gem::base::utils::gemCrateProperties> gemSystemProperties;
-            typedef gemComplexDeviceProperties<gem::base::utils::gemGLIBProperties> gemCrateProperties;
-            typedef gemComplexDeviceProperties<gem::base::utils::gemOHProperties> gemGLIBProperties;
-            typedef gemComplexDeviceProperties<gem::base::utils::gemVFATProperties> gemOHProperties;
+            typedef gemDeviceProperties gemVFATProperties;
+            typedef gemComplexDeviceProperties<gemVFATProperties> gemOHProperties;
+            typedef gemComplexDeviceProperties<gemOHProperties> gemGLIBProperties;
+            typedef gemComplexDeviceProperties<gemGLIBProperties> gemCrateProperties;
+            typedef gemComplexDeviceProperties<gemCrateProperties> gemSystemProperties;
         }
     }
 }
