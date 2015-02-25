@@ -15,7 +15,8 @@
 namespace gem {
     namespace base {
         namespace utils {
-            class gemCrateProperties;
+            //class gemCrateProperties;
+            class gemDeviceProperties;
             class gemXMLparser
             {
 
@@ -51,11 +52,13 @@ namespace gem {
                      */
                     void parseVFAT2Settings(xercesc::DOMNode * pNode);
 
-                    const std::vector<gemCrateProperties*>& getCrateRefs() {return crateRefs_;}
+                    //const std::vector<gemCrateProperties*>& getCrateRefs() {return crateRefs_;}
+                    const gemDeviceProperties & getGEMDevice() {return gemDevice_;}
 
                 private:
                     std::string xmlFile_;
-                    std::vector <gemCrateProperties*> crateRefs_;
+                    gemDeviceProperties *gemDevice_;
+                    //std::vector <gemCrateProperties*> crateRefs_;
             };
         }
     }
