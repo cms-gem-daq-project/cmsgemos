@@ -194,7 +194,7 @@ void gem::base::utils::gemXMLparser::parseCrate(xercesc::DOMNode * pNode)
                     std::cout << "[XML PARSER]: crate parsing: create new GLIBproperties object" << std::endl;
                     glib->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue());
                     crateRefs_.back()->subDevicesRefs_.push_back(glib);
-                    crateRefs_.back()->subDevicesIDs_.push_back(glib->deviceId_);
+                    crateRefs_.back()->subDevicesIds_.push_back(glib->deviceId_);
                     std::cout << "[XML PARSER]: crate parsing: Add new GLIBproperties to the subdevices of parent crate" << std::endl;
                     parseGLIB(n);
                 }
@@ -222,7 +222,7 @@ void gem::base::utils::gemXMLparser::parseGLIB(xercesc::DOMNode * pNode)
                     std::cout << "[XML PARSER]: GLIB parsing: create new OHproperties obect" << std::endl;
                     oh->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue());
                     crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(oh);
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesIDs_.push_back(oh->deviceId_);
+                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesIds_.push_back(oh->deviceId_);
                     std::cout << "[XML PARSER]: GLIB parsing: Add new OHproperties to the subdevices of parent device" << std::endl;
                     parseOH(n);
                 }
@@ -250,7 +250,7 @@ void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
                     std::cout << "[XML PARSER]: OH parsing: retrieve VFAT device ID" << std::endl;
                     crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(vfat);
                     std::cout << "[XML PARSER]: OH parsing: add new VFATproperties to the subdevices of the parent device" << std::endl;
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesIDs_.push_back(vfat->deviceId_);
+                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesIds_.push_back(vfat->deviceId_);
                     std::cout << "[XML PARSER]: OH parsing: add VFAT device ID to the subdevices of the parent device" << std::endl;
                     parseVFAT2Settings(n);
                 }
