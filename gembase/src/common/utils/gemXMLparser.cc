@@ -18,7 +18,8 @@ gem::base::utils::gemXMLparser::gemXMLparser(const std::string& xmlFile)
 
 gem::base::utils::gemXMLparser::~gemXMLparser()
 {
-    for (std::vector<gemCrateProperties*>::iterator crate = crateRefs_.begin(); crate != crateRefs_.end(); ++crate) {
+    //for (std::vector<gemCrateProperties*>::iterator crate = crateRefs_.begin(); crate != crateRefs_.end(); ++crate) {
+    for (std::vector<gemCrateProperties*>::iterator crate = gemDevice_->subDevicesRefs.begin(); crate != gemDevice_->subDevicesRefs.end(); ++crate) {
         for (std::vector<gem::base::utils::gemGLIBProperties*>::iterator glib = (*crate)->subDevicesRefs_.begin(); glib != (*crate)->subDevicesRefs_.end(); ++glib) {
             for (std::vector<gem::base::utils::gemOHProperties*>::iterator oh = (*glib)->subDevicesRefs_.begin(); oh != (*glib)->subDevicesRefs_.end(); ++oh) {
                 for (std::vector<gem::base::utils::gemVFATProperties*>::iterator vfat = (*oh)->subDevicesRefs_.begin(); vfat != (*oh)->subDevicesRefs_.end(); ++vfat) {
@@ -146,7 +147,8 @@ void gem::base::utils::gemXMLparser::parseGEMSystem(xercesc::DOMNode * pNode)
                     gem::base::utils::gemCrateProperties* crate = new gem::base::utils::gemCrateProperties::gemCrateProperties();
                     std::cout << "[XML PARSER]: GEM system parsing: new crate properties object created" << std::endl;
                     crate->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateId"))->getNodeValue());
-                    crateRefs_.push_back(crate);
+                    //crateRefs_.push_back(crate);
+                    gemDevice_->subDevicesRefs.push_back(crate);
                     std::cout << "[XML PARSER]: GEM system parsing: new crate properties object added to crateRefs" << std::endl;
                     parseCrate(n);
                 }
@@ -193,8 +195,10 @@ void gem::base::utils::gemXMLparser::parseCrate(xercesc::DOMNode * pNode)
                     gem::base::utils::gemGLIBProperties* glib = new gem::base::utils::gemGLIBProperties::gemGLIBProperties();
                     std::cout << "[XML PARSER]: crate parsing: create new GLIBproperties object" << std::endl;
                     glib->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue());
-                    crateRefs_.back()->subDevicesRefs_.push_back(glib);
-                    crateRefs_.back()->subDevicesIds_.push_back(glib->deviceId_);
+                    //crateRefs_.back()->subDevicesRefs_.push_back(glib);
+                    //crateRefs_.back()->subDevicesIds_.push_back(glib->deviceId_);
+                    gemDevice_->subDevicesRefs.back()->subDevicesRefs_.push_back(glib);
+                    gemDevice_->subDevicesRefs.back()->subDevicesIds_.push_back(glib->deviceId_);
                     std::cout << "[XML PARSER]: crate parsing: Add new GLIBproperties to the subdevices of parent crate" << std::endl;
                     parseGLIB(n);
                 }
@@ -221,8 +225,10 @@ void gem::base::utils::gemXMLparser::parseGLIB(xercesc::DOMNode * pNode)
                     gem::base::utils::gemOHProperties* oh = new gem::base::utils::gemOHProperties::gemOHProperties();
                     std::cout << "[XML PARSER]: GLIB parsing: create new OHproperties obect" << std::endl;
                     oh->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue());
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(oh);
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesIds_.push_back(oh->deviceId_);
+                    //crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(oh);
+                    //crateRefs_.back()->subDevicesRefs_.back()->subDevicesIds_.push_back(oh->deviceId_);
+                    gemDevice_->subDevicesRefs.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(oh);
+                    gemDevice_->subDevicesRefs.back()->subDevicesRefs_.back()->subDevicesIds_.push_back(oh->deviceId_);
                     std::cout << "[XML PARSER]: GLIB parsing: Add new OHproperties to the subdevices of parent device" << std::endl;
                     parseOH(n);
                 }
@@ -248,9 +254,11 @@ void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
                     std::cout << "[XML PARSER]: OH parsing: create new VFATproperties object" << std::endl;
                     vfat->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("VFATId"))->getNodeValue());
                     std::cout << "[XML PARSER]: OH parsing: retrieve VFAT device ID" << std::endl;
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(vfat);
+                    //crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(vfat);
+                    gemDevice_->subDevicesRefs.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(vfat);
                     std::cout << "[XML PARSER]: OH parsing: add new VFATproperties to the subdevices of the parent device" << std::endl;
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesIds_.push_back(vfat->deviceId_);
+                    //crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesIds_.push_back(vfat->deviceId_);
+                    gemDevice_->subDevicesRefs.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesIds_.push_back(vfat->deviceId_);
                     std::cout << "[XML PARSER]: OH parsing: add VFAT device ID to the subdevices of the parent device" << std::endl;
                     parseVFAT2Settings(n);
                 }
@@ -263,7 +271,8 @@ void gem::base::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode
 {
     std::cout << "[XML PARSER]: OH parsing: start VFAT parsing" << std::endl;
     xercesc::DOMNode * n = pNode->getFirstChild();
-    gemVFATProperties* vfat = crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back();
+    //gemVFATProperties* vfat = crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back();
+    gemVFATProperties* vfat = gemDevice_->subDevicesRefs.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back();
     std::cout << "[XML PARSER]: VFAT parsing: retrieve VFAT device from the devices parent tree" << std::endl;
     while (n) {
         if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
