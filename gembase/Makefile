@@ -15,7 +15,7 @@ PackageName=base
 
 #Sources= GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc CfgParser.cc version.cc
 #Sources= GEMFSM.cc utils/GEMSOAPToolBox.cc GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc
-Sources= utils/gemXMLparser.cc utils/gemDeviceProperties.cc utils/gemSystemProperties.cc utils/gemCrateProperties.cc utils/gemGLIBProperties.cc utils/gemOHProperties.cc utils/gemVFATProperties.cc
+Sources= utils/gemXMLparser.cc 
 
 DynamicLibrary=gem_base
 
@@ -37,7 +37,7 @@ LibraryDirs = \
         $(uHALROOT)/lib
 
 UserCFlags = -O0 -g3 -fno-inline
-UserCCFlags = -O0 -g3 -fno-inline
+UserCCFlags = -O0 -g3 -fno-inline -std=c++0x
 UserDynamicLinkFlags =
 UserStaticLinkFlags =
 #UserExecutableLinkFlags = -Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib \
