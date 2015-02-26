@@ -12,7 +12,8 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::getCratesConfiguration,"getCratesConfiguration");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandCrate,"expandCrate");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::cratePanel,"cratePanel");
-    gemHwMonitorBase_ = new gem::hwMonitor::gemHwMonitorBase();
+    //gemHwMonitorSystem_ = new gem::hwMonitor::gemHwMonitorBase();
+    gemHwMonitorSystem_ = new gemHwMonitorSystem();
     crateCfgAvailable_ = false;
 }
 
@@ -45,13 +46,13 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
         //
         *out << cgicc::span().set("style","color:blue");
         *out << cgicc::b(cgicc::i("Current configuration file: ")) ;
-        *out << gemHwMonitorBase_->getXMLconfigFile() << cgicc::span() << std::endl ;
+        *out << gemHwMonitorSystem_->getXMLconfigFile() << cgicc::span() << std::endl ;
         *out << cgicc::br()<< std::endl;
         *out << cgicc::br()<< std::endl;
 
         std::string methodText = toolbox::toString("/%s/setConfFile",getApplicationDescriptor()->getURN().c_str());
         *out << cgicc::form().set("method","POST").set("action",methodText) << std::endl ;
-        *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80").set("ENCTYPE","multipart/form-data").set("value",gemHwMonitorBase_->getXMLconfigFile()) << std::endl;
+        *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80").set("ENCTYPE","multipart/form-data").set("value",gemHwMonitorSystem_->getXMLconfigFile()) << std::endl;
         *out << cgicc::input().set("type","submit").set("value","Set configuration file") << std::endl ;
         *out << cgicc::form() << std::endl ;
 
@@ -100,7 +101,7 @@ throw (xgi::exception::Exception)
         *out << cgicc::table().set("border","0");
         for (int i=0; i<nCrates_; i++) {
             std::string currentCrateID;
-            currentCrateID += gemHwMonitorBase_->getCurrentSubDeviceId(i);
+            currentCrateID += gemHwMonitorSystem_->getCurrentSubDeviceId(i);
             *out << cgicc::td();
                 *out << cgicc::table().set("border","0");
                 *out << cgicc::tr();
@@ -151,7 +152,7 @@ throw (xgi::exception::Exception)
     std::string newFile = cgi.getElement("xmlFilename")->getValue();
     struct stat buffer;
     if (stat(newFile.c_str(), &buffer) == 0) {
-        gemHwMonitorBase_->setXMLconfigFile(newFile.c_str());
+        gemHwMonitorSystem_->setXMLconfigFile(newFile.c_str());
     }
     else {
         XCEPT_RAISE(xgi::exception::Exception, "File not found");
@@ -166,7 +167,7 @@ throw (xgi::exception::Exception)
     std::string newFile = cgi.getElement("xmlFilenameUpload")->getValue();
     struct stat buffer;
     if (stat(newFile.c_str(), &buffer) == 0) {
-        gemHwMonitorBase_->setXMLconfigFile(newFile.c_str());
+        gemHwMonitorSystem_->setXMLconfigFile(newFile.c_str());
     }
     else {
         XCEPT_RAISE(xgi::exception::Exception, "File not found");
@@ -176,10 +177,10 @@ throw (xgi::exception::Exception)
 void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
-    //gemHwMonitorBase_->initParser();
-    gemHwMonitorBase_->getDeviceConfiguration();
+    //gemHwMonitorSystem_->initParser();
+    gemHwMonitorSystem_->getDeviceConfiguration();
     crateCfgAvailable_ = true;
-    nCrates_ = gemHwMonitorBase_->getNumberOfSubDevices();
+    nCrates_ = gemHwMonitorSystem_->getNumberOfSubDevices();
     this->controlPanel(in,out);
 }
 void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output * out )

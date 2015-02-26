@@ -10,15 +10,11 @@
 
 #include "gem/utils/gemXMLparser.h"
 #include "gem/utils/gemComplexDeviceProperties.h"
+#include "gem/utils/gemDeviceProperties.h"
 
 namespace gem {
-    namespace base {
-        namespace utils {
-            class gemXMLparcer;
-            class gemDeviceProperties;
-        }
-    }
     namespace hwMonitor {
+        template <class T>
         class gemHwMonitorBase
         {
             public:
@@ -83,12 +79,13 @@ namespace gem {
             private:
                 bool isConfigured_;
                 unsigned int deviceStatus_; // 0 - device is working well, 1 - device has errors, 2 - device status unknown
-                //std::string deviceId_;
                 std::string xmlConfigFileName_;
                 gem::base::utils::gemXMLparser *gemXMLparser_;
-                //std::vector<gem::base::utils::gemCrateProperties*> subDevicesRefs_;
-                gem::base::utils::gemSystemProperties* gemSystem_;
-        }; // end namespace hwMon
-    }
+                T* gemDevice_;
+        };
+
+        typedef gemHwMonitorBase<gem::base::utils::gemSystemProperties> gemHwMonitorSystem;
+    } // end namespace hwMon
 } // end namespace gem
+//#include "../../../src/common/gemHwMonitorBase.cc"
 #endif
