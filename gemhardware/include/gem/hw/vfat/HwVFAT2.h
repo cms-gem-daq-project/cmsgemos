@@ -71,11 +71,11 @@ namespace gem {
 	  //bool isHwVFATConnected();
 
 	  //special implementation of the read/write for VFATs
-	  uint32_t readReg( std::string const& regName);
-	  uint32_t readReg( std::string const& regPrefix,
-			    std::string const& regName) {
-	    std::string name = regPrefix+"."+regName;
-	    return readReg(name); };
+	  virtual uint32_t readReg( std::string const& regName);
+	  virtual uint32_t readReg( std::string const& regPrefix,
+				    std::string const& regName);
+	  //  std::string name = regPrefix+"."+regName;
+	  //  return readReg(name); };
 	  //void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
 
 	  uint8_t  readVFATReg( std::string const& regName) {

@@ -13,9 +13,7 @@ LongPackage=gemHwMonitor
 ShortPackage=hwMonitor
 PackageName=hwMonitor
 
-#Sources= GEMHwDevice.cc HwVFAT2.cc VFAT2Manager.cc VFAT2ControlPanelWeb.cc GEMController.cc GEMControllerPanelWeb.cc
 Sources= gemHwMonitorWeb.cc gemHwMonitorBase.cc
-##version.cc
 
 DynamicLibrary=gem_hwMonitor
 #IncludeDirs = $(uHALROOT)/include
