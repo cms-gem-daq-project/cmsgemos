@@ -10,6 +10,7 @@ gem::base::utils::gemXMLparser::gemXMLparser(const std::string& xmlFile)
 {
     xmlFile_ = xmlFile;
     gemSystem_ = new gemSystemProperties();
+    gemSystem_->setDeviceId("GEM");
 }
 
 
