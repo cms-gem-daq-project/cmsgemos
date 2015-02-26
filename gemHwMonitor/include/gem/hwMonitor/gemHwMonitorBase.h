@@ -19,28 +19,19 @@ namespace gem {
         {
             public:
                 gemHwMonitorBase()
-                    throw (xdaq::exception::Exception);
+                    throw (xdaq::exception::Exception)
+                {}
 
-                virtual ~gemHwMonitorBase();
+                virtual ~gemHwMonitorBase(){}
 
                 bool isConfigured()
-                    throw (xgi::exception::Exception);
-                /**
-                 *   Set XML configuration file
-                 */
-                void setXMLconfigFile (const char* inputXMLfilename)
-                    throw (xgi::exception::Exception);
-                /**
-                 *   Get XML configuration file
-                 */
-                const std::string& getXMLconfigFile ()
-                    throw (xgi::exception::Exception);
-                /**
-                 *   Select database configuration file
-                 */
-                void setDBSconfigFile (std::string inputDBSfilename)
-                    throw (xgi::exception::Exception){}
+                    throw (xgi::exception::Exception)
+                {return isConfigured_;}
 
+                void setIsConfigured(bool state)
+                    throw (xgi::exception::Exception)
+                {isConfigured_=state;}
+               
                 const std::string& getDeviceId()
                     throw (xgi::exception::Exception);
                 /**
@@ -85,6 +76,7 @@ namespace gem {
         };
 
         typedef gemHwMonitorBase<gem::base::utils::gemSystemProperties> gemHwMonitorSystem;
+        typedef gemHwMonitorBase<gem::base::utils::gemCrateProperties> gemHwMonitorCrate;
     } // end namespace hwMon
 } // end namespace gem
 //#include "../../../src/common/gemHwMonitorBase.cc"

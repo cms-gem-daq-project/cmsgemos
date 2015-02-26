@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 
 #include "gemHwMonitorBase.h"
+#include "gemHwMonitorHelper.h"
 
 namespace cgicc {
     BOOLEAN_ELEMENT(section,"section");
@@ -62,6 +63,7 @@ namespace gem {
             private:
                 //gem::hwMonitor::gemHwMonitorBase *gemHwMonitorBase_;
                 gemHwMonitorSystem* gemHwMonitorSystem_;
+                gemHwMonitorHelper* gemSystemHelper_;
                 bool crateCfgAvailable_;
                 int nCrates_;
                 std::string crateToShow;
