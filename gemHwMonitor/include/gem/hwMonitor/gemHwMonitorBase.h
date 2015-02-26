@@ -9,7 +9,7 @@
 #include "xgi/framework/Method.h"
 
 #include "gem/utils/gemXMLparser.h"
-#include "gem/utils/gemCrateProperties.h"
+#include "gem/utils/gemComplexDeviceProperties.h"
 
 namespace gem {
     namespace base {

@@ -51,8 +51,15 @@ namespace gem {
                      */
                     void parseVFAT2Settings(xercesc::DOMNode * pNode);
 
-                    //const std::vector<gemCrateProperties*>& getCrateRefs() {return crateRefs_;}
-                    const gemSystemProperties* getGEMDevice() {return gemSystem_;}
+                    /**
+                     *   Access to gemSystemProperties. A bit unsafe due to non-const pointer  
+                     */
+                    gemSystemProperties* getGEMDevice() {return gemSystem_;}
+
+                    /**
+                     *   Count child nodes of element type of the given XML node
+                     */
+                    int countChildElementNodes(xercesc::DOMNode * pNode);
 
                 private:
                     static void addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat);

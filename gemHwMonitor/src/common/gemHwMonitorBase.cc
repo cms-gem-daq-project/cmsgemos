@@ -5,7 +5,7 @@ gem::hwMonitor::gemHwMonitorBase::gemHwMonitorBase()
 {
     std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
     defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf.xml";
-    this->setXMLconfigFile(defaulXMLcfgFile);
+    this->setXMLconfigFile(defaulXMLcfgFile.c_str());
     this->setDeviceStatus(2);
 }
 
@@ -15,7 +15,7 @@ gem::hwMonitor::gemHwMonitorBase::~gemHwMonitorBase()
 }
 
 bool gem::hwMonitor::gemHwMonitorBase::isConfigured()
-    throw (xgi::exception::Exception);
+    throw (xgi::exception::Exception)
 {
     return isConfigured_;
 }
@@ -36,7 +36,7 @@ const std::string& gem::hwMonitor::gemHwMonitorBase::getDeviceId ()
     throw (xgi::exception::Exception)
 {
     if (isConfigured_){
-        return gemSystem_.getDeviceId();
+        return gemSystem_->getDeviceId();
     } else {
         return "Device is not configured";
     }
@@ -48,14 +48,14 @@ void gem::hwMonitor::gemHwMonitorBase::getDeviceConfiguration()
     gemXMLparser_ = new gem::base::utils::gemXMLparser(xmlConfigFileName_);
     gemXMLparser_->parseXMLFile();
     gemSystem_ = gemXMLparser_->getGEMDevice();
-    isConfigured = true;
+    isConfigured_ = true;
 }
 
 int gem::hwMonitor::gemHwMonitorBase::getNumberOfSubDevices()
     throw (xgi::exception::Exception)
 {
     if (isConfigured_){
-        return gemSystem_.getSubDevicesIds().size();
+        return gemSystem_->getSubDevicesIds().size();
     } else {
         return -1;
     }
@@ -64,5 +64,5 @@ int gem::hwMonitor::gemHwMonitorBase::getNumberOfSubDevices()
 std::string gem::hwMonitor::gemHwMonitorBase::getCurrentSubDeviceId(unsigned int subDeviceNumber)
     throw (xgi::exception::Exception)
 {
-    return gemSystem_.getSubDeviceRefs().at(subDeviceNumber)->getDeviceId();
+    return gemSystem_->getSubDevicesRefs().at(subDeviceNumber)->getDeviceId();
 }

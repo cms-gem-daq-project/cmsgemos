@@ -151,7 +151,7 @@ throw (xgi::exception::Exception)
     std::string newFile = cgi.getElement("xmlFilename")->getValue();
     struct stat buffer;
     if (stat(newFile.c_str(), &buffer) == 0) {
-        gemHwMonitorBase_->setXMLconfigFile(newFile);
+        gemHwMonitorBase_->setXMLconfigFile(newFile.c_str());
     }
     else {
         XCEPT_RAISE(xgi::exception::Exception, "File not found");
@@ -166,7 +166,7 @@ throw (xgi::exception::Exception)
     std::string newFile = cgi.getElement("xmlFilenameUpload")->getValue();
     struct stat buffer;
     if (stat(newFile.c_str(), &buffer) == 0) {
-        gemHwMonitorBase_->setXMLconfigFile(newFile);
+        gemHwMonitorBase_->setXMLconfigFile(newFile.c_str());
     }
     else {
         XCEPT_RAISE(xgi::exception::Exception, "File not found");

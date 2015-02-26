@@ -37,7 +37,7 @@ LibraryDirs = \
 
 UserCFlags = -O0 -g3 -fno-inline
 # -std=c++0x
-UserCCFlags = -O0 -g3 -fno-inline
+UserCCFlags = -O0 -g3 -fno-inline -std=c++0x
 # -std=c++0x
 UserDynamicLinkFlags =
 UserStaticLinkFlags =
