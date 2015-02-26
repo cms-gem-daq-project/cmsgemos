@@ -19,7 +19,7 @@ namespace gem {
             class gemComplexDeviceProperties: public gemDeviceProperties {
                 public:
                 gemComplexDeviceProperties(){}
-                ~gemComplexDeviceProperties(){for_each(subDevicesRefs_.begin(), subDevicesRefs_.end(), free);} //Unsafe code
+                ~gemComplexDeviceProperties(){for_each(subDevicesRefs_.begin(), subDevicesRefs_.end(), free);} //Unsafe code. Deletes objects created in different place.
                 const std::vector<T*>& getSubDevicesRefs() {return subDevicesRefs_;}
                 void addSubDeviceRef(T* &&subDeviceRef) {subDevicesRefs_.push_back(subDeviceRef);}
     

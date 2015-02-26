@@ -1,32 +1,68 @@
 #include "gem/hwMonitor/gemHwMonitorBase.h"
 
-//XDAQ_INSTANTIATOR_IMPL(gem::hwMonitor::gemHwMonitorBase)
-
-//gem::hwMonitor::gemHwMonitorBase::gemHwMonitorBase(xdaq::ApplicationStub * s)
 gem::hwMonitor::gemHwMonitorBase::gemHwMonitorBase()
     throw (xdaq::exception::Exception)
 {
     std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
     defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf.xml";
     this->setXMLconfigFile(defaulXMLcfgFile);
-    this->setDeviceId("GEM");
     this->setDeviceStatus(2);
 }
 
-void gem::hwMonitor::gemHwMonitorBase::initParser()
+gem::hwMonitor::gemHwMonitorBase::~gemHwMonitorBase()
+{
+    delete gemXMLparser_;
+}
+
+bool gem::hwMonitor::gemHwMonitorBase::isConfigured()
+    throw (xgi::exception::Exception);
+{
+    return isConfigured_;
+}
+void gem::hwMonitor::gemHwMonitorBase::setXMLconfigFile (const char* inputXMLfilename)
     throw (xgi::exception::Exception)
 {
-    gemXMLparser_ = new gem::base::utils::gemXMLparser(xmlConfigFileName_);
+    xmlConfigFileName_ = inputXMLfilename;
+    isConfigured_ = false;
+}
+
+const std::string& gem::hwMonitor::gemHwMonitorBase::getXMLconfigFile ()
+    throw (xgi::exception::Exception)
+{
+    return xmlConfigFileName_;
+}
+
+const std::string& gem::hwMonitor::gemHwMonitorBase::getDeviceId ()
+    throw (xgi::exception::Exception)
+{
+    if (isConfigured_){
+        return gemSystem_.getDeviceId();
+    } else {
+        return "Device is not configured";
+    }
 }
 
 void gem::hwMonitor::gemHwMonitorBase::getDeviceConfiguration()
     throw (xgi::exception::Exception)
 {
+    gemXMLparser_ = new gem::base::utils::gemXMLparser(xmlConfigFileName_);
     gemXMLparser_->parseXMLFile();
-    subDevicesRefs_ = gemXMLparser_->getCrateRefs();
+    gemSystem_ = gemXMLparser_->getGEMDevice();
+    isConfigured = true;
 }
+
+int gem::hwMonitor::gemHwMonitorBase::getNumberOfSubDevices()
+    throw (xgi::exception::Exception)
+{
+    if (isConfigured_){
+        return gemSystem_.getSubDevicesIds().size();
+    } else {
+        return -1;
+    }
+}
+
 std::string gem::hwMonitor::gemHwMonitorBase::getCurrentSubDeviceId(unsigned int subDeviceNumber)
     throw (xgi::exception::Exception)
 {
-    return subDevicesRefs_.at(subDeviceNumber)->getDeviceId();
+    return gemSystem_.getSubDeviceRefs().at(subDeviceNumber)->getDeviceId();
 }

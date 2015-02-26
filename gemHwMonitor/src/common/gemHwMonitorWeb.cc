@@ -176,7 +176,7 @@ throw (xgi::exception::Exception)
 void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
-    gemHwMonitorBase_->initParser();
+    //gemHwMonitorBase_->initParser();
     gemHwMonitorBase_->getDeviceConfiguration();
     crateCfgAvailable_ = true;
     nCrates_ = gemHwMonitorBase_->getNumberOfSubDevices();
