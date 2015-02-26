@@ -13,7 +13,7 @@ LongPackage=gemhardware
 ShortPackage=hw
 PackageName=hw
 
-Sources= GEMHwDevice.cc HwVFAT2.cc VFAT2Manager.cc VFAT2ControlPanelWeb.cc GEMController.cc GEMControllerPanelWeb.cc
+Sources= GEMHwDevice.cc HwVFAT2.cc  HwOptoHybrid.cc VFAT2Manager.cc VFAT2ControlPanelWeb.cc GEMController.cc GEMControllerPanelWeb.cc
 ##version.cc
 
 DynamicLibrary=gem_hw
