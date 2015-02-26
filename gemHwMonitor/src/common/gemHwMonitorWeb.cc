@@ -14,7 +14,8 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::cratePanel,"cratePanel");
     //gemHwMonitorSystem_ = new gem::hwMonitor::gemHwMonitorBase();
     gemHwMonitorSystem_ = new gemHwMonitorSystem();
-    gemSystemHelper_ = new (gemHwMonitorSystem_);
+    //gemSystemHelper_ = new gem::hwMonitor::gemSystemHelper(gemHwMonitorSystem_);
+    gemSystemHelper_ = new gemHwMonitorHelper(gemHwMonitorSystem_);
     crateCfgAvailable_ = false;
 }
 
@@ -53,7 +54,7 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
 
         std::string methodText = toolbox::toString("/%s/setConfFile",getApplicationDescriptor()->getURN().c_str());
         *out << cgicc::form().set("method","POST").set("action",methodText) << std::endl ;
-        *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80").set("ENCTYPE","multipart/form-data").set("value",gemHwMonitorSystem_->getXMLconfigFile()) << std::endl;
+        *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80").set("ENCTYPE","multipart/form-data").set("value",gemSystemHelper_->getXMLconfigFile()) << std::endl;
         *out << cgicc::input().set("type","submit").set("value","Set configuration file") << std::endl ;
         *out << cgicc::form() << std::endl ;
 

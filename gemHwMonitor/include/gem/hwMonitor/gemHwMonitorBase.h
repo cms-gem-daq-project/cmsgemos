@@ -52,7 +52,7 @@ namespace gem {
                 /**
                  *   Get device configuration
                  */
-                void getDeviceConfiguration()
+                void getDeviceConfiguration(T* device)
                     throw (xgi::exception::Exception);
 
                 int getNumberOfSubDevices()
@@ -71,12 +71,12 @@ namespace gem {
                 bool isConfigured_;
                 unsigned int deviceStatus_; // 0 - device is working well, 1 - device has errors, 2 - device status unknown
                 std::string xmlConfigFileName_;
-                gem::base::utils::gemXMLparser *gemXMLparser_;
+                //gem::base::utils::gemXMLparser *gemXMLparser_;
                 T* gemDevice_;
         };
 
         typedef gemHwMonitorBase<gem::base::utils::gemSystemProperties> gemHwMonitorSystem;
-        typedef gemHwMonitorBase<gem::base::utils::gemCrateProperties> gemHwMonitorCrate;
+        //typedef gemHwMonitorBase<gem::base::utils::gemCrateProperties> gemHwMonitorCrate;
     } // end namespace hwMon
 } // end namespace gem
 //#include "../../../src/common/gemHwMonitorBase.cc"

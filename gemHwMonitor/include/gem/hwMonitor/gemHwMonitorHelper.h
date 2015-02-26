@@ -16,13 +16,13 @@ namespace gem {
         class gemHwMonitorHelper
         {
             public:
-                gemHwMonitorHelper(gemSystemProperties *gemSystem)
+                gemHwMonitorHelper(gemHwMonitorSystem* gemSystem)
                     throw (xdaq::exception::Exception)
                 {
                     std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
                     defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf.xml";
                     this->setXMLconfigFile(defaulXMLcfgFile.c_str());
-                    gemSystem_ = gemHwMonitor;
+                    gemSystem_ = gemSystem;
                     gemSystem_->setDeviceStatus(2);
                 }
 
@@ -35,7 +35,7 @@ namespace gem {
                     throw (xgi::exception::Exception)
                 {
                     xmlConfigFileName_ = inputXMLfilename;
-                    isConfigured_ = false;
+                    gemSystem_->setIsConfigured(false);
                 }
                 const std::string& getXMLconfigFile ()
                     throw (xgi::exception::Exception)
@@ -56,7 +56,8 @@ namespace gem {
 
             protected:
             private:
-                gemSystemProperties* gemSystem_;
+                gemHwMonitorSystem* gemSystem_;
+                gem::base::utils::gemXMLparser* gemXMLparser_;
                 std::string xmlConfigFileName_;
 
         };
