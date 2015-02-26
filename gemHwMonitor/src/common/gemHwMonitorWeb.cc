@@ -14,6 +14,7 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::cratePanel,"cratePanel");
     //gemHwMonitorSystem_ = new gem::hwMonitor::gemHwMonitorBase();
     gemHwMonitorSystem_ = new gemHwMonitorSystem();
+    gemSystemHelper_ = new (gemHwMonitorSystem_);
     crateCfgAvailable_ = false;
 }
 
@@ -46,7 +47,7 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
         //
         *out << cgicc::span().set("style","color:blue");
         *out << cgicc::b(cgicc::i("Current configuration file: ")) ;
-        *out << gemHwMonitorSystem_->getXMLconfigFile() << cgicc::span() << std::endl ;
+        *out << gemSystemHelper_->getXMLconfigFile() << cgicc::span() << std::endl ;
         *out << cgicc::br()<< std::endl;
         *out << cgicc::br()<< std::endl;
 
@@ -152,7 +153,7 @@ throw (xgi::exception::Exception)
     std::string newFile = cgi.getElement("xmlFilename")->getValue();
     struct stat buffer;
     if (stat(newFile.c_str(), &buffer) == 0) {
-        gemHwMonitorSystem_->setXMLconfigFile(newFile.c_str());
+        gemSystemHelper_->setXMLconfigFile(newFile.c_str());
     }
     else {
         XCEPT_RAISE(xgi::exception::Exception, "File not found");
@@ -167,7 +168,7 @@ throw (xgi::exception::Exception)
     std::string newFile = cgi.getElement("xmlFilenameUpload")->getValue();
     struct stat buffer;
     if (stat(newFile.c_str(), &buffer) == 0) {
-        gemHwMonitorSystem_->setXMLconfigFile(newFile.c_str());
+        gemSystemHelper_->setXMLconfigFile(newFile.c_str());
     }
     else {
         XCEPT_RAISE(xgi::exception::Exception, "File not found");
@@ -178,7 +179,8 @@ void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xg
 throw (xgi::exception::Exception)
 {
     //gemHwMonitorSystem_->initParser();
-    gemHwMonitorSystem_->getDeviceConfiguration();
+    //gemHwMonitorSystem_->getDeviceConfiguration();
+    gemSystemHelper_->configure();
     crateCfgAvailable_ = true;
     nCrates_ = gemHwMonitorSystem_->getNumberOfSubDevices();
     this->controlPanel(in,out);
