@@ -19,7 +19,8 @@ namespace gem {
                 XDAQ_INSTANTIATOR();
 		        gemHwMonitorWeb(xdaq::ApplicationStub *s)
                     throw (xdaq::exception::Exception);
-                ~gemHwMonitorWeb(){delete gemHwMonitorBase_;}
+                ~gemHwMonitorWeb(){delete gemHwMonitorSystem_;}
+                //~gemHwMonitorWeb(){delete gemHwMonitorBase_;}
                 //void createHeader(xgi::Input *in, xgi::Output *out )
         		    //throw (xgi::exception::Exception);
                 void Default(xgi::Input *in, xgi::Output *out )
@@ -59,7 +60,8 @@ namespace gem {
                 static void setParametersByXML(){}
 */
             private:
-                gem::hwMonitor::gemHwMonitorBase *gemHwMonitorBase_;
+                //gem::hwMonitor::gemHwMonitorBase *gemHwMonitorBase_;
+                gemHwMonitorSystem* gemHwMonitorSystem_;
                 bool crateCfgAvailable_;
                 int nCrates_;
                 std::string crateToShow;
