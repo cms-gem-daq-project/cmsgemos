@@ -22,8 +22,8 @@ namespace gem {
                     std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
                     defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf.xml";
                     this->setXMLconfigFile(defaulXMLcfgFile.c_str());
-                    gemSystem_ = gemSystem;
-                    gemSystem_->setDeviceStatus(2);
+                    ptr_gemSystem_ = gemSystem;
+                    ptr_gemSystem_->setDeviceStatus(2);
                 }
 
                 virtual ~gemHwMonitorHelper()
@@ -35,28 +35,32 @@ namespace gem {
                     throw (xgi::exception::Exception)
                 {
                     xmlConfigFileName_ = inputXMLfilename;
-                    gemSystem_->setIsConfigured(false);
+                    if (ptr_gemSystem_) 
+                        ptr_gemSystem_->setIsConfigured(false);
+                    else 
+                        std::cout << "[WARNING] New XML file set, but device state hasn't changed (NULL-pointer)" << std::endl;
                 }
-                const std::string& getXMLconfigFile ()
+                const std::string getXMLconfigFile ()
                     throw (xgi::exception::Exception)
                 {
                     return xmlConfigFileName_;
                 }
                 void setDBSconfigFile (std::string inputDBSfilename)
                     throw (xgi::exception::Exception){}
-                const std::string& getDBSconfigFile (std::string inputDBSfilename)
+                const std::string getDBSconfigFile ()
                     throw (xgi::exception::Exception){return "Not implemented yet";}
                 void configure()
                     throw (xgi::exception::Exception)
                 {
                     gemXMLparser_ = new gem::base::utils::gemXMLparser(xmlConfigFileName_);
                     gemXMLparser_->parseXMLFile();
-                    gemSystem_->getDeviceConfiguration(gemXMLparser_->getGEMDevice());
+                    ptr_gemSystem_->setDeviceConfiguration(*(gemXMLparser_->getGEMDevice()));
                 }
 
             protected:
             private:
-                gemHwMonitorSystem* gemSystem_;
+                gemHwMonitorSystem* ptr_gemSystem_;
+                gemHwMonitorSystem gemSystem_;
                 gem::base::utils::gemXMLparser* gemXMLparser_;
                 std::string xmlConfigFileName_;
 

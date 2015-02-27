@@ -14,8 +14,11 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::cratePanel,"cratePanel");
     //gemHwMonitorSystem_ = new gem::hwMonitor::gemHwMonitorBase();
     gemHwMonitorSystem_ = new gemHwMonitorSystem();
+    //gemSystemHelper_ = new gemSystemHelper(gemHwMonitorSystem_);
     //gemSystemHelper_ = new gem::hwMonitor::gemSystemHelper(gemHwMonitorSystem_);
+    //gemSystemHelper_ = new gemHwMonitorHelper(*(gemHwMonitorSystem_));
     gemSystemHelper_ = new gemHwMonitorHelper(gemHwMonitorSystem_);
+    //gemSystemHelper_ = new gemHwMonitorHelper();
     crateCfgAvailable_ = false;
 }
 
@@ -181,6 +184,7 @@ throw (xgi::exception::Exception)
 {
     //gemHwMonitorSystem_->initParser();
     //gemHwMonitorSystem_->getDeviceConfiguration();
+    //gemSystemHelper_->configure(gemHwMonitorSystem_->getDevRef());
     gemSystemHelper_->configure();
     crateCfgAvailable_ = true;
     nCrates_ = gemHwMonitorSystem_->getNumberOfSubDevices();
