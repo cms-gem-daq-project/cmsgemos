@@ -20,9 +20,14 @@ namespace gem {
             public:
                 gemHwMonitorBase()
                     throw (xdaq::exception::Exception)
-                {}
+                {
+                    gemDevice_ = new T();
+                }
 
-                virtual ~gemHwMonitorBase(){}
+                virtual ~gemHwMonitorBase()
+                {
+                    delete gemDevice_;
+                }
 
                 bool isConfigured()
                     throw (xgi::exception::Exception)
@@ -31,8 +36,8 @@ namespace gem {
                 void setIsConfigured(bool state)
                     throw (xgi::exception::Exception)
                 {isConfigured_=state;}
-               
-                const std::string& getDeviceId()
+
+                const std::string getDeviceId()
                     throw (xgi::exception::Exception);
                 /**
                  *   Get device status
@@ -52,15 +57,17 @@ namespace gem {
                 /**
                  *   Get device configuration
                  */
-                void getDeviceConfiguration(T* device)
+                //void setDeviceConfiguration(T* device)
+                void setDeviceConfiguration(T& device)
                     throw (xgi::exception::Exception);
 
                 int getNumberOfSubDevices()
                     throw (xgi::exception::Exception);
 
-                std::string getCurrentSubDeviceId(unsigned int subDeviceNumber)
+                const std::string getCurrentSubDeviceId(unsigned int subDeviceNumber)
                                     throw (xgi::exception::Exception);
 
+                //T* getDevRef(){return gemDevice_;}
                 /**
                  *   Access to board utils
                 virtual void boardUtils ()
@@ -71,7 +78,6 @@ namespace gem {
                 bool isConfigured_;
                 unsigned int deviceStatus_; // 0 - device is working well, 1 - device has errors, 2 - device status unknown
                 std::string xmlConfigFileName_;
-                //gem::base::utils::gemXMLparser *gemXMLparser_;
                 T* gemDevice_;
         };
 
