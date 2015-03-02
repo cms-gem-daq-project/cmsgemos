@@ -60,7 +60,6 @@ namespace gem {
             protected:
             private:
                 gemHwMonitorSystem* ptr_gemSystem_;
-                gemHwMonitorSystem gemSystem_;
                 gem::base::utils::gemXMLparser* gemXMLparser_;
                 std::string xmlConfigFileName_;
 

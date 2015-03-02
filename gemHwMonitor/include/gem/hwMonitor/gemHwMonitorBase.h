@@ -55,11 +55,16 @@ namespace gem {
                     throw (xgi::exception::Exception)
 		            {deviceStatus_ = deviceStatus;}
                 /**
-                 *   Get device configuration
+                 *   Set device configuration
                  */
-                //void setDeviceConfiguration(T* device)
                 void setDeviceConfiguration(T& device)
                     throw (xgi::exception::Exception);
+                /**
+                 *   Get device reference
+                 */
+                T*  getDevice()
+                    throw (xgi::exception::Exception)
+                    {return gemDevice_;}
 
                 int getNumberOfSubDevices()
                     throw (xgi::exception::Exception);
@@ -67,7 +72,6 @@ namespace gem {
                 const std::string getCurrentSubDeviceId(unsigned int subDeviceNumber)
                                     throw (xgi::exception::Exception);
 
-                //T* getDevRef(){return gemDevice_;}
                 /**
                  *   Access to board utils
                 virtual void boardUtils ()
@@ -82,8 +86,10 @@ namespace gem {
         };
 
         typedef gemHwMonitorBase<gem::base::utils::gemSystemProperties> gemHwMonitorSystem;
-        //typedef gemHwMonitorBase<gem::base::utils::gemCrateProperties> gemHwMonitorCrate;
+        typedef gemHwMonitorBase<gem::base::utils::gemCrateProperties> gemHwMonitorCrate;
+        typedef gemHwMonitorBase<gem::base::utils::gemGLIBProperties> gemHwMonitorGLIB;
+        typedef gemHwMonitorBase<gem::base::utils::gemOHProperties> gemHwMonitorOH;
+        typedef gemHwMonitorBase<gem::base::utils::gemVFATProperties> gemHwMonitorVFAT;
     } // end namespace hwMon
 } // end namespace gem
-//#include "../../../src/common/gemHwMonitorBase.cc"
 #endif

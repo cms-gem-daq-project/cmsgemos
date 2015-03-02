@@ -20,10 +20,7 @@ namespace gem {
                 XDAQ_INSTANTIATOR();
 		        gemHwMonitorWeb(xdaq::ApplicationStub *s)
                     throw (xdaq::exception::Exception);
-                ~gemHwMonitorWeb(){delete gemHwMonitorSystem_;}
-                //~gemHwMonitorWeb(){delete gemHwMonitorBase_;}
-                //void createHeader(xgi::Input *in, xgi::Output *out )
-        		    //throw (xgi::exception::Exception);
+                ~gemHwMonitorWeb();
                 void Default(xgi::Input *in, xgi::Output *out )
 		            throw (xgi::exception::Exception);
 		        void controlPanel(xgi::Input *in, xgi::Output *out)
@@ -41,6 +38,18 @@ namespace gem {
                 void expandCrate(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
                 void cratePanel(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void expandGLIB(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void glibPanel(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void expandOH(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void ohPanel(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void expandVFAT(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void vfatPanel(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
 /*
                 static void createVFATInfoLayout(       xgi::Output *out,
@@ -61,12 +70,18 @@ namespace gem {
                 static void setParametersByXML(){}
 */
             private:
-                //gem::hwMonitor::gemHwMonitorBase *gemHwMonitorBase_;
                 gemHwMonitorSystem* gemHwMonitorSystem_;
+                gemHwMonitorCrate* gemHwMonitorCrate_;
+                gemHwMonitorGLIB* gemHwMonitorGLIB_;
+                gemHwMonitorOH* gemHwMonitorOH_;
+                gemHwMonitorVFAT* gemHwMonitorVFAT_;
                 gemHwMonitorHelper* gemSystemHelper_;
                 bool crateCfgAvailable_;
                 int nCrates_;
-                std::string crateToShow;
+                std::string crateToShow_;
+                std::string glibToShow_;
+                std::string ohToShow_;
+                std::string vfatToShow_;
         };// end class gemHwMonitorWeb
     }// end namespace hwMonitor
 }// end namespace gem

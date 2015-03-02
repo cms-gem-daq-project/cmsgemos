@@ -12,16 +12,30 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::getCratesConfiguration,"getCratesConfiguration");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandCrate,"expandCrate");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::cratePanel,"cratePanel");
-    //gemHwMonitorSystem_ = new gem::hwMonitor::gemHwMonitorBase();
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandGLIB,"expandGLIB");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::glibPanel,"glibPanel");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandOH,"expandOH");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::ohPanel,"ohPanel");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandVFAT,"expandVFAT");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::vfatPanel,"vfatPanel");
     gemHwMonitorSystem_ = new gemHwMonitorSystem();
-    //gemSystemHelper_ = new gemSystemHelper(gemHwMonitorSystem_);
-    //gemSystemHelper_ = new gem::hwMonitor::gemSystemHelper(gemHwMonitorSystem_);
-    //gemSystemHelper_ = new gemHwMonitorHelper(*(gemHwMonitorSystem_));
+    gemHwMonitorCrate_ = new gemHwMonitorCrate();
+    gemHwMonitorGLIB_ = new gemHwMonitorGLIB();
+    gemHwMonitorOH_ = new gemHwMonitorOH();
+    gemHwMonitorVFAT_ = new gemHwMonitorVFAT();
     gemSystemHelper_ = new gemHwMonitorHelper(gemHwMonitorSystem_);
-    //gemSystemHelper_ = new gemHwMonitorHelper();
     crateCfgAvailable_ = false;
 }
 
+gem::hwMonitor::gemHwMonitorWeb::~gemHwMonitorWeb()
+{
+    delete gemHwMonitorSystem_;
+    delete gemHwMonitorCrate_;
+    delete gemHwMonitorGLIB_;
+    delete gemHwMonitorOH_;
+    delete gemHwMonitorVFAT_;
+    delete gemSystemHelper_;
+}
 void gem::hwMonitor::gemHwMonitorWeb::Default(xgi::Input * in, xgi::Output * out )
     throw (xgi::exception::Exception)
 {
@@ -182,9 +196,6 @@ throw (xgi::exception::Exception)
 void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
-    //gemHwMonitorSystem_->initParser();
-    //gemHwMonitorSystem_->getDeviceConfiguration();
-    //gemSystemHelper_->configure(gemHwMonitorSystem_->getDevRef());
     gemSystemHelper_->configure();
     crateCfgAvailable_ = true;
     nCrates_ = gemHwMonitorSystem_->getNumberOfSubDevices();
@@ -194,14 +205,23 @@ void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output *
 throw (xgi::exception::Exception)
 {
     cgicc::Cgicc cgi(in);
-    crateToShow = cgi.getElement("crateButton")->getValue();
+    crateToShow_ = cgi.getElement("crateButton")->getValue();
+//for (auto i = gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().begin(); i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().end(); i++) {
+    //if (i->getDeviceId() == crateToShow_) {gemHwMonitorCrate_->setDeviceConfiguration(*i);}
+    // Auto-pointer doesn't work for some reason. Improve this later.
+    for (int i = 0; i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().size(); i++) 
+    {
+        if (gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == crateToShow_) 
+        {
+            gemHwMonitorCrate_->setDeviceConfiguration(*gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i));
+        }
+    }
     this->cratePanel(in,out);
 }
 void gem::hwMonitor::gemHwMonitorWeb::cratePanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
-    //int nGLIBs = gemHwMonitorBase_->getCurrentCrateNumberOfGLIBs(crateToShow);
-    *out << cgicc::h1("Crate ID: "+crateToShow)<< std::endl;
+    *out << cgicc::h1("Crate ID: "+crateToShow_)<< std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Basic crate variables")<< std::endl;
     *out << cgicc::br()<< std::endl;
@@ -211,7 +231,125 @@ throw (xgi::exception::Exception)
     *out << "There are no AMC13 boards" << cgicc::br();
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Connected GLIB's")<< std::endl;
+    std::string methodExpandGLIB = toolbox::toString("/%s/expandGLIB", getApplicationDescriptor()->getURN().c_str());
+    *out << cgicc::table().set("border","0");
+    for (int i=0; i<gemHwMonitorCrate_->getNumberOfSubDevices(); i++) {
+        std::string currentGLIBId;
+        currentGLIBId += gemHwMonitorCrate_->getCurrentSubDeviceId(i);
+        *out << cgicc::td();
+            *out << cgicc::form().set("method","POST").set("action", methodExpandGLIB) << std::endl ;
+            *out << cgicc::input().set("type","submit").set("name","glibButton").set("value",currentGLIBId) << std::endl;
+            *out << cgicc::form() << std::endl;
+        *out << cgicc::td();
+    }
+    *out << cgicc::table();
     *out << cgicc::br()<< std::endl;
-    //*out << "Number of connected GLIBs: " << nGLIBs << cgicc::br();
+    *out << cgicc::hr()<< std::endl;
+}
+
+void gem::hwMonitor::gemHwMonitorWeb::expandGLIB(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    cgicc::Cgicc cgi(in);
+    glibToShow_ = cgi.getElement("glibButton")->getValue();
+    // Auto-pointer doesn't work for some reason. Improve this later.
+    for (int i = 0; i != gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().size(); i++) 
+    {
+        if (gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == glibToShow_) 
+        {
+            gemHwMonitorGLIB_->setDeviceConfiguration(*gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i));
+        }
+    }
+    this->glibPanel(in,out);
+}
+void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    *out << cgicc::h1("GLIB ID: "+glibToShow_)<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::h2("Basic glib variables")<< std::endl;
+    *out << cgicc::br()<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::h2("Connected OH's")<< std::endl;
+    std::string methodExpandOH = toolbox::toString("/%s/expandOH", getApplicationDescriptor()->getURN().c_str());
+    *out << cgicc::table().set("border","0");
+    for (int i=0; i<gemHwMonitorGLIB_->getNumberOfSubDevices(); i++) {
+        std::string currentOHId;
+        currentOHId += gemHwMonitorGLIB_->getCurrentSubDeviceId(i);
+        *out << cgicc::td();
+            *out << cgicc::form().set("method","POST").set("action", methodExpandOH) << std::endl ;
+            *out << cgicc::input().set("type","submit").set("name","ohButton").set("value",currentOHId) << std::endl;
+            *out << cgicc::form() << std::endl;
+        *out << cgicc::td();
+    }
+    *out << cgicc::table();
+    *out << cgicc::br()<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+}
+
+void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    cgicc::Cgicc cgi(in);
+    ohToShow_ = cgi.getElement("ohButton")->getValue();
+    // Auto-pointer doesn't work for some reason. Improve this later.
+    for (int i = 0; i != gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().size(); i++) 
+    {
+        if (gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) 
+        {
+            gemHwMonitorOH_->setDeviceConfiguration(*gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i));
+        }
+    }
+    this->ohPanel(in,out);
+}
+void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    *out << cgicc::h1("OH ID: "+ohToShow_)<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::h2("Basic OH variables")<< std::endl;
+    *out << cgicc::br()<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::h2("Connected VFAT's")<< std::endl;
+    std::string methodExpandVFAT = toolbox::toString("/%s/expandVFAT", getApplicationDescriptor()->getURN().c_str());
+    *out << cgicc::table().set("border","0");
+    for (int i=0; i<gemHwMonitorOH_->getNumberOfSubDevices(); i++) {
+        std::string currentVFATId;
+        currentVFATId += gemHwMonitorOH_->getCurrentSubDeviceId(i);
+        *out << cgicc::td();
+            *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
+            *out << cgicc::input().set("type","submit").set("name","vfatButton").set("value",currentVFATId) << std::endl;
+            *out << cgicc::form() << std::endl;
+        *out << cgicc::td();
+    }
+    *out << cgicc::table();
+    *out << cgicc::br()<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+}
+
+void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    cgicc::Cgicc cgi(in);
+    vfatToShow_ = cgi.getElement("vfatButton")->getValue();
+    // Auto-pointer doesn't work for some reason. Improve this later.
+    for (int i = 0; i != gemHwMonitorOH_->getDevice()->getSubDevicesRefs().size(); i++) 
+    {
+        if (gemHwMonitorOH_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
+        {
+            gemHwMonitorVFAT_->setDeviceConfiguration(*gemHwMonitorOH_->getDevice()->getSubDevicesRefs().at(i));
+        }
+    }
+    this->vfatPanel(in,out);
+}
+void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    *out << cgicc::h1("VFAT ID: "+vfatToShow_)<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::h2("Basic VFAT variables")<< std::endl;
+    *out << cgicc::br()<< std::endl;
+    *out << cgicc::hr()<< std::endl;
+    *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
 }
