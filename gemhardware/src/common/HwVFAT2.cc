@@ -98,14 +98,14 @@ uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
 {
   //Maybe want to use a lock to prevent hammering the HW device
   //uint32_t regValue;
-  //regValue = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
+  //regValue = GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
   //return regValue;
-  //return gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
-  return readReg(getDeviceBaseNode(),regName);
+  return GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
+  //return GEMHwDevice::readReg(getDeviceBaseNode(),regName);
 }
 
-//void gem::hw::vfat::HwVFAT2::readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params)
 // read VFAT chipID and upset/hit counters into vfatParams_ object
+//void gem::hw::vfat::HwVFAT2::readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params)
 void gem::hw::vfat::HwVFAT2::readVFAT2Counters()
 {
   vfatParams_.chipID       = getChipID();
