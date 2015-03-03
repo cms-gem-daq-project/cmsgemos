@@ -72,8 +72,10 @@ namespace gem {
 
 	  //special implementation of the read/write for VFATs
 	  virtual uint32_t readReg( std::string const& regName);
-	  virtual uint32_t readReg( std::string const& regPrefix,
+	  /*
+	    virtual uint32_t readReg( std::string const& regPrefix,
 				    std::string const& regName);
+	  */
 	  //  std::string name = regPrefix+"."+regName;
 	  //  return readReg(name); };
 	  //void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
