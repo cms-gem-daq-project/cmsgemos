@@ -2,12 +2,6 @@
 
 #include "gem/hw/GEMHwDevice.h"
 
-//#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
-//#define INFO( MSG) LOG4CPLUS_INFO( logGEMHw_ , MSG)
-//#define WARN( MSG) LOG4CPLUS_WARN( logGEMHw_ , MSG)
-//#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
-//#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
-
 gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   logGEMHw_(gemApp->getApplicationLogger()),
   gemHWP_(0)
@@ -98,36 +92,6 @@ void gem::hw::GEMHwDevice::connectDevice()
   uhal::HwInterface* tmpHWP = 0;
 
   try {
-    //maybe create an address table file here that loads the specific chip addresss table options
-    //file has to be based on the chip location, specify the memory root, then will import the main vfat address table
-    /**
-       something like:
-       locAddrFile
-       << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" << std::endl
-       << "<node id=\"top\">" << std::endl
-       << "<node id=\"VFATS\"  address=\"0x40010000\"" << std::endl
-       << "      description=\"VFAT registers controled by the GLIB user registers\">" << std::endl
-       << "  <node id=\"" << deviceID_ << "\"" << std::endl
-       << "	address=\"0x"<< std::hex << chipLocation << "00\"  " << std::endl
-       << "	module=\"file://${BUILD_HOME}/data/vfatregs.xml\"" << std::endl
-       << "	description=\"column 1, TOTEM hybrid VFAT chip J57 connector\"/>" << std::endl
-       << "  " << std::endl
-       << "  <node id=\"ADC\"  address=\"0x2014C\"" << std::endl
-       << "	description=\"VFAT2 ADC values (absolute register start 0x4003014C)\">" << std::endl
-       << "    <node id=\"Voltage\"  address=\"0x0\"  mask=\"0xFFFFFFFF\"  permission=\"r\"" << std::endl
-       << "	  description=\"read the voltage ADC off the VFAT chip\" />" << std::endl
-       << "    <node id=\"Current\"  address=\"0x1\"  mask=\"0xFFFFFFFF\"  permission=\"w\"" << std::endl
-       << "	  description=\"send CalPulse command to system\" />" << std::endl
-       << "  </node> <!-- end ADC block -->" << std::endl
-       << "  " << std::endl
-       << "  <node id=\"VFAT_RESP\"" << std::endl
-       << "	address=\"0x20000\"  mask=\"0xFFFFFFFF\"  permission=\"r\"" << std::endl
-       << "	description=\"read the response from the VFAT transaction\"/>" << std::endl
-       << "  " << std::endl
-       << "</node>" << std::endl;
-       << "</node>" << std::endl;
-       tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, locAddrFile));
-    **/
     tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
   }
   catch (uhal::exception::FileNotFound const& err)
@@ -361,7 +325,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
   }
 }
 
-void gem::hw::GEMHwDevice::writeReg(std::string const& name,uint32_t const val)
+void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -464,10 +428,12 @@ void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regN
   writeRegs(regsToWrite);
 }
 
+/*
 void gem::hw::GEMHwDevice::zeroReg(std::string const& name)
 {
   writeReg(name,0);
 }
+*/
 
 void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames)
 {
@@ -487,7 +453,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
   return readBlock(name, numWords);
 }
 
-std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,size_t const numWords)
+std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, size_t const numWords)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -495,10 +461,9 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,si
   std::vector<uint32_t> res(numWords);
 
   int retryCount = 0;
-  if (numWords < 1) {
+  if (numWords < 1) 
     return res;
-  }
-
+  
   while (retryCount < MAX_VFAT_RETRIES) {
     try {
       uhal::ValVector<uint32_t> values = hw.getNode(name).readBlock(numWords);
@@ -539,12 +504,11 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,si
   return res;
 }
 
-void gem::hw::GEMHwDevice::writeBlock(std::string const& name,std::vector<uint32_t> const values)
+void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {
   //LockGuard<Lock> guardedLock(lock_);
-  if (values.size() < 1) {
+  if (values.size() < 1) 
     return;
-  }
   
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
@@ -673,62 +637,4 @@ void gem::hw::vfat::HwVFAT2::writeReg(std::string const& regName
     XCEPT_RAISE(gem::hw::exception::HardwareProblem, message);
   }
 }
-
-void gem::hw::GEMHwDevice::main()
-{
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  //  *hw = manager->getDevice ( "gemsupervisor.udp.0" );
-
-  // print out basic information
-  std::cout << "current Value of myParameter_ = " << myParameter_ << std::endl;
-  //std::cout << "System ID: " << formatSystemID(systemID_,0) << std::endl;
-  //std::cout << "Board ID: "  << formatBoardID(boardID_,0)   << std::endl;
-  //std::cout << "System firmware version: " << formatFW(firmwareID_,0) << std::endl;
-  //std::cout << "System firmware date: "    << formatFW(firmwareID_,1) << std::endl;
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  
-  gem::hw::GEMHwDevice::getTestReg();
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  gem::hw::GEMHwDevice::setTestReg(32);
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-}
-***/
-/***
-    void gem::hw::GEMHwDevice::getTestReg()
-    //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-    {
-    uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-    try {
-    r_test = hw.getNode ( "test" ).read();
-    hw.dispatch();
-    testReg_ = r_test.value();
-    }
-    catch (const std::exception& e) {
-    std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-    }
-  
-    }
-    void gem::hw::GEMHwDevice::setTestReg(uint32_t setVal)
-    //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-    {
-    testReg_ = setVal;
-  
-    uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-    try {
-    hw.getNode ( "test" ).write(testReg_);
-    hw.dispatch();
-    }
-    catch (const std::exception& e) {
-    std::cout << "Something went wrong writing the test register: " << e.what() << std::endl;
-    }
-  
-    try {
-    r_test = hw.getNode ( "test" ).read();
-    hw.dispatch();
-    testReg_ = r_test.value();
-    }
-    catch (const std::exception& e) {
-    std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-    }
-    }
 ***/
