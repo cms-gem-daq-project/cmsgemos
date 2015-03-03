@@ -9,10 +9,17 @@
 #include "gemHwMonitorBase.h"
 #include "gemHwMonitorHelper.h"
 
+#include "gem/hw/vfat/HwVFAT2.h"
+
 namespace cgicc {
     BOOLEAN_ELEMENT(section,"section");
 }
 namespace gem {
+    namespace hw {
+        namespace vfat {
+            class HwVFAT2;
+        }
+    }
     namespace hwMonitor {
         class gemHwMonitorWeb: public xdaq::WebApplication//, xdata::ActionListener
         {
@@ -82,6 +89,7 @@ namespace gem {
                 std::string glibToShow_;
                 std::string ohToShow_;
                 std::string vfatToShow_;
+                gem::hw::vfat::HwVFAT2* vfatDevice_;
         };// end class gemHwMonitorWeb
     }// end namespace hwMonitor
 }// end namespace gem

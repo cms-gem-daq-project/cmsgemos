@@ -233,6 +233,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::h2("Connected GLIB's")<< std::endl;
     std::string methodExpandGLIB = toolbox::toString("/%s/expandGLIB", getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::table().set("border","0");
+    *out << cgicc::td();
     for (int i=0; i<gemHwMonitorCrate_->getNumberOfSubDevices(); i++) {
         std::string currentGLIBId;
         currentGLIBId += gemHwMonitorCrate_->getCurrentSubDeviceId(i);
@@ -242,6 +243,10 @@ throw (xgi::exception::Exception)
             *out << cgicc::form() << std::endl;
         *out << cgicc::td();
     }
+    *out << cgicc::td();
+    *out << cgicc::td();
+    *out << "Try to read smth from device " << std::endl;
+    *out << cgicc::td();
     *out << cgicc::table();
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
@@ -348,8 +353,36 @@ throw (xgi::exception::Exception)
     *out << cgicc::h1("VFAT ID: "+vfatToShow_)<< std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Basic VFAT variables")<< std::endl;
-    *out << cgicc::br()<< std::endl;
-    *out << cgicc::hr()<< std::endl;
+    std::map <std::string, std::string> vfatProperties_;
+    vfatProperties_ = gemHwMonitorVFAT_->getDevice()->getDeviceProperties();
+    *out << cgicc::table().set("border","0");
+    *out << cgicc::td();
+    *out << cgicc::h2("XML configuration")<< std::endl;
+    for (auto it = vfatProperties_.begin(); it != vfatProperties_.end(); it++)
+    {
+        *out << cgicc::tr();
+        *out << cgicc::td();
+        *out << it->first << ":" <<std::endl;
+        *out << cgicc::td();
+        *out << cgicc::td();
+        *out << it->second << std::endl;
+        *out << cgicc::td();
+        *out << cgicc::tr();
+    }
+    *out << cgicc::td();
+    *out << cgicc::td();
+    *out << cgicc::h2("Read from VFAT")<< std::endl;
+    vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
+    vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
+    vfatDevice_->setDeviceIPAddress("192.168.0.115");
+    vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
+    vfatDevice_->connectDevice();
+    vfatDevice_->readVFAT2Counters();
+    //*out << "VFAT " << vfatDevice_->readReg("ContReg0") << std::endl;
+    delete vfatDevice_;
+    *out << cgicc::td();
+    *out << cgicc::table();
+
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
 }

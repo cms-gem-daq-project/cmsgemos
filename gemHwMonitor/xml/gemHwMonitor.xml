@@ -7,5 +7,6 @@
     </xc:Application>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemHwMonitor/lib/linux/x86_64_slc6/libgem_hwMonitor.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/linux/x86_64_slc6/libgem_base.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/linux/x86_64_slc6/libgem_hw.so</xc:Module>
   </xc:Context>
 </xc:Partition>
