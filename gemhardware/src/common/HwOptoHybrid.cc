@@ -71,9 +71,9 @@ void gem::hw::optohybrid::HwOptoHybrid::configureDevice()
 //
 //}
 //
-gem::hw::optohybrid::OHLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkStatus(uint8_t link) {
+gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkStatus(uint8_t link) {
   
-  gem::hw::optohybrid::OHLinkStatus linkStatus;
+  gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
 
   if (link > 2) {
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
@@ -81,7 +81,7 @@ gem::hw::optohybrid::OHLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkStatus(
   }
   else {
     std::stringstream regname;
-    regname << "OPTICAL_LINKS.LINK" << (int)link << ".COUNTER.";
+    regname << "OPTICAL_LINKS.LINK" << (int)link << ".Counter.";
     linkStatus.linkErrCnt      = readReg(getDeviceBaseNode(),regname.str()+"LinkErr"      );
     linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regname.str()+"RecI2CReqests");
     linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regname.str()+"SntI2CReqests");
@@ -89,7 +89,7 @@ gem::hw::optohybrid::OHLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkStatus(
     linkStatus.linkRegisterSnt = readReg(getDeviceBaseNode(),regname.str()+"SntRegReqests");
   }
   return linkStatus;
-};
+}
 
 void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t link, uint8_t resets) {
   if (link > 2) {
@@ -110,5 +110,8 @@ void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t link, uint8_t resets) 
     writeReg(getDeviceBaseNode(),regname.str()+"RecRegReqests",0x1);
   if (resets&0x10)
     writeReg(getDeviceBaseNode(),regname.str()+"SntRegReqests",0x1);
-};
+}
 
+//uint32_t gem::hw::optohybrid::HwOptoHybrid::readTriggerData() {
+//  return uint32_t value;
+//}

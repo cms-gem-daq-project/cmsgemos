@@ -31,6 +31,16 @@ namespace gem {
     
     class GEMHwDevice
       {
+
+      public:
+	typedef struct OpticalLinkStatus {
+	  uint32_t linkErrCnt     ;
+	  uint32_t linkVFATI2CRec ;
+	  uint32_t linkVFATI2CSnt ;
+	  uint32_t linkRegisterRec;
+	  uint32_t linkRegisterSnt;
+	} OpticalLinkStatus;
+	
 	typedef struct DeviceErrors {
 	  int badHeader_;
 	  int readError_;
@@ -38,7 +48,6 @@ namespace gem {
 	  int controlHubErr_;
 	} DeviceErrors;
 	
-      public:
 	/** 
 	 * GEMHwDevice constructor 
 	 * @param xdaqApp pointer to xdaq::Application
@@ -150,15 +159,6 @@ namespace gem {
 	log4cplus::Logger logGEMHw_;
 	uhal::HwInterface *gemHWP_;
 		
-      private:
-	std::string addressTable_;
-	std::string ipbusProtocol_;
-	std::string deviceBaseNode_;
-	std::string deviceIPAddr_;
-	std::string deviceID_;
-		
-	//std::string registerToChar(uint32_t value) const;
-	
 	std::string uint32ToString(uint32_t const val) const{
 	  std::stringstream res;
 	  res << char((val & uint32_t(0xff000000)) / 16777216);
@@ -166,7 +166,15 @@ namespace gem {
 	  res << char((val & uint32_t(0x0000ff00)) / 256);
 	  res << char((val & uint32_t(0x000000ff)));
 	  return res.str(); }
-
+	
+      private:
+	std::string addressTable_;
+	std::string ipbusProtocol_;
+	std::string deviceBaseNode_;
+	std::string deviceIPAddr_;
+	std::string deviceID_;
+		
+	//std::string registerToChar(uint32_t value) const;	
 
       }; //end class GEMHwDevice
 
