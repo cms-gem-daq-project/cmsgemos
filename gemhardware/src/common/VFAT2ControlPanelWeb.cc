@@ -749,7 +749,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLay
   *out << "            <div>" << std::endl
        << cgicc::label("TrimDAC").set("class","vfatTrimDACLabel").set("for","TrimDAC") << std::endl
        << cgicc::input().set("class","vfatChannelInput").set("type","number")
-                        .set("id","TrimDAC").set("name","TrimDAC").set("min","0").set("max","31")
+                        .set("id","TrimDAC").set("name","TrimDAC").set("min","0").set("max","255")
                         .set("value",boost::str(inputform%static_cast<unsigned>(params.channels[chanID-1].trimDAC)))
        << std::endl
        << cgicc::input().set("class","vfatChannelCheckbox").set("type","checkbox")

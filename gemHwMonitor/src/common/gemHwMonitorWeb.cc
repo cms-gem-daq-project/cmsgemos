@@ -209,7 +209,7 @@ throw (xgi::exception::Exception)
 //for (auto i = gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().begin(); i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().end(); i++) {
     //if (i->getDeviceId() == crateToShow_) {gemHwMonitorCrate_->setDeviceConfiguration(*i);}
     // Auto-pointer doesn't work for some reason. Improve this later.
-    for (int i = 0; i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().size(); i++) 
+    for (unsigned int i = 0; i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().size(); i++) 
     {
         if (gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == crateToShow_) 
         {
@@ -258,7 +258,7 @@ throw (xgi::exception::Exception)
     cgicc::Cgicc cgi(in);
     glibToShow_ = cgi.getElement("glibButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
-    for (int i = 0; i != gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().size(); i++) 
+    for (unsigned int i = 0; i != gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().size(); i++) 
     {
         if (gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == glibToShow_) 
         {
@@ -298,7 +298,7 @@ throw (xgi::exception::Exception)
     cgicc::Cgicc cgi(in);
     ohToShow_ = cgi.getElement("ohButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
-    for (int i = 0; i != gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().size(); i++) 
+    for (unsigned int i = 0; i != gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().size(); i++) 
     {
         if (gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) 
         {
@@ -338,7 +338,7 @@ throw (xgi::exception::Exception)
     cgicc::Cgicc cgi(in);
     vfatToShow_ = cgi.getElement("vfatButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
-    for (int i = 0; i != gemHwMonitorOH_->getDevice()->getSubDevicesRefs().size(); i++) 
+    for (unsigned int i = 0; i != gemHwMonitorOH_->getDevice()->getSubDevicesRefs().size(); i++) 
     {
         if (gemHwMonitorOH_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
         {
@@ -350,39 +350,101 @@ throw (xgi::exception::Exception)
 void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
+    vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
+    vfatDevice_->setDeviceIPAddress("192.168.0.115");
+    vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS.VFAT9");
+    vfatDevice_->connectDevice();
+    vfatDevice_->readVFAT2Counters();
+    vfatDevice_->getAllSettings();
+    std::cout << vfatDevice_->getVFAT2Params()<<std::endl; 
+
     *out << cgicc::h1("VFAT ID: "+vfatToShow_)<< std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Basic VFAT variables")<< std::endl;
     std::map <std::string, std::string> vfatProperties_;
     vfatProperties_ = gemHwMonitorVFAT_->getDevice()->getDeviceProperties();
-    *out << cgicc::table().set("border","0");
-    *out << cgicc::td();
-    *out << cgicc::h2("XML configuration")<< std::endl;
-    for (auto it = vfatProperties_.begin(); it != vfatProperties_.end(); it++)
-    {
-        *out << cgicc::tr();
+
+    *out << cgicc::table().set("border","1");
+    *out << cgicc::tr();
         *out << cgicc::td();
-        *out << it->first << ":" <<std::endl;
+            *out << cgicc::h2("XML configuration")<< std::endl;
         *out << cgicc::td();
         *out << cgicc::td();
-        *out << it->second << std::endl;
+            *out << cgicc::h2("Read from VFAT")<< std::endl;
         *out << cgicc::td();
-        *out << cgicc::tr();
-    }
-    *out << cgicc::td();
-    *out << cgicc::td();
-    *out << cgicc::h2("Read from VFAT")<< std::endl;
-    vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
-    vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
-    vfatDevice_->setDeviceIPAddress("192.168.0.115");
-    vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
-    vfatDevice_->connectDevice();
-    vfatDevice_->readVFAT2Counters();
-    //*out << "VFAT " << vfatDevice_->readReg("ContReg0") << std::endl;
-    delete vfatDevice_;
-    *out << cgicc::td();
+    *out << cgicc::tr();
+    *out << cgicc::tr();
+        *out << cgicc::td();
+            *out << "<table border="<<0<<">";
+                *out << "<td>";
+                    for (auto it = vfatProperties_.begin(); it != vfatProperties_.end(); it++)
+                    {
+                        printVFAThwParameters((it->first).c_str(), (it->second).c_str(), out);
+                    }
+                *out << "</td>";
+            *out << "</table>";
+        *out << cgicc::td();
+        *out << cgicc::td();
+            *out << "<table border="<<0<<">";
+                *out << "<td>";
+                   printVFAThwParameters("CalMode", (gem::hw::vfat::CalibrationModeToString.at(vfatDevice_->getVFAT2Params().calibMode)).c_str(), out);
+                   printVFAThwParameters("CalPhase", (vfatDevice_->getVFAT2Params().calPhase), out);
+                   printVFAThwParameters("CalPolarity", (gem::hw::vfat::CalPolarityToString.at(vfatDevice_->getVFAT2Params().calPol)).c_str(), out);
+                   printVFAThwParameters("DACSel", (gem::hw::vfat::DACModeToString.at(vfatDevice_->getVFAT2Params().dacMode)).c_str(), out);
+                   printVFAThwParameters("DFTest", (gem::hw::vfat::DFTestPatternToString.at(vfatDevice_->getVFAT2Params().sendTestPattern)).c_str(), out);
+                   printVFAThwParameters("DigInSel", (gem::hw::vfat::DigInSelToString.at(vfatDevice_->getVFAT2Params().digInSel)).c_str(), out);
+                   printVFAThwParameters("HitCountSel", (gem::hw::vfat::HitCountModeToString.at(vfatDevice_->getVFAT2Params().hitCountMode)).c_str(), out);
+                   printVFAThwParameters("IComp", vfatDevice_->getVFAT2Params().iComp, out);
+                   printVFAThwParameters("IPreampFeed", vfatDevice_->getVFAT2Params().iPreampFeed, out);
+                   printVFAThwParameters("IPreampIn", vfatDevice_->getVFAT2Params().iPreampIn, out);
+                   printVFAThwParameters("IPreampOut", vfatDevice_->getVFAT2Params().iPreampOut, out);
+                   printVFAThwParameters("IShaper", vfatDevice_->getVFAT2Params().iShaper, out);
+                   printVFAThwParameters("IShaperFeed", vfatDevice_->getVFAT2Params().iShaperFeed, out);
+                   printVFAThwParameters("LVDSPowerSave", (gem::hw::vfat::LVDSPowerSaveToString.at(vfatDevice_->getVFAT2Params().lvdsMode)).c_str(), out);
+                   printVFAThwParameters("Latency", vfatDevice_->getVFAT2Params().latency, out);
+                   printVFAThwParameters("MSPolarity", (gem::hw::vfat::MSPolarityToString.at(vfatDevice_->getVFAT2Params().msPol)).c_str(), out);
+                   printVFAThwParameters("MSPulseLength", (gem::hw::vfat::MSPulseLengthToString.at(vfatDevice_->getVFAT2Params().msPulseLen)).c_str(), out);
+                   printVFAThwParameters("PbBG", (gem::hw::vfat::PbBGToString.at(vfatDevice_->getVFAT2Params().padBandGap)).c_str(), out);
+                   printVFAThwParameters("ProbeMode", (gem::hw::vfat::ProbeModeToString.at(vfatDevice_->getVFAT2Params().probeMode)).c_str(), out);
+                   printVFAThwParameters("RecHitCT", (gem::hw::vfat::ReHitCTToString.at(vfatDevice_->getVFAT2Params().reHitCT)).c_str(), out);
+                   printVFAThwParameters("RunMode", (gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode)).c_str(), out);
+                   printVFAThwParameters("TriggerMode", (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str(), out);
+                   printVFAThwParameters("TrimDACRange", (gem::hw::vfat::TrimDACRangeToString.at(vfatDevice_->getVFAT2Params().trimDACRange)).c_str(), out);
+                   printVFAThwParameters("VCal", vfatDevice_->getVFAT2Params().vCal, out);
+                   printVFAThwParameters("VThreshold1", vfatDevice_->getVFAT2Params().vThresh1, out);
+                   printVFAThwParameters("VThreshold2", vfatDevice_->getVFAT2Params().vThresh2, out);
+                *out << "</td>";
+            *out << "</table>";
+        *out << cgicc::td();
+    *out << cgicc::tr();
     *out << cgicc::table();
 
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
+
+    delete vfatDevice_;
+}
+
+void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value, xgi::Output * out)
+throw (xgi::exception::Exception)
+{
+    *out << "<tr>";
+    *out << "<td>";
+    *out << key << ":" << std::endl;
+    *out << "</td>";
+    *out << "<td>";
+    *out << value << std::endl;
+    *out << "</td>";
+    *out << "</tr>";
+ 
+}
+void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, uint8_t value, xgi::Output * out)
+throw (xgi::exception::Exception)
+{
+    std::stringstream ss;
+    ss << std::hex << (unsigned) value;
+    std::string value_string = "0x";
+    value_string.append(ss.str());
+    printVFAThwParameters(key, value_string.c_str(), out);
 }
