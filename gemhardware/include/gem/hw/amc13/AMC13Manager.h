@@ -9,9 +9,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-#include "amc13/AMC13.hh"
-//#include "amc13/Status.hh"
-
 namespace amc13 {
   class AMC13;
 }

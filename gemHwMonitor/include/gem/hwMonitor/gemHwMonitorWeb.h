@@ -10,6 +10,10 @@
 #include "gemHwMonitorHelper.h"
 
 #include "gem/hw/vfat/HwVFAT2.h"
+#include "gem/hw/vfat/VFAT2Settings.h"
+#include "gem/hw/vfat/VFAT2SettingsEnums.h"
+#include "gem/hw/vfat/VFAT2Enums2Strings.h"
+#include "gem/hw/vfat/VFAT2Strings2Enums.h"
 
 namespace cgicc {
     BOOLEAN_ELEMENT(section,"section");
@@ -18,6 +22,7 @@ namespace gem {
     namespace hw {
         namespace vfat {
             class HwVFAT2;
+            class VFAT2Settings;
         }
     }
     namespace hwMonitor {
@@ -90,6 +95,11 @@ namespace gem {
                 std::string ohToShow_;
                 std::string vfatToShow_;
                 gem::hw::vfat::HwVFAT2* vfatDevice_;
+
+                void printVFAThwParameters(const char* key, const char* value,  xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void printVFAThwParameters(const char* key, uint8_t value,  xgi::Output *out)
+		            throw (xgi::exception::Exception);
         };// end class gemHwMonitorWeb
     }// end namespace hwMonitor
 }// end namespace gem

@@ -2,11 +2,11 @@
 
 #include "gem/hw/vfat/HwVFAT2.h"
 
-//#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
-//#define INFO( MSG) LOG4CPLUS_INFO( logGEMHw_ , MSG)
-//#define WARN( MSG) LOG4CPLUS_WARN( logGEMHw_ , MSG)
-//#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
-//#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
+#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
+#define INFO( MSG) LOG4CPLUS_INFO( logGEMHw_ , MSG)
+#define WARN( MSG) LOG4CPLUS_WARN( logGEMHw_ , MSG)
+#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
+#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(xdaq::Application* vfatApp,
 				std::string const& vfatDevice):
@@ -97,15 +97,15 @@ void gem::hw::vfat::HwVFAT2::configureDevice()
 uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
 {
   //Maybe want to use a lock to prevent hammering the HW device
-  //uint32_t regValue;
-  //regValue = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
-  //return regValue;
-  //return gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
-  return readReg(getDeviceBaseNode(),regName);
+  uint32_t regValue;
+  regValue = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
+  //sleep(1);
+  //regValue = gem::hw::GEMHwDevice::readReg("user_regs.vfats.vfat_response");
+  //sleep(1);
+  return regValue;
 }
 
 //void gem::hw::vfat::HwVFAT2::readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params)
-// read VFAT chipID and upset/hit counters into vfatParams_ object
 void gem::hw::vfat::HwVFAT2::readVFAT2Counters()
 {
   vfatParams_.chipID       = getChipID();

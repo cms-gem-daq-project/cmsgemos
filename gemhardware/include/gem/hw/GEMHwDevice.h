@@ -8,12 +8,6 @@
 
 #include "uhal/uhal.hpp"
 
-#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
-#define INFO(MSG)  LOG4CPLUS_INFO(logGEMHw_  , MSG)
-#define WARN(MSG)  LOG4CPLUS_WARN(logGEMHw_  , MSG)
-#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
-#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
-
 #define MAX_VFAT_RETRIES 25
 
 typedef uhal::exception::exception uhalException;
@@ -57,6 +51,12 @@ namespace gem {
 	
 	bool isGEMHwDeviceConnected() { return gemHWP_ != 0; };
 	
+	virtual std::string getBoardID()   ;
+	virtual std::string getSystemID()  ;
+	//virtual std::string getIPAddress() ; //need to implement!!!
+	virtual std::string getFirmwareVer( std::string const& fwRegPrefix="glib_regs.sysregs") ;
+	virtual std::string getFirmwareDate(std::string const& fwRegPrefix="glib_regs.sysregs") ;
+
 	/**
 	 *Generic read/write functions or IPBus devices
 	 *operation will be the same for the GLIB, MP7, VFAT2/3, 
@@ -64,25 +64,17 @@ namespace gem {
 	 unless there are GEM specific functions we need to implement)
 	 */
 	//perform a single read transaction
-	virtual uint32_t readReg( std::string const& regName);
-	virtual uint32_t readReg( std::string const& regPrefix,
-				  std::string const& regName) {
-	  std::string name = regPrefix+"."+regName;
-	  return readReg(name); };
+	virtual uint32_t readReg(  std::string const& regName);
 	//read list of registers in a single transaction (one dispatch call) into the supplied vector regList
 	virtual void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
 
 	//perform a single write transaction
 	virtual void     writeReg( std::string const& regName, uint32_t const);
-	virtual void     writeReg( std::string const& regPrefix,
-				   std::string const& regName, uint32_t const val) {
-	  std::string name = regPrefix+"."+regName;
-	  return writeReg(name, val); };
 	//write list of registers in a single transaction (one dispatch call) using the supplied vector regList
 	virtual void     writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList);
 	//write single value to a list of registers in a single transaction (one dispatch call) using the supplied vector regList
 	virtual void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue);
-	
+
 	//write zero to a single register
 	virtual void     zeroReg(  std::string const& regName);
 	//write zero to a list of registers in a single transaction (one dispatch call) using the supplied vector regNames
@@ -90,20 +82,21 @@ namespace gem {
 
 	virtual std::vector<uint32_t> readBlock( std::string const& regName);
 	virtual std::vector<uint32_t> readBlock( std::string const& regName,
-						 size_t const nWords);
+					 size_t const nWords);
 	virtual void writeBlock(std::string const& regName,
 				std::vector<uint32_t> const values);
-	virtual void zeroBlock( std::string const& regName) { writeReg(regName, 0); }
+	virtual void zeroBlock( std::string const& regName) {
+	  writeReg(regName, 0); }
 
 
 	// These methods provide access to the member variables
 	// specifying the uhal address table name and the IPbus protocol
 	// version.
-	std::string getAddressTableFileName() const { return addressTable_;   };
-	std::string getIPbusProtocolVersion() const { return ipbusProtocol_;  };
-	std::string getDeviceBaseNode()       const { return deviceBaseNode_; };
-	std::string getDeviceIPAddress()      const { return deviceIPAddr_;   };
-	std::string getDeviceID()             const { return deviceID_;       };
+	std::string getAddressTableFileName() { return addressTable_;   };
+	std::string getIPbusProtocolVersion() { return ipbusProtocol_;  };
+	std::string getDeviceBaseNode()       { return deviceBaseNode_; };
+	std::string getDeviceIPAddress()      { return deviceIPAddr_;   };
+	std::string getDeviceID()             { return deviceID_;       };
 
 	void setAddressTableFileName(std::string const& name) {
 	  addressTable_ = "file://${BUILD_HOME}/data/"+name; };
@@ -116,13 +109,13 @@ namespace gem {
 	void setDeviceID(std::string const& deviceID) {
 	  deviceID_ = deviceID; };
 	
-	uhal::HwInterface& getGEMHwInterface() const;
+	uhal::HwInterface& getGEMHwInterface();// ;
 	
 	void updateErrorCounters(std::string const& errCode);
 	
 	DeviceErrors ipBusErrs;
 	
-	std::string printErrorCounts() const;
+	std::string printErrorCounts();
 	
       protected:
 	uhal::ConnectionManager *gemConnectionManager;
@@ -136,9 +129,9 @@ namespace gem {
 	std::string deviceIPAddr_;
 	std::string deviceID_;
 		
-	//std::string registerToChar(uint32_t value) const;
+	//std::string registerToChar(uint32_t value);
 	
-	std::string uint32ToString(uint32_t const val) const{
+	std::string uint32ToString(uint32_t const val) {
 	  std::stringstream res;
 	  res << char((val & uint32_t(0xff000000)) / 16777216);
 	  res << char((val & uint32_t(0x00ff0000)) / 65536);

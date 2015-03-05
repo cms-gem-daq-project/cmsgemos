@@ -48,12 +48,11 @@ namespace gem {
 	  virtual void resumeDevice();
 	  virtual void haltDevice();
 
-	  //bool isHwGLIBConnected();
+	  bool isHwGLIBConnected();
 
 	  std::string getBoardID()   const;
 	  std::string getSystemID()  const;
 	  std::string getIPAddress() const;
-	  std::string getUserFirmware() const;
 	  std::string getFirmwareVer( std::string const& fwRegPrefix="sysregs") const;
 	  std::string getFirmwareDate(std::string const& fwRegPrefix="sysregs") const;
 
