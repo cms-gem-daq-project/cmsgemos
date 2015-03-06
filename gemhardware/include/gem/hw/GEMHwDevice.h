@@ -33,7 +33,18 @@ namespace gem {
 	} DeviceErrors;
 	
       public:
+	/** 
+	 * GEMHwDevice constructor 
+	 * @param xdaqApp pointer to xdaq::Application
+	 **/
 	GEMHwDevice(xdaq::Application* xdaqApp);
+	/*
+	GEMHwDevice(xdaq::Application* xdaqApp,
+	            std::string& addressFileName,
+	            std::string& ipAddress,
+	            std::string& controlHubAddress,
+		    );
+	*/
 
 	virtual ~GEMHwDevice();
 	
@@ -59,14 +70,28 @@ namespace gem {
 
 	/**
 	 *Generic read/write functions or IPBus devices
-	 *operation will be the same for the GLIB, MP7, VFAT2/3, 
+	 * operation will be the same for the GLIB, MP7, VFAT2/3, 
 	 * and AMC13 ( we should use the already defined AMC13, rather than write our own,
-	 unless there are GEM specific functions we need to implement)
+	 * unless there are GEM specific functions we need to implement)
 	 */
-	//perform a single read transaction
-	virtual uint32_t readReg(  std::string const& regName);
+
+	/** readReg(std::string const& regName)
+	 * @param regName name of the register to read 
+	 * @retval returns the 32 bit unsigned value in the register
+	 */
+	virtual uint32_t readReg( std::string const& regName);
+
+	/** readReg(std::string const& regPrefix, std::string const& regName)
+	 * @param regPrefix prefix in the address table, possibly root nodes
+	 * @param regName name of the register to read from the address table
+	 * @retval returns the 32 bit unsigned value
+	 */
+	virtual uint32_t readReg( std::string const& regPrefix,
+			  std::string const& regName) {
+	  std::string name = regPrefix+"."+regName;
+	  return readReg(name); };
 	//read list of registers in a single transaction (one dispatch call) into the supplied vector regList
-	virtual void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
+	void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
 
 	//perform a single write transaction
 	virtual void     writeReg( std::string const& regName, uint32_t const);
@@ -76,7 +101,7 @@ namespace gem {
 	virtual void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue);
 
 	//write zero to a single register
-	virtual void     zeroReg(  std::string const& regName);
+	virtual void     zeroReg(  std::string const& regName) { writeReg(regName,0); };
 	//write zero to a list of registers in a single transaction (one dispatch call) using the supplied vector regNames
 	virtual void     zeroRegs( std::vector<std::string> const& regNames);
 
@@ -92,11 +117,11 @@ namespace gem {
 	// These methods provide access to the member variables
 	// specifying the uhal address table name and the IPbus protocol
 	// version.
-	std::string getAddressTableFileName() { return addressTable_;   };
-	std::string getIPbusProtocolVersion() { return ipbusProtocol_;  };
-	std::string getDeviceBaseNode()       { return deviceBaseNode_; };
-	std::string getDeviceIPAddress()      { return deviceIPAddr_;   };
-	std::string getDeviceID()             { return deviceID_;       };
+	const std::string getAddressTableFileName() const { return addressTable_;   };
+	const std::string getIPbusProtocolVersion() const { return ipbusProtocol_;  };
+	const std::string getDeviceBaseNode()       const { return deviceBaseNode_; };
+	const std::string getDeviceIPAddress()      const { return deviceIPAddr_;   };
+	const std::string getDeviceID()             const { return deviceID_;       };
 
 	void setAddressTableFileName(std::string const& name) {
 	  addressTable_ = "file://${BUILD_HOME}/data/"+name; };
