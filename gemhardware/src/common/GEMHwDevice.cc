@@ -6,7 +6,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   logGEMHw_(gemApp->getApplicationLogger()),
   gemHWP_(0)
   //monGEMHw_(0)
-
+  
 {
   //need to grab these parameters from the xml file or from some configuration space/file/db
   setAddressTableFileName("allregsnonfram.xml");
@@ -14,12 +14,12 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   setDeviceBaseNode("");
   setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
-
+  
   ipBusErrs.badHeader_     = 0;
   ipBusErrs.readError_     = 0;
   ipBusErrs.timeouts_      = 0;
   ipBusErrs.controlHubErr_ = 0;
-
+  
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
   /** 
@@ -34,7 +34,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
    * set register values to desired values -> hardware is configured!
    * startDevice:
    * set run bit -> hardware is running
-
+   
    * in this model, a device can be running while the C++ object no longer exists
    * is this a good thing?  one can always at a later time connect again and turn the device off
    * however, if we define the sequences as init->enable->configure->start
@@ -72,14 +72,14 @@ void gem::hw::GEMHwDevice::connectDevice()
   if (controlhubAddress.size() > 0)
     {
       DEBUG("Using control hub at address '" << controlhubAddress
-	   << ", port number " << controlhubPort << "'.");
+	    << ", port number " << controlhubPort << "'.");
       tmpUri << "chtcp-"<< getIPbusProtocolVersion() << "://" << controlhubAddress << ":" << controlhubPort
              << "?target=" << deviceAddress << ":" << ipbusPort;
     }
   else
     {
       DEBUG("No control hub address specified -> "
-	   "continuing with a direct connection.");
+	    "continuing with a direct connection.");
       tmpUri << "ipbusudp-" << getIPbusProtocolVersion() << "://"
              << deviceAddress << ":" << ipbusPort;
     }
@@ -90,8 +90,8 @@ void gem::hw::GEMHwDevice::connectDevice()
   //int retryCount = 0;
   
   uhal::HwInterface* tmpHWP = 0;
-
- try {
+  
+  try {
     tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
   }
   catch (uhal::exception::FileNotFound const& err)

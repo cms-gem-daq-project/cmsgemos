@@ -7,6 +7,7 @@
 #include "gem/hw/exception/Exception.h"
 
 #include "uhal/uhal.hpp"
+#include "uhal/Utilities.hpp"
 
 #define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
 #define INFO(MSG)  LOG4CPLUS_INFO(logGEMHw_  , MSG)
@@ -159,13 +160,31 @@ namespace gem {
 	log4cplus::Logger logGEMHw_;
 	uhal::HwInterface *gemHWP_;
 		
-	std::string uint32ToString(uint32_t const val) const{
+	std::string uint32ToString(uint32_t const val) const {
 	  std::stringstream res;
 	  res << char((val & uint32_t(0xff000000)) / 16777216);
 	  res << char((val & uint32_t(0x00ff0000)) / 65536);
 	  res << char((val & uint32_t(0x0000ff00)) / 256);
 	  res << char((val & uint32_t(0x000000ff)));
-	  return res.str(); }
+	  return res.str(); };
+
+	std::string uint32ToDottedQuad(uint32_t const val) const {
+	  std::stringstream res;
+	  res << std::hex << char((val & uint32_t(0xff000000)) / 16777216)<< std::dec << ".";
+	  res << std::hex << char((val & uint32_t(0x00ff0000)) / 65536)   << std::dec << ".";
+	  res << std::hex << char((val & uint32_t(0x0000ff00)) / 256)     << std::dec << ".";
+	  res << std::hex << char((val & uint32_t(0x000000ff)))           << std::dec;
+	  return res.str(); };
+	
+	std::string uint32ToGroupedHex(uint32_t const val1, uint32_t const val2) const {
+	  std::stringstream res;
+	  res << std::hex << char((val1 & uint32_t(0x0000ff00)) / 256)     << std::dec << ":";
+	  res << std::hex << char((val1 & uint32_t(0x000000ff)))           << std::dec << ":";
+	  res << std::hex << char((val2 & uint32_t(0xff000000)) / 16777216)<< std::dec << ":";
+	  res << std::hex << char((val2 & uint32_t(0x00ff0000)) / 65536)   << std::dec << ":";
+	  res << std::hex << char((val2 & uint32_t(0x0000ff00)) / 256)     << std::dec << ":";
+	  res << std::hex << char((val2 & uint32_t(0x000000ff)))           << std::dec;
+	  return res.str(); };
 	
       private:
 	std::string addressTable_;
