@@ -45,7 +45,10 @@ UserStaticLinkFlags =
 #                          -L$(CACTUS_HOME)/lib \
 #                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
+<<<<<<< HEAD
 DEBUG_LIBS = profiler tcmalloc
+=======
+>>>>>>> gemdaq-develop
 #DependentLibraries = config xcept boost_system cactus_uhal_uhal libgem_base
 DependentLibraries = config xcept boost_system cactus_uhal_uhal
 Libraries = config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus cactus_uhal_uhal
