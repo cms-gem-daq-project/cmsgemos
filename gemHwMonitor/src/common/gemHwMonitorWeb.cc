@@ -7,9 +7,11 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
         xdaq::WebApplication(s)
 {
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::Default, "Default");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::Dummy, "Dummy");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::controlPanel, "Control Panel");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::setConfFile,"setConfFile");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::getCratesConfiguration,"getCratesConfiguration");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::pingCrate,"pingCrate");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandCrate,"expandCrate");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::cratePanel,"cratePanel");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandGLIB,"expandGLIB");
@@ -41,6 +43,42 @@ void gem::hwMonitor::gemHwMonitorWeb::Default(xgi::Input * in, xgi::Output * out
 {
     this->controlPanel(in,out);
 }
+
+void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * out )
+
+    throw (xgi::exception::Exception)
+{
+    cgicc::Cgicc cgi(in);
+    for (unsigned int i = 0; i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().size(); i++) 
+    {
+        if (cgi.queryCheckbox(gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId())) 
+        {
+            //checkedCrates_.push_back(gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId());
+            //std::cout << "checked crate: "<<checkedCrates_.back() <<std::endl;
+            gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
+            crateDevice_->setAddressTableFileName("testbeam_registers.xml");
+            crateDevice_->setDeviceIPAddress("192.168.0.115");
+            crateDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS.VFAT9");
+            crateDevice_->connectDevice();
+            if (crateDevice_->isGEMHwDeviceConnected())
+            {
+                gemHwMonitorSystem_->setSubDeviceStatus(0,i);
+            } else {
+                gemHwMonitorSystem_->setSubDeviceStatus(1,i);
+            }
+            delete crateDevice_;
+        }
+    }
+    this->controlPanel(in,out);
+}
+
+void gem::hwMonitor::gemHwMonitorWeb::Dummy(xgi::Input * in, xgi::Output * out )
+
+    throw (xgi::exception::Exception)
+{
+    *out << "Dummy" <<std::endl; 
+}
+
 /* Generates the main page interface. Allows to choose the configuration file, then shows the availability of crates corresponding to this configuration.
  * Allows to launch the test utility to check the crates state.
  * */
@@ -49,11 +87,10 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
 {
     try {
 
-         *out << "    <link rel=\"stylesheet\" href=\"/gemdaq/gemhardware/html/css/vfat/vfatmanager.css\"/>"          << std::endl
-            << "    <link rel=\"stylesheet\" href=\"/gemdaq/gemhardware/html/css/vfat/vfatcontrolregisters.css\"/>" << std::endl
-            << "    <link rel=\"stylesheet\" href=\"/gemdaq/gemhardware/html/css/vfat/vfatglobalsettings.css\"/>"   << std::endl
-            << "    <link rel=\"stylesheet\" href=\"/gemdaq/gemhardware/html/css/vfat/vfatchannelregister.css\"/>"  << std::endl
-            << "    <link rel=\"stylesheet\" href=\"/gemdaq/gemhardware/html/css/vfat/vfatcommands.css\"/>"         << std::endl;
+        *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
+        << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
+        //*out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.min.css\">" << std::endl
+        //<< "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.min.css\">" << std::endl;
 
         ///////////////////////////////////////////////
         //
@@ -72,23 +109,22 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
         std::string methodText = toolbox::toString("/%s/setConfFile",getApplicationDescriptor()->getURN().c_str());
         *out << cgicc::form().set("method","POST").set("action",methodText) << std::endl ;
         *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80").set("ENCTYPE","multipart/form-data").set("value",gemSystemHelper_->getXMLconfigFile()) << std::endl;
-        *out << cgicc::input().set("type","submit").set("value","Set configuration file") << std::endl ;
+        *out << "<button type=\"submit\" class=\"btn btn-primary\">Set configuration file</button>" << std::endl;
         *out << cgicc::form() << std::endl ;
 
         std::string methodUpload = toolbox::toString("/%s/uploadConfFile",getApplicationDescriptor()->getURN().c_str());
         *out << cgicc::form().set("method","POST").set("enctype","multipart/form-data").set("action",methodUpload) << std::endl ;
-        *out << cgicc::input().set("type","file").set("name","xmlFilenameUpload").set("size","80") << std::endl;
-        *out << cgicc::input().set("type","submit").set("value","Submit") << std::endl ;
+        //*out << cgicc::input().set("type","file").set("name","xmlFilenameUpload").set("size","80") << std::endl;
+        *out << "<span class=\"btn btn-primary btn-file\">Browse <input type=\"file\" name=\"xmlFilenameUpload\"></span>" << std::endl;
+        *out << "<button type=\"submit\" class=\"btn btn-primary\">Submit</button>" << std::endl;
         *out << cgicc::form() << std::endl ;
 
         *out << cgicc::hr()<< std::endl;
-        *out << cgicc::br();
 
         *out << cgicc::h1("Crates configuration")<< std::endl;
 	    this->showCratesAvailability(in,out);
         *out << cgicc::hr()<< std::endl;
         *out << cgicc::br();
-
     }
 
     catch (const xgi::exception::Exception& e) {
@@ -105,61 +141,52 @@ throw (xgi::exception::Exception)
 {
     std::string methodGetCratesCfg = toolbox::toString("/%s/getCratesConfiguration", getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","POST").set("action", methodGetCratesCfg) << std::endl ;
-    *out << cgicc::input().set("type","submit").set("value","Get crates configuration") << "    " << std::endl;
+    *out << "<button type=\"submit\" class=\"btn btn-primary\">Get crates configuration</button>" << std::endl;
     *out << cgicc::form() << std::endl ;
     // If crates config is not available yet prompt to get it
     if (!crateCfgAvailable_) {
         *out << "Crate configuration isn't available. Please, get the crates configuration" << cgicc::br() <<std::endl;
     } else {
-        *out << "&nbsp" << cgicc::br() << std::endl;
-        *out << "Crates configuration is taken from XML. In order to check their availability please select needed crates and press 'Check selected crates availability' button. " << 
-        "To have more information about their state press 'Test selected crates' button" << 
-            cgicc::br() << std::endl;
+        //*out << "Crates configuration is taken from XML. In order to check their availability please select needed crates and press 'Check selected crates availability' button. " << 
+        //"To have more information about their state press 'Test selected crates' button" << 
+        //    cgicc::br() << std::endl;
         std::string methodExpandCrate = toolbox::toString("/%s/expandCrate", getApplicationDescriptor()->getURN().c_str());
         std::string methodSelectCrate = toolbox::toString("/%s/selectCrate", getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::table().set("border","0");
+        std::string methodPingCrate = toolbox::toString("/%s/pingCrate",getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::table().set("class","table-condensed");
+        *out << cgicc::tr();
         for (int i=0; i<nCrates_; i++) {
             std::string currentCrateID;
             currentCrateID += gemHwMonitorSystem_->getCurrentSubDeviceId(i);
             *out << cgicc::td();
-                *out << cgicc::table().set("border","0");
-                *out << cgicc::tr();
-                    *out << cgicc::td().set("align","center");
-                    *out << cgicc::form().set("method","POST").set("action", methodSelectCrate) << std::endl ;
-                    *out << cgicc::input().set("type","checkbox").set("name","crateCheckBox").set("value",currentCrateID) << std::endl;
-                    *out << cgicc::form() << std::endl ;
-                    *out << cgicc::td();
-                *out << cgicc::tr();
-                *out << cgicc::tr();
-                    *out << cgicc::form().set("method","POST").set("action", methodExpandCrate) << std::endl ;
-                    *out << cgicc::input().set("type","submit").set("name","crateButton").set("value",currentCrateID) << std::endl;
-                    *out << cgicc::form() << std::endl ;
-                *out << cgicc::tr();
-                *out << cgicc::tr();
-                    *out << cgicc::img().set("src", "/gemdaq/gemHwMonitor/html/images/green.jpg").set("width","84") << std::endl;
-                *out << cgicc::tr();
-                *out << cgicc::table();
+                *out << cgicc::form().set("method","POST").set("action", methodExpandCrate) << std::endl ;
+                if (gemHwMonitorSystem_->getSubDeviceStatus(i) == 0)
+                {
+                    *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"crateButton\" value=\"" << currentCrateID << "\">" << currentCrateID<< "</button>" << std::endl;
+                } else if (gemHwMonitorSystem_->getSubDeviceStatus(i) == 1)
+                {
+                    *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"crateButton\" value=\"" << currentCrateID << "\">" << currentCrateID<< "</button>" << std::endl;
+                } else if (gemHwMonitorSystem_->getSubDeviceStatus(i) == 2)
+                {
+                    *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"crateButton\" value=\"" << currentCrateID << "\" disabled>" << currentCrateID<< "</button>" << std::endl;
+                }
+                *out << cgicc::form() << std::endl ;
             *out << cgicc::td();
         }
+        *out << cgicc::tr();
+        *out << cgicc::tr();
+        *out << cgicc::form().set("method","GET").set("action",methodPingCrate) << std::endl ;
+        for (int i=0; i<nCrates_; i++) {
+            std::string currentCrateID;
+            currentCrateID += gemHwMonitorSystem_->getCurrentSubDeviceId(i);
+            *out << cgicc::td();
+                *out << cgicc::input().set("type","checkbox").set("name",currentCrateID) << std::endl;
+            *out << cgicc::td();
+        }
+        *out << cgicc::tr();
         *out << cgicc::table();
-        *out << cgicc::br();
-
-        *out << cgicc::table().set("border","0");
-        *out << cgicc::td();
-        std::string b22 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","GET").set("action",b22) << std::endl ;
-        *out << cgicc::input().set("type","submit").set("value","Check availability of selected crates") << std::endl ;
+            *out << "<button type=\"submit\" class=\"btn btn-primary\">Check availability of selected crates</button>" << std::endl;
         *out << cgicc::form();
-        *out << cgicc::td();
-        
-        *out << cgicc::td();
-        std::string b23 = toolbox::toString("/%s/Dummy",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","GET").set("action",b23) << std::endl ;
-        *out << cgicc::input().set("type","submit").set("value","Test selected crates") << std::endl ;
-        *out << cgicc::form();
-        *out << cgicc::td();
-        
-        *out << cgicc::table();
         *out << cgicc::br();
     }
 }
@@ -199,7 +226,14 @@ throw (xgi::exception::Exception)
     gemSystemHelper_->configure();
     crateCfgAvailable_ = true;
     nCrates_ = gemHwMonitorSystem_->getNumberOfSubDevices();
+    for (int i=0; i<nCrates_; i++) {
+        gemHwMonitorSystem_->addSubDeviceStatus(2);
+    }
     this->controlPanel(in,out);
+}
+void gem::hwMonitor::gemHwMonitorWeb::selectCrate(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
 }
 void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
@@ -214,6 +248,14 @@ throw (xgi::exception::Exception)
         if (gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == crateToShow_) 
         {
             gemHwMonitorCrate_->setDeviceConfiguration(*gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i));
+            for (int i=0; i<gemHwMonitorCrate_->getNumberOfSubDevices(); i++) {
+                if (i) 
+                {
+                    gemHwMonitorCrate_->addSubDeviceStatus(2);
+                } else {
+                    gemHwMonitorCrate_->addSubDeviceStatus(0);
+                }
+            }
         }
     }
     this->cratePanel(in,out);
@@ -221,10 +263,13 @@ throw (xgi::exception::Exception)
 void gem::hwMonitor::gemHwMonitorWeb::cratePanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
+    << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     *out << cgicc::h1("Crate ID: "+crateToShow_)<< std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Basic crate variables")<< std::endl;
     *out << cgicc::br()<< std::endl;
+    *out << "PLACEHOLDER" << std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Connected AMC13")<< std::endl;
     *out << cgicc::br()<< std::endl;
@@ -239,13 +284,19 @@ throw (xgi::exception::Exception)
         currentGLIBId += gemHwMonitorCrate_->getCurrentSubDeviceId(i);
         *out << cgicc::td();
             *out << cgicc::form().set("method","POST").set("action", methodExpandGLIB) << std::endl ;
-            *out << cgicc::input().set("type","submit").set("name","glibButton").set("value",currentGLIBId) << std::endl;
-            *out << cgicc::form() << std::endl;
+            if (gemHwMonitorCrate_->getSubDeviceStatus(i) == 0)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"glibButton\" value=\"" << currentGLIBId << "\">" << currentGLIBId<< "</button>" << std::endl;
+            } else if (gemHwMonitorCrate_->getSubDeviceStatus(i) == 1)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"glibButton\" value=\"" << currentGLIBId << "\">" << currentGLIBId<< "</button>" << std::endl;
+            } else if (gemHwMonitorCrate_->getSubDeviceStatus(i) == 2)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"glibButton\" value=\"" << currentGLIBId << "\" disabled>" << currentGLIBId<< "</button>" << std::endl;
+            }
+            *out << cgicc::form() << std::endl ;
         *out << cgicc::td();
     }
-    *out << cgicc::td();
-    *out << cgicc::td();
-    *out << "Try to read smth from device " << std::endl;
     *out << cgicc::td();
     *out << cgicc::table();
     *out << cgicc::br()<< std::endl;
@@ -263,6 +314,14 @@ throw (xgi::exception::Exception)
         if (gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == glibToShow_) 
         {
             gemHwMonitorGLIB_->setDeviceConfiguration(*gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i));
+            for (int i=0; i<gemHwMonitorGLIB_->getNumberOfSubDevices(); i++) {
+                if (i) 
+                {
+                    gemHwMonitorGLIB_->addSubDeviceStatus(2);
+                } else {
+                    gemHwMonitorGLIB_->addSubDeviceStatus(0);
+                }
+            }
         }
     }
     this->glibPanel(in,out);
@@ -270,10 +329,13 @@ throw (xgi::exception::Exception)
 void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
+    << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     *out << cgicc::h1("GLIB ID: "+glibToShow_)<< std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Basic glib variables")<< std::endl;
     *out << cgicc::br()<< std::endl;
+    *out << "PLACEHOLDER" << std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Connected OH's")<< std::endl;
     std::string methodExpandOH = toolbox::toString("/%s/expandOH", getApplicationDescriptor()->getURN().c_str());
@@ -283,7 +345,16 @@ throw (xgi::exception::Exception)
         currentOHId += gemHwMonitorGLIB_->getCurrentSubDeviceId(i);
         *out << cgicc::td();
             *out << cgicc::form().set("method","POST").set("action", methodExpandOH) << std::endl ;
-            *out << cgicc::input().set("type","submit").set("name","ohButton").set("value",currentOHId) << std::endl;
+            if (gemHwMonitorGLIB_->getSubDeviceStatus(i) == 0)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"ohButton\" value=\"" << currentOHId << "\">" << currentOHId<< "</button>" << std::endl;
+            } else if (gemHwMonitorGLIB_->getSubDeviceStatus(i) == 1)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"ohButton\" value=\"" << currentOHId << "\">" << currentOHId<< "</button>" << std::endl;
+            } else if (gemHwMonitorGLIB_->getSubDeviceStatus(i) == 2)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"ohButton\" value=\"" << currentOHId << "\" disabled>" << currentOHId<< "</button>" << std::endl;
+            }
             *out << cgicc::form() << std::endl;
         *out << cgicc::td();
     }
@@ -303,6 +374,14 @@ throw (xgi::exception::Exception)
         if (gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) 
         {
             gemHwMonitorOH_->setDeviceConfiguration(*gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i));
+            for (int i=0; i<gemHwMonitorOH_->getNumberOfSubDevices(); i++) {
+                if (i) 
+                {
+                    gemHwMonitorOH_->addSubDeviceStatus(2);
+                } else {
+                    gemHwMonitorOH_->addSubDeviceStatus(0);
+                }
+            }
         }
     }
     this->ohPanel(in,out);
@@ -310,10 +389,13 @@ throw (xgi::exception::Exception)
 void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
+    << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     *out << cgicc::h1("OH ID: "+ohToShow_)<< std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Basic OH variables")<< std::endl;
     *out << cgicc::br()<< std::endl;
+    *out << "PLACEHOLDER" << std::endl;
     *out << cgicc::hr()<< std::endl;
     *out << cgicc::h2("Connected VFAT's")<< std::endl;
     std::string methodExpandVFAT = toolbox::toString("/%s/expandVFAT", getApplicationDescriptor()->getURN().c_str());
@@ -323,7 +405,16 @@ throw (xgi::exception::Exception)
         currentVFATId += gemHwMonitorOH_->getCurrentSubDeviceId(i);
         *out << cgicc::td();
             *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
-            *out << cgicc::input().set("type","submit").set("name","vfatButton").set("value",currentVFATId) << std::endl;
+            if (gemHwMonitorOH_->getSubDeviceStatus(i) == 0)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
+            } else if (gemHwMonitorOH_->getSubDeviceStatus(i) == 1)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
+            } else if (gemHwMonitorOH_->getSubDeviceStatus(i) == 2)
+            {
+                *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << currentVFATId<< "</button>" << std::endl;
+            }
             *out << cgicc::form() << std::endl;
         *out << cgicc::td();
     }
@@ -350,10 +441,13 @@ throw (xgi::exception::Exception)
 void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
+    << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
     vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
     vfatDevice_->setDeviceIPAddress("192.168.0.115");
-    vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS.VFAT9");
+    //vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS.VFAT9");
+    vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
     vfatDevice_->connectDevice();
     vfatDevice_->readVFAT2Counters();
     vfatDevice_->getAllSettings();
