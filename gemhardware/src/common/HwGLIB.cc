@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "gem/hw/glib/HwGLIB.h"
 
 gem::hw::glib::HwGLIB::HwGLIB(xdaq::Application* glibApp):
@@ -152,6 +154,35 @@ std::string gem::hw::glib::HwGLIB::getSystemID()
   std::string res = "???";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.SYSTEM_ID");
   res = uint32ToString(val);
+  return res;
+}
+
+std::string gem::hw::glib::HwGLIB::getIPAddress()
+{
+  //LockGuard<Lock> guardedLock(lock_);
+  std::string res = "N/A";
+  uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.IP_INFO");
+  res = uint32ToDottedQuad(val);
+  return res;
+}
+
+std::string gem::hw::glib::HwGLIB::getMACAddress()
+{
+  //LockGuard<Lock> guardedLock(lock_);
+  /*
+  std::stringstream res;
+  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B5") << std::dec << ":";
+  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B4") << std::dec << ":";
+  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B3") << std::dec << ":";
+  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B2") << std::dec << ":";
+  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B1") << std::dec << ":";
+  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B0") << std::dec;
+  return res.str();
+  */
+  std::string res = "N/A";
+  uint32_t val1 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.UPPER");
+  uint32_t val2 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.LOWER");
+  res = uint32ToGroupedHex(val1,val2);
   return res;
 }
 
