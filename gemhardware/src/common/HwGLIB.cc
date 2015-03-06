@@ -204,21 +204,21 @@ void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t input, uint8_t o
     return;
   }
   
-  std::stringstream regname;
+  std::stringstream regName;
   if (xpoint2)
-    regname << "SYSTEM.CLK_CTRL.XPOINT2.";
+    regName << "SYSTEM.CLK_CTRL.XPOINT2.";
   else
-    regname << "SYSTEM.CLK_CTRL.XPOINT1.";
+    regName << "SYSTEM.CLK_CTRL.XPOINT1.";
   
   switch(output) {
   case (0):
-    regname << "S1";
+    regName << "S1";
   case (1):
-    regname << "S2";
+    regName << "S2";
   case (2):
-    regname << "S3";
+    regName << "S3";
   case (3):
-    regname << "S4";
+    regName << "S4";
   }
   //input = b7b6b5b4b3b2b1b0 and all that matter are b1 and b0 -> 1 and 0 of, eg., S1
   // input == 0 -> b1b0 == 00
@@ -227,8 +227,8 @@ void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t input, uint8_t o
   // input == 3 -> b1b0 == 11
   // but the xpoint switch inverts b0 and b1 when routing outputs
   // thus to select input 3 for output 1, one sets S10=1 and S11=0
-  writeReg(getDeviceBaseNode(),regname.str()+"1",input&0x01);
-  writeReg(getDeviceBaseNode(),regname.str()+"0",(input&0x10)>>1);
+  writeReg(getDeviceBaseNode(),regName.str()+"1",input&0x01);
+  writeReg(getDeviceBaseNode(),regName.str()+"0",(input&0x10)>>1);
 }
 
 uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t output)
@@ -247,29 +247,78 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t output)
     return output;
   }
   
-  std::stringstream regname;
+  std::stringstream regName;
   if (xpoint2)
-    regname << "SYSTEM.CLK_CTRL.XPOINT2.";
+    regName << "SYSTEM.CLK_CTRL.XPOINT2.";
   else
-    regname << "SYSTEM.CLK_CTRL.XPOINT1.";
+    regName << "SYSTEM.CLK_CTRL.XPOINT1.";
   
   switch(output) {
   case (0):
-    regname << "S1";
+    regName << "S1";
   case (1):
-    regname << "S2";
+    regName << "S2";
   case (2):
-    regname << "S3";
+    regName << "S3";
   case (3):
-    regname << "S4";
+    regName << "S4";
   }
   uint8_t input = 0x0;
-  input |= (readReg(getDeviceBaseNode(),regname.str()+"0")&0x1)<<1;
+  input |= (readReg(getDeviceBaseNode(),regName.str()+"0")&0x1)<<1;
   //input = input << 1;
-  input |= (readReg(getDeviceBaseNode(),regname.str()+"1")&0x1);
+  input |= (readReg(getDeviceBaseNode(),regName.str()+"1")&0x1);
   return input;
 }
 
+uint8_t gem::hw::glib::HwGLIB::SFPStatus(uint8_t sfpcage)
+{
+  //LockGuard<Lock> guardedLock(lock_);
+  std::stringstream regName;
+  regName << "SYSTEM.STATUS.SFP" << (int)sfpcage << ".STATUS";
+  return (uint8_t)readReg(getDeviceBaseNode(),regName.str());
+}
+
+bool gem::hw::glib::HwGLIB::FMCStatus(bool fmc2)
+{
+  //LockGuard<Lock> guardedLock(lock_);
+  std::stringstream regName;
+  regName << "SYSTEM.STATUS.FMC" << (int)fmc2 << "_PRESENT";
+  return (bool)readReg(getDeviceBaseNode(),regName.str());
+}
+
+bool gem::hw::glib::HwGLIB::GbEInterrupt()
+{
+  //LockGuard<Lock> guardedLock(lock_);
+  std::stringstream regName;
+  regName << "SYSTEM.STATUS.GBE_INT";
+  return (bool)readReg(getDeviceBaseNode(),regName.str());
+}
+
+bool gem::hw::glib::HwGLIB::FPGAReset()
+{
+  //LockGuard<Lock> guardedLock(lock_);
+  std::stringstream regName;
+  regName << "SYSTEM.STATUS.FPGA_RESET";
+  return (bool)readReg(getDeviceBaseNode(),regName.str());
+}
+
+uint8_t gem::hw::glib::HwGLIB::V6CPLD()
+{
+  //LockGuard<Lock> guardedLock(lock_);
+  std::stringstream regName;
+  regName << "SYSTEM.STATUS.V6_CPLD";
+  return (uint8_t)readReg(getDeviceBaseNode(),regName.str());
+}
+
+bool gem::hw::glib::HwGLIB::CDCELocked()
+{
+  //LockGuard<Lock> guardedLock(lock_);
+  std::stringstream regName;
+  regName << "SYSTEM.STATUS.CDCE_LOCK";
+  return (bool)readReg(getDeviceBaseNode(),regName.str());
+}
+
+/** User core functionality **/
 std::string gem::hw::glib::HwGLIB::getUserFirmware()
 {
   // This returns the user firmware build date. 
@@ -289,13 +338,13 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_
     XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
   }
   else {
-    std::stringstream regname;
-    regname << "OPTICAL_LINKS.LINK" << (int)link << ".Counter.";
-    linkStatus.linkErrCnt      = readReg(getDeviceBaseNode(),regname.str()+"LinkErr"      );
-    linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regname.str()+"RecI2CReqests");
-    linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regname.str()+"SntI2CReqests");
-    linkStatus.linkRegisterRec = readReg(getDeviceBaseNode(),regname.str()+"RecRegReqests");
-    linkStatus.linkRegisterSnt = readReg(getDeviceBaseNode(),regname.str()+"SntRegReqests");
+    std::stringstream regName;
+    regName << "OPTICAL_LINKS.LINK" << (int)link << ".Counter.";
+    linkStatus.linkErrCnt      = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"      );
+    linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regName.str()+"RecI2CReqests");
+    linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regName.str()+"SntI2CReqests");
+    linkStatus.linkRegisterRec = readReg(getDeviceBaseNode(),regName.str()+"RecRegReqests");
+    linkStatus.linkRegisterSnt = readReg(getDeviceBaseNode(),regName.str()+"SntRegReqests");
   }
   return linkStatus;
 }
@@ -307,31 +356,31 @@ void gem::hw::glib::HwGLIB::LinkReset(uint8_t link, uint8_t resets) {
     return;
   }
   
-  std::stringstream regname;
-  regname << "OPTICAL_LINKS.LINK" << (int)link << ".Resets.";
+  std::stringstream regName;
+  regName << "OPTICAL_LINKS.LINK" << (int)link << ".Resets.";
   if (resets&0x01)
-    writeReg(getDeviceBaseNode(),regname.str()+"LinkErr",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"LinkErr",0x1);
   if (resets&0x02)
-    writeReg(getDeviceBaseNode(),regname.str()+"RecI2CReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"RecI2CReqests",0x1);
   if (resets&0x04)
-    writeReg(getDeviceBaseNode(),regname.str()+"SntI2CReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"SntI2CReqests",0x1);
   if (resets&0x08)
-    writeReg(getDeviceBaseNode(),regname.str()+"RecRegReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"RecRegReqests",0x1);
   if (resets&0x10)
-    writeReg(getDeviceBaseNode(),regname.str()+"SntRegReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"SntRegReqests",0x1);
 }
 
 uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO() {
-  std::stringstream regname;
-  regname << "TRG_DATA.";
-  uint32_t trgword = readReg(getDeviceBaseNode(),regname.str()+"DATA");
+  std::stringstream regName;
+  regName << "TRG_DATA.";
+  uint32_t trgword = readReg(getDeviceBaseNode(),regName.str()+"DATA");
   return trgword;
 }
 
 void gem::hw::glib::HwGLIB::flushTriggerFIFO() {
-  std::stringstream regname;
-  regname << "TRG_DATA.";
-  writeReg(getDeviceBaseNode(),regname.str()+"FIFO_FLUSH",0x1);
+  std::stringstream regName;
+  regName << "TRG_DATA.";
+  writeReg(getDeviceBaseNode(),regName.str()+"FIFO_FLUSH",0x1);
 }
 
 uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t link) {
@@ -342,9 +391,9 @@ uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t link) {
     return fifocc;
   }
   
-  std::stringstream regname;
-  regname << "OPTICAL_LINKS.LINK" << (int)link << ".TRK_FIFO.";
-  fifocc = readReg(getDeviceBaseNode(),regname.str()+"DEPTH");
+  std::stringstream regName;
+  regName << "OPTICAL_LINKS.LINK" << (int)link << ".TRK_FIFO.";
+  fifocc = readReg(getDeviceBaseNode(),regName.str()+"DEPTH");
   
   return fifocc;
 }
@@ -356,7 +405,7 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t link) {
     return;
   }
 
-  std::stringstream regname;
-  regname << "OPTICAL_LINKS.LINK" << (int)link << ".TRK_FIFO.";
-  writeReg(getDeviceBaseNode(),regname.str()+"FLUSH",0x1);
+  std::stringstream regName;
+  regName << "OPTICAL_LINKS.LINK" << (int)link << ".TRK_FIFO.";
+  writeReg(getDeviceBaseNode(),regName.str()+"FLUSH",0x1);
 }
