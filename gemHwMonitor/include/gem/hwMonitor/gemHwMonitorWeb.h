@@ -35,9 +35,13 @@ namespace gem {
                 ~gemHwMonitorWeb();
                 void Default(xgi::Input *in, xgi::Output *out )
 		            throw (xgi::exception::Exception);
+                void Dummy(xgi::Input *in, xgi::Output *out )
+		            throw (xgi::exception::Exception);
 		        void controlPanel(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
 		        void showCratesAvailability(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+		        void pingCrate(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
 		        void showCrateUtilities(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
@@ -48,6 +52,8 @@ namespace gem {
                 void getCratesConfiguration(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
                 void expandCrate(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void selectCrate(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
                 void cratePanel(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
@@ -95,6 +101,7 @@ namespace gem {
                 std::string ohToShow_;
                 std::string vfatToShow_;
                 gem::hw::vfat::HwVFAT2* vfatDevice_;
+                std::vector<std::string> checkedCrates_;
 
                 void printVFAThwParameters(const char* key, const char* value,  xgi::Output *out)
 		            throw (xgi::exception::Exception);

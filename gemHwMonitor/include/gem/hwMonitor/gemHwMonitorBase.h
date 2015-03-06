@@ -39,6 +39,31 @@ namespace gem {
 
                 const std::string getDeviceId()
                     throw (xgi::exception::Exception);
+
+                /**
+                 *   Get subdevice status
+                 *   0 - device is working well, 1 - device has errors, 2 - device status unknown
+                 */
+                unsigned int getSubDeviceStatus (unsigned int i)
+                    throw (xgi::exception::Exception)
+		            {return subDeviceStatus_.at(i);}
+
+                /**
+                 *   Set subdevice status
+                 *   0 - device is working well, 1 - device has errors, 2 - device status unknown
+                 */
+                void setSubDeviceStatus (const unsigned int deviceStatus, const unsigned int i)
+                    throw (xgi::exception::Exception)
+		            {subDeviceStatus_.at(i) = deviceStatus;}
+
+                /**
+                 *   Add subdevice status
+                 *   0 - device is working well, 1 - device has errors, 2 - device status unknown
+                 */
+                void addSubDeviceStatus (unsigned int deviceStatus)
+                    throw (xgi::exception::Exception)
+		            {subDeviceStatus_.push_back(deviceStatus);}
+
                 /**
                  *   Get device status
                  *   0 - device is working well, 1 - device has errors, 2 - device status unknown
@@ -81,6 +106,7 @@ namespace gem {
             private:
                 bool isConfigured_;
                 unsigned int deviceStatus_; // 0 - device is working well, 1 - device has errors, 2 - device status unknown
+                std::vector<unsigned int> subDeviceStatus_; // 0 - device is working well, 1 - device has errors, 2 - device status unknown
                 std::string xmlConfigFileName_;
                 T* gemDevice_;
         };
