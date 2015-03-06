@@ -309,10 +309,10 @@ namespace gem {
 	   **/
 	  uint8_t V6CPLD();
 	  
-	  /** is the CPLD locked
-	   * @returns true if the CPLD is locked
+	  /** is the CDCE locked
+	   * @returns true if the CDCE is locked
 	   **/
-	  bool CPLDLocked();
+	  bool CDCELocked();
 	  
 	  
 	  //user core functionality

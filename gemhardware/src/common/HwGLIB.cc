@@ -278,7 +278,7 @@ uint8_t gem::hw::glib::HwGLIB::SFPStatus(uint8_t sfpcage)
   return (uint8_t)readReg(getDeviceBaseNode(),regName.str());
 }
 
-bool gem::hw::glib::HwGLIB::FMCStatus(bool fmc2)
+bool gem::hw::glib::HwGLIB::FMCPresence(bool fmc2)
 {
   //LockGuard<Lock> guardedLock(lock_);
   std::stringstream regName;
