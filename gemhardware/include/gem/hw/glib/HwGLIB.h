@@ -73,6 +73,11 @@ namespace gem {
 	   **/
 	  std::string getIPAddress();
 
+	  /** Read the MAC address register
+	   * @returns a string corresponding to the MAC address of the board
+	   **/
+	  std::string getMACAddress();
+
 	  /** Read the system firmware register
 	   * @returns a string corresponding to firmware version
 	   **/
@@ -95,54 +100,54 @@ namespace gem {
 	   * @param factor 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
 	   **/
 	  void PCIeClkFSel(uint8_t factor) {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    writeReg(getDeviceBaseNode(),regname.str()+"PCIE_CLK_FSEL",(uint32_t)factor);
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_FSEL",(uint32_t)factor);
 	  };
 	  
 	  /** get the PCIe clock multiplier
 	   * @returns the clock multiplier 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
 	   **/
 	  uint8_t PCIeClkFSel() {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    return (uint8_t)readReg(getDeviceBaseNode(),regname.str()+"PCIE_CLK_FSEL");
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_FSEL");
 	  };
 	  
 	  /** send master reset to the PCIe clock
 	   * @param reset 1 -> reset, 0 -> normal operation
 	   **/
 	  void PCIeClkMaster(bool reset) {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    writeReg(getDeviceBaseNode(),regname.str()+"PCIE_CLK_MR",(uint32_t)reset);
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_MR",(uint32_t)reset);
 	  };
 	  
 	  /** get the PCIe clock reset state
 	   * @returns the clock reset state 0 -> normal mode, 1 -> reset
 	   **/
 	  uint8_t PCIeClkMaster() {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    return (uint8_t)readReg(getDeviceBaseNode(),regname.str()+"PCIE_CLK_MR");
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_MR");
 	  };
 	  
 	  /** enable the PCIe clock output
 	   * @param enable 0 -> disabled, 1 -> enabled
 	   **/
 	  void PCIeClkOutput(bool enable) {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    writeReg(getDeviceBaseNode(),regname.str()+"PCIE_CLK_OE",(uint32_t)enable);
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_OE",(uint32_t)enable);
 	  };
 	  
 	  /** get the PCIe clock output status
 	   * @returns the clock output status 0 -> disabled, 1 -> enabled
 	   **/
 	  uint8_t PCIeClkOutput() {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    return (uint8_t)readReg(getDeviceBaseNode(),regname.str()+"PCIE_CLK_OE");
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_OE");
 	  };
 
 
@@ -150,47 +155,47 @@ namespace gem {
 	   * @param powerup 0 -> power down, 1 -> power up
 	   **/
 	  void CDCEPower(bool powerup) {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    writeReg(getDeviceBaseNode(),regname.str()+"CDCE_POWERUP",(uint32_t)powerup);
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    writeReg(getDeviceBaseNode(),regName.str()+"CDCE_POWERUP",(uint32_t)powerup);
 	  };
 	  
 	  /** get the CDCE clock output status
 	   * @returns the clock output status 0 -> disabled, 1 -> enabled
 	   **/
 	  uint8_t CDCEPower() {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    return (uint8_t)readReg(getDeviceBaseNode(),regname.str()+"CDCE_POWERUP");
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"CDCE_POWERUP");
 	  };
 
 	  /** select the CDCE reference clock
 	   * @param refsrc 0 -> CLK1, 1 -> CLK2
 	   **/
 	  void CDCEReference(bool refsrc) {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    writeReg(getDeviceBaseNode(),regname.str()+"CDCE_REFSEL",(uint32_t)refsrc);
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    writeReg(getDeviceBaseNode(),regName.str()+"CDCE_REFSEL",(uint32_t)refsrc);
 	  };
 	  
 	  /** get the CDCE reference clock
 	   * @returns the reference clock status 0 -> CLK1, 1 -> CLK2
 	   **/
 	  uint8_t CDCEReference() {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    return (uint8_t)readReg(getDeviceBaseNode(),regname.str()+"CDCE_REFSEL");
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"CDCE_REFSEL");
 	  };
 
 	  /** resync the CDCE requires a transition from 0 to 1
 	   * @param powerup 0 -> power down, 1 -> power up
 	   **/
 	  void CDCESync(bool sync) {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
 	    if (sync) {
-	      writeReg(getDeviceBaseNode(),regname.str()+"CDCE_SYNC",0x0);
-	      writeReg(getDeviceBaseNode(),regname.str()+"CDCE_SYNC",0x1);
+	      writeReg(getDeviceBaseNode(),regName.str()+"CDCE_SYNC",0x0);
+	      writeReg(getDeviceBaseNode(),regName.str()+"CDCE_SYNC",0x1);
 	    }
 	  };
 	  
@@ -198,27 +203,27 @@ namespace gem {
 	   * @returns the cdce sync status 0 -> disabled, 1 -> enabled
 	   **/
 	  uint8_t CDCESync() {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    return (uint8_t)readReg(getDeviceBaseNode(),regname.str()+"CDCE_SYNC");
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"CDCE_SYNC");
 	  };
 
 	  /** choose who controls the CDCE
 	   * @param source 0 -> system firmware, 1 -> user firmware
 	   **/
 	  void CDCEControl(bool source) {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    writeReg(getDeviceBaseNode(),regname.str()+"CDCE_CTRLSEL",(uint32_t)source);
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    writeReg(getDeviceBaseNode(),regName.str()+"CDCE_CTRLSEL",(uint32_t)source);
 	  };
 	  
 	  /** get the CDCE clock output status
 	   * @returns the cdce control status 0 -> system firmware, 1 -> user firmware
 	   **/
 	  uint8_t CDCEControl() {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    return (uint8_t)readReg(getDeviceBaseNode(),regname.str()+"CDCE_CTRLSEL");
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"CDCE_CTRLSEL");
 	  };
 
 
@@ -226,18 +231,18 @@ namespace gem {
 	   * @param enable 0 -> disabled, 1 -> enabled
 	   **/
 	  void TClkBOutput(bool enable) {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    writeReg(getDeviceBaseNode(),regname.str()+"TCLKB_DR_EN",(uint32_t)enable);
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    writeReg(getDeviceBaseNode(),regName.str()+"TCLKB_DR_EN",(uint32_t)enable);
 	  };
 	  
 	  /** get the TClkB output to the backplane status
 	   * @returns the clock output status 0 -> disabled, 1 -> enabled
 	   **/
 	  uint8_t TClkBOutput() {
-	    std::stringstream regname;
-	    regname << "SYSTEM.CLK_CTRL.";
-	    return (uint8_t)readReg(getDeviceBaseNode(),regname.str()+"TCLKB_DR_EN");
+	    std::stringstream regName;
+	    regName << "SYSTEM.CLK_CTRL.";
+	    return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"TCLKB_DR_EN");
 	  };
 	  
 	  /** control the xpoint switch
@@ -275,9 +280,41 @@ namespace gem {
 	  /** get the routing of the XPoint switch
 	   * @returns the input that is currently routed to a specified output
 	   **/
-	  uint8_t XPointControl(bool xpoint2, uint8_t output) ;
+	  uint8_t XPointControl(bool xpoint2, uint8_t output);
 	  
-
+	  /** get the status of the GLIB SFP
+	   * @param sfpcage
+	   * @returns the 3 status bits of the specified SFP
+	   **/
+	  uint8_t SFPStatus(uint8_t sfpcage);
+	  
+	  /** get the presence of the FMC in slot 1 or 2
+	   * @param fmc2 true for FMC2 false for FMC1
+	   * @returns true if an FMC is in the selected slot
+	   **/
+	  bool FMCPresence(bool fmc2);
+	  
+	  /** is there a GbE interrupt on the PHY
+	   * @returns true if there is an interrupt
+	   **/
+	  bool GbEInterrupt();
+	  
+	  /** returns the state of the FPGA reset line (driven by the CPLD)
+	   * @returns true if there is a reset
+	   **/
+	  bool FPGAReset();
+	  
+	  /** returns the status of the 6-bit bus between the FPGA and the CPLD
+	   * @returns 
+	   **/
+	  uint8_t V6CPLD();
+	  
+	  /** is the CPLD locked
+	   * @returns true if the CPLD is locked
+	   **/
+	  bool CPLDLocked();
+	  
+	  
 	  //user core functionality
 	  /** Read the user firmware register
 	   * @returns a string corresponding to the build date
