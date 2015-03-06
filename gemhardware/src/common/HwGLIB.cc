@@ -18,6 +18,18 @@ gem::hw::glib::HwGLIB::~HwGLIB()
   releaseDevice();
 }
 
+void gem::hw::glib::HwGLIB::configureDevice(std::string const& xmlSettings)
+{
+  //here load the xml file settings onto the board
+  
+}
+
+void gem::hw::glib::HwGLIB::configureDevice()
+{
+  //determine the manner in which to configure the device (XML or DB parameters)
+  
+}
+
 //void gem::hw::glib::HwGLIB::connectDevice()
 //{
 //  std::string const controlhubAddress = cfgInfoSpaceP_->getString("controlhubAddress");
