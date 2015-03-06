@@ -1,4 +1,4 @@
-//General structure taken blatantly from tcds::utils::HwDeviceTCA/HwGLIB as we're using the same card
+//General structure taken blatantly from tcds::utils::HwDeviceTCA as we're using the same card
 
 #include "gem/hw/GEMHwDevice.h"
 
@@ -49,7 +49,7 @@ gem::hw::GEMHwDevice::~GEMHwDevice()
     releaseDevice();
 }
 
-std::string gem::hw::GEMHwDevice::printErrorCounts() {
+std::string gem::hw::GEMHwDevice::printErrorCounts() const {
   std::stringstream errstream;
   errstream << "errors while accessing registers:"    << std::endl 
 	    << "Bad header:  " <<ipBusErrs.badHeader_ << std::endl
@@ -206,7 +206,7 @@ void gem::hw::GEMHwDevice::enableDevice()
    }
 **/
 
-uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface()// const
+uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 {
   if (gemHWP_ == 0)
     {
@@ -219,91 +219,6 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface()// const
       uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*gemHWP_);
       return hw;
     }
-}
-
-std::string gem::hw::GEMHwDevice::getBoardID()
-{
-  //LockGuard<Lock> guardedLock(lock_);
-  // The board ID consists of four characters encoded as a 32-bit
-  // something.
-  std::string res = "???";
-  uint32_t val = readReg("glib_regs.sysregs.board_id");
-  res = uint32ToString(val);
-  return res;
-}
-
-std::string gem::hw::GEMHwDevice::getSystemID()
-{
-  //LockGuard<Lock> guardedLock(lock_);
-  std::string res = "???";
-  uint32_t val = readReg("glib_regs.sysregs.system_id");
-  res = uint32ToString(val);
-  return res;
-}
-
-std::string gem::hw::GEMHwDevice::getFirmwareDate(std::string const& regNamePrefix)
-{
-  // This returns the firmware build date. If no register name prefix
-  // is given, 'glib' is used, and the build date returned is that of
-  // the system logic (as opposed to the user logic)..
-  //LockGuard<Lock> guardedLock(lock_);
-  std::stringstream res;
-  std::stringstream regName;
-  /**
-     regName << regNamePrefix << ".firmware_id.date_yy";
-     uint32_t yy = readReg(regName.str());
-     regName.str("");
-     regName << regNamePrefix << ".firmware_id.date_mm";
-     uint32_t mm = readReg(regName.str());
-     regName.str("");
-     regName << regNamePrefix << ".firmware_id.date_dd";
-     uint32_t dd = readReg(regName.str());
-     res << "20" << std::setfill('0') << std::setw(2) << yy
-     << "-"
-     << std::setw(2) << mm
-     << "-"
-     << std::setw(2) << dd;
-  **/
-  regName.str("");
-  regName << regNamePrefix << ".firmware_id";
-  uint32_t fwid = readReg(regName.str());
-  res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
-      << "-"
-      << std::setw(2) << ((fwid>>5)&0x0f)
-      << "-"
-      << std::setw(2) << ((fwid>>9)&0x7f);
-  return res.str();
-}
-
-std::string gem::hw::GEMHwDevice::getFirmwareVer(std::string const& regNamePrefix)
-{
-  // This returns the firmware version number. If no register name
-  // prefix is given, 'glib' is used, and the version number returned
-  // is that of the system logic (as opposed to the user logic)..
-  //LockGuard<Lock> guardedLock(lock_);
-  std::stringstream res;
-  std::stringstream regName;
-  /***
-      regName << regNamePrefix << ".firmware_id.ver_major";
-      uint32_t versionMajor = readReg(regName.str());
-      regName.str("");
-      regName << regNamePrefix << ".firmware_id.ver_minor";
-      uint32_t versionMinor = readReg(regName.str());
-      regName.str("");
-      regName << regNamePrefix << ".firmware_id.ver_build";
-      uint32_t versionBuild = readReg(regName.str());
-      res << versionMajor << "." << versionMinor << "." << versionBuild;
-  ***/
-
-  regName.str("");
-  regName << regNamePrefix << ".firmware_id";
-  uint32_t fwid = readReg(regName.str());
-  res << ((fwid>>28)&0x0f)
-      << "." 
-      << ((fwid>>24)&0x0f)
-      << "."
-      << ((fwid>>16)&0xff);
-  return res.str();
 }
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
@@ -334,7 +249,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 	INFO("Failed to read register " << name <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	//updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -390,7 +305,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
 	INFO("Failed to read register " << curReg->first <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	//updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -435,7 +350,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 	INFO("Failed to write value 0x" << std::hex<< val << std::dec << " to register " << name <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -484,7 +399,7 @@ void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t
 	     " to register " << curReg->first <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -571,7 +486,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 	     ", retrying. retryCount("<<retryCount<<")" << std::endl
 	     << "error was " << errCode
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -617,7 +532,7 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
 	INFO("Failed to write block " << name <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	updateErrorCounters(errCode);
 	continue;
       }
       else {

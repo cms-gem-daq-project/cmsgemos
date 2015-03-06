@@ -1,22 +1,15 @@
-//General structure taken blatantly from tcds::utils::HwDeviceTCA/HwGLIB
-
 #include "gem/hw/glib/HwGLIB.h"
-
-#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
-#define INFO(MSG)  LOG4CPLUS_INFO(logGEMHw_  , MSG)
-#define WARN(MSG)  LOG4CPLUS_WARN(logGEMHw_  , MSG)
-#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
-#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
 
 gem::hw::glib::HwGLIB::HwGLIB(xdaq::Application* glibApp):
   gem::hw::GEMHwDevice::GEMHwDevice(glibApp)
   //logGLIB_(glibApp->getApplicationLogger()),
   //hwGLIB_(0),
   //monGLIB_(0)
-
 {
   setDeviceID("GLIBHw");
-  setDeviceBaseNode("");
+  setAddressTableFileName("optohybrid_address_table.xml");
+  setIPbusProtocolVersion("2.0");
+  setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
 }
 
@@ -107,13 +100,13 @@ void gem::hw::glib::HwGLIB::haltDevice()
 void gem::hw::glib::HwGLIB::initDevice() 
 {
   char * val;
-  val = std::getenv( "GLIBTEST" );
+  val = std::getenv( "BUILD_HOME" );
   std::string dirVal = "";
   if (val != NULL) {
     dirVal = val;
   }
   else {
-    std::cout<<"$GLIBTEST not set, exiting"<<std::endl;
+    std::cout<<"$BUILD_HOME not set, exiting"<<std::endl;
     exit(1);
   }
   
@@ -130,59 +123,87 @@ void gem::hw::glib::HwGLIB::initDevice()
 }
 
 
-void gem::hw::glib::HwGLIB::main()
+std::string gem::hw::glib:HwGLIB::getBoardID()
 {
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  //*hw = manager->getDevice ( "gemsupervisor.udp.0" );
-
-  // print out basic information
-  std::cout << "current Value of myParameter_ = " << myParameter_ << std::endl;
-  //std::cout << "System ID: " << formatSystemID(systemID_,0) << std::endl;
-  //std::cout << "Board ID: "  << formatBoardID(boardID_,0)   << std::endl;
-  //std::cout << "System firmware version: " << formatFW(firmwareID_,0) << std::endl;
-  //std::cout << "System firmware date: "    << formatFW(firmwareID_,1) << std::endl;
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  
-  gem::hw::glib::HwGLIB::getTestReg();
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  gem::hw::glib::HwGLIB::setTestReg(32);
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
+  //LockGuard<Lock> guardedLock(lock_);
+  // The board ID consists of four characters encoded as a 32-bit
+  // something.
+  std::string res = "???";
+  uint32_t val = readReg("glib_regs.sysregs.board_id");
+  res = uint32ToString(val);
+  return res;
 }
 
-void gem::hw::glib::HwGLIB::getTestReg()
-						 //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
+std::string gem::hw::glib:HwGLIB::getSystemID()
 {
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  try {
-    r_test = hw.getNode ( "test" ).read();
-    hw.dispatch();
-    testReg_ = r_test.value();
-  }
-  catch (const std::exception& e) {
-    std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-  }
-  
+  //LockGuard<Lock> guardedLock(lock_);
+  std::string res = "???";
+  uint32_t val = readReg("glib_regs.sysregs.system_id");
+  res = uint32ToString(val);
+  return res;
 }
-void gem::hw::glib::HwGLIB::setTestReg(uint32_t setVal)
-						 //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
+
+std::string gem::hw::glib:HwGLIB::getFirmwareDate(std::string const& regNamePrefix)
 {
-  testReg_ = setVal;
-  
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  try {
-    hw.getNode ( "test" ).write(testReg_);
-    hw.dispatch();
-  }
-  catch (const std::exception& e) {
-    std::cout << "Something went wrong writing the test register: " << e.what() << std::endl;
-  }
-  
-  try {
-    r_test = hw.getNode ( "test" ).read();
-    hw.dispatch();
-    testReg_ = r_test.value();
-  }
-  catch (const std::exception& e) {
-    std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-  }
+  // This returns the firmware build date. If no register name prefix
+  // is given, 'glib' is used, and the build date returned is that of
+  // the system logic (as opposed to the user logic)..
+  //LockGuard<Lock> guardedLock(lock_);
+  std::stringstream res;
+  std::stringstream regName;
+  /**
+     regName << regNamePrefix << ".firmware_id.date_yy";
+     uint32_t yy = readReg(regName.str());
+     regName.str("");
+     regName << regNamePrefix << ".firmware_id.date_mm";
+     uint32_t mm = readReg(regName.str());
+     regName.str("");
+     regName << regNamePrefix << ".firmware_id.date_dd";
+     uint32_t dd = readReg(regName.str());
+     res << "20" << std::setfill('0') << std::setw(2) << yy
+     << "-"
+     << std::setw(2) << mm
+     << "-"
+     << std::setw(2) << dd;
+  **/
+  regName.str("");
+  regName << regNamePrefix << ".firmware_id";
+  uint32_t fwid = readReg(regName.str());
+  res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
+      << "-"
+      << std::setw(2) << ((fwid>>5)&0x0f)
+      << "-"
+      << std::setw(2) << ((fwid>>9)&0x7f);
+  return res.str();
+}
+
+std::string gem::hw::glib:HwGLIB::getFirmwareVer(std::string const& regNamePrefix)
+{
+  // This returns the firmware version number. If no register name
+  // prefix is given, 'glib' is used, and the version number returned
+  // is that of the system logic (as opposed to the user logic)..
+  //LockGuard<Lock> guardedLock(lock_);
+  std::stringstream res;
+  std::stringstream regName;
+  /***
+      regName << regNamePrefix << ".firmware_id.ver_major";
+      uint32_t versionMajor = readReg(regName.str());
+      regName.str("");
+      regName << regNamePrefix << ".firmware_id.ver_minor";
+      uint32_t versionMinor = readReg(regName.str());
+      regName.str("");
+      regName << regNamePrefix << ".firmware_id.ver_build";
+      uint32_t versionBuild = readReg(regName.str());
+      res << versionMajor << "." << versionMinor << "." << versionBuild;
+  ***/
+
+  regName.str("");
+  regName << regNamePrefix << ".firmware_id";
+  uint32_t fwid = readReg(regName.str());
+  res << ((fwid>>28)&0x0f)
+      << "." 
+      << ((fwid>>24)&0x0f)
+      << "."
+      << ((fwid>>16)&0xff);
+  return res.str();
 }
