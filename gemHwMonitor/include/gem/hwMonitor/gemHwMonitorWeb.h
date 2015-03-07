@@ -103,9 +103,13 @@ namespace gem {
                 gem::hw::vfat::HwVFAT2* vfatDevice_;
                 std::vector<std::string> checkedCrates_;
 
+                void printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output * out)
+		            throw (xgi::exception::Exception);
                 void printVFAThwParameters(const char* key, const char* value,  xgi::Output *out)
 		            throw (xgi::exception::Exception);
                 void printVFAThwParameters(const char* key, uint8_t value,  xgi::Output *out)
+		            throw (xgi::exception::Exception);
+                void printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output * out)
 		            throw (xgi::exception::Exception);
         };// end class gemHwMonitorWeb
     }// end namespace hwMonitor
