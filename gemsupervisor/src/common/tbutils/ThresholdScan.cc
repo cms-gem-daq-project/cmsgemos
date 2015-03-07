@@ -11,6 +11,7 @@
 #include "TError.h"
 
 #include <algorithm>
+#include <iomanip>
 #include <ctime>
 
 #include <boost/algorithm/string.hpp>
