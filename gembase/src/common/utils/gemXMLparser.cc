@@ -4,32 +4,19 @@
 //
 ///////////////////////////////////////////////
 #include "gem/utils/gemXMLparser.h"
-#include "gem/utils/gemDeviceProperties.h"
-#include "gem/utils/gemCrateProperties.h"
-#include "gem/utils/gemGLIBProperties.h"
-#include "gem/utils/gemOHProperties.h"
-#include "gem/utils/gemVFATProperties.h"
+#include "gem/utils/gemComplexDeviceProperties.h"
 
 gem::base::utils::gemXMLparser::gemXMLparser(const std::string& xmlFile)
 {
     xmlFile_ = xmlFile;
+    gemSystem_ = new gemSystemProperties();
+    gemSystem_->setDeviceId("GEM");
 }
 
 
 gem::base::utils::gemXMLparser::~gemXMLparser()
 {
-    for (std::vector<gemCrateProperties*>::iterator crate = crateRefs_.begin(); crate != crateRefs_.end(); ++crate) {
-        for (std::vector<gem::base::utils::gemGLIBProperties*>::iterator glib = (*crate)->subDevicesRefs_.begin(); glib != (*crate)->subDevicesRefs_.end(); ++glib) {
-            for (std::vector<gem::base::utils::gemOHProperties*>::iterator oh = (*glib)->subDevicesRefs_.begin(); oh != (*glib)->subDevicesRefs_.end(); ++oh) {
-                for (std::vector<gem::base::utils::gemVFATProperties*>::iterator vfat = (*oh)->subDevicesRefs_.begin(); vfat != (*oh)->subDevicesRefs_.end(); ++vfat) {
-                    delete *vfat;
-                }
-                delete *oh;
-            }
-            delete *glib;
-        }
-        delete *crate;
-    }
+    delete gemSystem_;
 }
 
 void gem::base::utils::gemXMLparser::parseXMLFile()
@@ -143,10 +130,11 @@ void gem::base::utils::gemXMLparser::parseGEMSystem(xercesc::DOMNode * pNode)
                 std::cout << "[XML PARSER]: GEM system parsing: uTCA crate found" << std::endl;
                 if (countChildElementNodes(n)) {
                     std::cout << "[XML PARSER]: GEM system parsing: uTCA crate is not empty" << std::endl;
-                    gem::base::utils::gemCrateProperties* crate = new gem::base::utils::gemCrateProperties::gemCrateProperties();
+                    gemCrateProperties* crate = new gemCrateProperties();
                     std::cout << "[XML PARSER]: GEM system parsing: new crate properties object created" << std::endl;
-                    crate->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateId"))->getNodeValue());
-                    crateRefs_.push_back(crate);
+                    crate->setDeviceId(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateId"))->getNodeValue()));
+                    gemSystem_->addSubDeviceRef(crate);
+                    gemSystem_->addSubDeviceId(crate->getDeviceId());
                     std::cout << "[XML PARSER]: GEM system parsing: new crate properties object added to crateRefs" << std::endl;
                     parseCrate(n);
                 }
@@ -159,16 +147,6 @@ void gem::base::utils::gemXMLparser::parseGEMSystem(xercesc::DOMNode * pNode)
 void gem::base::utils::gemXMLparser::parseCrate(xercesc::DOMNode * pNode)
 {
     //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseCrate");
-    //bool cur = false;
-    //if (xercesc::XMLString::transcode(pNode->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateID"))->getNodeValue()) == currentCrateId) {
-    //    cur = true;
-    //}
-    //if (cur) {
-    //    MCHIds.clear();
-    //    AMCIds.clear();
-    //    GLIBIds.clear();
-    //}
-
     std::cout << "[XML PARSER]: GEM system parsing: starting parseCrate" << std::endl;
     xercesc::DOMNode * n = pNode->getFirstChild();
     std::cout << "[XML PARSER]: crate parsing: look for children" << std::endl;
@@ -177,24 +155,20 @@ void gem::base::utils::gemXMLparser::parseCrate(xercesc::DOMNode * pNode)
         {
             if (strcmp("MCH",xercesc::XMLString::transcode(n->getNodeName()))==0) {
                 //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseMCH");
-                //if (cur) MCHIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("MCHId"))->getNodeValue()));
             } 
             if (strcmp("AMC",xercesc::XMLString::transcode(n->getNodeName()))==0) {
                 //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseAMC");
-                //if (cur) AMCIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("AMCId"))->getNodeValue()));
             } 
             if (strcmp("GLIB",xercesc::XMLString::transcode(n->getNodeName()))==0) {
                 //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseGLIB");
-                //GLIBIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue()));
-                //if (cur) parseGLIB(n);
                 std::cout << "[XML PARSER]: crate parsing: GLIB found" << std::endl;
                 if (countChildElementNodes(n)) {
                     std::cout << "[XML PARSER]: crate parsing: GLIB is not empty" << std::endl;
-                    gem::base::utils::gemGLIBProperties* glib = new gem::base::utils::gemGLIBProperties::gemGLIBProperties();
+                    gemGLIBProperties* glib = new gemGLIBProperties();
                     std::cout << "[XML PARSER]: crate parsing: create new GLIBproperties object" << std::endl;
-                    glib->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue());
-                    crateRefs_.back()->subDevicesRefs_.push_back(glib);
-                    crateRefs_.back()->subDevicesIDs_.push_back(glib->deviceId_);
+                    glib->setDeviceId(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue()));
+                    gemSystem_->getSubDevicesRefs().back()->addSubDeviceRef(glib);
+                    gemSystem_->getSubDevicesRefs().back()->addSubDeviceId(glib->getDeviceId());
                     std::cout << "[XML PARSER]: crate parsing: Add new GLIBproperties to the subdevices of parent crate" << std::endl;
                     parseGLIB(n);
                 }
@@ -208,21 +182,19 @@ void gem::base::utils::gemXMLparser::parseCrate(xercesc::DOMNode * pNode)
 void gem::base::utils::gemXMLparser::parseGLIB(xercesc::DOMNode * pNode)
 {
     //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseGLIB");
-    //OHIds.clear();
     std::cout << "[XML PARSER]: crate parsing: start GLIB parsing" << std::endl;
     xercesc::DOMNode * n = pNode->getFirstChild();
     while (n) {
         if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
         {    
             if (strcmp("OH",xercesc::XMLString::transcode(n->getNodeName()))==0) {
-                //OHIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue()));
                 std::cout << "[XML PARSER]: GLIB parsing: OH found" << std::endl;
                 if (countChildElementNodes(n)) {
-                    gem::base::utils::gemOHProperties* oh = new gem::base::utils::gemOHProperties::gemOHProperties();
+                    gemOHProperties* oh = new gemOHProperties();
                     std::cout << "[XML PARSER]: GLIB parsing: create new OHproperties obect" << std::endl;
-                    oh->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue());
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(oh);
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesIDs_.push_back(oh->deviceId_);
+                    oh->setDeviceId(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue()));
+                    gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back()->addSubDeviceRef(oh);
+                    gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back()->addSubDeviceId(oh->getDeviceId());
                     std::cout << "[XML PARSER]: GLIB parsing: Add new OHproperties to the subdevices of parent device" << std::endl;
                     parseOH(n);
                 }
@@ -244,13 +216,13 @@ void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
             if (strcmp("VFATSettings",xercesc::XMLString::transcode(n->getNodeName()))==0) 
                 std::cout << "[XML PARSER]: OH parsing: VFATSettings tag found" << std::endl;
                 if (countChildElementNodes(n)) {
-                    gem::base::utils::gemVFATProperties* vfat = new gem::base::utils::gemVFATProperties::gemVFATProperties();
+                    gemVFATProperties* vfat = new gemVFATProperties();
                     std::cout << "[XML PARSER]: OH parsing: create new VFATproperties object" << std::endl;
-                    vfat->deviceId_ = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("VFATId"))->getNodeValue());
+                    vfat->setDeviceId(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("VFATId"))->getNodeValue()));
                     std::cout << "[XML PARSER]: OH parsing: retrieve VFAT device ID" << std::endl;
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.push_back(vfat);
+                    gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back()->addSubDeviceRef(vfat);
                     std::cout << "[XML PARSER]: OH parsing: add new VFATproperties to the subdevices of the parent device" << std::endl;
-                    crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesIDs_.push_back(vfat->deviceId_);
+                    gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back()->addSubDeviceId(vfat->getDeviceId());
                     std::cout << "[XML PARSER]: OH parsing: add VFAT device ID to the subdevices of the parent device" << std::endl;
                     parseVFAT2Settings(n);
                 }
@@ -259,145 +231,50 @@ void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
     }    
 }
 
+void gem::base::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat)
+{
+    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
+    {
+        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        vfat->addDeviceProperty(key,value);
+    }
+}
+
 void gem::base::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
 {
     std::cout << "[XML PARSER]: OH parsing: start VFAT parsing" << std::endl;
     xercesc::DOMNode * n = pNode->getFirstChild();
-    gemVFATProperties* vfat = crateRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back()->subDevicesRefs_.back();
+    gemVFATProperties* vfat_ = gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back();
     std::cout << "[XML PARSER]: VFAT parsing: retrieve VFAT device from the devices parent tree" << std::endl;
     while (n) {
         if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
         {    
-            if (strcmp("CalMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("CalMode",value));
-            }
-            if (strcmp("CalPolarity",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("CalPolarity",value));
-            }
-            if (strcmp("MSPolarity",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("MSPolarity",value));
-            }
-            if (strcmp("TriggerMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("TriggerMode",value));
-            }
-            if (strcmp("RunMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("RunMode",value));
-            }
-            if (strcmp("ReHitCT",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("ReHitCT",value));
-            }
-            if (strcmp("LVDSPowerSave",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("LVDSPowerSave",value));
-            }
-            if (strcmp("ProbeMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("ProbeMode",value));
-            }
-            if (strcmp("DACSel",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("DACSel",value));
-            }
-            if (strcmp("DigInSel",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("DigInSel",value));
-            }
-            if (strcmp("MSPulseLength",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("MSPulseLength",value));
-            }
-            if (strcmp("HitCountSel",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("HitCountSel",value));
-            }
-            if (strcmp("DFTest",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("DFTest",value));
-            }
-            if (strcmp("PbBG",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("PbBG",value));
-            }
-            if (strcmp("TrimDACRange",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("TrimDACRange",value));
-            }
-            if (strcmp("IPreampIn",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IPreampIn",value));
-            }
-            if (strcmp("IPreampFeed",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IPreampFeed",value));
-            }
-            if (strcmp("IPreampOut",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IPreampOut",value));
-            }
-            if (strcmp("IShaper",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IShaper",value));
-            }
-            if (strcmp("IShaperFeed",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IShaperFeed",value));
-            }
-            if (strcmp("IComp",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("IComp",value));
-            }
-            if (strcmp("Latency",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("Latency",value));
-            }
-            if (strcmp("VCal",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("VCal",value));
-            }
-            if (strcmp("VThreshold1",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("VThreshold1",value));
-            }
-            if (strcmp("VThreshold2",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("VThreshold2",value));
-            }
-            if (strcmp("CalPhase",xercesc::XMLString::transcode(n->getNodeName()))==0)
-            {
-                std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-                vfat->deviceProperties_.insert(std::pair<std::string, std::string>("CalPhase",value));
-            }
+            addProperty("CalMode", n, vfat_);
+            addProperty("CalPolarity", n, vfat_);
+            addProperty("MSPolarity", n, vfat_);
+            addProperty("TriggerMode", n, vfat_);
+            addProperty("RunMode", n, vfat_);
+            addProperty("ReHitCT", n, vfat_);
+            addProperty("LVDSPowerSave", n, vfat_);
+            addProperty("ProbeMode", n, vfat_);
+            addProperty("DACSel", n, vfat_);
+            addProperty("DigInSel", n, vfat_);
+            addProperty("MSPulseLength", n, vfat_);
+            addProperty("HitCountSel", n, vfat_);
+            addProperty("DFTest", n, vfat_);
+            addProperty("PbBG", n, vfat_);
+            addProperty("TrimDACRange", n, vfat_);
+            addProperty("IPreampIn", n, vfat_);
+            addProperty("IPreampFeed", n, vfat_);
+            addProperty("IPreampOut", n, vfat_);
+            addProperty("IShaper", n, vfat_);
+            addProperty("IShaperFeed", n, vfat_);
+            addProperty("IComp", n, vfat_);
+            addProperty("Latency", n, vfat_);
+            addProperty("VCal", n, vfat_);
+            addProperty("VThreshold1", n, vfat_);
+            addProperty("VThreshold2", n, vfat_);
+            addProperty("CalPhase", n, vfat_);
         }    
         n = n->getNextSibling();
     }
