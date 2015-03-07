@@ -3,6 +3,8 @@
 #include "gem/hw/vfat/VFAT2Manager.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
+//#include "uhal/uhal.hpp"
+
 //#include <boost/lexical_cast.hpp>
 //#include <boost/format.hpp>
 
