@@ -33,9 +33,13 @@
 #include "xdata/UnsignedShort.h"
 #include "xdata/Integer.h"
 
+#include "TStopwatch.h"
+
 class TH1F;
 class TFile;
 class TCanvas;
+
+class MyTime;
 
 namespace toolbox {
   namespace fsm {
