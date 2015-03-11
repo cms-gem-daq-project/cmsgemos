@@ -19,13 +19,15 @@
 
 #include "gem/supervisor/tbutils/VFAT2XMLParser.h"
 
+#include "TStopwatch.h"
+
 //XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::GEMTBUtil)
 
 void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
   readoutDelay = 1U; //readout delay in milleseconds/microseconds?
 
-  nTriggers = 2500U;
+  nTriggers = 3000U;
 
   time_t now  = time(0);
   tm    *gmtm = gmtime(&now);
@@ -67,6 +69,42 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   bag->addField("ADCurrent",   &ADCurrent);
 
 }
+
+void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {
+
+  is_working_ = true;
+
+  is_initialized_ = false;
+  is_configured_  = false;
+  is_running_     = false;
+
+  hw_semaphore_.take();
+  vfatDevice_->setRunMode(0);
+
+  if (vfatDevice_->isGEMHwDeviceConnected())
+    vfatDevice_->releaseDevice();
+  
+  if (vfatDevice_)
+    delete vfatDevice_;
+  
+  vfatDevice_ = 0;
+  sleep(2);
+  hw_semaphore_.give();
+
+  //reset parameters to defaults, allow to select new device
+  confParams_.bag.nTriggers = 3000U;
+
+  confParams_.bag.deviceName   = "";
+  confParams_.bag.deviceChipID = 0x0;
+  confParams_.bag.triggersSeen = 0;
+  
+  //wl_->submit(resetSig_);
+  
+  //sleep(5);
+  is_working_     = false;
+}
+
 
 gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
@@ -773,7 +811,6 @@ void gem::supervisor::tbutils::GEMTBUtil::redirect(xgi::Input *in, xgi::Output* 
 void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-
   try {
     ////update the page refresh 
     if (!is_working_ && !is_running_) {
@@ -1445,42 +1482,6 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
   
   //sleep(5);
   is_working_    = false;
-}
-
-
-void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
-  is_working_ = true;
-
-  is_initialized_ = false;
-  is_configured_  = false;
-  is_running_     = false;
-
-  hw_semaphore_.take();
-  vfatDevice_->setRunMode(0);
-
-  if (vfatDevice_->isGEMHwDeviceConnected())
-    vfatDevice_->releaseDevice();
-  
-  if (vfatDevice_)
-    delete vfatDevice_;
-  
-  vfatDevice_ = 0;
-  sleep(2);
-  hw_semaphore_.give();
-
-  //reset parameters to defaults, allow to select new device
-  confParams_.bag.nTriggers = 2500U;
-
-  confParams_.bag.deviceName   = "";
-  confParams_.bag.deviceChipID = 0x0;
-  confParams_.bag.triggersSeen = 0;
-  
-  //wl_->submit(resetSig_);
-  
-  //sleep(5);
-  is_working_     = false;
 }
 
 
