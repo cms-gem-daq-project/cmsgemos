@@ -1,6 +1,3 @@
-CFLAGS = -g3 -O0 -fno-inline
-CXXFLAGS = -g3 -O0 -fno-inline
-
 BUILD_HOME:=$(shell pwd)/../..
 
 include $(XDAQ_ROOT)/config/mfAutoconf.rules
@@ -15,7 +12,7 @@ PackageName=base
 
 #Sources= GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc CfgParser.cc version.cc
 #Sources= GEMFSM.cc utils/GEMSOAPToolBox.cc GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc
-Sources= utils/gemXMLparser.cc utils/gemDeviceProperties.cc utils/gemCrateProperties.cc utils/gemGLIBProperties.cc utils/gemOHProperties.cc utils/gemVFATProperties.cc
+Sources= utils/gemXMLparser.cc 
 
 DynamicLibrary=gem_base
 
@@ -36,14 +33,22 @@ LibraryDirs = \
         $(XDAQ_ROOT)/lib \
         $(uHALROOT)/lib
 
-UserCFlags = -O0 -g3 -fno-inline
-UserCCFlags = -O0 -g3 -fno-inline
+PROFILING_Flags = -pg
+DEBUG_CFlags  =  -O0 -g3 -fno-inline
+DEBUG_CCFlags =  ${DEBUG_CFlags}
+UserCFlags  = -std=c++0x ${DEBUG_CFlags}
+UserCCFlags = -std=c++0x ${DEBUG_CCFlags}
+DEBUG_LDFlags = ${PROFILING_Flags}
 UserDynamicLinkFlags =
 UserStaticLinkFlags =
-#UserExecutableLinkFlags = -Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib \
+#UserExecutableLinkFlags = -Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib \
+#		          -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib \
 #                          -L$(CACTUS_HOME)/lib \
-#                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
+#                          -lreadline -lncurses -lpthread -lboost_filesystem \
+#			  -lboost_regex -lboost_system -lcactus_extern_pugixml \
+#			  -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
+DEBUG_LIBS = profiler tcmalloc
 DependentLibraries = config xcept boost_system cactus_uhal_uhal
 Libraries = config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus
 
