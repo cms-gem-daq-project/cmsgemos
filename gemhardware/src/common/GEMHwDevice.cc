@@ -1,18 +1,12 @@
-//General structure taken blatantly from tcds::utils::HwDeviceTCA/HwGLIB as we're using the same card
+//General structure taken blatantly from tcds::utils::HwDeviceTCA as we're using the same card
 
 #include "gem/hw/GEMHwDevice.h"
-
-#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
-#define INFO( MSG) LOG4CPLUS_INFO( logGEMHw_ , MSG)
-#define WARN( MSG) LOG4CPLUS_WARN( logGEMHw_ , MSG)
-#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
-#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
 
 gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   logGEMHw_(gemApp->getApplicationLogger()),
   gemHWP_(0)
   //monGEMHw_(0)
-
+  
 {
   //need to grab these parameters from the xml file or from some configuration space/file/db
   setAddressTableFileName("allregsnonfram.xml");
@@ -20,12 +14,12 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   setDeviceBaseNode("");
   setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
-
+  
   ipBusErrs.badHeader_     = 0;
   ipBusErrs.readError_     = 0;
   ipBusErrs.timeouts_      = 0;
   ipBusErrs.controlHubErr_ = 0;
-
+  
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
   /** 
@@ -40,7 +34,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
    * set register values to desired values -> hardware is configured!
    * startDevice:
    * set run bit -> hardware is running
-
+   
    * in this model, a device can be running while the C++ object no longer exists
    * is this a good thing?  one can always at a later time connect again and turn the device off
    * however, if we define the sequences as init->enable->configure->start
@@ -55,7 +49,7 @@ gem::hw::GEMHwDevice::~GEMHwDevice()
     releaseDevice();
 }
 
-std::string gem::hw::GEMHwDevice::printErrorCounts() {
+std::string gem::hw::GEMHwDevice::printErrorCounts() const {
   std::stringstream errstream;
   errstream << "errors while accessing registers:"    << std::endl 
 	    << "Bad header:  " <<ipBusErrs.badHeader_ << std::endl
@@ -78,14 +72,14 @@ void gem::hw::GEMHwDevice::connectDevice()
   if (controlhubAddress.size() > 0)
     {
       DEBUG("Using control hub at address '" << controlhubAddress
-	   << ", port number " << controlhubPort << "'.");
+	    << ", port number " << controlhubPort << "'.");
       tmpUri << "chtcp-"<< getIPbusProtocolVersion() << "://" << controlhubAddress << ":" << controlhubPort
              << "?target=" << deviceAddress << ":" << ipbusPort;
     }
   else
     {
       DEBUG("No control hub address specified -> "
-	   "continuing with a direct connection.");
+	    "continuing with a direct connection.");
       tmpUri << "ipbusudp-" << getIPbusProtocolVersion() << "://"
              << deviceAddress << ":" << ipbusPort;
     }
@@ -96,38 +90,8 @@ void gem::hw::GEMHwDevice::connectDevice()
   //int retryCount = 0;
   
   uhal::HwInterface* tmpHWP = 0;
-
+  
   try {
-    //maybe create an address table file here that loads the specific chip addresss table options
-    //file has to be based on the chip location, specify the memory root, then will import the main vfat address table
-    /**
-       something like:
-       locAddrFile
-       << "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" << std::endl
-       << "<node id=\"top\">" << std::endl
-       << "<node id=\"VFATS\"  address=\"0x40010000\"" << std::endl
-       << "      description=\"VFAT registers controled by the GLIB user registers\">" << std::endl
-       << "  <node id=\"" << deviceID_ << "\"" << std::endl
-       << "	address=\"0x"<< std::hex << chipLocation << "00\"  " << std::endl
-       << "	module=\"file://${BUILD_HOME}/data/vfatregs.xml\"" << std::endl
-       << "	description=\"column 1, TOTEM hybrid VFAT chip J57 connector\"/>" << std::endl
-       << "  " << std::endl
-       << "  <node id=\"ADC\"  address=\"0x2014C\"" << std::endl
-       << "	description=\"VFAT2 ADC values (absolute register start 0x4003014C)\">" << std::endl
-       << "    <node id=\"Voltage\"  address=\"0x0\"  mask=\"0xFFFFFFFF\"  permission=\"r\"" << std::endl
-       << "	  description=\"read the voltage ADC off the VFAT chip\" />" << std::endl
-       << "    <node id=\"Current\"  address=\"0x1\"  mask=\"0xFFFFFFFF\"  permission=\"w\"" << std::endl
-       << "	  description=\"send CalPulse command to system\" />" << std::endl
-       << "  </node> <!-- end ADC block -->" << std::endl
-       << "  " << std::endl
-       << "  <node id=\"VFAT_RESP\"" << std::endl
-       << "	address=\"0x20000\"  mask=\"0xFFFFFFFF\"  permission=\"r\"" << std::endl
-       << "	description=\"read the response from the VFAT transaction\"/>" << std::endl
-       << "  " << std::endl
-       << "</node>" << std::endl;
-       << "</node>" << std::endl;
-       tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, locAddrFile));
-    **/
     tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
   }
   catch (uhal::exception::FileNotFound const& err)
@@ -157,7 +121,8 @@ void gem::hw::GEMHwDevice::connectDevice()
     }
   
   gemHWP_ = tmpHWP;
-  
+  //delete tmpHWP;
+  //tmpHWP = 0;
   INFO("Successfully connected to the hardware.");
 
 }
@@ -214,35 +179,13 @@ void gem::hw::GEMHwDevice::enableDevice()
 //{
 //
 //}
+//
+//void gem::hw::GEMHwDevice::initDevice() 
+//{
+//
+//}
 
-/**
-   void gem::hw::GEMHwDevice::initDevice() 
-   {
-   char * val;
-   val = std::getenv( "BUILD_HOME" );
-   std::string dirVal = "";
-   if (val != NULL) {
-   dirVal = val;
-   }
-   else {
-   std::cout<<"$BUILD_HOME not set, exiting"<<std::endl;
-   exit(1);
-   }
-  
-   //setLogLevelTo(uhal::Debug());  // Maximise uHAL logging
-   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
-   char connectionPath[128];
-   try {
-   sprintf(connectionPath,"file://%s/data/myconnections.xml;",dirVal.c_str());
-   manageGLIBConnection = new uhal::ConnectionManager( connectionPath );
-   }
-   catch (const std::exception& e) {
-   std::cout << "Something went wrong initializing the connection: " << e.what() << std::endl;
-   }
-   }
-**/
-
-uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface()// const
+uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 {
   if (gemHWP_ == 0)
     {
@@ -255,91 +198,6 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface()// const
       uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*gemHWP_);
       return hw;
     }
-}
-
-std::string gem::hw::GEMHwDevice::getBoardID()
-{
-  //LockGuard<Lock> guardedLock(lock_);
-  // The board ID consists of four characters encoded as a 32-bit
-  // something.
-  std::string res = "???";
-  uint32_t val = readReg("glib_regs.sysregs.board_id");
-  res = uint32ToString(val);
-  return res;
-}
-
-std::string gem::hw::GEMHwDevice::getSystemID()
-{
-  //LockGuard<Lock> guardedLock(lock_);
-  std::string res = "???";
-  uint32_t val = readReg("glib_regs.sysregs.system_id");
-  res = uint32ToString(val);
-  return res;
-}
-
-std::string gem::hw::GEMHwDevice::getFirmwareDate(std::string const& regNamePrefix)
-{
-  // This returns the firmware build date. If no register name prefix
-  // is given, 'glib' is used, and the build date returned is that of
-  // the system logic (as opposed to the user logic)..
-  //LockGuard<Lock> guardedLock(lock_);
-  std::stringstream res;
-  std::stringstream regName;
-  /**
-     regName << regNamePrefix << ".firmware_id.date_yy";
-     uint32_t yy = readReg(regName.str());
-     regName.str("");
-     regName << regNamePrefix << ".firmware_id.date_mm";
-     uint32_t mm = readReg(regName.str());
-     regName.str("");
-     regName << regNamePrefix << ".firmware_id.date_dd";
-     uint32_t dd = readReg(regName.str());
-     res << "20" << std::setfill('0') << std::setw(2) << yy
-     << "-"
-     << std::setw(2) << mm
-     << "-"
-     << std::setw(2) << dd;
-  **/
-  regName.str("");
-  regName << regNamePrefix << ".firmware_id";
-  uint32_t fwid = readReg(regName.str());
-  res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
-      << "-"
-      << std::setw(2) << ((fwid>>5)&0x0f)
-      << "-"
-      << std::setw(2) << ((fwid>>9)&0x7f);
-  return res.str();
-}
-
-std::string gem::hw::GEMHwDevice::getFirmwareVer(std::string const& regNamePrefix)
-{
-  // This returns the firmware version number. If no register name
-  // prefix is given, 'glib' is used, and the version number returned
-  // is that of the system logic (as opposed to the user logic)..
-  //LockGuard<Lock> guardedLock(lock_);
-  std::stringstream res;
-  std::stringstream regName;
-  /***
-      regName << regNamePrefix << ".firmware_id.ver_major";
-      uint32_t versionMajor = readReg(regName.str());
-      regName.str("");
-      regName << regNamePrefix << ".firmware_id.ver_minor";
-      uint32_t versionMinor = readReg(regName.str());
-      regName.str("");
-      regName << regNamePrefix << ".firmware_id.ver_build";
-      uint32_t versionBuild = readReg(regName.str());
-      res << versionMajor << "." << versionMinor << "." << versionBuild;
-  ***/
-
-  regName.str("");
-  regName << regNamePrefix << ".firmware_id";
-  uint32_t fwid = readReg(regName.str());
-  res << ((fwid>>28)&0x0f)
-      << "." 
-      << ((fwid>>24)&0x0f)
-      << "."
-      << ((fwid>>16)&0xff);
-  return res.str();
 }
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
@@ -370,7 +228,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 	INFO("Failed to read register " << name <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	//updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -426,7 +284,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
 	INFO("Failed to read register " << curReg->first <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	//updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -446,8 +304,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
   }
 }
 
-void gem::hw::GEMHwDevice::writeReg(std::string const& name,
-				    uint32_t const val)
+void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -472,7 +329,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name,
 	INFO("Failed to write value 0x" << std::hex<< val << std::dec << " to register " << name <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -521,7 +378,7 @@ void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t
 	     " to register " << curReg->first <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -550,10 +407,12 @@ void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regN
   writeRegs(regsToWrite);
 }
 
+/*
 void gem::hw::GEMHwDevice::zeroReg(std::string const& name)
 {
   writeReg(name,0);
 }
+*/
 
 void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames)
 {
@@ -573,8 +432,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
   return readBlock(name, numWords);
 }
 
-std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
-						      size_t const numWords)
+std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, size_t const numWords)
 {
   //LockGuard<Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -582,10 +440,9 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
   std::vector<uint32_t> res(numWords);
 
   int retryCount = 0;
-  if (numWords < 1) {
+  if (numWords < 1) 
     return res;
-  }
-
+  
   while (retryCount < MAX_VFAT_RETRIES) {
     try {
       uhal::ValVector<uint32_t> values = hw.getNode(name).readBlock(numWords);
@@ -608,7 +465,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
 	     ", retrying. retryCount("<<retryCount<<")" << std::endl
 	     << "error was " << errCode
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -626,13 +483,11 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name,
   return res;
 }
 
-void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
-				      std::vector<uint32_t> const values)
+void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {
   //LockGuard<Lock> guardedLock(lock_);
-  if (values.size() < 1) {
+  if (values.size() < 1) 
     return;
-  }
   
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
@@ -656,7 +511,7 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name,
 	INFO("Failed to write block " << name <<
 	     ", retrying. retryCount("<<retryCount<<")"
 	     << std::endl);
-	gem::hw::GEMHwDevice::updateErrorCounters(errCode);
+	updateErrorCounters(errCode);
 	continue;
       }
       else {
@@ -761,62 +616,4 @@ void gem::hw::vfat::HwVFAT2::writeReg(std::string const& regName
     XCEPT_RAISE(gem::hw::exception::HardwareProblem, message);
   }
 }
-
-void gem::hw::GEMHwDevice::main()
-{
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  //  *hw = manager->getDevice ( "gemsupervisor.udp.0" );
-
-  // print out basic information
-  std::cout << "current Value of myParameter_ = " << myParameter_ << std::endl;
-  //std::cout << "System ID: " << formatSystemID(systemID_,0) << std::endl;
-  //std::cout << "Board ID: "  << formatBoardID(boardID_,0)   << std::endl;
-  //std::cout << "System firmware version: " << formatFW(firmwareID_,0) << std::endl;
-  //std::cout << "System firmware date: "    << formatFW(firmwareID_,1) << std::endl;
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  
-  gem::hw::GEMHwDevice::getTestReg();
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  gem::hw::GEMHwDevice::setTestReg(32);
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-}
-***/
-/***
-    void gem::hw::GEMHwDevice::getTestReg()
-    //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-    {
-    uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-    try {
-    r_test = hw.getNode ( "test" ).read();
-    hw.dispatch();
-    testReg_ = r_test.value();
-    }
-    catch (const std::exception& e) {
-    std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-    }
-  
-    }
-    void gem::hw::GEMHwDevice::setTestReg(uint32_t setVal)
-    //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-    {
-    testReg_ = setVal;
-  
-    uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-    try {
-    hw.getNode ( "test" ).write(testReg_);
-    hw.dispatch();
-    }
-    catch (const std::exception& e) {
-    std::cout << "Something went wrong writing the test register: " << e.what() << std::endl;
-    }
-  
-    try {
-    r_test = hw.getNode ( "test" ).read();
-    hw.dispatch();
-    testReg_ = r_test.value();
-    }
-    catch (const std::exception& e) {
-    std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-    }
-    }
 ***/
