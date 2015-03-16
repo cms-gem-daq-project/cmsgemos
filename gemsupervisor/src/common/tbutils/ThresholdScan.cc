@@ -29,7 +29,7 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::ThresholdScan)
 void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
   latency   = 12U;
-  minThresh = -4;
+  minThresh = -40;
   maxThresh = 0;
   stepSize  = 1U;
   currentHisto = 0U;
@@ -55,7 +55,7 @@ void gem::supervisor::tbutils::ThresholdScan::resetAction(toolbox::Event::Refere
   gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
   
   scanParams_.bag.latency   = 12U;
-  scanParams_.bag.minThresh = -4;
+  scanParams_.bag.minThresh = -40;
   scanParams_.bag.maxThresh = 0;
   scanParams_.bag.stepSize  = 1U;
 
@@ -373,9 +373,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   hw_semaphore_.take();
   vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
   
-  //timer.Start();
   for (size_t trig = 0; trig < 1000; ++trig) vfatDevice_->writeReg("Send.L1A",0x1);
-  //timer.Continue(); cout << " 1 RT= " << timer.RealTime() << " CPT= " << timer.CpuTime() << endl;
 
   //count triggers
   vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
@@ -421,9 +419,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.give();
       wl_semaphore_.give();
  
-      //timer.Start();
       wl_->submit(readSig_);
-      //timer.Continue(); cout << " 3 RT= " << timer.RealTime() << " CPT= " << timer.CpuTime() << endl;
       return true;
     }
     //wl_semaphore_.give();
@@ -436,9 +432,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.give();
     wl_semaphore_.give();
 
-    //timer.Start();
     wl_->submit(readSig_);
-    //timer.Continue(); cout << " 2 RT= " << timer.RealTime() << " CPT= " << timer.CpuTime() << endl;
 
     wl_semaphore_.take();
     hw_semaphore_.take();
@@ -477,8 +471,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
-      cout << " run: VT1= " << scanParams_.bag.deviceVT1 << " VT2-VT1= " << scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1 << " bag.maxThresh= " << scanParams_.bag.maxThresh 
-	   << " abs(VT2-VT1) " << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) << endl;
+      LOG4CPLUS_DEBUG(getApplicationLogger()," run: VT1= " 
+         << scanParams_.bag.deviceVT1 << " VT2-VT1= " << scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1 
+         << " bag.maxThresh= " << scanParams_.bag.maxThresh 
+	 << " abs(VT2-VT1) " << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
 
       LOG4CPLUS_INFO(getApplicationLogger(),
         "VT2-VT1 is less than the max threshold, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
@@ -746,8 +742,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   }
 
   wl_semaphore_.give();
-
-  timer.Continue(); cout << " 4 RT= " << timer.RealTime() << " CPT= " << timer.CpuTime() << endl;
 
   return false;
 }
