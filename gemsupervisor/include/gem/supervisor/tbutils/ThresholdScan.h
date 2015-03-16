@@ -9,35 +9,6 @@ namespace gem {
   namespace supervisor {
     namespace tbutils {
 
-      class MyTime {
-        public:
-          TStopwatch timer;
-          Double_t TimerStart;
-          Double_t TimerStop;
-          Double_t MyTimerStart(MyTime& mt);
-          Double_t MyTimerStop(MyTime& mt);
-          Double_t MyTimerPrint(const MyTime& mt);
-        private:
-      };
-
-      Double_t MyTimerStart(MyTime& mt){
-        mt.timer.Start();
-        mt.TimerStart = mt.timer.RealTime();
-        return mt.TimerStart;
-      };	  
-  
-      Double_t MyTimerStop(MyTime& mt){
-        mt.timer.Stop();
-        mt.TimerStop = mt.timer.RealTime();
-        return mt.TimerStop;
-      };
-  
-      Double_t MyTimerPrint(const MyTime& mt){
-        return (mt.TimerStop - mt.TimerStart);
-      };	  
-
-
-
       class ThresholdScan : public GEMTBUtil
 	{
 	  
