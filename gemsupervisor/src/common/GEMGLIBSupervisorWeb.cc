@@ -2,6 +2,7 @@
 #include "gem/supervisor/tbutils/ThresholdEvent.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
+#include <iomanip>
 #include <ctime>
 #include <sstream>
 #include <cstdlib>
@@ -16,7 +17,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
     outFileName  = "";
 
-    deviceIP      = "192.168.0.115";
+    deviceIP      = "192.168.0.175";
     deviceName    = (xdata::String)"VFAT13";
     deviceNum     = -1;
     triggerSource = 0x2; 
