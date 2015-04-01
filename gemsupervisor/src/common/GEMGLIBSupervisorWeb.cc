@@ -447,8 +447,8 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
         crc    = 0x0000ffff & data.at(0);
 
-        ch.lsdata = lsData;
-        ch.msdata = msData;
+        ch.lsData = lsData;
+        ch.msData = msData;
 
         ev.BC = ((data.at(5)&0xF0000000)>>28) << 12; // 1010
         ev.BC = (ev.BC | bcn);
