@@ -19,6 +19,8 @@
 
 #include "gem/supervisor/tbutils/VFAT2XMLParser.h"
 
+#include "TStopwatch.h"
+
 //XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::GEMTBUtil)
 
 void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
@@ -776,7 +778,6 @@ void gem::supervisor::tbutils::GEMTBUtil::redirect(xgi::Input *in, xgi::Output* 
 void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-
   try {
     ////update the page refresh 
     if (!is_working_ && !is_running_) {
