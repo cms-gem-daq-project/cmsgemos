@@ -9,49 +9,25 @@
 #include <deque>
 #include <map>
 
-#include "xdaq/Application.h"
-
 #include "log4cplus/logger.h"
 
-#include "toolbox/BSem.h"
-#include "toolbox/task/WorkLoop.h"
-#include "toolbox/fsm/FiniteStateMachine.h"
-#include "toolbox/mem/MemoryPoolFactory.h"
+namespace xdaq {
+  class ApplicationStub;
+}
 
-#include "xdata/Bag.h"
-#include "xdata/Vector.h"
-#include "xdata/InfoSpace.h"
-#include "xdata/ActionListener.h"
-
-#include "xdata/Float.h"
-#include "xdata/String.h"
-#include "xdata/Boolean.h"
-#include "xdata/Integer.h"
-#include "xdata/Integer64.h"
-#include "xdata/UnsignedLong.h"
-#include "xdata/UnsignedInteger.h"
-
-#include "xoap/MessageReference.h"
-
-#include "i2o/utils/AddressMap.h"
-
-#include "xdaq2rc/RcmsStateNotifier.h"
-
-namespace gem {
-  namespace hw {
-    class GEMHwDevice;
-  }
+namespace xgi {
+  class Input;
+  class Output;
 }
 
 namespace gem {
   namespace base {
     
     class GEMWebApplication;
+    class GEMMonitor;
     //class ConfigurationInfoSpaceHandler;
-    //class Monitor;
-    //class WebServer;
     
-    class GEMApplication : virtual public xdaq::Application, virtual public xdata::ActionListener
+    class GEMApplication : public xdaq::WebApplication, public xdata::ActionListener
       {
       public:
 	GEMApplication(xdaq::ApplicationStub *stub)
@@ -61,52 +37,49 @@ namespace gem {
 
 	std::string getFullURL();
 	
+	/**
+	 * The init method is pure virtual in the base class, to ensure
+	 * that it is fully implemented in every derived application,
+	 * with a specific implementation
+	 */
 	virtual void init() = 0;
 	
 	virtual void actionPerformed(xdata::Event& event);
 	
       protected:
-	gem::hw::GEMHwDevice* gemHWP_;
 	log4cplus::Logger gemLogger_;
 
 	//virtual ConfigurationInfoSpaceHandler* getCfgInfoSpace() const;
-	//virtual gem::hw::GEMHwDevice* getHw() const;
-	//virtual Monitor* getMonitor() const;
+	virtual GEMWebApplication*  getWebApp()  const;
+	virtual GEMMonitor*         getMonitor() const;
 
       private:
 	
-	i2o::utils::AddressMap *i2oAddressMap_;
-	toolbox::mem::MemoryPoolFactory *poolFactory_;
-	
-	/**** application properties ****/
-	xdata::InfoSpace *appInfoSpace_;
-
-	xdaq::ApplicationDescriptor *appDescriptor_;
-	xdaq::ApplicationContext    *appContext_;
-	xdaq::ApplicationGroup      *appGroup_;
+	/**
+	 * various application properties
+	 *
+	 */
+	xdata::InfoSpace *appInfoSpaceP_;             /* */
+						    
+	xdaq::ApplicationDescriptor *appDescriptorP_; /* */
+	xdaq::ApplicationContext    *appContextP_;    /* */
+	xdaq::ApplicationGroup      *appGroupP_;      /* */
+	xdaq::Zone                  *appZoneP_;       /* */
 
 	std::string xmlClass_;
 	unsigned long instance_;
 	std::string urn_;	
 	
-	gem::base::GEMWebApplication* gemWebInterface_;
+	gem::base::GEMWebApplication* gemWebInterfaceP_;
+	gem::base::GEMMonitor*        gemMonitorP_;
 
-	xdata::String          run_type_;
-	xdata::UnsignedInteger run_number_;
-	xdata::UnsignedInteger runSequenceNumber_;
+        //xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
 
-	xdata::Integer64 nevents_;
-
-        xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
-
-	toolbox::BSem wl_semaphore_;
-	
-	toolbox::task::WorkLoop *wl_;
-
-	toolbox::task::ActionSignature *enable_sig_, *configure_sig_, *initialize_sig_;
-	toolbox::task::ActionSignature *start_sig_,  *pause_sig_, *resume_sig_;
-	toolbox::task::ActionSignature *stop_sig_,   *halt_sig_;
-
+	/**
+	 *
+	 */
+	void monitorView(xgi::Input* in, xgi::Output* out);
+	void expertView( xgi::Input* in, xgi::Output* out);
       };
     
   } // namespace gem::base

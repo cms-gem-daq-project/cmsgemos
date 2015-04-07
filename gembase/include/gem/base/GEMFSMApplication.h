@@ -7,19 +7,16 @@
 namespace gem {
   namespace base {
     
-    class GEMFSMApplication: virtual public gem::base::GEMApplication//, virtual public gem::base::GEMFSM
+    class GEMFSMApplication: virtual public gem::base::GEMApplication
       {
       public:
 	friend class GEMFSM;
-	//XDAQ_INSTANTIATOR();
 	
 	GEMFSMApplication(xdaq::ApplicationStub *stub)
 	  throw (xdaq::exception::Exception);
 
 	virtual ~GEMFSMApplication();
 
-	//virtual void actionPerformed(xdata::Event&);
-	
       protected:
 	// hyperdaq action callbacks
 	virtual void webInitialize(xgi::Input *in, xgi::Output *out)

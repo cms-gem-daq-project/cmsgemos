@@ -141,7 +141,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     std::string msgBase =
       toolbox::toString("Unable to extract command from GEMFSM SOAP message");
     LOG4CPLUS_ERROR(gemFSMLogger_,toolbox::toString("%s: %s.", msgBase.c_str(),
-			    xcept::stdformat_exception_history(err).c_str()));
+						    xcept::stdformat_exception_history(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
 			 toolbox::toString("%s.", msgBase.c_str()), err);
     //XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
@@ -159,7 +159,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   }
   
   LOG4CPLUS_DEBUG(gemFSMLogger_,toolbox::toString("GEMFSM::changeState() received command '%s'.",
-                          commandName.c_str()));
+						  commandName.c_str()));
   
   try {
     toolbox::Event::Reference event(new toolbox::Event(commandName, this));
@@ -170,8 +170,8 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
       toolbox::toString("Problem executing the GEMFSM '%s' command",
 			commandName.c_str());
     LOG4CPLUS_ERROR(gemFSMLogger_,toolbox::toString("%s: %s.",
-			    msgBase.c_str(),
-			    xcept::stdformat_exception(err).c_str()));
+						    msgBase.c_str(),
+						    xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SOAPTransitionProblem, top,
 			 toolbox::toString("%s.", msgBase.c_str()), err);
     gemAppP_->notifyQualified("error", top);
