@@ -75,16 +75,19 @@ gem::supervisor::tbutils::ThresholdScan::~ThresholdScan()
   wl_->cancel();
   wl_ = 0;
   
+  LOG4CPLUS_INFO(getApplicationLogger(),"histo = 0x" << std::hex << histo << std::dec);
   if (histo)
     delete histo;
   histo = 0;
 
   for (int hi = 0; hi < 128; ++hi) {
+    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
     if (histos[hi])
       delete histos[hi];
     histos[hi] = 0;
   }
 
+  LOG4CPLUS_INFO(getApplicationLogger(),"outputCanvas = 0x" << std::hex << outputCanvas << std::dec);
     if (outputCanvas)
       delete outputCanvas;
     outputCanvas = 0;
@@ -144,7 +147,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.give();
     if (bufferDepth < 10) {
       //update
-      sleep(1);
+      //sleep(1);
       hw_semaphore_.take();
 
       //ADC Voltage, Current, update
@@ -272,7 +275,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   
   //maybe not even necessary?
   //vfatDevice_->setRunMode(0);
-  sleep(5);
+  //sleep(5);
   //read the fifo (x3 times fifo depth), add headers, write to disk, save disk
   boost::format linkForm("LINK%d");
   //should all links have the same fifo depth? if not is this an error?
@@ -998,13 +1001,16 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
     vfatDevice_->setLatency(latency_);
     //}
   
-  vfatDevice_->setVThreshold1(0-minThresh_);
+  vfatDevice_->setVThreshold2(maxThresh_); //changed for symmetric thresholds
+  vfatDevice_->setVThreshold1(maxThresh_-minThresh_); //changed for symmetric thresholds
   scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
-  vfatDevice_->setVThreshold2(0);
+  scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
+  //vfatDevice_->setVThreshold2(0);
   scanParams_.bag.latency = vfatDevice_->getLatency();
   is_configured_ = true;
   hw_semaphore_.give();
 
+  LOG4CPLUS_INFO(getApplicationLogger(),"histo = 0x" << std::hex << histo << std::dec);
   if (histo) {
     //histo->Delete();
     delete histo;
@@ -1022,6 +1028,7 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
   
   for (unsigned int hi = 0; hi < 128; ++hi) {
+    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
     if (histos[hi]) {
       //histos[hi]->Delete();
       delete histos[hi];
@@ -1128,9 +1135,10 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
-  vfatDevice_->setVThreshold1(0-minThresh_);
+  vfatDevice_->setVThreshold2(maxThresh_); //changed for symmetric thresholds
+  vfatDevice_->setVThreshold1(maxThresh_-minThresh_); //changed for symmetric thresholds
   scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
-  vfatDevice_->setVThreshold2(0);
+  scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
   scanParams_.bag.latency = vfatDevice_->getLatency();
 
   vfatDevice_->setRunMode(1);
@@ -1139,6 +1147,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   //start readout
   scanStream.close();
 
+  LOG4CPLUS_INFO(getApplicationLogger(),"histo = 0x" << std::hex << histo << std::dec);
   if (histo) {
     //histo->Delete();
     delete histo;
@@ -1166,6 +1175,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
   
   for (unsigned int hi = 0; hi < 128; ++hi) {
+    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
     if (histos[hi]) {
       //histos[hi]->Delete();
       delete histos[hi];
