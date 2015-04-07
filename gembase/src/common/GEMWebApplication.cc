@@ -34,26 +34,13 @@
 #include "xdata/Double.h" 
 #include "xdata/Boolean.h"
 
-//XDAQ_INSTANTIATOR_IMPL(gem::base::GEMWebApplication)
 
-gem::base::GEMWebApplication::GEMWebApplication(xdaq::ApplicationStub *stub)
+gem::base::GEMWebApplication::GEMWebApplication(xdaq::Application *gemApp, gem::base::GEMMonitor* gemMonitor, bool hasFSM)
   throw (xdaq::exception::Exception) :
-  gem::base::GEMApplication(stub),
-  //xgi::framework::UIManager(this)
-  xdaq::WebApplication(stub),
-  gemWebLogger_(gemLogger_)
+  gemLogger_(gemApp->getApplicationLogger()),
+  gemMonitorP_(gemMonitor),
+  gemAppP_(gemApp)
 {
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::Default,      "Default"  );
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webEnable,    "Enable"   );
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webConfigure, "Configure");
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webStart,     "Start"    );
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webPause,     "Pause"    );
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webResume,    "Resume"   );
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webStop,      "Stop"     );
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webHalt,      "Halt"     );
-  xgi::framework::deferredbind(this, this, &gem::base::GEMWebApplication::webReset,     "Reset"    );
-
-  LOG4CPLUS_INFO(gemWebLogger_, "GEMWebApplication");
 }
 
 
