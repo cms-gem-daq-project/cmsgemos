@@ -19,7 +19,7 @@ namespace gem {
         uint64_t msData;  // ch65to128
       };
     
-      struct VFATEvent {
+      struct VFATData {
         uint16_t BC;      // 1010:4, BC:12 
         uint16_t EC;      // 1100:4, EC:8, Flags:4
         uint32_t bxExp;   // :28
@@ -29,13 +29,13 @@ namespace gem {
         uint16_t crc;     // :16
       };    
     
-      struct GEMEvent {
+      struct GEMData {
         uint32_t header1;
-        std::vector<VFATEvent> vfats;
+        std::vector<VFATData> vfats;
         uint32_t trailer1;
       };
 
-      bool keepData(string file, int event, const ChannelData& ch){
+      bool keepChannelData(string file, int event, const ChannelData& ch){
         ofstream outf(file.c_str(), ios_base::app | ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
@@ -45,7 +45,7 @@ namespace gem {
         return(true);
       };	  
 
-      bool PrintVFATData(int event, const ChannelData& ch){
+      bool PrintChannelData(int event, const ChannelData& ch){
         if( event<0) return(false);
  	  cout << "data words:" << endl;
 	  cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
@@ -53,7 +53,7 @@ namespace gem {
         return(true);
       };
 
-      bool keepEvent(string file, int event, const VFATEvent& ev, const ChannelData& ch){
+      bool keepVFATData(string file, int event, const VFATData& ev, const ChannelData& ch){
         ofstream outf(file.c_str(), ios_base::app | ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
@@ -62,13 +62,13 @@ namespace gem {
           outf << hex << ev.bxExp << dec << endl;
           outf << hex << ev.bxNum << dec << endl;
           outf << hex << ev.ChipID << dec << endl;
-            keepData (file, event, ch);
+            keepChannelData (file, event, ch);
           outf << hex << ev.crc << dec << endl;
           outf.close();
         return(true);
       };	  
 
-      bool PrintGEMData(int event, const VFATEvent& ev, const ChannelData& ch){
+      bool PrintVFATData(int event, const VFATData& ev, const ChannelData& ch){
         if( event<0) return(false);
  	  cout << "Received tracking data word:" << endl;
 	  cout << "bxn     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.bxNum << dec << endl;
