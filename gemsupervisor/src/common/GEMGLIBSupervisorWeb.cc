@@ -151,7 +151,7 @@ throw (xgi::exception::Exception)
 {
     // Define how often main web interface refreshes
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","2");
+    head.addHeader("Refresh","5");
 
     // If we are in "Running" state, check if GLIB has any data available
     if (is_running_) wl_->submit(run_signature_);
@@ -338,7 +338,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
     wl_semaphore_.give();
     hw_semaphore_.give();
 
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"bufferDepth = " << bufferDepth << std::endl);
+    LOG4CPLUS_INFO(getApplicationLogger(),"bufferDepth = " << bufferDepth );
 
     // If GLIB data buffer has non-zero size, initiate read workloop
     if (bufferDepth) {
@@ -431,7 +431,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
             confParams_.bag.outFileName = tmpFileName;
 
-            std::fstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
+            std::ofstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
 
             // Book GEM Data Parker
 
