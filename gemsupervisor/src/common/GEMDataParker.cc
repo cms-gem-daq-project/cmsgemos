@@ -22,7 +22,7 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
 {
     // Book event variables
     gem::supervisor::ChannelData ch;
-    gem::supervisor::VFATEvent ev;
+    gem::supervisor::VFATData ev;
     int event=0;
 
     bool     isFirst = true;
@@ -116,9 +116,8 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
       ev.crc = crc;
 
       // dump event to disk
-      gem::supervisor::keepEvent(outFileName_, event, ev, ch);
-      gem::supervisor::PrintGEMData(event, ev, ch);
-      //gem::supervisor::PrintVFATData(event, ch);
+      gem::supervisor::keepVFATData(outFileName_, event, ev, ch);
+      gem::supervisor::PrintVFATData(event, ev, ch);
 
       counter_++;
 
