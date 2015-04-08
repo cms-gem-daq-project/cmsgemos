@@ -211,6 +211,8 @@ namespace gem {
 	  TH1F* histos[128];
 	  TCanvas* outputCanvas;
 
+          TStopwatch timer;
+
 	protected:
 
 	};
