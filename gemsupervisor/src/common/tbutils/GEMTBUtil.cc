@@ -27,7 +27,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
 {
   readoutDelay = 1U; //readout delay in milleseconds/microseconds?
 
-  nTriggers = 3000U;
+  nTriggers = 2000U;
 
   time_t now  = time(0);
   tm    *gmtm = gmtime(&now);
@@ -93,7 +93,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   hw_semaphore_.give();
 
   //reset parameters to defaults, allow to select new device
-  confParams_.bag.nTriggers = 3000U;
+  confParams_.bag.nTriggers = 2000U;
 
   confParams_.bag.deviceName   = "";
   confParams_.bag.deviceChipID = 0x0;
