@@ -39,8 +39,8 @@ namespace gem {
         ofstream outf(file.c_str(), ios_base::app | ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << hex << ch.lsData << dec << endl;
-          outf << hex << ch.msData << dec << endl;
+          outf << ch.lsData << endl;
+          outf << ch.msData << endl;
           outf.close();
         return(true);
       };	  
@@ -57,13 +57,13 @@ namespace gem {
         ofstream outf(file.c_str(), ios_base::app | ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << hex << ev.BC << dec << endl;
-          outf << hex << ev.EC << dec << endl;
-          outf << hex << ev.bxExp << dec << endl;
-          outf << hex << ev.bxNum << dec << endl;
-          outf << hex << ev.ChipID << dec << endl;
+          outf << ev.BC << endl;
+          outf << ev.EC << endl;
+          outf << ev.bxExp << endl;
+          outf << ev.bxNum << endl;
+          outf << ev.ChipID << endl;
             keepChannelData (file, event, ch);
-          outf << hex << ev.crc << dec << endl;
+          outf << ev.crc << endl;
           outf.close();
         return(true);
       };	  
@@ -76,8 +76,6 @@ namespace gem {
 	  cout << "evn     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.EC    << dec << endl;
 	  //cout << "flags   :: 0x" << std::setfill('0') << std::setw(2) << hex << (unsigned)flags  << dec << endl;
 	  cout << "chipid  :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.ChipID << dec << endl;
-          //cout << "<127:0> :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec 
-          //                        << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
           cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
           cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
 	  cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.crc    << dec << endl;

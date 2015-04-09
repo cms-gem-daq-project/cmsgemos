@@ -7,7 +7,6 @@
 
 #include "xcept/Exception.h"
 #include "xcept/tools.h"
-
 #include "gem/base/utils/exception/Exception.h"
 
 //#include "xdaq/NamespaceURI.h"
@@ -19,7 +18,22 @@
 #include "xdata/xdata.h"
 #include "xdata/soap/NamespaceURI.h"
 
-#include "xgi/Input.h"
+#include "xoap/Method.h"
+#include "xoap/MessageFactory.h"  // createMessage()
+#include "xoap/SOAPPart.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/SOAPSerializer.h"
+#include "xoap/domutils.h"  // XMLCh2String()
+#include "xoap/DOMParser.h"
+#include "xoap/DOMParserFactory.h"
+#include "xdata/soap/Serializer.h"
+
+#include "xdaq/exception/Exception.h"
+#include "xdaq/XceptSerializer.h"
+#include "xdata/Float.h" 
+#include "xdata/Double.h" 
+#include "xdata/Boolean.h"
 
 namespace gem {
   namespace base {
