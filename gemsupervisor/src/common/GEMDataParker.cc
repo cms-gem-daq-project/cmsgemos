@@ -26,8 +26,8 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
     int event=0;
 
     bool     isFirst = true;
-    uint8_t  SBit, flags;
-    uint16_t bcn, evn, crc, chipid;
+    uint8_t  SBit, flags, b1010=0x0A, b1100=0x0C, b1110=0x0E, b1111=0x0F;
+    uint16_t bcn, evn, chipid;
     uint32_t bxNum, bxExp, TrigReg, bxNumTr;
     uint64_t msData, lsData;
 
@@ -98,22 +98,14 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
       lsData = (data3 << 32) | (data4);
       msData = (data1 << 32) | (data2);
 
-      crc    = 0x0000ffff & data.at(0);
-
-      ch.lsData = lsData;
-      ch.msData = msData;
-
-      ev.BC = ((data.at(5)&0xF0000000)>>28) << 12; // 1010
-      ev.BC = (ev.BC | bcn);
-      ev.EC = ((data.at(5)&0x0000F000)>>12) << 12; // 1100
-      ev.EC = (ev.EC | evn) << 4;
-      ev.EC = (ev.EC | flags);
-      ev.bxExp = bxExp;
-      ev.bxNum = bxNum << 6;
-      ev.bxNum = (ev.bxNum | SBit);
-      ev.ChipID = ((data.at(4)&0xF0000000)>>28) << 12; // 1110
-      ev.ChipID = (ev.ChipID | chipid);
-      ev.crc = crc;
+      ev.BC     = ( ((data.at(5) & 0xF0000000)>>28) << 12 ) | (bcn);                // 1010  | bcn
+      ev.EC     = ( ((data.at(5) & 0x0000F000)>>12) << 12 ) | (evn << 4) | (flags); // 1100  | evn | Flag (zero?)
+      ev.ChipID = ( ((data.at(4) & 0xF0000000)>>28) << 12 ) | (chipid);             // 1110  | ChipID
+      ev.bxExp  = bxExp;                                                            // bxExp
+      ev.bxNum  = (bxNum << 6 ) | (SBit);                                           // bxNum | SBit
+      ch.lsData = lsData;                                                           // lsData
+      ch.msData = msData;                                                           // msData
+      ev.crc    = 0x0000ffff & data.at(0);                                          // crc
 
       // dump event to disk
       gem::supervisor::keepVFATData(outFileName_, event, ev, ch);
