@@ -10,34 +10,55 @@
 
 #include "cgicc/HTMLClasses.h"
 
+namespace xdaq {
+  class ApplicationStub;
+}
+
+namespace xgi {
+  class Input;
+  class Output;
+}
+
 namespace cgicc {
   BOOLEAN_ELEMENT(section,"section");
 }
 
 namespace gem {
   namespace base {
-    
-    //class GEMWebApplication : virtual public gem::base::GEMApplication, public xdaq::WebApplication
-    class GEMWebApplication : virtual public xdaq::WebApplication
+
+    class GEMMonitor;
+
+    class GEMWebApplication
       {
       public:
-	//XDAQ_INSTANTIATOR();
-	
-	GEMWebApplication(xdaq::ApplicationStub *stub)
+	GEMWebApplication(xdaq::Application *gemApp, GEMMonitor* gemMonitor, bool hasFSM=false)
 	  throw (xdaq::exception::Exception);
 	
       protected:
-	virtual void init();
-	log4cplus::Logger gemWebLogger_;
-
-	virtual void Default(xgi::Input *in, xgi::Output *out)
+	virtual void monitorPage(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
 	
-	virtual void Expert(xgi::Input *in, xgi::Output *out)
+	virtual void expertPage(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
 
-	virtual void webRedirect(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
+	//fsm specific functions
+	virtual void webEnable(   xgi::Input *in, xgi::Output *out );
+	virtual void webConfigure(xgi::Input *in, xgi::Output *out );
+	virtual void webStart(    xgi::Input *in, xgi::Output *out );
+	virtual void webPause(    xgi::Input *in, xgi::Output *out );
+	virtual void webResume(   xgi::Input *in, xgi::Output *out );
+	virtual void webStop(     xgi::Input *in, xgi::Output *out );
+	virtual void webHalt(     xgi::Input *in, xgi::Output *out );
+	virtual void webReset(    xgi::Input *in, xgi::Output *out );
+	
+	
+      private:
+	log4cplus::Logger gemWebLogger_;
+	GEMMonitor* gemMonitorP_;
+	xdaq::Application* gemAppP_;
+
+	GEMWebApplication(GEMWebApplication const&);
+
       };
   } // namespace gem::base
 } // namespace gem

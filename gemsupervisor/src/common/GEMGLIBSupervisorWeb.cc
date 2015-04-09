@@ -431,14 +431,16 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
             confParams_.bag.outFileName = tmpFileName;
 
-            std::ofstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
+            //std::fstream scanStream(tmpFileName.c_str(), std::ios_base::app | std::ios::binary);
+	    std::ofstream outf(tmpFileName.c_str(), std::ios_base::app | std::ios::binary );
 
             // Book GEM Data Parker
 
             gemDataParker = new gem::supervisor::GEMDataParker(*vfatDevice_, tmpFileName);
 
             //start readout
-            scanStream.close();
+            // scanStream.close();
+            outf.close();
 
             hw_semaphore_.give();
 

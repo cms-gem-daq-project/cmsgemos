@@ -53,23 +53,6 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
 
 }
 
-void gem::supervisor::tbutils::ThresholdScan::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
-  is_working_ = true;
-  gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
-  
-  scanParams_.bag.latency   = 12U;
-  scanParams_.bag.minThresh = -80;
-  scanParams_.bag.maxThresh = 0;
-  scanParams_.bag.stepSize  = 5U;
-
-  scanParams_.bag.deviceVT1 = 0x0;
-  scanParams_.bag.deviceVT2 = 0x0;
-  
-  is_working_     = false;
-}
-
 gem::supervisor::tbutils::ThresholdScan::ThresholdScan(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
   //  xdaq::WebApplication(s),
@@ -113,248 +96,6 @@ gem::supervisor::tbutils::ThresholdScan::~ThresholdScan()
 }
 
 // State transitions
-void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
-  is_working_ = true;
-
-  latency_   = scanParams_.bag.latency;
-  nTriggers_ = confParams_.bag.nTriggers;
-  stepSize_  = scanParams_.bag.stepSize;
-  minThresh_ = scanParams_.bag.minThresh;
-  maxThresh_ = scanParams_.bag.maxThresh;
-  
-  hw_semaphore_.take();
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
-
-  //make sure device is not running
-  vfatDevice_->setRunMode(0);
-
-  /****unimplemented at the moment
-  if ((confParams_.bag.settingsFile.toString()).rfind("xml") != std::string::npos) {
-    LOG4CPLUS_INFO(getApplicationLogger(),"loading settings from XML file");
-    gem::supervisor::tbutils::VFAT2XMLParser::VFAT2XMLParser theParser(confParams_.bag.settingsFile.toString(),
-								       vfatDevice_);
-    theParser.parseXMLFile();
-  }
-  */
-  
-  //else {
-    LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
-    //default settings for the frontend
-    vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
-    vfatDevice_->setCalibrationMode(0x0); //set to normal
-    vfatDevice_->setMSPolarity(     0x1); //negative
-    vfatDevice_->setCalPolarity(    0x1); //negative
-    
-    vfatDevice_->setProbeMode(        0x0);
-    vfatDevice_->setLVDSMode(         0x0);
-    vfatDevice_->setDACMode(          0x0);
-    vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
-    
-    vfatDevice_->setHitCountMode( 0x0);
-    vfatDevice_->setMSPulseLength(0x3);
-    vfatDevice_->setInputPadMode( 0x0);
-    vfatDevice_->setTrimDACRange( 0x0);
-    vfatDevice_->setBandgapPad(   0x0);
-    vfatDevice_->sendTestPattern( 0x0);
-    
-    vfatDevice_->setIPreampIn(  168);
-    vfatDevice_->setIPreampFeed(150);
-    vfatDevice_->setIPreampOut(  80);
-    vfatDevice_->setIShaper(    150);
-    vfatDevice_->setIShaperFeed(100);
-    vfatDevice_->setIComp(       90);
-
-    vfatDevice_->setLatency(latency_);
-    //}
-  
-  vfatDevice_->setVThreshold1(maxThresh_-minThresh_);
-  vfatDevice_->setVThreshold2(max(0,maxThresh_));
-  scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
-  scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
-
-  scanParams_.bag.latency = vfatDevice_->getLatency();
-  is_configured_ = true;
-  hw_semaphore_.give();
-
-  if (histo) {
-    //histo->Delete();
-    delete histo;
-    histo = 0;
-  }
-  std::stringstream histName, histTitle;
-  histName  << "allchannels";
-  histTitle << "Threshold scan for all channels";
-  
-  int minTh = scanParams_.bag.minThresh;
-  int maxTh = scanParams_.bag.maxThresh;
-  int nBins = ((maxTh - minTh) + 1)/(scanParams_.bag.stepSize);
-
-  LOG4CPLUS_INFO(getApplicationLogger(),"histogram name and title: " << histName.str() << ", " << histTitle.str() 
-    << "(" << nBins << " bins)" << " minTh " << minTh << " maxTh " << maxTh << " stepSize " << scanParams_.bag.stepSize );
-
-  histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
-  
-  for (unsigned int hi = 0; hi < 128; ++hi) {
-    if (histos[hi]) {
-      //histos[hi]->Delete();
-      delete histos[hi];
-      histos[hi] = 0;
-    }
-    
-    histName.clear();
-    histName.str(std::string());
-    histTitle.clear();
-    histTitle.str(std::string());
-
-    histName  << "channel"<<(hi+1);
-    histTitle << "Threshold scan for channel "<<(hi+1);
-    histos[hi] = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
-  }
-  outputCanvas = new TCanvas("outputCanvas","outputCanvas",600,600);
-  
-  is_working_    = false;
-}
-
-void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-  
-  AppHeader ah;
-
-  is_working_ = true;
-
-  latency_   = scanParams_.bag.latency;
-  nTriggers_ = confParams_.bag.nTriggers;
-  stepSize_  = scanParams_.bag.stepSize;
-  minThresh_ = scanParams_.bag.minThresh;
-  maxThresh_ = scanParams_.bag.maxThresh;
-
-  time_t now = time(NULL);
-  tm *gmtm = gmtime(&now);
-  char* utcTime = asctime(gmtm);
-
-  std::string tmpFileName = "ThresholdScan_";
-  tmpFileName.append(utcTime);
-  tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
-  tmpFileName.append(".dat");
-  std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
-  std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
-  //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
-
-  confParams_.bag.outFileName = tmpFileName;
-
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"Creating file " << confParams_.bag.outFileName.toString());
-
-  //std::fstream scanStream(confParams_.bag.outFileName.c_str(),
-  std::fstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
-
-  if (scanStream.is_open()) LOG4CPLUS_INFO(getApplicationLogger(),"file " << confParams_.bag.outFileName.toString() << " opened");
-
-  //write some global run information header
-  
-  //char data[128/8]
-  is_running_ = true;
-  hw_semaphore_.take();
-
-  //set clock source
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.CLOCKING");
-  vfatDevice_->writeReg("VFAT.SOURCE",  0x1);
-  vfatDevice_->writeReg("CDCE.SOURCE",  0x0);
-  //vfatDevice_->writeReg("CDCE.FALLBACK",0x1);
-  //vfatDevice_->writeReg("VFAT.FALLBACK",0x1);
-  
-  //send resync
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
-  vfatDevice_->writeReg("Send.Resync",0x1);
-
-  //reset counters
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
-  vfatDevice_->writeReg("RESETS.L1A.External",0x1);
-  vfatDevice_->writeReg("RESETS.L1A.Internal",0x1);
-  vfatDevice_->writeReg("RESETS.L1A.Delayed", 0x1);
-  vfatDevice_->writeReg("RESETS.L1A.Total",   0x1);
-
-  vfatDevice_->writeReg("RESETS.CalPulse.External",0x1);
-  vfatDevice_->writeReg("RESETS.CalPulse.Internal",0x1);
-  vfatDevice_->writeReg("RESETS.CalPulse.Total",   0x1);
-
-  vfatDevice_->writeReg("RESETS.Resync",0x1);
-  vfatDevice_->writeReg("RESETS.BC0",   0x1);
-  
-  //flush FIFO
-  vfatDevice_->setDeviceBaseNode("GLIB.LINK1");
-  vfatDevice_->writeReg("TRK_FIFO.FLUSH", 0x1);
-  
-  //set trigger source
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.TRIGGER");
-  vfatDevice_->writeReg("SOURCE",   0x2);
-  vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum);
-  
-  vfatDevice_->setDeviceBaseNode("GLIB");
-  vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum);
-  
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
-
-  vfatDevice_->setVThreshold1(maxThresh_-minThresh_);
-  vfatDevice_->setVThreshold2(max(0,maxThresh_));
-  scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
-  scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
-
-  scanParams_.bag.latency = vfatDevice_->getLatency();
-
-  vfatDevice_->setRunMode(1);
-  hw_semaphore_.give();
-
-  //start readout
-  scanStream.close();
-
-  if (histo) {
-    //histo->Delete();
-    delete histo;
-    histo = 0;
-  }
-  std::stringstream histName, histTitle;
-  histName  << "allchannels";
-  histTitle << "Threshold scan for all channels";
-  int minTh = scanParams_.bag.minThresh;
-  int maxTh = scanParams_.bag.maxThresh;
-  int nBins = ((maxTh - minTh) + 1)/(scanParams_.bag.stepSize);
-
-  //write Applicatie  header
-  ah.minTh = minTh;
-  ah.maxTh = maxTh;
-  ah.stepSize = scanParams_.bag.stepSize;
-  keepAppHeader(tmpFileName, ah);
-
-  LOG4CPLUS_INFO(getApplicationLogger(),"histogram name and title: " << histName.str() << ", " << histTitle.str()
-    << "(" << nBins << " bins)" << " minTh " << minTh << " maxTh " << maxTh << " stepSize " << scanParams_.bag.stepSize );
-
-  histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
-  
-  for (unsigned int hi = 0; hi < 128; ++hi) {
-    if (histos[hi]) {
-      //histos[hi]->Delete();
-      delete histos[hi];
-      histos[hi] = 0;
-    }
-    
-    histName.clear();
-    histName.str(std::string());
-    histTitle.clear();
-    histTitle.str(std::string());
-
-    histName  << "channel"<<(hi+1);
-    histTitle << "Threshold scan for channel "<<(hi+1);
-    histos[hi] = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
-  }
-
-  //start scan routine
-  wl_->submit(runSig_);
-  
-  is_working_ = false;
-}
-
 bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 {
   wl_semaphore_.take();
@@ -434,7 +175,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.give();
     if (bufferDepth < 10) {
       //update
-      sleep(1);
+      //sleep(1);
       hw_semaphore_.take();
 
       //triggersSeen update 
@@ -583,7 +324,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
   //maybe not even necessary?
   //vfatDevice_->setRunMode(0);
-  sleep(0.001);
+  //sleep(5);
   //read the fifo (x3 times fifo depth), add headers, write to disk, save disk
   boost::format linkForm("LINK%d");
   //should all links have the same fifo depth? if not is this an error?
@@ -1256,5 +997,264 @@ void gem::supervisor::tbutils::ThresholdScan::webStart(xgi::Input *in, xgi::Outp
   wl_->submit(startSig_);
   
   redirect(in,out);
+}
+
+// State transitions
+void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {
+
+  is_working_ = true;
+
+  latency_   = scanParams_.bag.latency;
+  nTriggers_ = confParams_.bag.nTriggers;
+  stepSize_  = scanParams_.bag.stepSize;
+  minThresh_ = scanParams_.bag.minThresh;
+  maxThresh_ = scanParams_.bag.maxThresh;
+  
+  hw_semaphore_.take();
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
+
+  //make sure device is not running
+  vfatDevice_->setRunMode(0);
+
+  /****unimplemented at the moment
+  if ((confParams_.bag.settingsFile.toString()).rfind("xml") != std::string::npos) {
+    LOG4CPLUS_INFO(getApplicationLogger(),"loading settings from XML file");
+    gem::supervisor::tbutils::VFAT2XMLParser::VFAT2XMLParser theParser(confParams_.bag.settingsFile.toString(),
+								       vfatDevice_);
+    theParser.parseXMLFile();
+  }
+  */
+  
+  //else {
+    LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
+    //default settings for the frontend
+    vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
+    vfatDevice_->setCalibrationMode(0x0); //set to normal
+    vfatDevice_->setMSPolarity(     0x1); //negative
+    vfatDevice_->setCalPolarity(    0x1); //negative
+    
+    vfatDevice_->setProbeMode(        0x0);
+    vfatDevice_->setLVDSMode(         0x0);
+    vfatDevice_->setDACMode(          0x0);
+    vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
+    
+    vfatDevice_->setHitCountMode( 0x0);
+    vfatDevice_->setMSPulseLength(0x3);
+    vfatDevice_->setInputPadMode( 0x0);
+    vfatDevice_->setTrimDACRange( 0x0);
+    vfatDevice_->setBandgapPad(   0x0);
+    vfatDevice_->sendTestPattern( 0x0);
+        
+    vfatDevice_->setIPreampIn(  168);
+    vfatDevice_->setIPreampFeed(150);
+    vfatDevice_->setIPreampOut(  80);
+    vfatDevice_->setIShaper(    150);
+    vfatDevice_->setIShaperFeed(100);
+    vfatDevice_->setIComp(      120);
+
+    vfatDevice_->setLatency(latency_);
+    //}
+  
+  vfatDevice_->setVThreshold1(maxThresh_-minThresh_);
+  vfatDevice_->setVThreshold2(max(0,maxThresh_));
+  scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
+  scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
+
+  scanParams_.bag.latency = vfatDevice_->getLatency();
+  is_configured_ = true;
+  hw_semaphore_.give();
+
+  if (histo) {
+    delete histo;
+    histo = 0;
+  }
+  std::stringstream histName, histTitle;
+  histName  << "allchannels";
+  histTitle << "Threshold scan for all channels";
+
+  int minTh = scanParams_.bag.minThresh;
+  int maxTh = scanParams_.bag.maxThresh;
+  int nBins = ((maxTh - minTh) + 1)/(scanParams_.bag.stepSize);
+
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"histogram name and title: " << histName.str() 
+		  << ", " << histTitle.str()
+		  << "(" << nBins << " bins)");
+  histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
+  
+  for (unsigned int hi = 0; hi < 128; ++hi) {
+    if (histos[hi]) {
+      delete histos[hi];
+      histos[hi] = 0;
+    }
+    
+    histName.clear();
+    histName.str(std::string());
+    histTitle.clear();
+    histTitle.str(std::string());
+
+    histName  << "channel"<<(hi+1);
+    histTitle << "Threshold scan for channel "<<(hi+1);
+    LOG4CPLUS_DEBUG(getApplicationLogger(),"histogram name and title: " << histName.str() 
+		   << ", " << histTitle.str()
+		   << "(" << nBins << " bins)");
+    histos[hi] = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
+  }
+  outputCanvas = new TCanvas("outputCanvas","outputCanvas",600,800);
+  
+  is_working_    = false;
+}
+
+
+void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {
+  
+  is_working_ = true;
+
+  AppHeader ah;
+
+  latency_   = scanParams_.bag.latency;
+  nTriggers_ = confParams_.bag.nTriggers;
+  stepSize_  = scanParams_.bag.stepSize;
+  minThresh_ = scanParams_.bag.minThresh;
+  maxThresh_ = scanParams_.bag.maxThresh;
+
+  time_t now = time(0);
+  tm *gmtm = gmtime(&now);
+  char* utcTime = asctime(gmtm);
+
+  std::string tmpFileName = "ThresholdScan_";
+  tmpFileName.append(utcTime);
+  tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
+  tmpFileName.append(".dat");
+  std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
+  std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
+  //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
+
+  confParams_.bag.outFileName = tmpFileName;
+
+  LOG4CPLUS_INFO(getApplicationLogger(),"Creating file " << confParams_.bag.outFileName.toString());
+
+  //std::fstream scanStream(confParams_.bag.outFileName.c_str(),
+  std::fstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
+  if (scanStream.is_open())
+    LOG4CPLUS_INFO(getApplicationLogger(),"file " << confParams_.bag.outFileName.toString() << " opened");
+
+  //write some global run information header
+  
+  //char data[128/8]
+  is_running_ = true;
+  hw_semaphore_.take();
+
+  //set clock source
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.CLOCKING");
+  vfatDevice_->writeReg("VFAT.SOURCE",  0x1);
+  //vfatDevice_->writeReg("VFAT.FALLBACK",0x1);
+  vfatDevice_->writeReg("CDCE.SOURCE",  0x0);
+  //vfatDevice_->writeReg("CDCE.FALLBACK",0x1);
+  
+  //send resync
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
+  vfatDevice_->writeReg("Send.Resync",0x1);
+
+  //reset counters
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
+  vfatDevice_->writeReg("RESETS.L1A.External",0x1);
+  vfatDevice_->writeReg("RESETS.L1A.Internal",0x1);
+  vfatDevice_->writeReg("RESETS.L1A.Delayed", 0x1);
+  vfatDevice_->writeReg("RESETS.L1A.Total",   0x1);
+
+  vfatDevice_->writeReg("RESETS.CalPulse.External",0x1);
+  vfatDevice_->writeReg("RESETS.CalPulse.Internal",0x1);
+  vfatDevice_->writeReg("RESETS.CalPulse.Total",   0x1);
+
+  vfatDevice_->writeReg("RESETS.Resync",0x1);
+  vfatDevice_->writeReg("RESETS.BC0",   0x1);
+  
+  //flush FIFO
+  vfatDevice_->setDeviceBaseNode("GLIB.LINK1");
+  vfatDevice_->writeReg("TRK_FIFO.FLUSH", 0x1);
+  
+  //set trigger source
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.TRIGGER");
+  vfatDevice_->writeReg("SOURCE",   0x2);
+  vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum);
+  
+  vfatDevice_->setDeviceBaseNode("GLIB");
+  vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum);
+  
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
+
+  vfatDevice_->setVThreshold1(maxThresh_-minThresh_);
+  vfatDevice_->setVThreshold2(max(0,maxThresh_));
+  scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
+  scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
+
+  scanParams_.bag.latency = vfatDevice_->getLatency();
+
+  vfatDevice_->setRunMode(1);
+  hw_semaphore_.give();
+
+  //start readout
+  scanStream.close();
+
+  if (histo) {
+    delete histo;
+    histo = 0;
+  }
+  std::stringstream histName, histTitle;
+  histName  << "allchannels";
+  histTitle << "Threshold scan for all channels";
+  int minTh = scanParams_.bag.minThresh;
+  int maxTh = scanParams_.bag.maxThresh;
+  int nBins = ((maxTh - minTh) + 1)/(scanParams_.bag.stepSize);
+
+  //write Applicatie  header
+  ah.minTh = minTh;
+  ah.maxTh = maxTh;
+  ah.stepSize = scanParams_.bag.stepSize;
+  keepAppHeader(tmpFileName, ah);
+
+  histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
+  
+  for (unsigned int hi = 0; hi < 128; ++hi) {
+    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
+    if (histos[hi]) {
+      delete histos[hi];
+      histos[hi] = 0;
+    }
+    
+    histName.clear();
+    histName.str(std::string());
+    histTitle.clear();
+    histTitle.str(std::string());
+
+    histName  << "channel"<<(hi+1);
+    histTitle << "Threshold scan for channel "<<(hi+1);
+    histos[hi] = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
+  }
+
+  //start scan routine
+  wl_->submit(runSig_);
+  
+  is_working_ = false;
+}
+
+
+void gem::supervisor::tbutils::ThresholdScan::resetAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {
+
+  is_working_ = true;
+  gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
+  
+  scanParams_.bag.latency   = 12U;
+  scanParams_.bag.minThresh = -25;
+  scanParams_.bag.maxThresh = 0;
+  scanParams_.bag.stepSize  = 1U;
+
+  scanParams_.bag.deviceVT1    = 0x0;
+  scanParams_.bag.deviceVT2    = 0x0;
+  
+  is_working_     = false;
 }
 

@@ -56,8 +56,9 @@ namespace gem {
 	void invalidAction(toolbox::Event::Reference event);
 	
       private:
-	//gem::base::utils::ApplicationStateInfoSpaceHandler* appStateInfoSpaceHandlerP_;
 	toolbox::fsm::AsynchronousFiniteStateMachine* gemfsmP_;
+	xdata::InfoSpace *appInfoSpaceP_;
+	xdata::InfoSpace *appStateInfoSpaceP_;
 
 	//xdata::String state_;
 	//xdata::String reasonForFailure_;
