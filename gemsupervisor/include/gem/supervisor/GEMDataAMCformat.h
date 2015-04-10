@@ -84,22 +84,37 @@ namespace gem {
 
       bool PrintVFATData(int event, const VFATData& ev, const ChannelData& ch){
         if( event<0) return(false);
- 	  cout << " print:  BC, EC" << endl;
-          show16bits(ev.BC);
-          show16bits(ev.EC);
- 	  uint8_t b1100 = (0xf000 & ev.EC) >> 12;
-          uint8_t EC = (0x0ff0 & ev.EC) >> 4;
-          uint8_t Flags = (0x000f & ev.EC);
-	  show4bits(Flags);
-
  	  cout << "Received tracking data word:" << endl;
-	  cout << "bxn     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.bxNum  << dec << endl;
-	  cout << "bcn     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.BC     << dec << endl;
-	  cout << "evn     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.EC     << dec << endl;
-	  cout << "chipid  :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.ChipID << dec << endl;
+	  cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.BC     << dec << endl;
+	  cout << "EC      :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.EC     << dec << endl;
+	  cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.ChipID << dec << endl;
+	  cout << "bxExp   :: 0x" << std::setfill('0') << std::setw(6) << hex << ev.bxExp  << dec << endl;
+	  cout << "bxNum   :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.bxNum  << dec << endl;
           cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
           cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
 	  cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.crc    << dec << endl;
+        return(true);
+      };
+
+      bool PrintVFATDataBits(int event, const VFATData& ev, const ChannelData& ch){
+        if( event<0) return(false);
+ 	  cout << " print:  EC" << endl;
+
+ 	  uint8_t b1100 = (0xf000 & ev.EC) >> 12;
+          uint8_t EC    = (0x0ff0 & ev.EC) >> 4;
+          uint8_t Flags = (0x000f & ev.EC);
+          show16bits(ev.EC);
+
+	  /*
+          ev.BC     = ( ((data.at(5) & 0xF0000000)>>28) << 12 ) | (bcn);                // 1010     | bcn:12
+          ev.EC     = ( ((data.at(5) & 0x0000F000)>>12) << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
+          ev.ChipID = ( ((data.at(4) & 0xF0000000)>>28) << 12 ) | (chipid);             // 1110     | ChipID:12
+          ev.bxExp  = bxExp;                                                            // bxExp:28
+          ev.bxNum  = (bxNum << 6 ) | (SBit);                                           // bxNum:6  | SBit:6
+          ch.lsData = lsData;                                                           // lsData:64
+          ch.msData = msData;                                                           // msData:64
+          ev.crc    = 0x0000ffff & data.at(0);                                          // crc:16
+	  */
         return(true);
       };
 
