@@ -14,20 +14,6 @@ using namespace std;
 namespace gem {
   namespace supervisor {
 
-      void show4bits(uint8_t x) {
-        int i; 
-        for(i=(sizeof(uint8_t)*4)-1; i>=0; i--)
-          (x&(1<<i))?putchar('1'):putchar('0');
-     	printf("\n");
-      }
-
-      void show16bits(uint16_t x) {
-        int i; 
-        for(i=(sizeof(uint16_t)*8)-1; i>=0; i--)
-          (x&(1<<i))?putchar('1'):putchar('0');
-     	printf("\n");
-      }
-
       struct ChannelData {
         uint64_t lsData;  // ch1to64
         uint64_t msData;  // ch65to128
@@ -37,7 +23,7 @@ namespace gem {
         uint16_t BC;      // 1010:4,   BC:12 
         uint16_t EC;      // 1100:4,   EC:8,     Flags:4
         uint32_t bxExp;   // bxExp:28
-        uint16_t bxNum;   // bxNum:6,  Sbit:6
+        uint16_t bxNum;   // bxNum:8,  Sbit:8
         uint16_t ChipID;  // 1110,     ChipID:12
           ChannelData data;
         uint16_t crc;     // :16
@@ -96,25 +82,48 @@ namespace gem {
         return(true);
       };
 
+      //
+      // Useful printouts 
+      //
+      void show4bits(uint8_t x) {
+        int i; 
+        for(i=(sizeof(uint8_t)*4)-1; i>=0; i--)
+          (x&(1<<i))?putchar('1'):putchar('0');
+     	//printf("\n");
+      }
+
+      void show16bits(uint16_t x) {
+        int i; 
+        for(i=(sizeof(uint16_t)*8)-1; i>=0; i--)
+          (x&(1<<i))?putchar('1'):putchar('0');
+     	printf("\n");
+      }
+
       bool PrintVFATDataBits(int event, const VFATData& ev, const ChannelData& ch){
         if( event<0) return(false);
- 	  cout << " print:  EC" << endl;
+ 	  cout << "Received VFAT data word:" << endl;
 
- 	  uint8_t b1100 = (0xf000 & ev.EC) >> 12;
-          uint8_t EC    = (0x0ff0 & ev.EC) >> 4;
-          uint8_t Flags = (0x000f & ev.EC);
-          show16bits(ev.EC);
+          uint8_t   b1010 = (0xf000 & ev.BC) >> 12;
+          show4bits(b1010); cout << " BC     0x" << hex << (0x0fff & ev.BC) << dec << endl;
 
-	  /*
-          ev.BC     = ( ((data.at(5) & 0xF0000000)>>28) << 12 ) | (bcn);                // 1010     | bcn:12
-          ev.EC     = ( ((data.at(5) & 0x0000F000)>>12) << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
-          ev.ChipID = ( ((data.at(4) & 0xF0000000)>>28) << 12 ) | (chipid);             // 1110     | ChipID:12
-          ev.bxExp  = bxExp;                                                            // bxExp:28
-          ev.bxNum  = (bxNum << 6 ) | (SBit);                                           // bxNum:6  | SBit:6
-          ch.lsData = lsData;                                                           // lsData:64
-          ch.msData = msData;                                                           // msData:64
-          ev.crc    = 0x0000ffff & data.at(0);                                          // crc:16
-	  */
+          uint8_t   b1100 = (0xf000 & ev.EC) >> 12;
+          uint16_t   EC   = (0x0ff0 & ev.EC) >> 4;
+          uint8_t   Flag  = (0x000f & ev.EC);
+          show4bits(b1100); cout << " EC     0x" << hex << EC << dec << " " << endl; 
+          show4bits(Flag);  cout << " Flags " << endl;
+
+          uint8_t   b1110 = (0xf000 & ev.ChipID) >> 12;
+          uint16_t ChipID = (0x0fff & ev.ChipID);
+          show4bits(b1110); cout << " ChipID 0x" << hex << ChipID << dec << " " << endl;
+
+          cout << "     bxExp  0x" << hex << ev.bxExp << dec << " " << endl;
+	  cout << "     bxNum  0x" << hex << ((0xff00 & ev.bxNum) >> 8) << "        SBit " << (0x00ff & ev.bxNum) << endl;
+          cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
+          cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
+          cout << "     crc    0x" << hex << ev.crc << dec << endl;
+
+          //cout << " " << endl; show16bits(ev.EC);
+
         return(true);
       };
 

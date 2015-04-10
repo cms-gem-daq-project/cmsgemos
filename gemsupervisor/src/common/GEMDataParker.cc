@@ -102,14 +102,15 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
       ev.EC     = ( ((data.at(5) & 0x0000F000)>>12) << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
       ev.ChipID = ( ((data.at(4) & 0xF0000000)>>28) << 12 ) | (chipid);             // 1110     | ChipID:12
       ev.bxExp  = bxExp;                                                            // bxExp:28
-      ev.bxNum  = (bxNum << 6 ) | (SBit);                                           // bxNum:6  | SBit:6
+      ev.bxNum  = (bxNum << 8 ) | (SBit);                                           // bxNum:8  | SBit:8
       ch.lsData = lsData;                                                           // lsData:64
       ch.msData = msData;                                                           // msData:64
       ev.crc    = 0x0000ffff & data.at(0);                                          // crc:16
 
       // dump event to disk
       gem::supervisor::keepVFATData(outFileName_, event, ev, ch);
-      gem::supervisor::PrintVFATData(event, ev, ch);
+      //  gem::supervisor::PrintVFATData(event, ev, ch);
+      gem::supervisor::PrintVFATDataBits(event, ev, ch);
 
       counter_++;
 
