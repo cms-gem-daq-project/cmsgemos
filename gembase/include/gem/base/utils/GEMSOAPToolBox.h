@@ -1,39 +1,11 @@
 #ifndef gem_base_utils_GEMSOAPToolBox_h
 #define gem_base_utils_GEMSOAPToolBox_h
 
+//using the SOAP toolbox defined in the TCDS code base with extra functionality from the EMU codebase
 #include <string>
-#include <vector>
-#include <deque>
 
-#include "xcept/Exception.h"
-#include "xcept/tools.h"
-#include "gem/base/utils/exception/Exception.h"
-
-//#include "xdaq/NamespaceURI.h"
-
-#include "xoap/MessageFactory.h"
 #include "xoap/MessageReference.h"
-
-#include "xdata/soap/Serializer.h"
-#include "xdata/xdata.h"
-#include "xdata/soap/NamespaceURI.h"
-
-#include "xoap/Method.h"
-#include "xoap/MessageFactory.h"  // createMessage()
-#include "xoap/SOAPPart.h"
-#include "xoap/SOAPEnvelope.h"
-#include "xoap/SOAPBody.h"
-#include "xoap/SOAPSerializer.h"
-#include "xoap/domutils.h"  // XMLCh2String()
-#include "xoap/DOMParser.h"
-#include "xoap/DOMParserFactory.h"
-#include "xdata/soap/Serializer.h"
-
-#include "xdaq/exception/Exception.h"
-#include "xdaq/XceptSerializer.h"
-#include "xdata/Float.h" 
-#include "xdata/Double.h" 
-#include "xdata/Boolean.h"
+#include "xercesc/util/XercesDefs.hpp"
 
 namespace gem {
   namespace base {
@@ -44,17 +16,15 @@ namespace gem {
       public:
 	//methods copied from tcds soap helper
 	static xoap::MessageReference makeSoapReply(std::string const& command,
-						    std::string const& answer);
+						    std::string const& response);
 	static xoap::MessageReference makeSoapFaultReply(std::string const& faultString,
 							 std::string const& faultCode="Server",
 							 std::string const& faultActor="",
 							 std::string const& detail="");
-	static xoap::MessageReference makeFsmSoapReply(std::string const& event,
+	static xoap::MessageReference makeFSMSoapReply(std::string const& event,
 						       std::string const& state);
 	
 	static std::string extractFSMCommandName(xoap::MessageReference const& msg);
-	
-	static XERCES_CPP_NAMESPACE::DOMNodeList* extractBodyNodes(xoap::MessageReference const& msg);
 	
 	//methods copied from emu/soap/toolbox
 	/*

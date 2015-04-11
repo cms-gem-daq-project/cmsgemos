@@ -1,16 +1,28 @@
 #ifndef gem_base_GEMFSMApplication_h
 #define gem_base_GEMFSMApplication_h
 
-#include "gem/base/GEMFSM.h"
 #include "gem/base/GEMApplication.h"
+#include "gem/base/GEMFSM.h"
+
+namespace toolbox {
+  namespace task{
+    class WorkLoop;
+    class ActionSignature;
+  }
+}
 
 namespace gem {
   namespace base {
-    
-    class GEMFSMApplication: virtual public gem::base::GEMApplication
+    class GEMFSM;
+    class GEMApplication;
+    class GEMWebApplication;
+
+    class GEMFSMApplication : public GEMApplication
       {
       public:
 	friend class GEMFSM;
+	friend class GEMApplication;
+	friend class GEMWebApplication;
 	
 	GEMFSMApplication(xdaq::ApplicationStub *stub)
 	  throw (xdaq::exception::Exception);
@@ -18,27 +30,17 @@ namespace gem {
 	virtual ~GEMFSMApplication();
 
       protected:
-	// hyperdaq action callbacks
-	virtual void webInitialize(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	virtual void webEnable(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	virtual void webConfigure(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	virtual void webStart(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	virtual void webPause(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	virtual void webResume(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	virtual void webStop(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	virtual void webHalt(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	virtual void webReset(xgi::Input *in, xgi::Output *out)
-	  throw (xgi::exception::Exception);
-	//virtual void webDisable(xgi::Input *in, xgi::Output *out)
-	//  throw (xgi::exception::Exception);
+	//xgi interface
+	virtual void xgiInitialize(xgi::Input *in, xgi::Output *out );
+	virtual void xgiEnable(    xgi::Input *in, xgi::Output *out );
+	virtual void xgiConfigure( xgi::Input *in, xgi::Output *out );
+	virtual void xgiStart(     xgi::Input *in, xgi::Output *out );
+	virtual void xgiPause(     xgi::Input *in, xgi::Output *out );
+	virtual void xgiResume(    xgi::Input *in, xgi::Output *out );
+	virtual void xgiStop(      xgi::Input *in, xgi::Output *out );
+	virtual void xgiHalt(      xgi::Input *in, xgi::Output *out );
+ 	virtual void xgiReset(     xgi::Input *in, xgi::Output *out );
+
 
 	// SOAP interface
 	virtual xoap::MessageReference onEnable(     xoap::MessageReference message)
@@ -83,26 +85,16 @@ namespace gem {
 	//bool calibrationSequencer(toolbox::task::WorkLoop *wl);
 	
 	//state transitions
-	virtual void initializeAction(toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void enableAction(    toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void configureAction( toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void startAction(     toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void pauseAction(     toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void resumeAction(    toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void stopAction(      toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void haltAction(      toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void noAction(        toolbox::Event::Reference e) 
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void failAction(      toolbox::Event::Reference e) 
-	  throw (toolbox::fsm::exception::Exception);
+	virtual void initializeAction(toolbox::Event::Reference e);
+	virtual void enableAction(    toolbox::Event::Reference e);
+	virtual void configureAction( toolbox::Event::Reference e);
+	virtual void startAction(     toolbox::Event::Reference e);
+	virtual void pauseAction(     toolbox::Event::Reference e);
+	virtual void resumeAction(    toolbox::Event::Reference e);
+	virtual void stopAction(      toolbox::Event::Reference e);
+	virtual void haltAction(      toolbox::Event::Reference e);
+	virtual void noAction(        toolbox::Event::Reference e); 
+	virtual void failAction(      toolbox::Event::Reference e); 
 	
 	virtual void resetAction()//toolbox::Event::Reference e)
 	  throw (toolbox::fsm::exception::Exception);
@@ -117,10 +109,9 @@ namespace gem {
 	
 	virtual xoap::MessageReference changeState(xoap::MessageReference msg);
 	
-
       private:
-	gem::base::GEMFSM gemfsm_;
-
+	GEMFSM gemfsm_;
+	
 	toolbox::BSem wl_semaphore_;
 
 	toolbox::task::WorkLoop *wl_;
@@ -128,6 +119,8 @@ namespace gem {
 	toolbox::task::ActionSignature *enable_signature_, *configure_signature_;
 	toolbox::task::ActionSignature *start_signature_,  *pause_signature_, *resume_signature_;
 	toolbox::task::ActionSignature *stop_signature_,   *halt_signature_;
+	
+	xdata::InfoSpace* gemAppStateInfoSpaceP_;
 
       };
     

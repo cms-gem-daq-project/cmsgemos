@@ -2,17 +2,12 @@
 #define gem_base_GEMWebApplication_h
 
 #include "xdaq/WebApplication.h"
-
 #include "xgi/framework/Method.h"
 #include "xgi/framework/UIManager.h"
 
-#include "gem/base/GEMApplication.h"
-
 #include "cgicc/HTMLClasses.h"
 
-namespace xdaq {
-  class ApplicationStub;
-}
+#include "gem/base/utils/GEMLogging.h"
 
 namespace xgi {
   class Input;
@@ -26,14 +21,27 @@ namespace cgicc {
 namespace gem {
   namespace base {
 
+    class GEMFSM;
     class GEMMonitor;
-
+    class GEMApplication;
+    class GEMFSMApplication;
+    
     class GEMWebApplication
       {
+	friend class GEMFSM;
+	friend class GEMMonitor;
+	friend class GEMApplication;
+	friend class GEMFSMApplication;
+
       public:
-	GEMWebApplication(xdaq::Application *gemApp, GEMMonitor* gemMonitor, bool hasFSM=false)
+	GEMWebApplication(GEMApplication *gemApp)
 	  throw (xdaq::exception::Exception);
 	
+	GEMWebApplication(GEMFSMApplication *gemFSMApp)
+	  throw (xdaq::exception::Exception);
+
+	~GEMWebApplication();
+
       protected:
 	virtual void monitorPage(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
@@ -41,22 +49,38 @@ namespace gem {
 	virtual void expertPage(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
 
-	//fsm specific functions
-	virtual void webEnable(   xgi::Input *in, xgi::Output *out );
-	virtual void webConfigure(xgi::Input *in, xgi::Output *out );
-	virtual void webStart(    xgi::Input *in, xgi::Output *out );
-	virtual void webPause(    xgi::Input *in, xgi::Output *out );
-	virtual void webResume(   xgi::Input *in, xgi::Output *out );
-	virtual void webStop(     xgi::Input *in, xgi::Output *out );
-	virtual void webHalt(     xgi::Input *in, xgi::Output *out );
-	virtual void webReset(    xgi::Input *in, xgi::Output *out );
-	
-	
-      private:
-	log4cplus::Logger gemWebLogger_;
-	GEMMonitor* gemMonitorP_;
-	xdaq::Application* gemAppP_;
+	// fsm specific functions, only called when the constructing app is derived from a
+	// GEMFSMApplication
+	virtual void webInitialize(xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+	virtual void webEnable(    xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+	virtual void webConfigure( xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+	virtual void webStart(     xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+	virtual void webPause(     xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+	virtual void webResume(    xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+	virtual void webStop(      xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+	virtual void webHalt(      xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+ 	virtual void webReset(     xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
 
+ 	virtual void webRedirect(  xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+	
+	log4cplus::Logger gemLogger_;
+	
+	GEMMonitor*        gemMonitorP_;
+	GEMFSMApplication* gemFSMAppP_;
+	GEMApplication*    gemAppP_;
+	//xdaq::Application* gemAppP_;
+
+      private:
 	GEMWebApplication(GEMWebApplication const&);
 
       };

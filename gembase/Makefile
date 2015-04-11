@@ -12,8 +12,7 @@ PackageName=base
 
 #Sources= GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc CfgParser.cc version.cc
 #Sources= GEMFSM.cc utils/GEMSOAPToolBox.cc GEMApplication.cc GEMFSMApplication.cc GEMWebApplication.cc
-Sources= utils/gemXMLparser.cc GEMApplication.cc
-
+Sources= utils/gemXMLparser.cc GEMApplication.cc utils/GEMSOAPToolBox.cc GEMFSMApplication.cc GEMFSM.cc GEMWebApplication.cc
 DynamicLibrary=gem_base
 
 #IncludeDirs = $(uHALROOT)/include
