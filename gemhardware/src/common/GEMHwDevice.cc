@@ -3,7 +3,7 @@
 #include "gem/hw/GEMHwDevice.h"
 
 gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
-  logGEMHw_(gemApp->getApplicationLogger()),
+  gemLogger_(gemApp->getApplicationLogger()),
   gemHWP_(0)
   //monGEMHw_(0)
   
