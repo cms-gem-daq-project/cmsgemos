@@ -9,7 +9,15 @@
 #include <deque>
 #include <map>
 
+#include "xdaq/WebApplication.h"
+#include "xgi/framework/UIManager.h"
+
+#include "toolbox/TimeVal.h"
+
 #include "log4cplus/logger.h"
+#include "gem/base/utils/GEMLogging.h"
+#include "gem/base/exception/Exception.h"
+#include "gem/base/utils/exception/Exception.h"
 
 namespace xdaq {
   class ApplicationStub;
@@ -23,12 +31,16 @@ namespace xgi {
 namespace gem {
   namespace base {
     
-    class GEMWebApplication;
     class GEMMonitor;
-    //class ConfigurationInfoSpaceHandler;
+    class GEMFSMApplication;
+    class GEMWebApplication;
     
     class GEMApplication : public xdaq::WebApplication, public xdata::ActionListener
       {
+	friend class GEMMonitor;
+	friend class GEMFSMApplication;
+	friend class GEMWebApplication;
+
       public:
 	GEMApplication(xdaq::ApplicationStub *stub)
 	  throw (xdaq::exception::Exception);
@@ -44,23 +56,33 @@ namespace gem {
 	 */
 	virtual void init() = 0;
 	
+	/**
+	 * The actionPerformed method will have a default implementation here
+	 * and can be further specified in derived applications, that will 
+	 * subsequently call gem::base::GEMApplication::actionPerformed(event)
+	 * to replicate the default behaviour
+	 **/
 	virtual void actionPerformed(xdata::Event& event);
 	
+	void xgiMonitor(xgi::Input* in, xgi::Output* out);
+	void xgiExpert( xgi::Input* in, xgi::Output* out);
+
       protected:
 	log4cplus::Logger gemLogger_;
 
-	//virtual ConfigurationInfoSpaceHandler* getCfgInfoSpace() const;
-	virtual GEMWebApplication*  getWebApp()  const;
-	virtual GEMMonitor*         getMonitor() const;
+	virtual GEMWebApplication*  getWebApp()  const { return gemWebInterfaceP_; };
+	virtual GEMMonitor*         getMonitor() const { return gemMonitorP_;      };
+
+	xdata::InfoSpace *appInfoSpaceP_;             /* */
+						    
+	GEMWebApplication* gemWebInterfaceP_; /* */
+	GEMMonitor*        gemMonitorP_;      /* */
 
       private:
 	
 	/**
 	 * various application properties
-	 *
 	 */
-	xdata::InfoSpace *appInfoSpaceP_;             /* */
-						    
 	xdaq::ApplicationDescriptor *appDescriptorP_; /* */
 	xdaq::ApplicationContext    *appContextP_;    /* */
 	xdaq::ApplicationGroup      *appGroupP_;      /* */
@@ -70,16 +92,8 @@ namespace gem {
 	unsigned long instance_;
 	std::string urn_;	
 	
-	gem::base::GEMWebApplication* gemWebInterfaceP_;
-	gem::base::GEMMonitor*        gemMonitorP_;
-
         //xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
 
-	/**
-	 *
-	 */
-	void monitorView(xgi::Input* in, xgi::Output* out);
-	void expertView( xgi::Input* in, xgi::Output* out);
       };
     
   } // namespace gem::base

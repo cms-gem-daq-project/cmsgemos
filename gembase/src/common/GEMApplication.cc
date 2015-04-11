@@ -1,9 +1,17 @@
+/**
+ * class: GEMApplication
+ * description: Generic GEM application, all GEM applications should inherit
+                from this class and define and extend as necessary
+ *              structure borrowed from TCDS core, with nods to HCAL and EMU code
+ * author: 
+ * date: 
+ */
+
 // GEMApplication.cc
 
 #include "gem/base/GEMWebApplication.h"
-#include "gem/base/GEMMonitor.h"
 #include "gem/base/GEMApplication.h"
-#include "gem/base/utils/GEMLogging.h"
+#include "gem/base/GEMMonitor.h"
 
 #include "toolbox/string.h"
 
@@ -36,6 +44,8 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   gemMonitorP_(0)
 {
   DEBUG("called gem::base::GEMApplication constructor");
+  
+  gemWebInterfaceP_ = new GEMWebApplication(this);
 
   try {
     appInfoSpaceP_  = getApplicationInfoSpace();
@@ -43,17 +53,17 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
     appContextP_    = getApplicationContext();
     appZoneP_       = appContextP_->getDefaultZone();
     appGroupP_      = appZoneP_->getApplicationGroup("default");
-    xmlClass_      = appDescriptorP_->getClassName();
-    instance_      = appDescriptorP_->getInstance();
-    urn_           = appDescriptorP_->getURN();
+    xmlClass_       = appDescriptorP_->getClassName();
+    instance_       = appDescriptorP_->getInstance();
+    urn_            = appDescriptorP_->getURN();
   }
   catch(xcept::Exception e) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Failed to get GEM application information", e);
   }
   
-  xgi::framework::deferredbind(this, this, &GEMApplication::monitorView, "Default"    );
-  xgi::framework::deferredbind(this, this, &GEMApplication::monitorView, "monitorView");
-  xgi::framework::deferredbind(this, this, &GEMApplication::expertView,  "expertView" );
+  xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "Default"    );
+  xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
+  xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
 
   getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
   //getApplicationInfoSpace()->fireItemAvailable("reasonForFailure", &reasonForFailure_);
@@ -76,16 +86,52 @@ std::string gem::base::GEMApplication::getFullURL()
   return fullURL;
 }
 
-// This is the callback used for setting parameters.  
+// This is the callback used for handling xdata:Event objects
 void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
 {
   // This is called after all default configuration values have been
-  // loaded (from the XDAQ configuration file).
-  if (event.type() == "urn:xdaq-event:setDefaultValues")
-    {
-      LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() Default configuration values have been loaded");
-      //LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed()   --> starting monitoring");
-      //monitorP_->startMonitoring();
+  // loaded (from the XDAQ configuration file).  This should be implemented in all derived classes
+  // followed by a call to gem::base::GEMApplication::actionPerformed(event)
+  /*
+  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
+    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() setDefaultValues" << 
+		    "Default configuration values have been loaded from xml profile");
+    //LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed()   --> starting monitoring");
+    //monitorP_->startMonitoring();
     }
+  */
+  // update monitoring variables
+  if (event.type() == "ItemRetrieveEvent" || event.type() == "urn:xdata-event:ItemRetrieveEvent") {
+    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() ItemRetrieveEvent" << 
+		    "");
+  }
+  else if (event.type() == "ItemGroupRetrieveEvent" || event.type() == "urn:xdata-event:ItemGroupRetrieveEvent") {
+    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() ItemGroupRetrieveEvent" << 
+		    "");
+  }
+  //item is changed, update it
+  if (event.type()=="ItemChangedEvent" || event.type()=="urn:xdata-event:ItemChangedEvent") {
+    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() ItemChangedEvent" << 
+		    "");
+
+    /* from HCAL runInfoServer
+    std::list<std::string> names;
+    names.push_back(str_RUNNUMBER);
+
+    try {
+      getMonitorInfospace()->fireItemGroupChanged(names, this);
+    } catch (xcept::Exception& e) {
+      LOG4CPLUS_ERROR(getApplicationLogger(),xcept::stdformat_exception_history(e));
+    }
+    */
+  }
+}
+
+void gem::base::GEMApplication::xgiMonitor(xgi::Input* in, xgi::Output* out) {
+  gemWebInterfaceP_->monitorPage(in,out);
+}
+
+void gem::base::GEMApplication::xgiExpert(xgi::Input* in, xgi::Output* out) {
+  gemWebInterfaceP_->expertPage(in,out);
 }
 // End of file
