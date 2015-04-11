@@ -9,11 +9,11 @@ Package=gemhardware
 LongPackage=gemhardware
 ShortPackage=hw
 PackageName=hw
-
+##make a device specific buildfile as well, defaulting to all
 Sources= GEMHwDevice.cc \
-	HwVFAT2.cc  VFAT2Manager.cc VFAT2ControlPanelWeb.cc \
-	HwOptoHybrid.cc \
-	HwGLIB.cc \
+	vfat/HwVFAT2.cc  vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc \
+	optohybrid/HwOptoHybrid.cc \
+	glib/HwGLIB.cc glib/GLIBManager.cc  glib/GLIBManagerWeb.cc \
 	GEMController.cc GEMControllerPanelWeb.cc
 ##version.cc
 
@@ -22,8 +22,8 @@ DynamicLibrary=gem_hw
 IncludeDirs = \
         $(BUILD_HOME)/$(Project)/$(Package)/include \
         $(XDAQ_ROOT)/include \
+        $(BUILD_HOME)/$(Project)/gembase/include \
         $(uHALROOT)/include
-#        $(BUILD_HOME)/$(Project)/gembase/include \
 
 DependentLibraryDirs = \
         $(XDAQ_ROOT)/lib \

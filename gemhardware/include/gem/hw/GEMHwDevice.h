@@ -9,11 +9,12 @@
 #include "uhal/uhal.hpp"
 #include "uhal/Utilities.hpp"
 
-#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
-#define INFO(MSG)  LOG4CPLUS_INFO(logGEMHw_  , MSG)
-#define WARN(MSG)  LOG4CPLUS_WARN(logGEMHw_  , MSG)
-#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
-#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
+#include "gem/base/utils/GEMLogging.h"
+//#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
+//#define INFO(MSG)  LOG4CPLUS_INFO(logGEMHw_  , MSG)
+//#define WARN(MSG)  LOG4CPLUS_WARN(logGEMHw_  , MSG)
+//#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
+//#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
 
 #define MAX_VFAT_RETRIES 25
 
@@ -157,7 +158,7 @@ namespace gem {
 	
       protected:
 	uhal::ConnectionManager *gemConnectionManager;
-	log4cplus::Logger logGEMHw_;
+	log4cplus::Logger gemLogger_;
 	uhal::HwInterface *gemHWP_;
 		
 	std::string uint32ToString(uint32_t const val) const {
