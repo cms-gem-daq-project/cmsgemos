@@ -152,10 +152,10 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
       }
       nChip++;
 
-      gem::supervisor::keepVFATData(outFileName_, counter_, vf, ch);
+      //gem::supervisor::keepVFATData(outFileName_, counter_, vf, ch);
       //gem::supervisor::PrintVFATData(counter_, vf, ch);
-      //gem::supervisor::keepVFATDataBinary(outFileName_, counter_, vf, ch);
-      cout << nChip << endl;
+      gem::supervisor::keepVFATDataBinary(outFileName_, counter_, vf, ch);
+      //cout << nChip << endl;
       gem::supervisor::PrintVFATDataBits(counter_, vf, ch);
   
     }
