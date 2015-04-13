@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <iomanip> 
-
 #include <fstream>
 #include <string>
 #include <vector>
@@ -158,8 +157,8 @@ namespace gem {
           uint8_t   b1100 = (0xf000 & ev.EC) >> 12;
           uint16_t   EC   = (0x0ff0 & ev.EC) >> 4;
           uint8_t   Flag  = (0x000f & ev.EC);
-          show4bits(b1100); cout << " EC     0x" << hex << EC << dec << "           Flags " << hex << Flag << dec << endl; 
-          //show4bits(Flag);  cout << " Flags " << endl;
+          show4bits(b1100); cout << " EC     0x" << hex << EC << dec << endl; 
+          show4bits(Flag);  cout << " Flags " << endl;
 
           uint8_t   b1110 = (0xf000 & ev.ChipID) >> 12;
           uint16_t ChipID = (0x0fff & ev.ChipID);

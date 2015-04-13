@@ -24,6 +24,26 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
     gem::supervisor::ChannelData ch;
     gem::supervisor::VFATData ev;
 
+    // get GLIB data from one VFAT chip
+    counter_ = gem::supervisor::GEMDataParker::getGLIBData(ch, ev);
+
+    /*
+     * dump event to disk
+     */
+
+    //gem::supervisor::keepVFATData(outFileName_, counter_, ev, ch);
+    //gem::supervisor::PrintVFATData(counter_, ev, ch);
+
+    gem::supervisor::keepVFATDataBinary(outFileName_, counter_, ev, ch);
+    gem::supervisor::PrintVFATDataBits(counter_, ev, ch);
+
+    return counter_;
+}
+
+int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::ChannelData& ch, gem::supervisor::VFATData& ev)
+{
+    // Book event variables
+
     bool     isFirst = true;
     uint8_t  SBit, flags;
     uint16_t bcn, evn, chipid;
@@ -107,18 +127,12 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
       counter_++;
 
       /*
-       * dump event to disk
-       */
-
-      //gem::supervisor::keepVFATData(outFileName_, counter_, ev, ch);
-      //gem::supervisor::PrintVFATData(counter_, ev, ch);
-
-      gem::supervisor::keepVFATDataBinary(outFileName_, counter_, ev, ch);
-      gem::supervisor::PrintVFATDataBits(counter_, ev, ch);
+       * dump event
+       gem::supervisor::PrintVFATDataBits(counter_, ev, ch);
+      */
 
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
-
     }
     return counter_;
 }
