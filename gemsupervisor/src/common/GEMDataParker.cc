@@ -23,10 +23,9 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
     // Book event variables
     gem::supervisor::ChannelData ch;
     gem::supervisor::VFATData ev;
-    int event=0;
 
     bool     isFirst = true;
-    uint8_t  SBit, flags; // b1010=0x0A, b1100=0x0C, b1110=0x0E, b1111=0x0F;
+    uint8_t  SBit, flags;
     uint16_t bcn, evn, chipid;
     uint32_t bxNum, bxExp, TrigReg, bxNumTr;
     uint64_t msData, lsData;
@@ -40,11 +39,9 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
     fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
 
     int bufferDepth = 0;
-    if ( fifoDepth[0] != fifoDepth[1] || 
-         fifoDepth[0] != fifoDepth[2] || 
-         fifoDepth[1] != fifoDepth[2] ) {
-           bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
-         }
+    if ( fifoDepth[0] != fifoDepth[1] || fifoDepth[0] != fifoDepth[2] || fifoDepth[1] != fifoDepth[2] ) {
+       bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
+    }
 
     //right now only have FIFO on LINK1
     bufferDepth = fifoDepth[1];
@@ -107,12 +104,17 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
       ch.msData = msData;                                                           // msData:64
       ev.crc    = 0x0000ffff & data.at(0);                                          // crc:16
 
-      // dump event to disk
-      gem::supervisor::keepVFATData(outFileName_, event, ev, ch);
-      //  gem::supervisor::PrintVFATData(event, ev, ch);
-      gem::supervisor::PrintVFATDataBits(event, ev, ch);
-
       counter_++;
+
+      /*
+       * dump event to disk
+       */
+
+      //gem::supervisor::keepVFATData(outFileName_, counter_, ev, ch);
+      //gem::supervisor::PrintVFATData(counter_, ev, ch);
+
+      gem::supervisor::keepVFATDataBinary(outFileName_, counter_, ev, ch);
+      gem::supervisor::PrintVFATDataBits(counter_, ev, ch);
 
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
