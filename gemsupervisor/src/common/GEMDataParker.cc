@@ -6,6 +6,9 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <vector>
+
+#include <TRandom3.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -18,29 +21,7 @@ gem::supervisor::GEMDataParker::GEMDataParker(gem::hw::vfat::HwVFAT2& vfatDevice
     counter_ = 0;
 }
 
-int gem::supervisor::GEMDataParker::dumpDataToDisk()
-{
-    // Book event variables
-    gem::supervisor::ChannelData ch;
-    gem::supervisor::VFATData ev;
-
-    // get GLIB data from one VFAT chip
-    counter_ = gem::supervisor::GEMDataParker::getGLIBData(ch, ev);
-
-    /*
-     * dump event to disk
-     */
-
-    //gem::supervisor::keepVFATData(outFileName_, counter_, ev, ch);
-    //gem::supervisor::PrintVFATData(counter_, ev, ch);
-
-    gem::supervisor::keepVFATDataBinary(outFileName_, counter_, ev, ch);
-    gem::supervisor::PrintVFATDataBits(counter_, ev, ch);
-
-    return counter_;
-}
-
-int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::ChannelData& ch, gem::supervisor::VFATData& ev)
+int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::ChannelData& ch, gem::supervisor::VFATData& vf)
 {
     // Book event variables
 
@@ -115,24 +96,69 @@ int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::ChannelData& ch
       lsData = (data3 << 32) | (data4);
       msData = (data1 << 32) | (data2);
 
-      ev.BC     = ( ((data.at(5) & 0xF0000000)>>28) << 12 ) | (bcn);                // 1010     | bcn:12
-      ev.EC     = ( ((data.at(5) & 0x0000F000)>>12) << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
-      ev.ChipID = ( ((data.at(4) & 0xF0000000)>>28) << 12 ) | (chipid);             // 1110     | ChipID:12
-      ev.bxExp  = bxExp;                                                            // bxExp:28
-      ev.bxNum  = (bxNum << 8 ) | (SBit);                                           // bxNum:8  | SBit:8
+      vf.BC     = ( ((data.at(5) & 0xF0000000)>>28) << 12 ) | (bcn);                // 1010     | bcn:12
+      vf.EC     = ( ((data.at(5) & 0x0000F000)>>12) << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
+      vf.ChipID = ( ((data.at(4) & 0xF0000000)>>28) << 12 ) | (chipid);             // 1110     | ChipID:12
+      vf.bxExp  = bxExp;                                                            // bxExp:28
+      vf.bxNum  = (bxNum << 8 ) | (SBit);                                           // bxNum:8  | SBit:8
       ch.lsData = lsData;                                                           // lsData:64
       ch.msData = msData;                                                           // msData:64
-      ev.crc    = 0x0000ffff & data.at(0);                                          // crc:16
+      vf.crc    = 0x0000ffff & data.at(0);                                          // crc:16
 
       counter_++;
 
       /*
        * dump event
-       gem::supervisor::PrintVFATDataBits(counter_, ev, ch);
+       gem::supervisor::PrintVFATDataBits(counter_, vf, ch);
       */
 
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
     }
+    return counter_;
+}
+
+int gem::supervisor::GEMDataParker::dumpDataToDisk()
+{
+    // Book event variables
+    gem::supervisor::ChannelData ch;
+    gem::supervisor::VFATData vf;
+    gem::supervisor::GEMData gem;
+
+    // get GLIB data from one VFAT chip
+    counter_ = gem::supervisor::GEMDataParker::getGLIBData(ch, vf);
+    gem.vfats.push_back(vf);
+    cout << " counter= " << counter_ << endl;
+
+    /*
+     * One GEM bord loop, 24 VFAT chips maximum
+     */
+
+    TRandom3 random;
+    //Int_t nVFATs = random.Integer(23);
+
+    gem.header  = 0x1;
+    for (int nume = 1; nume < 5/* nVFATs */; nume++){
+      vf.ChipID = (0x0E << 12) | (0xdea); // ChipID dead
+      gem.vfats.push_back(vf);
+    }
+    gem.trailer = 0x2;
+
+    int nChip=0;
+    cout << " Number VFAT blocks on the GEM is " << gem.vfats.size() << endl;
+    for (vector<VFATData>::iterator it=gem.vfats.begin(); it != gem.vfats.end(); ++it) {
+      if (it == gem.vfats.end()){
+        cout << nChip << " ChipID  " << hex << (*it).ChipID << dec << endl; 
+      }
+      nChip++;
+
+      gem::supervisor::keepVFATData(outFileName_, counter_, vf, ch);
+      //gem::supervisor::PrintVFATData(counter_, vf, ch);
+      //gem::supervisor::keepVFATDataBinary(outFileName_, counter_, vf, ch);
+      cout << nChip << endl;
+      gem::supervisor::PrintVFATDataBits(counter_, vf, ch);
+  
+    }
+
     return counter_;
 }
