@@ -11,14 +11,19 @@ namespace gem {
         }   
     }
     namespace supervisor {
+            struct ChannelData;
+            struct VFATData;
+            struct GEMData;
+        }
+    namespace supervisor {
         class GEMDataParker
         {
             public:
                 GEMDataParker(gem::hw::vfat::HwVFAT2& vfatDevice, std::string& outFileName);
-
                 ~GEMDataParker() {};
 
                 int dumpDataToDisk();
+		int getGLIBData(gem::supervisor::ChannelData& ch, gem::supervisor::VFATData& vfat);
 
             private:
 
