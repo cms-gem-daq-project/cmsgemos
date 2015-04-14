@@ -9,14 +9,14 @@
 #include "uhal/uhal.hpp"
 #include "uhal/Utilities.hpp"
 
-#include "gem/base/utils/GEMLogging.h"
+#include "gem/utils/GEMLogging.h"
 
 /* would like to avoid rewriting this nice functionality,
-   but the code isn't in the main xdaq release
-   can copy directly into GEM and figure out any compatibility later
-#include "tcds/utils/Lock.h"
-#include "tcds/utils/GuardedLock.h"
+   but the code isn't in the main xdaq release.
+   have copied directly into GEM and figure out any compatibility later
 */
+#include "gem/utils/Lock.h"
+#include "gem/utils/LockGuard.h"
 
 #define MAX_VFAT_RETRIES 25
 
@@ -197,7 +197,7 @@ namespace gem {
 	  res << std::hex << char((val2 & uint32_t(0x000000ff)))           << std::dec;
 	  return res.str(); };
 
-	//mutable tcds::utils::Lock lock_;
+	mutable gem::utils::Lock lock_;
 
       private:
 	std::string addressTable_;

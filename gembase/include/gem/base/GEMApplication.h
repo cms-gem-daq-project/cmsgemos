@@ -15,7 +15,7 @@
 #include "toolbox/TimeVal.h"
 
 #include "log4cplus/logger.h"
-#include "gem/base/utils/GEMLogging.h"
+#include "gem/utils/GEMLogging.h"
 #include "gem/base/exception/Exception.h"
 #include "gem/base/utils/exception/Exception.h"
 

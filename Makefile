@@ -3,6 +3,7 @@
 #
 
 SUBPACKAGES := \
+        gemutils \
         gembase \
         gemhardware \
         gemsupervisor \
@@ -44,8 +45,10 @@ $(SUBPACKAGES.CLEAN):
 
 gemHwMonitor: gembase gemhardware
 
-gemhardware: 
+gemhardware: gemutils
 
-gembase: 
+gembase: gemutils
 
 gemsupervisor: gemhardware
+
+gemutils: 

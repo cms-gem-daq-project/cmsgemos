@@ -1,7 +1,7 @@
 //General structure taken blatantly from tcds::utils::HwDeviceTCA as we're using the same card
 
 #include "gem/hw/GEMHwDevice.h"
-
+/*
 gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   gemLogger_(gemApp->getApplicationLogger()),
   gemHWP_(0)
@@ -23,7 +23,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
-  /** 
+
    * what's the difference between connect, init, enable for GLIB, VFAT, other devices?
    * are all options necessary?
    * steps from nothing to running:
@@ -41,13 +41,13 @@ gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
    * however, if we define the sequences as init->enable->configure->start
    * then it will be non-trivial to connect to a running chip and set enable to off without
    * repeating the steps...
-   **/
-}
 
+}
+*/
 gem::hw::GEMHwDevice::GEMHwDevice(const log4cplus::Logger& gemLogger):
   gemLogger_(gemLogger),
-  gemHWP_(0)
-  //lock_(toolbox::BSem::FULL, true)
+  gemHWP_(0),
+  lock_(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
   
 {
@@ -233,7 +233,7 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 {
-  //LockGuard<Lock> guardedLock(lock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   int retryCount = 0;
@@ -276,7 +276,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 
 void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t> > &regList)
 {
-  //LockGuard<Lock> guardedLock(lock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   int retryCount = 0;
@@ -331,7 +331,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 {
-  //LockGuard<Lock> guardedLock(lock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
   while (retryCount < MAX_VFAT_RETRIES) {
@@ -370,7 +370,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 
 void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList)
 {
-  //LockGuard<Lock> guardedLock(lock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
   while (retryCount < MAX_VFAT_RETRIES) {
@@ -444,7 +444,7 @@ void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames)
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 {
-  //LockGuard<Lock> guardedLock(lock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
   size_t numWords       = hw.getNode(name).getSize();
   INFO("reading block " << name << " which has size "<<numWords);
@@ -453,7 +453,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, size_t const numWords)
 {
-  //LockGuard<Lock> guardedLock(lock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   std::vector<uint32_t> res(numWords);
@@ -501,7 +501,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {
-  //LockGuard<Lock> guardedLock(lock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
   if (values.size() < 1) 
     return;
   
@@ -558,7 +558,7 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
 
 //void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
 //{
-//  //LockGuard<Lock> guardedLock(lock_);
+//  gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
 //  uhal::HwInterface& hw = getGEMHwInterface();
 //  size_t numWords = hw.getNode(name).getSize();
 //  std::vector<uint32_t> zeros(numWords, 0);
