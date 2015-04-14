@@ -36,10 +36,7 @@ namespace gem {
       class HwOptoHybrid: public gem::hw::GEMHwDevice
 	{
 	public:
-	  //XDAQ_INSTANTIATOR();
-	
-	  HwOptoHybrid(xdaq::Application * optohybridApp);
-	  //throw (xdaq::exception::Exception);
+	  HwOptoHybrid(const log4cplus::Logger& gemLogger);
 
 	  ~HwOptoHybrid();
 	

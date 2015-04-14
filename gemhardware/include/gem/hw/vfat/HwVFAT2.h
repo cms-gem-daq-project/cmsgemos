@@ -43,9 +43,11 @@ namespace gem {
       class HwVFAT2: public gem::hw::GEMHwDevice
 	{
 	public:
-	  //XDAQ_INSTANTIATOR();
-	
+	  /*
 	  HwVFAT2(xdaq::Application * vfat2App,
+		  std::string const& vfatDevice="VFAT13");
+	  */
+	  HwVFAT2(const log4cplus::Logger& gemLogger,
 		  std::string const& vfatDevice="VFAT13");
 	  //HwVFAT2(xdaq::Application * vfat2App);
 	  //throw (xdaq::exception::Exception);

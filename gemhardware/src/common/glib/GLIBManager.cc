@@ -22,6 +22,13 @@ void gem::hw::glib::GLIBManager::init()
   gemWebInterfaceP_ = new gem::hw::glib::GLIBManagerWeb(this);
   //gemMonitorP_      = new gem::hw::glib::GLIBHwMonitor();
   
+  for (int slot=1; slot <= MAX_GLIBS_PER_CRATE; slot++) {
+    
+    //check if there is a GLIB in the specified slot, if not, do not initialize
+    //set the web view to be empty or grey
+    //if (!info.present.value_) continue;
+    //gemWebInterfaceP_->glibInSlot(slot);
+  }  
 }
 
 // This is the callback used for handling xdata:Event objects

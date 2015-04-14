@@ -1,7 +1,7 @@
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(xdaq::Application* optohybridApp):
-  gem::hw::GEMHwDevice::GEMHwDevice(optohybridApp)
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(const log4cplus::Logger& optoLogger):
+  gem::hw::GEMHwDevice::GEMHwDevice(optoLogger)
   //logOptoHybrid_(optohybridApp->getApplicationLogger()),
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0)

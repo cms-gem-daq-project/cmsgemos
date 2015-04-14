@@ -59,7 +59,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
     }
   //Initialize the HW device, should have picked up the device string from the xml file by now
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::4 device_ = " << device_.toString() << std::endl);
-  vfatDevice = new HwVFAT2(this, device_.toString());
+  vfatDevice = new HwVFAT2(this->getApplicationLogger(), device_.toString());
   vfatDevice->setDeviceIPAddress(ipAddr_.toString());
   vfatDevice->connectDevice();
   setLogLevelTo(uhal::Error());  // Maximise uHAL logging

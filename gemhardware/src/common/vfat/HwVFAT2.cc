@@ -2,15 +2,42 @@
 
 #include "gem/hw/vfat/HwVFAT2.h"
 
-//#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
-//#define INFO( MSG) LOG4CPLUS_INFO( logGEMHw_ , MSG)
-//#define WARN( MSG) LOG4CPLUS_WARN( logGEMHw_ , MSG)
-//#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
-//#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
-
+/* removing HW initialization with an application in favour of just a log4cplus::Logger
 gem::hw::vfat::HwVFAT2::HwVFAT2(xdaq::Application* vfatApp,
 				std::string const& vfatDevice):
   gem::hw::GEMHwDevice::GEMHwDevice(vfatApp)
+//logVFAT2_(vfatApp->getApplicationLogger()),
+//hwVFAT2_(0)
+//monVFAT2_(0)
+{
+  //this->gem::hw::GEMHwDevice::GEMHwDevice();
+  //gem::hw::vfat::HwVFAT2::initDevice();
+  //can use a different address table for the VFAT access
+  setAddressTableFileName("geb_vfat_address_table.xml");
+  setIPbusProtocolVersion("2.0");
+  setDeviceID("VFAT2Hw");
+  setDeviceBaseNode("VFATS."+vfatDevice);
+
+  //what's the difference between connect, init, enable for VFAT?
+  //check that register values are hardware default values, if not, something may be amiss
+  
+  //set register values to sw default values
+
+  //hardware is enabled!
+
+  //set register values to desired values
+
+  //hardware is configured!
+
+  //set run bit
+
+  //hardware is running
+}
+*/
+
+gem::hw::vfat::HwVFAT2::HwVFAT2(const log4cplus::Logger& vfatLogger,
+				std::string const& vfatDevice):
+  gem::hw::GEMHwDevice::GEMHwDevice(vfatLogger)
 //logVFAT2_(vfatApp->getApplicationLogger()),
 //hwVFAT2_(0)
 //monVFAT2_(0)
