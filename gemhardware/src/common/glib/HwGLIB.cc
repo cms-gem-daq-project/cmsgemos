@@ -2,8 +2,8 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 
-gem::hw::glib::HwGLIB::HwGLIB(xdaq::Application* glibApp):
-  gem::hw::GEMHwDevice::GEMHwDevice(glibApp)
+gem::hw::glib::HwGLIB::HwGLIB(const log4cplus::Logger& glibLogger):
+  gem::hw::GEMHwDevice::GEMHwDevice(glibLogger)
   //logGLIB_(glibApp->getApplicationLogger()),
   //hwGLIB_(0),
   //monGLIB_(0)
@@ -40,8 +40,7 @@ void gem::hw::glib::HwGLIB::configureDevice()
 //  uint32_t const    ipbusPort         = cfgInfoSpaceP_->getUInt32("ipbusPort");
 //  
 //  std::stringstream tmpUri;
-//  if (controlhubAddress.size() > 0)
-//    {
+//  if (controlhubAddress.size() > 0) {
 //      INFO("Using control hub at address '" << controlhubAddress
 //           << ", port number " << controlhubPort << "'.");
 //      tmpUri << "chtcp-"
@@ -54,9 +53,7 @@ void gem::hw::glib::HwGLIB::configureDevice()
 //             << deviceAddress
 //             << ":"
 //             << ipbusPort;
-//    }
-//  else
-//    {
+//    } else {
 //      INFO("No control hub address specified -> "
 //           "continuing with a direct connection.");
 //      tmpUri << "ipbusudp-"
@@ -118,8 +115,7 @@ void gem::hw::glib::HwGLIB::configureDevice()
 //  std::string dirVal = "";
 //  if (val != NULL) {
 //    dirVal = val;
-//  }
-//  else {
+//  } else {
 //    std::cout<<"$BUILD_HOME not set, exiting"<<std::endl;
 //    exit(1);
 //  }
@@ -130,8 +126,7 @@ void gem::hw::glib::HwGLIB::configureDevice()
 //  try {
 //    sprintf(connectionPath,"file://%s/data/myconnections.xml;",dirVal.c_str());
 //    manageGLIBConnection = new uhal::ConnectionManager( connectionPath );
-//  }
-//  catch (const std::exception& e) {
+//  } catch (const std::exception& e) {
 //    std::cout << "Something went wrong initializing the connection: " << e.what() << std::endl;
 //  }
 //}
@@ -192,16 +187,16 @@ std::string gem::hw::glib::HwGLIB::getFirmwareDate()
   //LockGuard<Lock> guardedLock(lock_);
   std::stringstream res;
   std::stringstream regName;
-  /**
-     uint32_t yy = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.YY");
-     uint32_t mm = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MM");
-     uint32_t dd = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DD");
-     res << "20" << std::setfill('0') << std::setw(2) << yy
-     << "-"
-     << std::setw(2) << mm
-     << "-"
-     << std::setw(2) << dd;
-  **/
+  /*
+    uint32_t yy = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.YY");
+    uint32_t mm = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MM");
+    uint32_t dd = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DD");
+    res << "20" << std::setfill('0') << std::setw(2) << yy
+    << "-"
+    << std::setw(2) << mm
+    << "-"
+    << std::setw(2) << dd;
+  */
   uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
   res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
       << "-"
@@ -217,12 +212,12 @@ std::string gem::hw::glib::HwGLIB::getFirmwareVer()
   //LockGuard<Lock> guardedLock(lock_);
   std::stringstream res;
   std::stringstream regName;
-  /***
-      uint32_t versionMajor = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MAJOR");
-      uint32_t versionMinor = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MINOR");
-      uint32_t versionBuild = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.BUILD");
-      res << versionMajor << "." << versionMinor << "." << versionBuild;
-  ***/
+  /*
+    uint32_t versionMajor = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MAJOR");
+    uint32_t versionMinor = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MINOR");
+    uint32_t versionBuild = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.BUILD");
+    res << versionMajor << "." << versionMinor << "." << versionBuild;
+  */
 
   uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
   res << ((fwid>>28)&0x0f)
@@ -379,8 +374,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_
   if (link > 2) {
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
     XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
-  }
-  else {
+  } else {
     std::stringstream regName;
     regName << "OPTICAL_LINKS.LINK" << (int)link << ".Counter.";
     linkStatus.linkErrCnt      = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"      );

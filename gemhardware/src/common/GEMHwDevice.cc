@@ -5,6 +5,49 @@
 gem::hw::GEMHwDevice::GEMHwDevice(xdaq::Application* gemApp):
   gemLogger_(gemApp->getApplicationLogger()),
   gemHWP_(0)
+  //lock_(toolbox::BSem::FULL, true)
+  //monGEMHw_(0)
+  
+{
+  //need to grab these parameters from the xml file or from some configuration space/file/db
+  setAddressTableFileName("allregsnonfram.xml");
+  setIPbusProtocolVersion("2.0");
+  setDeviceBaseNode("");
+  setDeviceIPAddress("192.168.0.115");
+  setDeviceID("GEMHwDevice");
+  
+  ipBusErrs.badHeader_     = 0;
+  ipBusErrs.readError_     = 0;
+  ipBusErrs.timeouts_      = 0;
+  ipBusErrs.controlHubErr_ = 0;
+  
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+  //gem::hw::GEMHwDevice::initDevice();
+  /** 
+   * what's the difference between connect, init, enable for GLIB, VFAT, other devices?
+   * are all options necessary?
+   * steps from nothing to running:
+   * initDevice:
+   * check that register values are hardware default values, if not, something may be amiss
+   * enableDevice:
+   * set register values to sw default values -> hardware is enabled!
+   * configureDevice:
+   * set register values to desired values -> hardware is configured!
+   * startDevice:
+   * set run bit -> hardware is running
+   
+   * in this model, a device can be running while the C++ object no longer exists
+   * is this a good thing?  one can always at a later time connect again and turn the device off
+   * however, if we define the sequences as init->enable->configure->start
+   * then it will be non-trivial to connect to a running chip and set enable to off without
+   * repeating the steps...
+   **/
+}
+
+gem::hw::GEMHwDevice::GEMHwDevice(const log4cplus::Logger& gemLogger):
+  gemLogger_(gemLogger),
+  gemHWP_(0)
+  //lock_(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
   
 {
@@ -69,20 +112,17 @@ void gem::hw::GEMHwDevice::connectDevice()
   uint32_t    const ipbusPort         = 50001;          //cfgInfoSpaceP_->getUInt32("ipbusPort");
   
   std::stringstream tmpUri;
-  if (controlhubAddress.size() > 0)
-    {
-      DEBUG("Using control hub at address '" << controlhubAddress
-	    << ", port number " << controlhubPort << "'.");
-      tmpUri << "chtcp-"<< getIPbusProtocolVersion() << "://" << controlhubAddress << ":" << controlhubPort
-             << "?target=" << deviceAddress << ":" << ipbusPort;
-    }
-  else
-    {
-      DEBUG("No control hub address specified -> "
-	    "continuing with a direct connection.");
+  if (controlhubAddress.size() > 0) {
+    DEBUG("Using control hub at address '" << controlhubAddress
+	  << ", port number " << controlhubPort << "'.");
+    tmpUri << "chtcp-"<< getIPbusProtocolVersion() << "://" << controlhubAddress << ":" << controlhubPort
+	   << "?target=" << deviceAddress << ":" << ipbusPort;
+  } else {
+    DEBUG("No control hub address specified -> "
+	  "continuing with a direct connection.");
       tmpUri << "ipbusudp-" << getIPbusProtocolVersion() << "://"
              << deviceAddress << ":" << ipbusPort;
-    }
+  }
   std::string const uri = tmpUri.str();
   std::string const id  = getDeviceID();
   std::string const addressTable = getAddressTableFileName();
@@ -93,32 +133,26 @@ void gem::hw::GEMHwDevice::connectDevice()
   
   try {
     tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
+  } catch (uhal::exception::FileNotFound const& err) {
+    std::string msg =
+      toolbox::toString("Could not find uhal address table file '%s' "
+			"(or one of its included address table modules).",
+			addressTable.c_str());
+    FATAL(msg);
+    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  } catch (uhal::exception::exception const& err) {
+    std::string msgBase =
+      "Could not obtain the uhal device from the connection manager";
+    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+    FATAL(msg);
+    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  } catch (std::exception const& err) {
+    ERROR("Unknown std::exception caught from uhal");
+    std::string msgBase = "Could not connect to th e hardware";
+    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+    FATAL(msg);
+    XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   }
-  catch (uhal::exception::FileNotFound const& err)
-    {
-      std::string msg =
-        toolbox::toString("Could not find uhal address table file '%s' "
-                          "(or one of its included address table modules).",
-                          addressTable.c_str());
-      FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-    }
-  catch (uhal::exception::exception const& err)
-    {
-      std::string msgBase =
-        "Could not obtain the uhal device from the connection manager";
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-    }
-  catch (std::exception const& err)
-    {
-      ERROR("Unknown std::exception caught from uhal");
-      std::string msgBase = "Could not connect to th e hardware";
-      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-      FATAL(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-    }
   
   gemHWP_ = tmpHWP;
   //delete tmpHWP;
@@ -142,7 +176,7 @@ void gem::hw::GEMHwDevice::releaseDevice()
 
 void gem::hw::GEMHwDevice::enableDevice()
 {
-  if (!isGEMHwDeviceConnected()){
+  if (!isGEMHwDeviceConnected()) {
     std::string msg = "Could not enable the hardware. " \
       "(No hardware is connected.)";
     FATAL(msg);
@@ -187,17 +221,14 @@ void gem::hw::GEMHwDevice::enableDevice()
 
 uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 {
-  if (gemHWP_ == 0)
-    {
-      std::string msg = "Trying to access hardware before connecting.";
-      ERROR(msg);
-      XCEPT_RAISE(gem::hw::exception::SoftwareProblem, msg);
-    }
-  else
-    {
-      uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*gemHWP_);
-      return hw;
-    }
+  if (gemHWP_ == 0) {
+    std::string msg = "Trying to access hardware before connecting.";
+    ERROR(msg);
+    XCEPT_RAISE(gem::hw::exception::SoftwareProblem, msg);
+  } else {
+    uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*gemHWP_);
+    return hw;
+  }
 }
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
@@ -213,8 +244,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
       hw.dispatch();
       res = val.value();
       break;
-    }
-    catch (uhal::exception::exception const& err) {
+    } catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '%s' (uHAL)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
@@ -230,13 +260,11 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 	     << std::endl);
 	//updateErrorCounters(errCode);
 	continue;
-      }
-      else {
+      } else {
 	FATAL(msg);
 	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
-    }
-    catch (std::exception const& err) {
+    } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
@@ -266,8 +294,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
       for (; curReg != regList.end(); ++curReg,++curVal) 
 	curReg->second = (curVal->second).value();
       break;
-    }
-    catch (uhal::exception::exception const& err) {
+    } catch (uhal::exception::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
       std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
       for (; curReg != regList.end(); ++curReg) 
@@ -286,13 +313,11 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
 	     << std::endl);
 	//updateErrorCounters(errCode);
 	continue;
-      }
-      else {
+      } else {
 	FATAL(msg);
 	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
-    }
-    catch (std::exception const& err) {
+    } catch (std::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
       std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
       for (; curReg != regList.end(); ++curReg) 
@@ -314,8 +339,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
       hw.getNode(name).write(val);
       hw.dispatch();
       break;
-    }
-    catch (uhal::exception::exception const& err) {
+    } catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
@@ -331,13 +355,11 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 	     << std::endl);
 	updateErrorCounters(errCode);
 	continue;
-      }
-      else {
+      } else {
 	FATAL(msg);
 	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
-    }
-    catch (std::exception const& err) {
+    } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
@@ -358,8 +380,7 @@ void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t
 	hw.getNode(curReg->first).write(curReg->second);
       hw.dispatch();
       break;
-    }
-    catch (uhal::exception::exception const& err) {
+    } catch (uhal::exception::exception const& err) {
       std::string msgBase = "Could not write to register in list:";
       std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
       for (; curReg != regList.end(); ++curReg) 
@@ -380,13 +401,11 @@ void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t
 	     << std::endl);
 	updateErrorCounters(errCode);
 	continue;
-      }
-      else {
+      } else {
 	FATAL(msg);
 	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
-    }
-    catch (std::exception const& err) {
+    } catch (std::exception const& err) {
       std::string msgBase = "Could not write to register in list:";
       std::vector<std::pair<std::string, uint32_t> >::const_iterator curReg = regList.begin();
       for (; curReg != regList.end(); ++curReg) 
@@ -449,8 +468,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
       hw.dispatch();
       std::copy(values.begin(), values.end(), res.begin());
       break;
-    }
-    catch (uhal::exception::exception const& err) {
+    } catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read block '%s' (uHAL)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
@@ -467,13 +485,11 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 	     << std::endl);
 	updateErrorCounters(errCode);
 	continue;
-      }
-      else {
+      } else {
 	FATAL(msg);
 	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
-    }
-    catch (std::exception const& err) {
+    } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read block '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
@@ -496,8 +512,7 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
       hw.getNode(name).writeBlock(values);
       hw.dispatch();
       break;
-    }
-    catch (uhal::exception::exception const& err) {
+    } catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to block '%s' (uHAL)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
@@ -513,13 +528,11 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
 	     << std::endl);
 	updateErrorCounters(errCode);
 	continue;
-      }
-      else {
+      } else {
 	FATAL(msg);
 	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
-    }
-    catch (std::exception const& err) {
+    } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to block '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       FATAL(msg);
@@ -562,8 +575,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& regName)
     uhal::ValWord<uint32_t> regVal = hw.getNode(regName).read();
     hw.dispatch();
     regValue = regVal.value();
-  }
-  catch (uhalException const& e) {
+  } catch (uhalException const& e) {
     std::stringstream msgStream;
     msgStream << "Could not read register ";
     msgStream << regName;
@@ -572,8 +584,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& regName)
     std::string message = msgStream.str();
     FATAL(message);
     XCEPT_RAISE(gem::hw::exception::HardwareProblem, message);
-  }
-  catch (std::exception const& e) {
+  } catch (std::exception const& e) {
     std::stringstream msgStream;
     msgStream << "Could not read register ";
     msgStream << regName;
@@ -586,7 +597,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& regName)
   return regValue;
 }
 
-void gem::hw::vfat::HwVFAT2::writeReg(std::string const& regName
+void gem::hw::GEMHwDevice::writeReg(std::string const& regName
 				      uint32_t const writeValue)
 {
 //Maybe want to use a lock to prevent hammering the HW device
@@ -594,8 +605,7 @@ void gem::hw::vfat::HwVFAT2::writeReg(std::string const& regName
   try {
     hw.getNode(regName).write(writeValue);
     hw.dispatch();
-  }
-  catch (uhalException const& e) {
+  } catch (uhalException const& e) {
     std::stringstream msgStream;
     msgStream << "Could not write to register ";
     msgStream << regName;
@@ -604,8 +614,7 @@ void gem::hw::vfat::HwVFAT2::writeReg(std::string const& regName
     std::string message = msgStream.str();
     FATAL(message);
     XCEPT_RAISE(gem::hw::exception::HardwareProblem, message);
-  }
-  catch (std::exception const& e) {
+  } catch (std::exception const& e) {
     std::stringstream msgStream;
     msgStream << "Could not write to register ";
     msgStream << regName;

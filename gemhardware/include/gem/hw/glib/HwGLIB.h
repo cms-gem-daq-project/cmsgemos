@@ -34,10 +34,7 @@ namespace gem {
       class HwGLIB: public gem::hw::GEMHwDevice
 	{
 	public:
-	  //XDAQ_INSTANTIATOR();
-	
-	  HwGLIB(xdaq::Application * glibApp);
-	  //throw (xdaq::exception::Exception);
+	  HwGLIB(const log4cplus::Logger& gemLogger);
 	
 	  ~HwGLIB();
 

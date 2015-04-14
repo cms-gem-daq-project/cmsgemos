@@ -10,11 +10,13 @@
 #include "uhal/Utilities.hpp"
 
 #include "gem/base/utils/GEMLogging.h"
-//#define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
-//#define INFO(MSG)  LOG4CPLUS_INFO(logGEMHw_  , MSG)
-//#define WARN(MSG)  LOG4CPLUS_WARN(logGEMHw_  , MSG)
-//#define ERROR(MSG) LOG4CPLUS_ERROR(logGEMHw_ , MSG)
-//#define FATAL(MSG) LOG4CPLUS_FATAL(logGEMHw_ , MSG)
+
+/* would like to avoid rewriting this nice functionality,
+   but the code isn't in the main xdaq release
+   can copy directly into GEM and figure out any compatibility later
+#include "tcds/utils/Lock.h"
+#include "tcds/utils/GuardedLock.h"
+*/
 
 #define MAX_VFAT_RETRIES 25
 
@@ -53,8 +55,16 @@ namespace gem {
 	/** 
 	 * GEMHwDevice constructor 
 	 * @param xdaqApp pointer to xdaq::Application
+	 * (this is only used to access the logger, so we can bypass it I believe)
 	 **/
 	GEMHwDevice(xdaq::Application* xdaqApp);
+
+	/** 
+	 * GEMHwDevice constructor 
+	 * @param gemLogger pointer to log4cplus::Logger
+	 **/
+	GEMHwDevice(const log4cplus::Logger& gemLogger);
+
 	/*
 	GEMHwDevice(xdaq::Application* xdaqApp,
 	            std::string& addressFileName,
@@ -186,7 +196,9 @@ namespace gem {
 	  res << std::hex << char((val2 & uint32_t(0x0000ff00)) / 256)     << std::dec << ":";
 	  res << std::hex << char((val2 & uint32_t(0x000000ff)))           << std::dec;
 	  return res.str(); };
-	
+
+	//mutable tcds::utils::Lock lock_;
+
       private:
 	std::string addressTable_;
 	std::string ipbusProtocol_;
