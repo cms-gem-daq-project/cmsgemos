@@ -10,7 +10,6 @@
 
 #include "gem/base/GEMFSMApplication.h"
 
-#include "gem/base/utils/GEMLogging.h"
 #include "gem/base/utils/GEMSOAPToolBox.h"
 #include "gem/base/utils/exception/Exception.h"
 

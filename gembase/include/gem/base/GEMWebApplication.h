@@ -7,7 +7,7 @@
 
 #include "cgicc/HTMLClasses.h"
 
-#include "gem/base/utils/GEMLogging.h"
+#include "gem/utils/GEMLogging.h"
 
 namespace xgi {
   class Input;
