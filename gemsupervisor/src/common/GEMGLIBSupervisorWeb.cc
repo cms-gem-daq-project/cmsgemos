@@ -1,7 +1,9 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
-#include "gem/supervisor/tbutils/ThresholdEvent.h"
+#include "gem/supervisor/GEMDataParker.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
+#include <iomanip>
+#include <iostream>
 #include <ctime>
 #include <sstream>
 #include <cstdlib>
@@ -12,12 +14,12 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMGLIBSupervisorWeb)
 
 void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
-    latency   = 128U;
+    latency   = 12U;
 
     outFileName  = "";
 
-    deviceIP      = "192.168.0.115";
-    deviceName    = (xdata::String)"VFAT13";
+    deviceIP      = "192.168.0.175";
+    deviceName    = (xdata::String)"VFAT12";
     deviceNum     = -1;
     triggerSource = 0x2; 
     deviceChipID  = 0x0; 
@@ -149,7 +151,7 @@ throw (xgi::exception::Exception)
 {
     // Define how often main web interface refreshes
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","2");
+    head.addHeader("Refresh","5");
 
     // If we are in "Running" state, check if GLIB has any data available
     if (is_running_) wl_->submit(run_signature_);
@@ -161,7 +163,7 @@ throw (xgi::exception::Exception)
     *out << "DAQ type: " << cgicc::select().set("name", "runtype");
     *out << cgicc::option().set("value", "Spy").set("selected","") << "Spy" << cgicc::option();
     *out << cgicc::option().set("value", "Global") << "Global" << cgicc::option();
-    *out << cgicc::select() << endl;
+    *out << cgicc::select() << std::endl;
     *out << cgicc::input().set("type", "submit").set("name", "command").set("title", "Set DAQ type").set("value", "Set DAQ type") << cgicc::br() << cgicc::br();
 
     // Show current state, counter, output filename
@@ -336,7 +338,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
     wl_semaphore_.give();
     hw_semaphore_.give();
 
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"bufferDepth = " << bufferDepth << std::endl);
+    LOG4CPLUS_INFO(getApplicationLogger(),"bufferDepth = " << bufferDepth );
 
     // If GLIB data buffer has non-zero size, initiate read workloop
     if (bufferDepth) {
@@ -351,138 +353,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
     wl_semaphore_.take();
     hw_semaphore_.take();
 
-    // Book event variables
-    tbutils::ChannelData ch;
-    tbutils::VFATEvent ev;
-    int event=0;
-
-    // Output filename
-    std::string tmpFileName = confParams_.bag.outFileName.toString();
-    LOG4CPLUS_INFO(getApplicationLogger(),"file " << tmpFileName << " opened to write from FIFO ");
-
-    // GLIB data buffer validation
-    boost::format linkForm("LINK%d");
-    uint32_t fifoDepth[3];
-    vfatDevice_->setDeviceBaseNode("GLIB");
-    fifoDepth[0] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
-    fifoDepth[1] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
-    fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
-
-    int bufferDepth = 0;
-    if (fifoDepth[0] != fifoDepth[1] ||
-            fifoDepth[0] != fifoDepth[2] ||
-            fifoDepth[1] != fifoDepth[2]) {
-        LOG4CPLUS_INFO(getApplicationLogger(), "tracking data fifos had different depths:: "
-                << fifoDepth[0] << ","
-                << fifoDepth[0] << ","
-                << fifoDepth[0]);
-        bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
-    }
-    bufferDepth = fifoDepth[1];
-
-    bool isFirst = true;
-    uint32_t bxNum, bxExp;
-
-    // For each event in GLIB data buffer
-    while (bufferDepth) {
-        std::vector<uint32_t> data;
-        vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
-
-        LOG4CPLUS_DEBUG(getApplicationLogger(),"Trying to read register "<<vfatDevice_->getDeviceBaseNode()<<".DATA_RDY");
-        if (vfatDevice_->readReg("DATA_RDY")) {
-            LOG4CPLUS_DEBUG(getApplicationLogger(),"Trying to read the block at "<<vfatDevice_->getDeviceBaseNode()<<".DATA");
-            for (int word = 0; word < 7; ++word) {
-                std::stringstream ss9;
-                ss9 << "DATA." << word;
-                data.push_back(vfatDevice_->readReg(ss9.str()));
-            }
-        }
-
-        uint32_t TrigReg, bxNumTr;
-        uint8_t SBit;
-
-        // read trigger data
-        vfatDevice_->setDeviceBaseNode("GLIB");
-        //TrigReg = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRG_DATA.DATA");
-        TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
-        bxNumTr = TrigReg >> 6;
-        SBit = TrigReg & 0x0000003F;
-
-        if (!(
-                    (((data.at(5)&0xF0000000)>>28)==0xa) &&
-                    (((data.at(5)&0x0000F000)>>12)==0xc) &&
-                    (((data.at(4)&0xF0000000)>>28)==0xe)
-             )) {
-            LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
-            vfatDevice_->setDeviceBaseNode("GLIB");
-            bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
-            continue;
-        }
-
-        bxNum = data.at(6);
-
-        uint16_t bcn, evn, crc, chipid;
-        uint64_t msData, lsData;
-        uint8_t  flags;
-
-        if (isFirst)
-            bxExp = bxNum;
-
-        if (bxNum == bxExp)
-            isFirst = false;
-
-        bxNum  = data.at(6);
-        bcn    = (0x0fff0000 & data.at(5)) >> 16;
-        evn    = (0x00000ff0 & data.at(5)) >> 4;
-        chipid = (0x0fff0000 & data.at(4)) >> 16;
-        flags  = (0x0000000f & data.at(5));
-
-        uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
-        uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
-        uint64_t data3  = ((0x0000ffff & data.at(2)) << 16) | ((0xffff0000 & data.at(1)) >> 16);
-        uint64_t data4  = ((0x0000ffff & data.at(1)) << 16) | ((0xffff0000 & data.at(0)) >> 16);
-
-        lsData = (data3 << 32) | (data4);
-        msData = (data1 << 32) | (data2);
-
-        crc    = 0x0000ffff & data.at(0);
-
-        ch.lsdata = lsData;
-        ch.msdata = msData;
-
-        ev.BC = ((data.at(5)&0xF0000000)>>28) << 12; // 1010
-        ev.BC = (ev.BC | bcn);
-        ev.EC = ((data.at(5)&0x0000F000)>>12) << 12; // 1100
-        ev.EC = (ev.EC | evn) << 4;
-        ev.EC = (ev.EC | flags);
-        ev.bxExp = bxExp;
-        ev.bxNum = bxNum << 6;
-        ev.bxNum = (ev.bxNum | SBit);
-        ev.ChipID = ((data.at(4)&0xF0000000)>>28) << 12; // 1110
-        ev.ChipID = (ev.ChipID | chipid);
-        ev.crc = crc;
-
-        // dump event to disk
-	keepEvent(tmpFileName, event, ev, ch);
-        counter_++;
-	
-        LOG4CPLUS_INFO(getApplicationLogger(),
-                "Received tracking data word:" << std::endl
-                << "bxn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << bxNum  << std::dec << std::endl
-                << "bcn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << bcn    << std::dec << std::endl
-                << "evn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << evn    << std::dec << std::endl
-                << "flags   :: 0x" << std::setfill('0') << std::setw(2) << std::hex << (unsigned)flags  << std::dec << std::endl
-                << "chipid  :: 0x" << std::setfill('0') << std::setw(4) << std::hex << chipid << std::dec << std::endl
-                << "<127:0> :: 0x" << std::setfill('0') << std::setw(8) << std::hex << msData <<
-                std::dec << std::setfill('0') << std::setw(8) << std::hex << lsData << std::dec << std::endl
-                << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << msData << std::dec << std::endl
-                << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << lsData << std::dec << std::endl
-                << "crc     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << crc    << std::dec << std::endl
-                );
-
-        vfatDevice_->setDeviceBaseNode("GLIB");
-        bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
-    }
+    counter_ = gemDataParker->dumpDataToDisk();
 
     hw_semaphore_.give();
     wl_semaphore_.give();
@@ -501,7 +372,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
             hw_semaphore_.take();
 
             // Define device
-            vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
+            vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT12");
 
             vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
             vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
@@ -560,10 +431,16 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
             confParams_.bag.outFileName = tmpFileName;
 
-            std::fstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
+            //std::fstream scanStream(tmpFileName.c_str(), std::ios_base::app | std::ios::binary);
+	    std::ofstream outf(tmpFileName.c_str(), std::ios_base::app | std::ios::binary );
+
+            // Book GEM Data Parker
+
+            gemDataParker = new gem::supervisor::GEMDataParker(*vfatDevice_, tmpFileName);
 
             //start readout
-            scanStream.close();
+            // scanStream.close();
+            outf.close();
 
             hw_semaphore_.give();
 
@@ -618,6 +495,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
             vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
             vfatDevice_->setRunMode(1);
+
             hw_semaphore_.give();
 
             is_working_ = false;
@@ -634,6 +512,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
         {
             is_running_ = false;
             counter_ = 0;
+            delete gemDataParker;
         }
 
     void gem::supervisor::GEMGLIBSupervisorWeb::noAction(toolbox::Event::Reference evt)

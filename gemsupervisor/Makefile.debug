@@ -4,9 +4,9 @@ include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
 # ROOT Config
-ROOTCFLAGS   = $(shell root-config --cflags)
-ROOTLIBS     = $(shell root-config --libs) 
-ROOTGLIBS    = $(shell root-config --glibs) 
+ROOTCFLAGS    = $(shell root-config --cflags)
+ROOTLIBS      = $(shell root-config --libs) 
+ROOTGLIBS     = $(shell root-config --glibs) 
 
 #Project=gem
 Project=gemdaq-testing
@@ -17,8 +17,8 @@ PackageName=supervisor
 
 #Sources= GemSupervisorWeb.cc version.cc
 #Sources= GEMTestBeamSupervisor.cc GEMTestBeamSupervisorWeb.cc
-Sources= tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc GEMGLIBSupervisorWeb.cc GEMDataParker.cc
-#Sources= GEMGLIBSupervisorWeb.cc GEMDataParker.cc
+Sources= tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc
+#Sources= GEMGLIBSupervisorWeb.cc
 
 DynamicLibrary=gem_supervisor
 
@@ -45,19 +45,19 @@ LibraryDirs = \
 #        $(BUILD_HOME)/gembase/lib 
 
 PROFILING_Flags = -pg
-DEBUG_CFlags  =  -O0 -g3 -fno-inline
+DEBUG_CFlags  =  -O0 -g3 -fno-inline ${PROFILING_Flags}
 DEBUG_CCFlags =  ${DEBUG_CFlags}
 UserCFlags  = -std=c++0x ${ROOTCFLAGS} ${DEBUG_CFlags}
 UserCCFlags = -std=c++0x ${ROOTCFLAGS} ${DEBUG_CCFlags}
-UserDynamicLinkFlags = $(ROOTLIBS)
+UserDynamicLinkFlags = $(ROOTLIBS) ${PROFILING_Flags}
 UserStaticLinkFlags =
 #UserExecutableLinkFlags = -Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib \
 #                          -L$(CACTUS_HOME)/lib \
 #                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 #LDFLAGS=`root-config --libs --glibs`
 DEBUG_LIBS = profiler tcmalloc
-DependentLibraries = config xcept boost_system cactus_uhal_uhal xerces-c
-Libraries = config xcept numa toolbox asyncresolv uuid log4cplus xerces-c
+DependentLibraries = config xcept boost_system cactus_uhal_uhal xerces-c ${DEBUG_LIBS}
+Libraries = config xcept numa toolbox asyncresolv uuid log4cplus xerces-c ${DEBUG_LIBS}
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules
