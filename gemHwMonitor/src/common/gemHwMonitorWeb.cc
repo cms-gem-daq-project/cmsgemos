@@ -59,7 +59,7 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
             //std::cout << "checked crate: "<<checkedCrates_.back() <<std::endl;
             gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
             crateDevice_->setAddressTableFileName("testbeam_registers.xml");
-            crateDevice_->setDeviceIPAddress("192.168.0.115");
+            crateDevice_->setDeviceIPAddress("192.168.0.175");
             crateDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS.VFAT9");
             crateDevice_->connectDevice();
             if (crateDevice_->isGEMHwDeviceConnected())
@@ -465,7 +465,7 @@ throw (xgi::exception::Exception)
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT9");
     vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
-    vfatDevice_->setDeviceIPAddress("192.168.0.115");
+    vfatDevice_->setDeviceIPAddress("192.168.0.175");
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
     vfatDevice_->connectDevice();
     vfatDevice_->readVFAT2Counters();
