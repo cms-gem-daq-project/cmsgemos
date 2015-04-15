@@ -20,16 +20,27 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
 {
   DEBUG("GEMFSMApplication ctor begin");
 
+  xgi::framework::deferredbind(this, this, &GEMApplication::webInitialize, "Initialize" );
+  xgi::framework::deferredbind(this, this, &GEMApplication::webEnable,     "Enable"     );
+  xgi::framework::deferredbind(this, this, &GEMApplication::webConfigure,  "Configure"  );
+  xgi::framework::deferredbind(this, this, &GEMApplication::webStart,      "Start"      );
+  xgi::framework::deferredbind(this, this, &GEMApplication::webStop,       "Stop"       );
+  xgi::framework::deferredbind(this, this, &GEMApplication::webPause,      "Pause"      );
+  xgi::framework::deferredbind(this, this, &GEMApplication::webResume,     "Resume"     );
+  xgi::framework::deferredbind(this, this, &GEMApplication::webHalt,       "Halt"       );
+  xgi::framework::deferredbind(this, this, &GEMApplication::webReset,      "Reset"      );
+
   // These bindings expose the state machine to the outside world. The
-  // changeState() method simply forwards the calls to the GlibFSM
+  // changeState() method simply forwards the calls to the GEMFSM
   // object.
   xoap::bind(this, &GEMFSMApplication::changeState, "Initialize", XDAQ_NS_URI);
+  xoap::bind(this, &GEMFSMApplication::changeState, "Enable",     XDAQ_NS_URI);
   xoap::bind(this, &GEMFSMApplication::changeState, "Configure",  XDAQ_NS_URI);
   xoap::bind(this, &GEMFSMApplication::changeState, "Start",      XDAQ_NS_URI);
-  xoap::bind(this, &GEMFSMApplication::changeState, "Halt",       XDAQ_NS_URI);
+  xoap::bind(this, &GEMFSMApplication::changeState, "Stop",       XDAQ_NS_URI);
   xoap::bind(this, &GEMFSMApplication::changeState, "Pause",      XDAQ_NS_URI);
   xoap::bind(this, &GEMFSMApplication::changeState, "Resume",     XDAQ_NS_URI);
-  xoap::bind(this, &GEMFSMApplication::changeState, "Stop",       XDAQ_NS_URI);
+  xoap::bind(this, &GEMFSMApplication::changeState, "Halt",       XDAQ_NS_URI);
 
   appStateInfoSpace_.setFSMState(gemfsm_.getCurrentStateName());
 

@@ -31,14 +31,6 @@ namespace gem {
   namespace hw {
     namespace optohybrid {
 
-      typedef struct OHLinkStatus {
-	uint32_t linkErrCnt     ;
-	uint32_t linkVFATI2CRec ;
-	uint32_t linkVFATI2CSnt ;
-	uint32_t linkRegisterRec;
-	uint32_t linkRegisterSnt;
-      } OHLinkStatus;
-
       //class OptoHybridMonitor;
       
       class HwOptoHybrid: public gem::hw::GEMHwDevice
@@ -87,7 +79,7 @@ namespace gem {
 	   * @retval _status a struct containing the status bits of the optical link
 	   * @throws gem::hw::optohybrid::exception::InvalidLink if the link number is outside of 0-2
 	   **/
-	  OHLinkStatus LinkStatus(uint8_t link) ;
+	  GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t link) ;
 
 	  /** Reset the link status registers
 	   * @param uint8_t link is the number of the link to query
@@ -105,7 +97,7 @@ namespace gem {
 	  /** Read the trigger data
 	   * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
 	   **/
-	  uint32_t readTriggerData();
+	  //uint32_t readTriggerData();
 
 	  
 	  ///Clocking

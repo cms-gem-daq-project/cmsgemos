@@ -7,6 +7,7 @@
 #include "gem/hw/exception/Exception.h"
 
 #include "uhal/uhal.hpp"
+#include "uhal/Utilities.hpp"
 
 #define DEBUG(MSG) LOG4CPLUS_DEBUG(logGEMHw_ , MSG)
 #define INFO(MSG)  LOG4CPLUS_INFO(logGEMHw_  , MSG)
@@ -31,6 +32,16 @@ namespace gem {
     
     class GEMHwDevice
       {
+
+      public:
+	typedef struct OpticalLinkStatus {
+	  uint32_t linkErrCnt     ;
+	  uint32_t linkVFATI2CRec ;
+	  uint32_t linkVFATI2CSnt ;
+	  uint32_t linkRegisterRec;
+	  uint32_t linkRegisterSnt;
+	} OpticalLinkStatus;
+	
 	typedef struct DeviceErrors {
 	  int badHeader_;
 	  int readError_;
@@ -38,7 +49,6 @@ namespace gem {
 	  int controlHubErr_;
 	} DeviceErrors;
 	
-      public:
 	/** 
 	 * GEMHwDevice constructor 
 	 * @param xdaqApp pointer to xdaq::Application
@@ -150,6 +160,32 @@ namespace gem {
 	log4cplus::Logger logGEMHw_;
 	uhal::HwInterface *gemHWP_;
 		
+	std::string uint32ToString(uint32_t const val) const {
+	  std::stringstream res;
+	  res << char((val & uint32_t(0xff000000)) / 16777216);
+	  res << char((val & uint32_t(0x00ff0000)) / 65536);
+	  res << char((val & uint32_t(0x0000ff00)) / 256);
+	  res << char((val & uint32_t(0x000000ff)));
+	  return res.str(); };
+
+	std::string uint32ToDottedQuad(uint32_t const val) const {
+	  std::stringstream res;
+	  res << std::hex << char((val & uint32_t(0xff000000)) / 16777216)<< std::dec << ".";
+	  res << std::hex << char((val & uint32_t(0x00ff0000)) / 65536)   << std::dec << ".";
+	  res << std::hex << char((val & uint32_t(0x0000ff00)) / 256)     << std::dec << ".";
+	  res << std::hex << char((val & uint32_t(0x000000ff)))           << std::dec;
+	  return res.str(); };
+	
+	std::string uint32ToGroupedHex(uint32_t const val1, uint32_t const val2) const {
+	  std::stringstream res;
+	  res << std::hex << char((val1 & uint32_t(0x0000ff00)) / 256)     << std::dec << ":";
+	  res << std::hex << char((val1 & uint32_t(0x000000ff)))           << std::dec << ":";
+	  res << std::hex << char((val2 & uint32_t(0xff000000)) / 16777216)<< std::dec << ":";
+	  res << std::hex << char((val2 & uint32_t(0x00ff0000)) / 65536)   << std::dec << ":";
+	  res << std::hex << char((val2 & uint32_t(0x0000ff00)) / 256)     << std::dec << ":";
+	  res << std::hex << char((val2 & uint32_t(0x000000ff)))           << std::dec;
+	  return res.str(); };
+	
       private:
 	std::string addressTable_;
 	std::string ipbusProtocol_;
@@ -157,16 +193,7 @@ namespace gem {
 	std::string deviceIPAddr_;
 	std::string deviceID_;
 		
-	//std::string registerToChar(uint32_t value) const;
-	
-	std::string uint32ToString(uint32_t const val) const{
-	  std::stringstream res;
-	  res << char((val & uint32_t(0xff000000)) / 16777216);
-	  res << char((val & uint32_t(0x00ff0000)) / 65536);
-	  res << char((val & uint32_t(0x0000ff00)) / 256);
-	  res << char((val & uint32_t(0x000000ff)));
-	  return res.str(); }
-
+	//std::string registerToChar(uint32_t value) const;	
 
       }; //end class GEMHwDevice
 
