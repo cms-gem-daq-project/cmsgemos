@@ -136,14 +136,14 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
      */
 
     /*
-     * GEB, Chamber Data
+     * GEB, One Chamber Data
      */
 
     // Chamber Header, Zero Suppression flags, Chamber ID
     uint64_t ZSFlag      = BOOST_BINARY( 1 ); // :24
     uint64_t ChamID      = 0xdea;             // :12
 
-    geb.header  = ( (ZSFlag << 40) ) | ( ChamID << 28 );
+    geb.header  = (ZSFlag << 40)|(ChamID << 28);
 
     ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
     ChamID =  (0x000000fff0000000 & geb.header) >> 28; 
@@ -154,10 +154,10 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
     uint64_t OHcrc       = BOOST_BINARY( 1 ); // :16
     uint64_t OHwCount    = BOOST_BINARY( 1 ); // :16
     uint64_t ChamStatus  = BOOST_BINARY( 1 ); // :16
-    geb.trailer = ( (OHcrc << 48) | (OHwCount << 32 ) | (ChamStatus << 16) );
+    geb.trailer = ((OHcrc << 48)|(OHwCount << 32 )|(ChamStatus << 16));
 
-    OHcrc =      (0xffff000000000000 & geb.trailer) >> 48; 
-    OHwCount =   (0x0000ffff00000000 & geb.trailer) >> 32; 
+    OHcrc      = (0xffff000000000000 & geb.trailer) >> 48; 
+    OHwCount   = (0x0000ffff00000000 & geb.trailer) >> 32; 
     ChamStatus = (0x00000000ffff0000 & geb.trailer) >> 16;
 
     cout << " OHcrc " << hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << dec << endl;
@@ -178,12 +178,79 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
 
       //gem::supervisor::keepVFATData(outFileName_, counter_, vf, ch);
       //gem::supervisor::PrintVFATData(counter_, vf, ch);
-      // gem::supervisor::keepVFATDataBinary(outFileName_, counter_, vf, ch);
+      //gem::supervisor::keepVFATDataBinary(outFileName_, counter_, vf, ch);
       
       gem::supervisor::PrintVFATDataBits(counter_, vf, ch);
     }
 
-    int nGEBs = 2;
+    /*
+     *  GEM, All Chamber Data
+     */
+
+    // GEM Event Headers [1]
+    uint64_t AmcNo       = BOOST_BINARY( 1 );    // :4 
+    uint64_t ZeroFlag    = BOOST_BINARY( 0000 ); // :4
+    uint64_t LV1ID       = BOOST_BINARY( 1 );    // :24
+    uint64_t BXID        = BOOST_BINARY( 1 );    // :12
+    uint64_t DataLgth    = BOOST_BINARY( 1 );    // :20
+
+    gem.header1 = (AmcNo <<60)|(ZeroFlag << 56)|(LV1ID <<32)|(BXID << 20)|(DataLgth);
+
+    AmcNo    =  (0xf000000000000000 & gem.header1) >> 60;
+    ZeroFlag =  (0x0f00000000000000 & gem.header1) >> 56; 
+    LV1ID    =  (0x00ffffff00000000 & gem.header1) >> 32; 
+    BXID     =  (0x00000000fff00000 & gem.header1) >> 20;
+    DataLgth =  (0x00000000000fffff & gem.header1);
+
+    // GEM Event Headers [2]
+    uint64_t User        = BOOST_BINARY( 1 );    // :32
+    uint64_t OrN         = BOOST_BINARY( 1 );    // :16
+    uint64_t BoardID     = BOOST_BINARY( 1 );    // :16
+
+    gem.header2 = (User << 32)|(OrN << 16)|(BoardID);
+
+    User     =  (0xffffffff00000000 & gem.header2) >> 32; 
+    OrN      =  (0x00000000ffff0000 & gem.header2) >> 16;
+    BoardID  =  (0x000000000000ffff & gem.header2);
+
+    // GEM Event Headers [3]
+    uint64_t DAVList     = BOOST_BINARY( 1 );    // :24
+    uint64_t BufStat     = BOOST_BINARY( 1 );    // :24
+    uint64_t DAVCount    = BOOST_BINARY( 1 );    // :5
+    uint64_t FormatVer   = BOOST_BINARY( 1 );    // :3
+    uint64_t MP7BordStat = BOOST_BINARY( 1 );    // :8
+
+    gem.header3 = (BufStat << 40)|(DAVCount << 16)|(DAVCount << 11)|(FormatVer << 8)|(MP7BordStat);
+
+    DAVList     = (0xffffff0000000000 & gem.header3) >> 40; 
+    BufStat     = (0x000000ffffff0000 & gem.header3) >> 16;
+    DAVCount    = (0x000000000000ff00 & gem.header3) >> 11;
+    FormatVer   = (0x0000000000000f00 & gem.header3) >> 8;
+    MP7BordStat = (0x00000000000000ff & gem.header3);
+
+    // GEM Event Treailer [2]
+    uint64_t EventStat  = BOOST_BINARY( 1 );    // :32
+    uint64_t GEBerrFlag = BOOST_BINARY( 1 );    // :24
+
+    gem.trailer2 = ( EventStat << 40)|(GEBerrFlag);
+
+    FormatVer   = (0xffffffffff000000 & gem.trailer2) >> 40;
+    MP7BordStat = (0x0000000000ffffff & gem.trailer2);
+
+    // GEM Event Treailer [1]
+    uint64_t crc      = BOOST_BINARY( 1 );    // :32
+    uint64_t LV1IDT   = BOOST_BINARY( 1 );    // :8
+             ZeroFlag = BOOST_BINARY( 0000 ); // :4
+             DataLgth = BOOST_BINARY( 1 );    // :20
+
+    gem.trailer1 = (crc<<32)|(LV1IDT << 24)|(ZeroFlag <<20)|(DataLgth);
+
+    crc      = (0xffffffff00000000 & gem.trailer1) >> 32;
+    LV1IDT   = (0x00000000ff000000 & gem.trailer1) >> 24;
+    ZeroFlag = (0x0000000000f00000 & gem.trailer1) >> 20;
+    DataLgth = (0x00000000000fffff & gem.trailer1);
+
+   int nGEBs = 2;
     for (int nume = 1; nume < nGEBs; nume++){
       gem.gebs.push_back(geb);
     }

@@ -37,12 +37,12 @@ namespace gem {
       };
 
       struct GEMData {
-        uint64_t header1;      // 0000:4     LV1ID:24   BXID:12    DataLgth:20 
-        uint64_t header2;      // User:32    OrN:16     BoardID:16
-        uint64_t header3;      // DAVList:24 BufStat:24 DAVCount:5 FormatVer:3 MP7BordStat:8 
+        uint64_t header1;      // AmcNo:4      0000:4     LV1ID:24   BXID:12     DataLgth:20 
+        uint64_t header2;      // User:32      OrN:16     BoardID:16
+        uint64_t header3;      // DAVList:24   BufStat:24 DAVCount:5 FormatVer:3 MP7BordStat:8 
         std::vector<GEBData> gebs;
         uint64_t trailer2;     // EventStat:32 GEBerrFlag:24  
-        uint64_t trailer1;     // crc:3      LV1ID:8    0000:4     DataLgth:2 
+        uint64_t trailer1;     // crc:32       LV1IDT:8   0000:4     DataLgth:20 
       };
 
       bool keepChannelData(string file, int event, const ChannelData& ch){
