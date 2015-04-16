@@ -63,7 +63,6 @@ int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::ChannelData& ch
 
       // read trigger data
       vfatDevice_->setDeviceBaseNode("GLIB");
-      //TrigReg = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRG_DATA.DATA");
       TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
       bxNumTr = TrigReg >> 6;
       SBit = TrigReg & 0x0000003F;
