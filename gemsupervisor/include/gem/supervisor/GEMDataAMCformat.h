@@ -12,6 +12,11 @@ using namespace std;
 namespace gem {
   namespace supervisor {
 
+     /*
+      bxExp:28
+      bxNum:8,  Sbit:8
+      */
+
       struct ChannelData {
         uint64_t lsData;      // channels from 1to64
         uint64_t msData;      // channels from 65to128
@@ -19,18 +24,25 @@ namespace gem {
     
       struct VFATData {
         uint16_t BC;          // 1010:4,   BC:12 
-        uint16_t EC;          // 1100:4,   EC:8,     Flags:4
-        uint32_t bxExp;       // bxExp:28
-        uint16_t bxNum;       // bxNum:8,  Sbit:8
+        uint16_t EC;          // 1100:4,   EC:8,      Flags:4
         uint16_t ChipID;      // 1110,     ChipID:12
           ChannelData data;
         uint16_t crc;         // :16
       };    
     
-      struct GEMData {
+      struct GEBData {
         uint64_t header;      // ZSFlag:24 ChamID:12 
         std::vector<VFATData> vfats;
         uint64_t trailer;     // OHcrc: 16 OHwCount:16  ChamStatus:16
+      };
+
+      struct GEMData {
+        uint64_t header1;      // 0000:4     LV1ID:24   BXID:12    DataLgth:20 
+        uint64_t header2;      // User:32    OrN:16     BoardID:16
+        uint64_t header3;      // DAVList:24 BufStat:24 DAVCount:5 FormatVer:3 MP7BordStat:8 
+        std::vector<GEBData> gebs;
+        uint64_t trailer2;     // EventStat:32 GEBerrFlag:24  
+        uint64_t trailer1;     // crc:3      LV1ID:8    0000:4     DataLgth:2 
       };
 
       bool keepChannelData(string file, int event, const ChannelData& ch){
@@ -77,8 +89,8 @@ namespace gem {
         if(!outf.is_open()) return(false);
           outf << ev.BC << endl;
           outf << ev.EC << endl;
-          outf << ev.bxExp << endl;
-          outf << ev.bxNum << endl;
+          /* outf << ev.bxExp << endl;
+             outf << ev.bxNum << endl; */
           outf << ev.ChipID << endl;
             keepChannelData (file, event, ch);
           outf << ev.crc << endl;
@@ -92,8 +104,8 @@ namespace gem {
 	  cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.BC     << dec << endl;
 	  cout << "EC      :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.EC     << dec << endl;
 	  cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.ChipID << dec << endl;
-	  cout << "bxExp   :: 0x" << std::setfill('0') << std::setw(6) << hex << ev.bxExp  << dec << endl;
-	  cout << "bxNum   :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.bxNum  << dec << endl;
+	  /* cout << "bxExp   :: 0x" << std::setfill('0') << std::setw(6) << hex << ev.bxExp  << dec << endl;
+	     cout << "bxNum   :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.bxNum  << dec << endl; */
           cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
           cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
 	  cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.crc    << dec << endl;
@@ -106,8 +118,8 @@ namespace gem {
         if(!outf.is_open()) return(false);
   	  outf.write( (char*)&ev.BC, sizeof(ev.BC));
   	  outf.write( (char*)&ev.EC, sizeof(ev.EC));
-  	  outf.write( (char*)&ev.bxExp, sizeof(ev.bxExp));
-  	  outf.write( (char*)&ev.bxNum, sizeof(ev.bxNum));
+  	  /* outf.write( (char*)&ev.bxExp, sizeof(ev.bxExp));
+	     outf.write( (char*)&ev.bxNum, sizeof(ev.bxNum)); */
   	  outf.write( (char*)&ev.ChipID, sizeof(ev.ChipID));
             keepChannelDataBinary (file, event, ch);
   	  outf.write( (char*)&ev.crc, sizeof(ev.crc));
@@ -121,8 +133,8 @@ namespace gem {
         if(!inpf.is_open()) return(false);
   	  inpf.read( (char*)&ev.BC, sizeof(ev.BC));
   	  inpf.read( (char*)&ev.EC, sizeof(ev.EC));
-  	  inpf.read( (char*)&ev.bxExp, sizeof(ev.bxExp));
-  	  inpf.read( (char*)&ev.bxNum, sizeof(ev.bxNum));
+  	  /* inpf.read( (char*)&ev.bxExp, sizeof(ev.bxExp));
+	     inpf.read( (char*)&ev.bxNum, sizeof(ev.bxNum)); */
   	  inpf.read( (char*)&ev.ChipID, sizeof(ev.ChipID));
             readChannelDataBinary (file, event, ch);
   	  inpf.read( (char*)&ev.crc, sizeof(ev.crc));
@@ -182,8 +194,8 @@ namespace gem {
           uint16_t ChipID = (0x0fff & ev.ChipID);
           show4bits(b1110); cout << " ChipID 0x" << hex << ChipID << dec << " " << endl;
 
-          cout << "     bxExp  0x" << hex << ev.bxExp << dec << " " << endl;
-	  cout << "     bxNum  0x" << hex << ((0xff00 & ev.bxNum) >> 8) << "        SBit " << (0x00ff & ev.bxNum) << endl;
+          /* cout << "     bxExp  0x" << hex << ev.bxExp << dec << " " << endl;
+	     cout << "     bxNum  0x" << hex << ((0xff00 & ev.bxNum) >> 8) << "        SBit " << (0x00ff & ev.bxNum) << endl; */
           cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
           cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
           cout << "     crc    0x" << hex << ev.crc << dec << endl;
