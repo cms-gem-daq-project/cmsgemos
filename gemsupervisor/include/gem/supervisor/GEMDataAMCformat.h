@@ -13,24 +13,24 @@ namespace gem {
   namespace supervisor {
 
       struct ChannelData {
-        uint64_t lsData;  // ch1to64
-        uint64_t msData;  // ch65to128
+        uint64_t lsData;      // channels from 1to64
+        uint64_t msData;      // channels from 65to128
       };
     
       struct VFATData {
-        uint16_t BC;      // 1010:4,   BC:12 
-        uint16_t EC;      // 1100:4,   EC:8,     Flags:4
-        uint32_t bxExp;   // bxExp:28
-        uint16_t bxNum;   // bxNum:8,  Sbit:8
-        uint16_t ChipID;  // 1110,     ChipID:12
+        uint16_t BC;          // 1010:4,   BC:12 
+        uint16_t EC;          // 1100:4,   EC:8,     Flags:4
+        uint32_t bxExp;       // bxExp:28
+        uint16_t bxNum;       // bxNum:8,  Sbit:8
+        uint16_t ChipID;      // 1110,     ChipID:12
           ChannelData data;
-        uint16_t crc;     // :16
+        uint16_t crc;         // :16
       };    
     
       struct GEMData {
-        uint64_t header;
+        uint64_t header;      // ZSFlag:24 ChamID:12 
         std::vector<VFATData> vfats;
-        uint64_t trailer;
+        uint64_t trailer;     // OHcrc: 16 OHwCount:16  ChamStatus:16
       };
 
       bool keepChannelData(string file, int event, const ChannelData& ch){
@@ -134,16 +134,34 @@ namespace gem {
       // Useful printouts 
       //
       void show4bits(uint8_t x) {
-        int i; 
+        int i;
+        const unsigned long unit = 1;
         for(i=(sizeof(uint8_t)*4)-1; i>=0; i--)
-          (x&(1<<i))?putchar('1'):putchar('0');
+          (x & ((unit)<<i))?putchar('1'):putchar('0');
      	//printf("\n");
       }
 
       void show16bits(uint16_t x) {
-        int i; 
+        int i;
+        const unsigned long unit = 1;
         for(i=(sizeof(uint16_t)*8)-1; i>=0; i--)
-          (x&(1<<i))?putchar('1'):putchar('0');
+          (x & ((unit)<<i))?putchar('1'):putchar('0');
+     	printf("\n");
+      }
+
+      void show32bits(uint32_t x) {
+        int i;
+        const unsigned long unit = 1;
+        for(i=(sizeof(uint32_t)*8)-1; i>=0; i--)
+         (x & ((unit)<<i))?putchar('1'):putchar('0');
+     	printf("\n");
+      }
+
+      void show64bits(uint64_t x) {
+        int i;
+        const unsigned long unit = 1;
+        for(i=(sizeof(uint64_t)*8)-1; i>=0; i--)
+          (x & ((unit)<<i))?putchar('1'):putchar('0');
      	printf("\n");
       }
 

@@ -2,13 +2,14 @@
 #include "gem/supervisor/GEMDataAMCformat.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
+#include <boost/utility/binary.hpp>
+#include <bitset>
+
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
 #include <vector>
-
-#include <TRandom3.h>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -134,31 +135,52 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
      * One GEM bord loop, 24 VFAT chips maximum
      */
 
-    TRandom3 random;
-    //Int_t nVFATs = random.Integer(23);
+    /*
+     * GEB, Chamber Data
+     */
 
-    gem.header  = 0x1;
-    for (int nume = 1; nume < 5/* nVFATs */; nume++){
-      vf.ChipID = (0x0E << 12) | (0xdea); // ChipID dead
+    // Chamber Header, Zero Suppression flags, Chamber ID
+    uint64_t ZSFlag      = BOOST_BINARY( 1 ); // :24
+    uint64_t ChamID      = 0xdea;             // :12
+
+    gem.header  = ( (ZSFlag << 40) ) | ( ChamID << 28 );
+
+    ZSFlag =  (0xffffff0000000000 & gem.header) >> 40; 
+    ChamID =  (0x000000fff0000000 & gem.header) >> 28; 
+
+    cout << " ZSFlag " << hex << ZSFlag << " ChamID " << ChamID << dec << endl;
+
+    // Chamber Trailer, OptoHybrid: crc, wordcount, Chamber status
+    uint64_t OHcrc       = BOOST_BINARY( 1 ); // :16
+    uint64_t OHwCount    = BOOST_BINARY( 1 ); // :16
+    uint64_t ChamStatus  = BOOST_BINARY( 1 ); // :16
+    gem.trailer = ( (OHcrc << 48) | (OHwCount << 32 ) | (ChamStatus << 16) );
+
+    OHcrc =      (0xffff000000000000 & gem.trailer) >> 48; 
+    OHwCount =   (0x0000ffff00000000 & gem.trailer) >> 32; 
+    ChamStatus = (0x00000000ffff0000 & gem.trailer) >> 16;
+
+    cout << " OHcrc " << hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << dec << endl;
+
+    int nVFATs = 2;
+    for (int nume = 1; nume < nVFATs; nume++){
+      vf.ChipID = (0x0E << 12) | (0xdea); // ChipID dead if data are missing
       gem.vfats.push_back(vf);
     }
-    gem.trailer = 0x2;
 
     int nChip=0;
-    cout << " Number VFAT blocks on the GEM is " << gem.vfats.size() << endl;
+    // cout << " Number VFAT blocks on the GEM is " << gem.vfats.size() << endl;
+
     for (vector<VFATData>::iterator it=gem.vfats.begin(); it != gem.vfats.end(); ++it) {
-      if (it == gem.vfats.end()){
-        cout << nChip << " ChipID  " << hex << (*it).ChipID << dec << endl; 
-      }
+
       nChip++;
+      cout << nChip << " ChipID  " << hex << (*it).ChipID << dec << endl; 
 
       //gem::supervisor::keepVFATData(outFileName_, counter_, vf, ch);
       //gem::supervisor::PrintVFATData(counter_, vf, ch);
-      gem::supervisor::keepVFATDataBinary(outFileName_, counter_, vf, ch);
-      //cout << nChip << endl;
+      // gem::supervisor::keepVFATDataBinary(outFileName_, counter_, vf, ch);
+      
       gem::supervisor::PrintVFATDataBits(counter_, vf, ch);
-  
     }
-
     return counter_;
 }
