@@ -13,8 +13,8 @@ namespace gem {
   namespace supervisor {
 
      /*
-      bxExp:28
-      bxNum:8,  Sbit:8
+      uint32_t bxExp;   // :28
+      uint16_t bxNum;   // :8,     Sbit:8
       */
 
       struct ChannelData {
