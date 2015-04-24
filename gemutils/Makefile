@@ -10,7 +10,8 @@ LongPackage=gemutils
 ShortPackage=utils
 PackageName=utils
 
-Sources= Lock.cc
+
+Sources= Lock.cc gemXMLparser.cc soap/GEMSOAPToolBox.cc
 
 DynamicLibrary=gem_utils
 
