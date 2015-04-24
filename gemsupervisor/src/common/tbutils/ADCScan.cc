@@ -1061,7 +1061,7 @@ void gem::supervisor::tbutils::ADCScan::initializeAction(toolbox::Event::Referen
   //here the connection to the device should be made
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
   hw_semaphore_.take();
-  vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, confParams_.bag.deviceName.toString());
+  vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), confParams_.bag.deviceName.toString());
   
   //vfatDevice_->setAddressTableFileName("allregsnonfram.xml");
   //vfatDevice_->setDeviceBaseNode("user_regs.vfats."+confParams_.bag.deviceName.toString());

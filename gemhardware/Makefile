@@ -9,6 +9,7 @@ Package=gemhardware
 LongPackage=gemhardware
 ShortPackage=hw
 PackageName=hw
+
 ##make a device specific buildfile as well, defaulting to all
 Sources= GEMHwDevice.cc \
 	vfat/HwVFAT2.cc  vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc \

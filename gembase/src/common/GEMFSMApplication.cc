@@ -9,7 +9,7 @@
 #include "gem/base/GEMFSMApplication.h"
 #include "gem/base/GEMWebApplication.h"
 
-#include "gem/hw/exception/Exception.h"
+#include "gem/utils/exception/Exception.h"
 #include "gem/base/exception/Exception.h"
 #include "gem/base/utils/exception/Exception.h"
 

@@ -111,11 +111,11 @@ namespace gem {
                 T* gemDevice_;
         };
 
-        typedef gemHwMonitorBase<gem::base::utils::gemSystemProperties> gemHwMonitorSystem;
-        typedef gemHwMonitorBase<gem::base::utils::gemCrateProperties> gemHwMonitorCrate;
-        typedef gemHwMonitorBase<gem::base::utils::gemGLIBProperties> gemHwMonitorGLIB;
-        typedef gemHwMonitorBase<gem::base::utils::gemOHProperties> gemHwMonitorOH;
-        typedef gemHwMonitorBase<gem::base::utils::gemVFATProperties> gemHwMonitorVFAT;
+        typedef gemHwMonitorBase<gem::utils::gemSystemProperties> gemHwMonitorSystem;
+        typedef gemHwMonitorBase<gem::utils::gemCrateProperties> gemHwMonitorCrate;
+        typedef gemHwMonitorBase<gem::utils::gemGLIBProperties> gemHwMonitorGLIB;
+        typedef gemHwMonitorBase<gem::utils::gemOHProperties> gemHwMonitorOH;
+        typedef gemHwMonitorBase<gem::utils::gemVFATProperties> gemHwMonitorVFAT;
     } // end namespace hwMon
 } // end namespace gem
 #endif

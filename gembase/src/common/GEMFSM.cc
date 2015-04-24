@@ -140,7 +140,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   
   std::string commandName = "undefined";
   try {
-    commandName = gem::base::utils::GEMSOAPToolBox::extractFSMCommandName(msg);
+    commandName = gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(msg);
   }
   catch(xoap::exception::Exception& err) {
     std::string msgBase =
@@ -157,7 +157,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
 						err.message().c_str());
     std::string faultActor = gemAppP_->getFullURL();
     xoap::MessageReference reply =
-      gem::base::utils::GEMSOAPToolBox::makeSoapFaultReply(faultString, faultCode, detail, faultActor);
+      gem::utils::soap::GEMSOAPToolBox::makeSoapFaultReply(faultString, faultCode, detail, faultActor);
     return reply;
   }
   
@@ -185,7 +185,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
 						err.message().c_str());
     std::string faultActor = gemAppP_->getFullURL();
     xoap::MessageReference reply =
-      gem::base::utils::GEMSOAPToolBox::makeSoapFaultReply(faultString, faultCode, detail, faultActor);
+      gem::utils::soap::GEMSOAPToolBox::makeSoapFaultReply(faultString, faultCode, detail, faultActor);
     return reply;
   }
   
@@ -196,7 +196,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   // the requestor of the new state.
   try {
     xoap::MessageReference reply =
-      gem::base::utils::GEMSOAPToolBox::makeFSMSoapReply(commandName, newStateName);
+      gem::utils::soap::GEMSOAPToolBox::makeFSMSoapReply(commandName, newStateName);
     return reply;
   }
   catch(xcept::Exception& err) {

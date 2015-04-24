@@ -23,7 +23,7 @@ namespace gem {
         class gemCrateMonitorBase: public gemHwMonitorBase
         {
             public:
-                gemCrateMonitorBase(const gem::base::utils::gemCrateProperties & crateRef)
+                gemCrateMonitorBase(const gem::utils::gemCrateProperties & crateRef)
                     throw (xdaq::exception::Exception);
 
                 ~gemCrateMonitorBase(){}
@@ -40,7 +40,7 @@ namespace gem {
  
             protected:
             private:
-                gem::base::utils::gemCrateProperties* crateRef_;
+                gem::utils::gemCrateProperties* crateRef_;
         }; // end namespace hwMon
     }
 } // end namespace gem
