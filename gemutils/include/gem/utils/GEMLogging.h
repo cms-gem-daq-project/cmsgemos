@@ -1,5 +1,5 @@
-#ifndef gem_base_utils_GEMLogging_h
-#define gem_base_utils_GEMLogging_h
+#ifndef gem_utils_GEMLogging_h
+#define gem_utils_GEMLogging_h
 
 namespace gem {
 #define DEBUG(MSG) LOG4CPLUS_DEBUG(gemLogger_ , MSG)
