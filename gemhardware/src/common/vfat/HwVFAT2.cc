@@ -121,6 +121,18 @@ void gem::hw::vfat::HwVFAT2::configureDevice()
   
 }
 
+bool gem::hw::vfat::HwVFAT2::isGEMHwDeviceConnected() 
+{
+  return gem::hw::GEMHwDevice::isGEMHwDeviceConnected();
+//  if (gem::hw::GEMHwDevice::isGEMHwDeviceConnected())
+//    
+//    return true;
+//  
+//  else
+//    return false;
+}
+
+
 uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
 {
   //Maybe want to use a lock to prevent hammering the HW device

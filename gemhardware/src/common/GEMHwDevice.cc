@@ -238,11 +238,13 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 
   int retryCount = 0;
   uint32_t res;
+  uint32_t mask;
   while (retryCount < MAX_VFAT_RETRIES) {
     try {
       uhal::ValWord<uint32_t> val = hw.getNode(name).read();
       hw.dispatch();
       res = val.value();
+      mask = val.mask();
       break;
     } catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '%s' (uHAL)", name.c_str());
@@ -272,6 +274,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
+  INFO("Mask on transaction was: " << mask << std::endl);
   return res;
 }
 
@@ -526,7 +529,7 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
 	  (errCode.find("timed out")                   != std::string::npos) ||
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
-f	  (errCode.find("had response field = 0x06")   != std::string::npos) ||
+	  (errCode.find("had response field = 0x06")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
 	INFO("Failed to write block " << name <<
