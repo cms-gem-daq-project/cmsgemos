@@ -30,20 +30,18 @@ IncludeDirs = \
         $(XDAQ_ROOT)/include \
         $(uHALROOT)/include \
 	$(ROOTDIR)/include 
-#        $(BUILD_HOME)/gembase/include
-
+#
 DependentLibraryDirs = \
         $(XDAQ_ROOT)/lib \
         $(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(uHALROOT)/lib 
 #        /usr/include/root 
-#        $(BUILD_HOME)/gembase/lib 
 
 LibraryDirs = \
         $(XDAQ_ROOT)/lib \
-        $(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
-        $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+#        $(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+#        $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(uHALROOT)/lib \
         /usr/lib64/root 
 #        $(BUILD_HOME)/gembase/lib 

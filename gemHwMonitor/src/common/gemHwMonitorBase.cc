@@ -27,7 +27,7 @@ template <class T> int gem::hwMonitor::gemHwMonitorBase<T>::getNumberOfSubDevice
 namespace gem {
     namespace hwMonitor {
         template <> 
-        int gem::hwMonitor::gemHwMonitorBase<gem::base::utils::gemVFATProperties>::getNumberOfSubDevices()
+        int gem::hwMonitor::gemHwMonitorBase<gem::utils::gemVFATProperties>::getNumberOfSubDevices()
             throw (xgi::exception::Exception)
         {
                 return -1;
@@ -45,15 +45,15 @@ template <class T> const std::string gem::hwMonitor::gemHwMonitorBase<T>::getCur
 namespace gem {
     namespace hwMonitor {
         template <> 
-        const std::string gemHwMonitorBase<gem::base::utils::gemVFATProperties>::getCurrentSubDeviceId(unsigned int subDeviceNumber)
+        const std::string gemHwMonitorBase<gem::utils::gemVFATProperties>::getCurrentSubDeviceId(unsigned int subDeviceNumber)
             throw (xgi::exception::Exception)
         {
                 return "VFATs don't have subdevices";
         }
     }
 }
-template class gem::hwMonitor::gemHwMonitorBase<gem::base::utils::gemSystemProperties>; 
-template class gem::hwMonitor::gemHwMonitorBase<gem::base::utils::gemCrateProperties>; 
-template class gem::hwMonitor::gemHwMonitorBase<gem::base::utils::gemGLIBProperties>; 
-template class gem::hwMonitor::gemHwMonitorBase<gem::base::utils::gemOHProperties>; 
-template class gem::hwMonitor::gemHwMonitorBase<gem::base::utils::gemVFATProperties>; 
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemSystemProperties>; 
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemCrateProperties>; 
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemGLIBProperties>; 
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemOHProperties>; 
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemVFATProperties>; 

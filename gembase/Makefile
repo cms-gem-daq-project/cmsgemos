@@ -17,10 +17,10 @@ DynamicLibrary=gem_base
 
 #IncludeDirs = $(uHALROOT)/include
 #DependentLibraryDirs = $(uHALROOT)/lib
+#$(BUILD_HOME)/$(Project)/gemhardware/include \
 
 IncludeDirs = \
         $(BUILD_HOME)/$(Project)/$(Package)/include \
-        #$(BUILD_HOME)/$(Project)/gemhardware/include \
         $(BUILD_HOME)/$(Project)/gemutils/include \
         $(XDAQ_ROOT)/include \
         $(uHALROOT)/include
