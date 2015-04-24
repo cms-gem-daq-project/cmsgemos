@@ -223,6 +223,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
 	  (errCode.find("timed out")                   != std::string::npos) ||
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("had response field = 0x06")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
 	INFO("Failed to read register " << name <<
@@ -279,6 +280,7 @@ void gem::hw::GEMHwDevice::readRegs(std::vector<std::pair<std::string, uint32_t>
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
 	  (errCode.find("timed out")                   != std::string::npos) ||
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("had response field = 0x06")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
 	INFO("Failed to read register " << curReg->first <<
@@ -324,6 +326,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
 	  (errCode.find("timed out")                   != std::string::npos) ||
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("had response field = 0x06")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
 	INFO("Failed to write value 0x" << std::hex<< val << std::dec << " to register " << name <<
@@ -371,6 +374,7 @@ void gem::hw::GEMHwDevice::writeRegs(std::vector<std::pair<std::string, uint32_t
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
 	  (errCode.find("timed out")                   != std::string::npos) ||
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("had response field = 0x06")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
 	INFO("Failed to write value 0x" << std::hex <<
@@ -459,6 +463,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
 	  (errCode.find("timed out")                   != std::string::npos) ||
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("had response field = 0x06")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
 	INFO("Failed to read block " << name << " with " << numWords << " words" <<
@@ -506,6 +511,7 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
 	  (errCode.find("INFO CODE = 0x6L")            != std::string::npos) ||
 	  (errCode.find("timed out")                   != std::string::npos) ||
 	  (errCode.find("had response field = 0x04")   != std::string::npos) ||
+	  (errCode.find("had response field = 0x06")   != std::string::npos) ||
 	  (errCode.find("ControlHub error code is: 4") != std::string::npos)) {
 	++retryCount;
 	INFO("Failed to write block " << name <<
@@ -539,7 +545,8 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
     ++ipBusErrs.timeouts_;
   if (errCode.find("ControlHub error code is: 4") != std::string::npos)
     ++ipBusErrs.controlHubErr_;
-  if (errCode.find("had response field = 0x04") != std::string::npos)
+  if ((errCode.find("had response field = 0x04") != std::string::npos) ||
+      (errCode.find("had response field = 0x06") != std::string::npos))
     ++ipBusErrs.controlHubErr_;
 }
 
