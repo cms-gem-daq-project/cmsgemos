@@ -12,8 +12,8 @@ PackageName=hw
 ##make a device specific buildfile as well, defaulting to all
 Sources= GEMHwDevice.cc \
 	vfat/HwVFAT2.cc  vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc \
-	optohybrid/HwOptoHybrid.cc \
-	glib/HwGLIB.cc glib/GLIBManager.cc  glib/GLIBManagerWeb.cc \
+#optohybrid/HwOptoHybrid.cc \
+#glib/HwGLIB.cc glib/GLIBManager.cc  glib/GLIBManagerWeb.cc \
 	GEMController.cc GEMControllerPanelWeb.cc
 ##version.cc
 
@@ -28,6 +28,7 @@ IncludeDirs = \
 
 DependentLibraryDirs = \
         $(XDAQ_ROOT)/lib \
+        $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(uHALROOT)/lib
 
 LibraryDirs = \
@@ -47,8 +48,9 @@ UserStaticLinkFlags =
 #                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
 DEBUG_LIBS = profiler tcmalloc
-DependentLibraries = config xcept boost_system cactus_uhal_uhal
+DependentLibraries = config xcept boost_system cactus_uhal_uhal gem_utils
 Libraries = config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus cactus_uhal_uhal
+# gem_utils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules

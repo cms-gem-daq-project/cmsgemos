@@ -10,8 +10,8 @@
 
 #include "gem/base/GEMFSMApplication.h"
 
-#include "gem/base/utils/GEMSOAPToolBox.h"
-#include "gem/base/utils/exception/Exception.h"
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
 
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"
 #include "toolbox/fsm/InvalidInputEvent.h"
