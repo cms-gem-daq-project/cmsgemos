@@ -8,7 +8,7 @@
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT9</device>
-	<ipAddr xsi:type="xsd:string">192.168.0.175</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.162</ipAddr>
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
@@ -17,7 +17,7 @@
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT11</device>
-	<ipAddr xsi:type="xsd:string">137.138.175.146</ipAddr>
+	<ipAddr xsi:type="xsd:string">137.138.162.146</ipAddr>
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
@@ -25,27 +25,26 @@
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT13</device>
-	<ipAddr xsi:type="xsd:string">192.168.0.175</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.162</ipAddr>
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
 
-<!--    
     <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3257" instance="4" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT8</device>
-	<ipAddr xsi:type="xsd:string">192.168.0.175</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.162</ipAddr>
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
--->    
+    -->    
     
     <xc:Application class="gem::hw::vfat::VFAT2Manager" id="3258" instance="5" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT10</device>
-	<ipAddr xsi:type="xsd:string">192.168.0.175</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.162</ipAddr>
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
@@ -54,11 +53,12 @@
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT12</device>
-	<ipAddr xsi:type="xsd:string">192.168.0.175</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.162</ipAddr>
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
 
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemutils/lib/linux/x86_64_slc6/libgem_utils.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/linux/x86_64_slc6/libgem_hw.so</xc:Module>
   </xc:Context>
 </xc:Partition>
