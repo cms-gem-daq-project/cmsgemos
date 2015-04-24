@@ -373,6 +373,8 @@ void gem::supervisor::tbutils::GEMTBUtil::selectVFAT(xgi::Output *out)
 	 << "<tr>" << std::endl
 	 << "<td>" << std::endl
 	 << cgicc::select().set("id","VFATDevice").set("name","VFATDevice")     << std::endl
+      //here we should have all VFATs, all VFATs with disconnected ones greyed out, or all connected VFATs
+      // the software shouldn't try to connect to an unavailable VFAT
 	 << ((confParams_.bag.deviceName.toString().compare("VFAT8")) == 0 ?
 	     (cgicc::option("VFAT8").set(isDisabled).set("value","VFAT8").set("selected")) :
 	     (cgicc::option("VFAT8").set(isDisabled).set("value","VFAT8"))) << std::endl
