@@ -28,11 +28,12 @@ IncludeDirs = \
         $(uHALROOT)/include
 
 DependentLibraryDirs = \
-        $(XDAQ_ROOT)/lib \
         $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+        $(XDAQ_ROOT)/lib \
         $(uHALROOT)/lib
 
 LibraryDirs = \
+        $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(XDAQ_ROOT)/lib \
         $(uHALROOT)/lib
 
@@ -50,7 +51,7 @@ UserStaticLinkFlags =
 
 DEBUG_LIBS = profiler tcmalloc
 DependentLibraries = config xcept boost_system cactus_uhal_uhal gem_utils
-Libraries = config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus cactus_uhal_uhal
+Libraries = config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus cactus_uhal_uhal gem_utils
 # gem_utils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
