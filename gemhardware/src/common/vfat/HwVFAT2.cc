@@ -76,37 +76,38 @@ gem::hw::vfat::HwVFAT2::~HwVFAT2()
 
 void gem::hw::vfat::HwVFAT2::loadDefaults()
 {
-  //here load the default settings
-  setTriggerMode(    0x3); //set to S1 to S8
-  setCalibrationMode(0x0); //set to normal
-  setMSPolarity(     0x1); //negative
-  setCalPolarity(    0x1); //negative
-  
-  setProbeMode(        0x0);
-  setLVDSMode(         0x0);
-  setDACMode(          0x0);
-  setHitCountCycleTime(0x0); //maximum number of bits
-  
-  setHitCountMode( 0x0);
-  setMSPulseLength(0x3);
-  setInputPadMode( 0x0);
-  setTrimDACRange( 0x0);
-  setBandgapPad(   0x0);
-  sendTestPattern( 0x0);
-  
-  
-  setIPreampIn(  168);
-  setIPreampFeed(150);
-  setIPreampOut(  80);
-  setIShaper(    150);
-  setIShaperFeed(100);
-  setIComp(       75);
-  
-  setLatency(15);
-  
-  setVThreshold1(25);
-  setVThreshold2(0);
-
+  if (isHwConnected()) {
+    //here load the default settings
+    setTriggerMode(    0x3); //set to S1 to S8
+    setCalibrationMode(0x0); //set to normal
+    setMSPolarity(     0x1); //negative
+    setCalPolarity(    0x1); //negative
+    
+    setProbeMode(        0x0);
+    setLVDSMode(         0x0);
+    setDACMode(          0x0);
+    setHitCountCycleTime(0x0); //maximum number of bits
+    
+    setHitCountMode( 0x0);
+    setMSPulseLength(0x3);
+    setInputPadMode( 0x0);
+    setTrimDACRange( 0x0);
+    setBandgapPad(   0x0);
+    sendTestPattern( 0x0);
+    
+    
+    setIPreampIn(  168);
+    setIPreampFeed(150);
+    setIPreampOut(  80);
+    setIShaper(    150);
+    setIShaperFeed(100);
+    setIComp(       75);
+    
+    setLatency(15);
+    
+    setVThreshold1(25);
+    setVThreshold2(0);
+  }
 }
 
 void gem::hw::vfat::HwVFAT2::configureDevice(std::string const& xmlSettings)
@@ -127,11 +128,28 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
   if (gem::hw::GEMHwDevice::isHwConnected()) {
     //check if we can talk to the hardware (read the chipID using the full read)
     // possible failures are: unable to complete the transaction
-    // chip not connected so the chipID is invalid
+    // chip not connected so the chipID is invalid and extended registers return the register number
+    //(currently the implemented check)
     // treat each situation differently
-    uint32_t chipTest = gem::hw::GEMHwDevice::readReg("ChipID0");
-    INFO("read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
-    return true;
+    DEBUG("Checking hardware connection");
+    uint32_t chipTest = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ChipID0");
+    DEBUG("1) read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
+
+    uint32_t test1 = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ContReg2");
+    DEBUG("2) read ContReg2 (test1) 0x" << std::hex << test1 << std::dec << std::endl);
+    gem::hw::GEMHwDevice::writeReg(getDeviceBaseNode()+"."+"ContReg2",0x000000FF&(~test1));
+    uint32_t test2 = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ContReg2");
+    DEBUG("3) read ContReg2 (test2) 0x" << std::hex << test2 << std::dec << std::endl);
+    gem::hw::GEMHwDevice::writeReg(getDeviceBaseNode()+"."+"ContReg2",0x000000FF&test1);
+    uint32_t test3 = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ContReg2");
+    DEBUG("4) read ContReg2 0x" << std::hex << test3 << std::dec << std::endl);
+
+    chipTest = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ChipID0");
+    DEBUG("5) read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
+    if (test1 == test2)
+      return false;
+    else
+      return true;
   }
   else
     return false;
@@ -144,7 +162,10 @@ uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
   //uint32_t regValue;
   //regValue = GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
   //return regValue;
-  return GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
+  if (isHwConnected()) 
+    return GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
+  else
+    return 0x0; //what is a reasonable negative return value 0xffffffff or 0x00000000
   //return GEMHwDevice::readReg(getDeviceBaseNode(),regName);
 }
 
@@ -152,32 +173,35 @@ uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
 //void gem::hw::vfat::HwVFAT2::readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params)
 void gem::hw::vfat::HwVFAT2::readVFAT2Counters()
 {
-  vfatParams_.chipID       = getChipID();
-  vfatParams_.upsetCounter = getUpsetCount();
-  vfatParams_.hitCounter   = getHitCount();
+  if (isHwConnected()) {
+    vfatParams_.chipID       = getChipID();
+    vfatParams_.upsetCounter = getUpsetCount();
+    vfatParams_.hitCounter   = getHitCount();
+  }
 }
 
 //void gem::hw::vfat::HwVFAT2::readVFAT2Channel(gem::hw::vfat::VFAT2ControlParams &params, uint8_t channel)
 void gem::hw::vfat::HwVFAT2::readVFAT2Channel(uint8_t channel)
 {
-  uint8_t chanSettings = getChannelSettings(channel);
-  if (channel>1)
-    vfatParams_.activeChannel = (unsigned)channel;
-  vfatParams_.channels[channel-1].fullChannelReg = chanSettings;
-  vfatParams_.channels[channel-1].calPulse0 = false;
-  if (channel == 1)
-    vfatParams_.channels[channel-1].calPulse0 = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL0)>>VFAT2ChannelBitShifts::CHANCAL0);
-  vfatParams_.channels[channel-1].calPulse    = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL )>>VFAT2ChannelBitShifts::CHANCAL );
-  vfatParams_.channels[channel-1].mask        = ((chanSettings&VFAT2ChannelBitMasks::ISMASKED)>>VFAT2ChannelBitShifts::ISMASKED);
-  vfatParams_.channels[channel-1].trimDAC     = ((chanSettings&VFAT2ChannelBitMasks::TRIMDAC )>>VFAT2ChannelBitShifts::TRIMDAC );
-  DEBUG("readVFAT2Channel " << (unsigned)channel << " - 0x"
-       <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].fullChannelReg)<<std::dec<<"::<"
-       <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].calPulse0     )<<std::dec<<":"
-       <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].calPulse      )<<std::dec<<":"
-       <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].mask          )<<std::dec<<":"
-       <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].trimDAC       )<<std::dec<<">"
-       << std::endl);
-  
+  if (isHwConnected()) {
+    uint8_t chanSettings = getChannelSettings(channel);
+    if (channel>1)
+      vfatParams_.activeChannel = (unsigned)channel;
+    vfatParams_.channels[channel-1].fullChannelReg = chanSettings;
+    vfatParams_.channels[channel-1].calPulse0 = false;
+    if (channel == 1)
+      vfatParams_.channels[channel-1].calPulse0 = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL0)>>VFAT2ChannelBitShifts::CHANCAL0);
+    vfatParams_.channels[channel-1].calPulse    = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL )>>VFAT2ChannelBitShifts::CHANCAL );
+    vfatParams_.channels[channel-1].mask        = ((chanSettings&VFAT2ChannelBitMasks::ISMASKED)>>VFAT2ChannelBitShifts::ISMASKED);
+    vfatParams_.channels[channel-1].trimDAC     = ((chanSettings&VFAT2ChannelBitMasks::TRIMDAC )>>VFAT2ChannelBitShifts::TRIMDAC );
+    DEBUG("readVFAT2Channel " << (unsigned)channel << " - 0x"
+	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].fullChannelReg)<<std::dec<<"::<"
+	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].calPulse0     )<<std::dec<<":"
+	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].calPulse      )<<std::dec<<":"
+	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].mask          )<<std::dec<<":"
+	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].trimDAC       )<<std::dec<<">"
+	  << std::endl);
+  }  
 }
 
 //void gem::hw::vfat::HwVFAT2::readVFAT2Channels(gem::hw::vfat::VFAT2ControlParams &params)

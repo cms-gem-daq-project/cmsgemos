@@ -97,8 +97,9 @@ namespace gem {
 
 	  void     writeReg(std::string const& regName,
 			    uint32_t const writeVal) {
-	    std::string name = getDeviceBaseNode()+"."+regName;
-	    gem::hw::GEMHwDevice::writeReg(name,writeVal); };
+	    if (isHwConnected()) {
+	      std::string name = getDeviceBaseNode()+"."+regName;
+	      gem::hw::GEMHwDevice::writeReg(name,writeVal); }};
 
 	  void     writeVFATReg(std::string const& regName,
 				uint8_t const writeVal) {
@@ -107,9 +108,10 @@ namespace gem {
 	  void     writeReg(std::string const& regPrefix,
 			    std::string const& regName,
 			    uint32_t const writeVal) {
-	    std::string name = regPrefix+"."+regName;
-	    gem::hw::GEMHwDevice::writeReg(name,writeVal); };
-
+	    if (isHwConnected()) {
+	      std::string name = regPrefix+"."+regName;
+	      gem::hw::GEMHwDevice::writeReg(name,writeVal); }};
+	  
 	  void     writeVFATRegs(std::vector<std::pair<std::string, uint8_t> > const& regList) {
 	    std::vector<std::pair<std::string,uint32_t> > fullRegList;
 	    std::vector<std::pair<std::string,uint8_t> >::const_iterator curReg = regList.begin();
