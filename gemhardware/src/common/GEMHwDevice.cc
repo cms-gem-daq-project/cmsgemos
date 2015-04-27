@@ -274,9 +274,6 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
       XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
-  INFO("Read transaction on register "    << name << std::endl);
-  INFO("Transaction return value was: 0x" << std::hex << res << std::dec << std::endl);
-  INFO("Mask on transaction was: 0x"      << std::hex << mask << std::dec << std::endl);
   return res;
 }
 

@@ -73,7 +73,13 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   //readVFAT2Registers();
   vfatParams_ = vfatDevice->getVFAT2Params();
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::6 device_ = " << device_.toString() << std::endl);
-
+  
+  if (vfatDevice->isHwConnected())
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2 device is connected, continuing to read registers");
+  else {
+    LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2 device is not connected");
+  }
+  
 }
 
 void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2ControlParams& params)
