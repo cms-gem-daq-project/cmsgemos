@@ -121,15 +121,20 @@ void gem::hw::vfat::HwVFAT2::configureDevice()
   
 }
 
-bool gem::hw::vfat::HwVFAT2::isGEMHwDeviceConnected() 
+bool gem::hw::vfat::HwVFAT2::isHwConnected() 
 {
-  return gem::hw::GEMHwDevice::isGEMHwDeviceConnected();
-//  if (gem::hw::GEMHwDevice::isGEMHwDeviceConnected())
-//    
-//    return true;
-//  
-//  else
-//    return false;
+  //return gem::hw::GEMHwDevice::isHwConnected();
+  if (gem::hw::GEMHwDevice::isHwConnected()) {
+    //check if we can talk to the hardware (read the chipID using the full read)
+    // possible failures are: unable to complete the transaction
+    // chip not connected so the chipID is invalid
+    // treat each situation differently
+    uint32_t chipTest = gem::hw::GEMHwDevice::readReg("ChipID0");
+    INFO("read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
+    return true;
+  }
+  else
+    return false;
 }
 
 

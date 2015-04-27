@@ -70,7 +70,7 @@ namespace gem {
 	  //void resumeDevice();
 	  //void haltDevice();
 
-	  bool isGEMHwDeviceConnected();
+	  bool isHwConnected();
 
 	  //special implementation of the read/write for VFATs
 	  virtual uint32_t readReg( std::string const& regName);
