@@ -87,7 +87,7 @@ namespace gem {
 	//virtual void resumeDevice();
 	//virtual void haltDevice();
 	
-	virtual bool isGEMHwDeviceConnected() { return gemHWP_ != 0; };
+	virtual bool isHwConnected() { return gemHWP_ != 0; };
 	
 	/**
 	 *Generic read/write functions or IPBus devices

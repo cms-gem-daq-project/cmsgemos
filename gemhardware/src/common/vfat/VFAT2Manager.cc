@@ -84,6 +84,12 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
   
   //try the hardware connection
   try {
+    if (vfatDevice->isHwConnected())
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2 device is connected, continuing to read registers");
+    else {
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2 device is not connected");
+      return;
+    }
     uhal::HwInterface hw = vfatDevice->getVFAT2HwInterface();
     std::string deviceBaseNode = vfatDevice->getDeviceBaseNode();
     //this conflicts with setting the base node in the HwVFAT device, need to reset
