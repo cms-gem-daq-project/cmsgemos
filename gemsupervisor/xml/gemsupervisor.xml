@@ -16,11 +16,11 @@
       </properties>
     </xc:Application>
     
-    <xc:Module>${GLIBTEST}/gemdaq-testing/gemsupervisor/lib/linux/x86_64_slc6/libgem_supervisor.so</xc:Module>
+    <xc:Module>${GLIBTEST}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
     <!--
     <xc:Application class="gem::base::GEMApplication" id="255" instance="0" network="local">
     </xc:Application>
-    <xc:Module>${GLIBTEST}/gemdaq-testing/gembase/lib/linux/x86_64_slc6/libgembase.so</xc:Module>
+    <xc:Module>${GLIBTEST}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
     -->
   </xc:Context>
 </xc:Partition>
