@@ -130,22 +130,23 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
     // possible failures are: unable to complete the transaction
     // chip not connected so the chipID is invalid and extended registers return the register number
     //(currently the implemented check)
-    // treat each situation differently
-    DEBUG("Checking hardware connection");
-    uint32_t chipTest = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ChipID0");
-    DEBUG("1) read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
+    // treat each situation differently, also, how often does this need to be done? every transaction?
+    //that's a ton of overhead...
+    INFO("Checking hardware connection");
+    uint32_t chipTest = readReg(getDeviceBaseNode(),"ChipID0");
+    INFO("1) read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
 
-    uint32_t test1 = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ContReg2");
-    DEBUG("2) read ContReg2 (test1) 0x" << std::hex << test1 << std::dec << std::endl);
-    gem::hw::GEMHwDevice::writeReg(getDeviceBaseNode()+"."+"ContReg2",0x000000FF&(~test1));
-    uint32_t test2 = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ContReg2");
-    DEBUG("3) read ContReg2 (test2) 0x" << std::hex << test2 << std::dec << std::endl);
-    gem::hw::GEMHwDevice::writeReg(getDeviceBaseNode()+"."+"ContReg2",0x000000FF&test1);
-    uint32_t test3 = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ContReg2");
-    DEBUG("4) read ContReg2 0x" << std::hex << test3 << std::dec << std::endl);
+    uint32_t test1 = readReg(getDeviceBaseNode(),"ContReg2");
+    INFO("2) read ContReg2 (test1) 0x" << std::hex << test1 << std::dec << std::endl);
+    writeReg(getDeviceBaseNode(),"ContReg2",0x000000FF&(~test1));
+    uint32_t test2 = readReg(getDeviceBaseNode(),"ContReg2");
+    INFO("3) read ContReg2 (test2) 0x" << std::hex << test2 << std::dec << std::endl);
+    writeReg(getDeviceBaseNode(),"ContReg2",0x000000FF&test1);
+    uint32_t test3 = readReg(getDeviceBaseNode(),"ContReg2");
+    INFO("4) read ContReg2 0x" << std::hex << test3 << std::dec << std::endl);
 
-    chipTest = gem::hw::GEMHwDevice::readReg(getDeviceBaseNode()+"."+"ChipID0");
-    DEBUG("5) read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
+    chipTest = readReg(getDeviceBaseNode(),"ChipID0");
+    INFO("5) read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
     if (test1 == test2)
       return false;
     else
@@ -156,18 +157,14 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
 }
 
 
-uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
-{
-  //Maybe want to use a lock to prevent hammering the HW device
-  //uint32_t regValue;
-  //regValue = GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
-  //return regValue;
-  if (isHwConnected()) 
-    return GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
-  else
-    return 0x0; //what is a reasonable negative return value 0xffffffff or 0x00000000
-  //return GEMHwDevice::readReg(getDeviceBaseNode(),regName);
-}
+//uint32_t gem::hw::vfat::HwVFAT2::readReg(std::string const& regName)
+//{
+//  if (isHwConnected()) 
+//    return GEMHwDevice::readReg(getDeviceBaseNode()+"."+regName);
+//  //return GEMHwDevice::readReg(getDeviceBaseNode(),regName);
+//  else
+//    return 0x0; //what is a reasonable negative return value 0xffffffff or 0x00000000
+//}
 
 // read VFAT chipID and upset/hit counters into vfatParams_ object
 //void gem::hw::vfat::HwVFAT2::readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params)
@@ -183,25 +180,23 @@ void gem::hw::vfat::HwVFAT2::readVFAT2Counters()
 //void gem::hw::vfat::HwVFAT2::readVFAT2Channel(gem::hw::vfat::VFAT2ControlParams &params, uint8_t channel)
 void gem::hw::vfat::HwVFAT2::readVFAT2Channel(uint8_t channel)
 {
-  if (isHwConnected()) {
-    uint8_t chanSettings = getChannelSettings(channel);
-    if (channel>1)
-      vfatParams_.activeChannel = (unsigned)channel;
-    vfatParams_.channels[channel-1].fullChannelReg = chanSettings;
-    vfatParams_.channels[channel-1].calPulse0 = false;
-    if (channel == 1)
-      vfatParams_.channels[channel-1].calPulse0 = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL0)>>VFAT2ChannelBitShifts::CHANCAL0);
-    vfatParams_.channels[channel-1].calPulse    = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL )>>VFAT2ChannelBitShifts::CHANCAL );
-    vfatParams_.channels[channel-1].mask        = ((chanSettings&VFAT2ChannelBitMasks::ISMASKED)>>VFAT2ChannelBitShifts::ISMASKED);
-    vfatParams_.channels[channel-1].trimDAC     = ((chanSettings&VFAT2ChannelBitMasks::TRIMDAC )>>VFAT2ChannelBitShifts::TRIMDAC );
-    DEBUG("readVFAT2Channel " << (unsigned)channel << " - 0x"
-	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].fullChannelReg)<<std::dec<<"::<"
-	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].calPulse0     )<<std::dec<<":"
-	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].calPulse      )<<std::dec<<":"
-	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].mask          )<<std::dec<<":"
-	  <<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].trimDAC       )<<std::dec<<">"
-	  << std::endl);
-  }  
+  uint8_t chanSettings = getChannelSettings(channel);
+  if (channel>1)
+    vfatParams_.activeChannel = (unsigned)channel;
+  vfatParams_.channels[channel-1].fullChannelReg = chanSettings;
+  vfatParams_.channels[channel-1].calPulse0 = false;
+  if (channel == 1)
+    vfatParams_.channels[channel-1].calPulse0 = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL0)>>VFAT2ChannelBitShifts::CHANCAL0);
+  vfatParams_.channels[channel-1].calPulse    = ((chanSettings&VFAT2ChannelBitMasks::CHANCAL )>>VFAT2ChannelBitShifts::CHANCAL );
+  vfatParams_.channels[channel-1].mask        = ((chanSettings&VFAT2ChannelBitMasks::ISMASKED)>>VFAT2ChannelBitShifts::ISMASKED);
+  vfatParams_.channels[channel-1].trimDAC     = ((chanSettings&VFAT2ChannelBitMasks::TRIMDAC )>>VFAT2ChannelBitShifts::TRIMDAC );
+  DEBUG("readVFAT2Channel " << (unsigned)channel << " - 0x"
+	<<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].fullChannelReg)<<std::dec<<"::<"
+	<<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].calPulse0     )<<std::dec<<":"
+	<<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].calPulse      )<<std::dec<<":"
+	<<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].mask          )<<std::dec<<":"
+	<<std::hex<<static_cast<unsigned>(vfatParams_.channels[channel-1].trimDAC       )<<std::dec<<">"
+	<< std::endl);
 }
 
 //void gem::hw::vfat::HwVFAT2::readVFAT2Channels(gem::hw::vfat::VFAT2ControlParams &params)
@@ -231,23 +226,23 @@ void gem::hw::vfat::HwVFAT2::setAllSettings(const gem::hw::vfat::VFAT2ControlPar
   setMSPolarity(     params.msPol     ,cont0);
   setCalPolarity(    params.calPol    ,cont0);
   setCalibrationMode(params.calibMode ,cont0);
-  writeReg("ContReg0",cont0);
+  writeVFATReg("ContReg0",cont0);
   
   setDACMode(          params.dacMode  ,cont1);
   setProbeMode(        params.probeMode,cont1);
   setLVDSMode(         params.lvdsMode ,cont1);
   setHitCountCycleTime(params.reHitCT  ,cont1);
-  writeReg("ContReg1",cont1);
+  writeVFATReg("ContReg1",cont1);
   
   setHitCountMode( params.hitCountMode,cont2);
   setMSPulseLength(params.msPulseLen  ,cont2);
   setInputPadMode( params.digInSel    ,cont2);
-  writeReg("ContReg2",cont2);
+  writeVFATReg("ContReg2",cont2);
   
   setTrimDACRange(   params.trimDACRange   ,cont3);
   setBandgapPad(     params.padBandGap     ,cont3);
   sendTestPattern   (params.sendTestPattern,cont3);
-  writeReg("ContReg3",cont3);
+  writeVFATReg("ContReg3",cont3);
 
   setIPreampIn(  params.iPreampIn  );
   setIPreampFeed(params.iPreampFeed);
@@ -268,14 +263,14 @@ void gem::hw::vfat::HwVFAT2::setAllSettings(const gem::hw::vfat::VFAT2ControlPar
   chanReg|=(params.channels[0].mask     <<VFAT2ChannelBitShifts::ISMASKED);
   chanReg|=(params.channels[0].calPulse <<VFAT2ChannelBitShifts::CHANCAL );
   chanReg|=(params.channels[0].calPulse0<<VFAT2ChannelBitShifts::CHANCAL0);
-  writeReg("VFATChannels.ChanReg1",chanReg);
+  writeVFATReg("VFATChannels.ChanReg1",chanReg);
 
   for (uint8_t chan = 2; chan < N_VFAT2_CHANNELS+1; ++chan) {
     chanReg = 0x0;
     chanReg|=(params.channels[chan-1].trimDAC <<VFAT2ChannelBitShifts::TRIMDAC );
     chanReg|=(params.channels[chan-1].mask    <<VFAT2ChannelBitShifts::ISMASKED);
     chanReg|=(params.channels[chan-1].calPulse<<VFAT2ChannelBitShifts::CHANCAL );
-    writeReg(toolbox::toString("VFATChannels.ChanReg%d",(unsigned)chan),(unsigned)chanReg);
+    writeVFATReg(toolbox::toString("VFATChannels.ChanReg%d",(unsigned)chan),(unsigned)chanReg);
   }
 }
 
@@ -287,53 +282,53 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
   //maybe find a way to do a single transaction, using the vector read/write?
   //what is the performance cost/benefit
 
-  DEBUG("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   uint8_t cont0 = readVFATReg("ContReg0");
   uint8_t cont1 = readVFATReg("ContReg1");
   uint8_t cont2 = readVFATReg("ContReg2");
   uint8_t cont3 = readVFATReg("ContReg3");
   
-  DEBUG("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   vfatParams_.control0 = static_cast<unsigned>(cont0);
-  DEBUG("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   vfatParams_.control1 = static_cast<unsigned>(cont1);
-  DEBUG("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   vfatParams_.control2 = static_cast<unsigned>(cont2);
-  DEBUG("getting all settings in HwVFAT2.cc");
+  INFO("getting all settings in HwVFAT2.cc");
   vfatParams_.control3 = static_cast<unsigned>(cont3);
 
-  DEBUG("storing RunMode in HwVFAT2.cc");
+  INFO("storing RunMode in HwVFAT2.cc");
   vfatParams_.runMode   = static_cast<VFAT2RunMode  >(getRunMode(        cont0));
-  DEBUG("storing TriggerMode in HwVFAT2.cc");
+  INFO("storing TriggerMode in HwVFAT2.cc");
   vfatParams_.trigMode  = static_cast<VFAT2TrigMode >(getTriggerMode(    cont0));
-  DEBUG("storing MSPolarity in HwVFAT2.cc");
+  INFO("storing MSPolarity in HwVFAT2.cc");
   vfatParams_.msPol     = static_cast<VFAT2MSPol    >(getMSPolarity(     cont0));
-  DEBUG("storing CalPolarity in HwVFAT2.cc");
+  INFO("storing CalPolarity in HwVFAT2.cc");
   vfatParams_.calPol    = static_cast<VFAT2CalPol   >(getCalPolarity(    cont0));
-  DEBUG("storing CalibrationMode in HwVFAT2.cc");
+  INFO("storing CalibrationMode in HwVFAT2.cc");
   vfatParams_.calibMode = static_cast<VFAT2CalibMode>(getCalibrationMode(cont0));
   
-  DEBUG("storing DACMode in HwVFAT2.cc");
+  INFO("storing DACMode in HwVFAT2.cc");
   vfatParams_.dacMode   = static_cast<VFAT2DACMode  >(getDACMode(          cont1));
-  DEBUG("storing ProbeMode in HwVFAT2.cc");
+  INFO("storing ProbeMode in HwVFAT2.cc");
   vfatParams_.probeMode = static_cast<VFAT2ProbeMode>(getProbeMode(        cont1));
-  DEBUG("storing LVDSMode in HwVFAT2.cc");
+  INFO("storing LVDSMode in HwVFAT2.cc");
   vfatParams_.lvdsMode  = static_cast<VFAT2LVDSMode >(getLVDSMode(         cont1));
-  DEBUG("storing HitCycleTime in HwVFAT2.cc");
+  INFO("storing HitCycleTime in HwVFAT2.cc");
   vfatParams_.reHitCT   = static_cast<VFAT2ReHitCT  >(getHitCountCycleTime(cont1));
   
-  DEBUG("storing HitCountMode in HwVFAT2.cc");
+  INFO("storing HitCountMode in HwVFAT2.cc");
   vfatParams_.hitCountMode = static_cast<VFAT2HitCountMode >(getHitCountMode( cont2));
-  DEBUG("storing MSPulseLength in HwVFAT2.cc");
+  INFO("storing MSPulseLength in HwVFAT2.cc");
   vfatParams_.msPulseLen   = static_cast<VFAT2MSPulseLength>(getMSPulseLength(cont2));
-  DEBUG("storing DigInSel in HwVFAT2.cc");
+  INFO("storing DigInSel in HwVFAT2.cc");
   vfatParams_.digInSel     = static_cast<VFAT2DigInSel     >(getInputPadMode( cont2));
   
-  DEBUG("storing TrimDACRange in HwVFAT2.cc");
+  INFO("storing TrimDACRange in HwVFAT2.cc");
   vfatParams_.trimDACRange    = static_cast<VFAT2TrimDACRange >(getTrimDACRange(   cont3));
-  DEBUG("storing PadBandgap in HwVFAT2.cc");
+  INFO("storing PadBandgap in HwVFAT2.cc");
   vfatParams_.padBandGap      = static_cast<VFAT2PadBandgap   >(getBandgapPad(     cont3));
-  DEBUG("storing DFTestPattern HwVFAT2.cc");
+  INFO("storing DFTestPattern HwVFAT2.cc");
   vfatParams_.sendTestPattern = static_cast<VFAT2DFTestPattern>(getTestPatternMode(cont3));
   
   vfatParams_.latency = getLatency();
@@ -351,7 +346,7 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
   vfatParams_.calPhase = getCalPhase()   ;
 
   //counters
-  DEBUG("getting all counters in HwVFAT2.cc");
+  INFO("getting all counters in HwVFAT2.cc");
   //readVFAT2Counters(params);
   readVFAT2Counters();
   
@@ -382,9 +377,9 @@ void gem::hw::vfat::HwVFAT2::sendCalPulseToChannel(uint8_t channel, bool on) {
   uint8_t channelSettings = readVFATReg(registerName);
   
   if (channel == 0) 
-    writeReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL0)|(on ? 0x80 : 0x0));
+    writeVFATReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL0)|(on ? 0x80 : 0x0));
   else
-    writeReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL)|(on ? 0x40 : 0x0));
+    writeVFATReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL)|(on ? 0x40 : 0x0));
 }
 
 void gem::hw::vfat::HwVFAT2::maskChannel(uint8_t channel, bool on) {
@@ -398,7 +393,7 @@ void gem::hw::vfat::HwVFAT2::maskChannel(uint8_t channel, bool on) {
   }
   std::string registerName = toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel);
   uint8_t channelSettings = (readVFATReg(registerName)&~VFAT2ChannelBitMasks::ISMASKED);
-  writeReg(registerName,channelSettings|(on ? 0x20 : 0x0));
+  writeVFATReg(registerName,channelSettings|(on ? 0x20 : 0x0));
 }
 
 uint8_t gem::hw::vfat::HwVFAT2::getChannelTrimDAC(uint8_t channel) {
@@ -425,7 +420,7 @@ void gem::hw::vfat::HwVFAT2::setChannelTrimDAC(uint8_t channel, uint8_t trimDAC)
   }
   std::string registerName = toolbox::toString("VFATChannels.ChanReg%d",channel);
   uint8_t channelSettings = (readVFATReg(registerName)&~VFAT2ChannelBitMasks::TRIMDAC)|trimDAC;
-  writeReg(registerName,channelSettings|trimDAC);
+  writeVFATReg(registerName,channelSettings|trimDAC);
 }
 
 /***
@@ -439,6 +434,6 @@ void gem::hw::vfat::HwVFAT2::setChannelTrimDAC(uint8_t channel, double trimDAC) 
   }
   std::string registerName = "VFATChannels.ChanReg"+channel;
   uint8_t channelSettings = readVFATReg(registerName);
-  writeReg(registerName,channelSettings|0x20);
+  writeVFATReg(registerName,channelSettings|0x20);
 }
 ***/

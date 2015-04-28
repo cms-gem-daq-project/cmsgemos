@@ -132,11 +132,21 @@ void gem::hw::glib::HwGLIB::configureDevice()
 //}
 
 
+bool gem::hw::vfat::GLIB::isHwConnected() 
+{
+  //return gem::hw::GEMHwDevice::isHwConnected();
+  if (gem::hw::GEMHwDevice::isHwConnected()) {
+    return true;
+  }
+  else
+    return false;
+}
+
+
 std::string gem::hw::glib::HwGLIB::getBoardID()
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
-  // The board ID consists of four characters encoded as a 32-bit
-  // something.
+  // The board ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "???";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.BOARD_ID");
   res = uint32ToString(val);
@@ -146,6 +156,7 @@ std::string gem::hw::glib::HwGLIB::getBoardID()
 std::string gem::hw::glib::HwGLIB::getSystemID()
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(lock_);
+  // The system ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "???";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.SYSTEM_ID");
   res = uint32ToString(val);

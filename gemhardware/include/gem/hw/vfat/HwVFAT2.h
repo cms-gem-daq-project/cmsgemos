@@ -60,8 +60,8 @@ namespace gem {
 	  //void releaseDevice();
 	  //void initDevice();
 	  //void enableDevice();
-	  virtual void configureDevice();
-	  virtual void configureDevice(std::string const& xmlSettings);
+	  void configureDevice();
+	  void configureDevice(std::string const& xmlSettings);
 	  //virtual void configureDevice(std::string const& dbConnectionString);
 	  //void disableDevice();
 	  //void pauseDevice();
@@ -73,7 +73,7 @@ namespace gem {
 	  bool isHwConnected();
 
 	  //special implementation of the read/write for VFATs
-	  virtual uint32_t readReg( std::string const& regName);
+	  //uint32_t readReg( std::string const& regName);
 	  /*
 	    virtual uint32_t readReg( std::string const& regPrefix,
 				    std::string const& regName);
@@ -83,11 +83,10 @@ namespace gem {
 	  //void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
 
 	  uint8_t  readVFATReg( std::string const& regName) {
-	    //std::cout << "readVFATReg(" << regName << ")" << std::endl;
-	    return readReg(regName)&0x000000ff; };
+	    return readReg(getDeviceBaseNode()+"."+regName)&0x000000ff; };
 	  void     readVFATRegs( std::vector<std::pair<std::string, uint8_t> > &regList) {
-	    std::vector<std::pair<std::string,uint32_t> > fullRegList;
-	    std::vector<std::pair<std::string,uint8_t> >::const_iterator curReg = regList.begin();
+	    std::vector<std::pair<std::string, uint32_t> > fullRegList;
+	    std::vector<std::pair<std::string, uint8_t > >::const_iterator curReg = regList.begin();
 	    for (; curReg != regList.end(); ++curReg) 
 	      fullRegList.push_back(std::make_pair(getDeviceBaseNode()+"."+curReg->first,static_cast<uint32_t>(curReg->second)));
 	    readRegs(fullRegList);
@@ -95,23 +94,24 @@ namespace gem {
 	  //void     readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params);
 	  void     readVFAT2Counters();
 
+	  /*
 	  void     writeReg(std::string const& regName,
 			    uint32_t const writeVal) {
-	    if (isHwConnected()) {
-	      std::string name = getDeviceBaseNode()+"."+regName;
-	      gem::hw::GEMHwDevice::writeReg(name,writeVal); }};
-
-	  void     writeVFATReg(std::string const& regName,
-				uint8_t const writeVal) {
-	    writeReg(regName, static_cast<uint32_t>(writeVal)); };
+	    INFO("gem::hw::vfat::writeReg" << std::endl);
+	    std::string name = getDeviceBaseNode()+"."+regName;
+	    gem::hw::GEMHwDevice::writeReg(name,writeVal); };
 
 	  void     writeReg(std::string const& regPrefix,
 			    std::string const& regName,
-			    uint32_t const writeVal) {
-	    if (isHwConnected()) {
-	      std::string name = regPrefix+"."+regName;
-	      gem::hw::GEMHwDevice::writeReg(name,writeVal); }};
-	  
+			    uint32_t const& writeVal) {
+	    std::string name = regPrefix+"."+regName;
+	    gem::hw::GEMHwDevice::writeReg(name,writeVal); };
+	  */
+
+	  void     writeVFATReg(std::string const& regName,
+				uint8_t     const& writeVal) {
+	    writeReg(getDeviceBaseNode(), regName, static_cast<uint32_t>(writeVal)); };
+
 	  void     writeVFATRegs(std::vector<std::pair<std::string, uint8_t> > const& regList) {
 	    std::vector<std::pair<std::string,uint32_t> > fullRegList;
 	    std::vector<std::pair<std::string,uint8_t> >::const_iterator curReg = regList.begin();
@@ -119,6 +119,7 @@ namespace gem {
 	      fullRegList.push_back(std::make_pair(getDeviceBaseNode()+"."+curReg->first,static_cast<uint32_t>(curReg->second)));
 	    writeRegs(fullRegList);
 	  };
+
 	  //write single value to a list of registers in a single transaction (one dispatch call) using the supplied vector regList
 	  void     writeValueToVFATRegs(std::vector<std::string> const& regList, uint8_t const& regValue) {
 	    std::vector<std::string > fullRegList;
@@ -135,20 +136,18 @@ namespace gem {
 	    return ((readVFATReg("ChipID1"))<<8)|(readVFATReg("ChipID0")); };
 	  uint32_t getHitCount() {
 	    return (((readVFATReg("HitCount2"))<<16)|((readVFATReg("HitCount1")))<<8)|(readVFATReg("HitCount0")); };
-	  uint8_t  getUpsetCount() { return readReg("UpsetReg");    };
+	  uint8_t  getUpsetCount() { return readVFATReg("UpsetReg");    };
 	  
 	  //Set control register settings
 	  void setAllSettings(const gem::hw::vfat::VFAT2ControlParams &params);
 	  
 	  //Control register settings
-	  // may not be currently implemented correctly...
-	  /// have to figure out how to use the enum properly
-	  /// also might be good to overload them to act on local variables
+	  /// might be good to overload them to act on local variables
 	  /// and do a single IPBus transaction...
 	  
 	  void setRunMode(VFAT2RunMode mode) {
 	    uint8_t settings = readVFATReg("ContReg0");
-	    writeReg("ContReg0",
+	    writeVFATReg("ContReg0",
 		     (settings&~VFAT2ContRegBitMasks::RUNMODE)|
 		     (mode<<VFAT2ContRegBitShifts::RUNMODE)); };
 	  
@@ -163,7 +162,7 @@ namespace gem {
 
 	  void setTriggerMode(VFAT2TrigMode mode) {
 	    uint8_t settings = readVFATReg("ContReg0");
-	    writeReg("ContReg0",
+	    writeVFATReg("ContReg0",
 		     (settings&~VFAT2ContRegBitMasks::TRIGMODE)|
 		     (mode<<VFAT2ContRegBitShifts::TRIGMODE)); };
 
@@ -178,7 +177,7 @@ namespace gem {
 
 	  void setCalibrationMode(VFAT2CalibMode mode) {
 	    uint8_t settings = readVFATReg("ContReg0");
-	    writeReg("ContReg0",
+	    writeVFATReg("ContReg0",
 		     (settings&~VFAT2ContRegBitMasks::CALMODE)|
 		     (mode<<VFAT2ContRegBitShifts::CALMODE)); };
 
@@ -206,7 +205,7 @@ namespace gem {
 
 	  void setMSPolarity(VFAT2MSPol polarity) {
 	    uint8_t settings = readVFATReg("ContReg0");
-	    writeReg("ContReg0",
+	    writeVFATReg("ContReg0",
 		     (settings&~VFAT2ContRegBitMasks::MSPOL)|
 		     (polarity<<VFAT2ContRegBitShifts::MSPOL)); };
 	  
@@ -221,7 +220,7 @@ namespace gem {
 
 	  void setCalPolarity(VFAT2CalPol polarity) {
 	    uint8_t settings = readVFATReg("ContReg0");
-	    writeReg("ContReg0",
+	    writeVFATReg("ContReg0",
 		     (settings&~VFAT2ContRegBitMasks::CALPOL)|
 		     (polarity<<VFAT2ContRegBitShifts::CALPOL)); };
 	  
@@ -236,7 +235,7 @@ namespace gem {
 
 	  void setProbeMode(VFAT2ProbeMode mode) {
 	    uint8_t settings = readVFATReg("ContReg1");
-	    writeReg("ContReg1",
+	    writeVFATReg("ContReg1",
 		     (settings&~VFAT2ContRegBitMasks::PROBEMODE)|
 		     (mode<<VFAT2ContRegBitShifts::PROBEMODE)); };
 
@@ -251,7 +250,7 @@ namespace gem {
 
 	  void setLVDSMode(VFAT2LVDSMode mode) {
 	    uint8_t settings = readVFATReg("ContReg1");
-	    writeReg("ContReg1",
+	    writeVFATReg("ContReg1",
 		     (settings&~VFAT2ContRegBitMasks::LVDSMODE)|
 		     (mode<<VFAT2ContRegBitShifts::LVDSMODE)); };
 
@@ -266,7 +265,7 @@ namespace gem {
 
 	  void setDACMode(VFAT2DACMode mode) {
 	    uint8_t settings = readVFATReg("ContReg1");
-	    writeReg("ContReg1",
+	    writeVFATReg("ContReg1",
 		     (settings&~VFAT2ContRegBitMasks::DACMODE)|
 		     (mode<<VFAT2ContRegBitShifts::DACMODE)); };
 
@@ -281,7 +280,7 @@ namespace gem {
 
 	  void setHitCountCycleTime(VFAT2ReHitCT cycleTime) {
 	    uint8_t settings = readVFATReg("ContReg1");
-	    writeReg("ContReg1",
+	    writeVFATReg("ContReg1",
 		     (settings&~VFAT2ContRegBitMasks::REHITCT)|
 		     (cycleTime<<VFAT2ContRegBitShifts::REHITCT)); };
 
@@ -296,7 +295,7 @@ namespace gem {
 
 	  void setHitCountMode(VFAT2HitCountMode mode) {
 	    uint8_t settings = readVFATReg("ContReg2");
-	    writeReg("ContReg2",
+	    writeVFATReg("ContReg2",
 		     (settings&~VFAT2ContRegBitMasks::HITCOUNTMODE)|
 		     (mode<<VFAT2ContRegBitShifts::HITCOUNTMODE)); };
 
@@ -311,7 +310,7 @@ namespace gem {
 
 	  void setMSPulseLength(VFAT2MSPulseLength length) {
 	    uint8_t settings = readVFATReg("ContReg2");
-	    writeReg("ContReg2",
+	    writeVFATReg("ContReg2",
 		     (settings&~VFAT2ContRegBitMasks::MSPULSELENGTH)|
 		     (length<<VFAT2ContRegBitShifts::MSPULSELENGTH)); };
 
@@ -326,7 +325,7 @@ namespace gem {
 
 	  void setInputPadMode(VFAT2DigInSel mode) {
 	    uint8_t settings = readVFATReg("ContReg2");
-	    writeReg("ContReg2",
+	    writeVFATReg("ContReg2",
 		     (settings&~VFAT2ContRegBitMasks::DIGINSEL)|
 		     (mode<<VFAT2ContRegBitShifts::DIGINSEL)); };
 
@@ -341,7 +340,7 @@ namespace gem {
 
 	  void setTrimDACRange(VFAT2TrimDACRange range) {
 	    uint8_t settings = readVFATReg("ContReg3");
-	    writeReg("ContReg3",
+	    writeVFATReg("ContReg3",
 		     (settings&~VFAT2ContRegBitMasks::TRIMDACRANGE)|
 		     (range<<VFAT2ContRegBitShifts::TRIMDACRANGE)); };
 
@@ -356,7 +355,7 @@ namespace gem {
 
 	  void setBandgapPad(VFAT2PadBandgap mode) {
 	    uint8_t settings = readVFATReg("ContReg3");
-	    writeReg("ContReg3",
+	    writeVFATReg("ContReg3",
 		     (settings&~VFAT2ContRegBitMasks::PADBANDGAP)|
 		     (mode<<VFAT2ContRegBitShifts::PADBANDGAP)); };
 
@@ -371,7 +370,7 @@ namespace gem {
 
 	  void sendTestPattern(VFAT2DFTestPattern send) {
 	    uint8_t settings = readVFATReg("ContReg3");
-	    writeReg("ContReg3",
+	    writeVFATReg("ContReg3",
 		     (settings&~VFAT2ContRegBitMasks::DFTESTMODE)|
 		     (send<<VFAT2ContRegBitShifts::DFTESTMODE)); };
 
@@ -385,33 +384,33 @@ namespace gem {
 	    sendTestPattern(static_cast<VFAT2DFTestPattern>(mode), settings); };
 
 	  //////////////////////////////
-	  void setLatency(uint8_t latency) {writeReg("Latency",latency); };
+	  void setLatency(uint8_t latency) {writeVFATReg("Latency",latency); };
 
-	  void setIPreampIn(  uint8_t value) { writeReg("IPreampIn",  value); };
-	  void setIPreampFeed(uint8_t value) { writeReg("IPreampFeed",value); };
-	  void setIPreampOut( uint8_t value) { writeReg("IPreampOut", value); };
-	  void setIShaper(    uint8_t value) { writeReg("IShaper",    value); };
-	  void setIShaperFeed(uint8_t value) { writeReg("IShaperFeed",value); };
-	  void setIComp(      uint8_t value) { writeReg("IComp",      value); };
+	  void setIPreampIn(  uint8_t value) { writeVFATReg("IPreampIn",  value); };
+	  void setIPreampFeed(uint8_t value) { writeVFATReg("IPreampFeed",value); };
+	  void setIPreampOut( uint8_t value) { writeVFATReg("IPreampOut", value); };
+	  void setIShaper(    uint8_t value) { writeVFATReg("IShaper",    value); };
+	  void setIShaperFeed(uint8_t value) { writeVFATReg("IShaperFeed",value); };
+	  void setIComp(      uint8_t value) { writeVFATReg("IComp",      value); };
 
-	  void setVCal(       uint8_t value  ) { writeReg("VCal",        value); };
-	  void setVThreshold1(uint8_t value  ) { writeReg("VThreshold1", value); };
-	  void setVThreshold2(uint8_t value=0) { writeReg("VThreshold2", value); };
-	  void setCalPhase(   uint8_t value  ) { writeReg("CalPhase",    value); };
+	  void setVCal(       uint8_t value  ) { writeVFATReg("VCal",        value); };
+	  void setVThreshold1(uint8_t value  ) { writeVFATReg("VThreshold1", value); };
+	  void setVThreshold2(uint8_t value=0) { writeVFATReg("VThreshold2", value); };
+	  void setCalPhase(   uint8_t value  ) { writeVFATReg("CalPhase",    value); };
 
 	  /*** may want to be able to set these values to a human readable number
 	       lookup done through a LUT
-	  void setIPreampIn(  float value) { writeReg("IPreampIn",  value); }  ;
-	  void setIPreampFeed(float value) { writeReg("IPreampFeed",value); }  ;
-	  void setIPreampOut( float value) { writeReg("IPreampOut", value); }  ;
-	  void setIShaper(    float value) { writeReg("IShaper",    value); }  ;
-	  void setIShaperFeed(float value) { writeReg("IShaperFeed",value); }  ;
-	  void setIComp(      float value) { writeReg("IComp",      value); }  ;
+	  void setIPreampIn(  float value) { writeVFATReg("IPreampIn",  value); }  ;
+	  void setIPreampFeed(float value) { writeVFATReg("IPreampFeed",value); }  ;
+	  void setIPreampOut( float value) { writeVFATReg("IPreampOut", value); }  ;
+	  void setIShaper(    float value) { writeVFATReg("IShaper",    value); }  ;
+	  void setIShaperFeed(float value) { writeVFATReg("IShaperFeed",value); }  ;
+	  void setIComp(      float value) { writeVFATReg("IComp",      value); }  ;
 
-	  void setVCal(       float value  ) { writeReg("VCal",        value); }  ;
-	  void setVThreshold1(float value  ) { writeReg("VThreshold1", value); }  ;
-	  void setVThreshold2(float value=0) { writeReg("VThreshold2", value); }  ;
-	  void setCalPhase(   float value  ) { writeReg("CalPhase",    value); }  ;
+	  void setVCal(       float value  ) { writeVFATReg("VCal",        value); }  ;
+	  void setVThreshold1(float value  ) { writeVFATReg("VThreshold1", value); }  ;
+	  void setVThreshold2(float value=0) { writeVFATReg("VThreshold2", value); }  ;
+	  void setCalPhase(   float value  ) { writeVFATReg("CalPhase",    value); }  ;
 	  ***/
 	  //////////////////////////////
 
