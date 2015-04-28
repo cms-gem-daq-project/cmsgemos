@@ -100,42 +100,96 @@ namespace gem {
 	 * @param regName name of the register to read 
 	 * @retval returns the 32 bit unsigned value in the register
 	 */
-	virtual uint32_t readReg( std::string const& regName);
+	uint32_t readReg( std::string const& regName);
 
 	/** readReg(std::string const& regPrefix, std::string const& regName)
 	 * @param regPrefix prefix in the address table, possibly root nodes
 	 * @param regName name of the register to read from the address table
 	 * @retval returns the 32 bit unsigned value
 	 */
-	virtual uint32_t readReg( std::string const& regPrefix,
-			  std::string const& regName) {
-	  std::string name = regPrefix+"."+regName;
-	  return readReg(name); };
-	//read list of registers in a single transaction (one dispatch call) into the supplied vector regList
+	uint32_t readReg( const std::string &regPrefix,
+			  const std::string &regName) {
+	  return readReg(regPrefix+"."+regName); };
+
+	/** readRegs( std::vector<std::pair<std::string, uint32_t> > &regList)
+	 * read list of registers in a single transaction (one dispatch call)
+	 * into the supplied vector regList
+	 * @param regList list of register name and uint32_t value to store the result
+	 */
 	void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
 
-	//perform a single write transaction
-	virtual void     writeReg( std::string const& regName, uint32_t const);
-	virtual void     writeReg( std::string const& regPrefix,
-				   std::string const& regName, uint32_t const val) {
-	  std::string name = regPrefix+"."+regName;
-	  return writeReg(name, val); };
-	//write list of registers in a single transaction (one dispatch call) using the supplied vector regList
-	virtual void     writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList);
-	//write single value to a list of registers in a single transaction (one dispatch call) using the supplied vector regList
-	virtual void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue);
-	
-	//write zero to a single register
-	virtual void     zeroReg(  std::string const& regName) { writeReg(regName,0); };
-	//write zero to a list of registers in a single transaction (one dispatch call) using the supplied vector regNames
-	virtual void     zeroRegs( std::vector<std::string> const& regNames);
+	/** writeReg(std::string const& regName, uint32_t const val)
+	 * @param regName name of the register to read 
+	 * @param val value to write to the register
+	 */
+	void     writeReg( std::string const& regName, uint32_t const val);
 
-	virtual std::vector<uint32_t> readBlock( std::string const& regName);
-	virtual std::vector<uint32_t> readBlock( std::string const& regName,
-						 size_t const nWords);
-	virtual void writeBlock(std::string const& regName,
-				std::vector<uint32_t> const values);
-	virtual void zeroBlock( std::string const& regName) { writeReg(regName, 0); }
+	/** writeReg(std::string const& regPrefux, std::string const& regName, uint32_t const val)
+	 * @param regPrefix prefix in the address table to the register
+	 * @param regName name of the register to write to 
+	 * @param val value to write to the register
+	 */
+	void     writeReg( const std::string &regPrefix,
+			   const std::string &regName,
+			   uint32_t const val) {
+	  return writeReg(regPrefix+"."+regName, val); };
+
+	/** writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList)
+	 * write list of registers in a single transaction (one dispatch call)
+	 * using the supplied vector regList
+	 * @param regList std::vector of a pairs of register names and values to write
+	 */
+	void     writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList);
+
+	/** writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList)
+	 * write single value to a list of registers in a single transaction
+	 * (one dispatch call) using the supplied vector regList
+	 * @param regList list of registers to write a value to
+	 * @param regValue uint32_t value to write to the list of registers
+	 */
+	void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue);
+	
+	/** zeroReg(std::string const& regName)
+	 * write zero to a single register
+	 * @param regName register to zero
+	 */
+	void     zeroReg(  std::string const& regName) { writeReg(regName,0); };
+
+	/** zeroRegs(std::vector<std::string> const& regNames)
+	 * write zero to a list of registers in a single transaction (one dispatch call)
+	 * using the supplied vector regNames
+	 * @param regNames registers to zero
+	 */
+	void     zeroRegs( std::vector<std::string> const& regNames);
+
+	/** readBlock(std::string const& regName)
+	 * read from a memory block
+	 * @param regName fixed size memory block to read from
+	 */
+	std::vector<uint32_t> readBlock( std::string const& regName);
+
+	/** readBlock(std::string const& regName, size_t const nWords)
+	 * read from a memory block
+	 * @param regName memory block to read from
+	 * @param nWords size of the memory block to read
+	 * @retval returns a vector of 32 bit unsigned value
+	 */
+	std::vector<uint32_t> readBlock( std::string const& regName,
+					 size_t      const& nWords);
+
+	/** writeBlock(std::string const& regName, std::vector<uint32_t> const values)
+	 * write to a memory block
+	 * @param regName memory block to write to
+	 * @param values list of 32-bit words to write into the memory block
+	 */
+	void writeBlock(std::string           const& regName,
+			std::vector<uint32_t> const values);
+
+	/** zeroBlock( std::string const& regName)
+	 * write zeros to a block of memory
+	 * @param regName block or memory to zero
+	 */
+	void zeroBlock( std::string const& regName);
 
 
 	// These methods provide access to the member variables
@@ -206,6 +260,8 @@ namespace gem {
 	std::string deviceIPAddr_;
 	std::string deviceID_;
 		
+	bool knownErrorCode(std::string const& errCode) const;
+	
 	//std::string registerToChar(uint32_t value) const;	
 
       }; //end class GEMHwDevice
