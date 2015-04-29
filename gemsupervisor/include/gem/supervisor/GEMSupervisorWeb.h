@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_GemSupervisorWeb_h
-#define gem_supervisor_GemSupervisorWeb_h
+#ifndef gem_supervisor_GEMSupervisorWeb_h
+#define gem_supervisor_GEMSupervisorWeb_h
 
 #include "xdaq/Application.h"
 #include "xdaq/WebApplication.h"
@@ -19,13 +19,13 @@ typedef uhal::exception::exception uhalException;
 namespace gem {
   namespace supervisor {
   
-    class GemSupervisorWeb: public xdaq::WebApplication, public xdata::ActionListener
-      //class GemSupervisorWeb: public gem::base::GEMApplication, public xdata::ActionListener
+    class GEMSupervisorWeb: public xdaq::WebApplication, public xdata::ActionListener
+      //class GEMSupervisorWeb: public gem::base::GEMApplication, public xdata::ActionListener
       {
       public:
 	XDAQ_INSTANTIATOR();
       
-	GemSupervisorWeb(xdaq::ApplicationStub * s)
+	GEMSupervisorWeb(xdaq::ApplicationStub * s)
 	  throw (xdaq::exception::Exception);
       
 	void Default(xgi::Input * in, xgi::Output * out )
