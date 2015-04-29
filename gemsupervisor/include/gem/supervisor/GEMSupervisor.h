@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_Simple_h
-#define gem_supervisor_Simple_h
+#ifndef gem_supervisor_GEMSupervisor_h
+#define gem_supervisor_GEMSupervisor_h
 
 #include "xdaq/Application.h"
 #include "xdata/UnsignedLong.h"
@@ -11,11 +11,11 @@
 namespace gem {
   namespace supervisor {
     
-    class GemSupervisor
+    class GEMSupervisor
     {
     public:
-      GemSupervisor();
-      ~GemSupervisor();
+      GEMSupervisor();
+      ~GEMSupervisor();
       
       //      void getSystemFW()
       //      void getUserFW()

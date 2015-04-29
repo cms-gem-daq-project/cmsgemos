@@ -1,14 +1,14 @@
-#include "gemsupervisor/GemSupervisor.h"
+#include "gemsupervisor/GEMSupervisor.h"
 
-gemsupervisor::GemSupervisor::GemSupervisor()
+gemsupervisor::GEMSupervisor::GEMSupervisor()
 {
 
   myParameter_ = 0;
 
-  gemsupervisor::GemSupervisor::initializeConnection();
+  gemsupervisor::GEMSupervisor::initializeConnection();
 }
 
-void gemsupervisor::GemSupervisor::initializeConnection() 
+void gemsupervisor::GEMSupervisor::initializeConnection() 
 {
   char * val;
   val = std::getenv( "GLIBTEST" );
@@ -34,7 +34,7 @@ void gemsupervisor::GemSupervisor::initializeConnection()
 }
 
 
-void gemsupervisor::GemSupervisor::main()
+void gemsupervisor::GEMSupervisor::main()
 {
   uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
   //*hw = manager->getDevice ( "gemsupervisor.udp.0" );
@@ -47,13 +47,13 @@ void gemsupervisor::GemSupervisor::main()
   //std::cout << "System firmware date: "    << formatFW(firmwareID_,1) << std::endl;
   std::cout << "Current value of test register_ = " << testReg_       << std::endl;
   
-  gemsupervisor::GemSupervisor::getTestReg();
+  gemsupervisor::GEMSupervisor::getTestReg();
   std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  gemsupervisor::GemSupervisor::setTestReg(32);
+  gemsupervisor::GEMSupervisor::setTestReg(32);
   std::cout << "Current value of test register_ = " << testReg_       << std::endl;
 }
 
-void gemsupervisor::GemSupervisor::getTestReg()
+void gemsupervisor::GEMSupervisor::getTestReg()
 						 //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
 {
   uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
@@ -67,7 +67,7 @@ void gemsupervisor::GemSupervisor::getTestReg()
   }
   
 }
-void gemsupervisor::GemSupervisor::setTestReg(uint32_t setVal)
+void gemsupervisor::GEMSupervisor::setTestReg(uint32_t setVal)
 						 //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
 {
   testReg_ = setVal;

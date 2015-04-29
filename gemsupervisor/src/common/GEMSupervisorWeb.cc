@@ -1,24 +1,24 @@
-#include "gem/supervisor/GemSupervisorWeb.h"
+#include "gem/supervisor/GEMSupervisorWeb.h"
 #include <sstream>
 #include <cstdlib>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GemSupervisorWeb)
+XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMSupervisorWeb)
 
-gem::supervisor::GemSupervisorWeb::GemSupervisorWeb(xdaq::ApplicationStub * s)
+gem::supervisor::GEMSupervisorWeb::GEMSupervisorWeb(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception):
   //gem::base::GEMApplication(s)
   xdaq::WebApplication(s)
 //, xgi::framework::UIManager(this)
 {
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Default,       "Default"       );
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::setParameter,  "setParameter"  );
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::writeVFATRegs, "writeVFATRegs" );
-  //xgi::framework::deferredbind(this, this, &GemSupervisorWeb::writeUserRegs, "writeUserRegs" );
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Views,         "Views"         );
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Read,          "Read"          );
-  xgi::framework::deferredbind(this, this, &GemSupervisorWeb::Write,         "Write"         );
+  xgi::framework::deferredbind(this, this, &GEMSupervisorWeb::Default,       "Default"       );
+  xgi::framework::deferredbind(this, this, &GEMSupervisorWeb::setParameter,  "setParameter"  );
+  xgi::framework::deferredbind(this, this, &GEMSupervisorWeb::writeVFATRegs, "writeVFATRegs" );
+  //xgi::framework::deferredbind(this, this, &GEMSupervisorWeb::writeUserRegs, "writeUserRegs" );
+  xgi::framework::deferredbind(this, this, &GEMSupervisorWeb::Views,         "Views"         );
+  xgi::framework::deferredbind(this, this, &GEMSupervisorWeb::Read,          "Read"          );
+  xgi::framework::deferredbind(this, this, &GEMSupervisorWeb::Write,         "Write"         );
 
   myAction_    = "";
   myParameter_ = 0;
@@ -109,10 +109,10 @@ gem::supervisor::GemSupervisorWeb::GemSupervisorWeb(xdaq::ApplicationStub * s)
   // Detect when the setting of default parameters has been performed
   this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
   
-  gem::supervisor::GemSupervisorWeb::initializeConnection();
+  gem::supervisor::GEMSupervisorWeb::initializeConnection();
 }
 
-void gem::supervisor::GemSupervisorWeb::actionPerformed (xdata::Event& event)
+void gem::supervisor::GEMSupervisorWeb::actionPerformed (xdata::Event& event)
 {
   if ( event.type() == "urn:xdaq-event:setDefaultValues" )
     {
@@ -131,7 +131,7 @@ void gem::supervisor::GemSupervisorWeb::actionPerformed (xdata::Event& event)
     }
 }
 
-void gem::supervisor::GemSupervisorWeb::initializeConnection() 
+void gem::supervisor::GEMSupervisorWeb::initializeConnection() 
 {
   char * val;
   val = std::getenv( "GLIBTEST" );
@@ -188,7 +188,7 @@ void gem::supervisor::GemSupervisorWeb::initializeConnection()
 }
 
 
-void gem::supervisor::GemSupervisorWeb::Views(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GEMSupervisorWeb::Views(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
   *out << "<div class=\"xdaq-tab-wrapper\">"             << std::endl;
@@ -697,7 +697,7 @@ void gem::supervisor::GemSupervisorWeb::Views(xgi::Input * in, xgi::Output * out
   *out << "</div>" << std::endl;
 }
 
-void gem::supervisor::GemSupervisorWeb::Default(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GEMSupervisorWeb::Default(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
   //uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
@@ -770,7 +770,7 @@ void gem::supervisor::GemSupervisorWeb::Default(xgi::Input * in, xgi::Output * o
        << registerToChar(testReg_) << ")"  << "</br>" << std::endl;
 }
 
-void gem::supervisor::GemSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out)
+void gem::supervisor::GEMSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   try
@@ -797,7 +797,7 @@ void gem::supervisor::GemSupervisorWeb::setParameter(xgi::Input * in, xgi::Outpu
     }
 }
 
-void gem::supervisor::GemSupervisorWeb::Read(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GEMSupervisorWeb::Read(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Reading parameters");
@@ -813,7 +813,7 @@ void gem::supervisor::GemSupervisorWeb::Read(xgi::Input * in, xgi::Output * out 
     }
 }
 
-void gem::supervisor::GemSupervisorWeb::Write(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GEMSupervisorWeb::Write(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing parameter values");
@@ -841,7 +841,7 @@ void gem::supervisor::GemSupervisorWeb::Write(xgi::Input * in, xgi::Output * out
     }
 }
 
-void gem::supervisor::GemSupervisorWeb::writeVFATRegs(xgi::Input * in, xgi::Output * out )
+void gem::supervisor::GEMSupervisorWeb::writeVFATRegs(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing values to vfat registers");
@@ -914,7 +914,7 @@ void gem::supervisor::GemSupervisorWeb::writeVFATRegs(xgi::Input * in, xgi::Outp
   }
 }
 
-//void gem::supervisor::GemSupervisorWeb::writeUserRegs(xgi::Input * in, xgi::Output * out )
+//void gem::supervisor::GEMSupervisorWeb::writeUserRegs(xgi::Input * in, xgi::Output * out )
 //  throw (xgi::exception::Exception)
 //{
 //  LOG4CPLUS_INFO(this->getApplicationLogger(),"Writing values to user registers");
@@ -978,7 +978,7 @@ void gem::supervisor::GemSupervisorWeb::writeVFATRegs(xgi::Input * in, xgi::Outp
 //  }
 //}
 
-  void gem::supervisor::GemSupervisorWeb::getTestReg()
+  void gem::supervisor::GEMSupervisorWeb::getTestReg()
 {
   //uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
   try {
@@ -1119,7 +1119,7 @@ void gem::supervisor::GemSupervisorWeb::writeVFATRegs(xgi::Input * in, xgi::Outp
   }
 }
 
-void gem::supervisor::GemSupervisorWeb::setTestReg(uint32_t myValue)
+void gem::supervisor::GEMSupervisorWeb::setTestReg(uint32_t myValue)
 {
   //uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
   try {
@@ -1142,7 +1142,7 @@ void gem::supervisor::GemSupervisorWeb::setTestReg(uint32_t myValue)
   }
 }
 
-std::string gem::supervisor::GemSupervisorWeb::registerToChar(xdata::UnsignedInteger32 registerValue)
+std::string gem::supervisor::GEMSupervisorWeb::registerToChar(xdata::UnsignedInteger32 registerValue)
 {
   std::string regToChars;
   char fourth = char(registerValue&0xff);
@@ -1157,7 +1157,7 @@ std::string gem::supervisor::GemSupervisorWeb::registerToChar(xdata::UnsignedInt
   return regToChars;
 }
 
-std::string gem::supervisor::GemSupervisorWeb::getIPAddress()
+std::string gem::supervisor::GEMSupervisorWeb::getIPAddress()
 {
   uint32_t ipInfo;
   try {
@@ -1181,17 +1181,17 @@ std::string gem::supervisor::GemSupervisorWeb::getIPAddress()
   return boost::str(boost::format("%d.%d.%d.%d") % first % second % third % fourth);
 }
  
-std::string gem::supervisor::GemSupervisorWeb::formatSystemID(xdata::UnsignedInteger32 myValue)
+std::string gem::supervisor::GEMSupervisorWeb::formatSystemID(xdata::UnsignedInteger32 myValue)
 {
   return registerToChar(myValue);
 }
  
-std::string gem::supervisor::GemSupervisorWeb::formatBoardID(xdata::UnsignedInteger32 myValue)
+std::string gem::supervisor::GEMSupervisorWeb::formatBoardID(xdata::UnsignedInteger32 myValue)
 {
   return registerToChar(myValue);
 }
 
-std::string gem::supervisor::GemSupervisorWeb::formatFW(xdata::UnsignedInteger32 myValue, int type)
+std::string gem::supervisor::GEMSupervisorWeb::formatFW(xdata::UnsignedInteger32 myValue, int type)
 {
   std::string fwVer = "";
   std::string fwDate = "";
