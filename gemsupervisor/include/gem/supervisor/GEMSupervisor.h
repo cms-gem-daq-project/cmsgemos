@@ -11,7 +11,7 @@
 namespace gem {
   namespace supervisor {
     
-    class GEMSupervisor
+    class GEMSupervisor : public GEMFSMApplication
     {
     public:
       GEMSupervisor();
