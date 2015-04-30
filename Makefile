@@ -46,10 +46,10 @@ $(SUBPACKAGES.CLEAN):
 
 gemHwMonitor: gembase gemhardware
 
-gemhardware: gemutils
+gemhardware: gemutils gembase
 
 gembase: gemutils
 
-gemsupervisor: gemhardware
+gemsupervisor: gemhardware gembase
 
 gemutils: 

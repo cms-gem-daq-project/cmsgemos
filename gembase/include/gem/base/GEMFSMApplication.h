@@ -42,6 +42,7 @@ namespace gem {
  	virtual void xgiReset(     xgi::Input *in, xgi::Output *out );
 
 
+	/*
 	// SOAP interface
 	virtual xoap::MessageReference onEnable(     xoap::MessageReference message)
 	  throw (xoap::exception::Exception);
@@ -83,29 +84,30 @@ namespace gem {
 
 	//bool calibrationAction(toolbox::task::WorkLoop *wl);
 	//bool calibrationSequencer(toolbox::task::WorkLoop *wl);
+	*/
 	
 	//state transitions
-	virtual void initializeAction(toolbox::Event::Reference e);
-	virtual void enableAction(    toolbox::Event::Reference e);
-	virtual void configureAction( toolbox::Event::Reference e);
-	virtual void startAction(     toolbox::Event::Reference e);
-	virtual void pauseAction(     toolbox::Event::Reference e);
-	virtual void resumeAction(    toolbox::Event::Reference e);
-	virtual void stopAction(      toolbox::Event::Reference e);
-	virtual void haltAction(      toolbox::Event::Reference e);
-	virtual void noAction(        toolbox::Event::Reference e); 
-	virtual void failAction(      toolbox::Event::Reference e); 
+	virtual void initializeAction(toolbox::Event::Reference e) = 0;
+	virtual void enableAction(    toolbox::Event::Reference e) = 0;
+	virtual void configureAction( toolbox::Event::Reference e) = 0;
+	virtual void startAction(     toolbox::Event::Reference e) = 0;
+	virtual void pauseAction(     toolbox::Event::Reference e) = 0;
+	virtual void resumeAction(    toolbox::Event::Reference e) = 0;
+	virtual void stopAction(      toolbox::Event::Reference e) = 0;
+	virtual void haltAction(      toolbox::Event::Reference e) = 0;
+	virtual void noAction(        toolbox::Event::Reference e) = 0; 
+	virtual void failAction(      toolbox::Event::Reference e) = 0; 
 	
 	virtual void resetAction()//toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
+	  throw (toolbox::fsm::exception::Exception) = 0;
 	
 	virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-	  throw (toolbox::fsm::exception::Exception);
+	  throw (toolbox::fsm::exception::Exception) = 0;
 	virtual void transitionFailed(toolbox::Event::Reference event)
-	  throw (toolbox::fsm::exception::Exception);
+	  throw (toolbox::fsm::exception::Exception) = 0;
 
 	virtual void fireEvent(std::string event)
-	  throw (toolbox::fsm::exception::Exception);
+	  throw (toolbox::fsm::exception::Exception) = 0;
 	
 	virtual xoap::MessageReference changeState(xoap::MessageReference msg);
 	
