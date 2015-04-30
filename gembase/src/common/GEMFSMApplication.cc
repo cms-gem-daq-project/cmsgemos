@@ -310,6 +310,7 @@ gem::base::GEMFSMApplication::stopAction(toolbox::Event::Reference event)
   toolbox::TimeVal deltaT = timeEnd - timeBegin;
   //INFO("StopAction() took " << tcds::utils::formatDeltaTString(timeBegin, timeEnd) << ".");
 }
+*/ 
  
 // This simply forwards the message to the FSM object, since it is
 // technically not possible to bind directly to anything but an
@@ -319,4 +320,3 @@ gem::base::GEMFSMApplication::changeState(xoap::MessageReference msg)
 {
   return gemfsm_.changeState(msg);
 }
-*/ 

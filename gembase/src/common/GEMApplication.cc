@@ -65,8 +65,8 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
 
-  getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
-  //getApplicationInfoSpace()->fireItemAvailable("reasonForFailure", &reasonForFailure_);
+  appInfoSpaceP_->addListener(this, "urn:xdaq-event:setDefaultValues");
+  //appInfoSpaceP_->fireItemAvailable("reasonForFailure", &reasonForFailure_);
   
   DEBUG("gem::base::GEMApplication constructed");
 }
@@ -104,8 +104,7 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
   if (event.type() == "ItemRetrieveEvent" || event.type() == "urn:xdata-event:ItemRetrieveEvent") {
     LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() ItemRetrieveEvent" << 
 		    "");
-  }
-  else if (event.type() == "ItemGroupRetrieveEvent" || event.type() == "urn:xdata-event:ItemGroupRetrieveEvent") {
+  } else if (event.type() == "ItemGroupRetrieveEvent" || event.type() == "urn:xdata-event:ItemGroupRetrieveEvent") {
     LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() ItemGroupRetrieveEvent" << 
 		    "");
   }

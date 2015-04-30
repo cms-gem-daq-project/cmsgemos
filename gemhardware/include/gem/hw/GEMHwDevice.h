@@ -251,6 +251,8 @@ namespace gem {
 	  res << std::hex << char((val2 & uint32_t(0x000000ff)))           << std::dec;
 	  return res.str(); };
 
+	bool is_connected_;
+
 	mutable gem::utils::Lock lock_;
 
       private:
