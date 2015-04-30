@@ -8,6 +8,9 @@
 
 #include "gem/hw/amc13/AMC13ManagerWeb.h"
 #include "gem/hw/amc13/AMC13Manager.h"
+
+#include "gem/hw/amc13/exception/Exception.h"
+
 #include "amc13/AMC13.hh"
 #include "amc13/Status.hh"
 
@@ -23,9 +26,9 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
   getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
 
-  LOG4CPLUS_INFO(getApplicationLogger(), "executing preInit for AMC13Manager");
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "executing preInit for AMC13Manager");
   preInit();
-  LOG4CPLUS_INFO(getApplicationLogger(), "done");
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
   getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/amc13/AMC13Manager.png");
 }
 
@@ -37,9 +40,9 @@ void gem::hw::amc13::AMC13Manager::preInit()
   throw (gem::base::exception::Exception)
 {
   //initialize the AMC13 application objects
-  LOG4CPLUS_INFO(getApplicationLogger(), "connecting to the AMC13ManagerWen interface");
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
   gemWebInterfaceP_ = new gem::hw::amc13::AMC13ManagerWeb(this);
-  LOG4CPLUS_INFO(getApplicationLogger(), "done");
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
   //gemMonitorP_      = new gem::hw::amc13::AMC13HwMonitor();
 
   std::string addressBase  = "${AMC13_ADDRESS_TABLE_PATH}/";
@@ -47,9 +50,15 @@ void gem::hw::amc13::AMC13Manager::preInit()
   std::string friendlyname = "gem.shelf01.amc13.";
   try {
     amc13Device_ = new ::amc13::AMC13(connection,friendlyname+"T1",friendlyname+"T2");
+  } catch (uhal::exception::exception & e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught uhal::exception:") + e.what() );
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (std::exception& e) {
-    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, throwing exception:") + e.what() );
-    XCEPT_RAISE(gem::base::exception::Exception,std::string("Unable to create class: ")+e.what());
+    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught std::exception:") + e.what() );
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+  } catch (...) {
+    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught ...") );
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
   }
 
   LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13::AMC13()");
@@ -60,9 +69,12 @@ void gem::hw::amc13::AMC13Manager::preInit()
     
     amc13Device_->enableAllTTC(); // this is convenient for debugging, works with _some_ firmwares
     
+  } catch (uhal::exception::exception & e) {
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   } catch (std::exception& e) {
-    XCEPT_RAISE(gem::base::exception::Exception,std::string("Problem during preinit : ")+e.what());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13Manager::preInit()");
 }
 
 // This is the callback used for handling xdata:Event objects

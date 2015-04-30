@@ -52,32 +52,32 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
       ss << "device_=[" << device_.toString() << "]" << std::endl;
       ss << "ipAddr_=[" << ipAddr_.toString() << "]" << std::endl;
       ss << "settingsFile_=[" << settingsFile_.toString() << "]" << std::endl;
-      LOG4CPLUS_INFO(getApplicationLogger(), "VFAT2Manager::actionPerformed() Default configuration values have been loaded");
-      LOG4CPLUS_INFO(this->getApplicationLogger(), ss.str());
-      //LOG4CPLUS_INFO(getApplicationLogger(), "VFAT2Manager::actionPerformed()   --> starting monitoring");
+      LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::actionPerformed() Default configuration values have been loaded");
+      LOG4CPLUS_DEBUG(this->getApplicationLogger(), ss.str());
+      //LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::actionPerformed()   --> starting monitoring");
       //monitorP_->startMonitoring();
     }
   //Initialize the HW device, should have picked up the device string from the xml file by now
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::4 device_ = " << device_.toString() << std::endl);
+  LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::4 device_ = " << device_.toString() << std::endl);
   vfatDevice = new HwVFAT2(this->getApplicationLogger(), device_.toString());
   vfatDevice->setDeviceIPAddress(ipAddr_.toString());
   vfatDevice->connectDevice();
   setLogLevelTo(uhal::Error());  // Maximise uHAL logging
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::5 device_ = " << device_.toString() << std::endl);
+  LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::5 device_ = " << device_.toString() << std::endl);
 
   //initialize the vfatParameters struct
   //readVFAT2Registers(vfatParams);
   vfatDevice->getAllSettings();
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"vfatParams:" << std::endl
+  LOG4CPLUS_DEBUG(this->getApplicationLogger(),"vfatParams:" << std::endl
 		 << vfatDevice->getVFAT2Params() << std::endl);
   //readVFAT2Registers();
   vfatParams_ = vfatDevice->getVFAT2Params();
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::6 device_ = " << device_.toString() << std::endl);
+  LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::6 device_ = " << device_.toString() << std::endl);
   
   if (vfatDevice->isHwConnected())
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2 device is connected, continuing to read registers");
+    LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2 device is connected, continuing to read registers");
   else {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2 device is not connected");
+    LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2 device is not connected");
   }
   
 }
@@ -91,9 +91,9 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
   //try the hardware connection
   try {
     if (vfatDevice->isHwConnected())
-      LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2 device is connected, continuing to read registers");
+      LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2 device is connected, continuing to read registers");
     else {
-      LOG4CPLUS_INFO(this->getApplicationLogger(),"VFAT2 device is not connected");
+      LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2 device is not connected");
       return;
     }
     uhal::HwInterface hw = vfatDevice->getVFAT2HwInterface();
@@ -724,7 +724,7 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
      */
   }
 
-  LOG4CPLUS_INFO(this->getApplicationLogger(), "performAction::reading options");
+  LOG4CPLUS_DEBUG(this->getApplicationLogger(), "performAction::reading options");
   std::string controlOption = "";
   std::string channelOption = "";
   //try {

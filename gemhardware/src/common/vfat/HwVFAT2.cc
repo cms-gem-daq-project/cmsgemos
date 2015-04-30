@@ -275,53 +275,53 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
   //maybe find a way to do a single transaction, using the vector read/write?
   //what is the performance cost/benefit
 
-  INFO("getting all settings in HwVFAT2.cc");
+  DEBUG("getting all settings in HwVFAT2.cc");
   uint8_t cont0 = readVFATReg("ContReg0");
   uint8_t cont1 = readVFATReg("ContReg1");
   uint8_t cont2 = readVFATReg("ContReg2");
   uint8_t cont3 = readVFATReg("ContReg3");
   
-  INFO("getting all settings in HwVFAT2.cc");
+  DEBUG("getting all settings in HwVFAT2.cc");
   vfatParams_.control0 = static_cast<unsigned>(cont0);
-  INFO("getting all settings in HwVFAT2.cc");
+  DEBUG("getting all settings in HwVFAT2.cc");
   vfatParams_.control1 = static_cast<unsigned>(cont1);
-  INFO("getting all settings in HwVFAT2.cc");
+  DEBUG("getting all settings in HwVFAT2.cc");
   vfatParams_.control2 = static_cast<unsigned>(cont2);
-  INFO("getting all settings in HwVFAT2.cc");
+  DEBUG("getting all settings in HwVFAT2.cc");
   vfatParams_.control3 = static_cast<unsigned>(cont3);
 
-  INFO("storing RunMode in HwVFAT2.cc");
+  DEBUG("storing RunMode in HwVFAT2.cc");
   vfatParams_.runMode   = static_cast<VFAT2RunMode  >(getRunMode(        cont0));
-  INFO("storing TriggerMode in HwVFAT2.cc");
+  DEBUG("storing TriggerMode in HwVFAT2.cc");
   vfatParams_.trigMode  = static_cast<VFAT2TrigMode >(getTriggerMode(    cont0));
-  INFO("storing MSPolarity in HwVFAT2.cc");
+  DEBUG("storing MSPolarity in HwVFAT2.cc");
   vfatParams_.msPol     = static_cast<VFAT2MSPol    >(getMSPolarity(     cont0));
-  INFO("storing CalPolarity in HwVFAT2.cc");
+  DEBUG("storing CalPolarity in HwVFAT2.cc");
   vfatParams_.calPol    = static_cast<VFAT2CalPol   >(getCalPolarity(    cont0));
-  INFO("storing CalibrationMode in HwVFAT2.cc");
+  DEBUG("storing CalibrationMode in HwVFAT2.cc");
   vfatParams_.calibMode = static_cast<VFAT2CalibMode>(getCalibrationMode(cont0));
   
-  INFO("storing DACMode in HwVFAT2.cc");
+  DEBUG("storing DACMode in HwVFAT2.cc");
   vfatParams_.dacMode   = static_cast<VFAT2DACMode  >(getDACMode(          cont1));
-  INFO("storing ProbeMode in HwVFAT2.cc");
+  DEBUG("storing ProbeMode in HwVFAT2.cc");
   vfatParams_.probeMode = static_cast<VFAT2ProbeMode>(getProbeMode(        cont1));
-  INFO("storing LVDSMode in HwVFAT2.cc");
+  DEBUG("storing LVDSMode in HwVFAT2.cc");
   vfatParams_.lvdsMode  = static_cast<VFAT2LVDSMode >(getLVDSMode(         cont1));
-  INFO("storing HitCycleTime in HwVFAT2.cc");
+  DEBUG("storing HitCycleTime in HwVFAT2.cc");
   vfatParams_.reHitCT   = static_cast<VFAT2ReHitCT  >(getHitCountCycleTime(cont1));
   
-  INFO("storing HitCountMode in HwVFAT2.cc");
+  DEBUG("storing HitCountMode in HwVFAT2.cc");
   vfatParams_.hitCountMode = static_cast<VFAT2HitCountMode >(getHitCountMode( cont2));
-  INFO("storing MSPulseLength in HwVFAT2.cc");
+  DEBUG("storing MSPulseLength in HwVFAT2.cc");
   vfatParams_.msPulseLen   = static_cast<VFAT2MSPulseLength>(getMSPulseLength(cont2));
-  INFO("storing DigInSel in HwVFAT2.cc");
+  DEBUG("storing DigInSel in HwVFAT2.cc");
   vfatParams_.digInSel     = static_cast<VFAT2DigInSel     >(getInputPadMode( cont2));
   
-  INFO("storing TrimDACRange in HwVFAT2.cc");
+  DEBUG("storing TrimDACRange in HwVFAT2.cc");
   vfatParams_.trimDACRange    = static_cast<VFAT2TrimDACRange >(getTrimDACRange(   cont3));
-  INFO("storing PadBandgap in HwVFAT2.cc");
+  DEBUG("storing PadBandgap in HwVFAT2.cc");
   vfatParams_.padBandGap      = static_cast<VFAT2PadBandgap   >(getBandgapPad(     cont3));
-  INFO("storing DFTestPattern HwVFAT2.cc");
+  DEBUG("storing DFTestPattern HwVFAT2.cc");
   vfatParams_.sendTestPattern = static_cast<VFAT2DFTestPattern>(getTestPatternMode(cont3));
   
   vfatParams_.latency = getLatency();
@@ -339,7 +339,7 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
   vfatParams_.calPhase = getCalPhase()   ;
 
   //counters
-  INFO("getting all counters in HwVFAT2.cc");
+  DEBUG("getting all counters in HwVFAT2.cc");
   //readVFAT2Counters(params);
   readVFAT2Counters();
   
