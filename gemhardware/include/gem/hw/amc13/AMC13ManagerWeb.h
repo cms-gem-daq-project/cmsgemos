@@ -55,6 +55,7 @@ namespace gem {
 	  */
 	
 	private:
+	  size_t level;
 	  //AMC13Manager *amc13ManagerP_;
 	  //AMC13ManagerWeb(AMC13ManagerWeb const&);
 	  
