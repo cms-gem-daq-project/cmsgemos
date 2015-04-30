@@ -155,8 +155,11 @@ void gem::hw::GEMHwDevice::connectDevice()
   }
   
   gemHWP_ = tmpHWP;
-  INFO("Successfully connected to the hardware.");
-
+  if (isHwConnected())
+    INFO("Successfully connected to the hardware.");
+  else
+    INFO("Unable to establish connection with the hardware.");
+  //maybe rais exception here?
 }
 
 void gem::hw::GEMHwDevice::configureDevice()

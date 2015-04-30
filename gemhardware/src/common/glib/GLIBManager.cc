@@ -2,7 +2,7 @@
  * class: GLIBManager
  * description: Manager application for GLIB cards
  *              structure borrowed from TCDS core, with nods to HCAL and EMU code
- * author: 
+ * author: J. Sturdy
  * date: 
  */
 

@@ -46,7 +46,7 @@ namespace gem {
 	  
 	private:
 	  
-	  gem::hw::glib::HwGLIB* m_GLIBs[MAX_GLIBS_PER_CRATE];
+	  HwGLIB* m_GLIBs[MAX_GLIBS_PER_CRATE];
 	  
 	}; //end class GLIBManager
 

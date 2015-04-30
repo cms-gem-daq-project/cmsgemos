@@ -20,33 +20,33 @@ namespace gem {
 	  ~GLIBManagerWeb();
 
 	protected:
-	  void monitorPage(xgi::Input *in, xgi::Output *out)
+	  virtual void monitorPage(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);
 	
-	  void expertPage(xgi::Input *in, xgi::Output *out)
+	  virtual void expertPage(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);
 
 	  //FSM web callbacks
-	  void webInitialize(xgi::Input *in, xgi::Output *out )
+	  virtual void webInitialize(xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
-	  void webEnable(    xgi::Input *in, xgi::Output *out )
+	  virtual void webEnable(    xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
-	  void webConfigure( xgi::Input *in, xgi::Output *out )
+	  virtual void webConfigure( xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
-	  void webStart(     xgi::Input *in, xgi::Output *out )
+	  virtual void webStart(     xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
-	  void webPause(     xgi::Input *in, xgi::Output *out )
+	  virtual void webPause(     xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
-	  void webResume(    xgi::Input *in, xgi::Output *out )
+	  virtual void webResume(    xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
-	  void webStop(      xgi::Input *in, xgi::Output *out )
+	  virtual void webStop(      xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
-	  void webHalt(      xgi::Input *in, xgi::Output *out )
+	  virtual void webHalt(      xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
-	  void webReset(     xgi::Input *in, xgi::Output *out )
+	  virtual void webReset(     xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
 	  
-	  void webRedirect(  xgi::Input *in, xgi::Output *out )
+	  virtual void webRedirect(  xgi::Input *in, xgi::Output *out )
 	    throw (xgi::exception::Exception);
 	  
 	
