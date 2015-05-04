@@ -372,7 +372,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
             hw_semaphore_.take();
 
             // Define device
-            vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, "VFAT12");
+            vfatDevice_ = new gem::hw::vfat::HwVFAT2(this->getApplicationLogger(), "VFAT12");
 
             vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
             vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
