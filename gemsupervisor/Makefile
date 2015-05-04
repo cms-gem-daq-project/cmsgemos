@@ -17,7 +17,7 @@ PackageName=supervisor
 
 #Sources= GEMTestBeamSupervisor.cc GEMTestBeamSupervisorWeb.cc
 Sources= tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc
-Sources += GEMGLIBSupervisorWeb.cc GEMDataParker.cc
+#Sources += GEMGLIBSupervisorWeb.cc GEMDataParker.cc
 Sources += GEMSupervisor.cc GEMSupervisorWeb.cc
 
 DynamicLibrary=gem_supervisor

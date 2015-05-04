@@ -6,7 +6,7 @@
 #include "xcept/tools.h"
 
 
-gem::supervisor::GEMSupervisorWeb::GEMSupervisorWeb(gem::supervisor::GEMSupervisor* gemSupervisorApp)
+gem::supervisor::GEMSupervisorWeb::GEMSupervisorWeb(gem::supervisor::GEMSupervisor* gemSupervisorApp) :
   gem::base::GEMWebApplication(gemSupervisorApp)
 {
   level = 5;
