@@ -18,7 +18,7 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
-#define MAX_VFAT_RETRIES 25
+#define MAX_IPBUS_RETRIES 25
 
 typedef uhal::exception::exception uhalException;
 
@@ -54,16 +54,14 @@ namespace gem {
 	
 	/** 
 	 * GEMHwDevice constructor 
-	 * @param xdaqApp pointer to xdaq::Application
-	 * (this is only used to access the logger, so we can bypass it I believe)
-	 **/
-	GEMHwDevice(xdaq::Application* xdaqApp);
-
-	/** 
-	 * GEMHwDevice constructor 
 	 * @param gemLogger pointer to log4cplus::Logger
 	 **/
-	GEMHwDevice(const log4cplus::Logger& gemLogger);
+	GEMHwDevice(const log4cplus::Logger& gemLogger
+		    /*xdaq::InfoSpace* const configInfoSpace
+		      xdaq::InfoSpace* const monitorInfoSpace
+		      gem::hw::GMEHwMonitor* const hwMonitor
+		     */
+		    );
 
 	/*
 	GEMHwDevice(xdaq::Application* xdaqApp,
@@ -167,6 +165,7 @@ namespace gem {
 	 * @param regName fixed size memory block to read from
 	 */
 	std::vector<uint32_t> readBlock( std::string const& regName);
+	//size_t readBlock( std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
 
 	/** readBlock(std::string const& regName, size_t const nWords)
 	 * read from a memory block
@@ -253,7 +252,7 @@ namespace gem {
 
 	bool is_connected_;
 
-	mutable gem::utils::Lock lock_;
+	mutable gem::utils::Lock hwLock_;
 
       private:
 	std::string addressTable_;
