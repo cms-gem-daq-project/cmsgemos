@@ -18,6 +18,7 @@ XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Manager);
 
 gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
+  deviceLock_(toolbox::BSem::FULL, true),
   amc13Device_(0)
 {
   m_crateID = -1;
@@ -25,6 +26,12 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   
   getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
   getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
+
+  //initialize the AMC13Manager application objects
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
+  gemWebInterfaceP_ = new gem::hw::amc13::AMC13ManagerWeb(this);
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
+  //gemMonitorP_      = new gem::hw::amc13::AMC13HwMonitor();
 
   LOG4CPLUS_DEBUG(getApplicationLogger(), "executing preInit for AMC13Manager");
   preInit();
@@ -39,16 +46,11 @@ gem::hw::amc13::AMC13Manager::~AMC13Manager() {
 void gem::hw::amc13::AMC13Manager::preInit()
   throw (gem::base::exception::Exception)
 {
-  //initialize the AMC13 application objects
-  LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
-  gemWebInterfaceP_ = new gem::hw::amc13::AMC13ManagerWeb(this);
-  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
-  //gemMonitorP_      = new gem::hw::amc13::AMC13HwMonitor();
-
   std::string addressBase  = "${AMC13_ADDRESS_TABLE_PATH}/";
   std::string connection   = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/connectionSN170_ch.xml";
   std::string friendlyname = "gem.shelf01.amc13.";
   try {
+    gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
     amc13Device_ = new ::amc13::AMC13(connection,friendlyname+"T1",friendlyname+"T2");
   } catch (uhal::exception::exception & e) {
     LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught uhal::exception:") + e.what() );
@@ -65,6 +67,7 @@ void gem::hw::amc13::AMC13Manager::preInit()
 
   try {
     // just T2-related work here.
+    gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
     amc13Device_->reset(::amc13::AMC13::T2);
     
     amc13Device_->enableAllTTC(); // this is convenient for debugging, works with _some_ firmwares
@@ -96,13 +99,16 @@ void gem::hw::amc13::AMC13Manager::init()
 
   LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::init()");
   if (amc13Device_==0) return;
-  
+
+  //have to set up the initialization of the AMC13 for the desired running situation
+  //possibilities are TTC/TCDS mode, DAQ link, local trigger scheme
 }
 
 void gem::hw::amc13::AMC13Manager::enable()
   throw (gem::base::exception::Exception) {
   LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::enable()");
   //gem::base::GEMFSMApplication::enable();
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
   amc13Device_->startRun();
 }
 
@@ -110,10 +116,12 @@ void gem::hw::amc13::AMC13Manager::disable()
   throw (gem::base::exception::Exception) {
   LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::disable()");
   //gem::base::GEMFSMApplication::disable();
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
   amc13Device_->endRun();
 }
 
 ::amc13::Status* gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
   return amc13Device_->getStatus(); 
 }
 
@@ -173,15 +181,15 @@ void gem::hw::amc13::AMC13Manager::haltAction(      toolbox::Event::Reference e)
 void gem::hw::amc13::AMC13Manager::noAction(        toolbox::Event::Reference e) {}; 
 void gem::hw::amc13::AMC13Manager::failAction(      toolbox::Event::Reference e) {}; 
 	
-void gem::hw::amc13::AMC13Manager::resetAction()//toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {};
+// void gem::hw::amc13::AMC13Manager::resetAction()//toolbox::Event::Reference e)
+//   throw (toolbox::fsm::exception::Exception) {};
 	
-void gem::hw::amc13::AMC13Manager::stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-  throw (toolbox::fsm::exception::Exception) {};
-void gem::hw::amc13::AMC13Manager::transitionFailed(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception) {};
+// void gem::hw::amc13::AMC13Manager::stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
+//   throw (toolbox::fsm::exception::Exception) {};
+// void gem::hw::amc13::AMC13Manager::transitionFailed(toolbox::Event::Reference event)
+//   throw (toolbox::fsm::exception::Exception) {};
 
-void gem::hw::amc13::AMC13Manager::fireEvent(std::string event)
-  throw (toolbox::fsm::exception::Exception) {};
+// void gem::hw::amc13::AMC13Manager::fireEvent(std::string event)
+//   throw (toolbox::fsm::exception::Exception) {};
 	
-xoap::MessageReference gem::hw::amc13::AMC13Manager::changeState(xoap::MessageReference msg) {};
+// xoap::MessageReference gem::hw::amc13::AMC13Manager::changeState(xoap::MessageReference msg) {};
