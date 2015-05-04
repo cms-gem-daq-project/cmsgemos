@@ -20,7 +20,7 @@ namespace gem {
     public:
       XDAQ_INSTANTIATOR();
 
-      virtual GEMSupervisor(xdaq::ApplicationStub* s);
+      GEMSupervisor(xdaq::ApplicationStub* s);
 
       virtual ~GEMSupervisor();
       

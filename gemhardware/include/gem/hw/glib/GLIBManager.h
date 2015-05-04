@@ -33,7 +33,7 @@ namespace gem {
 	{
 	  
 	public:
-	  GLIBManager(xdaq::ApplicationStub * s);
+	  GLIBManager(xdaq::ApplicationStub* s);
 
 	  ~GLIBManager();
 

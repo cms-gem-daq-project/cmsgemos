@@ -15,8 +15,7 @@ namespace gem {
 	//friend class GEMMonitor;
 	//friend class GEMSupervisor;
       public:
-	GEMSupervisorWeb(GEMSupervisor *gemSupervisorApp)
-	  throw (xgi::exception::Exception);
+	GEMSupervisorWeb(GEMSupervisor *gemSupervisorApp);
 	
 	virtual ~GEMSupervisorWeb();
 	
