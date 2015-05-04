@@ -43,6 +43,7 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   gemfsmP_ = new toolbox::fsm::AsynchronousFiniteStateMachine(commandLoopName.str());
 
   // A map to look up the names of the 'intermediate' state transitions.
+  //TCDS does things this way, is it the right way for GEMs?
   lookupMap_["Initializing"] = "Initialized";// Initialized
   lookupMap_["Configuring"]  = "Configured" ;// Configured
   lookupMap_["Halting"]      = "Halted"     ;// Halted
@@ -70,34 +71,50 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
 
   /*State transitions*/
   // Initialize: I -> H., connect hardware, perform basic checks, (load firware?)
-  gemfsmP_->addStateTransition(STATE_INITIAL, STATE_HALTED, "Initialize", gemAppP_, &gem::base::GEMFSMApplication::initializeAction);
+  gemfsmP_->addStateTransition(STATE_INITIAL, STATE_HALTED, "Initialize", gemAppP_,
+			       &gem::base::GEMFSMApplication::initializeAction);
 
   // Configure: H/C/E/P -> C., configure hardware, set default parameters
-  gemfsmP_->addStateTransition(STATE_HALTED,     STATE_CONFIGURED, "Configure", gemAppP_, &gem::base::GEMFSMApplication::configureAction);
-  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_CONFIGURED, "Configure", gemAppP_, &gem::base::GEMFSMApplication::configureAction);
-  gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_CONFIGURED, "Configure", gemAppP_, &gem::base::GEMFSMApplication::configureAction);
-  gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_CONFIGURED, "Configure", gemAppP_, &gem::base::GEMFSMApplication::configureAction);
+  gemfsmP_->addStateTransition(STATE_HALTED,     STATE_CONFIGURED, "Configure", gemAppP_,
+			       &gem::base::GEMFSMApplication::configureAction);
+  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_CONFIGURED, "Configure", gemAppP_,
+			       &gem::base::GEMFSMApplication::configureAction);
+  gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_CONFIGURED, "Configure", gemAppP_,
+			       &gem::base::GEMFSMApplication::configureAction);
+  gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_CONFIGURED, "Configure", gemAppP_,
+			       &gem::base::GEMFSMApplication::configureAction);
 
   // Start: C -> E., enable links for data to flow from front ends to back ends
-  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_RUNNING, "Start", gemAppP_, &gem::base::GEMFSMApplication::startAction);
+  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_RUNNING, "Start", gemAppP_,
+			       &gem::base::GEMFSMApplication::startAction);
   
   // Pause: E -> P. pause data flow, links stay alive, TTC/TTS counters stay active
-  gemfsmP_->addStateTransition(STATE_RUNNING, STATE_PAUSED, "Pause", gemAppP_, &gem::base::GEMFSMApplication::pauseAction);
+  gemfsmP_->addStateTransition(STATE_RUNNING, STATE_PAUSED, "Pause", gemAppP_,
+			       &gem::base::GEMFSMApplication::pauseAction);
   
   // Resume: P -> E., resume data flow
-  gemfsmP_->addStateTransition(STATE_PAUSED, STATE_RUNNING, "Resume", gemAppP_, &gem::base::GEMFSMApplication::resumeAction);
+  gemfsmP_->addStateTransition(STATE_PAUSED, STATE_RUNNING, "Resume", gemAppP_,
+			       &gem::base::GEMFSMApplication::resumeAction);
   
   // Stop: C/E/P -> C., stop data flow, disable links
-  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_CONFIGURED, "Stop", gemAppP_, &gem::base::GEMFSMApplication::stopAction);
-  gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_CONFIGURED, "Stop", gemAppP_, &gem::base::GEMFSMApplication::stopAction);
-  gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_CONFIGURED, "Stop", gemAppP_, &gem::base::GEMFSMApplication::stopAction);
+  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_CONFIGURED, "Stop", gemAppP_,
+			       &gem::base::GEMFSMApplication::stopAction);
+  gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_CONFIGURED, "Stop", gemAppP_,
+			       &gem::base::GEMFSMApplication::stopAction);
+  gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_CONFIGURED, "Stop", gemAppP_,
+			       &gem::base::GEMFSMApplication::stopAction);
   
   // Halt: C/E/F/H/P/ -> H., reset hardware state to pre-configured state
-  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_HALTED, "Halt", gemAppP_, &gem::base::GEMFSMApplication::haltAction);
-  gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_HALTED, "Halt", gemAppP_, &gem::base::GEMFSMApplication::haltAction);
-  gemfsmP_->addStateTransition(STATE_FAILED,     STATE_HALTED, "Halt", gemAppP_, &gem::base::GEMFSMApplication::haltAction);
-  gemfsmP_->addStateTransition(STATE_HALTED,     STATE_HALTED, "Halt", gemAppP_, &gem::base::GEMFSMApplication::haltAction);
-  gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_HALTED, "Halt", gemAppP_, &gem::base::GEMFSMApplication::haltAction);
+  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_HALTED, "Halt", gemAppP_,
+			       &gem::base::GEMFSMApplication::haltAction);
+  gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_HALTED, "Halt", gemAppP_,
+			       &gem::base::GEMFSMApplication::haltAction);
+  gemfsmP_->addStateTransition(STATE_FAILED,     STATE_HALTED, "Halt", gemAppP_,
+			       &gem::base::GEMFSMApplication::haltAction);
+  gemfsmP_->addStateTransition(STATE_HALTED,     STATE_HALTED, "Halt", gemAppP_,
+			       &gem::base::GEMFSMApplication::haltAction);
+  gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_HALTED, "Halt", gemAppP_,
+			       &gem::base::GEMFSMApplication::haltAction);
   
   // Error: I/H/C/E/P -> F.
   /*
@@ -257,11 +274,9 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   std::map<std::string, std::string>::const_iterator iter = lookupMap_.find(state_);
   if (iter != lookupMap_.end()) {
     std::string commandName = iter->second;
-    DEBUG("DEBUG JGH '"
-	  << state_
+    DEBUG("DEBUG JGH '" << state_
 	  << "' is an intermediate state --> forwarding to '"
-	  << commandName
-	  << "'");
+	  << commandName << "'");
     
     // // BUG BUG BUG
     // // Slow things down a bit during development.
@@ -303,7 +318,7 @@ void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
   std::string requestedState = invalidInputEvent.getInput();
   
   std::string message = toolbox::toString("An invalid state transition has been received:"
-					  "requested transition to '%s' from '%s'.",
+					  " requested transition to '%s' from '%s'.",
 					  requestedState.c_str(), initialState.c_str());
   ERROR(message);
   gotoFailed(message);

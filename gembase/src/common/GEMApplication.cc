@@ -66,6 +66,8 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
 
   appInfoSpaceP_->addListener(this, "urn:xdaq-event:setDefaultValues");
+  appInfoSpaceP_->fireItemAvailable("configuration:parameters", configInfoSpaceP_ );
+  appInfoSpaceP_->fireItemAvailable("monitoring:parameters",    monitorInfoSpaceP_);
   //appInfoSpaceP_->fireItemAvailable("reasonForFailure", &reasonForFailure_);
   
   DEBUG("gem::base::GEMApplication constructed");
@@ -125,6 +127,36 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
     */
   }
 }
+
+void gem::base::GEMApplication::importConfigurationParameters() {
+  //parse the xml configuration file or db configuration information
+}
+
+
+void gem::base::GEMApplication::fillConfigurationInfoSpace() {
+  //put the configuration parameters into the configuration infospace
+}
+
+
+void gem::base::GEMApplication::updateConfigurationInfoSpace() {
+  //update the configuration infospace object with new items
+}
+
+
+void gem::base::GEMApplication::importMonitoringParameters() {
+  //parse the xml monitoring file or db monitoring information
+}
+
+
+void gem::base::GEMApplication::fillMonitoringInfoSpace() {
+  //put the monitoring parameters into the monitoring infospace
+}
+
+
+void gem::base::GEMApplication::updateMonitoringInfoSpace() {
+  //update the monitoring infospace object with new items
+}
+
 
 void gem::base::GEMApplication::xgiMonitor(xgi::Input* in, xgi::Output* out) {
   gemWebInterfaceP_->monitorPage(in,out);

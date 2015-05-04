@@ -70,11 +70,21 @@ namespace gem {
       protected:
 	log4cplus::Logger gemLogger_;
 
+	xdata::InfoSpace *appInfoSpaceP_;             /*generic application parameters */
+	xdata::InfoSpace *monitorInfoSpaceP_;         /*monitoring parameters, stored in the appInfoSpace */
+	xdata::InfoSpace *configInfoSpaceP_;          /*configuration parameters, stored in the appInfoSpace */
+						    
+	virtual void importConfigurationParameters();
+	virtual void fillConfigurationInfoSpace();
+	virtual void updateConfigurationInfoSpace();
+
+	virtual void importMonitoringParameters();
+	virtual void fillMonitoringInfoSpace();
+	virtual void updateMonitoringInfoSpace();
+
 	virtual GEMWebApplication*  getWebApp()  const { return gemWebInterfaceP_; };
 	virtual GEMMonitor*         getMonitor() const { return gemMonitorP_;      };
 
-	xdata::InfoSpace *appInfoSpaceP_;             /* */
-						    
 	GEMWebApplication* gemWebInterfaceP_; /* */
 	GEMMonitor*        gemMonitorP_;      /* */
 
@@ -90,7 +100,7 @@ namespace gem {
 
 	std::string xmlClass_;
 	unsigned long instance_;
-	std::string urn_;	
+	std::string urn_;
 	
         //xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
 

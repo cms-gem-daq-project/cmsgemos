@@ -99,15 +99,15 @@ namespace gem {
 	virtual void failAction(      toolbox::Event::Reference e) = 0; 
 	
 	virtual void resetAction()//toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception) = 0;
+	  throw (toolbox::fsm::exception::Exception);
 	
 	virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-	  throw (toolbox::fsm::exception::Exception) = 0;
+	  throw (toolbox::fsm::exception::Exception);
 	virtual void transitionFailed(toolbox::Event::Reference event)
-	  throw (toolbox::fsm::exception::Exception) = 0;
+	  throw (toolbox::fsm::exception::Exception);
 
 	virtual void fireEvent(std::string event)
-	  throw (toolbox::fsm::exception::Exception) = 0;
+	  throw (toolbox::fsm::exception::Exception);
 	
 	virtual xoap::MessageReference changeState(xoap::MessageReference msg);
 	

@@ -311,8 +311,32 @@ gem::base::GEMFSMApplication::stopAction(toolbox::Event::Reference event)
   //INFO("StopAction() took " << tcds::utils::formatDeltaTString(timeBegin, timeEnd) << ".");
 }
 */ 
+
+//state transitions
+void gem::base::GEMFSMApplication::initializeAction(toolbox::Event::Reference e) {};
+void gem::base::GEMFSMApplication::enableAction(    toolbox::Event::Reference e) {};
+void gem::base::GEMFSMApplication::configureAction( toolbox::Event::Reference e) {};
+void gem::base::GEMFSMApplication::startAction(     toolbox::Event::Reference e) {};
+void gem::base::GEMFSMApplication::pauseAction(     toolbox::Event::Reference e) {};
+void gem::base::GEMFSMApplication::resumeAction(    toolbox::Event::Reference e) {};
+void gem::base::GEMFSMApplication::stopAction(      toolbox::Event::Reference e) {};
+void gem::base::GEMFSMApplication::haltAction(      toolbox::Event::Reference e) {};
+void gem::base::GEMFSMApplication::noAction(        toolbox::Event::Reference e) {}; 
+void gem::base::GEMFSMApplication::failAction(      toolbox::Event::Reference e) {}; 
+	
+void gem::base::GEMFSMApplication::resetAction()//toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {};
+	
+void gem::base::GEMFSMApplication::stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
+  throw (toolbox::fsm::exception::Exception) {};
+void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference event)
+  throw (toolbox::fsm::exception::Exception) {};
+
+void gem::base::GEMFSMApplication::fireEvent(std::string event)
+  throw (toolbox::fsm::exception::Exception) {};
+	
  
-// This simply forwards the message to the FSM object, since it is
+// This simply forwards the message to the GEMFSM object, since it is
 // technically not possible to bind directly to anything but an
 // xdaq::Application.
 xoap::MessageReference
