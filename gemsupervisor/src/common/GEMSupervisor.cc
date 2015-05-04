@@ -1,92 +1,76 @@
-#include "gemsupervisor/GEMSupervisor.h"
+/**
+ * class: GEMSupervisor
+ * description: Supervisor application for GEM system
+ *              structure borrowed from TCDS core, with nods to HCAL (DTCManager)
+ * author: J. Sturdy
+ * date: 
+ */
 
-gemsupervisor::GEMSupervisor::GEMSupervisor()
+#include "gem/supervisor/GEMSupervisorWeb.h"
+#include "gem/supervisor/GEMSupervisor.h"
+
+#include "gem/supervisor/exception/Exception.h"
+
+XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMSupervisor);
+
+gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
+  gem::base::GEMFSMApplication(stub)
 {
 
-  myParameter_ = 0;
+  //getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
+  //getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
+  //initialize the AMC13Manager application objects
 
-  gemsupervisor::GEMSupervisor::initializeConnection();
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "Creating the GEMSupervisorWeb interface");
+  gemWebInterfaceP_ = new gem::supervisor::GEMSupervisorWeb(this);
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
+  //gemMonitorP_      = new gem generic system monitor
+  
+  //where can we get some nice PNG images for our different applications?
+  getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemsupervisor/images/supervisor/GEMSupervisor.png");
 }
 
-void gemsupervisor::GEMSupervisor::initializeConnection() 
+gem::supervisor::GEMSupervisor::~GEMSupervisor() {
+  
+}
+
+
+// This is the callback used for handling xdata:Event objects
+void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
 {
-  char * val;
-  val = std::getenv( "GLIBTEST" );
-  std::string dirVal = "";
-  if (val != NULL) {
-    dirVal = val;
+  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
+    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMSupervisor::actionPerformed() setDefaultValues" << 
+		    "Default configuration values have been loaded from xml profile");
+    importConfigurationParameters();
+    importMonitoringParameters();
+    //gemMonitorP_->startMonitoring();
   }
-  else {
-    std::cout<<"$GLIBTEST not set, exiting"<<std::endl;
-    exit(1);
-  }
-  
-  //setLogLevelTo(uhal::Debug());  // Maximise uHAL logging
-  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
-  char connectionPath[128];
-  try {
-    sprintf(connectionPath,"file://%s/data/myconnections.xml;",dirVal.c_str());
-    manager = new uhal::ConnectionManager( connectionPath );
-  }
-  catch (const std::exception& e) {
-    std::cout << "Something went wrong initializing the connection: " << e.what() << std::endl;
-  }
+  // update monitoring variables
+  gem::base::GEMApplication::actionPerformed(event);
 }
 
+//state transitions
+void gem::supervisor::GEMSupervisor::initializeAction(toolbox::Event::Reference e) {};
+void gem::supervisor::GEMSupervisor::enableAction(    toolbox::Event::Reference e) {};
+void gem::supervisor::GEMSupervisor::configureAction( toolbox::Event::Reference e) {};
+void gem::supervisor::GEMSupervisor::startAction(     toolbox::Event::Reference e) {};
+void gem::supervisor::GEMSupervisor::pauseAction(     toolbox::Event::Reference e) {};
+void gem::supervisor::GEMSupervisor::resumeAction(    toolbox::Event::Reference e) {};
+void gem::supervisor::GEMSupervisor::stopAction(      toolbox::Event::Reference e) {};
+void gem::supervisor::GEMSupervisor::haltAction(      toolbox::Event::Reference e) {};
+void gem::supervisor::GEMSupervisor::noAction(        toolbox::Event::Reference e) {}; 
+void gem::supervisor::GEMSupervisor::failAction(      toolbox::Event::Reference e) {}; 
+	
+void gem::supervisor::GEMSupervisor::resetAction()//toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {};
+	
+void gem::supervisor::GEMSupervisor::stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
+  throw (toolbox::fsm::exception::Exception) {};
+void gem::supervisor::GEMSupervisor::transitionFailed(toolbox::Event::Reference event)
+  throw (toolbox::fsm::exception::Exception) {};
 
-void gemsupervisor::GEMSupervisor::main()
-{
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  //*hw = manager->getDevice ( "gemsupervisor.udp.0" );
+void gem::supervisor::GEMSupervisor::fireEvent(std::string event)
+  throw (toolbox::fsm::exception::Exception) {};
+	
+xoap::MessageReference gem::supervisor::GEMSupervisor::changeState(xoap::MessageReference msg) {};
 
-  // print out basic information
-  std::cout << "current Value of myParameter_ = " << myParameter_ << std::endl;
-  //std::cout << "System ID: " << formatSystemID(systemID_,0) << std::endl;
-  //std::cout << "Board ID: "  << formatBoardID(boardID_,0)   << std::endl;
-  //std::cout << "System firmware version: " << formatFW(firmwareID_,0) << std::endl;
-  //std::cout << "System firmware date: "    << formatFW(firmwareID_,1) << std::endl;
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  
-  gemsupervisor::GEMSupervisor::getTestReg();
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-  gemsupervisor::GEMSupervisor::setTestReg(32);
-  std::cout << "Current value of test register_ = " << testReg_       << std::endl;
-}
-
-void gemsupervisor::GEMSupervisor::getTestReg()
-						 //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-{
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  try {
-    r_test = hw.getNode ( "test" ).read();
-    hw.dispatch();
-    testReg_ = r_test.value();
-  }
-  catch (const std::exception& e) {
-    std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-  }
-  
-}
-void gemsupervisor::GEMSupervisor::setTestReg(uint32_t setVal)
-						 //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-{
-  testReg_ = setVal;
-  
-  uhal::HwInterface hw=manager->getDevice ( "gemsupervisor.udp.0" );
-  try {
-    hw.getNode ( "test" ).write(testReg_);
-    hw.dispatch();
-  }
-  catch (const std::exception& e) {
-    std::cout << "Something went wrong writing the test register: " << e.what() << std::endl;
-  }
-  
-  try {
-    r_test = hw.getNode ( "test" ).read();
-    hw.dispatch();
-    testReg_ = r_test.value();
-  }
-  catch (const std::exception& e) {
-    std::cout << "Something went wrong reading the test register: " << e.what() << std::endl;
-  }
-}
