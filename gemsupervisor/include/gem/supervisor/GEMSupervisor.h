@@ -7,46 +7,56 @@
 
 #include "uhal/uhal.hpp"
 
+#include "gem/base/GEMFSMApplication.h"
+
+#include "gem/utils/Lock.h"
+#include "gem/utils/LockGuard.h"
 
 namespace gem {
   namespace supervisor {
     
-    class GEMSupervisor : public GEMFSMApplication
+    class GEMSupervisor : public gem::base::GEMFSMApplication
     {
     public:
-      GEMSupervisor();
-      ~GEMSupervisor();
+      XDAQ_INSTANTIATOR();
+
+      virtual GEMSupervisor(xdaq::ApplicationStub* s);
+
+      virtual ~GEMSupervisor();
       
-      //      void getSystemFW()
-      //      void getUserFW()
-      //      void getBoardID()
-      //      void getSystemID()
-      //      void getChipID()
-      void main();
-      void getTestReg();
-      //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-      void setTestReg(uint32_t);
-      //uhal::HwInterface &hw, uhal::ValWord< uint32_t> &mem)
-      
+      void init();
+
+      void actionPerformed(xdata::Event& event);
+
     protected:
-      xdata::UnsignedLong myParameter_;
+      //state transitions
+      virtual void initializeAction(toolbox::Event::Reference e);
+      virtual void enableAction(    toolbox::Event::Reference e);
+      virtual void configureAction( toolbox::Event::Reference e);
+      virtual void startAction(     toolbox::Event::Reference e);
+      virtual void pauseAction(     toolbox::Event::Reference e);
+      virtual void resumeAction(    toolbox::Event::Reference e);
+      virtual void stopAction(      toolbox::Event::Reference e);
+      virtual void haltAction(      toolbox::Event::Reference e);
+      virtual void noAction(        toolbox::Event::Reference e); 
+      virtual void failAction(      toolbox::Event::Reference e); 
       
-      xdata::UnsignedInteger32 testReg_;
-      xdata::UnsignedInteger32 boardID_;
-      xdata::UnsignedInteger32 systemID_;
-      xdata::UnsignedInteger32 systemFirmwareID_;
-      xdata::UnsignedInteger32 userFirmwareID_;
+      virtual void resetAction()//toolbox::Event::Reference e)
+        throw (toolbox::fsm::exception::Exception);
+      
+      virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
+        throw (toolbox::fsm::exception::Exception);
+      virtual void transitionFailed(toolbox::Event::Reference event)
+        throw (toolbox::fsm::exception::Exception);
+      
+      virtual void fireEvent(std::string event)
+        throw (toolbox::fsm::exception::Exception);
+      
+      virtual xoap::MessageReference changeState(xoap::MessageReference msg);
       
     private:
-      void initializeConnection();
+      mutable gem::utils::Lock deviceLock_;
       
-      uhal::ConnectionManager *manager;
-      //uhal::HwInterface *hw;
-      uhal::ValWord< uint32_t > r_test;
-      uhal::ValWord< uint32_t > r_sysid;
-      uhal::ValWord< uint32_t > r_boardid;
-      uhal::ValWord< uint32_t > r_fwid;
-      //uhal::ValWord< uint32_t > r_test;
       
     };
   } //end namespace supervisor
