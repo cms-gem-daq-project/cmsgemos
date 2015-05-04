@@ -1469,7 +1469,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   hw_semaphore_.take();
   vfatDevice_->setRunMode(0);
 
-  if (vfatDevice_->isGEMHwDeviceConnected())
+  if (vfatDevice_->isHwConnected())
     vfatDevice_->releaseDevice();
   
   if (vfatDevice_)

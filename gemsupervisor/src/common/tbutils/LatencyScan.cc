@@ -1829,7 +1829,7 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
   hw_semaphore_.take();
   //vfatDevice_->setRunMode(0);
 
-  if (vfatDevice_->isGEMHwDeviceConnected())
+  if (vfatDevice_->isHwConnected())
     vfatDevice_->releaseDevice();
   
   if (vfatDevice_)

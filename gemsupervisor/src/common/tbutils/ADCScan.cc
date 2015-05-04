@@ -1306,7 +1306,7 @@ void gem::supervisor::tbutils::ADCScan::resetAction(toolbox::Event::Reference e)
   //vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
   vfatDevice_->setRunMode(0);
 
-  if (vfatDevice_->isGEMHwDeviceConnected())
+  if (vfatDevice_->isHwConnected())
     vfatDevice_->releaseDevice();
   
   if (vfatDevice_)
