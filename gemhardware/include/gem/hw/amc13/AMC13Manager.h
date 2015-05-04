@@ -15,6 +15,9 @@
 
 #include "xdata/Integer.h"
 
+#include "gem/utils/Lock.h"
+#include "gem/utils/LockGuard.h"
+
 namespace amc13 {
   class AMC13;
   class Status;
@@ -108,20 +111,22 @@ namespace gem {
 	virtual void noAction(        toolbox::Event::Reference e); 
 	virtual void failAction(      toolbox::Event::Reference e); 
 	
-	virtual void resetAction()//toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
+	/* virtual void resetAction()//toolbox::Event::Reference e) */
+	/*   throw (toolbox::fsm::exception::Exception); */
 	
-	virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void transitionFailed(toolbox::Event::Reference event)
-	  throw (toolbox::fsm::exception::Exception);
+	/* virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm) */
+	/*   throw (toolbox::fsm::exception::Exception); */
+	/* virtual void transitionFailed(toolbox::Event::Reference event) */
+	/*   throw (toolbox::fsm::exception::Exception); */
 
-	virtual void fireEvent(std::string event)
-	  throw (toolbox::fsm::exception::Exception);
+	/* virtual void fireEvent(std::string event) */
+	/*   throw (toolbox::fsm::exception::Exception); */
 	
-	virtual xoap::MessageReference changeState(xoap::MessageReference msg);
+	/* virtual xoap::MessageReference changeState(xoap::MessageReference msg); */
 
 	private:
+	  mutable gem::utils::Lock deviceLock_;
+	
 	  ::amc13::AMC13* amc13Device_;
 	  
 	  //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
@@ -146,9 +151,6 @@ namespace gem {
 	  std::vector<std::string>          nodes_;
 
 	  ////counters
-	  //uint16_t amc13_chipid_;
-	  //uint8_t  amc13_upsetcounter_;
-	  //uint32_t amc13_hitcounter_;
 
 	protected:
 	  /**
