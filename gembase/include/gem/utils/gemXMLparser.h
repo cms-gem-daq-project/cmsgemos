@@ -62,6 +62,8 @@ namespace gem {
                     int countChildElementNodes(xercesc::DOMNode * pNode);
 
                 private:
+                    static void addProperty(const char* key, const xercesc::DOMNode* n, gemGLIBProperties* glib);
+                    static void addProperty(const char* key, const xercesc::DOMNode* n, gemOHProperties* oh);
                     static void addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat);
                     std::string xmlFile_;
                     gemSystemProperties *gemSystem_;
