@@ -4,6 +4,8 @@
 #include "gem/base/GEMApplication.h"
 #include "gem/base/GEMFSM.h"
 
+#include "toolbox/task/exception/Exception.h"
+
 namespace toolbox {
   namespace task{
     class WorkLoop;
@@ -68,48 +70,106 @@ namespace gem {
 	  throw (xoap::exception::Exception);
 	virtual xoap::MessageReference createReply(  xoap::MessageReference message)
 	  throw (xoap::exception::Exception);
+	*/
 
 	// work loop call-back functions
-	virtual bool initializeAction(toolbox::task::WorkLoop *wl);
-	virtual bool enableAction(    toolbox::task::WorkLoop *wl);
-	virtual bool configureAction( toolbox::task::WorkLoop *wl);
-	virtual bool startAction(     toolbox::task::WorkLoop *wl);
-	virtual bool pauseAction(     toolbox::task::WorkLoop *wl);
-	virtual bool resumeAction(    toolbox::task::WorkLoop *wl);
-	virtual bool stopAction(      toolbox::task::WorkLoop *wl);
-	virtual bool haltAction(      toolbox::task::WorkLoop *wl);
-	virtual bool resetAction(     toolbox::task::WorkLoop *wl);
-	//virtual bool noAction(        toolbox::task::WorkLoop *wl);
-	virtual bool failAction(      toolbox::task::WorkLoop *wl);
+	void workloopDriver(std::string const& command)
+	  throw (::toolbox::task::exception::Exception);
+	
+	std::string workLoopName;
+	toolbox::task::ActionSignature* initSig_  ;
+	toolbox::task::ActionSignature* confSig_  ;
+	toolbox::task::ActionSignature* startSig_ ;
+	toolbox::task::ActionSignature* stopSig_  ;
+	toolbox::task::ActionSignature* pauseSig_ ;
+	toolbox::task::ActionSignature* resumeSig_;
+	toolbox::task::ActionSignature* haltSig_  ;
+	toolbox::task::ActionSignature* resetSig_ ;
+	
+	virtual bool initialize(toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool enable(    toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool configure( toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool start(     toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool pause(     toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool resume(    toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool stop(      toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool halt(      toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool reset(     toolbox::task::WorkLoop *wl) { return false; };
+	//virtual bool noAction(        toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool fail(      toolbox::task::WorkLoop *wl) { return false; };
 
-	//bool calibrationAction(toolbox::task::WorkLoop *wl);
-	//bool calibrationSequencer(toolbox::task::WorkLoop *wl);
-	*/
+	virtual bool calibrationAction(toolbox::task::WorkLoop *wl) { return false; };
+	virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl) { return false; };
 	
-	//state transitions
-	virtual void initializeAction(toolbox::Event::Reference e) = 0;
-	virtual void enableAction(    toolbox::Event::Reference e) = 0;
-	virtual void configureAction( toolbox::Event::Reference e) = 0;
-	virtual void startAction(     toolbox::Event::Reference e) = 0;
-	virtual void pauseAction(     toolbox::Event::Reference e) = 0;
-	virtual void resumeAction(    toolbox::Event::Reference e) = 0;
-	virtual void stopAction(      toolbox::Event::Reference e) = 0;
-	virtual void haltAction(      toolbox::Event::Reference e) = 0;
-	virtual void noAction(        toolbox::Event::Reference e) = 0; 
-	virtual void failAction(      toolbox::Event::Reference e) = 0; 
+	/* state transitions
+	 * defines the behaviour of the application for each state transition
+	 * most will be pure virtual to enforce derived application specific
+	 * implementations, common implementations will be merged into the base
+	 * application
+	 */
+	void transitionDriver(::toolbox::Event::Reference e)
+	  throw (::toolbox::fsm::exception::Exception);
 	
-	virtual void resetAction()//toolbox::Event::Reference e)
-	  throw (toolbox::fsm::exception::Exception);
+ 	virtual void initializeAction() = 0;
+ 	virtual void configureAction( ) = 0;
+	virtual void enableAction(    ) = 0;
+	virtual void startAction(     ) = 0;
+	virtual void pauseAction(     ) = 0;
+	virtual void resumeAction(    ) = 0;
+	virtual void stopAction(      ) = 0;
+	virtual void haltAction(      ) = 0;
 	
+	virtual void noAction(        ) = 0; 
+	//virtual void failAction(      ) = 0; 
+	
+	/* resetAction
+	 * takes the GEMFSM from a state to the uninitialzed state
+	 * recovery from a failed transition, or just a reset
+	 */
+	virtual void resetAction(::toolbox::Event::Reference e)
+	  throw (::toolbox::fsm::exception::Exception);
+	
+	/* failAction
+	 * determines how to handle a failed transition
+	 * 
+	 */
+	virtual void failAction(::toolbox::Event::Reference e)
+	  throw (::toolbox::fsm::exception::Exception);
+	
+	/* stateChanged
+	 * 
+	 * 
+	 */
 	virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-	  throw (toolbox::fsm::exception::Exception);
-	virtual void transitionFailed(toolbox::Event::Reference event)
-	  throw (toolbox::fsm::exception::Exception);
+	  throw (::toolbox::fsm::exception::Exception);
 
+	/* transitionFailed
+	 * 
+	 * 
+	 */
+	virtual void transitionFailed(::toolbox::Event::Reference event)
+	  throw (::toolbox::fsm::exception::Exception);
+
+	/* fireEvent
+	 * Forwards a state change to the GEMFSM object
+	 * @param std::string event name of the event to pass to the GEMFSM
+	 */
 	virtual void fireEvent(std::string event)
-	  throw (toolbox::fsm::exception::Exception);
+	  throw (::toolbox::fsm::exception::Exception);
 	
+	/* changeState
+	 * Forwards a state change to the GEMFSM object
+	 * @param xoap::MessageReference msg message containing the state transition
+	 * @returns xoap::MessageReference response of the SOAP transaction
+	 */
 	virtual xoap::MessageReference changeState(xoap::MessageReference msg);
+
+	/* getCurrentState
+	 * @returns std::string name of the current state of the GEMFSM object
+	 */
+	std::string getCurrentState() const {
+	  return gemfsm_.getCurrentState();
+	};
 	
       private:
 	GEMFSM gemfsm_;

@@ -6,9 +6,8 @@
  * date: 
  */
 
-#include "gem/base/GEMFSM.h"
-
 #include "gem/base/GEMFSMApplication.h"
+#include "gem/base/GEMFSM.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 #include "gem/utils/exception/Exception.h"
@@ -37,9 +36,11 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   // Create the underlying Finite State Machine itself.
   std::stringstream commandLoopName;
   uint32_t instanceNumber = gemAppP_->getApplicationDescriptor()->getInstance();
+  std::string className   = gemAppP_->getApplicationDescriptor()->getClassName();
 
   //also want to get the name of the GEM FSM aplication to put it into this commandLoopName
-  commandLoopName << "urn:toolbox-task-workloop:gemFSMCommandLoop:" << instanceNumber;
+  commandLoopName << "urn:toolbox-task-workloop:gemFSMCommandLoop:"
+		  << className << ":" << instanceNumber;
   gemfsmP_ = new toolbox::fsm::AsynchronousFiniteStateMachine(commandLoopName.str());
 
   // A map to look up the names of the 'intermediate' state transitions.
@@ -51,6 +52,8 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   lookupMap_["Pausing"]      = "Paused"     ;// Paused
   lookupMap_["Resuming"]     = "Running"    ;// Running
   lookupMap_["Stopping"]     = "Stopped"    ;// Configured
+  lookupMap_["Resettng"]     = "Initial"    ;// Resetting
+  lookupMap_["Reset"]        = "Initial"    ;// Resetting
 
   // Define all states and transitions.
   /* intermediate states (states entered when a transition is requested*/
@@ -61,6 +64,7 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   gemfsmP_->addState(STATE_PAUSING,      "Pausing",      this, &gem::base::GEMFSM::stateChanged);
   gemfsmP_->addState(STATE_RESUMING,     "Resuming",     this, &gem::base::GEMFSM::stateChanged);
   gemfsmP_->addState(STATE_STOPPING,     "Stopping",     this, &gem::base::GEMFSM::stateChanged);
+  gemfsmP_->addState(STATE_RESETTING,    "Resetting",    this, &gem::base::GEMFSM::stateChanged);
 
   /*terminal states*/
   gemfsmP_->addState(STATE_INITIAL,    "Initial",     this, &gem::base::GEMFSM::stateChanged);
@@ -72,71 +76,85 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   /*State transitions*/
   // Initialize: I -> H., connect hardware, perform basic checks, (load firware?)
   gemfsmP_->addStateTransition(STATE_INITIAL, STATE_HALTED, "Initialize", gemAppP_,
-			       &gem::base::GEMFSMApplication::initializeAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
 
   // Configure: H/C/E/P -> C., configure hardware, set default parameters
   gemfsmP_->addStateTransition(STATE_HALTED,     STATE_CONFIGURED, "Configure", gemAppP_,
-			       &gem::base::GEMFSMApplication::configureAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_CONFIGURED, "Configure", gemAppP_,
-			       &gem::base::GEMFSMApplication::configureAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_CONFIGURED, "Configure", gemAppP_,
-			       &gem::base::GEMFSMApplication::configureAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_CONFIGURED, "Configure", gemAppP_,
-			       &gem::base::GEMFSMApplication::configureAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
 
   // Start: C -> E., enable links for data to flow from front ends to back ends
   gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_RUNNING, "Start", gemAppP_,
-			       &gem::base::GEMFSMApplication::startAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   
   // Pause: E -> P. pause data flow, links stay alive, TTC/TTS counters stay active
   gemfsmP_->addStateTransition(STATE_RUNNING, STATE_PAUSED, "Pause", gemAppP_,
-			       &gem::base::GEMFSMApplication::pauseAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   
   // Resume: P -> E., resume data flow
   gemfsmP_->addStateTransition(STATE_PAUSED, STATE_RUNNING, "Resume", gemAppP_,
-			       &gem::base::GEMFSMApplication::resumeAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   
   // Stop: C/E/P -> C., stop data flow, disable links
   gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_CONFIGURED, "Stop", gemAppP_,
-			       &gem::base::GEMFSMApplication::stopAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_CONFIGURED, "Stop", gemAppP_,
-			       &gem::base::GEMFSMApplication::stopAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_CONFIGURED, "Stop", gemAppP_,
-			       &gem::base::GEMFSMApplication::stopAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   
-  // Halt: C/E/F/H/P/ -> H., reset hardware state to pre-configured state
+  // Halt: C/E/F/H/P/ -> H., halt hardware state to pre-configured state
   gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_HALTED, "Halt", gemAppP_,
-			       &gem::base::GEMFSMApplication::haltAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_HALTED, "Halt", gemAppP_,
-			       &gem::base::GEMFSMApplication::haltAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_FAILED,     STATE_HALTED, "Halt", gemAppP_,
-			       &gem::base::GEMFSMApplication::haltAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_HALTED,     STATE_HALTED, "Halt", gemAppP_,
-			       &gem::base::GEMFSMApplication::haltAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_HALTED, "Halt", gemAppP_,
-			       &gem::base::GEMFSMApplication::haltAction);
+			       &gem::base::GEMFSMApplication::transitionDriver);
   
-  // Error: I/H/C/E/P -> F.
-  /*
-    gemfsmP_->addStateTransition(STATE_INITIAL,    STATE_FAILED, "Error", gemAppP_, &GEMFSMApplication::);
-    gemfsmP_->addStateTransition(STATE_HALTED,     STATE_FAILED, "Error", gemAppP_, &GEMFSMApplication::);
-    gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_FAILED, "Error", gemAppP_, &GEMFSMApplication::);
-    gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_FAILED, "Error", gemAppP_, &GEMFSMApplication::);
-    gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_FAILED, "Error", gemAppP_, &GEMFSMApplication::);
-  */
+  // reset the state machine: I/H/C/E/P -> I.
+  gemfsmP_->addStateTransition(STATE_INITIAL,    STATE_INITIAL, "Reset", gemAppP_,
+			       &GEMFSMApplication::resetAction);
+  gemfsmP_->addStateTransition(STATE_HALTED,     STATE_INITIAL, "Reset", gemAppP_,
+			       &GEMFSMApplication::resetAction);
+  gemfsmP_->addStateTransition(STATE_CONFIGURED, STATE_INITIAL, "Reset", gemAppP_,
+			       &GEMFSMApplication::resetAction);
+  gemfsmP_->addStateTransition(STATE_RUNNING,    STATE_INITIAL, "Reset", gemAppP_,
+			       &GEMFSMApplication::resetAction);
+  gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_INITIAL, "Reset", gemAppP_,
+			       &GEMFSMApplication::resetAction);
   
+
   gemfsmP_->setStateName(STATE_FAILED, "Error");
   gemfsmP_->setFailedStateTransitionAction(      gemAppP_, &gem::base::GEMFSMApplication::failAction);
   gemfsmP_->setFailedStateTransitionChanged(     this,     &gem::base::GEMFSM::stateChanged);
   gemfsmP_->setInvalidInputStateTransitionAction(this,     &gem::base::GEMFSM::invalidAction);
   
+  // recover from Error: F -> I. (or reset?)
+  gemfsmP_->addStateTransition(STATE_FAILED,    STATE_INITIAL, "Reset", gemAppP_,
+			       &GEMFSMApplication::resetAction);
+
   // Start out with the FSM in its initial state: Initial.
   gemfsmP_->setInitialState(STATE_INITIAL);
   gemfsmP_->reset();
 
   // Find connection to RCMS.
+  gemAppP_->getApplicationInfoSpace()->fireItemAvailable("rcmsStateListener",      
+							 gemRCMSNotifier_.getRcmsStateListenerParameter());
+  gemAppP_->getApplicationInfoSpace()->fireItemAvailable("foundRcmsStateListener", 
+							 gemRCMSNotifier_.getFoundRcmsStateListenerParameter());
+
   gemRCMSNotifier_.findRcmsStateListener();
 
+  gemRCMSNotifier_.subscribeToChangesInRcmsStateListener(gemAppP_->getApplicationInfoSpace()); 
 }
 
 
@@ -148,6 +166,14 @@ gem::base::GEMFSM::~GEMFSM()
 }
 
 
+void gem::base::GEMFSM::fireEvent(::toolbox::Event::Reference const &event) {
+  try {
+    gemfsmP_->fireEvent(event);
+  } catch (::toolbox::fsm::exception::Exception & e) {
+    XCEPT_RETHROW(::xoap::exception::Exception, "invalid command", e);
+  }
+};
+	
 xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg)
 //throw (toolbox::fsm::exception::Exception)
 {
@@ -158,6 +184,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   std::string commandName = "undefined";
   try {
     commandName = gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(msg);
+    INFO("FSM received command " << commandName);
   }
   catch(xoap::exception::Exception& err) {
     std::string msgBase =
@@ -183,6 +210,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   
   try {
     toolbox::Event::Reference event(new toolbox::Event(commandName, this));
+    INFO("Firing FSM for event " << commandName);
     gemfsmP_->fireEvent(event);
   }
   catch(toolbox::fsm::exception::Exception& err) {
@@ -322,4 +350,33 @@ void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
 					  requestedState.c_str(), initialState.c_str());
   ERROR(message);
   gotoFailed(message);
+}
+
+void gem::base::GEMFSM::gotoFailed(std::string const reason)
+{
+  //appStateInfoSpaceHandlerP_->setFSMState("Failed", reason);
+  ERROR("Going to 'Failed' state. Reason: '" << reason << "'.");
+  XCEPT_RAISE(toolbox::fsm::exception::Exception, reason);
+}
+
+void gem::base::GEMFSM::gotoFailed(xcept::Exception& err)
+{
+  std::string reason = err.message();
+  gotoFailed(reason);
+}
+
+void gem::base::GEMFSM::gotoFailedAsynchronously(xcept::Exception& err)
+{
+  std::string reason = err.message();
+  //appStateInfoSpaceHandlerP_->setFSMState("Failed", reason);
+  ERROR("Going to 'Failed' state. Reason: " << reason);
+  try {
+    toolbox::Event::Reference event(new toolbox::Event("Fail", this));
+    gemfsmP_->fireEvent(event);
+  } catch(xcept::Exception& error) {
+    std::string msg = "Cannot initiate asynchronous 'Fail' transition.";
+    FATAL(msg);
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg, error);
+    gemAppP_->notifyQualified("fatal", top);
+  }
 }

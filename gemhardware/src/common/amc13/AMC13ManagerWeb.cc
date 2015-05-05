@@ -88,7 +88,6 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
 
        << cgicc::br()     << std::endl
        << cgicc::div()    << std::endl
-       << cgicc::form()   << std::endl
        << cgicc::span().set("style","display:block;float:left") << std::endl;
   
   try {
@@ -107,7 +106,8 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
 
   *out << cgicc::span()     << std::endl
        << cgicc::fieldset() << std::endl
-       << cgicc::section()  << std::endl;
+       << cgicc::section()  << std::endl
+       << cgicc::form()     << std::endl;
 
   //will be nice to have the "last update time" printed on the bottom of all monitoring or status pages
   //obtain this value from an infospace?

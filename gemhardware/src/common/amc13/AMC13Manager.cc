@@ -126,32 +126,6 @@ void gem::hw::amc13::AMC13Manager::disable()
 }
 
 /*
-// SOAP interface
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onEnable(     xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onConfigure(  xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onStart(      xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onPause(      xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onResume(     xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onStop(       xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onHalt(       xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onReset(      xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::onRunSequence(xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::reset(        xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::fireEvent(    xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-xoap::MessageReference gem::hw::amc13::AMC13Manager::createReply(  xoap::MessageReference message)
-throw (xoap::exception::Exception) {};
-
 // work loop call-back functions
 bool gem::hw::amc13::AMC13Manager::initializeAction(toolbox::task::WorkLoop *wl) {};
 bool gem::hw::amc13::AMC13Manager::enableAction(    toolbox::task::WorkLoop *wl) {};
@@ -170,26 +144,20 @@ bool gem::hw::amc13::AMC13Manager::failAction(      toolbox::task::WorkLoop *wl)
 */
 	
 //state transitions
-void gem::hw::amc13::AMC13Manager::initializeAction(toolbox::Event::Reference e) {};
-void gem::hw::amc13::AMC13Manager::enableAction(    toolbox::Event::Reference e) {};
-void gem::hw::amc13::AMC13Manager::configureAction( toolbox::Event::Reference e) {};
-void gem::hw::amc13::AMC13Manager::startAction(     toolbox::Event::Reference e) {};
-void gem::hw::amc13::AMC13Manager::pauseAction(     toolbox::Event::Reference e) {};
-void gem::hw::amc13::AMC13Manager::resumeAction(    toolbox::Event::Reference e) {};
-void gem::hw::amc13::AMC13Manager::stopAction(      toolbox::Event::Reference e) {};
-void gem::hw::amc13::AMC13Manager::haltAction(      toolbox::Event::Reference e) {};
-void gem::hw::amc13::AMC13Manager::noAction(        toolbox::Event::Reference e) {}; 
-void gem::hw::amc13::AMC13Manager::failAction(      toolbox::Event::Reference e) {}; 
-	
-// void gem::hw::amc13::AMC13Manager::resetAction()//toolbox::Event::Reference e)
-//   throw (toolbox::fsm::exception::Exception) {};
-	
-// void gem::hw::amc13::AMC13Manager::stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-//   throw (toolbox::fsm::exception::Exception) {};
-// void gem::hw::amc13::AMC13Manager::transitionFailed(toolbox::Event::Reference event)
-//   throw (toolbox::fsm::exception::Exception) {};
+void gem::hw::amc13::AMC13Manager::initializeAction() {}
+void gem::hw::amc13::AMC13Manager::enableAction(    ) {}
+void gem::hw::amc13::AMC13Manager::configureAction( ) {}
+void gem::hw::amc13::AMC13Manager::startAction(     ) {}
+void gem::hw::amc13::AMC13Manager::pauseAction(     ) {}
+void gem::hw::amc13::AMC13Manager::resumeAction(    ) {}
+void gem::hw::amc13::AMC13Manager::stopAction(      ) {}
+void gem::hw::amc13::AMC13Manager::haltAction(      ) {}
+void gem::hw::amc13::AMC13Manager::noAction(        ) {}
 
-// void gem::hw::amc13::AMC13Manager::fireEvent(std::string event)
-//   throw (toolbox::fsm::exception::Exception) {};
-	
-// xoap::MessageReference gem::hw::amc13::AMC13Manager::changeState(xoap::MessageReference msg) {};
+void gem::hw::amc13::AMC13Manager::failAction(      toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {
+}
+
+void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {
+}

@@ -8,6 +8,7 @@
 #include "uhal/uhal.hpp"
 
 #include "gem/base/GEMFSMApplication.h"
+#include "gem/supervisor/GEMSupervisorWeb.h"
 
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
@@ -15,8 +16,11 @@
 namespace gem {
   namespace supervisor {
     
+    class GEMSupervisorWeb;
+    
     class GEMSupervisor : public gem::base::GEMFSMApplication
     {
+      friend class GEMSupervisorWeb;
     public:
       XDAQ_INSTANTIATOR();
 
@@ -29,30 +33,24 @@ namespace gem {
       void actionPerformed(xdata::Event& event);
 
     protected:
+      //virtual void xgiDefault(   xgi::Input *in, xgi::Output *out );
+      
       //state transitions
-      virtual void initializeAction(toolbox::Event::Reference e);
-      virtual void enableAction(    toolbox::Event::Reference e);
-      virtual void configureAction( toolbox::Event::Reference e);
-      virtual void startAction(     toolbox::Event::Reference e);
-      virtual void pauseAction(     toolbox::Event::Reference e);
-      virtual void resumeAction(    toolbox::Event::Reference e);
-      virtual void stopAction(      toolbox::Event::Reference e);
-      virtual void haltAction(      toolbox::Event::Reference e);
-      virtual void noAction(        toolbox::Event::Reference e); 
-      virtual void failAction(      toolbox::Event::Reference e); 
+      virtual void initializeAction();
+      virtual void enableAction(    );
+      virtual void configureAction( );
+      virtual void startAction(     );
+      virtual void pauseAction(     );
+      virtual void resumeAction(    );
+      virtual void stopAction(      );
+      virtual void haltAction(      );
+      virtual void noAction(        ); 
       
-      virtual void resetAction()//toolbox::Event::Reference e)
-        throw (toolbox::fsm::exception::Exception);
+      virtual void failAction(toolbox::Event::Reference e)
+	throw (toolbox::fsm::exception::Exception); 
       
-      virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-        throw (toolbox::fsm::exception::Exception);
-      virtual void transitionFailed(toolbox::Event::Reference event)
-        throw (toolbox::fsm::exception::Exception);
-      
-      virtual void fireEvent(std::string event)
-        throw (toolbox::fsm::exception::Exception);
-      
-      virtual xoap::MessageReference changeState(xoap::MessageReference msg);
+      virtual void resetAction(toolbox::Event::Reference e)
+	throw (toolbox::fsm::exception::Exception);
       
     private:
       mutable gem::utils::Lock deviceLock_;
