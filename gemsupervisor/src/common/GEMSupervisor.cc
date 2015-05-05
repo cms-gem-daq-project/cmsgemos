@@ -21,6 +21,8 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   //getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
   //initialize the AMC13Manager application objects
 
+  //xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
+
   LOG4CPLUS_DEBUG(getApplicationLogger(), "Creating the GEMSupervisorWeb interface");
   gemWebInterfaceP_ = new gem::supervisor::GEMSupervisorWeb(this);
   LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
@@ -49,28 +51,28 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
-//state transitions
-void gem::supervisor::GEMSupervisor::initializeAction(toolbox::Event::Reference e) {};
-void gem::supervisor::GEMSupervisor::enableAction(    toolbox::Event::Reference e) {};
-void gem::supervisor::GEMSupervisor::configureAction( toolbox::Event::Reference e) {};
-void gem::supervisor::GEMSupervisor::startAction(     toolbox::Event::Reference e) {};
-void gem::supervisor::GEMSupervisor::pauseAction(     toolbox::Event::Reference e) {};
-void gem::supervisor::GEMSupervisor::resumeAction(    toolbox::Event::Reference e) {};
-void gem::supervisor::GEMSupervisor::stopAction(      toolbox::Event::Reference e) {};
-void gem::supervisor::GEMSupervisor::haltAction(      toolbox::Event::Reference e) {};
-void gem::supervisor::GEMSupervisor::noAction(        toolbox::Event::Reference e) {}; 
-void gem::supervisor::GEMSupervisor::failAction(      toolbox::Event::Reference e) {}; 
-	
-void gem::supervisor::GEMSupervisor::resetAction()//toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {};
-	
-void gem::supervisor::GEMSupervisor::stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-  throw (toolbox::fsm::exception::Exception) {};
-void gem::supervisor::GEMSupervisor::transitionFailed(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception) {};
+//void gem::supervisor::GEMSupervisor::xgiDefault(xgi::Input* in, xgi::Output* out) {
+//  dynamic_cast<gem::supervisor::GEMSupervisorWeb*>(gemWebInterfaceP_)->controlPanel(in,out);
+//}
 
-void gem::supervisor::GEMSupervisor::fireEvent(std::string event)
-  throw (toolbox::fsm::exception::Exception) {};
-	
-xoap::MessageReference gem::supervisor::GEMSupervisor::changeState(xoap::MessageReference msg) {};
+void gem::supervisor::GEMSupervisor::init() {};
+
+//state transitions
+void gem::supervisor::GEMSupervisor::initializeAction() {}
+void gem::supervisor::GEMSupervisor::enableAction(    ) {}
+void gem::supervisor::GEMSupervisor::configureAction( ) {}
+void gem::supervisor::GEMSupervisor::startAction(     ) {}
+void gem::supervisor::GEMSupervisor::pauseAction(     ) {}
+void gem::supervisor::GEMSupervisor::resumeAction(    ) {}
+void gem::supervisor::GEMSupervisor::stopAction(      ) {}
+void gem::supervisor::GEMSupervisor::haltAction(      ) {}
+void gem::supervisor::GEMSupervisor::noAction(        ) {}
+
+void gem::supervisor::GEMSupervisor::failAction(      toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {
+}
+
+void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception) {
+}
 

@@ -64,6 +64,7 @@ namespace gem {
 	 **/
 	virtual void actionPerformed(xdata::Event& event);
 	
+	void xgiDefault(xgi::Input* in, xgi::Output* out);
 	void xgiMonitor(xgi::Input* in, xgi::Output* out);
 	void xgiExpert( xgi::Input* in, xgi::Output* out);
 

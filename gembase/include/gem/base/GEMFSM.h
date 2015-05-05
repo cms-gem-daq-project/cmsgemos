@@ -30,6 +30,7 @@ namespace gem {
     
     class GEMFSM : virtual public toolbox::lang::Class
       {
+	friend class GEMFSMApplication;
       public:
 	//HCAL states, are they useful for GEM?
 	/*
@@ -60,11 +61,14 @@ namespace gem {
 	static const toolbox::fsm::State STATE_STOPPING     ='s'; ///< Stopping transitional state
 	static const toolbox::fsm::State STATE_STARTING     ='e'; ///< Starting transitional state
 	static const toolbox::fsm::State STATE_RESUMING     ='r'; ///< Resuming transitional state
+	static const toolbox::fsm::State STATE_RESETTING    ='t'; ///< Resetting transitional state
 	static const toolbox::fsm::State STATE_FIXING       ='X'; ///< Fixing transitional state
 
   	GEMFSM(GEMFSMApplication* const gemAppP);//,
 	//gem::base::utils::ApplicationStateInfoSpaceHandler* const infoSpaceHandlerP);
 	virtual ~GEMFSM();
+	
+	void fireEvent(::toolbox::Event::Reference const &event);
 	
 	xoap::MessageReference changeState(xoap::MessageReference msg);
 	

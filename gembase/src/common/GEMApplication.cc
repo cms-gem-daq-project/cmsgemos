@@ -61,7 +61,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
     XCEPT_RETHROW(xdaq::exception::Exception, "Failed to get GEM application information", e);
   }
   
-  xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "Default"    );
+  xgi::framework::deferredbind(this, this, &GEMApplication::xgiDefault, "Default"    );
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
 
@@ -157,6 +157,10 @@ void gem::base::GEMApplication::updateMonitoringInfoSpace() {
   //update the monitoring infospace object with new items
 }
 
+
+void gem::base::GEMApplication::xgiDefault(xgi::Input* in, xgi::Output* out) {
+  gemWebInterfaceP_->webDefault(in,out);
+}
 
 void gem::base::GEMApplication::xgiMonitor(xgi::Input* in, xgi::Output* out) {
   gemWebInterfaceP_->monitorPage(in,out);

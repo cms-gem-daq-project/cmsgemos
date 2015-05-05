@@ -49,6 +49,12 @@ namespace gem {
 	virtual void expertPage(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
 
+ 	virtual void webRedirect(  xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+
+ 	virtual void webDefault(  xgi::Input *in, xgi::Output *out )
+	  throw (xgi::exception::Exception);
+
 	// fsm specific functions, only called when the constructing app is derived from a
 	// GEMFSMApplication
 	virtual void webInitialize(xgi::Input *in, xgi::Output *out )
@@ -69,9 +75,6 @@ namespace gem {
 	  throw (xgi::exception::Exception);
  	virtual void webReset(     xgi::Input *in, xgi::Output *out )
 	  throw (xgi::exception::Exception);
-
- 	virtual void webRedirect(  xgi::Input *in, xgi::Output *out )
-	  throw (xgi::exception::Exception);
 	
 	log4cplus::Logger gemLogger_;
 	
@@ -80,7 +83,10 @@ namespace gem {
 	GEMApplication*    gemAppP_;
 	//xdaq::Application* gemAppP_;
 
+	bool is_working_, is_initialized_, is_configured_, is_running_, is_paused_;
+
       private:
+	
 	GEMWebApplication(GEMWebApplication const&);
 
       };

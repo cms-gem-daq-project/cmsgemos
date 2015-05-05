@@ -20,7 +20,7 @@ namespace gem {
 	public:
 	  AMC13ManagerWeb(AMC13Manager *amc13App);
 	  
-	  ~AMC13ManagerWeb();
+	  virtual ~AMC13ManagerWeb();
 
 	protected:
 	  virtual void monitorPage(xgi::Input *in, xgi::Output *out)
