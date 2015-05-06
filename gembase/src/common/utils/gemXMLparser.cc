@@ -124,8 +124,8 @@ void gem::base::utils::gemXMLparser::parseGEMSystem(xercesc::DOMNode * pNode)
                 //crateIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateID"))->getNodeValue()));
                 //crateNodes.push_back(n);
                 //if (crateIds.size() == 1) {
-                    //currentCrate = 0;
-                    //currentCrateId = crateIds[0];
+                //currentCrate = 0;
+                //currentCrateId = crateIds[0];
                 //}
                 std::cout << "[XML PARSER]: GEM system parsing: uTCA crate found" << std::endl;
                 if (countChildElementNodes(n)) {
@@ -181,12 +181,18 @@ void gem::base::utils::gemXMLparser::parseCrate(xercesc::DOMNode * pNode)
 
 void gem::base::utils::gemXMLparser::parseGLIB(xercesc::DOMNode * pNode)
 {
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseGLIB");
     std::cout << "[XML PARSER]: crate parsing: start GLIB parsing" << std::endl;
     xercesc::DOMNode * n = pNode->getFirstChild();
+    gemGLIBProperties* glib_ = gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back();
+    std::cout << "[XML PARSER]: GLIB parsing: retrieve GLIB device from the devices parent tree" << std::endl;
     while (n) {
         if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {    
+        {
+            addProperty("Station", n, glib_);
+            addProperty("FW", n, glib_);
+            addProperty("IP", n, glib_);
+            addProperty("DEPTH", n, glib_);
+            addProperty("TDC_SBits", n, glib_);
             if (strcmp("OH",xercesc::XMLString::transcode(n->getNodeName()))==0) {
                 std::cout << "[XML PARSER]: GLIB parsing: OH found" << std::endl;
                 if (countChildElementNodes(n)) {
@@ -206,14 +212,24 @@ void gem::base::utils::gemXMLparser::parseGLIB(xercesc::DOMNode * pNode)
 
 void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
 {
-    //LOG4CPLUS_INFO(this->getApplicationLogger(), "parseOH");
-    //VFAT2Ids.clear();
     std::cout << "[XML PARSER]: GLIB parsing: start OH parsing" << std::endl;
     xercesc::DOMNode * n = pNode->getFirstChild();
+    gemOHProperties* oh_ = gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back();
+    std::cout << "[XML PARSER]: OH parsing: retrieve OH device from the devices parent tree" << std::endl;
     while (n) {
         if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {    
-            if (strcmp("VFATSettings",xercesc::XMLString::transcode(n->getNodeName()))==0) 
+        {   
+            addProperty("TrigSource", n, oh_);
+            addProperty("TDC_SBits", n, oh_);
+            addProperty("VFATClock", n, oh_);
+            addProperty("VFATFallback", n, oh_);
+            addProperty("CDCEClock", n, oh_);
+            addProperty("CDCEFallback", n, oh_);
+            addProperty("FPGAPLLLock", n, oh_);
+            addProperty("CDCELock", n, oh_);
+            addProperty("GTPLock", n, oh_);
+            addProperty("FW", n, oh_);
+            if (strcmp("VFATSettings",xercesc::XMLString::transcode(n->getNodeName()))==0) {
                 std::cout << "[XML PARSER]: OH parsing: VFATSettings tag found" << std::endl;
                 if (countChildElementNodes(n)) {
                     gemVFATProperties* vfat = new gemVFATProperties();
@@ -226,18 +242,10 @@ void gem::base::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
                     std::cout << "[XML PARSER]: OH parsing: add VFAT device ID to the subdevices of the parent device" << std::endl;
                     parseVFAT2Settings(n);
                 }
+            }
         }    
         n = n->getNextSibling();
     }    
-}
-
-void gem::base::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat)
-{
-    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
-    {
-        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-        vfat->addDeviceProperty(key,value);
-    }
 }
 
 void gem::base::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
@@ -277,6 +285,33 @@ void gem::base::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode
             addProperty("CalPhase", n, vfat_);
         }    
         n = n->getNextSibling();
+    }
+}
+
+void gem::base::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemGLIBProperties* glib)
+{
+    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
+    {
+        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        glib->addDeviceProperty(key,value);
+    }
+}
+
+void gem::base::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemOHProperties* oh)
+{
+    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
+    {
+        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        oh->addDeviceProperty(key,value);
+    }
+}
+
+void gem::base::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat)
+{
+    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
+    {
+        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        vfat->addDeviceProperty(key,value);
     }
 }
 
