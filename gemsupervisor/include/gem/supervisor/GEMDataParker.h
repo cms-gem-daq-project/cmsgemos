@@ -25,12 +25,12 @@ namespace gem {
 
                 int dumpDataToDisk();
 
-		int getGLIBData (gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
-
-                int fillGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
-                                 gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
-                int writeGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
-                                 gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
+		int  getGLIBData  (gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb,
+                                   gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
+                void fillGEMevent (gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
+                                   gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
+                void writeGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
+                                   gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
             private:
 
                 gem::hw::vfat::HwVFAT2* vfatDevice_;

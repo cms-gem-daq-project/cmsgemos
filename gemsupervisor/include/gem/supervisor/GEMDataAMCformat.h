@@ -26,7 +26,9 @@ namespace gem {
         uint16_t BC;          // 1010:4,   BC:12 
         uint16_t EC;          // 1100:4,   EC:8,      Flags:4
         uint16_t ChipID;      // 1110,     ChipID:12
-          ChannelData data;
+        /*  ChannelData data; */
+        uint64_t lsData;      // channels from 1to64
+        uint64_t msData;      // channels from 65to128
         uint16_t crc;         // :16
       };    
     
@@ -46,7 +48,7 @@ namespace gem {
       };
 
       bool keepChannelData(string file, int event, const ChannelData& ch){
-        ofstream outf(file.c_str(), ios_base::app | ios::binary );
+        ofstream outf(file.c_str(), ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
           outf << ch.lsData << endl;
@@ -83,61 +85,55 @@ namespace gem {
         return(true);
       };
 
-      bool keepVFATData(string file, int event, const VFATData& ev, const ChannelData& ch){
-        ofstream outf(file.c_str(), ios_base::app | ios::binary );
+      bool keepVFATData(string file, int event, const VFATData& vfat, const ChannelData& ch){
+        ofstream outf(file.c_str(), ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << ev.BC << endl;
-          outf << ev.EC << endl;
-          /* outf << ev.bxExp << endl;
-             outf << ev.bxNum << endl; */
-          outf << ev.ChipID << endl;
-            keepChannelData (file, event, ch);
-          outf << ev.crc << endl;
+          outf << vfat.BC << endl;
+          outf << vfat.EC << endl;
+          outf << vfat.ChipID << endl;
+          outf << vfat.lsData << endl;
+          outf << vfat.msData << endl;
+          /*  keepChannelData (file, event, ch); */
+          outf << vfat.crc << endl;
           outf.close();
         return(true);
       };	  
 
-      bool PrintVFATData(int event, const VFATData& ev, const ChannelData& ch){
+      bool PrintVFATData(int event, const VFATData& vfat, const ChannelData& ch){
         if( event<0) return(false);
  	  cout << "Received tracking data word:" << endl;
-	  cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.BC     << dec << endl;
-	  cout << "EC      :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.EC     << dec << endl;
-	  cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.ChipID << dec << endl;
-	  /* cout << "bxExp   :: 0x" << std::setfill('0') << std::setw(6) << hex << ev.bxExp  << dec << endl;
-	     cout << "bxNum   :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.bxNum  << dec << endl; */
-          cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
-          cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
-	  cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << hex << ev.crc    << dec << endl;
+	  cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.BC     << dec << endl;
+	  cout << "EC      :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.EC     << dec << endl;
+	  cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.ChipID << dec << endl;
+          cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.msData << dec << endl;
+          cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.lsData << dec << endl;
+	  cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.crc    << dec << endl;
         return(true);
       };
 
-      bool keepVFATDataBinary(string file, int event, const VFATData& ev, const ChannelData& ch){
+      bool keepVFATDataBinary(string file, int event, const VFATData& vfat, const ChannelData& ch){
         ofstream outf(file.c_str(), ios_base::app | ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-  	  outf.write( (char*)&ev.BC, sizeof(ev.BC));
-  	  outf.write( (char*)&ev.EC, sizeof(ev.EC));
-  	  /* outf.write( (char*)&ev.bxExp, sizeof(ev.bxExp));
-	     outf.write( (char*)&ev.bxNum, sizeof(ev.bxNum)); */
-  	  outf.write( (char*)&ev.ChipID, sizeof(ev.ChipID));
+  	  outf.write( (char*)&vfat.BC, sizeof(vfat.BC));
+  	  outf.write( (char*)&vfat.EC, sizeof(vfat.EC));
+  	  outf.write( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
             keepChannelDataBinary (file, event, ch);
-  	  outf.write( (char*)&ev.crc, sizeof(ev.crc));
+  	  outf.write( (char*)&vfat.crc, sizeof(vfat.crc));
           outf.close();
         return(true);
       };	  
 
-      bool readVFATDataBinary(string file, int event, const VFATData& ev, const ChannelData& ch){
+      bool readVFATDataBinary(string file, int event, const VFATData& vfat, const ChannelData& ch){
         ifstream inpf(file.c_str(), ios_base::app | ios::binary );
         if( event<0) return(false);
         if(!inpf.is_open()) return(false);
-  	  inpf.read( (char*)&ev.BC, sizeof(ev.BC));
-  	  inpf.read( (char*)&ev.EC, sizeof(ev.EC));
-  	  /* inpf.read( (char*)&ev.bxExp, sizeof(ev.bxExp));
-	     inpf.read( (char*)&ev.bxNum, sizeof(ev.bxNum)); */
-  	  inpf.read( (char*)&ev.ChipID, sizeof(ev.ChipID));
+  	  inpf.read( (char*)&vfat.BC, sizeof(vfat.BC));
+  	  inpf.read( (char*)&vfat.EC, sizeof(vfat.EC));
+  	  inpf.read( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
             readChannelDataBinary (file, event, ch);
-  	  inpf.read( (char*)&ev.crc, sizeof(ev.crc));
+  	  inpf.read( (char*)&vfat.crc, sizeof(vfat.crc));
           inpf.seekg (0, inpf.cur);
         return(true);
       };	  
@@ -161,6 +157,14 @@ namespace gem {
      	printf("\n");
       }
 
+      void show24bits(uint32_t x) {
+        int i;
+        const unsigned long unit = 1;
+        for(i=(sizeof(uint32_t)*8)-8-1; i>=0; i--)
+         (x & ((unit)<<i))?putchar('1'):putchar('0');
+     	printf("\n");
+      }
+
       void show32bits(uint32_t x) {
         int i;
         const unsigned long unit = 1;
@@ -177,30 +181,31 @@ namespace gem {
      	printf("\n");
       }
 
-      bool PrintVFATDataBits(int event, const VFATData& ev, const ChannelData& ch){
+      bool PrintVFATDataBits(int event, const VFATData& vfat, const ChannelData& ch){
         if( event<0) return(false);
  	  cout << "\nReceived VFAT data word:" << endl;
 
-          uint8_t   b1010 = (0xf000 & ev.BC) >> 12;
-          show4bits(b1010); cout << " BC     0x" << hex << (0x0fff & ev.BC) << dec << endl;
+          uint8_t   b1010 = (0xf000 & vfat.BC) >> 12;
+          show4bits(b1010); cout << " BC     0x" << hex << (0x0fff & vfat.BC) << dec << endl;
 
-          uint8_t   b1100 = (0xf000 & ev.EC) >> 12;
-          uint16_t   EC   = (0x0ff0 & ev.EC) >> 4;
-          uint8_t   Flag  = (0x000f & ev.EC);
+          uint8_t   b1100 = (0xf000 & vfat.EC) >> 12;
+          uint16_t   EC   = (0x0ff0 & vfat.EC) >> 4;
+          uint8_t   Flag  = (0x000f & vfat.EC);
           show4bits(b1100); cout << " EC     0x" << hex << EC << dec << endl; 
           show4bits(Flag);  cout << " Flags " << endl;
 
-          uint8_t   b1110 = (0xf000 & ev.ChipID) >> 12;
-          uint16_t ChipID = (0x0fff & ev.ChipID);
+          uint8_t   b1110 = (0xf000 & vfat.ChipID) >> 12;
+          uint16_t ChipID = (0x0fff & vfat.ChipID);
           show4bits(b1110); cout << " ChipID 0x" << hex << ChipID << dec << " " << endl;
 
-          /* cout << "     bxExp  0x" << hex << ev.bxExp << dec << " " << endl;
-	     cout << "     bxNum  0x" << hex << ((0xff00 & ev.bxNum) >> 8) << "        SBit " << (0x00ff & ev.bxNum) << endl; */
-          cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
-          cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
-          cout << "     crc    0x" << hex << ev.crc << dec << endl;
+          /* cout << "     bxExp  0x" << hex << vfat.bxExp << dec << " " << endl;
+	     cout << "     bxNum  0x" << hex << ((0xff00 & vfat.bxNum) >> 8) << "        SBit " << (0x00ff & vfat.bxNum) << endl;
+           */
+          cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.msData << dec << endl;
+          cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.lsData << dec << endl;
+          cout << "     crc    0x" << hex << vfat.crc << dec << endl;
 
-          //cout << " " << endl; show16bits(ev.EC);
+          //cout << " " << endl; show16bits(vfat.EC);
 
         return(true);
       };
