@@ -264,11 +264,15 @@ void gem::supervisor::GEMDataParker::fillGEMevent(gem::supervisor::GEMData& gem,
       vfat.ChipID = 0xdead;
     };
 
+    geb.vfats.push_back(vfat);
+    //cout << " geb.vfats.size " << int(geb.vfats.size()) << endl;
+
     // Chamber Header, Zero Suppression flags, Chamber ID
     ZSFlag      = (ZSFlag | (1 << (23-IndexVFATChipOnGEB))); // :24
     uint64_t ChamID = 0xdea;                                 // :12
+    uint64_t sumVFAT = int(geb.vfats.size());                // :28, geb.vfats.size was placed a very temporary here!!!
 
-    geb.header  = (ZSFlag << 40)|(ChamID << 28);
+    geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
 
     // show24bits(ZSFlag); cout << " ChipID 0x" << hex << (0x0fff & vfat.ChipID) << dec << " IndexVFATChipOnGEB " << IndexVFATChipOnGEB << endl;
 
@@ -289,17 +293,13 @@ void gem::supervisor::GEMDataParker::fillGEMevent(gem::supervisor::GEMData& gem,
 
     //cout << " OHcrc " << hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << dec << endl;
 
-    geb.vfats.push_back(vfat);
-    //cout << " geb.vfats.size " << int(geb.vfats.size()) << endl;
-
 }
 
 void gem::supervisor::GEMDataParker::writeGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, gem::supervisor::VFATData& vfat)
 {
-  cout << "\nwriteGEMevent:: event_ " << event_ << " counter= " << counter_ << " counterVFATs " << counterVFATs_ << endl; 
-  cout << " outputType_ " << outputType_ << endl;
-   //   << " GEMData.header1 " << hex << gem.header1 << dec
-    
+    cout << "\nwriteGEMevent:: event_ " << event_ << " counter= " << counter_ << " counterVFATs " << counterVFATs_  
+         << " sumVFAT " << (0x000000000fffffff & geb.header) << " geb.vfats.size " << int(geb.vfats.size()) << endl;
+
     // GEM Chamber's data level
     /*
     int nGEB=0;
