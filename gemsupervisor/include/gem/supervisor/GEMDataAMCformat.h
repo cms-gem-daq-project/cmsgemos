@@ -17,16 +17,10 @@ namespace gem {
       uint16_t bxNum;   // :8,     Sbit:8
       */
 
-      struct ChannelData {
-        uint64_t lsData;      // channels from 1to64
-        uint64_t msData;      // channels from 65to128
-      };
-    
       struct VFATData {
         uint16_t BC;          // 1010:4,   BC:12 
         uint16_t EC;          // 1100:4,   EC:8,      Flags:4
         uint16_t ChipID;      // 1110,     ChipID:12
-        /*  ChannelData data; */
         uint64_t lsData;      // channels from 1to64
         uint64_t msData;      // channels from 65to128
         uint16_t crc;         // :16
@@ -47,60 +41,47 @@ namespace gem {
         uint64_t trailer1;     // crc:32       LV1IDT:8   0000:4     DataLgth:20 
       };
 
-      bool keepChannelData(string file, int event, const ChannelData& ch){
+      /*
+       *  GEB Data Format
+       *    geb.header
+       *    vfat vector
+       *    geb.trailer
+       *
+       */
+
+      bool writeGEBheader(string file, int event, const GEBData& geb){
         ofstream outf(file.c_str(), ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << ch.lsData << endl;
-          outf << ch.msData << endl;
+          outf << hex << geb.header << dec << endl;
           outf.close();
         return(true);
       };	  
 
-      bool PrintChannelData(int event, const ChannelData& ch){
-        if( event<0) return(false);
- 	  cout << "data words:" << endl;
-	  cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << ch.msData << dec << endl;
-	  cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << ch.lsData << dec << endl;
-        return(true);
-      };
-
-      bool keepChannelDataBinary(string file, int event, const ChannelData& ch){
-        ofstream outf(file.c_str(), ios_base::app | ios::binary );
-        if(!outf.is_open()) return(false);
-        if( event<0) return(false);
-          outf.write( (char*)&ch.lsData, sizeof(ch.lsData));
-	  outf.write( (char*)&ch.msData, sizeof(ch.msData));
-          outf.close();
-        return(true);
-      };
-
-      bool readChannelDataBinary(string file, int event, const ChannelData& ch){
-        ifstream inpf(file.c_str(), ios::binary );
-        if(!inpf.is_open()) return(false);
-        if( event<0) return(false);
-          inpf.read( (char*)&ch.lsData, sizeof(ch.lsData));
-	  inpf.read( (char*)&ch.msData, sizeof(ch.msData));
-          inpf.seekg (0, inpf.cur);
-        return(true);
-      };
-
-      bool keepVFATData(string file, int event, const VFATData& vfat, const ChannelData& ch){
+      bool writeGEBtrailer(string file, int event, const GEBData& geb){
         ofstream outf(file.c_str(), ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << vfat.BC << endl;
-          outf << vfat.EC << endl;
-          outf << vfat.ChipID << endl;
-          outf << vfat.lsData << endl;
-          outf << vfat.msData << endl;
-          /*  keepChannelData (file, event, ch); */
-          outf << vfat.crc << endl;
+          outf << hex << geb.trailer << dec << endl;
           outf.close();
         return(true);
       };	  
 
-      bool PrintVFATData(int event, const VFATData& vfat, const ChannelData& ch){
+      bool writeVFATdata(string file, int event, const VFATData& vfat){
+        ofstream outf(file.c_str(), ios_base::app );
+        if( event<0) return(false);
+        if(!outf.is_open()) return(false);
+          outf << hex << vfat.BC << dec << endl;
+          outf << hex << vfat.EC << dec << endl;
+          outf << hex << vfat.ChipID << dec << endl;
+          outf << hex << vfat.lsData << dec << endl;
+          outf << hex << vfat.msData << dec << endl;
+          outf << hex << vfat.crc << dec << endl;
+          outf.close();
+        return(true);
+      };	  
+
+      bool printVFATdata(int event, const VFATData& vfat){
         if( event<0) return(false);
  	  cout << "Received tracking data word:" << endl;
 	  cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.BC     << dec << endl;
@@ -112,27 +93,47 @@ namespace gem {
         return(true);
       };
 
-      bool keepVFATDataBinary(string file, int event, const VFATData& vfat, const ChannelData& ch){
+      bool writeGEBheaderBinary(string file, int event, const GEBData& geb){
+        ofstream outf(file.c_str(), ios_base::app | ios::binary );
+        if( event<0) return(false);
+        if(!outf.is_open()) return(false);
+  	  outf.write( (char*)&geb.header, sizeof(geb.header));
+          outf.close();
+        return(true);
+      };
+	  
+      bool writeGEBtrailerBinary(string file, int event, const GEBData& geb){
+        ofstream outf(file.c_str(), ios_base::app | ios::binary );
+        if( event<0) return(false);
+        if(!outf.is_open()) return(false);
+  	  outf.write( (char*)&geb.trailer, sizeof(geb.trailer));
+          outf.close();
+        return(true);
+      };
+
+      bool writeVFATdataBinary(string file, int event, const VFATData& vfat){
         ofstream outf(file.c_str(), ios_base::app | ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
   	  outf.write( (char*)&vfat.BC, sizeof(vfat.BC));
   	  outf.write( (char*)&vfat.EC, sizeof(vfat.EC));
   	  outf.write( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
-            keepChannelDataBinary (file, event, ch);
+  	  outf.write( (char*)&vfat.lsData, sizeof(vfat.lsData));  
+  	  outf.write( (char*)&vfat.msData, sizeof(vfat.msData));
   	  outf.write( (char*)&vfat.crc, sizeof(vfat.crc));
           outf.close();
         return(true);
       };	  
 
-      bool readVFATDataBinary(string file, int event, const VFATData& vfat, const ChannelData& ch){
+      bool readVFATDataBinary(string file, int event, const VFATData& vfat){
         ifstream inpf(file.c_str(), ios_base::app | ios::binary );
         if( event<0) return(false);
         if(!inpf.is_open()) return(false);
   	  inpf.read( (char*)&vfat.BC, sizeof(vfat.BC));
   	  inpf.read( (char*)&vfat.EC, sizeof(vfat.EC));
   	  inpf.read( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
-            readChannelDataBinary (file, event, ch);
+          inpf.read( (char*)&vfat.lsData, sizeof(vfat.lsData));
+          inpf.read( (char*)&vfat.msData, sizeof(vfat.msData));
   	  inpf.read( (char*)&vfat.crc, sizeof(vfat.crc));
           inpf.seekg (0, inpf.cur);
         return(true);
@@ -181,7 +182,7 @@ namespace gem {
      	printf("\n");
       }
 
-      bool PrintVFATDataBits(int event, const VFATData& vfat, const ChannelData& ch){
+      bool printVFATdataBits(int event, const VFATData& vfat){
         if( event<0) return(false);
  	  cout << "\nReceived VFAT data word:" << endl;
 
