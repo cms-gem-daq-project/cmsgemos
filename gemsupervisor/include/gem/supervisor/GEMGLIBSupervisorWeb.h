@@ -62,6 +62,9 @@ namespace gem {
                 GEMGLIBSupervisorWeb(xdaq::ApplicationStub * s)
                     throw (xdaq::exception::Exception);
 
+		void setParameter(xgi::Input * in, xgi::Output * out ) 
+                    throw (xgi::exception::Exception);
+
                 // SOAP interface
                 xoap::MessageReference onConfigure(xoap::MessageReference message)
                     throw (xoap::exception::Exception);
@@ -176,6 +179,7 @@ namespace gem {
 
                         xdata::String          deviceIP;
                         xdata::String          outFileName;
+			xdata::String          outputType;
                         xdata::String          deviceName[24];
                         xdata::Integer         deviceNum[24];
 

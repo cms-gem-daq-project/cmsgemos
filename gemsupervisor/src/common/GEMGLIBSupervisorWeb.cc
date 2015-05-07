@@ -22,6 +22,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
     latency   = 12U;
 
     outFileName  = "";
+    outputType   = "Hex";
     deviceIP     = "192.168.0.164";
 
     /*
@@ -41,6 +42,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
     deviceVT2     = 0x0; 
 
     bag->addField("latency",       &latency );
+    bag->addField("outputType",    &outputType );
     bag->addField("outFileName",   &outFileName );
 
     bag->addField("deviceName",    &deviceName[0] );
@@ -72,6 +74,8 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
     xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webStop,        "Stop");
     xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webHalt,        "Halt");
     xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webTrigger,     "Trigger");
+
+    xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::setParameter,   "setParameter");
 
     // SOAP bindings
     xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onConfigure,   "Configure",   XDAQ_NS_URI);
@@ -183,10 +187,20 @@ throw (xgi::exception::Exception)
     *out << cgicc::input().set("type", "submit").set("name", "command").set("title", "Set DAQ type").set("value", "Set DAQ type") 
          << cgicc::br() << cgicc::br();
 
+    *out << cgicc::fieldset().set("style","font-size: 10pt;  font-family: arial;") << std::endl;
+    std::string method = toolbox::toString("/%s/setParameter",getApplicationDescriptor()->getURN().c_str());
+    *out << cgicc::legend("Set Hex/Binary of output") << cgicc::p() << std::endl;
+    *out << cgicc::form().set("method","GET").set("action", method) << std::endl;
+    *out << cgicc::input().set("type","text").set("name","value").set("value", confParams_.bag.outputType.toString())   << std::endl;
+    *out << cgicc::input().set("type","submit").set("value","Apply")  << std::endl;
+    *out << cgicc::form() << std::endl;
+    *out << cgicc::fieldset();
+
     // Show current state, counter, output filename
     *out << "Current state: " << fsm_.getStateName(fsm_.getCurrentState()) << cgicc::br();
     *out << "Current counter: " << counter_ << " events dumped to disk"  << cgicc::br();
     *out << "Output filename: " << confParams_.bag.outFileName.toString() << cgicc::br();
+    *out << "Output type: " << confParams_.bag.outputType.toString() << cgicc::br();
 
     // Table with action buttons
     *out << cgicc::table().set("border","0");
@@ -240,6 +254,21 @@ throw (xgi::exception::Exception)
     // Finish table with action buttons
     *out << cgicc::table();
 
+}
+
+    void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out ) 
+throw (xgi::exception::Exception)
+{   try{
+        cgicc::Cgicc cgi(in);
+	confParams_.bag.outputType = cgi["value"]->getValue();
+	// std::cout << " outputType " << confParams_.bag.outputType.toString() << std::endl;
+
+	// re-display form page 
+	this->webDefault(in,out);		
+    }
+    catch (const std::exception & e){
+        XCEPT_RAISE(xgi::exception::Exception, e.what());
+    }	
 }
 
     void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out )
@@ -461,7 +490,7 @@ throw (toolbox::fsm::exception::Exception)
     time_t now  = time(0);
     tm    *gmtm = gmtime(&now);
     char* utcTime = asctime(gmtm);
-    std::string tmpFileName = "GEM_DAQ_";
+    std::string tmpFileName = "GEM_DAQ_", tmpType = "";
     tmpFileName.append(utcTime);
     tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
     tmpFileName.append(".dat");
@@ -469,12 +498,12 @@ throw (toolbox::fsm::exception::Exception)
     std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
 
     confParams_.bag.outFileName = tmpFileName;
-
-    //std::fstream scanStream(tmpFileName.c_str(), std::ios_base::app | std::ios::binary);
     std::ofstream outf(tmpFileName.c_str(), std::ios_base::app | std::ios::binary );
 
+    tmpType = confParams_.bag.outputType.toString();
+
     // Book GEM Data Parker
-    gemDataParker = new gem::supervisor::GEMDataParker(*vfatDevice_, tmpFileName);
+    gemDataParker = new gem::supervisor::GEMDataParker(*vfatDevice_, tmpFileName, tmpType);
 
     // scanStream.close();
     outf.close();
@@ -502,7 +531,7 @@ throw (toolbox::fsm::exception::Exception){
 
     //send resync
     vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
-    vfatDevice_->writeReg("Send.Resync",0x1);
+    vfatDevice_->writeReg("Send.Resync",        0x1);
 
     //reset counters
     vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
@@ -511,16 +540,18 @@ throw (toolbox::fsm::exception::Exception){
     vfatDevice_->writeReg("RESETS.L1A.Delayed", 0x1);
     vfatDevice_->writeReg("RESETS.L1A.Total",   0x1);
 
-    vfatDevice_->writeReg("RESETS.CalPulse.External",0x1);
-    vfatDevice_->writeReg("RESETS.CalPulse.Internal",0x1);
-    vfatDevice_->writeReg("RESETS.CalPulse.Total",   0x1);
-
     vfatDevice_->writeReg("RESETS.Resync",      0x1);
     vfatDevice_->writeReg("RESETS.BC0",         0x1);
 
     //flush FIFO
     vfatDevice_->setDeviceBaseNode("GLIB.LINK1");
     vfatDevice_->writeReg("TRK_FIFO.FLUSH",     0x1);
+
+    /*
+    vfatDevice_->writeReg("RESETS.CalPulse.External",0x1);
+    vfatDevice_->writeReg("RESETS.CalPulse.Internal",0x1);
+    vfatDevice_->writeReg("RESETS.CalPulse.Total",   0x1);
+    */
 
     /*
     //set trigger source

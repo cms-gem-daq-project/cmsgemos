@@ -11,7 +11,6 @@ namespace gem {
         }   
     }
     namespace supervisor {
-            struct ChannelData;
             struct VFATData;
             struct GEBData;
             struct GEMData;
@@ -20,21 +19,23 @@ namespace gem {
         class GEMDataParker
         {
             public:
-                GEMDataParker(gem::hw::vfat::HwVFAT2& vfatDevice, std::string& outFileName);
+	        GEMDataParker(gem::hw::vfat::HwVFAT2& vfatDevice, std::string& outFileName, std::string& outputType);
                 ~GEMDataParker() {};
 
                 int dumpDataToDisk();
 
-		int  getGLIBData  (gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb,
-                                   gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
+		int  getGLIBData  (gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
+                     gem::supervisor::VFATData& vfat);
                 void fillGEMevent (gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
-                                   gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
-                void writeGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
-                                   gem::supervisor::VFATData& vf, gem::supervisor::ChannelData& ch);
+                     gem::supervisor::VFATData& vfat);
+                void writeGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb,
+                     gem::supervisor::VFATData& vfat);
+
             private:
 
                 gem::hw::vfat::HwVFAT2* vfatDevice_;
                 std::string outFileName_;
+                std::string outputType_;
                 int counter_;
         };
     }
