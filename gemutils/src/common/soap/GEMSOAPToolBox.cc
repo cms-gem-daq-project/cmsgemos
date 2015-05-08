@@ -44,19 +44,17 @@ xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSoapFaultReply(std:
   xoap::SOAPElement faultCodeElement = bodyElement.addChildElement(faultCodeName);
   faultCodeElement.addTextNode(faultCode);
   
-  if (detail.size() > 0)
-    {
-      xoap::SOAPName    detailName    = envelope.createName("detail", "xdaq", XDAQ_NS_URI);
-      xoap::SOAPElement detailElement = bodyElement.addChildElement(detailName);
-      detailElement.addTextNode(detail);
-    }
+  if (detail.size() > 0) {
+    xoap::SOAPName    detailName    = envelope.createName("detail", "xdaq", XDAQ_NS_URI);
+    xoap::SOAPElement detailElement = bodyElement.addChildElement(detailName);
+    detailElement.addTextNode(detail);
+  }
   
-  if (faultActor.size() > 0)
-    {
-      xoap::SOAPName faultActorName = envelope.createName("faultactor", "xdaq", XDAQ_NS_URI);
-      xoap::SOAPElement faultActorElement = bodyElement.addChildElement(faultActorName);
-      faultActorElement.addTextNode(faultActor);
-    }
+  if (faultActor.size() > 0) {
+    xoap::SOAPName faultActorName = envelope.createName("faultactor", "xdaq", XDAQ_NS_URI);
+    xoap::SOAPElement faultActorElement = bodyElement.addChildElement(faultActorName);
+    faultActorElement.addTextNode(faultActor);
+  }
   
   return reply;
 }
@@ -67,7 +65,7 @@ xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeFSMSoapReply(std::s
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
   xoap::SOAPBody         body          = envelope.getBody();
-  std::string            replyString   = event + "Response";
+  std::string            replyString   = event + " Response";
   xoap::SOAPName         replyName     = envelope.createName(replyString, "xdaq", XDAQ_NS_URI);
   xoap::SOAPBodyElement  replyElement  = body.addBodyElement(replyName);
   xoap::SOAPName         stateName     = envelope.createName("state", "xdaq", XDAQ_NS_URI);
@@ -97,13 +95,12 @@ std::string gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(xoap::Messag
   */
   // The body should contain a single node with the name of the FSM
   // command to execute.
-  if (bodyList->getLength() != 1)
-    {
-      XCEPT_RAISE(xoap::exception::Exception,
-                  toolbox::toString("Expected exactly one element "
-                                    "in FSM command SOAP message, "
-                                    "but found %d.", bodyList->getLength()));
-    }
+  if (bodyList->getLength() != 1) {
+    XCEPT_RAISE(xoap::exception::Exception,
+		toolbox::toString("Expected exactly one element "
+				  "in FSM command SOAP message, "
+				  "but found %d.", bodyList->getLength()));
+  }
   return xoap::XMLCh2String((bodyList->item(0))->getLocalName());  
 }
 

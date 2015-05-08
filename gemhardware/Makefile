@@ -23,10 +23,10 @@ DynamicLibrary=gem_hw
 
 IncludeDirs = \
         $(BUILD_HOME)/$(Project)/$(Package)/include \
-        $(XDAQ_ROOT)/include \
         $(BUILD_HOME)/$(Project)/gembase/include \
         $(BUILD_HOME)/$(Project)/gemutils/include \
 	$(AMC13_STANDALONE_ROOT)/amc13/include \
+        $(XDAQ_ROOT)/include \
         $(uHALROOT)/include
 
 DependentLibraryDirs = \
