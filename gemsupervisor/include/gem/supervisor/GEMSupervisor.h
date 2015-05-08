@@ -35,6 +35,21 @@ namespace gem {
     protected:
       //virtual void xgiDefault(   xgi::Input *in, xgi::Output *out );
       
+      virtual bool initialize(toolbox::task::WorkLoop *wl);
+      virtual bool enable(    toolbox::task::WorkLoop *wl);
+      virtual bool configure( toolbox::task::WorkLoop *wl);
+      virtual bool start(     toolbox::task::WorkLoop *wl);
+      virtual bool pause(     toolbox::task::WorkLoop *wl);
+      virtual bool resume(    toolbox::task::WorkLoop *wl);
+      virtual bool stop(      toolbox::task::WorkLoop *wl);
+      virtual bool halt(      toolbox::task::WorkLoop *wl);
+      virtual bool reset(     toolbox::task::WorkLoop *wl);
+      /* //virtual bool noAction(        toolbox::task::WorkLoop *wl); */
+      /* virtual bool fail(      toolbox::task::WorkLoop *wl); */
+      
+      /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */
+      /* virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl); */
+
       //state transitions
       virtual void initializeAction();
       virtual void enableAction(    );
@@ -54,7 +69,8 @@ namespace gem {
       
     private:
       mutable gem::utils::Lock deviceLock_;
-      
+      std::vector<xdaq::ApplicationDescriptor*> v_supervisedApps;
+      xdaq::ApplicationDescriptor* readoutApp;
       
     };
   } //end namespace supervisor

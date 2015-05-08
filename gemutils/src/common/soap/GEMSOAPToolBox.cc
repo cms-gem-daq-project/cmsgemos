@@ -1,14 +1,11 @@
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 
-//#include <vector>
-//#include <deque>
-//#include "xcept/Exception.h"
-//#include "xcept/tools.h"
-
 #include "gem/utils/exception/Exception.h"
+#include "log4cplus/logger.h"
+#include "log4cplus/loggingmacros.h"
+#include "gem/utils/GEMLogging.h"
 
 #include "toolbox/string.h"
-
 #include "xdaq/NamespaceURI.h"
 
 #include "xoap/MessageFactory.h"
@@ -18,9 +15,8 @@
 #include "xoap/SOAPPart.h"
 #include "xoap/SOAPSerializer.h"
 
-xoap::MessageReference
-gem::utils::soap::GEMSOAPToolBox::makeSoapReply(std::string const& command,
-						std::string const& response)
+xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSoapReply(std::string const& command,
+								       std::string const& response)
 {
   xoap::MessageReference reply        = xoap::createMessage();
   xoap::SOAPEnvelope     envelope     = reply->getSOAPPart().getEnvelope();
@@ -30,11 +26,10 @@ gem::utils::soap::GEMSOAPToolBox::makeSoapReply(std::string const& command,
   return reply;
 }
 
-xoap::MessageReference
-gem::utils::soap::GEMSOAPToolBox::makeSoapFaultReply(std::string const& faultString,
-						     std::string const& faultCode,
-						     std::string const& detail,
-						     std::string const& faultActor)
+xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSoapFaultReply(std::string const& faultString,
+									    std::string const& faultCode,
+									    std::string const& detail,
+									    std::string const& faultActor)
 {
   xoap::MessageReference reply       = xoap::createMessage();
   xoap::SOAPEnvelope     envelope    = reply->getSOAPPart().getEnvelope();
@@ -66,9 +61,8 @@ gem::utils::soap::GEMSOAPToolBox::makeSoapFaultReply(std::string const& faultStr
   return reply;
 }
 
-xoap::MessageReference
-gem::utils::soap::GEMSOAPToolBox::makeFSMSoapReply(std::string const& event,
-						   std::string const& state)
+xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeFSMSoapReply(std::string const& event,
+									  std::string const& state)
 {
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
@@ -84,8 +78,7 @@ gem::utils::soap::GEMSOAPToolBox::makeFSMSoapReply(std::string const& event,
 }
 
 
-std::string
-gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(xoap::MessageReference const& msg)
+std::string gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(xoap::MessageReference const& msg)
 {
   xoap::SOAPPart     part = msg->getSOAPPart();
   xoap::SOAPEnvelope env  = part.getEnvelope();
@@ -112,4 +105,39 @@ gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(xoap::MessageReference c
                                     "but found %d.", bodyList->getLength()));
     }
   return xoap::XMLCh2String((bodyList->item(0))->getLocalName());  
+}
+
+bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
+						   xdaq::ApplicationContext* appCxt,
+						   xdaq::ApplicationDescriptor* srcDsc,
+						   xdaq::ApplicationDescriptor* destDsc
+						   //log4cplus::Logger* logger,
+						   //std::string const& param
+						   )
+  throw (gem::utils::exception::Exception)
+{
+  try {
+    xoap::MessageReference msg = xoap::createMessage();
+    
+    xoap::SOAPEnvelope env = msg->getSOAPPart().getEnvelope();
+    xoap::SOAPName soapcmd = env.createName(cmd,"xdaq", XDAQ_NS_URI);
+    env.getBody().addBodyElement(soapcmd);
+    
+    xoap::MessageReference response = appCxt->postSOAP(msg,*srcDsc,*destDsc);
+    std::string  tool;
+    xoap::dumpTree(response->getSOAPPart().getEnvelope().getDOMNode(),tool);
+    
+    //LOG4CPLUS_INFO(logger, "sendCommand(" + cmd + ") received response: " + tool);
+    
+  } catch (xcept::Exception& e) {
+    XCEPT_RETHROW(gem::utils::exception::SOAPException,
+		  ::toolbox::toString("Command %s failed [%s]",cmd.c_str(),e.what()),e);
+  } catch (std::exception& e) {
+    XCEPT_RAISE(gem::utils::exception::SOAPException,
+		::toolbox::toString("Command %s failed [%s]",cmd.c_str(),e.what()));
+  } catch(...) {
+    XCEPT_RAISE(gem::utils::exception::SOAPException,
+		::toolbox::toString("Command %s failed",cmd.c_str()));
+  }
+  return true;
 }
