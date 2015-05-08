@@ -89,8 +89,6 @@ namespace gem {
 	GEMWebApplication* gemWebInterfaceP_; /* */
 	GEMMonitor*        gemMonitorP_;      /* */
 
-      private:
-	
 	/**
 	 * various application properties
 	 */
@@ -102,6 +100,8 @@ namespace gem {
 	std::string xmlClass_;
 	unsigned long instance_;
 	std::string urn_;
+	
+      private:
 	
         //xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
 

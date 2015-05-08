@@ -61,6 +61,7 @@
 // The gem::utils exceptions.
 GEM_UTILS_DEFINE_EXCEPTION(Exception)
 GEM_UTILS_DEFINE_EXCEPTION(ConfigurationParseProblem)
+GEM_UTILS_DEFINE_EXCEPTION(SOAPException)
 GEM_UTILS_DEFINE_EXCEPTION(ConfigurationProblem)
 GEM_UTILS_DEFINE_EXCEPTION(ConfigurationValidationProblem)
 

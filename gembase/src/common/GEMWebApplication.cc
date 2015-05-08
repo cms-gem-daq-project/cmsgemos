@@ -6,6 +6,8 @@
 #include "gem/base/GEMMonitor.h"
 #include "gem/base/GEMFSM.h"
 
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+
 #include "xgi/framework/UIManager.h"
 #include "xgi/Input.h"
 #include "xgi/Method.h"
@@ -120,14 +122,14 @@ void gem::base::GEMWebApplication::webInitialize(xgi::Input * in, xgi::Output * 
   throw (xgi::exception::Exception)
 {
   INFO("webInitialize");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try {
-      INFO("calling fireEvent(Initialize) on gemFSMAppP_");
-      gemFSMAppP_->fireEvent("Initialize");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
-    }
+    // try {
+    //   gemFSMAppP_->fireEvent("Initialize");
+    // } catch( toolbox::fsm::exception::Exception& e ){
+    //   XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 
@@ -136,13 +138,14 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   INFO("webEnable");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try {
-      gemFSMAppP_->fireEvent("Enable");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Enable failed", e );
-    }
+    //try {
+    //  gemFSMAppP_->fireEvent("Enable");
+    //} catch( toolbox::fsm::exception::Exception& e ){
+    //  XCEPT_RETHROW( xgi::exception::Exception, "Enable failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 
@@ -151,13 +154,14 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * o
   throw (xgi::exception::Exception)
 {
   INFO("webConfigure");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try{
-      gemFSMAppP_->fireEvent("Configure");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
-    }
+    //try{
+    //  gemFSMAppP_->fireEvent("Configure");
+    //} catch( toolbox::fsm::exception::Exception& e ){
+    //  XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 
@@ -166,13 +170,14 @@ void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   INFO("webStart");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try{
-      gemFSMAppP_->fireEvent("Start");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
-    }
+    //try{
+    //  gemFSMAppP_->fireEvent("Start");
+    //} catch( toolbox::fsm::exception::Exception& e ){
+    //  XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 
@@ -180,13 +185,14 @@ void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   INFO("webPause");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try{
-      gemFSMAppP_->fireEvent("Pause");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
-    }
+    //try{
+    //  gemFSMAppP_->fireEvent("Pause");
+    //} catch( toolbox::fsm::exception::Exception& e ){
+    //  XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 
@@ -195,13 +201,14 @@ void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   INFO("webResume");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try{
-      gemFSMAppP_->fireEvent("Resume");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
-    }
+    //try{
+    //  gemFSMAppP_->fireEvent("Resume");
+    //} catch( toolbox::fsm::exception::Exception& e ){
+    //  XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 
@@ -210,13 +217,14 @@ void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   INFO("webStop");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try{
-      gemFSMAppP_->fireEvent("Stop");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
-    }
+    //try{
+    //  gemFSMAppP_->fireEvent("Stop");
+    //} catch( toolbox::fsm::exception::Exception& e ){
+    //  XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 
@@ -225,13 +233,14 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   INFO("webHalt");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try{
-      gemFSMAppP_->fireEvent("Halt");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
-    }
+    //try{
+    //  gemFSMAppP_->fireEvent("Halt");
+    //} catch( toolbox::fsm::exception::Exception& e ){
+    //  XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 
@@ -240,13 +249,14 @@ void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   INFO("webReset");
-  if (gemFSMAppP_)
+  if (gemFSMAppP_) {
     INFO("gemFSMAppP_ non-zero");
-    try{
-      gemFSMAppP_->fireEvent("Reset");
-    } catch( toolbox::fsm::exception::Exception& e ){
-      XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
-    }
+    //try{
+    //  gemFSMAppP_->fireEvent("Reset");
+    //} catch( toolbox::fsm::exception::Exception& e ){
+    //  XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
+    //}
+  }
   webRedirect(in,out);
 }
 // End of file

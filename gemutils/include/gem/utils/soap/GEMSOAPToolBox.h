@@ -7,6 +7,11 @@
 #include "xoap/MessageReference.h"
 #include "xercesc/util/XercesDefs.hpp"
 
+#include "xdaq/ApplicationDescriptor.h"
+#include "xdaq/ApplicationContext.h"
+
+#include "gem/utils/exception/Exception.h"
+
 namespace gem {
   namespace utils {
     namespace soap {
@@ -25,6 +30,24 @@ namespace gem {
 						       std::string const& state);
 	
 	static std::string extractFSMCommandName(xoap::MessageReference const& msg);
+	
+	/**
+	 * @param cmd command to send to the application
+	 * @param appCxt context in which the source/receiver applications are running
+	 * @param srcDsc source application descriptor
+	 * @param destDsc destination application descriptor
+	 * @param logger logger object
+	 * @param param parameters to append to the SOAP message
+	 * returns true if successful/completed
+	 */
+	static bool sendCommand(std::string const& cmd,
+				xdaq::ApplicationContext* appCxt,
+				xdaq::ApplicationDescriptor* srcDsc,
+				xdaq::ApplicationDescriptor* destDsc
+				//log4cplus::Logger* logger,
+				//std::string const& param
+				)
+	  throw (gem::utils::exception::Exception);
 	
 	//methods copied from emu/soap/toolbox
 	/*

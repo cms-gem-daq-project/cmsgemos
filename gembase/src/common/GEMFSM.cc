@@ -131,7 +131,7 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
 			       &GEMFSMApplication::resetAction);
   gemfsmP_->addStateTransition(STATE_PAUSED,     STATE_INITIAL, "Reset", gemAppP_,
 			       &GEMFSMApplication::resetAction);
-  
+
 
   gemfsmP_->setStateName(STATE_FAILED, "Error");
   gemfsmP_->setFailedStateTransitionAction(      gemAppP_, &gem::base::GEMFSMApplication::failAction);
@@ -146,15 +146,15 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   gemfsmP_->setInitialState(STATE_INITIAL);
   gemfsmP_->reset();
 
-  // Find connection to RCMS.
-  gemAppP_->getApplicationInfoSpace()->fireItemAvailable("rcmsStateListener",      
-							 gemRCMSNotifier_.getRcmsStateListenerParameter());
-  gemAppP_->getApplicationInfoSpace()->fireItemAvailable("foundRcmsStateListener", 
-							 gemRCMSNotifier_.getFoundRcmsStateListenerParameter());
+  // // Find connection to RCMS.
+//   gemAppP_->getApplicationInfoSpace()->fireItemAvailable("rcmsStateListener",      
+// 							 gemRCMSNotifier_.getRcmsStateListenerParameter());
+//   gemAppP_->getApplicationInfoSpace()->fireItemAvailable("foundRcmsStateListener", 
+// 							 gemRCMSNotifier_.getFoundRcmsStateListenerParameter());
 
-  gemRCMSNotifier_.findRcmsStateListener();
+//   gemRCMSNotifier_.findRcmsStateListener();
 
-  gemRCMSNotifier_.subscribeToChangesInRcmsStateListener(gemAppP_->getApplicationInfoSpace()); 
+//   gemRCMSNotifier_.subscribeToChangesInRcmsStateListener(gemAppP_->getApplicationInfoSpace()); 
 }
 
 
