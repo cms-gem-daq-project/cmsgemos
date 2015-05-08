@@ -93,14 +93,16 @@ int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::GEMData& gem, g
       bxNumTr = TrigReg >> 6;
       SBit = TrigReg & 0x0000003F;
 
-      if (!(
-            (((data.at(5)&0xF0000000)>>28)==0xa) &&
-            (((data.at(5)&0x0000F000)>>12)==0xc) &&
-            (((data.at(4)&0xF0000000)>>28)==0xe)
-          )) {
-               vfatDevice_->setDeviceBaseNode("GLIB");
-               bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
-               continue;
+      uint8_t b1010, b1100, b1110;
+      b1010 = ((data.at(5) & 0xF0000000)>>28);
+      b1100 = ((data.at(5) & 0x0000F000)>>12);
+      b1110 = ((data.at(4) & 0xF0000000)>>28);
+	
+      if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
+	std::cout << "VFAT headers do not match expectation" << std::endl;
+	vfatDevice_->setDeviceBaseNode("GLIB");
+	bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+	continue;
       }
 
       bxNum = data.at(6);
