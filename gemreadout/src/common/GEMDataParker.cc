@@ -1,5 +1,5 @@
-#include "gem/supervisor/GEMDataParker.h"
-#include "gem/supervisor/GEMDataAMCformat.h"
+#include "gem/readout/GEMDataParker.h"
+#include "gem/readout/GEMDataAMCformat.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
 #include <boost/utility/binary.hpp>
@@ -19,7 +19,7 @@ bool dumpGEMevent_ = false;
 uint64_t ZSFlag=0;
 
 // Main constructor
-gem::supervisor::GEMDataParker::GEMDataParker(gem::hw::vfat::HwVFAT2& vfatDevice, std::string& outFileName, std::string& outputType)
+gem::readout::GEMDataParker::GEMDataParker(gem::hw::vfat::HwVFAT2& vfatDevice, std::string& outFileName, std::string& outputType)
 {
     vfatDevice_ = &vfatDevice;
     outFileName_ = outFileName;
@@ -27,28 +27,28 @@ gem::supervisor::GEMDataParker::GEMDataParker(gem::hw::vfat::HwVFAT2& vfatDevice
     counter_ = 0;
 }
 
-int gem::supervisor::GEMDataParker::dumpDataToDisk()
+int gem::readout::GEMDataParker::dumpDataToDisk()
 {
     // Book GEM Data format
-    gem::supervisor::GEMData  gem;
-    gem::supervisor::GEBData  geb;
-    gem::supervisor::VFATData vfat;
+    gem::readout::GEMData  gem;
+    gem::readout::GEBData  geb;
+    gem::readout::VFATData vfat;
 
     // get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
     dumpGEMevent_ = false;
-    counter_ = gem::supervisor::GEMDataParker::getGLIBData(gem, geb, vfat);
+    counter_ = gem::readout::GEMDataParker::getGLIBData(gem, geb, vfat);
 
     // Write GEM Data to Disk, when GEM event is off
     if( dumpGEMevent_ ){
         event_++;
         //cout << " dumpDataToDisk:: dumpGEMevent: event_ " << event_ << " counter_ " << counter_ << " counterVFATs " << counterVFATs_ << endl;
-        gem::supervisor::GEMDataParker::writeGEMevent(gem, geb, vfat);
+        gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
      }
 
     return counter_;
 }
 
-int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, gem::supervisor::VFATData& vfat)
+int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
 {
     // Book event variables
 
@@ -151,20 +151,20 @@ int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::GEMData& gem, g
 
      /*
       * dump VFAT data
-      gem::supervisor::printVFATdataBits(counter_, vfat);
+      gem::readout::printVFATdataBits(counter_, vfat);
       */
 
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
 
       // GEM data filling
-      gem::supervisor::GEMDataParker::fillGEMevent(gem, geb, vfat);
+      gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
 
     }
     return counter_;
 }
 
-void gem::supervisor::GEMDataParker::fillGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, gem::supervisor::VFATData& vfat)
+void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
 {
     /*
      *  GEM, All Chamber Data
@@ -297,7 +297,7 @@ void gem::supervisor::GEMDataParker::fillGEMevent(gem::supervisor::GEMData& gem,
 
 }
 
-void gem::supervisor::GEMDataParker::writeGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, gem::supervisor::VFATData& vfat)
+void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
 {
     cout << "\nwriteGEMevent:: event_ " << event_ << " counter= " << counter_ << " counterVFATs " << counterVFATs_  
          << " sumVFAT " << (0x000000000fffffff & geb.header) << " geb.vfats.size " << int(geb.vfats.size()) << endl;
@@ -328,11 +328,11 @@ void gem::supervisor::GEMDataParker::writeGEMevent(gem::supervisor::GEMData& gem
             vfat.crc    = (*iVFAT).crc;
       
             if(outputType_ == "Hex"){
-                gem::supervisor::writeVFATdata (outFileName_, nChip, vfat); 
+                gem::readout::writeVFATdata (outFileName_, nChip, vfat); 
             } else {
-                gem::supervisor::writeVFATdataBinary (outFileName_, nChip, vfat);
+                gem::readout::writeVFATdataBinary (outFileName_, nChip, vfat);
             } 
-	    gem::supervisor::printVFATdataBits(nChip, vfat);
+	    gem::readout::printVFATdataBits(nChip, vfat);
         } //end of VFAT
 
         if(outputType_ == "Hex"){

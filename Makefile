@@ -10,6 +10,7 @@ SUBPACKAGES := \
         gemutils \
         gembase \
         gemhardware \
+        gemreadout \
         gemsupervisor \
         gemHwMonitor \
 
@@ -49,9 +50,11 @@ gemhardware: gemutils gembase
 
 gembase: gemutils
 
-gemsupervisor: gemhardware gembase
+gemsupervisor: gemhardware gembase gemreadout
 
 gemutils: 
+
+gemreadout: gemhardware gemutils gembase
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
