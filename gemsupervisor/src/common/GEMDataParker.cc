@@ -50,11 +50,10 @@ int gem::supervisor::GEMDataParker::dumpDataToDisk()
 
 int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, gem::supervisor::VFATData& vfat)
 {
-    // Book event variables
-
+    // Book VFAT variables
     bool     isFirst = true;
     uint8_t  SBit, flags;
-    uint16_t bcn, evn, chipid;
+    uint16_t bcn, evn, chipid, crc;
     uint32_t bxNum, bxExp, TrigReg, bxNumTr;
     uint64_t msData, lsData;
 
@@ -133,6 +132,7 @@ int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::GEMData& gem, g
       evn    = (0x00000ff0 & data.at(5)) >> 4;
       chipid = (0x0fff0000 & data.at(4)) >> 16;
       flags  = (0x0000000f & data.at(5));
+      crc    = (0x0000ffff & data.at(0));
 
       uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
       uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
@@ -147,19 +147,17 @@ int gem::supervisor::GEMDataParker::getGLIBData(gem::supervisor::GEMData& gem, g
       vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
       vfat.lsData = lsData;                                 // lsData:64
       vfat.msData = msData;                                 // msData:64
-      vfat.crc    = 0x0000ffff & data.at(0);                // crc:16
-
-     /*
-      * dump VFAT data
-      gem::supervisor::printVFATdataBits(counter_, vfat);
-      */
+      vfat.crc    = crc;                                    // crc:16
 
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
 
+     /*
+      * dump VFAT data */
+      gem::supervisor::printVFATdataBits(counter_, vfat);
+      
       // GEM data filling
       gem::supervisor::GEMDataParker::fillGEMevent(gem, geb, vfat);
-
     }
     return counter_;
 }
