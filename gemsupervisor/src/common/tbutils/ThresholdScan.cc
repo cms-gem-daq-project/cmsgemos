@@ -1,6 +1,7 @@
 #include "gem/supervisor/tbutils/ThresholdScan.h"
 
-#include "gem/supervisor/tbutils/ThresholdEvent.h"
+//#include "gem/supervisor/tbutils/ThresholdEvent.h"
+#include "gem/supervisor/GEMDataAMCformat.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
 #include "TH1.h"
@@ -281,10 +282,11 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       scanParams_.bag.deviceVT2    = vfatDevice_->getVThreshold2();
       confParams_.bag.triggersSeen = 0;
       vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS.RESETS");
-      vfatDevice_->writeReg("L1A.External",0x1);
       vfatDevice_->writeReg("L1A.Internal",0x1);
+      vfatDevice_->writeReg("L1A.External",0x1);
       vfatDevice_->writeReg("L1A.Delayed",0x1);
       vfatDevice_->writeReg("L1A.Total",0x1);
+
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       vfatDevice_->setRunMode(1);
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
@@ -309,7 +311,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.give();
       wl_semaphore_.give();
       wl_->submit(stopSig_);
-      return false;
+      return false; 
     }
   }
 }
@@ -317,8 +319,8 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 //might be better done not as a workloop?
 bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* wl)
 {
-  ChannelData ch;
-  VFATEvent ev;
+  //VFATEvent vfat;
+  VFATData vfat;
   int ievent=0;
 
   wl_semaphore_.take();
@@ -388,19 +390,11 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     //make sure we are aligned
 
     //if (!checkHeaders(data)) 
-    if (!( 
-	  (((data.at(5)&0xF0000000)>>28)==0xa) && 
-	  (((data.at(5)&0x0000F000)>>12)==0xc) && 
-	  (((data.at(4)&0xF0000000)>>28)==0xe)
-	   )) {
-      //--bufferDepth; 
-      LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
-      vfatDevice_->setDeviceBaseNode("GLIB");
-      bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
-      TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
-      continue;
-    }
-    
+    uint16_t b1010, b1100, b1110;
+    b1010 = ((data.at(5) & 0xF0000000)>>28);
+    b1100 = ((data.at(5) & 0x0000F000)>>12);
+    b1110 = ((data.at(4) & 0xF0000000)>>28);
+
     bxNum = data.at(6);
     
     uint16_t bcn, evn, crc, chipid;
@@ -419,6 +413,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     evn    = (0x00000ff0 & data.at(5)) >> 4;
     chipid = (0x0fff0000 & data.at(4)) >> 16;
     flags  = (0x0000000f & data.at(5));
+    crc    = (0x0000ffff & data.at(0));
 
     uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
     uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
@@ -428,51 +423,40 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     lsData = (data3 << 32) | (data4);
     msData = (data1 << 32) | (data2);
 
-    crc    = 0x0000ffff & data.at(0);
     delVT = (scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1);
 
-    // GEM Event Format, Output
-    ch.lsData = lsData;
-    ch.msData = msData;
-    ch.delVT = delVT;
+    vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
+    vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
+    vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
+    vfat.lsData = lsData;                                 // lsData:64
+    vfat.msData = msData;                                 // msData:64
+    vfat.crc    = crc;                                    // crc:16
 
-    ev.BC = ((data.at(5)&0xF0000000)>>28) << 12; // 1010
-    ev.BC = (ev.BC | bcn);
-    ev.EC = ((data.at(5)&0x0000F000)>>12) << 12; // 1100
-    ev.EC = (ev.EC | evn) << 4;
-    ev.EC = (ev.EC | flags);
-    ev.bxExp = bxExp;
-    ev.bxNum = bxNum << 6;
-    ev.bxNum = (ev.bxNum | sBit);
-    ev.ChipID = ((data.at(4)&0xF0000000)>>28) << 12; // 1110
-    ev.ChipID = (ev.ChipID | chipid);
-    ev.crc = crc;
+    /*
+    vfat.delVT = delVT;
+    vfat.bxNum = (bxNum << 6) | sBit);
+    */
+    // keepEvent(tmpFileName, ievent, ev, ch);
 
-    keepEvent(tmpFileName, ievent, ev, ch);
+    if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
+      // dump VFAT data
+      gem::supervisor::printVFATdataBits(ievent, vfat);
+      LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
 
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "Received tracking data word:" << std::endl
-		   << "chipid  :: 0x" << std::setfill('0') << std::setw(4) << std::hex << chipid << std::dec << std::endl
-		   << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << msData << std::dec << std::endl
-		   << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << lsData << std::dec << std::endl
-                   << "dVT2-1  ::   " << std::setfill(' ') << std::setw(4) << delVT << std::endl
-		   << "nTriggers:   " << std::setw(8) << confParams_.bag.triggersSeen << std::endl
-		   );
+      vfatDevice_->setDeviceBaseNode("GLIB");
+      bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+      TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
+      continue;
+    }
 
-    LOG4CPLUS_DEBUG(getApplicationLogger(),
-		   "Received tracking data word:" << std::endl
-		   << "bxn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << bxNum  << std::dec << std::endl
-		   << "bcn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << bcn    << std::dec << std::endl
-		   << "evn     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << evn    << std::dec << std::endl
-		   << "flags   :: 0x" << std::setfill('0') << std::setw(2) << std::hex << (unsigned)flags  << std::dec << std::endl
-		   << "chipid  :: 0x" << std::setfill('0') << std::setw(4) << std::hex << chipid << std::dec << std::endl
-		   << "<127:0> :: 0x" << std::setfill('0') << std::setw(8) << std::hex << msData << 
-		   std::dec << std::setfill('0') << std::setw(8) << std::hex << lsData << std::dec << std::endl
-		   << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << msData << std::dec << std::endl
-		   << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << lsData << std::dec << std::endl
-		   << "crc     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << crc    << std::dec << std::endl
-                   << "dVT2-1  ::   " << std::setfill(' ') << std::setw(4) << delVT << std::endl
-		   );
+   /*
+    * dump VFAT data */
+    gem::supervisor::printVFATdataBits(ievent, vfat);
+
+   /*
+    * GEM data filling
+    gem::supervisor::GEMDataParker::fillGEMevent(gem, geb, vfat);
+    */
 
     //while (bxNum == bxExp) {
     
@@ -1110,7 +1094,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   
   is_working_ = true;
 
-  AppHeader ah;
+  //AppHeader ah;
 
   latency_   = scanParams_.bag.latency;
   nTriggers_ = confParams_.bag.nTriggers;
@@ -1212,11 +1196,13 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   int maxTh = scanParams_.bag.maxThresh;
   int nBins = ((maxTh - minTh) + 1)/(scanParams_.bag.stepSize);
 
+  /*
   //write Applicatie  header
   ah.minTh = minTh;
   ah.maxTh = maxTh;
   ah.stepSize = scanParams_.bag.stepSize;
   keepAppHeader(tmpFileName, ah);
+  */
 
   histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
   
