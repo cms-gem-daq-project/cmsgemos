@@ -3,8 +3,6 @@
 
 #include <string>
 
-#include "xdaq/WebApplication.h"
-
 #include "xdata/String.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
@@ -18,41 +16,37 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-#include "gem/hw/glib/GLIBSettings.h"
-
-//typedef uhal::exception::exception uhalException;
+#include "gem/base/GEMFSMApplication.h"
+//#include "gem/hw/glib/GLIBSettings.h"
 
 #define MAX_GLIBS_PER_CRATE 12
 
-namespace cgicc {
-  BOOLEAN_ELEMENT(section,"section");
-}
-
 namespace gem {
   namespace base {
-    class GEMApplication;
-    class GEMFSM;
-    class GEMFSMApplication;
-    class GEMWebApplication;
   }
   
   namespace hw {
     namespace glib {
       class HwGLIB;
       
-      //class GLIBManager: public gem::base::GEMWebApplication, public gem::base::GEMFSMApplication
-      class GLIBManager: public xdaq::WebApplication, public xdata::ActionListener
+      class GLIBManager : public gem::base::GEMFSMApplication
 	{
 	  
 	public:
-	  XDAQ_INSTANTIATOR();
-	  
-	  GLIBManager(xdaq::ApplicationStub * s)
-	    throw (xdaq::exception::Exception);
+	  GLIBManager(xdaq::ApplicationStub* s);
 
 	  ~GLIBManager();
+
+	  void init();
 	  
-	  gem::hw::glib::HwGLIB* m_GLIBs[MAX_GLIBS_PER_CRATE];
+	  void actionPerformed(xdata::Event& event);
+	  
+	protected:
+	  
+	  
+	private:
+	  
+	  HwGLIB* m_GLIBs[MAX_GLIBS_PER_CRATE];
 	  
 	}; //end class GLIBManager
 

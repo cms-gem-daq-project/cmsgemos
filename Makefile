@@ -3,14 +3,16 @@
 #
 
 SUBPACKAGES := \
+        gemutils \
         gembase \
         gemhardware \
         gemsupervisor \
         gemHwMonitor \
 
-OS:=linux
-ARCH:=x86_64
-LIBDIR:=lib/$(OS)/$(ARCH)
+#OS:=linux
+#ARCH:=x86_64
+#LIBDIR:=lib/$(OS)/$(ARCH)
+LIBDIR:=lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
 SUBPACKAGES.INSTALL := $(patsubst %,%.install, ${SUBPACKAGES})
 SUBPACKAGES.RPM := $(patsubst %,%.rpm, ${SUBPACKAGES})
@@ -44,8 +46,10 @@ $(SUBPACKAGES.CLEAN):
 
 gemHwMonitor: gembase gemhardware
 
-gemhardware: 
+gemhardware: gemutils gembase
 
-gembase: 
+gembase: gemutils
 
-gemsupervisor: gemhardware
+gemsupervisor: gemhardware gembase
+
+gemutils: 

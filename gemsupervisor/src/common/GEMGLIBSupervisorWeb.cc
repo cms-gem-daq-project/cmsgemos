@@ -436,10 +436,15 @@ throw (toolbox::fsm::exception::Exception)
       std::string VfatName = confParams_.bag.deviceName[i].toString();
       if (VfatName != ""){
 
+<<<<<<< HEAD
         // Define device
         vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, VFATnum[i]);
         vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
         vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+=======
+            // Define device
+            vfatDevice_ = new gem::hw::vfat::HwVFAT2(this->getApplicationLogger(), "VFAT12");
+>>>>>>> f4382b8b5364701932e7a9588fa99e002893ab7e
 
         vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
 

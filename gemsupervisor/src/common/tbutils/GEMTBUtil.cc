@@ -372,6 +372,8 @@ void gem::supervisor::tbutils::GEMTBUtil::selectVFAT(xgi::Output *out)
 	 << "<tr>" << std::endl
 	 << "<td>" << std::endl
 	 << cgicc::select().set("id","VFATDevice").set("name","VFATDevice")     << std::endl
+      //here we should have all VFATs, all VFATs with disconnected ones greyed out, or all connected VFATs
+      // the software shouldn't try to connect to an unavailable VFAT
 	 << ((confParams_.bag.deviceName.toString().compare("VFAT8")) == 0 ?
 	     (cgicc::option("VFAT8").set(isDisabled).set("value","VFAT8").set("selected")) :
 	     (cgicc::option("VFAT8").set(isDisabled).set("value","VFAT8"))) << std::endl
@@ -1334,7 +1336,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   //here the connection to the device should be made
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
   hw_semaphore_.take();
-  vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, confParams_.bag.deviceName.toString());
+  vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), confParams_.bag.deviceName.toString());
   
   //vfatDevice_->setAddressTableFileName("allregsnonfram.xml");
   //vfatDevice_->setDeviceBaseNode("user_regs.vfats."+confParams_.bag.deviceName.toString());
@@ -1466,7 +1468,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   hw_semaphore_.take();
   vfatDevice_->setRunMode(0);
 
-  if (vfatDevice_->isGEMHwDeviceConnected())
+  if (vfatDevice_->isHwConnected())
     vfatDevice_->releaseDevice();
   
   if (vfatDevice_)

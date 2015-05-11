@@ -15,7 +15,7 @@ namespace gem {
         class gemGLIBMonitor: public gemHwMonitorBase
             {
                 public:
-                gemGLIBMonitor(gem::base::utils::gemGLIBProperties& glibRef)
+                gemGLIBMonitor(gem::utils::gemGLIBProperties& glibRef)
                     throw (xgi::exception::Exception);
                 ~gemGLIBMonitor()
                     throw (xgi::exception::Exception);
@@ -26,7 +26,7 @@ namespace gem {
                     throw (xgi::exception::Exception);
                 
                 private:
-                gem::base::utils::gemGLIBProperties glibRef_;
+                gem::utils::gemGLIBProperties glibRef_;
             }
     }
 }
