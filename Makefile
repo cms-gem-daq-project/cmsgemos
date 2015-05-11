@@ -59,11 +59,12 @@ gemsupervisor: gemhardware gembase
 gemutils: 
 
 print-env:
-	@echo BUILD_HOME $(BUILD_HOME)
-	@echo XDAQ_ROOT  $(XDAQ_ROOT)
-	@echo XDAQ_OS    $(XDAQ_OS)
-	@echo XDAQ_OS    $(XDAQ_PLATFORM)
-	@echo ROOTCFLAGS $(ROOTCFLAGS)
-	@echo ROOTLIBS   $(ROOTLIBS)
-	@echo ROOTGLIBS  $(ROOTGLIBS)
+	@echo BUILD_HOME    $(BUILD_HOME)
+	@echo XDAQ_ROOT     $(XDAQ_ROOT)
+	@echo XDAQ_OS       $(XDAQ_OS)
+	@echo XDAQ_PLATFORM $(XDAQ_PLATFORM)
+	@echo LIBDIR        $(LIBDIR)
+	@echo ROOTCFLAGS    $(ROOTCFLAGS)
+	@echo ROOTLIBS      $(ROOTLIBS)
+	@echo ROOTGLIBS     $(ROOTGLIBS)
 
