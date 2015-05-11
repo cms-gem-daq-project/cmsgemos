@@ -36,7 +36,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   LOG4CPLUS_DEBUG(getApplicationLogger(), "executing preInit for AMC13Manager");
   preInit();
   LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
-  getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/amc13/AMC13Manager.png");
+  getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
