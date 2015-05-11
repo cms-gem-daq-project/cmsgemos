@@ -21,7 +21,10 @@
         <instance xsi:type="xsd:unsignedInt">3</instance>
       </rcmsStateListener>
     </xc:Application>
+
     <xc:Module>${XDAQ_ROOT}/lib/libxdaq2rc.so</xc:Module>
     <xc:Module>${GLIBTEST}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
+
   </xc:Context>
+
 </xc:Partition>
