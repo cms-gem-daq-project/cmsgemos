@@ -6,10 +6,10 @@
 
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.162</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.164</ipAddr>
       </properties>
     </xc:Application>
-    
+<!--    
     <xc:Application class="gem::supervisor::tbutils::ADCScan" id="255" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ADCScan" xsi:type="soapenc:Struct">
 	<ipAddr xsi:type="xsd:string">192.168.0.175</ipAddr>
@@ -21,7 +21,7 @@
 	<ipAddr xsi:type="xsd:string">192.168.0.175</ipAddr>
       </properties>
     </xc:Application>
-    
+-->    
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/linux/x86_64_slc6/libgem_supervisor.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware//lib/linux/x86_64_slc6/libgem_hw.so</xc:Module>
     <!--
