@@ -62,9 +62,9 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
     boost::format linkForm("LINK%d");
     uint32_t fifoDepth[3];
     vfatDevice_->setDeviceBaseNode("GLIB");
-    fifoDepth[0] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
-    fifoDepth[1] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
-    fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
+    fifoDepth[0] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
+    fifoDepth[1] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
+    fifoDepth[2] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
 
     int bufferDepth = 0;
     if ( fifoDepth[0] != fifoDepth[1] || fifoDepth[0] != fifoDepth[2] || fifoDepth[1] != fifoDepth[2] ) {
@@ -79,17 +79,17 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
       std::vector<uint32_t> data;
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
 
-      if (vfatDevice_->readReg("DATA_RDY")) {
+      if (vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"DATA_RDY")) {
         for (int word = 0; word < 7; ++word) {
              std::stringstream ss9;
              ss9 << "DATA." << word;
-             data.push_back(vfatDevice_->readReg(ss9.str()));
+             data.push_back(vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),ss9.str()));
         }
       }
 
       // read trigger data
       vfatDevice_->setDeviceBaseNode("GLIB");
-      TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
+      TrigReg = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"TRG_DATA.DATA");
       bxNumTr = TrigReg >> 6;
       SBit = TrigReg & 0x0000003F;
 
@@ -101,7 +101,7 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
       if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
 	std::cout << "VFAT headers do not match expectation" << std::endl;
 	vfatDevice_->setDeviceBaseNode("GLIB");
-	bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+	bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
 	continue;
       }
 
@@ -155,7 +155,7 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
       */
 
       vfatDevice_->setDeviceBaseNode("GLIB");
-      bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+      bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
 
       // GEM data filling
       gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
