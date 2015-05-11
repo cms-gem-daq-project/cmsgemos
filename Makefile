@@ -13,11 +13,6 @@ SUBPACKAGES := \
         gemsupervisor \
         gemHwMonitor \
 
-#OS:=linux
-#ARCH:=x86_64
-#LIBDIR:=lib/$(OS)/$(ARCH)
-#LIBDIR:=lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-
 SUBPACKAGES.INSTALL := $(patsubst %,%.install, ${SUBPACKAGES})
 SUBPACKAGES.RPM := $(patsubst %,%.rpm, ${SUBPACKAGES})
 SUBPACKAGES.CLEAN := $(patsubst %,%.clean, ${SUBPACKAGES})
