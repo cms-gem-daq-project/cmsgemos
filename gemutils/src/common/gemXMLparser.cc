@@ -248,9 +248,6 @@ void gem::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
     }    
 }
 
-<<<<<<< HEAD:gemdaq-testing/gembase/src/common/utils/gemXMLparser.cc
-void gem::base::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
-=======
 void gem::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat)
 {
     if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
@@ -261,7 +258,6 @@ void gem::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNo
 }
 
 void gem::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
->>>>>>> f4382b8b5364701932e7a9588fa99e002893ab7e:gemdaq-testing/gemutils/src/common/gemXMLparser.cc
 {
     std::cout << "[XML PARSER]: OH parsing: start VFAT parsing" << std::endl;
     xercesc::DOMNode * n = pNode->getFirstChild();
@@ -301,38 +297,7 @@ void gem::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
     }
 }
 
-<<<<<<< HEAD:gemdaq-testing/gembase/src/common/utils/gemXMLparser.cc
-void gem::base::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemGLIBProperties* glib)
-{
-    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
-    {
-        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-        glib->addDeviceProperty(key,value);
-    }
-}
-
-void gem::base::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemOHProperties* oh)
-{
-    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
-    {
-        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-        oh->addDeviceProperty(key,value);
-    }
-}
-
-void gem::base::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat)
-{
-    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
-    {
-        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-        vfat->addDeviceProperty(key,value);
-    }
-}
-
-int gem::base::utils::gemXMLparser::countChildElementNodes(xercesc::DOMNode * pNode) {
-=======
 int gem::utils::gemXMLparser::countChildElementNodes(xercesc::DOMNode * pNode) {
->>>>>>> f4382b8b5364701932e7a9588fa99e002893ab7e:gemdaq-testing/gemutils/src/common/gemXMLparser.cc
     int count = 0;
     if (pNode->hasChildNodes()) {
         xercesc::DOMNode * n = pNode->getFirstChild();
