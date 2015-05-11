@@ -437,7 +437,9 @@ throw (toolbox::fsm::exception::Exception)
       if (VfatName != ""){
 
         // Define device
-        vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, VFATnum[i]);
+        vfatDevice_ = new gem::hw::vfat::HwVFAT2(this->getApplicationLogger(), VFATnum[i]);
+        //vfatDevice_ = new gem::hw::vfat::HwVFAT2(this->getApplicationLogger(), "VFAT12");
+
         vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
         vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
 
