@@ -27,7 +27,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
 {
   readoutDelay = 1U; //readout delay in milleseconds/microseconds?
 
-  nTriggers = 500U;
+  nTriggers = 1000U;
 
   time_t now  = time(0);
   tm    *gmtm = gmtime(&now);
@@ -43,22 +43,21 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   outFileName  = tmpFileName;
   settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
 
-  deviceIP      = "192.168.0.115";
+  deviceIP      = "192.168.0.164";
   deviceName    = "";
   deviceNum     = -1;
-  triggerSource = 0x2;
+  triggerSource = 0x0;
   deviceChipID  = 0x0;
 
   triggersSeen = 0;
   ADCVoltage = 0;
   ADCurrent = 0;
 
-  bag->addField("readoutDelay",   &readoutDelay);
+  bag->addField("readoutDelay", &readoutDelay);
+  bag->addField("nTriggers",    &nTriggers);
 
-  bag->addField("nTriggers",   &nTriggers);
-
-  bag->addField("outFileName",   &outFileName );
-  bag->addField("settingsFile",  &settingsFile);
+  bag->addField("outFileName",  &outFileName );
+  bag->addField("settingsFile", &settingsFile);
 
   bag->addField("deviceName",   &deviceName  );
   bag->addField("deviceIP",     &deviceIP    );
@@ -66,7 +65,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   bag->addField("deviceChipID", &deviceChipID);
   bag->addField("triggersSeen", &triggersSeen);
   bag->addField("ADCVoltage",   &ADCVoltage);
-  bag->addField("ADCurrent",   &ADCurrent);
+  bag->addField("ADCurrent",    &ADCurrent);
 
 }
 
@@ -1480,7 +1479,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   hw_semaphore_.give();
 
   //reset parameters to defaults, allow to select new device
-  confParams_.bag.nTriggers = 500U;
+  confParams_.bag.nTriggers = 1000U;
 
   confParams_.bag.deviceName   = "";
   confParams_.bag.deviceChipID = 0x0;
