@@ -68,14 +68,14 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
         is_running_ (false)
 {
     // HyperDAQ bindings
-    xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webDefault,     "Default");
-    xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webConfigure,   "Configure");
-    xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webStart,       "Start");
-    xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webStop,        "Stop");
-    xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webHalt,        "Halt");
-    xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::webTrigger,     "Trigger");
+    xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webDefault,     "Default");
+    xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webConfigure,   "Configure");
+    xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webStart,       "Start");
+    xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webStop,        "Stop");
+    xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webHalt,        "Halt");
+    xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webTrigger,     "Trigger");
 
-    xgi::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::setParameter,   "setParameter");
+    xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::setParameter,   "setParameter");
 
     // SOAP bindings
     xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onConfigure,   "Configure",   XDAQ_NS_URI);
@@ -170,8 +170,16 @@ throw (xoap::exception::Exception)
 throw (xgi::exception::Exception)
 {
     // Define how often main web interface refreshes
-    cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","7");
+    if (!is_working_ && !is_running_) {
+    }
+    else if (is_working_) {
+      cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
+      head.addHeader("Refresh","7");
+    }
+    else if (is_running_) {
+      cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
+      head.addHeader("Refresh","30");
+    }
 
     // If we are in "Running" state, check if GLIB has any data available
     if (is_running_) wl_->submit(run_signature_);
@@ -333,7 +341,7 @@ throw (xgi::exception::Exception)
     vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
     //for (unsigned int com = 0; com < 15; ++com) vfatDevice_->writeReg("Send.L1ACalPulse",1);
 
-    vfatDevice_->writeReg("Send.L1A",0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.L1A",0x1);
 
     for (int i=0; i<24; i++){
       std::string VfatName = confParams_.bag.deviceName[i].toString();
@@ -394,7 +402,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
     // Get the size of GLIB data buffer
     vfatDevice_->setDeviceBaseNode("GLIB");
-    uint32_t bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+    uint32_t bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
 
     wl_semaphore_.give();
     hw_semaphore_.give();
@@ -451,29 +459,30 @@ throw (toolbox::fsm::exception::Exception)
 	latency_   = confParams_.bag.latency;
 
 	// Set VFAT2 registers
-	vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
-	vfatDevice_->setCalibrationMode(0x0); //set to normal
-	vfatDevice_->setMSPolarity(     0x1); //negative
-	vfatDevice_->setCalPolarity(    0x1); //negative
+	vfatDevice_->loadDefaults();
+	// vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
+	// vfatDevice_->setCalibrationMode(0x0); //set to normal
+	// vfatDevice_->setMSPolarity(     0x1); //negative
+	// vfatDevice_->setCalPolarity(    0x1); //negative
 
-	vfatDevice_->setProbeMode(        0x0);
-	vfatDevice_->setLVDSMode(         0x0);
-	vfatDevice_->setDACMode(          0x0);
-	vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
+	// vfatDevice_->setProbeMode(        0x0);
+	// vfatDevice_->setLVDSMode(         0x0);
+	// vfatDevice_->setDACMode(          0x0);
+	// vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
 
-	vfatDevice_->setHitCountMode( 0x0);
-	vfatDevice_->setMSPulseLength(0x3);
-	vfatDevice_->setInputPadMode( 0x0);
-	vfatDevice_->setTrimDACRange( 0x0);
-	vfatDevice_->setBandgapPad(   0x0);
-	vfatDevice_->sendTestPattern( 0x0);
+	// vfatDevice_->setHitCountMode( 0x0);
+	// vfatDevice_->setMSPulseLength(0x3);
+	// vfatDevice_->setInputPadMode( 0x0);
+	// vfatDevice_->setTrimDACRange( 0x0);
+	// vfatDevice_->setBandgapPad(   0x0);
+	// vfatDevice_->sendTestPattern( 0x0);
 
-	vfatDevice_->setIPreampIn(  168);
-	vfatDevice_->setIPreampFeed(150);
-	vfatDevice_->setIPreampOut(  80);
-	vfatDevice_->setIShaper(    150);
-	vfatDevice_->setIShaperFeed(100);
-	vfatDevice_->setIComp(      120);
+	// vfatDevice_->setIPreampIn(  168);
+	// vfatDevice_->setIPreampFeed(150);
+	// vfatDevice_->setIPreampOut(  80);
+	// vfatDevice_->setIShaper(    150);
+	// vfatDevice_->setIShaperFeed(100);
+	//vfatDevice_->setIComp(      120);
 
 	vfatDevice_->setLatency(latency_);
 
@@ -525,42 +534,44 @@ throw (toolbox::fsm::exception::Exception){
     /*
     //set clock source
     vfatDevice_->setDeviceBaseNode("OptoHybrid.CLOCKING");
-    vfatDevice_->writeReg("VFAT.SOURCE",  0x0);
-    vfatDevice_->writeReg("CDCE.SOURCE",  0x0);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"VFAT.SOURCE",  0x0);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"CDCE.SOURCE",  0x0);
     */
 
     //send resync
+    LOG4CPLUS_INFO(getApplicationLogger(),"deviceBaseNode = " << vfatDevice_->getDeviceBaseNode());
     vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
-    vfatDevice_->writeReg("Send.Resync",        0x1);
+    LOG4CPLUS_INFO(getApplicationLogger(),"deviceBaseNode = " << vfatDevice_->getDeviceBaseNode());
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.Resync",        0x1);
 
     //reset counters
     vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
-    vfatDevice_->writeReg("RESETS.L1A.External",0x1);
-    vfatDevice_->writeReg("RESETS.L1A.Internal",0x1);
-    vfatDevice_->writeReg("RESETS.L1A.Delayed", 0x1);
-    vfatDevice_->writeReg("RESETS.L1A.Total",   0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.External",0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Internal",0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Delayed", 0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Total",   0x1);
 
-    vfatDevice_->writeReg("RESETS.Resync",      0x1);
-    vfatDevice_->writeReg("RESETS.BC0",         0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.Resync",      0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.BC0",         0x1);
 
     //flush FIFO
     vfatDevice_->setDeviceBaseNode("GLIB.LINK1");
-    vfatDevice_->writeReg("TRK_FIFO.FLUSH",     0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TRK_FIFO.FLUSH",     0x1);
 
     /*
-    vfatDevice_->writeReg("RESETS.CalPulse.External",0x1);
-    vfatDevice_->writeReg("RESETS.CalPulse.Internal",0x1);
-    vfatDevice_->writeReg("RESETS.CalPulse.Total",   0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.External",0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.Internal",0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.Total",   0x1);
     */
 
     /*
     //set trigger source
     vfatDevice_->setDeviceBaseNode("OptoHybrid.TRIGGER");
-    vfatDevice_->writeReg("SOURCE",   0x0); //0x2 
-    vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum[11]);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"SOURCE",   0x0); //0x2 
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TDC_SBits",(unsigned)confParams_.bag.deviceNum[11]);
 
     vfatDevice_->setDeviceBaseNode("GLIB");
-    vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum[11]);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TDC_SBits",(unsigned)confParams_.bag.deviceNum[11]);
     */
 
     for (int i=0; i<24; i++){
