@@ -3,7 +3,7 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://${GEMHOST}:${GEM_SUPER_PORT}">
+  <xc:Context url="http://gem904daq01:2288">
 
     <xc:Application class="gem::supervisor::GemSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMSupervisor"
