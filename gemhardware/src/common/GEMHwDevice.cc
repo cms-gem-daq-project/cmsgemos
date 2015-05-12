@@ -499,13 +499,8 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
     ++ipBusErrs.timeouts_;
   if (errCode.find("ControlHub error code is: 4") != std::string::npos)
     ++ipBusErrs.controlHubErr_;
-<<<<<<< HEAD
-  if ((errCode.find("had response field = 0x04")  != std::string::npos) ||
-      (errCode.find("had response field = 0x06")  != std::string::npos))
-=======
   if ((errCode.find("had response field = 0x04") != std::string::npos) ||
       (errCode.find("had response field = 0x06") != std::string::npos))
->>>>>>> 667313ac7557162cb2b6bb4e2d2130f85845013c
     ++ipBusErrs.controlHubErr_;
 }
 
