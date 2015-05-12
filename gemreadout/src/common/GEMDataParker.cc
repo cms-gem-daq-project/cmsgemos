@@ -142,41 +142,28 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
       lsData = (data3 << 32) | (data4);
       msData = (data1 << 32) | (data2);
 
-<<<<<<< HEAD:gemdaq-testing/gemsupervisor/src/common/GEMDataParker.cc
       vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
       vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
       vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
       vfat.lsData = lsData;                                 // lsData:64
       vfat.msData = msData;                                 // msData:64
       vfat.crc    = crc;                                    // crc:16
-=======
-      vfat.BC     = ( ((data.at(5) & 0xF0000000)>>28) << 12 ) | (bcn);                // 1010     | bcn:12
-      vfat.EC     = ( ((data.at(5) & 0x0000F000)>>12) << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
-      vfat.ChipID = ( ((data.at(4) & 0xF0000000)>>28) << 12 ) | (chipid);             // 1110     | ChipID:12
-      vfat.lsData = lsData;                                                           // lsData:64
-      vfat.msData = msData;                                                           // msData:64
-      vfat.crc    = 0x0000ffff & data.at(0);                                          // crc:16
 
      /*
       * dump VFAT data
       gem::readout::printVFATdataBits(counter_, vfat);
       */
->>>>>>> 667313ac7557162cb2b6bb4e2d2130f85845013c:gemdaq-testing/gemreadout/src/common/GEMDataParker.cc
 
       vfatDevice_->setDeviceBaseNode("GLIB");
       bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
 
      /*
       * dump VFAT data */
-      gem::supervisor::printVFATdataBits(counter_, vfat);
+      gem::readout::printVFATdataBits(counter_, vfat);
       
       // GEM data filling
-<<<<<<< HEAD:gemdaq-testing/gemsupervisor/src/common/GEMDataParker.cc
-      gem::supervisor::GEMDataParker::fillGEMevent(gem, geb, vfat);
-=======
       gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
 
->>>>>>> 667313ac7557162cb2b6bb4e2d2130f85845013c:gemdaq-testing/gemreadout/src/common/GEMDataParker.cc
     }
     return counter_;
 }
