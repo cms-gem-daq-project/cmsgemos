@@ -133,7 +133,7 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
       LOG4CPLUS_DEBUG(this->getApplicationLogger(),"reading::getNodes(): " << std::endl
 		     << "nodes_.size() = " << nodes_.size() << std::endl);
       LOG4CPLUS_DEBUG(this->getApplicationLogger(), "attempting to read register " << (*node));
-      vfatFullRegs_[*node] = vfatDevice->readReg(*node);
+      vfatFullRegs_[*node] = vfatDevice->readReg(vfatDevice->getDeviceBaseNode(),*node);
       vfatRegs_[*node]     = vfatDevice->readVFATReg(*node);
       std::cout << *node << "  0x" << std::hex << vfatFullRegs_[*node] << std::dec << std::endl;
       std::cout << *node << "  0x" << std::hex << static_cast<unsigned>(vfatRegs_[*node])     << std::dec << std::endl;
