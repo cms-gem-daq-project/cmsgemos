@@ -15,21 +15,10 @@ LongPackage=gemsupervisor
 ShortPackage=supervisor
 PackageName=supervisor
 
-<<<<<<< HEAD
-#Sources= GEMTestBeamSupervisor.cc GEMTestBeamSupervisorWeb.cc
-<<<<<<< HEAD
-Sources= tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc GEMGLIBSupervisorWeb.cc GEMDataParker.cc
-#Sources= GEMGLIBSupervisorWeb.cc GEMDataParker.cc
-=======
-Sources= tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc
-#Sources += GEMGLIBSupervisorWeb.cc GEMDataParker.cc
-Sources += GEMSupervisor.cc GEMSupervisorWeb.cc
->>>>>>> f4382b8b5364701932e7a9588fa99e002893ab7e
-=======
+#Sources += GEMSupervisor.cc GEMSupervisorWeb.cc
 Sources =  tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc
 Sources += GEMGLIBSupervisorWeb.cc
 Sources += GEMSupervisor.cc GEMSupervisorWeb.cc
->>>>>>> 667313ac7557162cb2b6bb4e2d2130f85845013c
 
 DynamicLibrary=gem_supervisor
 
