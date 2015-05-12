@@ -637,10 +637,12 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
     }
     else if (is_working_) {
       cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
+      LOG4CPLUS_DEBUG(this->getApplicationLogger()," why do we need &head ?: " << &head);
       //head.addHeader("Refresh","2");
     }
     else if (is_running_) {
       cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
+      LOG4CPLUS_DEBUG(this->getApplicationLogger()," why do we need &head ?: " << &head);
       //head.addHeader("Refresh","5");
     }
     

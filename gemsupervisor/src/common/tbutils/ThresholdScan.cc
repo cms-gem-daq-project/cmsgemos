@@ -1,7 +1,8 @@
 #include "gem/supervisor/tbutils/ThresholdScan.h"
 
 //#include "gem/supervisor/tbutils/ThresholdEvent.h"
-#include "gem/supervisor/GEMDataAMCformat.h"
+#include "gem/readout/GEMDataParker.h"
+#include "gem/readout/GEMDataAMCformat.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
 #include "TH1.h"
@@ -320,7 +321,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* wl)
 {
   //VFATEvent vfat;
-  VFATData vfat;
+  gem::readout::VFATData vfat;
   int ievent=0;
 
   wl_semaphore_.take();
@@ -440,7 +441,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
       // dump VFAT data
-      gem::supervisor::printVFATdataBits(ievent, vfat);
+      gem::readout::printVFATdataBits(ievent, vfat);
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
 
       vfatDevice_->setDeviceBaseNode("GLIB");
@@ -451,11 +452,11 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
    /*
     * dump VFAT data */
-    gem::supervisor::printVFATdataBits(ievent, vfat);
+    gem::readout::printVFATdataBits(ievent, vfat);
 
    /*
     * GEM data filling
-    gem::supervisor::GEMDataParker::fillGEMevent(gem, geb, vfat);
+    gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
     */
 
     //while (bxNum == bxExp) {
