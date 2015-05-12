@@ -15,7 +15,6 @@ LongPackage=gemsupervisor
 ShortPackage=supervisor
 PackageName=supervisor
 
-#Sources += GEMSupervisor.cc GEMSupervisorWeb.cc
 Sources =  tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc
 Sources += GEMGLIBSupervisorWeb.cc
 Sources += GEMSupervisor.cc GEMSupervisorWeb.cc
