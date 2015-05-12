@@ -248,6 +248,7 @@ void gem::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
     }    
 }
 
+<<<<<<< HEAD
 void gem::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat)
 {
     if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
@@ -257,6 +258,8 @@ void gem::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNo
     }
 }
 
+=======
+>>>>>>> 667313ac7557162cb2b6bb4e2d2130f85845013c
 void gem::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
 {
     std::cout << "[XML PARSER]: OH parsing: start VFAT parsing" << std::endl;
@@ -297,6 +300,36 @@ void gem::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
     }
 }
 
+<<<<<<< HEAD
+=======
+void gem::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemGLIBProperties* glib)
+{
+    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
+    {
+        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        glib->addDeviceProperty(key,value);
+    }
+}
+
+void gem::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemOHProperties* oh)
+{
+    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
+    {
+        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        oh->addDeviceProperty(key,value);
+    }
+}
+
+void gem::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat)
+{
+    if (strcmp(key,xercesc::XMLString::transcode(n->getNodeName()))==0)
+    {
+        std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        vfat->addDeviceProperty(key,value);
+    }
+}
+
+>>>>>>> 667313ac7557162cb2b6bb4e2d2130f85845013c
 int gem::utils::gemXMLparser::countChildElementNodes(xercesc::DOMNode * pNode) {
     int count = 0;
     if (pNode->hasChildNodes()) {

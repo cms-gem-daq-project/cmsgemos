@@ -48,11 +48,14 @@ namespace gem {
     namespace hw {
         namespace vfat {
             class HwVFAT2;
-        }   
+        }
     }
+    namespace readout {
+        class GEMDataParker;
+    }
+
     namespace supervisor {
 
-        class GEMDataParker;
         class GEMGLIBSupervisorWeb: public xdaq::WebApplication
         {
             public:
@@ -213,7 +216,7 @@ namespace gem {
                 bool is_working_, is_initialized_, is_configured_, is_running_;
 
                 gem::hw::vfat::HwVFAT2* vfatDevice_;
-                gem::supervisor::GEMDataParker* gemDataParker;
+                gem::readout::GEMDataParker* gemDataParker;
 
                 int counter_;
 

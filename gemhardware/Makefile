@@ -56,7 +56,7 @@ UserStaticLinkFlags =
 #                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
 DEBUG_LIBS = profiler tcmalloc
-DependentLibraries = config xcept boost_system cactus_uhal_uhal gem_utils gem_base cactus_amc13_amc13
+DependentLibraries = config xcept boost_system cactus_uhal_uhal gem_utils gem_base gem_utils cactus_amc13_amc13
 Libraries = config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus cactus_uhal_uhal gem_utils gem_base cactus_amc13_amc13
 # gem_utils
 
