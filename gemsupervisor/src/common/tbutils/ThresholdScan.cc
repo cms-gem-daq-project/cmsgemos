@@ -128,18 +128,19 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   // trigger times calculation
   // timer.Start();
-  for (size_t trig = 0; trig < 500; ++trig) vfatDevice_->writeReg("Send.L1A",0x1);
+  for (size_t trig = 0; trig < 500; ++trig) vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.L1A",0x1);
 
   //count triggers
   vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
-  confParams_.bag.triggersSeen = vfatDevice_->readReg("L1A.Internal");
-  //confParams_.bag.triggersSeen = vfatDevice_->readReg("L1A.External");
+  confParams_.bag.triggersSeen = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"L1A.Internal");
+
+  //confParams_.bag.triggersSeen = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"L1A.External");
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
   //ADC Voltage, Current, update
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB");
-  confParams_.bag.ADCVoltage = vfatDevice_->readReg("VFAT_ADC.Voltage");
-  confParams_.bag.ADCurrent = vfatDevice_->readReg("VFAT_ADC.Current");
+  confParams_.bag.ADCVoltage = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFAT_ADC.Voltage");
+  confParams_.bag.ADCurrent = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFAT_ADC.Current");
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
   hw_semaphore_.give();
@@ -173,7 +174,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       "ABC Not enough triggers, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
     
     vfatDevice_->setDeviceBaseNode("GLIB");
-    uint32_t bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+    uint32_t bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
     hw_semaphore_.give();
     if (bufferDepth < 10) {
@@ -183,14 +184,14 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
       //triggersSeen update 
       vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
-      confParams_.bag.triggersSeen = vfatDevice_->readReg("L1A.Internal");
-      //confParams_.bag.triggersSeen = vfatDevice_->readReg("L1A.External");
+      confParams_.bag.triggersSeen = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"L1A.Internal");
+      //confParams_.bag.triggersSeen = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"L1A.External");
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
       //ADC Voltage, Current, update
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB");
-      confParams_.bag.ADCVoltage = vfatDevice_->readReg("VFAT_ADC.Voltage");
-      confParams_.bag.ADCurrent = vfatDevice_->readReg("VFAT_ADC.Current");
+      confParams_.bag.ADCVoltage = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFAT_ADC.Voltage");
+      confParams_.bag.ADCurrent = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFAT_ADC.Current");
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
    
       LOG4CPLUS_INFO(getApplicationLogger(),"ABC Not enough entries in the buffer, run mode 0x" 
@@ -232,8 +233,11 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.take();
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
     vfatDevice_->setRunMode(0);
+
+    //flush FIFO
     vfatDevice_->setDeviceBaseNode("GLIB.LINK1");
-    vfatDevice_->writeReg("TRK_FIFO.FLUSH",0x1);
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TRK_FIFO.FLUSH",0x1);
+
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
     hw_semaphore_.give();
 
@@ -283,10 +287,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       scanParams_.bag.deviceVT2    = vfatDevice_->getVThreshold2();
       confParams_.bag.triggersSeen = 0;
       vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS.RESETS");
-      vfatDevice_->writeReg("L1A.Internal",0x1);
-      vfatDevice_->writeReg("L1A.External",0x1);
-      vfatDevice_->writeReg("L1A.Delayed",0x1);
-      vfatDevice_->writeReg("L1A.Total",0x1);
+      vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"L1A.Internal",0x1);
+      vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"L1A.External",0x1);
+      vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"L1A.Delayed",0x1);
+      vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"L1A.Total",0x1);
 
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       vfatDevice_->setRunMode(1);
@@ -339,9 +343,9 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   uint32_t fifoDepth[3];
   //set proper base address
   vfatDevice_->setDeviceBaseNode("GLIB");
-  fifoDepth[0] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
-  fifoDepth[1] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
-  fifoDepth[2] = vfatDevice_->readReg(boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
+  fifoDepth[0] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
+  fifoDepth[1] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
+  fifoDepth[2] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(link))+".TRK_FIFO.DEPTH");
   
   //check that the fifos are all the same size?
   int bufferDepth = 0;
@@ -368,14 +372,14 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
     
     LOG4CPLUS_DEBUG(getApplicationLogger(),"Trying to read register "<<vfatDevice_->getDeviceBaseNode()<<".DATA_RDY");
-    if (vfatDevice_->readReg("DATA_RDY")) {
+    if (vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"DATA_RDY")) {
       LOG4CPLUS_DEBUG(getApplicationLogger(),"Trying to read the block at "<<vfatDevice_->getDeviceBaseNode()<<".DATA");
       //data = vfatDevice_->readBlock("OptoHybrid.GEB.TRK_DATA.COL1.DATA");
       //data = vfatDevice_->readBlock("OptoHybrid.GEB.TRK_DATA.COL1.DATA",7);
       for (int word = 0; word < 7; ++word) {
 	std::stringstream ss9;
 	ss9 << "DATA." << word;
-	data.push_back(vfatDevice_->readReg(ss9.str()));
+	data.push_back(vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),ss9.str()));
       }
     }
 
@@ -384,7 +388,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     // read trigger data
     vfatDevice_->setDeviceBaseNode("GLIB");
-    TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
+    TrigReg = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"TRG_DATA.DATA");
     bxNumTr = TrigReg >> 6;
     sBit = TrigReg & 0x0000003F;
 
@@ -445,8 +449,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
 
       vfatDevice_->setDeviceBaseNode("GLIB");
-      bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
-      TrigReg = vfatDevice_->readReg("TRG_DATA.DATA");
+      bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
+      TrigReg = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"TRG_DATA.DATA");
       continue;
     }
 
@@ -473,7 +477,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     }
 
     vfatDevice_->setDeviceBaseNode("GLIB");
-    bufferDepth = vfatDevice_->readReg("LINK1.TRK_FIFO.DEPTH");
+    bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
   }
 
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
@@ -857,17 +861,17 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
       vfatDevice_->setDeviceBaseNode("TEST");
       *out << "<tr>" << std::endl
 	   << "<td>" << "GLIB" << "</td>"
-	   << "<td>" << vfatDevice_->readReg("GLIB") << "</td>"
+	   << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"GLIB") << "</td>"
 	   << "</tr>"   << std::endl
 	
 	   << "<tr>" << std::endl
 	   << "<td>" << "OptoHybrid" << "</td>"
-	   << "<td>" << vfatDevice_->readReg("OptoHybrid") << "</td>"
+	   << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"OptoHybrid") << "</td>"
 	   << "</tr>"       << std::endl
 	
 	   << "<tr>" << std::endl
 	   << "<td>" << "VFATs" << "</td>"
-	   << "<td>" << vfatDevice_->readReg("VFATs") << "</td>"
+	   << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFATs") << "</td>"
 	   << "</tr>"      << std::endl;
       
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
@@ -1133,43 +1137,43 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   /*
   //set clock source
   vfatDevice_->setDeviceBaseNode("OptoHybrid.CLOCKING");
-  vfatDevice_->writeReg("VFAT.SOURCE",  0x0); // 0x1
-  //vfatDevice_->writeReg("VFAT.FALLBACK",0x1);
-  vfatDevice_->writeReg("CDCE.SOURCE",  0x0);
-  //vfatDevice_->writeReg("CDCE.FALLBACK",0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"VFAT.SOURCE",  0x0); // 0x1
+  //vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"VFAT.FALLBACK",0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"CDCE.SOURCE",  0x0);
+  //vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"CDCE.FALLBACK",0x1);
   */
 
   //send resync
   vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
-  vfatDevice_->writeReg("Send.Resync",0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.Resync",0x1);
 
   //reset counters
   vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
-  vfatDevice_->writeReg("RESETS.L1A.External",0x1);
-  vfatDevice_->writeReg("RESETS.L1A.Internal",0x1);
-  vfatDevice_->writeReg("RESETS.L1A.Delayed", 0x1);
-  vfatDevice_->writeReg("RESETS.L1A.Total",   0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.External",0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Internal",0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Delayed", 0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Total",   0x1);
 
-  vfatDevice_->writeReg("RESETS.CalPulse.External",0x1);
-  vfatDevice_->writeReg("RESETS.CalPulse.Internal",0x1);
-  vfatDevice_->writeReg("RESETS.CalPulse.Total",   0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.External",0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.Internal",0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.Total",   0x1);
 
-  vfatDevice_->writeReg("RESETS.Resync",0x1);
-  vfatDevice_->writeReg("RESETS.BC0",   0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.Resync",0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.BC0",   0x1);
   
   //flush FIFO
   vfatDevice_->setDeviceBaseNode("GLIB.LINK1");
-  vfatDevice_->writeReg("TRK_FIFO.FLUSH", 0x1);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TRK_FIFO.FLUSH", 0x1);
   
   //set trigger source
   /*
   vfatDevice_->setDeviceBaseNode("OptoHybrid.TRIGGER");
-  vfatDevice_->writeReg("SOURCE",   0x2);
-  vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"SOURCE",   0x2);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TDC_SBits",(unsigned)confParams_.bag.deviceNum);
   */
 
   vfatDevice_->setDeviceBaseNode("GLIB");
-  vfatDevice_->writeReg("TDC_SBits",(unsigned)confParams_.bag.deviceNum);
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TDC_SBits",(unsigned)confParams_.bag.deviceNum);
   
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
