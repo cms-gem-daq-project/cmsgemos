@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_GEMDataParker_h
-#define gem_supervisor_GEMDataParker_h
+#ifndef gem_readout_GEMDataParker_h
+#define gem_readout_GEMDataParker_h
 
 #include "xdata/String.h"
 #include <string>
@@ -10,12 +10,12 @@ namespace gem {
             class HwVFAT2;
         }   
     }
-    namespace supervisor {
+    namespace readout {
             struct VFATData;
             struct GEBData;
             struct GEMData;
         }
-    namespace supervisor {
+    namespace readout {
         class GEMDataParker
         {
             public:
@@ -24,12 +24,12 @@ namespace gem {
 
                 int dumpDataToDisk();
 
-		int  getGLIBData  (gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
-                     gem::supervisor::VFATData& vfat);
-                void fillGEMevent (gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb, 
-                     gem::supervisor::VFATData& vfat);
-                void writeGEMevent(gem::supervisor::GEMData& gem, gem::supervisor::GEBData& geb,
-                     gem::supervisor::VFATData& vfat);
+		int  getGLIBData  (gem::readout::GEMData& gem, gem::readout::GEBData& geb, 
+                     gem::readout::VFATData& vfat);
+                void fillGEMevent (gem::readout::GEMData& gem, gem::readout::GEBData& geb, 
+                     gem::readout::VFATData& vfat);
+                void writeGEMevent(gem::readout::GEMData& gem, gem::readout::GEBData& geb,
+                     gem::readout::VFATData& vfat);
 
             private:
 

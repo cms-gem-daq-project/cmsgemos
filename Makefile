@@ -10,13 +10,9 @@ SUBPACKAGES := \
         gemutils \
         gembase \
         gemhardware \
+        gemreadout \
         gemsupervisor \
         gemHwMonitor \
-
-#OS:=linux
-#ARCH:=x86_64
-#LIBDIR:=lib/$(OS)/$(ARCH)
-#LIBDIR:=lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
 SUBPACKAGES.INSTALL := $(patsubst %,%.install, ${SUBPACKAGES})
 SUBPACKAGES.RPM := $(patsubst %,%.rpm, ${SUBPACKAGES})
@@ -54,9 +50,11 @@ gemhardware: gemutils gembase
 
 gembase: gemutils
 
-gemsupervisor: gemhardware gembase
+gemsupervisor: gemhardware gembase gemreadout
 
 gemutils: 
+
+gemreadout: gemhardware gemutils gembase
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

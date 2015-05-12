@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_GEMDataAMCformat_h
-#define gem_supervisor_GEMDataAMCformat_h
+#ifndef gem_readout_GEMDataAMCformat_h
+#define gem_readout_GEMDataAMCformat_h
 
 #include <iostream>
 #include <iomanip> 
@@ -10,7 +10,7 @@
 using namespace std;
 
 namespace gem {
-  namespace supervisor {
+  namespace readout {
 
      /*
       uint32_t bxExp;   // :28
@@ -211,6 +211,6 @@ namespace gem {
         return(true);
       };
 
-  } //end namespace gem::supervisor
+  } //end namespace gem::readout
 } //end namespace gem
 #endif

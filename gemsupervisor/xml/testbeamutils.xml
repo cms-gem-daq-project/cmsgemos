@@ -2,7 +2,8 @@
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
-  <xc:Context url="http://gem904daq01:3459">
+
+  <xc:Context url="http://gem904daq01:2244">
 
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
@@ -23,11 +24,17 @@
     </xc:Application>
 -->    
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
+<<<<<<< HEAD
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
     <!--
        <xc:Application class="gem::base::GEMApplication" id="255" instance="0" network="local">
        </xc:Application>
        <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
        -->
+=======
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware//lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
+
+>>>>>>> 667313ac7557162cb2b6bb4e2d2130f85845013c
   </xc:Context>
+
 </xc:Partition>

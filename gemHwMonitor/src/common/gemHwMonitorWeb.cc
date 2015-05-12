@@ -62,7 +62,7 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
             crateDevice_->setDeviceIPAddress("192.168.0.115");
             crateDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS.VFAT9");
             crateDevice_->connectDevice();
-            if (crateDevice_->isGEMHwDeviceConnected())
+            if (crateDevice_->isHwConnected())
             {
                 gemHwMonitorSystem_->setSubDeviceStatus(0,i);
             } else {
