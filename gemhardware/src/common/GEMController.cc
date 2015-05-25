@@ -1468,7 +1468,7 @@ void gem::hw::vfat::GEMController::actionPerformed(xdata::Event& event)
     }    
     //Initialize the HW device, should have picked up the device string from the xml file by now
     LOG4CPLUS_INFO(this->getApplicationLogger(),"GEMController::GEMController::4 device_ = " << device_.toString() << std::endl);
-    vfatDevice = new HwVFAT2(this, device_.toString());
+    vfatDevice = new HwVFAT2(this->getApplicationLogger(), device_.toString());
     vfatDevice->connectDevice();
     setLogLevelTo(uhal::Error());  // Maximise uHAL logging
     LOG4CPLUS_INFO(this->getApplicationLogger(),"GEMController::GEMController::5 device_ = " << device_.toString() << std::endl);

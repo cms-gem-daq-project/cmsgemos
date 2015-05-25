@@ -15,7 +15,7 @@
 
 #include "uhal/uhal.hpp"
 
-#define MAX_NVFATS 6
+#define MAX_VFATS 6
 
 typedef uhal::exception::exception uhalException;
 

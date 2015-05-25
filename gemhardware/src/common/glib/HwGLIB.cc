@@ -132,7 +132,7 @@ void gem::hw::glib::HwGLIB::configureDevice()
 //}
 
 
-bool gem::hw::vfat::GLIB::isHwConnected() 
+bool gem::hw::glib::HwGLIB::isHwConnected() 
 {
   //return gem::hw::GEMHwDevice::isHwConnected();
   if (gem::hw::GEMHwDevice::isHwConnected()) {
