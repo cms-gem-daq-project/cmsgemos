@@ -17,7 +17,8 @@ GEMHWMONITOR_VER_MAJOR=0
 GEMHWMONITOR_VER_MINOR=1
 GEMHWMONITOR_VER_PATCH=0
 
-Sources=gemHwMonitorWeb.cc gemHwMonitorBase.cc
+Sources =version.cc
+Sources+=gemHwMonitorWeb.cc gemHwMonitorBase.cc
 
 DynamicLibrary=gem_hwMonitor
 
