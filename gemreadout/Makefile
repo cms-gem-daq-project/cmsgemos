@@ -22,7 +22,8 @@ GEMREADOUT_VER_MAJOR=0
 GEMREADOUT_VER_MINOR=1
 GEMREADOUT_VER_PATCH=0
 
-Sources =GEMDataParker.cc
+Sources =version.cc
+Sources+=GEMDataParker.cc
 
 DynamicLibrary=gem_readout
 

@@ -17,7 +17,8 @@ GEMUTILS_VER_MAJOR=0
 GEMUTILS_VER_MINOR=1
 GEMUTILS_VER_PATCH=0
 
-Sources=Lock.cc gemXMLparser.cc soap/GEMSOAPToolBox.cc
+Sources =version.cc
+Sources+=Lock.cc gemXMLparser.cc soap/GEMSOAPToolBox.cc
 
 DynamicLibrary=gem_utils
 

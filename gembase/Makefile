@@ -17,7 +17,8 @@ GEMBASE_VER_MAJOR=0
 GEMBASE_VER_MINOR=1
 GEMBASE_VER_PATCH=0
 
-Sources=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc GEMWebApplication.cc
+Sources =version.cc
+Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc GEMWebApplication.cc
 
 DynamicLibrary=gem_base
 
