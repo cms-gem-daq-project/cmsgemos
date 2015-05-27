@@ -52,7 +52,7 @@ namespace gem {
                 void configure()
                     throw (xgi::exception::Exception)
                 {
-                    gemXMLparser_ = new gem::base::utils::gemXMLparser(xmlConfigFileName_);
+                    gemXMLparser_ = new gem::utils::gemXMLparser(xmlConfigFileName_);
                     gemXMLparser_->parseXMLFile();
                     ptr_gemSystem_->setDeviceConfiguration(*(gemXMLparser_->getGEMDevice()));
                 }
@@ -60,7 +60,7 @@ namespace gem {
             protected:
             private:
                 gemHwMonitorSystem* ptr_gemSystem_;
-                gem::base::utils::gemXMLparser* gemXMLparser_;
+                gem::utils::gemXMLparser* gemXMLparser_;
                 std::string xmlConfigFileName_;
 
         };

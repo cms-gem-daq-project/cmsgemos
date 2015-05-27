@@ -1,16 +1,18 @@
 #
 # Global Makefile for GEM
 #
+include $(XDAQ_ROOT)/config/mfAutoconf.rules
+include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
+include $(XDAQ_ROOT)/config/Makefile.rules
+include $(XDAQ_ROOT)/config/mfRPM.rules
 
 SUBPACKAGES := \
+        gemutils \
         gembase \
         gemhardware \
+        gemreadout \
         gemsupervisor \
         gemHwMonitor \
-
-OS:=linux
-ARCH:=x86_64
-LIBDIR:=lib/$(OS)/$(ARCH)
 
 SUBPACKAGES.INSTALL := $(patsubst %,%.install, ${SUBPACKAGES})
 SUBPACKAGES.RPM := $(patsubst %,%.rpm, ${SUBPACKAGES})
@@ -44,8 +46,23 @@ $(SUBPACKAGES.CLEAN):
 
 gemHwMonitor: gembase gemhardware
 
-gemhardware: 
+gemhardware: gemutils gembase
 
-gembase: 
+gembase: gemutils
 
-gemsupervisor: gemhardware
+gemsupervisor: gemhardware gembase gemreadout
+
+gemutils: 
+
+gemreadout: gemhardware gemutils gembase
+
+print-env:
+	@echo BUILD_HOME    $(BUILD_HOME)
+	@echo XDAQ_ROOT     $(XDAQ_ROOT)
+	@echo XDAQ_OS       $(XDAQ_OS)
+	@echo XDAQ_PLATFORM $(XDAQ_PLATFORM)
+	@echo LIBDIR        $(LIBDIR)
+	@echo ROOTCFLAGS    $(ROOTCFLAGS)
+	@echo ROOTLIBS      $(ROOTLIBS)
+	@echo ROOTGLIBS     $(ROOTGLIBS)
+
