@@ -17,20 +17,25 @@ DynamicLibrary=gem_hwMonitor
 
 IncludeDirs = \
         $(BUILD_HOME)/$(Project)/$(Package)/include \
-        $(XDAQ_ROOT)/include \
-        $(uHALROOT)/include \
         $(BUILD_HOME)/$(Project)/gembase/include \
+        $(BUILD_HOME)/$(Project)/gemutils/include \
         $(BUILD_HOME)/$(Project)/gemhardware/include \
+        $(XDAQ_ROOT)/include \
+        $(uHALROOT)/include 
 
 DependentLibraryDirs = \
+        $(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+        $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+        $(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(XDAQ_ROOT)/lib \
-        $(uHALROOT)/lib \
-        $(BUILD_HOME)/$(Project)/gembase/lib/linux/x86_64_slc6 \
+        $(uHALROOT)/lib 
 
 LibraryDirs = \
+#        $(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+#        $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+#        $(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(XDAQ_ROOT)/lib \
-        $(uHALROOT)/lib \
-        $(BUILD_HOME)/$(Project)/gembase/lib/linux/x86_64_slc6 \
+        $(uHALROOT)/lib 
 
 PROFILING_Flags = -pg
 DEBUG_CFlags  =  -O0 -g3 -fno-inline
@@ -46,8 +51,8 @@ UserStaticLinkFlags =
 #                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
 DEBUG_LIBS = profiler tcmalloc
-#DependentLibraries = config xcept boost_system cactus_uhal_uhal libgem_base
-DependentLibraries = config xcept boost_system cactus_uhal_uhal
+#DependentLibraries = config xcept boost_system cactus_uhal_uhal gem_base
+DependentLibraries = config xcept boost_system cactus_uhal_uhal gem_base gem_hw gem_utils
 Libraries = config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus cactus_uhal_uhal
 
 include $(XDAQ_ROOT)/config/Makefile.rules

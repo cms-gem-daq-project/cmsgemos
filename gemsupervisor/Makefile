@@ -15,31 +15,36 @@ LongPackage=gemsupervisor
 ShortPackage=supervisor
 PackageName=supervisor
 
-#Sources= GemSupervisorWeb.cc version.cc
-#Sources= GEMTestBeamSupervisor.cc GEMTestBeamSupervisorWeb.cc
-Sources= tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc GEMGLIBSupervisorWeb.cc GEMDataParker.cc
-#Sources= GEMGLIBSupervisorWeb.cc GEMDataParker.cc
+#Sources += GEMSupervisor.cc GEMSupervisorWeb.cc
+Sources =  tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc
+Sources += GEMGLIBSupervisorWeb.cc
+Sources += GEMSupervisor.cc GEMSupervisorWeb.cc
 
 DynamicLibrary=gem_supervisor
 
 IncludeDirs = \
         $(BUILD_HOME)/$(Project)/$(Package)/include \
+        $(BUILD_HOME)/$(Project)/gemreadout/include \
+        $(BUILD_HOME)/$(Project)/gembase/include \
+        $(BUILD_HOME)/$(Project)/gemutils/include \
         $(BUILD_HOME)/$(Project)/gemhardware/include \
         $(XDAQ_ROOT)/include \
         $(uHALROOT)/include \
 	$(ROOTDIR)/include 
-#        $(BUILD_HOME)/gembase/include
-
+#
 DependentLibraryDirs = \
         $(XDAQ_ROOT)/lib \
-        $(BUILD_HOME)/$(Project)/gemhardware/lib \
+        $(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+        $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+        $(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(uHALROOT)/lib 
 #        /usr/include/root 
-#        $(BUILD_HOME)/gembase/lib 
 
 LibraryDirs = \
         $(XDAQ_ROOT)/lib \
-        $(BUILD_HOME)/$(Project)/gemhardware/lib \
+#        $(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+#        $(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
+#        $(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) \
         $(uHALROOT)/lib \
         /usr/lib64/root 
 #        $(BUILD_HOME)/gembase/lib 
@@ -56,7 +61,7 @@ UserStaticLinkFlags =
 #                          -lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 #LDFLAGS=`root-config --libs --glibs`
 DEBUG_LIBS = profiler tcmalloc
-DependentLibraries = config xcept boost_system cactus_uhal_uhal xerces-c
+DependentLibraries = config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_readout
 Libraries = config xcept numa toolbox asyncresolv uuid log4cplus xerces-c
 
 include $(XDAQ_ROOT)/config/Makefile.rules

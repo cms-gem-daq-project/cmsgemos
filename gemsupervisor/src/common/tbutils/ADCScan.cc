@@ -307,7 +307,7 @@ bool gem::supervisor::tbutils::ADCScan::run(toolbox::task::WorkLoop* wl)
 		   << dacMap[confParams_.bag.dacToScan.toString()].first
 		   << " ADC for "
 		   << confParams_.bag.dacToScan.toString());
-    curDACValue = vfatDevice_->readReg(dacMap[confParams_.bag.dacToScan.toString()].first);
+    curDACValue = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),dacMap[confParams_.bag.dacToScan.toString()].first);
     
     ++samplesTaken_;
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
@@ -350,9 +350,9 @@ bool gem::supervisor::tbutils::ADCScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.take();
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       if ((curDACRegValue + confParams_.bag.stepSize) < 0xFF) 
-	vfatDevice_->writeReg(confParams_.bag.dacToScan.toString(),curDACRegValue + confParams_.bag.stepSize);
+	vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),confParams_.bag.dacToScan.toString(),curDACRegValue + confParams_.bag.stepSize);
       else  
-	vfatDevice_->writeReg(confParams_.bag.dacToScan.toString(),0xFF);
+	vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),confParams_.bag.dacToScan.toString(),0xFF);
       curDACRegValue = vfatDevice_->readVFATReg(confParams_.bag.dacToScan.toString());
       //vfatDevice_->setRunMode(0);
       hw_semaphore_.give();
@@ -637,10 +637,12 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
     }
     else if (is_working_) {
       cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
+      LOG4CPLUS_DEBUG(this->getApplicationLogger()," why do we need &head ?: " << &head);
       //head.addHeader("Refresh","2");
     }
     else if (is_running_) {
       cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
+      LOG4CPLUS_DEBUG(this->getApplicationLogger()," why do we need &head ?: " << &head);
       //head.addHeader("Refresh","5");
     }
     
@@ -849,17 +851,17 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
       vfatDevice_->setDeviceBaseNode("TEST");
       *out << "<tr>" << std::endl
 	   << "<td>" << "GLIB" << "</td>"
-	   << "<td>" << vfatDevice_->readReg("GLIB") << "</td>"
+	   << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"GLIB") << "</td>"
 	   << "</tr>"   << std::endl
 	
 	   << "<tr>" << std::endl
 	   << "<td>" << "OptoHybrid" << "</td>"
-	   << "<td>" << vfatDevice_->readReg("OptoHybrid") << "</td>"
+	   << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"OptoHybrid") << "</td>"
 	   << "</tr>"       << std::endl
 	
 	   << "<tr>" << std::endl
 	   << "<td>" << "VFATs" << "</td>"
-	   << "<td>" << vfatDevice_->readReg("VFATs") << "</td>"
+	   << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFATs") << "</td>"
 	   << "</tr>"      << std::endl;
       
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
@@ -1061,7 +1063,7 @@ void gem::supervisor::tbutils::ADCScan::initializeAction(toolbox::Event::Referen
   //here the connection to the device should be made
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
   hw_semaphore_.take();
-  vfatDevice_ = new gem::hw::vfat::HwVFAT2(this, confParams_.bag.deviceName.toString());
+  vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), confParams_.bag.deviceName.toString());
   
   //vfatDevice_->setAddressTableFileName("allregsnonfram.xml");
   //vfatDevice_->setDeviceBaseNode("user_regs.vfats."+confParams_.bag.deviceName.toString());
@@ -1141,7 +1143,7 @@ void gem::supervisor::tbutils::ADCScan::configureAction(toolbox::Event::Referenc
   
   LOG4CPLUS_DEBUG(getApplicationLogger(),"trying to get an enum from ::" << confParams_.bag.dacToScan.toString());
   vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
-  vfatDevice_->writeReg(confParams_.bag.dacToScan.toString(),
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),confParams_.bag.dacToScan.toString(),
 			confParams_.bag.minDACValue);
   curDACRegValue = vfatDevice_->readVFATReg(confParams_.bag.dacToScan.toString());
 
@@ -1205,7 +1207,7 @@ void gem::supervisor::tbutils::ADCScan::startAction(toolbox::Event::Reference e)
   hw_semaphore_.take();
   
   vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
-  vfatDevice_->writeReg(confParams_.bag.dacToScan.toString(),
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),confParams_.bag.dacToScan.toString(),
 			confParams_.bag.minDACValue);
   curDACRegValue = vfatDevice_->readVFATReg(confParams_.bag.dacToScan.toString());
   
@@ -1306,7 +1308,7 @@ void gem::supervisor::tbutils::ADCScan::resetAction(toolbox::Event::Reference e)
   //vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
   vfatDevice_->setRunMode(0);
 
-  if (vfatDevice_->isGEMHwDeviceConnected())
+  if (vfatDevice_->isHwConnected())
     vfatDevice_->releaseDevice();
   
   if (vfatDevice_)

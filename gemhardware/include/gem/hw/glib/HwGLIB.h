@@ -34,10 +34,7 @@ namespace gem {
       class HwGLIB: public gem::hw::GEMHwDevice
 	{
 	public:
-	  //XDAQ_INSTANTIATOR();
-	
-	  HwGLIB(xdaq::Application * glibApp);
-	  //throw (xdaq::exception::Exception);
+	  HwGLIB(const log4cplus::Logger& gemLogger);
 	
 	  ~HwGLIB();
 
@@ -55,7 +52,10 @@ namespace gem {
 	  //virtual void resumeDevice();
 	  //virtual void haltDevice();
 
-	  //bool isHwGLIBConnected();
+	  /** Check if one can read/write to the registers on the GLIB
+	   * @returns true if the GLIB is accessible
+	   **/
+	  bool isHwConnected();
 
 	  //system core functionality
 	  /** Read the board ID registers

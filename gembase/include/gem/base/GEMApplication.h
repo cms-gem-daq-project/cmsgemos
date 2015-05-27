@@ -9,7 +9,15 @@
 #include <deque>
 #include <map>
 
+#include "xdaq/WebApplication.h"
+#include "xgi/framework/UIManager.h"
+
+#include "toolbox/TimeVal.h"
+
 #include "log4cplus/logger.h"
+#include "gem/utils/GEMLogging.h"
+#include "gem/base/exception/Exception.h"
+#include "gem/base/utils/exception/Exception.h"
 
 namespace xdaq {
   class ApplicationStub;
@@ -23,12 +31,16 @@ namespace xgi {
 namespace gem {
   namespace base {
     
-    class GEMWebApplication;
     class GEMMonitor;
-    //class ConfigurationInfoSpaceHandler;
+    class GEMFSMApplication;
+    class GEMWebApplication;
     
     class GEMApplication : public xdaq::WebApplication, public xdata::ActionListener
       {
+	friend class GEMMonitor;
+	friend class GEMFSMApplication;
+	friend class GEMWebApplication;
+
       public:
 	GEMApplication(xdaq::ApplicationStub *stub)
 	  throw (xdaq::exception::Exception);
@@ -44,23 +56,42 @@ namespace gem {
 	 */
 	virtual void init() = 0;
 	
+	/**
+	 * The actionPerformed method will have a default implementation here
+	 * and can be further specified in derived applications, that will 
+	 * subsequently call gem::base::GEMApplication::actionPerformed(event)
+	 * to replicate the default behaviour
+	 **/
 	virtual void actionPerformed(xdata::Event& event);
 	
+	void xgiDefault(xgi::Input* in, xgi::Output* out);
+	void xgiMonitor(xgi::Input* in, xgi::Output* out);
+	void xgiExpert( xgi::Input* in, xgi::Output* out);
+
       protected:
 	log4cplus::Logger gemLogger_;
 
-	//virtual ConfigurationInfoSpaceHandler* getCfgInfoSpace() const;
-	virtual GEMWebApplication*  getWebApp()  const;
-	virtual GEMMonitor*         getMonitor() const;
+	xdata::InfoSpace *appInfoSpaceP_;             /*generic application parameters */
+	xdata::InfoSpace *monitorInfoSpaceP_;         /*monitoring parameters, stored in the appInfoSpace */
+	xdata::InfoSpace *configInfoSpaceP_;          /*configuration parameters, stored in the appInfoSpace */
+						    
+	virtual void importConfigurationParameters();
+	virtual void fillConfigurationInfoSpace();
+	virtual void updateConfigurationInfoSpace();
 
-      private:
-	
+	virtual void importMonitoringParameters();
+	virtual void fillMonitoringInfoSpace();
+	virtual void updateMonitoringInfoSpace();
+
+	virtual GEMWebApplication*  getWebApp()  const { return gemWebInterfaceP_; };
+	virtual GEMMonitor*         getMonitor() const { return gemMonitorP_;      };
+
+	GEMWebApplication* gemWebInterfaceP_; /* */
+	GEMMonitor*        gemMonitorP_;      /* */
+
 	/**
 	 * various application properties
-	 *
 	 */
-	xdata::InfoSpace *appInfoSpaceP_;             /* */
-						    
 	xdaq::ApplicationDescriptor *appDescriptorP_; /* */
 	xdaq::ApplicationContext    *appContextP_;    /* */
 	xdaq::ApplicationGroup      *appGroupP_;      /* */
@@ -68,18 +99,12 @@ namespace gem {
 
 	std::string xmlClass_;
 	unsigned long instance_;
-	std::string urn_;	
+	std::string urn_;
 	
-	gem::base::GEMWebApplication* gemWebInterfaceP_;
-	gem::base::GEMMonitor*        gemMonitorP_;
-
+      private:
+	
         //xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
 
-	/**
-	 *
-	 */
-	void monitorView(xgi::Input* in, xgi::Output* out);
-	void expertView( xgi::Input* in, xgi::Output* out);
       };
     
   } // namespace gem::base
