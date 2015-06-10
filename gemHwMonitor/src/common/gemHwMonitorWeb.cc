@@ -57,8 +57,9 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
         {
             //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice(getApplicationLogger());
             gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger());
-            crateDevice_->setAddressTableFileName("testbeam_registers.xml");
-            crateDevice_->setDeviceIPAddress("192.168.0.160");
+            crateDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
+            //crateDevice_->setAddressTableFileName("testbeam_registers.xml");
+            crateDevice_->setDeviceIPAddress("192.168.0.164");
             crateDevice_->connectDevice();
             if (crateDevice_->isHwConnected())
             {
@@ -259,13 +260,17 @@ throw (xgi::exception::Exception)
                 gemHwMonitorGLIB_->setDeviceConfiguration(*gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i));
                 std::map <std::string, std::string> glibProperties_;
                 glibProperties_ = gemHwMonitorGLIB_->getDevice()->getDeviceProperties();
-                std::string glibIP = "192.168.0.160";
+                std::string glibIP = "192.168.0.164";
                 for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
                 {
                     if (it->first == "IP") glibIP = it->second; 
+                    std::cout << "GLIB IP is "<<glibIP << std::endl;
                 }
-                gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
-                glibDevice_->setAddressTableFileName("testbeam_registers.xml");
+                //gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
+                //gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
+                gem::hw::vfat::HwVFAT2* glibDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+
+                glibDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
                 glibDevice_->setDeviceIPAddress(glibIP);
                 glibDevice_->connectDevice();
                 if (glibDevice_->isHwConnected())
@@ -339,13 +344,14 @@ throw (xgi::exception::Exception)
             for (int i=0; i<gemHwMonitorGLIB_->getNumberOfSubDevices(); i++) {
                 std::map <std::string, std::string> glibProperties_;
                 glibProperties_ = gemHwMonitorGLIB_->getDevice()->getDeviceProperties();
-                std::string ohIP = "192.168.0.160";
+                std::string ohIP = "192.168.0.164";
                 for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
                 {
                     if (it->first == "IP") ohIP = it->second; 
                 }
-                gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
-                ohDevice_->setAddressTableFileName("testbeam_registers.xml");
+                //gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
+                gem::hw::vfat::HwVFAT2* ohDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+                ohDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
                 ohDevice_->setDeviceIPAddress(ohIP);
                 ohDevice_->connectDevice();
                 if (ohDevice_->isHwConnected())
@@ -414,7 +420,7 @@ throw (xgi::exception::Exception)
             for (int i=0; i<gemHwMonitorOH_->getNumberOfSubDevices(); i++) {
                 if (i) 
                 {
-                    gemHwMonitorOH_->addSubDeviceStatus(2);
+                    gemHwMonitorOH_->addSubDeviceStatus(0);
                 } else {
                     gemHwMonitorOH_->addSubDeviceStatus(0);
                 }
@@ -485,10 +491,12 @@ throw (xgi::exception::Exception)
 {
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
-    vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
-    vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
-    vfatDevice_->setDeviceIPAddress("192.168.0.175");
-    vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
+    //vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+    vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), vfatToShow_);
+    vfatDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
+    vfatDevice_->setDeviceIPAddress("192.168.0.164");
+    vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
+    //vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
     vfatDevice_->connectDevice();
     vfatDevice_->readVFAT2Counters();
     vfatDevice_->getAllSettings();
