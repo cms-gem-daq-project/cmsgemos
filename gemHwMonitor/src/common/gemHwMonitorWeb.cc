@@ -57,8 +57,6 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
         {
             //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice(getApplicationLogger());
             gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger());
-            crateDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
-            //crateDevice_->setAddressTableFileName("testbeam_registers.xml");
             crateDevice_->setDeviceIPAddress("192.168.0.164");
             crateDevice_->connectDevice();
             if (crateDevice_->isHwConnected())
@@ -268,8 +266,6 @@ throw (xgi::exception::Exception)
                 }
                 gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
                 //gem::hw::vfat::HwVFAT2* glibDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
-
-                glibDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
                 glibDevice_->setDeviceIPAddress(glibIP);
                 glibDevice_->connectDevice();
                 if (glibDevice_->isHwConnected())
@@ -350,7 +346,6 @@ throw (xgi::exception::Exception)
                 }
                 gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
                 //gem::hw::vfat::HwVFAT2* ohDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
-                ohDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
                 ohDevice_->setDeviceIPAddress(ohIP);
                 ohDevice_->connectDevice();
                 if (ohDevice_->isHwConnected())
@@ -492,7 +487,6 @@ throw (xgi::exception::Exception)
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     //vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
     vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), vfatToShow_);
-    vfatDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
     vfatDevice_->setDeviceIPAddress("192.168.0.164");
     vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
     //vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
