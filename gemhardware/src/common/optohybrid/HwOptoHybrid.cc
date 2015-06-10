@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(const log4cplus::Logger& optoLogger):
