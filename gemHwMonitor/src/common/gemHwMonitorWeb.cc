@@ -266,9 +266,8 @@ throw (xgi::exception::Exception)
                     if (it->first == "IP") glibIP = it->second; 
                     std::cout << "GLIB IP is "<<glibIP << std::endl;
                 }
-                //gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
-                //gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
-                gem::hw::vfat::HwVFAT2* glibDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+                gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
+                //gem::hw::vfat::HwVFAT2* glibDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
 
                 glibDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
                 glibDevice_->setDeviceIPAddress(glibIP);
@@ -349,8 +348,8 @@ throw (xgi::exception::Exception)
                 {
                     if (it->first == "IP") ohIP = it->second; 
                 }
-                //gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
-                gem::hw::vfat::HwVFAT2* ohDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+                gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
+                //gem::hw::vfat::HwVFAT2* ohDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
                 ohDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
                 ohDevice_->setDeviceIPAddress(ohIP);
                 ohDevice_->connectDevice();
