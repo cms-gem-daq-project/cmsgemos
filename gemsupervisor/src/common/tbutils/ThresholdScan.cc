@@ -1124,8 +1124,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Creating file " << confParams_.bag.outFileName.toString());
 
-  //std::fstream scanStream(confParams_.bag.outFileName.c_str(),
-  std::fstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
+  std::ofstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
 
   if (scanStream.is_open()){
     LOG4CPLUS_INFO(getApplicationLogger(),"::startAction " 
@@ -1144,13 +1143,21 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   LOG4CPLUS_DEBUG(getApplicationLogger(),"::startAction " 
 		  << "Created ScanSetup file " << tmpFileName );
 
-  std::fstream scanSetup(tmpFileName.c_str(), std::ios::app );
+  std::ofstream scanSetup(tmpFileName.c_str(), std::ios::app );
   if (scanSetup.is_open()){
     LOG4CPLUS_INFO(getApplicationLogger(),"::startAction " 
         << "file " << tmpFileName << " opened and closed");
-    scanSetup << " The Time & Date : " << utcTime << endl;
-    scanSetup << " Latency " << latency_ << endl;
-  }
+    scanSetup << "\n The Time & Date : " << utcTime << endl;
+    scanSetup << " ChipID        0x" << hex << confParams_.bag.deviceChipID << dec << endl;
+    scanSetup << " Latency       " << latency_ << endl;
+    scanSetup << " nTriggers     " << nTriggers_  << endl;
+    scanSetup << " stepSize      " << stepSize_ << endl;
+    scanSetup << " minThresh     " << minThresh_ << endl;
+    scanSetup << " maxThresh     " << maxThresh_ << endl;
+    scanSetup << " stepSizeVcal  " << stepSizeVcal_ << endl;
+    scanSetup << " minVcal       " << minVcal_ << endl;   
+    scanSetup << " maxVcal       " << maxVcal_ << endl;   
+    }
   scanSetup.close();
   
   //char data[128/8]
