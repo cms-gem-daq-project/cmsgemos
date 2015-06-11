@@ -527,6 +527,28 @@ throw (xgi::exception::Exception)
     vfatDevice_->readVFAT2Counters();
     vfatDevice_->getAllSettings();
     //std::cout << vfatDevice_->getVFAT2Params()<<std::endl; 
+    std::string methodExpandCrate = toolbox::toString("/%s/expandCrate", getApplicationDescriptor()->getURN().c_str());
+    std::string methodExpandGLIB = toolbox::toString("/%s/expandGLIB", getApplicationDescriptor()->getURN().c_str());
+    std::string methodExpandOH = toolbox::toString("/%s/expandOH", getApplicationDescriptor()->getURN().c_str());
+    *out << cgicc::table().set("class","table");
+    *out << "</tr>" << std::endl;
+        *out << cgicc::td();
+            *out << cgicc::form().set("method","POST").set("action", methodExpandCrate) << std::endl ;
+            *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"crateButton\" value=\"" << crateToShow_ << "\">" << crateToShow_<< "</button>" << std::endl;
+            *out << cgicc::form() << std::endl ;
+        *out << cgicc::td();
+        *out << cgicc::td();
+            *out << cgicc::form().set("method","POST").set("action", methodExpandGLIB) << std::endl ;
+            *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"glibButton\" value=\"" << glibToShow_ << "\">" << glibToShow_<< "</button>" << std::endl;
+            *out << cgicc::form() << std::endl ;
+        *out << cgicc::td();
+        *out << cgicc::td();
+            *out << cgicc::form().set("method","POST").set("action", methodExpandOH) << std::endl ;
+            *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"ohButton\" value=\"" << ohToShow_ << "\">" << ohToShow_<< "</button>" << std::endl;
+            *out << cgicc::form() << std::endl ;
+        *out << cgicc::td();
+    *out << "</tr>" << std::endl;
+    *out << cgicc::table() <<std::endl;;
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
     *out << "<h1><div align=\"center\">Chip Id : "<< vfatToShow_ << "</div></h1>" << std::endl;
@@ -616,6 +638,7 @@ throw (xgi::exception::Exception)
                 gemHwMonitorCrate_.at(indexGLIB_)->setSubDeviceStatus(1,i);
             }
         }
+
     }
     *out << "<tr class=\"" << alertColor << "\">" << std::endl;
     *out << "<td>";
