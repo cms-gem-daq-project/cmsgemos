@@ -7,12 +7,24 @@ gem::hw::glib::HwGLIB::HwGLIB(const log4cplus::Logger& glibLogger):
   //logGLIB_(glibApp->getApplicationLogger()),
   //hwGLIB_(0),
   //monGLIB_(0)
+
+  //gemLogger_(glibLogger),
+  //gemHWP_(0),
+  //hwLock_(toolbox::BSem::FULL, true)
 {
   setDeviceID("GLIBHw");
   setAddressTableFileName("glib_address_table.xml");
   setIPbusProtocolVersion("2.0");
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
+//  
+//  ipBusErrs.badHeader_     = 0;
+//  ipBusErrs.readError_     = 0;
+//  ipBusErrs.timeouts_      = 0;
+//  ipBusErrs.controlHubErr_ = 0;
+//  
+//  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+//
 }
 
 gem::hw::glib::HwGLIB::~HwGLIB()
@@ -132,7 +144,7 @@ void gem::hw::glib::HwGLIB::configureDevice()
 //}
 
 
-bool gem::hw::vfat::GLIB::isHwConnected() 
+bool gem::hw::glib::HwGLIB::isHwConnected() 
 {
   //return gem::hw::GEMHwDevice::isHwConnected();
   if (gem::hw::GEMHwDevice::isHwConnected()) {

@@ -99,13 +99,17 @@ namespace gem {
 */
             private:
                 gemHwMonitorSystem* gemHwMonitorSystem_;
-                gemHwMonitorCrate* gemHwMonitorCrate_;
-                gemHwMonitorGLIB* gemHwMonitorGLIB_;
-                gemHwMonitorOH* gemHwMonitorOH_;
-                gemHwMonitorVFAT* gemHwMonitorVFAT_;
+                std::vector<gemHwMonitorCrate*> gemHwMonitorCrate_;
+                std::vector<gemHwMonitorGLIB*> gemHwMonitorGLIB_;
+                std::vector<gemHwMonitorOH*> gemHwMonitorOH_;
+                std::vector<gemHwMonitorVFAT*> gemHwMonitorVFAT_;
                 gemHwMonitorHelper* gemSystemHelper_;
                 bool crateCfgAvailable_;
                 int nCrates_;
+                int indexCrate_;
+                int indexGLIB_;
+                int indexOH_;
+                int indexVFAT_;
                 std::string crateToShow_;
                 std::string glibToShow_;
                 std::string ohToShow_;
