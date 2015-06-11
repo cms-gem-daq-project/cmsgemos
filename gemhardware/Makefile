@@ -14,8 +14,9 @@ PackageName=hw
 Sources= GEMHwDevice.cc \
 	vfat/HwVFAT2.cc  vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc \
 	amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc \
-#optohybrid/HwOptoHybrid.cc \
-#glib/HwGLIB.cc glib/GLIBManager.cc  glib/GLIBManagerWeb.cc \
+optohybrid/HwOptoHybrid.cc \
+glib/HwGLIB.cc 
+#glib/GLIBManager.cc  glib/GLIBManagerWeb.cc \
 	GEMController.cc GEMControllerPanelWeb.cc
 ##version.cc
 

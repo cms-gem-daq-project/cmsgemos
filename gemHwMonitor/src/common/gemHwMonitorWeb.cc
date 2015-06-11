@@ -23,10 +23,10 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandVFAT,"expandVFAT");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::vfatPanel,"vfatPanel");
     gemHwMonitorSystem_ = new gemHwMonitorSystem();
-    gemHwMonitorCrate_ = new gemHwMonitorCrate();
-    gemHwMonitorGLIB_ = new gemHwMonitorGLIB();
-    gemHwMonitorOH_ = new gemHwMonitorOH();
-    gemHwMonitorVFAT_ = new gemHwMonitorVFAT();
+    //gemHwMonitorCrate_ = new gemHwMonitorCrate();
+    //gemHwMonitorGLIB_ = new gemHwMonitorGLIB();
+    //gemHwMonitorOH_ = new gemHwMonitorOH();
+    //gemHwMonitorVFAT_ = new gemHwMonitorVFAT();
     gemSystemHelper_ = new gemHwMonitorHelper(gemHwMonitorSystem_);
     crateCfgAvailable_ = false;
 }
@@ -34,10 +34,14 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
 gem::hwMonitor::gemHwMonitorWeb::~gemHwMonitorWeb()
 {
     delete gemHwMonitorSystem_;
-    delete gemHwMonitorCrate_;
-    delete gemHwMonitorGLIB_;
-    delete gemHwMonitorOH_;
-    delete gemHwMonitorVFAT_;
+    //delete gemHwMonitorCrate_;
+    for_each(gemHwMonitorCrate_.begin(), gemHwMonitorCrate_.end(), free);
+    for_each(gemHwMonitorGLIB_.begin(), gemHwMonitorGLIB_.end(), free);
+    for_each(gemHwMonitorOH_.begin(), gemHwMonitorOH_.end(), free);
+    for_each(gemHwMonitorVFAT_.begin(), gemHwMonitorVFAT_.end(), free);
+    //delete gemHwMonitorGLIB_;
+    //delete gemHwMonitorOH_;
+    //delete gemHwMonitorVFAT_;
     delete gemSystemHelper_;
 }
 void gem::hwMonitor::gemHwMonitorWeb::Default(xgi::Input * in, xgi::Output * out )
@@ -57,7 +61,7 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
         {
             //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice(getApplicationLogger());
             gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger());
-            crateDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
+            //crateDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
             //crateDevice_->setAddressTableFileName("testbeam_registers.xml");
             crateDevice_->setDeviceIPAddress("192.168.0.164");
             crateDevice_->connectDevice();
@@ -235,6 +239,30 @@ throw (xgi::exception::Exception)
     nCrates_ = gemHwMonitorSystem_->getNumberOfSubDevices();
     for (int i=0; i<nCrates_; i++) {
         gemHwMonitorSystem_->addSubDeviceStatus(2);
+        for (unsigned int i = 0; i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().size(); i++) 
+        {
+            gemHwMonitorCrate_.push_back(new  gemHwMonitorCrate());
+            gemHwMonitorCrate_.back()->setDeviceConfiguration(*gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i));
+            for (unsigned int i = 0; i != gemHwMonitorCrate_.back()->getDevice()->getSubDevicesRefs().size(); i++) 
+            {
+                gemHwMonitorGLIB_.push_back(new gemHwMonitorGLIB());
+                gemHwMonitorGLIB_.back()->setDeviceConfiguration(*gemHwMonitorCrate_.back()->getDevice()->getSubDevicesRefs().at(i));
+                gemHwMonitorCrate_.back()->addSubDeviceStatus(0);
+                for (unsigned int i = 0; i != gemHwMonitorGLIB_.back()->getDevice()->getSubDevicesRefs().size(); i++) 
+                {
+                    gemHwMonitorOH_.push_back(new gemHwMonitorOH());
+                    gemHwMonitorOH_.back()->setDeviceConfiguration(*gemHwMonitorGLIB_.back()->getDevice()->getSubDevicesRefs().at(i));
+                    gemHwMonitorGLIB_.back()->addSubDeviceStatus(0);
+                    for (unsigned int i = 0; i != gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().size(); i++) 
+                    {
+                        gemHwMonitorVFAT_.push_back(new gemHwMonitorVFAT());
+                        gemHwMonitorVFAT_.back()->setDeviceConfiguration(*gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().at(i));
+                        gemHwMonitorVFAT_.back()->setDeviceStatus(0);
+                        gemHwMonitorOH_.back()->addSubDeviceStatus(0);
+                    }
+                }
+            }
+        }
     }
     this->controlPanel(in,out);
 }
@@ -255,30 +283,27 @@ throw (xgi::exception::Exception)
     {
         if (gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == crateToShow_) 
         {
-            gemHwMonitorCrate_->setDeviceConfiguration(*gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i));
-            for (int i=0; i<gemHwMonitorCrate_->getNumberOfSubDevices(); i++) {
-                gemHwMonitorGLIB_->setDeviceConfiguration(*gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i));
+            gemHwMonitorCrate_.at(i)->setDeviceConfiguration(*gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i));
+            indexCrate_ = i;
+            for (int i=0; i<gemHwMonitorCrate_.at(indexCrate_)->getNumberOfSubDevices(); i++) {
+                gemHwMonitorGLIB_.at(i)->setDeviceConfiguration(*gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().at(i));
                 std::map <std::string, std::string> glibProperties_;
-                glibProperties_ = gemHwMonitorGLIB_->getDevice()->getDeviceProperties();
+                glibProperties_ = gemHwMonitorGLIB_.at(i)->getDevice()->getDeviceProperties();
                 std::string glibIP = "192.168.0.164";
                 for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
                 {
                     if (it->first == "IP") glibIP = it->second; 
                     std::cout << "GLIB IP is "<<glibIP << std::endl;
                 }
-                //gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
-                //gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
-                gem::hw::vfat::HwVFAT2* glibDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
-
-                glibDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
+                gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
                 glibDevice_->setDeviceIPAddress(glibIP);
                 glibDevice_->connectDevice();
-                if (glibDevice_->isHwConnected())
-                {
-                    gemHwMonitorCrate_->addSubDeviceStatus(0);
-                } else {
-                    gemHwMonitorCrate_->addSubDeviceStatus(2);
-                }
+                //if (glibDevice_->isHwConnected())
+                //{
+                //    gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(0);
+                //} else {
+                //    gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(2);
+                //}
             }
         }
     }
@@ -305,18 +330,18 @@ throw (xgi::exception::Exception)
     *out << cgicc::table().set("class","table");
     *out << "<tr><h2><div align=\"center\">Connected Optohybrids</div></h2></tr>" << std::endl;
     *out << "<tr>" << std::endl;
-    for (int i=0; i<gemHwMonitorCrate_->getNumberOfSubDevices(); i++) {
+    for (int i=0; i<gemHwMonitorCrate_.at(indexCrate_)->getNumberOfSubDevices(); i++) {
         std::string currentGLIBId;
-        currentGLIBId += gemHwMonitorCrate_->getCurrentSubDeviceId(i);
+        currentGLIBId += gemHwMonitorCrate_.at(indexCrate_)->getCurrentSubDeviceId(i);
         *out << cgicc::td();
             *out << cgicc::form().set("method","POST").set("action", methodExpandGLIB) << std::endl ;
-            if (gemHwMonitorCrate_->getSubDeviceStatus(i) == 0)
+            if (gemHwMonitorCrate_.at(indexCrate_)->getSubDeviceStatus(i) == 0)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"glibButton\" value=\"" << currentGLIBId << "\">" << currentGLIBId<< "</button>" << std::endl;
-            } else if (gemHwMonitorCrate_->getSubDeviceStatus(i) == 1)
+            } else if (gemHwMonitorCrate_.at(indexCrate_)->getSubDeviceStatus(i) == 1)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"glibButton\" value=\"" << currentGLIBId << "\">" << currentGLIBId<< "</button>" << std::endl;
-            } else if (gemHwMonitorCrate_->getSubDeviceStatus(i) == 2)
+            } else if (gemHwMonitorCrate_.at(indexCrate_)->getSubDeviceStatus(i) == 2)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"glibButton\" value=\"" << currentGLIBId << "\" disabled>" << currentGLIBId<< "</button>" << std::endl;
             }
@@ -336,30 +361,30 @@ throw (xgi::exception::Exception)
     cgicc::Cgicc cgi(in);
     glibToShow_ = cgi.getElement("glibButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
-    for (unsigned int i = 0; i != gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().size(); i++) 
+    for (unsigned int i = 0; i != gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().size(); i++) 
     {
-        if (gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == glibToShow_) 
+        if (gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == glibToShow_) 
         {
-            gemHwMonitorGLIB_->setDeviceConfiguration(*gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().at(i));
-            for (int i=0; i<gemHwMonitorGLIB_->getNumberOfSubDevices(); i++) {
+            indexGLIB_ = i;            
+            //gemHwMonitorGLIB_->setDeviceConfiguration(*gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().at(i));
+            for (int i=0; i<gemHwMonitorGLIB_.at(indexGLIB_)->getNumberOfSubDevices(); i++) {
                 std::map <std::string, std::string> glibProperties_;
-                glibProperties_ = gemHwMonitorGLIB_->getDevice()->getDeviceProperties();
+                glibProperties_ = gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getDeviceProperties();
                 std::string ohIP = "192.168.0.164";
                 for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
                 {
                     if (it->first == "IP") ohIP = it->second; 
+                    std::cout << "OH IP is "<<ohIP << std::endl;
                 }
-                //gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
-                gem::hw::vfat::HwVFAT2* ohDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
-                ohDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
+                gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
                 ohDevice_->setDeviceIPAddress(ohIP);
                 ohDevice_->connectDevice();
-                if (ohDevice_->isHwConnected())
-                {
-                    gemHwMonitorGLIB_->addSubDeviceStatus(0);
-                } else {
-                    gemHwMonitorGLIB_->addSubDeviceStatus(2);
-                }
+                //if (ohDevice_->isHwConnected())
+                //{
+                //    gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(0);
+                //} else {
+                //    gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(2);
+                //}
             }
         }
     }
@@ -381,18 +406,18 @@ throw (xgi::exception::Exception)
     *out << cgicc::table().set("class","table");
     *out << "<tr><h2><div align=\"center\">Connected Optohybrids</div></h2></tr>" << std::endl;
     *out << "<tr>" << std::endl;
-    for (int i=0; i<gemHwMonitorGLIB_->getNumberOfSubDevices(); i++) {
+    for (int i=0; i<gemHwMonitorGLIB_.at(indexGLIB_)->getNumberOfSubDevices(); i++) {
         std::string currentOHId;
-        currentOHId += gemHwMonitorGLIB_->getCurrentSubDeviceId(i);
+        currentOHId += gemHwMonitorGLIB_.at(indexGLIB_)->getCurrentSubDeviceId(i);
         *out << cgicc::td();
             *out << cgicc::form().set("method","POST").set("action", methodExpandOH) << std::endl ;
-            if (gemHwMonitorGLIB_->getSubDeviceStatus(i) == 0)
+            if (gemHwMonitorGLIB_.at(indexGLIB_)->getSubDeviceStatus(i) == 0)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"ohButton\" value=\"" << currentOHId << "\">" << currentOHId<< "</button>" << std::endl;
-            } else if (gemHwMonitorGLIB_->getSubDeviceStatus(i) == 1)
+            } else if (gemHwMonitorGLIB_.at(indexGLIB_)->getSubDeviceStatus(i) == 1)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"ohButton\" value=\"" << currentOHId << "\">" << currentOHId<< "</button>" << std::endl;
-            } else if (gemHwMonitorGLIB_->getSubDeviceStatus(i) == 2)
+            } else if (gemHwMonitorGLIB_.at(indexGLIB_)->getSubDeviceStatus(i) == 2)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"ohButton\" value=\"" << currentOHId << "\" disabled>" << currentOHId<< "</button>" << std::endl;
             }
@@ -412,17 +437,20 @@ throw (xgi::exception::Exception)
     cgicc::Cgicc cgi(in);
     ohToShow_ = cgi.getElement("ohButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
-    for (unsigned int i = 0; i != gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().size(); i++) 
+    for (unsigned int i = 0; i != gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().size(); i++) 
     {
-        if (gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) 
+        //if (gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) 
+        if ((gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) && (!(gemHwMonitorOH_.at(i)->isConfigured())))
         {
-            gemHwMonitorOH_->setDeviceConfiguration(*gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i));
-            for (int i=0; i<gemHwMonitorOH_->getNumberOfSubDevices(); i++) {
+            indexOH_ = i;
+            //gemHwMonitorOH_->setDeviceConfiguration(*gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i));
+            gemHwMonitorOH_.at(indexOH_)->setIsConfigured(true);
+            for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
                 if (i) 
                 {
-                    gemHwMonitorOH_->addSubDeviceStatus(0);
+                    gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(0);
                 } else {
-                    gemHwMonitorOH_->addSubDeviceStatus(0);
+                    gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(0);
                 }
             }
         }
@@ -445,18 +473,18 @@ throw (xgi::exception::Exception)
     *out << cgicc::table().set("class","table");
     *out << "<tr><h2><div align=\"center\">Connected VFAT's</div></h2></tr>" << std::endl;
     *out << "<tr>" << std::endl;
-    for (int i=0; i<gemHwMonitorOH_->getNumberOfSubDevices(); i++) {
+    for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
         std::string currentVFATId;
-        currentVFATId += gemHwMonitorOH_->getCurrentSubDeviceId(i);
+        currentVFATId += gemHwMonitorOH_.at(indexOH_)->getCurrentSubDeviceId(i);
         *out << cgicc::td();
             *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
-            if (gemHwMonitorOH_->getSubDeviceStatus(i) == 0)
+            if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 0)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
-            } else if (gemHwMonitorOH_->getSubDeviceStatus(i) == 1)
+            } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 1)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
-            } else if (gemHwMonitorOH_->getSubDeviceStatus(i) == 2)
+            } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 2)
             {
                 *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << currentVFATId<< "</button>" << std::endl;
             }
@@ -477,11 +505,12 @@ throw (xgi::exception::Exception)
     cgicc::Cgicc cgi(in);
     vfatToShow_ = cgi.getElement("vfatButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
-    for (unsigned int i = 0; i != gemHwMonitorOH_->getDevice()->getSubDevicesRefs().size(); i++) 
+    for (unsigned int i = 0; i != gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().size(); i++) 
     {
-        if (gemHwMonitorOH_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
+        if (gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
         {
-            gemHwMonitorVFAT_->setDeviceConfiguration(*gemHwMonitorOH_->getDevice()->getSubDevicesRefs().at(i));
+            indexVFAT_ = i;
+            //gemHwMonitorVFAT_->setDeviceConfiguration(*gemHwMonitorOH_->getDevice()->getSubDevicesRefs().at(i));
         }
     }
     this->vfatPanel(in,out);
@@ -491,16 +520,13 @@ throw (xgi::exception::Exception)
 {
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
-    //vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
     vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), vfatToShow_);
-    vfatDevice_->setAddressTableFileName("geb_vfat_address_table.xml");
     vfatDevice_->setDeviceIPAddress("192.168.0.164");
     vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
-    //vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
     vfatDevice_->connectDevice();
     vfatDevice_->readVFAT2Counters();
     vfatDevice_->getAllSettings();
-    std::cout << vfatDevice_->getVFAT2Params()<<std::endl; 
+    //std::cout << vfatDevice_->getVFAT2Params()<<std::endl; 
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
     *out << "<h1><div align=\"center\">Chip Id : "<< vfatToShow_ << "</div></h1>" << std::endl;
@@ -508,7 +534,7 @@ throw (xgi::exception::Exception)
     *out << "<div class=\"panel-body\">" << std::endl;
     *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "::" << ohToShow_ <<  "</div></h3>" << std::endl;
     std::map <std::string, std::string> vfatProperties_;
-    vfatProperties_ = gemHwMonitorVFAT_->getDevice()->getDeviceProperties();
+    vfatProperties_ = gemHwMonitorVFAT_.at(indexVFAT_)->getDevice()->getDeviceProperties();
 
     *out << cgicc::table().set("class","table");
     *out << cgicc::tr()<< std::endl;
@@ -564,6 +590,33 @@ throw (xgi::exception::Exception)
 {
     std::string alertColor;
     (boost::iequals(value1, value2)) ? alertColor="success" : alertColor="danger";
+        std::cout << vfatToShow_ << " status : " << gemHwMonitorVFAT_.at(indexVFAT_)->getDeviceStatus() << std::endl;
+    if (!(gemHwMonitorVFAT_.at(indexVFAT_)->getDeviceStatus()))
+    {
+        std::cout << vfatToShow_ << " status : " << gemHwMonitorVFAT_.at(indexVFAT_)->getDeviceStatus() << std::endl;
+        (boost::iequals(value1, value2)) ? gemHwMonitorVFAT_.at(indexVFAT_)->setDeviceStatus(0):gemHwMonitorVFAT_.at(indexVFAT_)->setDeviceStatus(1);
+        for (unsigned int i = 0; i != gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().size(); i++) 
+        {
+            if (gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
+            {
+                gemHwMonitorOH_.at(indexOH_)->setSubDeviceStatus(1,i);
+            }
+        }
+        for (unsigned int i = 0; i != gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().size(); i++) 
+        {
+            if (gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) 
+            {
+                gemHwMonitorGLIB_.at(indexGLIB_)->setSubDeviceStatus(1,i);
+            }
+        }
+        for (unsigned int i = 0; i != gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().size(); i++) 
+        {
+            if (gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == glibToShow_) 
+            {
+                gemHwMonitorCrate_.at(indexGLIB_)->setSubDeviceStatus(1,i);
+            }
+        }
+    }
     *out << "<tr class=\"" << alertColor << "\">" << std::endl;
     *out << "<td>";
     *out << "<strong>" << key << ":" << "</strong>";
