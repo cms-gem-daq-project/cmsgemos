@@ -1154,9 +1154,6 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
     scanSetup << " stepSize      " << stepSize_ << endl;
     scanSetup << " minThresh     " << minThresh_ << endl;
     scanSetup << " maxThresh     " << maxThresh_ << endl;
-    scanSetup << " stepSizeVcal  " << stepSizeVcal_ << endl;
-    scanSetup << " minVcal       " << minVcal_ << endl;   
-    scanSetup << " maxVcal       " << maxVcal_ << endl;   
     }
   scanSetup.close();
   
