@@ -115,7 +115,7 @@ namespace gem {
                 std::string ohToShow_;
                 std::string vfatToShow_;
                 std::string glibIP;
-                //gem::hw::glib::HwGLIB* glibDevice_;
+                gem::hw::glib::HwGLIB* glibDevice_;
                 gem::hw::optohybrid::HwOptoHybrid* ohDevice_;
                 gem::hw::vfat::HwVFAT2* vfatDevice_;
                 std::vector<std::string> checkedCrates_;
