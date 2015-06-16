@@ -405,9 +405,14 @@ throw (xgi::exception::Exception)
         *out << cgicc::td();
     *out << "</tr>" << std::endl;
     *out << cgicc::table() <<std::endl;;
+    glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
+    glibDevice_->setDeviceIPAddress(glibIP);
+    glibDevice_->connectDevice();
+
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
-    *out << "<h1><div align=\"center\">Chip Id : "<< glibToShow_ << "</div></h1>" << std::endl;
+    *out << "<h1><div align=\"center\">Chip Id : "<< glibToShow_ << "Firmware version : " << glibDevice_->getUserFirmware() << "</div></h1>" << std::endl;
+    //*out << "<h1><div align=\"center\">Chip Id : "<< glibToShow_ << "Firmware version : " << "XXX" << "</div></h1>" << std::endl;
     *out << "</div>" << std::endl;
     *out << "<div class=\"panel-body\">" << std::endl;
     *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ 
@@ -435,10 +440,60 @@ throw (xgi::exception::Exception)
         *out << cgicc::td();
     }
     *out << "</tr>" << std::endl;
-    *out << cgicc::table() <<std::endl;;
+    *out << cgicc::table() <<std::endl;
+
+    gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus_;
+    for (uint8_t i=1; i<2; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
+    {
+        linkStatus_ = glibDevice_->LinkStatus(i);
+        *out << cgicc::table().set("class","table");
+            *out << "<tr>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Link N" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Link Err" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Received VFAT2 I2C requests" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Sent VFAT2 I2C requests" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Received register requests" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Sent register requests" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "</tr>" << std::endl;
+            *out << "<tr>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << (int)i << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkErrCnt << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkVFATI2CRec << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkVFATI2CSnt << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkRegisterRec << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkRegisterSnt << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "</tr>" << std::endl;
+        *out << cgicc::table() <<std::endl;
+    }
+
     *out << "</div>" << std::endl;
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
+    delete glibDevice_;
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * out )
@@ -665,6 +720,7 @@ throw (xgi::exception::Exception)
     *out << "</div>" << std::endl;
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
+    delete ohDevice_;
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input * in, xgi::Output * out )

@@ -385,7 +385,7 @@ std::string gem::hw::glib::HwGLIB::getUserFirmware()
   // This returns the user firmware build date. 
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
-  uint32_t userfw = readReg(getDeviceBaseNode(),"GLIB_LINKS.LINK0.USER_FW");
+  uint32_t userfw = readReg(getDeviceBaseNode(),"GLIB_LINKS.LINK1.USER_FW");
   res << "0x"<< std::hex << userfw << std::dec;
   return res.str();
 }
@@ -399,7 +399,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_
     XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
   } else {
     std::stringstream regName;
-    regName << "OPTICAL_LINKS.LINK" << (int)link << ".Counter.";
+    regName << "GLIB_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Counter.";
     linkStatus.linkErrCnt      = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"      );
     linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regName.str()+"RecI2CReqests");
     linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regName.str()+"SntI2CReqests");
@@ -417,7 +417,7 @@ void gem::hw::glib::HwGLIB::LinkReset(uint8_t link, uint8_t resets) {
   }
   
   std::stringstream regName;
-  regName << "OPTICAL_LINKS.LINK" << (int)link << ".Resets.";
+  regName << "GLIB_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Resets.";
   if (resets&0x01)
     writeReg(getDeviceBaseNode(),regName.str()+"LinkErr",0x1);
   if (resets&0x02)
@@ -452,7 +452,7 @@ uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t link) {
   }
   
   std::stringstream regName;
-  regName << "OPTICAL_LINKS.LINK" << (int)link << ".TRK_FIFO.";
+  regName << "GLIB_LINKS.LINK" << (int)link << ".TRK_FIFO.";
   fifocc = readReg(getDeviceBaseNode(),regName.str()+"DEPTH");
   
   return fifocc;
@@ -466,6 +466,6 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t link) {
   }
 
   std::stringstream regName;
-  regName << "OPTICAL_LINKS.LINK" << (int)link << ".TRK_FIFO.";
+  regName << "GLIB_LINKS.LINK" << (int)link << ".TRK_FIFO.";
   writeReg(getDeviceBaseNode(),regName.str()+"FLUSH",0x1);
 }
