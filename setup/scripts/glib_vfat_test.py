@@ -73,19 +73,23 @@ for link in (links.keys()):
 for link in (links.keys()):
 	print "OH link%d FW:        0x%08x"%(links[link],readRegister(glib,"OH_link%d_FW"%(links[link])))
 
+print "GLIB links", links.keys()
 for chip in range(0,24):
 	if (0 not in links.keys()):
 		if (chip < 8):
+			#print "link 0 and chip %d check %d"%(chip,chip < 8)
 			if options.debug:
 				print "GLIB link 0 missing, skipping %d"%chip
 			continue
 	if (1 not in links.keys()):
-		if ((chip > 7) or (chip < 16)):
+		if ((chip > 7) and (chip < 16)):
+			#print "link 1 and chip %d check %d,%d"%(chip,chip > 7, chip < 16)
 			if options.debug:
 				print "GLIB link 1 missing, skipping %d"%chip
 			continue
 	if (2 not in links.keys()):
 		if (chip > 15):
+			#print "link 2 and chip %d check %d,%d"%(chip,chip > 15, chip < 24)
 			if options.debug:
 				print "GLIB link 2 missing, skipping %d"%chip
 			continue
