@@ -121,6 +121,9 @@ for chip in range(0,24):
 
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
 for i,chip in enumerate(chipids):
+	if (int(chip[0][4:])%8==0):
+		print "-------------GEB Column %d-----------------"%(int(chip[0][4:])/8)
+
 	print "%s%6s%s  %s0x%04x%s   0x%02x   0x%02x   0x%02x   0x%02x"%(colors.GREEN,chip[0],colors.ENDC,
 									 colors.CYAN,chip[1],colors.ENDC,
 									 controlReg0[i][1],

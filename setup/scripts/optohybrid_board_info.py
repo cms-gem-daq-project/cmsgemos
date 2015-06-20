@@ -85,7 +85,7 @@ print
 #	writeRegister(glib,"OH_link%d_SendBC0"%(links[link]),   0x1)
 
 #
-print "-> OH VFATs accessible: 0x%x"%(readRegister(glib,"VFATs_TEST"))
+#print "-> OH VFATs accessible: 0x%x"%(readRegister(glib,"VFATs_TEST"))
 for link in (links.keys()):
 	if options.trgSrc in [0,1,2]:
 		for link in (links.keys()):
@@ -105,7 +105,7 @@ for link in (links.keys()):
 	print "-> OH link%d CDCE Locked     : 0x%x"%(links[link],readRegister(glib,"OH_link%d_CDCE_Locked"%(links[link])))
 	print "-> OH link%d GTP Locked      : 0x%x"%(links[link],readRegister(glib,"OH_link%d_GTP_Locked"%(links[link])))
 	print 
-	print "-> OH link%d Clocking::    VFAT        CDCE"
+	print "-> OH link Clocking:    VFAT        CDCE"
 	print "-> OH link%d Source         0x%x         0x%x"%(links[link],readRegister(glib,"OH_link%d_VFAT_SRC"%(links[link])),
 							       readRegister(glib,"OH_link%d_CDCE_SRC"%(links[link])))
 	print "-> OH link%d Backup         0x%x         0x%x"%(links[link],readRegister(glib,"OH_link%d_VFAT_BKP"%(links[link])),
@@ -149,7 +149,7 @@ for link in (links.keys()):
 	time.sleep(options.errorRate)
 	errorCounts[links[link]].append(readRegister(glib,"OH_link%d_ErrCnt"%(links[link])))
 
-print "-> OH link num: %20s    %10s    %10s    %10s    %10s"%("ErrCnt (rate)",
+print "-> OH link num:  %28s    %10s    %10s    %10s    %10s"%("ErrCnt (rate)",
 							      "I2CRecCnt",
 							      "I2CSndCnt",
 							      "RegRecCnt",
@@ -157,13 +157,13 @@ print "-> OH link num: %20s    %10s    %10s    %10s    %10s"%("ErrCnt (rate)",
 
 for link in (links.keys()):
 #if (0 in options.activeLinks):
-	print "-> link%d        : 0x%08x (%2.2fHz)    0x%08x    0x%08x    0x%08x    0x%08x"%(links[link],
-											     readRegister(glib,"OH_link%d_ErrCnt"%(links[link])),
-											     ((errorCounts[link][1]-errorCounts[link][0])/(1.0*options.errorRate)),
-											     readRegister(glib,"OH_link%d_I2CRecCnt"%(links[link])),
-											     readRegister(glib,"OH_link%d_I2CSndCnt"%(links[link])),
-											     readRegister(glib,"OH_link%d_RegRecCnt"%(links[link])),
-											     readRegister(glib,"OH_link%d_RegSndCnt"%(links[link])))
+	print "-> link%d        : 0x%08x (%12.2fHz)    0x%08x    0x%08x    0x%08x    0x%08x"%(links[link],
+											      readRegister(glib,"OH_link%d_ErrCnt"%(links[link])),
+											      ((errorCounts[link][1]-errorCounts[link][0])/(1.0*options.errorRate)),
+											      readRegister(glib,"OH_link%d_I2CRecCnt"%(links[link])),
+											      readRegister(glib,"OH_link%d_I2CSndCnt"%(links[link])),
+											      readRegister(glib,"OH_link%d_RegRecCnt"%(links[link])),
+											      readRegister(glib,"OH_link%d_RegSndCnt"%(links[link])))
 print
 vfatRange = ["0-7","8-15","16-23"]
 for link in (links.keys()):
