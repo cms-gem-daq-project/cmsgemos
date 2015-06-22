@@ -125,7 +125,6 @@ SAMPLE_TIME = 1.
 for link in (links.keys()):
 	for trial in range(options.errorRate):
 		errorCounts[links[link]].append(calculateLinkErrors(False,optohybrid,links[link],SAMPLE_TIME))
-print errorCounts
 sys.stdout.flush()
 
 
@@ -143,7 +142,7 @@ for link in (links.keys()):
 print
 print
 print "--=======================================--"
-print "-> OH link num: %10s  %12s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)",
+print "-> OH link num: %10s %12s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)",
 								    "I2CRecCnt","I2CSndCnt",
 								    "RegRecCnt","RegSndCnt")
 for link in (links.keys()):

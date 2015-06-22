@@ -6,7 +6,7 @@ from registers_uhal import *
 
 def biasVFAT(device,chip):
     baseNode = "OptoHybrid.GEB.VFATS.VFAT%d"%(chip)
-    writeRegister(device,"%s.Latency"%(        baseNode),  15)
+    writeRegister(device,"%s.Latency"%(    baseNode),  15)
     writeRegister(device,"%s.IPreampIn"%(  baseNode), 168)
     writeRegister(device,"%s.IPreampFeed"%(baseNode), 150)
     writeRegister(device,"%s.IPreampOut"%( baseNode),  80)
@@ -19,5 +19,5 @@ def biasVFAT(device,chip):
     writeRegister(device,"%s.CalPhase"%(   baseNode),   0)
 
     for chan in range(128):
-        writeRegister(device,"%s.ChanReg%d"%(baseNode,chan),0x40)
+        writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
         
