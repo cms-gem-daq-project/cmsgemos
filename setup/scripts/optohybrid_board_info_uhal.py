@@ -37,7 +37,7 @@ for link in options.activeLinks:
 	links[pair[0]] = pair[1]
 print "links", links
 
-uhal.setLogLevelTo( uhal.LogLevel.WARNING )
+uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
 uTCAslot = 15
 if options.slot:
@@ -96,7 +96,7 @@ for link in (links.keys()):
 	if options.sbitSrc in [1,2,3,4,5,6]:
 		setTriggerSBits(False,optohybrid,links[link],options.sbitSrc)
 
-	clocking = getClockingInfo(optohybrid,link)
+	clocking = getClockingInfo(optohybrid,links[link])
 	print "-> OH link%d Trigger source:  0x%x"%(links[link],
 						    readRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.SOURCE"%(links[link])))
 	print "-> OH link%d SBit to TDC:     0x%x"%(links[link],
@@ -116,15 +116,16 @@ for link in (links.keys()):
 #exit(1)
 if (options.resetCounters):
 	for link in (links.keys()):
-		linkCounters(False,optohybrid,True)
+		linkCounters(False,optohybrid,links[link],True)
 
 errorCounts = {}
 for link in (links.keys()):
-	errorCounts[link] = []
+	errorCounts[links[link]] = []
 SAMPLE_TIME = 1.
 for link in (links.keys()):
 	for trial in range(options.errorRate):
 		errorCounts[links[link]].append(calculateLinkErrors(False,optohybrid,links[link],SAMPLE_TIME))
+print errorCounts
 sys.stdout.flush()
 
 
@@ -132,12 +133,12 @@ print
 print "-> Counters    %8s     %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0","BX")
 for link in (links.keys()):
 	counters = linkCounters(False,optohybrid,links[link],False)
-	print "-> link%d            0x%08x   0x%08x   0x%08x   0x%08x   0x%08x"%(links[link],
-										 counters["L1A"],
-										 counters["Cal"],
-										 counters["Resync"],
-										 counters["BC0"],
-										 counters["BXCount"])
+	print "-> link%d     0x%08x   0x%08x   0x%08x   0x%08x   0x%08x"%(links[link],
+									  counters["L1A"],
+									  counters["Cal"],
+									  counters["Resync"],
+									  counters["BC0"],
+									  counters["BXCount"])
 	
 print
 print
