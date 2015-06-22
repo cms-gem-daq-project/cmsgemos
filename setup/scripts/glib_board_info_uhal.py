@@ -41,7 +41,7 @@ for link in options.activeLinks:
 	links[pair[0]] = pair[1]
 print "links", links
 
-uhal.setLogLevelTo( uhal.LogLevel.ERROR )
+uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
 uTCAslot = 175
 if options.slot:
@@ -72,7 +72,7 @@ print
 
 if (options.resetCounters):
 	for link in (links.keys()):
-		linkCounters(True,glib,True)
+		linkCounters(True,glib,link,True)
 print
 for link in (links.keys()):
 	print link, links.keys()
