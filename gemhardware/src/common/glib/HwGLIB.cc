@@ -389,10 +389,10 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_
     std::stringstream regName;
     regName << "GLIB_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Counter.";
     linkStatus.linkErrCnt      = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"      );
-    linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regName.str()+"RecI2CReqests");
-    linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regName.str()+"SntI2CReqests");
-    linkStatus.linkRegisterRec = readReg(getDeviceBaseNode(),regName.str()+"RecRegReqests");
-    linkStatus.linkRegisterSnt = readReg(getDeviceBaseNode(),regName.str()+"SntRegReqests");
+    linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regName.str()+"RecI2CRequests");
+    linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regName.str()+"SntI2CRequests");
+    linkStatus.linkRegisterRec = readReg(getDeviceBaseNode(),regName.str()+"RecRegRequests");
+    linkStatus.linkRegisterSnt = readReg(getDeviceBaseNode(),regName.str()+"SntRegRequests");
   }
   return linkStatus;
 }
@@ -409,26 +409,27 @@ void gem::hw::glib::HwGLIB::LinkReset(uint8_t link, uint8_t resets) {
   if (resets&0x01)
     writeReg(getDeviceBaseNode(),regName.str()+"LinkErr",0x1);
   if (resets&0x02)
-    writeReg(getDeviceBaseNode(),regName.str()+"RecI2CReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"RecI2CRequests",0x1);
   if (resets&0x04)
-    writeReg(getDeviceBaseNode(),regName.str()+"SntI2CReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"SntI2CRequests",0x1);
   if (resets&0x08)
-    writeReg(getDeviceBaseNode(),regName.str()+"RecRegReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"RecRegRequests",0x1);
   if (resets&0x10)
-    writeReg(getDeviceBaseNode(),regName.str()+"SntRegReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"SntRegRequests",0x1);
 }
 
-uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO() {
+uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO(uint8_t link) {
   std::stringstream regName;
   regName << "TRG_DATA.";
   uint32_t trgword = readReg(getDeviceBaseNode(),regName.str()+"DATA");
   return trgword;
 }
 
-void gem::hw::glib::HwGLIB::flushTriggerFIFO() {
+void gem::hw::glib::HwGLIB::flushTriggerFIFO(uint8_t link) {
   std::stringstream regName;
-  regName << "TRG_DATA.";
-  writeReg(getDeviceBaseNode(),regName.str()+"FIFO_FLUSH",0x1);
+  //regName << "TRG_DATA.";
+  regName << "GLIB_LINKS.LINK" << link << ".TRIGGER";
+  writeReg(getDeviceBaseNode(),regName.str()+".FIFO_FLUSH",0x1);
 }
 
 uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t link) {
