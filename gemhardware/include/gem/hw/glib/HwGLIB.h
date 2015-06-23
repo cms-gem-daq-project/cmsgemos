@@ -344,12 +344,12 @@ namespace gem {
 	  /** Read the trigger data
 	   * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
 	   **/
-	  uint32_t readTriggerFIFO();
+	  uint32_t readTriggerFIFO(uint8_t link);
 
 	  /** Empty the trigger data FIFO
 	   * 
 	   **/
-	  void flushTriggerFIFO();
+	  void flushTriggerFIFO(uint8_t link);
 
 	  /** Read the tracking data FIFO occupancy
 	   * @param uint8_t link is the number of the link to query
