@@ -91,20 +91,28 @@ namespace gem {
 	   * @param regName is the name of the VFAT2 register to read
 	   * @returns 8-bit register from the VFAT chip
 	   */
-	  uint8_t  readVFATReg( std::string const& regName) {
-	    return readReg(getDeviceBaseNode(),regName)&0x000000ff; };
+	  uint8_t  readVFATReg( std::string const& regName) /*{
+	    //check the transaction status
+	    //bit 31:27 - unused
+	    //bit 26 - error
+	    //bit 25 - valid
+	    //bit 24 - r/w
+	    //bit 23:16 - VFAT number
+	    //bit 15:8  - VFAT register
+	    //bit 7:0   - register value
+	    return readReg(getDeviceBaseNode(),regName)&0x000000ff; }*/;
 
 	  /** readVFATRegs( std::vector<std::pair<std::string, uint8_t> > &regList)
 	   * Reads a list of registers on the VFAT2 chip into the provided key pair
 	   * @param regList is the list of pairs of register names to read, and values to return
 	   */
-	  void     readVFATRegs( std::vector<std::pair<std::string, uint8_t> > &regList) {
+	  void     readVFATRegs( std::vector<std::pair<std::string, uint8_t> > &regList) /*{
 	    std::vector<std::pair<std::string, uint32_t> > fullRegList;
 	    std::vector<std::pair<std::string, uint8_t > >::const_iterator curReg = regList.begin();
 	    for (; curReg != regList.end(); ++curReg) 
 	      fullRegList.push_back(std::make_pair(getDeviceBaseNode()+"."+curReg->first,static_cast<uint32_t>(curReg->second)));
 	    readRegs(fullRegList);
-	  };
+	    }*/;
 
 	  /** readVFAT2Counters()
 	   * Reads the counters on the VFAT2 chip and writes the values into the vfatParams_ object

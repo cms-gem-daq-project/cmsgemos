@@ -160,6 +160,36 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
   }
 }
 
+//
+uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
+  uint32_t readVal = readReg(getDeviceBaseNode(),regName);
+  
+  /*
+  //check the transaction status
+  //bit 31:27 - unused
+  //bit 26 - error
+  (readVal >> 26) & 0x1;
+  //bit 25 - valid
+  (readVal >> 25) & 0x1;
+  //bit 24 - r/w
+  (readVal >> 24) & 0x1;
+  //bit 23:16 - VFAT number
+  (readVal >> 16) & 0xff;
+  //bit 15:8  - VFAT register
+  (readVal >> 8) & 0xff;
+  */
+  //bit 7:0   - register value
+  return (readVal & 0xff);
+}
+
+//
+void gem::hw::vfat::HwVFAT2::readVFATRegs( std::vector<std::pair<std::string, uint8_t> > &regList) {
+  std::vector<std::pair<std::string, uint32_t> > fullRegList;
+  std::vector<std::pair<std::string, uint8_t > >::const_iterator curReg = regList.begin();
+  for (; curReg != regList.end(); ++curReg) 
+    fullRegList.push_back(std::make_pair(getDeviceBaseNode()+"."+curReg->first,static_cast<uint32_t>(curReg->second)));
+  readRegs(fullRegList);
+}
 
 // read VFAT chipID and upset/hit counters into vfatParams_ object
 //void gem::hw::vfat::HwVFAT2::readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params)
