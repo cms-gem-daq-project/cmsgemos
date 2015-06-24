@@ -30,8 +30,8 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   //initialize the AMC13Manager application objects
   LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
   gemWebInterfaceP_ = new gem::hw::amc13::AMC13ManagerWeb(this);
+  //gemMonitorP_      = new gem::hw::amc13::AMC13HwMonitor(this);
   LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
-  //gemMonitorP_      = new gem::hw::amc13::AMC13HwMonitor();
 
   LOG4CPLUS_DEBUG(getApplicationLogger(), "executing preInit for AMC13Manager");
   preInit();
@@ -41,6 +41,18 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
   
+}
+
+// This is the callback used for handling xdata:Event objects
+void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
+{
+  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
+    LOG4CPLUS_DEBUG(getApplicationLogger(), "AMC13Manager::actionPerformed() setDefaultValues" << 
+		    "Default configuration values have been loaded from xml profile");
+    //gemMonitorP_->startMonitoring();
+  }
+  // update monitoring variables
+  gem::base::GEMApplication::actionPerformed(event);
 }
 
 void gem::hw::amc13::AMC13Manager::preInit()
@@ -78,18 +90,6 @@ void gem::hw::amc13::AMC13Manager::preInit()
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
   LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13Manager::preInit()");
-}
-
-// This is the callback used for handling xdata:Event objects
-void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
-{
-  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    LOG4CPLUS_DEBUG(getApplicationLogger(), "AMC13Manager::actionPerformed() setDefaultValues" << 
-		    "Default configuration values have been loaded from xml profile");
-    //gemMonitorP_->startMonitoring();
-  }
-  // update monitoring variables
-  gem::base::GEMApplication::actionPerformed(event);
 }
 
 void gem::hw::amc13::AMC13Manager::init()

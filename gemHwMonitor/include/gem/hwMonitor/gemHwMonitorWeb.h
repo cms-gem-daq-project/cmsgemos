@@ -9,6 +9,9 @@
 #include "gemHwMonitorBase.h"
 #include "gemHwMonitorHelper.h"
 
+#include "gem/hw/GEMHwDevice.h"
+#include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/optohybrid/HwOptoHybrid.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/vfat/VFAT2Settings.h"
 #include "gem/hw/vfat/VFAT2SettingsEnums.h"
@@ -20,6 +23,13 @@ namespace cgicc {
 }
 namespace gem {
     namespace hw {
+        class GEMHwDevice;
+        namespace glib {
+            class HwGLIB;
+        }
+        namespace optohybrid {
+            class HwOptoHybrid;
+        }
         namespace vfat {
             class HwVFAT2;
             class VFAT2Settings;
