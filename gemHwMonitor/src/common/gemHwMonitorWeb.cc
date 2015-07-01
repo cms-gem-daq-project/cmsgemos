@@ -248,6 +248,12 @@ throw (xgi::exception::Exception)
                 gemHwMonitorGLIB_.push_back(new gemHwMonitorGLIB());
                 gemHwMonitorGLIB_.back()->setDeviceConfiguration(*gemHwMonitorCrate_.back()->getDevice()->getSubDevicesRefs().at(i));
                 gemHwMonitorCrate_.back()->addSubDeviceStatus(0);
+                std::map <std::string, std::string> glibProperties_;
+                glibProperties_ = gemHwMonitorGLIB_.back()->getDevice()->getDeviceProperties();
+                for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
+                {
+                    if (it->first == "IP") glibIP = it->second; 
+                }
                 for (unsigned int i = 0; i != gemHwMonitorGLIB_.back()->getDevice()->getSubDevicesRefs().size(); i++) 
                 {
                     gemHwMonitorOH_.push_back(new gemHwMonitorOH());
@@ -257,8 +263,23 @@ throw (xgi::exception::Exception)
                     {
                         gemHwMonitorVFAT_.push_back(new gemHwMonitorVFAT());
                         gemHwMonitorVFAT_.back()->setDeviceConfiguration(*gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().at(i));
-                        gemHwMonitorVFAT_.back()->setDeviceStatus(0);
-                        gemHwMonitorOH_.back()->addSubDeviceStatus(0);
+                        vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
+                        vfatDevice_->setDeviceIPAddress(glibIP);
+                        std::cout << "vfat ID from XML" << gemHwMonitorVFAT_.back()->getDevice()->getDeviceId() << std::endl;
+                        vfatDevice_->setDeviceBaseNode("VFATS."+gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
+                        vfatDevice_->connectDevice();
+                            if (vfatDevice_->isHwConnected()) 
+                            {
+                                gemHwMonitorVFAT_.back()->setDeviceStatus(0);
+                                gemHwMonitorOH_.back()->addSubDeviceStatus(0);
+                            } else {
+                                gemHwMonitorVFAT_.back()->setDeviceStatus(2);
+                                gemHwMonitorOH_.back()->addSubDeviceStatus(2);
+                            }
+                        delete vfatDevice_;
+ 
+                        //gemHwMonitorVFAT_.back()->setDeviceStatus(0);
+                        //gemHwMonitorOH_.back()->addSubDeviceStatus(0);
                     }
                 }
             }
@@ -603,13 +624,21 @@ throw (xgi::exception::Exception)
             indexOH_ = i;
             //gemHwMonitorOH_->setDeviceConfiguration(*gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i));
             gemHwMonitorOH_.at(indexOH_)->setIsConfigured(true);
+            vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), vfatToShow_);
+            vfatDevice_->setDeviceIPAddress(glibIP);
+ 
             for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
-                if (i) 
+            std::string vfatID_ = gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId();
+            std::cout << "vfat ID from XML" << vfatID_ << std::endl;
+            vfatDevice_->setDeviceBaseNode("VFATS."+vfatID_);
+            vfatDevice_->connectDevice();
+                if (vfatDevice_->isHwConnected()) 
                 {
                     gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(0);
                 } else {
-                    gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(0);
+                    gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(2);
                 }
+            delete vfatDevice_;
             }
         }
     }
@@ -738,11 +767,11 @@ throw (xgi::exception::Exception)
             *out << statusVFATClock_.second << std::endl;
         *out << "</td>" << std::endl;
         *out << "</tr>" << std::endl;
-    *out << cgicc::table() <<std::endl;
+    //*out << cgicc::table() <<std::endl;
 
     std::pair<bool,bool> statusCDCEClock_;
     statusCDCEClock_ = ohDevice_->StatusCDCEClock();
-    *out << cgicc::table().set("class","table");
+    //*out << cgicc::table().set("class","table");
         *out << "<tr>" << std::endl;
         *out << "<td>" << std::endl;
             *out << "CDCE Clock Source" << std::endl;
@@ -759,9 +788,9 @@ throw (xgi::exception::Exception)
             *out << statusCDCEClock_.second << std::endl;
         *out << "</td>" << std::endl;
         *out << "</tr>" << std::endl;
-    *out << cgicc::table() <<std::endl;
+    //*out << cgicc::table() <<std::endl;
 
-    *out << cgicc::table().set("class","table");
+    //*out << cgicc::table().set("class","table");
         *out << "<tr>" << std::endl;
         *out << "<td>" << std::endl;
             *out << "Trigger Source" << std::endl;
@@ -778,10 +807,10 @@ throw (xgi::exception::Exception)
             *out << (int)ohDevice_->getSBitSource() << std::endl;
         *out << "</td>" << std::endl;
         *out << "</tr>" << std::endl;
-    *out << cgicc::table() <<std::endl;
+    //*out << cgicc::table() <<std::endl;
  
     const char *l1CountNames[] = {"External L1 Counter", "Internal L1 Counter", "Delayed L1 Counter","Total L1 Counter"};
-    *out << cgicc::table().set("class","table");
+    //*out << cgicc::table().set("class","table");
         for (uint8_t i = 0; i<4; i++)
         {
             *out << "<tr>" << std::endl;
@@ -793,10 +822,10 @@ throw (xgi::exception::Exception)
             *out << "</td>" << std::endl;
             *out << "</tr>" << std::endl;
         }
-    *out << cgicc::table() <<std::endl;
+    //*out << cgicc::table() <<std::endl;
 
     const char *calPulseCountNames[] = {"Internal CalPulse Counter", "Delayed CalPulse Counter","Total CalPulse Counter"};
-    *out << cgicc::table().set("class","table");
+    //*out << cgicc::table().set("class","table");
         for (uint8_t i = 0; i<3; i++)
         {
             *out << "<tr>" << std::endl;
@@ -887,33 +916,32 @@ throw (xgi::exception::Exception)
             *out << cgicc::h3("Hardware value");
         *out << cgicc::td()<< std::endl;
     *out << cgicc::tr() << std::endl;
-    auto it = vfatProperties_.begin();
-                   printVFAThwParameters("CalMode", (it->second).c_str(), (gem::hw::vfat::CalibrationModeToString.at(vfatDevice_->getVFAT2Params().calibMode)).c_str(), out); it++;
-                   printVFAThwParameters("CalPhase", (it->second).c_str(), (vfatDevice_->getVFAT2Params().calPhase), out); it++;
-                   printVFAThwParameters("CalPolarity", (it->second).c_str(), (gem::hw::vfat::CalPolarityToString.at(vfatDevice_->getVFAT2Params().calPol)).c_str(), out); it++;
-                   printVFAThwParameters("DACSel", (it->second).c_str(), (gem::hw::vfat::DACModeToString.at(vfatDevice_->getVFAT2Params().dacMode)).c_str(), out); it++;
-                   printVFAThwParameters("DFTest", (it->second).c_str(), (gem::hw::vfat::DFTestPatternToString.at(vfatDevice_->getVFAT2Params().sendTestPattern)).c_str(), out); it++;
-                   printVFAThwParameters("DigInSel", (it->second).c_str(), (gem::hw::vfat::DigInSelToString.at(vfatDevice_->getVFAT2Params().digInSel)).c_str(), out); it++;
-                   printVFAThwParameters("HitCountSel", (it->second).c_str(), (gem::hw::vfat::HitCountModeToString.at(vfatDevice_->getVFAT2Params().hitCountMode)).c_str(), out); it++;
-                   printVFAThwParameters("IComp", (it->second).c_str(), vfatDevice_->getVFAT2Params().iComp, out); it++;
-                   printVFAThwParameters("IPreampFeed", (it->second).c_str(), vfatDevice_->getVFAT2Params().iPreampFeed, out); it++;
-                   printVFAThwParameters("IPreampIn", (it->second).c_str(), vfatDevice_->getVFAT2Params().iPreampIn, out); it++;
-                   printVFAThwParameters("IPreampOut", (it->second).c_str(), vfatDevice_->getVFAT2Params().iPreampOut, out); it++;
-                   printVFAThwParameters("IShaper", (it->second).c_str(), vfatDevice_->getVFAT2Params().iShaper, out); it++;
-                   printVFAThwParameters("IShaperFeed", (it->second).c_str(), vfatDevice_->getVFAT2Params().iShaperFeed, out); it++;
-                   printVFAThwParameters("LVDSPowerSave", (it->second).c_str(), (gem::hw::vfat::LVDSPowerSaveToString.at(vfatDevice_->getVFAT2Params().lvdsMode)).c_str(), out); it++;
-                   printVFAThwParameters("Latency", (it->second).c_str(), vfatDevice_->getVFAT2Params().latency, out); it++;
-                   printVFAThwParameters("MSPolarity", (it->second).c_str(), (gem::hw::vfat::MSPolarityToString.at(vfatDevice_->getVFAT2Params().msPol)).c_str(), out); it++;
-                   printVFAThwParameters("MSPulseLength", (it->second).c_str(), (gem::hw::vfat::MSPulseLengthToString.at(vfatDevice_->getVFAT2Params().msPulseLen)).c_str(), out); it++;
-                   printVFAThwParameters("PbBG", (it->second).c_str(), (gem::hw::vfat::PbBGToString.at(vfatDevice_->getVFAT2Params().padBandGap)).c_str(), out); it++;
-                   printVFAThwParameters("ProbeMode", (it->second).c_str(), (gem::hw::vfat::ProbeModeToString.at(vfatDevice_->getVFAT2Params().probeMode)).c_str(), out); it++;
-                   printVFAThwParameters("RecHitCT", (it->second).c_str(), (gem::hw::vfat::ReHitCTToString.at(vfatDevice_->getVFAT2Params().reHitCT)).c_str(), out); it++;
-                   printVFAThwParameters("RunMode", (it->second).c_str(), (gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode)).c_str(), out); it++;
-                   printVFAThwParameters("TriggerMode", (it->second).c_str(), (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str(), out); it++;
-                   printVFAThwParameters("TrimDACRange", (it->second).c_str(), (gem::hw::vfat::TrimDACRangeToString.at(vfatDevice_->getVFAT2Params().trimDACRange)).c_str(), out); it++;
-                   printVFAThwParameters("VCal", (it->second).c_str(), vfatDevice_->getVFAT2Params().vCal, out); it++;
-                   printVFAThwParameters("VThreshold1", (it->second).c_str(), vfatDevice_->getVFAT2Params().vThresh1, out); it++;
-                   printVFAThwParameters("VThreshold2", (it->second).c_str(), vfatDevice_->getVFAT2Params().vThresh2, out); it++;
+                   printVFAThwParameters("CalMode", (vfatProperties_.find("CalMode")->second).c_str(), (gem::hw::vfat::CalibrationModeToString.at(vfatDevice_->getVFAT2Params().calibMode)).c_str(), out);
+                   printVFAThwParameters("CalPolarity", (vfatProperties_.find("CalPolarity")->second).c_str(), (gem::hw::vfat::CalPolarityToString.at(vfatDevice_->getVFAT2Params().calPol)).c_str(), out);
+                   printVFAThwParameters("MSPolarity", (vfatProperties_.find("MSPolarity")->second).c_str(), (gem::hw::vfat::MSPolarityToString.at(vfatDevice_->getVFAT2Params().msPol)).c_str(), out);
+                   printVFAThwParameters("TriggerMode", (vfatProperties_.find("TriggerMode")->second).c_str(), (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str(), out);
+                   printVFAThwParameters("RunMode", (vfatProperties_.find("RunMode")->second).c_str(), (gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode)).c_str(), out);
+                   printVFAThwParameters("ReHitCT", (vfatProperties_.find("ReHitCT")->second).c_str(), (gem::hw::vfat::ReHitCTToString.at(vfatDevice_->getVFAT2Params().reHitCT)).c_str(), out);
+                   printVFAThwParameters("LVDSPowerSave", (vfatProperties_.find("LVDSPowerSave")->second).c_str(), (gem::hw::vfat::LVDSPowerSaveToString.at(vfatDevice_->getVFAT2Params().lvdsMode)).c_str(), out);
+                   printVFAThwParameters("DACMode", (vfatProperties_.find("DACMode")->second).c_str(), (gem::hw::vfat::DACModeToString.at(vfatDevice_->getVFAT2Params().dacMode)).c_str(), out);
+                   printVFAThwParameters("DigInSel", (vfatProperties_.find("DigInSel")->second).c_str(), (gem::hw::vfat::DigInSelToString.at(vfatDevice_->getVFAT2Params().digInSel)).c_str(), out);
+                   printVFAThwParameters("MSPulseLength", (vfatProperties_.find("MSPulseLength")->second).c_str(), (gem::hw::vfat::MSPulseLengthToString.at(vfatDevice_->getVFAT2Params().msPulseLen)).c_str(), out);
+                   printVFAThwParameters("HitCountMode", (vfatProperties_.find("HitCountMode")->second).c_str(), (gem::hw::vfat::HitCountModeToString.at(vfatDevice_->getVFAT2Params().hitCountMode)).c_str(), out);
+                   printVFAThwParameters("PbBG", (vfatProperties_.find("PbBG")->second).c_str(), (gem::hw::vfat::PbBGToString.at(vfatDevice_->getVFAT2Params().padBandGap)).c_str(), out);
+                   printVFAThwParameters("TrimDACRange", (vfatProperties_.find("TrimDACRange")->second).c_str(), (gem::hw::vfat::TrimDACRangeToString.at(vfatDevice_->getVFAT2Params().trimDACRange)).c_str(), out);
+                   printVFAThwParameters("IPreampIn", (vfatProperties_.find("IPreampIn")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampIn, out);
+                   printVFAThwParameters("IPreampFeed", (vfatProperties_.find("IPreampFeed")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampFeed, out);
+                   printVFAThwParameters("IPreampOut", (vfatProperties_.find("IPreampOut")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampOut, out);
+                   printVFAThwParameters("IShaper", (vfatProperties_.find("IShaper")->second).c_str(), vfatDevice_->getVFAT2Params().iShaper, out);
+                   printVFAThwParameters("IShaperFeed", (vfatProperties_.find("IShaperFeed")->second).c_str(), vfatDevice_->getVFAT2Params().iShaperFeed, out);
+                   printVFAThwParameters("IComp", (vfatProperties_.find("IComp")->second).c_str(), vfatDevice_->getVFAT2Params().iComp, out);
+                   printVFAThwParameters("Latency", (vfatProperties_.find("Latency")->second).c_str(), vfatDevice_->getVFAT2Params().latency, out);
+                   printVFAThwParameters("VCal", (vfatProperties_.find("VCal")->second).c_str(), vfatDevice_->getVFAT2Params().vCal, out);
+                   printVFAThwParameters("VThreshold1", (vfatProperties_.find("VThreshold1")->second).c_str(), vfatDevice_->getVFAT2Params().vThresh1, out);
+                   printVFAThwParameters("VThreshold2", (vfatProperties_.find("VThreshold2")->second).c_str(), vfatDevice_->getVFAT2Params().vThresh2, out);
+                   printVFAThwParameters("CalPhase", (vfatProperties_.find("CalPhase")->second).c_str(), (vfatDevice_->getVFAT2Params().calPhase), out);
+                   //printVFAThwParameters("DFTest", (vfatProperties_.find("DFTest")->second).c_str(), (gem::hw::vfat::DFTestPatternToString.at(vfatDevice_->getVFAT2Params().sendTestPattern)).c_str(), out);
+                   //printVFAThwParameters("ProbeMode", (vfatProperties_.find("ProbeMode")->second).c_str(), (gem::hw::vfat::ProbeModeToString.at(vfatDevice_->getVFAT2Params().probeMode)).c_str(), out);
     *out << cgicc::tr();
     *out << cgicc::table();
     *out << "</div>" << std::endl;
