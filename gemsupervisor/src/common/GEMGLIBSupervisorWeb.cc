@@ -23,10 +23,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
     outFileName  = "";
     outputType   = "Hex";
-    deviceIP     = "192.168.0.164";
+    deviceIP     = "192.168.0.162";
 
     /*
-    VAFT Devices List with are on GEB
+    VAFT Devices List with are on GEB, this is broken, needs to be fixed
     */
     deviceName[9]  = (xdata::String)VFATnum[9];
     deviceName[10] = (xdata::String)VFATnum[10];
@@ -445,7 +445,7 @@ throw (toolbox::fsm::exception::Exception)
       if (VfatName != ""){
 
 	// Define device
-        vfatDevice_ = new gem::hw::vfat::HwVFAT2(this->getApplicationLogger(), VFATnum[i]);
+        vfatDevice_ = new gem::hw::vfat::HwVFAT2(VFATnum[i]);
 
         vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
         vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);

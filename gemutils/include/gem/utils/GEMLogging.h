@@ -2,6 +2,7 @@
 #define gem_utils_GEMLogging_h
 
 #include "log4cplus/logger.h"
+#include "log4cplus/loggingmacros.h"
 
 namespace gem {
 #define DEBUG(MSG) LOG4CPLUS_DEBUG(gemLogger_ , MSG)

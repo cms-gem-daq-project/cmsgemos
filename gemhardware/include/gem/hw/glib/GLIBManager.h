@@ -86,7 +86,7 @@ namespace gem {
 	
 	  
 	private:
-
+	  
 	  class GLIBInfo {
 	    
 	  public:
@@ -97,10 +97,10 @@ namespace gem {
 	    xdata::Integer slotID;
 	  };
 	  
-	  mutable gem::utils::Lock deviceLock_;//[MAX_AMCS_PER_CRATE];
+	  mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
 	  
-	  HwGLIB* hwGLIBs_[MAX_AMCS_PER_CRATE];
-	  xdata::Bag<GLIBInfo> glibInfo[MAX_AMCS_PER_CRATE];
+	  HwGLIB* m_glibs[MAX_AMCS_PER_CRATE];
+	  xdata::Bag<GLIBInfo> m_glibInfo[MAX_AMCS_PER_CRATE];
 	}; //end class GLIBManager
       
     }//end namespace gem::hw::glib
