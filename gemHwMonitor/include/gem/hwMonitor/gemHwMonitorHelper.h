@@ -16,9 +16,10 @@ namespace gem {
         class gemHwMonitorHelper
         {
             public:
-                gemHwMonitorHelper(gemHwMonitorSystem* gemSystem)
-                    throw (xdaq::exception::Exception)
+  	        gemHwMonitorHelper(const log4cplus::Logger& gemLogger, gemHwMonitorSystem* gemSystem)
+		  throw (xdaq::exception::Exception)
                 {
+		    gemLogger_ = log4cplus::Logger(gemLogger);
                     std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
                     defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf_proposal.xml";
                     this->setXMLconfigFile(defaulXMLcfgFile.c_str());
@@ -38,7 +39,7 @@ namespace gem {
                     if (ptr_gemSystem_) 
                         ptr_gemSystem_->setIsConfigured(false);
                     else 
-                        std::cout << "[WARNING] New XML file set, but device state hasn't changed (NULL-pointer)" << std::endl;
+		      WARN("New XML file set, but device state hasn't changed (NULL-pointer)");
                 }
                 const std::string getXMLconfigFile ()
                     throw (xgi::exception::Exception)
@@ -62,6 +63,7 @@ namespace gem {
                 gemHwMonitorSystem* ptr_gemSystem_;
                 gem::utils::gemXMLparser* gemXMLparser_;
                 std::string xmlConfigFileName_;
+		log4cplus::Logger gemLogger_;
 
         };
     }

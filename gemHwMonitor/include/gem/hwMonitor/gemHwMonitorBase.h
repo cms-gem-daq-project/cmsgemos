@@ -8,6 +8,7 @@
 #include "xdaq/Application.h"
 #include "xgi/framework/Method.h"
 
+#include "gem/utils/GEMLogging.h"
 #include "gem/utils/gemXMLparser.h"
 #include "gem/utils/gemComplexDeviceProperties.h"
 #include "gem/utils/gemDeviceProperties.h"
@@ -107,6 +108,9 @@ namespace gem {
                 bool isConfigured_;
                 unsigned int deviceStatus_; // 0 - device is working well, 1 - device has errors, 2 - device status unknown
                 std::vector<unsigned int> subDeviceStatus_; // 0 - device is working well, 1 - device has errors, 2 - device status unknown
+
+		//log4cplus::Logger gemLogger_;
+
                 std::string xmlConfigFileName_;
                 T* gemDevice_;
         };
