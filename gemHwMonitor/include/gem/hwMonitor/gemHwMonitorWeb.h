@@ -6,6 +6,8 @@
 #include "cgicc/HTMLClasses.h"
 #include <sys/stat.h>
 
+#include "gem/utils/GEMLogging.h"
+
 #include "gemHwMonitorBase.h"
 #include "gemHwMonitorHelper.h"
 
@@ -113,6 +115,7 @@ namespace gem {
                 gem::hw::vfat::HwVFAT2* vfatDevice_;
                 std::vector<std::string> checkedCrates_;
 
+		log4cplus::Logger gemLogger_;
                 void printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output * out)
 		            throw (xgi::exception::Exception);
                 void printVFAThwParameters(const char* key, const char* value,  xgi::Output *out)
