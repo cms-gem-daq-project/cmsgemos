@@ -21,7 +21,11 @@
 
 #define N_VFAT2_CHANNELS 128
 
-typedef uhal::exception::exception uhalException;
+typedef std::pair<std::string, uint8_t> vfat_reg_pair;
+typedef std::vector<vfat_reg_pair>      vfat_reg_pair_list;
+
+typedef std::pair<std::string, uhal::ValWord<uint8_t> > vfat_reg_value;
+typedef std::vector<vfat_reg_value>                     vfat_reg_val_list;
 
 namespace uhal {
   class HwInterface;
@@ -47,8 +51,7 @@ namespace gem {
 	  HwVFAT2(xdaq::Application * vfat2App,
 		  std::string const& vfatDevice="VFAT13");
 	  */
-	  HwVFAT2(const log4cplus::Logger& gemLogger,
-		  std::string const& vfatDevice="VFAT13");
+	  HwVFAT2(std::string const& vfatDevice="VFAT13");
 	  //HwVFAT2(xdaq::Application * vfat2App);
 	  //throw (xdaq::exception::Exception);
 
@@ -84,7 +87,7 @@ namespace gem {
 	  */
 	  //  std::string name = regPrefix+"."+regName;
 	  //  return readReg(name); };
-	  //void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
+	  //void     readRegs( register_pair_list &regList);
 
 	  /** uint8_t  readVFATReg( std::string const& regName)
 	   * Reads a register on the VFAT2 chip, returns the 8-bit value of the register
@@ -102,14 +105,13 @@ namespace gem {
 	    //bit 7:0   - register value
 	    return readReg(getDeviceBaseNode(),regName)&0x000000ff; }*/;
 
-	  /** readVFATRegs( std::vector<std::pair<std::string, uint8_t> > &regList)
+	  /** readVFATRegs( vfat_reg_pair_list &regList)
 	   * Reads a list of registers on the VFAT2 chip into the provided key pair
 	   * @param regList is the list of pairs of register names to read, and values to return
 	   */
-	  void     readVFATRegs( std::vector<std::pair<std::string, uint8_t> > &regList) /*{
-	    std::vector<std::pair<std::string, uint32_t> > fullRegList;
-	    std::vector<std::pair<std::string, uint8_t > >::const_iterator curReg = regList.begin();
-	    for (; curReg != regList.end(); ++curReg) 
+	  void     readVFATRegs( vfat_reg_pair_list &regList) /*{
+	    register_pair_list fullRegList;
+	    for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
 	      fullRegList.push_back(std::make_pair(getDeviceBaseNode()+"."+curReg->first,static_cast<uint32_t>(curReg->second)));
 	    readRegs(fullRegList);
 	    }*/;
@@ -143,15 +145,14 @@ namespace gem {
 				uint8_t     const& writeVal) {
 	    writeReg(getDeviceBaseNode(), regName, static_cast<uint32_t>(writeVal)); };
 
-	  /** writeVFATReg( std::vector<std::pair<std::string, uint8_t> > const& regList)
+	  /** writeVFATReg( vfat_reg_pair_list const& regList)
 	   * Writes to a list of VFAT2 registers from a list of pairs of register name and value 
 	   * done with a single dispatch call
 	   * @param regList is the list of pairs of register names and values to write
 	   */
-	  void     writeVFATRegs(std::vector<std::pair<std::string, uint8_t> > const& regList) {
-	    std::vector<std::pair<std::string,uint32_t> > fullRegList;
-	    std::vector<std::pair<std::string,uint8_t> >::const_iterator curReg = regList.begin();
-	    for (; curReg != regList.end(); ++curReg) 
+	  void     writeVFATRegs(vfat_reg_pair_list const& regList) {
+	    register_pair_list fullRegList;
+	    for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
 	      fullRegList.push_back(std::make_pair(getDeviceBaseNode()+"."+curReg->first,static_cast<uint32_t>(curReg->second)));
 	    writeRegs(fullRegList);
 	  };
@@ -163,8 +164,7 @@ namespace gem {
 	   */
 	  void     writeValueToVFATRegs(std::vector<std::string> const& regList, uint8_t const& regValue) {
 	    std::vector<std::string > fullRegList;
-	    std::vector<std::string>::const_iterator curReg = regList.begin();
-	    for (; curReg != regList.end(); ++curReg) 
+	    for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
 	      fullRegList.push_back(getDeviceBaseNode()+"."+*curReg);
 	    writeValueToRegs(regList,static_cast<uint32_t>(regValue)); };
 	  
@@ -557,7 +557,7 @@ namespace gem {
 	  void    readVFAT2Channel(uint8_t channel);
 	  //void    readVFAT2Channels(gem::hw::vfat::VFAT2ControlParams &params);
 	  void    readVFAT2Channels();
-	  void    sendCalPulseToChannel(uint8_t channel, bool on=true);
+	  void    enableCalPulseToChannel(uint8_t channel, bool on=true);
 	  void    maskChannel(uint8_t channel, bool on=true);
 	  uint8_t getChannelSettings(uint8_t channel) {
 	    return readVFATReg(toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel)); };

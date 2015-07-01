@@ -1313,13 +1313,13 @@ throw (xgi::exception::Exception)
         LOG4CPLUS_INFO(this->getApplicationLogger(),"Set channel 1 button pressed");
 
         if (cgi.queryCheckbox("Cal0") )
-            vfatDevice->sendCalPulseToChannel(0);
+            vfatDevice->enableCalPulseToChannel(0);
         else
-            vfatDevice->sendCalPulseToChannel(0,false);
+            vfatDevice->enableCalPulseToChannel(0,false);
         if (cgi.queryCheckbox("Cal1") )
-            vfatDevice->sendCalPulseToChannel(1);
+            vfatDevice->enableCalPulseToChannel(1);
         else
-            vfatDevice->sendCalPulseToChannel(1,false);
+            vfatDevice->enableCalPulseToChannel(1,false);
         if (cgi.queryCheckbox("Ch1Mask") )
             vfatDevice->maskChannel(1);
         else
@@ -1359,9 +1359,9 @@ throw (xgi::exception::Exception)
         //vfatDevice->getVFAT2Params().channels[chan-1].mask      = (cgi.queryCheckbox("ChMask") );
 
         if (cgi.queryCheckbox("ChCal") )
-            vfatDevice->sendCalPulseToChannel(chan);
+            vfatDevice->enableCalPulseToChannel(chan);
         else
-            vfatDevice->sendCalPulseToChannel(chan,false);
+            vfatDevice->enableCalPulseToChannel(chan,false);
         if (cgi.queryCheckbox("ChMask") )
             vfatDevice->maskChannel(chan);
         else
@@ -1394,8 +1394,8 @@ throw (xgi::exception::Exception)
         if (cgi.queryCheckbox("ChCal") )
             for (int chan = min_chan; chan < 129; ++chan) {
                 if (chan == 1)
-                    vfatDevice->sendCalPulseToChannel(chan-1);
-                vfatDevice->sendCalPulseToChannel(chan); }
+                    vfatDevice->enableCalPulseToChannel(chan-1);
+                vfatDevice->enableCalPulseToChannel(chan); }
                 if (cgi.queryCheckbox("ChMask") )
                     for (int chan = min_chan; chan < 129; ++chan)
                         vfatDevice->maskChannel(chan);
@@ -1468,7 +1468,7 @@ void gem::hw::vfat::GEMController::actionPerformed(xdata::Event& event)
     }    
     //Initialize the HW device, should have picked up the device string from the xml file by now
     LOG4CPLUS_INFO(this->getApplicationLogger(),"GEMController::GEMController::4 device_ = " << device_.toString() << std::endl);
-    vfatDevice = new HwVFAT2(this->getApplicationLogger(), device_.toString());
+    vfatDevice = new HwVFAT2(device_.toString());
     vfatDevice->connectDevice();
     setLogLevelTo(uhal::Error());  // Maximise uHAL logging
     LOG4CPLUS_INFO(this->getApplicationLogger(),"GEMController::GEMController::5 device_ = " << device_.toString() << std::endl);

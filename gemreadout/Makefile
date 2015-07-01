@@ -53,8 +53,10 @@ LibraryDirs+=$(uHALROOT)/lib
 PROFILING_Flags =-pg
 DEBUG_CFlags =-O0 -g3 -fno-inline
 DEBUG_CCFlags =${DEBUG_CFlags}
-UserCFlags =-std=c++0x ${ROOTCFLAGS} ${DEBUG_CFlags}
-UserCCFlags =-std=c++0x ${ROOTCFLAGS} ${DEBUG_CCFlags}
+GCC47Flags = -std=c++11 -std=gnu++11
+GCC48Flags = -std=c++14 -std=gnu++14
+UserCFlags  =-std=c++0x -std=gnu++0x ${ROOTCFLAGS}  ${DEBUG_CFlags}
+UserCCFlags =-std=c++0x -std=gnu++0x ${ROOTCFLAGS}  ${DEBUG_CCFlags}
 UserDynamicLinkFlags =$(ROOTLIBS)
 UserStaticLinkFlags =
 

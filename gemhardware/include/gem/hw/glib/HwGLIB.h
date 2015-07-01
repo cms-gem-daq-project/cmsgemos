@@ -34,7 +34,8 @@ namespace gem {
       class HwGLIB: public gem::hw::GEMHwDevice
 	{
 	public:
-	  HwGLIB(const log4cplus::Logger& gemLogger);
+	  HwGLIB();
+	  HwGLIB(const int& crate, const int& slot);
 	
 	  ~HwGLIB();
 
@@ -375,6 +376,7 @@ namespace gem {
 
 	
 	private:
+	  int m_crate, m_slot;
 	
 	}; //end class HwGLIB
     } //end namespace gem::hw::glib

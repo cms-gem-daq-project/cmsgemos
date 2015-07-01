@@ -22,13 +22,21 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::ohPanel,"ohPanel");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandVFAT,"expandVFAT");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::vfatPanel,"vfatPanel");
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Calling new gemHwMonitorSystem");
     gemHwMonitorSystem_ = new gemHwMonitorSystem();
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Calling new gemHwMonitorCrate");
     gemHwMonitorCrate_ = new gemHwMonitorCrate();
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Calling new gemHwMonitorGLIB");
     gemHwMonitorGLIB_ = new gemHwMonitorGLIB();
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Calling new gemHwMonitorOH");
     gemHwMonitorOH_ = new gemHwMonitorOH();
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Calling new gemHwMonitorVFAT");
     gemHwMonitorVFAT_ = new gemHwMonitorVFAT();
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Calling new gemHwMonitorHelper");
     gemSystemHelper_ = new gemHwMonitorHelper(gemHwMonitorSystem_);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Setting crateCfgAvailable_ to false");
     crateCfgAvailable_ = false;
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Constructor completed");
 }
 
 gem::hwMonitor::gemHwMonitorWeb::~gemHwMonitorWeb()
@@ -43,7 +51,9 @@ gem::hwMonitor::gemHwMonitorWeb::~gemHwMonitorWeb()
 void gem::hwMonitor::gemHwMonitorWeb::Default(xgi::Input * in, xgi::Output * out )
     throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::Default");
     this->controlPanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::Default");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * out )
@@ -51,24 +61,43 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
     throw (xgi::exception::Exception)
 {
     cgicc::Cgicc cgi(in);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::pingCrate");
     for (unsigned int i = 0; i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().size(); i++) 
     {
         if (cgi.queryCheckbox(gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId())) 
         {
-            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice(getApplicationLogger());
-            gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger());
+            gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
             crateDevice_->setDeviceIPAddress("192.168.0.164");
-            crateDevice_->connectDevice();
-            if (crateDevice_->isHwConnected())
-            {
+	    try {
+	      crateDevice_->connectDevice();
+	      if (crateDevice_->isHwConnected()) {
+		LOG4CPLUS_WARN(this->getApplicationLogger(),"VFAT2 device is connected, continuing to read registers");
                 gemHwMonitorSystem_->setSubDeviceStatus(0,i);
-            } else {
+	      } else {
+		LOG4CPLUS_WARN(this->getApplicationLogger(),"VFAT2 device is not connected");
                 gemHwMonitorSystem_->setSubDeviceStatus(1,i);
-            }
+		//return;
+	      }
+	    } catch (gem::hw::vfat::exception::TransactionError& e) {
+	      LOG4CPLUS_WARN(this->getApplicationLogger(),e.what());
+	      gemHwMonitorSystem_->setSubDeviceStatus(1,i);
+	      //return;
+	    } catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+	      LOG4CPLUS_WARN(this->getApplicationLogger(),e.what());
+	      gemHwMonitorSystem_->setSubDeviceStatus(1,i);
+	      //return;
+	    }
+            //if (crateDevice_->isHwConnected())
+            //{
+            //    gemHwMonitorSystem_->setSubDeviceStatus(0,i);
+            //} else {
+            //    gemHwMonitorSystem_->setSubDeviceStatus(1,i);
+            //}
             delete crateDevice_;
         }
     }
     this->controlPanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::pingCrate");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::Dummy(xgi::Input * in, xgi::Output * out )
@@ -84,6 +113,7 @@ void gem::hwMonitor::gemHwMonitorWeb::Dummy(xgi::Input * in, xgi::Output * out )
 void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output * out )
     throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Trying to render the controlPanel page");
     try {
 
         *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
@@ -127,17 +157,22 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
     }
 
     catch (const xgi::exception::Exception& e) {
-        LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying ControlPanel xgi: " << e.what());
-        XCEPT_RAISE(xgi::exception::Exception, e.what());
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying ControlPanel xgi: " << e.what());
+      XCEPT_RAISE(xgi::exception::Exception, e.what());
+    } catch (gem::hw::vfat::exception::TransactionError& e) {
+      LOG4CPLUS_DEBUG(this->getApplicationLogger(),e.what());
+    } catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+      LOG4CPLUS_DEBUG(this->getApplicationLogger(),e.what());
+    } catch (const std::exception& e) {
+      LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying the ControlPanel: " << e.what());
+      XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
-    catch (const std::exception& e) {
-        LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying the ControlPanel: " << e.what());
-        XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"Finished rendering the controlPanel page");
 }
 void gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability");
     // If crates config is not available yet prompt to get it
     if (!crateCfgAvailable_) {
         *out << "<h3><div class=\"alert alert-warning\" role=\"alert\" align=\"center\">Crates configuration isn't available. Please, get the crates configuration</div></h3>" << std::endl;
@@ -192,11 +227,13 @@ throw (xgi::exception::Exception)
         *out << "</div>" << std::endl;
         *out << cgicc::br();
     }
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::showCratesAvailability");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::setConfFile(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::setConfFile");
     cgicc::Cgicc cgi(in);
     std::string newFile = cgi.getElement("xmlFilename")->getValue();
     struct stat buffer;
@@ -208,11 +245,13 @@ throw (xgi::exception::Exception)
         XCEPT_RAISE(xgi::exception::Exception, "File not found");
     }
     this->controlPanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::setConfFile");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::uploadConfFile(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::uploadConfFile");
     cgicc::Cgicc cgi(in);
     std::string newFile = cgi.getElement("xmlFilenameUpload")->getValue();
     struct stat buffer;
@@ -224,10 +263,12 @@ throw (xgi::exception::Exception)
         XCEPT_RAISE(xgi::exception::Exception, "File not found");
     }
     this->controlPanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::uploadConfFile");
 }
 void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration");
     gemSystemHelper_->configure();
     crateCfgAvailable_ = true;
     nCrates_ = gemHwMonitorSystem_->getNumberOfSubDevices();
@@ -235,15 +276,18 @@ throw (xgi::exception::Exception)
         gemHwMonitorSystem_->addSubDeviceStatus(2);
     }
     this->controlPanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration");
 }
 void gem::hwMonitor::gemHwMonitorWeb::selectCrate(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+  LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::selectCrate");
 }
 void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
     cgicc::Cgicc cgi(in);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::expandCrate");
     crateToShow_ = cgi.getElement("crateButton")->getValue();
     //for (auto i = gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().begin(); i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().end(); i++) 
     //{
@@ -264,12 +308,17 @@ throw (xgi::exception::Exception)
                     if (it->first == "IP") glibIP = it->second; 
                     std::cout << "GLIB IP is "<<glibIP << std::endl;
                 }
-                gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
-                //gem::hw::vfat::HwVFAT2* glibDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+                gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
                 glibDevice_->setDeviceIPAddress(glibIP);
                 glibDevice_->connectDevice();
                 if (glibDevice_->isHwConnected())
-                {
+		  {
+		    std::cout << "GLIB sys firmware version " << std::hex << glibDevice_->readReg("GLIB.SYSTEM.FIRMWARE") << std::dec << std::endl;
+		    std::cout << "GLIB user version "         << std::hex << glibDevice_->readReg("GLIB.GLIB_LINKS.LINK0.USER_FW") << std::dec << std::endl;
+
+		    //std::cout << "GLIB sys firmware data " << glibDevice_->getFirmwareDate() << std::endl;
+		    //std::cout << "GLIB sys firmware version " << std::hex << glibDevice_->getFirmwareVer() << std::dec << std::endl;
+		    //std::cout << "GLIB user version " << std::hex << glibDevice_->getUserFirmware() << std::dec << std::endl;
                     gemHwMonitorCrate_->addSubDeviceStatus(0);
                 } else {
                     gemHwMonitorCrate_->addSubDeviceStatus(2);
@@ -278,10 +327,12 @@ throw (xgi::exception::Exception)
         }
     }
     this->cratePanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::expandCrate");
 }
 void gem::hwMonitor::gemHwMonitorWeb::cratePanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"opening gem::hwMonitor::gemHwMonitorWeb::cratePanel");
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     *out << "<div class=\"panel panel-primary\">" << std::endl;
@@ -323,12 +374,14 @@ throw (xgi::exception::Exception)
     *out << "</div>" << std::endl;
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::cratePanel");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandGLIB(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
     cgicc::Cgicc cgi(in);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::expandGLIB");
     glibToShow_ = cgi.getElement("glibButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
     for (unsigned int i = 0; i != gemHwMonitorCrate_->getDevice()->getSubDevicesRefs().size(); i++) 
@@ -344,8 +397,7 @@ throw (xgi::exception::Exception)
                 {
                     if (it->first == "IP") ohIP = it->second; 
                 }
-                gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
-                //gem::hw::vfat::HwVFAT2* ohDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+                gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
                 ohDevice_->setDeviceIPAddress(ohIP);
                 ohDevice_->connectDevice();
                 if (ohDevice_->isHwConnected())
@@ -358,10 +410,12 @@ throw (xgi::exception::Exception)
         }
     }
     this->glibPanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::expandGLIB");
 }
 void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::glibPanel");
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     *out << "<div class=\"panel panel-primary\">" << std::endl;
@@ -398,11 +452,13 @@ throw (xgi::exception::Exception)
     *out << "</div>" << std::endl;
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::glibPanel");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::expandOH");
     cgicc::Cgicc cgi(in);
     ohToShow_ = cgi.getElement("ohButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
@@ -422,10 +478,12 @@ throw (xgi::exception::Exception)
         }
     }
     this->ohPanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::expandOH");
 }
 void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::ohPanel");
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
     *out << "<div class=\"panel panel-primary\">" << std::endl;
@@ -463,11 +521,13 @@ throw (xgi::exception::Exception)
     *out << "</div>" << std::endl;
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::ohPanel");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::expandVFAT");
     cgicc::Cgicc cgi(in);
     vfatToShow_ = cgi.getElement("vfatButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
@@ -479,21 +539,29 @@ throw (xgi::exception::Exception)
         }
     }
     this->vfatPanel(in,out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::expandVFAT");
 }
 void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"calling gem::hwMonitor::gemHwMonitorWeb::vfatPanel");
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
-    //vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
-    vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), vfatToShow_);
-    vfatDevice_->setDeviceIPAddress("192.168.0.164");
-    vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
-    //vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
-    vfatDevice_->connectDevice();
-    vfatDevice_->readVFAT2Counters();
-    vfatDevice_->getAllSettings();
-    std::cout << vfatDevice_->getVFAT2Params()<<std::endl; 
+    try {
+      vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
+      vfatDevice_->setDeviceIPAddress("192.168.0.164");
+      vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
+      //vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);
+      vfatDevice_->connectDevice();
+      vfatDevice_->readVFAT2Counters();
+      vfatDevice_->getAllSettings();
+      std::cout << vfatDevice_->getVFAT2Params()<<std::endl; 
+    } catch (gem::hw::vfat::exception::TransactionError& e) {
+      LOG4CPLUS_WARN(this->getApplicationLogger(),e.what());
+    } catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+      LOG4CPLUS_WARN(this->getApplicationLogger(),e.what());
+    }
+
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
     *out << "<h1><div align=\"center\">Chip Id : "<< vfatToShow_ << "</div></h1>" << std::endl;
@@ -515,7 +583,8 @@ throw (xgi::exception::Exception)
             *out << cgicc::h3("Hardware value");
         *out << cgicc::td()<< std::endl;
     *out << cgicc::tr() << std::endl;
-    auto it = vfatProperties_.begin();
+    try {
+      auto it = vfatProperties_.begin();
                    printVFAThwParameters("CalMode", (it->second).c_str(), (gem::hw::vfat::CalibrationModeToString.at(vfatDevice_->getVFAT2Params().calibMode)).c_str(), out); it++;
                    printVFAThwParameters("CalPhase", (it->second).c_str(), (vfatDevice_->getVFAT2Params().calPhase), out); it++;
                    printVFAThwParameters("CalPolarity", (it->second).c_str(), (gem::hw::vfat::CalPolarityToString.at(vfatDevice_->getVFAT2Params().calPol)).c_str(), out); it++;
@@ -542,6 +611,12 @@ throw (xgi::exception::Exception)
                    printVFAThwParameters("VCal", (it->second).c_str(), vfatDevice_->getVFAT2Params().vCal, out); it++;
                    printVFAThwParameters("VThreshold1", (it->second).c_str(), vfatDevice_->getVFAT2Params().vThresh1, out); it++;
                    printVFAThwParameters("VThreshold2", (it->second).c_str(), vfatDevice_->getVFAT2Params().vThresh2, out); it++;
+    } catch (gem::hw::vfat::exception::TransactionError& e) {
+      LOG4CPLUS_WARN(this->getApplicationLogger(),e.what());
+    } catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+      LOG4CPLUS_WARN(this->getApplicationLogger(),e.what());
+    }
+    
     *out << cgicc::tr();
     *out << cgicc::table();
     *out << "</div>" << std::endl;
@@ -550,6 +625,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::hr()<< std::endl;
 
     delete vfatDevice_;
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::vfatPanel");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output * out)
@@ -568,6 +644,7 @@ throw (xgi::exception::Exception)
     *out << value2;
     *out << "</td>" << std::endl;
     *out << "</tr>" << std::endl;
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters");
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value, xgi::Output * out)
@@ -582,6 +659,7 @@ throw (xgi::exception::Exception)
     *out << "</td>";
     *out << "</tr>";
  
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters");
 }
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output * out)
 throw (xgi::exception::Exception)
@@ -593,6 +671,7 @@ throw (xgi::exception::Exception)
     //std::string value_string = "0x";
     value_string.append(ss.str());
     printVFAThwParameters(key, value1, value_string.c_str(), out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters");
 }
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, uint8_t value, xgi::Output * out)
 throw (xgi::exception::Exception)
@@ -604,4 +683,5 @@ throw (xgi::exception::Exception)
     //std::string value_string = "0x";
     value_string.append(ss.str());
     printVFAThwParameters(key, value_string.c_str(), out);
+    LOG4CPLUS_WARN(this->getApplicationLogger(),"done with gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters");
 }

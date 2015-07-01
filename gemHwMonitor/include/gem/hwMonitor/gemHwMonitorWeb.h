@@ -47,13 +47,13 @@ namespace gem {
 		            throw (xgi::exception::Exception);
                 void Dummy(xgi::Input *in, xgi::Output *out )
 		            throw (xgi::exception::Exception);
-		        void controlPanel(xgi::Input *in, xgi::Output *out)
+		void controlPanel(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
-		        void showCratesAvailability(xgi::Input *in, xgi::Output *out)
+		void showCratesAvailability(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
-		        void pingCrate(xgi::Input *in, xgi::Output *out)
+		void pingCrate(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
-		        void showCrateUtilities(xgi::Input *in, xgi::Output *out)
+		void showCrateUtilities(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
                 void setConfFile(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
