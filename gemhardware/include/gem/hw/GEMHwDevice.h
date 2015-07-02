@@ -32,6 +32,10 @@ namespace uhal {
   class HwInterface;
 }
 
+//namespace log4cplus {
+//  class Logger;
+//}
+
 namespace xdaq {
   class Application;;
 }

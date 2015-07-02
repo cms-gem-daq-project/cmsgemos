@@ -4,6 +4,7 @@
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   //gemLogger_(gemLogger),
+  //gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(deviceName))),
   gemLogger_(log4cplus::Logger::getInstance(deviceName)),
   gemHWP_(0),
   hwLock_(toolbox::BSem::FULL, true)
@@ -11,7 +12,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   
 {
   //need to grab these parameters from the xml file or from some configuration space/file/db
-  gemLogger_ = log4cplus::Logger::getInstance(deviceName);
+  //gemLogger_ = log4cplus::Logger::getInstance(deviceName);
   setAddressTableFileName("allregsnonfram.xml");
   setIPbusProtocolVersion("2.0");
   setDeviceBaseNode("");
