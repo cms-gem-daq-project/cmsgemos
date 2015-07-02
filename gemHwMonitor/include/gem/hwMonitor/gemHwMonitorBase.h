@@ -20,12 +20,13 @@ namespace gem {
       {
       public:
 	gemHwMonitorBase()
-	  throw (xdaq::exception::Exception)
+	  throw (xdaq::exception::Exception) :
+	gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gemHwMonitorLogger")))
 	  {
 	    gemDevice_ = new T();
-	    gemLogger_ = log4cplus::Logger::getInstance("gemHwMonitorLogger");
+	    //gemLogger_.setLogLevel(DEBUG_LOG_LEVEL);
 	  }
-
+	
 	virtual ~gemHwMonitorBase()
 	  {
 	    delete gemDevice_;
@@ -36,8 +37,13 @@ namespace gem {
 	{return isConfigured_;}
 
 	void setIsConfigured(bool state)
-	  throw (xgi::exception::Exception)
-	{isConfigured_=state;}
+	//throw (xgi::exception::Exception)
+	{
+	  INFO("isConfigured_(" << isConfigured_ << ")");
+	  INFO("setIsConfigured(state = " << state << ")");
+	  isConfigured_=state;
+	  INFO("isConfigured_(" << isConfigured_ << ") = state");
+	}
 
 	const std::string getDeviceId()
 	  throw (xgi::exception::Exception);
@@ -47,7 +53,7 @@ namespace gem {
 	 *   0 - device is working well, 1 - device has errors, 2 - device status unknown
 	 */
 	unsigned int getSubDeviceStatus (unsigned int i)
-	  throw (xgi::exception::Exception)
+	//throw (xgi::exception::Exception)
 	{return subDeviceStatus_.at(i);}
 
 	/**

@@ -29,8 +29,8 @@ Sources+=GEMController.cc GEMControllerPanelWeb.cc
 DynamicLibrary=gem_hw
 
 IncludeDirs =$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(AMC13_STANDALONE_ROOT)/amc13/include
 IncludeDirs+=$(XDAQ_ROOT)/include
 IncludeDirs+=$(uHALROOT)/include
@@ -64,9 +64,18 @@ UserStaticLinkFlags =
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
 DEBUG_LIBS =profiler tcmalloc
-DependentLibraries = log4cplus config xcept numa toolbox log4cplus boost_system cactus_uhal_uhal gem_utils gem_base gem_utils cactus_amc13_amc13
-Libraries          = log4cplus config xcept xerces-c numa toolbox xdaq2rc asyncresolv uuid cactus_uhal_uhal gem_utils gem_base cactus_amc13_amc13
-# gem_utils
+DependentLibraries =uuid numa boost_system
+DependentLibraries+=log4cplus xerces-c asyncresolv
+DependentLibraries+=xdaq2rc config xcept toolbox
+DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
+DependentLibraries+=gem_utils gem_base
+
+#what's the difference between these two library lists?
+Libraries =uuid numa boost_system
+Libraries+=log4cplus xerces-c asyncresolv
+Libraries+=xdaq2rc config xcept toolbox
+Libraries+=cactus_uhal_uhal cactus_amc13_amc13
+Libraries+=gem_utils gem_base
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules

@@ -190,9 +190,15 @@ void gem::hw::vfat::HwVFAT2::readVFATRegs( vfat_reg_pair_list &regList) {
 //void gem::hw::vfat::HwVFAT2::readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params)
 void gem::hw::vfat::HwVFAT2::readVFAT2Counters()
 {
-  vfatParams_.chipID       = getChipID();
-  vfatParams_.upsetCounter = getUpsetCount();
-  vfatParams_.hitCounter   = getHitCount();
+  try {
+    vfatParams_.chipID       = getChipID();
+    vfatParams_.upsetCounter = getUpsetCount();
+    vfatParams_.hitCounter   = getHitCount();
+  } catch (gem::hw::vfat::exception::TransactionError& e) {
+    DEBUG(e.what());
+  } catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+    DEBUG(e.what());
+  }
 }
 
 //void gem::hw::vfat::HwVFAT2::readVFAT2Channel(gem::hw::vfat::VFAT2ControlParams &params, uint8_t channel)

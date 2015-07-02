@@ -32,10 +32,6 @@ namespace uhal {
   class HwInterface;
 }
 
-//namespace log4cplus {
-//  class Logger;
-//}
-
 namespace xdaq {
   class Application;;
 }
@@ -64,7 +60,7 @@ namespace gem {
 	
 	/** 
 	 * GEMHwDevice constructor 
-	 * @param gemLogger pointer to log4cplus::Logger
+	 * @param deviceName string to put into the logger
 	 **/
 	GEMHwDevice(std::string const& deviceName
 		    /*xdaq::InfoSpace* const configInfoSpace

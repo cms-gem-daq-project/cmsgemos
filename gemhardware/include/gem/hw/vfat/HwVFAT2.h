@@ -560,7 +560,7 @@ namespace gem {
 	  void    enableCalPulseToChannel(uint8_t channel, bool on=true);
 	  void    maskChannel(uint8_t channel, bool on=true);
 	  uint8_t getChannelSettings(uint8_t channel) {
-	    return readVFATReg(toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel)); };
+	    return readVFATReg(toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel));};
 	  uint8_t getChannelTrimDAC(uint8_t channel);
 	  void    setChannelTrimDAC(uint8_t channel, uint8_t trimDAC);
 	  //void    setChannelTrimDAC(uint8_t channel, double trimDAC);

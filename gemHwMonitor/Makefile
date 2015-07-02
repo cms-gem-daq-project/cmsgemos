@@ -23,22 +23,24 @@ Sources+=gemHwMonitorWeb.cc gemHwMonitorBase.cc
 DynamicLibrary=gem_hwMonitor
 
 IncludeDirs =$(BUILD_HOME)/$(Project)/$(Package)/include 
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include 
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include 
+IncludeDirs+=$(AMC13_STANDALONE_ROOT)/amc13/include
 IncludeDirs+=$(XDAQ_ROOT)/include 
 IncludeDirs+=$(uHALROOT)/include 
 
-DependentLibraryDirs =$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
+DependentLibraryDirs =$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
+DependentLibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 DependentLibraryDirs+=$(XDAQ_ROOT)/lib 
 DependentLibraryDirs+=$(uHALROOT)/lib 
 
-LibraryDirs =
-#LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
-#LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
-#LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
+LibraryDirs =$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
+LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
+LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
+LibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 LibraryDirs+=$(XDAQ_ROOT)/lib 
 LibraryDirs+=$(uHALROOT)/lib 
 
@@ -59,9 +61,26 @@ UserStaticLinkFlags =
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
 DEBUG_LIBS =profiler tcmalloc
-#DependentLibraries =config xcept boost_system cactus_uhal_uhal gem_base
-DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal gem_base gem_hw gem_utils
-Libraries          = log4cplus config xcept xerces-c numa toolbox xdaq2rc asyncresolv uuid cactus_uhal_uhal
+DependentLibraries =uuid numa boost_system
+DependentLibraries+=log4cplus xerces-c asyncresolv
+DependentLibraries+=xdaq2rc config xcept toolbox
+DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
+DependentLibraries+=gem_utils gem_base gem_hw
+#DependentLibraries =log4cplus boost_system
+#DependentLibraries+=config xcept toolbox
+#DependentLibraries+=cactus_uhal_uhal
+#DependentLibraries+=gem_base gem_hw gem_utils
+
+#what's the difference between these two library lists?
+Libraries =uuid numa boost_system
+Libraries+=log4cplus xerces-c asyncresolv
+Libraries+=xdaq2rc config xcept toolbox
+Libraries+=cactus_uhal_uhal cactus_amc13_amc13
+Libraries+=gem_utils gem_base gem_hw
+#Libraries =log4cplus config xcept xerces-c
+#Libraries+=numa toolbox xdaq2rc asyncresolv uuid
+#Libraries+=cactus_uhal_uhal
+#Libraries+=gem_base gem_hw gem_utils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules
