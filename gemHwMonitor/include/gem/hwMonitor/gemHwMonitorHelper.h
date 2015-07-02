@@ -21,17 +21,18 @@ namespace gem {
 	throw (xdaq::exception::Exception):
 	gemLogger_(gemLogger)
 	{
-	  LOG4CPLUS_WARN(gemLogger,"gemHwMonitorHelper::getting env vars");
+	  //gemLogger_.setLogLevel(DEBUG_LOG_LEVEL);
+	  WARN("gemHwMonitorHelper::getting env vars");
 	  std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
-	  LOG4CPLUS_WARN(gemLogger,"gemHwMonitorHelper::setting default file");
+	  WARN("gemHwMonitorHelper::setting default file");
 	  defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf_proposal.xml";
-	  LOG4CPLUS_WARN(gemLogger,"gemHwMonitorHelper::setting file");
+	  WARN("gemHwMonitorHelper::setting file");
 	  this->setXMLconfigFile(defaulXMLcfgFile.c_str());
-	  LOG4CPLUS_WARN(gemLogger,"gemHwMonitorHelper::setting gemsystem pointer");
+	  WARN("gemHwMonitorHelper::setting gemsystem pointer");
 	  ptr_gemSystem_ = gemSystem;
-	  LOG4CPLUS_WARN(gemLogger,"gemHwMonitorHelper::setting gemsystem pointer device status");
+	  WARN("gemHwMonitorHelper::setting gemsystem pointer device status");
 	  ptr_gemSystem_->setDeviceStatus(2);
-	  LOG4CPLUS_WARN(gemLogger,"gemHwMonitorHelper::constructor finished");
+	  WARN("gemHwMonitorHelper::constructor finished");
 	}
 
       virtual ~gemHwMonitorHelper()
@@ -40,12 +41,13 @@ namespace gem {
 	}
 
       void setXMLconfigFile (const char* inputXMLfilename)
-	throw (xgi::exception::Exception)
+      //throw (xgi::exception::Exception)
       {
 	WARN("gemHwMonitorHelper::setXMLconfigFile");
 	xmlConfigFileName_ = inputXMLfilename;
 	if (ptr_gemSystem_) {
 	  WARN("gemHwMonitorHelper::device state changed");
+	  //something is happening here, but what???
 	  ptr_gemSystem_->setIsConfigured(false);
 	  return;
 	} else {
