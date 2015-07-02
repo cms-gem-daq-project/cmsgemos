@@ -53,8 +53,8 @@ UserStaticLinkFlags =
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
 DEBUG_LIBS =profiler tcmalloc
-DependentLibraries =config xcept boost_system cactus_uhal_uhal gem_utils
-Libraries =config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus
+DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal gem_utils
+Libraries          = log4cplus config xcept xerces-c numa toolbox xdaq2rc asyncresolv uuid
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules

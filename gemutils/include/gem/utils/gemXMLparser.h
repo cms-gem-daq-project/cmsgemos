@@ -15,6 +15,7 @@
 #include "gem/utils/GEMLogging.h"
 
 #include "gem/utils/gemComplexDeviceProperties.h"
+
 namespace gem {
   namespace utils {
     class gemXMLparser
