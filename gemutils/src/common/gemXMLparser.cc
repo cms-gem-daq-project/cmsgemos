@@ -255,44 +255,6 @@ void gem::utils::gemXMLparser::parseOH(xercesc::DOMNode * pNode)
 
 void gem::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
 {
-<<<<<<< HEAD
-    std::cout << "[XML PARSER]: OH parsing: start VFAT parsing" << std::endl;
-    xercesc::DOMNode * n = pNode->getFirstChild();
-    gemVFATProperties* vfat_ = gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back();
-    std::cout << "[XML PARSER]: VFAT parsing: retrieve VFAT device from the devices parent tree" << std::endl;
-    while (n) {
-        if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-        {    
-            addProperty("CalMode", n, vfat_);
-            addProperty("CalPolarity", n, vfat_);
-            addProperty("MSPolarity", n, vfat_);
-            addProperty("TriggerMode", n, vfat_);
-            addProperty("RunMode", n, vfat_);
-            addProperty("ReHitCT", n, vfat_);
-            addProperty("LVDSPowerSave", n, vfat_);
-            //addProperty("ProbeMode", n, vfat_);
-            addProperty("DACMode", n, vfat_);
-            addProperty("DigInSel", n, vfat_);
-            addProperty("MSPulseLength", n, vfat_);
-            addProperty("HitCountMode", n, vfat_);
-            //addProperty("DFTest", n, vfat_);
-            addProperty("PbBG", n, vfat_);
-            addProperty("TrimDACRange", n, vfat_);
-            addProperty("IPreampIn", n, vfat_);
-            addProperty("IPreampFeed", n, vfat_);
-            addProperty("IPreampOut", n, vfat_);
-            addProperty("IShaper", n, vfat_);
-            addProperty("IShaperFeed", n, vfat_);
-            addProperty("IComp", n, vfat_);
-            addProperty("Latency", n, vfat_);
-            addProperty("VCal", n, vfat_);
-            addProperty("VThreshold1", n, vfat_);
-            addProperty("VThreshold2", n, vfat_);
-            addProperty("CalPhase", n, vfat_);
-        }    
-        n = n->getNextSibling();
-    }
-=======
   DEBUG("OH parsing: start VFAT parsing");
   xercesc::DOMNode * n = pNode->getFirstChild();
   gemVFATProperties* vfat_ = gemSystem_->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back();
@@ -329,7 +291,6 @@ void gem::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
       }    
     n = n->getNextSibling();
   }
->>>>>>> jsturdy-develop
 }
 
 void gem::utils::gemXMLparser::addProperty(const char* key, const xercesc::DOMNode* n, gemGLIBProperties* glib)
