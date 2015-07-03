@@ -123,36 +123,19 @@ void gem::hw::GEMHwDevice::connectDevice()
   try {
     tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
   } catch (uhal::exception::FileNotFound const& err) {
-<<<<<<< HEAD
-    std::string msg =
-      toolbox::toString("Could not find uhal address table file '%s' "
-			"(or one of its included address table modules).",
-			addressTable.c_str());
-    ERROR(msg);
-    //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
     std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
 					"(or one of its included address table modules).",
 					addressTable.c_str());
     ERROR(msg);
->>>>>>> jsturdy-develop
   } catch (uhal::exception::exception const& err) {
     std::string msgBase = "Could not obtain the uhal device from the connection manager";
     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     ERROR(msg);
-<<<<<<< HEAD
-    //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
->>>>>>> jsturdy-develop
   } catch (std::exception const& err) {
     ERROR("Unknown std::exception caught from uhal");
     std::string msgBase = "Could not connect to th e hardware";
     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     ERROR(msg);
-<<<<<<< HEAD
-    //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
->>>>>>> jsturdy-develop
   }
   
   gemHWP_ = tmpHWP;
@@ -182,10 +165,6 @@ void gem::hw::GEMHwDevice::enableDevice()
     std::string msg = "Could not enable the hardware. " \
       "(No hardware is connected.)";
     ERROR(msg);
-<<<<<<< HEAD
-    //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
->>>>>>> jsturdy-develop
   }
 }
 
@@ -229,11 +208,7 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
   if (gemHWP_ == 0) {
     std::string msg = "Trying to access hardware before connecting.";
     ERROR(msg);
-<<<<<<< HEAD
-    //XCEPT_RAISE(gem::hw::exception::SoftwareProblem, msg);
-=======
-    XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
->>>>>>> jsturdy-develop
+    //XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
   } else {
     uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*gemHWP_);
     return hw;
@@ -269,26 +244,18 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 	continue;
       } else {
 	ERROR(msg);
-<<<<<<< HEAD
 	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-=======
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
->>>>>>> jsturdy-develop
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-<<<<<<< HEAD
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
->>>>>>> jsturdy-develop
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read register %s",name.c_str());
   ERROR(msg);
-  XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   //return res;
 }
 
@@ -332,11 +299,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 	continue;
       } else {
 	ERROR(msg);
-<<<<<<< HEAD
 	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-=======
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
->>>>>>> jsturdy-develop
       }
     } catch (std::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
@@ -344,11 +307,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-<<<<<<< HEAD
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
->>>>>>> jsturdy-develop
     }
   }
 }
@@ -378,21 +337,13 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 	continue;
       } else {
 	ERROR(msg);
-<<<<<<< HEAD
 	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-=======
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
->>>>>>> jsturdy-develop
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-<<<<<<< HEAD
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
->>>>>>> jsturdy-develop
     }
   }
 }
@@ -430,11 +381,7 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
 	continue;
       } else {
 	ERROR(msg);
-<<<<<<< HEAD
 	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-=======
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
->>>>>>> jsturdy-develop
       }
     } catch (std::exception const& err) {
       std::string msgBase = "Could not write to register in list:";
@@ -442,11 +389,7 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
 	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-<<<<<<< HEAD
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
->>>>>>> jsturdy-develop
     }
   }
 }
@@ -516,26 +459,18 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 	continue;
       } else {
 	ERROR(msg);
-<<<<<<< HEAD
 	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-=======
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
->>>>>>> jsturdy-develop
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read block '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-<<<<<<< HEAD
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
->>>>>>> jsturdy-develop
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read block");
   ERROR(msg);
-  XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   //return res;
 }
 
@@ -567,21 +502,13 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
 	continue;
       } else {
 	ERROR(msg);
-<<<<<<< HEAD
 	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
-=======
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
->>>>>>> jsturdy-develop
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to block '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-<<<<<<< HEAD
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-=======
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
->>>>>>> jsturdy-develop
     }
   }
 }

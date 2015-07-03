@@ -268,7 +268,8 @@ throw (xgi::exception::Exception)
                     {
                         gemHwMonitorVFAT_.push_back(new gemHwMonitorVFAT());
                         gemHwMonitorVFAT_.back()->setDeviceConfiguration(*gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().at(i));
-                        vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
+                        vfatDevice_ = new gem::hw::vfat::HwVFAT2(gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
+                        //vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
                         vfatDevice_->setDeviceIPAddress(glibIP);
                         std::cout << "vfat ID from XML" << gemHwMonitorVFAT_.back()->getDevice()->getDeviceId() << std::endl;
                         vfatDevice_->setDeviceBaseNode("VFATS."+gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
@@ -400,38 +401,39 @@ throw (xgi::exception::Exception)
             for (int i=0; i<gemHwMonitorGLIB_.at(indexGLIB_)->getNumberOfSubDevices(); i++) {
                 std::map <std::string, std::string> glibProperties_;
 //<<<<<<< HEAD
-//              glibProperties_ = gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getDeviceProperties();
-                //std::string ohIP = "192.168.0.164";
-                //for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
-                //{
-                //    if (it->first == "IP") ohIP = it->second; 
-                //    std::cout << "OH IP is "<<ohIP << std::endl;
-                //}
-                //gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
-                //ohDevice_->setDeviceIPAddress(ohIP);
-                //ohDevice_->connectDevice();
-                //if (ohDevice_->isHwConnected())
-                //{
-                //    gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(0);
-                //} else {
-                //    gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(2);
-                //}
-//=======
-                glibProperties_ = gemHwMonitorGLIB_->getDevice()->getDeviceProperties();
+              glibProperties_ = gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getDeviceProperties();
                 std::string ohIP = "192.168.0.164";
                 for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
                 {
                     if (it->first == "IP") ohIP = it->second; 
+                    std::cout << "OH IP is "<<ohIP << std::endl;
                 }
+                //gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
                 gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
                 ohDevice_->setDeviceIPAddress(ohIP);
                 ohDevice_->connectDevice();
                 if (ohDevice_->isHwConnected())
                 {
-                    gemHwMonitorGLIB_->addSubDeviceStatus(0);
+                    gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(0);
                 } else {
-                    gemHwMonitorGLIB_->addSubDeviceStatus(2);
+                    gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(2);
                 }
+//=======
+                //glibProperties_ = gemHwMonitorGLIB_->getDevice()->getDeviceProperties();
+                //std::string ohIP = "192.168.0.164";
+                //for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
+                //{
+                //    if (it->first == "IP") ohIP = it->second; 
+                //}
+                //gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
+                //ohDevice_->setDeviceIPAddress(ohIP);
+                //ohDevice_->connectDevice();
+                //if (ohDevice_->isHwConnected())
+                //{
+                //    gemHwMonitorGLIB_->addSubDeviceStatus(0);
+                //} else {
+                //    gemHwMonitorGLIB_->addSubDeviceStatus(2);
+                //}
 //>>>>>>> jsturdy-develop
             }
         }
@@ -453,7 +455,8 @@ throw (xgi::exception::Exception)
         *out << cgicc::td();
     *out << "</tr>" << std::endl;
     *out << cgicc::table() <<std::endl;;
-    glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
+    //glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
+    glibDevice_ = new gem::hw::glib::HwGLIB();
     glibDevice_->setDeviceIPAddress(glibIP);
     glibDevice_->connectDevice();
 
@@ -651,7 +654,8 @@ throw (xgi::exception::Exception)
             indexOH_ = i;
             //gemHwMonitorOH_->setDeviceConfiguration(*gemHwMonitorGLIB_->getDevice()->getSubDevicesRefs().at(i));
             gemHwMonitorOH_.at(indexOH_)->setIsConfigured(true);
-            vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), vfatToShow_);
+            //vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), vfatToShow_);
+            vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
             vfatDevice_->setDeviceIPAddress(glibIP);
  
             for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
@@ -692,13 +696,15 @@ throw (xgi::exception::Exception)
         *out << cgicc::td();
     *out << "</tr>" << std::endl;
     *out << cgicc::table() <<std::endl;;
-    ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
+    //ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
+    ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
     ohDevice_->setDeviceIPAddress(glibIP);
     ohDevice_->connectDevice();
 
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
-    *out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "Firmware version : " << ohDevice_->getFirmware() << "</div></h1>" << std::endl;
+    uint8_t link=1;
+    *out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "Firmware version : " << ohDevice_->getFirmware(link) << "</div></h1>" << std::endl;
     *out << "</div>" << std::endl;
     *out << "<div class=\"panel-body\">" << std::endl;
     *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "</div></h3>" << std::endl;
@@ -776,7 +782,7 @@ throw (xgi::exception::Exception)
         *out << cgicc::table() <<std::endl;
     }
     std::pair<bool,bool> statusVFATClock_;
-    statusVFATClock_ = ohDevice_->StatusVFATClock();
+    statusVFATClock_ = ohDevice_->StatusVFATClock(link);
     *out << cgicc::table().set("class","table");
         *out << "<tr>" << std::endl;
         *out << "<td>" << std::endl;
@@ -797,7 +803,7 @@ throw (xgi::exception::Exception)
     //*out << cgicc::table() <<std::endl;
 
     std::pair<bool,bool> statusCDCEClock_;
-    statusCDCEClock_ = ohDevice_->StatusCDCEClock();
+    statusCDCEClock_ = ohDevice_->StatusCDCEClock(link);
     //*out << cgicc::table().set("class","table");
         *out << "<tr>" << std::endl;
         *out << "<td>" << std::endl;
@@ -823,7 +829,7 @@ throw (xgi::exception::Exception)
             *out << "Trigger Source" << std::endl;
         *out << "</td>" << std::endl;
         *out << "<td>" << std::endl;
-            *out << (int)ohDevice_->getTrigSource() << std::endl;
+            *out << (int)ohDevice_->getTrigSource(link) << std::endl;
         *out << "</td>" << std::endl;
         *out << "</tr>" << std::endl;
         *out << "<tr>" << std::endl;
@@ -831,7 +837,7 @@ throw (xgi::exception::Exception)
             *out << "S-bit Source" << std::endl;
         *out << "</td>" << std::endl;
         *out << "<td>" << std::endl;
-            *out << (int)ohDevice_->getSBitSource() << std::endl;
+            *out << (int)ohDevice_->getSBitSource(link) << std::endl;
         *out << "</td>" << std::endl;
         *out << "</tr>" << std::endl;
     //*out << cgicc::table() <<std::endl;
@@ -845,7 +851,7 @@ throw (xgi::exception::Exception)
                 *out << l1CountNames[i] << std::endl;
             *out << "</td>" << std::endl;
             *out << "<td>" << std::endl;
-                *out << ohDevice_->GetL1ACount(i) << std::endl;
+                *out << ohDevice_->GetL1ACount(i,link) << std::endl;
             *out << "</td>" << std::endl;
             *out << "</tr>" << std::endl;
         }
@@ -860,7 +866,7 @@ throw (xgi::exception::Exception)
                 *out << calPulseCountNames[i] << std::endl;
             *out << "</td>" << std::endl;
             *out << "<td>" << std::endl;
-                *out << ohDevice_->GetCalPulseCount(i) << std::endl;
+                *out << ohDevice_->GetCalPulseCount(i,link) << std::endl;
             *out << "</td>" << std::endl;
             *out << "</tr>" << std::endl;
         }
