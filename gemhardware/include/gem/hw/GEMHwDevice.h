@@ -18,9 +18,15 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
-#define MAX_IPBUS_RETRIES 25
+#define MAX_IPBUS_RETRIES 6
 
 typedef uhal::exception::exception uhalException;
+
+typedef std::pair<std::string, uint32_t> register_pair;
+typedef std::vector<register_pair>       register_pair_list;
+
+typedef std::pair<std::string, uhal::ValWord<uint32_t> > register_value;
+typedef std::vector<register_value>                      register_val_list;
 
 namespace uhal {
   class HwInterface;
@@ -54,9 +60,17 @@ namespace gem {
 	
 	/** 
 	 * GEMHwDevice constructor 
-	 * @param gemLogger pointer to log4cplus::Logger
+	 * @param deviceName string to put into the logger
 	 **/
-	GEMHwDevice(const log4cplus::Logger& gemLogger
+	GEMHwDevice(std::string const& deviceName
+		    /*xdaq::InfoSpace* const configInfoSpace
+		      xdaq::InfoSpace* const monitorInfoSpace
+		      gem::hw::GMEHwMonitor* const hwMonitor
+		     */
+		    );
+
+	GEMHwDevice(const std::string& connectionFile,
+		    const std::string& cardName
 		    /*xdaq::InfoSpace* const configInfoSpace
 		      xdaq::InfoSpace* const monitorInfoSpace
 		      gem::hw::GMEHwMonitor* const hwMonitor
@@ -109,12 +123,12 @@ namespace gem {
 			  const std::string &regName) {
 	  return readReg(regPrefix+"."+regName); };
 
-	/** readRegs( std::vector<std::pair<std::string, uint32_t> > &regList)
+	/** readRegs( register_pair_list &regList)
 	 * read list of registers in a single transaction (one dispatch call)
 	 * into the supplied vector regList
 	 * @param regList list of register name and uint32_t value to store the result
 	 */
-	void     readRegs( std::vector<std::pair<std::string, uint32_t> > &regList);
+	void     readRegs( register_pair_list &regList);
 
 	/** writeReg(std::string const& regName, uint32_t const val)
 	 * @param regName name of the register to read 
@@ -132,14 +146,14 @@ namespace gem {
 			   uint32_t const val) {
 	  return writeReg(regPrefix+"."+regName, val); };
 
-	/** writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList)
+	/** writeRegs(register_pair_list const& regList)
 	 * write list of registers in a single transaction (one dispatch call)
 	 * using the supplied vector regList
 	 * @param regList std::vector of a pairs of register names and values to write
 	 */
-	void     writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList);
+	void     writeRegs(register_pair_list const& regList);
 
-	/** writeRegs(std::vector<std::pair<std::string, uint32_t> > const& regList)
+	/** writeRegs(register_pair_list const& regList)
 	 * write single value to a list of registers in a single transaction
 	 * (one dispatch call) using the supplied vector regList
 	 * @param regList list of registers to write a value to

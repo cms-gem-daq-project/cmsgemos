@@ -4,6 +4,8 @@
 #include "xdata/String.h"
 #include <string>
 
+#include "gem/utils/GEMLogging.h"
+
 namespace gem {
     namespace hw {
         namespace vfat {
@@ -33,6 +35,7 @@ namespace gem {
 
             private:
 
+		log4cplus::Logger gemLogger_;
                 gem::hw::vfat::HwVFAT2* vfatDevice_;
                 std::string outFileName_;
                 std::string outputType_;

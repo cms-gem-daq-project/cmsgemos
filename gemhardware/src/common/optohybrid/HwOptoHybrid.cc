@@ -1,7 +1,9 @@
+#include <iomanip>
+
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(const log4cplus::Logger& optoLogger):
-  gem::hw::GEMHwDevice::GEMHwDevice(optoLogger)
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
+  gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid")
   //logOptoHybrid_(optohybridApp->getApplicationLogger()),
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0)
@@ -81,12 +83,12 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkS
   }
   else {
     std::stringstream regName;
-    regName << "OPTICAL_LINKS.LINK" << (int)link << ".Counter.";
+    regName << "OptoHybrid_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Counter.";
     linkStatus.linkErrCnt      = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"      );
-    linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regName.str()+"RecI2CReqests");
-    linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regName.str()+"SntI2CReqests");
-    linkStatus.linkRegisterRec = readReg(getDeviceBaseNode(),regName.str()+"RecRegReqests");
-    linkStatus.linkRegisterSnt = readReg(getDeviceBaseNode(),regName.str()+"SntRegReqests");
+    linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regName.str()+"RecI2CRequests");
+    linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regName.str()+"SntI2CRequests");
+    linkStatus.linkRegisterRec = readReg(getDeviceBaseNode(),regName.str()+"RecRegRequests");
+    linkStatus.linkRegisterSnt = readReg(getDeviceBaseNode(),regName.str()+"SntRegRequests");
   }
   return linkStatus;
 }
@@ -99,17 +101,17 @@ void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t link, uint8_t resets) 
   }
   
   std::stringstream regName;
-  regName << "OPTICAL_LINKS.LINK" << (int)link << ".Resets.";
+  regName << "OptoHybrid_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Resets";
   if (resets&0x01)
     writeReg(getDeviceBaseNode(),regName.str()+"LinkErr",0x1);
   if (resets&0x02)
-    writeReg(getDeviceBaseNode(),regName.str()+"RecI2CReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"RecI2CRequests",0x1);
   if (resets&0x04)
-    writeReg(getDeviceBaseNode(),regName.str()+"SntI2CReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"SntI2CRequests",0x1);
   if (resets&0x08)
-    writeReg(getDeviceBaseNode(),regName.str()+"RecRegReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"RecRegRequests",0x1);
   if (resets&0x10)
-    writeReg(getDeviceBaseNode(),regName.str()+"SntRegReqests",0x1);
+    writeReg(getDeviceBaseNode(),regName.str()+"SntRegRequests",0x1);
 }
 
 //uint32_t gem::hw::optohybrid::HwOptoHybrid::readTriggerData() {
