@@ -693,7 +693,7 @@ throw (xgi::exception::Exception)
                 *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
             } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 2)
             {
-                *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << currentVFATId<< "</button>" << std::endl;
+                *out << "<button type=\"submit\" class=\"btn btn-danger\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << currentVFATId<< "</button>" << std::endl;
             }
             *out << cgicc::form() << std::endl;
         *out << cgicc::td();
