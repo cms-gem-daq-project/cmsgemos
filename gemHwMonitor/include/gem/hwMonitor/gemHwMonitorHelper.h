@@ -17,8 +17,9 @@ namespace gem {
     class gemHwMonitorHelper
     {
     public:
-      gemHwMonitorHelper(log4cplus::Logger const& gemLogger, gemHwMonitorSystem* gemSystem)
-	throw (xdaq::exception::Exception):
+      gemHwMonitorHelper(log4cplus::Logger const& gemLogger, gemHwMonitorSystem* gemSystem) 
+	throw (xdaq::exception::Exception) :
+      ptr_gemSystem_(gemSystem),
 	gemLogger_(gemLogger)
 	{
 	  //gemLogger_.setLogLevel(DEBUG_LOG_LEVEL);
@@ -29,7 +30,7 @@ namespace gem {
 	  WARN("gemHwMonitorHelper::setting file");
 	  this->setXMLconfigFile(defaulXMLcfgFile.c_str());
 	  WARN("gemHwMonitorHelper::setting gemsystem pointer");
-	  ptr_gemSystem_ = gemSystem;
+	  //ptr_gemSystem_ = gemSystem;
 	  WARN("gemHwMonitorHelper::setting gemsystem pointer device status");
 	  ptr_gemSystem_->setDeviceStatus(2);
 	  WARN("gemHwMonitorHelper::constructor finished");

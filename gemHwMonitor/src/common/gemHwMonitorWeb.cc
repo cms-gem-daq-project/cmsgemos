@@ -316,12 +316,9 @@ void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output *
 	    glibDevice_->connectDevice();
 	    if (glibDevice_->isHwConnected())
 	      {
-		INFO("GLIB sys firmware version " << std::hex << glibDevice_->readReg("GLIB.SYSTEM.FIRMWARE") << std::dec);
-		INFO("GLIB user version "         << std::hex << glibDevice_->readReg("GLIB.GLIB_LINKS.LINK0.USER_FW") << std::dec);
-
-		//INFO("GLIB sys firmware data " << glibDevice_->getFirmwareDate());
-		//INFO("GLIB sys firmware version " << std::hex << glibDevice_->getFirmwareVer() << std::dec);
-		//INFO("GLIB user version " << std::hex << glibDevice_->getUserFirmware() << std::dec);
+		INFO("GLIB sys firmware version " << glibDevice_->getFirmwareVer());
+		INFO("GLIB sys firmware date "    << glibDevice_->getFirmwareDate());
+		INFO("GLIB user version 0x"       << std::hex << glibDevice_->getUserFirmware() << std::dec);
 		gemHwMonitorCrate_->addSubDeviceStatus(0);
 	      } else {
 	      gemHwMonitorCrate_->addSubDeviceStatus(2);

@@ -8,10 +8,11 @@
 #include "gem/utils/GEMLogging.h"
 
 gem::utils::gemXMLparser::gemXMLparser(const std::string& xmlFile):
+  xmlFile_(xmlFile),
+  gemSystem_(new gemSystemProperties()),
   gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:utils:GEMXMLParser")))
 {
-  xmlFile_ = xmlFile;
-  gemSystem_ = new gemSystemProperties();
+  //ogemSystem_ = new gemSystemProperties();
   gemSystem_->setDeviceId("GEM");
   gemLogger_.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
 }
@@ -123,7 +124,8 @@ void gem::utils::gemXMLparser::parseGEMSystem(xercesc::DOMNode * pNode)
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
       {    
 	if (strcmp("uTCACrate",xercesc::XMLString::transcode(n->getNodeName()))==0) {
-	  INFO(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateID"))->getNodeValue()));
+	  //std::string someTMP = xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateID"))->getNodeValue());
+	  //INFO(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateID"))->getNodeValue()));
 	  //crateIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateID"))->getNodeValue()));
 	  //crateNodes.push_back(n);
 	  //if (crateIds.size() == 1) {

@@ -9,7 +9,6 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   gemHWP_(0),
   hwLock_(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
-  
 {
   //need to grab these parameters from the xml file or from some configuration space/file/db
   //gemLogger_ = log4cplus::Logger::getInstance(deviceName);
@@ -23,7 +22,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   ipBusErrs.readError_     = 0;
   ipBusErrs.timeouts_      = 0;
   ipBusErrs.controlHubErr_ = 0;
-  
+    
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
   /** 
@@ -52,7 +51,6 @@ gem::hw::GEMHwDevice::GEMHwDevice(const std::string& connectionFile,
   gemHWP_(0),
   hwLock_(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
-  
 {
   gemLogger_ = log4cplus::Logger::getInstance(cardName);
   //set up device creation via connection manager
