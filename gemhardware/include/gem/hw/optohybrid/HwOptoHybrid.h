@@ -36,7 +36,7 @@ namespace gem {
       class HwOptoHybrid: public gem::hw::GEMHwDevice
 	{
 	public:
-	  HwOptoHybrid(const log4cplus::Logger& gemLogger);
+	  HwOptoHybrid();
 
 	  ~HwOptoHybrid();
 	

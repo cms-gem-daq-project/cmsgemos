@@ -37,8 +37,10 @@ LibraryDirs+=$(uHALROOT)/lib
 PROFILING_Flags =-pg
 DEBUG_CFlags  =-O0 -g3 -fno-inline
 DEBUG_CCFlags =${DEBUG_CFlags}
-UserCFlags  =-std=c++0x ${DEBUG_CFlags}
-UserCCFlags =-std=c++0x ${DEBUG_CCFlags}
+GCC47Flags = -std=c++11 -std=gnu++11
+GCC48Flags = -std=c++14 -std=gnu++14
+UserCFlags  =-std=c++0x -std=gnu++0x ${DEBUG_CFlags}
+UserCCFlags =-std=c++0x -std=gnu++0x ${DEBUG_CCFlags}
 DEBUG_LDFlags =${PROFILING_Flags}
 UserDynamicLinkFlags =
 UserStaticLinkFlags =
@@ -51,8 +53,8 @@ UserStaticLinkFlags =
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
 DEBUG_LIBS =profiler tcmalloc
-DependentLibraries =config xcept boost_system cactus_uhal_uhal gem_utils
-Libraries =config xcept numa toolbox xdaq2rc asyncresolv uuid log4cplus
+DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal gem_utils
+Libraries          = log4cplus config xcept xerces-c numa toolbox xdaq2rc asyncresolv uuid
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules

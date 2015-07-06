@@ -56,8 +56,10 @@ LibraryDirs+=$(uHALROOT)/lib
 PROFILING_Flags =-pg
 DEBUG_CFlags  =-O0 -g3 -fno-inline
 DEBUG_CCFlags =${DEBUG_CFlags}
-UserCFlags  =-std=c++0x ${ROOTCFLAGS} ${DEBUG_CFlags}
-UserCCFlags =-std=c++0x ${ROOTCFLAGS} ${DEBUG_CCFlags}
+GCC47Flags = -std=c++11 -std=gnu++11
+GCC48Flags = -std=c++14 -std=gnu++14
+UserCFlags  =-std=c++0x -std=gnu++0x ${ROOTCFLAGS}  ${DEBUG_CFlags}
+UserCCFlags =-std=c++0x -std=gnu++0x ${ROOTCFLAGS}  ${DEBUG_CCFlags}
 UserDynamicLinkFlags =$(ROOTLIBS)
 UserStaticLinkFlags =
 
@@ -68,8 +70,8 @@ UserStaticLinkFlags =
 
 #LDFLAGS=`root-config --libs --glibs`
 DEBUG_LIBS =profiler tcmalloc
-DependentLibraries =config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_readout
-Libraries =config xcept numa toolbox asyncresolv uuid log4cplus xerces-c
+DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_readout
+Libraries          = log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules

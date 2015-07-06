@@ -2,15 +2,31 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 
-gem::hw::glib::HwGLIB::HwGLIB(const log4cplus::Logger& glibLogger):
-  gem::hw::GEMHwDevice::GEMHwDevice(glibLogger)
+gem::hw::glib::HwGLIB::HwGLIB():
+  gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB")
   //logGLIB_(glibApp->getApplicationLogger()),
   //hwGLIB_(0),
   //monGLIB_(0)
 {
+  //use a connection file and connection manager?
   setDeviceID("GLIBHw");
   setAddressTableFileName("glib_address_table.xml");
-  setIPbusProtocolVersion("2.0");
+  setDeviceBaseNode("GLIB");
+  //gem::hw::glib::HwGLIB::initDevice();
+}
+
+gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot):
+  gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
+  //logGLIB_(glibApp->getApplicationLogger()),
+  //hwGLIB_(0),
+  //monGLIB_(0),
+  m_crate(crate),
+  m_slot(slot)
+{
+  //use a connection file and connection manager?
+  setDeviceID(toolbox::toString("gem.crate%02d.glib%02d",crate,slot));
+  setAddressTableFileName("glib_address_table.xml");
+  setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
 }
@@ -110,24 +126,13 @@ void gem::hw::glib::HwGLIB::configureDevice()
 //
 //void gem::hw::glib::HwGLIB::initDevice() 
 //{
-//  char * val;
-//  val = std::getenv( "BUILD_HOME" );
-//  std::string dirVal = "";
-//  if (val != NULL) {
-//    dirVal = val;
-//  } else {
-//    std::cout<<"$BUILD_HOME not set, exiting"<<std::endl;
-//    exit(1);
-//  }
-//  
-//  //setLogLevelTo(uhal::Debug());  // Maximise uHAL logging
 //  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
 //  char connectionPath[128];
 //  try {
 //    sprintf(connectionPath,"file://%s/data/myconnections.xml;",dirVal.c_str());
 //    manageGLIBConnection = new uhal::ConnectionManager( connectionPath );
 //  } catch (const std::exception& e) {
-//    std::cout << "Something went wrong initializing the connection: " << e.what() << std::endl;
+//    ERROR("Something went wrong initializing the connection: " << e.what());
 //  }
 //}
 

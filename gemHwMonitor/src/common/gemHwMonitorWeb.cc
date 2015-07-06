@@ -55,8 +55,8 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
     {
         if (cgi.queryCheckbox(gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId())) 
         {
-            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice(getApplicationLogger());
-            gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger());
+            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice();
+            gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
             crateDevice_->setDeviceIPAddress("192.168.0.164");
             crateDevice_->connectDevice();
             if (crateDevice_->isHwConnected())
@@ -264,8 +264,7 @@ throw (xgi::exception::Exception)
                     if (it->first == "IP") glibIP = it->second; 
                     std::cout << "GLIB IP is "<<glibIP << std::endl;
                 }
-                gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB(getApplicationLogger());
-                //gem::hw::vfat::HwVFAT2* glibDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+                gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
                 glibDevice_->setDeviceIPAddress(glibIP);
                 glibDevice_->connectDevice();
                 if (glibDevice_->isHwConnected())
@@ -344,8 +343,7 @@ throw (xgi::exception::Exception)
                 {
                     if (it->first == "IP") ohIP = it->second; 
                 }
-                gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid(getApplicationLogger());
-                //gem::hw::vfat::HwVFAT2* ohDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
+                gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
                 ohDevice_->setDeviceIPAddress(ohIP);
                 ohDevice_->connectDevice();
                 if (ohDevice_->isHwConnected())
@@ -485,8 +483,7 @@ throw (xgi::exception::Exception)
 {
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
-    //vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), "VFAT9");
-    vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), vfatToShow_);
+    vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
     vfatDevice_->setDeviceIPAddress("192.168.0.164");
     vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
     //vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+vfatToShow_);

@@ -2,8 +2,8 @@
 
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(const log4cplus::Logger& optoLogger):
-  gem::hw::GEMHwDevice::GEMHwDevice(optoLogger)
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
+  gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid")
   //logOptoHybrid_(optohybridApp->getApplicationLogger()),
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0)
