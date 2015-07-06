@@ -38,10 +38,10 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
   
   for (int slot=1; slot <= MAX_AMCS_PER_CRATE; slot++)
-    hwGLIBs_[slot-1] = 0;
+    m_glibs[slot-1] = 0;
 
-  init();
-  getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/glib/GLIBManager.png");
+  //init();
+  //getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/glib/GLIBManager.png");
 }
 
 gem::hw::glib::GLIBManager::~GLIBManager() {
@@ -76,30 +76,55 @@ void gem::hw::glib::GLIBManager::preInit()
 void gem::hw::glib::GLIBManager::init()
   throw (gem::base::exception::Exception)
 {
+  gem::base::GEMFSMApplication::init();
+
+  uhal::setLogLevelTo( uhal::ErrorLevel() );
   
-  for (int slot=1; slot <= MAX_AMCS_PER_CRATE; slot++) {
+  int gemCrate = 1;
+  
+  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
+    GLIBInfo& info = m_glibInfo[slot].bag;
     
-    //check if there is a GLIB in the specified slot, if not, do not initialize
+    //check the config file if there should be a GLIB in the specified slot, if not, do not initialize
+    //if slot empty
+    //  continue;
+    
+    info.present = true;
+    info.crateID = gemCrate;
+    info.slotID  = slot+1;
+    
+    m_glibs[slot] = new gem::hw::glib::HwGLIB(gemCrate,slot+1);
+    m_glibs[slot]->connectDevice();
     //set the web view to be empty or grey
     //if (!info.present.value_) continue;
     //gemWebInterfaceP_->glibInSlot(slot);
-  }  
+  }
+
+  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
+    GLIBInfo& info = m_glibInfo[slot].bag;
+
+    if (!info.present)
+      continue;
+    
+    gem::hw::glib::HwGLIB* glib= m_glibs[slot];
+    
+  }
 }
 
 void gem::hw::glib::GLIBManager::enable()
   throw (gem::base::exception::Exception) {
   LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::glib::GLIBManager::enable()");
   //gem::base::GEMFSMApplication::enable();
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
-  //hwGLIBs_[0]->startRun();
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
+  //m_glibs[0]->startRun();
 }
 
 void gem::hw::glib::GLIBManager::disable()
   throw (gem::base::exception::Exception) {
   LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::glib::GLIBManager::disable()");
   //gem::base::GEMFSMApplication::disable();
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
-  //hwGLIBs_[0]->endRun();
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
+  //m_glibs[0]->endRun();
 }
 
 /*

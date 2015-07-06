@@ -60,10 +60,10 @@ void gem::hw::amc13::AMC13Manager::preInit()
 {
   std::string addressBase  = "${AMC13_ADDRESS_TABLE_PATH}/";
   std::string connection   = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/connectionSN170_ch.xml";
-  std::string friendlyname = "gem.shelf01.amc13.";
+  std::string cardname = "gem.shelf01.amc13.";
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
-    amc13Device_ = new ::amc13::AMC13(connection,friendlyname+"T1",friendlyname+"T2");
+    amc13Device_ = new ::amc13::AMC13(connection,cardname+"T1",cardname+"T2");
   } catch (uhal::exception::exception & e) {
     LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught uhal::exception:") + e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
