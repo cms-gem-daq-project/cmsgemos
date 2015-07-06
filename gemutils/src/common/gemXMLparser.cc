@@ -270,10 +270,10 @@ void gem::utils::gemXMLparser::parseVFAT2Settings(xercesc::DOMNode * pNode)
 	addProperty("ReHitCT", n, vfat_);
 	addProperty("LVDSPowerSave", n, vfat_);
 	addProperty("ProbeMode", n, vfat_);
-	addProperty("DACSel", n, vfat_);
+	addProperty("DACMode", n, vfat_);
 	addProperty("DigInSel", n, vfat_);
 	addProperty("MSPulseLength", n, vfat_);
-	addProperty("HitCountSel", n, vfat_);
+	addProperty("HitCountMode", n, vfat_);
 	addProperty("DFTest", n, vfat_);
 	addProperty("PbBG", n, vfat_);
 	addProperty("TrimDACRange", n, vfat_);

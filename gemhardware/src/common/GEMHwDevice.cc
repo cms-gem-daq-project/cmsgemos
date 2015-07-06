@@ -115,6 +115,8 @@ void gem::hw::GEMHwDevice::connectDevice()
   std::string const uri = tmpUri.str();
   std::string const id  = getDeviceID();
   std::string const addressTable = getAddressTableFileName();
+
+  INFO("uri, id, address table : " << uri << " " << id << " " << addressTable);
   
   //int retryCount = 0;
   
