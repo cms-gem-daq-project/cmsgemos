@@ -167,7 +167,7 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
   if ((readVal >> 26) & 0x1) {
     std::string msg = toolbox::toString("VFAT transaction error bit set reading register %s",regName.c_str());
     XCEPT_RAISE(gem::hw::vfat::exception::TransactionError,msg);
-  } else if ((readVal >> 25) & 0x1){
+  } else if ((readVal >> 25) & 0x0){
     std::string msg = toolbox::toString("VFAT transaction invalid bit set reading register %s",regName.c_str());
     XCEPT_RAISE(gem::hw::vfat::exception::InvalidTransaction,msg);
   } else if ((readVal >> 24) & 0x0){
