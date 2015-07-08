@@ -226,11 +226,11 @@ std::string gem::hw::glib::HwGLIB::getFirmwareDate()
     << std::setw(2) << dd;
   */
   uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
-  res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
+  res << "20" << std::setfill('0') << std::setw(2) << (uint8_t)(fwid&0x1f)
       << "-"
-      << std::setw(2) << ((fwid>>5)&0x0f)
+      << std::setw(2) << (uint8_t)((fwid>>5)&0x0f)
       << "-"
-      << std::setw(2) << ((fwid>>9)&0x7f);
+      << std::setw(2) << (uint8_t)((fwid>>9)&0x7f);
   return res.str();
 }
 
@@ -248,11 +248,11 @@ std::string gem::hw::glib::HwGLIB::getFirmwareVer()
   */
 
   uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
-  res << ((fwid>>28)&0x0f)
+  res << (uint8_t)((fwid>>28)&0x0f)
       << "." 
-      << ((fwid>>24)&0x0f)
+      << (uint8_t)((fwid>>24)&0x0f)
       << "."
-      << ((fwid>>16)&0xff);
+      << (uint8_t)((fwid>>16)&0xff);
   return res.str();
 }
 
