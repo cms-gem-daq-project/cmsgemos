@@ -180,16 +180,6 @@ std::string gem::hw::glib::HwGLIB::getIPAddress()
 std::string gem::hw::glib::HwGLIB::getMACAddress()
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
-  /*
-  std::stringstream res;
-  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B5") << std::dec << ":";
-  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B4") << std::dec << ":";
-  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B3") << std::dec << ":";
-  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B2") << std::dec << ":";
-  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B1") << std::dec << ":";
-  res << std::hex << (uint8_t)readReg(getDeviceBaseNode(),"SYSTEM.MAC.B0") << std::dec;
-  return res.str();
-  */
   std::string res = "N/A";
   uint32_t val1 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.UPPER");
   uint32_t val2 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.LOWER");
@@ -244,17 +234,19 @@ std::string gem::hw::glib::HwGLIB::getFirmwareVer()
   return res.str();
 }
 
-void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t input, uint8_t output)
+void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& input, uint8_t const& output)
 {
   if (xpoint2 && (input > 2 || output > 0)) {
     std::string msg = toolbox::toString("Invalid clock routing for XPoint2 %d -> %d",input,output);
-    XCEPT_RAISE(gem::hw::glib::exception::InvalidXPoint2Routing,msg);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidXPoint2Routing,msg);
     return;
   }
   
   if ((input > 3 || output > 3)) {
     std::string msg = toolbox::toString( "Invalid clock routing for XPoint%d %d -> %d",xpoint2,input,output);
-    XCEPT_RAISE(gem::hw::glib::exception::InvalidXPointRouting,msg);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidXPointRouting,msg);
     return;
   }
   
@@ -285,19 +277,21 @@ void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t input, uint8_t o
   writeReg(getDeviceBaseNode(),regName.str()+"0",(input&0x10)>>1);
 }
 
-uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t output)
+uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output)
 {
   /*
-  if (xpoint2 && output > 0) {
+    if (xpoint2 && output > 0) {
     std::string msg = toolbox::toString("Invalid clock output for XPoint2 %d",output);
-    XCEPT_RAISE(gem::hw::glib::exception::InvalidXPoint2Routing,msg);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidXPoint2Routing,msg);
     return output;
-  }
+    }
   */
   
   if (output > 3) {
     std::string msg = toolbox::toString( "Invalid clock output for XPoint%d %d",xpoint2,output);
-    XCEPT_RAISE(gem::hw::glib::exception::InvalidXPointRouting,msg);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidXPointRouting,msg);
     return output;
   }
   
@@ -324,7 +318,7 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t output)
   return input;
 }
 
-uint8_t gem::hw::glib::HwGLIB::SFPStatus(uint8_t sfpcage)
+uint8_t gem::hw::glib::HwGLIB::SFPStatus(uint8_t const& sfpcage)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream regName;
@@ -383,13 +377,14 @@ std::string gem::hw::glib::HwGLIB::getUserFirmware()
   return res.str();
 }
 
-gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_t link) {
+gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_t const& link) {
   
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
 
   if (link > 2) {
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
-    XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
   } else {
     std::stringstream regName;
     regName << "GLIB_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Counter.";
@@ -402,10 +397,11 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_
   return linkStatus;
 }
 
-void gem::hw::glib::HwGLIB::LinkReset(uint8_t link, uint8_t resets) {
+void gem::hw::glib::HwGLIB::LinkReset(uint8_t const& link, uint8_t const& resets) {
   if (link > 2) {
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
-    XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return;
   }
   
@@ -423,25 +419,26 @@ void gem::hw::glib::HwGLIB::LinkReset(uint8_t link, uint8_t resets) {
     writeReg(getDeviceBaseNode(),regName.str()+"SntRegRequests",0x1);
 }
 
-uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO(uint8_t link) {
+uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO(uint8_t const& link) {
   std::stringstream regName;
   regName << "TRG_DATA.";
   uint32_t trgword = readReg(getDeviceBaseNode(),regName.str()+"DATA");
   return trgword;
 }
 
-void gem::hw::glib::HwGLIB::flushTriggerFIFO(uint8_t link) {
+void gem::hw::glib::HwGLIB::flushTriggerFIFO(uint8_t const& link) {
   std::stringstream regName;
   //regName << "TRG_DATA.";
   regName << "GLIB_LINKS.LINK" << link << ".TRIGGER";
   writeReg(getDeviceBaseNode(),regName.str()+".FIFO_FLUSH",0x1);
 }
 
-uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t link) {
+uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& link) {
   uint32_t fifocc = 0;
   if (link > 2) {
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
-    XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return fifocc;
   }
   
@@ -452,10 +449,11 @@ uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t link) {
   return fifocc;
 }
 
-void gem::hw::glib::HwGLIB::flushFIFO(uint8_t link) {
+void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& link) {
   if (link > 2) {
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
-    XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return;
   }
 
