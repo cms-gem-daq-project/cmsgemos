@@ -155,7 +155,7 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
   //bit 26 - error
   (readVal >> 26) & 0x1;
   //bit 25 - valid
-  (readVal >> 25) & 0x1;
+  (readVal >> 25) & 0x0;
   //bit 24 - r/w
   (readVal >> 24) & 0x1;
   //bit 23:16 - VFAT number
