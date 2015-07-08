@@ -88,13 +88,13 @@ namespace gem {
 	   * @param factor 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
 	   * @param reset 1 -> reset, 0 -> normal operation
 	   * @param enable 0 -> disabled, 1 -> enabled
-	   * void controlPCIe(uint8_t factor);
+	   * void controlPCIe(uint8_t const& factor);
 	   **/
 	  
 	  /** select the PCIe clock multiplier
 	   * @param factor 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
 	   **/
-	  void PCIeClkFSel(uint8_t factor) {
+	  void PCIeClkFSel(uint8_t const& factor) {
 	    std::stringstream regName;
 	    regName << "SYSTEM.CLK_CTRL.";
 	    writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_FSEL",(uint32_t)factor);
@@ -270,18 +270,18 @@ namespace gem {
 	   * XPoint2 output 3 routes to MGT113REFCLK1
 	   * XPoint2 output 4 routes nowhere
 	   **/
-	  void XPointControl(bool xpoint2, uint8_t input, uint8_t output);
+	  void XPointControl(bool xpoint2, uint8_t const& input, uint8_t const& output);
 	  
 	  /** get the routing of the XPoint switch
 	   * @returns the input that is currently routed to a specified output
 	   **/
-	  uint8_t XPointControl(bool xpoint2, uint8_t output);
+	  uint8_t XPointControl(bool xpoint2, uint8_t const& output);
 	  
 	  /** get the status of the GLIB SFP
 	   * @param sfpcage
 	   * @returns the 3 status bits of the specified SFP
 	   **/
-	  uint8_t SFPStatus(uint8_t sfpcage);
+	  uint8_t SFPStatus(uint8_t const& sfpcage);
 	  
 	  /** get the presence of the FMC in slot 1 or 2
 	   * @param fmc2 true for FMC2 false for FMC1
@@ -321,7 +321,7 @@ namespace gem {
 	   * @retval _status a struct containing the status bits of the optical link
 	   * @throws gem::hw::glib::exception::InvalidLink if the link number is outside of 0-2
 	   **/
-	  GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t link);
+	  GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& link);
 	  
 	  /** Reset the link status registers
 	   * @param uint8_t link is the number of the link to query
@@ -334,29 +334,34 @@ namespace gem {
 	   * bit 5 - RegisterSnt 0x10
 	   * @throws gem::hw::glib::exception::InvalidLink if the link number is outside of 0-2
 	   **/
-	  void LinkReset(uint8_t link, uint8_t resets);
+	  void LinkReset(uint8_t const& link, uint8_t const& resets);
+
+	  /** Reset the all link status registers
+	   * @param uint8_t resets control which bits to reset
+	   **/
+	  void ResetLinks(uint8_t const& resets);
 
 	  /** Read the trigger data
 	   * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
 	   **/
-	  uint32_t readTriggerFIFO(uint8_t link);
+	  uint32_t readTriggerFIFO(uint8_t const& link);
 
 	  /** Empty the trigger data FIFO
 	   * 
 	   **/
-	  void flushTriggerFIFO(uint8_t link);
+	  void flushTriggerFIFO(uint8_t const& link);
 
 	  /** Read the tracking data FIFO occupancy
 	   * @param uint8_t link is the number of the link to query
 	   * @retval uint32_t returns the number of events in the tracking data FIFO
 	   **/
-	  uint32_t getFIFOOccupancy(uint8_t link);
+	  uint32_t getFIFOOccupancy(uint8_t const& link);
 
 	  /** Empty the tracking data FIFO
 	   * @param uint8_t link is the number of the link to query
 	   * 
 	   **/
-	  void flushFIFO(uint8_t link);
+	  void flushFIFO(uint8_t const& link);
 
 
 	protected:

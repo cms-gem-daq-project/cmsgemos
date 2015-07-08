@@ -20,6 +20,10 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
+/* IPBus transactions still have some problems in the firmware
+   so it helps to retry a few times in the case of a failure
+   that is recognized
+*/
 #define MAX_IPBUS_RETRIES 6
 
 typedef uhal::exception::exception uhalException;
