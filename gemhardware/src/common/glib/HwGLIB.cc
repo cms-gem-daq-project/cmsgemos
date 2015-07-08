@@ -393,11 +393,11 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_
   } else {
     std::stringstream regName;
     regName << "GLIB_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Counter.";
-    linkStatus.linkErrCnt      = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"      );
-    linkStatus.linkVFATI2CRec  = readReg(getDeviceBaseNode(),regName.str()+"RecI2CRequests");
-    linkStatus.linkVFATI2CSnt  = readReg(getDeviceBaseNode(),regName.str()+"SntI2CRequests");
-    linkStatus.linkRegisterRec = readReg(getDeviceBaseNode(),regName.str()+"RecRegRequests");
-    linkStatus.linkRegisterSnt = readReg(getDeviceBaseNode(),regName.str()+"SntRegRequests");
+    linkStatus.Errors           = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"       );
+    linkStatus.I2CReceived      = readReg(getDeviceBaseNode(),regName.str()+"RecI2CRequests");
+    linkStatus.I2CSent          = readReg(getDeviceBaseNode(),regName.str()+"SntI2CRequests");
+    linkStatus.RegisterReceived = readReg(getDeviceBaseNode(),regName.str()+"RecRegRequests");
+    linkStatus.RegisterSent     = readReg(getDeviceBaseNode(),regName.str()+"SntRegRequests");
   }
   return linkStatus;
 }
