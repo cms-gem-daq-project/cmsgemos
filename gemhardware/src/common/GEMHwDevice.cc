@@ -18,10 +18,10 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
   
-  ipBusErrs.badHeader_     = 0;
-  ipBusErrs.readError_     = 0;
-  ipBusErrs.timeouts_      = 0;
-  ipBusErrs.controlHubErr_ = 0;
+  ipBusErrs_.BadHeader     = 0;
+  ipBusErrs_.ReadError     = 0;
+  ipBusErrs_.Timeout       = 0;
+  ipBusErrs_.ControlHubErr = 0;
     
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
@@ -63,10 +63,10 @@ gem::hw::GEMHwDevice::GEMHwDevice(const std::string& connectionFile,
   setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
   
-  ipBusErrs.badHeader_     = 0;
-  ipBusErrs.readError_     = 0;
-  ipBusErrs.timeouts_      = 0;
-  ipBusErrs.controlHubErr_ = 0;
+  ipBusErrs_.BadHeader     = 0;
+  ipBusErrs_.ReadError     = 0;
+  ipBusErrs_.Timeout       = 0;
+  ipBusErrs_.ControlHubErr = 0;
   
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
 }
@@ -80,10 +80,10 @@ gem::hw::GEMHwDevice::~GEMHwDevice()
 std::string gem::hw::GEMHwDevice::printErrorCounts() const {
   std::stringstream errstream;
   errstream << "errors while accessing registers:"              << std::endl 
-	    << "Bad header:  "       <<ipBusErrs.badHeader_     << std::endl
-	    << "Read errors: "       <<ipBusErrs.readError_     << std::endl
-	    << "Timeouts:    "       <<ipBusErrs.timeouts_      << std::endl
-	    << "Controlhub errors: " <<ipBusErrs.controlHubErr_ << std::endl;
+	    << "Bad header:  "       <<ipBusErrs_.BadHeader     << std::endl
+	    << "Read errors: "       <<ipBusErrs_.ReadError     << std::endl
+	    << "Timeouts:    "       <<ipBusErrs_.Timeout       << std::endl
+	    << "Controlhub errors: " <<ipBusErrs_.ControlHubErr << std::endl;
   INFO(errstream);
   return errstream.str();
 }
@@ -527,17 +527,17 @@ bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
 
 void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
   if (errCode.find("amount of data")    != std::string::npos)
-    ++ipBusErrs.badHeader_;
+    ++ipBusErrs_.BadHeader;
   if (errCode.find("INFO CODE = 0x4L")  != std::string::npos)
-    ++ipBusErrs.readError_;
+    ++ipBusErrs_.ReadError;
   if ((errCode.find("INFO CODE = 0x6L") != std::string::npos) ||
       (errCode.find("timed out")        != std::string::npos))
-    ++ipBusErrs.timeouts_;
+    ++ipBusErrs_.Timeout;
   if (errCode.find("ControlHub error code is: 4") != std::string::npos)
-    ++ipBusErrs.controlHubErr_;
+    ++ipBusErrs_.ControlHubErr;
   if ((errCode.find("had response field = 0x04") != std::string::npos) ||
       (errCode.find("had response field = 0x06") != std::string::npos))
-    ++ipBusErrs.controlHubErr_;
+    ++ipBusErrs_.ControlHubErr;
 }
 
 void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)

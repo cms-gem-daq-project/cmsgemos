@@ -1,8 +1,6 @@
 #ifndef gem_hw_glib_HwGLIB_h
 #define gem_hw_glib_HwGLIB_h
 
-#include "xdaq/Application.h"
-
 #include "xdata/String.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
@@ -19,10 +17,6 @@ typedef uhal::exception::exception uhalException;
 
 namespace uhal {
   class HwInterface;
-}
-
-namespace xdaq {
-  class Application;;
 }
 
 namespace gem {
