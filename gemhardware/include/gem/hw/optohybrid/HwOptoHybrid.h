@@ -126,8 +126,8 @@ namespace gem {
 	  void SetCDCEClock(bool source, bool fallback, uint8_t link) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
-	    writeReg(getDeviceBaseNode(),".CLOCKING.CDCE.SOURCE"  ,(uint32_t)source  );
-	    writeReg(getDeviceBaseNode(),".CLOCKING.CDCE.FALLBACK",(uint32_t)fallback);
+	    writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE"  ,(uint32_t)source  );
+	    writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.FALLBACK",(uint32_t)fallback);
 	  };
       
 	  /** CDCE clock status
@@ -193,16 +193,16 @@ namespace gem {
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
 	    switch (mode) {
 	    case(0):
-	      writeReg(getDeviceBaseNode(),".TRIGGER.SOURCE",mode);
+	      writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
 	      return;
 	    case(1):
-	      writeReg(getDeviceBaseNode(),".TRIGGER.SOURCE",mode);
+	      writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
 	      return;
 	    case(2):
-	      writeReg(getDeviceBaseNode(),".TRIGGER.SOURCE",mode);
+	      writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
 	      return;
 	    default:
-	      writeReg(getDeviceBaseNode(),".TRIGGER.SOURCE",0x2);
+	      writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",0x2);
 	      return;
 	    }
 	  };
@@ -222,7 +222,7 @@ namespace gem {
 	  void setSBitSource(uint8_t mode, uint8_t link) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
-	    writeReg(getDeviceBaseNode(),".TRIGGER.TDC.SBits",mode); };
+	    writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC.SBits",mode); };
 
 	  /** Read the S-bit source
 	   * @retval uint8_t which VFAT chip is sending the S-bits
@@ -241,7 +241,7 @@ namespace gem {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
 	    for (uint64_t i = 0; i < ntrigs; ++i) 
-	      writeReg(getDeviceBaseNode(),".FAST_COM.Send.L1A",0x1);
+	      writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.L1A",0x1);
 	  };
 
 	  /** Send an internal CalPulse
@@ -251,7 +251,7 @@ namespace gem {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
 	    for (uint64_t i = 0; i < npulse; ++i) 
-	      writeReg(getDeviceBaseNode(),".FAST_COM.Send.CalPulse",0x1);
+	      writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.CalPulse",0x1);
 	  };
 
 	  /** Send an internal L1A and CalPulse
@@ -262,7 +262,7 @@ namespace gem {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
 	    for (uint64_t i = 0; i < npulse; ++i) 
-	      writeReg(getDeviceBaseNode(),".FAST_COM.Send.L1ACalPulse",delay);
+	      writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.L1ACalPulse",delay);
 	  };
 
 	  /** Send an internal Resync
@@ -271,7 +271,7 @@ namespace gem {
 	  void SendResync(uint8_t link) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
-	    writeReg(getDeviceBaseNode(),".FAST_COM.Send.Resync",0x1); };
+	    writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.Resync",0x1); };
 
 
 	  /** Send an internal BC0
@@ -280,7 +280,7 @@ namespace gem {
 	  void SendBC0(uint8_t link) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
-	    writeReg(getDeviceBaseNode(),".FAST_COM.Send.BC0",0x1); };
+	    writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.BC0",0x1); };
 
 	  ///Counters
 	  /** Get the recorded number of L1A signals
@@ -362,15 +362,15 @@ namespace gem {
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
 	    switch(mode) {
 	    case 0:
-	      return writeReg(getDeviceBaseNode(),".RESETS.L1A.External", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.L1A.External", 0x1);
 	    case 1:
-	      return writeReg(getDeviceBaseNode(),".RESETS.L1A.Internal", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.L1A.Internal", 0x1);
 	    case 2:
-	      return writeReg(getDeviceBaseNode(),".RESETS.L1A.Delayed", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.L1A.Delayed", 0x1);
 	    case 3:
-	      return writeReg(getDeviceBaseNode(),".RESETS.L1A.Total", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.L1A.Total", 0x1);
 	    default:
-	      return writeReg(getDeviceBaseNode(),".RESETS.L1A.Total", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.L1A.Total", 0x1);
 	    }
 	  };
 	  
@@ -385,13 +385,13 @@ namespace gem {
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
 	    switch(mode) {
 	    case 0:
-	      return writeReg(getDeviceBaseNode(),".RESETS.CalPulse.Internal", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.CalPulse.Internal", 0x1);
 	    case 1:
-	      return writeReg(getDeviceBaseNode(),".RESETS.CalPulse.Delayed", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.CalPulse.Delayed", 0x1);
 	    case 2:
-	      return writeReg(getDeviceBaseNode(),".RESETS.CalPulse.Total", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.CalPulse.Total", 0x1);
 	    default:
-	      return writeReg(getDeviceBaseNode(),".RESETS.CalPulse.Total", 0x1);
+	      return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.CalPulse.Total", 0x1);
 	    }
 	  };
 	  
@@ -400,21 +400,21 @@ namespace gem {
 	  void ResetResyncCount(uint8_t link) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
-	    return writeReg(getDeviceBaseNode(),".RESETS.Resync", 0x1); };
+	    return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.Resync", 0x1); };
 
 	  /** Get the recorded number of BC0 signals
 	   **/
 	  void ResetBC0Count(uint8_t link) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
-	    return writeReg(getDeviceBaseNode(),".RESETS.BC0", 0x1); };
+	    return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.BC0", 0x1); };
 
 	  /** Get the recorded number of BXCount signals
 	   **/
 	  void ResetBXCountCount(uint8_t link) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link;
-	    return writeReg(getDeviceBaseNode(),".RESETS.BXCount", 0x1); };
+	    return writeReg(getDeviceBaseNode(),regName.str()+".RESETS.BXCount", 0x1); };
 	  
 	  uhal::HwInterface& getOptoHybridHwInterface(uint8_t link) const {
 	    std::stringstream regName;
