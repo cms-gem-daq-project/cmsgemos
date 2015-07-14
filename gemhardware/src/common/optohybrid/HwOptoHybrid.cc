@@ -4,12 +4,11 @@
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
-  links({0,0,0}),
-  m_controlLink(-1)
   //logOptoHybrid_(optohybridApp->getApplicationLogger()),
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0)
-  
+  links({0,0,0}),
+  m_controlLink(-1)  
 {
   setDeviceID("OptoHybridHw");
   setAddressTableFileName("optohybrid_address_table.xml");
@@ -17,6 +16,28 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
   setDeviceBaseNode("OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
   //set up which links are active, so that the control can be done without specifying a link
+}
+
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
+						int const& slot):
+  gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
+  //hwOptoHybrid_(0),
+  //monOptoHybrid_(0),
+  links({0,0,0}),
+  m_controlLink(-1),
+  m_slot(slot)
+{
+  //use a connection file and connection manager?
+  setDeviceID(toolbox::toString("%s.optohybrid%02d",glib.getDeviceID().c_str(),slot));
+  //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml" );
+  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
+  //p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  //p_gemHW = std::shared_ptr<uhal::HwInterface>(p_gemConnectionManager->getDevice(this->getDeviceID()));
+  //setAddressTableFileName("optohybrid_address_table.xml");
+  //setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
+  setDeviceBaseNode("OptoHybrid");
+  //gem::hw::optohybrid::HwOptoHybrid::initDevice();
 }
 
 gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
@@ -88,20 +109,21 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
     //try {
     //try to read from each of the three links
     
-    std::vector<std::pair<uint8_t, gem::hw::GEMHwDevice::OpticalLinkStatus> > tmp_activeLinks;
+    std::vector<linkStatus> tmp_activeLinks;
     tmp_activeLinks.reserve(3);
     for (unsigned int link = 0; link < 3; ++link) {
       if (this->getFirmware(link)) {
 	links[link] = true;
 	INFO("link" << link << " present");
 	tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
-      }
-      else {
+      } else {
 	links[link] = false;
 	INFO("link" << link << " not reachable");
       }
     }
     activeLinks = tmp_activeLinks;
+    if (!activeLinks.empty())
+      m_controlLink = (activeLinks.begin())->first;
     return true;
     //} catch (gem::hw::vfat::exception::TransactionError const& e) {
     //  is_connected_ = false;

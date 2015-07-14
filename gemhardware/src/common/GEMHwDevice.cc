@@ -5,8 +5,9 @@
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   //gemLogger_(gemLogger),
   //gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(deviceName))),
+  //p_gemConnectionManager(0),
+  //p_gemHW(0),
   gemLogger_(log4cplus::Logger::getInstance(deviceName)),
-  gemHWP_(0),
   hwLock_(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
 {
@@ -46,9 +47,10 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
    **/
 }
 
-gem::hw::GEMHwDevice::GEMHwDevice(const std::string& connectionFile,
-				  const std::string& cardName):
-  gemHWP_(0),
+gem::hw::GEMHwDevice::GEMHwDevice(std::string const& connectionFile,
+				  std::string const& cardName):
+  //p_gemConnectionManager(0),
+  //p_gemHW(0),
   hwLock_(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
 {
@@ -73,8 +75,11 @@ gem::hw::GEMHwDevice::GEMHwDevice(const std::string& connectionFile,
 
 gem::hw::GEMHwDevice::~GEMHwDevice()
 {
-  if (gemHWP_)
-    releaseDevice();
+  //if (p_gemHW)
+  //  releaseDevice();
+  //if (p_gemConnectionManager)
+  //  delete p_gemConnectionManager;
+  //p_gemConnectionManager = 0;
 }
 
 std::string gem::hw::GEMHwDevice::printErrorCounts() const {
@@ -88,7 +93,7 @@ std::string gem::hw::GEMHwDevice::printErrorCounts() const {
   return errstream.str();
 }
 
-// void gem::hw::GEMHwDevice::connectDevice(const std::string& devicename, uhal::HwInterface& hw_)
+// void gem::hw::GEMHwDevice::connectDevice(std::string const& devicename, uhal::HwInterface& hw_)
 // {
 // }
 
@@ -118,10 +123,10 @@ void gem::hw::GEMHwDevice::connectDevice()
   
   //int retryCount = 0;
   
-  uhal::HwInterface* tmpHWP = 0;
+  std::shared_ptr<uhal::HwInterface> tmpHWP;
   
   try {
-    tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
+    tmpHWP.reset(new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable)));
   } catch (uhal::exception::FileNotFound const& err) {
     std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
 					"(or one of its included address table modules).",
@@ -138,7 +143,7 @@ void gem::hw::GEMHwDevice::connectDevice()
     ERROR(msg);
   }
   
-  gemHWP_ = tmpHWP;
+  p_gemHW.swap(tmpHWP);
   if (isHwConnected())
     INFO("Successfully connected to the hardware.");
   else
@@ -153,10 +158,10 @@ void gem::hw::GEMHwDevice::configureDevice()
 
 void gem::hw::GEMHwDevice::releaseDevice()
 {
-  if (gemHWP_ != 0) {
-    delete gemHWP_;
-    gemHWP_ = 0;
-  }
+  //if (p_gemHW != 0) {
+  //  delete p_gemHW;
+  //  p_gemHW = 0;
+  //}
 }
 
 void gem::hw::GEMHwDevice::enableDevice()
@@ -205,12 +210,12 @@ void gem::hw::GEMHwDevice::enableDevice()
 
 uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 {
-  if (gemHWP_ == 0) {
+  if (p_gemHW == NULL) {
     std::string msg = "Trying to access hardware before connecting.";
     ERROR(msg);
     XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
   } else {
-    uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*gemHWP_);
+    uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
     return hw;
   }
 }
