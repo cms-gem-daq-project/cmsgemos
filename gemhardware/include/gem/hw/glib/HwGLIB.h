@@ -1,23 +1,10 @@
 #ifndef gem_hw_glib_HwGLIB_h
 #define gem_hw_glib_HwGLIB_h
 
-#include "xdata/String.h"
-#include "xdata/UnsignedLong.h"
-#include "xdata/UnsignedInteger32.h"
-#include "xdata/ActionListener.h"
-
 #include "gem/hw/GEMHwDevice.h"
 
 #include "gem/hw/glib/exception/Exception.h"
 //#include "gem/hw/glib/GLIBMonitor.h"
-
-#include "uhal/uhal.hpp"
-
-typedef uhal::exception::exception uhalException;
-
-namespace uhal {
-  class HwInterface;
-}
 
 namespace gem {
   namespace hw {
@@ -29,7 +16,7 @@ namespace gem {
 	{
 	public:
 	  HwGLIB();
-	  HwGLIB(const int& crate, const int& slot);
+	  HwGLIB(int const& crate, int const& slot);
 	
 	  ~HwGLIB();
 
@@ -297,24 +284,35 @@ namespace gem {
 	  /** returns the state of the FPGA reset line (driven by the CPLD)
 	   * @returns true if there is a reset
 	   **/
-	  bool FPGAReset();
+	  bool FPGAResetStatus();
 	  
 	  /** returns the status of the 6-bit bus between the FPGA and the CPLD
 	   * @returns 
 	   **/
-	  uint8_t V6CPLD();
+	  uint8_t V6CPLDStatus();
 	  
 	  /** is the CDCE locked
 	   * @returns true if the CDCE is locked
 	   **/
-	  bool CDCELocked();
+	  bool CDCELockStatus();
 	  
 	  
 	  //user core functionality
-	  /** Read the user firmware register
+	  /** Read the user firmware register using m_controlLink
+	   * @returns a hex number corresponding to the build date
+	   **/
+	  uint32_t getUserFirmware();
+	  
+	  /** Read the user firmware register for a given link
+	   * @returns a hex number corresponding to the build date
+	   **/
+	  uint32_t getUserFirmware(uint8_t const& link);
+	  
+	  /** Read the user firmware register for a given link
 	   * @returns a string corresponding to the build date
 	   **/
-	  std::string getUserFirmware();
+	  std::string getUserFirmwareDate();
+	  std::string getUserFirmwareDate(uint8_t const& link);
 	  
 	  /** Read the link status registers, store the information in a struct
 	   * @param uint8_t link is the number of the link to query
@@ -339,8 +337,11 @@ namespace gem {
 	  /** Reset the all link status registers
 	   * @param uint8_t resets control which bits to reset
 	   **/
-	  void ResetLinks(uint8_t const& resets);
-
+	  void ResetLinks(uint8_t const& resets) {
+	    for (auto link = activeLinks.begin(); link != activeLinks.end(); ++link)
+	      LinkReset(link->first,resets);
+	  };
+	  
 	  /** Read the trigger data
 	   * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
 	   **/
@@ -374,7 +375,12 @@ namespace gem {
 	  //GLIBMonitor *monGLIB_;
 
 	
+	  bool links[3];
+	    
+	  std::vector<linkStatus> activeLinks;
+
 	private:
+	  uint8_t m_controlLink;
 	  int m_crate, m_slot;
 	
 	}; //end class HwGLIB

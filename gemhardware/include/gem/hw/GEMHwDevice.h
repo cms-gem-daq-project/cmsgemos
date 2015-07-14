@@ -1,7 +1,11 @@
 #ifndef gem_hw_GEMHwDevice_h
 #define gem_hw_GEMHwDevice_h
 
+#include "xdata/String.h"
+#include "xdata/UnsignedLong.h"
+#include "xdata/UnsignedInteger32.h"
 #include "xdata/ActionListener.h"
+
 #include "toolbox/string.h"
 
 #include <iomanip>
@@ -33,6 +37,7 @@ typedef std::vector<register_pair>       register_pair_list;
 
 typedef std::pair<std::string, uhal::ValWord<uint32_t> > register_value;
 typedef std::vector<register_value>                      register_val_list;
+
 
 namespace uhal {
   class HwInterface;
@@ -66,6 +71,9 @@ namespace gem {
 	  void reset()  {BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0;return; };
 	} DeviceErrors;
 	
+	typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
+	//typedef std::vector<linkStatus>                linkStatus;
+
 	/** 
 	 * GEMHwDevice constructor 
 	 * @param deviceName string to put into the logger
@@ -107,7 +115,7 @@ namespace gem {
 	//virtual void resumeDevice();
 	//virtual void haltDevice();
 	
-	virtual bool isHwConnected() { return gemHWP_ != 0; };
+	virtual bool isHwConnected() { return p_gemHW != 0; };
 	
 	/**
 	 *Generic read/write functions or IPBus devices
@@ -242,9 +250,10 @@ namespace gem {
 	std::string printErrorCounts() const;
 	
       protected:
-	uhal::ConnectionManager *gemConnectionManager;
+	std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager;
+	std::shared_ptr<uhal::HwInterface> p_gemHW;
+
 	log4cplus::Logger gemLogger_;
-	uhal::HwInterface *gemHWP_;
 		
 	std::string uint32ToString(uint32_t const val) const {
 	  std::stringstream res;
