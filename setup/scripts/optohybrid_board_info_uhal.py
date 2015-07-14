@@ -89,6 +89,7 @@ print
 
 #
 #print "-> OH VFATs accessible: 0x%x"%(readRegister(glib,"VFATs_TEST"))
+print "OH  %4s:  %6s  %7s  %8s  %6s  %6s"%("link","TrgSrc","SBitSrc","FPGA PLL","CDCE","GTP")
 for link in (links.keys()):
 	if options.trgSrc in [0,1,2]:
 		setTriggerSource(False,optohybrid,links[link],options.trgSrc)
@@ -97,22 +98,23 @@ for link in (links.keys()):
 		setTriggerSBits(False,optohybrid,links[link],options.sbitSrc)
 
 	clocking = getClockingInfo(optohybrid,links[link])
-	print "-> OH link%d Trigger source:  0x%x"%(links[link],
-						    readRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.SOURCE"%(links[link])))
-	print "-> OH link%d SBit to TDC:     0x%x"%(links[link],
-						    readRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(links[link])))
-	print 
-	print "-> OH link%d FPGA PLL Locked : 0x%x"%(links[link],clocking["fpgaplllock"])
-	
-	print "-> OH link%d CDCE Locked     : 0x%x"%(links[link],clocking["cdcelock"])
-	
-	print "-> OH link%d GTP Locked      : 0x%x"%(links[link],clocking["gtpreclock"])
-	
-	print 
-	print "-> OH link Clocking:    VFAT        CDCE"
-	print "-> OH link%d Source         0x%x         0x%x"%(links[link],clocking["vfatsrc"],clocking["cdcesrc"])
-	print "-> OH link%d Backup         0x%x         0x%x"%(links[link],clocking["vfatbkp"],clocking["cdcebkp"])
+#OH  link:  TrgSrc  SBitSrc  FPGA PLL    CDCE     GTP
+#-> link0:     0x0      0x0       0x0     0x1     0x1
 
+	print "-> link%d:     0x%x      0x%x       0x%x     0x%x     0x%x"%(links[link],
+									    readRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.SOURCE"%(links[link])),
+									    readRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(links[link])),
+									    clocking["fpgaplllock"],
+									    clocking["cdcelock"],
+									    clocking["gtpreclock"])
+	
+print 
+print "-> OH link Clocking (src, bkp):     VFAT         CDCE"
+for link in (links.keys()):
+	print "-> %22s%d       (0x%x  0x%x)   (0x%x  0x%x)"%("link",links[link],
+							     clocking["vfatsrc"],clocking["vfatbkp"],
+							     clocking["cdcesrc"],clocking["cdcebkp"])
+	
 #exit(1)
 if (options.resetCounters):
 	for link in (links.keys()):
@@ -142,19 +144,19 @@ for link in (links.keys()):
 print
 print
 print "--=======================================--"
-print "-> OH link num: %10s %12s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)",
+print "-> OH link num: %10s  %12s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)",
 								    "I2CRecCnt","I2CSndCnt",
 								    "RegRecCnt","RegSndCnt")
 for link in (links.keys()):
 	rates = errorRate(errorCounts[links[link]],SAMPLE_TIME)
 	counters = linkCounters(False,optohybrid,links[link],False)
-	print "-> link%d      : 0x%08x   (%6.2f%sHz)    0x%08x    0x%08x    0x%08x    0x%08x"%(links[link],
-												 counters["LinkErrors"],
-												 rates[0],rates[1],
-												 counters["RecI2CRequests"],
-												 counters["SntI2CRequests"],
-												 counters["RecRegRequests"],
-												 counters["SntRegRequests"])
+	print "-> link%d      : 0x%08x   (%6.2f%1sHz)    0x%08x    0x%08x    0x%08x    0x%08x"%(links[link],
+												counters["LinkErrors"],
+												rates[0],rates[1],
+												counters["RecI2CRequests"],
+												counters["SntI2CRequests"],
+												counters["RecRegRequests"],
+												counters["SntRegRequests"])
 exit(1)
 print
 vfatRange = ["0-7","8-15","16-23"]
