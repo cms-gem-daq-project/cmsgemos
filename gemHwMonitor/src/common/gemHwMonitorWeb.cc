@@ -677,9 +677,9 @@ throw (xgi::exception::Exception)
 
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
-    uint8_t link=1;
-    *out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : " << "XXX" << "</div></h1>" << std::endl;
-    //*out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : " << ohDevice_->getFirmware(link) << "</div></h1>" << std::endl;
+    uint8_t link=2;
+    //*out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : " << "XXX" << "</div></h1>" << std::endl;
+    *out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : " << ohDevice_->getFirmware(link) << "</div></h1>" << std::endl;
     *out << "</div>" << std::endl;
     *out << "<div class=\"panel-body\">" << std::endl;
     *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "</div></h3>" << std::endl;
@@ -709,143 +709,143 @@ throw (xgi::exception::Exception)
     *out << "</tr>" << std::endl;
     *out << cgicc::table() <<std::endl;
 
-//    gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus_;
-//    for (uint8_t i=1; i<2; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
-//    {
-//        linkStatus_ = ohDevice_->LinkStatus(i);
-//        *out << cgicc::table().set("class","table");
-//            *out << "<tr>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << "Link N" << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << "Link Err" << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << "Received VFAT2 I2C requests" << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << "Sent VFAT2 I2C requests" << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << "Received register requests" << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << "Sent register requests" << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "</tr>" << std::endl;
-//            *out << "<tr>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << (int)i << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << linkStatus_.linkErrCnt << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << linkStatus_.linkVFATI2CRec << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << linkStatus_.linkVFATI2CSnt << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << linkStatus_.linkRegisterRec << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << linkStatus_.linkRegisterSnt << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "</tr>" << std::endl;
-//        *out << cgicc::table() <<std::endl;
-//    }
-//    std::pair<bool,bool> statusVFATClock_;
-//    statusVFATClock_ = ohDevice_->StatusVFATClock(link);
-//    *out << cgicc::table().set("class","table");
-//        *out << "<tr>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << "VFAT Clock Source" << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << statusVFATClock_.first << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "</tr>" << std::endl;
-//        *out << "<tr>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << "VFAT Clock Fallback" << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << statusVFATClock_.second << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "</tr>" << std::endl;
-//    //*out << cgicc::table() <<std::endl;
-//
-//    std::pair<bool,bool> statusCDCEClock_;
-//    statusCDCEClock_ = ohDevice_->StatusCDCEClock(link);
-//    //*out << cgicc::table().set("class","table");
-//        *out << "<tr>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << "CDCE Clock Source" << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << statusCDCEClock_.first << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "</tr>" << std::endl;
-//        *out << "<tr>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << "CDCE Clock Fallback" << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << statusCDCEClock_.second << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "</tr>" << std::endl;
-//    //*out << cgicc::table() <<std::endl;
-//
-//    //*out << cgicc::table().set("class","table");
-//        *out << "<tr>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << "Trigger Source" << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << (int)ohDevice_->getTrigSource(link) << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "</tr>" << std::endl;
-//        *out << "<tr>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << "S-bit Source" << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "<td>" << std::endl;
-//            *out << (int)ohDevice_->getSBitSource(link) << std::endl;
-//        *out << "</td>" << std::endl;
-//        *out << "</tr>" << std::endl;
-//    //*out << cgicc::table() <<std::endl;
-// 
-//    const char *l1CountNames[] = {"External L1 Counter", "Internal L1 Counter", "Delayed L1 Counter","Total L1 Counter"};
-//    //*out << cgicc::table().set("class","table");
-//        for (uint8_t i = 0; i<4; i++)
-//        {
-//            *out << "<tr>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << l1CountNames[i] << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << ohDevice_->GetL1ACount(i,link) << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "</tr>" << std::endl;
-//        }
-//    //*out << cgicc::table() <<std::endl;
-//
-//    const char *calPulseCountNames[] = {"Internal CalPulse Counter", "Delayed CalPulse Counter","Total CalPulse Counter"};
-//    //*out << cgicc::table().set("class","table");
-//        for (uint8_t i = 0; i<3; i++)
-//        {
-//            *out << "<tr>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << calPulseCountNames[i] << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "<td>" << std::endl;
-//                *out << ohDevice_->GetCalPulseCount(i,link) << std::endl;
-//            *out << "</td>" << std::endl;
-//            *out << "</tr>" << std::endl;
-//        }
-//    *out << cgicc::table() <<std::endl;
+    gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus_;
+    for (uint8_t i=2; i<3; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
+    {
+        linkStatus_ = ohDevice_->LinkStatus(i);
+        *out << cgicc::table().set("class","table");
+            *out << "<tr>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Link N" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Link Err" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Received VFAT2 I2C requests" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Sent VFAT2 I2C requests" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Received register requests" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << "Sent register requests" << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "</tr>" << std::endl;
+            *out << "<tr>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << (int)i << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkErrCnt << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkVFATI2CRec << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkVFATI2CSnt << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkRegisterRec << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << linkStatus_.linkRegisterSnt << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "</tr>" << std::endl;
+        *out << cgicc::table() <<std::endl;
+    }
+    std::pair<bool,bool> statusVFATClock_;
+    statusVFATClock_ = ohDevice_->StatusVFATClock(link);
+    *out << cgicc::table().set("class","table");
+        *out << "<tr>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << "VFAT Clock Source" << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << statusVFATClock_.first << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << "VFAT Clock Fallback" << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << statusVFATClock_.second << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+    //*out << cgicc::table() <<std::endl;
+
+    std::pair<bool,bool> statusCDCEClock_;
+    statusCDCEClock_ = ohDevice_->StatusCDCEClock(link);
+    //*out << cgicc::table().set("class","table");
+        *out << "<tr>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << "CDCE Clock Source" << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << statusCDCEClock_.first << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << "CDCE Clock Fallback" << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << statusCDCEClock_.second << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+    //*out << cgicc::table() <<std::endl;
+
+    //*out << cgicc::table().set("class","table");
+        *out << "<tr>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << "Trigger Source" << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << (int)ohDevice_->getTrigSource(link) << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+        *out << "<tr>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << "S-bit Source" << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "<td>" << std::endl;
+            *out << (int)ohDevice_->getSBitSource(link) << std::endl;
+        *out << "</td>" << std::endl;
+        *out << "</tr>" << std::endl;
+    //*out << cgicc::table() <<std::endl;
+ 
+    const char *l1CountNames[] = {"External L1 Counter", "Internal L1 Counter", "Delayed L1 Counter","Total L1 Counter"};
+    //*out << cgicc::table().set("class","table");
+        for (uint8_t i = 0; i<4; i++)
+        {
+            *out << "<tr>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << l1CountNames[i] << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << ohDevice_->GetL1ACount(i,link) << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "</tr>" << std::endl;
+        }
+    //*out << cgicc::table() <<std::endl;
+
+    const char *calPulseCountNames[] = {"Internal CalPulse Counter", "Delayed CalPulse Counter","Total CalPulse Counter"};
+    //*out << cgicc::table().set("class","table");
+        for (uint8_t i = 0; i<3; i++)
+        {
+            *out << "<tr>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << calPulseCountNames[i] << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "<td>" << std::endl;
+                *out << ohDevice_->GetCalPulseCount(i,link) << std::endl;
+            *out << "</td>" << std::endl;
+            *out << "</tr>" << std::endl;
+        }
+    *out << cgicc::table() <<std::endl;
 
     *out << "</div>" << std::endl;
     *out << cgicc::br()<< std::endl;
