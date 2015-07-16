@@ -25,7 +25,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   outFileName  = "";
   outputType   = "Hex";
-  deviceIP     = "192.168.0.162";
+  deviceIP     = "192.168.0.164";
 
   /*
     VAFT Devices List with are on GEB, this is broken, needs to be fixed
@@ -37,7 +37,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   deviceName[13] = (xdata::String)VFATnum[13];
 
   for (int i=0; i<24; i++) deviceNum[i] = -1;
-
+  
   triggerSource = 0x0; // 0x2; 
   deviceChipID  = 0x0; 
   deviceVT1     = 0x0; 
@@ -59,8 +59,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 }
 
 // Main constructor
-gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStub * s)
-  throw (xdaq::exception::Exception):
+gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStub * s):
   xdaq::WebApplication(s),
   gemLogger_(this->getApplicationLogger()),
   wl_semaphore_(toolbox::BSem::FULL),
@@ -81,22 +80,22 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::setParameter,   "setParameter");
 
   // SOAP bindings
-  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onConfigure,   "Configure",   XDAQ_NS_URI);
-  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStart,       "Start",       XDAQ_NS_URI);
-  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStop,        "Stop",        XDAQ_NS_URI);
-  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onHalt,        "Halt",        XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onConfigure, "Configure", XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStart,     "Start",     XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStop,      "Stop",      XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onHalt,      "Halt",      XDAQ_NS_URI);
 
   // Initiate and activate main workloop
   wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("GEMGLIBSupervisorWebWorkLoop", "waiting");
   wl_->activate();
 
   // Workloop bindings
-  configure_signature_   = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction, "configureAction");
-  start_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::startAction,     "startAction");
-  stop_signature_        = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::stopAction,      "stopAction");
-  halt_signature_        = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction,      "haltAction");
-  run_signature_         = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction");
-  read_signature_        = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction");
+  configure_signature_ = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction, "configureAction");
+  start_signature_     = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::startAction,     "startAction");
+  stop_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::stopAction,      "stopAction");
+  halt_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction,      "haltAction");
+  run_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction");
+  read_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction");
 
   // Define FSM states
   fsm_.addState('I', "Initial",    this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
@@ -132,36 +131,28 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   counter_ = 0;
 }
 
-xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onConfigure(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
-{
+xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onConfigure(xoap::MessageReference message) {
   is_working_ = true;
 
   wl_->submit(configure_signature_);
   return message;
 }
 
-xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onStart(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
-{
+xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onStart(xoap::MessageReference message) {
   is_working_ = true;
 
   wl_->submit(start_signature_);
   return message;
 }
 
-xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onStop(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
-{
+xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onStop(xoap::MessageReference message) {
   is_working_ = true;
 
   wl_->submit(stop_signature_);
   return message;
 }
 
-xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onHalt(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
-{
+xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onHalt(xoap::MessageReference message) {
   is_working_ = true;
 
   wl_->submit(halt_signature_);
@@ -169,9 +160,7 @@ xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onHalt(xoap::Messa
 }
 
 // HyperDAQ interface
-void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Output * out ) {
   // Define how often main web interface refreshes
   if (!is_working_ && !is_running_) {
   }
@@ -267,9 +256,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out ) 
-  throw (xgi::exception::Exception)
-{   try{
+void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out ) {
+  try{
     cgicc::Cgicc cgi(in);
     confParams_.bag.outputType = cgi["value"]->getValue();
     //INFO(" outputType " << confParams_.bag.outputType.toString());
@@ -282,9 +270,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::O
   }	
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out ) {
   // Derive device number from device name
 
   for (int i=0; i<24; i++){
@@ -306,9 +292,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webStart(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webStart(xgi::Input * in, xgi::Output * out ) {
   // Initiate start workloop
   wl_->submit(start_signature_);
     
@@ -316,9 +300,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webStart(xgi::Input * in, xgi::Outpu
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webStop(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webStop(xgi::Input * in, xgi::Output * out ) {
   // Initiate stop workloop
   wl_->submit(stop_signature_);
 
@@ -326,9 +308,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webStop(xgi::Input * in, xgi::Output
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webHalt(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webHalt(xgi::Input * in, xgi::Output * out ) {
   // Initiate halt workloop
   wl_->submit(halt_signature_);
 
@@ -336,9 +316,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webHalt(xgi::Input * in, xgi::Output
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Output * out ) {
   // Send L1A signal
   hw_semaphore_.take();
   vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
@@ -360,9 +338,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webRedirect(xgi::Input *in, xgi::Output* out) 
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webRedirect(xgi::Input *in, xgi::Output* out)  {
   // Redirect to main web interface
   std::string url = "/" + getApplicationDescriptor()->getURN() + "/Default";
   *out << "<meta http-equiv=\"refresh\" content=\"0;" << url << "\">" << std::endl;
@@ -434,9 +410,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 }
 
 // State transitions
-void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt) {
   is_working_ = true;
   counter_ = 0;
   
@@ -528,8 +502,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Reference evt) {
   is_working_ = true;
 
   is_running_ = true;
@@ -591,20 +564,17 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_working_ = false;
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt) {
   is_running_ = false;
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
   counter_ = 0;
   delete gemDataParker;
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::noAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::noAction(toolbox::Event::Reference evt) {
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::fireEvent(std::string name){
@@ -612,10 +582,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::fireEvent(std::string name){
   fsm_.fireEvent(event);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::stateChanged(toolbox::fsm::FiniteStateMachine &fsm) {
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::transitionFailed(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::transitionFailed(toolbox::Event::Reference event) {
 }
