@@ -58,6 +58,21 @@ def linkCounters(isGLIB,device,link,doReset=False):
         writeRegister(device,"%s.OPTICAL_LINKS.Resets.SntRegRequests"%(baseNode),0x1)
         return
 
+def readTrackingInfo(device,link):
+    """
+    read the tracking info from given optical link, returning a map
+    """
+    baseNode = "GLIB.TRK_DATA.COL%d"%(link)
+
+    data = {}
+    data["hasData"] = readRegister(device,"%s.DATA_RDY"%(baseNode))
+    for word in range(1,7):
+        data["data%d"%(word)] = readRegister(device,"%s.DATA.%d"%(baseNode,word))
+    
+    for word in data.keys():
+        print "%s: 0x%08x"%(word,data[word])
+    return data
+
 def setTriggerSource(isGLIB,device,link,source):
     """
     Set the trigger source
