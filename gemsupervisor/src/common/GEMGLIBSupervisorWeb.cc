@@ -35,7 +35,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   */
 
   deviceIP     = "192.168.0.162";
-  deviceName[11] = (xdata::String)VFATnum[11];
+  deviceName[12] = (xdata::String)VFATnum[12];
   /*
   deviceName[1] = (xdata::String)VFATnum[1];
   deviceName[5] = (xdata::String)VFATnum[5];
