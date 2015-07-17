@@ -33,28 +33,28 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   counter_ = 0;
 }
 
-  int gem::readout::GEMDataParker::dumpDataToDisk()
-  {
-    // Book GEM Data format
-    gem::readout::GEMData  gem;
-    gem::readout::GEBData  geb;
-    gem::readout::VFATData vfat;
-
-    // get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
-    dumpGEMevent_ = false;
-    counter_ = gem::readout::GEMDataParker::getGLIBData(gem, geb, vfat);
-
-    // Write GEM Data to Disk, when GEM event is off
-    if( dumpGEMevent_ ){
-      event_++;
-      DEBUG(" dumpDataToDisk:: dumpGEMevent: event_ " << event_ 
-	    << " counter_ " << counter_
-	    << " counterVFATs " << counterVFATs_);
-      gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
-    }
-
-    return counter_;
+int gem::readout::GEMDataParker::dumpDataToDisk()
+{
+  // Book GEM Data format
+  gem::readout::GEMData  gem;
+  gem::readout::GEBData  geb;
+  gem::readout::VFATData vfat;
+  
+  // get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
+  dumpGEMevent_ = false;
+  counter_ = gem::readout::GEMDataParker::getGLIBData(gem, geb, vfat);
+  
+  // Write GEM Data to Disk, when GEM event is off
+  if( dumpGEMevent_ ){
+    event_++;
+    DEBUG(" dumpDataToDisk:: dumpGEMevent: event_ " << event_ 
+	  << " counter_ " << counter_
+	  << " counterVFATs " << counterVFATs_);
+    gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
   }
+  
+  return counter_;
+}
 
 int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
 {
@@ -72,6 +72,7 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
   fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
   fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
 
+  /** the FIFO depth is not reliable */
   int bufferDepth = 0;
   if ( fifoDepth[0] != fifoDepth[1] || fifoDepth[0] != fifoDepth[2] || fifoDepth[1] != fifoDepth[2] ) {
     bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
