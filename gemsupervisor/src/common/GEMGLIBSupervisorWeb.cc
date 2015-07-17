@@ -472,29 +472,29 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
       // Define device
       vfatDevice_.push_back(new gem::hw::vfat::HwVFAT2(VfatName));
-
-    for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip){
-      (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
-
-      (*chip)->connectDevice();
-      (*chip)->readVFAT2Counters();
-      (*chip)->setRunMode(0);
-      confParams_.bag.deviceChipID = (*chip)->getChipID();
-
-      latency_   = confParams_.bag.latency;
-
-      // Set VFAT2 registers
-      (*chip)->loadDefaults();
-
-      (*chip)->setLatency(latency_);
-
-      (*chip)->setVThreshold1(50);
-      confParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
-      (*chip)->setVThreshold2(0);
-      confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
-      confParams_.bag.latency = (*chip)->getLatency();
-
-    }
+  }
+  
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip){
+    (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
+    
+    (*chip)->connectDevice();
+    (*chip)->readVFAT2Counters();
+    (*chip)->setRunMode(0);
+    confParams_.bag.deviceChipID = (*chip)->getChipID();
+    
+    latency_   = confParams_.bag.latency;
+    
+    // Set VFAT2 registers
+    (*chip)->loadDefaults();
+    
+    (*chip)->setLatency(latency_);
+    
+    (*chip)->setVThreshold1(50);
+    confParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
+    (*chip)->setVThreshold2(0);
+    confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
+    confParams_.bag.latency = (*chip)->getLatency();
+    
   }
 
   // Create a new output file
@@ -615,7 +615,18 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
   counter_ = 0;
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    delete (*chip);
+    (*chip) = NULL;
+  }
+  delete glibDevice_;
+  glibDevice_ = NULL;
+
+  delete optohybridDevice_;
+  optohybridDevice_ = NULL;
+
   delete gemDataParker;
+  gemDataParker = NULL;
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::noAction(toolbox::Event::Reference evt) {
