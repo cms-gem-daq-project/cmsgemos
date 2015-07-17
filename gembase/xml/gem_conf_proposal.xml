@@ -24,7 +24,7 @@
             <GTPLock>OFF</GTPLock>
             <FW>X.Y.Z</FW>
             <IP>192.168.0.164</IP>
-			<VFATSettings VFATId="VFAT9">
+			<VFATSettings VFATId="VFAT1">
 				<CalMode>NORMAL</CalMode>
 				<CalPolarity>POSITIVE</CalPolarity>
 				<MSPolarity>POSITIVE</MSPolarity>
@@ -38,15 +38,15 @@
                 <HitCountMode>FASTOR</HitCountMode> 
 				<PbBG>OFF</PbBG>
 				<TrimDACRange>DEFAULT</TrimDACRange>
-				<IPreampIn>0</IPreampIn>
-				<IPreampFeed>0</IPreampFeed>
-			    <IPreampOut>0</IPreampOut>
-			    <IShaper>0</IShaper>
-			    <IShaperFeed>0</IShaperFeed>
-			    <IComp>0</IComp>
-		    	<Latency>0</Latency>
+				<IPreampIn>168</IPreampIn>
+				<IPreampFeed>80</IPreampFeed>
+			    <IPreampOut>150</IPreampOut>
+			    <IShaper>150</IShaper>
+			    <IShaperFeed>100</IShaperFeed>
+			    <IComp>75</IComp>
+		    	<Latency>20</Latency>
 				<VCal>0</VCal>
-				<VThreshold1>0</VThreshold1>
+				<VThreshold1>15</VThreshold1>
 				<VThreshold2>0</VThreshold2>
 				<CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
 			</VFATSettings>
@@ -64,15 +64,15 @@
                 <HitCountMode>FASTOR</HitCountMode> 
 				<PbBG>OFF</PbBG>
 				<TrimDACRange>DEFAULT</TrimDACRange>
-				<IPreampIn>0</IPreampIn>
-				<IPreampFeed>0</IPreampFeed>
-			    <IPreampOut>0</IPreampOut>
-			    <IShaper>0</IShaper>
-			    <IShaperFeed>0</IShaperFeed>
-			    <IComp>0</IComp>
-		    	<Latency>0</Latency>
+				<IPreampIn>168</IPreampIn>
+				<IPreampFeed>80</IPreampFeed>
+			    <IPreampOut>150</IPreampOut>
+			    <IShaper>150</IShaper>
+			    <IShaperFeed>100</IShaperFeed>
+			    <IComp>75</IComp>
+		    	<Latency>20</Latency>
 				<VCal>0</VCal>
-				<VThreshold1>0</VThreshold1>
+				<VThreshold1>15</VThreshold1>
 				<VThreshold2>0</VThreshold2>
 				<CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
 			</VFATSettings>
@@ -90,15 +90,15 @@
                 <HitCountMode>FASTOR</HitCountMode> 
 				<PbBG>OFF</PbBG>
 				<TrimDACRange>DEFAULT</TrimDACRange>
-				<IPreampIn>0</IPreampIn>
-				<IPreampFeed>0</IPreampFeed>
-			    <IPreampOut>0</IPreampOut>
-			    <IShaper>0</IShaper>
-			    <IShaperFeed>0</IShaperFeed>
-			    <IComp>0</IComp>
-		    	<Latency>0</Latency>
+				<IPreampIn>168</IPreampIn>
+				<IPreampFeed>80</IPreampFeed>
+			    <IPreampOut>150</IPreampOut>
+			    <IShaper>150</IShaper>
+			    <IShaperFeed>100</IShaperFeed>
+			    <IComp>75</IComp>
+		    	<Latency>20</Latency>
 				<VCal>0</VCal>
-				<VThreshold1>0</VThreshold1>
+				<VThreshold1>15</VThreshold1>
 				<VThreshold2>0</VThreshold2>
 				<CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
 			</VFATSettings>
@@ -116,15 +116,15 @@
                 <HitCountMode>FASTOR</HitCountMode> 
 				<PbBG>OFF</PbBG>
 				<TrimDACRange>DEFAULT</TrimDACRange>
-				<IPreampIn>0</IPreampIn>
-				<IPreampFeed>0</IPreampFeed>
-			    <IPreampOut>0</IPreampOut>
-			    <IShaper>0</IShaper>
-			    <IShaperFeed>0</IShaperFeed>
-			    <IComp>0</IComp>
-		    	<Latency>0</Latency>
+				<IPreampIn>168</IPreampIn>
+				<IPreampFeed>80</IPreampFeed>
+			    <IPreampOut>150</IPreampOut>
+			    <IShaper>150</IShaper>
+			    <IShaperFeed>100</IShaperFeed>
+			    <IComp>75</IComp>
+		    	<Latency>20</Latency>
 				<VCal>0</VCal>
-				<VThreshold1>0</VThreshold1>
+				<VThreshold1>15</VThreshold1>
 				<VThreshold2>0</VThreshold2>
 				<CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
 			</VFATSettings>
@@ -142,15 +142,15 @@
                 <HitCountMode>FASTOR</HitCountMode> 
 				<PbBG>OFF</PbBG>
 				<TrimDACRange>DEFAULT</TrimDACRange>
-				<IPreampIn>0</IPreampIn>
-				<IPreampFeed>0</IPreampFeed>
-			    <IPreampOut>0</IPreampOut>
-			    <IShaper>0</IShaper>
-			    <IShaperFeed>0</IShaperFeed>
-			    <IComp>0</IComp>
-		    	<Latency>0</Latency>
+				<IPreampIn>168</IPreampIn>
+				<IPreampFeed>80</IPreampFeed>
+			    <IPreampOut>150</IPreampOut>
+			    <IShaper>150</IShaper>
+			    <IShaperFeed>100</IShaperFeed>
+			    <IComp>75</IComp>
+		    	<Latency>20</Latency>
 				<VCal>0</VCal>
-				<VThreshold1>0</VThreshold1>
+				<VThreshold1>15</VThreshold1>
 				<VThreshold2>0</VThreshold2>
 				<CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
 			</VFATSettings>

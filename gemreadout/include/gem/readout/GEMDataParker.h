@@ -8,8 +8,8 @@
 
 namespace gem {
     namespace hw {
-        namespace vfat {
-            class HwVFAT2;
+        namespace glib {
+            class HwGLIB;
         }   
     }
     namespace readout {
@@ -21,7 +21,7 @@ namespace gem {
         class GEMDataParker
         {
             public:
-	        GEMDataParker(gem::hw::vfat::HwVFAT2& vfatDevice, std::string& outFileName, std::string& outputType);
+	        GEMDataParker(gem::hw::glib::HwGLIB& glibDevice, std::string const& outFileName, std::string const& outputType);
                 ~GEMDataParker() {};
 
                 int dumpDataToDisk();
@@ -36,7 +36,7 @@ namespace gem {
             private:
 
 		log4cplus::Logger gemLogger_;
-                gem::hw::vfat::HwVFAT2* vfatDevice_;
+                gem::hw::glib::HwGLIB* glibDevice_;
                 std::string outFileName_;
                 std::string outputType_;
                 int counter_;

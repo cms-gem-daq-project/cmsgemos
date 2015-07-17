@@ -358,6 +358,24 @@ namespace gem {
 	   **/
 	  uint32_t getFIFOOccupancy(uint8_t const& link);
 
+	  /** see if there is tracking data available
+	   * @param uint8_t link is the number of the column of the tracking data to read
+	   * @retval bool returns true if there is tracking data in the FIFO
+	      TRK_DATA.COLX.DATA_RDY
+	   */
+	  bool hasTrackingData(uint8_t const& link);
+
+	  /** get the tracking data, have to do this intelligently, as each column will be independent (for now)
+	      and need to pack all events together
+	      OR we put the column data in it's own block, and figure it out later...
+	   * @param uint8_t link is the number of the column of the tracking data to read
+	   * @retval std::vector<uint32_t> returns the 7 data words in the buffer, for a single chip
+	   * maybe better to return a block of memory...
+	      TRK_DATA.COLX.DATA_RDY
+	      TRK_DATA.COLX.DATA.[0-6]
+	   */
+	  std::vector<uint32_t> getTrackingData(uint8_t const& link);
+
 	  /** Empty the tracking data FIFO
 	   * @param uint8_t link is the number of the link to query
 	   * 
