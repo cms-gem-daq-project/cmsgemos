@@ -23,11 +23,10 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMGLIBSupervisorWeb)
 
 void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
-  latency   = 12U;
+  latency   = 20U;
 
   outFileName  = "";
   outputType   = "Hex";
-  deviceIP     = "192.168.0.162";
 
   for (int i=0; i<24; i++) {
     deviceName.push_back("");
@@ -44,8 +43,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   
   triggerSource = 0x0; // 0x2; 
+
   deviceChipID  = 0x0; 
-  deviceVT1     = 0x0; 
+  deviceVT1     = 35; 
   deviceVT2     = 0x0; 
 
   bag->addField("latency",       &latency );
@@ -317,6 +317,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
     if ( tmpDeviceNum >= 0 ) {
       confParams_.bag.deviceNum[i] = tmpDeviceNum;
       //*num = tmpDeviceNum
+      INFO(" webConfigure : DeviceNum " << i << " " << confParams_.bag.deviceName[i].toString());
     }
   }
 
@@ -365,7 +366,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip){
     //std::string VfatName = chip->toString();
     if (VfatName != ""){
-      //DEBUG(" webTrigger : deviceName [" << i << "] " << VfatName);
+      INFO(" webTrigger : deviceName [" << i << "] " << VfatName);
     }
   }
   */
@@ -417,13 +418,27 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   wl_semaphore_.take();
   hw_semaphore_.take();
 
+   // GLIB data buffer validation
+  boost::format linkForm("LINK%d");
+  uint32_t fifoDepth[3];
+  fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
+  fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
+  fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
+    
+  if(fifoDepth[0])
+    INFO("bufferDepth[0] (runAction) = " << std::hex << fifoDepth[0] << std::dec);
+  if(fifoDepth[1])
+    INFO("bufferDepth[1] (runAction) = " << std::hex << fifoDepth[1] << std::dec);
+  if(fifoDepth[2])
+    INFO("bufferDepth[2] (runAction) = " << std::hex << fifoDepth[2] << std::dec);
+
   // Get the size of GLIB data buffer
   uint32_t bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
 
   wl_semaphore_.give();
   hw_semaphore_.give();
 
-  INFO("bufferDepth = " << std::hex << bufferDepth << std::dec);
+  INFO("LINK1: bufferDepth = " << std::hex << bufferDepth << std::dec);
 
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth) {
@@ -469,7 +484,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     //std::string VfatName = chip->toString();
 
     if (VfatName != "")
-
       // Define device
       vfatDevice_.push_back(new gem::hw::vfat::HwVFAT2(VfatName));
   }
