@@ -21,24 +21,31 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMGLIBSupervisorWeb)
 
 void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
-  latency   = 12U;
+  latency   = 20U;
 
   outFileName  = "";
   outputType   = "Hex";
-  deviceIP     = "192.168.0.162";
-
-  /*
-    VAFT Devices List with are on GEB, this is broken, needs to be fixed
-  */
-  deviceName[9]  = (xdata::String)VFATnum[9];
-  deviceName[10] = (xdata::String)VFATnum[10];
-  deviceName[11] = (xdata::String)VFATnum[11];
-  deviceName[12] = (xdata::String)VFATnum[12];
-  deviceName[13] = (xdata::String)VFATnum[13];
 
   for (int i=0; i<24; i++) deviceNum[i] = -1;
 
-  triggerSource = 0x0; // 0x2; 
+  /*
+    VAFT Devices List with are on GEB, this is broken, needs to be fixed
+  deviceIP     = "192.168.0.164";
+  deviceName[12] = (xdata::String)VFATnum[12];
+  */
+
+  deviceIP     = "192.168.0.162";
+  deviceName[11] = (xdata::String)VFATnum[11];
+  /*
+  deviceName[1] = (xdata::String)VFATnum[1];
+  deviceName[5] = (xdata::String)VFATnum[5];
+  deviceName[9] = (xdata::String)VFATnum[9];
+  deviceName[13] = (xdata::String)VFATnum[13];
+  deviceName[10] = (xdata::String)VFATnum[10];
+  deviceName[11] = (xdata::String)VFATnum[11];
+  */
+  
+  triggerSource = 0x0; 
   deviceChipID  = 0x0; 
   deviceVT1     = 0x0; 
   deviceVT2     = 0x0; 
@@ -289,6 +296,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
 
   for (int i=0; i<24; i++){
     std::string tmpDeviceName = confParams_.bag.deviceName[i].toString();
+
     int tmpDeviceNum = -1;
     tmpDeviceName.erase(0,4);
     tmpDeviceNum = atoi(tmpDeviceName.c_str());
@@ -296,6 +304,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
 
     if ( tmpDeviceNum >= 0 ) {
       confParams_.bag.deviceNum[i] = tmpDeviceNum;
+      INFO(" webConfigure : DeviceNum " << i << " " << confParams_.bag.deviceName[i].toString());
     }
   }
 
@@ -341,15 +350,18 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 {
   // Send L1A signal
   hw_semaphore_.take();
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
-  //for (unsigned int com = 0; com < 15; ++com) vfatDevice_->writeReg("Send.L1ACalPulse",1);
+  //SB vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.OptoHybrid_LINKS.LINK1.FAST_COM");
 
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.L1A",0x1);
+  //for (unsigned int com = 0; com < 15; ++com) vfatDevice_->writeReg("Send.L1ACalPulse",1);
+  for (size_t trig = 0; trig < 1; ++trig){
+    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.L1A",0x1);
+  }
 
   for (int i=0; i<24; i++){
     std::string VfatName = confParams_.bag.deviceName[i].toString();
     if (VfatName != ""){
-      //DEBUG(" webTrigger : deviceName [" << i << "] " << VfatName);
+      INFO(" webTrigger : deviceName [" << i << "] " << VfatName);
     }
   }
 
@@ -403,14 +415,26 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   wl_semaphore_.take();
   hw_semaphore_.take();
 
+   // GLIB data buffer validation
+  boost::format linkForm("LINK%d");
+  uint32_t fifoDepth[3];
+  vfatDevice_->setDeviceBaseNode("GLIB");
+  fifoDepth[0] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(0))+".TRK_FIFO.DEPTH");
+  fifoDepth[1] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(1))+".TRK_FIFO.DEPTH");
+  fifoDepth[2] = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),boost::str(linkForm%(2))+".TRK_FIFO.DEPTH");
+    
+  if(fifoDepth[0]) INFO("bufferDepth[0] (runAction) = " << std::hex << fifoDepth[0] << std::dec);
+  if(fifoDepth[1]) INFO("bufferDepth[1] (runAction) = " << std::hex << fifoDepth[1] << std::dec);
+  if(fifoDepth[2]) INFO("bufferDepth[2] (runAction) = " << std::hex << fifoDepth[2] << std::dec);
+
   // Get the size of GLIB data buffer
   vfatDevice_->setDeviceBaseNode("GLIB");
-  uint32_t bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
+  uint32_t bufferDepth = fifoDepth[1];
 
   wl_semaphore_.give();
   hw_semaphore_.give();
 
-  INFO("bufferDepth = " << std::hex << bufferDepth << std::dec);
+  INFO("LINK1: bufferDepth = " << std::hex << bufferDepth << std::dec);
 
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth) {
@@ -460,41 +484,18 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       vfatDevice_->setRunMode(0);
       confParams_.bag.deviceChipID = vfatDevice_->getChipID();
 
-      latency_   = confParams_.bag.latency;
-
       // Set VFAT2 registers
       vfatDevice_->loadDefaults();
-      // vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
-      // vfatDevice_->setCalibrationMode(0x0); //set to normal
-      // vfatDevice_->setMSPolarity(     0x1); //negative
-      // vfatDevice_->setCalPolarity(    0x1); //negative
 
-      // vfatDevice_->setProbeMode(        0x0);
-      // vfatDevice_->setLVDSMode(         0x0);
-      // vfatDevice_->setDACMode(          0x0);
-      // vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
-
-      // vfatDevice_->setHitCountMode( 0x0);
-      // vfatDevice_->setMSPulseLength(0x3);
-      // vfatDevice_->setInputPadMode( 0x0);
-      // vfatDevice_->setTrimDACRange( 0x0);
-      // vfatDevice_->setBandgapPad(   0x0);
-      // vfatDevice_->sendTestPattern( 0x0);
-
-      // vfatDevice_->setIPreampIn(  168);
-      // vfatDevice_->setIPreampFeed(150);
-      // vfatDevice_->setIPreampOut(  80);
-      // vfatDevice_->setIShaper(    150);
-      // vfatDevice_->setIShaperFeed(100);
-      //vfatDevice_->setIComp(      120);
-
+      latency_   = confParams_.bag.latency;
       vfatDevice_->setLatency(latency_);
+      confParams_.bag.latency = vfatDevice_->getLatency();
 
-      vfatDevice_->setVThreshold1(2);
+      vfatDevice_->setVThreshold1(60);
       confParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
+
       vfatDevice_->setVThreshold2(0);
       confParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
-      confParams_.bag.latency = vfatDevice_->getLatency();
 
     }
   }
@@ -544,12 +545,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   //send resync
   INFO("deviceBaseNode = " << vfatDevice_->getDeviceBaseNode());
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
+  //SB vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.OptoHybrid_LINKS.LINK1.FAST_COM");
   INFO("deviceBaseNode = " << vfatDevice_->getDeviceBaseNode());
   vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.Resync",        0x1);
 
   //reset counters
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
+  //SB vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.OptoHybrid_LINKS.LINK1.COUNTERS");
   vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.External",0x1);
   vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Internal",0x1);
   vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Delayed", 0x1);
@@ -562,16 +565,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   vfatDevice_->setDeviceBaseNode("GLIB.LINK1");
   vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TRK_FIFO.FLUSH",     0x1);
 
-  /*
-    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.External",0x1);
-    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.Internal",0x1);
-    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.Total",   0x1);
-  */
+  vfatDevice_->setDeviceBaseNode("OptoHybrid.OptoHybrid_LINKS.LINK1.TRIGGER");
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"SOURCE",   0x0);
+
+  vfatDevice_->setDeviceBaseNode("GLIB.LINK1.TRIGGER");
+  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"SOURCE",   0x0);
 
   /*
   //set trigger source
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.TRIGGER");
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"SOURCE",   0x0); //0x2 
   vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TDC_SBits",(unsigned)confParams_.bag.deviceNum[11]);
 
   vfatDevice_->setDeviceBaseNode("GLIB");
@@ -581,7 +582,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   for (int i=0; i<24; i++){
     std::string VfatName = confParams_.bag.deviceName[i].toString();
     if (VfatName != ""){
-      //INFO(" startAction : deviceName [" << i << "] " << VfatName);
+      INFO(" startAction : deviceName [" << i << "] " << VfatName);
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
       vfatDevice_->setRunMode(1);
     }
