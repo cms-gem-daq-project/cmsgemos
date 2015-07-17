@@ -16,6 +16,7 @@
 
 #include "gem/utils/GEMLogging.h"
 
+int OHv=2;
 int counterVFATs_=0, event_=0;
 bool dumpGEMevent_ = false;
 uint64_t ZSFlag=0;
@@ -72,14 +73,30 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
   fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
   fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
 
+  if(fifoDepth[0])
+    INFO(glibDevice_->getDeviceBaseNode() << "." << boost::str(linkForm%(0))+".TRK_FIFO.DEPTH -- " <<
+	 "bufferDepth[0] = " << std::hex << fifoDepth[0] << std::dec);
+  if(fifoDepth[1])
+    INFO(glibDevice_->getDeviceBaseNode() << "." << boost::str(linkForm%(1))+".TRK_FIFO.DEPTH -- " <<
+	 "bufferDepth[1] = " << std::hex << fifoDepth[1] << std::dec);
+  if(fifoDepth[2])
+    INFO(glibDevice_->getDeviceBaseNode() << "." << boost::str(linkForm%(2))+".TRK_FIFO.DEPTH -- " <<
+	 "bufferDepth[2] = " << std::hex << fifoDepth[2] << std::dec);
+
   /** the FIFO depth is not reliable */
   int bufferDepth = 0;
+  /*
   if ( fifoDepth[0] != fifoDepth[1] || fifoDepth[0] != fifoDepth[2] || fifoDepth[1] != fifoDepth[2] ) {
-    bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
-  }
+    if (OHv == 1){
+      bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
+    } else if (OHv == 2){
+      bufferDepth = std::min(fifoDepth[0],fifoDepth[2]);
+    }
+    }*/
 
-  //right now only have FIFO on LINK1
+  // LINK1
   bufferDepth = fifoDepth[1];
+  INFO("OHv " << OHv << " bufferDepth = " << std::hex << bufferDepth << std::dec);
 
   // For each event in GLIB data buffer
   // should probably switch this while with the next if, to ensure that there is actually a value in the vector
@@ -96,6 +113,23 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
       //}
     }
 
+//sergey//  glibDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
+//sergey//  while (glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),"DATA_RDY")) {
+//sergey//    
+//sergey//    glibDevice_->setDeviceBaseNode("GLIB");
+//sergey//    fifoDepth[0] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(0))+".TRK_FIFO.DEPTH");
+//sergey//    fifoDepth[1] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(1))+".TRK_FIFO.DEPTH");
+//sergey//    fifoDepth[2] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(2))+".TRK_FIFO.DEPTH");
+//sergey//    
+//sergey//    glibDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
+//sergey//    std::vector<uint32_t> data;
+//sergey//      for (int word = 0; word < 7; ++word) {
+//sergey//	std::stringstream ss9;
+//sergey//	ss9 << "DATA." << word;
+//sergey//	uint32_t tmpword = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),ss9.str());
+//sergey//	data.push_back(tmpword);
+//sergey//      }
+    
     // read trigger data
     TrigReg = glibDevice_->readTriggerFIFO(0x1);
     bxNumTr = TrigReg >> 6;
@@ -111,6 +145,45 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
       bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
       continue;
     }
+
+//sergey//    if ( !((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)) ){
+//sergey//        WARN("VFAT headers do not match expectation");
+//sergey//        glibDevice_->setDeviceBaseNode("GLIB");
+//sergey//
+//sergey//        if(b1010 != 0x0A ){ cout << "in 1010 = "; show4bits(b1010); cout << endl;}
+//sergey//        if(b1100 != 0x0C ){ cout << "in 1100 = "; show4bits(b1100); cout << endl;}
+//sergey//        if(b1110 != 0x0E ){ cout << "in 1110 = "; show4bits(b1110); cout << endl;}
+//sergey//
+//sergey//        bufferDepth = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[0] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(0))+".TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[1] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(1))+".TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[2] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(2))+".TRK_FIFO.DEPTH");
+//sergey//
+//sergey//        if(fifoDepth[0]) INFO("LINK1 bufferDepth[0] (bad header) = " << std::hex << fifoDepth[0] << std::dec);
+//sergey//        if(fifoDepth[1]) INFO("LINK1 bufferDepth[1] (bad header) = " << std::hex << fifoDepth[1] << std::dec);
+//sergey//        if(fifoDepth[2]) INFO("LINK1 bufferDepth[2] (bad header) = " << std::hex << fifoDepth[2] << std::dec);
+//sergey//
+//sergey//        bufferDepth = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),"LINK0.TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[0] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(0))+".TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[1] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(1))+".TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[2] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(2))+".TRK_FIFO.DEPTH");
+//sergey//
+//sergey//        if(fifoDepth[0]) INFO("LINK0 bufferDepth[0] (bad header) = " << std::hex << fifoDepth[0] << std::dec);
+//sergey//        if(fifoDepth[1]) INFO("LINK0 bufferDepth[1] (bad header) = " << std::hex << fifoDepth[1] << std::dec);
+//sergey//        if(fifoDepth[2]) INFO("LINK0 bufferDepth[2] (bad header) = " << std::hex << fifoDepth[2] << std::dec);
+//sergey//
+//sergey//        bufferDepth = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),"LINK2.TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[0] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(0))+".TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[1] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(1))+".TRK_FIFO.DEPTH");
+//sergey//        fifoDepth[2] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(2))+".TRK_FIFO.DEPTH");
+//sergey//
+//sergey//        if(fifoDepth[0]) INFO("LINK2 bufferDepth[0] (bad header) = " << std::hex << fifoDepth[0] << std::dec);
+//sergey//        if(fifoDepth[1]) INFO("LINK2 bufferDepth[1] (bad header) = " << std::hex << fifoDepth[1] << std::dec);
+//sergey//        if(fifoDepth[2]) INFO("LINK2 bufferDepth[2] (bad header) = " << std::hex << fifoDepth[2] << std::dec);
+//sergey//
+//sergey//        glibDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
+//sergey//        continue;
+//sergey//      }
 
     bxNum = data.at(6);
 
@@ -139,6 +212,7 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
     bcn    = (0x0fff0000 & data.at(5)) >> 16;
     evn    = (0x00000ff0 & data.at(5)) >> 4;
     chipid = (0x0fff0000 & data.at(4)) >> 16;
+    //cout<< " " << hex << b1110 << " ChipID " << chipid << dec << endl;
     flags  = (0x0000000f & data.at(5));
     crc    = (0x0000ffff & data.at(0));
 
@@ -151,15 +225,15 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
     msData = (data1 << 32) | (data2);
 
     vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
-    vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
+    vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4
     vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
     vfat.lsData = lsData;                                 // lsData:64
     vfat.msData = msData;                                 // msData:64
     vfat.crc    = crc;                                    // crc:16
 
-    /*
-     * dump VFAT data
-     gem::readout::printVFATdataBits(counter_, vfat);
+   /*
+    * dump VFAT data
+    gem::readout::printVFATdataBits(counter_, vfat);
     */
 
     bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
@@ -171,7 +245,11 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
     // GEM data filling
     gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
 
-  }
+    //sergey//glibDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
+
+  }//closes check on DATA_RDY
+  //}//closes while loop
+  
   return counter_;
 }
 
@@ -258,43 +336,40 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
   /*
    * GEB, One Chamber Data
    */
-  int IndexVFATChipOnGEB = 0;
+  int IndexVFATChipOnGEB = -99;
   // VFAT position definition on the board, very temporary
-  if ((0x0fff & vfat.ChipID) == 0xe74 ){
-    IndexVFATChipOnGEB = 8;
+  if ((0x0fff & vfat.ChipID)        == 0x838 ){
+    IndexVFATChipOnGEB = 0;
   } else if ((0x0fff & vfat.ChipID) == 0xe7b ){ 
-    IndexVFATChipOnGEB = 9;
-  } else if ((0x0fff & vfat.ChipID) == 0x0e8 ){ 
-    IndexVFATChipOnGEB = 10;
+    IndexVFATChipOnGEB = 4;
+  } else if ((0x0fff & vfat.ChipID) == 0xe21 ){ 
+    IndexVFATChipOnGEB = 8;
   } else if ((0x0fff & vfat.ChipID) == 0xe74 ){ 
-    IndexVFATChipOnGEB = 11;
-  } else if ((0x0fff & vfat.ChipID) == 0x68 ){ 
     IndexVFATChipOnGEB = 12;
-  } else if ((0x0fff & vfat.ChipID) == 0xe7f ){ 
-    IndexVFATChipOnGEB = 13;
+  } else if ((0x0fff & vfat.ChipID) == 0x840 ){ 
+    IndexVFATChipOnGEB = 16;
+  } else if ((0x0fff & vfat.ChipID) == 0xa64 ){ 
+    IndexVFATChipOnGEB = 20;
   } else { 
-    IndexVFATChipOnGEB = -99; 
-    vfat.ChipID = 0xdead;
   };
 
   geb.vfats.push_back(vfat);
   DEBUG(" geb.vfats.size " << int(geb.vfats.size()));
     
   // Chamber Header, Zero Suppression flags, Chamber ID
-  ZSFlag      = (ZSFlag | (1 << (23-IndexVFATChipOnGEB))); // :24
-  uint64_t ChamID = 0xdea;                                 // :12
-  uint64_t sumVFAT = int(geb.vfats.size());                // :28, geb.vfats.size was placed a very temporary here!!!
+  ZSFlag           = (ZSFlag | (1 << (23-IndexVFATChipOnGEB))); // :24
+  uint64_t ChamID  = 0xdea;                                     // :12
+  uint64_t sumVFAT = int(geb.vfats.size());                     // :28, geb.vfats.size was placed a very temporary here!!!
 
   geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
 
-  // show24bits(ZSFlag); 
-  DEBUG(" ChipID 0x" << hex << (0x0fff & vfat.ChipID) << dec
-	<< " IndexVFATChipOnGEB " << IndexVFATChipOnGEB);
+  //show24bits(ZSFlag); 
+  DEBUG(" ChipID 0x" << hex << (0x0fff & vfat.ChipID) << dec << " IndexVFATChipOnGEB " << IndexVFATChipOnGEB);
 
   ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
   ChamID =  (0x000000fff0000000 & geb.header) >> 28; 
 
-  DEBUG(" ZSFlag " << hex << ZSFlag << " ChamID " << ChamID << dec);
+  DEBUG(" ZSFlag " << hex << ZSFlag << " ChamID " << ChamID << dec << " sumVFAT " << sumVFAT);
 
   // Chamber Trailer, OptoHybrid: crc, wordcount, Chamber status
   uint64_t OHcrc       = BOOST_BINARY( 1 ); // :16
@@ -313,7 +388,7 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
 void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
 {
   INFO("\nwriteGEMevent:: event_ " << event_ << " counter= " << counter_ << " counterVFATs " << counterVFATs_  
-       << " sumVFAT " << (0x000000000fffffff & geb.header) << " geb.vfats.size " << int(geb.vfats.size()));
+       << " sumVFAT " << (0x000000000fffffff & geb.header));
 
   // GEM Chamber's data level
   /*
@@ -322,13 +397,14 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
     nGEB++;
     uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; show24bits(ZSFlag);
   */
-  
+
   // GEB data level
   if(outputType_ == "Hex"){
     writeGEBheader (outFileName_, event_, geb);
   } else {
     writeGEBheaderBinary (outFileName_, event_, geb);
   } 
+  printGEBheader (event_, geb);
     
   int nChip=0;
   for (vector<VFATData>::iterator iVFAT=geb.vfats.begin(); iVFAT != geb.vfats.end(); ++iVFAT){
@@ -353,7 +429,6 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
   } else {
     writeGEBtrailerBinary (outFileName_, event_, geb);
   } 
-        
 
   /* } // end of GEB */
 }
