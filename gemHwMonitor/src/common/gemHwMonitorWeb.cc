@@ -44,6 +44,7 @@ gem::hwMonitor::gemHwMonitorWeb::~gemHwMonitorWeb()
     //delete gemHwMonitorVFAT_;
     delete gemSystemHelper_;
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::Default(xgi::Input * in, xgi::Output * out )
     throw (xgi::exception::Exception)
 {
@@ -229,6 +230,7 @@ throw (xgi::exception::Exception)
     }
     this->controlPanel(in,out);
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
@@ -286,10 +288,12 @@ throw (xgi::exception::Exception)
     }
     this->controlPanel(in,out);
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::selectCrate(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
@@ -329,6 +333,7 @@ throw (xgi::exception::Exception)
     }
     this->cratePanel(in,out);
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::cratePanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
@@ -410,6 +415,7 @@ throw (xgi::exception::Exception)
     }
     this->glibPanel(in,out);
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
@@ -639,6 +645,7 @@ throw (xgi::exception::Exception)
     }
     this->ohPanel(in,out);
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
@@ -699,7 +706,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::table() <<std::endl;
 
     gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus_;
-    for (uint8_t i=2; i<3; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
+    for (uint8_t i=0; i<3; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
     {
         linkStatus_ = ohDevice_->LinkStatus(i);
         *out << cgicc::table().set("class","table");
@@ -857,6 +864,7 @@ throw (xgi::exception::Exception)
     }
     this->vfatPanel(in,out);
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * out )
 throw (xgi::exception::Exception)
 {
@@ -1006,6 +1014,7 @@ throw (xgi::exception::Exception)
     *out << "</tr>";
  
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output * out)
 throw (xgi::exception::Exception)
 {
@@ -1017,6 +1026,7 @@ throw (xgi::exception::Exception)
     value_string.append(ss.str());
     printVFAThwParameters(key, value1, value_string.c_str(), out);
 }
+
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, uint8_t value, xgi::Output * out)
 throw (xgi::exception::Exception)
 {
