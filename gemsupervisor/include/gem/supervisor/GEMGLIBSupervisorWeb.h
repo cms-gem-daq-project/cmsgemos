@@ -6,10 +6,12 @@
 
 #include "xdata/Float.h"
 #include "xdata/String.h"
+#include "xdata/Vector.h"
+#include "xdata/Integer.h"
 #include "xdata/UnsignedLong.h"
+#include "xdata/UnsignedShort.h"
 #include "xdata/UnsignedInteger32.h"
-
-#include "uhal/uhal.hpp"
+#include "xdata/UnsignedInteger64.h"
 
 #include "toolbox/fsm/FiniteStateMachine.h"
 #include "toolbox/fsm/FailedEvent.h"
@@ -37,12 +39,6 @@
 
 #include <string>
 
-#include "xdata/UnsignedInteger64.h"
-#include "xdata/UnsignedInteger.h"
-#include "xdata/UnsignedShort.h"
-#include "xdata/Integer.h"
-
-typedef uhal::exception::exception uhalException;
 
 namespace gem {
   namespace hw {
@@ -63,7 +59,7 @@ namespace gem {
 
   namespace supervisor {
 
-    class GEMGLIBSupervisorWeb: public xdaq::WebApplication
+    class GEMGLIBSupervisorWeb: public xdaq::WebApplication, public xdata::ActionListener
       {
       public:
 
@@ -164,6 +160,11 @@ namespace gem {
 	 */
 	void noAction(toolbox::Event::Reference e);
 
+	
+	/**
+	 *    Callback for action performed
+	 */
+	virtual void actionPerformed(xdata::Event& event);
 	class ConfigParams 
 	{   
 	public:
@@ -172,14 +173,15 @@ namespace gem {
 	  xdata::String          deviceIP;
 	  xdata::String          outFileName;
 	  xdata::String          outputType;
-	  xdata::String          deviceName[24];
-	  xdata::Integer         deviceNum[24];
 
-	  xdata::UnsignedInteger latency;
-	  xdata::UnsignedShort   triggerSource;
-	  xdata::UnsignedShort   deviceChipID;
-	  xdata::UnsignedShort   deviceVT1;
-	  xdata::UnsignedShort   deviceVT2;
+	  xdata::Vector<xdata::String>  deviceName;
+	  xdata::Vector<xdata::Integer> deviceNum;
+
+	  xdata::UnsignedShort latency;
+	  xdata::UnsignedShort triggerSource;
+	  xdata::UnsignedShort deviceChipID;
+	  xdata::UnsignedShort deviceVT1;
+	  xdata::UnsignedShort deviceVT2;
 	};
 
       private:
@@ -207,7 +209,10 @@ namespace gem {
 	bool is_working_, is_initialized_, is_configured_, is_running_;
 
 	//supervisor application should not have any hw devices, should only send commands to manager applications
-	gem::hw::vfat::HwVFAT2* vfatDevice_;
+	//temporary fix just to get things working stably, should be using the manager
+	gem::hw::glib::HwGLIB* glibDevice_;
+	gem::hw::optohybrid::HwOptoHybrid* optohybridDevice_;
+	std::vector< gem::hw::vfat::HwVFAT2* > vfatDevice_;
 	//readout application should be running elsewhere, not tied to supervisor
 	gem::readout::GEMDataParker* gemDataParker;
 

@@ -7,6 +7,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
   //logOptoHybrid_(optohybridApp->getApplicationLogger()),
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0)
+  //is_connected_(false),
   links({0,0,0}),
   m_controlLink(-1)  
 {
@@ -23,6 +24,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0),
+  //is_connected_(false),
   links({0,0,0}),
   m_controlLink(-1),
   m_slot(slot)
@@ -100,8 +102,10 @@ void gem::hw::optohybrid::HwOptoHybrid::configureDevice()
 
 bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected() 
 {
-  if ( is_connected_ )
+  if ( is_connected_ ) {
+    INFO("HwOptoHybrid connection good");
     return true;
+  }
   
   else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection");
@@ -114,7 +118,7 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
     for (unsigned int link = 0; link < 3; ++link) {
       if (this->getFirmware(link)) {
 	links[link] = true;
-	INFO("link" << link << " present");
+	INFO("link" << link << " present(" << this->getFirmware(link) << ")");
 	tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
       } else {
 	links[link] = false;
@@ -122,21 +126,21 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
       }
     }
     activeLinks = tmp_activeLinks;
-    if (!activeLinks.empty())
+    if (!activeLinks.empty()) {
+      is_connected_ = true;
       m_controlLink = (activeLinks.begin())->first;
-    return true;
-    //} catch (gem::hw::vfat::exception::TransactionError const& e) {
-    //  is_connected_ = false;
-    //  return false;      
-    //} catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
-    //  is_connected_ = false;
-    //  return false;      
-    //}
-    
-  } else {
-    is_connected_ = false;
+      INFO("connected - control link" << (int)m_controlLink);
+      INFO("HwOptoHybrid connection good");
+      return true;
+    } else {
+      is_connected_ = false;
+      INFO("not connected - control link" << (int)m_controlLink);
+      return false;
+    }
+  } else if (m_controlLink < 0)
     return false;
-  }
+  else
+    return false;
 }
 
 

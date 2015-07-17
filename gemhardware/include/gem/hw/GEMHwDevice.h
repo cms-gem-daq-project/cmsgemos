@@ -4,8 +4,6 @@
 #include "xdata/String.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
-#include "xdata/ActionListener.h"
-
 #include "toolbox/string.h"
 
 #include <iomanip>
@@ -28,7 +26,7 @@
    so it helps to retry a few times in the case of a failure
    that is recognized
 */
-#define MAX_IPBUS_RETRIES 6
+#define MAX_IPBUS_RETRIES 25
 
 typedef uhal::exception::exception uhalException;
 
@@ -51,11 +49,11 @@ namespace gem {
 
       public:
 	typedef struct OpticalLinkStatus {
-	  uint32_t Errors            ;
-	  uint32_t I2CReceived       ; 
-	  uint32_t I2CSent           ;
+	  uint32_t Errors          ;
+	  uint32_t I2CReceived     ; 
+	  uint32_t I2CSent         ;
 	  uint32_t RegisterReceived;
-	  uint32_t RegisterSent      ;
+	  uint32_t RegisterSent    ;
 
 	OpticalLinkStatus() : Errors(0),I2CReceived(0),I2CSent(0),RegisterReceived(0),RegisterSent(0) {};
 	  void reset()       {Errors=0; I2CReceived=0; I2CSent=0; RegisterReceived=0; RegisterSent=0;return; };

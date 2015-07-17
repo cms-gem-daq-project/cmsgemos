@@ -8,7 +8,8 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   //p_gemConnectionManager(0),
   //p_gemHW(0),
   gemLogger_(log4cplus::Logger::getInstance(deviceName)),
-  hwLock_(toolbox::BSem::FULL, true)
+  hwLock_(toolbox::BSem::FULL, true),
+  is_connected_(false)
   //monGEMHw_(0)
 {
   //need to grab these parameters from the xml file or from some configuration space/file/db
@@ -51,7 +52,8 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& connectionFile,
 				  std::string const& cardName):
   //p_gemConnectionManager(0),
   //p_gemHW(0),
-  hwLock_(toolbox::BSem::FULL, true)
+  hwLock_(toolbox::BSem::FULL, true),
+  is_connected_(false)
   //monGEMHw_(0)
 {
   gemLogger_ = log4cplus::Logger::getInstance(cardName);
@@ -120,6 +122,8 @@ void gem::hw::GEMHwDevice::connectDevice()
   std::string const uri = tmpUri.str();
   std::string const id  = getDeviceID();
   std::string const addressTable = getAddressTableFileName();
+
+  INFO("uri, id, address table : " << uri << " " << id << " " << addressTable);
   
   //int retryCount = 0;
   
@@ -145,9 +149,9 @@ void gem::hw::GEMHwDevice::connectDevice()
   
   p_gemHW.swap(tmpHWP);
   if (isHwConnected())
-    INFO("Successfully connected to the hardware.");
+    INFO("connectDevice::HwDevice pointer active");
   else
-    INFO("Unable to establish connection with the hardware.");
+    INFO("connectDevice::Unable to establish connection with the hardware.");
   //maybe raise exception here?
 }
 
@@ -213,7 +217,7 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
   if (p_gemHW == NULL) {
     std::string msg = "Trying to access hardware before connecting.";
     ERROR(msg);
-    XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
+    //XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
   } else {
     uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
     return hw;
@@ -249,19 +253,19 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 	continue;
       } else {
 	ERROR(msg);
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read register '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read register %s",name.c_str());
   ERROR(msg);
-  XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  //return res;
+  //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  return res;
 }
 
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
@@ -304,7 +308,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 	continue;
       } else {
 	ERROR(msg);
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
@@ -312,7 +316,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
 }
@@ -342,13 +346,13 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 	continue;
       } else {
 	ERROR(msg);
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
 }
@@ -386,7 +390,7 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
 	continue;
       } else {
 	ERROR(msg);
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = "Could not write to register in list:";
@@ -394,7 +398,7 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
 	msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
 }
@@ -464,19 +468,19 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 	continue;
       } else {
 	ERROR(msg);
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not read block '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
   std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read block");
   ERROR(msg);
-  XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  //return res;
+  //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  return res;
 }
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
@@ -507,13 +511,13 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
 	continue;
       } else {
 	ERROR(msg);
-	XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+	//XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to block '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       ERROR(msg);
-      XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
 }
