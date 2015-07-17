@@ -137,6 +137,9 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
     } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
       is_connected_ = false;
       return false;      
+    } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+      is_connected_ = false;
+      return false;      
     }
     
   } else {
@@ -155,7 +158,7 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
   //bit 26 - error
   (readVal >> 26) & 0x1;
   //bit 25 - valid
-  (readVal >> 25) & 0x1;
+  (readVal >> 25) & 0x0;
   //bit 24 - r/w
   (readVal >> 24) & 0x1;
   //bit 23:16 - VFAT number
@@ -166,12 +169,18 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
   //bit 7:0   - register value
   if ((readVal >> 26) & 0x1) {
     std::string msg = toolbox::toString("VFAT transaction error bit set reading register %s",regName.c_str());
+    ++vfatErrors_.Error;
+    ERROR(msg);
     XCEPT_RAISE(gem::hw::vfat::exception::TransactionError,msg);
-  } else if ((readVal >> 25) & 0x1){
+  } else if ((readVal >> 25) & 0x0){
     std::string msg = toolbox::toString("VFAT transaction invalid bit set reading register %s",regName.c_str());
+    ++vfatErrors_.Invalid;
+    ERROR(msg);
     XCEPT_RAISE(gem::hw::vfat::exception::InvalidTransaction,msg);
   } else if ((readVal >> 24) & 0x0){
     std::string msg = toolbox::toString("VFAT read transaction returned write on register %s",regName.c_str());
+    ++vfatErrors_.RWMismatch;
+    ERROR(msg);
     XCEPT_RAISE(gem::hw::vfat::exception::WrongTransaction,msg);
   } else {
     return (readVal & 0xff);
@@ -450,7 +459,7 @@ uint8_t gem::hw::vfat::HwVFAT2::getChannelTrimDAC(uint8_t channel) {
   if ((channel > 128) || (channel < 1)) {
     std::string msg =
       toolbox::toString("Channel specified (%d) outside expectation (1-128)",channel);
-    XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel,msg);
+    //XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel,msg);
     return 0xff;
   }
   std::string registerName = toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel);
@@ -463,7 +472,7 @@ void gem::hw::vfat::HwVFAT2::setChannelTrimDAC(uint8_t channel, uint8_t trimDAC)
   if ((channel > 128) || (channel < 1)) {
     std::string msg =
       toolbox::toString("Channel specified (%d) outside expectation (1-128)",channel);
-    XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel,msg);
+    //XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel,msg);
     return;
   }
   std::string registerName = toolbox::toString("VFATChannels.ChanReg%d",channel);
