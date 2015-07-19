@@ -59,6 +59,8 @@ namespace gem {
 		            throw (xgi::exception::Exception);
                 void uploadConfFile(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
+                void displayConfFile(xgi::Input *in, xgi::Output *out)
+		            throw (xgi::exception::Exception);
                 void getCratesConfiguration(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
                 void expandCrate(xgi::Input *in, xgi::Output *out)
