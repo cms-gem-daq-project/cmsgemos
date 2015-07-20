@@ -1,9 +1,18 @@
 #ifndef gem_hw_GEMHwDevice_h
 #define gem_hw_GEMHwDevice_h
 
+<<<<<<< HEAD
 #include <iomanip>
 #include "xdaq/Application.h"
 #include "xdata/ActionListener.h"
+=======
+#include "xdata/String.h"
+#include "xdata/UnsignedLong.h"
+#include "xdata/UnsignedInteger32.h"
+#include "toolbox/string.h"
+
+#include <iomanip>
+>>>>>>> origin/develop
 
 #include "gem/hw/exception/Exception.h"
 
@@ -19,7 +28,11 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
-#define MAX_IPBUS_RETRIES 6
+/* IPBus transactions still have some problems in the firmware
+   so it helps to retry a few times in the case of a failure
+   that is recognized
+*/
+#define MAX_IPBUS_RETRIES 25
 
 typedef uhal::exception::exception uhalException;
 
@@ -29,12 +42,9 @@ typedef std::vector<register_pair>       register_pair_list;
 typedef std::pair<std::string, uhal::ValWord<uint32_t> > register_value;
 typedef std::vector<register_value>                      register_val_list;
 
+
 namespace uhal {
   class HwInterface;
-}
-
-namespace xdaq {
-  class Application;;
 }
 
 namespace gem {
@@ -45,20 +55,29 @@ namespace gem {
 
       public:
 	typedef struct OpticalLinkStatus {
-	  uint32_t linkErrCnt     ;
-	  uint32_t linkVFATI2CRec ;
-	  uint32_t linkVFATI2CSnt ;
-	  uint32_t linkRegisterRec;
-	  uint32_t linkRegisterSnt;
+	  uint32_t Errors          ;
+	  uint32_t I2CReceived     ; 
+	  uint32_t I2CSent         ;
+	  uint32_t RegisterReceived;
+	  uint32_t RegisterSent    ;
+
+	OpticalLinkStatus() : Errors(0),I2CReceived(0),I2CSent(0),RegisterReceived(0),RegisterSent(0) {};
+	  void reset()       {Errors=0; I2CReceived=0; I2CSent=0; RegisterReceived=0; RegisterSent=0;return; };
 	} OpticalLinkStatus;
 	
 	typedef struct DeviceErrors {
-	  int badHeader_;
-	  int readError_;
-	  int timeouts_;
-	  int controlHubErr_;
+	  int BadHeader    ;
+	  int ReadError    ;
+	  int Timeout      ;
+	  int ControlHubErr;
+
+	DeviceErrors() : BadHeader(0),ReadError(0),Timeout(0),ControlHubErr(0) {};
+	  void reset()  {BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0;return; };
 	} DeviceErrors;
 	
+	typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
+	//typedef std::vector<linkStatus>                linkStatus;
+
 	/** 
 	 * GEMHwDevice constructor 
 	 * @param deviceName string to put into the logger
@@ -100,7 +119,7 @@ namespace gem {
 	//virtual void resumeDevice();
 	//virtual void haltDevice();
 	
-	virtual bool isHwConnected() { return gemHWP_ != 0; };
+	virtual bool isHwConnected() { return p_gemHW != 0; };
 	
 	/**
 	 *Generic read/write functions or IPBus devices
@@ -230,21 +249,22 @@ namespace gem {
 	
 	void updateErrorCounters(std::string const& errCode);
 	
-	DeviceErrors ipBusErrs;
+	DeviceErrors ipBusErrs_;
 	
 	std::string printErrorCounts() const;
 	
       protected:
-	uhal::ConnectionManager *gemConnectionManager;
+	std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager;
+	std::shared_ptr<uhal::HwInterface> p_gemHW;
+
 	log4cplus::Logger gemLogger_;
-	uhal::HwInterface *gemHWP_;
 		
 	std::string uint32ToString(uint32_t const val) const {
 	  std::stringstream res;
-	  res << char((val & uint32_t(0xff000000)) / 16777216);
-	  res << char((val & uint32_t(0x00ff0000)) / 65536);
-	  res << char((val & uint32_t(0x0000ff00)) / 256);
-	  res << char((val & uint32_t(0x000000ff)));
+	  res <<(char)((val & (0xff000000)) / 16777216);
+	  res <<(char)((val & (0x00ff0000)) / 65536);
+	  res <<(char)((val & (0x0000ff00)) / 256);
+	  res <<(char)((val & (0x000000ff)));
 	  return res.str(); };
 
 	std::string uint32ToDottedQuad(uint32_t const val) const {
@@ -271,7 +291,6 @@ namespace gem {
              res << std::setfill('0') << std::setw(2) << std::hex
     <<(uint32_t)((val2 & (0x000000ff)))           << std::dec;
              return res.str(); };
-
 	bool is_connected_;
 
 	mutable gem::utils::Lock hwLock_;

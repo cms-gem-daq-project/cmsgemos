@@ -23,6 +23,8 @@ parser.add_option("-z", "--sleep", action="store_true", dest="sleepAll",
 		  help="set all chips into sleep mode", metavar="sleepAll")
 parser.add_option("-b", "--bias", action="store_true", dest="biasAll",
 		  help="set all chips with default bias parameters", metavar="biasAll")
+parser.add_option("-e", "--enable", type="string", dest="enabledChips",
+		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
 (options, args) = parser.parse_args()
 
 links = {}
@@ -30,6 +32,10 @@ for link in options.activeLinks:
 	pair = map(int, link.split(","))
 	links[pair[0]] = pair[1]
 print "links", links
+
+if options.enabledChips:
+	chips = [int(n) for n in options.enabledChips.split(",")] 
+	print "chips", chips
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
@@ -106,6 +112,11 @@ for chip in range(0,24):
 	if options.sleepAll:
 		regVal = readRegister(optohybrid,"%s.ContReg0"%(baseNode))
 		writeRegister(optohybrid,"%s.ContReg0"%(baseNode),regVal&0xFE)
+	if ((options.enabledChips) and (chip in chips)):
+		print "enabling chip %d"%(chip)
+		regVal = readRegister(optohybrid,"%s.ContReg0"%(baseNode))
+		writeRegister(optohybrid,"%s.ContReg0"%(baseNode),regVal|0x01)
+		
 
 	thechipid  = readRegister(optohybrid,"%s.ChipID1"%(baseNode))
 	if options.debug:

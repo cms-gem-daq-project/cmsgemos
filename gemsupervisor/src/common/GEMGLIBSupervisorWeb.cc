@@ -1,6 +1,8 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
 #include "gem/hw/vfat/HwVFAT2.h"
+#include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/optohybrid/HwOptoHybrid.h"
 
 #include "gem/utils/GEMLogging.h"
 
@@ -21,34 +23,37 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMGLIBSupervisorWeb)
 
 void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
-  latency   = 12U;
+  latency   = 20U;
 
   outFileName  = "";
   outputType   = "Hex";
-  deviceIP     = "192.168.0.162";
 
+  for (int i=0; i<24; i++) {
+    deviceName.push_back("");
+    deviceNum.push_back(-1);
+  }
   /*
     VAFT Devices List with are on GEB, this is broken, needs to be fixed
-  */
   deviceName[9]  = (xdata::String)VFATnum[9];
   deviceName[10] = (xdata::String)VFATnum[10];
   deviceName[11] = (xdata::String)VFATnum[11];
   deviceName[12] = (xdata::String)VFATnum[12];
   deviceName[13] = (xdata::String)VFATnum[13];
+  */
 
-  for (int i=0; i<24; i++) deviceNum[i] = -1;
-
+  
   triggerSource = 0x0; // 0x2; 
+
   deviceChipID  = 0x0; 
-  deviceVT1     = 0x0; 
+  deviceVT1     = 35; 
   deviceVT2     = 0x0; 
 
   bag->addField("latency",       &latency );
   bag->addField("outputType",    &outputType );
   bag->addField("outFileName",   &outFileName );
 
-  bag->addField("deviceName",    &deviceName[0] );
-  bag->addField("deviceNum",     &deviceNum[0]  );
+  bag->addField("deviceName",    &deviceName );
+  bag->addField("deviceNum",     &deviceNum  );
 
   bag->addField("deviceIP",      &deviceIP    );
   bag->addField("triggerSource", &triggerSource );
@@ -59,8 +64,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 }
 
 // Main constructor
-gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStub * s)
-  throw (xdaq::exception::Exception):
+gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStub * s):
   xdaq::WebApplication(s),
   gemLogger_(this->getApplicationLogger()),
   wl_semaphore_(toolbox::BSem::FULL),
@@ -70,6 +74,12 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   is_configured_ (false),
   is_running_ (false)
 {
+  // Detect when the setting of default parameters has been performed
+  this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
+
+  getApplicationInfoSpace()->fireItemAvailable("confParams", &confParams_);
+  getApplicationInfoSpace()->fireItemValueRetrieve("confParams", &confParams_);
+
   // HyperDAQ bindings
   xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webDefault,     "Default");
   xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webConfigure,   "Configure");
@@ -81,22 +91,22 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::setParameter,   "setParameter");
 
   // SOAP bindings
-  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onConfigure,   "Configure",   XDAQ_NS_URI);
-  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStart,       "Start",       XDAQ_NS_URI);
-  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStop,        "Stop",        XDAQ_NS_URI);
-  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onHalt,        "Halt",        XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onConfigure, "Configure", XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStart,     "Start",     XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onStop,      "Stop",      XDAQ_NS_URI);
+  xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onHalt,      "Halt",      XDAQ_NS_URI);
 
   // Initiate and activate main workloop
   wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("GEMGLIBSupervisorWebWorkLoop", "waiting");
   wl_->activate();
 
   // Workloop bindings
-  configure_signature_   = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction, "configureAction");
-  start_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::startAction,     "startAction");
-  stop_signature_        = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::stopAction,      "stopAction");
-  halt_signature_        = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction,      "haltAction");
-  run_signature_         = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction");
-  read_signature_        = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction");
+  configure_signature_ = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction, "configureAction");
+  start_signature_     = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::startAction,     "startAction");
+  stop_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::stopAction,      "stopAction");
+  halt_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction,      "haltAction");
+  run_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction");
+  read_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction");
 
   // Define FSM states
   fsm_.addState('I', "Initial",    this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
@@ -132,36 +142,47 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   counter_ = 0;
 }
 
-xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onConfigure(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
+void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
 {
+  // This is called after all default configuration values have been
+  // loaded (from the XDAQ configuration file).
+  if (event.type() == "urn:xdaq-event:setDefaultValues") {
+    std::stringstream ss;
+    ss << "deviceIP=["    << confParams_.bag.deviceIP.toString()    << "]" << std::endl;
+    ss << "outFileName=[" << confParams_.bag.outFileName.toString() << "]" << std::endl;
+    ss << "outputType=["  << confParams_.bag.outputType.toString()  << "]" << std::endl;
+    ss << "latency=["     << confParams_.bag.latency.toString()     << "]" << std::endl;
+    ss << "triggerSource=[" << confParams_.bag.triggerSource.toString() << "]" << std::endl;
+    ss << "deviceChipID=["  << confParams_.bag.deviceChipID.toString()  << "]" << std::endl;
+    ss << "deviceVT1=[" << confParams_.bag.deviceVT1.toString() << "]" << std::endl;
+    ss << "deviceVT2=[" << confParams_.bag.deviceVT2.toString() << "]" << std::endl;
+    
+    INFO(ss.str());
+  }
+}
+
+xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onConfigure(xoap::MessageReference message) {
   is_working_ = true;
 
   wl_->submit(configure_signature_);
   return message;
 }
 
-xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onStart(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
-{
+xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onStart(xoap::MessageReference message) {
   is_working_ = true;
 
   wl_->submit(start_signature_);
   return message;
 }
 
-xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onStop(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
-{
+xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onStop(xoap::MessageReference message) {
   is_working_ = true;
 
   wl_->submit(stop_signature_);
   return message;
 }
 
-xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onHalt(xoap::MessageReference message)
-  throw (xoap::exception::Exception)
-{
+xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onHalt(xoap::MessageReference message) {
   is_working_ = true;
 
   wl_->submit(halt_signature_);
@@ -169,9 +190,7 @@ xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onHalt(xoap::Messa
 }
 
 // HyperDAQ interface
-void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Output * out ) {
   // Define how often main web interface refreshes
   if (!is_working_ && !is_running_) {
   }
@@ -267,9 +286,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out ) 
-  throw (xgi::exception::Exception)
-{   try{
+void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::Output * out ) {
+  try{
     cgicc::Cgicc cgi(in);
     confParams_.bag.outputType = cgi["value"]->getValue();
     //INFO(" outputType " << confParams_.bag.outputType.toString());
@@ -282,13 +300,15 @@ void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::O
   }	
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out ) {
   // Derive device number from device name
 
+  //change to vector loop J.S. July 16
   for (int i=0; i<24; i++){
     std::string tmpDeviceName = confParams_.bag.deviceName[i].toString();
+  //auto num = confParams_.bag.deviceNum.begin();
+  //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++num){
+    //std::string tmpDeviceName = chip->toString();
     int tmpDeviceNum = -1;
     tmpDeviceName.erase(0,4);
     tmpDeviceNum = atoi(tmpDeviceName.c_str());
@@ -296,6 +316,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
 
     if ( tmpDeviceNum >= 0 ) {
       confParams_.bag.deviceNum[i] = tmpDeviceNum;
+      //*num = tmpDeviceNum
+      INFO(" webConfigure : DeviceNum " << i << " " << confParams_.bag.deviceName[i].toString());
     }
   }
 
@@ -306,9 +328,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webStart(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webStart(xgi::Input * in, xgi::Output * out ) {
   // Initiate start workloop
   wl_->submit(start_signature_);
     
@@ -316,9 +336,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webStart(xgi::Input * in, xgi::Outpu
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webStop(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webStop(xgi::Input * in, xgi::Output * out ) {
   // Initiate stop workloop
   wl_->submit(stop_signature_);
 
@@ -326,9 +344,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webStop(xgi::Input * in, xgi::Output
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webHalt(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webHalt(xgi::Input * in, xgi::Output * out ) {
   // Initiate halt workloop
   wl_->submit(halt_signature_);
 
@@ -336,23 +352,24 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webHalt(xgi::Input * in, xgi::Output
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Output * out )
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Output * out ) {
   // Send L1A signal
   hw_semaphore_.take();
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
-  //for (unsigned int com = 0; com < 15; ++com) vfatDevice_->writeReg("Send.L1ACalPulse",1);
+  //optohybridDevice_->SendL1ACal(15,1);
 
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.L1A",0x1);
-
+  optohybridDevice_->SendL1A(1);
+  
+  /* this seems to do nothing J.S July 16
+  //change to vector loop J.S. July 16
   for (int i=0; i<24; i++){
     std::string VfatName = confParams_.bag.deviceName[i].toString();
+  //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip){
+    //std::string VfatName = chip->toString();
     if (VfatName != ""){
-      //DEBUG(" webTrigger : deviceName [" << i << "] " << VfatName);
+      INFO(" webTrigger : deviceName [" << i << "] " << VfatName);
     }
   }
-
+  */
 
   hw_semaphore_.give();
 
@@ -360,9 +377,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   this->webRedirect(in, out);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::webRedirect(xgi::Input *in, xgi::Output* out) 
-  throw (xgi::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::webRedirect(xgi::Input *in, xgi::Output* out)  {
   // Redirect to main web interface
   std::string url = "/" + getApplicationDescriptor()->getURN() + "/Default";
   *out << "<meta http-equiv=\"refresh\" content=\"0;" << url << "\">" << std::endl;
@@ -403,14 +418,27 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   wl_semaphore_.take();
   hw_semaphore_.take();
 
+   // GLIB data buffer validation
+  boost::format linkForm("LINK%d");
+  uint32_t fifoDepth[3];
+  fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
+  fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
+  fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
+    
+  if(fifoDepth[0])
+    INFO("bufferDepth[0] (runAction) = " << std::hex << fifoDepth[0] << std::dec);
+  if(fifoDepth[1])
+    INFO("bufferDepth[1] (runAction) = " << std::hex << fifoDepth[1] << std::dec);
+  if(fifoDepth[2])
+    INFO("bufferDepth[2] (runAction) = " << std::hex << fifoDepth[2] << std::dec);
+
   // Get the size of GLIB data buffer
-  vfatDevice_->setDeviceBaseNode("GLIB");
-  uint32_t bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
+  uint32_t bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
 
   wl_semaphore_.give();
   hw_semaphore_.give();
 
-  INFO("bufferDepth = " << std::hex << bufferDepth << std::dec);
+  INFO("LINK1: bufferDepth = " << std::hex << bufferDepth << std::dec);
 
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth) {
@@ -434,69 +462,53 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 }
 
 // State transitions
-void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception)
-{
+void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt) {
   is_working_ = true;
   counter_ = 0;
   
   hw_semaphore_.take();
+  glibDevice_       = new gem::hw::glib::HwGLIB();
+  glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+  glibDevice_->connectDevice();
 
+  optohybridDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
+  optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+  optohybridDevice_->connectDevice();
+
+
+  /**Definitely need to rework this J.S July 16*/
+  //change to vector loop J.S. July 16
   for (int i=0; i<24; i++){
-
     std::string VfatName = confParams_.bag.deviceName[i].toString();
-    if (VfatName != ""){
+  //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip){
+    //std::string VfatName = chip->toString();
 
+    if (VfatName != "")
       // Define device
-      vfatDevice_ = new gem::hw::vfat::HwVFAT2(VFATnum[i]);
-
-      vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
-      vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-
-      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
-
-      vfatDevice_->connectDevice();
-      vfatDevice_->readVFAT2Counters();
-      vfatDevice_->setRunMode(0);
-      confParams_.bag.deviceChipID = vfatDevice_->getChipID();
-
-      latency_   = confParams_.bag.latency;
-
-      // Set VFAT2 registers
-      vfatDevice_->loadDefaults();
-      // vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
-      // vfatDevice_->setCalibrationMode(0x0); //set to normal
-      // vfatDevice_->setMSPolarity(     0x1); //negative
-      // vfatDevice_->setCalPolarity(    0x1); //negative
-
-      // vfatDevice_->setProbeMode(        0x0);
-      // vfatDevice_->setLVDSMode(         0x0);
-      // vfatDevice_->setDACMode(          0x0);
-      // vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
-
-      // vfatDevice_->setHitCountMode( 0x0);
-      // vfatDevice_->setMSPulseLength(0x3);
-      // vfatDevice_->setInputPadMode( 0x0);
-      // vfatDevice_->setTrimDACRange( 0x0);
-      // vfatDevice_->setBandgapPad(   0x0);
-      // vfatDevice_->sendTestPattern( 0x0);
-
-      // vfatDevice_->setIPreampIn(  168);
-      // vfatDevice_->setIPreampFeed(150);
-      // vfatDevice_->setIPreampOut(  80);
-      // vfatDevice_->setIShaper(    150);
-      // vfatDevice_->setIShaperFeed(100);
-      //vfatDevice_->setIComp(      120);
-
-      vfatDevice_->setLatency(latency_);
-
-      vfatDevice_->setVThreshold1(2);
-      confParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
-      vfatDevice_->setVThreshold2(0);
-      confParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
-      confParams_.bag.latency = vfatDevice_->getLatency();
-
-    }
+      vfatDevice_.push_back(new gem::hw::vfat::HwVFAT2(VfatName));
+  }
+  
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip){
+    (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
+    
+    (*chip)->connectDevice();
+    (*chip)->readVFAT2Counters();
+    (*chip)->setRunMode(0);
+    confParams_.bag.deviceChipID = (*chip)->getChipID();
+    
+    latency_   = confParams_.bag.latency;
+    
+    // Set VFAT2 registers
+    (*chip)->loadDefaults();
+    
+    (*chip)->setLatency(latency_);
+    
+    (*chip)->setVThreshold1(50);
+    confParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
+    (*chip)->setVThreshold2(0);
+    confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
+    confParams_.bag.latency = (*chip)->getLatency();
+    
   }
 
   // Create a new output file
@@ -516,20 +528,48 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   tmpType = confParams_.bag.outputType.toString();
 
   // Book GEM Data Parker
-  gemDataParker = new gem::readout::GEMDataParker(*vfatDevice_, tmpFileName, tmpType);
+  gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpType);
 
   // scanStream.close();
   outf.close();
 
   hw_semaphore_.give();
 
-  is_configured_  = true;
+  /** Super hacky, also doesn't work as the state is taken from the FSM rather
+      than this parameter (as it should), J.S July 16*/
+  if (glibDevice_->isHwConnected()) {
+    INFO("GLIB device connected");
+    if (optohybridDevice_->isHwConnected()) {
+      INFO("OptoHybrid device connected");
+      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip){
+	if ((*chip)->isHwConnected()) {
+	  INFO("VFAT device connected");
+	  is_configured_  = true;
+	} else {
+	  INFO("VFAT device not connected, breaking out");
+	  is_configured_  = false;
+	  is_working_     = false;    
+	  return;
+	}
+      }
+    } else {
+      INFO("OptoHybrid device not connected, breaking out");
+      is_configured_  = false;
+      is_working_     = false;    
+      return;
+    }
+  } else {
+    INFO("GLIB device not connected, breaking out");
+    is_configured_  = false;
+    is_working_     = false;    
+    return;
+  }
+  //is_configured_  = true;
   is_working_     = false;    
-
+  
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Reference evt) {
   is_working_ = true;
 
   is_running_ = true;
@@ -537,74 +577,73 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   /*
   //set clock source
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.CLOCKING");
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"VFAT.SOURCE",  0x0);
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"CDCE.SOURCE",  0x0);
+  optohybridDevice_->SetVFATClock();
+  optohybridDevice_->SetCDCEClock();
   */
 
   //send resync
-  INFO("deviceBaseNode = " << vfatDevice_->getDeviceBaseNode());
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.FAST_COM");
-  INFO("deviceBaseNode = " << vfatDevice_->getDeviceBaseNode());
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"Send.Resync",        0x1);
+  optohybridDevice_->SendResync();
 
   //reset counters
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS");
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.External",0x1);
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Internal",0x1);
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Delayed", 0x1);
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.L1A.Total",   0x1);
+  optohybridDevice_->ResetL1ACount(0x4);
 
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.Resync",      0x1);
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.BC0",         0x1);
+  optohybridDevice_->ResetResyncCount();
+  optohybridDevice_->ResetBC0Count();
 
   //flush FIFO
-  vfatDevice_->setDeviceBaseNode("GLIB.LINK1");
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TRK_FIFO.FLUSH",     0x1);
+  for (int i = 0; i < 2; ++i)
+    glibDevice_->flushFIFO(i);
 
   /*
-    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.External",0x1);
-    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.Internal",0x1);
-    vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"RESETS.CalPulse.Total",   0x1);
+    optohybridDevice_->ResetCalPulseCount(0x3);
   */
 
   /*
   //set trigger source
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.TRIGGER");
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"SOURCE",   0x0); //0x2 
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TDC_SBits",(unsigned)confParams_.bag.deviceNum[11]);
+  optohybridDevice_->setTrigSource(0x0);
+  optohybridDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
 
-  vfatDevice_->setDeviceBaseNode("GLIB");
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TDC_SBits",(unsigned)confParams_.bag.deviceNum[11]);
+  glibDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
   */
 
-  for (int i=0; i<24; i++){
-    std::string VfatName = confParams_.bag.deviceName[i].toString();
-    if (VfatName != ""){
-      //INFO(" startAction : deviceName [" << i << "] " << VfatName);
-      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
-      vfatDevice_->setRunMode(1);
-    }
-  }
+  //change to vector loop J.S. July 16
+  //for (int i=0; i<24; i++){
+  //std::string VfatName = confParams_.bag.deviceName[i].toString();
+  //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip){
+  //std::string VfatName = chip->toString();
+  //if (VfatName != ""){
+  //INFO(" startAction : deviceName [" << i << "] " << VfatName);
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
+    (*chip)->setRunMode(1);
+  //}
+  //}
 
   hw_semaphore_.give();
   is_working_ = false;
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt) {
   is_running_ = false;
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
   counter_ = 0;
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    delete (*chip);
+    (*chip) = NULL;
+  }
+  delete glibDevice_;
+  glibDevice_ = NULL;
+
+  delete optohybridDevice_;
+  optohybridDevice_ = NULL;
+
   delete gemDataParker;
+  gemDataParker = NULL;
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::noAction(toolbox::Event::Reference evt)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::noAction(toolbox::Event::Reference evt) {
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::fireEvent(std::string name){
@@ -612,10 +651,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::fireEvent(std::string name){
   fsm_.fireEvent(event);
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::stateChanged(toolbox::fsm::FiniteStateMachine &fsm) {
 }
 
-void gem::supervisor::GEMGLIBSupervisorWeb::transitionFailed(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception){
+void gem::supervisor::GEMGLIBSupervisorWeb::transitionFailed(toolbox::Event::Reference event) {
 }

@@ -372,10 +372,10 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input * in, xgi::Output * ou
     gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(out, vfatParams_);
     
     *out << cgicc::section() << std::endl
-	 << "Bad headers:: " << (vfatDevice->ipBusErrs).badHeader_     << cgicc::br() << std::endl
-	 << "Read errors:: " << (vfatDevice->ipBusErrs).readError_     << cgicc::br() << std::endl
-	 << "Timeouts   :: " << (vfatDevice->ipBusErrs).timeouts_      << cgicc::br() << std::endl
-	 << "CH errors  :: " << (vfatDevice->ipBusErrs).controlHubErr_ << cgicc::br() << std::endl
+	 << "Bad headers:: " << (vfatDevice->ipBusErrs_).BadHeader     << cgicc::br() << std::endl
+	 << "Read errors:: " << (vfatDevice->ipBusErrs_).ReadError     << cgicc::br() << std::endl
+	 << "Timeouts   :: " << (vfatDevice->ipBusErrs_).Timeout       << cgicc::br() << std::endl
+	 << "CH errors  :: " << (vfatDevice->ipBusErrs_).ControlHubErr << cgicc::br() << std::endl
 	 << cgicc::section() << std::endl;
     
     *out << cgicc::form() << cgicc::br() << std::endl;
