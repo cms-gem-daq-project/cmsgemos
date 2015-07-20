@@ -5,9 +5,11 @@
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   //gemLogger_(gemLogger),
   //gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(deviceName))),
+  //p_gemConnectionManager(0),
+  //p_gemHW(0),
   gemLogger_(log4cplus::Logger::getInstance(deviceName)),
-  gemHWP_(0),
-  hwLock_(toolbox::BSem::FULL, true)
+  hwLock_(toolbox::BSem::FULL, true),
+  is_connected_(false)
   //monGEMHw_(0)
 {
   //need to grab these parameters from the xml file or from some configuration space/file/db
@@ -18,10 +20,10 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
   
-  ipBusErrs.badHeader_     = 0;
-  ipBusErrs.readError_     = 0;
-  ipBusErrs.timeouts_      = 0;
-  ipBusErrs.controlHubErr_ = 0;
+  ipBusErrs_.BadHeader     = 0;
+  ipBusErrs_.ReadError     = 0;
+  ipBusErrs_.Timeout       = 0;
+  ipBusErrs_.ControlHubErr = 0;
     
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
@@ -46,10 +48,12 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
    **/
 }
 
-gem::hw::GEMHwDevice::GEMHwDevice(const std::string& connectionFile,
-				  const std::string& cardName):
-  gemHWP_(0),
-  hwLock_(toolbox::BSem::FULL, true)
+gem::hw::GEMHwDevice::GEMHwDevice(std::string const& connectionFile,
+				  std::string const& cardName):
+  //p_gemConnectionManager(0),
+  //p_gemHW(0),
+  hwLock_(toolbox::BSem::FULL, true),
+  is_connected_(false)
   //monGEMHw_(0)
 {
   gemLogger_ = log4cplus::Logger::getInstance(cardName);
@@ -63,32 +67,35 @@ gem::hw::GEMHwDevice::GEMHwDevice(const std::string& connectionFile,
   setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
   
-  ipBusErrs.badHeader_     = 0;
-  ipBusErrs.readError_     = 0;
-  ipBusErrs.timeouts_      = 0;
-  ipBusErrs.controlHubErr_ = 0;
+  ipBusErrs_.BadHeader     = 0;
+  ipBusErrs_.ReadError     = 0;
+  ipBusErrs_.Timeout       = 0;
+  ipBusErrs_.ControlHubErr = 0;
   
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
 }
 
 gem::hw::GEMHwDevice::~GEMHwDevice()
 {
-  if (gemHWP_)
-    releaseDevice();
+  //if (p_gemHW)
+  //  releaseDevice();
+  //if (p_gemConnectionManager)
+  //  delete p_gemConnectionManager;
+  //p_gemConnectionManager = 0;
 }
 
 std::string gem::hw::GEMHwDevice::printErrorCounts() const {
   std::stringstream errstream;
   errstream << "errors while accessing registers:"              << std::endl 
-	    << "Bad header:  "       <<ipBusErrs.badHeader_     << std::endl
-	    << "Read errors: "       <<ipBusErrs.readError_     << std::endl
-	    << "Timeouts:    "       <<ipBusErrs.timeouts_      << std::endl
-	    << "Controlhub errors: " <<ipBusErrs.controlHubErr_ << std::endl;
+	    << "Bad header:  "       <<ipBusErrs_.BadHeader     << std::endl
+	    << "Read errors: "       <<ipBusErrs_.ReadError     << std::endl
+	    << "Timeouts:    "       <<ipBusErrs_.Timeout       << std::endl
+	    << "Controlhub errors: " <<ipBusErrs_.ControlHubErr << std::endl;
   INFO(errstream);
   return errstream.str();
 }
 
-// void gem::hw::GEMHwDevice::connectDevice(const std::string& devicename, uhal::HwInterface& hw_)
+// void gem::hw::GEMHwDevice::connectDevice(std::string const& devicename, uhal::HwInterface& hw_)
 // {
 // }
 
@@ -120,10 +127,10 @@ void gem::hw::GEMHwDevice::connectDevice()
   
   //int retryCount = 0;
   
-  uhal::HwInterface* tmpHWP = 0;
+  std::shared_ptr<uhal::HwInterface> tmpHWP;
   
   try {
-    tmpHWP = new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable));
+    tmpHWP.reset(new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable)));
   } catch (uhal::exception::FileNotFound const& err) {
     std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
 					"(or one of its included address table modules).",
@@ -140,11 +147,11 @@ void gem::hw::GEMHwDevice::connectDevice()
     ERROR(msg);
   }
   
-  gemHWP_ = tmpHWP;
+  p_gemHW.swap(tmpHWP);
   if (isHwConnected())
-    INFO("Successfully connected to the hardware.");
+    INFO("connectDevice::HwDevice pointer active");
   else
-    INFO("Unable to establish connection with the hardware.");
+    INFO("connectDevice::Unable to establish connection with the hardware.");
   //maybe raise exception here?
 }
 
@@ -155,10 +162,10 @@ void gem::hw::GEMHwDevice::configureDevice()
 
 void gem::hw::GEMHwDevice::releaseDevice()
 {
-  if (gemHWP_ != 0) {
-    delete gemHWP_;
-    gemHWP_ = 0;
-  }
+  //if (p_gemHW != 0) {
+  //  delete p_gemHW;
+  //  p_gemHW = 0;
+  //}
 }
 
 void gem::hw::GEMHwDevice::enableDevice()
@@ -207,12 +214,12 @@ void gem::hw::GEMHwDevice::enableDevice()
 
 uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 {
-  if (gemHWP_ == 0) {
+  if (p_gemHW == NULL) {
     std::string msg = "Trying to access hardware before connecting.";
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
   } else {
-    uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*gemHWP_);
+    uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
     return hw;
   }
 }
@@ -258,7 +265,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
   std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read register %s",name.c_str());
   ERROR(msg);
   //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  //return res;
+  return res;
 }
 
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
@@ -473,7 +480,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
   std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read block");
   ERROR(msg);
   //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
-  //return res;
+  return res;
 }
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
@@ -529,17 +536,17 @@ bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
 
 void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
   if (errCode.find("amount of data")    != std::string::npos)
-    ++ipBusErrs.badHeader_;
+    ++ipBusErrs_.BadHeader;
   if (errCode.find("INFO CODE = 0x4L")  != std::string::npos)
-    ++ipBusErrs.readError_;
+    ++ipBusErrs_.ReadError;
   if ((errCode.find("INFO CODE = 0x6L") != std::string::npos) ||
       (errCode.find("timed out")        != std::string::npos))
-    ++ipBusErrs.timeouts_;
+    ++ipBusErrs_.Timeout;
   if (errCode.find("ControlHub error code is: 4") != std::string::npos)
-    ++ipBusErrs.controlHubErr_;
+    ++ipBusErrs_.ControlHubErr;
   if ((errCode.find("had response field = 0x04") != std::string::npos) ||
       (errCode.find("had response field = 0x06") != std::string::npos))
-    ++ipBusErrs.controlHubErr_;
+    ++ipBusErrs_.ControlHubErr;
 }
 
 void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)

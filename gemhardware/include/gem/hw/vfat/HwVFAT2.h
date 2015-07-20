@@ -1,8 +1,6 @@
 #ifndef gem_hw_vfat_HwVFAT2_h
 #define gem_hw_vfat_HwVFAT2_h
 
-#include "xdaq/Application.h"
-
 #include "xdata/String.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
@@ -31,10 +29,6 @@ namespace uhal {
   class HwInterface;
 }
 
-namespace xdaq {
-  class Application;;
-}
-
 namespace gem {
   namespace hw {
     namespace vfat {
@@ -43,14 +37,19 @@ namespace gem {
       
       //class VFAT2ChannelSettings;
       //class VFAT2Settings;
-
+      
       class HwVFAT2: public gem::hw::GEMHwDevice
 	{
 	public:
-	  /*
-	  HwVFAT2(xdaq::Application * vfat2App,
-		  std::string const& vfatDevice="VFAT13");
-	  */
+	  typedef struct TransactionErrors {
+	    int Error     ;
+	    int Invalid   ;
+	    int RWMismatch;
+
+	  TransactionErrors() : Error(0),Invalid(0),RWMismatch(0) {};
+	    void reset()       {Error=0; Invalid=0; RWMismatch=0;return; };
+	  } TransactionErrors;
+
 	  HwVFAT2(std::string const& vfatDevice="VFAT13");
 	  //HwVFAT2(xdaq::Application * vfat2App);
 	  //throw (xdaq::exception::Exception);
@@ -580,6 +579,7 @@ namespace gem {
 	  //log4cplus::Logger logVFAT_;
 	  //uhal::HwInterface *hwVFAT_;
 	  
+	  TransactionErrors vfatErrors_;
 	  gem::hw::vfat::VFAT2ControlParams vfatParams_;
 	  //uhal::HwInterface& getVFA2Hw();
 	  

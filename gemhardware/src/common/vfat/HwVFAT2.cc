@@ -137,6 +137,9 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
     } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
       is_connected_ = false;
       return false;      
+    } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+      is_connected_ = false;
+      return false;      
     }
     
   } else {
@@ -155,7 +158,7 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
   //bit 26 - error
   (readVal >> 26) & 0x1;
   //bit 25 - valid
-  (readVal >> 25) & 0x1;
+  (readVal >> 25) & 0x0;
   //bit 24 - r/w
   (readVal >> 24) & 0x1;
   //bit 23:16 - VFAT number
@@ -166,12 +169,18 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
   //bit 7:0   - register value
   if ((readVal >> 26) & 0x1) {
     std::string msg = toolbox::toString("VFAT transaction error bit set reading register %s",regName.c_str());
+    ++vfatErrors_.Error;
+    ERROR(msg);
     XCEPT_RAISE(gem::hw::vfat::exception::TransactionError,msg);
   } else if ((readVal >> 25) & 0x0){
     std::string msg = toolbox::toString("VFAT transaction invalid bit set reading register %s",regName.c_str());
+    ++vfatErrors_.Invalid;
+    ERROR(msg);
     XCEPT_RAISE(gem::hw::vfat::exception::InvalidTransaction,msg);
   } else if ((readVal >> 24) & 0x0){
     std::string msg = toolbox::toString("VFAT read transaction returned write on register %s",regName.c_str());
+    ++vfatErrors_.RWMismatch;
+    ERROR(msg);
     XCEPT_RAISE(gem::hw::vfat::exception::WrongTransaction,msg);
   } else {
     return (readVal & 0xff);
@@ -197,6 +206,8 @@ void gem::hw::vfat::HwVFAT2::readVFAT2Counters()
   } catch (gem::hw::vfat::exception::TransactionError& e) {
     DEBUG(e.what());
   } catch (gem::hw::vfat::exception::InvalidTransaction& e) {
+    DEBUG(e.what());
+  } catch (gem::hw::vfat::exception::WrongTransaction& e) {
     DEBUG(e.what());
   }
 }
@@ -359,6 +370,8 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
     WARN("Problem reading the control registers, transaction error bit set");
   } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
     WARN("Problem reading the control registers, invalid transaction bit set");
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+    WARN("Problem reading the control registers, wrong transaction bit set");
   }
 
   try {
@@ -379,6 +392,8 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
     WARN("Problem reading the analog settings registers, transaction error bit set");
   } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
     WARN("Problem reading the analog settings registers, invalid transaction bit set");
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+    WARN("Problem reading the analog settings registers, wrong transaction bit set");
   }
 
   //counters
@@ -390,6 +405,8 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
     WARN("Problem reading the VFAT counter registers, transaction error bit set");
   } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
     WARN("Problem reading the VFAT counter registers, invalid transaction bit set");
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+    WARN("Problem reading the VFAT counter registers, wrong transaction bit set");
   }
 
   //set the channel settings here
@@ -401,6 +418,8 @@ void gem::hw::vfat::HwVFAT2::getAllSettings() {
     WARN("Problem reading the VFAT channel registers, transaction error bit set");
   } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
     WARN("Problem reading the VFAT channel registers, invalid transaction bit set");
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+    WARN("Problem reading the VFAT channel registers, wrong transaction bit set");
   }
   DEBUG("done getting all settings in HwVFAT2.cc");
 }
@@ -421,12 +440,21 @@ void gem::hw::vfat::HwVFAT2::enableCalPulseToChannel(uint8_t channel, bool on) {
   if (channel > 1)
     registerName = toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel);
   
-  uint8_t channelSettings = readVFATReg(registerName);
-  
-  if (channel == 0) 
-    writeVFATReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL0)|(on ? 0x80 : 0x0));
-  else
-    writeVFATReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL)|(on ? 0x40 : 0x0));
+  try {
+    uint8_t channelSettings = readVFATReg(registerName);
+    
+    if (channel == 0) 
+      writeVFATReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL0)|(on ? 0x80 : 0x0));
+    else
+      writeVFATReg(registerName,(channelSettings&~VFAT2ChannelBitMasks::CHANCAL)|(on ? 0x40 : 0x0));
+  } catch (gem::hw::vfat::exception::TransactionError const& e) {
+    WARN("Problem reading the control registers, transaction error bit set");
+  } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
+    WARN("Problem reading the control registers, invalid transaction bit set");
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+    WARN("Problem reading the control registers, wrong transaction bit set");
+  }
+
 }
 
 void gem::hw::vfat::HwVFAT2::maskChannel(uint8_t channel, bool on) {
@@ -439,9 +467,17 @@ void gem::hw::vfat::HwVFAT2::maskChannel(uint8_t channel, bool on) {
     ERROR(msg);
     return;
   }
-  std::string registerName = toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel);
-  uint8_t channelSettings = (readVFATReg(registerName)&~VFAT2ChannelBitMasks::ISMASKED);
-  writeVFATReg(registerName,channelSettings|(on ? 0x20 : 0x0));
+  try {
+    std::string registerName = toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel);
+    uint8_t channelSettings = (readVFATReg(registerName)&~VFAT2ChannelBitMasks::ISMASKED);
+    writeVFATReg(registerName,channelSettings|(on ? 0x20 : 0x0));
+  } catch (gem::hw::vfat::exception::TransactionError const& e) {
+    WARN("Problem reading the control registers, transaction error bit set");
+  } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
+    WARN("Problem reading the control registers, invalid transaction bit set");
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+    WARN("Problem reading the control registers, wrong transaction bit set");
+  }
 }
 
 uint8_t gem::hw::vfat::HwVFAT2::getChannelTrimDAC(uint8_t channel) {
@@ -450,7 +486,7 @@ uint8_t gem::hw::vfat::HwVFAT2::getChannelTrimDAC(uint8_t channel) {
   if ((channel > 128) || (channel < 1)) {
     std::string msg =
       toolbox::toString("Channel specified (%d) outside expectation (1-128)",channel);
-    XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel,msg);
+    //XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel,msg);
     return 0xff;
   }
   std::string registerName = toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel);
@@ -463,12 +499,20 @@ void gem::hw::vfat::HwVFAT2::setChannelTrimDAC(uint8_t channel, uint8_t trimDAC)
   if ((channel > 128) || (channel < 1)) {
     std::string msg =
       toolbox::toString("Channel specified (%d) outside expectation (1-128)",channel);
-    XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel,msg);
+    //XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel,msg);
     return;
   }
   std::string registerName = toolbox::toString("VFATChannels.ChanReg%d",channel);
-  uint8_t channelSettings = (readVFATReg(registerName)&~VFAT2ChannelBitMasks::TRIMDAC)|trimDAC;
-  writeVFATReg(registerName,channelSettings|trimDAC);
+  try {
+    uint8_t channelSettings = (readVFATReg(registerName)&~VFAT2ChannelBitMasks::TRIMDAC)|trimDAC;
+    writeVFATReg(registerName,channelSettings|trimDAC);
+  } catch (gem::hw::vfat::exception::TransactionError const& e) {
+    WARN("Problem reading the control registers, transaction error bit set");
+  } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
+    WARN("Problem reading the control registers, invalid transaction bit set");
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+    WARN("Problem reading the control registers, wrong transaction bit set");
+  }
 }
 
 /***

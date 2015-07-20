@@ -117,15 +117,16 @@ print "-> GLIB link num: %10s  %12s    %10s    %10s    %10s    %10s    %10s"%("E
 sys.stdout.flush()
 
 for link in (links.keys()):
+	readTrackingInfo(glib,links[link])
 	rates = errorRate(errorCounts[link],SAMPLE_TIME)
 	counters = linkCounters(True,glib,False)
-	print "-> link%d        : 0x%08x   (%6.2f%sHz)    0x%08x    0x%08x    0x%08x    0x%08x    0x%08x"%(link,
-													   counters["LinkErrors"],
-													   rates[0], rates[1],
-													   counters["TRK_FIFO_Depth"],
-													   counters["RecI2CRequests"],
-													   counters["SntI2CRequests"],
-													   counters["RecRegRequests"],
-													   counters["SntRegRequests"])
+	print "-> link%d        : 0x%08x   (%6.2f%1sHz)    0x%08x    0x%08x    0x%08x    0x%08x    0x%08x"%(link,
+													    counters["LinkErrors"],
+													    rates[0], rates[1],
+													    counters["TRK_FIFO_Depth"],
+													    counters["RecI2CRequests"],
+													    counters["SntI2CRequests"],
+													    counters["RecRegRequests"],
+													    counters["SntRegRequests"])
 print "--=======================================--"
 sys.stdout.flush()
