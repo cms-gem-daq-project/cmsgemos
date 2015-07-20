@@ -58,11 +58,16 @@ namespace gem {
         return(true);
       };	  
 
+      bool readGEBheader(ifstream& inpf, GEBData& geb){
+	inpf >> hex >> geb.header;
+        return(true);
+      };	  
+
       bool printGEBheader(int event, const GEBData& geb){
         if( event<0) return(false);
- 	  cout << "Received tracking data word: event " << event << endl;
-	  cout << " 0x" << std::setw(8) << hex << geb.header << " ChamID " << ((0x000000fff0000000 & geb.header) >> 28) 
-               << dec << " sumVFAT " << (0x000000000fffffff & geb.header) << endl;
+ 	cout << "Received tracking data word: event " << event << endl;
+	cout << " 0x" << std::setw(8) << hex << geb.header << " ChamID " << ((0x000000fff0000000 & geb.header) >> 28) 
+             << dec << " sumVFAT " << (0x000000000fffffff & geb.header) << endl;
         return(true);
       };	  
 
@@ -80,6 +85,21 @@ namespace gem {
         if(!outf.is_open()) return(false);
           outf << hex << geb.trailer << dec << endl;
           outf.close();
+        return(true);
+      };	  
+
+      bool readGEBtrailer(ifstream& inpf, GEBData& geb){
+ 	inpf >> hex >> geb.trailer;
+        return(true);
+      };	  
+
+      bool printGEBtrailer(int event, const GEBData& geb){
+        if( event<0) return(false);
+        uint64_t OHcrc      = (0xffff000000000000 & geb.trailer) >> 48; 
+        uint64_t OHwCount   = (0x0000ffff00000000 & geb.trailer) >> 32; 
+        uint64_t ChamStatus = (0x00000000ffff0000 & geb.trailer) >> 16;
+        cout << "GEM Camber Treiler: OHcrc " << hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << dec 
+             << endl;
         return(true);
       };	  
 
@@ -109,6 +129,17 @@ namespace gem {
 	  cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.crc    << dec << endl;
         return(true);
       };
+
+      bool readVFATdata(ifstream& inpf, int event, VFATData& vfat){
+        if(event<0) return(false);
+        inpf >> hex >> vfat.BC;
+        inpf >> hex >> vfat.EC;
+        inpf >> hex >> vfat.ChipID;
+        inpf >> hex >> vfat.lsData;
+        inpf >> hex >> vfat.msData;
+        inpf >> hex >> vfat.crc;
+        return(true);
+      };	  
 
       bool writeGEBheaderBinary(string file, int event, const GEBData& geb){
         ofstream outf(file.c_str(), ios_base::app | ios::binary );
