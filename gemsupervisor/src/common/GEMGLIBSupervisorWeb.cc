@@ -30,19 +30,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   /*
     VAFT Devices List with are on GEB, this is broken, needs to be fixed
-  deviceIP     = "192.168.0.164";
-  deviceName[12] = (xdata::String)VFATnum[12];
   */
 
-  deviceIP     = "192.168.0.162";
-  deviceName[12] = (xdata::String)VFATnum[12];
-  /*
-  deviceName[1] = (xdata::String)VFATnum[1];
-  deviceName[5] = (xdata::String)VFATnum[5];
-  deviceName[9] = (xdata::String)VFATnum[9];
-  deviceName[13] = (xdata::String)VFATnum[13];
+  deviceIP     = "192.168.0.164";
+  deviceName[8]  = (xdata::String)VFATnum[8];
+  deviceName[9]  = (xdata::String)VFATnum[9];
   deviceName[10] = (xdata::String)VFATnum[10];
   deviceName[11] = (xdata::String)VFATnum[11];
+  deviceName[12] = (xdata::String)VFATnum[12];
+  deviceName[13] = (xdata::String)VFATnum[13];
+  /*
   */
   
   triggerSource = 0x0; 
@@ -491,7 +488,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       vfatDevice_->setLatency(latency_);
       confParams_.bag.latency = vfatDevice_->getLatency();
 
-      vfatDevice_->setVThreshold1(60);
+      vfatDevice_->setVThreshold1(50);
       confParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
 
       vfatDevice_->setVThreshold2(0);
@@ -582,9 +579,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   for (int i=0; i<24; i++){
     std::string VfatName = confParams_.bag.deviceName[i].toString();
     if (VfatName != ""){
+      // On
       INFO(" startAction : deviceName [" << i << "] " << VfatName);
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
       vfatDevice_->setRunMode(1);
+    } else {
+      //Off
+      /*
+      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
+      vfatDevice_->setRunMode(0);
+      */
     }
   }
 
