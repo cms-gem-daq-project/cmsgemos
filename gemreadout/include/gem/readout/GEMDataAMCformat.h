@@ -60,7 +60,7 @@ namespace gem {
 
       bool printGEBheader(int event, const GEBData& geb){
         if( event<0) return(false);
- 	  cout << "Received tracking data word:" << endl;
+ 	  cout << "Received tracking data word: event " << event << endl;
 	  cout << " 0x" << std::setw(8) << hex << geb.header << " ChamID " << ((0x000000fff0000000 & geb.header) >> 28) 
                << dec << " sumVFAT " << (0x000000000fffffff & geb.header) << endl;
         return(true);
@@ -201,7 +201,7 @@ namespace gem {
 
       bool printVFATdataBits(int event, const VFATData& vfat){
         if( event<0) return(false);
- 	  cout << "\nReceived VFAT data word:" << endl;
+ 	  cout << "\nReceived VFAT data word: ichip " << event << endl;
 
           uint8_t   b1010 = (0xf000 & vfat.BC) >> 12;
           show4bits(b1010); cout << " BC     0x" << hex << (0x0fff & vfat.BC) << dec << endl;
