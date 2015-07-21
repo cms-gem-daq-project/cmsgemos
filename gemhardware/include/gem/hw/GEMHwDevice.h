@@ -1,18 +1,12 @@
 #ifndef gem_hw_GEMHwDevice_h
 #define gem_hw_GEMHwDevice_h
 
-<<<<<<< HEAD
-#include <iomanip>
-#include "xdaq/Application.h"
-#include "xdata/ActionListener.h"
-=======
 #include "xdata/String.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
 #include "toolbox/string.h"
 
 #include <iomanip>
->>>>>>> origin/develop
 
 #include "gem/hw/exception/Exception.h"
 
