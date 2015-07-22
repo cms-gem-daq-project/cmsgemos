@@ -23,6 +23,32 @@
             <GTPLock>OFF</GTPLock>
             <FW>X.Y.Z</FW>
             <IP>192.168.0.162</IP>
+            <VFATSettings VFATId="VFAT0">
+                <CalMode>NORMAL</CalMode>
+                <CalPolarity>POSITIVE</CalPolarity>
+                <MSPolarity>POSITIVE</MSPolarity>
+                <TriggerMode>GEMMODE</TriggerMode>
+                <RunMode>SLEEP</RunMode>
+                <ReHitCT>6.4MICROSEC</ReHitCT>
+                <LVDSPowerSave>OFF</LVDSPowerSave>
+                <DACMode>NORMAL</DACMode>
+                <DigInSel>DIGITAL</DigInSel>
+                <MSPulseLength>CLOCK3</MSPulseLength>
+                <HitCountMode>FASTOR</HitCountMode> 
+                <PbBG>OFF</PbBG>
+                <TrimDACRange>DEFAULT</TrimDACRange>
+                <IPreampIn>168</IPreampIn>
+                <IPreampFeed>80</IPreampFeed>
+                <IPreampOut>150</IPreampOut>
+                <IShaper>150</IShaper>
+                <IShaperFeed>100</IShaperFeed>
+                <IComp>75</IComp>
+                <Latency>20</Latency>
+                <VCal>0</VCal>
+                <VThreshold1>15</VThreshold1>
+                <VThreshold2>0</VThreshold2>
+                <CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
+            </VFATSettings>
             <VFATSettings VFATId="VFAT10">
                 <CalMode>NORMAL</CalMode>
                 <CalPolarity>POSITIVE</CalPolarity>
@@ -49,7 +75,59 @@
                 <VThreshold2>0</VThreshold2>
                 <CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
             </VFATSettings>
-        </OH>
+            <VFATSettings VFATId="VFAT11">
+                <CalMode>NORMAL</CalMode>
+                <CalPolarity>POSITIVE</CalPolarity>
+                <MSPolarity>POSITIVE</MSPolarity>
+                <TriggerMode>GEMMODE</TriggerMode>
+                <RunMode>SLEEP</RunMode>
+                <ReHitCT>6.4MICROSEC</ReHitCT>
+                <LVDSPowerSave>OFF</LVDSPowerSave>
+                <DACMode>NORMAL</DACMode>
+                <DigInSel>DIGITAL</DigInSel>
+                <MSPulseLength>CLOCK3</MSPulseLength>
+                <HitCountMode>FASTOR</HitCountMode> 
+                <PbBG>OFF</PbBG>
+                <TrimDACRange>DEFAULT</TrimDACRange>
+                <IPreampIn>168</IPreampIn>
+                <IPreampFeed>80</IPreampFeed>
+                <IPreampOut>150</IPreampOut>
+                <IShaper>150</IShaper>
+                <IShaperFeed>100</IShaperFeed>
+                <IComp>75</IComp>
+                <Latency>20</Latency>
+                <VCal>0</VCal>
+                <VThreshold1>15</VThreshold1>
+                <VThreshold2>0</VThreshold2>
+                <CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
+            </VFATSettings>
+            <VFATSettings VFATId="VFAT13">
+                <CalMode>NORMAL</CalMode>
+                <CalPolarity>POSITIVE</CalPolarity>
+                <MSPolarity>POSITIVE</MSPolarity>
+                <TriggerMode>GEMMODE</TriggerMode>
+                <RunMode>SLEEP</RunMode>
+                <ReHitCT>6.4MICROSEC</ReHitCT>
+                <LVDSPowerSave>OFF</LVDSPowerSave>
+                <DACMode>NORMAL</DACMode>
+                <DigInSel>DIGITAL</DigInSel>
+                <MSPulseLength>CLOCK3</MSPulseLength>
+                <HitCountMode>FASTOR</HitCountMode> 
+                <PbBG>OFF</PbBG>
+                <TrimDACRange>DEFAULT</TrimDACRange>
+                <IPreampIn>168</IPreampIn>
+                <IPreampFeed>80</IPreampFeed>
+                <IPreampOut>150</IPreampOut>
+                <IShaper>150</IShaper>
+                <IShaperFeed>100</IShaperFeed>
+                <IComp>75</IComp>
+                <Latency>20</Latency>
+                <VCal>0</VCal>
+                <VThreshold1>15</VThreshold1>
+                <VThreshold2>0</VThreshold2>
+                <CalPhase>23</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
+            </VFATSettings>
+         </OH>
     </GLIB>
 </uTCACrate>
 </GEMSystem>
