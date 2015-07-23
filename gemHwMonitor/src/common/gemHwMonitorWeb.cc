@@ -64,7 +64,7 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
         {
 //            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice();
             gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
-            crateDevice_->setDeviceIPAddress("192.168.0.162");
+            crateDevice_->setDeviceIPAddress("192.168.0.170");
             crateDevice_->connectDevice();
             if (crateDevice_->isHwConnected())
             {
@@ -771,23 +771,44 @@ throw (xgi::exception::Exception)
             std::string currentVFATId = "VFAT";
             //currentVFATId += gemHwMonitorOH_.at(indexOH_)->getCurrentSubDeviceId(i+linkIncrenement);
             currentVFATId += std::to_string(i+linkIncrenement);
+            vfatDevice_ = new gem::hw::vfat::HwVFAT2(currentVFATId);
+            vfatDevice_->setDeviceIPAddress(glibIP);
+            vfatDevice_->connectDevice();
+            std::string runmode;
+            int n_chan = 0;
+            if (vfatDevice_->isHwConnected()) 
+            {
+                vfatDevice_->readVFAT2Counters();
+                vfatDevice_->getAllSettings(); // takes time. See with Jared how to make it better
+                runmode = gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode);
+                for (uint8_t chan = 1; chan < 129; ++chan)
+                {
+                if (vfatDevice_->getVFAT2Params().channels[chan-1].mask < 1) n_chan++;
+                }
+            } else {
+                runmode = "N/A";
+            }
+            delete vfatDevice_;
+
             *out << cgicc::td();
                 *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
                 if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 0)
                 {
-                    *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
+                    *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-success\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << n_chan << "</button></div>" << std::endl;
                 } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 1)
                 {
-                    *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
+                    *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << n_chan << "</button></div>" << std::endl;
                 } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 2)
                 {
-                    *out << "<button type=\"submit\" class=\"btn btn-danger\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
+                    *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-danger\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" <<  "000" << "</button></div>" << std::endl;
                 } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 3)
                 {
-                    *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << currentVFATId<< "</button>" << std::endl;
+                    *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << "000" << "</button></div>" << std::endl;
                 }
     
                 *out << cgicc::form() << std::endl;
+                *out << cgicc::br();
+                *out << "<div align=\"center\">" << runmode << "</div>" << std::endl;
             *out << cgicc::td();
         }
         *out << "</tr>" << std::endl;
