@@ -64,7 +64,7 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
         {
 //            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice();
             gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
-            crateDevice_->setDeviceIPAddress("192.168.0.162");
+            crateDevice_->setDeviceIPAddress("192.168.0.170");
             crateDevice_->connectDevice();
             if (crateDevice_->isHwConnected())
             {
@@ -710,7 +710,12 @@ throw (xgi::exception::Exception)
     for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
         std::string currentVFATId;
         currentVFATId += gemHwMonitorOH_.at(indexOH_)->getCurrentSubDeviceId(i);
-        *out << cgicc::td();
+	//std::ostringstream ss;
+	//ss << i;
+	//currentVFATId = "Channel" + ss.str();
+	//if (i%8==0)     *out << "<tr>" << std::endl;
+	
+	*out << cgicc::td();
             *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
             if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 0)
             {
@@ -725,6 +730,7 @@ throw (xgi::exception::Exception)
             }
             *out << cgicc::form() << std::endl;
         *out << cgicc::td();
+
     }
     *out << "</tr>" << std::endl;
     *out << cgicc::table() <<std::endl;
@@ -971,6 +977,14 @@ throw (xgi::exception::Exception)
                    //printVFAThwParameters("ProbeMode", (vfatProperties_.find("ProbeMode")->second).c_str(), (gem::hw::vfat::ProbeModeToString.at(vfatDevice_->getVFAT2Params().probeMode)).c_str(), out);
     *out << cgicc::tr();
     *out << cgicc::table();
+    
+    *out << "<button type=\"button\" class=\"btn btn-success dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" << "Channel" << "<span class=\"caret\"></button>" << std::endl;
+    *out << "<ul class=\"dropdown-menu\">" << std::endl;
+    *out << "<li><a href=\"#\">Mask</a></li>" << std::endl;
+    *out << "</ul>" <<std::endl;
+
+
+
     *out << "</div>" << std::endl;
 
     *out << cgicc::br()<< std::endl;
