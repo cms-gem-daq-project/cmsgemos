@@ -1,5 +1,6 @@
 #include "gem/hwMonitor/gemHwMonitorWeb.h"
 #include <boost/algorithm/string.hpp>
+#include <fstream>
 
 XDAQ_INSTANTIATOR_IMPL(gem::hwMonitor::gemHwMonitorWeb)
 
@@ -12,6 +13,7 @@ gem::hwMonitor::gemHwMonitorWeb::gemHwMonitorWeb(xdaq::ApplicationStub * s)
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::controlPanel, "Control Panel");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::setConfFile,"setConfFile");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::uploadConfFile,"uploadConfFile");
+    xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::displayConfFile,"displayConfFile");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::getCratesConfiguration,"getCratesConfiguration");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::pingCrate,"pingCrate");
     xgi::framework::deferredbind(this, this, &gemHwMonitorWeb::expandCrate,"expandCrate");
@@ -123,6 +125,13 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
         *out << "<button type=\"submit\" class=\"btn btn-primary\">Submit</button>" << std::endl;
         *out << cgicc::form() << std::endl ;
 
+        *out << cgicc::br()<< std::endl;
+
+        std::string methodDisplayXML = toolbox::toString("/%s/displayConfFile",getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::form().set("method","POST").set("enctype","multipart/form-data").set("action",methodDisplayXML) << std::endl ;
+        *out << "<button type=\"submit\" class=\"btn btn-primary\">View XML</button>" << std::endl;
+        *out << cgicc::form() << std::endl ;
+
         *out << cgicc::hr()<< std::endl;
 
         *out << "<h2><div align=\"center\">Connected Crates</div></h2>" << std::endl;
@@ -229,6 +238,21 @@ throw (xgi::exception::Exception)
         XCEPT_RAISE(xgi::exception::Exception, "File not found");
     }
     this->controlPanel(in,out);
+}
+
+void gem::hwMonitor::gemHwMonitorWeb::displayConfFile(xgi::Input * in, xgi::Output * out )
+throw (xgi::exception::Exception)
+{
+    cgicc::Cgicc cgi(in);
+    std::ifstream infile(gemSystemHelper_->getXMLconfigFile()); 
+    std::string line;
+    while (std::getline(infile, line))
+    {
+        std::replace( line.begin(), line.end(), '<', '[');
+        std::replace( line.begin(), line.end(), '>', ']');
+        std::replace( line.begin(), line.end(), '"', '^');
+        *out << "<pre>" << line << "</pre>" << std::endl;
+    }
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xgi::Output * out )
@@ -467,7 +491,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::table() <<std::endl;
 
     gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus_;
-    for (uint8_t i=1; i<2; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
+    for (uint8_t i=0; i<3; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
     {
         linkStatus_ = glibDevice_->LinkStatus(i);
         *out << cgicc::table().set("class","table");
