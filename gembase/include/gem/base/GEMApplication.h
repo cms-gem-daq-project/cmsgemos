@@ -38,7 +38,7 @@ namespace gem {
     class GEMApplication : public xdaq::WebApplication, public xdata::ActionListener
       {
 	friend class GEMMonitor;
-	friend class GEMFSMApplication;
+	//friend class GEMFSMApplication;
 	friend class GEMWebApplication;
 
       public:
@@ -83,11 +83,11 @@ namespace gem {
 	virtual void fillMonitoringInfoSpace();
 	virtual void updateMonitoringInfoSpace();
 
-	virtual GEMWebApplication*  getWebApp()  const { return gemWebInterfaceP_; };
-	virtual GEMMonitor*         getMonitor() const { return gemMonitorP_;      };
+	virtual GEMWebApplication *getWebApp()  const { return gemWebInterfaceP_; };
+	virtual GEMMonitor        *getMonitor() const { return gemMonitorP_;      };
 
-	GEMWebApplication* gemWebInterfaceP_; /* */
-	GEMMonitor*        gemMonitorP_;      /* */
+	GEMWebApplication *gemWebInterfaceP_; /* */
+	GEMMonitor        *gemMonitorP_;      /* */
 
 	/**
 	 * various application properties

@@ -23,6 +23,7 @@ namespace toolbox {
 
 namespace gem {
   namespace base {
+
     class GEMFSM;
     class GEMApplication;
     class GEMWebApplication;
@@ -31,7 +32,7 @@ namespace gem {
       {
       public:
 	friend class GEMFSM;
-	friend class GEMApplication;
+	//friend class GEMApplication;
 	friend class GEMWebApplication;
 	
 	GEMFSMApplication(xdaq::ApplicationStub *stub)

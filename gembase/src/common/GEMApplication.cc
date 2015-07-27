@@ -40,8 +40,8 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   throw (xdaq::exception::Exception) :
   xdaq::WebApplication(stub),
   gemLogger_(this->getApplicationLogger()),
-  gemWebInterfaceP_(0),
-  gemMonitorP_(0)
+  gemWebInterfaceP_(NULL),
+  gemMonitorP_(     NULL)
 {
   DEBUG("called gem::base::GEMApplication constructor");
   
@@ -96,23 +96,23 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
   // followed by a call to gem::base::GEMApplication::actionPerformed(event)
   /*
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() setDefaultValues" << 
+    DEBUG("GEMApplication::actionPerformed() setDefaultValues" << 
 		    "Default configuration values have been loaded from xml profile");
-    //LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed()   --> starting monitoring");
+    //DEBUG("GEMApplication::actionPerformed()   --> starting monitoring");
     //monitorP_->startMonitoring();
     }
   */
   // update monitoring variables
   if (event.type() == "ItemRetrieveEvent" || event.type() == "urn:xdata-event:ItemRetrieveEvent") {
-    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() ItemRetrieveEvent" << 
+    DEBUG("GEMApplication::actionPerformed() ItemRetrieveEvent" << 
 		    "");
   } else if (event.type() == "ItemGroupRetrieveEvent" || event.type() == "urn:xdata-event:ItemGroupRetrieveEvent") {
-    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() ItemGroupRetrieveEvent" << 
+    DEBUG("GEMApplication::actionPerformed() ItemGroupRetrieveEvent" << 
 		    "");
   }
   //item is changed, update it
   if (event.type()=="ItemChangedEvent" || event.type()=="urn:xdata-event:ItemChangedEvent") {
-    LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMApplication::actionPerformed() ItemChangedEvent" << 
+    DEBUG("GEMApplication::actionPerformed() ItemChangedEvent" << 
 		    "");
 
     /* from HCAL runInfoServer
@@ -122,7 +122,7 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
     try {
       getMonitorInfospace()->fireItemGroupChanged(names, this);
     } catch (xcept::Exception& e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),xcept::stdformat_exception_history(e));
+      ERROR(xcept::stdformat_exception_history(e));
     }
     */
   }
