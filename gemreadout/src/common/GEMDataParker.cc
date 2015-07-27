@@ -146,45 +146,6 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
       continue;
     }
 
-//sergey//    if ( !((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)) ){
-//sergey//        WARN("VFAT headers do not match expectation");
-//sergey//        glibDevice_->setDeviceBaseNode("GLIB");
-//sergey//
-//sergey//        if(b1010 != 0x0A ){ cout << "in 1010 = "; show4bits(b1010); cout << endl;}
-//sergey//        if(b1100 != 0x0C ){ cout << "in 1100 = "; show4bits(b1100); cout << endl;}
-//sergey//        if(b1110 != 0x0E ){ cout << "in 1110 = "; show4bits(b1110); cout << endl;}
-//sergey//
-//sergey//        bufferDepth = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[0] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(0))+".TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[1] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(1))+".TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[2] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(2))+".TRK_FIFO.DEPTH");
-//sergey//
-//sergey//        if(fifoDepth[0]) INFO("LINK1 bufferDepth[0] (bad header) = " << std::hex << fifoDepth[0] << std::dec);
-//sergey//        if(fifoDepth[1]) INFO("LINK1 bufferDepth[1] (bad header) = " << std::hex << fifoDepth[1] << std::dec);
-//sergey//        if(fifoDepth[2]) INFO("LINK1 bufferDepth[2] (bad header) = " << std::hex << fifoDepth[2] << std::dec);
-//sergey//
-//sergey//        bufferDepth = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),"LINK0.TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[0] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(0))+".TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[1] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(1))+".TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[2] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(2))+".TRK_FIFO.DEPTH");
-//sergey//
-//sergey//        if(fifoDepth[0]) INFO("LINK0 bufferDepth[0] (bad header) = " << std::hex << fifoDepth[0] << std::dec);
-//sergey//        if(fifoDepth[1]) INFO("LINK0 bufferDepth[1] (bad header) = " << std::hex << fifoDepth[1] << std::dec);
-//sergey//        if(fifoDepth[2]) INFO("LINK0 bufferDepth[2] (bad header) = " << std::hex << fifoDepth[2] << std::dec);
-//sergey//
-//sergey//        bufferDepth = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),"LINK2.TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[0] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(0))+".TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[1] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(1))+".TRK_FIFO.DEPTH");
-//sergey//        fifoDepth[2] = glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),boost::str(linkForm%(2))+".TRK_FIFO.DEPTH");
-//sergey//
-//sergey//        if(fifoDepth[0]) INFO("LINK2 bufferDepth[0] (bad header) = " << std::hex << fifoDepth[0] << std::dec);
-//sergey//        if(fifoDepth[1]) INFO("LINK2 bufferDepth[1] (bad header) = " << std::hex << fifoDepth[1] << std::dec);
-//sergey//        if(fifoDepth[2]) INFO("LINK2 bufferDepth[2] (bad header) = " << std::hex << fifoDepth[2] << std::dec);
-//sergey//
-//sergey//        glibDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
-//sergey//        continue;
-//sergey//      }
-
     bxNum = data.at(6);
 
     if (isFirst){
@@ -231,17 +192,13 @@ int gem::readout::GEMDataParker::getGLIBData(gem::readout::GEMData& gem, gem::re
     vfat.msData = msData;                                 // msData:64
     vfat.crc    = crc;                                    // crc:16
 
+    bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
+
    /*
     * dump VFAT data
     gem::readout::printVFATdataBits(counter_, vfat);
     */
 
-    bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
-
-    /*
-     * dump VFAT data */
-    gem::readout::printVFATdataBits(counter_, vfat);
-      
     // GEM data filling
     gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
 
