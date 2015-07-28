@@ -60,7 +60,7 @@ namespace gem {
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link << ".FIRMWARE";
 	    uint32_t fwver = readReg(getDeviceBaseNode(),regName.str());
 	    INFO("OH link" << (int)link << " has firmware version 0x" 
-		 << std::hex << fwver << std::dec);
+		 << std::hex << fwver << std::dec << std::endl);
 	    return fwver;
 	  };
 	    
