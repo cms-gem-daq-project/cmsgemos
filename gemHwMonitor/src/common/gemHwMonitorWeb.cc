@@ -936,6 +936,9 @@ throw (xgi::exception::Exception)
 {
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
+    *out << "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js\"></script>" << std::endl;
+    *out << "<script src=\"/gemdaq/gemHwMonitor/html/js/bootstrap.min.js\"></script>" << std::endl;
+
     if (gemHwMonitorVFAT_.at(indexVFAT_)->getDeviceStatus() == 2) 
     {
         *out << "<div class=\"panel panel-danger\">" << std::endl;
@@ -1032,7 +1035,11 @@ throw (xgi::exception::Exception)
 	*out << "<div class=\"panel panel-info\">" << std::endl;
 	*out << "<div class=\"panel-heading\">" << std::endl;
 	*out << "<h2><div align=\"center\">VFAT Channel Status</div></h2>" << std::endl;
-	*out << "<h4><div align=\"center\">" << "Trigger Mode: " <<  (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str()<< "</div></h4>" << std::endl;   
+	*out << "<h4><div align=\"center\">" << "Trigger Mode: " << (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str() << "</div></h4>" << std::endl;   
+	*out << "<h4><div align=\"center\">" << "Hit Count: " <<  (int)vfatDevice_->getVFAT2Params().hitCounter << " (" << (gem::hw::vfat::HitCountModeToString.at(vfatDevice_->getVFAT2Params().hitCountMode)).c_str() << ")";
+	*out << "</div></h4>" << std::endl;
+	
+
 	*out << std::endl;
 	*out << "</div>" << std::endl;
 	
@@ -1040,10 +1047,11 @@ throw (xgi::exception::Exception)
 	//*out << "<div align=\"center\">" << "Trigger Mode: " <<  vfatDevice_->getVFAT2Params().trigMode << "</div>" << std::endl;
         //*out << std::endl;
 	if (vfatDevice_->getVFAT2Params().trigMode == 0) {
-	  *out << "<div align=\"center\"><h4>VFAT is in sleep mode, channels inactive</h4></div>" << std::endl;;
+	  *out << "<div align=\"center\"><h4><font color=\"red\">VFAT is not in trigger mode, channels inactive</font></h4></div>" << std::endl;
+	  *out << std::endl;
 	}
 
-	else if (vfatDevice_->getVFAT2Params().trigMode == 3) {
+	//if (vfatDevice_->getVFAT2Params().trigMode == 3) {
 
 	  *out << "<table class=\"table\" >" << std::endl;
 	  *out << "<tr>" << std::endl;
@@ -1061,8 +1069,9 @@ throw (xgi::exception::Exception)
 	      for (int k=0;k<3;k++) {
 		unsigned int chann = 3*i + j + k;
 		std::string butt_color;
-		if (vfatDevice_->getVFAT2Params().channels[chann-1].mask == 0) butt_color = "success";
-		else butt_color = "default";
+		if (vfatDevice_->getVFAT2Params().channels[chann-1].mask == 0 && vfatDevice_->getVFAT2Params().trigMode != 0) butt_color = "success";
+		else if (vfatDevice_->getVFAT2Params().trigMode == 0) butt_color = "warning";
+		if (vfatDevice_->getVFAT2Params().channels[chann-1].mask == 1) butt_color = "default";
 		
 		*out << "<tr>" << std::endl;
 		*out << "<td>" << std::endl;
@@ -1071,6 +1080,7 @@ throw (xgi::exception::Exception)
 		*out << "<button type=\"button\" class=\"btn btn-" << butt_color <<  " dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">";
 		*out << std::setfill ('0') << std::setw (3) << chann << "<span class=\"caret\"></button>" << std::endl;
 		*out << "<ul class=\"dropdown-menu\">" << std::endl;
+		*out << "<li><a href=\"#\">" << "Mask: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].mask << "</a></li>" << std::endl;
 		*out << "<li><a href=\"#\">" << "Trim DAC: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].trimDAC << "</a></li>" << std::endl;
 		*out << "</ul>" <<std::endl;
 		*out << "</div>" << std::endl;
@@ -1099,9 +1109,9 @@ throw (xgi::exception::Exception)
 	  *out << "</table>" << std::endl;
 	  *out << "</div>" << std::endl;
 	  *out << "</div>" << std::endl;
-	}
+	  //}
 	
-	else *out << "Unrecognized Trigger Mode" << std::endl;
+	  //else *out << "Unrecognized Trigger Mode" << std::endl;
 	
 	//code from getbootstrap.com/components/#btn-dropdowns-single
 	*out << "<div class=\"btn-group\">" << std::endl;
