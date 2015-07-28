@@ -175,17 +175,13 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
     vfat.msData = msData;                                 // msData:64
     vfat.crc    = crc;                                    // crc:16
 
-   /*
-    * dump VFAT data
-    gem::readout::printVFATdataBits(counter_, vfat);
-    */
-
     bufferDepth = glibDevice_->getFIFOOccupancy(link);
 
     /*
-     * dump VFAT data */
+     * dump VFAT data
     gem::readout::printVFATdataBits(counter_, vfat);
-      
+    */
+    
     // GEM data filling
     gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
 
