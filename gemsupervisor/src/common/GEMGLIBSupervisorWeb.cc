@@ -543,7 +543,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       INFO("OptoHybrid device connected");
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip){
 	if ((*chip)->isHwConnected()) {
-	  INFO("VFAT device connected");
+	  INFO("VFAT device connected: chip ID = 0x"
+	       << std::setw(4) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);
 	  is_configured_  = true;
 	} else {
 	  INFO("VFAT device not connected, breaking out");
