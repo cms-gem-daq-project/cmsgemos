@@ -64,7 +64,7 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
         {
 //            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice();
             gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
-            crateDevice_->setDeviceIPAddress("192.168.0.170");
+            crateDevice_->setDeviceIPAddress("192.168.0.162");
             crateDevice_->connectDevice();
             if (crateDevice_->isHwConnected())
             {
@@ -1098,20 +1098,6 @@ throw (xgi::exception::Exception)
 	  *out << "</div>" << std::endl;
 	  *out << "</div>" << std::endl;
 	  //}
-	
-	  //else *out << "Unrecognized Trigger Mode" << std::endl;
-	
-        //code from getbootstrap.com/components/#btn-dropdowns-single
-        *out << "<div class=\"btn-group\">" << std::endl;
-        *out << "<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Default <span class=\"caret\"></span></button>" << std::endl;
-        *out << "<ul class=\"dropdown-menu\">" << std::endl;
-        *out << "<li><a href=\"#\">Action</a></li>" << std::endl;
-        *out << "<li><a href=\"#\">Another action</a></li>" << std::endl;
-        *out << "<li><a href=\"#\">Something else here</a></li>" << std::endl;
-        *out << "<li role=\"separator\" class=\"divider\"></li>" << std::endl;
-        *out << "<li><a href=\"#\">Separated link</a></li>" << std::endl;
-        *out << "</ul>" << std::endl;
-        *out << "</div>" << std::endl;
 	
         *out << cgicc::br()<< std::endl;
         *out << cgicc::hr()<< std::endl;
