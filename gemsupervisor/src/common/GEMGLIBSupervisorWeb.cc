@@ -34,17 +34,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   }
   /*
     VAFT Devices List with are on GEB, this is broken, needs to be fixed
-  */
-
-  deviceIP     = "192.168.0.164";
   deviceName[9]  = (xdata::String)VFATnum[9];
-
-  /*
-  deviceName[8]  = (xdata::String)VFATnum[8];
-  deviceName[10] = (xdata::String)VFATnum[10];
-  deviceName[11] = (xdata::String)VFATnum[11];
-  deviceName[12] = (xdata::String)VFATnum[12];
-  deviceName[13] = (xdata::String)VFATnum[13];
   */
   
   triggerSource = 0x0; // 0x2; 
@@ -490,7 +480,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
     if (VfatName != "")
       // Define device
-<<<<<<< HEAD
       vfatDevice_.push_back(new gem::hw::vfat::HwVFAT2(VfatName));
   }
   
@@ -515,34 +504,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
     confParams_.bag.latency = (*chip)->getLatency();
     
-=======
-      vfatDevice_ = new gem::hw::vfat::HwVFAT2(VFATnum[i]);
-
-      vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
-      vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-
-      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
-
-      vfatDevice_->connectDevice();
-      vfatDevice_->readVFAT2Counters();
-      vfatDevice_->setRunMode(0);
-      confParams_.bag.deviceChipID = vfatDevice_->getChipID();
-
-      // Set VFAT2 registers
-      vfatDevice_->loadDefaults();
-
-      latency_   = confParams_.bag.latency;
-      vfatDevice_->setLatency(latency_);
-      confParams_.bag.latency = vfatDevice_->getLatency();
-
-      vfatDevice_->setVThreshold1(50);
-      confParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
-
-      vfatDevice_->setVThreshold2(0);
-      confParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
-
-    }
->>>>>>> develop
   }
 
   // Create a new output file
@@ -640,7 +601,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   glibDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
   */
 
-<<<<<<< HEAD
   //change to vector loop J.S. July 16
   //for (int i=0; i<24; i++){
   //std::string VfatName = confParams_.bag.deviceName[i].toString();
@@ -652,23 +612,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
     (*chip)->setRunMode(1);
   //}
   //}
-=======
-  for (int i=0; i<24; i++){
-    std::string VfatName = confParams_.bag.deviceName[i].toString();
-    if (VfatName != ""){
-      // On
-      INFO(" startAction : deviceName [" << i << "] " << VfatName);
-      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
-      vfatDevice_->setRunMode(1);
-    } else {
-      //Off
-      /*
-      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName[i].toString());
-      vfatDevice_->setRunMode(0);
-      */
-    }
-  }
->>>>>>> develop
 
   hw_semaphore_.give();
   is_working_ = false;
