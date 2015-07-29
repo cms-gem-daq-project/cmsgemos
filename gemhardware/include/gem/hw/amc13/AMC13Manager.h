@@ -45,8 +45,8 @@ namespace gem {
 	  
 	  virtual void actionPerformed(xdata::Event& event);
 	  
-	  ::amc13::Status* getHTMLStatus() const;
-	  ::amc13::AMC13* getAMC13Device() const {
+	  ::amc13::Status *getHTMLStatus()  const;
+	  ::amc13::AMC13  *getAMC13Device() const {
 	    return amc13Device_;
 	  };
 
@@ -88,7 +88,7 @@ namespace gem {
 	private:
 	  mutable gem::utils::Lock deviceLock_;
 	
-	  ::amc13::AMC13* amc13Device_;
+	  ::amc13::AMC13 *amc13Device_;
 	  
 	  //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
 	  xdata::Integer m_crateID, m_slot;
@@ -104,8 +104,8 @@ namespace gem {
 	  //void readAMC13Registers(gem::hw::amc13::AMC13ControlParams& params);
 	  //void readAMC13Registers();
 	  
-	  //std::map<std::string,uint32_t>    amc13FullRegs_;
-	  //std::map<std::string,uint8_t>     amc13Regs_;
+	  //std::map<std::string,uint32_t>     amc13FullRegs_;
+	  //std::map<std::string,uint8_t>      amc13Regs_;
 	  //gem::hw::amc13::AMC13ControlParams amc13Params_;
 
 	private:

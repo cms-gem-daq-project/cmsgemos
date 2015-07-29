@@ -21,8 +21,8 @@ gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication* ge
   throw (xdaq::exception::Exception) :
   gemLogger_(gemFSMApp->getApplicationLogger()),
   gemMonitorP_(gemFSMApp->getMonitor()),
-  gemFSMAppP_(gemFSMApp),
-  gemAppP_(gemFSMApp),
+  gemFSMAppP_( gemFSMApp),
+  gemAppP_(    gemFSMApp),
   is_working_     (false),
   is_initialized_ (false),
   is_configured_  (false),
@@ -36,8 +36,8 @@ gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMApplication* gemAp
   throw (xdaq::exception::Exception) :
   gemLogger_(gemApp->getApplicationLogger()),
   gemMonitorP_(gemApp->getMonitor()),
-  gemFSMAppP_(0),
-  gemAppP_(gemApp),
+  gemFSMAppP_( NULL),
+  gemAppP_(    gemApp),
   is_working_     (false),
   is_initialized_ (false),
   is_configured_  (false),
@@ -49,6 +49,7 @@ gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMApplication* gemAp
 
 gem::base::GEMWebApplication::~GEMWebApplication()
 {
+  /*
   if (gemMonitorP_!=NULL)
     delete gemMonitorP_;
   if (gemFSMAppP_!=NULL)
@@ -59,6 +60,7 @@ gem::base::GEMWebApplication::~GEMWebApplication()
   gemMonitorP_ = NULL;
   gemFSMAppP_  = NULL;
   gemAppP_     = NULL;
+  */
 }
 
 void gem::base::GEMWebApplication::webRedirect(xgi::Input *in, xgi::Output *out)
