@@ -24,14 +24,18 @@ namespace gem {
 	        GEMDataParker(gem::hw::glib::HwGLIB& glibDevice, std::string const& outFileName, std::string const& outputType);
                 ~GEMDataParker() {};
 
-                int dumpDataToDisk();
+                int dumpDataToDisk(uint8_t const& link);
 
-		int  getGLIBData  (gem::readout::GEMData& gem, gem::readout::GEBData& geb, 
-                     gem::readout::VFATData& vfat);
-                void fillGEMevent (gem::readout::GEMData& gem, gem::readout::GEBData& geb, 
-                     gem::readout::VFATData& vfat);
-                void writeGEMevent(gem::readout::GEMData& gem, gem::readout::GEBData& geb,
-                     gem::readout::VFATData& vfat);
+		int  getGLIBData  (uint8_t const& link,
+				   gem::readout::GEMData& gem,
+				   gem::readout::GEBData& geb, 
+				   gem::readout::VFATData& vfat);
+                void fillGEMevent (gem::readout::GEMData& gem,
+				   gem::readout::GEBData& geb, 
+				   gem::readout::VFATData& vfat);
+                void writeGEMevent(gem::readout::GEMData& gem,
+				   gem::readout::GEBData& geb,
+				   gem::readout::VFATData& vfat);
 
             private:
 

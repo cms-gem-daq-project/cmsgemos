@@ -410,7 +410,7 @@ uint32_t gem::hw::glib::HwGLIB::getUserFirmware(uint8_t const& link)
   regName << "GLIB_LINKS.LINK" << (int)link << ".USER_FW";
   uint32_t userfw = readReg(getDeviceBaseNode(),regName.str());
   INFO("GLIB link" << (int)link << " has firmware version 0x" 
-       << std::hex << userfw << std::dec);
+       << std::hex << userfw << std::dec << std::endl);
   return userfw;
 }
 

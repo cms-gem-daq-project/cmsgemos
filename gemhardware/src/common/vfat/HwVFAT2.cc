@@ -125,11 +125,12 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
     return true;
   
   else if (gem::hw::GEMHwDevice::isHwConnected()) {
-    DEBUG("Checking hardware connection");
+    DEBUG("Checking hardware connection" << std::endl);
     try {
       uint32_t chipTest = readVFATReg("ChipID0");
-      DEBUG("1) read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
+      INFO("read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
       is_connected_ = true;
+      
       return true;      
     } catch (gem::hw::vfat::exception::TransactionError const& e) {
       is_connected_ = false;
