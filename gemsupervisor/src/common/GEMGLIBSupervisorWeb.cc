@@ -35,12 +35,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   /*
     VAFT Devices List with are on GEB, this is broken, needs to be fixed
   deviceName[9]  = (xdata::String)VFATnum[9];
-  deviceName[10] = (xdata::String)VFATnum[10];
-  deviceName[11] = (xdata::String)VFATnum[11];
-  deviceName[12] = (xdata::String)VFATnum[12];
-  deviceName[13] = (xdata::String)VFATnum[13];
   */
-
   
   triggerSource = 0x0; // 0x2; 
 
