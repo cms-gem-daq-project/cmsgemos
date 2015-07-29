@@ -1085,21 +1085,9 @@ throw (xgi::exception::Exception)
 		*out << "</ul>" <<std::endl;
 		*out << "</div>" << std::endl;
 		*out << "</div>" << std::endl;
-	     	*out << "</td>" << std::endl;
+	    *out << "</td>" << std::endl;
 		*out << "</tr>" << std::endl;
 		
-		// *out << "<tr>" << std::endl;
-                // *out << "<td>" << std::endl;
-		// *out << (int)vfatDevice_->getVFAT2Params().channels[chann-1].fullChannelReg << std::endl;
-		// if(chann==1) *out << vfatDevice_->getVFAT2Params().channels[chann-1].calPulse0 << std::endl;
-                // *out << vfatDevice_->getVFAT2Params().channels[chann-1].calPulse << std::endl;
-                // *out << vfatDevice_->getVFAT2Params().channels[chann-1].mask << std::endl;
-		// *out << "<div align=\"center\">";
-		// *out << "Trim DAC: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].trimDAC << std::endl;
-		// *out << "</div>" << std::endl;
-	        // *out << "</td>" << std::endl;
-                // *out << "</tr>" << std::endl;
-
 	      }
 	    }
 	    *out << "</table>" << std::endl;
@@ -1113,32 +1101,18 @@ throw (xgi::exception::Exception)
 	
 	  //else *out << "Unrecognized Trigger Mode" << std::endl;
 	
-	//code from getbootstrap.com/components/#btn-dropdowns-single
-	*out << "<div class=\"btn-group\">" << std::endl;
-	*out << "<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Default <span class=\"caret\"></span></button>" << std::endl;
-	*out << "<ul class=\"dropdown-menu\">" << std::endl;
-	*out << "<li><a href=\"#\">Action</a></li>" << std::endl;
-	*out << "<li><a href=\"#\">Another action</a></li>" << std::endl;
-	*out << "<li><a href=\"#\">Something else here</a></li>" << std::endl;
-	*out << "<li role=\"separator\" class=\"divider\"></li>" << std::endl;
-	*out << "<li><a href=\"#\">Separated link</a></li>" << std::endl;
-	*out << "</ul>" << std::endl;
-	*out << "</div>" << std::endl;
+        //code from getbootstrap.com/components/#btn-dropdowns-single
+        *out << "<div class=\"btn-group\">" << std::endl;
+        *out << "<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Default <span class=\"caret\"></span></button>" << std::endl;
+        *out << "<ul class=\"dropdown-menu\">" << std::endl;
+        *out << "<li><a href=\"#\">Action</a></li>" << std::endl;
+        *out << "<li><a href=\"#\">Another action</a></li>" << std::endl;
+        *out << "<li><a href=\"#\">Something else here</a></li>" << std::endl;
+        *out << "<li role=\"separator\" class=\"divider\"></li>" << std::endl;
+        *out << "<li><a href=\"#\">Separated link</a></li>" << std::endl;
+        *out << "</ul>" << std::endl;
+        *out << "</div>" << std::endl;
 	
-	// *out << "<div class=\"dropdown theme-dropdown clearfix\">" << std::endl;
-        // *out << "<a id=\"dropdownMenu1\" href=\"#\" class=\"sr-only dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">";
-	// *out << "Dropdown <span class=\"caret\"></span></a>" << std::endl;
-	// *out << "<ul class=\"dropdown-menu\" aria-labelledby=\"dropdownMenu1\">" << std::endl;
-	// *out << "<li class=\"active\"><a href=\"#\">Action</a></li>" << std::endl;
-	// *out << "<li><a href=\"#\">Another action</a></li>" << std::endl;
-	// *out << "<li><a href=\"#\">Something else here</a></li>" << std::endl;
-	// *out << "<li role=\"separator\" class=\"divider\"></li>" << std::endl;
-	// *out << "<li><a href=\"#\">Separated link</a></li>" << std::endl;
-	// *out << "</ul>" << std::endl;
-	// *out << "</div>" << std::endl;
-
-
-
         *out << cgicc::br()<< std::endl;
         *out << cgicc::hr()<< std::endl;
 
@@ -1159,28 +1133,6 @@ throw (xgi::exception::Exception)
         gemHwMonitorOH_.at(indexOH_)->setSubDeviceStatus(1,indexVFAT_%24);
         gemHwMonitorGLIB_.at(indexGLIB_)->setSubDeviceStatus(1,indexOH_);
         gemHwMonitorCrate_.at(indexCrate_)->setSubDeviceStatus(1,indexGLIB_);
-        //for (unsigned int i = 0; i != gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().size(); i++) 
-        //{
-        //    if (gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
-        //    {
-        //        gemHwMonitorOH_.at(indexOH_)->setSubDeviceStatus(1,i);
-        //    }
-        //}
-        //for (unsigned int i = 0; i != gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().size(); i++) 
-        //{
-        //    if (gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) 
-        //    {
-        //        gemHwMonitorGLIB_.at(indexGLIB_)->setSubDeviceStatus(1,i);
-        //    }
-        //}
-        //for (unsigned int i = 0; i != gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().size(); i++) 
-        //{
-        //    if (gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == glibToShow_) 
-        //    {
-        //        gemHwMonitorCrate_.at(indexGLIB_)->setSubDeviceStatus(1,i);
-        //    }
-        //}
-
     }
     *out << "<tr class=\"" << alertColor << "\">" << std::endl;
     *out << "<td>";
@@ -1214,9 +1166,7 @@ throw (xgi::exception::Exception)
 {
     std::stringstream ss;
     ss << std::dec << (unsigned) value2;
-    //ss << std::hex << (unsigned) value;
     std::string value_string = "";
-    //std::string value_string = "0x";
     value_string.append(ss.str());
     printVFAThwParameters(key, value1, value_string.c_str(), out);
 }
@@ -1226,9 +1176,7 @@ throw (xgi::exception::Exception)
 {
     std::stringstream ss;
     ss << std::dec << (unsigned) value;
-    //ss << std::hex << (unsigned) value;
     std::string value_string = "";
-    //std::string value_string = "0x";
     value_string.append(ss.str());
     printVFAThwParameters(key, value_string.c_str(), out);
 }
