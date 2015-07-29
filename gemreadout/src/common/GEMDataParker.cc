@@ -174,7 +174,6 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
     vfat.msData = msData;                                 // msData:64
     vfat.crc    = crc;                                    // crc:16
 
-    bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
     bufferDepth = glibDevice_->getFIFOOccupancy(link);
 
     /*
