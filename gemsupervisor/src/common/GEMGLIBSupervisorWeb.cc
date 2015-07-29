@@ -34,11 +34,17 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   }
   /*
     VAFT Devices List with are on GEB, this is broken, needs to be fixed
+  */
+
+  //deviceIP     = "192.168.0.164";
+  deviceIP     = "192.168.0.170";
+  deviceName[8]  = (xdata::String)VFATnum[8];
   deviceName[9]  = (xdata::String)VFATnum[9];
   deviceName[10] = (xdata::String)VFATnum[10];
   deviceName[11] = (xdata::String)VFATnum[11];
   deviceName[12] = (xdata::String)VFATnum[12];
   deviceName[13] = (xdata::String)VFATnum[13];
+  /*
   */
 
   
