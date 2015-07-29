@@ -283,28 +283,37 @@ throw (xgi::exception::Exception)
                     gemHwMonitorOH_.push_back(new gemHwMonitorOH());
                     gemHwMonitorOH_.back()->setDeviceConfiguration(*gemHwMonitorGLIB_.back()->getDevice()->getSubDevicesRefs().at(i));
                     gemHwMonitorGLIB_.back()->addSubDeviceStatus(0);
-                    for (unsigned int i = 0; i != gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().size(); i++) 
+                    for (long long int i = 0; i < 24; i++) // because compiler doesn't reconginze -std=c++11...
                     {
                         gemHwMonitorVFAT_.push_back(new gemHwMonitorVFAT());
-                        gemHwMonitorVFAT_.back()->setDeviceConfiguration(*gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().at(i));
-                        vfatDevice_ = new gem::hw::vfat::HwVFAT2(gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
-                        //vfatDevice_ = new gem::hw::vfat::HwVFAT2(getApplicationLogger(), gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
-                        vfatDevice_->setDeviceIPAddress(glibIP);
-                        std::cout << "vfat ID from XML: " << gemHwMonitorVFAT_.back()->getDevice()->getDeviceId() << std::endl;
-                        vfatDevice_->setDeviceBaseNode("VFATS."+gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
-                        vfatDevice_->connectDevice();
-                            if (vfatDevice_->isHwConnected()) 
+                        gemHwMonitorVFAT_.back()->setDeviceStatus(3);
+                        gemHwMonitorOH_.back()->addSubDeviceStatus(3);
+                        std::string vfatName = "VFAT";
+                        vfatName+=std::to_string(i);
+                        gemHwMonitorVFAT_.back()->getDevice()->setDeviceId(vfatName.c_str());
+                        for (unsigned int j = 0; j != gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().size(); j++) 
+                        {
+                            if (gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().at(j)->getDeviceId() == gemHwMonitorVFAT_.back()->getDevice()->getDeviceId())
                             {
-                                gemHwMonitorVFAT_.back()->setDeviceStatus(0);
-                                gemHwMonitorOH_.back()->addSubDeviceStatus(0);
-                            } else {
-                                gemHwMonitorVFAT_.back()->setDeviceStatus(2);
-                                gemHwMonitorOH_.back()->addSubDeviceStatus(2);
+                                gemHwMonitorVFAT_.back()->setDeviceConfiguration(*gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().at(j));
+                                vfatDevice_ = new gem::hw::vfat::HwVFAT2(gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
+                                vfatDevice_->setDeviceIPAddress(glibIP);
+                                std::cout << "vfat ID from XML: " << gemHwMonitorVFAT_.back()->getDevice()->getDeviceId() << std::endl;
+                                vfatDevice_->setDeviceBaseNode("VFATS."+gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
+                                vfatDevice_->connectDevice();
+                                    if (vfatDevice_->isHwConnected()) 
+                                    {
+                                        gemHwMonitorVFAT_.back()->setDeviceStatus(0);
+                                        gemHwMonitorOH_.back()->setSubDeviceStatus(0,i);
+                                        //gemHwMonitorOH_.back()->addSubDeviceStatus(0);
+                                    } else {
+                                        gemHwMonitorVFAT_.back()->setDeviceStatus(2);
+                                        gemHwMonitorOH_.back()->setSubDeviceStatus(2,i);
+                                        //gemHwMonitorOH_.back()->addSubDeviceStatus(2);
+                                    }
+                                delete vfatDevice_;
                             }
-                        delete vfatDevice_;
- 
-                        //gemHwMonitorVFAT_.back()->setDeviceStatus(0);
-                        //gemHwMonitorOH_.back()->addSubDeviceStatus(0);
+                        }
                     }
                 }
             }
@@ -630,7 +639,6 @@ throw (xgi::exception::Exception)
  
       *out << cgicc::table() <<std::endl;
 
-
     *out << "</div>" << std::endl;
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
@@ -698,42 +706,20 @@ throw (xgi::exception::Exception)
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
     uint8_t link=2;
-    //*out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : " << "XXX" << "</div></h1>" << std::endl;
     *out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : " << ohDevice_->getFirmware(link) << "</div></h1>" << std::endl;
     *out << "</div>" << std::endl;
     *out << "<div class=\"panel-body\">" << std::endl;
     *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "</div></h3>" << std::endl;
     std::string methodExpandVFAT = toolbox::toString("/%s/expandVFAT", getApplicationDescriptor()->getURN().c_str());
-    *out << cgicc::table().set("class","table");
-    *out << "<tr><h2><div align=\"center\">Connected VFAT's</div></h2></tr>" << std::endl;
-    *out << "<tr>" << std::endl;
-    for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
-        std::string currentVFATId;
-        currentVFATId += gemHwMonitorOH_.at(indexOH_)->getCurrentSubDeviceId(i);
-        *out << cgicc::td();
-            *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
-            if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 0)
-            {
-                *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
-            } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 1)
-            {
-                *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
-            } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 2)
-            {
-                *out << "<button type=\"submit\" class=\"btn btn-danger\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << currentVFATId<< "</button>" << std::endl;
-                //*out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << currentVFATId<< "</button>" << std::endl;
-            }
-            *out << cgicc::form() << std::endl;
-        *out << cgicc::td();
-    }
-    *out << "</tr>" << std::endl;
-    *out << cgicc::table() <<std::endl;
-
     gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus_;
     for (uint8_t i=0; i<3; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
     {
+        *out << "<div class=\"panel panel-info\">" << std::endl;
+        *out << "<div class=\"panel-heading\">" << std::endl;
         linkStatus_ = ohDevice_->LinkStatus(i);
         *out << cgicc::table().set("class","table");
+            *out << "<tr><h2><div align=\"center\">LINK " << (int)i << " Status </div></h2></tr>" << std::endl;
+            *out << "<tr>" << std::endl;
             *out << "<tr>" << std::endl;
             *out << "<td>" << std::endl;
                 *out << "Link N" << std::endl;
@@ -775,6 +761,60 @@ throw (xgi::exception::Exception)
             *out << "</td>" << std::endl;
             *out << "</tr>" << std::endl;
         *out << cgicc::table() <<std::endl;
+
+        *out << cgicc::table().set("class","table");
+        *out << "<tr><h3><div align=\"center\">Connected VFAT's</div></h3></tr>" << std::endl;
+        *out << "<tr>" << std::endl;
+        //for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
+        int linkIncrenement = 8*i;
+        for (long long int i=0; i<8; i++) { // because compiler doesn't reconginze -std=c++11…
+            std::string currentVFATId = "VFAT";
+            //currentVFATId += gemHwMonitorOH_.at(indexOH_)->getCurrentSubDeviceId(i+linkIncrenement);
+            currentVFATId += std::to_string(i+linkIncrenement);
+            vfatDevice_ = new gem::hw::vfat::HwVFAT2(currentVFATId);
+            vfatDevice_->setDeviceIPAddress(glibIP);
+            vfatDevice_->connectDevice();
+            std::string runmode;
+            int n_chan = 0;
+            if (vfatDevice_->isHwConnected()) 
+            {
+                vfatDevice_->readVFAT2Counters();
+                vfatDevice_->getAllSettings(); // takes time. See with Jared how to make it better
+                runmode = gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode);
+                for (uint8_t chan = 1; chan < 129; ++chan)
+                {
+                if (vfatDevice_->getVFAT2Params().channels[chan-1].mask < 1) n_chan++;
+                }
+            } else {
+                runmode = "N/A";
+            }
+            delete vfatDevice_;
+
+            *out << cgicc::td();
+                *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
+                if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 0)
+                {
+                    *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-success\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << n_chan << "</button></div>" << std::endl;
+                } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 1)
+                {
+                    *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << n_chan << "</button></div>" << std::endl;
+                } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 2)
+                {
+                    *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-danger\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" <<  "000" << "</button></div>" << std::endl;
+                } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 3)
+                {
+                    *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << "000" << "</button></div>" << std::endl;
+                }
+    
+                *out << cgicc::form() << std::endl;
+                *out << cgicc::br();
+                *out << "<div align=\"center\">" << runmode << "</div>" << std::endl;
+            *out << cgicc::td();
+        }
+        *out << "</tr>" << std::endl;
+        *out << cgicc::table() <<std::endl;
+        *out << "</div>" << std::endl;
+        *out << cgicc::br();
     }
     std::pair<bool,bool> statusVFATClock_;
     statusVFATClock_ = ohDevice_->StatusVFATClock(link);
@@ -879,9 +919,11 @@ throw (xgi::exception::Exception)
     cgicc::Cgicc cgi(in);
     vfatToShow_ = cgi.getElement("vfatButton")->getValue();
     // Auto-pointer doesn't work for some reason. Improve this later.
-    for (unsigned int i = 0; i != gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().size(); i++) 
+    //for (unsigned int i = 0; i != gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().size(); i++) 
+    for (unsigned int i = 24*indexOH_; i < 24*(indexOH_+1); i++) 
     {
-        if (gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
+        //if (gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
+        if (gemHwMonitorVFAT_.at(i)->getDevice()->getDeviceId() == vfatToShow_) 
         {
             indexVFAT_ = i;
         }
@@ -894,89 +936,174 @@ throw (xgi::exception::Exception)
 {
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
-    vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
-    vfatDevice_->setDeviceIPAddress(glibIP);
-    vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
-    vfatDevice_->connectDevice();
-    vfatDevice_->readVFAT2Counters();
-    vfatDevice_->getAllSettings();
-    std::string methodExpandCrate = toolbox::toString("/%s/expandCrate", getApplicationDescriptor()->getURN().c_str());
-    std::string methodExpandGLIB = toolbox::toString("/%s/expandGLIB", getApplicationDescriptor()->getURN().c_str());
-    std::string methodExpandOH = toolbox::toString("/%s/expandOH", getApplicationDescriptor()->getURN().c_str());
-    *out << cgicc::table().set("class","table");
-    *out << "<tr>" << std::endl;
-        *out << cgicc::td();
-            *out << cgicc::form().set("method","POST").set("action", methodExpandCrate) << std::endl ;
-            *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"crateButton\" value=\"" << crateToShow_ << "\">" << crateToShow_<< "</button>" << std::endl;
-            *out << cgicc::form() << std::endl ;
-        *out << cgicc::td();
-        *out << cgicc::td();
-            *out << cgicc::form().set("method","POST").set("action", methodExpandGLIB) << std::endl ;
-            *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"glibButton\" value=\"" << glibToShow_ << "\">" << glibToShow_<< "</button>" << std::endl;
-            *out << cgicc::form() << std::endl ;
-        *out << cgicc::td();
-        *out << cgicc::td();
-            *out << cgicc::form().set("method","POST").set("action", methodExpandOH) << std::endl ;
-            *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"ohButton\" value=\"" << ohToShow_ << "\">" << ohToShow_<< "</button>" << std::endl;
-            *out << cgicc::form() << std::endl ;
-        *out << cgicc::td();
-    *out << "</tr>" << std::endl;
-    *out << cgicc::table() <<std::endl;;
-    *out << "<div class=\"panel panel-primary\">" << std::endl;
-    *out << "<div class=\"panel-heading\">" << std::endl;
-    *out << "<h1><div align=\"center\">Chip Id : "<< vfatToShow_ << "</div></h1>" << std::endl;
-    *out << "</div>" << std::endl;
-    *out << "<div class=\"panel-body\">" << std::endl;
-    *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "::" << ohToShow_ <<  "</div></h3>" << std::endl;
-    std::map <std::string, std::string> vfatProperties_;
-    vfatProperties_ = gemHwMonitorVFAT_.at(indexVFAT_)->getDevice()->getDeviceProperties();
+    *out << "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js\"></script>" << std::endl;
+    *out << "<script src=\"/gemdaq/gemHwMonitor/html/js/bootstrap.min.js\"></script>" << std::endl;
 
-    *out << cgicc::table().set("class","table");
-    *out << cgicc::tr()<< std::endl;
-        *out << cgicc::td();
-            *out << cgicc::h3("Parameter");
-        *out << cgicc::td()<< std::endl;
-        *out << cgicc::td();
-            *out << cgicc::h3("XML value");
-        *out << cgicc::td()<< std::endl;
-        *out << cgicc::td();
-            *out << cgicc::h3("Hardware value");
-        *out << cgicc::td()<< std::endl;
-    *out << cgicc::tr() << std::endl;
-                   printVFAThwParameters("CalMode", (vfatProperties_.find("CalMode")->second).c_str(), (gem::hw::vfat::CalibrationModeToString.at(vfatDevice_->getVFAT2Params().calibMode)).c_str(), out);
-                   printVFAThwParameters("CalPolarity", (vfatProperties_.find("CalPolarity")->second).c_str(), (gem::hw::vfat::CalPolarityToString.at(vfatDevice_->getVFAT2Params().calPol)).c_str(), out);
-                   printVFAThwParameters("MSPolarity", (vfatProperties_.find("MSPolarity")->second).c_str(), (gem::hw::vfat::MSPolarityToString.at(vfatDevice_->getVFAT2Params().msPol)).c_str(), out);
-                   printVFAThwParameters("TriggerMode", (vfatProperties_.find("TriggerMode")->second).c_str(), (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str(), out);
-                   printVFAThwParameters("RunMode", (vfatProperties_.find("RunMode")->second).c_str(), (gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode)).c_str(), out);
-                   printVFAThwParameters("ReHitCT", (vfatProperties_.find("ReHitCT")->second).c_str(), (gem::hw::vfat::ReHitCTToString.at(vfatDevice_->getVFAT2Params().reHitCT)).c_str(), out);
-                   printVFAThwParameters("LVDSPowerSave", (vfatProperties_.find("LVDSPowerSave")->second).c_str(), (gem::hw::vfat::LVDSPowerSaveToString.at(vfatDevice_->getVFAT2Params().lvdsMode)).c_str(), out);
-                   printVFAThwParameters("DACMode", (vfatProperties_.find("DACMode")->second).c_str(), (gem::hw::vfat::DACModeToString.at(vfatDevice_->getVFAT2Params().dacMode)).c_str(), out);
-                   printVFAThwParameters("DigInSel", (vfatProperties_.find("DigInSel")->second).c_str(), (gem::hw::vfat::DigInSelToString.at(vfatDevice_->getVFAT2Params().digInSel)).c_str(), out);
-                   printVFAThwParameters("MSPulseLength", (vfatProperties_.find("MSPulseLength")->second).c_str(), (gem::hw::vfat::MSPulseLengthToString.at(vfatDevice_->getVFAT2Params().msPulseLen)).c_str(), out);
-                   printVFAThwParameters("HitCountMode", (vfatProperties_.find("HitCountMode")->second).c_str(), (gem::hw::vfat::HitCountModeToString.at(vfatDevice_->getVFAT2Params().hitCountMode)).c_str(), out);
-                   printVFAThwParameters("PbBG", (vfatProperties_.find("PbBG")->second).c_str(), (gem::hw::vfat::PbBGToString.at(vfatDevice_->getVFAT2Params().padBandGap)).c_str(), out);
-                   printVFAThwParameters("TrimDACRange", (vfatProperties_.find("TrimDACRange")->second).c_str(), (gem::hw::vfat::TrimDACRangeToString.at(vfatDevice_->getVFAT2Params().trimDACRange)).c_str(), out);
-                   printVFAThwParameters("IPreampIn", (vfatProperties_.find("IPreampIn")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampIn, out);
-                   printVFAThwParameters("IPreampFeed", (vfatProperties_.find("IPreampFeed")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampFeed, out);
-                   printVFAThwParameters("IPreampOut", (vfatProperties_.find("IPreampOut")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampOut, out);
-                   printVFAThwParameters("IShaper", (vfatProperties_.find("IShaper")->second).c_str(), vfatDevice_->getVFAT2Params().iShaper, out);
-                   printVFAThwParameters("IShaperFeed", (vfatProperties_.find("IShaperFeed")->second).c_str(), vfatDevice_->getVFAT2Params().iShaperFeed, out);
-                   printVFAThwParameters("IComp", (vfatProperties_.find("IComp")->second).c_str(), vfatDevice_->getVFAT2Params().iComp, out);
-                   printVFAThwParameters("Latency", (vfatProperties_.find("Latency")->second).c_str(), vfatDevice_->getVFAT2Params().latency, out);
-                   printVFAThwParameters("VCal", (vfatProperties_.find("VCal")->second).c_str(), vfatDevice_->getVFAT2Params().vCal, out);
-                   printVFAThwParameters("VThreshold1", (vfatProperties_.find("VThreshold1")->second).c_str(), vfatDevice_->getVFAT2Params().vThresh1, out);
-                   printVFAThwParameters("VThreshold2", (vfatProperties_.find("VThreshold2")->second).c_str(), vfatDevice_->getVFAT2Params().vThresh2, out);
-                   printVFAThwParameters("CalPhase", (vfatProperties_.find("CalPhase")->second).c_str(), (vfatDevice_->getVFAT2Params().calPhase), out);
-                   //printVFAThwParameters("DFTest", (vfatProperties_.find("DFTest")->second).c_str(), (gem::hw::vfat::DFTestPatternToString.at(vfatDevice_->getVFAT2Params().sendTestPattern)).c_str(), out);
-                   //printVFAThwParameters("ProbeMode", (vfatProperties_.find("ProbeMode")->second).c_str(), (gem::hw::vfat::ProbeModeToString.at(vfatDevice_->getVFAT2Params().probeMode)).c_str(), out);
-    *out << cgicc::tr();
-    *out << cgicc::table();
-    *out << "</div>" << std::endl;
+    if (gemHwMonitorVFAT_.at(indexVFAT_)->getDeviceStatus() == 2) 
+    {
+        *out << "<div class=\"panel panel-danger\">" << std::endl;
+        *out << "<div class=\"panel-heading\">" << std::endl;
+        *out << "<h1><div align=\"center\">Chip Id : "<< vfatToShow_ << " is not responding</div></h1>" << std::endl;
+        *out << "<br>" << std::endl;
+        *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "::" << ohToShow_ <<  "</div></h3>" << std::endl;
+        *out << "</div>" << std::endl;
+        *out << "</div>" << std::endl;
+    } else {
+        vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
+        vfatDevice_->setDeviceIPAddress(glibIP);
+        vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
+        vfatDevice_->connectDevice();
+        vfatDevice_->readVFAT2Counters();
+        vfatDevice_->getAllSettings();
+        std::string methodExpandCrate = toolbox::toString("/%s/expandCrate", getApplicationDescriptor()->getURN().c_str());
+        std::string methodExpandGLIB = toolbox::toString("/%s/expandGLIB", getApplicationDescriptor()->getURN().c_str());
+        std::string methodExpandOH = toolbox::toString("/%s/expandOH", getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::table().set("class","table");
+        *out << "<tr>" << std::endl;
+            *out << cgicc::td();
+                *out << cgicc::form().set("method","POST").set("action", methodExpandCrate) << std::endl ;
+                *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"crateButton\" value=\"" << crateToShow_ << "\">" << crateToShow_<< "</button>" << std::endl;
+                *out << cgicc::form() << std::endl ;
+            *out << cgicc::td();
+            *out << cgicc::td();
+                *out << cgicc::form().set("method","POST").set("action", methodExpandGLIB) << std::endl ;
+                *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"glibButton\" value=\"" << glibToShow_ << "\">" << glibToShow_<< "</button>" << std::endl;
+                *out << cgicc::form() << std::endl ;
+            *out << cgicc::td();
+            *out << cgicc::td();
+                *out << cgicc::form().set("method","POST").set("action", methodExpandOH) << std::endl ;
+                *out << "<button type=\"submit\" class=\"btn btn-info\" name=\"ohButton\" value=\"" << ohToShow_ << "\">" << ohToShow_<< "</button>" << std::endl;
+                *out << cgicc::form() << std::endl ;
+            *out << cgicc::td();
+        *out << "</tr>" << std::endl;
+        *out << cgicc::table() <<std::endl;;
+        *out << "<div class=\"panel panel-primary\">" << std::endl;
+        *out << "<div class=\"panel-heading\">" << std::endl;
+        *out << "<h1><div align=\"center\">Chip Id : "<< vfatToShow_ << "</div></h1>" << std::endl;
+        *out << "</div>" << std::endl;
+        *out << "<div class=\"panel-body\">" << std::endl;
+        *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "::" << ohToShow_ <<  "</div></h3>" << std::endl;
+        std::map <std::string, std::string> vfatProperties_;
+        vfatProperties_ = gemHwMonitorVFAT_.at(indexVFAT_)->getDevice()->getDeviceProperties();
+        *out << cgicc::table().set("class","table");
+        *out << cgicc::tr()<< std::endl;
+            *out << cgicc::td();
+                *out << cgicc::h3("Parameter");
+            *out << cgicc::td()<< std::endl;
+            *out << cgicc::td();
+                *out << cgicc::h3("XML value");
+            *out << cgicc::td()<< std::endl;
+            *out << cgicc::td();
+                *out << cgicc::h3("Hardware value");
+            *out << cgicc::td()<< std::endl;
+        *out << cgicc::tr() << std::endl;
+                       printVFAThwParameters("CalMode", (vfatProperties_.find("CalMode")->second).c_str(), (gem::hw::vfat::CalibrationModeToString.at(vfatDevice_->getVFAT2Params().calibMode)).c_str(), out);
+                       printVFAThwParameters("CalPolarity", (vfatProperties_.find("CalPolarity")->second).c_str(), (gem::hw::vfat::CalPolarityToString.at(vfatDevice_->getVFAT2Params().calPol)).c_str(), out);
+                       printVFAThwParameters("MSPolarity", (vfatProperties_.find("MSPolarity")->second).c_str(), (gem::hw::vfat::MSPolarityToString.at(vfatDevice_->getVFAT2Params().msPol)).c_str(), out);
+                       printVFAThwParameters("TriggerMode", (vfatProperties_.find("TriggerMode")->second).c_str(), (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str(), out);
+                       printVFAThwParameters("RunMode", (vfatProperties_.find("RunMode")->second).c_str(), (gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode)).c_str(), out);
+                       printVFAThwParameters("ReHitCT", (vfatProperties_.find("ReHitCT")->second).c_str(), (gem::hw::vfat::ReHitCTToString.at(vfatDevice_->getVFAT2Params().reHitCT)).c_str(), out);
+                       printVFAThwParameters("LVDSPowerSave", (vfatProperties_.find("LVDSPowerSave")->second).c_str(), (gem::hw::vfat::LVDSPowerSaveToString.at(vfatDevice_->getVFAT2Params().lvdsMode)).c_str(), out);
+                       printVFAThwParameters("DACMode", (vfatProperties_.find("DACMode")->second).c_str(), (gem::hw::vfat::DACModeToString.at(vfatDevice_->getVFAT2Params().dacMode)).c_str(), out);
+                       printVFAThwParameters("DigInSel", (vfatProperties_.find("DigInSel")->second).c_str(), (gem::hw::vfat::DigInSelToString.at(vfatDevice_->getVFAT2Params().digInSel)).c_str(), out);
+                       printVFAThwParameters("MSPulseLength", (vfatProperties_.find("MSPulseLength")->second).c_str(), (gem::hw::vfat::MSPulseLengthToString.at(vfatDevice_->getVFAT2Params().msPulseLen)).c_str(), out);
+                       printVFAThwParameters("HitCountMode", (vfatProperties_.find("HitCountMode")->second).c_str(), (gem::hw::vfat::HitCountModeToString.at(vfatDevice_->getVFAT2Params().hitCountMode)).c_str(), out);
+                       printVFAThwParameters("PbBG", (vfatProperties_.find("PbBG")->second).c_str(), (gem::hw::vfat::PbBGToString.at(vfatDevice_->getVFAT2Params().padBandGap)).c_str(), out);
+                       printVFAThwParameters("TrimDACRange", (vfatProperties_.find("TrimDACRange")->second).c_str(), (gem::hw::vfat::TrimDACRangeToString.at(vfatDevice_->getVFAT2Params().trimDACRange)).c_str(), out);
+                       printVFAThwParameters("IPreampIn", (vfatProperties_.find("IPreampIn")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampIn, out);
+                       printVFAThwParameters("IPreampFeed", (vfatProperties_.find("IPreampFeed")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampFeed, out);
+                       printVFAThwParameters("IPreampOut", (vfatProperties_.find("IPreampOut")->second).c_str(), vfatDevice_->getVFAT2Params().iPreampOut, out);
+                       printVFAThwParameters("IShaper", (vfatProperties_.find("IShaper")->second).c_str(), vfatDevice_->getVFAT2Params().iShaper, out);
+                       printVFAThwParameters("IShaperFeed", (vfatProperties_.find("IShaperFeed")->second).c_str(), vfatDevice_->getVFAT2Params().iShaperFeed, out);
+                       printVFAThwParameters("IComp", (vfatProperties_.find("IComp")->second).c_str(), vfatDevice_->getVFAT2Params().iComp, out);
+                       printVFAThwParameters("Latency", (vfatProperties_.find("Latency")->second).c_str(), vfatDevice_->getVFAT2Params().latency, out);
+                       printVFAThwParameters("VCal", (vfatProperties_.find("VCal")->second).c_str(), vfatDevice_->getVFAT2Params().vCal, out);
+                       printVFAThwParameters("VThreshold1", (vfatProperties_.find("VThreshold1")->second).c_str(), vfatDevice_->getVFAT2Params().vThresh1, out);
+                       printVFAThwParameters("VThreshold2", (vfatProperties_.find("VThreshold2")->second).c_str(), vfatDevice_->getVFAT2Params().vThresh2, out);
+                       printVFAThwParameters("CalPhase", (vfatProperties_.find("CalPhase")->second).c_str(), (vfatDevice_->getVFAT2Params().calPhase), out);
+                       //printVFAThwParameters("DFTest", (vfatProperties_.find("DFTest")->second).c_str(), (gem::hw::vfat::DFTestPatternToString.at(vfatDevice_->getVFAT2Params().sendTestPattern)).c_str(), out);
+                       //printVFAThwParameters("ProbeMode", (vfatProperties_.find("ProbeMode")->second).c_str(), (gem::hw::vfat::ProbeModeToString.at(vfatDevice_->getVFAT2Params().probeMode)).c_str(), out);
+		       //*out << cgicc::tr();
+        *out << cgicc::table();
+	*out << cgicc::br() << std::endl;
 
-    *out << cgicc::br()<< std::endl;
-    *out << cgicc::hr()<< std::endl;
+	// *out << "<table class=\"table\" >" << std::endl;
+	// *out << "<tr>" << std::endl;
+        // *out << "<th><h2><div align=\"center\">VFAT Channel Status </div></h2></th>" << std::endl;
+	// *out << "</tr>" << std::endl;
+	
+	*out << "<div class=\"panel panel-info\">" << std::endl;
+	*out << "<div class=\"panel-heading\">" << std::endl;
+	*out << "<h2><div align=\"center\">VFAT Channel Status</div></h2>" << std::endl;
+	*out << "<h4><div align=\"center\">" << "Trigger Mode: " << (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str() << "</div></h4>" << std::endl;   
+	*out << "<h4><div align=\"center\">" << "Hit Count: " <<  (int)vfatDevice_->getVFAT2Params().hitCounter << " (" << (gem::hw::vfat::HitCountModeToString.at(vfatDevice_->getVFAT2Params().hitCountMode)).c_str() << ")";
+	*out << "</div></h4>" << std::endl;
+	
 
-    delete vfatDevice_;
+	*out << std::endl;
+	*out << "</div>" << std::endl;
+	
+	*out << "<div class=\"panel-body\">" << std::endl;
+	//*out << "<div align=\"center\">" << "Trigger Mode: " <<  vfatDevice_->getVFAT2Params().trigMode << "</div>" << std::endl;
+        //*out << std::endl;
+	if (vfatDevice_->getVFAT2Params().trigMode == 0) {
+	  *out << "<div align=\"center\"><h4><font color=\"red\">VFAT is not in trigger mode, channels inactive</font></h4></div>" << std::endl;
+	  *out << std::endl;
+	}
+
+	//if (vfatDevice_->getVFAT2Params().trigMode == 3) {
+
+	  *out << "<table class=\"table\" >" << std::endl;
+	  *out << "<tr>" << std::endl;
+	  for (int h=1;h<9;h++) {
+	    *out << "<th>" << std::endl;
+	    *out << "<h4><div align=\"center\">Sector " << (int)h << "</div></h4>" << std::endl;
+	    *out << "</th>" << std::endl;
+	  }
+	  *out << "</tr>" << std::endl;
+	  *out << "<tr>" << std::endl;
+	  for (int i=0;i<8;i++) {
+	    *out << "<td>" << std::endl;
+	    *out << "<table class=\"table\" >" << std::endl;
+	    for (int j=4;j<103;j+=24) {
+	      for (int k=0;k<3;k++) {
+		unsigned int chann = 3*i + j + k;
+		std::string butt_color;
+		if (vfatDevice_->getVFAT2Params().channels[chann-1].mask == 0 && vfatDevice_->getVFAT2Params().trigMode != 0) butt_color = "success";
+		else if (vfatDevice_->getVFAT2Params().trigMode == 0) butt_color = "warning";
+		if (vfatDevice_->getVFAT2Params().channels[chann-1].mask == 1) butt_color = "default";
+		
+		*out << "<tr>" << std::endl;
+		*out << "<td>" << std::endl;
+		*out << "<div align=\"center\">";
+		*out << "<div class=\"btn-group\">" << std::endl;
+		*out << "<button type=\"button\" class=\"btn btn-" << butt_color <<  " dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">";
+		*out << std::setfill ('0') << std::setw (3) << chann << "<span class=\"caret\"></button>" << std::endl;
+		*out << "<ul class=\"dropdown-menu\">" << std::endl;
+		*out << "<li><a href=\"#\">" << "Mask: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].mask << "</a></li>" << std::endl;
+		*out << "<li><a href=\"#\">" << "Trim DAC: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].trimDAC << "</a></li>" << std::endl;
+		*out << "</ul>" <<std::endl;
+		*out << "</div>" << std::endl;
+		*out << "</div>" << std::endl;
+	    *out << "</td>" << std::endl;
+		*out << "</tr>" << std::endl;
+		
+	      }
+	    }
+	    *out << "</table>" << std::endl;
+	    *out << "</td>" << std::endl;
+	  }
+	  *out << "</tr>" << std::endl;
+	  *out << "</table>" << std::endl;
+	  *out << "</div>" << std::endl;
+	  *out << "</div>" << std::endl;
+	  //}
+	
+        *out << cgicc::br()<< std::endl;
+        *out << cgicc::hr()<< std::endl;
+
+        delete vfatDevice_;
+    }
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output * out)
@@ -989,28 +1116,9 @@ throw (xgi::exception::Exception)
     {
         std::cout << vfatToShow_ << " status : " << gemHwMonitorVFAT_.at(indexVFAT_)->getDeviceStatus() << std::endl;
         (boost::iequals(value1, value2)) ? gemHwMonitorVFAT_.at(indexVFAT_)->setDeviceStatus(0):gemHwMonitorVFAT_.at(indexVFAT_)->setDeviceStatus(1);
-        for (unsigned int i = 0; i != gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().size(); i++) 
-        {
-            if (gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
-            {
-                gemHwMonitorOH_.at(indexOH_)->setSubDeviceStatus(1,i);
-            }
-        }
-        for (unsigned int i = 0; i != gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().size(); i++) 
-        {
-            if (gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) 
-            {
-                gemHwMonitorGLIB_.at(indexGLIB_)->setSubDeviceStatus(1,i);
-            }
-        }
-        for (unsigned int i = 0; i != gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().size(); i++) 
-        {
-            if (gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == glibToShow_) 
-            {
-                gemHwMonitorCrate_.at(indexGLIB_)->setSubDeviceStatus(1,i);
-            }
-        }
-
+        gemHwMonitorOH_.at(indexOH_)->setSubDeviceStatus(1,indexVFAT_%24);
+        gemHwMonitorGLIB_.at(indexGLIB_)->setSubDeviceStatus(1,indexOH_);
+        gemHwMonitorCrate_.at(indexCrate_)->setSubDeviceStatus(1,indexGLIB_);
     }
     *out << "<tr class=\"" << alertColor << "\">" << std::endl;
     *out << "<td>";
@@ -1044,9 +1152,7 @@ throw (xgi::exception::Exception)
 {
     std::stringstream ss;
     ss << std::dec << (unsigned) value2;
-    //ss << std::hex << (unsigned) value;
     std::string value_string = "";
-    //std::string value_string = "0x";
     value_string.append(ss.str());
     printVFAThwParameters(key, value1, value_string.c_str(), out);
 }
@@ -1056,9 +1162,7 @@ throw (xgi::exception::Exception)
 {
     std::stringstream ss;
     ss << std::dec << (unsigned) value;
-    //ss << std::hex << (unsigned) value;
     std::string value_string = "";
-    //std::string value_string = "0x";
     value_string.append(ss.str());
     printVFAThwParameters(key, value_string.c_str(), out);
 }
