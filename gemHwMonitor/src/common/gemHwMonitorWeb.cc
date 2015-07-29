@@ -936,6 +936,9 @@ throw (xgi::exception::Exception)
 {
     *out << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap.css\">" << std::endl
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"/gemdaq/gemHwMonitor/html/css/bootstrap-theme.css\">" << std::endl;
+    *out << "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js\"></script>" << std::endl;
+    *out << "<script src=\"/gemdaq/gemHwMonitor/html/js/bootstrap.min.js\"></script>" << std::endl;
+
     if (gemHwMonitorVFAT_.at(indexVFAT_)->getDeviceStatus() == 2) 
     {
         *out << "<div class=\"panel panel-danger\">" << std::endl;
@@ -981,9 +984,7 @@ throw (xgi::exception::Exception)
         *out << "<div class=\"panel-body\">" << std::endl;
         *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "::" << ohToShow_ <<  "</div></h3>" << std::endl;
         std::map <std::string, std::string> vfatProperties_;
-
         vfatProperties_ = gemHwMonitorVFAT_.at(indexVFAT_)->getDevice()->getDeviceProperties();
-
         *out << cgicc::table().set("class","table");
         *out << cgicc::tr()<< std::endl;
             *out << cgicc::td();
@@ -1022,9 +1023,121 @@ throw (xgi::exception::Exception)
                        printVFAThwParameters("CalPhase", (vfatProperties_.find("CalPhase")->second).c_str(), (vfatDevice_->getVFAT2Params().calPhase), out);
                        //printVFAThwParameters("DFTest", (vfatProperties_.find("DFTest")->second).c_str(), (gem::hw::vfat::DFTestPatternToString.at(vfatDevice_->getVFAT2Params().sendTestPattern)).c_str(), out);
                        //printVFAThwParameters("ProbeMode", (vfatProperties_.find("ProbeMode")->second).c_str(), (gem::hw::vfat::ProbeModeToString.at(vfatDevice_->getVFAT2Params().probeMode)).c_str(), out);
-        *out << cgicc::tr();
+		       //*out << cgicc::tr();
         *out << cgicc::table();
-        *out << "</div>" << std::endl;
+	*out << cgicc::br() << std::endl;
+
+	// *out << "<table class=\"table\" >" << std::endl;
+	// *out << "<tr>" << std::endl;
+        // *out << "<th><h2><div align=\"center\">VFAT Channel Status </div></h2></th>" << std::endl;
+	// *out << "</tr>" << std::endl;
+	
+	*out << "<div class=\"panel panel-info\">" << std::endl;
+	*out << "<div class=\"panel-heading\">" << std::endl;
+	*out << "<h2><div align=\"center\">VFAT Channel Status</div></h2>" << std::endl;
+	*out << "<h4><div align=\"center\">" << "Trigger Mode: " << (gem::hw::vfat::TriggerModeToString.at(vfatDevice_->getVFAT2Params().trigMode)).c_str() << "</div></h4>" << std::endl;   
+	*out << "<h4><div align=\"center\">" << "Hit Count: " <<  (int)vfatDevice_->getVFAT2Params().hitCounter << " (" << (gem::hw::vfat::HitCountModeToString.at(vfatDevice_->getVFAT2Params().hitCountMode)).c_str() << ")";
+	*out << "</div></h4>" << std::endl;
+	
+
+	*out << std::endl;
+	*out << "</div>" << std::endl;
+	
+	*out << "<div class=\"panel-body\">" << std::endl;
+	//*out << "<div align=\"center\">" << "Trigger Mode: " <<  vfatDevice_->getVFAT2Params().trigMode << "</div>" << std::endl;
+        //*out << std::endl;
+	if (vfatDevice_->getVFAT2Params().trigMode == 0) {
+	  *out << "<div align=\"center\"><h4><font color=\"red\">VFAT is not in trigger mode, channels inactive</font></h4></div>" << std::endl;
+	  *out << std::endl;
+	}
+
+	//if (vfatDevice_->getVFAT2Params().trigMode == 3) {
+
+	  *out << "<table class=\"table\" >" << std::endl;
+	  *out << "<tr>" << std::endl;
+	  for (int h=1;h<9;h++) {
+	    *out << "<th>" << std::endl;
+	    *out << "<h4><div align=\"center\">Sector " << (int)h << "</div></h4>" << std::endl;
+	    *out << "</th>" << std::endl;
+	  }
+	  *out << "</tr>" << std::endl;
+	  *out << "<tr>" << std::endl;
+	  for (int i=0;i<8;i++) {
+	    *out << "<td>" << std::endl;
+	    *out << "<table class=\"table\" >" << std::endl;
+	    for (int j=4;j<103;j+=24) {
+	      for (int k=0;k<3;k++) {
+		unsigned int chann = 3*i + j + k;
+		std::string butt_color;
+		if (vfatDevice_->getVFAT2Params().channels[chann-1].mask == 0 && vfatDevice_->getVFAT2Params().trigMode != 0) butt_color = "success";
+		else if (vfatDevice_->getVFAT2Params().trigMode == 0) butt_color = "warning";
+		if (vfatDevice_->getVFAT2Params().channels[chann-1].mask == 1) butt_color = "default";
+		
+		*out << "<tr>" << std::endl;
+		*out << "<td>" << std::endl;
+		*out << "<div align=\"center\">";
+		*out << "<div class=\"btn-group\">" << std::endl;
+		*out << "<button type=\"button\" class=\"btn btn-" << butt_color <<  " dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">";
+		*out << std::setfill ('0') << std::setw (3) << chann << "<span class=\"caret\"></button>" << std::endl;
+		*out << "<ul class=\"dropdown-menu\">" << std::endl;
+		*out << "<li><a href=\"#\">" << "Mask: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].mask << "</a></li>" << std::endl;
+		*out << "<li><a href=\"#\">" << "Trim DAC: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].trimDAC << "</a></li>" << std::endl;
+		*out << "</ul>" <<std::endl;
+		*out << "</div>" << std::endl;
+		*out << "</div>" << std::endl;
+	     	*out << "</td>" << std::endl;
+		*out << "</tr>" << std::endl;
+		
+		// *out << "<tr>" << std::endl;
+                // *out << "<td>" << std::endl;
+		// *out << (int)vfatDevice_->getVFAT2Params().channels[chann-1].fullChannelReg << std::endl;
+		// if(chann==1) *out << vfatDevice_->getVFAT2Params().channels[chann-1].calPulse0 << std::endl;
+                // *out << vfatDevice_->getVFAT2Params().channels[chann-1].calPulse << std::endl;
+                // *out << vfatDevice_->getVFAT2Params().channels[chann-1].mask << std::endl;
+		// *out << "<div align=\"center\">";
+		// *out << "Trim DAC: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].trimDAC << std::endl;
+		// *out << "</div>" << std::endl;
+	        // *out << "</td>" << std::endl;
+                // *out << "</tr>" << std::endl;
+
+	      }
+	    }
+	    *out << "</table>" << std::endl;
+	    *out << "</td>" << std::endl;
+	  }
+	  *out << "</tr>" << std::endl;
+	  *out << "</table>" << std::endl;
+	  *out << "</div>" << std::endl;
+	  *out << "</div>" << std::endl;
+	  //}
+	
+	  //else *out << "Unrecognized Trigger Mode" << std::endl;
+	
+	//code from getbootstrap.com/components/#btn-dropdowns-single
+	*out << "<div class=\"btn-group\">" << std::endl;
+	*out << "<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">Default <span class=\"caret\"></span></button>" << std::endl;
+	*out << "<ul class=\"dropdown-menu\">" << std::endl;
+	*out << "<li><a href=\"#\">Action</a></li>" << std::endl;
+	*out << "<li><a href=\"#\">Another action</a></li>" << std::endl;
+	*out << "<li><a href=\"#\">Something else here</a></li>" << std::endl;
+	*out << "<li role=\"separator\" class=\"divider\"></li>" << std::endl;
+	*out << "<li><a href=\"#\">Separated link</a></li>" << std::endl;
+	*out << "</ul>" << std::endl;
+	*out << "</div>" << std::endl;
+	
+	// *out << "<div class=\"dropdown theme-dropdown clearfix\">" << std::endl;
+        // *out << "<a id=\"dropdownMenu1\" href=\"#\" class=\"sr-only dropdown-toggle\" data-toggle=\"dropdown\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\">";
+	// *out << "Dropdown <span class=\"caret\"></span></a>" << std::endl;
+	// *out << "<ul class=\"dropdown-menu\" aria-labelledby=\"dropdownMenu1\">" << std::endl;
+	// *out << "<li class=\"active\"><a href=\"#\">Action</a></li>" << std::endl;
+	// *out << "<li><a href=\"#\">Another action</a></li>" << std::endl;
+	// *out << "<li><a href=\"#\">Something else here</a></li>" << std::endl;
+	// *out << "<li role=\"separator\" class=\"divider\"></li>" << std::endl;
+	// *out << "<li><a href=\"#\">Separated link</a></li>" << std::endl;
+	// *out << "</ul>" << std::endl;
+	// *out << "</div>" << std::endl;
+
+
 
         *out << cgicc::br()<< std::endl;
         *out << cgicc::hr()<< std::endl;
