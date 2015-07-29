@@ -101,6 +101,10 @@ namespace gem {
 	 */
 	void webTrigger(xgi::Input *in, xgi::Output *out);
 	/**
+	 *    Send L1A+CalPulse signal and return to main web interface
+	 */
+	void webL1ACalPulse(xgi::Input *in, xgi::Output *out);
+	/**
 	 *    Redirect to main web interface
 	 */
 	void webRedirect(xgi::Input *in, xgi::Output *out);
