@@ -62,7 +62,7 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
   bool     isFirst = true;
   uint8_t  SBit, flags;
   uint16_t bcn, evn, chipid, crc;
-  uint32_t bxNum, bxExp, TrigReg, bxNumTr;
+  uint32_t BXfrOH, BXOHexp, TrigReg, BXOHTrig;
   uint64_t msData, lsData;
 
   // GLIB data buffer validation
@@ -83,15 +83,12 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
     INFO(glibDevice_->getDeviceBaseNode() << "." << boost::str(linkForm%(2))+".TRK_FIFO.DEPTH -- " <<
 	 "bufferDepth[2] = " << std::hex << fifoDepth[2] << std::dec);
   */
+
   /** the FIFO depth is not reliable */
   int bufferDepth = 0;
   /*
   if ( fifoDepth[0] != fifoDepth[1] || fifoDepth[0] != fifoDepth[2] || fifoDepth[1] != fifoDepth[2] ) {
-    if (OHv == 1){
       bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
-    } else if (OHv == 2){
-      bufferDepth = std::min(fifoDepth[0],fifoDepth[2]);
-    }
     }*/
 
   bufferDepth = glibDevice_->getFIFOOccupancy(link);
@@ -114,7 +111,7 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
 
     // read trigger data
     TrigReg = glibDevice_->readTriggerFIFO(link);
-    bxNumTr = TrigReg >> 6;
+    BXOHTrig = TrigReg >> 6;
     SBit = TrigReg & 0x0000003F;
 
     uint16_t b1010, b1100, b1110;
@@ -128,10 +125,10 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
       continue;
     }
 
-    bxNum = data.at(6);
+    BXfrOH = data.at(6);
 
     if (isFirst){
-      bxExp = bxNum;
+      BXOHexp = BXfrOH;
       if (counterVFATs_ != 0){
 	dumpGEMevent_ = true;
 	DEBUG(" getGLIBData:: End Event: counter_ " << counter_ << " counterVFATs " << counterVFATs_);
@@ -143,14 +140,14 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
     counter_++;
     counterVFATs_++;
 
-    if (bxNum == bxExp){
+    if (BXfrOH == BXOHexp){
       isFirst = false;
     } else { 
       isFirst = true;
     }
 
-    // bxExp:28
-    // bxNum  = (bxNum << 8 ) | (SBit); // bxNum:8  | SBit:8
+    // BXOHexp:28
+    // BXfrOH  = (BXfrOH << 8 ) | (SBit); // BXfrOH:8  | SBit:8
 
     bcn    = (0x0fff0000 & data.at(5)) >> 16;
     evn    = (0x00000ff0 & data.at(5)) >> 4;
@@ -172,6 +169,7 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
     vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
     vfat.lsData = lsData;                                 // lsData:64
     vfat.msData = msData;                                 // msData:64
+    vfat.BXfrOH = BXfrOH;                                 // BXfrOH:16
     vfat.crc    = crc;                                    // crc:16
 
     bufferDepth = glibDevice_->getFIFOOccupancy(link);
