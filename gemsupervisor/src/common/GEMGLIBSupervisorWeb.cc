@@ -414,6 +414,19 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::task::WorkL
 {
   // fire "Configure" event to FSM
   fireEvent("Configure");
+
+  /*
+  // BX from OH resetting
+  std::string ohIP = confParams_.bag.deviceIP.toString();
+  gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
+  ohDevice_->setDeviceIPAddress(ohIP);
+  ohDevice_->connectDevice();
+  if (ohDevice_->isHwConnected()){
+    ohDevice_->ResetBXCount();
+  }
+  delete ohDevice_;
+  */
+
   return false;
 }
 
@@ -459,7 +472,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
   // Get the size of GLIB data buffer (get size of 
   uint32_t bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
-  bufferDepth         += glibDevice_->getFIFOOccupancy(0x1);
+  //SB bufferDepth    += glibDevice_->getFIFOOccupancy(0x1); LINK1 out temporary
   bufferDepth         += glibDevice_->getFIFOOccupancy(0x2);
 
   wl_semaphore_.give();
@@ -483,9 +496,8 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   //set up a counter for each column/link?
   // should the counter increment each time read action is executed?
   counter_  = gemDataParker->dumpDataToDisk(0x0);
-  counter_ += gemDataParker->dumpDataToDisk(0x1);
+  //SB counter_ += gemDataParker->dumpDataToDisk(0x1);
   counter_ += gemDataParker->dumpDataToDisk(0x2);
-  //counter_ = gemDataParker->dumpDataToDisk();
 
   hw_semaphore_.give();
   wl_semaphore_.give();
@@ -532,11 +544,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     
     // Set VFAT2 registers
     (*chip)->loadDefaults();
-    
     (*chip)->setLatency(latency_);
     
     (*chip)->setVThreshold1(50);
     confParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
+
     (*chip)->setVThreshold2(0);
     confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
     confParams_.bag.latency = (*chip)->getLatency();
