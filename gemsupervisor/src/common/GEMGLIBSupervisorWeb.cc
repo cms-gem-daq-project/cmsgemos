@@ -32,12 +32,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
     deviceName.push_back("");
     deviceNum.push_back(-1);
   }
-  /*
-    VAFT Devices List with are on GEB, this is broken, needs to be fixed
-  deviceName[9]  = (xdata::String)VFATnum[9];
-  */
-  
-  triggerSource = 0x0; // 0x2; 
+
+  triggerSource = 0x0;
 
   deviceChipID  = 0x0; 
   deviceVT1     = 35; 
@@ -76,12 +72,13 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   getApplicationInfoSpace()->fireItemValueRetrieve("confParams", &confParams_);
 
   // HyperDAQ bindings
-  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webDefault,     "Default");
-  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webConfigure,   "Configure");
-  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webStart,       "Start");
-  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webStop,        "Stop");
-  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webHalt,        "Halt");
-  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webTrigger,     "Trigger");
+  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webDefault,     "Default"    );
+  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webConfigure,   "Configure"  );
+  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webStart,       "Start"      );
+  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webStop,        "Stop"       );
+  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webHalt,        "Halt"       );
+  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webTrigger,     "Trigger"    );
+  xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse, "L1ACalPulse");
 
   xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::setParameter,   "setParameter");
 
@@ -97,11 +94,11 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
 
   // Workloop bindings
   configure_signature_ = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction, "configureAction");
-  start_signature_     = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::startAction,     "startAction");
-  stop_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::stopAction,      "stopAction");
-  halt_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction,      "haltAction");
-  run_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction");
-  read_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction");
+  start_signature_     = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::startAction,     "startAction"    );
+  stop_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::stopAction,      "stopAction"     );
+  halt_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction,      "haltAction"     );
+  run_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction"      );
+  read_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction"     );
 
   // Define FSM states
   fsm_.addState('I', "Initial",    this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
@@ -273,6 +270,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   *out << cgicc::form();
   *out << cgicc::td();
 
+  // Send L1ACalPulse signal
+  *out << cgicc::td();
+  std::string calpulseButton = toolbox::toString("/%s/L1ACalPulse",getApplicationDescriptor()->getURN().c_str());
+  *out << cgicc::form().set("method","GET").set("action",calpulseButton) << std::endl ;
+  *out << cgicc::input().set("type","submit").set("value","Send L1ACalPulse") << std::endl ;
+  *out << cgicc::form();
+  *out << cgicc::td();
+
   // Finish row with action buttons
   *out << cgicc::tr();
 
@@ -350,8 +355,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webHalt(xgi::Input * in, xgi::Output
 void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Output * out ) {
   // Send L1A signal
   hw_semaphore_.take();
-  //optohybridDevice_->SendL1ACal(15,1);
 
+  optohybridDevice_->SendResync();
   optohybridDevice_->SendL1A(1);
   
   /* this seems to do nothing J.S July 16
@@ -362,6 +367,31 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
     //std::string VfatName = chip->toString();
     if (VfatName != "") {
       INFO(" webTrigger : deviceName [" << i << "] " << VfatName);
+    }
+  }
+  */
+
+  hw_semaphore_.give();
+
+  // Go back to main web interface
+  this->webRedirect(in, out);
+}
+
+void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi::Output * out ) {
+  // Send L1A signal
+  hw_semaphore_.take();
+
+  optohybridDevice_->SendResync();
+  optohybridDevice_->SendL1ACal(10, 25);
+  
+  /* this seems to do nothing J.S July 16
+  //change to vector loop J.S. July 16
+  for (int i = 0; i < 24; ++i) {
+    std::string VfatName = confParams_.bag.deviceName[i].toString();
+  //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip) {
+    //std::string VfatName = chip->toString();
+    if (VfatName != "") {
+      INFO(" webL1ACalPulse : deviceName [" << i << "] " << VfatName);
     }
   }
   */
@@ -597,9 +627,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   for (int i = 0; i < 2; ++i)
     glibDevice_->flushFIFO(i);
 
-  /*
-    optohybridDevice_->ResetCalPulseCount(0x3);
-  */
+  optohybridDevice_->ResetCalPulseCount(0x3);
 
   /*
   //set trigger source

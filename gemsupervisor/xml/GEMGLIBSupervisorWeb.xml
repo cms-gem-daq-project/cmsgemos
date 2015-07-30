@@ -2,19 +2,15 @@
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
-  <xc:Context url="http://gem904daq01:3459">
+  <xc:Context url="http://cmslab1:3003">
     
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
 	  <deviceIP xsi:type="xsd:string">192.168.0.164</deviceIP>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">
-<<<<<<< HEAD
-<!--	    <item xsi:type="xsd:string" soapenc:position="[0]">VFAT0</item>
-=======
 <!--
 	    <item xsi:type="xsd:string" soapenc:position="[0]">VFAT0</item>
->>>>>>> develop
 	    <item xsi:type="xsd:string" soapenc:position="[1]">VFAT1</item>
 	    <item xsi:type="xsd:string" soapenc:position="[2]">VFAT2</item>
 	    <item xsi:type="xsd:string" soapenc:position="[3]">VFAT3</item>
