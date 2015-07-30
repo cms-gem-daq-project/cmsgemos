@@ -339,7 +339,7 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
   } else {
     writeGEBheaderBinary (outFileName_, event_, geb);
   } 
-  printGEBheader (event_, geb);
+  // printGEBheader (event_, geb);
     
   int nChip=0;
   for (vector<VFATData>::iterator iVFAT=geb.vfats.begin(); iVFAT != geb.vfats.end(); ++iVFAT){
