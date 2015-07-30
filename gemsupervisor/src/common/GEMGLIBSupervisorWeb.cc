@@ -14,11 +14,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-std::string VFATnum[24] = { "VFAT0", "VFAT1", "VFAT2", "VFAT3", "VFAT4", "VFAT5", "VFAT6", "VFAT7",
-                            "VFAT8", "VFAT9", "VFAT10","VFAT11","VFAT12","VFAT13","VFAT14","VFAT15",
-                            "VFAT16","VFAT17","VFAT18","VFAT19","VFAT20","VFAT21","VFAT22","VFAT23"};
-
-  
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMGLIBSupervisorWeb)
 
 void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
