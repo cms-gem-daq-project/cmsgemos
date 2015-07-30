@@ -415,17 +415,9 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::task::WorkL
   // fire "Configure" event to FSM
   fireEvent("Configure");
 
-  /*
-  // BX from OH resetting
-  std::string ohIP = confParams_.bag.deviceIP.toString();
-  gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
-  ohDevice_->setDeviceIPAddress(ohIP);
-  ohDevice_->connectDevice();
-  if (ohDevice_->isHwConnected()){
-    ohDevice_->ResetBXCount();
-  }
-  delete ohDevice_;
-  */
+  // resetting BX counter
+  // optohybridDevice_->ResetBXCount();
+  //   ERROR - No branch found with ID-path "OptoHybrid.OptoHybrid_LINKS.LINK0.COUNTERS.RESETS.BXCount"
 
   return false;
 }
