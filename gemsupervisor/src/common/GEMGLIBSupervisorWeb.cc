@@ -14,6 +14,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
+int counterVFATs_ = 0;
+
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMGLIBSupervisorWeb)
 
 void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
@@ -29,9 +31,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   }
 
   triggerSource = 0x0;
-
   deviceChipID  = 0x0; 
-  deviceVT1     = 35; 
+  deviceVT1     = 0x0; 
   deviceVT2     = 0x0; 
 
   bag->addField("latency",       &latency );
@@ -126,7 +127,11 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   fsm_.setInitialState('H');
   fsm_.reset();
 
-  counter_ = 0;
+  vfat_ = 0;
+  event_ = 0;
+  sumVFAT_ = 0;
+  counterVFATs_ = 0;
+
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
@@ -215,7 +220,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 
   // Show current state, counter, output filename
   *out << "Current state: " << fsm_.getStateName(fsm_.getCurrentState()) << cgicc::br();
-  *out << "Current counter: " << counter_ << " events dumped to disk"  << cgicc::br();
+  *out << "VFAT blocks counter: " << vfat_ << " dumped to disk"  << cgicc::br();
+  *out << "Event counter: " << event_ << " Events counter"  << cgicc::br();
+  *out << "VFATs counter: " << sumVFAT_ << " VFATs chips, last event"  << cgicc::br();
   *out << "Output filename: " << confParams_.bag.outFileName.toString() << cgicc::br();
   *out << "Output type: " << confParams_.bag.outputType.toString() << cgicc::br();
 
@@ -482,9 +489,16 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
   //set up a counter for each column/link?
   // should the counter increment each time read action is executed?
-  counter_  = gemDataParker->dumpDataToDisk(0x0);
-  //SB counter_ += gemDataParker->dumpDataToDisk(0x1);
-  counter_ += gemDataParker->dumpDataToDisk(0x2);
+  int *point  = gemDataParker->dumpDataToDisk(0x0);
+  //counter_ += gemDataParker->dumpDataToDisk(0x1);
+  //counter_ += gemDataParker->dumpDataToDisk(0x2);
+
+  vfat_ = *point;
+  event_ = *(point+1);
+  sumVFAT_ = *(point+2);
+
+  std::cout << "dumpDataToDisk ::  vfat " << vfat_ << " event " << event_ << " sumVFAT " << sumVFAT_
+       << std::endl;
 
   hw_semaphore_.give();
   wl_semaphore_.give();
@@ -495,7 +509,11 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 // State transitions
 void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt) {
   is_working_ = true;
-  counter_ = 0;
+
+  vfat_ = 0;
+  event_ = 0;
+  sumVFAT_ = 0;
+  counterVFATs_ = 0;
   
   hw_semaphore_.take();
   glibDevice_       = new gem::hw::glib::HwGLIB();
@@ -658,7 +676,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
 
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
-  counter_ = 0;
+  vfat_ = 0;
+  event_ = 0;
+  counterVFATs_ = 0;
+
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     delete (*chip);
     (*chip) = NULL;
