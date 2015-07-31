@@ -232,6 +232,9 @@ namespace gem {
         // VFATs counter per event
         int sumVFAT_;
 
+        // L1A trigger counting
+        uint32_t L1ACount_[3];
+
 	void fireEvent(std::string name);
 	void stateChanged(toolbox::fsm::FiniteStateMachine &fsm);
 	void transitionFailed(toolbox::Event::Reference event);
