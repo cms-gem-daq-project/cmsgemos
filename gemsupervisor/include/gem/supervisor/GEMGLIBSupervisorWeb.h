@@ -220,7 +220,17 @@ namespace gem {
 	//readout application should be running elsewhere, not tied to supervisor
 	gem::readout::GEMDataParker* gemDataParker;
 
-	int counter_;
+        // Counter
+      	int counter_[3];
+
+        // VFAT Blocks Counter
+	int vfat_;
+
+        // Events Counter     
+	int event_;
+
+        // VFATs counter per event
+        int sumVFAT_;
 
 	void fireEvent(std::string name);
 	void stateChanged(toolbox::fsm::FiniteStateMachine &fsm);
