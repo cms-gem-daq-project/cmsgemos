@@ -447,7 +447,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   if(fifoDepth[2])
     INFO("bufferDepth[2] (runAction) = " << std::hex << fifoDepth[2] << std::dec);
 
-  // Get the size of GLIB data buffer (get size of 
+  // Get the size of GLIB data buffer
   uint32_t bufferDepth = 0;
   bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
   //SB bufferDepth  += glibDevice_->getFIFOOccupancy(0x1); LINK1 out temporary
@@ -474,7 +474,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   //set up a counter for each column/link?
   // should the counter increment each time read action is executed?
   int *pLk0 = gemDataParker->dumpDataToDisk(0x0);
-
   vfat_    = *pLk0;
   event_   = *(pLk0+1);
   sumVFAT_ = *(pLk0+2);
@@ -484,7 +483,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
   /* LINK1 dosn't work at CERN, 904, temporary
   int *pLk1 = gemDataParker->dumpDataToDisk(0x1);
-
   vfat_    = *pLk1;
   event_   = *(pLk1+1);
   sumVFAT_ = *(pLk1+2);
@@ -494,7 +492,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   */
 
   int *pLk2 = gemDataParker->dumpDataToDisk(0x2);
-
   vfat_    = *pLk2;
   event_   = *(pLk2+1);
   sumVFAT_ = *(pLk2+2);
