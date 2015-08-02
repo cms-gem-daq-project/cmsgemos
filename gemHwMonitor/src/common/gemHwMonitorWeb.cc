@@ -778,7 +778,8 @@ throw (xgi::exception::Exception)
             int n_chan = 0;
             if (vfatDevice_->isHwConnected()) 
             {
-                vfatDevice_->readVFAT2Counters();
+	        // superfluous, as readVFAT2Counters is called in getAllSettings
+	        //vfatDevice_->readVFAT2Counters();
                 vfatDevice_->getAllSettings(); // takes time. See with Jared how to make it better
                 runmode = gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode);
                 for (uint8_t chan = 1; chan < 129; ++chan)
@@ -953,7 +954,8 @@ throw (xgi::exception::Exception)
         vfatDevice_->setDeviceIPAddress(glibIP);
         vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
         vfatDevice_->connectDevice();
-        vfatDevice_->readVFAT2Counters();
+	// superfluous, as readVFAT2Counters is called in getAllSettings
+        //vfatDevice_->readVFAT2Counters();
         vfatDevice_->getAllSettings();
         std::string methodExpandCrate = toolbox::toString("/%s/expandCrate", getApplicationDescriptor()->getURN().c_str());
         std::string methodExpandGLIB = toolbox::toString("/%s/expandGLIB", getApplicationDescriptor()->getURN().c_str());
