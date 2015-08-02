@@ -24,7 +24,7 @@ namespace gem {
 	        GEMDataParker(gem::hw::glib::HwGLIB& glibDevice, std::string const& outFileName, std::string const& outputType);
                 ~GEMDataParker() {};
 
-                int dumpDataToDisk(uint8_t const& link);
+                int *dumpDataToDisk(uint8_t const& link);
 
 		int  getGLIBData  (uint8_t const& link,
 				   gem::readout::GEMData& gem,
@@ -43,8 +43,20 @@ namespace gem {
                 gem::hw::glib::HwGLIB* glibDevice_;
                 std::string outFileName_;
                 std::string outputType_;
-                int counter_;
-        };
+
+                // Counter
+         	int counter_[3];
+
+                // Events Counter     
+         	int vfat_;
+
+                // Events Counter     
+         	int event_;
+         
+                // VFATs counter per event
+                int sumVFAT_;
+
+         };
     }
 }
 #endif
