@@ -12,18 +12,14 @@ using namespace std;
 namespace gem {
   namespace readout {
 
-     /*
-      uint32_t bxExp;   // :28
-      uint16_t bxNum;   // :8,     Sbit:8
-      */
-
       struct VFATData {
         uint16_t BC;          // 1010:4,   BC:12 
         uint16_t EC;          // 1100:4,   EC:8,      Flags:4
         uint16_t ChipID;      // 1110,     ChipID:12
         uint64_t lsData;      // channels from 1to64
         uint64_t msData;      // channels from 65to128
-        uint16_t crc;         // :16
+        uint16_t BXfrOH;      // :16       BX from OH  
+        uint16_t crc;         // :16       CRC
       };    
     
       struct GEBData {
@@ -112,6 +108,7 @@ namespace gem {
           outf << hex << vfat.ChipID << dec << endl;
           outf << hex << vfat.lsData << dec << endl;
           outf << hex << vfat.msData << dec << endl;
+          outf << hex << vfat.BXfrOH << dec << endl;
           outf << hex << vfat.crc << dec << endl;
           //writeZEROline(file);
           outf.close();
@@ -126,6 +123,7 @@ namespace gem {
 	  cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.ChipID << dec << endl;
           cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.msData << dec << endl;
           cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.lsData << dec << endl;
+	  cout << "BXfrOH  :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.BXfrOH << dec << endl;
 	  cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.crc    << dec << endl;
         return(true);
       };
@@ -137,6 +135,7 @@ namespace gem {
         inpf >> hex >> vfat.ChipID;
         inpf >> hex >> vfat.lsData;
         inpf >> hex >> vfat.msData;
+        inpf >> hex >> vfat.BXfrOH;
         inpf >> hex >> vfat.crc;
         return(true);
       };	  
@@ -168,6 +167,7 @@ namespace gem {
   	  outf.write( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
   	  outf.write( (char*)&vfat.lsData, sizeof(vfat.lsData));  
   	  outf.write( (char*)&vfat.msData, sizeof(vfat.msData));
+          outf.write( (char*)&vfat.BXfrOH, sizeof(vfat.msData));
   	  outf.write( (char*)&vfat.crc, sizeof(vfat.crc));
           outf.close();
         return(true);
@@ -182,6 +182,7 @@ namespace gem {
   	  inpf.read( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
           inpf.read( (char*)&vfat.lsData, sizeof(vfat.lsData));
           inpf.read( (char*)&vfat.msData, sizeof(vfat.msData));
+          inpf.read( (char*)&vfat.BXfrOH, sizeof(vfat.msData));
   	  inpf.read( (char*)&vfat.crc, sizeof(vfat.crc));
           inpf.seekg (0, inpf.cur);
         return(true);
@@ -235,7 +236,8 @@ namespace gem {
  	  cout << "\nReceived VFAT data word: ichip " << event << endl;
 
           uint8_t   b1010 = (0xf000 & vfat.BC) >> 12;
-          show4bits(b1010); cout << " BC     0x" << hex << (0x0fff & vfat.BC) << dec << endl;
+          show4bits(b1010); cout << " BC     0x" << hex << (0x0fff & vfat.BC) 
+                                 << std::setfill('0') << std::setw(4) << "      BX 0x" << vfat.BXfrOH << dec << endl;
 
           uint8_t   b1100 = (0xf000 & vfat.EC) >> 12;
           uint16_t   EC   = (0x0ff0 & vfat.EC) >> 4;

@@ -24,6 +24,7 @@ GEMREADOUT_VER_PATCH=0
 
 Sources =version.cc
 Sources+=GEMDataParker.cc
+Sources+=GEMDataChecker.cc
 
 DynamicLibrary=gem_readout
 
