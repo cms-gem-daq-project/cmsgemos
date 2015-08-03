@@ -151,7 +151,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
 
     auto num = confParams_.bag.deviceNum.begin();
     for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
-      ss << "Device name: " << *chip << std::endl;
+      ss << "Device name: " << chip->toString() << std::endl;
     }
     INFO(ss.str());
   }
