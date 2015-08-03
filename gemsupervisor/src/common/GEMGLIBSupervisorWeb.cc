@@ -32,21 +32,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
     deviceName.push_back("");
     deviceNum.push_back(-1);
   }
-  /*
-    VAFT Devices List with are on GEB, this is broken, needs to be fixed
-  */
-
-  //deviceIP     = "192.168.0.164";
-  deviceIP     = "192.168.0.170";
-  deviceName[8]  = (xdata::String)VFATnum[8];
-  deviceName[9]  = (xdata::String)VFATnum[9];
-  deviceName[10] = (xdata::String)VFATnum[10];
-  deviceName[11] = (xdata::String)VFATnum[11];
-  deviceName[12] = (xdata::String)VFATnum[12];
-  deviceName[13] = (xdata::String)VFATnum[13];
-  /*
-  */
-
   
   triggerSource = 0x0; // 0x2; 
 
@@ -163,7 +148,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
     ss << "deviceChipID=["  << confParams_.bag.deviceChipID.toString()  << "]" << std::endl;
     ss << "deviceVT1=[" << confParams_.bag.deviceVT1.toString() << "]" << std::endl;
     ss << "deviceVT2=[" << confParams_.bag.deviceVT2.toString() << "]" << std::endl;
-    
+
+    auto num = confParams_.bag.deviceNum.begin();
+    for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
+      ss << "Device name: " << *chip << std::endl;
+    }
     INFO(ss.str());
   }
 }
