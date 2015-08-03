@@ -2,8 +2,8 @@
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
-<!--  <xc:Context url="http://gem904daq01:3003"> -->
-      <xc:Context url="http://gem904daq01:3459">
+
+  <xc:Context url="http://gem904daq01:5044">
     
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
@@ -11,7 +11,6 @@
 	  <deviceIP xsi:type="xsd:string">192.168.0.162</deviceIP>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">
 	    <item xsi:type="xsd:string" soapenc:position="[0]">VFAT0</item>
-<!--
 	    <item xsi:type="xsd:string" soapenc:position="[1]">VFAT1</item>
 	    <item xsi:type="xsd:string" soapenc:position="[2]">VFAT2</item>
 	    <item xsi:type="xsd:string" soapenc:position="[3]">VFAT3</item>
@@ -19,6 +18,7 @@
 	    <item xsi:type="xsd:string" soapenc:position="[5]">VFAT5</item>
 	    <item xsi:type="xsd:string" soapenc:position="[6]">VFAT6</item>
 	    <item xsi:type="xsd:string" soapenc:position="[7]">VFAT7</item>
+	    <!--
 	    <item xsi:type="xsd:string" soapenc:position="[8]">VFAT8</item>
 	    <item xsi:type="xsd:string" soapenc:position="[9]">VFAT9</item>
 	    <item xsi:type="xsd:string" soapenc:position="[10]">VFAT10</item>
@@ -27,6 +27,7 @@
 	    <item xsi:type="xsd:string" soapenc:position="[13]">VFAT13</item>
 	    <item xsi:type="xsd:string" soapenc:position="[14]">VFAT14</item>
 	    <item xsi:type="xsd:string" soapenc:position="[15]">VFAT15</item>
+	    -->
 	    <item xsi:type="xsd:string" soapenc:position="[16]">VFAT16</item>
 	    <item xsi:type="xsd:string" soapenc:position="[17]">VFAT17</item>
 	    <item xsi:type="xsd:string" soapenc:position="[18]">VFAT18</item>
@@ -35,7 +36,6 @@
 	    <item xsi:type="xsd:string" soapenc:position="[21]">VFAT21</item>
 	    <item xsi:type="xsd:string" soapenc:position="[22]">VFAT22</item>
 	    <item xsi:type="xsd:string" soapenc:position="[23]">VFAT23</item
--->
 	  </deviceName>
 	  <!--deviceNum xsi:type="xsd:string">192.168.0.164</deviceNum-->
 	  <latency xsi:type="xsd:unsignedShort">25</latency>

@@ -146,7 +146,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
     ss << "deviceChipID=["  << confParams_.bag.deviceChipID.toString()  << "]" << std::endl;
     ss << "deviceVT1=[" << confParams_.bag.deviceVT1.toString() << "]" << std::endl;
     ss << "deviceVT2=[" << confParams_.bag.deviceVT2.toString() << "]" << std::endl;
-    
+
+    auto num = confParams_.bag.deviceNum.begin();
+    for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
+      ss << "Device name: " << chip->toString() << std::endl;
+    }
     INFO(ss.str());
   }
 }

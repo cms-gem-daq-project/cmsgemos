@@ -93,6 +93,22 @@ namespace gem {
 	   * @param regName is the name of the VFAT2 register to read
 	   * @returns 8-bit register from the VFAT chip
 	   */
+	  uint8_t  readVFATReg( std::string const& regName, bool debug) /*{
+	    //check the transaction status
+	    //bit 31:27 - unused
+	    //bit 26 - error
+	    //bit 25 - valid
+	    //bit 24 - r/w
+	    //bit 23:16 - VFAT number
+	    //bit 15:8  - VFAT register
+	    //bit 7:0   - register value
+	    return readReg(getDeviceBaseNode(),regName)&0x000000ff; }*/;
+
+	  /** uint8_t  readVFATReg( std::string const& regName)
+	   * Reads a register on the VFAT2 chip, returns the 8-bit value of the register
+	   * @param regName is the name of the VFAT2 register to read
+	   * @returns 8-bit register from the VFAT chip
+	   */
 	  uint8_t  readVFATReg( std::string const& regName) /*{
 	    //check the transaction status
 	    //bit 31:27 - unused

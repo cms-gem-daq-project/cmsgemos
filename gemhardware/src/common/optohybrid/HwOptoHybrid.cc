@@ -8,7 +8,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0)
   //is_connected_(false),
-  links({0,0,0}),
+  links({false,false,false}),
   m_controlLink(-1)  
 {
   setDeviceID("OptoHybridHw");
@@ -25,7 +25,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0),
   //is_connected_(false),
-  links({0,0,0}),
+  links({false,false,false}),
   m_controlLink(-1),
   m_slot(slot)
 {
@@ -105,9 +105,7 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
   if ( is_connected_ ) {
     INFO("HwOptoHybrid connection good");
     return true;
-  }
-  
-  else if (gem::hw::GEMHwDevice::isHwConnected()) {
+  } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection");
 
     //try {
@@ -116,13 +114,16 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
     std::vector<linkStatus> tmp_activeLinks;
     tmp_activeLinks.reserve(3);
     for (unsigned int link = 0; link < 3; ++link) {
-      if (this->getFirmware(link)) {
+      //need to make sure that this works only for "valid" FW results
+      // for the moment we can do a check to see that 2015 appears in the string
+      //if (this->getFirmware(link)) {
+      if ((this->getFirmwareDate(link)).rfind("15") != std::string::npos) {
 	links[link] = true;
 	INFO("link" << link << " present(" << this->getFirmware(link) << ")");
 	tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
       } else {
 	links[link] = false;
-	INFO("link" << link << " not reachable");
+	INFO("link" << link << " not reachable (unable to find 15 in the firmware string)");
       }
     }
     activeLinks = tmp_activeLinks;
@@ -148,12 +149,16 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkS
   
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
 
+  //put these into a checkLink(link) function that will return bool, since they're used often
   if (link > 2) {
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
-  }
-  else {
+  } else if (!links[link]) {
+    std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
+  } else {
     std::stringstream regName;
     regName << "OptoHybrid_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Counter.";
     linkStatus.Errors           = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"       );
@@ -168,6 +173,11 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkS
 void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t const& link, uint8_t const& resets) {
   if (link > 2) {
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
+    return;
+  } else if (!links[link]) {
+    std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
     return;
