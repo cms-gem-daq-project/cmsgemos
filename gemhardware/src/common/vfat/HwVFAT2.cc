@@ -127,7 +127,7 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
   else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection" << std::endl);
     try {
-      uint32_t chipTest = readVFATReg("ChipID0");
+      uint32_t chipTest = readVFATReg("ChipID0",true);
       INFO("read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
       is_connected_ = true;
       
@@ -150,7 +150,7 @@ bool gem::hw::vfat::HwVFAT2::isHwConnected()
 }
 
 //
-uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
+uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName, bool debug) {
   uint32_t readVal = readReg(getDeviceBaseNode(),regName);
   
   /*
@@ -185,6 +185,21 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
     XCEPT_RAISE(gem::hw::vfat::exception::WrongTransaction,msg);
   } else {
     return (readVal & 0xff);
+  }
+}
+
+//
+uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName) {
+  //temporary wrapper just to fix a simple bug
+  //this will have to change in the future, or the return values have to be made sensible
+  try {
+    return readVFATReg(regName,false);
+  } catch (gem::hw::vfat::exception::TransactionError const& e) {
+    return 0xff;      
+  } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
+    return 0xff;      
+  } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
+    return 0xff;      
   }
 }
 
