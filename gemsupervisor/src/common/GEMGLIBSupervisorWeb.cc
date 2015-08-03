@@ -443,11 +443,11 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
   fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
     
-  if(fifoDepth[0])
+  if (fifoDepth[0])
     INFO("bufferDepth[0] (runAction) = " << std::hex << fifoDepth[0] << std::dec);
-  if(fifoDepth[1])
+  if (fifoDepth[1])
     INFO("bufferDepth[1] (runAction) = " << std::hex << fifoDepth[1] << std::dec);
-  if(fifoDepth[2])
+  if (fifoDepth[2])
     INFO("bufferDepth[2] (runAction) = " << std::hex << fifoDepth[2] << std::dec);
 
   // Get the size of GLIB data buffer

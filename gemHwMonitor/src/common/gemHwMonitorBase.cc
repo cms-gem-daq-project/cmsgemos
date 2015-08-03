@@ -3,7 +3,7 @@
 template <class T> const std::string gem::hwMonitor::gemHwMonitorBase<T>::getDeviceId ()
     throw (xgi::exception::Exception)
 {
-    if (isConfigured_){
+    if (isConfigured_) {
         return gemDevice_->getDeviceId();
     } else {
         return "Device is not configured";

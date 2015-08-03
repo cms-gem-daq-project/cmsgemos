@@ -12,8 +12,8 @@ namespace gem {
   namespace utils {
     class gemDeviceProperties {
     public:
-      gemDeviceProperties(){}
-      virtual ~gemDeviceProperties(){}
+      gemDeviceProperties() {}
+      virtual ~gemDeviceProperties() {}
       const std::string& getDeviceId() const {return deviceId_;}
       void setDeviceId(const char* deviceId) {deviceId_ = deviceId;}
       const std::vector<std::string>& getSubDevicesIds() {return subDevicesIds_;}

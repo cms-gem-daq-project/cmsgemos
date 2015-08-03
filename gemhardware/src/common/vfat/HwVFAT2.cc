@@ -173,12 +173,12 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg( std::string const& regName, bool de
     ++vfatErrors_.Error;
     ERROR(msg);
     XCEPT_RAISE(gem::hw::vfat::exception::TransactionError,msg);
-  } else if ((readVal >> 25) & 0x0){
+  } else if ((readVal >> 25) & 0x0) {
     std::string msg = toolbox::toString("VFAT transaction invalid bit set reading register %s",regName.c_str());
     ++vfatErrors_.Invalid;
     ERROR(msg);
     XCEPT_RAISE(gem::hw::vfat::exception::InvalidTransaction,msg);
-  } else if ((readVal >> 24) & 0x0){
+  } else if ((readVal >> 24) & 0x0) {
     std::string msg = toolbox::toString("VFAT read transaction returned write on register %s",regName.c_str());
     ++vfatErrors_.RWMismatch;
     ERROR(msg);
