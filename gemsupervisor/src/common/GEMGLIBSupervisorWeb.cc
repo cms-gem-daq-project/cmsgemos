@@ -454,13 +454,13 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   // Get the size of GLIB data buffer
   uint32_t bufferDepth = 0;
   bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
-  //SB bufferDepth  += glibDevice_->getFIFOOccupancy(0x1); LINK1 out temporary
+  bufferDepth += glibDevice_->getFIFOOccupancy(0x1);
   bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
 
   wl_semaphore_.give();
   hw_semaphore_.give();
 
-  INFO("LINK1: bufferDepth = " << std::hex << bufferDepth << std::dec);
+  INFO("Combined bufferDepth = " << std::hex << bufferDepth << std::dec);
 
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth) {
@@ -485,7 +485,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   counter_[1] = event_;
   counter_[2] = sumVFAT_;
 
-  /* LINK1 dosn't work at CERN, 904, temporary
   int *pLk1 = gemDataParker->dumpDataToDisk(0x1);
   vfat_    = *pLk1;
   event_   = *(pLk1+1);
@@ -493,7 +492,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   counter_[0] += vfat_;
   counter_[1] += event_;
   counter_[2] += sumVFAT_;
-  */
 
   int *pLk2 = gemDataParker->dumpDataToDisk(0x2);
   vfat_    = *pLk2;
