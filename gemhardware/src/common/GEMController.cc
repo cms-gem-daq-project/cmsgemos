@@ -62,11 +62,10 @@ void gem::hw::vfat::GEMController::parseXMLFile()
 
   //
   /// Initialize XML4C system
-  try{
+  try {
     xercesc::XMLPlatformUtils::Initialize();
     LOG4CPLUS_INFO(this->getApplicationLogger(), "Successfully initialized XML4C system");
-  }
-  catch(const xercesc::XMLException& toCatch){
+  } catch (const xercesc::XMLException& toCatch) {
     std::cerr << "Error during Xerces-c Initialization.\n"
 	      << "  Exception message:"
 	      << xercesc::XMLString::transcode(toCatch.getMessage()) << std::endl;
@@ -89,27 +88,19 @@ void gem::hw::vfat::GEMController::parseXMLFile()
   //  out of it.
   //
   bool errorsOccured = false;
-  try{
+  try {
     parser->parse(settingsFile_.toString().c_str());
-  }
-
-
-  catch (const xercesc::XMLException& e){
+  } catch (const xercesc::XMLException& e) {
     std::cerr << "An error occured during parsing\n   Message: "
 	      << xercesc::XMLString::transcode(e.getMessage()) << std::endl;
     errorsOccured = true;
     fileError = "An error occured during parsing of selected file. Please select another configuration file.";
-  }
-
-
-  catch (const xercesc::DOMException& e){
+  } catch (const xercesc::DOMException& e) {
     std::cerr << "An error occured during parsing\n   Message: "
 	      << xercesc::XMLString::transcode(e.msg) << std::endl;
     errorsOccured = true;
     fileError = "An error occured during parsing of selected file. Please select another configuration file.";
-  }
-
-  catch (...){
+  } catch (...) {
     std::cerr << "An error occured during parsing" << std::endl;
     errorsOccured = true;
     fileError = "An error occured during parsing of selected file. Please select another configuration file.";
@@ -119,7 +110,7 @@ void gem::hw::vfat::GEMController::parseXMLFile()
   crateIds.clear();
   crateNodes.clear();
 
-  if (!errorsOccured){
+  if (!errorsOccured) {
     xercesc::DOMNode * pDoc = parser->getDocument();
     xercesc::DOMNode * n = pDoc->getFirstChild();
     while (n) {
@@ -743,12 +734,10 @@ void gem::hw::vfat::GEMController::VFAT2Manager(xgi::Input * in, xgi::Output * o
       .set("src","/gemdaq/gemhardware/html/scripts/toggleVFATCheckboxes.js")
 	 << cgicc::script() << cgicc::br()
 	 << std::endl;
-  }
-  catch (const xgi::exception::Exception& e) {
+  } catch (const xgi::exception::Exception& e) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying ControlPanel xgi: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception& e) {
+  } catch (const std::exception& e) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying the ControlPanel: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
@@ -1068,13 +1057,10 @@ void gem::hw::vfat::GEMController::ControlPanel(xgi::Input * in, xgi::Output * o
       .set("src","/gemdaq/gemhardware/html/scripts/toggleVFATCheckboxes.js")
 	 << cgicc::script() << cgicc::br()
 	 << std::endl;
-  }
-
-  catch (const xgi::exception::Exception& e) {
+  } catch (const xgi::exception::Exception& e) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying ControlPanel xgi: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception& e) {
+  } catch (const std::exception& e) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying the ControlPanel: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
@@ -1083,8 +1069,7 @@ void gem::hw::vfat::GEMController::ControlPanel(xgi::Input * in, xgi::Output * o
 void gem::hw::vfat::GEMController::controlVFAT2(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  try
-    {
+  try {
       cgicc::Cgicc cgi(in);
       std::vector<cgicc::FormEntry> myElements = cgi.getElements();
 
@@ -1095,13 +1080,9 @@ void gem::hw::vfat::GEMController::controlVFAT2(xgi::Input * in, xgi::Output * o
       //now process the form based on the button clicked
       performAction(cgi, regValsToSet);
       this->VFAT2Manager(in,out);
-    }
-  catch (const xgi::exception::Exception & e)
-    {
+    } catch (const xgi::exception::Exception & e) {
       XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
-  catch (const std::exception & e)
-    {
+    } catch (const std::exception & e) {
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
 }
@@ -1149,8 +1130,7 @@ void gem::hw::vfat::GEMController::getCheckedRegisters(cgicc::Cgicc cgi, std::ve
   //std::vector<std::pair<std::string,uint8_t> > regValsToSet;
   std::pair<std::string,uint8_t> regPair;
   LOG4CPLUS_INFO(this->getApplicationLogger(), "getCheckedRegisters::Getting list of checked registers and values to read/write");
-  try
-    {
+  try {
       //cgicc::Cgicc cgi(in);
       std::vector<cgicc::FormEntry> vfat2FormEntries = cgi.getElements();
 
@@ -1257,14 +1237,11 @@ void gem::hw::vfat::GEMController::getCheckedRegisters(cgicc::Cgicc cgi, std::ve
     XCEPT_RAISE(boost::exception, e);
     }
   */
-  catch (const xgi::exception::Exception & e)
-    {
+  catch (const xgi::exception::Exception & e) {
       XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
-  catch (const std::exception & e)
-    {
+  } catch (const std::exception & e) {
       XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }  
+  }  
   LOG4CPLUS_INFO(this->getApplicationLogger(), "getCheckedRegisters::list obtained");
   //return regValsToSet;
 }

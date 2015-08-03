@@ -46,9 +46,9 @@ namespace gem {
                     return xmlConfigFileName_;
                 }
                 void setDBSconfigFile (std::string inputDBSfilename)
-                    throw (xgi::exception::Exception){}
+                    throw (xgi::exception::Exception) {}
                 const std::string getDBSconfigFile ()
-                    throw (xgi::exception::Exception){return "Not implemented yet";}
+                    throw (xgi::exception::Exception) { return "Not implemented yet"; }
                 void configure()
                     throw (xgi::exception::Exception)
                 {

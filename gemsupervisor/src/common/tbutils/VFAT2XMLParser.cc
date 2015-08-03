@@ -29,7 +29,7 @@ void gem::supervisor::tbutils::VFAT2XMLParser::parseXMLFile()
     xercesc::XMLPlatformUtils::Initialize();
     // LOG4CPLUS_INFO(this->getApplicationLogger(), "Successfully initialized XML4C system");
   }
-  catch(const xercesc::XMLException& toCatch){
+  catch (const xercesc::XMLException& toCatch) {
     std::cerr << "Error during Xerces-c Initialization.\n"
 	      << "  Exception message:"
 	      << xercesc::XMLString::transcode(toCatch.getMessage()) << std::endl;
@@ -57,20 +57,20 @@ void gem::supervisor::tbutils::VFAT2XMLParser::parseXMLFile()
   }
 
 
-  catch (const xercesc::XMLException& e){
+  catch (const xercesc::XMLException& e) {
     std::cerr << "An error occured during parsing\n   Message: "
 	      << xercesc::XMLString::transcode(e.getMessage()) << std::endl;
     errorsOccured = true;
   }
 
 
-  catch (const xercesc::DOMException& e){
+  catch (const xercesc::DOMException& e) {
     std::cerr << "An error occured during parsing\n   Message: "
 	      << xercesc::XMLString::transcode(e.msg) << std::endl;
     errorsOccured = true;
   }
 
-  catch (...){
+  catch (...) {
     std::cerr << "An error occured during parsing" << std::endl;
     errorsOccured = true;
   }
@@ -79,7 +79,7 @@ void gem::supervisor::tbutils::VFAT2XMLParser::parseXMLFile()
 
   // If the parse was successful, output the document data from the DOM tree
 
-  if (!errorsOccured){
+  if (!errorsOccured) {
     xercesc::DOMNode * pDoc = parser->getDocument();
     xercesc::DOMNode * n = pDoc->getFirstChild();
     while (n) {

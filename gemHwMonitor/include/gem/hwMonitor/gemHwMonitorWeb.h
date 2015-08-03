@@ -40,20 +40,20 @@ namespace gem {
         {
 	        public:
                 XDAQ_INSTANTIATOR();
-		        gemHwMonitorWeb(xdaq::ApplicationStub *s)
+		gemHwMonitorWeb(xdaq::ApplicationStub *s)
                     throw (xdaq::exception::Exception);
                 ~gemHwMonitorWeb();
                 void Default(xgi::Input *in, xgi::Output *out )
 		            throw (xgi::exception::Exception);
                 void Dummy(xgi::Input *in, xgi::Output *out )
 		            throw (xgi::exception::Exception);
-		        void controlPanel(xgi::Input *in, xgi::Output *out)
+		void controlPanel(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
-		        void showCratesAvailability(xgi::Input *in, xgi::Output *out)
+		void showCratesAvailability(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
-		        void pingCrate(xgi::Input *in, xgi::Output *out)
+		void pingCrate(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
-		        void showCrateUtilities(xgi::Input *in, xgi::Output *out)
+		void showCrateUtilities(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
                 void setConfFile(xgi::Input *in, xgi::Output *out)
 		            throw (xgi::exception::Exception);
@@ -83,21 +83,21 @@ namespace gem {
 		            throw (xgi::exception::Exception);
 /*
                 static void createVFATInfoLayout(       xgi::Output *out,
-                        const gem::hw::vfat::VFAT2ControlParams params){}
+                        const gem::hw::vfat::VFAT2ControlParams params) {}
                 static void createControlRegisterLayout(xgi::Output *out,
-                        const gem::hw::vfat::VFAT2ControlParams params){}
+                        const gem::hw::vfat::VFAT2ControlParams params) {}
                 static void createSettingsLayout(       xgi::Output *out,
-                        const gem::hw::vfat::VFAT2ControlParams params){}
+                        const gem::hw::vfat::VFAT2ControlParams params) {}
                 static void createCounterLayout(        xgi::Output *out,
-                        const gem::hw::vfat::VFAT2ControlParams params){}
+                        const gem::hw::vfat::VFAT2ControlParams params) {}
                 static void createChannelRegisterLayout(xgi::Output *out,
-                        const gem::hw::vfat::VFAT2ControlParams params){}
+                        const gem::hw::vfat::VFAT2ControlParams params) {}
                 static void createCommandLayout(        xgi::Output *out,
-                        const gem::hw::vfat::VFAT2ControlParams params){}
+                        const gem::hw::vfat::VFAT2ControlParams params) {}
 
-                static void getCurrentParametersAsXML(){}
-                static void saveCurrentParametersAsXML(){}
-                static void setParametersByXML(){}
+                static void getCurrentParametersAsXML() {}
+                static void saveCurrentParametersAsXML() {}
+                static void setParametersByXML() {}
 */
             private:
                 gemHwMonitorSystem* gemHwMonitorSystem_;
