@@ -382,7 +382,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi:
   // Send L1A signal
   hw_semaphore_.take();
 
-  optohybridDevice_->SendResync();
   optohybridDevice_->SendL1ACal(10, 25);
   
   hw_semaphore_.give();
