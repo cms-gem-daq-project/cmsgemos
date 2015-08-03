@@ -303,17 +303,27 @@ namespace gem {
 	   **/
 	  uint32_t getUserFirmware();
 	  
+	  /** Read the user firmware register using m_controlLink
+	   * @returns a std::string corresponding to the build date
+	   **/
+	  std::string getUserFirmwareDate();
+
+	private:
 	  /** Read the user firmware register for a given link
 	   * @returns a hex number corresponding to the build date
+	   * is private to ensure that it is only used internally
+	   * link agnostic versions should be used outside of HwGLIB
 	   **/
 	  uint32_t getUserFirmware(uint8_t const& link);
 	  
 	  /** Read the user firmware register for a given link
 	   * @returns a string corresponding to the build date
+	   * is private to ensure that it is only used internally
+	   * link agnostic versions should be used outside of HwGLIB
 	   **/
-	  std::string getUserFirmwareDate();
 	  std::string getUserFirmwareDate(uint8_t const& link);
 	  
+	public:
 	  /** Read the link status registers, store the information in a struct
 	   * @param uint8_t link is the number of the link to query
 	   * @retval _status a struct containing the status bits of the optical link
