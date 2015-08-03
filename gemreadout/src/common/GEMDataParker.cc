@@ -16,10 +16,9 @@
 
 #include "gem/utils/GEMLogging.h"
 
-int OHv=2;
-int counterVFATs_=0, event_=0;
+int counterVFATs_ = 0;
+uint64_t ZSFlag = 0;
 bool dumpGEMevent_ = false;
-uint64_t ZSFlag=0;
 
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
@@ -31,10 +30,13 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   glibDevice_  = &glibDevice;
   outFileName_ = outFileName;
   outputType_  = outputType;
-  counter_ = 0;
+  counter_ = {0,0,0};
+  vfat_ = 0;
+  event_ = 0;
+  sumVFAT_ = 0;
 }
 
-int gem::readout::GEMDataParker::dumpDataToDisk(uint8_t const& link)
+int *gem::readout::GEMDataParker::dumpDataToDisk(uint8_t const& link)
 {
   // Book GEM Data format
   gem::readout::GEMData  gem;
@@ -43,27 +45,31 @@ int gem::readout::GEMDataParker::dumpDataToDisk(uint8_t const& link)
   
   // get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
   dumpGEMevent_ = false;
-  counter_ = gem::readout::GEMDataParker::getGLIBData(link, gem, geb, vfat);
+  vfat_ = gem::readout::GEMDataParker::getGLIBData(link, gem, geb, vfat);
   
   // Write GEM Data to Disk, when GEM event is off
   if( dumpGEMevent_ ){
     event_++;
-    DEBUG(" dumpDataToDisk:: dumpGEMevent: event_ " << event_ 
-	  << " counter_ " << counter_
-	  << " counterVFATs " << counterVFATs_);
     gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
   }
-  
-  return counter_;
+
+  counter_[0] = vfat_;
+  counter_[1] = event_;
+  counter_[2] = (0x000000000fffffff & geb.header);
+
+  int *point = &counter_[0]; 
+
+  return point;
 }
 
-int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
+int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, 
+      gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
 {
   // Book VFAT variables
   bool     isFirst = true;
   uint8_t  SBit, flags;
   uint16_t bcn, evn, chipid, crc;
-  uint32_t bxNum, bxExp, TrigReg, bxNumTr;
+  uint32_t BXfrOH, BXOHexp, TrigReg, BXOHTrig;
   uint64_t msData, lsData;
 
   // GLIB data buffer validation
@@ -84,19 +90,12 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
     INFO(glibDevice_->getDeviceBaseNode() << "." << boost::str(linkForm%(2))+".TRK_FIFO.DEPTH -- " <<
 	 "bufferDepth[2] = " << std::hex << fifoDepth[2] << std::dec);
   */
+
   /** the FIFO depth is not reliable */
   int bufferDepth = 0;
-  /*
-  if ( fifoDepth[0] != fifoDepth[1] || fifoDepth[0] != fifoDepth[2] || fifoDepth[1] != fifoDepth[2] ) {
-    if (OHv == 1){
-      bufferDepth = std::min(fifoDepth[0],std::min(fifoDepth[1],fifoDepth[2]));
-    } else if (OHv == 2){
-      bufferDepth = std::min(fifoDepth[0],fifoDepth[2]);
-    }
-    }*/
 
   bufferDepth = glibDevice_->getFIFOOccupancy(link);
-  INFO("OHv " << OHv << " bufferDepth = " << std::hex << bufferDepth << std::dec);
+  INFO(" bufferDepth = " << std::hex << bufferDepth << std::dec);
 
   // For each event in GLIB data buffer
   // should probably switch this while with the next if, to ensure that there is actually a value in the vector
@@ -115,7 +114,7 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
 
     // read trigger data
     TrigReg = glibDevice_->readTriggerFIFO(link);
-    bxNumTr = TrigReg >> 6;
+    BXOHTrig = TrigReg >> 6;
     SBit = TrigReg & 0x0000003F;
 
     uint16_t b1010, b1100, b1110;
@@ -129,34 +128,30 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
       continue;
     }
 
-    bxNum = data.at(6);
+    BXfrOH = data.at(6);
 
     if (isFirst){
-      bxExp = bxNum;
+      BXOHexp = BXfrOH;
       if (counterVFATs_ != 0){
 	dumpGEMevent_ = true;
-	DEBUG(" getGLIBData:: End Event: counter_ " << counter_ << " counterVFATs " << counterVFATs_);
+	DEBUG(" getGLIBData:: End Event: vfat_ " << vfat_ << " counterVFATs " << counterVFATs_);
 	ZSFlag = 0;
       }
       counterVFATs_ = 0;
     }
 
-    counter_++;
-    counterVFATs_++;
-
-    if (bxNum == bxExp){
+    if (BXfrOH == BXOHexp){
       isFirst = false;
     } else { 
       isFirst = true;
     }
 
-    // bxExp:28
-    // bxNum  = (bxNum << 8 ) | (SBit); // bxNum:8  | SBit:8
+    // BXOHexp:28
+    // BXfrOH  = (BXfrOH << 8 ) | (SBit); // BXfrOH:8  | SBit:8
 
     bcn    = (0x0fff0000 & data.at(5)) >> 16;
     evn    = (0x00000ff0 & data.at(5)) >> 4;
     chipid = (0x0fff0000 & data.at(4)) >> 16;
-    //cout<< " " << hex << b1110 << " ChipID " << chipid << dec << endl;
     flags  = (0x0000000f & data.at(5));
     crc    = (0x0000ffff & data.at(0));
 
@@ -168,29 +163,31 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, gem::readout::
     lsData = (data3 << 32) | (data4);
     msData = (data1 << 32) | (data2);
 
+    vfat_++;
+    counterVFATs_++;
+
     vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
     vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4
     vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
     vfat.lsData = lsData;                                 // lsData:64
     vfat.msData = msData;                                 // msData:64
+    vfat.BXfrOH = BXfrOH;                                 // BXfrOH:16
     vfat.crc    = crc;                                    // crc:16
 
     bufferDepth = glibDevice_->getFIFOOccupancy(link);
 
     /*
      * dump VFAT data
-    gem::readout::printVFATdataBits(counter_, vfat);
+    gem::readout::printVFATdataBits(vfat_, vfat);
     */
     
     // GEM data filling
     gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
 
-    //sergey//glibDevice_->setDeviceBaseNode("OptoHybrid.GEB.TRK_DATA.COL1");
-
   }//closes check on DATA_RDY
   //}//closes while loop
   
-  return counter_;
+  return vfat_;
 }
 
 void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
@@ -327,8 +324,7 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
 
 void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem::readout::GEBData& geb, gem::readout::VFATData& vfat)
 {
-  INFO("\nwriteGEMevent:: event_ " << event_ << " counter= " << counter_ << " counterVFATs " << counterVFATs_  
-       << " sumVFAT " << (0x000000000fffffff & geb.header));
+  INFO("\nwriteGEMevent:: counter " << vfat_ << " event " << event_ << " sumVFAT " << (0x000000000fffffff & geb.header));
 
   // GEM Chamber's data level
   /*
@@ -344,7 +340,7 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
   } else {
     writeGEBheaderBinary (outFileName_, event_, geb);
   } 
-  printGEBheader (event_, geb);
+  // printGEBheader (event_, geb);
     
   int nChip=0;
   for (vector<VFATData>::iterator iVFAT=geb.vfats.begin(); iVFAT != geb.vfats.end(); ++iVFAT){
