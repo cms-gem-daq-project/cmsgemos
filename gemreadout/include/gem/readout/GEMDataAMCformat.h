@@ -252,6 +252,7 @@ namespace gem {
            */
           std::cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.msData << std::dec << std::endl;
           std::cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.lsData << std::dec << std::endl;
+          std::cout << "      BX    0x" << std::hex << vfat.BXfrOH << std::dec << std::endl;
           std::cout << "     crc    0x" << std::hex << vfat.crc << std::dec << std::endl;
 
           //std::cout << " " << std::endl; show16bits(vfat.EC);
