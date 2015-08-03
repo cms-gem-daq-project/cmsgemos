@@ -1047,7 +1047,7 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
     //}
   
   vfatDevice_->setVThreshold1(maxThresh_-minThresh_);
-  vfatDevice_->setVThreshold2(max(0,maxThresh_));
+  vfatDevice_->setVThreshold2(std::max(0,maxThresh_));
   scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
   scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
 
@@ -1147,13 +1147,13 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   if (scanSetup.is_open()){
     LOG4CPLUS_INFO(getApplicationLogger(),"::startAction " 
         << "file " << tmpFileName << " opened and closed");
-    scanSetup << "\n The Time & Date : " << utcTime << endl;
-    scanSetup << " ChipID        0x" << hex << confParams_.bag.deviceChipID << dec << endl;
-    scanSetup << " Latency       " << latency_ << endl;
-    scanSetup << " nTriggers     " << nTriggers_  << endl;
-    scanSetup << " stepSize      " << stepSize_ << endl;
-    scanSetup << " minThresh     " << minThresh_ << endl;
-    scanSetup << " maxThresh     " << maxThresh_ << endl;
+    scanSetup << "\n The Time & Date : " << utcTime << std::endl;
+    scanSetup << " ChipID        0x" << std::hex << confParams_.bag.deviceChipID << std::dec << std::endl;
+    scanSetup << " Latency       " << latency_ << std::endl;
+    scanSetup << " nTriggers     " << nTriggers_  << std::endl;
+    scanSetup << " stepSize      " << stepSize_ << std::endl;
+    scanSetup << " minThresh     " << minThresh_ << std::endl;
+    scanSetup << " maxThresh     " << maxThresh_ << std::endl;
     }
   scanSetup.close();
   
@@ -1205,7 +1205,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
   vfatDevice_->setVThreshold1(maxThresh_-minThresh_);
-  vfatDevice_->setVThreshold2(max(0,maxThresh_));
+  vfatDevice_->setVThreshold2(std::max(0,maxThresh_));
   scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
   scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
 

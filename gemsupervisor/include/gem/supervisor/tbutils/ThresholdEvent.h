@@ -7,8 +7,6 @@
 #include <vector>
 #include <bitset>
 
-using namespace std;
-
 namespace gem {
   namespace supervisor {
     namespace tbutils {
@@ -41,38 +39,38 @@ namespace gem {
         int stepSize;
       };
 
-      bool keepData(string file, int event, const ChannelData& ch){
-        ofstream outf(file.c_str(), ios_base::app );
+      bool keepData(std::string file, int event, const ChannelData& ch){
+        std::ofstream outf(file.c_str(), std::ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << hex << ch.lsData << dec << endl;
-          outf << hex << ch.msData << dec << endl;
-          outf << ch.delVT << endl;
+          outf << std::hex << ch.lsData << std::dec << std::endl;
+          outf << std::hex << ch.msData << std::dec << std::endl;
+          outf << ch.delVT << std::endl;
           outf.close();
         return(true);
       };	  
 
-      bool keepEvent(string file, int event, const VFATEvent& ev, const ChannelData& ch){
-        ofstream outf(file.c_str(), ios_base::app );
+      bool keepEvent(std::string file, int event, const VFATEvent& ev, const ChannelData& ch){
+        std::ofstream outf(file.c_str(), std::ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << hex << ev.BC << dec << endl;
-          outf << hex << ev.EC << dec << endl;
-          outf << hex << ev.bxExp << dec << endl;
-          outf << hex << ev.bxNum << dec << endl;
-          outf << hex << ev.ChipID << dec << endl;
+          outf << std::hex << ev.BC << std::dec << std::endl;
+          outf << std::hex << ev.EC << std::dec << std::endl;
+          outf << std::hex << ev.bxExp << std::dec << std::endl;
+          outf << std::hex << ev.bxNum << std::dec << std::endl;
+          outf << std::hex << ev.ChipID << std::dec << std::endl;
           keepData (file, event, ch);
-          outf << hex << ev.crc << dec << endl;
+          outf << std::hex << ev.crc << std::dec << std::endl;
           outf.close();
         return(true);
       };	  
 
-      bool keepAppHeader(string file, const AppHeader& ah){
-        ofstream outf(file.c_str(), ios_base::app );
+      bool keepAppHeader(std::string file, const AppHeader& ah){
+        std::ofstream outf(file.c_str(), std::ios_base::app );
         if(!outf.is_open()) return(false);
-          outf << ah.minTh << endl;
-          outf << ah.maxTh << endl;
-          outf << ah.stepSize << endl;
+          outf << ah.minTh << std::endl;
+          outf << ah.maxTh << std::endl;
+          outf << ah.stepSize << std::endl;
           outf.close();
         return(true);
       };	  
