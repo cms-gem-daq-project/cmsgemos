@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace gem {
   namespace readout {
 
@@ -45,47 +43,47 @@ namespace gem {
        *
        */
 
-      bool writeGEBheader(string file, int event, const GEBData& geb){
-        ofstream outf(file.c_str(), ios_base::app );
+      bool writeGEBheader(std::string file, int event, const GEBData& geb){
+	std::ofstream outf(file.c_str(), std::ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << hex << geb.header << dec << endl;
+          outf << std::hex << geb.header << std::dec << std::endl;
           outf.close();
         return(true);
       };	  
 
-      bool readGEBheader(ifstream& inpf, GEBData& geb){
-	inpf >> hex >> geb.header;
+      bool readGEBheader(std::ifstream& inpf, GEBData& geb){
+	inpf >> std::hex >> geb.header;
         return(true);
       };	  
 
       bool printGEBheader(int event, const GEBData& geb){
         if( event<0) return(false);
- 	cout << "Received tracking data word: event " << event << endl;
-	cout << " 0x" << std::setw(8) << hex << geb.header << " ChamID " << ((0x000000fff0000000 & geb.header) >> 28) 
-             << dec << " sumVFAT " << (0x000000000fffffff & geb.header) << endl;
+ 	std::cout << "Received tracking data word: event " << event << std::endl;
+	std::cout << " 0x" << std::setw(8) << std::hex << geb.header << " ChamID " << ((0x000000fff0000000 & geb.header) >> 28) 
+             << std::dec << " sumVFAT " << (0x000000000fffffff & geb.header) << std::endl;
         return(true);
       };	  
 
-      bool writeZEROline(string file){
-        ofstream outf(file.c_str(), ios_base::app );
+      bool writeZEROline(std::string file){
+        std::ofstream outf(file.c_str(), std::ios_base::app );
         if(!outf.is_open()) return(false);
-          outf << "\n" << endl;
+          outf << "\n" << std::endl;
           outf.close();
         return(true);
       };	  
 
-      bool writeGEBtrailer(string file, int event, const GEBData& geb){
-        ofstream outf(file.c_str(), ios_base::app );
+      bool writeGEBtrailer(std::string file, int event, const GEBData& geb){
+        std::ofstream outf(file.c_str(), std::ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << hex << geb.trailer << dec << endl;
+          outf << std::hex << geb.trailer << std::dec << std::endl;
           outf.close();
         return(true);
       };	  
 
-      bool readGEBtrailer(ifstream& inpf, GEBData& geb){
- 	inpf >> hex >> geb.trailer;
+      bool readGEBtrailer(std::ifstream& inpf, GEBData& geb){
+ 	inpf >> std::hex >> geb.trailer;
         return(true);
       };	  
 
@@ -94,22 +92,22 @@ namespace gem {
         uint64_t OHcrc      = (0xffff000000000000 & geb.trailer) >> 48; 
         uint64_t OHwCount   = (0x0000ffff00000000 & geb.trailer) >> 32; 
         uint64_t ChamStatus = (0x00000000ffff0000 & geb.trailer) >> 16;
-        cout << "GEM Camber Treiler: OHcrc " << hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << dec 
-             << endl;
+        std::cout << "GEM Camber Treiler: OHcrc " << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec 
+             << std::endl;
         return(true);
       };	  
 
-      bool writeVFATdata(string file, int event, const VFATData& vfat){
-        ofstream outf(file.c_str(), ios_base::app );
+      bool writeVFATdata(std::string file, int event, const VFATData& vfat){
+        std::ofstream outf(file.c_str(), std::ios_base::app );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
-          outf << hex << vfat.BC << dec << endl;
-          outf << hex << vfat.EC << dec << endl;
-          outf << hex << vfat.ChipID << dec << endl;
-          outf << hex << vfat.lsData << dec << endl;
-          outf << hex << vfat.msData << dec << endl;
-          outf << hex << vfat.BXfrOH << dec << endl;
-          outf << hex << vfat.crc << dec << endl;
+          outf << std::hex << vfat.BC << std::dec << std::endl;
+          outf << std::hex << vfat.EC << std::dec << std::endl;
+          outf << std::hex << vfat.ChipID << std::dec << std::endl;
+          outf << std::hex << vfat.lsData << std::dec << std::endl;
+          outf << std::hex << vfat.msData << std::dec << std::endl;
+          outf << std::hex << vfat.BXfrOH << std::dec << std::endl;
+          outf << std::hex << vfat.crc << std::dec << std::endl;
           //writeZEROline(file);
           outf.close();
         return(true);
@@ -117,31 +115,31 @@ namespace gem {
 
       bool printVFATdata(int event, const VFATData& vfat){
         if( event<0) return(false);
- 	  cout << "Received tracking data word:" << endl;
-	  cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.BC     << dec << endl;
-	  cout << "EC      :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.EC     << dec << endl;
-	  cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.ChipID << dec << endl;
-          cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.msData << dec << endl;
-          cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.lsData << dec << endl;
-	  cout << "BXfrOH  :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.BXfrOH << dec << endl;
-	  cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << hex << vfat.crc    << dec << endl;
+ 	  std::cout << "Received tracking data word:" << std::endl;
+	  std::cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.BC     << std::dec << std::endl;
+	  std::cout << "EC      :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.EC     << std::dec << std::endl;
+	  std::cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.ChipID << std::dec << std::endl;
+          std::cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.msData << std::dec << std::endl;
+          std::cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.lsData << std::dec << std::endl;
+	  std::cout << "BXfrOH  :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.BXfrOH << std::dec << std::endl;
+	  std::cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.crc    << std::dec << std::endl;
         return(true);
       };
 
-      bool readVFATdata(ifstream& inpf, int event, VFATData& vfat){
+      bool readVFATdata(std::ifstream& inpf, int event, VFATData& vfat){
         if(event<0) return(false);
-        inpf >> hex >> vfat.BC;
-        inpf >> hex >> vfat.EC;
-        inpf >> hex >> vfat.ChipID;
-        inpf >> hex >> vfat.lsData;
-        inpf >> hex >> vfat.msData;
-        inpf >> hex >> vfat.BXfrOH;
-        inpf >> hex >> vfat.crc;
+        inpf >> std::hex >> vfat.BC;
+        inpf >> std::hex >> vfat.EC;
+        inpf >> std::hex >> vfat.ChipID;
+        inpf >> std::hex >> vfat.lsData;
+        inpf >> std::hex >> vfat.msData;
+        inpf >> std::hex >> vfat.BXfrOH;
+        inpf >> std::hex >> vfat.crc;
         return(true);
       };	  
 
-      bool writeGEBheaderBinary(string file, int event, const GEBData& geb){
-        ofstream outf(file.c_str(), ios_base::app | ios::binary );
+      bool writeGEBheaderBinary(std::string file, int event, const GEBData& geb){
+        std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
   	  outf.write( (char*)&geb.header, sizeof(geb.header));
@@ -149,8 +147,8 @@ namespace gem {
         return(true);
       };
 	  
-      bool writeGEBtrailerBinary(string file, int event, const GEBData& geb){
-        ofstream outf(file.c_str(), ios_base::app | ios::binary );
+      bool writeGEBtrailerBinary(std::string file, int event, const GEBData& geb){
+        std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
   	  outf.write( (char*)&geb.trailer, sizeof(geb.trailer));
@@ -158,8 +156,8 @@ namespace gem {
         return(true);
       };
 
-      bool writeVFATdataBinary(string file, int event, const VFATData& vfat){
-        ofstream outf(file.c_str(), ios_base::app | ios::binary );
+      bool writeVFATdataBinary(std::string file, int event, const VFATData& vfat){
+        std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
         if( event<0) return(false);
         if(!outf.is_open()) return(false);
   	  outf.write( (char*)&vfat.BC, sizeof(vfat.BC));
@@ -173,8 +171,8 @@ namespace gem {
         return(true);
       };	  
 
-      bool readVFATDataBinary(string file, int event, const VFATData& vfat){
-        ifstream inpf(file.c_str(), ios_base::app | ios::binary );
+      bool readVFATDataBinary(std::string file, int event, const VFATData& vfat){
+        std::ifstream inpf(file.c_str(), std::ios_base::app | std::ios::binary );
         if( event<0) return(false);
         if(!inpf.is_open()) return(false);
   	  inpf.read( (char*)&vfat.BC, sizeof(vfat.BC));
@@ -233,30 +231,30 @@ namespace gem {
 
       bool printVFATdataBits(int event, const VFATData& vfat){
         if( event<0) return(false);
- 	  cout << "\nReceived VFAT data word: ichip " << event << endl;
+ 	  std::cout << "\nReceived VFAT data word: ichip " << event << std::endl;
 
           uint8_t   b1010 = (0xf000 & vfat.BC) >> 12;
-          show4bits(b1010); cout << " BC     0x" << hex << (0x0fff & vfat.BC) 
-                                 << std::setfill('0') << std::setw(4) << "      BX 0x" << vfat.BXfrOH << dec << endl;
+          show4bits(b1010); std::cout << " BC     0x" << std::hex << (0x0fff & vfat.BC) 
+                                 << std::setfill('0') << std::setw(4) << "      BX 0x" << vfat.BXfrOH << std::dec << std::endl;
 
           uint8_t   b1100 = (0xf000 & vfat.EC) >> 12;
           uint16_t   EC   = (0x0ff0 & vfat.EC) >> 4;
           uint8_t   Flag  = (0x000f & vfat.EC);
-          show4bits(b1100); cout << " EC     0x" << hex << EC << dec << endl; 
-          show4bits(Flag);  cout << " Flags " << endl;
+          show4bits(b1100); std::cout << " EC     0x" << std::hex << EC << std::dec << std::endl; 
+          show4bits(Flag);  std::cout << " Flags " << std::endl;
 
           uint8_t   b1110 = (0xf000 & vfat.ChipID) >> 12;
           uint16_t ChipID = (0x0fff & vfat.ChipID);
-          show4bits(b1110); cout << " ChipID 0x" << hex << ChipID << dec << " " << endl;
+          show4bits(b1110); std::cout << " ChipID 0x" << std::hex << ChipID << std::dec << " " << std::endl;
 
-          /* cout << "     bxExp  0x" << hex << vfat.bxExp << dec << " " << endl;
-	     cout << "     bxNum  0x" << hex << ((0xff00 & vfat.bxNum) >> 8) << "        SBit " << (0x00ff & vfat.bxNum) << endl;
+          /* std::cout << "     bxExp  0x" << std::hex << vfat.bxExp << std::dec << " " << std::endl;
+	     std::cout << "     bxNum  0x" << std::hex << ((0xff00 & vfat.bxNum) >> 8) << "        SBit " << (0x00ff & vfat.bxNum) << std::endl;
            */
-          cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.msData << dec << endl;
-          cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(8) << hex << vfat.lsData << dec << endl;
-          cout << "     crc    0x" << hex << vfat.crc << dec << endl;
+          std::cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.msData << std::dec << std::endl;
+          std::cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.lsData << std::dec << std::endl;
+          std::cout << "     crc    0x" << std::hex << vfat.crc << std::dec << std::endl;
 
-          //cout << " " << endl; show16bits(vfat.EC);
+          //std::cout << " " << std::endl; show16bits(vfat.EC);
 
         return(true);
       };

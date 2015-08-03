@@ -27,11 +27,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
     deviceName.push_back("");
     deviceNum.push_back(-1);
   }
-<<<<<<< HEAD
-  
-  triggerSource = 0x0; // 0x2; 
-=======
->>>>>>> serguei-release-v1
 
   triggerSource = 0x0;
   deviceChipID  = 0x0; 
