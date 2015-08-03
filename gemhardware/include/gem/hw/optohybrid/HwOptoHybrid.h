@@ -51,10 +51,21 @@ namespace gem {
 	    return getFirmware(m_controlLink);
 	  };
 	    
+	  /** Read the firmware register
+	   * @returns a string corresponding to the build date
+	   **/
+	  std::string getFirmwareDate() {
+	    std::stringstream retval;
+	    retval << "0x" << std::hex << getFirmware(m_controlLink) << std::dec << std::endl;
+	    return retval.str();
+	  };
+	  	  
+	private:
 	  /** Read the firmware register for a given link
 	   * @returns a hex number corresponding to the build date
+	   * is private to ensure that it is only used internally
+	   * link agnostic versions should be used outside of HwOptoHybrid
 	   **/
-
 	  uint32_t getFirmware(uint8_t const& link) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)link << ".FIRMWARE";
@@ -64,15 +75,18 @@ namespace gem {
 	    return fwver;
 	  };
 	    
-	  /** Read the firmware register
+	  /** Read the firmware register for a given link
 	   * @returns a string corresponding to the build date
+	   * is private to ensure that it is only used internally
+	   * link agnostic versions should be used outside of HwOptoHybrid
 	   **/
 	  std::string getFirmwareDate(uint8_t const& link) {
 	    std::stringstream retval;
 	    retval << "0x" << std::hex << getFirmware(link) << std::dec << std::endl;
 	    return retval.str();
 	  };
-	  	  
+	  	
+	public:
 	  /** Read the link status registers, store the information in a struct
 	   * @param uint8_t link is the number of the link to query
 	   * @retval _status a struct containing the status bits of the optical link
@@ -145,7 +159,7 @@ namespace gem {
 	   * @param bool source true uses the external clock, false uses the onboard clock
 	   * @param bool fallback uses the external clock, false uses the onboard clock
 	   **/
-	  std::pair<bool,bool> StatusCDCEClock(uint8_t link) {
+	  std::pair<bool,bool> StatusCDCEClock(uint8_t const& link=0x0) {
 	    std::stringstream regName;
 	    regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
 	    uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE");
