@@ -109,7 +109,7 @@ void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* ou
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
   }
   
@@ -124,7 +124,7 @@ void gem::base::GEMFSMApplication::xgiEnable(xgi::Input* in, xgi::Output* out) {
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Enable failed", e );
   }
   
@@ -139,7 +139,7 @@ void gem::base::GEMFSMApplication::xgiConfigure(xgi::Input* in, xgi::Output* out
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
   }
   
@@ -154,7 +154,7 @@ void gem::base::GEMFSMApplication::xgiStart(xgi::Input* in, xgi::Output* out) {
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
   }
   
@@ -169,7 +169,7 @@ void gem::base::GEMFSMApplication::xgiStop(xgi::Input* in, xgi::Output* out) {
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
   }
   
@@ -184,7 +184,7 @@ void gem::base::GEMFSMApplication::xgiPause(xgi::Input* in, xgi::Output* out) {
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
   }
   
@@ -199,7 +199,7 @@ void gem::base::GEMFSMApplication::xgiResume(xgi::Input* in, xgi::Output* out) {
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
   }
   
@@ -214,7 +214,7 @@ void gem::base::GEMFSMApplication::xgiHalt(xgi::Input* in, xgi::Output* out) {
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
   }
   
@@ -229,7 +229,7 @@ void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out) {
 						  appDescriptorP_,
 						  appDescriptorP_
 						  );
-  } catch( toolbox::fsm::exception::Exception& e ){
+  } catch( toolbox::fsm::exception::Exception& e ) {
     XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
   }
   

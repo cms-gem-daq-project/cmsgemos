@@ -43,52 +43,52 @@ namespace gem {
        *
        */
 
-      bool writeGEBheader(std::string file, int event, const GEBData& geb){
+      bool writeGEBheader(std::string file, int event, const GEBData& geb) {
 	std::ofstream outf(file.c_str(), std::ios_base::app );
-        if( event<0) return(false);
-        if(!outf.is_open()) return(false);
+        if ( event<0) return(false);
+        if (!outf.is_open()) return(false);
           outf << std::hex << geb.header << std::dec << std::endl;
           outf.close();
         return(true);
       };	  
 
-      bool readGEBheader(std::ifstream& inpf, GEBData& geb){
+      bool readGEBheader(std::ifstream& inpf, GEBData& geb) {
 	inpf >> std::hex >> geb.header;
         return(true);
       };	  
 
-      bool printGEBheader(int event, const GEBData& geb){
-        if( event<0) return(false);
+      bool printGEBheader(int event, const GEBData& geb) {
+        if ( event<0) return(false);
  	std::cout << "Received tracking data word: event " << event << std::endl;
 	std::cout << " 0x" << std::setw(8) << std::hex << geb.header << " ChamID " << ((0x000000fff0000000 & geb.header) >> 28) 
              << std::dec << " sumVFAT " << (0x000000000fffffff & geb.header) << std::endl;
         return(true);
       };	  
 
-      bool writeZEROline(std::string file){
+      bool writeZEROline(std::string file) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
-        if(!outf.is_open()) return(false);
+        if (!outf.is_open()) return(false);
           outf << "\n" << std::endl;
           outf.close();
         return(true);
       };	  
 
-      bool writeGEBtrailer(std::string file, int event, const GEBData& geb){
+      bool writeGEBtrailer(std::string file, int event, const GEBData& geb) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
-        if( event<0) return(false);
-        if(!outf.is_open()) return(false);
+        if ( event<0) return(false);
+        if (!outf.is_open()) return(false);
           outf << std::hex << geb.trailer << std::dec << std::endl;
           outf.close();
         return(true);
       };	  
 
-      bool readGEBtrailer(std::ifstream& inpf, GEBData& geb){
+      bool readGEBtrailer(std::ifstream& inpf, GEBData& geb) {
  	inpf >> std::hex >> geb.trailer;
         return(true);
       };	  
 
-      bool printGEBtrailer(int event, const GEBData& geb){
-        if( event<0) return(false);
+      bool printGEBtrailer(int event, const GEBData& geb) {
+        if ( event<0) return(false);
         uint64_t OHcrc      = (0xffff000000000000 & geb.trailer) >> 48; 
         uint64_t OHwCount   = (0x0000ffff00000000 & geb.trailer) >> 32; 
         uint64_t ChamStatus = (0x00000000ffff0000 & geb.trailer) >> 16;
@@ -97,10 +97,10 @@ namespace gem {
         return(true);
       };	  
 
-      bool writeVFATdata(std::string file, int event, const VFATData& vfat){
+      bool writeVFATdata(std::string file, int event, const VFATData& vfat) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
-        if( event<0) return(false);
-        if(!outf.is_open()) return(false);
+        if ( event<0) return(false);
+        if (!outf.is_open()) return(false);
           outf << std::hex << vfat.BC << std::dec << std::endl;
           outf << std::hex << vfat.EC << std::dec << std::endl;
           outf << std::hex << vfat.ChipID << std::dec << std::endl;
@@ -113,8 +113,8 @@ namespace gem {
         return(true);
       };	  
 
-      bool printVFATdata(int event, const VFATData& vfat){
-        if( event<0) return(false);
+      bool printVFATdata(int event, const VFATData& vfat) {
+        if ( event<0) return(false);
  	  std::cout << "Received tracking data word:" << std::endl;
 	  std::cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.BC     << std::dec << std::endl;
 	  std::cout << "EC      :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.EC     << std::dec << std::endl;
@@ -126,8 +126,8 @@ namespace gem {
         return(true);
       };
 
-      bool readVFATdata(std::ifstream& inpf, int event, VFATData& vfat){
-        if(event<0) return(false);
+      bool readVFATdata(std::ifstream& inpf, int event, VFATData& vfat) {
+        if (event<0) return(false);
         inpf >> std::hex >> vfat.BC;
         inpf >> std::hex >> vfat.EC;
         inpf >> std::hex >> vfat.ChipID;
@@ -138,28 +138,28 @@ namespace gem {
         return(true);
       };	  
 
-      bool writeGEBheaderBinary(std::string file, int event, const GEBData& geb){
+      bool writeGEBheaderBinary(std::string file, int event, const GEBData& geb) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
-        if( event<0) return(false);
-        if(!outf.is_open()) return(false);
+        if ( event<0) return(false);
+        if (!outf.is_open()) return(false);
   	  outf.write( (char*)&geb.header, sizeof(geb.header));
           outf.close();
         return(true);
       };
 	  
-      bool writeGEBtrailerBinary(std::string file, int event, const GEBData& geb){
+      bool writeGEBtrailerBinary(std::string file, int event, const GEBData& geb) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
-        if( event<0) return(false);
-        if(!outf.is_open()) return(false);
+        if ( event<0) return(false);
+        if (!outf.is_open()) return(false);
   	  outf.write( (char*)&geb.trailer, sizeof(geb.trailer));
           outf.close();
         return(true);
       };
 
-      bool writeVFATdataBinary(std::string file, int event, const VFATData& vfat){
+      bool writeVFATdataBinary(std::string file, int event, const VFATData& vfat) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
-        if( event<0) return(false);
-        if(!outf.is_open()) return(false);
+        if ( event<0) return(false);
+        if (!outf.is_open()) return(false);
   	  outf.write( (char*)&vfat.BC, sizeof(vfat.BC));
   	  outf.write( (char*)&vfat.EC, sizeof(vfat.EC));
   	  outf.write( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
@@ -171,10 +171,10 @@ namespace gem {
         return(true);
       };	  
 
-      bool readVFATDataBinary(std::string file, int event, const VFATData& vfat){
+      bool readVFATDataBinary(std::string file, int event, const VFATData& vfat) {
         std::ifstream inpf(file.c_str(), std::ios_base::app | std::ios::binary );
-        if( event<0) return(false);
-        if(!inpf.is_open()) return(false);
+        if ( event<0) return(false);
+        if (!inpf.is_open()) return(false);
   	  inpf.read( (char*)&vfat.BC, sizeof(vfat.BC));
   	  inpf.read( (char*)&vfat.EC, sizeof(vfat.EC));
   	  inpf.read( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
@@ -229,8 +229,8 @@ namespace gem {
      	printf("\n");
       }
 
-      bool printVFATdataBits(int event, const VFATData& vfat){
-        if( event<0) return(false);
+      bool printVFATdataBits(int event, const VFATData& vfat) {
+        if ( event<0) return(false);
  	  std::cout << "\nReceived VFAT data word: ichip " << event << std::endl;
 
           uint8_t   b1010 = (0xf000 & vfat.BC) >> 12;

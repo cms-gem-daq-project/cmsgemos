@@ -32,7 +32,7 @@ void gem::utils::gemXMLparser::parseXMLFile()
   try {
     xercesc::XMLPlatformUtils::Initialize();
     INFO("Successfully initialized XML4C system");
-  } catch(const xercesc::XMLException& toCatch){
+  } catch(const xercesc::XMLException& toCatch) {
     ERROR("Error during Xerces-c Initialization.\n"
 	  << "  Exception message:"
 	  << xercesc::XMLString::transcode(toCatch.getMessage()));
@@ -59,17 +59,17 @@ void gem::utils::gemXMLparser::parseXMLFile()
   bool errorsOccured = false;
   try {
     parser->parse(xmlFile_.c_str());
-  } catch (const xercesc::XMLException& e){
+  } catch (const xercesc::XMLException& e) {
     ERROR("An error occured during parsing\n   Message: "
 	  << xercesc::XMLString::transcode(e.getMessage()));
     errorsOccured = true;
     //fileError = "An error occured during parsing of selected file. Please select another configuration file.";
-  } catch (const xercesc::DOMException& e){
+  } catch (const xercesc::DOMException& e) {
     ERROR("An error occured during parsing\n   Message: "
 	  << xercesc::XMLString::transcode(e.msg));
     errorsOccured = true;
     //fileError = "An error occured during parsing of selected file. Please select another configuration file.";
-  } catch (...){
+  } catch (...) {
     ERROR("An error occured during parsing");
     errorsOccured = true;
     //fileError = "An error occured during parsing of selected file. Please select another configuration file.";
@@ -79,7 +79,7 @@ void gem::utils::gemXMLparser::parseXMLFile()
   //crateIds.clear();
   //crateNodes.clear();
 
-  if (!errorsOccured){
+  if (!errorsOccured) {
     DEBUG("DOM tree created succesfully");
     xercesc::DOMNode * pDoc = parser->getDocument();
     DEBUG("Base node (getDocument) obtained");
