@@ -26,7 +26,7 @@ namespace gem {
                 gemCrateMonitorBase(const gem::utils::gemCrateProperties & crateRef)
                     throw (xdaq::exception::Exception);
 
-                ~gemCrateMonitorBase(){}
+                ~gemCrateMonitorBase() {}
                 /*
                  *   Get system configuration
                  */
