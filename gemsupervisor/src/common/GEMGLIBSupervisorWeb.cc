@@ -382,7 +382,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi:
   // Send L1A signal
   hw_semaphore_.take();
 
-  optohybridDevice_->SendResync();
   optohybridDevice_->SendL1ACal(10, 25);
   
   hw_semaphore_.give();
@@ -404,6 +403,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::task::WorkL
   // fire "Configure" event to FSM
   fireEvent("Configure");
 
+  optohybridDevice_->SendResync();
   // resetting BX counter
   // optohybridDevice_->ResetBXCount();
   //   ERROR - No branch found with ID-path "OptoHybrid.OptoHybrid_LINKS.LINK0.COUNTERS.RESETS.BXCount"
