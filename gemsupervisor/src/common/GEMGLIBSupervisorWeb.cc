@@ -535,7 +535,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 		std::stringstream tmpChipName;
 		tmpChipName << "VFAT" << i;
 		vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(tmpChipName.str()));
-		
+		tmpVFATDevice->setRunMode(0);
 		// need to put all chips in sleep mode to start off
 		if (VfatName != "")
 			// Define device
