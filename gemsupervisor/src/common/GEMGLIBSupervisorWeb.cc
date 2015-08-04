@@ -532,9 +532,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 		//for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip) {
 		//std::string VfatName = chip->toString();
 
+		std::stringstream tmpChipName;
+		tmpChipName << "VFAT" << i;
+		vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(tmpChipName.str()));
+		
+		// need to put all chips in sleep mode to start off
 		if (VfatName != "")
 			// Define device
-			vfatDevice_.push_back(new gem::hw::vfat::HwVFAT2(VfatName));
+			vfatDevice_.push_back(tmpVFATDevice);
 	}
   
 	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -672,8 +677,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
 	counter_ = {0,0,0};
 
 	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-		delete (*chip);
-		(*chip) = NULL;
+		(*chip)->setRunMode(0);
+		//using smart_ptr
+		//delete (*chip);
+		//(*chip) = NULL;
 	}
 	delete glibDevice_;
 	glibDevice_ = NULL;
