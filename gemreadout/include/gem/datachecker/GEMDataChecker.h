@@ -4,28 +4,28 @@
 //#include "gem/utils/GEMLogging.h"
 
 namespace gem {
-    namespace readout {
-            struct VFATData;
-            struct GEBData;
-            struct GEMData;
-        }
-    namespace datachecker {
-        class GEMDataChecker {
-            public:
+	namespace readout {
+		struct VFATData;
+		struct GEBData;
+		struct GEMData;
+	}
+	namespace datachecker {
+		class GEMDataChecker {
+		public:
 
-	        GEMDataChecker(gem::readout::GEMData& gem, gem::readout::GEBData& geb, 
-                     gem::readout::VFATData& vfat);
-                ~GEMDataChecker() {};
+			GEMDataChecker(gem::readout::GEMData& gem, gem::readout::GEBData& geb, 
+								gem::readout::VFATData& vfat);
+			~GEMDataChecker() {};
 
-                int  counterGEMdata  (gem::readout::GEMData& gem, gem::readout::GEBData& geb, 
-                     gem::readout::VFATData& vfat);
+			int  counterGEMdata  (gem::readout::GEMData& gem, gem::readout::GEBData& geb, 
+										 gem::readout::VFATData& vfat);
 
-            private:
+		private:
 
-		// log4cplus::Logger gemLogger_;
-                int event_counter_;
+			// log4cplus::Logger gemLogger_;
+			int event_counter_;
 
-        };
-    }
+		};
+	}
 }
 #endif

@@ -23,38 +23,38 @@
 //typedef uhal::exception::exception uhalException;
 
 namespace cgicc {
-  BOOLEAN_ELEMENT(section,"section");
+	BOOLEAN_ELEMENT(section,"section");
 }
 
 namespace gem {
-  namespace base {
-    class GEMApplication;
-    class GEMFSM;
-    class GEMFSMApplication;
-    class GEMWebApplication;
-  }
+	namespace base {
+		class GEMApplication;
+		class GEMFSM;
+		class GEMFSMApplication;
+		class GEMWebApplication;
+	}
   
-  namespace hw {
-    namespace optohybrid {
-      class HwOptoHybrid;
+	namespace hw {
+		namespace optohybrid {
+			class HwOptoHybrid;
       
-      //class OptoHybridManager: public gem::base::GEMWebApplication, public gem::base::GEMFSMApplication
-      class OptoHybridManager: public xdaq::WebApplication, public xdata::ActionListener
-	{
+			//class OptoHybridManager: public gem::base::GEMWebApplication, public gem::base::GEMFSMApplication
+			class OptoHybridManager: public xdaq::WebApplication, public xdata::ActionListener
+				{
 	  
-	public:
-	  XDAQ_INSTANTIATOR();
+				public:
+					XDAQ_INSTANTIATOR();
 	  
-	  OptoHybridManager(xdaq::ApplicationStub * s)
-	    throw (xdaq::exception::Exception);
+					OptoHybridManager(xdaq::ApplicationStub * s)
+						throw (xdaq::exception::Exception);
 
-	  ~OptoHybridManager();
+					~OptoHybridManager();
 	  
-	}; //end class OptoHybridManager
+				}; //end class OptoHybridManager
 
-    }//end namespace gem::hw::optohybrid
+		}//end namespace gem::hw::optohybrid
     
-  }//end namespace gem::hw
+	}//end namespace gem::hw
   
 }//end namespace gem
 

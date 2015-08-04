@@ -2,19 +2,19 @@
 #define gem_utils_XMLConfigParser_h
 
 namespace gem {
-  namespace utils{
+	namespace utils{
     
-    class XMLConfigParser 
-    {
-    public:
+		class XMLConfigParser 
+		{
+		public:
       
-    private:
+		private:
       
-    protected:
+		protected:
       
-    }; //class XMLConfigParser
+		}; //class XMLConfigParser
     
-  } //namespace gem::utils
+	} //namespace gem::utils
 } // namespace gem
 
 #endif
