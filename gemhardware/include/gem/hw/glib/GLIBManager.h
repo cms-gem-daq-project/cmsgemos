@@ -20,92 +20,92 @@
 //#include "gem/hw/glib/GLIBSettings.h"
 
 namespace gem {
-  namespace base {
-  }
+	namespace base {
+	}
   
-  namespace hw {
-    namespace glib {
-      class HwGLIB;
-      class GLIBManagerWeb;
+	namespace hw {
+		namespace glib {
+			class HwGLIB;
+			class GLIBManagerWeb;
 
-      class GLIBManager : public gem::base::GEMFSMApplication
-	{
+			class GLIBManager : public gem::base::GEMFSMApplication
+				{
 	  
-	  friend class GLIBManagerWeb;
+					friend class GLIBManagerWeb;
 
-	public:
-	  XDAQ_INSTANTIATOR();
+				public:
+					XDAQ_INSTANTIATOR();
 	  
-	  GLIBManager(xdaq::ApplicationStub* s);
+					GLIBManager(xdaq::ApplicationStub* s);
 
-	  virtual ~GLIBManager();
+					virtual ~GLIBManager();
 	  
-	protected:
+				protected:
 	  
-	  virtual void preInit() throw (gem::base::exception::Exception);
-	  virtual void init()    throw (gem::base::exception::Exception);
-	  virtual void enable()  throw (gem::base::exception::Exception);
-	  virtual void disable() throw (gem::base::exception::Exception);
+					virtual void preInit() throw (gem::base::exception::Exception);
+					virtual void init()    throw (gem::base::exception::Exception);
+					virtual void enable()  throw (gem::base::exception::Exception);
+					virtual void disable() throw (gem::base::exception::Exception);
 	  
-	  virtual void actionPerformed(xdata::Event& event);
+					virtual void actionPerformed(xdata::Event& event);
 	  
-	  /*
-	  // work loop call-back functions
-	  virtual bool initializeAction(toolbox::task::WorkLoop *wl);
-	  virtual bool enableAction(    toolbox::task::WorkLoop *wl);
-	  virtual bool configureAction( toolbox::task::WorkLoop *wl);
-	  virtual bool startAction(     toolbox::task::WorkLoop *wl);
-	  virtual bool pauseAction(     toolbox::task::WorkLoop *wl);
-	  virtual bool resumeAction(    toolbox::task::WorkLoop *wl);
-	  virtual bool stopAction(      toolbox::task::WorkLoop *wl);
-	  virtual bool haltAction(      toolbox::task::WorkLoop *wl);
-	  virtual bool resetAction(     toolbox::task::WorkLoop *wl);
-	  //virtual bool noAction(        toolbox::task::WorkLoop *wl);
-	  virtual bool failAction(      toolbox::task::WorkLoop *wl);
+					/*
+					// work loop call-back functions
+					virtual bool initializeAction(toolbox::task::WorkLoop *wl);
+					virtual bool enableAction(    toolbox::task::WorkLoop *wl);
+					virtual bool configureAction( toolbox::task::WorkLoop *wl);
+					virtual bool startAction(     toolbox::task::WorkLoop *wl);
+					virtual bool pauseAction(     toolbox::task::WorkLoop *wl);
+					virtual bool resumeAction(    toolbox::task::WorkLoop *wl);
+					virtual bool stopAction(      toolbox::task::WorkLoop *wl);
+					virtual bool haltAction(      toolbox::task::WorkLoop *wl);
+					virtual bool resetAction(     toolbox::task::WorkLoop *wl);
+					//virtual bool noAction(        toolbox::task::WorkLoop *wl);
+					virtual bool failAction(      toolbox::task::WorkLoop *wl);
 
-	  //bool calibrationAction(toolbox::task::WorkLoop *wl);
-	  //bool calibrationSequencer(toolbox::task::WorkLoop *wl);
-	  */
+					//bool calibrationAction(toolbox::task::WorkLoop *wl);
+					//bool calibrationSequencer(toolbox::task::WorkLoop *wl);
+					*/
 	
-	  //state transitions
-	  virtual void initializeAction();
-	  virtual void enableAction(    );
-	  virtual void configureAction( );
-	  virtual void startAction(     );
-	  virtual void pauseAction(     );
-	  virtual void resumeAction(    );
-	  virtual void stopAction(      );
-	  virtual void haltAction(      );
-	  virtual void noAction(        ); 
+					//state transitions
+					virtual void initializeAction();
+					virtual void enableAction(    );
+					virtual void configureAction( );
+					virtual void startAction(     );
+					virtual void pauseAction(     );
+					virtual void resumeAction(    );
+					virtual void stopAction(      );
+					virtual void haltAction(      );
+					virtual void noAction(        ); 
 	
-	  virtual void failAction(toolbox::Event::Reference e)
-	    throw (toolbox::fsm::exception::Exception); 
+					virtual void failAction(toolbox::Event::Reference e)
+						throw (toolbox::fsm::exception::Exception); 
 	
-	  virtual void resetAction(toolbox::Event::Reference e)
-	    throw (toolbox::fsm::exception::Exception);
+					virtual void resetAction(toolbox::Event::Reference e)
+						throw (toolbox::fsm::exception::Exception);
 	
 	  
-	private:
+				private:
 	  
-	  class GLIBInfo {
+					class GLIBInfo {
 	    
-	  public:
-	    GLIBInfo();
-	    void registerFields(xdata::Bag<GLIBManager::GLIBInfo>* bag);
-	    xdata::Boolean present;
-	    xdata::Integer crateID;
-	    xdata::Integer slotID;
-	  };
+					public:
+						GLIBInfo();
+						void registerFields(xdata::Bag<GLIBManager::GLIBInfo>* bag);
+						xdata::Boolean present;
+						xdata::Integer crateID;
+						xdata::Integer slotID;
+					};
 	  
-	  mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
+					mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
 	  
-	  HwGLIB* m_glibs[MAX_AMCS_PER_CRATE];
-	  xdata::Bag<GLIBInfo> m_glibInfo[MAX_AMCS_PER_CRATE];
-	}; //end class GLIBManager
+					HwGLIB* m_glibs[MAX_AMCS_PER_CRATE];
+					xdata::Bag<GLIBInfo> m_glibInfo[MAX_AMCS_PER_CRATE];
+				}; //end class GLIBManager
       
-    }//end namespace gem::hw::glib
+		}//end namespace gem::hw::glib
     
-  }//end namespace gem::hw
+	}//end namespace gem::hw
   
 }//end namespace gem
 

@@ -10,23 +10,23 @@
 GETPACKAGEINFO(gemsupervisor);
 
 void gemsupervisor::checkPackageDependencies() throw (config::PackageInfo::VersionException) {
-  CHECKDEPENDENCY(toolbox);
-  CHECKDEPENDENCY(xdaq);
-  CHECKDEPENDENCY(xoap);
-  CHECKDEPENDENCY(gembase);
-  CHECKDEPENDENCY(gemutils);
-  CHECKDEPENDENCY(gemreadout);
-  CHECKDEPENDENCY(gemhardware);
+	CHECKDEPENDENCY(toolbox);
+	CHECKDEPENDENCY(xdaq);
+	CHECKDEPENDENCY(xoap);
+	CHECKDEPENDENCY(gembase);
+	CHECKDEPENDENCY(gemutils);
+	CHECKDEPENDENCY(gemreadout);
+	CHECKDEPENDENCY(gemhardware);
 }
 
 std::set<std::string,std::less<std::string> > gemsupervisor::getPackageDependencies() {
-  std::set<std::string,std::less<std::string> > deps;
-  ADDDEPENDENCY(deps,toolbox);
-  ADDDEPENDENCY(deps,xoap);
-  ADDDEPENDENCY(deps,xdaq);
-  ADDDEPENDENCY(deps,gembase);
-  ADDDEPENDENCY(deps,gemutils);
-  ADDDEPENDENCY(deps,gemreadout);
-  ADDDEPENDENCY(deps,gemhardware);
-  return deps;
+	std::set<std::string,std::less<std::string> > deps;
+	ADDDEPENDENCY(deps,toolbox);
+	ADDDEPENDENCY(deps,xoap);
+	ADDDEPENDENCY(deps,xdaq);
+	ADDDEPENDENCY(deps,gembase);
+	ADDDEPENDENCY(deps,gemutils);
+	ADDDEPENDENCY(deps,gemreadout);
+	ADDDEPENDENCY(deps,gemhardware);
+	return deps;
 }
