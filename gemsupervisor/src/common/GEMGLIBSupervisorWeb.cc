@@ -636,17 +636,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 	optohybridDevice_->SetCDCEClock();
 	*/
 
-	//send resync
-	optohybridDevice_->SendResync();
-
-	//reset counters
-	optohybridDevice_->ResetL1ACount(0x4);
-
-	optohybridDevice_->ResetResyncCount();
-	optohybridDevice_->ResetBC0Count();
-
-	optohybridDevice_->ResetCalPulseCount(0x3);
-
 	/*
 	//set trigger source
 	optohybridDevice_->setTrigSource(0x0);
@@ -659,6 +648,17 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 	//flush FIFO
 	for (int i = 0; i < 2; ++i)
 		glibDevice_->flushFIFO(i);
+
+	//send resync
+	optohybridDevice_->SendResync();
+
+	//reset counters
+	optohybridDevice_->ResetL1ACount(0x4);
+
+	optohybridDevice_->ResetResyncCount();
+	optohybridDevice_->ResetBC0Count();
+
+	optohybridDevice_->ResetCalPulseCount(0x3);
 
 	hw_semaphore_.give();
 	is_working_ = false;
