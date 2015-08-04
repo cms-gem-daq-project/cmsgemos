@@ -645,10 +645,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 	optohybridDevice_->ResetResyncCount();
 	optohybridDevice_->ResetBC0Count();
 
-	//flush FIFO
-	for (int i = 0; i < 2; ++i)
-		glibDevice_->flushFIFO(i);
-
 	optohybridDevice_->ResetCalPulseCount(0x3);
 
 	/*
@@ -659,6 +655,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 	*/
 
 	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) (*chip)->setRunMode(1);
+
+	//flush FIFO
+	for (int i = 0; i < 2; ++i)
+		glibDevice_->flushFIFO(i);
 
 	hw_semaphore_.give();
 	is_working_ = false;
