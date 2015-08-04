@@ -39,7 +39,6 @@
 
 #include <string>
 
-
 namespace gem {
 	namespace hw {
 		class GEMHwDevice;
@@ -56,6 +55,8 @@ namespace gem {
 	namespace readout {
 		class GEMDataParker;
 	}
+
+	typedef std::shared_ptr<hw::vfat::HwVFAT2 > vfat_shared_ptr;
 
 	namespace supervisor {
 
@@ -216,7 +217,8 @@ namespace gem {
 				//temporary fix just to get things working stably, should be using the manager
 				gem::hw::glib::HwGLIB* glibDevice_;
 				gem::hw::optohybrid::HwOptoHybrid* optohybridDevice_;
-				std::vector< gem::hw::vfat::HwVFAT2* > vfatDevice_;
+				//std::vector< gem::hw::vfat::HwVFAT2* > vfatDevice_;
+				std::vector<vfat_shared_ptr> vfatDevice_;
 				//readout application should be running elsewhere, not tied to supervisor
 				gem::readout::GEMDataParker* gemDataParker;
 
