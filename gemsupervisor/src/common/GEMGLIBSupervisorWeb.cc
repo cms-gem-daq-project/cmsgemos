@@ -54,6 +54,7 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
 	gemLogger_(this->getApplicationLogger()),
 	wl_semaphore_(toolbox::BSem::FULL),
 	hw_semaphore_(toolbox::BSem::FULL),
+	readout_mask(0x0),
 	is_working_ (false),
 	is_initialized_ (false),
 	is_configured_ (false),
@@ -73,6 +74,8 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
 	xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webHalt,        "Halt"       );
 	xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webTrigger,     "Trigger"    );
 	xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse, "L1ACalPulse");
+	xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webResync,      "Resync"     );
+	xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::webBC0,         "BC0"        );
 
 	xgi::framework::deferredbind(this, this, &gem::supervisor::GEMGLIBSupervisorWeb::setParameter,   "setParameter");
 
@@ -221,13 +224,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 	*out << cgicc::fieldset();
 
 	// Show current state, counter, output filename
-	*out << "Current state: " << fsm_.getStateName(fsm_.getCurrentState()) << cgicc::br();
-	*out << "Event counter: " << counter_[1] << " Events counter"  << cgicc::br();
-	*out << "L1A counter: " << L1ACount_[0] << " internal, link.0"  << cgicc::br();
-	*out << "VFAT blocks counter: " << (counter_[0]-1) << " dumped to disk"  << cgicc::br();
-	*out << "VFATs counter: " << counter_[2] << " VFATs chips, last event"  << cgicc::br();
-	*out << "Output filename: " << confParams_.bag.outFileName.toString() << cgicc::br();
-	*out << "Output type: " << confParams_.bag.outputType.toString() << cgicc::br();
+	*out << "Current state: "       << fsm_.getStateName(fsm_.getCurrentState())     << cgicc::br();
+	*out << "Event counter: "       << counter_[1]     << " Events counter"          << cgicc::br();
+	*out << "L1A counter: "         << L1ACount_       << " internal"                << cgicc::br();
+	*out << "CalPulse counter: "    << CalPulseCount_  << " internal"                << cgicc::br();
+	*out << "Resync counter: "      << ResyncCount_    << cgicc::br();
+	*out << "BC0 counter: "         << BC0Count_       << cgicc::br();
+	*out << "VFAT blocks counter: " << (counter_[0]-1) << " dumped to disk"          << cgicc::br();
+	*out << "VFATs counter: "       << counter_[2]     << " VFATs chips, last event" << cgicc::br();
+	*out << "Output filename: "     << confParams_.bag.outFileName.toString()        << cgicc::br();
+	*out << "Output type: "         << confParams_.bag.outputType.toString()         << cgicc::br();
 
 	// Table with action buttons
 	*out << cgicc::table().set("border","0");
@@ -239,7 +245,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 	*out << cgicc::td();
 	std::string configureButton = toolbox::toString("/%s/Configure",getApplicationDescriptor()->getURN().c_str());
 	*out << cgicc::form().set("method","GET").set("action",configureButton) << std::endl ;
-	*out << cgicc::input().set("type","submit").set("value","Configure") << std::endl ;
+	*out << cgicc::input().set("type","submit").set("value","Configure")    << std::endl ;
 	*out << cgicc::form();
 	*out << cgicc::td();
 
@@ -247,7 +253,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 	*out << cgicc::td();
 	std::string startButton = toolbox::toString("/%s/Start",getApplicationDescriptor()->getURN().c_str());
 	*out << cgicc::form().set("method","GET").set("action",startButton) << std::endl ;
-	*out << cgicc::input().set("type","submit").set("value","Start") << std::endl ;
+	*out << cgicc::input().set("type","submit").set("value","Start")    << std::endl ;
 	*out << cgicc::form();
 	*out << cgicc::td();
 
@@ -255,7 +261,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 	*out << cgicc::td();
 	std::string stopButton = toolbox::toString("/%s/Stop",getApplicationDescriptor()->getURN().c_str());
 	*out << cgicc::form().set("method","GET").set("action",stopButton) << std::endl ;
-	*out << cgicc::input().set("type","submit").set("value","Stop") << std::endl ;
+	*out << cgicc::input().set("type","submit").set("value","Stop")    << std::endl ;
 	*out << cgicc::form();
 	*out << cgicc::td();
 
@@ -263,7 +269,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 	*out << cgicc::td();
 	std::string haltButton = toolbox::toString("/%s/Halt",getApplicationDescriptor()->getURN().c_str());
 	*out << cgicc::form().set("method","GET").set("action",haltButton) << std::endl ;
-	*out << cgicc::input().set("type","submit").set("value","Halt") << std::endl ;
+	*out << cgicc::input().set("type","submit").set("value","Halt")    << std::endl ;
 	*out << cgicc::form();
 	*out << cgicc::td();
 
@@ -271,15 +277,31 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 	*out << cgicc::td();
 	std::string triggerButton = toolbox::toString("/%s/Trigger",getApplicationDescriptor()->getURN().c_str());
 	*out << cgicc::form().set("method","GET").set("action",triggerButton) << std::endl ;
-	*out << cgicc::input().set("type","submit").set("value","Send L1A") << std::endl ;
+	*out << cgicc::input().set("type","submit").set("value","Send L1A")   << std::endl ;
 	*out << cgicc::form();
 	*out << cgicc::td();
 
 	// Send L1ACalPulse signal
 	*out << cgicc::td();
 	std::string calpulseButton = toolbox::toString("/%s/L1ACalPulse",getApplicationDescriptor()->getURN().c_str());
-	*out << cgicc::form().set("method","GET").set("action",calpulseButton) << std::endl ;
+	*out << cgicc::form().set("method","GET").set("action",calpulseButton)      << std::endl ;
 	*out << cgicc::input().set("type","submit").set("value","Send L1ACalPulse") << std::endl ;
+	*out << cgicc::form();
+	*out << cgicc::td();
+
+	// Send Resync signal
+	*out << cgicc::td();
+	std::string resyncButton = toolbox::toString("/%s/Resync",getApplicationDescriptor()->getURN().c_str());
+	*out << cgicc::form().set("method","GET").set("action",resyncButton)   << std::endl ;
+	*out << cgicc::input().set("type","submit").set("value","Send Resync") << std::endl ;
+	*out << cgicc::form();
+	*out << cgicc::td();
+
+	// Send BC0 signal
+	*out << cgicc::td();
+	std::string bc0Button = toolbox::toString("/%s/BC0",getApplicationDescriptor()->getURN().c_str());
+	*out << cgicc::form().set("method","GET").set("action",bc0Button)   << std::endl ;
+	*out << cgicc::input().set("type","submit").set("value","Send BC0") << std::endl ;
 	*out << cgicc::form();
 	*out << cgicc::td();
 
@@ -317,18 +339,31 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
 		int tmpDeviceNum = -1;
 		tmpDeviceName.erase(0,4);
 		tmpDeviceNum = atoi(tmpDeviceName.c_str());
-		tmpDeviceNum -= 8;
+		//what is this??
+		//tmpDeviceNum -= 8;
 
 		if ( tmpDeviceNum >= 0 ) {
 			confParams_.bag.deviceNum[i] = tmpDeviceNum;
+			//0-7 maps to 1
+			//8-15 maps to 2
+			//16-23 maps to 4
+			if (tmpDeviceNum < 8)
+				readout_mask |= 0x1;
+			else if (tmpDeviceNum < 16)
+				readout_mask |= 0x2;
+			else if (tmpDeviceNum < 24)
+				readout_mask |= 0x4;
 			//*num = tmpDeviceNum
-			INFO(" webConfigure : DeviceNum " << i << " " << confParams_.bag.deviceName[i].toString());
+			INFO(" webConfigure : DeviceName " << i << " " << confParams_.bag.deviceName[i].toString());
+			INFO(" webConfigure : DeviceNum "  << i << " " << confParams_.bag.deviceNum[i].toString());
+			INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec);
 		}
 	}
 
 	// Initiate configure workloop
 	wl_->submit(configure_signature_);
 
+	INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec);
 	// Go back to main web interface
 	this->webRedirect(in, out);
 }
@@ -364,12 +399,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 	optohybridDevice_->SendL1A(1);
 
 	//counting "1" Internal triggers, one link enough 
-	L1ACount_ = {0,0,0};
-	L1ACount_[0] = optohybridDevice_->GetL1ACount(1, 0x0);
-	/* Don't need, all L1A are identical
-		L1ACount_[1] = optohybridDevice_->GetL1ACount(1, 0x1);
-		L1ACount_[2] = optohybridDevice_->GetL1ACount(1, 0x2);
-	*/
+	L1ACount_ = optohybridDevice_->GetL1ACount(1);
 
 	hw_semaphore_.give();
 
@@ -382,7 +412,34 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi:
 	hw_semaphore_.take();
 
 	optohybridDevice_->SendL1ACal(10, 25);
+	CalPulseCount_ = optohybridDevice_->GetCalPulseCount(0);
   
+	hw_semaphore_.give();
+
+	// Go back to main web interface
+	this->webRedirect(in, out);
+}
+
+void gem::supervisor::GEMGLIBSupervisorWeb::webResync(xgi::Input * in, xgi::Output * out ) {
+	// Send L1A signal
+	hw_semaphore_.take();
+
+	optohybridDevice_->SendResync();
+	ResyncCount_ = optohybridDevice_->GetResyncCount();
+
+	hw_semaphore_.give();
+
+	// Go back to main web interface
+	this->webRedirect(in, out);
+}
+
+void gem::supervisor::GEMGLIBSupervisorWeb::webBC0(xgi::Input * in, xgi::Output * out ) {
+	// Send L1A signal
+	hw_semaphore_.take();
+
+	optohybridDevice_->SendBC0();
+	BC0Count_ = optohybridDevice_->GetBC0Count();
+
 	hw_semaphore_.give();
 
 	// Go back to main web interface
@@ -439,9 +496,13 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
    // GLIB data buffer validation
 	boost::format linkForm("LINK%d");
 	uint32_t fifoDepth[3];
-	fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
-	fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
-	fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
+
+	if (readout_mask&0x1)
+		fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
+	if (readout_mask&0x2)
+		fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
+	if (readout_mask&0x4)
+		fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
     
 	if (fifoDepth[0])
 		INFO("bufferDepth[0] (runAction) = " << std::hex << fifoDepth[0] << std::dec);
@@ -452,9 +513,12 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
 	// Get the size of GLIB data buffer
 	uint32_t bufferDepth = 0;
-	bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
-	bufferDepth += glibDevice_->getFIFOOccupancy(0x1);
-	bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
+	if (readout_mask&0x1)
+		bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
+	if (readout_mask&0x2)
+		bufferDepth += glibDevice_->getFIFOOccupancy(0x1);
+	if (readout_mask&0x4)
+		bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
 
 	wl_semaphore_.give();
 	hw_semaphore_.give();
@@ -476,30 +540,55 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
 	//set up a counter for each column/link?
 	// should the counter increment each time read action is executed?
-	int *pLk0 = gemDataParker->dumpDataToDisk(0x0);
-	vfat_    = *pLk0;
-	event_   = *(pLk0+1);
-	sumVFAT_ = *(pLk0+2);
-	counter_[0] = vfat_;
-	counter_[1] = event_;
-	counter_[2] = sumVFAT_;
-
-	int *pLk1 = gemDataParker->dumpDataToDisk(0x1);
-	vfat_    = *pLk1;
-	event_   = *(pLk1+1);
-	sumVFAT_ = *(pLk1+2);
-	counter_[0] += vfat_;
-	counter_[1] += event_;
-	counter_[2] += sumVFAT_;
-
-	int *pLk2 = gemDataParker->dumpDataToDisk(0x2);
-	vfat_    = *pLk2;
-	event_   = *(pLk2+1);
-	sumVFAT_ = *(pLk2+2);
-	counter_[0] += vfat_;
-	counter_[1] += event_;
-	counter_[2] += sumVFAT_;
-
+	//also, only read out links for VFATs in the configuration
+	//if 0-7 in deviceNum
+	if (readout_mask&0x1) {
+		DEBUG("reading out link 0");
+		//std::shared_ptr<int> pLk0(gemDataParker->dumpDataToDisk(0x0));
+		int* pLk0 = gemDataParker->dumpDataToDisk(0x0);
+		if (pLk0) {
+			vfat_    = *pLk0;
+			event_   = *(pLk0+1);
+			sumVFAT_ = *(pLk0+2);
+			counter_[0] = vfat_;
+			counter_[1] = event_;
+			counter_[2] = sumVFAT_;
+			//delete pLk0;
+		}
+		//pLk0 = 0;
+	}
+	//if 8-15 in deviceNum
+	if (readout_mask&0x2) {
+		DEBUG("reading out link 1");
+		//std::shared_ptr<int> pLk1(gemDataParker->dumpDataToDisk(0x1));
+		int* pLk1 = gemDataParker->dumpDataToDisk(0x1);
+		if (pLk1) {
+			vfat_    = *pLk1;
+			event_   = *(pLk1+1);
+			sumVFAT_ = *(pLk1+2);
+			counter_[0] += vfat_;
+			counter_[1] += event_;
+			counter_[2] += sumVFAT_;
+			//delete pLk1;
+		}
+		//pLk1 = 0;
+	}
+	//if 16-23 in deviceNum
+	if (readout_mask&0x4) {
+		DEBUG("reading out link 2");
+		//std::shared_ptr<int> pLk2(gemDataParker->dumpDataToDisk(0x2));
+		int* pLk2 = gemDataParker->dumpDataToDisk(0x2);
+		if (pLk2) {
+			vfat_    = *pLk2;
+			event_   = *(pLk2+1);
+			sumVFAT_ = *(pLk2+2);
+			counter_[0] += vfat_;
+			counter_[1] += event_;
+			counter_[2] += sumVFAT_;
+			//delete pLk2;
+		}
+		//pLk2 = 0;
+	}
 	hw_semaphore_.give();
 	wl_semaphore_.give();
 
@@ -535,6 +624,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 		std::stringstream tmpChipName;
 		tmpChipName << "VFAT" << i;
 		vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(tmpChipName.str()));
+		tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
+		tmpVFATDevice->connectDevice();
 		tmpVFATDevice->setRunMode(0);
 		// need to put all chips in sleep mode to start off
 		if (VfatName != "")
@@ -654,11 +745,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
 	//reset counters
 	optohybridDevice_->ResetL1ACount(0x4);
+	L1ACount_ = optohybridDevice_->GetL1ACount(1);
 
 	optohybridDevice_->ResetResyncCount();
+	ResyncCount_ = optohybridDevice_->GetResyncCount();
+
 	optohybridDevice_->ResetBC0Count();
+	BC0Count_ = optohybridDevice_->GetBC0Count();
 
 	optohybridDevice_->ResetCalPulseCount(0x3);
+	CalPulseCount_ = optohybridDevice_->GetCalPulseCount(0);
 
 	hw_semaphore_.give();
 	is_working_ = false;
