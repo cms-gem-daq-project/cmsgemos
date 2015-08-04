@@ -6,26 +6,26 @@
 #include "toolbox/BSem.h"
 
 namespace gem {
-  namespace utils {
+   namespace utils {
 
-    class Lock
-    {
-    public:
-      Lock(toolbox::BSem::State state=toolbox::BSem::EMPTY, bool recursive=true);
-      ~Lock();
+      class Lock
+      {
+      public:
+			Lock(toolbox::BSem::State state=toolbox::BSem::EMPTY, bool recursive=true);
+			~Lock();
 
-      void lock();
-      void unlock();
+			void lock();
+			void unlock();
 
-    private:
-      toolbox::BSem semaphore_;
+      private:
+			toolbox::BSem semaphore_;
 
-      // Prevent copying.
-      Lock(Lock const&);
-      Lock& operator=(Lock const&);
-    };
+			// Prevent copying.
+			Lock(Lock const&);
+			Lock& operator=(Lock const&);
+      };
 
-  } // namespace utils
+   } // namespace utils
 } // namespace gem
 
 #endif // _gem_utils_Lock_h_
