@@ -106,6 +106,14 @@ namespace gem {
 				 */
 				void webL1ACalPulse(xgi::Input *in, xgi::Output *out);
 				/**
+				 *    Send Resync signal and return to main web interface
+				 */
+				void webResync(xgi::Input *in, xgi::Output *out);
+				/**
+				 *    Send BC0 signal and return to main web interface
+				 */
+				void webBC0(xgi::Input *in, xgi::Output *out);
+				/**
 				 *    Redirect to main web interface
 				 */
 				void webRedirect(xgi::Input *in, xgi::Output *out);
@@ -207,6 +215,7 @@ namespace gem {
 
 				toolbox::fsm::FiniteStateMachine fsm_;
 
+				uint8_t readout_mask;
 				xdata::Bag<ConfigParams> confParams_;
 
 				FILE* outputFile;
@@ -235,7 +244,16 @@ namespace gem {
 				int sumVFAT_;
 
 				// L1A trigger counting
-				uint32_t L1ACount_[3];
+				uint32_t L1ACount_;
+
+				// CalPulse counting
+				uint32_t CalPulseCount_;
+
+				// Resync counting
+				uint32_t ResyncCount_;
+
+				// BC0 counting
+				uint32_t BC0Count_;
 
 				void fireEvent(std::string name);
 				void stateChanged(toolbox::fsm::FiniteStateMachine &fsm);
