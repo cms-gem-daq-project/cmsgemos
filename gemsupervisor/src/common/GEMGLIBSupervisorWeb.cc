@@ -738,7 +738,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
 	//flush FIFO
 	for (int i = 0; i < 2; ++i)
-		glibDevice_->flushFIFO(i);
+		while (glibDevice_->hasTrackingData(i))	
+			glibDevice_->flushFIFO(i);
+	
 
 	//send resync
 	optohybridDevice_->SendResync();
