@@ -17,26 +17,26 @@
 XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Manager);
 
 gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
-	gem::base::GEMFSMApplication(stub),
-	deviceLock_(toolbox::BSem::FULL, true),
-	amc13Device_(0)
+  gem::base::GEMFSMApplication(stub),
+  deviceLock_(toolbox::BSem::FULL, true),
+  amc13Device_(0)
 {
-	m_crateID = -1;
-	m_slot = 13;
+  m_crateID = -1;
+  m_slot = 13;
   
-	getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
-	getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
+  getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
+  getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
 
-	//initialize the AMC13Manager application objects
-	LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
-	gemWebInterfaceP_ = new gem::hw::amc13::AMC13ManagerWeb(this);
-	//gemMonitorP_      = new gem::hw::amc13::AMC13HwMonitor(this);
-	LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
+  //initialize the AMC13Manager application objects
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
+  gemWebInterfaceP_ = new gem::hw::amc13::AMC13ManagerWeb(this);
+  //gemMonitorP_      = new gem::hw::amc13::AMC13HwMonitor(this);
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
 
-	LOG4CPLUS_DEBUG(getApplicationLogger(), "executing preInit for AMC13Manager");
-	preInit();
-	LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
-	getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "executing preInit for AMC13Manager");
+  preInit();
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
+  getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
@@ -46,83 +46,83 @@ gem::hw::amc13::AMC13Manager::~AMC13Manager() {
 // This is the callback used for handling xdata:Event objects
 void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
 {
-	if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-		LOG4CPLUS_DEBUG(getApplicationLogger(), "AMC13Manager::actionPerformed() setDefaultValues" << 
-							 "Default configuration values have been loaded from xml profile");
-		//gemMonitorP_->startMonitoring();
-	}
-	// update monitoring variables
-	gem::base::GEMApplication::actionPerformed(event);
+  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
+    LOG4CPLUS_DEBUG(getApplicationLogger(), "AMC13Manager::actionPerformed() setDefaultValues" << 
+                    "Default configuration values have been loaded from xml profile");
+    //gemMonitorP_->startMonitoring();
+  }
+  // update monitoring variables
+  gem::base::GEMApplication::actionPerformed(event);
 }
 
 void gem::hw::amc13::AMC13Manager::preInit()
-	throw (gem::base::exception::Exception)
+  throw (gem::base::exception::Exception)
 {
-	std::string addressBase  = "${AMC13_ADDRESS_TABLE_PATH}/";
-	std::string connection   = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/connectionSN170_ch.xml";
-	std::string cardname = "gem.shelf01.amc13.";
-	try {
-		gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
-		amc13Device_ = new ::amc13::AMC13(connection,cardname+"T1",cardname+"T2");
-	} catch (uhal::exception::exception & e) {
-		LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught uhal::exception:") + e.what() );
-		XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
-	} catch (std::exception& e) {
-		LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught std::exception:") + e.what() );
-		XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
-	} catch (...) {
-		LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught ...") );
-		XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
-	}
+  std::string addressBase  = "${AMC13_ADDRESS_TABLE_PATH}/";
+  std::string connection   = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/connectionSN170_ch.xml";
+  std::string cardname = "gem.shelf01.amc13.";
+  try {
+    gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
+    amc13Device_ = new ::amc13::AMC13(connection,cardname+"T1",cardname+"T2");
+  } catch (uhal::exception::exception & e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught uhal::exception:") + e.what() );
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+  } catch (std::exception& e) {
+    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught std::exception:") + e.what() );
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+  } catch (...) {
+    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught ...") );
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
+  }
 
-	LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13::AMC13()");
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13::AMC13()");
 
-	try {
-		// just T2-related work here.
-		gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
-		amc13Device_->reset(::amc13::AMC13::T2);
+  try {
+    // just T2-related work here.
+    gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
+    amc13Device_->reset(::amc13::AMC13::T2);
     
-		amc13Device_->enableAllTTC(); // this is convenient for debugging, works with _some_ firmwares
+    amc13Device_->enableAllTTC(); // this is convenient for debugging, works with _some_ firmwares
     
-	} catch (uhal::exception::exception & e) {
-		XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
-	} catch (std::exception& e) {
-		XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
-	}
-	LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13Manager::preInit()");
+  } catch (uhal::exception::exception & e) {
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
+  } catch (std::exception& e) {
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
+  }
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13Manager::preInit()");
 }
 
 void gem::hw::amc13::AMC13Manager::init()
-	throw (gem::base::exception::Exception)
+  throw (gem::base::exception::Exception)
 {
-	gem::base::GEMFSMApplication::init();
+  gem::base::GEMFSMApplication::init();
 
-	LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::init()");
-	if (amc13Device_==0) return;
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::init()");
+  if (amc13Device_==0) return;
 
-	//have to set up the initialization of the AMC13 for the desired running situation
-	//possibilities are TTC/TCDS mode, DAQ link, local trigger scheme
+  //have to set up the initialization of the AMC13 for the desired running situation
+  //possibilities are TTC/TCDS mode, DAQ link, local trigger scheme
 }
 
 void gem::hw::amc13::AMC13Manager::enable()
-	throw (gem::base::exception::Exception) {
-	LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::enable()");
-	//gem::base::GEMFSMApplication::enable();
-	gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
-	amc13Device_->startRun();
+  throw (gem::base::exception::Exception) {
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::enable()");
+  //gem::base::GEMFSMApplication::enable();
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
+  amc13Device_->startRun();
 }
 
 void gem::hw::amc13::AMC13Manager::disable()
-	throw (gem::base::exception::Exception) {
-	LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::disable()");
-	//gem::base::GEMFSMApplication::disable();
-	gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
-	amc13Device_->endRun();
+  throw (gem::base::exception::Exception) {
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::disable()");
+  //gem::base::GEMFSMApplication::disable();
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
+  amc13Device_->endRun();
 }
 
 ::amc13::Status* gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
-	gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
-	return amc13Device_->getStatus(); 
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
+  return amc13Device_->getStatus(); 
 }
 
 /*
@@ -155,9 +155,9 @@ void gem::hw::amc13::AMC13Manager::haltAction(      ) {}
 void gem::hw::amc13::AMC13Manager::noAction(        ) {}
 
 void gem::hw::amc13::AMC13Manager::failAction(      toolbox::Event::Reference e)
-	throw (toolbox::fsm::exception::Exception) {
+  throw (toolbox::fsm::exception::Exception) {
 }
 
 void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
-	throw (toolbox::fsm::exception::Exception) {
+  throw (toolbox::fsm::exception::Exception) {
 }

@@ -13,22 +13,22 @@
 #include "toolbox/TimeVal.h"
 
 namespace toolbox {
-	namespace task {
-		class Timer;
-	}
+  namespace task {
+    class Timer;
+  }
 }
 
 namespace xdaq {
-	class Application;
+  class Application;
 }
 
 namespace gem {
-	namespace base {
+  namespace base {
     
-		class GEMMonitor : public toolbox::task::TimerListener
-			{
+    class GEMMonitor : public toolbox::task::TimerListener
+      {
 	
-			};
-	}
+      };
+  }
 }
 #endif
