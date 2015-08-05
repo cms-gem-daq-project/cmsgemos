@@ -244,10 +244,10 @@ namespace gem {
 				int sumVFAT_;
 
 				// L1A trigger counting
-				uint32_t L1ACount_;
+				uint32_t L1ACount_[4];
 
 				// CalPulse counting
-				uint32_t CalPulseCount_;
+				uint32_t CalPulseCount_[3];
 
 				// Resync counting
 				uint32_t ResyncCount_;
