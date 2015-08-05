@@ -226,8 +226,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 	// Show current state, counter, output filename
 	*out << "Current state: "       << fsm_.getStateName(fsm_.getCurrentState())     << cgicc::br();
 	*out << "Event counter: "       << counter_[1]     << " Events counter"          << cgicc::br();
-	*out << "L1A counter: "         << L1ACount_       << " internal"                << cgicc::br();
-	*out << "CalPulse counter: "    << CalPulseCount_  << " internal"                << cgicc::br();
+	*out << "L1A counter: "         << L1ACount_[0] << " (internal) "
+		  << L1ACount_[1] << " (external) "
+		  << L1ACount_[2] << " (delayed) "
+		  << L1ACount_[3] << " (total)"
+		  << cgicc::br();
+	*out << "CalPulse counter: "
+		  << CalPulseCount_[0] << " (internal) "
+		  << CalPulseCount_[1] << " (delayed) "
+		  << CalPulseCount_[2] << " (total)"
+		  << cgicc::br();
 	*out << "Resync counter: "      << ResyncCount_    << cgicc::br();
 	*out << "BC0 counter: "         << BC0Count_       << cgicc::br();
 	*out << "VFAT blocks counter: " << (counter_[0]-1) << " dumped to disk"          << cgicc::br();
@@ -399,7 +407,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 	optohybridDevice_->SendL1A(1);
 
 	//counting "1" Internal triggers, one link enough 
-	L1ACount_ = optohybridDevice_->GetL1ACount(1);
+	L1ACount_[0] = optohybridDevice_->GetL1ACount(1); //internal
+	L1ACount_[1] = optohybridDevice_->GetL1ACount(0); //external
+	L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
+	L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
 
 	hw_semaphore_.give();
 
@@ -412,7 +423,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi:
 	hw_semaphore_.take();
 
 	optohybridDevice_->SendL1ACal(10, 25);
-	CalPulseCount_ = optohybridDevice_->GetCalPulseCount(0);
+	CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
+	CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
+	CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
   
 	hw_semaphore_.give();
 
@@ -747,7 +760,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
 	//reset counters
 	optohybridDevice_->ResetL1ACount(0x4);
-	L1ACount_ = optohybridDevice_->GetL1ACount(1);
+	L1ACount_[0] = optohybridDevice_->GetL1ACount(1); //internal
+	L1ACount_[1] = optohybridDevice_->GetL1ACount(0); //external
+	L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
+	L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
 
 	optohybridDevice_->ResetResyncCount();
 	ResyncCount_ = optohybridDevice_->GetResyncCount();
@@ -756,7 +772,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 	BC0Count_ = optohybridDevice_->GetBC0Count();
 
 	optohybridDevice_->ResetCalPulseCount(0x3);
-	CalPulseCount_ = optohybridDevice_->GetCalPulseCount(0);
+	CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
+	CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
+	CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
 
 	hw_semaphore_.give();
 	is_working_ = false;
