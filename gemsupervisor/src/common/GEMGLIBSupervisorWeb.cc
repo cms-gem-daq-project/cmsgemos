@@ -404,6 +404,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 	// Send L1A signal
 	hw_semaphore_.take();
 
+	INFO("webTrigger: sending L1A");
 	optohybridDevice_->SendL1A(1);
 
 	//counting "1" Internal triggers, one link enough 
@@ -422,7 +423,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi:
 	// Send L1A signal
 	hw_semaphore_.take();
 
-	optohybridDevice_->SendL1ACal(10, 25);
+	INFO("webCalPulse: sending 1 CalPulse with 25 clock delayed L1A");
+	optohybridDevice_->SendL1ACal(1, 25);
 	CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
 	CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
 	CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
@@ -437,6 +439,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webResync(xgi::Input * in, xgi::Outp
 	// Send L1A signal
 	hw_semaphore_.take();
 
+	INFO("webResync: sending Resync");
 	optohybridDevice_->SendResync();
 	ResyncCount_ = optohybridDevice_->GetResyncCount();
 
@@ -450,6 +453,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webBC0(xgi::Input * in, xgi::Output 
 	// Send L1A signal
 	hw_semaphore_.take();
 
+	INFO("webBC0: sending BC0");
 	optohybridDevice_->SendBC0();
 	BC0Count_ = optohybridDevice_->GetBC0Count();
 
