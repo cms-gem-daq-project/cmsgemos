@@ -6,14 +6,14 @@
 #include <boost/regex.hpp>
 
 namespace gem {
-	namespace utils {
-		class CfgParser {
+  namespace utils {
+    class CfgParser {
 	
-		public:
-			uint32_t processRegisterSetting(std::string regValue);
+    public:
+      uint32_t processRegisterSetting(std::string regValue);
       
-		};
-	} //end namespace gem::utils
+    };
+  } //end namespace gem::utils
 } //end namespace gem
 
 #endif

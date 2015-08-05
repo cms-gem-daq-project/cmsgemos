@@ -12,35 +12,35 @@
 #include <boost/format.hpp>
 
 namespace gem {
-	namespace hw {
-		namespace vfat {
-			class HwVFAT2;
-		}
-	}
+  namespace hw {
+    namespace vfat {
+      class HwVFAT2;
+    }
+  }
 	    
-	namespace supervisor {
-		namespace tbutils {
+  namespace supervisor {
+    namespace tbutils {
       
-			class VFAT2XMLParser
-			{
+      class VFAT2XMLParser
+      {
 	
-			public:
-				VFAT2XMLParser(const std::string& xmlFile,
-									gem::hw::vfat::HwVFAT2* vfatDevice);
+      public:
+        VFAT2XMLParser(const std::string& xmlFile,
+                       gem::hw::vfat::HwVFAT2* vfatDevice);
 
-				~VFAT2XMLParser();
+        ~VFAT2XMLParser();
 
-				void parseXMLFile();
-				void parseTURBO(xercesc::DOMNode * pNode);
-				void parseVFAT(xercesc::DOMNode * pNode);
-			private:
-				std::string xmlFile_;
-				gem::hw::vfat::HwVFAT2* vfatDevice_;
-			};
+        void parseXMLFile();
+        void parseTURBO(xercesc::DOMNode * pNode);
+        void parseVFAT(xercesc::DOMNode * pNode);
+      private:
+        std::string xmlFile_;
+        gem::hw::vfat::HwVFAT2* vfatDevice_;
+      };
       
-		}//end namespace gem::supervisor::tbutils
+    }//end namespace gem::supervisor::tbutils
     
-	}//end namespace gem::supervisor
+  }//end namespace gem::supervisor
   
 }//end namespace gem
 

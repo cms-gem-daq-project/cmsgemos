@@ -13,35 +13,35 @@
 #include "gem/hw/glib/exception/Exception.h"
 
 gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo() {
-	present = false;
-	crateID = -1;
-	slotID  = -1;
+  present = false;
+  crateID = -1;
+  slotID  = -1;
 }
 
 void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::glib::GLIBManager::GLIBInfo>* bag) {
-	bag->addField("crateID", &crateID);
-	bag->addField("slot",    &slotID);
-	bag->addField("present", &present);
+  bag->addField("crateID", &crateID);
+  bag->addField("slot",    &slotID);
+  bag->addField("present", &present);
 }
 
 gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
-	gem::base::GEMFSMApplication(stub)
+  gem::base::GEMFSMApplication(stub)
 {
-	//maybe we put this type of stuff into a per GLIB infospace, in the monitor?
-	// getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
-	// getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
+  //maybe we put this type of stuff into a per GLIB infospace, in the monitor?
+  // getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
+  // getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
 
-	//initialize the GLIB application objects
-	LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the GLIBManagerWeb interface");
-	gemWebInterfaceP_ = new gem::hw::glib::GLIBManagerWeb(this);
-	//gemMonitorP_      = new gem::hw::glib::GLIBHwMonitor(this);
-	LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
+  //initialize the GLIB application objects
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the GLIBManagerWeb interface");
+  gemWebInterfaceP_ = new gem::hw::glib::GLIBManagerWeb(this);
+  //gemMonitorP_      = new gem::hw::glib::GLIBHwMonitor(this);
+  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
   
-	for (int slot=1; slot <= MAX_AMCS_PER_CRATE; slot++)
-		m_glibs[slot-1] = 0;
+  for (int slot=1; slot <= MAX_AMCS_PER_CRATE; slot++)
+    m_glibs[slot-1] = 0;
 
-	//init();
-	//getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/glib/GLIBManager.png");
+  //init();
+  //getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/glib/GLIBManager.png");
 }
 
 gem::hw::glib::GLIBManager::~GLIBManager() {
@@ -51,80 +51,80 @@ gem::hw::glib::GLIBManager::~GLIBManager() {
 // This is the callback used for handling xdata:Event objects
 void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
 {
-	if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-		LOG4CPLUS_DEBUG(getApplicationLogger(), "GLIBManager::actionPerformed() setDefaultValues" << 
-							 "Default configuration values have been loaded from xml profile");
-		//gemMonitorP_->startMonitoring();
-	}
-	// update monitoring variables
-	gem::base::GEMApplication::actionPerformed(event);
+  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
+    LOG4CPLUS_DEBUG(getApplicationLogger(), "GLIBManager::actionPerformed() setDefaultValues" << 
+                    "Default configuration values have been loaded from xml profile");
+    //gemMonitorP_->startMonitoring();
+  }
+  // update monitoring variables
+  gem::base::GEMApplication::actionPerformed(event);
 }
 
 void gem::hw::glib::GLIBManager::preInit()
-	throw (gem::base::exception::Exception)
+  throw (gem::base::exception::Exception)
 {
   
-	for (int slot=1; slot <= MAX_AMCS_PER_CRATE; slot++) {
+  for (int slot=1; slot <= MAX_AMCS_PER_CRATE; slot++) {
     
-		//check if there is a GLIB in the specified slot, if not, do not initialize
-		//set the web view to be empty or grey
-		//if (!info.present.value_) continue;
-		//gemWebInterfaceP_->glibInSlot(slot);
-	}  
+    //check if there is a GLIB in the specified slot, if not, do not initialize
+    //set the web view to be empty or grey
+    //if (!info.present.value_) continue;
+    //gemWebInterfaceP_->glibInSlot(slot);
+  }  
 }
 
 void gem::hw::glib::GLIBManager::init()
-	throw (gem::base::exception::Exception)
+  throw (gem::base::exception::Exception)
 {
-	gem::base::GEMFSMApplication::init();
+  gem::base::GEMFSMApplication::init();
 
-	uhal::setLogLevelTo( uhal::ErrorLevel() );
+  uhal::setLogLevelTo( uhal::ErrorLevel() );
   
-	int gemCrate = 1;
+  int gemCrate = 1;
   
-	for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
-		GLIBInfo& info = m_glibInfo[slot].bag;
+  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
+    GLIBInfo& info = m_glibInfo[slot].bag;
     
-		//check the config file if there should be a GLIB in the specified slot, if not, do not initialize
-		//if slot empty
-		//  continue;
+    //check the config file if there should be a GLIB in the specified slot, if not, do not initialize
+    //if slot empty
+    //  continue;
     
-		info.present = true;
-		info.crateID = gemCrate;
-		info.slotID  = slot+1;
+    info.present = true;
+    info.crateID = gemCrate;
+    info.slotID  = slot+1;
     
-		m_glibs[slot] = new gem::hw::glib::HwGLIB(gemCrate,slot+1);
-		m_glibs[slot]->connectDevice();
-		//set the web view to be empty or grey
-		//if (!info.present.value_) continue;
-		//gemWebInterfaceP_->glibInSlot(slot);
-	}
+    m_glibs[slot] = new gem::hw::glib::HwGLIB(gemCrate,slot+1);
+    m_glibs[slot]->connectDevice();
+    //set the web view to be empty or grey
+    //if (!info.present.value_) continue;
+    //gemWebInterfaceP_->glibInSlot(slot);
+  }
 
-	for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
-		GLIBInfo& info = m_glibInfo[slot].bag;
+  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
+    GLIBInfo& info = m_glibInfo[slot].bag;
 
-		if (!info.present)
-			continue;
+    if (!info.present)
+      continue;
     
-		gem::hw::glib::HwGLIB* glib= m_glibs[slot];
+    gem::hw::glib::HwGLIB* glib= m_glibs[slot];
     
-	}
+  }
 }
 
 void gem::hw::glib::GLIBManager::enable()
-	throw (gem::base::exception::Exception) {
-	LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::glib::GLIBManager::enable()");
-	//gem::base::GEMFSMApplication::enable();
-	gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
-	//m_glibs[0]->startRun();
+  throw (gem::base::exception::Exception) {
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::glib::GLIBManager::enable()");
+  //gem::base::GEMFSMApplication::enable();
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
+  //m_glibs[0]->startRun();
 }
 
 void gem::hw::glib::GLIBManager::disable()
-	throw (gem::base::exception::Exception) {
-	LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::glib::GLIBManager::disable()");
-	//gem::base::GEMFSMApplication::disable();
-	gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
-	//m_glibs[0]->endRun();
+  throw (gem::base::exception::Exception) {
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::glib::GLIBManager::disable()");
+  //gem::base::GEMFSMApplication::disable();
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
+  //m_glibs[0]->endRun();
 }
 
 /*
@@ -157,9 +157,9 @@ void gem::hw::glib::GLIBManager::haltAction(      ) {}
 void gem::hw::glib::GLIBManager::noAction(        ) {}
 
 void gem::hw::glib::GLIBManager::failAction(      toolbox::Event::Reference e)
-	throw (toolbox::fsm::exception::Exception) {
+  throw (toolbox::fsm::exception::Exception) {
 }
 
 void gem::hw::glib::GLIBManager::resetAction(toolbox::Event::Reference e)
-	throw (toolbox::fsm::exception::Exception) {
+  throw (toolbox::fsm::exception::Exception) {
 }
