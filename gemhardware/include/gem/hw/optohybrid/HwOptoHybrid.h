@@ -464,6 +464,9 @@ namespace gem {
 	    regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
 	    return getGEMHwInterface(); };
 
+	  std::vector<linkStatus> getActiveLinks() {return activeLinks;}
+      bool isLinkActive(int i){return links[i];}
+
 	protected:
 	  //uhal::ConnectionManager *manageOptoHybridConnection;
 	  //log4cplus::Logger logOptoHybrid_;

@@ -463,7 +463,14 @@ throw (xgi::exception::Exception)
             *out << cgicc::form() << std::endl ;
         *out << cgicc::td();
     *out << "</tr>" << std::endl;
-    *out << cgicc::table() <<std::endl;;
+    *out << cgicc::table() <<std::endl;
+    std::map <std::string, std::string> glibProperties_;
+    glibProperties_ = gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getDeviceProperties();
+    for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++)
+    {
+        if (it->first == "IP") glibIP = it->second; 
+    }
+
     glibDevice_ = new gem::hw::glib::HwGLIB();
     glibDevice_->setDeviceIPAddress(glibIP);
     glibDevice_->connectDevice();
@@ -702,18 +709,36 @@ throw (xgi::exception::Exception)
     ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
     ohDevice_->setDeviceIPAddress(glibIP);
     ohDevice_->connectDevice();
+    if (!ohDevice_->isHwConnected()) {
+        *out << "<h1><div align=\"center\">Device connection failed!</div></h1>" << std::endl;
+    } else {
 
+    std::vector<gem::hw::GEMHwDevice::linkStatus> activeLinks_;
+    activeLinks_ = ohDevice_->getActiveLinks();
+    uint8_t link = (activeLinks_.begin())->first;
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
-    uint8_t link=2;
     *out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : " << ohDevice_->getFirmware(link) << "</div></h1>" << std::endl;
     *out << "</div>" << std::endl;
     *out << "<div class=\"panel-body\">" << std::endl;
     *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "</div></h3>" << std::endl;
     std::string methodExpandVFAT = toolbox::toString("/%s/expandVFAT", getApplicationDescriptor()->getURN().c_str());
     gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus_;
-    for (uint8_t i=0; i<3; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
+    //for (uint8_t i=0; i<3; i++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
+    for (int i = 0; i < 3; i++)
     {
+        if (!ohDevice_->isLinkActive(i)) 
+        {
+            *out << "<div class=\"panel panel-danger\">" << std::endl;
+            *out << "<div class=\"panel-heading\">" << std::endl;
+            *out << "<tr><h2><div align=\"center\">LINK " << i << " is not available </div></h2></tr>" << std::endl;
+            *out << "</div>" << std::endl;
+            *out << "</div>" << std::endl;
+        }
+    }
+    for (auto l = activeLinks_.begin(); l != activeLinks_.end(); l++) //For the moment only link 1 is available for OHv1. The app crashes if link is not available.
+    {
+        uint8_t i = l->first;
         *out << "<div class=\"panel panel-info\">" << std::endl;
         *out << "<div class=\"panel-heading\">" << std::endl;
         linkStatus_ = ohDevice_->LinkStatus(i);
@@ -908,6 +933,7 @@ throw (xgi::exception::Exception)
     *out << cgicc::table() <<std::endl;
 
     *out << "</div>" << std::endl;
+    }
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
     delete ohDevice_;
