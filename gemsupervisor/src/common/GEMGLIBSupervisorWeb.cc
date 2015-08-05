@@ -226,8 +226,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 	// Show current state, counter, output filename
 	*out << "Current state: "       << fsm_.getStateName(fsm_.getCurrentState())     << cgicc::br();
 	*out << "Event counter: "       << counter_[1]     << " Events counter"          << cgicc::br();
-	*out << "L1A counter: "         << L1ACount_[0] << " (internal) "
-		  << L1ACount_[1] << " (external) "
+	*out << "L1A counter: "         << L1ACount_[0] << " (external) "
+		  << L1ACount_[1] << " (internal) "
 		  << L1ACount_[2] << " (delayed) "
 		  << L1ACount_[3] << " (total)"
 		  << cgicc::br();
@@ -408,8 +408,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 	optohybridDevice_->SendL1A(1);
 
 	//counting "1" Internal triggers, one link enough 
-	L1ACount_[0] = optohybridDevice_->GetL1ACount(1); //internal
-	L1ACount_[1] = optohybridDevice_->GetL1ACount(0); //external
+	L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
+	L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
 	L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
 	L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
 
@@ -755,17 +755,20 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
 	//flush FIFO
 	for (int i = 0; i < 2; ++i)
-		while (glibDevice_->hasTrackingData(i))	
+		if (readout_mask >> i) {
 			glibDevice_->flushFIFO(i);
-	
+			while (glibDevice_->hasTrackingData(i))
+				std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
+			glibDevice_->flushFIFO(i);
+		}
 
 	//send resync
 	optohybridDevice_->SendResync();
 
 	//reset counters
 	optohybridDevice_->ResetL1ACount(0x4);
-	L1ACount_[0] = optohybridDevice_->GetL1ACount(1); //internal
-	L1ACount_[1] = optohybridDevice_->GetL1ACount(0); //external
+	L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
+	L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
 	L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
 	L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
 
