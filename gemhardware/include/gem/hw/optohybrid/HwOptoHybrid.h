@@ -12,7 +12,7 @@
 namespace gem {
 	namespace hw {
 		namespace optohybrid {
-
+         
 			//class OptoHybridMonitor;
 			class HwOptoHybrid: public gem::hw::GEMHwDevice
 				{
@@ -59,7 +59,7 @@ namespace gem {
 						retval << "0x" << std::hex << getFirmware(m_controlLink) << std::dec << std::endl;
 						return retval.str();
 					};
-	  	  
+					
 				private:
 					/** Read the firmware register for a given link
 					 * @returns a hex number corresponding to the build date
@@ -74,7 +74,7 @@ namespace gem {
 							  << std::hex << fwver << std::dec << std::endl);
 						return fwver;
 					};
-	    
+					
 					/** Read the firmware register for a given link
 					 * @returns a string corresponding to the build date
 					 * is private to ensure that it is only used internally
@@ -85,7 +85,7 @@ namespace gem {
 						retval << "0x" << std::hex << getFirmware(link) << std::dec << std::endl;
 						return retval.str();
 					};
-	  	
+					
 				public:
 					/** Read the link status registers, store the information in a struct
 					 * @param uint8_t link is the number of the link to query
@@ -478,15 +478,18 @@ namespace gem {
 						regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
 						return getGEMHwInterface(); };
 
+					std::vector<linkStatus> getActiveLinks() { return activeLinks; }
+					bool isLinkActive(int i) { return links[i]; }
+
 				protected:
 					//uhal::ConnectionManager *manageOptoHybridConnection;
 					//log4cplus::Logger logOptoHybrid_;
 					//uhal::HwInterface *hwOptoHybrid_;
-
+					
 					//uhal::HwInterface& getOptoHybridHwDevice() const;
-
+					
 					//OptoHybridMonitor *monOptoHybrid_;
-
+					
 
 					bool links[3];
 	    
