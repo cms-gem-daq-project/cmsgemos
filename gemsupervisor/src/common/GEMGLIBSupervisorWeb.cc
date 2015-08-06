@@ -347,31 +347,25 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
     //std::string tmpDeviceName = chip->toString();
     int tmpDeviceNum = -1;
     tmpDeviceName.erase(0,4);
-    <<<<<<< HEAD
-              tmpDeviceNum = atoi(tmpDeviceName.c_str());
-    //what is this??
-    //tmpDeviceNum -= 8;
-    =======
-              if (tmpDeviceName != "")
-                tmpDeviceNum = atoi(tmpDeviceName.c_str());
-              >>>>>>> release-v1
-
-                        if ( tmpDeviceNum >= 0 ) {
-                          confParams_.bag.deviceNum[i] = tmpDeviceNum;
-                          //0-7 maps to 1
-                          //8-15 maps to 2
-                          //16-23 maps to 4
-                          if (tmpDeviceNum < 8)
-                            readout_mask |= 0x1;
-                          else if (tmpDeviceNum < 16)
-                            readout_mask |= 0x2;
-                          else if (tmpDeviceNum < 24)
-                            readout_mask |= 0x4;
-                          //*num = tmpDeviceNum
-                          INFO(" webConfigure : DeviceName " << i << " " << confParams_.bag.deviceName[i].toString());
-                          INFO(" webConfigure : DeviceNum "  << i << " " << confParams_.bag.deviceNum[i].toString());
-                          INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec);
-                        }
+    if (tmpDeviceName != "")
+      tmpDeviceNum = atoi(tmpDeviceName.c_str());
+    
+    if ( tmpDeviceNum >= 0 ) {
+      confParams_.bag.deviceNum[i] = tmpDeviceNum;
+      //0-7 maps to 1
+      //8-15 maps to 2
+      //16-23 maps to 4
+      if (tmpDeviceNum < 8)
+        readout_mask |= 0x1;
+      else if (tmpDeviceNum < 16)
+        readout_mask |= 0x2;
+      else if (tmpDeviceNum < 24)
+        readout_mask |= 0x4;
+      //*num = tmpDeviceNum
+      INFO(" webConfigure : DeviceName " << i << " " << confParams_.bag.deviceName[i].toString());
+      INFO(" webConfigure : DeviceNum "  << i << " " << confParams_.bag.deviceNum[i].toString());
+      INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec);
+    }
   }
 
   // Initiate configure workloop
