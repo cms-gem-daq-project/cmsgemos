@@ -12,7 +12,7 @@ function toggleVFATCheckboxes (isON) {
                             $("#SetCalPhase")
                             ];
     var nBoxes = registerSetBoxes.length;
-	
+
     if (isON) {
         //$("#SelectAll").click(function(event) {
         for (var i=0; i<nBoxes; ++i ) {
