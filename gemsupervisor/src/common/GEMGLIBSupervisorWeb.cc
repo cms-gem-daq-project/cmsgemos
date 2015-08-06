@@ -367,7 +367,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
       INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec);
     }
   }
-
+  
   // Initiate configure workloop
   wl_->submit(configure_signature_);
 
