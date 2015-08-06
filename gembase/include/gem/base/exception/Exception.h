@@ -31,32 +31,32 @@
  EXCEPTION VAR( #EXCEPTION, MSG, __FILE__, __LINE__, __FUNCTION__, PREVIOUS)
 ***/
 
-#define GEM_BASE_DEFINE_EXCEPTION(EXCEPTION_NAME)								\
-	namespace gem {																		\
-		namespace base {																	\
-			namespace exception {														\
-				class EXCEPTION_NAME : virtual public xcept::Exception		\
-					{																			\
-					public :																	\
-					EXCEPTION_NAME(std::string name,									\
-										std::string message,								\
-										std::string module,								\
-										int line,											\
-										std::string function) :							\
-						xcept::Exception(name, message, module, line, function) \
-							{};																\
-					EXCEPTION_NAME(std::string name,									\
-										std::string message,								\
-										std::string module,								\
-										int line,											\
-										std::string function,							\
-										xcept::Exception& err) :						\
-						xcept::Exception(name, message, module, line, function, err) \
-							{};																\
-					};																			\
-			}																					\
-		}																						\
-	} 
+#define GEM_BASE_DEFINE_EXCEPTION(EXCEPTION_NAME)                       \
+  namespace gem {                                                       \
+    namespace base {                                                    \
+      namespace exception {                                             \
+        class EXCEPTION_NAME : virtual public xcept::Exception		\
+          {                                                             \
+          public :                                                      \
+          EXCEPTION_NAME(std::string name,                              \
+                         std::string message,                           \
+                         std::string module,                            \
+                         int line,                                      \
+                         std::string function) :                        \
+            xcept::Exception(name, message, module, line, function)     \
+              {};                                                       \
+          EXCEPTION_NAME(std::string name,                              \
+                         std::string message,                           \
+                         std::string module,                            \
+                         int line,                                      \
+                         std::string function,                          \
+                         xcept::Exception& err) :                       \
+            xcept::Exception(name, message, module, line, function, err) \
+              {};                                                       \
+          };                                                            \
+      }                                                                 \
+    }                                                                   \
+  } 
 
 // The gem::base exceptions.
 GEM_BASE_DEFINE_EXCEPTION(Exception)
