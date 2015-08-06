@@ -4,37 +4,37 @@
 #define gem_utils_LockGuard_h
 
 namespace gem {
-	namespace utils {
+  namespace utils {
 
-		template <class L>
-			class LockGuard
-			{
-			public:
-				LockGuard(L& lock);
-				~LockGuard();
+    template <class L>
+      class LockGuard
+      {
+      public:
+        LockGuard(L& lock);
+        ~LockGuard();
 
-			private:
-				L& lock_;
+      private:
+        L& lock_;
 
-				// Prevent copying.
-				LockGuard(LockGuard const&);
-				LockGuard& operator=(LockGuard const&);
-			};
+        // Prevent copying.
+        LockGuard(LockGuard const&);
+        LockGuard& operator=(LockGuard const&);
+      };
 
-	} // namespace utils
+  } // namespace utils
 } // namespace gem
 
 template <class L>
 gem::utils::LockGuard<L>::LockGuard(L& lock) :
 lock_(lock)
 {
-	lock_.lock();
+  lock_.lock();
 }
 
 template <class L>
 gem::utils::LockGuard<L>::~LockGuard()
 {
-	lock_.unlock();
+  lock_.unlock();
 }
 
 #endif // _gem_utils_LockGuard_h_
