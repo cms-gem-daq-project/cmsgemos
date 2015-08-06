@@ -347,7 +347,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
     //std::string tmpDeviceName = chip->toString();
     int tmpDeviceNum = -1;
     tmpDeviceName.erase(0,4);
-
     if (tmpDeviceName != "")
       tmpDeviceNum = atoi(tmpDeviceName.c_str());
     
