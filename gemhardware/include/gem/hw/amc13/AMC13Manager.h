@@ -94,9 +94,9 @@ namespace gem {
             xdata::String amcInputEnableList;
             xdata::String amcIgnoreTTSList;
             
-            xdata::Bool enableFakeData;
-            xdata::Bool monBackPressure;
-            xdata::Bool enableLocalTTC;
+            xdata::Boolean enableFakeData;
+            xdata::Boolean monBackPressure;
+            xdata::Boolean enableLocalTTC;
 
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
@@ -116,7 +116,7 @@ namespace gem {
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
 
-          ConfigParams amc13Parmams;
+          xdata::Bag<ConfigParams> m_amc13Params;
           std::string m_AMCInputEnableList, m_SlotEnableList, m_AMCIgnoreTTSList;
           bool m_fakeDataEnable, m_localTtcSignalEnable;
           bool m_monBufBackPressEnable, m_megaMonitorScale;

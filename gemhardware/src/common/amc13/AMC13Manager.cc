@@ -43,11 +43,11 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   amc13Device_(0)
 {
   m_crateID = -1;
-  m_slot = 13;
+  m_slot    = 13;
   
   getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
   getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
-  getApplicationInfoSpace()->fireItemAvailable("amc13ConfigParams",    &amc13Params);
+  getApplicationInfoSpace()->fireItemAvailable("amc13ConfigParams",    &m_amc13Params);
 
   //initialize the AMC13Manager application objects
   LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
