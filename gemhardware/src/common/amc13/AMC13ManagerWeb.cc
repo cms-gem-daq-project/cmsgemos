@@ -42,11 +42,15 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
     } catch (const xgi::exception::Exception& e) {
       level = 2;
       WARN("Caught xgi::exception " << e.what());
-      XCEPT_RAISE(xgi::exception::Exception, e.what());
+      //XCEPT_RAISE(xgi::exception::Exception, e.what());
     } catch (const std::exception& e) {
       level = 2;
       WARN("Caught std::exception " << e.what());
-      XCEPT_RAISE(xgi::exception::Exception, e.what());
+      //XCEPT_RAISE(xgi::exception::Exception, e.what());
+    } catch (...) {
+      level = 2;
+      WARN("Caught unknown exception");
+      //XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
   else 
     level = 2;
@@ -85,6 +89,10 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
            cgicc::input().set("type","radio").set("name","level").set("value","3").set("checked") :
            cgicc::input().set("type","radio").set("name","level").set("value","3"))
        << "maximum" << std::endl
+       << (level == 99 ?
+           cgicc::input().set("type","radio").set("name","level").set("value","99").set("checked") :
+           cgicc::input().set("type","radio").set("name","level").set("value","99"))
+       << "expert" << std::endl
 
        << cgicc::br()     << std::endl
        << cgicc::div()    << std::endl

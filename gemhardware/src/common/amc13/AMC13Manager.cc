@@ -16,6 +16,27 @@
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Manager);
 
+void gem::hw::amc13::AMC13Manager::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
+{
+
+  bag->addField("ConnectionFile",           &connectionFile     );
+
+  bag->addField("AMCInputEnableList",       &amcInputEnableList );
+  bag->addField("AMCIgnoreTTSList",         &amcIgnoreTTSList   );
+
+  bag->addField("EnableFakeData",         &enableFakeData    );
+  bag->addField("MonitorBackPressure",    &monBackPressure   );
+  bag->addField("EnableLocalTTC",         &enableLocalTTC    );
+
+  bag->addField("Prescale",               &prescaleFactor    );
+  bag->addField("BCOffset",               &bcOffset          );
+
+  bag->addField("FEDID",                  &fedID             );
+  bag->addField("SFPMask",                &sfpMask           );
+
+  bag->addField("EnableLocalL1AMask",     &enableLocalL1AMask);
+}
+
 gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   deviceLock_(toolbox::BSem::FULL, true),
@@ -26,6 +47,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   
   getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
   getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
+  getApplicationInfoSpace()->fireItemAvailable("amc13ConfigParams",    &amc13Params);
 
   //initialize the AMC13Manager application objects
   LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
@@ -99,9 +121,21 @@ void gem::hw::amc13::AMC13Manager::init()
 
   LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::init()");
   if (amc13Device_==0) return;
-
+  
   //have to set up the initialization of the AMC13 for the desired running situation
   //possibilities are TTC/TCDS mode, DAQ link, local trigger scheme
+  //lock the access
+  
+  //enable daq link (if sfp mask is non-zero
+  //enable sfp outputs based on mask configuration
+  
+  //ignore AMC tts state per mask
+  
+  //enable specified AMCs
+  
+  
+  
+  //unlock the access
 }
 
 void gem::hw::amc13::AMC13Manager::enable()

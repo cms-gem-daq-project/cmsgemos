@@ -84,7 +84,30 @@ namespace gem {
 	
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
-	
+          
+          class ConfigParams 
+          {   
+          public:
+            void registerFields(xdata::Bag<ConfigParams> *bag);
+            
+            xdata::String connectionFile;
+            xdata::String amcInputEnableList;
+            xdata::String amcIgnoreTTSList;
+            
+            xdata::Bool enableFakeData;
+            xdata::Bool monBackPressure;
+            xdata::Bool enableLocalTTC;
+
+            xdata::Integer prescaleFactor;
+            xdata::Integer bcOffset;
+
+            xdata::UnsignedInteger32 fedID;
+            xdata::UnsignedInteger32 sfpMask;
+            xdata::UnsignedInteger32 slotMask;
+
+            xdata::UnsignedInteger64 enableLocalL1AMask;
+          };
+          
         private:
           mutable gem::utils::Lock deviceLock_;
 	
@@ -93,12 +116,14 @@ namespace gem {
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
 
-          std::string m_AMCInputEnableList, m_SlotEnableList;
+          ConfigParams amc13Parmams;
+          std::string m_AMCInputEnableList, m_SlotEnableList, m_AMCIgnoreTTSList;
           bool m_fakeDataEnable, m_localTtcSignalEnable;
           bool m_monBufBackPressEnable, m_megaMonitorScale;
           bool m_internalPeriodicEnable;
           bool m_ignoreAmcTts;
           int m_internalPeriodicPeriod, m_preScaleFactNumOfZeros;
+          int m_bcOffset;
           uint32_t m_fedId, m_sfpMask, m_slotMask;
 	  
           //void readAMC13Registers(gem::hw::amc13::AMC13ControlParams& params);
@@ -123,10 +148,6 @@ namespace gem {
            * it need only be a uint12_t
            **/
           std::map<std::string, uint16_t> systemMap;
-	  
-          //xdata::UnsignedLong myParameter_;
-          xdata::String device_;
-          xdata::String settingsFile_;
 	  
         }; //end class AMC13Manager
 
