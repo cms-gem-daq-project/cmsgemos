@@ -8,6 +8,11 @@
 
 #include "xdata/Boolean.h"
 #include "xdata/Integer.h"
+#include "xdata/Integer32.h"
+#include "xdata/Integer64.h"
+#include "xdata/UnsignedInteger32.h"
+#include "xdata/UnsignedInteger64.h"
+#include "xdata/String.h"
 
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
