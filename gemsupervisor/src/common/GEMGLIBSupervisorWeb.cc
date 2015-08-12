@@ -201,6 +201,21 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
     head.addHeader("Refresh","30");
   }
 
+  if (is_configured_) {
+    //counting "1" Internal triggers, one link enough 
+    L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
+    L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
+    L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
+    L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
+    
+    CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
+    CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
+    CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
+    
+    ResyncCount_ = optohybridDevice_->GetResyncCount();
+    
+    BC0Count_ = optohybridDevice_->GetBC0Count();
+  }
   // If we are in "Running" state, check if GLIB has any data available
   if (is_running_) wl_->submit(run_signature_);
 
@@ -225,8 +240,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   *out << cgicc::fieldset();
 
   // Show current state, counter, output filename
-  *out << "Current state: "       << fsm_.getStateName(fsm_.getCurrentState())     << cgicc::br();
-  *out << "Event counter: "       << counter_[1]     << " Events counter"          << cgicc::br();
+  std::string theState = fsm_.getStateName(fsm_.getCurrentState());
+  *out << "Current state: "       << theState                          << cgicc::br();
+  *out << "Event counter: "       << counter_[1]  << " Events counter" << cgicc::br();
   *out << "L1A counter: "         << L1ACount_[0] << " (external) "
        << L1ACount_[1] << " (internal) "
        << L1ACount_[2] << " (delayed) "
@@ -249,71 +265,74 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 
   // Row with action buttons
   *out << cgicc::tr();
-
-  // Configure button
-  *out << cgicc::td();
-  std::string configureButton = toolbox::toString("/%s/Configure",getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","GET").set("action",configureButton) << std::endl ;
-  *out << cgicc::input().set("type","submit").set("value","Configure")    << std::endl ;
-  *out << cgicc::form();
-  *out << cgicc::td();
-
-  // Start button
-  *out << cgicc::td();
-  std::string startButton = toolbox::toString("/%s/Start",getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","GET").set("action",startButton) << std::endl ;
-  *out << cgicc::input().set("type","submit").set("value","Start")    << std::endl ;
-  *out << cgicc::form();
-  *out << cgicc::td();
-
-  // Stop button
-  *out << cgicc::td();
-  std::string stopButton = toolbox::toString("/%s/Stop",getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","GET").set("action",stopButton) << std::endl ;
-  *out << cgicc::input().set("type","submit").set("value","Stop")    << std::endl ;
-  *out << cgicc::form();
-  *out << cgicc::td();
-
-  // Halt button
-  *out << cgicc::td();
-  std::string haltButton = toolbox::toString("/%s/Halt",getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","GET").set("action",haltButton) << std::endl ;
-  *out << cgicc::input().set("type","submit").set("value","Halt")    << std::endl ;
-  *out << cgicc::form();
-  *out << cgicc::td();
-
-  // Send L1A signal
-  *out << cgicc::td();
-  std::string triggerButton = toolbox::toString("/%s/Trigger",getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","GET").set("action",triggerButton) << std::endl ;
-  *out << cgicc::input().set("type","submit").set("value","Send L1A")   << std::endl ;
-  *out << cgicc::form();
-  *out << cgicc::td();
-
-  // Send L1ACalPulse signal
-  *out << cgicc::td();
-  std::string calpulseButton = toolbox::toString("/%s/L1ACalPulse",getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","GET").set("action",calpulseButton)      << std::endl ;
-  *out << cgicc::input().set("type","submit").set("value","Send L1ACalPulse") << std::endl ;
-  *out << cgicc::form();
-  *out << cgicc::td();
-
-  // Send Resync signal
-  *out << cgicc::td();
-  std::string resyncButton = toolbox::toString("/%s/Resync",getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","GET").set("action",resyncButton)   << std::endl ;
-  *out << cgicc::input().set("type","submit").set("value","Send Resync") << std::endl ;
-  *out << cgicc::form();
-  *out << cgicc::td();
-
-  // Send BC0 signal
-  *out << cgicc::td();
-  std::string bc0Button = toolbox::toString("/%s/BC0",getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","GET").set("action",bc0Button)   << std::endl ;
-  *out << cgicc::input().set("type","submit").set("value","Send BC0") << std::endl ;
-  *out << cgicc::form();
-  *out << cgicc::td();
-
+  if (!is_working_) {
+    if (!is_configured_) {
+      // Configure button
+      *out << cgicc::td();
+      std::string configureButton = toolbox::toString("/%s/Configure",getApplicationDescriptor()->getURN().c_str());
+      *out << cgicc::form().set("method","GET").set("action",configureButton) << std::endl ;
+      *out << cgicc::input().set("type","submit").set("value","Configure")    << std::endl ;
+      *out << cgicc::form();
+      *out << cgicc::td();
+    } else {
+      if (!is_running_) {
+        // Start button
+        *out << cgicc::td();
+        std::string startButton = toolbox::toString("/%s/Start",getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::form().set("method","GET").set("action",startButton) << std::endl ;
+        *out << cgicc::input().set("type","submit").set("value","Start")    << std::endl ;
+        *out << cgicc::form();
+        *out << cgicc::td();
+      } else {
+        // Stop button
+        *out << cgicc::td();
+        std::string stopButton = toolbox::toString("/%s/Stop",getApplicationDescriptor()->getURN().c_str());
+        *out << cgicc::form().set("method","GET").set("action",stopButton) << std::endl ;
+        *out << cgicc::input().set("type","submit").set("value","Stop")    << std::endl ;
+        *out << cgicc::form();
+        *out << cgicc::td();
+      }
+      // Halt button
+      *out << cgicc::td();
+      std::string haltButton = toolbox::toString("/%s/Halt",getApplicationDescriptor()->getURN().c_str());
+      *out << cgicc::form().set("method","GET").set("action",haltButton) << std::endl ;
+      *out << cgicc::input().set("type","submit").set("value","Halt")    << std::endl ;
+      *out << cgicc::form();
+      *out << cgicc::td();
+    
+      // Send L1A signal
+      *out << cgicc::td();
+      std::string triggerButton = toolbox::toString("/%s/Trigger",getApplicationDescriptor()->getURN().c_str());
+      *out << cgicc::form().set("method","GET").set("action",triggerButton) << std::endl ;
+      *out << cgicc::input().set("type","submit").set("value","Send L1A")   << std::endl ;
+      *out << cgicc::form();
+      *out << cgicc::td();
+    
+      // Send L1ACalPulse signal
+      *out << cgicc::td();
+      std::string calpulseButton = toolbox::toString("/%s/L1ACalPulse",getApplicationDescriptor()->getURN().c_str());
+      *out << cgicc::form().set("method","GET").set("action",calpulseButton)      << std::endl ;
+      *out << cgicc::input().set("type","submit").set("value","Send L1ACalPulse") << std::endl ;
+      *out << cgicc::form();
+      *out << cgicc::td();
+    
+      // Send Resync signal
+      *out << cgicc::td();
+      std::string resyncButton = toolbox::toString("/%s/Resync",getApplicationDescriptor()->getURN().c_str());
+      *out << cgicc::form().set("method","GET").set("action",resyncButton)   << std::endl ;
+      *out << cgicc::input().set("type","submit").set("value","Send Resync") << std::endl ;
+      *out << cgicc::form();
+      *out << cgicc::td();
+    
+      // Send BC0 signal
+      *out << cgicc::td();
+      std::string bc0Button = toolbox::toString("/%s/BC0",getApplicationDescriptor()->getURN().c_str());
+      *out << cgicc::form().set("method","GET").set("action",bc0Button)   << std::endl ;
+      *out << cgicc::input().set("type","submit").set("value","Send BC0") << std::endl ;
+      *out << cgicc::form();
+      *out << cgicc::td();
+    }// end is_configured
+  }//end is_working
   // Finish row with action buttons
   *out << cgicc::tr();
 
@@ -694,9 +713,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   // scanStream.close();
   outf.close();
-
-  hw_semaphore_.give();
-
+  
   /** Super hacky, also doesn't work as the state is taken from the FSM rather
       than this parameter (as it should), J.S July 16*/
   if (glibDevice_->isHwConnected()) {
@@ -727,6 +744,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     is_working_     = false;    
     return;
   }
+  hw_semaphore_.give();
   //is_configured_  = true;
   is_working_     = false;    
   
@@ -751,21 +769,31 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   glibDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
   */
 
-  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) (*chip)->setRunMode(1);
+  INFO("Enabling run mode for selected VFATs");
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
+    (*chip)->setRunMode(1);
 
   //flush FIFO
-  for (int i = 0; i < 2; ++i)
+  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  for (int i = 0; i < 2; ++i) {
+    DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
     if (readout_mask >> i) {
+      DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
       glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i))
+      while (glibDevice_->hasTrackingData(i)) {
+        glibDevice_->flushFIFO(i);
         std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
+      }
       glibDevice_->flushFIFO(i);
     }
+  }
 
   //send resync
+  INFO("Sending a resync");
   optohybridDevice_->SendResync();
 
   //reset counters
+  INFO("Resetting counters");
   optohybridDevice_->ResetL1ACount(0x4);
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
@@ -789,6 +817,18 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
 void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt) {
   is_running_ = false;
+  //reset all counters?
+  vfat_ = 0;
+  event_ = 0;
+  sumVFAT_ = 0;
+  counter_ = {0,0,0};
+  //turn off all chips?
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    (*chip)->setRunMode(0);
+    //using smart_ptr
+    //delete (*chip);
+    //(*chip) = NULL;
+  }
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
@@ -813,6 +853,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
 
   delete gemDataParker;
   gemDataParker = NULL;
+
+  is_configured_ = false;
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::noAction(toolbox::Event::Reference evt) {
