@@ -69,6 +69,24 @@ namespace gem {
           } TriggerMode;
         };
 	
+        struct L1ACountMode { //L1A mode count settings
+          enum EL1ACountMode { //L1A mode count settings
+            EXTERNAL = 0x0, //Count the triggers coming from the LEMO connector
+            INTERNAL = 0x1, //Count the triggers coming from the GLIB
+            DELAYED  = 0x2, //Count the delayed triggers
+            TOTAL    = 0x3, //Count triggers from all sources
+          } L1ACountMode;
+        };
+	
+        struct CalPulseCountMode { //CalPulse mode settings
+          enum ECalPulseCountMode { //CalPulse mode settings
+            EXTERNAL = 0x0, //Take the triggers coming from the GLIB
+            INTERNAL = 0x1, //Use the triggers coming from the LEMO connector
+            DELAYED  = 0x2, //Use all sources of triggers
+            TOTAL    = 0x3, //Use all sources of triggers
+          } CalPulseCountMode;
+        };
+	
       }; //end class OptoHybridSettings
       
     }//end namespace gem::hw::optohybrid
