@@ -17,14 +17,14 @@
 	    <item xsi:type="xsd:string" soapenc:position="[5]">VFAT5</item>
 	    <item xsi:type="xsd:string" soapenc:position="[6]">VFAT6</item>
 	    <item xsi:type="xsd:string" soapenc:position="[7]">VFAT7</item>
-	    <!--item xsi:type="xsd:string" soapenc:position="[8]">VFAT8</item>
+	    <item xsi:type="xsd:string" soapenc:position="[8]">VFAT8</item>
 	    <item xsi:type="xsd:string" soapenc:position="[9]">VFAT9</item>
 	    <item xsi:type="xsd:string" soapenc:position="[10]">VFAT10</item>
 	    <item xsi:type="xsd:string" soapenc:position="[11]">VFAT11</item>
 	    <item xsi:type="xsd:string" soapenc:position="[12]">VFAT12</item>
 	    <item xsi:type="xsd:string" soapenc:position="[13]">VFAT13</item>
 	    <item xsi:type="xsd:string" soapenc:position="[14]">VFAT14</item>
-	    <item xsi:type="xsd:string" soapenc:position="[15]">VFAT15</item-->
+	    <item xsi:type="xsd:string" soapenc:position="[15]">VFAT15</item>
 	    <item xsi:type="xsd:string" soapenc:position="[16]">VFAT16</item>
 	    <item xsi:type="xsd:string" soapenc:position="[17]">VFAT17</item>
 	    <item xsi:type="xsd:string" soapenc:position="[18]">VFAT18</item>

@@ -1065,6 +1065,7 @@ void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * o
           *out << "<button type=\"button\" class=\"btn btn-" << butt_color <<  " dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">";
           *out << std::setfill ('0') << std::setw (3) << chann << "<span class=\"caret\"></button>" << std::endl;
           *out << "<ul class=\"dropdown-menu\">" << std::endl;
+          *out << "<li><a href=\"#\">" << "CalPulse: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].calPulse << "</a></li>" << std::endl;
           *out << "<li><a href=\"#\">" << "Mask: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].mask << "</a></li>" << std::endl;
           *out << "<li><a href=\"#\">" << "Trim DAC: " << (int)vfatDevice_->getVFAT2Params().channels[chann-1].trimDAC << "</a></li>" << std::endl;
           *out << "</ul>" <<std::endl;
