@@ -425,8 +425,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 
   INFO("webTrigger: sending L1A");
   optohybridDevice_->SendL1A(1);
-
-  //counting "1" Internal triggers, one link enough 
+  sleep(0.01);
+  //need some sleep here?
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
   L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
@@ -442,8 +442,13 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi:
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO("webCalPulse: sending 1 CalPulse with 25 clock delayed L1A");
-  optohybridDevice_->SendL1ACal(1, 25);
+  //INFO("webCalPulse: sending 1 CalPulse with 25 clock delayed L1A");
+  for (int offset = -8; offset < 9; ++offset) {
+    INFO("webCalPulse: sending 10 CalPulses with L1As delayed by " << (int)latency_ + offset <<  " clocks");
+    optohybridDevice_->SendL1ACal(10, latency_ + offset);
+    sleep(0.01);
+  }
+  //need some sleep here?
   CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
   CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
   CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
@@ -689,7 +694,18 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     (*chip)->setVThreshold2(0);
     confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
     confParams_.bag.latency = (*chip)->getLatency();
-    
+    (*chip)->setVCal(150);
+
+    // 0x00001ce1cebaabee backwards is 0x77d55d7387380000
+    // 0xdeadbeeff00dcafe backwards is 0x7f53b00ff77db57b
+    uint64_t lowermask = 0x00001ce1cebaabee;//0x77d55d7387380000
+    uint64_t uppermask = 0xdeadbeeff00dcafe;//0x7f53b00ff77db57b
+    for (int i = 0; i < 128; ++i) {
+      if (i < 64)
+        (*chip)->enableCalPulseToChannel(i+1,(lowermask>>i)&0x1);
+      else
+        (*chip)->enableCalPulseToChannel(i+1,(uppermask>>(i-64))&0x1);
+    }
   }
 
   // Create a new output file
@@ -773,7 +789,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(1);
 
-  //flush FIFO
+  //flush FIFO, how to disable a specific, misbehaving, chip
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
   for (int i = 0; i < 2; ++i) {
     DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
