@@ -19,6 +19,7 @@ GEMHARDWARE_VER_PATCH=0
 
 ##make a device specific buildfile as well, defaulting to all
 ###version.cc
+Sources =version.cc
 Sources+=GEMHwDevice.cc
 Sources+=vfat/HwVFAT2.cc vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc 
 Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc 
