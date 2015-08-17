@@ -247,12 +247,12 @@ namespace gem {
       uint16_t ChipID = (0x0fff & vfat.ChipID);
       show4bits(b1110); std::cout << " ChipID 0x" << std::hex << ChipID << std::dec << " " << std::endl;
 
-      /* std::cout << "     bxExp  0x" << std::hex << vfat.bxExp << std::dec << " " << std::endl;
-         std::cout << "     bxNum  0x" << std::hex << ((0xff00 & vfat.bxNum) >> 8) << "        SBit " << (0x00ff & vfat.bxNum) << std::endl;
+      /* 
+      std::cout << "     bxNum  0x" << std::hex << ((0xff00 & vfat.bxNum) >> 8) << "        SBit " << (0x00ff & vfat.bxNum) << std::endl;
       */
-      std::cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.msData << std::dec << std::endl;
-      std::cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.lsData << std::dec << std::endl;
-      std::cout << "      BX    0x" << std::hex << vfat.BXfrOH << std::dec << std::endl;
+
+      std::cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(16) << std::hex << vfat.msData << std::dec << std::endl;
+      std::cout << " <63:0>  :: 0x" << std::setfill('0') << std::setw(16) << std::hex << vfat.lsData << std::dec << std::endl;
       std::cout << "     crc    0x" << std::hex << vfat.crc << std::dec << std::endl;
 
       //std::cout << " " << std::endl; show16bits(vfat.EC);
