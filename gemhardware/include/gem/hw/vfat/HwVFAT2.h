@@ -56,13 +56,21 @@ namespace gem {
 
           ~HwVFAT2();
 	  
-          //where can we load default parameters?
+          /** Load some default values into the VFAT registers
+           * 
+           **/
           void loadDefaults();
           //void connectDevice();
           //void releaseDevice();
           //void initDevice();
           //void enableDevice();
+          /** Load some default values into the VFAT registers
+           * 
+           **/
           void configureDevice();
+          /** Load some default values into the VFAT registers
+           * 
+           **/
           void configureDevice(std::string const& xmlSettings);
           //virtual void configureDevice(std::string const& dbConnectionString);
           //void disableDevice();
@@ -187,10 +195,21 @@ namespace gem {
           //void reset();
 	  
           //get read only registers
+          /** getChipID()
+           * @returns the 16 bit chipID for the chip
+           **/
           uint16_t getChipID() {
             return ((readVFATReg("ChipID1"))<<8)|(readVFATReg("ChipID0")); };
+
+          /** getHitCount()
+           * @returns the hit counter value (from the three hit count registers)
+           **/
           uint32_t getHitCount() {
             return (((readVFATReg("HitCount2"))<<16)|((readVFATReg("HitCount1")))<<8)|(readVFATReg("HitCount0")); };
+
+          /** getUpsetCount()
+           * @returns value in the upset counter on the VFAT
+           **/
           uint8_t  getUpsetCount() { return readVFATReg("UpsetReg");    };
 	  
           //Set control register settings
@@ -459,6 +478,10 @@ namespace gem {
           //void getAllSettings(gem::hw::vfat::VFAT2ControlParams &params);
           //void getAllSettings() {
           //  return getAllSettings(vfatParams_); };
+
+          /** Get all the chip settings
+           * should be private
+           **/
           void getAllSettings();
 	  
           //Get control register settings
@@ -537,6 +560,9 @@ namespace gem {
             return (regVal&(VFAT2ContRegBitMasks::DFTESTMODE))>>VFAT2ContRegBitShifts::DFTESTMODE; };
 	  
           //////////////////////////////
+          /** Get <chip setting> 
+           * @returns uint8_t value of the register
+           **/
           uint8_t getLatency()     { return readVFATReg("Latency");     };
 
           uint8_t getIPreampIn()   { return readVFATReg("IPreampIn");   };
@@ -568,11 +594,27 @@ namespace gem {
           //////////////////////////////
 
           //channel specific settings
-          //void    readVFAT2Channel(gem::hw::vfat::VFAT2ControlParams &params, uint8_t channel);
+          /** Read channel settings
+           * @param uint8_t which channel to read
+           **/
           void    readVFAT2Channel(uint8_t channel);
-          //void    readVFAT2Channels(gem::hw::vfat::VFAT2ControlParams &params);
+          //void    readVFAT2Channel(gem::hw::vfat::VFAT2ControlParams &params, uint8_t channel);
+
+          /** Read all VFAT channels
+           **/
           void    readVFAT2Channels();
+          //void    readVFAT2Channels(gem::hw::vfat::VFAT2ControlParams &params);
+
+          /** Enable a cal pulse to specified channel
+           * @param uint8_t which channel to modify
+           * @param bool enable or not
+           **/
           void    enableCalPulseToChannel(uint8_t channel, bool on=true);
+
+          /** Mask a specific channel from the trigger
+           * @param uint8_t which channel to modify
+           * @param bool mask or not
+           **/
           void    maskChannel(uint8_t channel, bool on=true);
           uint8_t getChannelSettings(uint8_t channel) {
             return readVFATReg(toolbox::toString("VFATChannels.ChanReg%d",(unsigned)channel));};
