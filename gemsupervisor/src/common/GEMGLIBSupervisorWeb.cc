@@ -538,6 +538,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   boost::format linkForm("LINK%d");
   uint32_t fifoDepth[3];
 
+  //lots of repetition here
   if (readout_mask&0x1)
     fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
   if (readout_mask&0x2)
@@ -793,7 +794,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
   for (int i = 0; i < 2; ++i) {
     DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-    if (readout_mask >> i) {
+    if ((readout_mask >> i)&0x1) {
       DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
       glibDevice_->flushFIFO(i);
       while (glibDevice_->hasTrackingData(i)) {

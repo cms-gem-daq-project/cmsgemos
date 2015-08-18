@@ -279,7 +279,7 @@ namespace gem {
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.CalPulse",0x1);
           };
 
-          /** Send an internal L1A and CalPulse
+          /** Send a CalPulse followed by an L1A
            * @param uint64_t npulse, how many pairs to send
            * @param uint32_t delay, how long between L1A and CalPulse
            **/
