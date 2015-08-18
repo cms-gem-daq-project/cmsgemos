@@ -43,6 +43,48 @@ namespace gem {
      *
      */
 
+    bool writeGEMhd1(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf << std::hex << gem.header1 << std::dec << std::endl;
+      outf.close();
+      return(true);
+    };	  
+
+    bool readGEMhd1(std::ifstream& inpf, GEMData& gem) {
+      inpf >> std::hex >> gem.header1;
+      return(true);
+    };	  
+
+    bool writeGEMhd2(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf << std::hex << gem.header2 << std::dec << std::endl;
+      outf.close();
+      return(true);
+    };	  
+
+    bool readGEMhd2(std::ifstream& inpf, GEMData& gem) {
+      inpf >> std::hex >> gem.header2;
+      return(true);
+    };	  
+
+    bool writeGEMhd3(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf << std::hex << gem.header3 << std::dec << std::endl;
+      outf.close();
+      return(true);
+    };	  
+
+    bool readGEMhd3(std::ifstream& inpf, GEMData& gem) {
+      inpf >> std::hex >> gem.header3;
+      return(true);
+    };	  
+
     bool writeGEBheader(std::string file, int event, const GEBData& geb) {
       std::ofstream outf(file.c_str(), std::ios_base::app );
       if ( event<0) return(false);
@@ -94,6 +136,34 @@ namespace gem {
       uint64_t ChamStatus = (0x00000000ffff0000 & geb.trailer) >> 16;
       std::cout << "GEM Camber Treiler: OHcrc " << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec 
                 << std::endl;
+      return(true);
+    };	  
+
+    bool writeGEMtr2(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf << std::hex << gem.trailer2 << std::dec << std::endl;
+      outf.close();
+      return(true);
+    };	  
+
+    bool readGEBtr2(std::ifstream& inpf, GEMData& gem) {
+      inpf >> std::hex >> gem.trailer2;
+      return(true);
+    };	  
+
+    bool writeGEMtr1(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf << std::hex << gem.trailer1 << std::dec << std::endl;
+      outf.close();
+      return(true);
+    };	  
+
+    bool readGEBtr1(std::ifstream& inpf, GEMData& gem) {
+      inpf >> std::hex >> gem.trailer1;
       return(true);
     };	  
 
