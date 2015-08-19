@@ -288,12 +288,17 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
   geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
 
   //show24bits(ZSFlag); 
-  DEBUG(" ChipID 0x" << std::hex << (0x0fff & vfat.ChipID) << std::dec << " IndexVFATChipOnGEB " << IndexVFATChipOnGEB);
+  INFO(" ChipID 0x" << std::hex << (0x0fff & vfat.ChipID) << std::dec << " IndexVFATChipOnGEB " << IndexVFATChipOnGEB);
 
   ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
   ChamID =  (0x000000fff0000000 & geb.header) >> 28; 
 
   DEBUG(" ZSFlag " << std::hex << ZSFlag << " ChamID " << ChamID << std::dec << " sumVFAT " << sumVFAT);
+
+  // RunType:4, all other depends from RunType
+  uint64_t RunType = BOOST_BINARY( 1 ); // :4
+
+  geb.runhed  = (RunType << 60);
 
   // Chamber Trailer, OptoHybrid: crc, wordcount, Chamber status
   uint64_t OHcrc       = BOOST_BINARY( 1 ); // :16
@@ -320,7 +325,7 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
   */
 
  /*
-  *  GEM Chamber's Data level
+  *  GEM Chamber's Data
   */
 
   if (outputType_ == "Hex") {
@@ -328,17 +333,18 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
     writeGEMhd2 (outFileName_, event_, gem);
     writeGEMhd3 (outFileName_, event_, gem);
   } else {
-    //writeGEMhd1Binary (outFileName_, event_, geb);
-    //writeGEMhd2Binary (outFileName_, event_, geb);
-    //writeGEMhd3Binary (outFileName_, event_, geb);
+    //writeGEMhd1Binary (outFileName_, event_, gem);
+    //writeGEMhd2Binary (outFileName_, event_, gem);
+    //writeGEMhd3Binary (outFileName_, event_, gem);
   } 
 
  /*
-  *  GEB Headers Data level
+  *  GEB Headers Data
   */
 
   if (outputType_ == "Hex") {
     writeGEBheader (outFileName_, event_, geb);
+    writeGEBrunhed (outFileName_, event_, geb);
   } else {
     writeGEBheaderBinary (outFileName_, event_, geb);
   } // printGEBheader (event_, geb);
@@ -366,7 +372,7 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
   }//end of GEB PayLoad Data
 
  /*
-  *  GEB Trailers Data level
+  *  GEB Trailers Data
   */
 
   if (outputType_ == "Hex") {
@@ -376,14 +382,15 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
   } 
 
  /*
-  *  GEM Trailers Data level
+  *  GEM Trailers Data
   */
 
   if (outputType_ == "Hex") {
     writeGEMtr2 (outFileName_, event_, gem);
     writeGEMtr1 (outFileName_, event_, gem);
   } else {
-    // writeGEBtrailerBinary (outFileName_, event_, geb);
+    //writeGEMtr2Binary (outFileName_, event_, gem);
+    //writeGEMtr1Binary (outFileName_, event_, gem);
   } 
 
   /* } // end of GEB */
