@@ -42,23 +42,23 @@ int *gem::readout::GEMDataParker::dumpDataToDisk(uint8_t const& link)
   gem::readout::GEMData  gem;
   gem::readout::GEBData  geb;
   gem::readout::VFATData vfat;
-  
-  // get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
-  dumpGEMevent_ = false;
+  int *point = &counter_[0]; 
+
+  /*
+   * get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
+   */
 
   vfat_ = gem::readout::GEMDataParker::getGLIBData(link, gem, geb, vfat);
-  
-  // Write GEM Data to Disk, when GEM event is off
-  if ( dumpGEMevent_ ) {
-    event_++;
-    gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
-  }
-
   counter_[0] = vfat_;
-  counter_[1] = event_;
-  counter_[2] = (0x000000000fffffff & geb.header);
+  counter_[2] = (0x000000000fffffff & geb.header); // sumVFAT_ per event
 
-  int *point = &counter_[0]; 
+  /*
+   * Write GEM Data to Disk
+   */
+
+  event_++;
+  gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
+  counter_[1] = event_;
 
   return point;
 }
@@ -126,16 +126,17 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link,
     }
 
     BXfrOH = data.at(6);
+    vfat_++;
 
     if (isFirst) {
       BXOHexp = BXfrOH;
       if (counterVFATs_ != 0) {
-        dumpGEMevent_ = true;
         ZSFlag = 0;
         DEBUG("\ngetGLIBData:: vfat_ " << vfat_ << " event_ " << event_ << " counterVFATs " << counterVFATs_ );
       }
       counterVFATs_ = 0;
     }
+    counterVFATs_++;
 
     if (BXfrOH == BXOHexp) {
       isFirst = false;
@@ -157,9 +158,6 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link,
     lsData = (data3 << 32) | (data4);
     msData = (data1 << 32) | (data2);
 
-    vfat_++;
-    counterVFATs_++;
-
     vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
     vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4
     vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
@@ -174,13 +172,15 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link,
      * dump VFAT data
      gem::readout::printVFATdataBits(vfat_, vfat);
     */
-    
-    // GEM data filling
+
+    /*    
+     * GEM data filling
+     */
     gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
 
   }//closes check on DATA_RDY
   //}//closes while loop
-  
+
   return vfat_;
 }
 
@@ -367,7 +367,8 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
       gem::readout::writeVFATdata (outFileName_, nChip, vfat); 
     } else {
       gem::readout::writeVFATdataBinary (outFileName_, nChip, vfat);
-    };  gem::readout::printVFATdataBits(nChip, vfat);
+    };
+    gem::readout::printVFATdataBits(nChip, vfat);
 
   }//end of GEB PayLoad Data
 
