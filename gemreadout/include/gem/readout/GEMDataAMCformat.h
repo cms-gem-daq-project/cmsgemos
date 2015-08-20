@@ -321,11 +321,11 @@ namespace gem {
 
     bool printVFATdataBits(int event, const VFATData& vfat) {
       if ( event<0) return(false);
-      std::cout << "\nReceived VFAT data word: event " << event << std::endl;
+      std::cout << "\nReceived VFAT data : " << event << std::endl;
 
       uint8_t   b1010 = (0xf000 & vfat.BC) >> 12;
       show4bits(b1010); std::cout << " BC     0x" << std::hex << (0x0fff & vfat.BC) 
-                                  << std::setfill('0') << std::setw(4) << "      BX 0x" << vfat.BXfrOH << std::dec << std::endl;
+                                  << std::setfill('0') << std::setw(4) << "    BX 0x" << vfat.BXfrOH << std::dec << std::endl;
 
       uint8_t   b1100 = (0xf000 & vfat.EC) >> 12;
       uint16_t   EC   = (0x0ff0 & vfat.EC) >> 4;
