@@ -240,7 +240,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   *out << "Resync counter: "      << ResyncCount_    << cgicc::br();
   *out << "BC0 counter: "         << BC0Count_       << cgicc::br();
   *out << "VFAT blocks counter: " << counter_[0]     << " dumped to disk"          << cgicc::br();
-  *out << "VFATs counter: "       << counter_[2]     << " VFATs chips, last event" << cgicc::br();
+  *out << "VFATs counter, last event: " << counter_[2]     << " VFATs chips" << cgicc::br();
   *out << "Output filename: "     << confParams_.bag.outFileName.toString()        << cgicc::br();
   *out << "Output type: "         << confParams_.bag.outputType.toString()         << cgicc::br();
 
@@ -577,15 +577,15 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   //if 8-15 in deviceNum
   if (readout_mask&0x2) {
     DEBUG("reading out link 1");
-    //std::shared_ptr<int> pLk1(gemDataParker->dumpDataToDisk(0x1));
+    //std::shared_ptr<int> pLk1 = pLk1(gemDataParker->dumpDataToDisk(0x1));
     int* pLk1 = gemDataParker->dumpDataToDisk(0x1);
     if (pLk1) {
       vfat_    = *pLk1;
       event_   = *(pLk1+1);
       sumVFAT_ = *(pLk1+2);
-      counter_[0] += vfat_;
-      counter_[1] += event_;
-      counter_[2] += sumVFAT_;
+      counter_[0] = vfat_;
+      counter_[1] = event_;
+      counter_[2] = sumVFAT_;
       //delete pLk1;
     }
     //pLk1 = 0;
@@ -599,9 +599,9 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
       vfat_    = *pLk2;
       event_   = *(pLk2+1);
       sumVFAT_ = *(pLk2+2);
-      counter_[0] += vfat_;
-      counter_[1] += event_;
-      counter_[2] += sumVFAT_;
+      counter_[0] = vfat_;
+      counter_[1] = event_;
+      counter_[2] = sumVFAT_;
       //delete pLk2;
     }
     //pLk2 = 0;
@@ -629,7 +629,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   optohybridDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
   optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   optohybridDevice_->connectDevice();
-
 
   /**Definitely need to rework this J.S July 16*/
   //change to vector loop J.S. July 16
