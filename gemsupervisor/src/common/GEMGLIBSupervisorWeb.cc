@@ -152,9 +152,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
 
     auto num = confParams_.bag.deviceNum.begin();
     for (auto chip = confParams_.bag.deviceName.begin();
-         chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
-      ss << "Device name: " << chip->toString() << std::endl;
-    }
+      chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
+        ss << "Device name: " << chip->toString() << std::endl;
+      }
     INFO(ss.str());
   }
 }
@@ -239,7 +239,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
        << cgicc::br();
   *out << "Resync counter: "      << ResyncCount_    << cgicc::br();
   *out << "BC0 counter: "         << BC0Count_       << cgicc::br();
-  *out << "VFAT blocks counter: " << (counter_[0]-1) << " dumped to disk"          << cgicc::br();
+  *out << "VFAT blocks counter: " << counter_[0]     << " dumped to disk"          << cgicc::br();
   *out << "VFATs counter: "       << counter_[2]     << " VFATs chips, last event" << cgicc::br();
   *out << "Output filename: "     << confParams_.bag.outFileName.toString()        << cgicc::br();
   *out << "Output type: "         << confParams_.bag.outputType.toString()         << cgicc::br();
