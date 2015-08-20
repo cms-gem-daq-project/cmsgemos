@@ -45,6 +45,7 @@ int *gem::readout::GEMDataParker::dumpDataToDisk(uint8_t const& link)
   
   // get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
   dumpGEMevent_ = false;
+
   vfat_ = gem::readout::GEMDataParker::getGLIBData(link, gem, geb, vfat);
   
   // Write GEM Data to Disk, when GEM event is off
@@ -103,13 +104,7 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link,
     std::vector<uint32_t> data;
 
     if (glibDevice_->hasTrackingData(link)) {
-
       data = glibDevice_->getTrackingData(link);
-      //for (int word = 0; word < 7; ++word) {
-      //	std::stringstream ss9;
-      //	ss9 << "DATA." << word;
-      //	data.push_back(glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),ss9.str()));
-      //}
     }
 
     // read trigger data
@@ -136,8 +131,8 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link,
       BXOHexp = BXfrOH;
       if (counterVFATs_ != 0) {
         dumpGEMevent_ = true;
-        DEBUG(" getGLIBData:: End Event: vfat_ " << vfat_ << " counterVFATs " << counterVFATs_);
         ZSFlag = 0;
+        DEBUG("\ngetGLIBData:: vfat_ " << vfat_ << " event_ " << event_ << " counterVFATs " << counterVFATs_ );
       }
       counterVFATs_ = 0;
     }
@@ -147,9 +142,6 @@ int gem::readout::GEMDataParker::getGLIBData(uint8_t const& link,
     } else { 
       isFirst = true;
     }
-
-    // BXOHexp:28
-    // BXfrOH  = (BXfrOH << 8 ) | (SBit); // BXfrOH:8  | SBit:8
 
     bcn    = (0x0fff0000 & data.at(5)) >> 16;
     evn    = (0x00000ff0 & data.at(5)) >> 4;
@@ -277,19 +269,12 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
    */
   int IndexVFATChipOnGEB = -99;
   // VFAT position definition on the board, very temporary
-  if ((0x0fff & vfat.ChipID)        == 0x838 ) {
-    IndexVFATChipOnGEB = 0;
-  } else if ((0x0fff & vfat.ChipID) == 0xe7b ) { 
-    IndexVFATChipOnGEB = 4;
-  } else if ((0x0fff & vfat.ChipID) == 0xe21 ) { 
-    IndexVFATChipOnGEB = 8;
+  if ((0x0fff & vfat.ChipID)        == 0xa64 ) {
+    IndexVFATChipOnGEB =  0;
   } else if ((0x0fff & vfat.ChipID) == 0xe74 ) { 
-    IndexVFATChipOnGEB = 12;
-  } else if ((0x0fff & vfat.ChipID) == 0x840 ) { 
-    IndexVFATChipOnGEB = 16;
-  } else if ((0x0fff & vfat.ChipID) == 0xa64 ) { 
-    IndexVFATChipOnGEB = 20;
-  } else { 
+    IndexVFATChipOnGEB =  1; // ... we need VFAT chips DB per GEB
+  } else if ((0x0fff & vfat.ChipID) == 0xe7f ) { 
+    IndexVFATChipOnGEB = 23;
   };
 
   geb.vfats.push_back(vfat);
@@ -303,12 +288,17 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
   geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
 
   //show24bits(ZSFlag); 
-  DEBUG(" ChipID 0x" << std::hex << (0x0fff & vfat.ChipID) << std::dec << " IndexVFATChipOnGEB " << IndexVFATChipOnGEB);
+  INFO(" ChipID 0x" << std::hex << (0x0fff & vfat.ChipID) << std::dec << " IndexVFATChipOnGEB " << IndexVFATChipOnGEB);
 
   ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
   ChamID =  (0x000000fff0000000 & geb.header) >> 28; 
 
   DEBUG(" ZSFlag " << std::hex << ZSFlag << " ChamID " << ChamID << std::dec << " sumVFAT " << sumVFAT);
+
+  // RunType:4, all other depends from RunType
+  uint64_t RunType = BOOST_BINARY( 1 ); // :4
+
+  geb.runhed  = (RunType << 60);
 
   // Chamber Trailer, OptoHybrid: crc, wordcount, Chamber status
   uint64_t OHcrc       = BOOST_BINARY( 1 ); // :16
@@ -328,22 +318,41 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
 {
   INFO("\nwriteGEMevent:: counter " << vfat_ << " event " << event_ << " sumVFAT " << (0x000000000fffffff & geb.header));
 
-  // GEM Chamber's data level
   /*
     int nGEB=0;
     for (vector<GEBData>::iterator iGEB=gem.gebs.begin(); iGEB != gem.gebs.end(); ++iGEB) {
-    nGEB++;
-    uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; show24bits(ZSFlag);
+    nGEB++; uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; show24bits(ZSFlag);
   */
 
-  // GEB data level
+ /*
+  *  GEM Chamber's Data
+  */
+
+  if (outputType_ == "Hex") {
+    writeGEMhd1 (outFileName_, event_, gem);
+    writeGEMhd2 (outFileName_, event_, gem);
+    writeGEMhd3 (outFileName_, event_, gem);
+  } else {
+    //writeGEMhd1Binary (outFileName_, event_, gem);
+    //writeGEMhd2Binary (outFileName_, event_, gem);
+    //writeGEMhd3Binary (outFileName_, event_, gem);
+  } 
+
+ /*
+  *  GEB Headers Data
+  */
+
   if (outputType_ == "Hex") {
     writeGEBheader (outFileName_, event_, geb);
+    writeGEBrunhed (outFileName_, event_, geb);
   } else {
     writeGEBheaderBinary (outFileName_, event_, geb);
-  } 
-  // printGEBheader (event_, geb);
+  } // printGEBheader (event_, geb);
     
+ /*
+  *  GEB PayLoad Data
+  */
+
   int nChip=0;
   for (std::vector<VFATData>::iterator iVFAT=geb.vfats.begin(); iVFAT != geb.vfats.end(); ++iVFAT) {
     nChip++;
@@ -358,14 +367,30 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
       gem::readout::writeVFATdata (outFileName_, nChip, vfat); 
     } else {
       gem::readout::writeVFATdataBinary (outFileName_, nChip, vfat);
-    } 
-    gem::readout::printVFATdataBits(nChip, vfat);
-  } //end of VFAT
+    };  gem::readout::printVFATdataBits(nChip, vfat);
+
+  }//end of GEB PayLoad Data
+
+ /*
+  *  GEB Trailers Data
+  */
 
   if (outputType_ == "Hex") {
     writeGEBtrailer (outFileName_, event_, geb);
   } else {
     writeGEBtrailerBinary (outFileName_, event_, geb);
+  } 
+
+ /*
+  *  GEM Trailers Data
+  */
+
+  if (outputType_ == "Hex") {
+    writeGEMtr2 (outFileName_, event_, gem);
+    writeGEMtr1 (outFileName_, event_, gem);
+  } else {
+    //writeGEMtr2Binary (outFileName_, event_, gem);
+    //writeGEMtr1Binary (outFileName_, event_, gem);
   } 
 
   /* } // end of GEB */
