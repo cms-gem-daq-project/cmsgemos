@@ -20,6 +20,16 @@ int counterVFATs_ = 0;
 uint64_t ZSFlag = 0;
 bool dumpGEMevent_ = false;
 
+/*
+ *  ChipID GEB data, 21-Aug-2015
+ */
+
+uint16_t slot[24] = 
+       { 0xa64, 0xe74, 0xac0, 0xe98, 0xe7b, 0xa9c, 0xe63, 0xe6b,
+         0xe80, 0xeaf, 0xea3, 0xb44, 0xe5b, 0xb40, 0xeb4, 0xe5f,
+         0xe97, 0xe9f, 0xea7, 0xa84, 0xa78, 0xe78, 0xeab, 0xe7f
+       };
+
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName,
@@ -265,18 +275,19 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
    */
 
   /*
-   * GEB, One Chamber Data
+   * GEB, One Chamber Data, VFAT position definition on the board, before will possible to get from OH the same info 
    */
-  int IndexVFATChipOnGEB = -99;
-  // VFAT position definition on the board, very temporary
-  if ((0x0fff & vfat.ChipID)        == 0xa64 ) {
-    IndexVFATChipOnGEB =  0;
-  } else if ((0x0fff & vfat.ChipID) == 0xe74 ) { 
-    IndexVFATChipOnGEB =  1; // ... we need VFAT chips DB per GEB
-  } else if ((0x0fff & vfat.ChipID) == 0xe7f ) { 
-    IndexVFATChipOnGEB = 23;
-  };
+  int IndexVFATChipOnGEB = -1;
+  for (int ichip = 0; ichip < 24; ichip++){
+    if ( IndexVFATChipOnGEB == -1 ){
+      if ( (0x0fff & vfat.ChipID) == slot[ichip] ) IndexVFATChipOnGEB = ichip;
+      //INFO(" ChipID has dublication on GEB board !!! slot " << ichip);
+    }
+  }//end for
 
+  /*
+   * VFATs Pay Load
+   */
   geb.vfats.push_back(vfat);
   DEBUG(" geb.vfats.size " << int(geb.vfats.size()));
     
@@ -288,7 +299,7 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
   geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
 
   //show24bits(ZSFlag); 
-  INFO(" ChipID 0x" << std::hex << (0x0fff & vfat.ChipID) << std::dec << " IndexVFATChipOnGEB " << IndexVFATChipOnGEB);
+  DEBUG(" ChipID 0x" << std::hex << (0x0fff & vfat.ChipID) << std::dec << " IndexVFATChipOnGEB " << IndexVFATChipOnGEB);
 
   ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
   ChamID =  (0x000000fff0000000 & geb.header) >> 28; 
