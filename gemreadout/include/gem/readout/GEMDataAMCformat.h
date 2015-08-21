@@ -10,6 +10,16 @@
 namespace gem {
   namespace readout {
 
+   /*
+    *  ChipID GEB data, 21-Aug-2015, TAMU should update slot contens
+    */
+
+    uint16_t slot[24] = 
+       { 0xa64, 0xe74, 0xac0, 0xe98, 0xe7b, 0xa9c, 0xe63, 0xe6b,
+         0xe80, 0xeaf, 0xea3, 0xb44, 0xe5b, 0xb40, 0xeb4, 0xe5f,
+         0xe97, 0xe9f, 0xea7, 0xa84, 0xa78, 0xe78, 0xeab, 0xe7f
+       };
+
     struct VFATData {
       uint16_t BC;          // 1010:4,   BC:12 
       uint16_t EC;          // 1100:4,   EC:8,      Flags:4
