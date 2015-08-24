@@ -338,9 +338,9 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
     writeGEMhd2 (outFileName_, event_, gem);
     writeGEMhd3 (outFileName_, event_, gem);
   } else {
-    //writeGEMhd1Binary (outFileName_, event_, gem);
-    //writeGEMhd2Binary (outFileName_, event_, gem);
-    //writeGEMhd3Binary (outFileName_, event_, gem);
+    writeGEMhd1Binary (outFileName_, event_, gem);
+    writeGEMhd2Binary (outFileName_, event_, gem);
+    writeGEMhd3Binary (outFileName_, event_, gem);
   } 
 
  /*
@@ -352,6 +352,7 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
     writeGEBrunhed (outFileName_, event_, geb);
   } else {
     writeGEBheaderBinary (outFileName_, event_, geb);
+    writeGEBrunhedBinary (outFileName_, event_, geb);
   } // printGEBheader (event_, geb);
     
  /*
@@ -395,8 +396,8 @@ void gem::readout::GEMDataParker::writeGEMevent(gem::readout::GEMData& gem, gem:
     writeGEMtr2 (outFileName_, event_, gem);
     writeGEMtr1 (outFileName_, event_, gem);
   } else {
-    //writeGEMtr2Binary (outFileName_, event_, gem);
-    //writeGEMtr1Binary (outFileName_, event_, gem);
+    writeGEMtr2Binary (outFileName_, event_, gem);
+    writeGEMtr1Binary (outFileName_, event_, gem);
   } 
 
   /* } // end of GEB */
