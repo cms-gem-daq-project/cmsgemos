@@ -10,6 +10,16 @@
 namespace gem {
   namespace readout {
 
+   /*
+    *  ChipID GEB data, 21-Aug-2015, TAMU should update slot contens
+    */
+
+    uint16_t slot[24] = 
+       { 0xa64, 0xe74, 0xac0, 0xe98, 0xe7b, 0xa9c, 0xe63, 0xe6b,
+         0xe80, 0xeaf, 0xea3, 0xb44, 0xe5b, 0xb40, 0xeb4, 0xe5f,
+         0xe97, 0xe9f, 0xea7, 0xa84, 0xa78, 0xe78, 0xeab, 0xe7f
+       };
+
     struct VFATData {
       uint16_t BC;          // 1010:4,   BC:12 
       uint16_t EC;          // 1100:4,   EC:8,      Flags:4
@@ -52,6 +62,22 @@ namespace gem {
       return(true);
     };	  
 
+    bool writeGEMhd1Binary(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf.write( (char*)&gem.header1, sizeof(gem.header1));
+      outf.close();
+      return(true);
+    };
+
+    bool readGEMhd1Binary(std::ifstream& inpf, const GEMData& gem) {
+      inpf.read( (char*)&gem.header1, sizeof(gem.header1));
+      inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };	  
+
     bool readGEMhd1(std::ifstream& inpf, GEMData& gem) {
       inpf >> std::hex >> gem.header1;
       if(inpf.eof()) return(false);
@@ -67,6 +93,22 @@ namespace gem {
       return(true);
     };	  
 
+    bool writeGEMhd2Binary(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf.write( (char*)&gem.header2, sizeof(gem.header2));
+      outf.close();
+      return(true);
+    };
+
+    bool readGEMhd2Binary(std::ifstream& inpf, const GEMData& gem) {
+      inpf.read( (char*)&gem.header2, sizeof(gem.header2));
+      inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };
+
     bool readGEMhd2(std::ifstream& inpf, GEMData& gem) {
       inpf >> std::hex >> gem.header2;
       if(inpf.eof()) return(false);
@@ -81,6 +123,22 @@ namespace gem {
       outf.close();
       return(true);
     };	  
+
+    bool writeGEMhd3Binary(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf.write( (char*)&gem.header3, sizeof(gem.header3));
+      outf.close();
+      return(true);
+    };
+
+    bool readGEMhd3Binary(std::ifstream& inpf, const GEMData& gem) {
+      inpf.read( (char*)&gem.header3, sizeof(gem.header3));
+      inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };
 
     bool readGEMhd3(std::ifstream& inpf, GEMData& gem) {
       inpf >> std::hex >> gem.header3;
@@ -100,6 +158,22 @@ namespace gem {
       outf.close();
       return(true);
     };	  
+
+    bool writeGEBheaderBinary(std::string file, int event, const GEBData& geb) {
+      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf.write( (char*)&geb.header, sizeof(geb.header));
+      outf.close();
+      return(true);
+    };
+	  
+    bool readGEBheaderBinary(std::ifstream& inpf, const GEBData& geb) {
+      inpf.read( (char*)&geb.header, sizeof(geb.header));
+      inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };
 
     bool readGEBheader(std::ifstream& inpf, GEBData& geb) {
       inpf >> std::hex >> geb.header;
@@ -124,6 +198,22 @@ namespace gem {
       return(true);
     };	  
 
+    bool writeGEBrunhedBinary(std::string file, int event, const GEBData& geb) {
+      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf.write( (char*)&geb.runhed, sizeof(geb.runhed));
+      outf.close();
+      return(true);
+    };
+	  
+    bool readGEBrunhedBinary(std::ifstream& inpf, const GEBData& geb) {
+      inpf.read( (char*)&geb.runhed, sizeof(geb.runhed));
+      inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };
+
     bool readGEBrunhed(std::ifstream& inpf, GEBData& geb) {
       inpf >> std::hex >> geb.runhed;
       if(inpf.eof()) return(false);
@@ -138,6 +228,22 @@ namespace gem {
       outf.close();
       return(true);
     };	  
+
+    bool writeGEBtrailerBinary(std::string file, int event, const GEBData& geb) {
+      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf.write( (char*)&geb.trailer, sizeof(geb.trailer));
+      outf.close();
+      return(true);
+    };
+	  
+    bool readGEBtrailerBinary(std::ifstream& inpf, const GEBData& geb) {
+      inpf.read( (char*)&geb.trailer, sizeof(geb.trailer));
+      inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };
 
     bool readGEBtrailer(std::ifstream& inpf, GEBData& geb) {
       inpf >> std::hex >> geb.trailer;
@@ -164,6 +270,22 @@ namespace gem {
       return(true);
     };	  
 
+    bool writeGEMtr2Binary(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf.write( (char*)&gem.trailer2, sizeof(gem.trailer2));
+      outf.close();
+      return(true);
+    };
+
+    bool readGEMtr2Binary(std::ifstream& inpf, const GEMData& gem) {
+      inpf.read( (char*)&gem.trailer2, sizeof(gem.trailer2));
+      inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };
+
     bool readGEMtr2(std::ifstream& inpf, GEMData& gem) {
       inpf >> std::hex >> gem.trailer2;
       if(inpf.eof()) return(false);
@@ -178,6 +300,22 @@ namespace gem {
       outf.close();
       return(true);
     };	  
+
+    bool writeGEMtr1Binary(std::string file, int event, const GEMData& gem) {
+      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
+      if ( event<0) return(false);
+      if (!outf.is_open()) return(false);
+      outf.write( (char*)&gem.trailer1, sizeof(gem.trailer1));
+      outf.close();
+      return(true);
+    };
+
+    bool readGEMtr1Binary(std::ifstream& inpf, const GEMData& gem) {
+      inpf.read( (char*)&gem.trailer1, sizeof(gem.trailer1));
+      inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };
 
     bool readGEMtr1(std::ifstream& inpf, GEMData& gem) {
       inpf >> std::hex >> gem.trailer1;
@@ -214,37 +352,6 @@ namespace gem {
       return(true);
     };
 
-    bool readVFATdata(std::ifstream& inpf, int event, VFATData& vfat) {
-      if (event<0) return(false);
-      inpf >> std::hex >> vfat.BC;
-      inpf >> std::hex >> vfat.EC;
-      inpf >> std::hex >> vfat.ChipID;
-      inpf >> std::hex >> vfat.lsData;
-      inpf >> std::hex >> vfat.msData;
-      inpf >> std::hex >> vfat.BXfrOH;
-      inpf >> std::hex >> vfat.crc;
-      if(inpf.eof()) return(false);
-      return(true);
-    };	  
-
-    bool writeGEBheaderBinary(std::string file, int event, const GEBData& geb) {
-      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
-      if ( event<0) return(false);
-      if (!outf.is_open()) return(false);
-      outf.write( (char*)&geb.header, sizeof(geb.header));
-      outf.close();
-      return(true);
-    };
-	  
-    bool writeGEBtrailerBinary(std::string file, int event, const GEBData& geb) {
-      std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
-      if ( event<0) return(false);
-      if (!outf.is_open()) return(false);
-      outf.write( (char*)&geb.trailer, sizeof(geb.trailer));
-      outf.close();
-      return(true);
-    };
-
     bool writeVFATdataBinary(std::string file, int event, const VFATData& vfat) {
       std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
       if ( event<0) return(false);
@@ -254,24 +361,35 @@ namespace gem {
       outf.write( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
       outf.write( (char*)&vfat.lsData, sizeof(vfat.lsData));  
       outf.write( (char*)&vfat.msData, sizeof(vfat.msData));
-      outf.write( (char*)&vfat.BXfrOH, sizeof(vfat.msData));
+      outf.write( (char*)&vfat.BXfrOH, sizeof(vfat.BXfrOH));
       outf.write( (char*)&vfat.crc, sizeof(vfat.crc));
       outf.close();
       return(true);
     };	  
 
-    bool readVFATDataBinary(std::string file, int event, const VFATData& vfat) {
-      std::ifstream inpf(file.c_str(), std::ios_base::app | std::ios::binary );
-      if ( event<0) return(false);
-      if (!inpf.is_open()) return(false);
+    bool readVFATdataBinary(std::ifstream& inpf, int event, VFATData& vfat) {
+      if (event<0) return(false);
       inpf.read( (char*)&vfat.BC, sizeof(vfat.BC));
       inpf.read( (char*)&vfat.EC, sizeof(vfat.EC));
       inpf.read( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
       inpf.read( (char*)&vfat.lsData, sizeof(vfat.lsData));
       inpf.read( (char*)&vfat.msData, sizeof(vfat.msData));
-      inpf.read( (char*)&vfat.BXfrOH, sizeof(vfat.msData));
+      inpf.read( (char*)&vfat.BXfrOH, sizeof(vfat.BXfrOH));
       inpf.read( (char*)&vfat.crc, sizeof(vfat.crc));
       inpf.seekg (0, inpf.cur);
+      if(inpf.eof()) return(false);
+      return(true);
+    };	  
+
+    bool readVFATdata(std::ifstream& inpf, int event, VFATData& vfat) {
+      if (event<0) return(false);
+      inpf >> std::hex >> vfat.BC;
+      inpf >> std::hex >> vfat.EC;
+      inpf >> std::hex >> vfat.ChipID;
+      inpf >> std::hex >> vfat.lsData;
+      inpf >> std::hex >> vfat.msData;
+      inpf >> std::hex >> vfat.BXfrOH;
+      inpf >> std::hex >> vfat.crc;
       if(inpf.eof()) return(false);
       return(true);
     };	  
