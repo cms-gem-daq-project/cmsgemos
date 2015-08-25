@@ -56,7 +56,7 @@ namespace gem {
         uint32_t RegisterSent    ;
 
       OpticalLinkStatus() : Errors(0),I2CReceived(0),I2CSent(0),RegisterReceived(0),RegisterSent(0) {};
-        void reset()       {Errors=0; I2CReceived=0; I2CSent=0; RegisterReceived=0; RegisterSent=0;return; };
+        void reset()       {Errors=0; I2CReceived=0; I2CSent=0; RegisterReceived=0; RegisterSent=0; return; };
       } OpticalLinkStatus;
 	
       typedef struct DeviceErrors {
@@ -66,7 +66,7 @@ namespace gem {
         int ControlHubErr;
 
       DeviceErrors() : BadHeader(0),ReadError(0),Timeout(0),ControlHubErr(0) {};
-        void reset()  {BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0;return; };
+        void reset() { BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0; return; };
       } DeviceErrors;
 	
       typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
@@ -244,8 +244,8 @@ namespace gem {
       void updateErrorCounters(std::string const& errCode);
 	
       DeviceErrors ipBusErrs_;
-	
-      std::string printErrorCounts() const;
+      
+      virtual std::string printErrorCounts() const;
 	
       std::string uint32ToString(uint32_t const val) const {
         std::stringstream res;

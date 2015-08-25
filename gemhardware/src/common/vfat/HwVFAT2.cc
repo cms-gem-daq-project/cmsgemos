@@ -73,6 +73,17 @@ gem::hw::vfat::HwVFAT2::~HwVFAT2()
   releaseDevice();
 }
 
+std::string gem::hw::vfat::HwVFAT2::printErrorCounts() const {
+  std::stringstream errstream;
+  errstream << "VFAT errors while accessing registers:" << std::endl 
+            << "Error:      " << vfatErrors_.Error      << std::endl
+            << "Invalid:    " << vfatErrors_.Invalid    << std::endl
+            << "RWMismatch: " << vfatErrors_.RWMismatch << std::endl
+            << gem::hw::GEMHwDevice::printErrorCounts() << std::endl;
+  DEBUG(errstream);
+  return errstream.str();
+}
+
 void gem::hw::vfat::HwVFAT2::loadDefaults()
 {
   //here load the default settings

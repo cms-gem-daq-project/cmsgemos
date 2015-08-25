@@ -423,9 +423,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO("webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(1);
-  sleep(0.01);
+  INFO("webTrigger: sending L1A(5)");
+  optohybridDevice_->SendL1A(5);
+  sleep(0.5);
   //need some sleep here?
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
@@ -441,13 +441,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi::Output * out ) {
   // Send L1A signal
   hw_semaphore_.take();
-
   //INFO("webCalPulse: sending 1 CalPulse with 25 clock delayed L1A");
-  for (int offset = -8; offset < 9; ++offset) {
+  for (int offset = -12; offset < 13; ++offset) {
     INFO("webCalPulse: sending 10 CalPulses with L1As delayed by " << (int)latency_ + offset <<  " clocks");
-    optohybridDevice_->SendL1ACal(10, latency_ + offset);
-    sleep(0.01);
+    optohybridDevice_->SendL1ACal(2, latency_ + offset);
+    INFO("Sleeping for 0.5 seconds...");
+    sleep(0.5);
+    INFO("back!");
   }
+  //optohybridDevice_->SendL1ACal(1, latency_);
+  //sleep(0.1);
   //need some sleep here?
   CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
   CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
@@ -741,6 +744,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
         if ((*chip)->isHwConnected()) {
           INFO("VFAT device connected: chip ID = 0x"
                << std::setw(4) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);
+          INFO((*chip)->printErrorCounts());
           is_configured_  = true;
         } else {
           INFO("VFAT device not connected, breaking out");
@@ -845,6 +849,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
     //using smart_ptr
     //delete (*chip);
     //(*chip) = NULL;
+    INFO((*chip)->printErrorCounts());
   }
 }
 
@@ -861,6 +866,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
     //using smart_ptr
     //delete (*chip);
     //(*chip) = NULL;
+    INFO((*chip)->printErrorCounts());
   }
   delete glibDevice_;
   glibDevice_ = NULL;
