@@ -265,8 +265,12 @@ namespace gem {
           void SendL1A(uint64_t ntrigs, uint8_t const& link=0x0) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            for (uint64_t i = 0; i < ntrigs; ++i) 
+            for (uint64_t i = 0; i < ntrigs; ++i) {
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.L1A",0x1);
+              INFO("Sleeping for 0.1 seconds...");
+              sleep(0.1);
+              INFO("back!");
+            }
           };
 
           /** Send an internal CalPulse
@@ -275,8 +279,12 @@ namespace gem {
           void SendCalPulse(uint64_t npulse, uint8_t const& link=0x0) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            for (uint64_t i = 0; i < npulse; ++i) 
+            for (uint64_t i = 0; i < npulse; ++i) {
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.CalPulse",0x1);
+              INFO("Sleeping for 0.1 seconds...");
+              sleep(0.1);
+              INFO("back!");
+            }
           };
 
           /** Send a CalPulse followed by an L1A
@@ -286,8 +294,12 @@ namespace gem {
           void SendL1ACal(uint64_t npulse, uint32_t delay, uint8_t const& link=0x0) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            for (uint64_t i = 0; i < npulse; ++i) 
+            for (uint64_t i = 0; i < npulse; ++i) {
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.L1ACalPulse",delay);
+              INFO("Sleeping for 0.5 seconds...");
+              sleep(0.5);
+              INFO("back!");
+            }
           };
 
           /** Send an internal Resync

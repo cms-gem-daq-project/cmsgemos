@@ -56,6 +56,11 @@ namespace gem {
 
           ~HwVFAT2();
 	  
+          /** Print the error counts for the device (calls also the GEMHwDevice method
+           * @returns string of error counts
+           **/
+          virtual std::string printErrorCounts() const;
+
           /** Load some default values into the VFAT registers
            * 
            **/

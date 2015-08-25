@@ -279,6 +279,7 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
 void gem::hw::vfat::VFAT2Manager::Default(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
+  LOG4CPLUS_INFO(this->getApplicationLogger(),vfatDevice->printErrorCounts());
   this->ControlPanel(in,out);
   //this->RegisterView(in,out);
 }
@@ -372,6 +373,9 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input * in, xgi::Output * ou
     gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(out, vfatParams_);
     
     *out << cgicc::section() << std::endl
+         //<< "Errors     :: " << (vfatDevice->vfatErrors_).Error        << cgicc::br() << std::endl
+         //<< "Invalid    :: " << (vfatDevice->vfatErrors_).Invalid      << cgicc::br() << std::endl
+         //<< "RWMismatch :: " << (vfatDevice->vfatErrors_).RWMismatch   << cgicc::br() << std::endl
          << "Bad headers:: " << (vfatDevice->ipBusErrs_).BadHeader     << cgicc::br() << std::endl
          << "Read errors:: " << (vfatDevice->ipBusErrs_).ReadError     << cgicc::br() << std::endl
          << "Timeouts   :: " << (vfatDevice->ipBusErrs_).Timeout       << cgicc::br() << std::endl

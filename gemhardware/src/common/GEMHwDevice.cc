@@ -91,7 +91,7 @@ std::string gem::hw::GEMHwDevice::printErrorCounts() const {
             << "Read errors: "       <<ipBusErrs_.ReadError     << std::endl
             << "Timeouts:    "       <<ipBusErrs_.Timeout       << std::endl
             << "Controlhub errors: " <<ipBusErrs_.ControlHubErr << std::endl;
-  INFO(errstream);
+  DEBUG(errstream);
   return errstream.str();
 }
 
