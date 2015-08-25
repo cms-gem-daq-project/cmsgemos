@@ -44,10 +44,10 @@ namespace gem {
       std::string outFileName_;
       std::string outputType_;
 
-      // Counter
+      // Counter all in one
       int counter_[3];
 
-      // Events Counter     
+      // VFAT's Blocks Counter     
       int vfat_;
 
       // Events Counter     
