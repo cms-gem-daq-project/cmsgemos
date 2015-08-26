@@ -643,7 +643,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   }
 
   int islot=0;
-  for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip) {
+  for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++islot) {
     std::string VfatName = chip->toString();
 
     if (VfatName != ""){ 
@@ -651,16 +651,13 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
       tmpVFATDevice->connectDevice();
       tmpVFATDevice->setRunMode(0);
-  
       // need to put all chips in sleep mode to start off
       vfatDevice_.push_back(tmpVFATDevice);
       }
-    islot++;
   }
   
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
-    
     (*chip)->connectDevice();
     (*chip)->readVFAT2Counters();
     (*chip)->setRunMode(0);
