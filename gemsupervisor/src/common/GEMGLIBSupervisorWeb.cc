@@ -342,34 +342,23 @@ void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::O
 void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out ) {
   // Derive device number from device name
 
-  //change to vector loop J.S. July 16
-  for (int i = 0; i < 24; ++i) {
-    std::string tmpDeviceName = confParams_.bag.deviceName[i].toString();
-    //auto num = confParams_.bag.deviceNum.begin();
-    //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
-    //std::string tmpDeviceName = chip->toString();
-    int tmpDeviceNum = -1;
-    tmpDeviceName.erase(0,4);
-    if (tmpDeviceName != "")
-      tmpDeviceNum = atoi(tmpDeviceName.c_str());
-    
-    if ( tmpDeviceNum >= 0 ) {
-      confParams_.bag.deviceNum[i] = tmpDeviceNum;
-      //0-7 maps to 1
-      //8-15 maps to 2
-      //16-23 maps to 4
-      if (tmpDeviceNum < 8)
-        readout_mask |= 0x1;
-      else if (tmpDeviceNum < 16)
-        readout_mask |= 0x2;
-      else if (tmpDeviceNum < 24)
-        readout_mask |= 0x4;
-      //*num = tmpDeviceNum
-      INFO(" webConfigure : DeviceName " << i << " " << confParams_.bag.deviceName[i].toString());
-      INFO(" webConfigure : DeviceNum "  << i << " " << confParams_.bag.deviceNum[i].toString());
-      INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec);
-    }
-  }
+  int islot=0;
+  for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++islot ) {
+    std::string VfatName = chip->toString();
+    if (VfatName != ""){ 
+      if ( islot >= 0 ) {
+        if (islot < 8)
+          readout_mask |= 0x1; //slot [0-7] maps to 1
+        else if (islot < 16)
+          readout_mask |= 0x2; //slot [8-15] maps to 2
+        else if (islot < 24)
+          readout_mask |= 0x4; //slot [16-23] maps to 4
+  
+        INFO(" webConfigure : DeviceName " << VfatName );
+        INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+      }
+    }//end if VfatName
+  }//end for chip
   
   // Initiate configure workloop
   wl_->submit(configure_signature_);
