@@ -1,5 +1,7 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
+#include "gem/readout/GEMslotContens.h"
+
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
@@ -157,6 +159,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
       }
     INFO(ss.str());
   }
+
 }
 
 xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onConfigure(xoap::MessageReference message) {
@@ -630,23 +633,40 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   optohybridDevice_->connectDevice();
 
-  /**Definitely need to rework this J.S July 16*/
-  //change to vector loop J.S. July 16
-  for (int i = 0; i < 24; ++i) {
-    std::string VfatName = confParams_.bag.deviceName[i].toString();
-    //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip) {
-    //std::string VfatName = chip->toString();
+  // Times for output files
+  time_t now  = time(0);
+  tm    *gmtm = gmtime(&now);
+  char* utcTime = asctime(gmtm);
 
-    std::stringstream tmpChipName;
-    tmpChipName << "VFAT" << i;
-    vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(tmpChipName.str()));
-    tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
-    tmpVFATDevice->connectDevice();
-    tmpVFATDevice->setRunMode(0);
-    // need to put all chips in sleep mode to start off
-    if (VfatName != "")
-      // Define device
+  // Setup file, information header
+  std::string SetupFileName = "Setup_";
+  SetupFileName.append(utcTime);
+  SetupFileName.erase(std::remove(SetupFileName.begin(), SetupFileName.end(), '\n'), SetupFileName.end());
+  SetupFileName.append(".txt");
+  std::replace(SetupFileName.begin(), SetupFileName.end(), ' ', '_' );
+  std::replace(SetupFileName.begin(), SetupFileName.end(), ':', '-');
+
+  LOG4CPLUS_INFO(getApplicationLogger(),"::configureAction " << "Created Setup file " << SetupFileName );
+
+  std::ofstream SetupFile(SetupFileName.c_str(), std::ios::app );
+  if (SetupFile.is_open()){
+    SetupFile << "\n The Time & Date : " << utcTime << std::endl;
+  }
+
+  int islot=0;
+  for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip) {
+    std::string VfatName = chip->toString();
+
+    if (VfatName != ""){ 
+      vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName));
+      tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
+      tmpVFATDevice->connectDevice();
+      tmpVFATDevice->setRunMode(0);
+  
+      // need to put all chips in sleep mode to start off
       vfatDevice_.push_back(tmpVFATDevice);
+      }
+    islot++;
   }
   
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -672,10 +692,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     
   }
 
-  // Create a new output file
-  time_t now  = time(0);
-  tm    *gmtm = gmtime(&now);
-  char* utcTime = asctime(gmtm);
+  // Create a new output file for Data flow
   std::string tmpFileName = "GEM_DAQ_", tmpType = "";
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
@@ -691,8 +708,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   // Book GEM Data Parker
   gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpType);
 
-  // scanStream.close();
+  // Data Stream close
   outf.close();
+
+  if (SetupFile.is_open()){
+    SetupFile << " Latency       " << latency_ << std::endl;
+  }
 
   hw_semaphore_.give();
 
@@ -704,8 +725,17 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       INFO("OptoHybrid device connected");
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
         if ((*chip)->isHwConnected()) {
-          INFO("VFAT device connected: chip ID = 0x"
-               << std::setw(4) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);
+
+          int islot = gem::readout::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
+
+          INFO(" VFAT device connected: slot " << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" <<
+              std::setw(3) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);
+
+          if (SetupFile.is_open()){
+            SetupFile << " VFAT device connected: slot " << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" << 
+              std::setw(3) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec << std::endl;
+          }
+
           is_configured_  = true;
         } else {
           INFO("VFAT device not connected, breaking out");
@@ -726,6 +756,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     is_working_     = false;    
     return;
   }
+
+  // Setup header close
+  SetupFile.close();
+
   //is_configured_  = true;
   is_working_     = false;    
   
