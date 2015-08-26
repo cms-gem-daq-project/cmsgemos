@@ -271,6 +271,9 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
   /*
    * GEB, One Chamber Data, VFAT position definition on the board, before will possible to get from OH the same info 
    */
+  int IndexVFATChipOnGEB = gem::readout::GEBslotIndex( (uint32_t)vfat.ChipID );
+
+  /*
   int IndexVFATChipOnGEB = -1;
   for (int ichip = 0; ichip < 24; ichip++){
     if ( IndexVFATChipOnGEB == -1 ){
@@ -278,6 +281,7 @@ void gem::readout::GEMDataParker::fillGEMevent(gem::readout::GEMData& gem, gem::
       //INFO(" ChipID has dublication on GEB board !!! slot " << ichip);
     }
   }//end for
+  */
 
   /*
    * VFATs Pay Load
