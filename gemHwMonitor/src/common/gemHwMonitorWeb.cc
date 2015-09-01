@@ -62,7 +62,8 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
     if (cgi.queryCheckbox(gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId())) {
       //            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice();
       gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
-      crateDevice_->setDeviceIPAddress("192.168.0.162");
+      //crateDevice_->setDeviceIPAddress("192.168.0.162");
+      crateDevice_->setDeviceIPAddress("192.168.0.170");
       crateDevice_->connectDevice();
       if (crateDevice_->isHwConnected()) {
         gemHwMonitorSystem_->setSubDeviceStatus(0,i);
