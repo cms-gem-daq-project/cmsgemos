@@ -352,6 +352,31 @@ namespace gem {
               LinkReset(link->first,resets);
           };
 	  
+          /** Read the Trigger source
+           * @retval uint8_t 0 from GLIB, 1 from AMC13, 2 from both
+           **/
+          uint8_t getTrigSource(uint8_t const& link=0x0) { 
+            std::stringstream regName;
+            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
+            return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE"); };
+
+
+          /** Set the S-bit source
+           * @param uint8_t chip
+           **/
+          void setSBitSource(uint8_t const& mode, uint8_t const& link=0x0) {
+            std::stringstream regName;
+            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
+            writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits",mode); };
+
+          /** Read the S-bit source
+           * @retval uint8_t which VFAT chip is sending the S-bits
+           **/
+          uint8_t getSBitSource(uint8_t const& link=0x0) {
+            std::stringstream regName;
+            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
+            return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits"); };
+
           /** Read the trigger data
            * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
            **/
