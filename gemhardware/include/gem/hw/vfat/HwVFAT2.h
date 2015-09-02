@@ -58,6 +58,7 @@ namespace gem {
 	  
           //where can we load default parameters?
           void loadDefaults();
+	  void printDefaults(std::ofstream& SetupFile);
           //void connectDevice();
           //void releaseDevice();
           //void initDevice();
