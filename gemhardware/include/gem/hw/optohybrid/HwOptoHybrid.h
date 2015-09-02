@@ -247,7 +247,7 @@ namespace gem {
           void setSBitSource(uint8_t const& mode, uint8_t const& link=0x0) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC.SBits",mode); };
+            writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits",mode); };
 
           /** Read the S-bit source
            * @retval uint8_t which VFAT chip is sending the S-bits
