@@ -24,18 +24,32 @@ namespace gem {
       GEMDataParker(gem::hw::glib::HwGLIB& glibDevice, std::string const& outFileName, std::string const& outputType);
       ~GEMDataParker() {};
 
-      int *dumpDataToDisk(uint8_t const& link);
+      int* dumpData (uint8_t const& mask
+                    );
+      int* dumpDataToDisk (uint8_t const& link
+                          );
 
       int  getGLIBData  (uint8_t const& link,
-                         gem::readout::GEMData& gem,
-                         gem::readout::GEBData& geb, 
-                         gem::readout::VFATData& vfat);
-      void fillGEMevent (gem::readout::GEMData& gem,
-                         gem::readout::GEBData& geb, 
-                         gem::readout::VFATData& vfat);
+                          gem::readout::GEMData& gem,
+                          gem::readout::GEBData& geb,
+                          gem::readout::VFATData& vfat
+                         );
+
+      void GEMfillHeaders (gem::readout::GEMData& gem,
+                           gem::readout::GEBData& geb
+                          );
+      void VFATfillData (gem::readout::GEMData& gem,
+			 gem::readout::GEBData& geb,
+                         gem::readout::VFATData& vfat
+                        );
+      void GEMfillTrealers (gem::readout::GEMData& gem,
+                            gem::readout::GEBData& geb
+                            );
+
       void writeGEMevent(gem::readout::GEMData& gem,
                          gem::readout::GEBData& geb,
-                         gem::readout::VFATData& vfat);
+                         gem::readout::VFATData& vfat
+                        );
 
     private:
 
@@ -44,7 +58,12 @@ namespace gem {
       std::string outFileName_;
       std::string outputType_;
 
-      // Counter all in one
+      /*
+       * Counter all in one
+       *   [0] VFAT's Blocks Counter
+       *   [1] Events Counter
+       *   [2] VFATs counter per last event
+       */
       int counter_[3];
 
       // VFAT's Blocks Counter     

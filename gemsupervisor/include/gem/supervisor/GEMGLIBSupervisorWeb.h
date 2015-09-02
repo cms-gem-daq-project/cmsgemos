@@ -220,6 +220,7 @@ namespace gem {
 
         FILE* outputFile;
         uint64_t latency_;
+        uint64_t deviceVT1_;
         bool is_working_, is_initialized_, is_configured_, is_running_;
 
         //supervisor application should not have any hw devices, should only send commands to manager applications
