@@ -26,19 +26,21 @@ namespace gem {
 
       int* dumpData (uint8_t const& mask
                     );
-      int* dumpDataToDisk (uint8_t const& link
+      int  dumpDataToDisk (uint8_t const& link
                           );
 
       int  getGLIBData  (uint8_t const& link,
-                          gem::readout::GEMData& gem,
-                          gem::readout::GEBData& geb,
-                          gem::readout::VFATData& vfat
-                         );
+                         gem::readout::GEMData& gem,
+                         gem::readout::GEBData& geb,
+                         gem::readout::VFATData& vfat
+                        );
 
-      void GEMfillHeaders (gem::readout::GEMData& gem,
+      void GEMfillHeaders (uint16_t const& BC,
+                           gem::readout::GEMData& gem,
                            gem::readout::GEBData& geb
                           );
-      void VFATfillData (gem::readout::GEMData& gem,
+      void VFATfillData (int const& counterVFATs, 
+                         gem::readout::GEMData& gem,
 			 gem::readout::GEBData& geb,
                          gem::readout::VFATData& vfat
                         );

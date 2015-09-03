@@ -544,58 +544,50 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  // set up a counter for each column/link?
-  // should the counter increment each time read action is executed?
+  int* pDupm = gemDataParker->dumpData(readout_mask);
+  if (pDupm) {
+    counter_[0] = *pDupm;     // VFAT Blocks counter
+    counter_[1] = *(pDupm+1); // Events counter
+    counter_[2] = *(pDupm+2); // Sum VFAT per last event
+  }
 
-    int* pDupm = gemDataParker->dumpData(readout_mask);
-    if (pDupm) {
-      counter_[0] = *pDupm;     // VFAT Blocks counter
-      counter_[1] = *(pDupm+1); // Events counter
-      counter_[2] = *(pDupm+2); // Sum VFAT per last event
-      //deletepDupm;
-    }
-
-    /*
+  /*
   //if [0-7] in deviceNum
+
+  //  std::shared_ptr<int*> pLk0(new (int*)(dumpData(0x0)) );
+  //  if (pLk0) {
+  //    pLk0.reset();
+
   if (readout_mask & 0x1) {
     INFO("::readAction reading out link 0");
-    //std::shared_ptr<int> pLk0(gemDataParker->dumpDataToDisk(0x0));
     int* pLk0 = gemDataParker->dumpDataToDisk(0x0);
     if (pLk0) {
       counter_[0] = *pLk0;     // VFAT Blocks counter
       counter_[1] = *(pLk0+1); // Events counter
       counter_[2] = *(pLk0+2); // Sum VFAT per last event
-      //delete pLk0;
     }
-    //pLk0 = 0;
   }
   //if [8-15] in deviceNum
   if (readout_mask & 0x2) {
     INFO("::readAction reading out link 1");
-    //std::shared_ptr<int> pLk1 = pLk1(gemDataParker->dumpDataToDisk(0x1));
     int* pLk1 = gemDataParker->dumpDataToDisk(0x1);
     if (pLk1) {
       counter_[0] += *pLk1;
       counter_[1] = *(pLk1+1);
       counter_[2] += *(pLk1+2);
-      //delete pLk1;
     }
-    //pLk1 = 0;
   }
   //if [16-23] in deviceNum
   if (readout_mask & 0x4) {
     INFO("::readAction reading out link 2");
-    //std::shared_ptr<int> pLk2(gemDataParker->dumpDataToDisk(0x2));
     int* pLk2 = gemDataParker->dumpDataToDisk(0x2);
     if (pLk2) {
       counter_[0] += *pLk2;
       counter_[1] = *(pLk2+1);
       counter_[2] += *(pLk2+2);
-      //delete pLk2;
     }
-    //pLk2 = 0;
   }
-    */
+  */
 
   hw_semaphore_.give();
   wl_semaphore_.give();
@@ -701,6 +693,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   if (SetupFile.is_open()){
     SetupFile << " Latency       " << latency_ << std::endl;
+    SetupFile << " Threshold     " << deviceVT1_ <<"\n"<< std::endl;
   }
 
   hw_semaphore_.give();
