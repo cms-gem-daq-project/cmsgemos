@@ -551,44 +551,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
     counter_[2] = *(pDupm+2); // Sum VFAT per last event
   }
 
-  /*
-  //if [0-7] in deviceNum
-
-  //  std::shared_ptr<int*> pLk0(new (int*)(dumpData(0x0)) );
-  //  if (pLk0) {
-  //    pLk0.reset();
-
-  if (readout_mask & 0x1) {
-    INFO("::readAction reading out link 0");
-    int* pLk0 = gemDataParker->dumpDataToDisk(0x0);
-    if (pLk0) {
-      counter_[0] = *pLk0;     // VFAT Blocks counter
-      counter_[1] = *(pLk0+1); // Events counter
-      counter_[2] = *(pLk0+2); // Sum VFAT per last event
-    }
-  }
-  //if [8-15] in deviceNum
-  if (readout_mask & 0x2) {
-    INFO("::readAction reading out link 1");
-    int* pLk1 = gemDataParker->dumpDataToDisk(0x1);
-    if (pLk1) {
-      counter_[0] += *pLk1;
-      counter_[1] = *(pLk1+1);
-      counter_[2] += *(pLk1+2);
-    }
-  }
-  //if [16-23] in deviceNum
-  if (readout_mask & 0x4) {
-    INFO("::readAction reading out link 2");
-    int* pLk2 = gemDataParker->dumpDataToDisk(0x2);
-    if (pLk2) {
-      counter_[0] += *pLk2;
-      counter_[1] = *(pLk2+1);
-      counter_[2] += *(pLk2+2);
-    }
-  }
-  */
-
   hw_semaphore_.give();
   wl_semaphore_.give();
 
