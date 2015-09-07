@@ -448,6 +448,7 @@ void gem::readout::GEMDataParker::writeGEMevent(
       gem::readout::writeVFATdataBinary (outFileName_, nChip, vfat);
     };
     gem::readout::printVFATdataBits(nChip, vfat);
+    INFO(" writeGEMevent slot " << gem::readout::GEBslotIndex( (uint32_t)vfat.ChipID ) );
 
   }//end of GEB PayLoad Data
 
