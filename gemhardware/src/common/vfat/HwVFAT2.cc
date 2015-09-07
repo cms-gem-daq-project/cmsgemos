@@ -124,15 +124,15 @@ void gem::hw::vfat::HwVFAT2::printDefaults(std::ofstream& SetupFile)
   SetupFile << " InputPadMode       0x" << std::hex << (int)getInputPadMode() << std::dec << "\n";
   SetupFile << " TrimDACRange       0x" << std::hex << (int)getTrimDACRange() << std::dec << "\n";
   SetupFile << " BandgapPad         0x" << std::hex << (int)getBandgapPad() << std::dec << "\n";
-  SetupFile << " IPreampIn          0x" << std::hex << (int)getIPreampIn() <<  "\n";
-  SetupFile << " IPreampFeed        0x" << std::hex << (int)getIPreampFeed() << "\n";
-  SetupFile << " IPreampOut         0x" << std::hex << (int)getIPreampOut() << "\n";
-  SetupFile << " IShaper            0x" << std::hex << (int)getIShaper() << "\n";
-  SetupFile << " IShaperFeed        0x" << std::hex << (int)getIShaperFeed() << "\n";
-  SetupFile << " IComp              0x" << std::hex << (int)getIComp() << "\n";
-  SetupFile << " Latency            0x" << std::hex << (int)getLatency() << "\n";
-  SetupFile << " VThreshold1        0x" << std::hex << (int)getVThreshold1() << "\n";
-  SetupFile << " VThreshold2        0x" << std::hex << (int)getVThreshold2() << "\n";
+  SetupFile << " IPreampIn          0x" << std::hex << (int)getIPreampIn() << std::dec << "\n";
+  SetupFile << " IPreampFeed        0x" << std::hex << (int)getIPreampFeed() << std::dec << "\n";
+  SetupFile << " IPreampOut         0x" << std::hex << (int)getIPreampOut() << std::dec << "\n";
+  SetupFile << " IShaper            0x" << std::hex << (int)getIShaper() << std::dec << "\n";
+  SetupFile << " IShaperFeed        0x" << std::hex << (int)getIShaperFeed() << std::dec << "\n";
+  SetupFile << " IComp              0x" << std::hex << (int)getIComp() << std::dec << "\n";
+  SetupFile << " Latency            0x" << std::hex << (int)getLatency() << std::dec << "\n";
+  SetupFile << " VThreshold1        0x" << std::hex << (int)getVThreshold1() << std::dec << "\n";
+  SetupFile << " VThreshold2        0x" << std::hex << (int)getVThreshold2() << std::dec << "\n";
   SetupFile << "\n";
 }
 
