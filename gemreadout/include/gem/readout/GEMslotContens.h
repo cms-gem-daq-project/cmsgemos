@@ -7,15 +7,6 @@
 namespace gem {
   namespace readout {
 
-   /*
-    *  ChipID GEB data, 21-Aug-2015, TAMU should update slot contens
-    */
-    /*uint16_t slot[24] = 
-       { 0xa64, 0xe74, 0xac0, 0xe98, 0xe7b, 0xa9c, 0xe63, 0xe6b,
-         0xe80, 0xeaf, 0xea3, 0xb44, 0xe5b, 0xb40, 0xeb4, 0xe5f,
-         0xe97, 0xe9f, 0xea7, 0xa84, 0xa78, 0xe78, 0xeab, 0xe7f
-       };*/
-
     // Intialize slot array
     uint16_t slot[24] =
       { 0xfff, 0xfff, 0xfff, 0xfff, 0xfff, 0xfff, 0xfff, 0xfff,
@@ -30,6 +21,11 @@ namespace gem {
       std::string path = std::getenv("BUILD_HOME");
       path +="/gemdaq-testing/gemreadout/data/slot_table.csv";
       ifile.open(path);
+
+      if(!ifile.is_open()) {
+	std::cout << "\nThe file: " << ifile << " is missing.\n" << std::endl;
+      };
+
       for (int row = 0; row < 3; row++)
       {
         std::string line;
