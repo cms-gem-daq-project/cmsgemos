@@ -629,9 +629,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     (*chip)->setVThreshold2(0);
     confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
     
-    LOG4CPLUS_INFO(getApplicationLogger(),"::configureAction " << 
-		   " islot " << islot << " latency " << confParams_.bag.latency << " deviceVT1 " << confParams_.bag.deviceVT1 ); 
-    
   }
 
   // Create a new output file for Data flow

@@ -474,6 +474,7 @@ void gem::readout::GEMDataParker::writeGEMevent(
     writeGEMtr1Binary (outFileName_, event_, gem);
   } 
 
+  uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; show24bits(ZSFlag);
   INFO(" writeGEMevent:: end of event " << event_ << "\n");
   /* } // end of GEB */
 }
