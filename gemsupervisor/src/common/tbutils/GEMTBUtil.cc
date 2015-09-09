@@ -17,10 +17,6 @@
 
 #include "cgicc/HTTPRedirectHeader.h"
 
-#include "gem/supervisor/tbutils/VFAT2XMLParser.h"
-
-#include "TStopwatch.h"
-
 //XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::GEMTBUtil)
 
 void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)

@@ -1,8 +1,7 @@
 #include "gem/supervisor/tbutils/ThresholdScan.h"
 
-//#include "gem/supervisor/tbutils/ThresholdEvent.h"
 #include "gem/readout/GEMDataParker.h"
-#include "gem/readout/GEMDataAMCformat.h"
+//#include "gem/readout/GEMDataAMCformat.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
 #include "TH1.h"
@@ -27,6 +26,10 @@
 #include "TStopwatch.h"
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::ThresholdScan)
+
+typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
+typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
+typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
 
 bool First = true, Last = false;
 
@@ -325,7 +328,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* wl)
 {
   //VFATEvent vfat;
-  gem::readout::VFATData vfat;
+  AMCVFATData vfat;
 
   int ievent=0;
 
@@ -446,7 +449,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
       // dump VFAT data
-      gem::readout::printVFATdataBits(ievent, vfat);
+      gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
 
       vfatDevice_->setDeviceBaseNode("GLIB");
@@ -457,12 +460,12 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     /*
      * dump VFAT data */
-    gem::readout::printVFATdataBits(ievent, vfat);
+    gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
 
     /*
      * GEM data filling */
-    //gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
-    //gem::readout::GEMDataParker::fillGEMevent(gem, geb, vfat);
+    //gem::readout::GEMDataAMCformat::GEMDataParker::writeGEMevent(gem, geb, vfat);
+    //gem::readout::GEMDataAMCformat::GEMDataParker::fillGEMevent(gem, geb, vfat);
     //int counter_ = gemDataParker->dumpDataToDisk();
 
     //while (bxNum == bxExp) {
