@@ -1,5 +1,5 @@
-#ifndef gem_readout_GEMslotContens_h
-#define gem_readout_GEMslotContens_h
+#ifndef gem_readout_GEMslotContents_h
+#define gem_readout_GEMslotContents_h
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
