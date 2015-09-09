@@ -1,7 +1,7 @@
 #ifndef gem_readout_GEMDataAMCformat_h
 #define gem_readout_GEMDataAMCformat_h
 
-#include "gem/readout/GEMslotContens.h"
+#include "gem/readout/GEMslotContents.h"
 
 #include <iostream>
 #include <iomanip> 
