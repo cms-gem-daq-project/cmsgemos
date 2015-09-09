@@ -14,7 +14,9 @@
 #include "xoap/Method.h"
 #include "xoap/MessageFactory.h"
 
-#include "log4cplus/logger.h"
+
+#include "gem/utils/GEMLogging.h"
+//#include "log4cplus/logger.h"
 
 #include "toolbox/Event.h"
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"

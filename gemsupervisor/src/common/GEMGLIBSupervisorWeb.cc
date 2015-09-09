@@ -1,12 +1,12 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
-#include "gem/readout/GEMslotContents.h"
+//#include "gem/readout/GEMslotContents.h"
 
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
-#include "gem/utils/GEMLogging.h"
+//#include "gem/utils/GEMLogging.h"
 
 #include <iomanip>
 #include <iostream>
@@ -666,7 +666,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
         if ((*chip)->isHwConnected()) {
 
-          int islot = gem::readout::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
+          int islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
 
           INFO(" VFAT device connected: slot " << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" <<
               std::setw(3) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);

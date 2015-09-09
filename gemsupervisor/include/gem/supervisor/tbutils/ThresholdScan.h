@@ -3,8 +3,6 @@
 
 #include "gem/supervisor/tbutils/GEMTBUtil.h"
 
-#include "TStopwatch.h"
-
 namespace gem {
   namespace supervisor {
     namespace tbutils {

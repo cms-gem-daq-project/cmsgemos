@@ -22,18 +22,19 @@ ROOTCFLAGS =$(shell root-config --cflags)
 ROOTLIBS   =$(shell root-config --libs)
 ROOTGLIBS  =$(shell root-config --glibs) 
 
-Sources = version.cc
-Sources+=tbutils/VFAT2XMLParser.cc tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc
+Sources =version.cc
+Sources+=tbutils/VFAT2XMLParser.cc
+Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/ADCScan.cc tbutils/LatencyScan.cc
 Sources+=GEMGLIBSupervisorWeb.cc
 Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc
 
 DynamicLibrary=gem_supervisor
 
 IncludeDirs =$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
 IncludeDirs+=$(XDAQ_ROOT)/include
 IncludeDirs+=$(uHALROOT)/include
 
