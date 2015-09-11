@@ -13,7 +13,6 @@ namespace gem {
       //struct is a class with all members public by default
 
       static uint16_t slot[24];
-
       static bool isFileRead;
 
       static void initSlots() {
