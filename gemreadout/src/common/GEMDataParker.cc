@@ -30,6 +30,13 @@ uint32_t bufferCount = 0;
 bool dumpGEMevent_ = false;
 bool isFirst = true;
 
+uint16_t gem::readout::GEMslotContents::slot[24] = {
+  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+};
+bool gem::readout::GEMslotContents::isFileRead = false;
+
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName, std::string const& outputType) :
@@ -43,7 +50,9 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   vfat_ = 0;
   event_ = 0;
   sumVFAT_ = 0;
+
   gem::readout::GEMslotContents::initSlots();
+
 }
 
 int* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
