@@ -334,8 +334,6 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 {
   //AMCVFATData vfat;
 
-  int ievent=0;
-
   wl_semaphore_.take();
   hw_semaphore_.take();
 
@@ -1135,33 +1133,6 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 		   << "file " << confParams_.bag.outFileName.toString() << " opened");
   }
 
-  // Setup Scan file, information header
-  tmpFileName = "ScanSetup_";
-  tmpFileName.append(utcTime);
-  tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
-  tmpFileName.append(".txt");
-  std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
-  std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
-  confParams_.bag.outFileName = tmpFileName;
-
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"::startAction " 
-		  << "Created ScanSetup file " << tmpFileName );
-
-  std::ofstream scanSetup(tmpFileName.c_str(), std::ios::app );
-  if (scanSetup.is_open()){
-    LOG4CPLUS_INFO(getApplicationLogger(),"::startAction " 
-		   << "file " << tmpFileName << " opened and closed");
-
-    scanSetup << "\n The Time & Date : " << utcTime << std::endl;
-    scanSetup << " ChipID        0x" << std::hex << confParams_.bag.deviceChipID << std::dec << std::endl;
-    scanSetup << " Latency       " << latency_ << std::endl;
-    scanSetup << " nTriggers     " << nTriggers_  << std::endl;
-    scanSetup << " stepSize      " << stepSize_ << std::endl;
-    scanSetup << " minThresh     " << minThresh_ << std::endl;
-    scanSetup << " maxThresh     " << maxThresh_ << std::endl;
-  }
-  scanSetup.close();
-  
   //char data[128/8]
   is_running_ = true;
   hw_semaphore_.take();
