@@ -65,6 +65,7 @@ namespace gem {
            * 
            **/
           void loadDefaults();
+	  void printDefaults(std::ofstream& SetupFile);
           //void connectDevice();
           //void releaseDevice();
           //void initDevice();

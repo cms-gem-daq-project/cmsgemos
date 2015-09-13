@@ -118,6 +118,35 @@ void gem::hw::vfat::HwVFAT2::loadDefaults()
   setVThreshold2(0);
 }
 
+void gem::hw::vfat::HwVFAT2::printDefaults(std::ofstream& SetupFile)
+{
+  //here print the default settings
+  SetupFile << "\n";
+  SetupFile << " TriggerMode        0x" << std::hex << (int)getTriggerMode() << std::dec << "\n";
+  SetupFile << " CalibrationMode    0x" << std::hex << (int)getCalibrationMode() << std::dec << "\n"; 
+  SetupFile << " MSPolarity         0x" << std::hex << (int)getMSPolarity() << std::dec << "\n"; 
+  SetupFile << " CalPolarity        0x" << std::hex << (int)getCalPolarity() << std::dec << "\n"; 
+  SetupFile << " ProbeMode          0x" << std::hex << (int)getProbeMode() << std::dec << "\n";
+  SetupFile << " LVDSMode           0x" << std::hex << (int)getLVDSMode() << std::dec << "\n";
+  SetupFile << " DACMode            0x" << std::hex << (int)getDACMode() << std::dec << "\n";
+  SetupFile << " HitCountCycleTime  0x" << std::hex << (int)getHitCountCycleTime() << std::dec << "\n";
+  SetupFile << " HitCountMode       0x" << std::hex << (int)getHitCountMode() << std::dec << "\n";
+  SetupFile << " MSPulseLength      0x" << std::hex << (int)getMSPulseLength() << std::dec << "\n";
+  SetupFile << " InputPadMode       0x" << std::hex << (int)getInputPadMode() << std::dec << "\n";
+  SetupFile << " TrimDACRange       0x" << std::hex << (int)getTrimDACRange() << std::dec << "\n";
+  SetupFile << " BandgapPad         0x" << std::hex << (int)getBandgapPad() << std::dec << "\n";
+  SetupFile << " IPreampIn          0x" << std::hex << (int)getIPreampIn() << std::dec << "\n";
+  SetupFile << " IPreampFeed        0x" << std::hex << (int)getIPreampFeed() << std::dec << "\n";
+  SetupFile << " IPreampOut         0x" << std::hex << (int)getIPreampOut() << std::dec << "\n";
+  SetupFile << " IShaper            0x" << std::hex << (int)getIShaper() << std::dec << "\n";
+  SetupFile << " IShaperFeed        0x" << std::hex << (int)getIShaperFeed() << std::dec << "\n";
+  SetupFile << " IComp              0x" << std::hex << (int)getIComp() << std::dec << "\n";
+  SetupFile << " Latency            0x" << std::hex << (int)getLatency() << std::dec << "\n";
+  SetupFile << " VThreshold1        0x" << std::hex << (int)getVThreshold1() << std::dec << "\n";
+  SetupFile << " VThreshold2        0x" << std::hex << (int)getVThreshold2() << std::dec << "\n";
+  SetupFile << "\n";
+}
+
 void gem::hw::vfat::HwVFAT2::configureDevice(std::string const& xmlSettings)
 {
   //here load the xml file settings onto the chip
