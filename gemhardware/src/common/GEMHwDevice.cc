@@ -8,8 +8,8 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   //p_gemConnectionManager(0),
   //p_gemHW(0),
   gemLogger_(log4cplus::Logger::getInstance(deviceName)),
-  hwLock_(toolbox::BSem::FULL, true),
-  is_connected_(false)
+  is_connected_(false),
+  hwLock_(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
 {
   //need to grab these parameters from the xml file or from some configuration space/file/db
@@ -52,8 +52,8 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& connectionFile,
                                   std::string const& cardName):
   //p_gemConnectionManager(0),
   //p_gemHW(0),
-  hwLock_(toolbox::BSem::FULL, true),
-  is_connected_(false)
+  is_connected_(false),
+  hwLock_(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
 {
   gemLogger_ = log4cplus::Logger::getInstance(cardName);
@@ -222,6 +222,7 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
     uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
     return hw;
   }
+  //have to fix the return value for failed access, better to return a pointer?
 }
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)

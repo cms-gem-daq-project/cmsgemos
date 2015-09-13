@@ -1,10 +1,12 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
+//#include "gem/readout/GEMslotContents.h"
+
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
-#include "gem/utils/GEMLogging.h"
+//#include "gem/utils/GEMLogging.h"
 
 #include <iomanip>
 #include <iostream>
@@ -128,9 +130,6 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   fsm_.setInitialState('H');
   fsm_.reset();
 
-  vfat_ = 0;
-  event_ = 0;
-  sumVFAT_ = 0;
   counter_ = {0,0,0};
 
 }
@@ -152,11 +151,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
 
     auto num = confParams_.bag.deviceNum.begin();
     for (auto chip = confParams_.bag.deviceName.begin();
-         chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
-      ss << "Device name: " << chip->toString() << std::endl;
-    }
+      chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
+        ss << "Device name: " << chip->toString() << std::endl;
+      }
     INFO(ss.str());
   }
+
 }
 
 xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onConfigure(xoap::MessageReference message) {
@@ -255,8 +255,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
        << cgicc::br();
   *out << "Resync counter: "      << ResyncCount_    << cgicc::br();
   *out << "BC0 counter: "         << BC0Count_       << cgicc::br();
-  *out << "VFAT blocks counter: " << (counter_[0]-1) << " dumped to disk"          << cgicc::br();
-  *out << "VFATs counter: "       << counter_[2]     << " VFATs chips, last event" << cgicc::br();
+  *out << "VFAT blocks counter: " << counter_[0]     << " dumped to disk"          << cgicc::br();
+  *out << "VFATs counter, last event: " << counter_[2]     << " VFATs chips" << cgicc::br();
   *out << "Output filename: "     << confParams_.bag.outFileName.toString()        << cgicc::br();
   *out << "Output type: "         << confParams_.bag.outputType.toString()         << cgicc::br();
 
@@ -358,35 +358,24 @@ void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::O
 void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out ) {
   // Derive device number from device name
 
-  //change to vector loop J.S. July 16
-  for (int i = 0; i < 24; ++i) {
-    std::string tmpDeviceName = confParams_.bag.deviceName[i].toString();
-    //auto num = confParams_.bag.deviceNum.begin();
-    //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
-    //std::string tmpDeviceName = chip->toString();
-    int tmpDeviceNum = -1;
-    tmpDeviceName.erase(0,4);
-    if (tmpDeviceName != "")
-      tmpDeviceNum = atoi(tmpDeviceName.c_str());
-
-    if ( tmpDeviceNum >= 0 ) {
-      confParams_.bag.deviceNum[i] = tmpDeviceNum;
-      //0-7 maps to 1
-      //8-15 maps to 2
-      //16-23 maps to 4
-      if (tmpDeviceNum < 8)
-        readout_mask |= 0x1;
-      else if (tmpDeviceNum < 16)
-        readout_mask |= 0x2;
-      else if (tmpDeviceNum < 24)
-        readout_mask |= 0x4;
-      //*num = tmpDeviceNum
-      INFO(" webConfigure : DeviceName " << i << " " << confParams_.bag.deviceName[i].toString());
-      INFO(" webConfigure : DeviceNum "  << i << " " << confParams_.bag.deviceNum[i].toString());
-      INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec);
-    }
-  }
-
+  int islot=0;
+  for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++islot ) {
+    std::string VfatName = chip->toString();
+    if (VfatName != ""){ 
+      if ( islot >= 0 ) {
+        if (islot < 8)
+          readout_mask |= 0x1; //slot [0-7] maps to 1
+        else if (islot < 16)
+          readout_mask |= 0x2; //slot [8-15] maps to 2
+        else if (islot < 24)
+          readout_mask |= 0x4; //slot [16-23] maps to 4
+  
+        INFO(" webConfigure : DeviceName " << VfatName );
+        INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+      }
+    }//end if VfatName
+  }//end for chip
+  
   // Initiate configure workloop
   wl_->submit(configure_signature_);
 
@@ -423,10 +412,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO("webTrigger: sending L1A(5)");
-  optohybridDevice_->SendL1A(5);
-  sleep(0.5);
-  //need some sleep here?
+  INFO(" webTrigger: sending L1A");
+  optohybridDevice_->SendL1A(1);
+
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
   L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
@@ -583,57 +571,13 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  //set up a counter for each column/link?
-  // should the counter increment each time read action is executed?
-  //also, only read out links for VFATs in the configuration
-  //if 0-7 in deviceNum
-  if (readout_mask&0x1) {
-    DEBUG("reading out link 0");
-    //std::shared_ptr<int> pLk0(gemDataParker->dumpDataToDisk(0x0));
-    int* pLk0 = gemDataParker->dumpDataToDisk(0x0);
-    if (pLk0) {
-      vfat_    = *pLk0;
-      event_   = *(pLk0+1);
-      sumVFAT_ = *(pLk0+2);
-      counter_[0] = vfat_;
-      counter_[1] = event_;
-      counter_[2] = sumVFAT_;
-      //delete pLk0;
-    }
-    //pLk0 = 0;
+  int* pDupm = gemDataParker->dumpData(readout_mask);
+  if (pDupm) {
+    counter_[0] = *pDupm;     // VFAT Blocks counter
+    counter_[1] = *(pDupm+1); // Events counter
+    counter_[2] = *(pDupm+2); // Sum VFAT per last event
   }
-  //if 8-15 in deviceNum
-  if (readout_mask&0x2) {
-    DEBUG("reading out link 1");
-    //std::shared_ptr<int> pLk1(gemDataParker->dumpDataToDisk(0x1));
-    int* pLk1 = gemDataParker->dumpDataToDisk(0x1);
-    if (pLk1) {
-      vfat_    = *pLk1;
-      event_   = *(pLk1+1);
-      sumVFAT_ = *(pLk1+2);
-      counter_[0] += vfat_;
-      counter_[1] += event_;
-      counter_[2] += sumVFAT_;
-      //delete pLk1;
-    }
-    //pLk1 = 0;
-  }
-  //if 16-23 in deviceNum
-  if (readout_mask&0x4) {
-    DEBUG("reading out link 2");
-    //std::shared_ptr<int> pLk2(gemDataParker->dumpDataToDisk(0x2));
-    int* pLk2 = gemDataParker->dumpDataToDisk(0x2);
-    if (pLk2) {
-      vfat_    = *pLk2;
-      event_   = *(pLk2+1);
-      sumVFAT_ = *(pLk2+2);
-      counter_[0] += vfat_;
-      counter_[1] += event_;
-      counter_[2] += sumVFAT_;
-      //delete pLk2;
-    }
-    //pLk2 = 0;
-  }
+
   hw_semaphore_.give();
   wl_semaphore_.give();
 
@@ -643,13 +587,10 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 // State transitions
 void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt) {
   is_working_ = true;
+  hw_semaphore_.take();
 
-  vfat_ = 0;
-  event_ = 0;
-  sumVFAT_ = 0;
   counter_ = {0,0,0};
 
-  hw_semaphore_.take();
   glibDevice_       = new gem::hw::glib::HwGLIB();
   glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   glibDevice_->connectDevice();
@@ -658,64 +599,65 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   optohybridDevice_->connectDevice();
 
+  // Times for output files
+  time_t now  = time(0);
+  tm    *gmtm = gmtime(&now);
+  char* utcTime = asctime(gmtm);
 
-  /**Definitely need to rework this J.S July 16*/
-  //change to vector loop J.S. July 16
-  for (int i = 0; i < 24; ++i) {
-    std::string VfatName = confParams_.bag.deviceName[i].toString();
-    //for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip) {
-    //std::string VfatName = chip->toString();
+  // Setup file, information header
+  std::string SetupFileName = "Setup_";
+  SetupFileName.append(utcTime);
+  SetupFileName.erase(std::remove(SetupFileName.begin(), SetupFileName.end(), '\n'), SetupFileName.end());
+  SetupFileName.append(".txt");
+  std::replace(SetupFileName.begin(), SetupFileName.end(), ' ', '_' );
+  std::replace(SetupFileName.begin(), SetupFileName.end(), ':', '-');
 
-    std::stringstream tmpChipName;
-    tmpChipName << "VFAT" << i;
-    vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(tmpChipName.str()));
-    tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
-    tmpVFATDevice->connectDevice();
-    tmpVFATDevice->setRunMode(0);
-    // need to put all chips in sleep mode to start off
-    if (VfatName != "")
-      // Define device
+  LOG4CPLUS_INFO(getApplicationLogger(),"::configureAction " << "Created Setup file " << SetupFileName );
+
+  std::ofstream SetupFile(SetupFileName.c_str(), std::ios::app );
+  if (SetupFile.is_open()){
+    SetupFile << std::endl << "The Time & Date : " << utcTime << std::endl;
+  }
+
+  int islot=0;
+  for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++islot) {
+    std::string VfatName = chip->toString();
+
+    if (VfatName != ""){ 
+      vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName));
+      tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
+      tmpVFATDevice->connectDevice();
+      tmpVFATDevice->setRunMode(0);
+      // need to put all chips in sleep mode to start off
       vfatDevice_.push_back(tmpVFATDevice);
+      }
   }
   
-  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+  islot=0;
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
     (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
-    
     (*chip)->connectDevice();
     (*chip)->readVFAT2Counters();
     (*chip)->setRunMode(0);
+
     confParams_.bag.deviceChipID = (*chip)->getChipID();
     
     latency_   = confParams_.bag.latency;
-    
+    deviceVT1_ = confParams_.bag.deviceVT1;
+
     // Set VFAT2 registers
     (*chip)->loadDefaults();
     (*chip)->setLatency(latency_);
+    confParams_.bag.latency = (*chip)->getLatency();
     
-    (*chip)->setVThreshold1(50);
+    (*chip)->setVThreshold1(deviceVT1_);
     confParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
 
     (*chip)->setVThreshold2(0);
     confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
-    confParams_.bag.latency = (*chip)->getLatency();
-    (*chip)->setVCal(150);
-
-    // 0x00001ce1cebaabee backwards is 0x77d55d7387380000
-    // 0xdeadbeeff00dcafe backwards is 0x7f53b00ff77db57b
-    uint64_t lowermask = 0x00001ce1cebaabee;//0x77d55d7387380000
-    uint64_t uppermask = 0xdeadbeeff00dcafe;//0x7f53b00ff77db57b
-    for (int i = 0; i < 128; ++i) {
-      if (i < 64)
-        (*chip)->enableCalPulseToChannel(i+1,(lowermask>>i)&0x1);
-      else
-        (*chip)->enableCalPulseToChannel(i+1,(uppermask>>(i-64))&0x1);
-    }
   }
 
-  // Create a new output file
-  time_t now  = time(0);
-  tm    *gmtm = gmtime(&now);
-  char* utcTime = asctime(gmtm);
+  // Create a new output file for Data flow
   std::string tmpFileName = "GEM_DAQ_", tmpType = "";
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
@@ -731,11 +673,20 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   // Book GEM Data Parker
   gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpType);
 
-  // scanStream.close();
+  // Data Stream close
   outf.close();
-  
+
+  if (SetupFile.is_open()){
+    SetupFile << " Latency       " << latency_   << std::endl;
+    SetupFile << " Threshold     " << deviceVT1_ << std::endl << std::endl;
+  }
+  ////this is not good!!!
+  //hw_semaphore_.give();
+
   /** Super hacky, also doesn't work as the state is taken from the FSM rather
-      than this parameter (as it should), J.S July 16*/
+      than this parameter (as it should), J.S July 16
+      Failure of any of the conditions at the moment does't take the FSM to error, should it? J.S. Sep 13
+  */
   if (glibDevice_->isHwConnected()) {
     INFO("GLIB device connected");
     if (optohybridDevice_->isHwConnected()) {
@@ -743,13 +694,27 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
         if ((*chip)->isHwConnected()) {
           INFO("VFAT device connected: chip ID = 0x"
-               << std::setw(4) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);
+               << std::setw(4) << std::setfill('0') << std::hex
+               << (uint32_t)((*chip)->getChipID())  << std::dec);
           INFO((*chip)->printErrorCounts());
+
+          int islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
+
+          if (SetupFile.is_open()){
+            SetupFile << " VFAT device connected: slot "
+                      << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" 
+                      << std::setw(3) << std::setfill('0') << std::hex
+                      << (uint32_t)((*chip)->getChipID()) << std::dec << std::endl;
+            (*chip)->printDefaults(SetupFile);
+          }
           is_configured_  = true;
         } else {
           INFO("VFAT device not connected, breaking out");
           is_configured_  = false;
           is_working_     = false;    
+          hw_semaphore_.give();
+          // Setup header close, don't leave open file handles laying around
+          SetupFile.close();
           return;
         }
       }
@@ -757,15 +722,25 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       INFO("OptoHybrid device not connected, breaking out");
       is_configured_  = false;
       is_working_     = false;    
+      hw_semaphore_.give();
+      // Setup header close, don't leave open file handles laying around
+      SetupFile.close();
       return;
     }
   } else {
     INFO("GLIB device not connected, breaking out");
     is_configured_  = false;
     is_working_     = false;    
+    hw_semaphore_.give();
+    // Setup header close, don't leave open file handles laying around
+    SetupFile.close();
     return;
   }
   hw_semaphore_.give();
+
+  // Setup header close
+  SetupFile.close();
+
   //is_configured_  = true;
   is_working_     = false;    
   
@@ -778,13 +753,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();
 
   /*
-  //set clock source
-  optohybridDevice_->SetVFATClock();
-  optohybridDevice_->SetCDCEClock();
-  */
-
-  /*
-  //set trigger source
+   * set trigger source
   optohybridDevice_->setTrigSource(0x0);
   optohybridDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
   glibDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
@@ -856,9 +825,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
 
-  vfat_ = 0;
-  event_ = 0;
-  sumVFAT_ = 0;
   counter_ = {0,0,0};
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {

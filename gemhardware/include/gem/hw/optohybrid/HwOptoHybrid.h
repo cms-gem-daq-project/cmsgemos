@@ -266,10 +266,8 @@ namespace gem {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             for (uint64_t i = 0; i < ntrigs; ++i) {
+              //sleep(1);
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.L1A",0x1);
-              INFO("Sleeping for 0.1 seconds...");
-              sleep(0.1);
-              INFO("back!");
             }
           };
 
