@@ -44,13 +44,6 @@ std::map<uint16_t, int> counterVFATsEC = {{0,0}};
 uint64_t ZSFlag = 0;
 std::map<uint16_t, uint64_t> ZSFlagEC = {{0,0}};
 
-uint16_t gem::readout::GEMslotContents::slot[24] = {
-  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-};
-bool gem::readout::GEMslotContents::isFileRead = false;
-
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName, std::string const& outputType) :
