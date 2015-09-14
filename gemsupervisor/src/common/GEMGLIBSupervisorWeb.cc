@@ -1,12 +1,8 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
-#include "gem/readout/GEMslotContens.h"
-
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
-
-#include "gem/utils/GEMLogging.h"
 
 #include <iomanip>
 #include <iostream>
@@ -393,7 +389,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO(" webTrigger: sending L1A");
+  INFO("webTrigger: sending L1A");
   optohybridDevice_->SendL1A(1);
 
   //counting "1" Internal triggers, one link enough 
@@ -666,7 +662,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
         if ((*chip)->isHwConnected()) {
 
-          int islot = gem::readout::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
+          int islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
 
           INFO(" VFAT device connected: slot " << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" <<
               std::setw(3) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);
