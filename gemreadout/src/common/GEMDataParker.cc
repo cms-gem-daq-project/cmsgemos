@@ -13,8 +13,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-#include "gem/utils/GEMLogging.h"
-
 typedef std::shared_ptr<int*> link_shared_ptr;
 typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
 typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
@@ -46,11 +44,17 @@ std::map<uint16_t, int> counterVFATsEC = {{0,0}};
 uint64_t ZSFlag = 0;
 std::map<uint16_t, uint64_t> ZSFlagEC = {{0,0}};
 
+uint16_t gem::readout::GEMslotContents::slot[24] = {
+  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+};
+bool gem::readout::GEMslotContents::isFileRead = false;
+
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
-                                           std::string const& outFileName,
-                                           std::string const& outputType) :
-     gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker")))
+                                           std::string const& outFileName, std::string const& outputType) :
+  gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker")))
 {
   //gemLogger_   = log4cplus::Logger::getInstance("gem:readout:GEMDataParker");
   glibDevice_  = &glibDevice;
@@ -64,9 +68,8 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   gem::readout::GEMslotContents::initSlots();
 }
 
-int* gem::readout::GEMDataParker::dumpData(
-                                           uint8_t const& readout_mask
-){
+int* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
+{
   // Book GEM Data format
   AMCGEMData  gem;
   AMCGEBData  geb;
@@ -127,6 +130,7 @@ void gem::readout::GEMDataParker::dumpDataToDisk(
   DEBUG(" ABC::dumpDataToDisk " << "counter VFATs " << counter_[0] << " event " << counter_[1] << " , per event counter VFATs " << counter_[2]);
 
 }
+
 
 int gem::readout::GEMDataParker::getGLIBData(
                                              uint8_t const& link,
@@ -299,6 +303,7 @@ int gem::readout::GEMDataParker::getGLIBData(
   }// while(!bufferDepth)
   return vfat_;
 }
+
 
 void gem::readout::GEMDataParker::VFATfillData(
                                                int const& counterVFATs,
