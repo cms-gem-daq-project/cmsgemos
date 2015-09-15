@@ -391,7 +391,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   hw_semaphore_.take();
 
   INFO("webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(1);
+  optohybridDevice_->SendL1A(2);
 
   //counting "1" Internal triggers, one link enough 
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
