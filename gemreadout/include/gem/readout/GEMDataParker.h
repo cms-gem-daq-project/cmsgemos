@@ -1,6 +1,10 @@
 #ifndef gem_readout_GEMDataParker_h
 #define gem_readout_GEMDataParker_h
 
+//#include "gem/readout/GEMDataParker.h"
+//#include "gem/readout/GEMslotContents.h"
+#include "gem/readout/GEMDataAMCformat.h"
+
 #include "xdata/String.h"
 #include <string>
 
@@ -13,9 +17,7 @@ namespace gem {
     }   
   }
   namespace readout {
-    struct VFATData;
-    struct GEBData;
-    struct GEMData;
+    struct GEMDataAMCformat;
   }
   namespace readout {
     class GEMDataParker
@@ -24,18 +26,29 @@ namespace gem {
       GEMDataParker(gem::hw::glib::HwGLIB& glibDevice, std::string const& outFileName, std::string const& outputType);
       ~GEMDataParker() {};
 
-      int *dumpDataToDisk(uint8_t const& link);
+      int* dumpData        ( uint8_t const& mask );
+      void  dumpDataToDisk ( uint8_t const& link,
+                             gem::readout::GEMDataAMCformat::GEMData& gem,
+                             gem::readout::GEMDataAMCformat::GEBData& geb,
+                             gem::readout::GEMDataAMCformat::VFATData& vfat );
+      int  getGLIBData     ( uint8_t const& link,
+                             gem::readout::GEMDataAMCformat::GEMData& gem,
+                             gem::readout::GEMDataAMCformat::GEBData& geb,
+ 		             gem::readout::GEMDataAMCformat::VFATData& vfat
+                           );
+      void GEMfillHeaders  ( uint16_t const& BC,
+                             gem::readout::GEMDataAMCformat::GEMData& gem,
+                             gem::readout::GEMDataAMCformat::GEBData& geb );
+      void VFATfillData    ( int const& counterVFATs,
+                             gem::readout::GEMDataAMCformat::GEMData& gem,
+                             gem::readout::GEMDataAMCformat::GEBData& geb,
+                             gem::readout::GEMDataAMCformat::VFATData& vfat );
+      void GEMfillTrailers ( gem::readout::GEMDataAMCformat::GEMData& gem,
+                             gem::readout::GEMDataAMCformat::GEBData& geb );
 
-      int  getGLIBData  (uint8_t const& link,
-                         gem::readout::GEMData& gem,
-                         gem::readout::GEBData& geb, 
-                         gem::readout::VFATData& vfat);
-      void fillGEMevent (gem::readout::GEMData& gem,
-                         gem::readout::GEBData& geb, 
-                         gem::readout::VFATData& vfat);
-      void writeGEMevent(gem::readout::GEMData& gem,
-                         gem::readout::GEBData& geb,
-                         gem::readout::VFATData& vfat);
+      void writeGEMevent   ( gem::readout::GEMDataAMCformat::GEMData& gem,
+                             gem::readout::GEMDataAMCformat::GEBData& geb,
+                             gem::readout::GEMDataAMCformat::VFATData& vfat );
 
     private:
 
@@ -44,7 +57,12 @@ namespace gem {
       std::string outFileName_;
       std::string outputType_;
 
-      // Counter all in one
+      /*
+       * Counter all in one
+       *   [0] VFAT's Blocks Counter
+       *   [1] Events Counter
+       *   [2] VFATs counter per last event
+       */
       int counter_[3];
 
       // VFAT's Blocks Counter     

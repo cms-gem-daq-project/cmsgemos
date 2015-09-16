@@ -1,12 +1,9 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
-#include "gem/readout/GEMslotContens.h"
 
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
-
-#include "gem/utils/GEMLogging.h"
 
 #include <iomanip>
 #include <iostream>
@@ -130,9 +127,6 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   fsm_.setInitialState('H');
   fsm_.reset();
 
-  vfat_ = 0;
-  event_ = 0;
-  sumVFAT_ = 0;
   counter_ = {0,0,0};
 
 }
@@ -397,7 +391,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   hw_semaphore_.take();
 
   INFO("webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(1);
+  optohybridDevice_->SendL1A(2);
 
   //counting "1" Internal triggers, one link enough 
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
@@ -547,57 +541,13 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  //set up a counter for each column/link?
-  // should the counter increment each time read action is executed?
-  //also, only read out links for VFATs in the configuration
-  //if 0-7 in deviceNum
-  if (readout_mask&0x1) {
-    DEBUG("reading out link 0");
-    //std::shared_ptr<int> pLk0(gemDataParker->dumpDataToDisk(0x0));
-    int* pLk0 = gemDataParker->dumpDataToDisk(0x0);
-    if (pLk0) {
-      vfat_    = *pLk0;
-      event_   = *(pLk0+1);
-      sumVFAT_ = *(pLk0+2);
-      counter_[0] = vfat_;
-      counter_[1] = event_;
-      counter_[2] = sumVFAT_;
-      //delete pLk0;
-    }
-    //pLk0 = 0;
+  int* pDupm = gemDataParker->dumpData(readout_mask);
+  if (pDupm) {
+    counter_[0] = *pDupm;     // VFAT Blocks counter
+    counter_[1] = *(pDupm+1); // Events counter
+    counter_[2] = *(pDupm+2); // Sum VFAT per last event
   }
-  //if 8-15 in deviceNum
-  if (readout_mask&0x2) {
-    DEBUG("reading out link 1");
-    //std::shared_ptr<int> pLk1 = pLk1(gemDataParker->dumpDataToDisk(0x1));
-    int* pLk1 = gemDataParker->dumpDataToDisk(0x1);
-    if (pLk1) {
-      vfat_    = *pLk1;
-      event_   = *(pLk1+1);
-      sumVFAT_ = *(pLk1+2);
-      counter_[0] = vfat_;
-      counter_[1] = event_;
-      counter_[2] = sumVFAT_;
-      //delete pLk1;
-    }
-    //pLk1 = 0;
-  }
-  //if 16-23 in deviceNum
-  if (readout_mask&0x4) {
-    DEBUG("reading out link 2");
-    //std::shared_ptr<int> pLk2(gemDataParker->dumpDataToDisk(0x2));
-    int* pLk2 = gemDataParker->dumpDataToDisk(0x2);
-    if (pLk2) {
-      vfat_    = *pLk2;
-      event_   = *(pLk2+1);
-      sumVFAT_ = *(pLk2+2);
-      counter_[0] = vfat_;
-      counter_[1] = event_;
-      counter_[2] = sumVFAT_;
-      //delete pLk2;
-    }
-    //pLk2 = 0;
-  }
+
   hw_semaphore_.give();
   wl_semaphore_.give();
 
@@ -607,13 +557,10 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 // State transitions
 void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt) {
   is_working_ = true;
+  hw_semaphore_.take();
 
-  vfat_ = 0;
-  event_ = 0;
-  sumVFAT_ = 0;
   counter_ = {0,0,0};
 
-  hw_semaphore_.take();
   glibDevice_       = new gem::hw::glib::HwGLIB();
   glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   glibDevice_->connectDevice();
@@ -656,25 +603,28 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       }
   }
   
-  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+  islot=0;
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
     (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
     (*chip)->connectDevice();
     (*chip)->readVFAT2Counters();
     (*chip)->setRunMode(0);
+
     confParams_.bag.deviceChipID = (*chip)->getChipID();
     
     latency_   = confParams_.bag.latency;
-    
+    deviceVT1_ = confParams_.bag.deviceVT1;
+
     // Set VFAT2 registers
     (*chip)->loadDefaults();
     (*chip)->setLatency(latency_);
+    confParams_.bag.latency = (*chip)->getLatency();
     
-    (*chip)->setVThreshold1(50);
+    (*chip)->setVThreshold1(deviceVT1_);
     confParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
 
     (*chip)->setVThreshold2(0);
     confParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
-    confParams_.bag.latency = (*chip)->getLatency();
     
   }
 
@@ -699,6 +649,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   if (SetupFile.is_open()){
     SetupFile << " Latency       " << latency_ << std::endl;
+    SetupFile << " Threshold     " << deviceVT1_ <<"\n"<< std::endl;
   }
 
   hw_semaphore_.give();
@@ -712,7 +663,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
         if ((*chip)->isHwConnected()) {
 
-          int islot = gem::readout::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
+          int islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
 
           INFO(" VFAT device connected: slot " << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" <<
               std::setw(3) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);
@@ -720,6 +671,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
           if (SetupFile.is_open()){
             SetupFile << " VFAT device connected: slot " << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" << 
               std::setw(3) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec << std::endl;
+            (*chip)->printDefaults(SetupFile);
           }
 
           is_configured_  = true;
@@ -758,13 +710,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();
 
   /*
-  //set clock source
-  optohybridDevice_->SetVFATClock();
-  optohybridDevice_->SetCDCEClock();
-  */
-
-  /*
-  //set trigger source
+   * set trigger source
   optohybridDevice_->setTrigSource(0x0);
   optohybridDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
   glibDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
@@ -813,9 +759,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
 
-  vfat_ = 0;
-  event_ = 0;
-  sumVFAT_ = 0;
   counter_ = {0,0,0};
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
