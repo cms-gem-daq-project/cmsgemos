@@ -240,7 +240,7 @@ int gem::readout::GEMDataParker::getGLIBData(
       MaxEvent++;
       numBX.erase(BX);
       numBX.insert(std::pair<uint16_t, uint16_t>(BX,MaxEvent));
-      INFO(" ABC::getGLIBData env 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second );
+      DEBUG(" ABC::getGLIBData BX 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second );
     }
 
     INFO(" ABC::getGLIBData event_ " << event_ << " vfat_ " << vfat_ << " counterVFATs " << counterVFAT.find(evn)->second <<
