@@ -28,23 +28,24 @@ bool gem::readout::GEMslotContents::isFileRead = false;
 
 uint32_t bufferCount = 0;
 uint32_t islotNegativeCount = 0;
-uint32_t BXexp = -1;
-uint32_t BX;
 bool dumpGEMevent_ = false;
 
-//  EC "event conter"
-std::map<uint16_t, bool> isFirstEC = {{0, true}};
-std::map<uint16_t, uint32_t> ECexpEC = {{0,-1}};
+std::map<uint16_t, bool> isFirst = {{0, true}};
 
 int counterVFATs = 0;
-std::map<uint16_t, int> counterVFATsEC = {{0,0}};
+std::map<uint16_t, int> counterVFAT = {{0,0}};
 
 uint64_t ZSFlag = 0;
-std::map<uint16_t, uint64_t> ZSFlagEC = {{0,0}};
+std::map<uint16_t, uint64_t> ZSFlagBX = {{0,0}};
 
-int event_ = 0; 
+int event_ = 0;
 int MaxEvent = 0;
 std::map<uint16_t, int> numEC = {};
+
+//  BX based "event conter"
+uint16_t BX;
+std::map<uint16_t, uint16_t> numBX = {};
+std::map<uint16_t, uint16_t> BXexp = {{0,-1}};
 
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
@@ -175,7 +176,7 @@ int gem::readout::GEMDataParker::getGLIBData(
       */
     }
 
-    BX = data.at(6);
+    BX = (uint16_t)data.at(6);
     vfat_++;
 
     bcn     = (0x0fff0000 & data.at(5)) >> 16;
@@ -192,59 +193,57 @@ int gem::readout::GEMDataParker::getGLIBData(
       continue;
     }
 
-    // if (BX == BXexp) { // temporary off
-    if (evn == ECexpEC.find(evn)->second ) { 
-      isFirstEC.erase(evn);
-      isFirstEC.insert(std::pair<uint16_t, bool>(evn,false));
+    if ( BX == BXexp.find(BX)->second ) { 
+      isFirst.erase(BX);
+      isFirst.insert(std::pair<uint16_t, bool>(BX,false));
     } else { 
-      isFirstEC.erase(evn);
-      isFirstEC.insert(std::pair<uint16_t, bool>(evn,true));
+      isFirst.erase(BX);
+      isFirst.insert(std::pair<uint16_t, bool>(BX,true));
     }
   
-    INFO(" ABC::getGLIBData EC " << std::hex << evn << std::dec << " bool " << isFirstEC.find(evn)->second );
-    if ( isFirstEC.find(evn)->second ) {
+    DEBUG(" ABC::getGLIBData BX " << std::hex << BX << std::dec << " bool " << isFirst.find(BX)->second );
+    if ( isFirst.find(BX)->second ) {
 
-      isFirstEC.erase(evn);
-      isFirstEC.insert(std::pair<uint16_t, bool>(evn,false));
+      isFirst.erase(BX);
+      isFirst.insert(std::pair<uint16_t, bool>(BX,false));
 
-      //BXexp = BX;
-      ECexpEC.erase(evn);
-      ECexpEC.insert(std::pair<uint16_t, uint32_t>(evn,evn));
-  
+      BXexp.erase(BX);
+      BXexp.insert(std::pair<uint16_t, uint16_t>(BX,BX));
+
       counterVFATs = 0;
-      counterVFATsEC.erase(evn);
-      counterVFATsEC.insert(std::pair<uint16_t, int>(evn,0));
+      counterVFAT.erase(BX);
+      counterVFAT.insert(std::pair<uint16_t, int>(BX,0));
   
       ZSFlag = 0;
-      ZSFlagEC.erase(evn);
-      ZSFlagEC.insert(std::pair<uint16_t, uint64_t>(evn,0));
-  
-      numEC.erase(evn);
-      numEC.insert(std::pair<uint16_t, int>(evn,0));
+      ZSFlagBX.erase(BX);
+      ZSFlagBX.insert(std::pair<uint16_t, uint64_t>(BX,0));
 
-      INFO(" ABC::getGLIBData isFirst  ECexp 0x" << std::hex << ECexpEC.find(evn)->second << " evn 0x" << evn << std::dec << 
+      numBX.erase(BX);
+      numBX.insert(std::pair<uint16_t, uint16_t>(BX,0));
+      INFO(" ABC::getGLIBData isFirst  BXexp 0x" << std::hex << BXexp.find(evn)->second << " BX 0x" << BX << std::dec << 
            " vfat_ " << vfat_ << " event_ " << event_ );
 
     }
     counterVFATs++;
-    counterVFATsEC.erase(evn);
-    counterVFATsEC.insert(std::pair<uint16_t, int>(evn,counterVFATs));
+    counterVFAT.erase(BX);
+    counterVFAT.insert(std::pair<uint16_t, int>(BX,counterVFATs));
   
     bufferCount--;
 
-    std::map<uint16_t, int>::iterator it;
-    it=numEC.find(evn);
-    if (it != numEC.end()){
-      // local event calculator inside one buffer
-      MaxEvent = numEC.find(evn)->second;
+    std::map<uint16_t, uint16_t>::iterator it;
+
+    it=numBX.find(BX);
+    if (it != numBX.end()){
+      // local event calculator inside one buffer, BX based 
+      MaxEvent = numBX.find(BX)->second;
       MaxEvent++;
-      numEC.erase(evn);
-      numEC.insert(std::pair<uint16_t, int>(evn,MaxEvent));
-      INFO(" ABC::getGLIBData env 0x" << std::hex << evn << std::dec << " numEC " <<  numEC.find(evn)->second );
+      numBX.erase(BX);
+      numBX.insert(std::pair<uint16_t, uint16_t>(BX,MaxEvent));
+      INFO(" ABC::getGLIBData env 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second );
     }
 
-    INFO(" ABC::getGLIBData event_ " << event_ << " vfat_ " << vfat_ << " counterVFATs " << counterVFATsEC.find(evn)->second <<
-	 " vfats.size " << int(vfats.size()) << std::hex << " evn 0x" << evn << std::dec );
+    INFO(" ABC::getGLIBData event_ " << event_ << " vfat_ " << vfat_ << " counterVFATs " << counterVFAT.find(evn)->second <<
+	 " vfats.size " << int(vfats.size()) << std::hex << " BX 0x" << BX << std::dec );
 
     uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
     uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
@@ -268,7 +267,7 @@ int gem::readout::GEMDataParker::getGLIBData(
     * dump VFAT data
     GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
     INFO(" ABC::getGLIBData slot " << islot );
-    */
+   */
 
    /*
     * VFATs Pay Load
@@ -279,14 +278,14 @@ int gem::readout::GEMDataParker::getGLIBData(
     if ( bufferCount == 0 ){
       
       // contents all local events (one buffer, all links):
-      for (std::map<uint16_t, int>::iterator it=numEC.begin(); it!=numEC.end(); ++it){
+      for (std::map<uint16_t, uint16_t>::iterator it=numBX.begin(); it!=numBX.end(); ++it){
          event_++;
-         INFO(" ABC::getGLIBData END env 0x" << std::hex << it->first << std::dec << " numEC " <<  it->second << " event_ " << event_);
+         DEBUG(" ABC::getGLIBData END BX 0x" << std::hex << it->first << std::dec << " numBX " <<  it->second << " event_ " << event_);
 
          int nChip=0;
          for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=vfats.begin(); iVFAT != vfats.end(); ++iVFAT) {
 
-           uint16_t localEvent = ((0x0ff0 & (*iVFAT).EC ) >> 4);
+           uint16_t localEvent = (*iVFAT).BXfrOH;
            DEBUG(" vfats evn 0x" << it->first << " EC " << localEvent );
 
            if ( it->first == localEvent ) {
@@ -296,6 +295,7 @@ int gem::readout::GEMDataParker::getGLIBData(
              vfat.ChipID = (*iVFAT).ChipID;
              vfat.lsData = (*iVFAT).lsData;
              vfat.msData = (*iVFAT).msData;
+             vfat.BXfrOH = (*iVFAT).BXfrOH;
              vfat.crc    = (*iVFAT).crc;
              
             /*
@@ -311,7 +311,7 @@ int gem::readout::GEMDataParker::getGLIBData(
             /*    
              * GEM data filling
              */
-             gem::readout::GEMDataParker::VFATfillData(counterVFATsEC.find(evn)->second, gem, geb, vfat);
+             gem::readout::GEMDataParker::VFATfillData(counterVFAT.find(BX)->second, gem, geb, vfat);
 
              if ( it->second == nChip ){
                ZSFlag = 0;
@@ -342,14 +342,15 @@ int gem::readout::GEMDataParker::getGLIBData(
    
        // local event cleaning 
        numEC.clear();
+       numBX.clear();
        MaxEvent = 0;
 
        // reset event logic
-       isFirstEC.erase(evn);
-       isFirstEC.insert(std::pair<uint16_t, bool>(evn,true));
+       isFirst.erase(BX);
+       isFirst.insert(std::pair<uint16_t, bool>(BX,true));
 
-       counterVFATsEC.clear();
-       ZSFlagEC.clear();
+       counterVFAT.clear();
+       ZSFlagBX.clear();
 
     }//end if, event writing
   }// while(!bufferDepth)
