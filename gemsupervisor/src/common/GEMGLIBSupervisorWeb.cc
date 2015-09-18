@@ -32,6 +32,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   triggerSource = 0x0;
   deviceChipID  = 0x0; 
+  //can't assume a single value for all chips
   deviceVT1     = 0x0; 
   deviceVT2     = 0x0; 
 
@@ -53,7 +54,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 // Main constructor
 gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStub * s):
   xdaq::WebApplication(s),
-  gemLogger_(this->getApplicationLogger()),
+  m_gemLogger(this->getApplicationLogger()),
   wl_semaphore_(toolbox::BSem::FULL),
   hw_semaphore_(toolbox::BSem::FULL),
   readout_mask(0x0),

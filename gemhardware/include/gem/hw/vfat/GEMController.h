@@ -218,7 +218,7 @@ namespace gem {
 
           std::map<std::string,uint32_t>    vfatFullRegs_;
           std::map<std::string,uint8_t>     vfatRegs_;
-          gem::hw::vfat::VFAT2ControlParams vfatParams_;
+          gem::hw::vfat::VFAT2ControlParams m_vfatParams;
 
         private:
           std::vector<std::string>          nodes_;
@@ -250,7 +250,7 @@ namespace gem {
           std::string fileWarning;
           std::string fileError;
 	  
-          log4cplus::Logger gemLogger_;
+          log4cplus::Logger m_gemLogger;
 
           class GEMControllerPanelWeb {
           public:
