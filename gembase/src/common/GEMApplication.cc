@@ -39,23 +39,26 @@
 gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   throw (xdaq::exception::Exception) :
   xdaq::WebApplication(stub),
-  gemLogger_(this->getApplicationLogger()),
-  gemWebInterfaceP_(NULL),
-  gemMonitorP_(     NULL)
+  m_gemLogger(this->getApplicationLogger()),
+  p_gemWebInterface(NULL),
+  p_gemMonitor(     NULL),
+  m_runNumber(-1),
+  m_runType("")
+
 {
-  DEBUG("called gem::base::GEMApplication constructor");
+  INFO("called gem::base::GEMApplication constructor");
   
-  gemWebInterfaceP_ = new GEMWebApplication(this);
+  p_gemWebInterface = new GEMWebApplication(this);
 
   try {
-    appInfoSpaceP_  = getApplicationInfoSpace();
-    appDescriptorP_ = getApplicationDescriptor();
-    appContextP_    = getApplicationContext();
-    appZoneP_       = appContextP_->getDefaultZone();
-    appGroupP_      = appZoneP_->getApplicationGroup("default");
-    xmlClass_       = appDescriptorP_->getClassName();
-    instance_       = appDescriptorP_->getInstance();
-    urn_            = appDescriptorP_->getURN();
+    p_appInfoSpace  = getApplicationInfoSpace();
+    p_appDescriptor = getApplicationDescriptor();
+    p_appContext    = getApplicationContext();
+    p_appZone       = p_appContext->getDefaultZone();
+    p_appGroup      = p_appZone->getApplicationGroup("default");
+    m_xmlClass      = p_appDescriptor->getClassName();
+    m_instance      = p_appDescriptor->getInstance();
+    m_urn           = p_appDescriptor->getURN();
   }
   catch(xcept::Exception e) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Failed to get GEM application information", e);
@@ -65,12 +68,18 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
 
-  appInfoSpaceP_->addListener(this, "urn:xdaq-event:setDefaultValues");
-  appInfoSpaceP_->fireItemAvailable("configuration:parameters", configInfoSpaceP_ );
-  appInfoSpaceP_->fireItemAvailable("monitoring:parameters",    monitorInfoSpaceP_);
-  //appInfoSpaceP_->fireItemAvailable("reasonForFailure", &reasonForFailure_);
+  p_appInfoSpace->addListener(    this, "urn:xdaq-event:setDefaultValues");
+  //p_configInfoSpace->addListener( this, "urn:xdaq-event:setDefaultValues");
+  //p_monitorInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
+  p_appInfoSpace->fireItemAvailable("configuration:parameters", p_configInfoSpace );
+  p_appInfoSpace->fireItemAvailable("monitoring:parameters",    p_monitorInfoSpace);
+  //p_appInfoSpace->fireItemAvailable("reasonForFailure", &reasonForFailure_);
   
-  DEBUG("gem::base::GEMApplication constructed");
+  p_appInfoSpace->fireItemAvailable("RunNumber",&m_runNumber);
+  p_appInfoSpace->fireItemAvailable("RunType",  &m_runType  );
+  p_appInfoSpace->fireItemAvailable("CfgType",  &m_cfgType  );
+
+  INFO("gem::base::GEMApplication constructed");
 }
 
 
@@ -159,14 +168,14 @@ void gem::base::GEMApplication::updateMonitoringInfoSpace() {
 
 
 void gem::base::GEMApplication::xgiDefault(xgi::Input* in, xgi::Output* out) {
-  gemWebInterfaceP_->webDefault(in,out);
+  p_gemWebInterface->webDefault(in,out);
 }
 
 void gem::base::GEMApplication::xgiMonitor(xgi::Input* in, xgi::Output* out) {
-  gemWebInterfaceP_->monitorPage(in,out);
+  p_gemWebInterface->monitorPage(in,out);
 }
 
 void gem::base::GEMApplication::xgiExpert(xgi::Input* in, xgi::Output* out) {
-  gemWebInterfaceP_->expertPage(in,out);
+  p_gemWebInterface->expertPage(in,out);
 }
 // End of file
