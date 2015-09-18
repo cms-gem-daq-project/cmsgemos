@@ -76,18 +76,19 @@ namespace gem {
       virtual void webReset(     xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
 	
-      log4cplus::Logger gemLogger_;
+      log4cplus::Logger m_gemLogger;
 	
-      GEMMonitor*        gemMonitorP_;
-      GEMFSMApplication* gemFSMAppP_;
-      GEMApplication*    gemAppP_;
-      //xdaq::Application* gemAppP_;
+      GEMMonitor*        p_gemMonitor;
+      GEMFSMApplication* p_gemFSMApp;
+      GEMApplication*    p_gemApp;
+      //xdaq::Application* p_gemApp;
 
-      bool is_working_, is_initialized_, is_configured_, is_running_, is_paused_;
+      bool b_is_working, b_is_initialized, b_is_configured, b_is_running, b_is_paused;
 
     private:
-	
+
       GEMWebApplication(GEMWebApplication const&);
+      virtual void buildCfgWebpage();
 
     };
   } // namespace gem::base
