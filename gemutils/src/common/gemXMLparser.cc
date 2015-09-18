@@ -10,11 +10,11 @@
 gem::utils::gemXMLparser::gemXMLparser(const std::string& xmlFile):
   xmlFile_(xmlFile),
   gemSystem_(new gemSystemProperties()),
-  gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:utils:GEMXMLParser")))
+  m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:utils:GEMXMLParser")))
 {
   //ogemSystem_ = new gemSystemProperties();
   gemSystem_->setDeviceId("GEM");
-  gemLogger_.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
+  m_gemLogger.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
 }
 
 
