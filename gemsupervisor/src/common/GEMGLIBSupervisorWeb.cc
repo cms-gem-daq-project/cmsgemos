@@ -541,7 +541,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  int* pDupm = gemDataParker->dumpData(readout_mask);
+  uint64_t* pDupm = gemDataParker->dumpData(readout_mask);
   if (pDupm) {
     counter_[0] = *pDupm;     // VFAT Blocks counter
     counter_[1] = *(pDupm+1); // Events counter

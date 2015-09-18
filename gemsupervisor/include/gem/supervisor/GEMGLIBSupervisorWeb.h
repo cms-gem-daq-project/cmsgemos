@@ -233,8 +233,9 @@ namespace gem {
         gem::readout::GEMDataParker* gemDataParker;
 
         // Counter
-        int counter_[3];
+        uint64_t counter_[3];
 
+        /*
         // VFAT Blocks Counter
         int vfat_;
 
@@ -243,6 +244,7 @@ namespace gem {
 
         // VFATs counter per event
         int sumVFAT_;
+	*/
 
         // L1A trigger counting
         uint32_t L1ACount_[4];

@@ -30,7 +30,7 @@ namespace gem {
                            );
       ~GEMDataParker       () {};
 
-      int* dumpData        ( uint8_t const& mask );
+      uint64_t* dumpData   ( uint8_t const& mask );
       void dumpDataToDisk  ( uint8_t const& link );
       int  getGLIBData     ( uint8_t const& link );
 
@@ -62,13 +62,13 @@ namespace gem {
        *   [1] Events Counter
        *   [2] VFATs counter per last event
        */
-      int counter_[3];
+      uint64_t counter_[3];
 
       // VFAT's Blocks Counter     
-      int vfat_;
+      uint64_t vfat_;
 
       // Events Counter     
-      int event_;
+      uint64_t event_;
          
       // VFATs counter per event
       int sumVFAT_;
