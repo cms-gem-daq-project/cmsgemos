@@ -41,7 +41,7 @@ namespace gem {
           
           ::amc13::Status *getHTMLStatus()  const;
           ::amc13::AMC13  *getAMC13Device() const {
-            return amc13Device_;
+            return p_amc13;
           };
 
           //state transitions
@@ -70,6 +70,7 @@ namespace gem {
             xdata::String amcInputEnableList;
             xdata::String amcIgnoreTTSList;
             
+            xdata::Boolean enableDAQLink;
             xdata::Boolean enableFakeData;
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
@@ -85,9 +86,9 @@ namespace gem {
           };
           
         private:
-          mutable gem::utils::Lock deviceLock_;
+          mutable gem::utils::Lock m_amc13Lock;
 	
-          ::amc13::AMC13 *amc13Device_;
+          ::amc13::AMC13 *p_amc13;
 	  
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
@@ -97,33 +98,14 @@ namespace gem {
           bool m_fakeDataEnable, m_localTtcSignalEnable;
           bool m_monBufBackPressEnable, m_megaMonitorScale;
           bool m_internalPeriodicEnable;
-          bool m_ignoreAmcTts;
+          bool m_ignoreAMCTTS;
           int m_internalPeriodicPeriod, m_preScaleFactNumOfZeros;
           int m_bcOffset;
           uint32_t m_fedId, m_sfpMask, m_slotMask;
 	  
-          //void readAMC13Registers(gem::hw::amc13::AMC13ControlParams& params);
-          //void readAMC13Registers();
-	  
-          //std::map<std::string,uint32_t>     amc13FullRegs_;
-          //std::map<std::string,uint8_t>      amc13Regs_;
-          //gem::hw::amc13::AMC13ControlParams amc13Params_;
-
-        private:
-          std::vector<std::string>          nodes_;
-
           ////counters
 
         protected:
-          /**
-           * Create a mapping between the AMC13 chipID and the connection name specified in the
-           * address table.  Can be done at initialization of the system as this will not change
-           * while running.  Possibly able to do the system scan and compare to a hardware databse
-           * This mapping can be used to send commands to specific chips through the manager interface
-           * the string is the name in the connection file, while the uint16_t is the chipID, though
-           * it need only be a uint12_t
-           **/
-          std::map<std::string, uint16_t> systemMap;
 	  
         }; //end class AMC13Manager
 
