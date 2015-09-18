@@ -66,7 +66,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
   if (p_amc13)
     delete p_amc13;
-  p_amc13(NULL);
+  p_amc13 = NULL;
 }
 
 // This is the callback used for handling xdata:Event objects
