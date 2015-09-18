@@ -31,19 +31,19 @@ uint32_t islotNegativeCount = 0;
 uint64_t ZSFlag = 0;
 bool dumpGEMevent_ = false;
 
-std::map<uint16_t, bool> isFirst = {{0, true}};
+std::map<uint32_t, bool> isFirst = {{0, true}};
 
 int counterVFATs = 0;
-std::map<uint16_t, int> counterVFAT = {{0,0}};
+std::map<uint32_t, int> counterVFAT = {{0,0}};
 
 int event_ = 0;
 int MaxEvent = 0;
-std::map<uint16_t, int> numEC = {};
+std::map<uint32_t, int> numEC = {};
 
 //  BX based "event conter"
-uint16_t BX;
-std::map<uint16_t, uint16_t> numBX = {};
-std::map<uint16_t, uint16_t> BXexp = {{0,-1}};
+uint32_t BX;
+std::map<uint32_t, uint32_t> numBX = {};
+std::map<uint32_t, uint32_t> BXexp = {{0,-1}};
 
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(
@@ -172,7 +172,7 @@ int gem::readout::GEMDataParker::getGLIBData(
       */
     }
 
-    BX = (uint16_t)data.at(6);
+    BX = (uint32_t)data.at(6);
     vfat_++;
 
     bcn     = (0x0fff0000 & data.at(5)) >> 16;
@@ -191,27 +191,27 @@ int gem::readout::GEMDataParker::getGLIBData(
 
     if ( BX == BXexp.find(BX)->second ) { 
       isFirst.erase(BX);
-      isFirst.insert(std::pair<uint16_t, bool>(BX,false));
+      isFirst.insert(std::pair<uint32_t, bool>(BX,false));
     } else { 
       isFirst.erase(BX);
-      isFirst.insert(std::pair<uint16_t, bool>(BX,true));
+      isFirst.insert(std::pair<uint32_t, bool>(BX,true));
     }
   
     DEBUG(" ::getGLIBData BX " << std::hex << BX << std::dec << " bool " << isFirst.find(BX)->second );
     if ( isFirst.find(BX)->second ) {
 
       isFirst.erase(BX);
-      isFirst.insert(std::pair<uint16_t, bool>(BX,false));
+      isFirst.insert(std::pair<uint32_t, bool>(BX,false));
 
       BXexp.erase(BX);
-      BXexp.insert(std::pair<uint16_t, uint16_t>(BX,BX));
+      BXexp.insert(std::pair<uint32_t, uint32_t>(BX,BX));
 
       counterVFATs = 0;
       counterVFAT.erase(BX);
-      counterVFAT.insert(std::pair<uint16_t, int>(BX,0));
+      counterVFAT.insert(std::pair<uint32_t, int>(BX,0));
 
       numBX.erase(BX);
-      numBX.insert(std::pair<uint16_t, uint16_t>(BX,0));
+      numBX.insert(std::pair<uint32_t, uint32_t>(BX,0));
       DEBUG(" ABC::getGLIBData isFirst  BXexp 0x" << std::hex << BXexp.find(evn)->second << " BX 0x" << BX << std::dec << 
            " vfat_ " << vfat_ << " event_ " << event_ );
 
@@ -220,11 +220,11 @@ int gem::readout::GEMDataParker::getGLIBData(
     }
     counterVFATs++;
     counterVFAT.erase(BX);
-    counterVFAT.insert(std::pair<uint16_t, int>(BX,counterVFATs));
+    counterVFAT.insert(std::pair<uint32_t, int>(BX,counterVFATs));
   
     bufferCount--;
 
-    std::map<uint16_t, uint16_t>::iterator it;
+    std::map<uint32_t, uint32_t>::iterator it;
 
     it=numBX.find(BX);
     if (it != numBX.end()){
@@ -232,7 +232,7 @@ int gem::readout::GEMDataParker::getGLIBData(
       MaxEvent = numBX.find(BX)->second;
       MaxEvent++;
       numBX.erase(BX);
-      numBX.insert(std::pair<uint16_t, uint16_t>(BX,MaxEvent));
+      numBX.insert(std::pair<uint32_t, uint32_t>(BX,MaxEvent));
       DEBUG(" ::getGLIBData BX 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second );
     }
 
@@ -275,7 +275,7 @@ int gem::readout::GEMDataParker::getGLIBData(
 
       int IlocalEvent = 0;
       // contents all local events (one buffer, all links):
-      for (std::map<uint16_t, uint16_t>::iterator it=numBX.begin(); it!=numBX.end(); ++it){
+      for (std::map<uint32_t, uint32_t>::iterator it=numBX.begin(); it!=numBX.end(); ++it){
          event_++;
          IlocalEvent++;
          DEBUG(" ABC::getGLIBData END BX 0x" << std::hex << it->first << std::dec << " numBX " <<  it->second << " event_ " << event_);
@@ -283,7 +283,7 @@ int gem::readout::GEMDataParker::getGLIBData(
          int nChip = 0;
          for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=vfats.begin(); iVFAT != vfats.end(); ++iVFAT) {
 
-           uint16_t localEvent = (*iVFAT).BXfrOH;
+           uint32_t localEvent = (*iVFAT).BXfrOH;
            DEBUG(" vfats evn 0x" << it->first << " EC " << localEvent );
 
            if ( it->first == localEvent ) {
@@ -351,7 +351,7 @@ int gem::readout::GEMDataParker::getGLIBData(
 
        // reset event logic
        isFirst.erase(BX);
-       isFirst.insert(std::pair<uint16_t, bool>(BX,true));
+       isFirst.insert(std::pair<uint32_t, bool>(BX,true));
 
        counterVFAT.clear();
        ZSFlag = 0;
