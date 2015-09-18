@@ -67,12 +67,8 @@ gem::readout::GEMDataParker::GEMDataParker(
   gem::readout::GEMslotContents::initSlots();
 }
 
-int* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
+uint64_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
 {
-  // Book GEM Data format
-  AMCGEMData  gem;
-  AMCGEBData  geb;
-
   // Get the size of GLIB data buffer
   uint32_t bufferDepth = 0;
   if (readout_mask&0x1)
@@ -83,28 +79,25 @@ int* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
     bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
   bufferCount = bufferDepth;
 
-  int *point = &counter_[0]; 
+  uint64_t *point = &counter_[0]; 
 
-  DEBUG(" ABC::dumpData " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
+  INFO(" ABC::dumpData " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
         " bufferDepth " << bufferDepth );
 
   //if [0-7] in deviceNum
   if (readout_mask & 0x1) {
     gem::readout::GEMDataParker::dumpDataToDisk(0x0);
-    DEBUG(" ABC::dumpData link0 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
-         " geb.vfats.size " << int(geb.vfats.size()) );
+    DEBUG(" ABC::dumpData link0 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] );
   }
   //if [8-15] in deviceNum
   if (readout_mask & 0x2) {
     gem::readout::GEMDataParker::dumpDataToDisk(0x1);
-    DEBUG(" ABC::dumpData link1 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
-         " geb.vfats.size " << int(geb.vfats.size()) );
+    DEBUG(" ABC::dumpData link1 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] );
   }
   //if [16-23] in deviceNum
   if (readout_mask & 0x4) {
     gem::readout::GEMDataParker::dumpDataToDisk(0x2);
-    DEBUG(" ABC::dumpData link2 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
-         " geb.vfats.size " << int(geb.vfats.size()) );
+    DEBUG(" ABC::dumpData link2 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] );
   }
   return point;
 }
@@ -275,16 +268,18 @@ int gem::readout::GEMDataParker::getGLIBData(
     */
     vfats.push_back(vfat);
   
-    DEBUG(" ABC::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount );
-
     if ( bufferCount == 0 ){
       
+      INFO(" CDE::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << " event " << event_);
+
+      int IlocalEvent = 0;
       // contents all local events (one buffer, all links):
       for (std::map<uint16_t, uint16_t>::iterator it=numBX.begin(); it!=numBX.end(); ++it){
          event_++;
+         IlocalEvent++;
          DEBUG(" ABC::getGLIBData END BX 0x" << std::hex << it->first << std::dec << " numBX " <<  it->second << " event_ " << event_);
 
-         int nChip=0;
+         int nChip = 0;
          for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=vfats.begin(); iVFAT != vfats.end(); ++iVFAT) {
 
            uint16_t localEvent = (*iVFAT).BXfrOH;
@@ -305,8 +300,9 @@ int gem::readout::GEMDataParker::getGLIBData(
              */
              geb.vfats.push_back(vfat);
          
-             /* */
+             /*
              GEMDataAMCformat::printVFATdataBits(nChip, vfat);
+             */
              int islot = gem::readout::GEMslotContents::GEBslotIndex((uint32_t)vfat.ChipID );
              DEBUG(" ABC::getGLIBData  writeGEMevent slot " << islot);
 
@@ -327,7 +323,7 @@ int gem::readout::GEMDataParker::getGLIBData(
                     /*
                      * GEM Event Writing
                      */
-                     DEBUG(" ABC::getGLIBData writing...  vfats.size " << int(vfats.size()) );
+                     DEBUG(" ABC::getGLIBData writing...  geb.vfats.size " << int(geb.vfats.size()) );
                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
         
                      geb.vfats.clear();
@@ -340,8 +336,13 @@ int gem::readout::GEMDataParker::getGLIBData(
 
   	   }// if localEvent
          }//end of GEB PayLoad Data
-       }//end of all events
-   
+       }//end of all local events
+
+       vfats.clear();
+       INFO(" CDE::getGLIBData local event counter " << IlocalEvent << " vfats.size " << int(vfats.size()));
+
+       IlocalEvent = 0;
+
        // local event cleaning 
        numEC.clear();
        numBX.clear();
