@@ -2,16 +2,10 @@
 #define gem_hw_amc13_AMC13Manager_h
 
 //copying general structure of the HCAL DTCManager (HCAL name for AMC13)
-#include <string>
-#include <memory>
-
 #include "uhal/uhal.hpp"
 
 #include "gem/base/GEMFSMApplication.h"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+#include "gem/hw/amc13/exception/Exception.h"
 
 namespace amc13 {
   class AMC13;
@@ -44,40 +38,22 @@ namespace gem {
           virtual void disable() throw (gem::base::exception::Exception);
 	  
           virtual void actionPerformed(xdata::Event& event);
-	  
+          
           ::amc13::Status *getHTMLStatus()  const;
           ::amc13::AMC13  *getAMC13Device() const {
             return amc13Device_;
           };
 
-          /*
-          // work loop call-back functions
-          virtual bool initializeAction(toolbox::task::WorkLoop *wl);
-          virtual bool enableAction(    toolbox::task::WorkLoop *wl);
-          virtual bool configureAction( toolbox::task::WorkLoop *wl);
-          virtual bool startAction(     toolbox::task::WorkLoop *wl);
-          virtual bool pauseAction(     toolbox::task::WorkLoop *wl);
-          virtual bool resumeAction(    toolbox::task::WorkLoop *wl);
-          virtual bool stopAction(      toolbox::task::WorkLoop *wl);
-          virtual bool haltAction(      toolbox::task::WorkLoop *wl);
-          virtual bool resetAction(     toolbox::task::WorkLoop *wl);
-          //virtual bool noAction(        toolbox::task::WorkLoop *wl);
-          virtual bool failAction(      toolbox::task::WorkLoop *wl);
-
-          //bool calibrationAction(toolbox::task::WorkLoop *wl);
-          //bool calibrationSequencer(toolbox::task::WorkLoop *wl);
-          */
-	
           //state transitions
-          virtual void initializeAction();
-          virtual void enableAction(    );
-          virtual void configureAction( );
-          virtual void startAction(     );
-          virtual void pauseAction(     );
-          virtual void resumeAction(    );
-          virtual void stopAction(      );
-          virtual void haltAction(      );
-          virtual void noAction(        ); 
+          virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
+          virtual void configureAction()  throw (gem::hw::amc13::exception::Exception);
+          virtual void startAction()      throw (gem::hw::amc13::exception::Exception);
+          virtual void pauseAction()      throw (gem::hw::amc13::exception::Exception);
+          virtual void resumeAction()     throw (gem::hw::amc13::exception::Exception);
+          virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
+          virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
+          virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
+          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
 	
           virtual void failAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception); 

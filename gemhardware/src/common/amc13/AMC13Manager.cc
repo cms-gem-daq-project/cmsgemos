@@ -9,7 +9,7 @@
 #include "gem/hw/amc13/AMC13ManagerWeb.h"
 #include "gem/hw/amc13/AMC13Manager.h"
 
-#include "gem/hw/amc13/exception/Exception.h"
+//#include "gem/hw/amc13/exception/Exception.h"
 
 #include "amc13/AMC13.hh"
 #include "amc13/Status.hh"
@@ -50,14 +50,14 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   getApplicationInfoSpace()->fireItemAvailable("amc13ConfigParams",    &m_amc13Params);
 
   //initialize the AMC13Manager application objects
-  LOG4CPLUS_DEBUG(getApplicationLogger(), "connecting to the AMC13ManagerWeb interface");
-  gemWebInterfaceP_ = new gem::hw::amc13::AMC13ManagerWeb(this);
-  //gemMonitorP_      = new gem::hw::amc13::AMC13HwMonitor(this);
-  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
+  DEBUG("connecting to the AMC13ManagerWeb interface");
+  p_gemWebInterface = new gem::hw::amc13::AMC13ManagerWeb(this);
+  //p_gemMonitor      = new gem::hw::amc13::AMC13HwMonitor(this);
+  DEBUG("done");
 
-  LOG4CPLUS_DEBUG(getApplicationLogger(), "executing preInit for AMC13Manager");
+  DEBUG("executing preInit for AMC13Manager");
   preInit();
-  LOG4CPLUS_DEBUG(getApplicationLogger(), "done");
+  DEBUG("done");
   getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 }
 
@@ -69,9 +69,9 @@ gem::hw::amc13::AMC13Manager::~AMC13Manager() {
 void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    LOG4CPLUS_DEBUG(getApplicationLogger(), "AMC13Manager::actionPerformed() setDefaultValues" << 
+    DEBUG("AMC13Manager::actionPerformed() setDefaultValues" << 
                     "Default configuration values have been loaded from xml profile");
-    //gemMonitorP_->startMonitoring();
+    //p_gemMonitor->startMonitoring();
   }
   // update monitoring variables
   gem::base::GEMApplication::actionPerformed(event);
@@ -87,17 +87,17 @@ void gem::hw::amc13::AMC13Manager::preInit()
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
     amc13Device_ = new ::amc13::AMC13(connection,cardname+"T1",cardname+"T2");
   } catch (uhal::exception::exception & e) {
-    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught uhal::exception:") + e.what() );
+    ERROR(std::string("AMC13::AMC13() failed, caught uhal::exception:") + e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (std::exception& e) {
-    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught std::exception:") + e.what() );
+    ERROR(std::string("AMC13::AMC13() failed, caught std::exception:") + e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (...) {
-    LOG4CPLUS_ERROR(getApplicationLogger(), std::string("AMC13::AMC13() failed, caught ...") );
+    ERROR(std::string("AMC13::AMC13() failed, caught ...") );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
   }
 
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13::AMC13()");
+  DEBUG("finished with AMC13::AMC13()");
 
   try {
     // just T2-related work here.
@@ -111,7 +111,7 @@ void gem::hw::amc13::AMC13Manager::preInit()
   } catch (std::exception& e) {
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"finished with AMC13Manager::preInit()");
+  DEBUG("finished with AMC13Manager::preInit()");
 }
 
 void gem::hw::amc13::AMC13Manager::init()
@@ -119,7 +119,7 @@ void gem::hw::amc13::AMC13Manager::init()
 {
   gem::base::GEMFSMApplication::init();
 
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::init()");
+  DEBUG("Entering gem::hw::amc13::AMC13Manager::init()");
   if (amc13Device_==0) return;
   
   //have to set up the initialization of the AMC13 for the desired running situation
@@ -140,7 +140,7 @@ void gem::hw::amc13::AMC13Manager::init()
 
 void gem::hw::amc13::AMC13Manager::enable()
   throw (gem::base::exception::Exception) {
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::enable()");
+  DEBUG("Entering gem::hw::amc13::AMC13Manager::enable()");
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
   amc13Device_->startRun();
@@ -148,7 +148,7 @@ void gem::hw::amc13::AMC13Manager::enable()
 
 void gem::hw::amc13::AMC13Manager::disable()
   throw (gem::base::exception::Exception) {
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"Entering gem::hw::amc13::AMC13Manager::disable()");
+  DEBUG("Entering gem::hw::amc13::AMC13Manager::disable()");
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(deviceLock_);
   amc13Device_->endRun();
@@ -159,36 +159,18 @@ void gem::hw::amc13::AMC13Manager::disable()
   return amc13Device_->getStatus(); 
 }
 
-/*
-// work loop call-back functions
-bool gem::hw::amc13::AMC13Manager::initializeAction(toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::enableAction(    toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::configureAction( toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::startAction(     toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::pauseAction(     toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::resumeAction(    toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::stopAction(      toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::haltAction(      toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::resetAction(     toolbox::task::WorkLoop *wl) {};
-//bool gem::hw::amc13::AMC13Manager::noAction(        toolbox::task::WorkLoop *wl) {};
-bool gem::hw::amc13::AMC13Manager::failAction(      toolbox::task::WorkLoop *wl) {};
-
-//bool gem::hw::amc13::AMC13Manager::calibrationAction(toolbox::task::WorkLoop *wl) {};
-//bool gem::hw::amc13::AMC13Manager::calibrationSequencer(toolbox::task::WorkLoop *wl) {};
-*/
-	
 //state transitions
-void gem::hw::amc13::AMC13Manager::initializeAction() {}
-void gem::hw::amc13::AMC13Manager::enableAction(    ) {}
-void gem::hw::amc13::AMC13Manager::configureAction( ) {}
-void gem::hw::amc13::AMC13Manager::startAction(     ) {}
-void gem::hw::amc13::AMC13Manager::pauseAction(     ) {}
-void gem::hw::amc13::AMC13Manager::resumeAction(    ) {}
-void gem::hw::amc13::AMC13Manager::stopAction(      ) {}
-void gem::hw::amc13::AMC13Manager::haltAction(      ) {}
-void gem::hw::amc13::AMC13Manager::noAction(        ) {}
+void gem::hw::amc13::AMC13Manager::initializeAction() throw (gem::hw::amc13::exception::Exception) {}
+void gem::hw::amc13::AMC13Manager::configureAction()  throw (gem::hw::amc13::exception::Exception) {}
+void gem::hw::amc13::AMC13Manager::startAction()      throw (gem::hw::amc13::exception::Exception) {}
+void gem::hw::amc13::AMC13Manager::pauseAction()      throw (gem::hw::amc13::exception::Exception) {}
+void gem::hw::amc13::AMC13Manager::resumeAction()     throw (gem::hw::amc13::exception::Exception) {}
+void gem::hw::amc13::AMC13Manager::stopAction()       throw (gem::hw::amc13::exception::Exception) {}
+void gem::hw::amc13::AMC13Manager::haltAction()       throw (gem::hw::amc13::exception::Exception) {}
+void gem::hw::amc13::AMC13Manager::resetAction()      throw (gem::hw::amc13::exception::Exception) {}
+//void gem::hw::amc13::AMC13Manager::noAction()         throw (gem::hw::amc13::exception::Exception) {}
 
-void gem::hw::amc13::AMC13Manager::failAction(      toolbox::Event::Reference e)
+void gem::hw::amc13::AMC13Manager::failAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
 }
 

@@ -1,23 +1,15 @@
 #ifndef gem_hw_glib_GLIBManager_h
 #define gem_hw_glib_GLIBManager_h
 
-#include <string>
-
-#include "xdata/String.h"
-#include "xdata/UnsignedLong.h"
-#include "xdata/UnsignedInteger32.h"
-
 #include "uhal/uhal.hpp"
 
-#include "xgi/framework/Method.h"
-#include "cgicc/HTMLClasses.h"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+//#include "xgi/framework/Method.h"
+//#include "cgicc/HTMLClasses.h"
 
 #include "gem/base/GEMFSMApplication.h"
 //#include "gem/hw/glib/GLIBSettings.h"
+
+#include "gem/hw/glib/exception/Exception.h"
 
 namespace gem {
   namespace base {
@@ -49,34 +41,16 @@ namespace gem {
 	  
           virtual void actionPerformed(xdata::Event& event);
 	  
-          /*
-          // work loop call-back functions
-          virtual bool initializeAction(toolbox::task::WorkLoop *wl);
-          virtual bool enableAction(    toolbox::task::WorkLoop *wl);
-          virtual bool configureAction( toolbox::task::WorkLoop *wl);
-          virtual bool startAction(     toolbox::task::WorkLoop *wl);
-          virtual bool pauseAction(     toolbox::task::WorkLoop *wl);
-          virtual bool resumeAction(    toolbox::task::WorkLoop *wl);
-          virtual bool stopAction(      toolbox::task::WorkLoop *wl);
-          virtual bool haltAction(      toolbox::task::WorkLoop *wl);
-          virtual bool resetAction(     toolbox::task::WorkLoop *wl);
-          //virtual bool noAction(        toolbox::task::WorkLoop *wl);
-          virtual bool failAction(      toolbox::task::WorkLoop *wl);
-
-          //bool calibrationAction(toolbox::task::WorkLoop *wl);
-          //bool calibrationSequencer(toolbox::task::WorkLoop *wl);
-          */
-	
           //state transitions
-          virtual void initializeAction();
-          virtual void enableAction(    );
-          virtual void configureAction( );
-          virtual void startAction(     );
-          virtual void pauseAction(     );
-          virtual void resumeAction(    );
-          virtual void stopAction(      );
-          virtual void haltAction(      );
-          virtual void noAction(        ); 
+          virtual void initializeAction() throw (gem::hw::glib::exception::Exception);
+          virtual void configureAction()  throw (gem::hw::glib::exception::Exception);
+          virtual void startAction()      throw (gem::hw::glib::exception::Exception);
+          virtual void pauseAction()      throw (gem::hw::glib::exception::Exception);
+          virtual void resumeAction()     throw (gem::hw::glib::exception::Exception);
+          virtual void stopAction()       throw (gem::hw::glib::exception::Exception);
+          virtual void haltAction()       throw (gem::hw::glib::exception::Exception);
+          virtual void resetAction()      throw (gem::hw::glib::exception::Exception);
+          //virtual void noAction()         throw (gem::hw::glib::exception::Exception); 
 	
           virtual void failAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception); 
@@ -86,7 +60,11 @@ namespace gem {
 	
 	  
         private:
-	  
+	  uint16_t parseAMCEnableList(std::string const&);
+	  bool     isValidSlotNumber( std::string const&);
+
+          uint16_t m_amcEnableMask;
+
           class GLIBInfo {
 	    
           public:
@@ -101,6 +79,7 @@ namespace gem {
 	  
           HwGLIB* m_glibs[MAX_AMCS_PER_CRATE];
           xdata::Bag<GLIBInfo> m_glibInfo[MAX_AMCS_PER_CRATE];
+          xdata::String        m_amcSlots;
         }; //end class GLIBManager
       
     }//end namespace gem::hw::glib
