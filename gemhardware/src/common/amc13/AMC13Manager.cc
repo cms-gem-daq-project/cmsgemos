@@ -42,7 +42,7 @@ void gem::hw::amc13::AMC13Manager::ConfigParams::registerFields(xdata::Bag<Confi
 gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
-  p_amc13(0)
+  p_amc13(NULL)
 {
   m_crateID = -1;
   m_slot    = 13;
