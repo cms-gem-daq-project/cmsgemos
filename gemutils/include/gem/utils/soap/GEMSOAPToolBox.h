@@ -20,13 +20,13 @@ namespace gem {
       {
       public:
         //methods copied from tcds soap helper
-        static xoap::MessageReference makeSoapReply(std::string const& command,
+        static xoap::MessageReference makeSOAPReply(std::string const& command,
                                                     std::string const& response);
-        static xoap::MessageReference makeSoapFaultReply(std::string const& faultString,
+        static xoap::MessageReference makeSOAPFaultReply(std::string const& faultString,
                                                          std::string const& faultCode="Server",
                                                          std::string const& faultActor="",
                                                          std::string const& detail="");
-        static xoap::MessageReference makeFSMSoapReply(std::string const& event,
+        static xoap::MessageReference makeFSMSOAPReply(std::string const& event,
                                                        std::string const& state);
 	
         static std::string extractFSMCommandName(xoap::MessageReference const& msg);
