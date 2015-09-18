@@ -222,29 +222,27 @@ namespace gem {
       // These methods provide access to the member variables
       // specifying the uhal address table name and the IPbus protocol
       // version.
-      const std::string getAddressTableFileName() const { return addressTable_;   };
-      const std::string getIPbusProtocolVersion() const { return ipbusProtocol_;  };
-      const std::string getDeviceBaseNode()       const { return deviceBaseNode_; };
-      const std::string getDeviceIPAddress()      const { return deviceIPAddr_;   };
-      const std::string getDeviceID()             const { return deviceID_;       };
+      const std::string getAddressTableFileName() const { return m_addressTable;   };
+      const std::string getIPbusProtocolVersion() const { return m_ipbusProtocol;  };
+      const std::string getDeviceBaseNode()       const { return m_deviceBaseNode; };
+      const std::string getDeviceIPAddress()      const { return m_deviceIPAddr;   };
+      const std::string getDeviceID()             const { return m_deviceID;       };
 
       void setAddressTableFileName(std::string const& name) {
-        addressTable_ = "file://${BUILD_HOME}/data/"+name; };
+        m_addressTable = "file://${BUILD_HOME}/data/"+name; };
       void setIPbusProtocolVersion(std::string const& version) {
-        ipbusProtocol_ = version; };
+        m_ipbusProtocol = version; };
       void setDeviceBaseNode(std::string const& deviceBase) {
-        deviceBaseNode_ = deviceBase; };
+        m_deviceBaseNode = deviceBase; };
       void setDeviceIPAddress(std::string const& deviceIPAddr) {
-        deviceIPAddr_ = deviceIPAddr; };
+        m_deviceIPAddr = deviceIPAddr; };
       void setDeviceID(std::string const& deviceID) {
-        deviceID_ = deviceID; };
+        m_deviceID = deviceID; };
 	
       uhal::HwInterface& getGEMHwInterface() const;
 	
       void updateErrorCounters(std::string const& errCode);
 	
-      DeviceErrors ipBusErrs_;
-      
       virtual std::string printErrorCounts() const;
 	
       std::string uint32ToString(uint32_t const val) const {
@@ -279,22 +277,24 @@ namespace gem {
             <<(uint32_t)((val2 & (0x000000ff)))           << std::dec;
         return res.str(); };
 	
-      bool is_connected_;
+      DeviceErrors m_ipBusErrs;
+      
+      bool b_is_connected;
 
     protected:
       std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager;
       std::shared_ptr<uhal::HwInterface> p_gemHW;
 
-      log4cplus::Logger gemLogger_;
+      log4cplus::Logger m_gemLogger;
 		
-      mutable gem::utils::Lock hwLock_;
+      mutable gem::utils::Lock m_hwLock;
 
     private:
-      std::string addressTable_;
-      std::string ipbusProtocol_;
-      std::string deviceBaseNode_;
-      std::string deviceIPAddr_;
-      std::string deviceID_;
+      std::string m_addressTable;
+      std::string m_ipbusProtocol;
+      std::string m_deviceBaseNode;
+      std::string m_deviceIPAddr;
+      std::string m_deviceID;
 		
       bool knownErrorCode(std::string const& errCode) const;
 	

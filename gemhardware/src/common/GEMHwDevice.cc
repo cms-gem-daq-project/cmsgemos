@@ -3,27 +3,27 @@
 #include "gem/hw/GEMHwDevice.h"
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
-  //gemLogger_(gemLogger),
-  //gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(deviceName))),
+  //m_gemLogger(gemLogger),
+  //m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(deviceName))),
   //p_gemConnectionManager(0),
   //p_gemHW(0),
-  gemLogger_(log4cplus::Logger::getInstance(deviceName)),
-  is_connected_(false),
-  hwLock_(toolbox::BSem::FULL, true)
+  b_is_connected(false),
+  m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
+  m_hwLock(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
 {
   //need to grab these parameters from the xml file or from some configuration space/file/db
-  //gemLogger_ = log4cplus::Logger::getInstance(deviceName);
+  //m_gemLogger = log4cplus::Logger::getInstance(deviceName);
   setAddressTableFileName("allregsnonfram.xml");
   setIPbusProtocolVersion("2.0");
   setDeviceBaseNode("");
   setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
   
-  ipBusErrs_.BadHeader     = 0;
-  ipBusErrs_.ReadError     = 0;
-  ipBusErrs_.Timeout       = 0;
-  ipBusErrs_.ControlHubErr = 0;
+  m_ipBusErrs.BadHeader     = 0;
+  m_ipBusErrs.ReadError     = 0;
+  m_ipBusErrs.Timeout       = 0;
+  m_ipBusErrs.ControlHubErr = 0;
     
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   //gem::hw::GEMHwDevice::initDevice();
@@ -52,11 +52,11 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& connectionFile,
                                   std::string const& cardName):
   //p_gemConnectionManager(0),
   //p_gemHW(0),
-  is_connected_(false),
-  hwLock_(toolbox::BSem::FULL, true)
+  b_is_connected(false),
+  m_hwLock(toolbox::BSem::FULL, true)
   //monGEMHw_(0)
 {
-  gemLogger_ = log4cplus::Logger::getInstance(cardName);
+  m_gemLogger = log4cplus::Logger::getInstance(cardName);
   //set up device creation via connection manager
   uhal::ConnectionManager ConnectXML("file://"+connectionFile);
 
@@ -67,10 +67,10 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& connectionFile,
   setDeviceIPAddress("192.168.0.115");
   setDeviceID("GEMHwDevice");
   
-  ipBusErrs_.BadHeader     = 0;
-  ipBusErrs_.ReadError     = 0;
-  ipBusErrs_.Timeout       = 0;
-  ipBusErrs_.ControlHubErr = 0;
+  m_ipBusErrs.BadHeader     = 0;
+  m_ipBusErrs.ReadError     = 0;
+  m_ipBusErrs.Timeout       = 0;
+  m_ipBusErrs.ControlHubErr = 0;
   
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
 }
@@ -87,10 +87,10 @@ gem::hw::GEMHwDevice::~GEMHwDevice()
 std::string gem::hw::GEMHwDevice::printErrorCounts() const {
   std::stringstream errstream;
   errstream << "errors while accessing registers:"              << std::endl 
-            << "Bad header:  "       <<ipBusErrs_.BadHeader     << std::endl
-            << "Read errors: "       <<ipBusErrs_.ReadError     << std::endl
-            << "Timeouts:    "       <<ipBusErrs_.Timeout       << std::endl
-            << "Controlhub errors: " <<ipBusErrs_.ControlHubErr << std::endl;
+            << "Bad header:  "       <<m_ipBusErrs.BadHeader     << std::endl
+            << "Read errors: "       <<m_ipBusErrs.ReadError     << std::endl
+            << "Timeouts:    "       <<m_ipBusErrs.Timeout       << std::endl
+            << "Controlhub errors: " <<m_ipBusErrs.ControlHubErr << std::endl;
   DEBUG(errstream);
   return errstream.str();
 }
@@ -103,7 +103,7 @@ void gem::hw::GEMHwDevice::connectDevice()
 {
   //std::string const addressTable      = "allregsnonfram.xml";    //cfgInfoSpaceP_->getString("addressTable");
   std::string const controlhubAddress = "localhost";    //cfgInfoSpaceP_->getString("controlhubAddress");
-  std::string const deviceAddress     = deviceIPAddr_;  //cfgInfoSpaceP_->getString("deviceAddress");
+  std::string const deviceAddress     = m_deviceIPAddr;  //cfgInfoSpaceP_->getString("deviceAddress");
   uint32_t    const controlhubPort    = 10203;          //cfgInfoSpaceP_->getUInt32("controlhubPort");
   uint32_t    const ipbusPort         = 50001;          //cfgInfoSpaceP_->getUInt32("ipbusPort");
   
@@ -227,7 +227,7 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   int retryCount = 0;
@@ -274,7 +274,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   int retryCount = 0;
@@ -327,7 +327,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -363,7 +363,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 
 void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -432,7 +432,7 @@ void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames)
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
   size_t numWords       = hw.getNode(name).getSize();
   DEBUG("reading block " << name << " which has size "<<numWords);
@@ -441,7 +441,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, size_t const& numWords)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   std::vector<uint32_t> res(numWords);
@@ -489,7 +489,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   if (values.size() < 1) 
     return;
   
@@ -540,22 +540,22 @@ bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
 
 void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
   if (errCode.find("amount of data")    != std::string::npos)
-    ++ipBusErrs_.BadHeader;
+    ++m_ipBusErrs.BadHeader;
   if (errCode.find("INFO CODE = 0x4L")  != std::string::npos)
-    ++ipBusErrs_.ReadError;
+    ++m_ipBusErrs.ReadError;
   if ((errCode.find("INFO CODE = 0x6L") != std::string::npos) ||
       (errCode.find("timed out")        != std::string::npos))
-    ++ipBusErrs_.Timeout;
+    ++m_ipBusErrs.Timeout;
   if (errCode.find("ControlHub error code is: 4") != std::string::npos)
-    ++ipBusErrs_.ControlHubErr;
+    ++m_ipBusErrs.ControlHubErr;
   if ((errCode.find("had response field = 0x04") != std::string::npos) ||
       (errCode.find("had response field = 0x06") != std::string::npos))
-    ++ipBusErrs_.ControlHubErr;
+    ++m_ipBusErrs.ControlHubErr;
 }
 
 void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
   size_t numWords = hw.getNode(name).getSize();
   std::vector<uint32_t> zeros(numWords, 0);

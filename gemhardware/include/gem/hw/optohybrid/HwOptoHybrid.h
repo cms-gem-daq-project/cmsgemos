@@ -70,8 +70,8 @@ namespace gem {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)link << ".FIRMWARE";
             uint32_t fwver = readReg(getDeviceBaseNode(),regName.str());
-            INFO("OH link" << (int)link << " has firmware version 0x" 
-                 << std::hex << fwver << std::dec << std::endl);
+            DEBUG("OH link" << (int)link << " has firmware version 0x" 
+                  << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 					
@@ -111,7 +111,7 @@ namespace gem {
            * @param uint8_t resets control which bits to reset
            **/
           void ResetLinks(uint8_t const& resets) {
-            for (auto link = activeLinks.begin(); link != activeLinks.end(); ++link)
+            for (auto link = v_activeLinks.begin(); link != v_activeLinks.end(); ++link)
               LinkReset(link->first,resets);
           };
 	  
@@ -279,9 +279,9 @@ namespace gem {
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             for (uint64_t i = 0; i < npulse; ++i) {
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.CalPulse",0x1);
-              INFO("Sleeping for 0.1 seconds...");
+              DEBUG("Sleeping for 0.1 mseconds...");
               sleep(0.1);
-              INFO("back!");
+              DEBUG("back!");
             }
           };
 
@@ -294,9 +294,9 @@ namespace gem {
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             for (uint64_t i = 0; i < npulse; ++i) {
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.L1ACalPulse",delay);
-              INFO("Sleeping for 0.5 seconds...");
+              DEBUG("Sleeping for 0.5 mseconds...");
               sleep(0.5);
-              INFO("back!");
+              DEBUG("back!");
             }
           };
 
@@ -488,8 +488,8 @@ namespace gem {
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             return getGEMHwInterface(); };
 
-          std::vector<linkStatus> getActiveLinks() { return activeLinks; }
-          bool isLinkActive(int i) { return links[i]; }
+          std::vector<linkStatus> getActiveLinks() { return v_activeLinks; }
+          bool isLinkActive(int i) { return b_links[i]; }
 
         protected:
           //uhal::ConnectionManager *manageOptoHybridConnection;
@@ -501,9 +501,9 @@ namespace gem {
           //OptoHybridMonitor *monOptoHybrid_;
 					
 
-          bool links[3];
+          bool b_links[3];
 	    
-          std::vector<linkStatus> activeLinks;
+          std::vector<linkStatus> v_activeLinks;
 
         private:
           uint8_t m_controlLink;

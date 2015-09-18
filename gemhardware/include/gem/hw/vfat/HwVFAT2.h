@@ -146,7 +146,7 @@ namespace gem {
                                                                 }*/;
 
           /** readVFAT2Counters()
-           * Reads the counters on the VFAT2 chip and writes the values into the vfatParams_ object
+           * Reads the counters on the VFAT2 chip and writes the values into the m_vfatParams object
            */
           //void     readVFAT2Counters(gem::hw::vfat::VFAT2ControlParams &params);
           void     readVFAT2Counters();
@@ -154,7 +154,7 @@ namespace gem {
           /*
             void     writeReg(std::string const& regName,
             uint32_t const writeVal) {
-            INFO("gem::hw::vfat::writeReg" << std::endl);
+            DEBUG("gem::hw::vfat::writeReg" << std::endl);
             std::string name = getDeviceBaseNode()+"."+regName;
             gem::hw::GEMHwDevice::writeReg(name,writeVal); };
 
@@ -483,7 +483,7 @@ namespace gem {
 
           //void getAllSettings(gem::hw::vfat::VFAT2ControlParams &params);
           //void getAllSettings() {
-          //  return getAllSettings(vfatParams_); };
+          //  return getAllSettings(m_vfatParams); };
 
           /** Get all the chip settings
            * should be private
@@ -633,18 +633,18 @@ namespace gem {
           };
 
           gem::hw::vfat::VFAT2ControlParams getVFAT2Params() {
-            return vfatParams_; };
+            return m_vfatParams; };
 	  
           void setActiveChannelWeb(uint8_t chan) {
-            vfatParams_.activeChannel = chan; };
+            m_vfatParams.activeChannel = chan; };
 
         protected:
           //uhal::ConnectionManager *manageVFATConnection;
           //log4cplus::Logger logVFAT_;
           //uhal::HwInterface *hwVFAT_;
 	  
-          TransactionErrors vfatErrors_;
-          gem::hw::vfat::VFAT2ControlParams vfatParams_;
+          TransactionErrors m_vfatErrors;
+          gem::hw::vfat::VFAT2ControlParams m_vfatParams;
           //uhal::HwInterface& getVFA2Hw();
 	  
           //VFATMonitor *monVFAT_;
