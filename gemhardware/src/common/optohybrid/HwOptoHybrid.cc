@@ -7,8 +7,8 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
   //logOptoHybrid_(optohybridApp->getApplicationLogger()),
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0)
-  //is_connected_(false),
-  links({false,false,false}),
+  //b_is_connected(false),
+  b_links({false,false,false}),
   m_controlLink(-1)  
 {
   setDeviceID("OptoHybridHw");
@@ -24,8 +24,8 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
   //hwOptoHybrid_(0),
   //monOptoHybrid_(0),
-  //is_connected_(false),
-  links({false,false,false}),
+  //b_is_connected(false),
+  b_links({false,false,false}),
   m_controlLink(-1),
   m_slot(slot)
 {
@@ -102,8 +102,8 @@ void gem::hw::optohybrid::HwOptoHybrid::configureDevice()
 
 bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected() 
 {
-  if ( is_connected_ ) {
-    INFO("HwOptoHybrid connection good");
+  if ( b_is_connected ) {
+    DEBUG("HwOptoHybrid connection good");
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection");
@@ -118,24 +118,24 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
       // for the moment we can do a check to see that 2015 appears in the string
       //if (this->getFirmware(link)) {
       if ((this->getFirmwareDate(link)).rfind("15") != std::string::npos) {
-        links[link] = true;
+        b_links[link] = true;
         INFO("link" << link << " present(" << this->getFirmware(link) << ")");
         tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
       } else {
-        links[link] = false;
-        INFO("link" << link << " not reachable (unable to find 15 in the firmware string)");
+        b_links[link] = false;
+        DEBUG("link" << link << " not reachable (unable to find 15 in the firmware string)");
       }
     }
-    activeLinks = tmp_activeLinks;
-    if (!activeLinks.empty()) {
-      is_connected_ = true;
-      m_controlLink = (activeLinks.begin())->first;
+    v_activeLinks = tmp_activeLinks;
+    if (!v_activeLinks.empty()) {
+      b_is_connected = true;
+      m_controlLink = (v_activeLinks.begin())->first;
       INFO("connected - control link" << (int)m_controlLink);
       INFO("HwOptoHybrid connection good");
       return true;
     } else {
-      is_connected_ = false;
-      INFO("not connected - control link" << (int)m_controlLink);
+      b_is_connected = false;
+      DEBUG("not connected - control link" << (int)m_controlLink);
       return false;
     }
   } else if (m_controlLink < 0)
@@ -154,7 +154,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkS
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
-  } else if (!links[link]) {
+  } else if (!b_links[link]) {
     std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
@@ -176,7 +176,7 @@ void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t const& link, uint8_t c
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
     return;
-  } else if (!links[link]) {
+  } else if (!b_links[link]) {
     std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
