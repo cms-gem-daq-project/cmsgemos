@@ -30,7 +30,7 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    INFO("current supervisor state is" << dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getCurrentState());
+    DEBUG("current supervisor state is" << dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getCurrentState());
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
   controlPanel(in,out);
@@ -51,7 +51,7 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
 void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("controlPanel");
+  DEBUG("controlPanel");
   //*out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
   
   if (p_gemFSMApp) {
@@ -161,7 +161,7 @@ void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Outpu
 void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("Rendering GEMSupervisorWeb monitorPage");
+  DEBUG("Rendering GEMSupervisorWeb monitorPage");
   DEBUG("current level is "      << level);
   if (level != 5) {
     try {
@@ -231,7 +231,7 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
 void gem::supervisor::GEMSupervisorWeb::expertPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("rendering GEMSupervisorWeb expertPage");
+  DEBUG("rendering GEMSupervisorWeb expertPage");
   //should put all this style information into a common CSS sheet
   *out << cgicc::section().set("style","display:inline-block;float:left") << std::endl
        << cgicc::fieldset().set("style","style=\"display:block\";padding:5px;margin:5px;list-style-type:none;margin-bottom:5px;line-height:18px;padding:2px 5px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;border:medium outset #CCC;")

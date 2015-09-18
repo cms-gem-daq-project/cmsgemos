@@ -28,8 +28,8 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   p_gemApp(gemAppP),
   m_gemLogger(gemAppP->getApplicationLogger()),
   m_gemRCMSNotifier(p_gemApp->getApplicationLogger(),
-                   p_gemApp->getApplicationDescriptor(),
-                   p_gemApp->getApplicationContext())
+                    p_gemApp->getApplicationDescriptor(),
+                    p_gemApp->getApplicationContext())
 {
   DEBUG("GEMFSM ctor begin");
   
@@ -159,8 +159,8 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   
   // Invalid transitions that should result in no action taken
   /*
-  p_gemfsm->addStateTransition(STATE_RESETTING,    STATE_INITIAL,    "IsInitial",    p_gemApp,
-                               &gem::base::GEMFSMApplication::noAction);
+    p_gemfsm->addStateTransition(STATE_RESETTING,    STATE_INITIAL,    "IsInitial",    p_gemApp,
+    &gem::base::GEMFSMApplication::noAction);
   */
   // State transition failures: i/c/h/p/s/e/r/t -> F., go to failed
   p_gemfsm->addStateTransition(STATE_INITIALIZING, STATE_FAILED, "Fail", p_gemApp,

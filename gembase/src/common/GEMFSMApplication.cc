@@ -270,10 +270,10 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference e)
 {
 }
 /*	
-void gem::base::GEMFSMApplication::failAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-}
+        void gem::base::GEMFSMApplication::failAction(toolbox::Event::Reference e)
+        throw (toolbox::fsm::exception::Exception)
+        {
+        }
 */	
 
 void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
@@ -477,26 +477,26 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
   return false
   }
 
-bool gem::base::GEMFSMApplication::fail(toolbox::task::WorkLoop *wl)
-{
+  bool gem::base::GEMFSMApplication::fail(toolbox::task::WorkLoop *wl)
+  {
   return false;
-}
+  }
 */
 
 /** transition details*/
 /*
-void gem::base::GEMFSMApplication::initializeAction()
-{
+  void gem::base::GEMFSMApplication::initializeAction()
+  {
   DEBUG(std::string("gem::base::GEMFSMApplication::initializeAction Initializing"));
-}
+  }
 
-void gem::base::GEMFSMApplication::configureAction() {}
-void gem::base::GEMFSMApplication::startAction()     {}
-void gem::base::GEMFSMApplication::pauseAction()     {}
-void gem::base::GEMFSMApplication::resumeAction()    {}
-void gem::base::GEMFSMApplication::stopAction()      {}
-void gem::base::GEMFSMApplication::haltAction()      {}
-//void gem::base::GEMFSMApplication::resetAction()     {}
-//void gem::base::GEMFSMApplication::noAction()        {} 
-//void gem::base::GEMFSMApplication::failAction()      {} 	
-*/
+  void gem::base::GEMFSMApplication::configureAction() {}
+  void gem::base::GEMFSMApplication::startAction()     {}
+  void gem::base::GEMFSMApplication::pauseAction()     {}
+  void gem::base::GEMFSMApplication::resumeAction()    {}
+  void gem::base::GEMFSMApplication::stopAction()      {}
+  void gem::base::GEMFSMApplication::haltAction()      {}
+  //void gem::base::GEMFSMApplication::resetAction()     {}
+  //void gem::base::GEMFSMApplication::noAction()        {} 
+  //void gem::base::GEMFSMApplication::failAction()      {} 	
+  */
