@@ -348,7 +348,7 @@ namespace gem {
            * @param uint8_t resets control which bits to reset
            **/
           void ResetLinks(uint8_t const& resets) {
-            for (auto link = activeLinks.begin(); link != activeLinks.end(); ++link)
+            for (auto link = v_activeLinks.begin(); link != v_activeLinks.end(); ++link)
               LinkReset(link->first,resets);
           };
 	  
@@ -428,9 +428,9 @@ namespace gem {
           //GLIBMonitor *monGLIB_;
 
 	
-          bool links[3];
+          bool b_links[3];
 	    
-          std::vector<linkStatus> activeLinks;
+          std::vector<linkStatus> v_activeLinks;
 
         private:
           uint8_t m_controlLink;

@@ -6,8 +6,8 @@ gem::hw::glib::HwGLIB::HwGLIB():
   gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
   //hwGLIB_(0),
   //monGLIB_(0),
-  //is_connected_(false),
-  links({false,false,false}),
+  //b_is_connected(false),
+  b_links({false,false,false}),
   m_controlLink(-1),
   m_crate(-1),
   m_slot(-1)
@@ -23,8 +23,8 @@ gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot):
   gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
   //hwGLIB_(0),
   //monGLIB_(0),
-  //is_connected_(false),
-  links({false,false,false}),
+  //b_is_connected(false),
+  b_links({false,false,false}),
   m_controlLink(-1),
   m_crate(crate),
   m_slot(slot)
@@ -146,8 +146,8 @@ void gem::hw::glib::HwGLIB::configureDevice()
 
 bool gem::hw::glib::HwGLIB::isHwConnected() 
 {
-  if ( is_connected_ ) {
-    INFO("basic check: HwGLIB connection good");
+  if ( b_is_connected ) {
+    DEBUG("basic check: HwGLIB connection good");
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     std::vector<linkStatus> tmp_activeLinks;
@@ -157,24 +157,24 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
       // for the moment we can do a check to see that 2015 appears in the string
       //if (this->getUserFirmware(link)) {
       if ((this->getUserFirmwareDate(link)).rfind("15") != std::string::npos) {
-        links[link] = true;
+        b_links[link] = true;
         INFO("link" << link << " present(" << this->getUserFirmware(link) << ")");
         tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
       } else {
-        links[link] = false;
-        INFO("link" << link << " not reachable (unable to find 15 in the firmware string)");
+        b_links[link] = false;
+        DEBUG("link" << link << " not reachable (unable to find 15 in the firmware string)");
       }
     }
-    activeLinks = tmp_activeLinks;
-    if (!activeLinks.empty()) {
-      is_connected_ = true;
-      m_controlLink = (activeLinks.begin())->first;
+    v_activeLinks = tmp_activeLinks;
+    if (!v_activeLinks.empty()) {
+      b_is_connected = true;
+      m_controlLink = (v_activeLinks.begin())->first;
       INFO("connected - control link" << (int)m_controlLink);
       INFO("checked links: HwGLIB connection good");
       return true;
     } else {
-      is_connected_ = false;
-      INFO("not connected - control link" << (int)m_controlLink);
+      b_is_connected = false;
+      DEBUG("not connected - control link" << (int)m_controlLink);
       return false;
     }
   } else if (m_controlLink < 0)
@@ -409,8 +409,8 @@ uint32_t gem::hw::glib::HwGLIB::getUserFirmware(uint8_t const& link)
   std::stringstream regName;
   regName << "GLIB_LINKS.LINK" << (int)link << ".USER_FW";
   uint32_t userfw = readReg(getDeviceBaseNode(),regName.str());
-  INFO("GLIB link" << (int)link << " has firmware version 0x" 
-       << std::hex << userfw << std::dec << std::endl);
+  DEBUG("GLIB link" << (int)link << " has firmware version 0x" 
+        << std::hex << userfw << std::dec << std::endl);
   return userfw;
 }
 
@@ -438,7 +438,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_
     std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
-  } else if (!links[link]) {
+  } else if (!b_links[link]) {
     std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
@@ -460,7 +460,7 @@ void gem::hw::glib::HwGLIB::LinkReset(uint8_t const& link, uint8_t const& resets
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return;
-  } else if (!links[link]) {
+  } else if (!b_links[link]) {
     std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
@@ -501,7 +501,7 @@ uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& link) {
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return fifocc;
-  } else if (!links[link]) {
+  } else if (!b_links[link]) {
     std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
@@ -511,12 +511,8 @@ uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& link) {
   std::stringstream regName;
   regName << "GLIB_LINKS.LINK" << (int)link << ".TRK_FIFO";
   fifocc = readReg(getDeviceBaseNode(),regName.str()+".DEPTH");
-  INFO(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d",
-                         link,
-                         getDeviceBaseNode().c_str(),
-                         regName.str().c_str(),
-                         ".DEPTH",
-                         fifocc));
+  DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", link, getDeviceBaseNode().c_str(),
+                          regName.str().c_str(), ".DEPTH", fifocc));
   return fifocc;
 }
 
@@ -526,7 +522,7 @@ bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& link) {
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return false;
-  } else if (!links[link]) {
+  } else if (!b_links[link]) {
     std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
@@ -545,7 +541,7 @@ std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& link
     //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     std::vector<uint32_t> data(7,0x0);
     return data;
-  } else if (!links[link]) {
+  } else if (!b_links[link]) {
     std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
@@ -566,6 +562,10 @@ std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& link
   for (auto word = trackingData.begin(); word != trackingData.end(); ++word)
     data.push_back(word->second);
   return data;
+  /*
+  regName << getDeviceBaseNode() << ".TRK_DATA.COL" << (int)link << ".DATAFIFO";
+  return readBlock(regName.str());
+  */
 }
 
 
@@ -575,7 +575,7 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& link) {
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return;
-  } else if (!links[link]) {
+  } else if (!b_links[link]) {
     std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
