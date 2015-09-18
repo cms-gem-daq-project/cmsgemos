@@ -199,7 +199,7 @@ namespace gem {
 
       private:
 
-        log4cplus::Logger gemLogger_;
+        log4cplus::Logger m_gemLogger;
 	
         toolbox::task::WorkLoop *wl_;
 
