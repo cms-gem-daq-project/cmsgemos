@@ -58,7 +58,7 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
   DEBUG("current level is "      << level);
 
   //form and control to set the display level of information
-  std::string method = toolbox::toString("/%s/monitorView",gemFSMAppP_->getApplicationDescriptor()->getURN().c_str());
+  std::string method = toolbox::toString("/%s/monitorView",p_gemFSMApp->getApplicationDescriptor()->getURN().c_str());
   *out << cgicc::form().set("method","POST").set("action",method) << std::endl;
   
   *out << cgicc::section().set("style","display:inline-block;float:left") << std::endl
@@ -99,8 +99,8 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
        << cgicc::span().set("style","display:block;float:left") << std::endl;
   
   try {
-    if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(gemFSMAppP_)->getAMC13Device()) {
-      ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(gemFSMAppP_)->getAMC13Device()->getStatus();
+    if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
+      ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus();
       s->SetHTML();
       s->Report(level,*out);
     } else {
