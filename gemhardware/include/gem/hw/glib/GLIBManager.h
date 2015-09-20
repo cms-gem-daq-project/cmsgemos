@@ -73,6 +73,8 @@ namespace gem {
             xdata::Boolean present;
             xdata::Integer crateID;
             xdata::Integer slotID;
+            xdata::Integer triggerSource;
+            xdata::Integer sbitSource;
           };
 	  
           mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];

@@ -61,10 +61,10 @@ namespace gem {
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
           
-          class ConfigParams 
+          class AMC13Info 
           {   
           public:
-            void registerFields(xdata::Bag<ConfigParams> *bag);
+            void registerFields(xdata::Bag<AMC13Info> *bag);
             
             xdata::String connectionFile;
             xdata::String amcInputEnableList;
@@ -74,6 +74,7 @@ namespace gem {
             xdata::Boolean enableFakeData;
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
+            xdata::Boolean enableLocalL1A;
 
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
@@ -82,7 +83,7 @@ namespace gem {
             xdata::UnsignedInteger32 sfpMask;
             xdata::UnsignedInteger32 slotMask;
 
-            xdata::UnsignedInteger64 enableLocalL1AMask;
+            xdata::UnsignedInteger64 localL1AMask;
           };
           
         private:
@@ -93,15 +94,17 @@ namespace gem {
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
 
-          xdata::Bag<ConfigParams> m_amc13Params;
-          std::string m_AMCInputEnableList, m_SlotEnableList, m_AMCIgnoreTTSList;
-          bool m_fakeDataEnable, m_localTtcSignalEnable;
-          bool m_monBufBackPressEnable, m_megaMonitorScale;
-          bool m_internalPeriodicEnable;
-          bool m_ignoreAMCTTS;
-          int m_internalPeriodicPeriod, m_preScaleFactNumOfZeros;
-          int m_bcOffset;
-          uint32_t m_fedId, m_sfpMask, m_slotMask;
+          xdata::Bag<AMC13Info> m_amc13Params;
+          //seems that we've duplicated the members of the m_amc13Params as class variables themselves
+          //what is the reason for this?  is it necessary/better to have these variables?
+          std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
+          bool m_enableDAQLink, m_enableFakeData;
+          bool m_monBackPressEnable, m_megaMonitorScale;
+          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A;
+          int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate;
+          int m_prescaleFactor, m_bcOffset;
+          uint32_t m_fedID, m_sfpMask, m_slotMask;
+          uint64_t m_localL1AMask;
 	  
           ////counters
 

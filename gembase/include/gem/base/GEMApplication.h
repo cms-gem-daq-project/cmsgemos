@@ -20,6 +20,28 @@
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/UnsignedInteger64.h"
 #include "xdata/String.h"
+#include "xdata/Float.h" 
+#include "xdata/Double.h" 
+#include "xdata/Boolean.h"
+#include "xdaq/XceptSerializer.h"
+
+#include "toolbox/string.h"
+
+#include "xgi/Input.h"
+#include "xgi/Method.h"
+#include "xgi/Output.h"
+#include "xoap/Method.h"
+
+#include "xcept/Exception.h"
+#include "xcept/tools.h"
+
+#include "xdaq/NamespaceURI.h"
+#include "xdaq/Application.h"
+#include "xdaq/ApplicationStub.h"
+#include "xdaq/ApplicationGroup.h"
+#include "xdaq/ApplicationContext.h"
+#include "xdaq/ApplicationDescriptorImpl.h"
+#include "xdaq/exception/Exception.h"
 
 #include "toolbox/TimeVal.h"
 
@@ -84,9 +106,9 @@ namespace gem {
       protected:
         log4cplus::Logger m_gemLogger;
 
-        xdata::InfoSpace *p_appInfoSpace;             /*generic application parameters */
-        xdata::InfoSpace *p_monitorInfoSpace;         /*monitoring parameters, stored in the appInfoSpace */
-        xdata::InfoSpace *p_configInfoSpace;          /*configuration parameters, stored in the appInfoSpace */
+        xdata::InfoSpace *p_appInfoSpace;       /* generic application parameters */
+        xdata::InfoSpace *p_monitorInfoSpace;   /* monitoring parameters, stored in the appInfoSpace */
+        xdata::InfoSpace *p_configInfoSpace;    /* configuration parameters, stored in the appInfoSpace */
 						    
         virtual void importConfigurationParameters();
         virtual void fillConfigurationInfoSpace();
@@ -111,9 +133,10 @@ namespace gem {
         xdaq::Zone                  *p_appZone;       /* */
 
         std::string m_xmlClass;
-        unsigned long m_instance;
         std::string m_urn;
 	
+        uint32_t m_instance;
+
       private:
         xdata::Integer m_runNumber;
         
