@@ -252,7 +252,7 @@ void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
 {
   INFO("webReset");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     //try{
     //  p_gemFSMApp->fireEvent("Reset");
     //} catch( toolbox::fsm::exception::Exception& e ) {
@@ -261,7 +261,7 @@ void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
   }
   webRedirect(in,out);
 }
-// End of file
+
 void gem::base::GEMWebApplication::buildCfgWebpage()
 {
 }

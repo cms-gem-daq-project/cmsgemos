@@ -214,7 +214,8 @@ gem::base::GEMFSM::~GEMFSM()
 }
 
 
-void gem::base::GEMFSM::fireEvent(toolbox::Event::Reference const &event) {
+void gem::base::GEMFSM::fireEvent(toolbox::Event::Reference const &event)
+{
   try {
     p_gemfsm->fireEvent(event);
   } catch (::toolbox::fsm::exception::Exception & e) {

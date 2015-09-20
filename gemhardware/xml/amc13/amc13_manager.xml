@@ -15,7 +15,7 @@
              which can later be replicated as needed
           -->
         <amc13ConfigParams xsi:type="soapenc:Struct">
-          <ConnectionFile     xsi:type="xsd:string">something </ConnectionFile>
+          <ConnectionFile     xsi:type="xsd:string">connectionSN170_ch.xml</ConnectionFile>
           <AMCInputEnableList xsi:type="xsd:string">2,4,10-12</AMCInputEnableList>
           <AMCIgnoreTTSList   xsi:type="xsd:string">1,3,5-9 </AMCIgnoreTTSList>
           
@@ -23,6 +23,7 @@
           <EnableFakeData      xsi:type="xsd:boolean">true</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
           <EnableLocalTTC      xsi:type="xsd:boolean">false</EnableLocalTTC>
+          <EnableLocalL1A      xsi:type="xsd:boolean">false</EnableLocalL1A>
           
           <PrescaleFactor xsi:type="xsd:integer">1</PrescaleFactor>
           <BCOffset       xsi:type="xsd:integer">1</BCOffset>
@@ -31,7 +32,7 @@
           <SFPMask  xsi:type="xsd:unsignedInt">1</SFPMask>
           <SlotMask xsi:type="xsd:unsignedInt">1</SlotMask>
           
-          <EnableLocalL1AMask xsi:type="xsd:unsignedLong">1</EnableLocalL1AMask>
+          <LocalL1AMask xsi:type="xsd:unsignedLong">1</LocalL1AMask>
         </amc13ConfigParams>
         <!-- 
            connection parameters:

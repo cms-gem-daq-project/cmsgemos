@@ -21,9 +21,11 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo() {
 }
 
 void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::glib::GLIBManager::GLIBInfo>* bag) {
-  bag->addField("crateID", &crateID);
-  bag->addField("slot",    &slotID);
-  bag->addField("present", &present);
+  bag->addField("crateID",       &crateID);
+  bag->addField("slot",          &slotID);
+  bag->addField("present",       &present);
+  bag->addField("triggerSource", &triggerSource);
+  bag->addField("sbitSource",    &sbitSource);
 }
 
 gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
@@ -33,12 +35,11 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   //maybe we put this type of stuff into a per GLIB infospace, in the monitor?
   // getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
   // getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
-  /*
-    p_appInfoSpace->fireItemAvailable("AllGLIBsInfo",     &m_glibInfo);
-    p_appInfoSpace->fireItemValueRetrieve("AllGLIBsInfo", &m_glibInfo);
-  */
+  //p_appInfoSpace->fireItemAvailable("AllGLIBsInfo", &m_glibInfo);
   p_appInfoSpace->fireItemAvailable("AMCSlots",     &m_amcSlots);
-  p_appInfoSpace->fireItemValueRetrieve("AMCSlots", &m_amcSlots);
+
+  //p_appInfoSpace->fireItemValueRetrieve("AllGLIBsInfo", &m_glibInfo);
+  p_appInfoSpace->fireItemValueRetrieve("AMCSlots",     &m_amcSlots);
 
   //initialize the GLIB application objects
   DEBUG("Connecting to the GLIBManagerWeb interface");
@@ -128,14 +129,14 @@ bool gem::hw::glib::GLIBManager::isValidSlotNumber(std::string const& s)
     int i_val;
     i_val = std::stoi(s);
     if (!(i_val > 0 && i_val < 13)) {
-      WARN("isValidSlotNumber::Found value outside expected (1-12) " << i_val);
+      ERROR("isValidSlotNumber::Found value outside expected (1-12) " << i_val);
       return false;
     }
   } catch (std::invalid_argument const& err) {
-    WARN("isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
+    ERROR("isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
     return false;
   } catch (std::out_of_range const& err) {
-    WARN("isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
+    ERROR("isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
     return false;
   }
   
@@ -233,15 +234,99 @@ void gem::hw::glib::GLIBManager::disable()
 }
 
 //state transitions
-void gem::hw::glib::GLIBManager::initializeAction() throw (gem::hw::glib::exception::Exception) {}
-void gem::hw::glib::GLIBManager::configureAction()  throw (gem::hw::glib::exception::Exception) {}
-void gem::hw::glib::GLIBManager::startAction()      throw (gem::hw::glib::exception::Exception) {}
-void gem::hw::glib::GLIBManager::pauseAction()      throw (gem::hw::glib::exception::Exception) {}
-void gem::hw::glib::GLIBManager::resumeAction()     throw (gem::hw::glib::exception::Exception) {}
-void gem::hw::glib::GLIBManager::stopAction()       throw (gem::hw::glib::exception::Exception) {}
-void gem::hw::glib::GLIBManager::haltAction()       throw (gem::hw::glib::exception::Exception) {}
-void gem::hw::glib::GLIBManager::resetAction()      throw (gem::hw::glib::exception::Exception) {}
-//void gem::hw::glib::GLIBManager::noAction()         throw (gem::hw::glib::exception::Exception) {}
+void gem::hw::glib::GLIBManager::initializeAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+  for (int slot = 1; slot <= MAX_AMCS_PER_CRATE; slot++) {    
+    GLIBInfo& info = m_glibInfo[slot].bag;
+    if ((m_amcEnableMask >> (slot-1)) & 0x1) {
+      info.slotID  = slot;
+      info.present = true;
+      //actually check presence? this just says that we expect it to be there
+      //check if there is a GLIB in the specified slot, if not, do not initialize
+      //set the web view to be empty or grey
+      //if (!info.present.value_) continue;
+      // needs .value_?
+      //p_gemWebInterface->glibInSlot(slot);
+    }
+  }  
+
+  uhal::setLogLevelTo( uhal::ErrorLevel() );
+  
+  int gemCrate = 1;
+  
+  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
+    GLIBInfo& info = m_glibInfo[slot].bag;
+    
+    //check the config file if there should be a GLIB in the specified slot, if not, do not initialize
+    if (!info.present)
+      continue;
+    
+    //info.present = true;
+    //info.slotID  = slot+1;
+    info.crateID = gemCrate;
+    
+    m_glibs[slot] = new gem::hw::glib::HwGLIB(info.crateID,info.slotID);
+    m_glibs[slot]->connectDevice();
+    //set the web view to be empty or grey
+    //if (!info.present.value_) continue;
+    //p_gemWebInterface->glibInSlot(slot);
+  }
+
+  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
+    GLIBInfo& info = m_glibInfo[slot].bag;
+
+    if (!info.present)
+      continue;
+    
+    gem::hw::glib::HwGLIB* glib = m_glibs[slot];
+    
+    if (glib->isHwConnected())
+      return;
+  }
+}
+
+void gem::hw::glib::GLIBManager::configureAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+}
+
+void gem::hw::glib::GLIBManager::startAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+}
+
+void gem::hw::glib::GLIBManager::pauseAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+}
+
+void gem::hw::glib::GLIBManager::resumeAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+}
+
+void gem::hw::glib::GLIBManager::stopAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+}
+
+void gem::hw::glib::GLIBManager::haltAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+}
+
+void gem::hw::glib::GLIBManager::resetAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+}
+
+/*
+void gem::hw::glib::GLIBManager::noAction()
+  throw (gem::hw::glib::exception::Exception)
+{
+}
+*/
 
 void gem::hw::glib::GLIBManager::failAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
