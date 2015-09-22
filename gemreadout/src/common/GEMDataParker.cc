@@ -115,7 +115,8 @@ void gem::readout::GEMDataParker::dumpDataToDisk(
   counter_[1] = event_;
   counter_[2] = counterVFATs;
 
-  DEBUG(" ::dumpDataToDisk " << "counter VFATs " << counter_[0] << " event " << counter_[1] << " , per event counter VFATs " << counter_[2]);
+  DEBUG(" ::dumpDataToDisk " << "counter VFATs " << counter_[0] << " event " << counter_[1] << 
+        " , per event counter VFATs " << counter_[2]);
 
 }
 
@@ -398,7 +399,7 @@ bool gem::readout::GEMDataParker::VFATfillData(
 
 
 void gem::readout::GEMDataParker::GEMfillHeaders(
-                                                 uint16_t const& event,
+                                                 int const& event,
                                                  AMCGEMData& gem,
                                                  AMCGEBData& geb
 ){
@@ -407,11 +408,11 @@ void gem::readout::GEMDataParker::GEMfillHeaders(
    */
 
   // GEM Event Headers [1]
-  uint64_t AmcNo       = BOOST_BINARY( 1 );    // :4 
-  uint64_t ZeroFlag    = BOOST_BINARY( 0000 ); // :4
-  uint64_t LV1ID       = event;                // :24
-  uint64_t BXID        = BOOST_BINARY( 1 );    // :12
-  uint64_t DataLgth    = BOOST_BINARY( 1 );    // :20
+  uint64_t AmcNo       = BOOST_BINARY( 1 );            // :4 
+  uint64_t ZeroFlag    = BOOST_BINARY( 0000 );         // :4
+  uint64_t LV1ID       = (0x0000000000ffffff & event); // :24
+  uint64_t BXID        = BOOST_BINARY( 1 );            // :12
+  uint64_t DataLgth    = BOOST_BINARY( 1 );            // :20
 
   gem.header1 = (AmcNo <<60)|(ZeroFlag << 56)|(LV1ID <<32)|(BXID << 20)|(DataLgth);
 
