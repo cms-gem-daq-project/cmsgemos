@@ -11,7 +11,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
   m_hwLock(toolbox::BSem::FULL, true)
 {
   INFO("GEMHwDevice(std::string, std::string) ctor");
-  p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://"+connectionFile));
+  p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile));
   try {
     p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(p_gemConnectionManager->getDevice(deviceName)));
   } catch (uhal::exception::FileNotFound const& err) {

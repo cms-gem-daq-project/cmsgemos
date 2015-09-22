@@ -114,6 +114,7 @@ namespace gem {
           xdata::InfoSpace* is_glibs[MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
           xdata::String        m_amcSlots;
+          xdata::String        m_connectionFile;
         }; //end class GLIBManager
             
     }//end namespace gem::hw::glib

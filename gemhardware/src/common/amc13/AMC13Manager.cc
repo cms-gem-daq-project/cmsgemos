@@ -102,8 +102,9 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
 void gem::hw::amc13::AMC13Manager::preInit()
   throw (gem::base::exception::Exception)
 {
-  std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
-  std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
+  //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
+  //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
+  std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
   std::string cardname    = "gem.shelf01.amc13";
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
@@ -185,8 +186,9 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //hcal has a pre-init, what is the reason to not do everything in initialize?
-  std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
-  std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
+  //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
+  //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
+  std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
   std::string cardname    = "gem.shelf01.amc13";
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
