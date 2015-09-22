@@ -41,8 +41,8 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 {
 }
 
-gem::hw::glib::HwGLIB::HwGLIB(std::string       const& glibDevice,
-                              uhal::HwInterface const& uhalDevice) :
+gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
+                              uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(glibDevice,uhalDevice),
   b_links({false,false,false}),
   m_controlLink(-1),
@@ -90,54 +90,21 @@ gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot):
 
 gem::hw::glib::HwGLIB::~HwGLIB()
 {
-  releaseDevice();
+  //releaseDevice();
 }
 
-void gem::hw::glib::HwGLIB::configureDevice(std::string const& xmlSettings)
-{
-  //here load the xml file settings onto the board
-  
-}
-
-void gem::hw::glib::HwGLIB::configureDevice()
-{
-  //determine the manner in which to configure the device (XML or DB parameters)
-  
-}
-
+//void gem::hw::glib::HwGLIB::configureDevice(std::string const& xmlSettings)
+//{
+//  //here load the xml file settings onto the board
+//}
+//
+//void gem::hw::glib::HwGLIB::configureDevice()
+//{
+//  //determine the manner in which to configure the device (XML or DB parameters)
+//}
+//
 //void gem::hw::glib::HwGLIB::connectDevice()
 //{
-//  std::string const controlhubAddress = cfgInfoSpaceP_->getString("controlhubAddress");
-//  std::string const device1Address    = cfgInfoSpaceP_->getString("deviceAddress");
-//  uint32_t const    controlhubPort    = cfgInfoSpaceP_->getUInt32("controlhubPort");
-//  uint32_t const    ipbusPort         = cfgInfoSpaceP_->getUInt32("ipbusPort");
-//  
-//  std::stringstream tmpUri;
-//  if (controlhubAddress.size() > 0) {
-//      INFO("Using control hub at address '" << controlhubAddress
-//           << ", port number " << controlhubPort << "'.");
-//      tmpUri << "chtcp-"
-//             << getIPbusProtocolVersion()
-//             << "://"
-//             << controlhubAddress
-//             << ":"
-//             << controlhubPort
-//             << "?target="
-//             << deviceAddress
-//             << ":"
-//             << ipbusPort;
-//    } else {
-//      INFO("No control hub address specified -> "
-//           "continuing with a direct connection.");
-//      tmpUri << "ipbusudp-"
-//             << getIPbusProtocolVersion()
-//             << "://"
-//             << deviceAddress
-//             << ":"
-//             << ipbusPort;
-//    }
-//  std::string const uri = tmpUri.str();
-//  std::string const id = "HwGLIB";
 //  
 //}
 //

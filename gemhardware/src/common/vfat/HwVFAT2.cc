@@ -15,8 +15,8 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
 {
 }
 
-gem::hw::vfat::HwVFAT2::HwVFAT2(std::string       const& vfatDevice,
-                                uhal::HwInterface const& uhalDevice) :
+gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
+                                uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice,uhalDevice)
 {
 }
@@ -53,7 +53,7 @@ gem::hw::vfat::HwVFAT2::~HwVFAT2()
   //what does release device do to the hardware?
   //does it turn it off?  it probably shouldn't, in case code crashes but
   //hardware should still take data
-  releaseDevice();
+  //releaseDevice();
 }
 
 std::string gem::hw::vfat::HwVFAT2::printErrorCounts() const {
@@ -104,43 +104,41 @@ void gem::hw::vfat::HwVFAT2::loadDefaults()
 void gem::hw::vfat::HwVFAT2::printDefaults(std::ofstream& SetupFile)
 {
   //here print the default settings
-  SetupFile << "\n";
-  SetupFile << " TriggerMode        0x" << std::hex << (int)getTriggerMode() << std::dec << "\n";
-  SetupFile << " CalibrationMode    0x" << std::hex << (int)getCalibrationMode() << std::dec << "\n"; 
-  SetupFile << " MSPolarity         0x" << std::hex << (int)getMSPolarity() << std::dec << "\n"; 
-  SetupFile << " CalPolarity        0x" << std::hex << (int)getCalPolarity() << std::dec << "\n"; 
-  SetupFile << " ProbeMode          0x" << std::hex << (int)getProbeMode() << std::dec << "\n";
-  SetupFile << " LVDSMode           0x" << std::hex << (int)getLVDSMode() << std::dec << "\n";
-  SetupFile << " DACMode            0x" << std::hex << (int)getDACMode() << std::dec << "\n";
-  SetupFile << " HitCountCycleTime  0x" << std::hex << (int)getHitCountCycleTime() << std::dec << "\n";
-  SetupFile << " HitCountMode       0x" << std::hex << (int)getHitCountMode() << std::dec << "\n";
-  SetupFile << " MSPulseLength      0x" << std::hex << (int)getMSPulseLength() << std::dec << "\n";
-  SetupFile << " InputPadMode       0x" << std::hex << (int)getInputPadMode() << std::dec << "\n";
-  SetupFile << " TrimDACRange       0x" << std::hex << (int)getTrimDACRange() << std::dec << "\n";
-  SetupFile << " BandgapPad         0x" << std::hex << (int)getBandgapPad() << std::dec << "\n";
-  SetupFile << " IPreampIn          0x" << std::hex << (int)getIPreampIn() << std::dec << "\n";
-  SetupFile << " IPreampFeed        0x" << std::hex << (int)getIPreampFeed() << std::dec << "\n";
-  SetupFile << " IPreampOut         0x" << std::hex << (int)getIPreampOut() << std::dec << "\n";
-  SetupFile << " IShaper            0x" << std::hex << (int)getIShaper() << std::dec << "\n";
-  SetupFile << " IShaperFeed        0x" << std::hex << (int)getIShaperFeed() << std::dec << "\n";
-  SetupFile << " IComp              0x" << std::hex << (int)getIComp() << std::dec << "\n";
-  SetupFile << " Latency            0x" << std::hex << (int)getLatency() << std::dec << "\n";
-  SetupFile << " VThreshold1        0x" << std::hex << (int)getVThreshold1() << std::dec << "\n";
-  SetupFile << " VThreshold2        0x" << std::hex << (int)getVThreshold2() << std::dec << "\n";
-  SetupFile << "\n";
+  SetupFile << std::endl;
+  SetupFile << " TriggerMode        0x" << std::hex << (int)getTriggerMode()       << std::dec << std::endl;
+  SetupFile << " CalibrationMode    0x" << std::hex << (int)getCalibrationMode()   << std::dec << std::endl; 
+  SetupFile << " MSPolarity         0x" << std::hex << (int)getMSPolarity()        << std::dec << std::endl; 
+  SetupFile << " CalPolarity        0x" << std::hex << (int)getCalPolarity()       << std::dec << std::endl; 
+  SetupFile << " ProbeMode          0x" << std::hex << (int)getProbeMode()         << std::dec << std::endl;
+  SetupFile << " LVDSMode           0x" << std::hex << (int)getLVDSMode()          << std::dec << std::endl;
+  SetupFile << " DACMode            0x" << std::hex << (int)getDACMode()           << std::dec << std::endl;
+  SetupFile << " HitCountCycleTime  0x" << std::hex << (int)getHitCountCycleTime() << std::dec << std::endl;
+  SetupFile << " HitCountMode       0x" << std::hex << (int)getHitCountMode()      << std::dec << std::endl;
+  SetupFile << " MSPulseLength      0x" << std::hex << (int)getMSPulseLength()     << std::dec << std::endl;
+  SetupFile << " InputPadMode       0x" << std::hex << (int)getInputPadMode()      << std::dec << std::endl;
+  SetupFile << " TrimDACRange       0x" << std::hex << (int)getTrimDACRange()      << std::dec << std::endl;
+  SetupFile << " BandgapPad         0x" << std::hex << (int)getBandgapPad()        << std::dec << std::endl;
+  SetupFile << " IPreampIn          0x" << std::hex << (int)getIPreampIn()         << std::dec << std::endl;
+  SetupFile << " IPreampFeed        0x" << std::hex << (int)getIPreampFeed()       << std::dec << std::endl;
+  SetupFile << " IPreampOut         0x" << std::hex << (int)getIPreampOut()        << std::dec << std::endl;
+  SetupFile << " IShaper            0x" << std::hex << (int)getIShaper()           << std::dec << std::endl;
+  SetupFile << " IShaperFeed        0x" << std::hex << (int)getIShaperFeed()       << std::dec << std::endl;
+  SetupFile << " IComp              0x" << std::hex << (int)getIComp()             << std::dec << std::endl;
+  SetupFile << " Latency            0x" << std::hex << (int)getLatency()           << std::dec << std::endl;
+  SetupFile << " VThreshold1        0x" << std::hex << (int)getVThreshold1()       << std::dec << std::endl;
+  SetupFile << " VThreshold2        0x" << std::hex << (int)getVThreshold2()       << std::dec << std::endl;
+  SetupFile << std::endl;
 }
 
-void gem::hw::vfat::HwVFAT2::configureDevice(std::string const& xmlSettings)
-{
-  //here load the xml file settings onto the chip
-  
-}
-
-void gem::hw::vfat::HwVFAT2::configureDevice()
-{
-  //determine the manner in which to configure the device (XML or DB parameters)
-  
-}
+//void gem::hw::vfat::HwVFAT2::configureDevice(std::string const& xmlSettings)
+//{
+//  //here load the xml file settings onto the chip
+//}
+//
+//void gem::hw::vfat::HwVFAT2::configureDevice()
+//{
+//  //determine the manner in which to configure the device (XML or DB parameters)
+//}
 
 bool gem::hw::vfat::HwVFAT2::isHwConnected() 
 {
