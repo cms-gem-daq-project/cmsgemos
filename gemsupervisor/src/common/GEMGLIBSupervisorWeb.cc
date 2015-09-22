@@ -594,11 +594,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   glibDevice_       = new gem::hw::glib::HwGLIB();
   glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  glibDevice_->connectDevice();
+  //glibDevice_->connectDevice();
 
   optohybridDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
   optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  optohybridDevice_->connectDevice();
+  //optohybridDevice_->connectDevice();
 
   // Times for output files
   time_t now  = time(0);
@@ -627,7 +627,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     if (VfatName != ""){ 
       vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName));
       tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
-      tmpVFATDevice->connectDevice();
+      //tmpVFATDevice->connectDevice();
       tmpVFATDevice->setRunMode(0);
       // need to put all chips in sleep mode to start off
       vfatDevice_.push_back(tmpVFATDevice);
@@ -637,7 +637,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   islot=0;
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
     (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
-    (*chip)->connectDevice();
+    //(*chip)->connectDevice();
     (*chip)->readVFAT2Counters();
     (*chip)->setRunMode(0);
 

@@ -1443,16 +1443,16 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
   glibDevice_       = new gem::hw::glib::HwGLIB();
   glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  glibDevice_->connectDevice();
+  //glibDevice_->connectDevice();
 
   optohybridDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
   optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  optohybridDevice_->connectDevice();
+  //optohybridDevice_->connectDevice();
 
   vfatDevice_ = new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString());
   //  vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
   vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  vfatDevice_->connectDevice();
+  //vfatDevice_->connectDevice();
 
   //read in default parameters from an xml file?
   //vfatDevice_->setRegisters(xmlFile);
@@ -1657,8 +1657,8 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   hw_semaphore_.take();
   vfatDevice_->setRunMode(0);
 
-  if (vfatDevice_->isHwConnected())
-    vfatDevice_->releaseDevice();
+  //if (vfatDevice_->isHwConnected())
+  //  vfatDevice_->releaseDevice();
   
   if (vfatDevice_)
     delete vfatDevice_;
