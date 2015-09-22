@@ -318,7 +318,7 @@ int gem::readout::GEMDataParker::getGLIBData(
                     /*
                      * GEM headers and trealers filling
                      */
-                     gem::readout::GEMDataParker::GEMfillHeaders(evn, gem, geb);
+                     gem::readout::GEMDataParker::GEMfillHeaders(event_, gem, geb);
                      gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
         
                     /*
@@ -398,7 +398,7 @@ bool gem::readout::GEMDataParker::VFATfillData(
 
 
 void gem::readout::GEMDataParker::GEMfillHeaders(
-                                                 uint16_t const& BC,
+                                                 uint16_t const& event,
                                                  AMCGEMData& gem,
                                                  AMCGEBData& geb
 ){
@@ -409,7 +409,7 @@ void gem::readout::GEMDataParker::GEMfillHeaders(
   // GEM Event Headers [1]
   uint64_t AmcNo       = BOOST_BINARY( 1 );    // :4 
   uint64_t ZeroFlag    = BOOST_BINARY( 0000 ); // :4
-  uint64_t LV1ID       = BC;                   // :24
+  uint64_t LV1ID       = event;                // :24
   uint64_t BXID        = BOOST_BINARY( 1 );    // :12
   uint64_t DataLgth    = BOOST_BINARY( 1 );    // :20
 
@@ -421,7 +421,7 @@ void gem::readout::GEMDataParker::GEMfillHeaders(
   BXID     =  (0x00000000fff00000 & gem.header1) >> 20;
   DataLgth =  (0x00000000000fffff & gem.header1);
 
-  DEBUG(" ::GEMfillHeaders event_" << event_ << " LV1ID " << LV1ID << " BC " << BC);
+  INFO(" ::GEMfillHeaders event " << event << " LV1ID " << LV1ID );
 
   // GEM Event Headers [2]
   uint64_t User        = BOOST_BINARY( 1 );    // :32
