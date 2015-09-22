@@ -16,6 +16,9 @@ namespace gem {
         {
         public:
           HwGLIB();
+          HwGLIB(std::string const& glibDevice, std::string const& connectionFile);
+          HwGLIB(std::string const& glibDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwGLIB(std::string const& glibDevice, uhal::HwInterface& uhalDevice);
           HwGLIB(int const& crate, int const& slot);
 	
           ~HwGLIB();

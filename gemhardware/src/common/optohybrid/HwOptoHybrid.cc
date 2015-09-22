@@ -4,27 +4,49 @@
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
-  //logOptoHybrid_(optohybridApp->getApplicationLogger()),
-  //hwOptoHybrid_(0),
   //monOptoHybrid_(0)
-  //b_is_connected(false),
   b_links({false,false,false}),
   m_controlLink(-1)  
 {
   setDeviceID("OptoHybridHw");
   setAddressTableFileName("optohybrid_address_table.xml");
-  setIPbusProtocolVersion("2.0");
   setDeviceBaseNode("OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
   //set up which links are active, so that the control can be done without specifying a link
 }
 
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
+                                                std::string const& connectionFile) :
+  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionFile),
+  //monOptoHybrid_(0)
+  b_links({false,false,false}),
+  m_controlLink(-1)  
+{
+}
+
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
+                                                std::string const& connectionURI,
+                                                std::string const& addressTable) :
+  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionURI, addressTable),
+  //monOptoHybrid_(0)
+  b_links({false,false,false}),
+  m_controlLink(-1)  
+{
+}
+
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string       const& optohybridDevice,
+                                                uhal::HwInterface const& uhalDevice) :
+  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice,uhalDevice),
+  //monOptoHybrid_(0)
+  b_links({false,false,false}),
+  m_controlLink(-1)  
+{
+}
+
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
                                                 int const& slot):
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
-  //hwOptoHybrid_(0),
   //monOptoHybrid_(0),
-  //b_is_connected(false),
   b_links({false,false,false}),
   m_controlLink(-1),
   m_slot(slot)

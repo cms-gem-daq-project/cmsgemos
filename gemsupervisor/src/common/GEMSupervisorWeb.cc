@@ -48,6 +48,7 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
 }
 
 /*To be filled in with the control page code (only for FSM derived classes?*/
+/*
 void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
@@ -154,6 +155,7 @@ void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Outpu
     }
   }//only when the GEMFSM has been created
 }
+*/
 
 /*To be filled in with the monitor page code
  * need a way to have the content be dynamic with, e.g., AJAX

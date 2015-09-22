@@ -4,40 +4,77 @@
 
 gem::hw::glib::HwGLIB::HwGLIB():
   gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
-  //hwGLIB_(0),
   //monGLIB_(0),
-  //b_is_connected(false),
   b_links({false,false,false}),
   m_controlLink(-1),
   m_crate(-1),
   m_slot(-1)
 {
+  INFO("HwGLIB ctor");
   //use a connection file and connection manager?
   setDeviceID("GLIBHw");
   setAddressTableFileName("glib_address_table.xml");
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
+  INFO("HwGLIB ctor done");
+}
+
+gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
+                              std::string const& connectionFile) :
+  gem::hw::GEMHwDevice::GEMHwDevice(glibDevice, connectionFile),
+  b_links({false,false,false}),
+  m_controlLink(-1),
+  m_crate(-1),
+  m_slot(-1)
+{
+}
+
+gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
+                              std::string const& connectionURI,
+                              std::string const& addressTable) :
+  gem::hw::GEMHwDevice::GEMHwDevice(glibDevice, connectionURI, addressTable),
+  b_links({false,false,false}),
+  m_controlLink(-1),
+  m_crate(-1),
+  m_slot(-1)
+
+{
+}
+
+gem::hw::glib::HwGLIB::HwGLIB(std::string       const& glibDevice,
+                              uhal::HwInterface const& uhalDevice) :
+  gem::hw::GEMHwDevice::GEMHwDevice(glibDevice,uhalDevice),
+  b_links({false,false,false}),
+  m_controlLink(-1),
+  m_crate(-1),
+  m_slot(-1)
+
+{
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot):
-  gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
-  //hwGLIB_(0),
+  gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("gem.shelf%02d.glib%02d",crate,slot)),
   //monGLIB_(0),
-  //b_is_connected(false),
   b_links({false,false,false}),
   m_controlLink(-1),
   m_crate(crate),
   m_slot(slot)
 {
+  INFO("HwGLIB ctor");
   //use a connection file and connection manager?
   setDeviceID(toolbox::toString("gem.shelf%02d.glib%02d",crate,slot));
+  
   //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml" );
-  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  INFO("getting the ConnectionManager pointer");
+  //p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://../data/connections_ch.xml"));
+  INFO("getting HwInterface " << getDeviceID() << " pointer from ConnectionManager");
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
   //p_gemConnectionManager = new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml");
   //p_gemHW = new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID()));
   //setAddressTableFileName("glib_address_table.xml");
   //setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
+  INFO("setting the device base node");
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
   //  
@@ -46,8 +83,9 @@ gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot):
   //  ipBusErrs.timeouts_      = 0;
   //  ipBusErrs.controlHubErr_ = 0;
   //  
-  //  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
-  //
+  //setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+  
+  INFO("HwGLIB ctor done");
 }
 
 gem::hw::glib::HwGLIB::~HwGLIB()

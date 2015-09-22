@@ -44,7 +44,14 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
 
-  p_appInfoSpace->addListener(    this, "urn:xdaq-event:setDefaultValues");
+  p_appInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
+  //what other listeners are available through this interface?
+  p_appInfoSpace->addListener(this, "urn:xdata-event:ItemGroupRetrieveEvent");
+  p_appInfoSpace->addListener(this, "urn:xdata-event:ItemGroupChangedEvent");
+  p_appInfoSpace->addListener(this, "urn:xdata-event:ItemRetrieveEvent");
+  p_appInfoSpace->addListener(this, "urn:xdata-event:ItemChangedEvent");
+
+  //how to have infospaces inside infospaces, or listeners on multiple infospaces
   //p_configInfoSpace->addListener( this, "urn:xdaq-event:setDefaultValues");
   //p_monitorInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
   p_appInfoSpace->fireItemAvailable("configuration:parameters", p_configInfoSpace );
@@ -54,6 +61,15 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->fireItemAvailable("RunNumber",&m_runNumber);
   p_appInfoSpace->fireItemAvailable("RunType",  &m_runType  );
   p_appInfoSpace->fireItemAvailable("CfgType",  &m_cfgType  );
+
+  //is this the correct syntax?
+  p_appInfoSpace->addItemRetrieveListener("RunNumber", this);
+  p_appInfoSpace->addItemRetrieveListener("RunType",   this);
+  p_appInfoSpace->addItemRetrieveListener("CfgType",   this);
+  p_appInfoSpace->addItemChangedListener( "RunNumber", this);
+  p_appInfoSpace->addItemChangedListener( "RunType",   this);
+  p_appInfoSpace->addItemChangedListener( "CfgType",   this);
+
 
   INFO("gem::base::GEMApplication constructed");
 }
