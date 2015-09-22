@@ -2,7 +2,7 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 
-gem::hw::glib::HwGLIB::HwGLIB():
+gem::hw::glib::HwGLIB::HwGLIB() :
   gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
   //monGLIB_(0),
   b_links({false,false,false}),
@@ -52,7 +52,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 {
 }
 
-gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot):
+gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
   gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("gem.shelf%02d.glib%02d",crate,slot)),
   //monGLIB_(0),
   b_links({false,false,false}),
@@ -291,13 +291,13 @@ void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& input, ui
     regName << "SYSTEM.CLK_CTRL.XPOINT1";
   
   switch(output) {
-  case (0):
+  case (0) :
     regName << ".S1";
-  case (1):
+  case (1) :
     regName << ".S2";
-  case (2):
+  case (2) :
     regName << ".S3";
-  case (3):
+  case (3) :
     regName << ".S4";
   }
   //input = b7b6b5b4b3b2b1b0 and all that matter are b1 and b0 -> 1 and 0 of, eg., S1
@@ -336,13 +336,13 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output
     regName << "SYSTEM.CLK_CTRL.XPOINT1";
   
   switch(output) {
-  case (0):
+  case (0) :
     regName << ".S1";
-  case (1):
+  case (1) :
     regName << ".S2";
-  case (2):
+  case (2) :
     regName << ".S3";
-  case (3):
+  case (3) :
     regName << ".S4";
   }
   uint8_t input = 0x0;
