@@ -394,8 +394,7 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 //void gem::hw::GEMHwDevice::enableDevice()
 //{
 //  if (!isHwConnected()) {
-//    std::string msg = "Could not enable the hardware. " \
-//      "(No hardware is connected.)";
+//    std::string msg = "Could not enable the hardware. (No hardware is connected.)";
 //    ERROR(msg);
 //  }
 //}

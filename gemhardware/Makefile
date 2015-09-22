@@ -21,10 +21,10 @@ GEMHARDWARE_VER_PATCH=0
 ###version.cc
 Sources =version.cc
 Sources+=GEMHwDevice.cc
-#Sources+=vfat/HwVFAT2.cc vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc 
+Sources+=vfat/HwVFAT2.cc #vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc 
 Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc 
 Sources+=optohybrid/HwOptoHybrid.cc 
-#Sources+=glib/HwGLIB.cc glib/GLIBManager.cc  glib/GLIBManagerWeb.cc
+Sources+=glib/HwGLIB.cc #glib/GLIBManager.cc  glib/GLIBManagerWeb.cc
 #Sources+=GEMController.cc GEMControllerPanelWeb.cc
 
 DynamicLibrary=gem_hw

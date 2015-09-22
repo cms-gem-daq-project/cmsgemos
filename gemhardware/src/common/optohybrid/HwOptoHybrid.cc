@@ -34,8 +34,8 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
 {
 }
 
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string       const& optohybridDevice,
-                                                uhal::HwInterface const& uhalDevice) :
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
+                                                uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice,uhalDevice),
   //monOptoHybrid_(0)
   b_links({false,false,false}),
@@ -66,21 +66,19 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
 
 gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 {
-  releaseDevice();
+  //releaseDevice();
 }
 
-void gem::hw::optohybrid::HwOptoHybrid::configureDevice(std::string const& xmlSettings)
-{
-  //here load the xml file settings onto the board
-  
-}
-
-void gem::hw::optohybrid::HwOptoHybrid::configureDevice()
-{
-  //determine the manner in which to configure the device (XML or DB parameters)
-  
-}
-
+//void gem::hw::optohybrid::HwOptoHybrid::configureDevice(std::string const& xmlSettings)
+//{
+//  //here load the xml file settings onto the board
+//}
+//
+//void gem::hw::optohybrid::HwOptoHybrid::configureDevice()
+//{
+//  //determine the manner in which to configure the device (XML or DB parameters)
+//}
+//
 //void gem::hw::optohybrid::HwOptoHybrid::releaseDevice()
 //{
 //
