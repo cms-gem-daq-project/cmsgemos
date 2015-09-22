@@ -23,6 +23,7 @@
 #include "xdata/Float.h" 
 #include "xdata/Double.h" 
 #include "xdata/Boolean.h"
+#include "xdata/Vector.h"
 #include "xdaq/XceptSerializer.h"
 
 #include "toolbox/string.h"

@@ -50,9 +50,10 @@ namespace gem {
             void reset()       {Error=0; Invalid=0; RWMismatch=0;return; };
           } TransactionErrors;
 
+          HwVFAT2(std::string const& vfatDevice, std::string const& connectionFile);
+          HwVFAT2(std::string const& vfatDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwVFAT2(std::string const& vfatDevice, uhal::HwInterface& uhalDevice);
           HwVFAT2(std::string const& vfatDevice="VFAT13");
-          //HwVFAT2(xdaq::Application * vfat2App);
-          //throw (xdaq::exception::Exception);
 
           ~HwVFAT2();
 	  
@@ -66,31 +67,32 @@ namespace gem {
            **/
           void loadDefaults();
 	  void printDefaults(std::ofstream& SetupFile);
-          //void connectDevice();
-          //void releaseDevice();
-          //void initDevice();
-          //void enableDevice();
-          /** Load some default values into the VFAT registers
-           * 
-           **/
-          void configureDevice();
-          /** Load some default values into the VFAT registers
-           * 
-           **/
-          void configureDevice(std::string const& xmlSettings);
-          //virtual void configureDevice(std::string const& dbConnectionString);
-          //void disableDevice();
-          //void pauseDevice();
-          //void startDevice();
-          //void stopDevice();
-          //void resumeDevice();
-          //void haltDevice();
+          
+          //updating interfaces////void connectDevice();
+          //updating interfaces////void releaseDevice();
+          //updating interfaces////void initDevice();
+          //updating interfaces////void enableDevice();
+          //updating interfaces///** Load some default values into the VFAT registers
+          //updating interfaces// * 
+          //updating interfaces// **/
+          //updating interfaces//void configureDevice();
+          //updating interfaces///** Load some default values into the VFAT registers
+          //updating interfaces// * 
+          //updating interfaces// **/
+          //updating interfaces//void configureDevice(std::string const& xmlSettings);
+          //updating interfaces////virtual void configureDevice(std::string const& dbConnectionString);
+          //updating interfaces////void disableDevice();
+          //updating interfaces////void pauseDevice();
+          //updating interfaces////void startDevice();
+          //updating interfaces////void stopDevice();
+          //updating interfaces////void resumeDevice();
+          //updating interfaces////void haltDevice();
 
           /** bool isHwConnected()
            * Checks to see if the VFAT device is connected
            * @returns true if the hardware pointer is valid and a successful read has occurred
            */
-          bool isHwConnected();
+          virtual bool isHwConnected();
 
           //special implementation of the read/write for VFATs
           //uint32_t readReg( std::string const& regName);

@@ -43,6 +43,11 @@ namespace gem {
       ~GEMWebApplication();
 
     protected:
+      //maybe only have the control panel built in the base class?
+      //perhaps can extend it in derived classes
+      virtual void controlPanel(  xgi::Input *in, xgi::Output *out )
+        throw (xgi::exception::Exception);
+
       virtual void monitorPage(xgi::Input *in, xgi::Output *out)
         throw (xgi::exception::Exception);
 	

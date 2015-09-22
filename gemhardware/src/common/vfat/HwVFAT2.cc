@@ -2,50 +2,33 @@
 
 #include "gem/hw/vfat/HwVFAT2.h"
 
-/* removing HW initialization with an application in favour of just a log4cplus::Logger
-   gem::hw::vfat::HwVFAT2::HwVFAT2(xdaq::Application* vfatApp,
-   std::string const& vfatDevice):
-   gem::hw::GEMHwDevice::GEMHwDevice(vfatApp)
-   //logVFAT2_(vfatApp->getApplicationLogger()),
-   //hwVFAT2_(0)
-   //monVFAT2_(0)
-   {
-   //this->gem::hw::GEMHwDevice::GEMHwDevice();
-   //gem::hw::vfat::HwVFAT2::initDevice();
-   //can use a different address table for the VFAT access
-   setAddressTableFileName("geb_vfat_address_table.xml");
-   setIPbusProtocolVersion("2.0");
-   setDeviceID("VFAT2Hw");
-   setDeviceBaseNode("VFATS."+vfatDevice);
+gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
+                                std::string const& connectionFile) :
+  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionFile)
+{
+}
 
-   //what's the difference between connect, init, enable for VFAT?
-   //check that register values are hardware default values, if not, something may be amiss
-  
-   //set register values to sw default values
+gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
+                                std::string const& connectionURI,
+                                std::string const& addressTable) :
+  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionURI, addressTable)
+{
+}
 
-   //hardware is enabled!
+gem::hw::vfat::HwVFAT2::HwVFAT2(std::string       const& vfatDevice,
+                                uhal::HwInterface const& uhalDevice) :
+  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice,uhalDevice)
+{
+}
 
-   //set register values to desired values
-
-   //hardware is configured!
-
-   //set run bit
-
-   //hardware is running
-   }
-*/
-
-gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice):
+gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice)
-  //logVFAT2_(vfatApp->getApplicationLogger()),
-  //hwVFAT2_(0)
   //monVFAT2_(0)
 {
   //this->gem::hw::GEMHwDevice::GEMHwDevice();
   //gem::hw::vfat::HwVFAT2::initDevice();
   //can use a different address table for the VFAT access
   setAddressTableFileName("geb_vfat_address_table.xml");
-  setIPbusProtocolVersion("2.0");
   setDeviceID("VFAT2Hw");
   setDeviceBaseNode("VFATS."+vfatDevice);
   b_is_connected = false;

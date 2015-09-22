@@ -21,8 +21,25 @@
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
 	<AMCSlots xsi:type="xsd:string">2,4,10-12,8-5,A,143,0</AMCSlots>
-	<!--AllGLIBsInfo xsi:type="soapenc:Struct">
-	<ipBase xsi:type="xsd:string">192.168.0.160</ipBase>
+	<AllGLIBsInfo xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[12]">
+          <GLIBInfo xsi:type="soapenc:Struct" soapenc:position="2">
+            <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
+            <crateID xsi:type="xsd:integer">1</crateID>
+            <slot    xsi:type="xsd:integer">2</slot>
+            <present xsi:type="xsd:boolean">true</present>
+            
+            <ControlHubIPAddress xsi:type="xsd:string">localhost</ControlHubIPAddress>
+            <DeviceIPAddress     xsi:type="xsd:string">192.168.0.162</DeviceIPAddress>
+            <IPBusProtocol       xsi:type="xsd:string">2.0</IPBusProtocol>
+            <AddressTable        xsi:type="xsd:string">glib_address_table.xml</AddressTable>
+            <ControlHubPort      xsi:type="xsd:unsignedInt">10203</ControlHubPort>
+            <IPBusPort           xsi:type="xsd:unsignedInt">50001</IPBusPort>
+            
+            <triggerSource xsi:type="xsd:integer">2</triggerSource>
+            <sbitSource    xsi:type="xsd:integer">5</sbitSource>
+          </GLIBInfo>
+	</AllGLIBsInfo>
+	<!--ipBase xsi:type="xsd:string">192.168.0.160</ipBase>
 	<deviceName xsi:type="soapenc:Bag" soapenc:arrayType="xsd:bag">
 	  <crateID xsi:type="xsd:integer">0</crateID>
 	  <slot    xsi:type="xsd:integer">2</slot>

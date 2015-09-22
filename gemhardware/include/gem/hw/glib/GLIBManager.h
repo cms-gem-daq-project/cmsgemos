@@ -70,20 +70,52 @@ namespace gem {
           public:
             GLIBInfo();
             void registerFields(xdata::Bag<GLIBManager::GLIBInfo>* bag);
+            //monitoring information
             xdata::Boolean present;
             xdata::Integer crateID;
             xdata::Integer slotID;
+
+            //configuration parameters
+            xdata::String controlHubIPAddress;
+            xdata::String deviceIPAddress;
+            xdata::String ipBusProtocol;
+            xdata::String addressTable;
+            
+            xdata::UnsignedInteger32 controlHubPort;
+            xdata::UnsignedInteger32 ipBusPort;
+            
+            //registers to set
             xdata::Integer triggerSource;
-            xdata::Integer sbitSource;
+            xdata::Integer sbitSource;            
+            
+            inline std::string toString() {
+              // write obj to stream
+              std::stringstream os;
+              os << "present:" << present.toString() << std::endl
+                 << "crateID:" << crateID.toString() << std::endl
+                 << "slotID:"  << slotID.toString()  << std::endl
+                
+                 << "controlHubIPAddress:" << controlHubIPAddress.toString() << std::endl
+                 << "deviceIPAddress:"     << deviceIPAddress.toString()     << std::endl
+                 << "ipBusProtocol:"       << ipBusProtocol.toString()       << std::endl
+                 << "addressTable:"        << addressTable.toString()        << std::endl
+                 << "controlHubPort:"      << controlHubPort.toString()      << std::endl
+                 << "ipBusPort:"           << ipBusPort.toString()           << std::endl
+                 << "triggerSource:0x"     << triggerSource.toString()       << std::endl
+                 << "sbitSource:0x"        << sbitSource.toString()          << std::endl
+                 << std::endl;
+              return os.str();
+            };
           };
-	  
+          
           mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
 	  
           HwGLIB* m_glibs[MAX_AMCS_PER_CRATE];
-          xdata::Bag<GLIBInfo> m_glibInfo[MAX_AMCS_PER_CRATE];
+          xdata::InfoSpace* is_glibs[MAX_AMCS_PER_CRATE];
+          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
           xdata::String        m_amcSlots;
         }; //end class GLIBManager
-      
+            
     }//end namespace gem::hw::glib
     
   }//end namespace gem::hw
