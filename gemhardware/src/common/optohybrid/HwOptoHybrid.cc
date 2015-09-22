@@ -2,7 +2,7 @@
 
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
   //monOptoHybrid_(0)
   b_links({false,false,false}),
@@ -44,7 +44,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
 }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
-                                                int const& slot):
+                                                int const& slot) :
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
   //monOptoHybrid_(0),
   b_links({false,false,false}),
