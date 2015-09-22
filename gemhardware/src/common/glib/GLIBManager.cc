@@ -59,8 +59,9 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
 
   //p_appInfoSpace->fireItemAvailable("crateID", &m_crateID);
   //p_appInfoSpace->fireItemAvailable("slot",    &m_slot);
-  p_appInfoSpace->fireItemAvailable("AllGLIBsInfo", &m_glibInfo);
-  p_appInfoSpace->fireItemAvailable("AMCSlots",     &m_amcSlots);
+  p_appInfoSpace->fireItemAvailable("AllGLIBsInfo",  &m_glibInfo);
+  p_appInfoSpace->fireItemAvailable("AMCSlots",      &m_amcSlots);
+  p_appInfoSpace->fireItemAvailable("ConnectionFile",&m_connectionFile);
 
 
   //initialize the GLIB application objects
@@ -226,8 +227,11 @@ void gem::hw::glib::GLIBManager::init()
     //info.slotID  = slot+1;
     info.crateID = gemCrate;
     
-    m_glibs[slot] = new gem::hw::glib::HwGLIB(info.crateID,info.slotID);
-    m_glibs[slot]->connectDevice();
+    std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d",
+                                               info.crateID.value_,
+                                               info.slotID.value_);
+    m_glibs[slot] = new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString());
+    //m_glibs[slot]->connectDevice();
     //set the web view to be empty or grey
     //if (!info.present.value_) continue;
     //p_gemWebInterface->glibInSlot(slot);
@@ -334,9 +338,13 @@ void gem::hw::glib::GLIBManager::initializeAction()
     
     try {
       INFO("obtaining pointer to HwGLIB");
-      m_glibs[slot] = new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_);
-      INFO("connecting to device");
-      m_glibs[slot]->connectDevice();
+      std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d",
+                                                 info.crateID.value_,
+                                                 info.slotID.value_);
+      m_glibs[slot] = new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString());
+      //m_glibs[slot] = new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_);
+      //INFO("connecting to device");
+      //m_glibs[slot]->connectDevice();
       INFO("connected");
     } catch (gem::hw::glib::exception::Exception const& ex) {
       ERROR("caught exception " << ex.what());

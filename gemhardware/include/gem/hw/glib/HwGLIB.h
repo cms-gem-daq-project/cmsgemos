@@ -422,14 +422,7 @@ namespace gem {
 
 
         protected:
-          //uhal::ConnectionManager *manageGLIBConnection;
-          //log4cplus::Logger logGLIB_;
-          //uhal::HwInterface *hwGLIB_;
-
-          //uhal::HwInterface& getGLIBHwDevice();
-
           //GLIBMonitor *monGLIB_;
-
 	
           bool b_links[3];
 	    

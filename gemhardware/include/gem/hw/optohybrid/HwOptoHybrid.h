@@ -495,14 +495,7 @@ namespace gem {
           bool isLinkActive(int i) { return b_links[i]; }
 
         protected:
-          //uhal::ConnectionManager *manageOptoHybridConnection;
-          //log4cplus::Logger logOptoHybrid_;
-          //uhal::HwInterface *hwOptoHybrid_;
-					
-          //uhal::HwInterface& getOptoHybridHwDevice() const;
-					
           //OptoHybridMonitor *monOptoHybrid_;
-					
 
           bool b_links[3];
 	    

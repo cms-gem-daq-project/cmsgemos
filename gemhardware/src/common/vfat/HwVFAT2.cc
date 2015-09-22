@@ -1,5 +1,3 @@
-//General structure taken blatantly from tcds::utils::HwDeviceTCA/HwGLIB
-
 #include "gem/hw/vfat/HwVFAT2.h"
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,

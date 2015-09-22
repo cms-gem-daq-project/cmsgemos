@@ -20,7 +20,8 @@
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots xsi:type="xsd:string">2,4,10-12,8-5,A,143,0</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">2,4,9</AMCSlots>
+	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[12]">
           <GLIBInfo xsi:type="soapenc:Struct" soapenc:position="2">
             <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
