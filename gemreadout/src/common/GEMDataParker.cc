@@ -26,7 +26,7 @@ uint16_t gem::readout::GEMslotContents::slot[24] = {
 };
 bool gem::readout::GEMslotContents::isFileRead = false;
 
-uint64_t bufferCount = 0;
+uint64_t bufferCount[4] = {0,0,0,0};
 uint32_t islotNegativeCount = 0;
 uint64_t ZSFlag = 0;
 bool dumpGEMevent_ = false;
@@ -70,19 +70,30 @@ gem::readout::GEMDataParker::GEMDataParker(
 uint64_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
 {
   // Get the size of GLIB data buffer
-  uint64_t bufferDepth = 0;
-  if (readout_mask&0x1)
-    bufferDepth  = (uint64_t)glibDevice_->getFIFOOccupancy(0x0);
-  if (readout_mask&0x2)
-    bufferDepth += (uint64_t)glibDevice_->getFIFOOccupancy(0x1);
-  if (readout_mask&0x4)
-    bufferDepth += (uint64_t)glibDevice_->getFIFOOccupancy(0x2);
-  bufferCount = bufferDepth;
+  uint64_t bufferDepth[4] = {0,0,0,0};
+  if (readout_mask&0x1) {
+    //bufferDepth[0] = (uint64_t)glibDevice_->getFIFOOccupancy(0x0);
+    bufferCount[0] = bufferDepth[0]; 
+    bufferDepth[3] = bufferDepth[0];
+    INFO(" CDE::dumpData " << " Combined bufferDepth[0] " << bufferDepth[0] );
+  }
+  if (readout_mask&0x2) {
+    //bufferDepth[1] = (uint64_t)glibDevice_->getFIFOOccupancy(0x1);
+    bufferCount[1] = bufferDepth[1]; 
+    bufferDepth[3] += bufferDepth[1];
+    INFO(" CDE::dumpData " << " Combined bufferDepth[1] " << bufferDepth[1] );
+  }
+  if (readout_mask&0x4) {
+    //bufferDepth[2] = (uint64_t)glibDevice_->getFIFOOccupancy(0x2);
+    bufferCount[2] = bufferDepth[2]; 
+    bufferDepth[3] += bufferDepth[2];
+    INFO(" CDE::dumpData " << " Combined bufferDepth[2] " << bufferDepth[2] << " combined " << bufferDepth[3]);
+  }
 
   uint64_t *point = &counter_[0]; 
 
   INFO(" ABC::dumpData " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
-        " bufferDepth " << bufferDepth );
+       " Combined bufferDepth[3] " << bufferDepth[3] );
 
   //if [0-7] in deviceNum
   if (readout_mask & 0x1) {
@@ -139,20 +150,24 @@ int gem::readout::GEMDataParker::getGLIBData(
   uint64_t msVFAT, lsVFAT;
 
   /** the FIFO depth is not reliable */
-  uint64_t bufferDepth = 0;
+  uint64_t bufferDepth[4] = {0,0,0,0};
 
-  bufferDepth = (uint64_t)glibDevice_->getFIFOOccupancy(link);
-  INFO(" ABN::bufferDepth = " << std::hex << bufferDepth << std::dec);
+  //bufferDepth[(int)link] = (uint64_t)glibDevice_->getFIFOOccupancy(link);
+  INFO(" ABC::bufferDepth link " << (int)link << " " << std::hex << bufferDepth[(int)link] << std::dec);
 
   // For each event in GLIB data buffer should probably switch this while with the next if, 
   // to ensure that there is actually a value in the vector
 
-  while (bufferDepth) {
+  //  while ( bufferDepth[(int)link] ) {
+  while ( glibDevice_->hasTrackingData(link) ) {
     std::vector<uint32_t> data;
+    data = glibDevice_->getTrackingData(link);
 
-    if (glibDevice_->hasTrackingData(link)) {
+    /*
+    if ( glibDevice_->hasTrackingData(link) ) {
       data = glibDevice_->getTrackingData(link);
     }
+    */
 
     // read trigger data
     TrigReg = glibDevice_->readTriggerFIFO(link);
@@ -167,7 +182,7 @@ int gem::readout::GEMDataParker::getGLIBData(
     if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))) {
       WARN("VFAT headers do not match expectation");
       /* do not ignore incorrect data
-         bufferDepth = glibDevice_->getFIFOOccupancy(link);
+         bufferDepth[(int)link] = glibDevice_->getFIFOOccupancy(link);
          continue;
       */
     }
@@ -185,7 +200,7 @@ int gem::readout::GEMDataParker::getGLIBData(
     if (islot<0 && islot > 23) {
       // islot out of [0-23]
       islotNegativeCount++;
-      DEBUG(" ::getGLIBData warning !!! islot is negative " << islot << " islotNegativeCount " << islotNegativeCount );
+      INFO(" ::getGLIBData warning !!! islot is negative " << islot << " islotNegativeCount " << islotNegativeCount );
       continue;
     }
 
@@ -216,16 +231,15 @@ int gem::readout::GEMDataParker::getGLIBData(
            " vfat_ " << vfat_ << " event_ " << event_ );
 
       ZSFlag = 0;
-
     }
+
     counterVFATs++;
     counterVFAT.erase(BX);
     counterVFAT.insert(std::pair<uint32_t, int>(BX,counterVFATs));
   
-    bufferCount--;
+    bufferCount[(int)link]--;
 
     std::map<uint32_t, uint32_t>::iterator it;
-
     it=numBX.find(BX);
     if (it != numBX.end()){
       // local event calculator inside one buffer, BX based 
@@ -252,27 +266,37 @@ int gem::readout::GEMDataParker::getGLIBData(
     vfat.BXfrOH = BX;                                     // BXfrOH:16
     vfat.crc    = vfatcrc;                                // crc:16
 
-    bufferDepth = (uint64_t)glibDevice_->getFIFOOccupancy(link);
+    bufferDepth[(int)link] = (uint64_t)glibDevice_->getFIFOOccupancy(link);
   
-    INFO(" ABV::getGLIBData bufferDepth " << bufferDepth << " event_ " << event_ 
-         /* << " vfat_ " << vfat_ << " counterVFATs " << counterVFAT.find(evn)->second */ <<
-	 " vfats.size " << int(vfats.size()) << std::hex << " BX 0x" << BX << std::dec );
+   /* " vfats.size " << int(vfats.size())
+    DEBUG(" ABC::getGLIBData combined bufferDepth[3] " << bufferDepth[3] << 
+         "    " << bufferDepth[0] << " " << bufferDepth[1] << " "<< bufferDepth[2] << 
+   */
+   INFO(" ABC::getGLIBData counterVFATs " << counterVFATs << " event_ " << event_ << std::hex << " BX 0x" << BX << std::dec );
 
    /*
     * dump VFAT data
     GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
     INFO(" ABC::getGLIBData slot " << islot );
-   */
+    */
+
+    //DEBUG(" ABC::getGLIBData link " << (int)link << " bufferCount[] " << bufferCount[(int)link] << " event " << event_);
 
    /*
     * VFATs Pay Load
-    */
+    *
     vfats.push_back(vfat);
+    */
   
-    if ( bufferCount == 0 ){
+    if ( bufferCount[(int)link] == 0 || counterVFATs == 4095 ){
       
-      DEBUG(" CDE::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << " event " << event_);
+      //DEBUG(" CDE::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << " event " << event_);
+      DEBUG(" ABC::getGLIBData link " << (int)link << " bufferCount[] " << bufferCount[(int)link] << 
+           std::hex << " BX 0x" << BX << std::dec << " event " << event_ );
+      DEBUG(" ABC::getGLIBData link " << (int)link << 
+           std::hex << " BX 0x" << BX << std::dec << " event " << event_ );
 
+      /*
       int IlocalEvent = 0;
       // contents all local events (one buffer, all links):
       for (std::map<uint32_t, uint32_t>::iterator it=numBX.begin(); it!=numBX.end(); ++it){
@@ -298,32 +322,34 @@ int gem::readout::GEMDataParker::getGLIBData(
              
             /*
              * VFATs Pay Load
-             */
+             *
              geb.vfats.push_back(vfat);
-         
+ 	     */
+
              /*
              GEMDataAMCformat::printVFATdataBits(nChip, vfat);
-             */
+             *
              int islot = gem::readout::GEMslotContents::GEBslotIndex((uint32_t)vfat.ChipID );
              DEBUG(" ::getGLIBData  writeGEMevent slot " << islot);
 
+	     /*
              if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ){
                  if ( it->second == nChip ){
 
                     /*    
                      * GEM data filling
-                     */
+                     *
                      DEBUG(" writeGEMevent Complete and could be finally filled and keeped " );
 
                     /*
                      * GEM headers and trealers filling
-                     */
+                     *
                      gem::readout::GEMDataParker::GEMfillHeaders(evn, gem, geb);
                      gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
         
                     /*
                      * GEM Event Writing
-                     */
+                     *
                      DEBUG(" ::getGLIBData writing...  geb.vfats.size " << int(geb.vfats.size()) );
                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(gem, geb, vfat);
         
@@ -339,10 +365,12 @@ int gem::readout::GEMDataParker::getGLIBData(
          }//end of GEB PayLoad Data
        }//end of all local events
 
-       INFO(" CDE::getGLIBData  vfats.size " << int(vfats.size()) << " IlocalEvent " << IlocalEvent << " event " << event_ );
+       /*
+       DEBUG(" ABC::getGLIBData  vfats.size " << int(vfats.size()) << " IlocalEvent " << IlocalEvent << " event " << event_ );
 
        vfats.clear();
        IlocalEvent = 0;
+       */
 
        // local event cleaning 
        numEC.clear();
