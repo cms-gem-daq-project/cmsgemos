@@ -8,35 +8,35 @@
 	  description="Optohybrid registers">
 
       <node id="LINK0"  address="0x000"
-	    module="file://${BUILD_HOME}/data/optohybrid_optical_links.xml"
+	    module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/optohybrid_optical_links.xml"
 	    description="optical link status counters and resets"/>
       
       <node id="LINK1"  address="0x100"
-	    module="file://${BUILD_HOME}/data/optohybrid_optical_links.xml"
+	    module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/optohybrid_optical_links.xml"
 	    description="optical link status counters and resets"/>
       
       <node id="LINK2"  address="0x200"
-	    module="file://${BUILD_HOME}/data/optohybrid_optical_links.xml"
+	    module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/optohybrid_optical_links.xml"
 	    description="optical link status counters and resets"/>
     </node> <!-- end OptoHybrid links block-->
     
     <node id="GEB"
-	  module="file://${BUILD_HOME}/data/geb_vfat_address_table.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/geb_vfat_address_table.xml"
 	  description="complete GEB address table"/>
     
   </node> <!-- end of the optohybrid specific registers -->
   
   <node id="GLIB"  address="0x40040000">
     <node id="LINK0"  address="0x000"
-	  module="file://${BUILD_HOME}/data/glib_optical_links.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/glib_optical_links.xml"
 	  description="optical link status counters and resets"/>
     
     <node id="LINK1"  address="0x100"
-	  module="file://${BUILD_HOME}/data/glib_optical_links.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/glib_optical_links.xml"
 	  description="optical link status counters and resets"/>
     
     <node id="LINK2"  address="0x200"
-	  module="file://${BUILD_HOME}/data/glib_optical_links.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/glib_optical_links.xml"
 	  description="optical link status counters and resets"/>
     
     <node id="TRG_DATA"

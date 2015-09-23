@@ -2,32 +2,32 @@
 <node id="top">
   <node id="VFAT9"
 	address="0x900"  
-	module="file://${BUILD_HOME}/data/vfatregs.xml"
+	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	description="column 1, CMS hybrid VFAT chip adjacent to J8 connector"/>
   
   <node id="VFAT11"
 	address="0xb00"  
-	module="file://${BUILD_HOME}/data/vfatregs.xml"
+	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	description="column 1, CMS hybrid VFAT chip adjacent to J26 connector"/>
   
   <node id="VFAT13"
 	address="0xd00"  
-	module="file://${BUILD_HOME}/data/vfatregs.xml"
+	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	description="column 1, CMS hybrid VFAT chip adjacent to J44 connector"/>
   
   <node id="VFAT8"
 	address="0x800"  
-	module="file://${BUILD_HOME}/data/vfatregs.xml"
+	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	description="column 1, TOTEM hybrid VFAT chip J58 connector"/>
   
   <node id="VFAT10"
 	address="0xa00"  
-	module="file://${BUILD_HOME}/data/vfatregs.xml"
+	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	description="column 1, TOTEM hybrid VFAT chip J55 connector"/>
   
   <node id="VFAT12"
 	address="0xc00"  
-	module="file://${BUILD_HOME}/data/vfatregs.xml"
+	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	description="column 1, TOTEM hybrid VFAT chip J57 connector"/>
   
   <node id="ADC"  address="0x2014C"

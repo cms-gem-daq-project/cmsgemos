@@ -42,7 +42,7 @@
 		     0x40030X63"/> 
   
   <node id="RESETS"  address="0xC"
-	module="file://${BUILD_HOME}/data/counter_reset_registers.xml"
+	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/counter_reset_registers.xml"
 	description="resets for all the counters"/>
   
 </node> <!-- end trigger setup definitions -->
