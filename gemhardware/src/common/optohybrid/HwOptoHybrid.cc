@@ -42,7 +42,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   m_controlLink(-1)  
 {
 }
-
+/*
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
                                                 int const& slot) :
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
@@ -63,7 +63,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   setDeviceBaseNode("OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
 }
-
+*/
 gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 {
   //releaseDevice();
