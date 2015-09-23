@@ -27,6 +27,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
   m_crate(-1),
   m_slot(-1)
 {
+  setDeviceBaseNode("GLIB");
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
@@ -39,6 +40,8 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
   m_slot(-1)
 
 {
+  INFO("trying to create HwGLIB(" << glibDevice << "," << connectionURI << "," <<addressTable);
+  setDeviceBaseNode("GLIB");
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
@@ -50,6 +53,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
   m_slot(-1)
 
 {
+  setDeviceBaseNode("GLIB");
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :

@@ -29,11 +29,7 @@ namespace gem {
 	  
         protected:
           virtual void init();
-          /*
-          virtual void preInit() throw (gem::base::exception::Exception);
-          virtual void enable()  throw (gem::base::exception::Exception);
-          virtual void disable() throw (gem::base::exception::Exception);
-	  */
+
           virtual void actionPerformed(xdata::Event& event);
 	  
           //state transitions
@@ -70,7 +66,7 @@ namespace gem {
             xdata::Integer slotID;
 
             //configuration parameters
-            xdata::String controlHubIPAddress;
+            xdata::String controlHubAddress;
             xdata::String deviceIPAddress;
             xdata::String ipBusProtocol;
             xdata::String addressTable;
@@ -89,14 +85,14 @@ namespace gem {
                  << "crateID:" << crateID.toString() << std::endl
                  << "slotID:"  << slotID.toString()  << std::endl
                 
-                 << "controlHubIPAddress:" << controlHubIPAddress.toString() << std::endl
-                 << "deviceIPAddress:"     << deviceIPAddress.toString()     << std::endl
-                 << "ipBusProtocol:"       << ipBusProtocol.toString()       << std::endl
-                 << "addressTable:"        << addressTable.toString()        << std::endl
-                 << "controlHubPort:"      << controlHubPort.toString()      << std::endl
-                 << "ipBusPort:"           << ipBusPort.toString()           << std::endl
-                 << "triggerSource:0x"     << triggerSource.toString()       << std::endl
-                 << "sbitSource:0x"        << sbitSource.toString()          << std::endl
+                 << "controlHubAddress:" << controlHubAddress.toString() << std::endl
+                 << "deviceIPAddress:"   << deviceIPAddress.toString()     << std::endl
+                 << "ipBusProtocol:"     << ipBusProtocol.toString()       << std::endl
+                 << "addressTable:"      << addressTable.toString()        << std::endl
+                 << "controlHubPort:"    << controlHubPort.toString()      << std::endl
+                 << "ipBusPort:"         << ipBusPort.toString()           << std::endl
+                 << "triggerSource:0x"   << triggerSource.toString()       << std::endl
+                 << "sbitSource:0x"      << sbitSource.toString()          << std::endl
                  << std::endl;
               return os.str();
             };
@@ -104,7 +100,7 @@ namespace gem {
           
           mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
 	  
-          HwGLIB* m_glibs[MAX_AMCS_PER_CRATE];
+          std::shared_ptr<HwGLIB> m_glibs[MAX_AMCS_PER_CRATE];
           xdata::InfoSpace* is_glibs[MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
           xdata::String        m_amcSlots;

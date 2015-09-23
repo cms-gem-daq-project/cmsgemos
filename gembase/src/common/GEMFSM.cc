@@ -121,18 +121,21 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
                                &gem::base::GEMFSMApplication::transitionDriver);
   
   // Reset the state machine: I/H/C/E/P/F -> t.
+  /*benefit of using dedicated resetAction vs transitionDriver and a workloop that
+    will implement derived class specific features?*/
   p_gemfsm->addStateTransition(STATE_INITIAL,    STATE_RESETTING, "Reset", p_gemApp,
-                               &GEMFSMApplication::resetAction);
+                               &GEMFSMApplication::transitionDriver);
   p_gemfsm->addStateTransition(STATE_HALTED,     STATE_RESETTING, "Reset", p_gemApp,
-                               &GEMFSMApplication::resetAction);
+                               &GEMFSMApplication::transitionDriver);
   p_gemfsm->addStateTransition(STATE_CONFIGURED, STATE_RESETTING, "Reset", p_gemApp,
-                               &GEMFSMApplication::resetAction);
+                               &GEMFSMApplication::transitionDriver);
   p_gemfsm->addStateTransition(STATE_RUNNING,    STATE_RESETTING, "Reset", p_gemApp,
-                               &GEMFSMApplication::resetAction);
+                               &GEMFSMApplication::transitionDriver);
   p_gemfsm->addStateTransition(STATE_PAUSED,     STATE_RESETTING, "Reset", p_gemApp,
-                               &GEMFSMApplication::resetAction);
+                               &GEMFSMApplication::transitionDriver);
   p_gemfsm->addStateTransition(STATE_FAILED,     STATE_RESETTING, "Reset", p_gemApp,
-                               &GEMFSMApplication::resetAction);
+                               &GEMFSMApplication::transitionDriver);
+
 
   // intermediate to terminal transitions:
   // i/h -> H
@@ -186,10 +189,6 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   p_gemfsm->setFailedStateTransitionChanged(     this,     &gem::base::GEMFSM::stateChanged);
   p_gemfsm->setInvalidInputStateTransitionAction(this,     &gem::base::GEMFSM::invalidAction);
   
-  // recover from Error: F -> I. (or reset?)
-  p_gemfsm->addStateTransition(STATE_FAILED,    STATE_RESETTING, "Reset", p_gemApp,
-                               &GEMFSMApplication::resetAction);
-
   // Start out with the FSM in its initial state: Initial.
   p_gemfsm->setInitialState(STATE_INITIAL);
   p_gemfsm->reset();

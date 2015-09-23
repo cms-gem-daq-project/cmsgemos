@@ -76,6 +76,7 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   xoap::bind(this, &GEMFSMApplication::changeState, "Pause",      XDAQ_NS_URI);
   xoap::bind(this, &GEMFSMApplication::changeState, "Resume",     XDAQ_NS_URI);
   xoap::bind(this, &GEMFSMApplication::changeState, "Halt",       XDAQ_NS_URI);
+  xoap::bind(this, &GEMFSMApplication::changeState, "Reset",      XDAQ_NS_URI);
   DEBUG("Created xoap bindings");
 
   //benefit or disadvantage to setting up the workloop signatures this way?
@@ -244,6 +245,11 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
       workloopDriver(event->type());
       //does this preclude the future "success" message at the end of the catch block?
       return;
+    } else if (event->type() == "IsInitial" || event->type() == "IsConfigured" ||
+               event->type() == "IsRunning" || event->type() == "IsPaused"     ||
+               event->type() == "IsHalted") {
+      //report success
+      INFO("Recieved confirmation that state changed to " << event->type());
     } else if (event->type()=="Fail" || event->type()=="fail") {
       //do nothing for the fail action
       INFO("Recieved fail event type");
@@ -298,7 +304,12 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
   throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSMApplication::resetAction(" << event->type() << ")");
+  //should only enter this function on reciept of a "Reset" event
+  //should probably do much more than this...
+  INFO("Firing 'IsInitial' into the FSM");
+  fireEvent("IsInitial");
 }
+
 /*	
         void gem::base::GEMFSMApplication::failAction(toolbox::Event::Reference event)
         throw (toolbox::fsm::exception::Exception)
@@ -381,8 +392,8 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  INFO("Firing 'Halted' into the FSM");
-  fireEvent("Halted");
+  INFO("Firing 'IsHalted' into the FSM");
+  fireEvent("IsHalted");
   m_wl_semaphore.give();
   return false;
 }
@@ -406,7 +417,7 @@ bool gem::base::GEMFSMApplication::configure( toolbox::task::WorkLoop *wl)
     return false;
   }
   
-  fireEvent("Configured");
+  fireEvent("IsConfigured");
   return false;
 }
 
@@ -428,7 +439,7 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  fireEvent("Running");
+  fireEvent("IsRunning");
   return false;
 }
 
@@ -450,7 +461,7 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  fireEvent("Paused");
+  fireEvent("IsPaused");
   return false;
 }
 
@@ -472,7 +483,7 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  fireEvent("Running");
+  fireEvent("IsRunning");
   return false;
 }
 
@@ -494,7 +505,7 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  fireEvent("Configured");
+  fireEvent("IsConfigured");
   return false;
 }
 
@@ -516,7 +527,7 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  fireEvent("Halted");
+  fireEvent("IsHalted");
   return false;
 }
 
@@ -537,8 +548,9 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     return false;
   }
-
-  fireEvent("Initial");
+  
+  fireEvent("IsInitial");
+  //maybe do a m_gemfsm.reset()?
   return false;
 }
 

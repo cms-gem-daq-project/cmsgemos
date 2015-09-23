@@ -105,38 +105,8 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
 
 void gem::hw::optohybrid::OptoHybridManager::init()
 {
-  gem::base::GEMFSMApplication::init();
 }
 
-/*
-void gem::hw::optohybrid::OptoHybridManager::preInit()
-  throw (gem::base::exception::Exception)
-{
-  
-}
-
-void gem::hw::optohybrid::OptoHybridManager::init()
-  throw (gem::base::exception::Exception)
-{
-  gem::base::GEMFSMApplication::init();
-}
-
-void gem::hw::optohybrid::OptoHybridManager::enable()
-  throw (gem::base::exception::Exception) {
-  DEBUG("Entering gem::hw::optohybrid::OptoHybridManager::enable()");
-  //gem::base::GEMFSMApplication::enable();
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
-  //m_optohybrids[0]->startRun();
-}
-
-void gem::hw::optohybrid::OptoHybridManager::disable()
-  throw (gem::base::exception::Exception) {
-  DEBUG("Entering gem::hw::optohybrid::OptoHybridManager::disable()");
-  //gem::base::GEMFSMApplication::disable();
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
-  //m_optohybrids[0]->endRun();
-}
-*/
 //state transitions
 void gem::hw::optohybrid::OptoHybridManager::initializeAction()
   throw (gem::hw::optohybrid::exception::Exception)
