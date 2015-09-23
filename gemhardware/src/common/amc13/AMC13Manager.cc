@@ -60,9 +60,9 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   //p_gemMonitor      = new gem::hw::amc13::AMC13HwMonitor(this);
   DEBUG("done");
 
-  DEBUG("executing preInit for AMC13Manager");
-  preInit();
-  DEBUG("done");
+  //DEBUG("executing preInit for AMC13Manager");
+  //preInit();
+  //DEBUG("done");
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 }
 
@@ -99,80 +99,8 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
-void gem::hw::amc13::AMC13Manager::preInit()
-  throw (gem::base::exception::Exception)
-{
-  std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
-  std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
-  std::string cardname    = "gem.shelf01.amc13";
-  try {
-    gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-    p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
-  } catch (uhal::exception::exception & e) {
-    ERROR("AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
-  } catch (std::exception& e) {
-    ERROR("AMC13::AMC13() failed, caught std::exception:" << e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
-  } catch (...) {
-    ERROR("AMC13::AMC13() failed, caught ...");
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
-  }
-
-  DEBUG("finished with AMC13::AMC13()");
-
-  try {
-    gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-    p_amc13->reset(::amc13::AMC13::T2);
-    
-    p_amc13->enableAllTTC();
-  } catch (uhal::exception::exception & e) {
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
-  } catch (std::exception& e) {
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
-  }
-  DEBUG("finished with AMC13Manager::preInit()");
-}
-
 void gem::hw::amc13::AMC13Manager::init()
-  throw (gem::base::exception::Exception)
 {
-  gem::base::GEMFSMApplication::init();
-
-  DEBUG("Entering gem::hw::amc13::AMC13Manager::init()");
-  if (p_amc13==0) return;
-  
-  //have to set up the initialization of the AMC13 for the desired running situation
-  //possibilities are TTC/TCDS mode, DAQ link, local trigger scheme
-  //lock the access
-  
-  //enable daq link (if SFP mask is non-zero
-  
-  //enable SFP outputs based on mask configuration
-  
-  //ignore AMC tts state per mask
-  
-  //enable specified AMCs
-  m_slotMask = p_amc13->parseInputEnableList(m_amcInputEnableList,true);
-  p_amc13->AMCInputEnable(m_slotMask);
-
-  //unlock the access
-}
-
-void gem::hw::amc13::AMC13Manager::enable()
-  throw (gem::base::exception::Exception) {
-  DEBUG("Entering gem::hw::amc13::AMC13Manager::enable()");
-  //gem::base::GEMFSMApplication::enable();
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  p_amc13->startRun();
-}
-
-void gem::hw::amc13::AMC13Manager::disable()
-  throw (gem::base::exception::Exception) {
-  DEBUG("Entering gem::hw::amc13::AMC13Manager::disable()");
-  //gem::base::GEMFSMApplication::disable();
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  p_amc13->endRun();
 }
 
 ::amc13::Status* gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
@@ -185,8 +113,9 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //hcal has a pre-init, what is the reason to not do everything in initialize?
-  std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
-  std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
+  //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
+  //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
+  std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
   std::string cardname    = "gem.shelf01.amc13";
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);

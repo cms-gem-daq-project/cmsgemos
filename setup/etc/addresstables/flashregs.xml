@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <!--flash memory space-->
+  <node id="flash_async_read_cmd"  address="0x0800bddf"  mask="0xffffffff"  permission="rw"/>
+  <!--Note!!! The Flash is 16 bit but the mask is 32 bit to be able to use blockWrite and fifoWrite-->
+  <node id="flash_sync_read_cmd"  address="0x08004ddf"  mask="0xffffffff"  permission="rw"/>
+  
+  <node id="flash_bank15"      address="0x08000000"  mask="0xffffffff"  permission="rw">     <!--512Kword-->
+    <node id="flash_block130"  address="0x08000000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block129"  address="0x08010000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block128"  address="0x08020000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block127"  address="0x08030000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block126"  address="0x08040000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block125"  address="0x08050000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block124"  address="0x08060000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block123"  address="0x08070000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank14"      address="0x08080000"  mask="0xffffffff"  permission="rw">     <!--512Kword--> 
+    <node id="flash_block122"  address="0x08080000"  mask="0xffffffff"  permission="rw"/>    <!--64Kword--> 
+    <node id="flash_block121"  address="0x08090000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block120"  address="0x080a0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block119"  address="0x080b0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block118"  address="0x080c0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block117"  address="0x080d0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block116"  address="0x080e0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block115"  address="0x080f0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank13"      address="0x08100000"  mask="0xffffffff"  permission="rw">     <!--512Kword--> 
+    <node id="flash_block114"  address="0x08100000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block113"  address="0x08110000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block112"  address="0x08120000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block111"  address="0x08130000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block110"  address="0x08140000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block109"  address="0x08150000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block108"  address="0x08160000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword--> 
+    <node id="flash_block107"  address="0x08170000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank12"      address="0x08180000"  mask="0xffffffff"  permission="rw">     <!--512Kword-->
+    <node id="flash_block106"  address="0x08180000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block105"  address="0x08190000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block104"  address="0x081a0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block103"  address="0x081b0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block102"  address="0x081c0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block101"  address="0x081d0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block100"  address="0x081e0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block99"   address="0x081f0000"  mask="0xffffffff"  permission="rw"/>    <!--64Kword-->
+  </node>
+
+  <node id="flash_bank11"     address="0x08200000"  mask="0xffffffff"  permission="rw">      <!--512Kword--> 
+    <node id="flash_block98"  address="0x08200000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block97"  address="0x08210000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block96"  address="0x08220000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block95"  address="0x08230000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block94"  address="0x08240000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block93"  address="0x08250000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block92"  address="0x08260000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block91"  address="0x08270000"  mask="0xffffffff"  permission="rw"/>   	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank10"     address="0x08280000"  mask="0xffffffff"  permission="rw">      <!--512Kword-->
+    <node id="flash_block90"  address="0x08280000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block89"  address="0x08290000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block88"  address="0x082a0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block87"  address="0x082b0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block86"  address="0x082c0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block85"  address="0x082d0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block84"  address="0x082e0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block83"  address="0x082f0000"  mask="0xffffffff"  permission="rw"/>   	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank9"      address="0x08300000"  mask="0xffffffff"  permission="rw">      <!--512Kword-->
+    <node id="flash_block82"  address="0x08300000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block81"  address="0x08310000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block80"  address="0x08320000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block79"  address="0x08330000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block78"  address="0x08340000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block77"  address="0x08350000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->	
+    <node id="flash_block76"  address="0x08360000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block75"  address="0x08370000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank8"      address="0x08380000"  mask="0xffffffff"  permission="rw">      <!--512Kword-->
+    <node id="flash_block74"  address="0x08380000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block73"  address="0x08390000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block72"  address="0x083a0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block71"  address="0x083b0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block70"  address="0x083c0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block69"  address="0x083d0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block68"  address="0x083e0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block67"  address="0x083f0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank7"      address="0x08400000"  mask="0xffffffff"  permission="rw">      <!--512Kword-->
+    <node id="flash_block66"  address="0x08400000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block65"  address="0x08410000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block64"  address="0x08420000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block63"  address="0x08430000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block62"  address="0x08440000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block61"  address="0x08450000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->	
+    <node id="flash_block60"  address="0x08460000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block59"  address="0x08470000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank6"      address="0x08480000"  mask="0xffffffff"  permission="rw">      <!--512Kword-->
+    <node id="flash_block58"  address="0x08480000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block57"  address="0x08490000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block56"  address="0x084a0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block55"  address="0x084b0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block54"  address="0x084c0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block53"  address="0x084d0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block52"  address="0x084e0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->	
+    <node id="flash_block51"  address="0x084f0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank5"      address="0x08500000"  mask="0xffffffff"  permission="rw">     <!--512Kword-->
+    <node id="flash_block50"  address="0x08500000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block49"  address="0x08510000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block48"  address="0x08520000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block47"  address="0x08530000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block46"  address="0x08540000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block45"  address="0x08550000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block44"  address="0x08560000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->	
+    <node id="flash_block43"  address="0x08570000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank4"      address="0x08580000"  mask="0xffffffff"  permission="rw">     <!--512Kword-->
+    <node id="flash_block42"  address="0x08580000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block41"  address="0x08590000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block40"  address="0x085a0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block39"  address="0x085b0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block38"  address="0x085c0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block37"  address="0x085d0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block36"  address="0x085e0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block35"  address="0x085f0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank3"  address="0x08600000"  mask="0xffffffff"  permission="rw">     <!--512Kword-->
+    <node id="flash_block34"  address="0x08600000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block33"  address="0x08610000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block32"  address="0x08620000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block31"  address="0x08630000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block30"  address="0x08640000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block29"  address="0x08650000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block28"  address="0x08660000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block27"  address="0x08670000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->	
+  </node>
+
+  <node id="flash_bank2"  address="0x08680000"  mask="0xffffffff"  permission="rw">     <!--512Kword-->
+    <node id="flash_block26"  address="0x08680000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block25"  address="0x08690000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block24"  address="0x086a0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block23"  address="0x086b0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block22"  address="0x086c0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->	
+    <node id="flash_block21"  address="0x086d0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block20"  address="0x086e0000"  mask="0xffffffff"  permission="rw"/> 	 <!--64Kword-->
+    <node id="flash_block19"  address="0x086f0000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+  </node>
+
+  <node id="flash_bank1"  address="0x08700000"  mask="0xffffffff"  permission="rw">     <!--512Kword-->
+    <node id="flash_block18"  address="0x08700000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block17"  address="0x08710000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block16"  address="0x08720000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block15"  address="0x08730000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block14"  address="0x08740000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block13"  address="0x08750000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block12"  address="0x08760000"  mask="0xffffffff"  permission="rw"/>  	 <!--64Kword-->
+    <node id="flash_block11"  address="0x08770000"  mask="0xffffffff"  permission="rw"/>   	 <!--64Kword-->
+  </node>
+
+  <node id="flash_param_bank" address="0x08780000"  mask="0xffffffff"  permission="rw">  <!--512Kword-->
+    <node id="flash_block10"  address="0x08780000"  mask="0xffffffff"  permission="rw"/>  <!--64Kword-->
+    <node id="flash_block9"   address="0x08790000"  mask="0xffffffff"  permission="rw"/>  <!--64Kword-->	
+    <node id="flash_block8"   address="0x087a0000"  mask="0xffffffff"  permission="rw"/>  <!--64Kword-->	
+    <node id="flash_block7"   address="0x087b0000"  mask="0xffffffff"  permission="rw"/>  <!--64Kword-->	
+    <node id="flash_block6"   address="0x087c0000"  mask="0xffffffff"  permission="rw"/>  <!--64Kword-->	
+    <node id="flash_block5"   address="0x087d0000"  mask="0xffffffff"  permission="rw"/>  <!--64Kword-->	
+    <node id="flash_block4"   address="0x087e0000"  mask="0xffffffff"  permission="rw"/>  <!--64Kword-->	
+    <node id="flash_block3"   address="0x087f0000"  mask="0xffffffff"  permission="rw"/>  <!--16Kword-->	
+    <node id="flash_block2"   address="0x087f4000"  mask="0xffffffff"  permission="rw"/>  <!--16Kword-->	
+    <node id="flash_block1"   address="0x087f8000"  mask="0xffffffff"  permission="rw"/>  <!--16Kword-->	
+    <node id="flash_block0"   address="0x087fc000"  mask="0xffffffff"  permission="rw"/>  <!--16Kword-->
+  </node>
+</node>
+

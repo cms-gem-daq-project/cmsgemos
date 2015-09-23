@@ -18,14 +18,6 @@ gem::supervisor::GEMSupervisorWeb::~GEMSupervisorWeb()
   
 }
 
-void gem::supervisor::GEMSupervisorWeb::webRedirect(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  std::string redURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Default";
-  *out << "<meta http-equiv=\"refresh\" content=\"0;" << redURL << "\">" << std::endl;  
-  //this->webDefault(in,out);
-}
-
 void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
@@ -45,114 +37,6 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
   expertPage(in,out);
   *out << "</div>" << std::endl;
   *out << "</div>" << std::endl;
-}
-
-/*To be filled in with the control page code (only for FSM derived classes?*/
-void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Output * out)
-  throw (xgi::exception::Exception)
-{
-  DEBUG("controlPanel");
-  //*out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
-  
-  if (p_gemFSMApp) {
-    try {
-      std::string state = dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getCurrentState();
-      ////update the page refresh 
-      if (!b_is_working && !b_is_running) {
-      } else if (b_is_working) {
-        cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-        head.addHeader("Refresh","2");
-      } else if (b_is_running) {
-        cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-        head.addHeader("Refresh","30");
-      }
-
-      *out << "<table class=\"xdaq-table\">" << std::endl
-           << cgicc::thead() << std::endl
-           << cgicc::tr()    << std::endl //open
-           << cgicc::th()    << "Control" << cgicc::th() << std::endl
-           << cgicc::tr()    << std::endl //close
-           << cgicc::thead() << std::endl 
-      
-           << "<tbody>" << std::endl
-           << "<tr>"    << std::endl
-           << "<td>"    << std::endl;
-    
-      if (state == "Initial") {
-        //send the initialize command
-        *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Initialize GEM system.")
-          .set("value", "Initialize") << std::endl;
-        *out << cgicc::form() << std::endl;
-      } else if (state == "Halted" || state == "Configured") {
-        //this will allow the parameters to be set to the chip and scan routine
-        *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Configure threshold scan.")
-          .set("value", "Configure") << std::endl;
-        *out << cgicc::form()        << std::endl;
-      } else if (!(state == "Running")) {
-        //hardware is initialized and configured, we can start the run
-        *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Start") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Start GEM system.")
-          .set("value", "Start") << std::endl;
-        *out << cgicc::form()    << std::endl;
-      } else if (state == "Running") {
-        *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Stop threshold scan.")
-          .set("value", "Stop") << std::endl;
-        *out << cgicc::form()   << std::endl;
-      }
-    
-      if (state == "Halted" ||
-          state == "Configured" ||
-          state == "Running" ||
-          state == "Paused") {
-        *out << cgicc::comment() << "end the main commands, now putting the halt/reset commands which should be possible all the time" << cgicc::comment() << cgicc::br() << std::endl;
-        *out << cgicc::span()  << std::endl
-             << "<table>" << std::endl
-             << "<tr>"    << std::endl
-             << "<td>"    << std::endl;
-	
-        //always should have a halt command
-        *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Halt") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Halt GEM system FSM.")
-          .set("value", "Halt") << std::endl;
-        *out << cgicc::form() << std::endl
-             << "</td>" << std::endl;
-	
-        *out << "<td>"  << std::endl;
-        *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Reset GEM FSM.")
-          .set("value", "Reset") << std::endl;
-        *out << cgicc::form() << std::endl;
-      }
-      *out << "</td>"    << std::endl
-           << "</tr>"    << std::endl
-           << "</table>" << std::endl
-           << cgicc::br() << std::endl
-           << cgicc::span()  << std::endl;
-      
-      *out << "</td>" << std::endl
-           << "</tr>"    << std::endl
-           << "</tbody>" << std::endl
-           << "</table>" << cgicc::br() << std::endl;
-    }
-  
-    catch (const xgi::exception::Exception& e) {
-      INFO("Something went wrong displaying GEMSupervisor web control panel(xgi): " << e.what());
-      XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
-    catch (const std::exception& e) {
-      INFO("Something went wrong displaying GEMSupervisor web control panel(std): " << e.what());
-      XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
-  }//only when the GEMFSM has been created
 }
 
 /*To be filled in with the monitor page code

@@ -76,6 +76,7 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   xoap::bind(this, &GEMFSMApplication::changeState, "Pause",      XDAQ_NS_URI);
   xoap::bind(this, &GEMFSMApplication::changeState, "Resume",     XDAQ_NS_URI);
   xoap::bind(this, &GEMFSMApplication::changeState, "Halt",       XDAQ_NS_URI);
+  xoap::bind(this, &GEMFSMApplication::changeState, "Reset",      XDAQ_NS_URI);
   DEBUG("Created xoap bindings");
 
   //benefit or disadvantage to setting up the workloop signatures this way?
@@ -103,6 +104,10 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
     
   p_appInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
   //p_gemAppStateInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
+  //p_gemAppStateInfoSpace->addItemRetrieveListener( "GEMFSMState", this);
+  //p_gemAppStateInfoSpace->addItemChangedListener(  "GEMFSMState", this);
+  //p_gemAppStateInfoSpace->addGroupRetrieveListener("GEMFSMState", this);
+  //p_gemAppStateInfoSpace->addGroupChangedListener( "GEMFSMState", this);
   p_appInfoSpace->fireItemAvailable("application:state", p_gemAppStateInfoSpace );
   //p_gemAppStateInfoSpace->fireItemAvailable("State",&m_state);
   p_appInfoSpace->fireItemAvailable("State",&m_state);
@@ -121,14 +126,16 @@ gem::base::GEMFSMApplication::~GEMFSMApplication()
 /**hyperdaq callbacks*/
 void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* out)
 {
+  INFO("xgiInitialize begin");
   if (b_accept_web_commands) {
     try {
-      DEBUG("Sending SOAP command to application");
+      INFO("xgiInitialize::Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",p_appContext,p_appDescriptor,p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
       XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
     }
   } //is it OK to then call webInitialize?
+  INFO("xgiInitialize end");
   p_gemWebInterface->webInitialize(in,out);
 }
 
@@ -225,31 +232,58 @@ void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out)
 
 
 /**state transitions*/
-void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference e)
+void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference event)
   throw (toolbox::fsm::exception::Exception)
 {
   //set a transition message to ""
+  INFO("GEMFSMApplication::transitionDriver(" << event->type() << ")");
   try {
-    if (e->type() == "Initialize" || e->type() == "Configure" || e->type() == "Start"  ||
-        e->type() == "Stop"       || e->type() == "Pause"     || e->type() == "Resume" || 
-        e->type() == "Halt"       || e->type() == "Reset" ) {
-      workloopDriver(e->type());
-    } else XCEPT_RAISE(toolbox::fsm::exception::Exception,"Unknown transition command");
+    if (event->type() == "Initialize" || event->type() == "Configure" || event->type() == "Start"  ||
+        event->type() == "Stop"       || event->type() == "Pause"     || event->type() == "Resume" || 
+        event->type() == "Halt"       || event->type() == "Reset" ) {
+      INFO("transitionDriver::submitting workloopDriver(" << event->type() << ")");
+      workloopDriver(event->type());
+      //does this preclude the future "success" message at the end of the catch block?
+      return;
+    } else if (event->type() == "IsInitial" || event->type() == "IsConfigured" ||
+               event->type() == "IsRunning" || event->type() == "IsPaused"     ||
+               event->type() == "IsHalted") {
+      //report success
+      INFO("Recieved confirmation that state changed to " << event->type());
+    } else if (event->type()=="Fail" || event->type()=="fail") {
+      //do nothing for the fail action
+      INFO("Recieved fail event type");
+    } else {
+      INFO("Unknown transition command");
+      XCEPT_RAISE(toolbox::fsm::exception::Exception,"Unknown transition command");
+    }
   } catch (gem::utils::exception::Exception& ex) {
+    INFO("Caught gem::utils::exception::Exception");
     fireEvent("Fail");
     //set a transition message to ex.what()
     XCEPT_RETHROW(toolbox::fsm::exception::Exception,"State Transition Failed",ex);
-  }
+  } /*catch (std::exception& ex) {
+    fireEvent("Fail");
+    //set a transition message to ex.what()
+    XCEPT_RETHROW(toolbox::fsm::exception::Exception,"State Transition Failed",ex);
+  } catch (...) {
+    fireEvent("Fail");
+    //set a transition message to ex.what()
+    XCEPT_RETHROW(toolbox::fsm::exception::Exception,"State Transition Failed","...");
+    }*/
   //set a transition message to "Success"
 }
 
 void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
   throw (toolbox::task::exception::Exception)
 {
+  INFO("workloopDriver begin");
   try {
     toolbox::task::WorkLoopFactory* wlf  = toolbox::task::WorkLoopFactory::getInstance();
+    INFO("Trying to access the workloop with name " << workLoopName);
     toolbox::task::WorkLoop*        loop = wlf->getWorkLoop(workLoopName,"waiting");
     if (!loop->isActive()) loop->activate();
+    INFO("Workloop should now be active");
 
     if      (command=="Initialize") loop->submit(initSig_  );
     else if (command=="Configure")  loop->submit(confSig_  );
@@ -259,18 +293,25 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
     else if (command=="Resume")     loop->submit(resumeSig_);
     else if (command=="Halt")       loop->submit(haltSig_  );
     else if (command=="Reset")      loop->submit(resetSig_ );
+    INFO("Workloop should now be submitted");
   } catch (toolbox::task::exception::Exception& e) {
     XCEPT_RETHROW(gem::utils::exception::Exception,"Workloop failure",e);
   }
-  
+  INFO("workloopDriver end");
 }
 
-void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference e)
+void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
   throw (toolbox::fsm::exception::Exception)
 {
+  INFO("GEMFSMApplication::resetAction(" << event->type() << ")");
+  //should only enter this function on reciept of a "Reset" event
+  //should probably do much more than this...
+  INFO("Firing 'IsInitial' into the FSM");
+  fireEvent("IsInitial");
 }
+
 /*	
-        void gem::base::GEMFSMApplication::failAction(toolbox::Event::Reference e)
+        void gem::base::GEMFSMApplication::failAction(toolbox::Event::Reference event)
         throw (toolbox::fsm::exception::Exception)
         {
         }
@@ -279,16 +320,19 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference e)
 void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   throw (toolbox::fsm::exception::Exception)
 {
+  INFO("GEMFSMApplication::stateChanged");
 }
 
 void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference event)
   throw (toolbox::fsm::exception::Exception)
 {
+  INFO("GEMFSMApplication::transitionFailed(" <<event->type() << ")");
 }
 
 void gem::base::GEMFSMApplication::fireEvent(std::string event)
   throw (toolbox::fsm::exception::Exception)
 {
+  INFO("GEMFSMApplication::fireEvent(" << event << ")");
   try {
     toolbox::Event::Reference e(new toolbox::Event(event,this));
     m_gemfsm.fireEvent(e);
@@ -304,170 +348,209 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
 // xdaq::Application.
 xoap::MessageReference gem::base::GEMFSMApplication::changeState(xoap::MessageReference msg)
 {
+  INFO("GEMFSMApplication::changeState");
   return m_gemfsm.changeState(msg);
 }
 
 /** workloop driven transitions*/
 bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
 {
-  while ((m_gemfsm.getCurrentState()) != &(STATE_INITIALIZING)) { // deal with possible race condition
+  m_wl_semaphore.take();
+  INFO("initialize called, current state: " << m_gemfsm.getCurrentState());
+  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_INITIALIZING)) { // deal with possible race condition
+    INFO("not in " << STATE_INITIALIZING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
     usleep(100);
   }
+  INFO("initialize called, current state: " << m_gemfsm.getCurrentState());
   
   p_gemWebInterface->buildCfgWebpage(); // Set up the basic config web page from the GEMWebApplication
 
   try {
-    m_progress=0.0;
-    initializeAction();
+    m_progress = 0.0;
+    INFO("Calling initializeAction");
+    this->initializeAction();
+    INFO("Finished initializeAction");
     p_gemWebInterface->buildCfgWebpage(); // complete, so re render the config web page
-    m_progress=1.0;
-  } catch (gem::utils::exception::Exception& ex) {
+    m_progress = 1.0;
+  } catch (gem::utils::exception::Exception const& ex) {
+    ERROR("Error in initialize gem::utils::exception " << ex.what());
     toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (toolbox::net::exception::MalformedURN const& ex) {
+    ERROR("Error in initialize, malformed URN " << ex.what());
+    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (std::exception const& ex) {
+    ERROR("Error in initialize, std::exception " << ex.what());
+    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
+    fireEvent("Fail");
+    m_wl_semaphore.give();
     return false;
   }
 
-  fireEvent("Halted");
+  INFO("Firing 'IsHalted' into the FSM");
+  fireEvent("IsHalted");
+  m_wl_semaphore.give();
   return false;
 }
 
 bool gem::base::GEMFSMApplication::configure( toolbox::task::WorkLoop *wl)
 {
-  while ((m_gemfsm.getCurrentState()) != &(STATE_CONFIGURING)) { // deal with possible race condition
+  INFO("configure called, current state: " << m_gemfsm.getCurrentState());
+  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_CONFIGURING)) { // deal with possible race condition
+    INFO("not in " << STATE_CONFIGURING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
     usleep(100);
   }
+  INFO("configure called, current state: " << m_gemfsm.getCurrentState());
 
   try {
-    m_progress=0.0;
+    m_progress = 0.0;
     configureAction();
     p_gemWebInterface->buildCfgWebpage(); // complete, so re render the config web page
-    m_progress=1.0;
+    m_progress = 1.0;
   } catch (gem::utils::exception::Exception& ex) {
     fireEvent("Fail");
     return false;
   }
   
-  fireEvent("Configured");
+  fireEvent("IsConfigured");
   return false;
 }
 
 bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
 {
-  while ((m_gemfsm.getCurrentState()) != &(STATE_STARTING)) { // deal with possible race condition
+  INFO("start called, current state: " << m_gemfsm.getCurrentState());
+  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_STARTING)) { // deal with possible race condition
     usleep(100);
   }
+  INFO("start called, current state: " << m_gemfsm.getCurrentState());
 
   try {
-    m_progress=0.0;
+    m_progress = 0.0;
     startAction();
     p_gemWebInterface->buildCfgWebpage(); // complete, so re render the config web page
-    m_progress=1.0;
+    m_progress = 1.0;
   } catch (gem::utils::exception::Exception& ex) {
     fireEvent("Fail");
     return false;
   }
 
-  fireEvent("Running");
+  fireEvent("IsRunning");
   return false;
 }
 
 bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
 {
-  while ((m_gemfsm.getCurrentState()) != &(STATE_PAUSING)) { // deal with possible race condition
+  INFO("pause called, current state: " << m_gemfsm.getCurrentState());
+  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_PAUSING)) { // deal with possible race condition
     usleep(100);
   }
+  INFO("pause called, current state: " << m_gemfsm.getCurrentState());
 
   try {
-    m_progress=0.0;
+    m_progress = 0.0;
     pauseAction();
     p_gemWebInterface->buildCfgWebpage(); // complete, so re render the config web page
-    m_progress=1.0;
+    m_progress = 1.0;
   } catch (gem::utils::exception::Exception& ex) {
     fireEvent("Fail");
     return false;
   }
 
-  fireEvent("Paused");
+  fireEvent("IsPaused");
   return false;
 }
 
 bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
 {
-  while ((m_gemfsm.getCurrentState()) != &(STATE_RESUMING)) { // deal with possible race condition
+  INFO("resume called, current state: " << m_gemfsm.getCurrentState());
+  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_RESUMING)) { // deal with possible race condition
     usleep(100);
   }
+  INFO("resume called, current state: " << m_gemfsm.getCurrentState());
 
   try {
-    m_progress=0.0;
+    m_progress = 0.0;
     resumeAction();
     p_gemWebInterface->buildCfgWebpage(); // complete, so re render the config web page
-    m_progress=1.0;
+    m_progress = 1.0;
   } catch (gem::utils::exception::Exception& ex) {
     fireEvent("Fail");
     return false;
   }
 
-  fireEvent("Running");
+  fireEvent("IsRunning");
   return false;
 }
 
 bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
 {
-  while ((m_gemfsm.getCurrentState()) != &(STATE_STOPPING)) { // deal with possible race condition
+  INFO("stop called, current state: " << m_gemfsm.getCurrentState());
+  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_STOPPING)) { // deal with possible race condition
     usleep(100);
   }
+  INFO("stop called, current state: " << m_gemfsm.getCurrentState());
 
   try {
-    m_progress=0.0;
+    m_progress = 0.0;
     stopAction();
     p_gemWebInterface->buildCfgWebpage(); // complete, so re render the config web page
-    m_progress=1.0;
+    m_progress = 1.0;
   } catch (gem::utils::exception::Exception& ex) {
     fireEvent("Fail");
     return false;
   }
 
-  fireEvent("Configured");
+  fireEvent("IsConfigured");
   return false;
 }
 
 bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
 {
-  while ((m_gemfsm.getCurrentState()) != &(STATE_HALTING)) { // deal with possible race condition
+  INFO("halt called, current state: " << m_gemfsm.getCurrentState());
+  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_HALTING)) { // deal with possible race condition
     usleep(100);
   }
+  INFO("halt called, current state: " << m_gemfsm.getCurrentState());
 
   try {
-    m_progress=0.0;
+    m_progress = 0.0;
     haltAction();
     p_gemWebInterface->buildCfgWebpage(); // complete, so re render the config web page
-    m_progress=1.0;
+    m_progress = 1.0;
   } catch (gem::utils::exception::Exception& ex) {
     fireEvent("Fail");
     return false;
   }
 
-  fireEvent("Halted");
+  fireEvent("IsHalted");
   return false;
 }
 
 bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
 {
-  while ((m_gemfsm.getCurrentState()) != &(STATE_RESETTING)) { // deal with possible race condition
+  INFO("reset called, current state: " << m_gemfsm.getCurrentState());
+  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_RESETTING)) { // deal with possible race condition
     usleep(100);
   }
+  INFO("reset called, current state: " << m_gemfsm.getCurrentState());
 
   try {
-    m_progress=0.0;
+    m_progress = 0.0;
     resetAction();
     p_gemWebInterface->buildCfgWebpage(); // complete, so re render the config web page
-    m_progress=1.0;
+    m_progress = 1.0;
   } catch (gem::utils::exception::Exception& ex) {
     fireEvent("Fail");
     return false;
   }
-
-  fireEvent("Initial");
+  
+  fireEvent("IsInitial");
+  //maybe do a m_gemfsm.reset()?
   return false;
 }
 

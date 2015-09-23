@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="BANK_15" description="512Kword">
+    <node id="BLOCK_130"  address="0x000000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_129"  address="0x010000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_128"  address="0x020000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_127"  address="0x030000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_126"  address="0x040000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_125"  address="0x050000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_124"  address="0x060000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_123"  address="0x070000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_15-->
+
+  <node id="BANK_14" description="512Kword">
+    <node id="BLOCK_122"  address="0x080000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_121"  address="0x090000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_120"  address="0x0a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_119"  address="0x0b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_118"  address="0x0c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_117"  address="0x0d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_116"  address="0x0e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_115"  address="0x0f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_14-->
+
+  <node id="BANK_13" description="512Kword">
+    <node id="BLOCK_114"  address="0x100000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_113"  address="0x110000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_112"  address="0x120000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_111"  address="0x130000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_110"  address="0x140000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_109"  address="0x150000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_108"  address="0x160000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="BLOCK_107"  address="0x170000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_13-->
+
+  <node id="BANK_12" description="512Kword">
+    <node id="BLOCK_106"  address="0x180000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_105"  address="0x190000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_104"  address="0x1a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_103"  address="0x1b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_102"  address="0x1c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_101"  address="0x1d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_100"  address="0x1e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_99"   address="0x1f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_12-->
+
+  <node id="BANK_11" description="512Kword">
+    <node id="BLOCK_98"  address="0x200000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_97"  address="0x210000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_96"  address="0x220000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_95"  address="0x230000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_94"  address="0x240000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_93"  address="0x250000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_92"  address="0x260000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_91"  address="0x270000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_11-->
+
+  <node id="BANK_10" description="512Kword">
+    <node id="BLOCK_90"  address="0x280000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_89"  address="0x290000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_88"  address="0x2a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_87"  address="0x2b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_86"  address="0x2c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_85"  address="0x2d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_84"  address="0x2e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_83"  address="0x2f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_10-->
+
+  <node id="BANK_9" description="512Kword">
+    <node id="BLOCK_82"  address="0x300000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_81"  address="0x310000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_80"  address="0x320000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_79"  address="0x330000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_78"  address="0x340000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_77"  address="0x350000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_76"  address="0x360000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_75"  address="0x370000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_9-->
+
+  <node id="BANK_8" description="512Kword">
+    <node id="BLOCK_74"  address="0x380000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_73"  address="0x390000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_72"  address="0x3a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_71"  address="0x3b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_70"  address="0x3c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_69"  address="0x3d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_68"  address="0x3e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_67"  address="0x3f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_8-->
+
+  <node id="BANK_7" description="512Kword">
+    <node id="BLOCK_66"  address="0x400000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_65"  address="0x410000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_64"  address="0x420000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_63"  address="0x430000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_62"  address="0x440000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_61"  address="0x450000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_60"  address="0x460000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_59"  address="0x470000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_7-->
+
+  <node id="BANK_6" description="512Kword">
+    <node id="BLOCK_58"  address="0x480000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_57"  address="0x490000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_56"  address="0x4a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_55"  address="0x4b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_54"  address="0x4c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_53"  address="0x4d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_52"  address="0x4e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_51"  address="0x4f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_6-->
+
+  <node id="BANK_5" description="512Kword">
+    <node id="BLOCK_50"  address="0x500000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_49"  address="0x510000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_48"  address="0x520000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_47"  address="0x530000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_46"  address="0x540000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_45"  address="0x550000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_44"  address="0x560000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_43"  address="0x570000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_5-->
+
+  <node id="BANK_4" description="512Kword">
+    <node id="BLOCK_42"  address="0x580000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_41"  address="0x590000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_40"  address="0x5a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_39"  address="0x5b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_38"  address="0x5c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_37"  address="0x5d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_36"  address="0x5e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_35"  address="0x5f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_4-->
+
+  <node id="BANK_3" description="512Kword">
+    <node id="BLOCK_34"  address="0x600000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_33"  address="0x610000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_32"  address="0x620000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_31"  address="0x630000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_30"  address="0x640000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_29"  address="0x650000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_28"  address="0x660000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_27"  address="0x670000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+  </node> <!--end BANK_3-->
+
+  <node id="BANK_2" description="512Kword">
+    <node id="BLOCK_26"  address="0x680000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_25"  address="0x690000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_24"  address="0x6a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_23"  address="0x6b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_22"  address="0x6c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_21"  address="0x6d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_20"  address="0x6e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_19"  address="0x6f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_2-->
+
+  <node id="BANK_1" description="512Kword">
+    <node id="BLOCK_18"  address="0x700000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_17"  address="0x710000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_16"  address="0x720000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_15"  address="0x730000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_14"  address="0x740000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_13"  address="0x750000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_12"  address="0x760000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_11"  address="0x770000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end BANK_1-->
+
+  <node id="PARAM_BANK" description="512Kword">
+    <node id="BLOCK_10"  address="0x780000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="BLOCK_9"   address="0x790000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_8"   address="0x7a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_7"   address="0x7b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_6"   address="0x7c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_5"   address="0x7d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_4"   address="0x7e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_3"   address="0x7f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_2"   address="0x7f4000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_1"   address="0x7f8000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="BLOCK_0"   address="0x7fc000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end PARAM_BANK-->
+
+</node>

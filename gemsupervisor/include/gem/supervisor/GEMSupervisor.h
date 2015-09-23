@@ -25,9 +25,9 @@ namespace gem {
 
         virtual ~GEMSupervisor();
       
-        void init();
+        virtual void init();
 
-        void actionPerformed(xdata::Event& event);
+        virtual void actionPerformed(xdata::Event& event);
 
       protected:
         /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */

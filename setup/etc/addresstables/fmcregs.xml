@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="sfp_phase_mon_ctrl"	    address="0x00000010"  mask="0xffffffff"  permission="rw">
+    <node id="sfp_phase_mon_lower"  address="0x00000010"  mask="0x000000ff"  permission="rw"/>
+    <node id="sfp_phase_mon_upper"  address="0x00000010"  mask="0x0000ff00"  permission="rw"/> 
+  </node>
+
+  <node id="sfp_phase_mon_stats"  address="0x00000011"  mask="0xffffffff"  permission="r"/>
+  
+  <node id="fmc1_phase_mon_ctrl"     address="0x00000012"  mask="0xffffffff"  permission="rw">
+    <node id="fmc1_phase_mon_lower"  address="0x00000012"  mask="0x000000ff"  permission="rw"/>
+    <node id="fmc1_phase_mon_upper"  address="0x00000012"  mask="0x0000ff00"  permission="rw"/>
+  </node>
+
+  <node id="fmc1_phase_mon_stats"  address="0x00000013"  mask="0xffffffff"  permission="r"/>	
+</node>

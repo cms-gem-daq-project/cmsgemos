@@ -54,10 +54,6 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
-//void gem::supervisor::GEMSupervisor::xgiDefault(xgi::Input* in, xgi::Output* out) {
-//  dynamic_cast<gem::supervisor::GEMSupervisorWeb*>(p_gemWebInterface)->controlPanel(in,out);
-//}
-
 void gem::supervisor::GEMSupervisor::init()
 {
   v_supervisedApps.clear();
