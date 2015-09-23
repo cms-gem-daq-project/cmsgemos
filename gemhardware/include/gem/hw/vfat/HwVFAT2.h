@@ -1,11 +1,6 @@
 #ifndef gem_hw_vfat_HwVFAT2_h
 #define gem_hw_vfat_HwVFAT2_h
 
-#include "xdata/String.h"
-#include "xdata/UnsignedLong.h"
-#include "xdata/UnsignedInteger32.h"
-#include "xdata/ActionListener.h"
-
 #include "gem/hw/GEMHwDevice.h"
 
 //#include "gem/hw/vfat/VFAT2Monitor.h"
@@ -55,7 +50,7 @@ namespace gem {
           HwVFAT2(std::string const& vfatDevice, uhal::HwInterface& uhalDevice);
           HwVFAT2(std::string const& vfatDevice="VFAT13");
 
-          ~HwVFAT2();
+          virtual ~HwVFAT2();
 	  
           /** Print the error counts for the device (calls also the GEMHwDevice method
            * @returns string of error counts

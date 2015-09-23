@@ -23,7 +23,7 @@ namespace gem {
           HwOptoHybrid(std::string const& optohybridDevice, uhal::HwInterface& uhalDevice);
           HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
 
-          ~HwOptoHybrid();
+          virtual ~HwOptoHybrid();
           
           //updating interfaces////virtual void connectDevice();
           //updating interfaces////virtual void releaseDevice();

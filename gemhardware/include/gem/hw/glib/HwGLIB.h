@@ -21,7 +21,7 @@ namespace gem {
           HwGLIB(std::string const& glibDevice, uhal::HwInterface& uhalDevice);
           HwGLIB(int const& crate, int const& slot);
 	
-          ~HwGLIB();
+          virtual ~HwGLIB();
 
           //virtual void connectDevice();
           //virtual void releaseDevice();
