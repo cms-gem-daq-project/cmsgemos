@@ -242,7 +242,7 @@ namespace gem {
       void setDeviceIPAddress(std::string const& deviceIPAddr) {
         m_deviceIPAddress = deviceIPAddr; };
       void setAddressTableFileName(std::string const& name) {
-        m_addressTable = "file://${BUILD_HOME}/data/"+name; };
+        m_addressTable = "file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/"+name; };
 
       void setDeviceBaseNode(std::string const& deviceBase) {
         m_deviceBaseNode = deviceBase; };

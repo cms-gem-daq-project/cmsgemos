@@ -133,30 +133,33 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
            << "<tr>"    << std::endl
            << "<td>"    << std::endl;
     
-      *out << "<table class=\"xdaq-table\">" << std::endl
-           << "<tr>"    << std::endl
-           << "<td>"    << std::endl;
+      *out << "<table class=\"xdaq-table\">" << std::endl;
 
       if (state == "Initial") {
         //send the initialize command
-        *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
+        *out << "<tr>" << std::endl << "<td>"    << std::endl
+             << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
         *out << cgicc::input().set("type", "submit")
           .set("name", "command").set("title", "Initialize GEM system.")
           .set("value", "Initialize") << std::endl;
         *out << cgicc::form() << std::endl
-             << "</td>" << std::endl;
+             << "</td>"       << std::endl
+             << "</tr>"       << std::endl;
       } else {
         if (state == "Halted") {
           //this will allow the parameters to be set to the chip and scan routine
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
+          *out << "<tr>" << std::endl << "<td colspan=\"2\">"    << std::endl
+               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Configure FSM")
             .set("value", "Configure") << std::endl;
           *out << cgicc::form()        << std::endl
-               << "</td>" << std::endl;
+               << "</td>" << std::endl
+               << "</tr>" << std::endl;
         } else if (state == "Configured") {
           //this will allow the parameters to be set to the chip and scan routine
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
+          *out << "<tr>" << std::endl << "<td>"    << std::endl
+               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Configure FSM")
             .set("value", "Configure") << std::endl;
@@ -168,10 +171,12 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Start FSM")
             .set("value", "Start") << std::endl;
-          *out << cgicc::form()        << std::endl
-               << "</td>" << std::endl;
+          *out << cgicc::form()    << std::endl
+               << "</td>" << std::endl
+               << "</tr>" << std::endl;
         } else if (state == "Running") {
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
+          *out << "<tr>" << std::endl << "<td>"    << std::endl
+               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Stop FSM")
             .set("value", "Stop") << std::endl;
@@ -184,9 +189,11 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
             .set("name", "command").set("title", "Pause FSM")
             .set("value", "Pause") << std::endl;
           *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl;
+               << "</td>" << std::endl
+               << "</tr>" << std::endl;
         } else if (state == "Paused") {
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
+          *out << "<tr>" << std::endl << "<td>"    << std::endl
+               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Stop FSM")
             .set("value", "Stop") << std::endl;
@@ -199,14 +206,16 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
             .set("name", "command").set("title", "Resume FSM")
             .set("value", "Resume") << std::endl;
           *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl;
+               << "</td>" << std::endl
+               << "</tr>" << std::endl;
         }
         
         if (state == "Halted" ||
             state == "Configured" ||
             state == "Running" ||
             state == "Paused") {
-          *out << cgicc::comment() << "end the main commands, now putting the halt/reset commands which should be possible all the time" << cgicc::comment() << cgicc::br() << std::endl;
+          *out << cgicc::comment() << "end the main commands, now putting the halt/reset commands which should be possible all the time"
+               << cgicc::comment() << cgicc::br() << std::endl;
           *out << "<tr>"    << std::endl
                << "<td>"    << std::endl;
           //always should have a halt/reset command?
@@ -223,31 +232,29 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
             .set("name", "command").set("title", "Reset GEM FSM.")
             .set("value", "Reset") << std::endl;
           *out << cgicc::form() << std::endl
-               << "</td>" << std::endl;
+               << "</td>" << std::endl
+               << "</tr>" << std::endl;
         } else if (state == "Failed" || state == "Error") {
           *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Reset GEM FSM.")
             .set("value", "Reset") << std::endl;
           *out << cgicc::form() << std::endl
-               << "</td>" << std::endl;
+               << "</td>" << std::endl
+               << "</tr>" << std::endl;
         }
       }//end check on Initial vs Other
-      *out << "</tr>" << std::endl
-           << "</table>" << std::endl
+      *out << "</table>" << std::endl
+           << "</td>"  << std::endl
            << "<td>"  << std::endl
            << cgicc::h3() 
         //change the colour to red if failed maybe
            << dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState()
            << cgicc::h3() << std::endl
-           << "</td>"    << std::endl
-           << "</tr>"    << std::endl
-           << "</table>"    << std::endl;
-      
-      *out << "</td>" << std::endl
-           << "</tr>"    << std::endl
-           << "</tbody>" << std::endl
-           << "</table>" << cgicc::br() << std::endl;
+           << "</td>"     << std::endl
+           << "</tr>"     << std::endl
+           << "</tbody>"  << std::endl
+           << "</table>"  << std::endl;
     }
   
     catch (const xgi::exception::Exception& e) {

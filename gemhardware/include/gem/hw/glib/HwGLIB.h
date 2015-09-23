@@ -27,8 +27,8 @@ namespace gem {
           //virtual void releaseDevice();
           //virtual void initDevice();
           //virtual void enableDevice();
-          virtual void configureDevice();
-          virtual void configureDevice(std::string const& xmlSettings);
+          //virtual void configureDevice();
+          //virtual void configureDevice(std::string const& xmlSettings);
           //virtual void configureDevice(std::string const& dbConnectionString);
           //virtual void disableDevice();
           //virtual void pauseDevice();

@@ -32,11 +32,7 @@ namespace gem {
 	  
         protected:
           virtual void init();
-          /*
-          virtual void preInit() throw (gem::base::exception::Exception);
-          virtual void enable()  throw (gem::base::exception::Exception);
-          virtual void disable() throw (gem::base::exception::Exception);
-	  */
+
           virtual void actionPerformed(xdata::Event& event);
           
           ::amc13::Status *getHTMLStatus()  const;
