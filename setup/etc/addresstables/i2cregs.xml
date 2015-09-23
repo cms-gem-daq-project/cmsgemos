@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="test"          address="0x00000003"  mask="0xffffffff"  permission="rw"/>
+  <!--<node id="i2c_settings"  address="0x0000000d"  mask="0xffffffff"  permission="rw"/>
+  <node id="i2c_command"   address="0x0000000e"  mask="0xffffffff"  permission="rw"/>
+  <node id="i2c_reply"     address="0x0000000f"  mask="0xffffffff"  permission="r"/>-->
+
+  <node id="i2c_settings"      address="0x0000000d"  permission="rw">
+    <node id="i2c_enable"      mask="0x00000800"  />
+    <node id="i2c_bus_select"  mask="0x00000400"  />
+    <node id="i2c_prescaler"   mask="0x000003ff"  />
+  </node>
+  
+  <node id="i2c_command"       address="0x0000000e"  permission="rw">
+    <!--special feature of this register, clears automatically the upper 4 bits-->
+    <node id="i2c_autoclear"   mask="0xf0000000"/>
+    <node id="i2c_strobe"      mask="0x80000000"/>
+    <node id="i2c_mode16"      mask="0x02000000"/>
+    <node id="i2c_write"       mask="0x00800000"/>
+    <node id="i2c_slvaddr_7b"  mask="0x007f0000"/>
+    <node id="i2c_wrdata"      mask="0x000000ff"/>
+  </node>
+  
+  <node id="i2c_reply"           address="0x0000000f"  permission="r">
+    <node id="i2c_reply_status"  mask="0x0c000000"/>
+    <node id="i2c_reply_8b"      mask="0x000000ff"/>
+    <node id="i2c_reply_16b"     mask="0x0000ffff"/>
+  </node>
+</node>

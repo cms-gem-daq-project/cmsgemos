@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--  The tags attribute is a free test attribute which meaning is defined by the uHAL user -->
+<node id="glib_regs">
+  <node id="sysregs"  description="GLIB system registers">
+    <node id="board_id"  address="0x00000000"  permission="r"
+	  description="GLIB board ID code">
+      <node id="board_id_char1"  mask="0xff000000"/>
+      <node id="board_id_char2"  mask="0x00ff0000"/>
+      <node id="board_id_char3"  mask="0x0000ff00"/>
+      <node id="board_id_char4"  mask="0x000000ff"/>
+    </node> <!--end board_id -->
+    
+    <node id="system_id"  address="0x00000001"  permission="r"
+	  description="GLIB system ID code">
+      <node id="system_id_char1"  mask="0xff000000"/>
+      <node id="system_id_char2"  mask="0x00ff0000"/>
+      <node id="system_id_char3"  mask="0x0000ff00"/>
+      <node id="system_id_char4"  mask="0x000000ff"/>
+    </node> <!--end system_id -->
+    
+    <node id="firmware_id"  address="0x00000002"  permission="r" 
+	  description="GLIB firmware date (dd.mm.yy) and version number (x.y.z)">
+      <node id="ver_major"    mask="0xf0000000"/>
+      <node id="ver_minor"    mask="0x0f000000"/>
+      <node id="ver_build"    mask="0x00ff0000"/>
+      <node id="firmware_yy"  mask="0x0000fe00"/>
+      <node id="firmware_mm"  mask="0x000001e0"/>
+      <node id="firmware_dd"  mask="0x0000001f"/>
+    </node> <!--end firmware_id -->
+  </node> <!--end sysregs -->
+  
+  <node id="test"  address="0x00000003"    mask="0xffffffff"  permission="rw"
+	description="Register for testing purposes only"/>
+
+  <node id="ctrl"  address="0x00000004"  permission="rw"
+	description="Controls the external clocking circuitry">
+    <node id="pcie_clk_fsel"	    mask="0x00000001"/>
+    <node id="pcie_clk_mr"	    mask="0x00000002"/>
+    <node id="pcie_clk_oe"	    mask="0x00000004"/>
+    <node id="cdce_powerup"	    mask="0x00000010"/>
+    <node id="cdce_refsel"	    mask="0x00000020"/>
+    <node id="cdce_sync"	    mask="0x00000040"/>
+    <node id="cdce_ctrl_sel"        mask="0x00000080"/>
+    <node id="tclkb_dr_en"	    mask="0x00000200"/>
+    <node id="xpoint2_s10"	    mask="0x00001000"/>
+    <node id="xpoint2_s11"	    mask="0x00002000"/>
+    <node id="xpoint1_s10"	    mask="0x00010000"/>
+    <node id="xpoint1_s11"	    mask="0x00020000"/>
+    <node id="xpoint1_s20"	    mask="0x00040000"/>
+    <node id="xpoint1_s21"	    mask="0x00080000"/>
+    <node id="xpoint1_s30"	    mask="0x00100000"/>
+    <node id="xpoint1_s31"	    mask="0x00200000"/>
+    <node id="xpoint1_s40"	    mask="0x00400000"/>
+    <node id="xpoint1_s41"	    mask="0x00800000"/>
+    <node id="gbt_phase_mon_reset"  mask="0x04000000"/>
+    <node id="fpga_program_b_trst"  mask="0x10000000"/>
+  </node> <!--end ctrl-->
+
+  <node id="ctrl_2"  address="0x00000005"  permission="rw"
+	description="Flash control register">
+    <node id="icap_page"   mask="0x00000003"/>
+    <node id="icap_trigg"  mask="0x00000010"/>
+  </node> <!--end ctrl_2-->
+  
+  <node id="status"  address="0x00000006"  permission="r"
+	description="Status from various external components">
+    <node id="glib_sfp1_status"      mask="0x00000007"/>   
+    <node id="glib_sfp1_mod_abs"     mask="0x00000001"/>   
+    <node id="glib_sfp1_rxlos" 	     mask="0x00000002"/>   
+    <node id="glib_sfp1_txfault"     mask="0x00000004"/>   
+    <node id="glib_sfp2_status"      mask="0x00000070"/>
+    <node id="glib_sfp2_mod_abs"     mask="0x00000010"/>
+    <node id="glib_sfp2_rxlos" 	     mask="0x00000020"/>
+    <node id="glib_sfp2_txfault"     mask="0x00000040"/>
+    <node id="glib_sfp3_status"      mask="0x00000700"/>
+    <node id="glib_sfp3_mod_abs"     mask="0x00000100"/>
+    <node id="glib_sfp3_rxlos" 	     mask="0x00000200"/>
+    <node id="glib_sfp3_txfault"     mask="0x00000400"/>
+    <node id="glib_sfp4_status"      mask="0x00007000"/>
+    <node id="glib_sfp4_mod_abs"     mask="0x00001000"/>
+    <node id="glib_sfp4_rxlos" 	     mask="0x00002000"/>
+    <node id="glib_sfp4_txfault"     mask="0x00004000"/>
+    <node id="gbe_int" 		     mask="0x00010000"/>
+    <node id="fmc1_present"    	     mask="0x00020000"/>
+    <node id="fmc2_present"    	     mask="0x00040000"/>
+    <node id="fpga_reset"	     mask="0x00080000"/>
+    <node id="v6_cpld"         	     mask="0x03f00000"/>
+    <node id="cdce_lock"             mask="0x08000000"/>
+    <node id="sfp_phase_mon_done"    mask="0x10000000"/>
+    <node id="sfp_phase_mon_ok"      mask="0x20000000"/>
+    <node id="fmc1_phase_mon_done"   mask="0x40000000"/>
+    <node id="fmc1_phase_mon_ok"     mask="0x80000000"/>
+  </node> <!--end status-->
+
+  <node id="status_2"   address="0x00000007"  mask="0xffffffff"  permission="r"
+	description="Currently unused"/>
+
+  <node id="ctrl_sram" address="0x00000008"  permission="rw"
+	description="SRAM interface control register">
+    <node id="sram1_user_logic"	mask="0x00000001"/>
+    <node id="sram1_bist_run"	mask="0x00000002"/>
+    <node id="sram2_user_logic"	mask="0x00010000"/>
+    <node id="sram2_bist_run"	mask="0x00020000"/>
+    <node id="flash_select"	mask="0x00100000"/>
+  </node> <!--end ctrl_sram-->
+
+  <node id="status_sram"  address="0x00000009"  permission="r"
+	description="SRAM interface status register">
+    <node id="sram1_bist_done"	  mask="0x00000001"/>
+    <node id="sram1_bist_ok"	  mask="0x00000002"/>
+    <node id="sram1_bist_errors"  mask="0x00000ff0"/>
+    <node id="sram2_bist_done"	  mask="0x00010000"/>
+    <node id="sram2_bist_ok"	  mask="0x00020000"/>
+    <node id="sram2_bist_errors"  mask="0x0ff00000"/>
+  </node> <!--end status_sram-->
+  
+  <node id="spi_txdata"  address="0x0000000a"  mask="0xffffffff"  permission="rw"
+	description="SPI interface: data from FPGA to clock synthesizer"/>
+  
+  <node id="spi_command"  address="0x0000000b"  permission="rw"
+	description="SPI interface: configuration (polarity, phase, frequency, etc.,">
+    <node id="spi_autoclear"  mask="0xf0000000"/>
+  </node> <!--end spi_command-->
+  
+  <node id="spi_rxdata"  address="0x0000000c"  mask="0xffffffff"  permission="r"
+	description="SPI interface: data from clock synthesizer to FPGA"/>
+
+  <node id="i2c_settings"  address="0x0000000d"  permission="rw"
+	description="I2C interface: configuration (bus select, frequency, etc., only in bench mode)">
+    <node id="i2c_enable"      mask="0x00000800"/>
+    <node id="i2c_bus_select"  mask="0x00000400"/>
+    <node id="i2c_prescaler"   mask="0x000003ff"/>
+  </node> <!--end i2c_settings-->
+
+  <node id="i2c_command"  address="0x0000000e"  permission="rw"
+	description="I2C interface: transaction parameters (slave address, drive to slave, etc., only in bench mode)">
+    <node id="i2c_autoclear"   mask="0xf0000000"
+	  description="special feature of this register, clears automatically the upper 4 bits"/>
+    <node id="i2c_strobe"      mask="0x80000000"/>
+    <node id="i2c_mode16"      mask="0x02000000"/>
+    <node id="i2c_write"       mask="0x00800000"/>
+    <node id="i2c_slvaddr_7b"  mask="0x007f0000"/>
+    <node id="i2c_wrdata"      mask="0x000000ff"/>
+  </node> <!--end i2c_command-->
+
+  <node id="i2c_reply"  address="0x0000000f"  permission="r"
+	description="I2C interface: transaction reply (status, data from drive, etc., only in bench mode">
+    <node id="i2c_reply_status"  mask="0x0c000000"/>
+    <node id="i2c_reply_8b"      mask="0x000000ff"/>
+    <node id="i2c_reply_16b"     mask="0x0000ffff"/>
+  </node> <!--end i2c_reply-->
+
+  <node id="sfp_phase_mon_ctrl"  address="0x00000010"  permission="rw"
+	description="">
+    <node id="sfp_phase_mon_lower"  mask="0x000000ff"/>
+    <node id="sfp_phase_mon_upper"  mask="0x0000ff00"/>
+  </node> <!--end sfp_phase_mon_ctrl-->
+
+  <node id="sfp_phase_mon_stats"  address="0x00000011"  mask="0xffffffff"  permission="r"
+	description=""/>
+  
+  <node id="fmc1_phase_mon_ctrl"  address="0x00000012"  permission="rw"
+	description="">
+    <node id="fmc1_phase_mon_lower"  mask="0x000000ff"/>
+    <node id="fmc1_phase_mon_upper"  mask="0x0000ff00"/>
+  </node> <!--end fmc1_phase_mon_ctrl-->
+
+  <node id="fmc1_phase_mon_stats"  address="0x00000013"  mask="0xffffffff"  permission="r"
+	description=""/>	
+  
+  <node id="mac_info1"  address="0x0000001c"  permission="r"  description="">
+    <node id="mac_ip_source"  mask="0x0fff0000" description=""/>
+    <node id="mac_b5"         mask="0x0000ff00" description=""/>
+    <node id="mac_b4"         mask="0x000000ff" description=""/>
+  </node> <!--end mac_info1-->
+
+  <node id="mac_info2"  address="0x0000001d"  permission="r" description="" >
+    <node id="mac_b3"  mask="0xff000000" />
+    <node id="mac_b2"  mask="0x00ff0000" />
+    <node id="mac_b1"  mask="0x0000ff00" />
+    <node id="mac_b0"  mask="0x000000ff" />
+  </node> <!--end mac_info2-->
+
+  <node id="ip_info"  address="0x0000001e"  permission="r" description="">
+    <node id="ip_b3"   mask="0xff000000" />
+    <node id="ip_b2"   mask="0x00ff0000" />
+    <node id="ip_b1"   mask="0x0000ff00" />
+    <node id="ip_b0"   mask="0x000000ff" />
+  </node> <!--end ip_info-->
+
+
+  <node id="sram1"  address="0x02000000"  mask="0xffffffff"  permission="rw"
+	description="SRAM1 memory space "/>
+  <node id="sram2"  address="0x04000000"  mask="0xffffffff"  permission="rw"
+	description="SRAM2 memory space"/>
+  
+  <node id="icap"  address="0x00000200"  mask="0xffffffff"  permission="rw"
+	description="ICAP memory space"/>
+
+  <!--flash memory space-->
+  <node id="flash_async_read_cmd"  address="0x0800bddf"  mask="0xffffffff"  permission="rw"
+	description="Note!!! The Flash is 16 bit but the mask is 32 bit to be able to use blockWrite and fifoWrite"/>
+  <node id="flash_sync_read_cmd"  address="0x08004ddf"  mask="0xffffffff"  permission="rw"
+	description="Note!!! The Flash is 16 bit but the mask is 32 bit to be able to use blockWrite and fifoWrite"/>
+  
+  <node id="flash_bank15" description="512Kword">
+    <node id="flash_block130"  address="0x08000000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block129"  address="0x08010000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block128"  address="0x08020000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block127"  address="0x08030000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block126"  address="0x08040000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block125"  address="0x08050000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block124"  address="0x08060000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block123"  address="0x08070000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank15-->
+
+  <node id="flash_bank14" description="512Kword">
+    <node id="flash_block122"  address="0x08080000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block121"  address="0x08090000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block120"  address="0x080a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block119"  address="0x080b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block118"  address="0x080c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block117"  address="0x080d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block116"  address="0x080e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block115"  address="0x080f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank14-->
+
+  <node id="flash_bank13" description="512Kword">
+    <node id="flash_block114"  address="0x08100000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block113"  address="0x08110000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block112"  address="0x08120000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block111"  address="0x08130000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block110"  address="0x08140000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block109"  address="0x08150000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block108"  address="0x08160000"  mask="0xffffffff"  permission="rw" description="64Kword"/> 
+    <node id="flash_block107"  address="0x08170000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank13-->
+
+  <node id="flash_bank12" description="512Kword">
+    <node id="flash_block106"  address="0x08180000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block105"  address="0x08190000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block104"  address="0x081a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block103"  address="0x081b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block102"  address="0x081c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block101"  address="0x081d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block100"  address="0x081e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block99"   address="0x081f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank12-->
+
+  <node id="flash_bank11" description="512Kword">
+    <node id="flash_block98"  address="0x08200000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block97"  address="0x08210000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block96"  address="0x08220000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block95"  address="0x08230000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block94"  address="0x08240000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block93"  address="0x08250000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block92"  address="0x08260000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block91"  address="0x08270000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank11-->
+
+  <node id="flash_bank10" description="512Kword">
+    <node id="flash_block90"  address="0x08280000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block89"  address="0x08290000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block88"  address="0x082a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block87"  address="0x082b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block86"  address="0x082c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block85"  address="0x082d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block84"  address="0x082e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block83"  address="0x082f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank10-->
+
+  <node id="flash_bank9" description="512Kword">
+    <node id="flash_block82"  address="0x08300000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block81"  address="0x08310000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block80"  address="0x08320000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block79"  address="0x08330000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block78"  address="0x08340000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block77"  address="0x08350000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block76"  address="0x08360000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block75"  address="0x08370000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank9-->
+
+  <node id="flash_bank8" description="512Kword">
+    <node id="flash_block74"  address="0x08380000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block73"  address="0x08390000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block72"  address="0x083a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block71"  address="0x083b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block70"  address="0x083c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block69"  address="0x083d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block68"  address="0x083e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block67"  address="0x083f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank8-->
+
+  <node id="flash_bank7" description="512Kword">
+    <node id="flash_block66"  address="0x08400000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block65"  address="0x08410000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block64"  address="0x08420000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block63"  address="0x08430000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block62"  address="0x08440000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block61"  address="0x08450000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block60"  address="0x08460000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block59"  address="0x08470000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank7-->
+
+  <node id="flash_bank6" description="512Kword">
+    <node id="flash_block58"  address="0x08480000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block57"  address="0x08490000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block56"  address="0x084a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block55"  address="0x084b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block54"  address="0x084c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block53"  address="0x084d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block52"  address="0x084e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block51"  address="0x084f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank6-->
+
+  <node id="flash_bank5" description="512Kword">
+    <node id="flash_block50"  address="0x08500000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block49"  address="0x08510000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block48"  address="0x08520000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block47"  address="0x08530000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block46"  address="0x08540000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block45"  address="0x08550000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block44"  address="0x08560000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block43"  address="0x08570000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank5-->
+
+  <node id="flash_bank4" description="512Kword">
+    <node id="flash_block42"  address="0x08580000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block41"  address="0x08590000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block40"  address="0x085a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block39"  address="0x085b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block38"  address="0x085c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block37"  address="0x085d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block36"  address="0x085e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block35"  address="0x085f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank4-->
+
+  <node id="flash_bank3" description="512Kword">
+    <node id="flash_block34"  address="0x08600000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block33"  address="0x08610000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block32"  address="0x08620000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block31"  address="0x08630000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block30"  address="0x08640000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block29"  address="0x08650000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block28"  address="0x08660000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block27"  address="0x08670000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+  </node> <!--end flash_bank3-->
+
+  <node id="flash_bank2" description="512Kword">
+    <node id="flash_block26"  address="0x08680000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block25"  address="0x08690000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block24"  address="0x086a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block23"  address="0x086b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block22"  address="0x086c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block21"  address="0x086d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block20"  address="0x086e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block19"  address="0x086f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank2-->
+
+  <node id="flash_bank1" description="512Kword">
+    <node id="flash_block18"  address="0x08700000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block17"  address="0x08710000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block16"  address="0x08720000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block15"  address="0x08730000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block14"  address="0x08740000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block13"  address="0x08750000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block12"  address="0x08760000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block11"  address="0x08770000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_bank1-->
+
+  <node id="flash_param_bank" description="512Kword">
+    <node id="flash_block10"  address="0x08780000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+    <node id="flash_block9"   address="0x08790000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block8"   address="0x087a0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block7"   address="0x087b0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block6"   address="0x087c0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block5"   address="0x087d0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block4"   address="0x087e0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block3"   address="0x087f0000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block2"   address="0x087f4000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block1"   address="0x087f8000"  mask="0xffffffff"  permission="rw" description="64Kword"/>	
+    <node id="flash_block0"   address="0x087fc000"  mask="0xffffffff"  permission="rw" description="64Kword"/>
+  </node> <!--end flash_param_bank-->
+  
+  <node id="user_ipb_regs"       address="0x40000000"  mask="0xffffffff"  permission="rw"
+	description="User registers"/>
+  <node id="user_ipb_stat_regs"  address="0x40000000"  mask="0xffffffff"  permission="rw"
+	description="Example user status registers"/>
+  <node id="user_ipb_ctrl_regs"  address="0x40000040"  mask="0xffffffff"  permission="rw"
+	description="Example user control registers"/>
+  <node id="user_wb_regs"        address="0x80000000"  mask="0xffffffff"  permission="rw"
+	description="User wishbone registers"/>
+</node> <!--end glib_regs-->

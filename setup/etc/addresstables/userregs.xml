@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <!--user space-->
+  <node id="user_ipb_regs"  address="0x40000000"  mask="0xffffffff"  permission="rw"/>
+  <!--example_status_regs-->
+  <node id="user_ipb_stat_regs"  address="0x40000000"  mask="0xffffffff"  permission="rw"/>
+  <!--example_control_regs-->
+  <node id="user_ipb_ctrl_regs"  address="0x40000040"  mask="0xffffffff"  permission="rw"/>
+  <!--wishbone registers-->
+  <node id="user_wb_regs"  address="0x80000000"  mask="0xffffffff"  permission="rw"/>
+</node>
+
