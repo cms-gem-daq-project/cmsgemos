@@ -1,10 +1,7 @@
 #ifndef gem_hw_glib_GLIBManager_h
 #define gem_hw_glib_GLIBManager_h
 
-#include "uhal/uhal.hpp"
-
-//#include "xgi/framework/Method.h"
-//#include "cgicc/HTMLClasses.h"
+//#include "uhal/uhal.hpp"
 
 #include "gem/base/GEMFSMApplication.h"
 //#include "gem/hw/glib/GLIBSettings.h"
@@ -12,11 +9,9 @@
 #include "gem/hw/glib/exception/Exception.h"
 
 namespace gem {
-  namespace base {
-  }
-  
   namespace hw {
     namespace glib {
+
       class HwGLIB;
       class GLIBManagerWeb;
 
@@ -33,12 +28,12 @@ namespace gem {
           virtual ~GLIBManager();
 	  
         protected:
-	  
+          virtual void init();
+          /*
           virtual void preInit() throw (gem::base::exception::Exception);
-          virtual void init()    throw (gem::base::exception::Exception);
           virtual void enable()  throw (gem::base::exception::Exception);
           virtual void disable() throw (gem::base::exception::Exception);
-	  
+	  */
           virtual void actionPerformed(xdata::Event& event);
 	  
           //state transitions
@@ -58,7 +53,6 @@ namespace gem {
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
 	
-	  
         private:
 	  uint16_t parseAMCEnableList(std::string const&);
 	  bool     isValidSlotNumber( std::string const&);
@@ -118,9 +112,7 @@ namespace gem {
         }; //end class GLIBManager
             
     }//end namespace gem::hw::glib
-    
   }//end namespace gem::hw
-  
 }//end namespace gem
 
 #endif

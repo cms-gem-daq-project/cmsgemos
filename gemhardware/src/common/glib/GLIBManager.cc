@@ -188,6 +188,11 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
+void gem::hw::glib::GLIBManager::init()
+{
+  gem::base::GEMFSMApplication::init();
+}
+/*
 void gem::hw::glib::GLIBManager::preInit()
   throw (gem::base::exception::Exception)
 {
@@ -265,7 +270,7 @@ void gem::hw::glib::GLIBManager::disable()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_deviceLock);
   //m_glibs[0]->endRun();
 }
-
+*/
 //state transitions
 void gem::hw::glib::GLIBManager::initializeAction()
   throw (gem::hw::glib::exception::Exception)
@@ -370,9 +375,12 @@ void gem::hw::glib::GLIBManager::initializeAction()
     INFO("grabbing pointer to hardware device");
     gem::hw::glib::HwGLIB* glib = m_glibs[slot];
     
-    if (glib->isHwConnected())
-      return;
-    INFO("connected a card in slot " << (slot+1));
+    if (glib->isHwConnected()) {
+      //return;
+      INFO("connected a card in slot " << (slot+1));
+    } else {
+      WARN("GLIB in slot " << (slot+1) << " is not connected");
+    }
   }
   INFO("gem::hw::glib::GLIBManager::initializeAction end");
 }
