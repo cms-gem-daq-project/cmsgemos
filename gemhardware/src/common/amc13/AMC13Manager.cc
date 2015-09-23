@@ -60,9 +60,9 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   //p_gemMonitor      = new gem::hw::amc13::AMC13HwMonitor(this);
   DEBUG("done");
 
-  DEBUG("executing preInit for AMC13Manager");
-  preInit();
-  DEBUG("done");
+  //DEBUG("executing preInit for AMC13Manager");
+  //preInit();
+  //DEBUG("done");
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 }
 
@@ -99,6 +99,11 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
+void gem::hw::amc13::AMC13Manager::init()
+{
+  gem::base::GEMFSMApplication::init();
+}
+/*
 void gem::hw::amc13::AMC13Manager::preInit()
   throw (gem::base::exception::Exception)
 {
@@ -175,7 +180,7 @@ void gem::hw::amc13::AMC13Manager::disable()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   p_amc13->endRun();
 }
-
+*/
 ::amc13::Status* gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   return p_amc13->getStatus(); 
