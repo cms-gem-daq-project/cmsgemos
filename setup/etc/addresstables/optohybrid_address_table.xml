@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="OptoHybrid"
+	description="Optohybrid registers, divided into global and local (per optical link)">
+
+    <node id="OptoHybrid_LINKS"  address="0x40030000"
+	  description="Optohybrid registers">
+
+      <node id="LINK0"  address="0x000"
+	    module="file://${BUILD_HOME}/data/optohybrid_optical_links.xml"
+	    description="optical link status counters and resets"/>
+      
+      <node id="LINK1"  address="0x100"
+	    module="file://${BUILD_HOME}/data/optohybrid_optical_links.xml"
+	    description="optical link status counters and resets"/>
+      
+      <node id="LINK2"  address="0x200"
+	    module="file://${BUILD_HOME}/data/optohybrid_optical_links.xml"
+	    description="optical link status counters and resets"/>
+    </node> <!-- end OptoHybrid links block-->
+    
+    <node id="GEB"
+	  module="file://${BUILD_HOME}/data/geb_vfat_address_table.xml"
+	  description="complete GEB address table"/>
+    
+    <!--
+    <node id="FAST_COM"
+	  module="file://${BUILD_HOME}/data/fast_signals_address_table.xml"
+	  description="global fast commands registers"/>
+    
+    <node id="TRIGGER"
+	  module="file://${BUILD_HOME}/data/trigger_registers.xml"
+	  description="global ttrigger setup"/>
+    
+    <node id="CLOCKING"
+	  module="file://${BUILD_HOME}/data/clocking_registers.xml"
+	  description="global clocking registers"/>
+    
+    <node id="COUNTERS"
+	  module="file://${BUILD_HOME}/data/counter_registers.xml"
+	  description="global counter registers"/>
+    
+    <node id="FIRMWARE"  address="0x40030157"  mask="0xFFFFFFFF"  permission="r"
+	  description="version of the optohybrid firmware"/>
+    -->
+    <!--
+    <node id="OHReg0"  address="0x00"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  0"/>
+    <node id="OHReg1"  address="0x01"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  1"/>
+    <node id="OHReg2"  address="0x02"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  2"/>
+    <node id="OHReg3"  address="0x03"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  3"/>
+    <node id="OHReg4"  address="0x04"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  4"/>
+    <node id="OHReg5"  address="0x05"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  5"/>
+    <node id="OHReg6"  address="0x06"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  6"/>
+    <node id="OHReg7"  address="0x07"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  7"/>
+    <node id="OHReg8"  address="0x08"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  8"/>
+    <node id="OHReg9"  address="0x09"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  9"/>
+    <node id="OHReg10"  address="0x0a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  10"/>
+    <node id="OHReg11"  address="0x0b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  11"/>
+    <node id="OHReg12"  address="0x0c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  12"/>
+    <node id="OHReg13"  address="0x0d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  13"/>
+    <node id="OHReg14"  address="0x0e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  14"/>
+    <node id="OHReg15"  address="0x0f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  15"/>
+    <node id="OHReg16"  address="0x10"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  16"/>
+    <node id="OHReg17"  address="0x11"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  17"/>
+    <node id="OHReg18"  address="0x12"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  18"/>
+    <node id="OHReg19"  address="0x13"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  19"/>
+    <node id="OHReg20"  address="0x14"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  20"/>
+    <node id="OHReg21"  address="0x15"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  21"/>
+    <node id="OHReg22"  address="0x16"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  22"/>
+    <node id="OHReg23"  address="0x17"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  23"/>
+    <node id="OHReg24"  address="0x18"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  24"/>
+    <node id="OHReg25"  address="0x19"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  25"/>
+    <node id="OHReg26"  address="0x1a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  26"/>
+    <node id="OHReg27"  address="0x1b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  27"/>
+    <node id="OHReg28"  address="0x1c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  28"/>
+    <node id="OHReg29"  address="0x1d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  29"/>
+    <node id="OHReg30"  address="0x1e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  30"/>
+    <node id="OHReg31"  address="0x1f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  31"/>
+    <node id="OHReg32"  address="0x20"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  32"/>
+    <node id="OHReg33"  address="0x21"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  33"/>
+    <node id="OHReg34"  address="0x22"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  34"/>
+    <node id="OHReg35"  address="0x23"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  35"/>
+    <node id="OHReg36"  address="0x24"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  36"/>
+    <node id="OHReg37"  address="0x25"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  37"/>
+    <node id="OHReg38"  address="0x26"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  38"/>
+    <node id="OHReg39"  address="0x27"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  39"/>
+    <node id="OHReg40"  address="0x28"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  40"/>
+    <node id="OHReg41"  address="0x29"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  41"/>
+    <node id="OHReg42"  address="0x2a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  42"/>
+    <node id="OHReg43"  address="0x2b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  43"/>
+    <node id="OHReg44"  address="0x2c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  44"/>
+    <node id="OHReg45"  address="0x2d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  45"/>
+    <node id="OHReg46"  address="0x2e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  46"/>
+    <node id="OHReg47"  address="0x2f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  47"/>
+    <node id="OHReg48"  address="0x30"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  48"/>
+    <node id="OHReg49"  address="0x31"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  49"/>
+    <node id="OHReg50"  address="0x32"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  50"/>
+    <node id="OHReg51"  address="0x33"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  51"/>
+    <node id="OHReg52"  address="0x34"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  52"/>
+    <node id="OHReg53"  address="0x35"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  53"/>
+    <node id="OHReg54"  address="0x36"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  54"/>
+    <node id="OHReg55"  address="0x37"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  55"/>
+    <node id="OHReg56"  address="0x38"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  56"/>
+    <node id="OHReg57"  address="0x39"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  57"/>
+    <node id="OHReg58"  address="0x3a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  58"/>
+    <node id="OHReg59"  address="0x3b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  59"/>
+    <node id="OHReg60"  address="0x3c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  60"/>
+    <node id="OHReg61"  address="0x3d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  61"/>
+    <node id="OHReg62"  address="0x3e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  62"/>
+    <node id="OHReg63"  address="0x3f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  63"/>
+    <node id="OHReg64"  address="0x40"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  64"/>
+    <node id="OHReg65"  address="0x41"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  65"/>
+    <node id="OHReg66"  address="0x42"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  66"/>
+    <node id="OHReg67"  address="0x43"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  67"/>
+    <node id="OHReg68"  address="0x44"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  68"/>
+    <node id="OHReg69"  address="0x45"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  69"/>
+    <node id="OHReg70"  address="0x46"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  70"/>
+    <node id="OHReg71"  address="0x47"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  71"/>
+    <node id="OHReg72"  address="0x48"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  72"/>
+    <node id="OHReg73"  address="0x49"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  73"/>
+    <node id="OHReg74"  address="0x4a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  74"/>
+    <node id="OHReg75"  address="0x4b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  75"/>
+    <node id="OHReg76"  address="0x4c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  76"/>
+    <node id="OHReg77"  address="0x4d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  77"/>
+    <node id="OHReg78"  address="0x4e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  78"/>
+    <node id="OHReg79"  address="0x4f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  79"/>
+    <node id="OHReg80"  address="0x50"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  80"/>
+    <node id="OHReg81"  address="0x51"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  81"/>
+    <node id="OHReg82"  address="0x52"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  82"/>
+    <node id="OHReg83"  address="0x53"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  83"/>
+    <node id="OHReg84"  address="0x54"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  84"/>
+    <node id="OHReg85"  address="0x55"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  85"/>
+    <node id="OHReg86"  address="0x56"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  86"/>
+    <node id="OHReg87"  address="0x57"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  87"/>
+    <node id="OHReg88"  address="0x58"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  88"/>
+    <node id="OHReg89"  address="0x59"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  89"/>
+    <node id="OHReg90"  address="0x5a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  90"/>
+    <node id="OHReg91"  address="0x5b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  91"/>
+    <node id="OHReg92"  address="0x5c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  92"/>
+    <node id="OHReg93"  address="0x5d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  93"/>
+    <node id="OHReg94"  address="0x5e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  94"/>
+    <node id="OHReg95"  address="0x5f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  95"/>
+    <node id="OHReg96"  address="0x60"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  96"/>
+    <node id="OHReg97"  address="0x61"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  97"/>
+    <node id="OHReg98"  address="0x62"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  98"/>
+    <node id="OHReg99"  address="0x63"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  99"/>
+    <node id="OHReg100"  address="0x64"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  100"/>
+    <node id="OHReg101"  address="0x65"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  101"/>
+    <node id="OHReg102"  address="0x66"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  102"/>
+    <node id="OHReg103"  address="0x67"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  103"/>
+    <node id="OHReg104"  address="0x68"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  104"/>
+    <node id="OHReg105"  address="0x69"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  105"/>
+    <node id="OHReg106"  address="0x6a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  106"/>
+    <node id="OHReg107"  address="0x6b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  107"/>
+    <node id="OHReg108"  address="0x6c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  108"/>
+    <node id="OHReg109"  address="0x6d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  109"/>
+    <node id="OHReg110"  address="0x6e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  110"/>
+    <node id="OHReg111"  address="0x6f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  111"/>
+    <node id="OHReg112"  address="0x70"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  112"/>
+    <node id="OHReg113"  address="0x71"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  113"/>
+    <node id="OHReg114"  address="0x72"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  114"/>
+    <node id="OHReg115"  address="0x73"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  115"/>
+    <node id="OHReg116"  address="0x74"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  116"/>
+    <node id="OHReg117"  address="0x75"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  117"/>
+    <node id="OHReg118"  address="0x76"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  118"/>
+    <node id="OHReg119"  address="0x77"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  119"/>
+    <node id="OHReg120"  address="0x78"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  120"/>
+    <node id="OHReg121"  address="0x79"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  121"/>
+    <node id="OHReg122"  address="0x7a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  122"/>
+    <node id="OHReg123"  address="0x7b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  123"/>
+    <node id="OHReg124"  address="0x7c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  124"/>
+    <node id="OHReg125"  address="0x7d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  125"/>
+    <node id="OHReg126"  address="0x7e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  126"/>
+    <node id="OHReg127"  address="0x7f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  127"/>
+    <node id="OHReg128"  address="0x80"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  128"/>
+    <node id="OHReg129"  address="0x81"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  129"/>
+    <node id="OHReg130"  address="0x82"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  130"/>
+    <node id="OHReg131"  address="0x83"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  131"/>
+    <node id="OHReg132"  address="0x84"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  132"/>
+    <node id="OHReg133"  address="0x85"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  133"/>
+    <node id="OHReg134"  address="0x86"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  134"/>
+    <node id="OHReg135"  address="0x87"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  135"/>
+    <node id="OHReg136"  address="0x88"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  136"/>
+    <node id="OHReg137"  address="0x89"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  137"/>
+    <node id="OHReg138"  address="0x8a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  138"/>
+    <node id="OHReg139"  address="0x8b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  139"/>
+    <node id="OHReg140"  address="0x8c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  140"/>
+    <node id="OHReg141"  address="0x8d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  141"/>
+    <node id="OHReg142"  address="0x8e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  142"/>
+    <node id="OHReg143"  address="0x8f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  143"/>
+    <node id="OHReg144"  address="0x90"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  144"/>
+    <node id="OHReg145"  address="0x91"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  145"/>
+    <node id="OHReg146"  address="0x92"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  146"/>
+    <node id="OHReg147"  address="0x93"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  147"/>
+    <node id="OHReg148"  address="0x94"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  148"/>
+    <node id="OHReg149"  address="0x95"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  149"/>
+    <node id="OHReg150"  address="0x96"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  150"/>
+    <node id="OHReg151"  address="0x97"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  151"/>
+    <node id="OHReg152"  address="0x98"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  152"/>
+    <node id="OHReg153"  address="0x99"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  153"/>
+    <node id="OHReg154"  address="0x9a"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  154"/>
+    <node id="OHReg155"  address="0x9b"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  155"/>
+    <node id="OHReg156"  address="0x9c"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  156"/>
+    <node id="OHReg157"  address="0x9d"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  157"/>
+    <node id="OHReg158"  address="0x9e"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  158"/>
+    <node id="OHReg159"  address="0x9f"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  159"/>
+    <node id="OHReg160"  address="0xa0"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  160"/>
+    <node id="OHReg161"  address="0xa1"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  161"/>
+    <node id="OHReg162"  address="0xa2"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  162"/>
+    <node id="OHReg163"  address="0xa3"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  163"/>
+    <node id="OHReg164"  address="0xa4"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  164"/>
+    <node id="OHReg165"  address="0xa5"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  165"/>
+    <node id="OHReg166"  address="0xa6"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  166"/>
+    <node id="OHReg167"  address="0xa7"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  167"/>
+    <node id="OHReg168"  address="0xa8"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  168"/>
+    <node id="OHReg169"  address="0xa9"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  169"/>
+    <node id="OHReg170"  address="0xaa"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  170"/>
+    <node id="OHReg171"  address="0xab"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  171"/>
+    <node id="OHReg172"  address="0xac"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  172"/>
+    <node id="OHReg173"  address="0xad"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  173"/>
+    <node id="OHReg174"  address="0xae"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  174"/>
+    <node id="OHReg175"  address="0xaf"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  175"/>
+    <node id="OHReg176"  address="0xb0"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  176"/>
+    <node id="OHReg177"  address="0xb1"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  177"/>
+    <node id="OHReg178"  address="0xb2"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  178"/>
+    <node id="OHReg179"  address="0xb3"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  179"/>
+    <node id="OHReg180"  address="0xb4"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  180"/>
+    <node id="OHReg181"  address="0xb5"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  181"/>
+    <node id="OHReg182"  address="0xb6"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  182"/>
+    <node id="OHReg183"  address="0xb7"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  183"/>
+    <node id="OHReg184"  address="0xb8"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  184"/>
+    <node id="OHReg185"  address="0xb9"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  185"/>
+    <node id="OHReg186"  address="0xba"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  186"/>
+    <node id="OHReg187"  address="0xbb"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  187"/>
+    <node id="OHReg188"  address="0xbc"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  188"/>
+    <node id="OHReg189"  address="0xbd"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  189"/>
+    <node id="OHReg190"  address="0xbe"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  190"/>
+    <node id="OHReg191"  address="0xbf"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  191"/>
+    <node id="OHReg192"  address="0xc0"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  192"/>
+    <node id="OHReg193"  address="0xc1"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  193"/>
+    <node id="OHReg194"  address="0xc2"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  194"/>
+    <node id="OHReg195"  address="0xc3"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  195"/>
+    <node id="OHReg196"  address="0xc4"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  196"/>
+    <node id="OHReg197"  address="0xc5"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  197"/>
+    <node id="OHReg198"  address="0xc6"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  198"/>
+    <node id="OHReg199"  address="0xc7"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  199"/>
+    <node id="OHReg200"  address="0xc8"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  200"/>
+    <node id="OHReg201"  address="0xc9"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  201"/>
+    <node id="OHReg202"  address="0xca"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  202"/>
+    <node id="OHReg203"  address="0xcb"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  203"/>
+    <node id="OHReg204"  address="0xcc"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  204"/>
+    <node id="OHReg205"  address="0xcd"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  205"/>
+    <node id="OHReg206"  address="0xce"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  206"/>
+    <node id="OHReg207"  address="0xcf"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  207"/>
+    <node id="OHReg208"  address="0xd0"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  208"/>
+    <node id="OHReg209"  address="0xd1"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  209"/>
+    <node id="OHReg210"  address="0xd2"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  210"/>
+    <node id="OHReg211"  address="0xd3"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  211"/>
+    <node id="OHReg212"  address="0xd4"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  212"/>
+    <node id="OHReg213"  address="0xd5"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  213"/>
+    <node id="OHReg214"  address="0xd6"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  214"/>
+    <node id="OHReg215"  address="0xd7"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  215"/>
+    <node id="OHReg216"  address="0xd8"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  216"/>
+    <node id="OHReg217"  address="0xd9"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  217"/>
+    <node id="OHReg218"  address="0xda"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  218"/>
+    <node id="OHReg219"  address="0xdb"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  219"/>
+    <node id="OHReg220"  address="0xdc"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  220"/>
+    <node id="OHReg221"  address="0xdd"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  221"/>
+    <node id="OHReg222"  address="0xde"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  222"/>
+    <node id="OHReg223"  address="0xdf"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  223"/>
+    <node id="OHReg224"  address="0xe0"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  224"/>
+    <node id="OHReg225"  address="0xe1"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  225"/>
+    <node id="OHReg226"  address="0xe2"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  226"/>
+    <node id="OHReg227"  address="0xe3"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  227"/>
+    <node id="OHReg228"  address="0xe4"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  228"/>
+    <node id="OHReg229"  address="0xe5"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  229"/>
+    <node id="OHReg230"  address="0xe6"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  230"/>
+    <node id="OHReg231"  address="0xe7"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  231"/>
+    <node id="OHReg232"  address="0xe8"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  232"/>
+    <node id="OHReg233"  address="0xe9"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  233"/>
+    <node id="OHReg234"  address="0xea"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  234"/>
+    <node id="OHReg235"  address="0xeb"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  235"/>
+    <node id="OHReg236"  address="0xec"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  236"/>
+    <node id="OHReg237"  address="0xed"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  237"/>
+    <node id="OHReg238"  address="0xee"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  238"/>
+    <node id="OHReg239"  address="0xef"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  239"/>
+    <node id="OHReg240"  address="0xf0"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  240"/>
+    <node id="OHReg241"  address="0xf1"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  241"/>
+    <node id="OHReg242"  address="0xf2"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  242"/>
+    <node id="OHReg243"  address="0xf3"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  243"/>
+    <node id="OHReg244"  address="0xf4"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  244"/>
+    <node id="OHReg245"  address="0xf5"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  245"/>
+    <node id="OHReg246"  address="0xf6"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  246"/>
+    <node id="OHReg247"  address="0xf7"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  247"/>
+    <node id="OHReg248"  address="0xf8"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  248"/>
+    <node id="OHReg249"  address="0xf9"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  249"/>
+    <node id="OHReg250"  address="0xfa"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  250"/>
+    <node id="OHReg251"  address="0xfb"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  251"/>
+    <node id="OHReg252"  address="0xfc"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  252"/>
+    <node id="OHReg253"  address="0xfd"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  253"/>
+    <node id="OHReg254"  address="0xfe"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  254"/>
+    <node id="OHReg255"  address="0xff"  mask="0xffffffff"  permission="rw" 
+	  description="OptoHybrid register  255"/>
+    -->
+  </node> <!-- end optohybrid block -->
+</node> <!-- end top block -->

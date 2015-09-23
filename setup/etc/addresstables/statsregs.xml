@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="status"                  address="0x00000006"  mask="0xffffffff"  permissions="r">
+    <node id="glib_sfp1_status"      address="0x00000006"  mask="0x00000007"  permission="r"/>   
+    <node id="glib_sfp1_mod_abs"     address="0x00000006"  mask="0x00000001"  permission="r"/>   
+    <node id="glib_sfp1_rxlos" 	     address="0x00000006"  mask="0x00000002"  permission="r"/>   
+    <node id="glib_sfp1_txfault"     address="0x00000006"  mask="0x00000004"  permission="r"/>   
+    <node id="glib_sfp2_status"      address="0x00000006"  mask="0x00000070"  permission="r"/>
+    <node id="glib_sfp2_mod_abs"     address="0x00000006"  mask="0x00000010"  permission="r"/>
+    <node id="glib_sfp2_rxlos" 	     address="0x00000006"  mask="0x00000020"  permission="r"/>
+    <node id="glib_sfp2_txfault"     address="0x00000006"  mask="0x00000040"  permission="r"/>
+    <node id="glib_sfp3_status"      address="0x00000006"  mask="0x00000700"  permission="r"/>
+    <node id="glib_sfp3_mod_abs"     address="0x00000006"  mask="0x00000100"  permission="r"/>
+    <node id="glib_sfp3_rxlos" 	     address="0x00000006"  mask="0x00000200"  permission="r"/>
+    <node id="glib_sfp3_txfault"     address="0x00000006"  mask="0x00000400"  permission="r"/>
+    <node id="glib_sfp4_status"      address="0x00000006"  mask="0x00007000"  permission="r"/>
+    <node id="glib_sfp4_mod_abs"     address="0x00000006"  mask="0x00001000"  permission="r"/>
+    <node id="glib_sfp4_rxlos" 	     address="0x00000006"  mask="0x00002000"  permission="r"/>
+    <node id="glib_sfp4_txfault"     address="0x00000006"  mask="0x00004000"  permission="r"/>
+    <node id="gbe_int" 		     address="0x00000006"  mask="0x00010000"  permission="r"/>
+    <node id="fmc1_present"    	     address="0x00000006"  mask="0x00020000"  permission="r"/>
+    <node id="fmc2_present"    	     address="0x00000006"  mask="0x00040000"  permission="r"/>
+    <node id="fpga_reset"	     address="0x00000006"  mask="0x00080000"  permission="r"/>
+    <node id="v6_cpld"         	     address="0x00000006"  mask="0x03f00000"  permission="r"/>
+    <node id="cdce_lock"             address="0x00000006"  mask="0x08000000"  permission="r"/>
+    <node id="sfp_phase_mon_done"    address="0x00000006"  mask="0x10000000"  permission="r"/>
+    <node id="sfp_phase_mon_ok"      address="0x00000006"  mask="0x20000000"  permission="r"/>
+    <node id="fmc1_phase_mon_done"   address="0x00000006"  mask="0x40000000"  permission="r"/>
+    <node id="fmc1_phase_mon_ok"     address="0x00000006"  mask="0x80000000"  permission="r"/>
+  </node>
+
+  <node id="status_2"   address="0x00000007"  mask="0xffffffff"  permission="r"/>
+</node>
