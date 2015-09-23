@@ -60,6 +60,8 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
 
 void gem::supervisor::GEMSupervisor::init()
 {
+  gem::base::GEMFSMApplication::init();
+
   v_supervisedApps.clear();
   v_supervisedApps.reserve(0);
   DEBUG("init:: looping over " << p_appZone->getGroupNames().size() << " groups");
