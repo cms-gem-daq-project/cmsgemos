@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top"> 
   <node id="OPTICAL_LINKS"  address="0x00"
-	module="file://${BUILD_HOME}/data/optical_link_registers.xml"/>
+	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/optical_link_registers.xml"/>
   
   <node id="USER_FW"  address="0x0A"  mask="0xFFFFFFFF"  permission="r"
 	description="firmware version for the user core"/>

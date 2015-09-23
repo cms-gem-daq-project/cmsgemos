@@ -6,103 +6,103 @@
   <node id="VFATS"  address="0x40010000"
 	description="VFAT registers controled by the GLIB user registers">
     <node id="VFAT0"  address="0x0000"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 0, position 0"/>
     
     <node id="VFAT1"  address="0x0100"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 0, position 1"/>
     
     <node id="VFAT2"  address="0x0200"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 0, position 2"/>
     
     <node id="VFAT3"  address="0x0300"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 0, position 3"/>
     
     <node id="VFAT4"  address="0x0400"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 0, position 4"/>
     
     <node id="VFAT5"  address="0x0500"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 0, position 5"/>
     
     <node id="VFAT6"  address="0x0600"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 0, position 6"/>
     
     <node id="VFAT7"  address="0x0700"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 0, position 7"/>
     
 
 
     <node id="VFAT8"  address="0x0800"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 1, position 0"/>
 
     <node id="VFAT9"  address="0x0900"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 1, position 1"/>
     
     <node id="VFAT10"  address="0x0A00"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 1, position 2"/>
     
     <node id="VFAT11"  address="0x0B00"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 1, position 3"/>
     
     <node id="VFAT12"  address="0x0C00"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 1, position 4"/>
     
     <node id="VFAT13"  address="0x0D00"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 1, position 5"/>
     
     <node id="VFAT14"  address="0x0E00"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 1, position 6"/>
     
     <node id="VFAT15"  address="0x0F00"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 1, position 7"/>
 
 
     
     <node id="VFAT16"  address="0x1000"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 2, position 0"/>
     
     <node id="VFAT17"  address="0x1100"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 2, position 1"/>
     
     <node id="VFAT18"  address="0x1200"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 2, position 2"/>
     
     <node id="VFAT19"  address="0x1300"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 2, position 3"/>
     
     <node id="VFAT20"  address="0x1400"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 2, position 4"/>
     
     <node id="VFAT21"  address="0x1500"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 2, position 5"/>
     
     <node id="VFAT22"  address="0x1600"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 2, position 6"/>
     
     <node id="VFAT23"  address="0x1700"  
-	  module="file://${BUILD_HOME}/data/vfatregs.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfatregs.xml"
 	  description="column 2, position 7"/>
     
     
@@ -115,15 +115,15 @@
 	description="VFAT tracking data registers">
     
     <node id="COL0"  address="0x000"
-	  module="file://${BUILD_HOME}/data/vfat_tracking_data.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfat_tracking_data.xml"
 	  description="First phi column">
     </node> <!-- end column 0 block -->
     <node id="COL1"  address="0x100"
-	  module="file://${BUILD_HOME}/data/vfat_tracking_data.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfat_tracking_data.xml"
 	  description="First phi column">
     </node> <!-- end column 0 block -->
     <node id="COL2"  address="0x200"
-	  module="file://${BUILD_HOME}/data/vfat_tracking_data.xml"
+	  module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/vfat_tracking_data.xml"
 	  description="First phi column">
     </node> <!-- end column 0 block -->
   </node> <!-- end tracking_data block -->
