@@ -103,7 +103,7 @@ if options.trgSrc in [0,1,2]:
 
 if options.sbitSrc in [1,2,3,4,5,6]:
 	for link in (links.keys()):
-		setTriggerSBits(True,glib,link options.sbitSrc)
+		setTriggerSBits(True,glib,link,options.sbitSrc)
                 print "-> GLIB link%d SBit to TDC: 0x%x"%(link,getTriggerSBits(True,glib,link))
 
 	
