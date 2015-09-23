@@ -18,14 +18,6 @@ gem::hw::glib::GLIBManagerWeb::~GLIBManagerWeb()
   //default destructor
 }
 
-void gem::hw::glib::GLIBManagerWeb::webRedirect(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  std::string redURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Default";
-  *out << "<meta http-equiv=\"refresh\" content=\"0;" << redURL << "\">" << std::endl;  
-  //this->webDefault(in,out);
-}
-
 void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {

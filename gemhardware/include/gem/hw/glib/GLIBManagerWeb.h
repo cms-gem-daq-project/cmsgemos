@@ -14,28 +14,22 @@ namespace gem {
       class GLIBManagerWeb : public gem::base::GEMWebApplication
         {
           //friend class GLIBMonitor;
-          friend class GLIBManager;
+          //friend class GLIBManager;
 
         public:
           GLIBManagerWeb(GLIBManager *glibApp);
 	  
-          ~GLIBManagerWeb();
+          virtual ~GLIBManagerWeb();
 
         protected:
-          /*
-          virtual void controlPanel(  xgi::Input *in, xgi::Output *out )
+
+          virtual void webDefault(  xgi::Input *in, xgi::Output *out )
             throw (xgi::exception::Exception);
-          */
+
           virtual void monitorPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
           
           virtual void expertPage(xgi::Input *in, xgi::Output *out)
-            throw (xgi::exception::Exception);
-          
-          virtual void webRedirect(  xgi::Input *in, xgi::Output *out )
-            throw (xgi::exception::Exception);
-          
-          virtual void webDefault(  xgi::Input *in, xgi::Output *out )
             throw (xgi::exception::Exception);
           
           void cardPage(xgi::Input *in, xgi::Output *out)
@@ -47,6 +41,7 @@ namespace gem {
           //GLIBManagerWeb(GLIBManagerWeb const&);
 	  
         };
+
     } // namespace gem::glib
   } // namespace gem::hw
 } // namespace gem
