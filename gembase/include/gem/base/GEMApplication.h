@@ -23,6 +23,7 @@
 #include "xdata/Float.h" 
 #include "xdata/Double.h" 
 #include "xdata/Boolean.h"
+#include "xdata/Vector.h"
 #include "xdaq/XceptSerializer.h"
 
 #include "toolbox/string.h"
@@ -84,12 +85,12 @@ namespace gem {
 
         std::string getFullURL();
 	
-        /**
-         * The init method is pure virtual in the base class, to ensure
-         * that it is fully implemented in every derived application,
-         * with a specific implementation
-         */
-        virtual void init() = 0;
+        ///**
+        // * The init method is pure virtual in the base class, to ensure
+        // * that it is fully implemented in every derived application,
+        // * with a specific implementation
+        // */
+        //virtual void init() = 0;
 	
         /**
          * The actionPerformed method will have a default implementation here

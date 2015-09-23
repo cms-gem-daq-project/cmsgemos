@@ -68,6 +68,7 @@ namespace gem {
         xoap::MessageReference changeState(xoap::MessageReference msg);
 	
         std::string getCurrentState() const;
+        std::string getStateName(toolbox::fsm::State const& state) const;
 	
         /*may not need (all of) these, no need to just blindly copy TCDS :-)*/
         //void configureAndEnable();

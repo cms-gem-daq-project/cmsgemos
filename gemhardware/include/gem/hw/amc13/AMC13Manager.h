@@ -31,12 +31,8 @@ namespace gem {
           virtual ~AMC13Manager();
 	  
         protected:
+          virtual void init();
 
-          virtual void preInit() throw (gem::base::exception::Exception);
-          virtual void init()    throw (gem::base::exception::Exception);
-          virtual void enable()  throw (gem::base::exception::Exception);
-          virtual void disable() throw (gem::base::exception::Exception);
-	  
           virtual void actionPerformed(xdata::Event& event);
           
           ::amc13::Status *getHTMLStatus()  const;
@@ -113,9 +109,7 @@ namespace gem {
         }; //end class AMC13Manager
 
     }//end namespace gem::hw::amc13
-    
   }//end namespace gem::hw
-  
 }//end namespace gem
 
 #endif

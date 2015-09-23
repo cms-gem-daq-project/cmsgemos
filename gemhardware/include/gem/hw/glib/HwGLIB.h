@@ -16,16 +16,19 @@ namespace gem {
         {
         public:
           HwGLIB();
+          HwGLIB(std::string const& glibDevice, std::string const& connectionFile);
+          HwGLIB(std::string const& glibDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwGLIB(std::string const& glibDevice, uhal::HwInterface& uhalDevice);
           HwGLIB(int const& crate, int const& slot);
 	
-          ~HwGLIB();
+          virtual ~HwGLIB();
 
           //virtual void connectDevice();
           //virtual void releaseDevice();
           //virtual void initDevice();
           //virtual void enableDevice();
-          virtual void configureDevice();
-          virtual void configureDevice(std::string const& xmlSettings);
+          //virtual void configureDevice();
+          //virtual void configureDevice(std::string const& xmlSettings);
           //virtual void configureDevice(std::string const& dbConnectionString);
           //virtual void disableDevice();
           //virtual void pauseDevice();
@@ -419,14 +422,7 @@ namespace gem {
 
 
         protected:
-          //uhal::ConnectionManager *manageGLIBConnection;
-          //log4cplus::Logger logGLIB_;
-          //uhal::HwInterface *hwGLIB_;
-
-          //uhal::HwInterface& getGLIBHwDevice();
-
           //GLIBMonitor *monGLIB_;
-
 	
           bool b_links[3];
 	    

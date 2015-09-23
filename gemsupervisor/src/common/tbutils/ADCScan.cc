@@ -1071,7 +1071,7 @@ void gem::supervisor::tbutils::ADCScan::initializeAction(toolbox::Event::Referen
   vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
   //sleep(1);
-  vfatDevice_->connectDevice();
+  //vfatDevice_->connectDevice();
   
   //read in default parameters from an xml file?
   //vfatDevice_->setRegisters(xmlFile);
@@ -1308,8 +1308,8 @@ void gem::supervisor::tbutils::ADCScan::resetAction(toolbox::Event::Reference e)
   //vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
   vfatDevice_->setRunMode(0);
 
-  if (vfatDevice_->isHwConnected())
-    vfatDevice_->releaseDevice();
+  //if (vfatDevice_->isHwConnected())
+  //  vfatDevice_->releaseDevice();
   
   if (vfatDevice_)
     delete vfatDevice_;

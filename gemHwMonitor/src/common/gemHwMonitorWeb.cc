@@ -63,7 +63,7 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
       //            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice();
       gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
       crateDevice_->setDeviceIPAddress("192.168.0.162");
-      crateDevice_->connectDevice();
+      //crateDevice_->connectDevice();
       if (crateDevice_->isHwConnected()) {
         gemHwMonitorSystem_->setSubDeviceStatus(0,i);
       } else {
@@ -284,7 +284,7 @@ void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xg
                 vfatDevice_->setDeviceIPAddress(glibIP);
                 std::cout << "vfat ID from XML: " << gemHwMonitorVFAT_.back()->getDevice()->getDeviceId() << std::endl;
                 vfatDevice_->setDeviceBaseNode("VFATS."+gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
-                vfatDevice_->connectDevice();
+                //vfatDevice_->connectDevice();
                 if (vfatDevice_->isHwConnected()) {
                   gemHwMonitorVFAT_.back()->setDeviceStatus(0);
                   gemHwMonitorOH_.back()->setSubDeviceStatus(0,i);
@@ -334,7 +334,7 @@ void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output *
         }
         gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
         glibDevice_->setDeviceIPAddress(glibIP);
-        glibDevice_->connectDevice();
+        //glibDevice_->connectDevice();
         //if (glibDevice_->isHwConnected())
         //{
         //    gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(0);
@@ -409,7 +409,7 @@ void gem::hwMonitor::gemHwMonitorWeb::expandGLIB(xgi::Input * in, xgi::Output * 
         }
         gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
         ohDevice_->setDeviceIPAddress(ohIP);
-        ohDevice_->connectDevice();
+        //ohDevice_->connectDevice();
         if (ohDevice_->isHwConnected()) {
           gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(0);
         } else {
@@ -445,7 +445,7 @@ void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * o
 	
   glibDevice_ = new gem::hw::glib::HwGLIB();
   glibDevice_->setDeviceIPAddress(glibIP);
-  glibDevice_->connectDevice();
+  //glibDevice_->connectDevice();
 
   *out << "<div class=\"panel panel-primary\">" << std::endl;
   *out << "<div class=\"panel-heading\">" << std::endl;
@@ -642,7 +642,7 @@ void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * ou
         std::string vfatID_ = gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId();
         std::cout << "vfat ID from XML" << vfatID_ << std::endl;
         vfatDevice_->setDeviceBaseNode("VFATS."+vfatID_);
-        vfatDevice_->connectDevice();
+        //vfatDevice_->connectDevice();
         if (vfatDevice_->isHwConnected()) {
           gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(0);
         } else {
@@ -678,7 +678,7 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
   *out << cgicc::table() <<std::endl;;
   ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
   ohDevice_->setDeviceIPAddress(glibIP);
-  ohDevice_->connectDevice();
+  //ohDevice_->connectDevice();
   if (!ohDevice_->isHwConnected()) {
     *out << "<h1><div align=\"center\">Device connection failed!</div></h1>" << std::endl;
   } else {
@@ -766,7 +766,7 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
         currentVFATId += std::to_string(i+linkIncrenement);
         vfatDevice_ = new gem::hw::vfat::HwVFAT2(currentVFATId);
         vfatDevice_->setDeviceIPAddress(glibIP);
-        vfatDevice_->connectDevice();
+        //vfatDevice_->connectDevice();
         std::string runmode;
         int n_chan = 0;
         if (vfatDevice_->isHwConnected()) {
@@ -936,7 +936,7 @@ void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * o
     vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
     vfatDevice_->setDeviceIPAddress(glibIP);
     vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
-    vfatDevice_->connectDevice();
+    //vfatDevice_->connectDevice();
     // superfluous, as readVFAT2Counters is called in getAllSettings
     //vfatDevice_->readVFAT2Counters();
     vfatDevice_->getAllSettings();

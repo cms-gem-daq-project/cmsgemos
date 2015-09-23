@@ -18,23 +18,26 @@ namespace gem {
         {
         public:
           HwOptoHybrid();
+          HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionFile);
+          HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwOptoHybrid(std::string const& optohybridDevice, uhal::HwInterface& uhalDevice);
           HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
 
-          ~HwOptoHybrid();
-	
-          //virtual void connectDevice();
-          //virtual void releaseDevice();
-          //virtual void initDevice();
-          //virtual void enableDevice();
-          virtual void configureDevice();
-          virtual void configureDevice(std::string const& xmlSettings);
-          //virtual void configureDevice(std::string const& dbConnectionString);
-          //virtual void disableDevice();
-          //virtual void pauseDevice();
-          //virtual void startDevice();
-          //virtual void stopDevice();
-          //virtual void resumeDevice();
-          //virtual void haltDevice();
+          virtual ~HwOptoHybrid();
+          
+          //updating interfaces////virtual void connectDevice();
+          //updating interfaces////virtual void releaseDevice();
+          //updating interfaces////virtual void initDevice();
+          //updating interfaces////virtual void enableDevice();
+          //updating interfaces//virtual void configureDevice();
+          //updating interfaces//virtual void configureDevice(std::string const& xmlSettings);
+          //updating interfaces////virtual void configureDevice(std::string const& dbConnectionString);
+          //updating interfaces////virtual void disableDevice();
+          //updating interfaces////virtual void pauseDevice();
+          //updating interfaces////virtual void startDevice();
+          //updating interfaces////virtual void stopDevice();
+          //updating interfaces////virtual void resumeDevice();
+          //updating interfaces////virtual void haltDevice();
 
           virtual bool isHwConnected();
 
@@ -492,14 +495,7 @@ namespace gem {
           bool isLinkActive(int i) { return b_links[i]; }
 
         protected:
-          //uhal::ConnectionManager *manageOptoHybridConnection;
-          //log4cplus::Logger logOptoHybrid_;
-          //uhal::HwInterface *hwOptoHybrid_;
-					
-          //uhal::HwInterface& getOptoHybridHwDevice() const;
-					
           //OptoHybridMonitor *monOptoHybrid_;
-					
 
           bool b_links[3];
 	    

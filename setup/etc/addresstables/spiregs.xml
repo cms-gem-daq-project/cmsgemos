@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="TxDATA"  address="0x0"  mask="0xffffffff"  permission="rw"
+	description="SPI interface: data from FPGA to clock synthesizer"/>
+  
+  <node id="COM"  address="0x1"  permission="rw"
+	description="SPI interface: configuration (polarity, phase, frequency, etc.,">
+    <node id="Autoclear"  mask="0xf0000000"
+	  description=""/>
+    <node id="Reserved"   mask="0x0ffff000"  permission="r"
+	  description="reserved, always keep to 0xFA38"/>
+    <node id="Prescale"   mask="0x00000fff"
+	  description="SPI clk (MHz)=62.5/prescaler, suggested default 0x014"/>
+    <node id="Strobe"     mask="0x80000000"
+	  description="execute transaction, clears automatically"/>
+  </node> <!--end spi_command register-->
+  
+  <node id="RxDATA"  address="0x2"  mask="0xffffffff"  permission="r"
+	description="SPI interface: data from clock synthesizer to FPGA"/>
+</node>

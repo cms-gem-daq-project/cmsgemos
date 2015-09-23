@@ -40,7 +40,7 @@ xdaq::WebApplication(s)
 
 gem::hw::vfat::VFAT2Manager::~VFAT2Manager()
 {
-  vfatDevice->releaseDevice();
+  //vfatDevice->releaseDevice();
 }
 
 void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
@@ -61,7 +61,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::4 device_ = " << device_.toString() << std::endl);
   vfatDevice = new HwVFAT2(device_.toString());
   vfatDevice->setDeviceIPAddress(ipAddr_.toString());
-  vfatDevice->connectDevice();
+  //vfatDevice->connectDevice();
   setLogLevelTo(uhal::Error());  // Maximise uHAL logging
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::5 device_ = " << device_.toString() << std::endl);
 

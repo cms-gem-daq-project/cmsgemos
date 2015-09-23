@@ -2,29 +2,51 @@
 
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid():
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
-  //logOptoHybrid_(optohybridApp->getApplicationLogger()),
-  //hwOptoHybrid_(0),
   //monOptoHybrid_(0)
-  //b_is_connected(false),
   b_links({false,false,false}),
   m_controlLink(-1)  
 {
   setDeviceID("OptoHybridHw");
   setAddressTableFileName("optohybrid_address_table.xml");
-  setIPbusProtocolVersion("2.0");
   setDeviceBaseNode("OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
   //set up which links are active, so that the control can be done without specifying a link
 }
 
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
+                                                std::string const& connectionFile) :
+  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionFile),
+  //monOptoHybrid_(0)
+  b_links({false,false,false}),
+  m_controlLink(-1)  
+{
+}
+
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
+                                                std::string const& connectionURI,
+                                                std::string const& addressTable) :
+  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionURI, addressTable),
+  //monOptoHybrid_(0)
+  b_links({false,false,false}),
+  m_controlLink(-1)  
+{
+}
+
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
+                                                uhal::HwInterface& uhalDevice) :
+  gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice,uhalDevice),
+  //monOptoHybrid_(0)
+  b_links({false,false,false}),
+  m_controlLink(-1)  
+{
+}
+/*
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
-                                                int const& slot):
+                                                int const& slot) :
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
-  //hwOptoHybrid_(0),
   //monOptoHybrid_(0),
-  //b_is_connected(false),
   b_links({false,false,false}),
   m_controlLink(-1),
   m_slot(slot)
@@ -41,24 +63,22 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   setDeviceBaseNode("OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
 }
-
+*/
 gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 {
-  releaseDevice();
+  //releaseDevice();
 }
 
-void gem::hw::optohybrid::HwOptoHybrid::configureDevice(std::string const& xmlSettings)
-{
-  //here load the xml file settings onto the board
-  
-}
-
-void gem::hw::optohybrid::HwOptoHybrid::configureDevice()
-{
-  //determine the manner in which to configure the device (XML or DB parameters)
-  
-}
-
+//void gem::hw::optohybrid::HwOptoHybrid::configureDevice(std::string const& xmlSettings)
+//{
+//  //here load the xml file settings onto the board
+//}
+//
+//void gem::hw::optohybrid::HwOptoHybrid::configureDevice()
+//{
+//  //determine the manner in which to configure the device (XML or DB parameters)
+//}
+//
 //void gem::hw::optohybrid::HwOptoHybrid::releaseDevice()
 //{
 //

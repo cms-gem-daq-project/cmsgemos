@@ -2,42 +2,83 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 
-gem::hw::glib::HwGLIB::HwGLIB():
+gem::hw::glib::HwGLIB::HwGLIB() :
   gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
-  //hwGLIB_(0),
   //monGLIB_(0),
-  //b_is_connected(false),
   b_links({false,false,false}),
   m_controlLink(-1),
   m_crate(-1),
   m_slot(-1)
 {
+  INFO("HwGLIB ctor");
   //use a connection file and connection manager?
   setDeviceID("GLIBHw");
   setAddressTableFileName("glib_address_table.xml");
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
+  INFO("HwGLIB ctor done");
 }
 
-gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot):
-  gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
-  //hwGLIB_(0),
+gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
+                              std::string const& connectionFile) :
+  gem::hw::GEMHwDevice::GEMHwDevice(glibDevice, connectionFile),
+  b_links({false,false,false}),
+  m_controlLink(-1),
+  m_crate(-1),
+  m_slot(-1)
+{
+  setDeviceBaseNode("GLIB");
+}
+
+gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
+                              std::string const& connectionURI,
+                              std::string const& addressTable) :
+  gem::hw::GEMHwDevice::GEMHwDevice(glibDevice, connectionURI, addressTable),
+  b_links({false,false,false}),
+  m_controlLink(-1),
+  m_crate(-1),
+  m_slot(-1)
+
+{
+  INFO("trying to create HwGLIB(" << glibDevice << "," << connectionURI << "," <<addressTable);
+  setDeviceBaseNode("GLIB");
+}
+
+gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
+                              uhal::HwInterface& uhalDevice) :
+  gem::hw::GEMHwDevice::GEMHwDevice(glibDevice,uhalDevice),
+  b_links({false,false,false}),
+  m_controlLink(-1),
+  m_crate(-1),
+  m_slot(-1)
+
+{
+  setDeviceBaseNode("GLIB");
+}
+
+gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
+  gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("gem.shelf%02d.glib%02d",crate,slot)),
   //monGLIB_(0),
-  //b_is_connected(false),
   b_links({false,false,false}),
   m_controlLink(-1),
   m_crate(crate),
   m_slot(slot)
 {
+  INFO("HwGLIB ctor");
   //use a connection file and connection manager?
   setDeviceID(toolbox::toString("gem.shelf%02d.glib%02d",crate,slot));
+  
   //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml" );
-  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  INFO("getting the ConnectionManager pointer");
+  //p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://../data/connections_ch.xml"));
+  INFO("getting HwInterface " << getDeviceID() << " pointer from ConnectionManager");
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
   //p_gemConnectionManager = new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml");
   //p_gemHW = new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID()));
   //setAddressTableFileName("glib_address_table.xml");
   //setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
+  INFO("setting the device base node");
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
   //  
@@ -46,60 +87,28 @@ gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot):
   //  ipBusErrs.timeouts_      = 0;
   //  ipBusErrs.controlHubErr_ = 0;
   //  
-  //  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
-  //
+  //setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+  
+  INFO("HwGLIB ctor done");
 }
 
 gem::hw::glib::HwGLIB::~HwGLIB()
 {
-  releaseDevice();
+  //releaseDevice();
 }
 
-void gem::hw::glib::HwGLIB::configureDevice(std::string const& xmlSettings)
-{
-  //here load the xml file settings onto the board
-  
-}
-
-void gem::hw::glib::HwGLIB::configureDevice()
-{
-  //determine the manner in which to configure the device (XML or DB parameters)
-  
-}
-
+//void gem::hw::glib::HwGLIB::configureDevice(std::string const& xmlSettings)
+//{
+//  //here load the xml file settings onto the board
+//}
+//
+//void gem::hw::glib::HwGLIB::configureDevice()
+//{
+//  //determine the manner in which to configure the device (XML or DB parameters)
+//}
+//
 //void gem::hw::glib::HwGLIB::connectDevice()
 //{
-//  std::string const controlhubAddress = cfgInfoSpaceP_->getString("controlhubAddress");
-//  std::string const device1Address    = cfgInfoSpaceP_->getString("deviceAddress");
-//  uint32_t const    controlhubPort    = cfgInfoSpaceP_->getUInt32("controlhubPort");
-//  uint32_t const    ipbusPort         = cfgInfoSpaceP_->getUInt32("ipbusPort");
-//  
-//  std::stringstream tmpUri;
-//  if (controlhubAddress.size() > 0) {
-//      INFO("Using control hub at address '" << controlhubAddress
-//           << ", port number " << controlhubPort << "'.");
-//      tmpUri << "chtcp-"
-//             << getIPbusProtocolVersion()
-//             << "://"
-//             << controlhubAddress
-//             << ":"
-//             << controlhubPort
-//             << "?target="
-//             << deviceAddress
-//             << ":"
-//             << ipbusPort;
-//    } else {
-//      INFO("No control hub address specified -> "
-//           "continuing with a direct connection.");
-//      tmpUri << "ipbusudp-"
-//             << getIPbusProtocolVersion()
-//             << "://"
-//             << deviceAddress
-//             << ":"
-//             << ipbusPort;
-//    }
-//  std::string const uri = tmpUri.str();
-//  std::string const id = "HwGLIB";
 //  
 //}
 //
@@ -286,13 +295,13 @@ void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& input, ui
     regName << "SYSTEM.CLK_CTRL.XPOINT1";
   
   switch(output) {
-  case (0):
+  case (0) :
     regName << ".S1";
-  case (1):
+  case (1) :
     regName << ".S2";
-  case (2):
+  case (2) :
     regName << ".S3";
-  case (3):
+  case (3) :
     regName << ".S4";
   }
   //input = b7b6b5b4b3b2b1b0 and all that matter are b1 and b0 -> 1 and 0 of, eg., S1
@@ -331,13 +340,13 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output
     regName << "SYSTEM.CLK_CTRL.XPOINT1";
   
   switch(output) {
-  case (0):
+  case (0) :
     regName << ".S1";
-  case (1):
+  case (1) :
     regName << ".S2";
-  case (2):
+  case (2) :
     regName << ".S3";
-  case (3):
+  case (3) :
     regName << ".S4";
   }
   uint8_t input = 0x0;
