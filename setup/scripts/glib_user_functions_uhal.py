@@ -1,5 +1,5 @@
 import sys, os, time, signal, random
-sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${BUILD_HOME}/gemdaq-testing/setup/scripts')
 
 import uhal
 from registers_uhal import *
@@ -25,26 +25,10 @@ def linkCounters(isGLIB,device,link,doReset=False):
     if not isGLIB:
         baseNode = "OptoHybrid.OptoHybrid_LINKS.LINK%d"%(link)
 
-    if not doReset:
-        counters = {}
-        counters["LinkErrors"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.LinkErr"%(baseNode))
-        if isGLIB:
-            counters["TRK_FIFO_Depth"] = readRegister(device,"%s.TRK_FIFO.DEPTH"%(       baseNode))
-        else:                                                                            
-            counters["L1A"]     = readRegister(device,"%s.COUNTERS.L1A.Total"%(      baseNode))
-            counters["Cal"]     = readRegister(device,"%s.COUNTERS.CalPulse.Total"%( baseNode))
-            counters["Resync"]  = readRegister(device,"%s.COUNTERS.Resync"%(         baseNode))
-            counters["BC0"]     = readRegister(device,"%s.COUNTERS.BC0"%(            baseNode))
-            counters["BXCount"] = readRegister(device,"%s.COUNTERS.BXCount"%(        baseNode))
-
-        counters["RecI2CRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.RecI2CRequests"%(baseNode))
-        counters["SntI2CRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.SntI2CRequests"%(baseNode))
-        counters["RecRegRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.RecRegRequests"%(baseNode))
-        counters["SntRegRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.SntRegRequests"%(baseNode))
-        return counters
-    else:
+    if doReset:
         writeRegister(device,"%s.OPTICAL_LINKS.Resets.LinkErr"%(       baseNode),0x1)
         if isGLIB:
+            print "emptying FIFO: %s.TRK_FIFO.FLUSH"%(baseNode)
             writeRegister(device,"%s.TRK_FIFO.FLUSH"%(                 baseNode),0x1)
         else:
             writeRegister(device,"%s.COUNTERS.RESETS.L1A.Total"%(     baseNode),0x1)
@@ -57,6 +41,24 @@ def linkCounters(isGLIB,device,link,doReset=False):
         writeRegister(device,"%s.OPTICAL_LINKS.Resets.RecRegRequests"%(baseNode),0x1)
         writeRegister(device,"%s.OPTICAL_LINKS.Resets.SntRegRequests"%(baseNode),0x1)
         return
+    else:
+        counters = {}
+        counters["LinkErrors"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.LinkErr"%(baseNode))
+        if isGLIB:
+            counters["TRK_FIFO_Depth"] = readRegister(device,"%s.TRK_FIFO.DEPTH"%(       baseNode))
+            print "FIFO: %s.TRK_FIFO.DEPTH = %d (0x%x)"%(baseNode, counters["TRK_FIFO_Depth"], counters["TRK_FIFO_Depth"])
+        else:                                                                            
+            counters["L1A"]     = readRegister(device,"%s.COUNTERS.L1A.Total"%(      baseNode))
+            counters["Cal"]     = readRegister(device,"%s.COUNTERS.CalPulse.Total"%( baseNode))
+            counters["Resync"]  = readRegister(device,"%s.COUNTERS.Resync"%(         baseNode))
+            counters["BC0"]     = readRegister(device,"%s.COUNTERS.BC0"%(            baseNode))
+            counters["BXCount"] = readRegister(device,"%s.COUNTERS.BXCount"%(        baseNode))
+
+        counters["RecI2CRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.RecI2CRequests"%(baseNode))
+        counters["SntI2CRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.SntI2CRequests"%(baseNode))
+        counters["RecRegRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.RecRegRequests"%(baseNode))
+        counters["SntRegRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.SntRegRequests"%(baseNode))
+        return counters
 
 def readTrackingInfo(device,link):
     """
@@ -66,7 +68,7 @@ def readTrackingInfo(device,link):
 
     data = {}
     data["hasData"] = readRegister(device,"%s.DATA_RDY"%(baseNode))
-    for word in range(1,7):
+    for word in range(1,6):
         data["data%d"%(word)] = readRegister(device,"%s.DATA.%d"%(baseNode,word))
     
     for word in data.keys():
@@ -80,13 +82,26 @@ def setTriggerSource(isGLIB,device,link,source):
     OH:   0=GLIB,     1=external,  2=both
     """
     if isGLIB:
-        writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link),source)
+        #writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link),source)
+        writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.SOURCE"%(link),source)
     else:
         writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.SOURCE"%(link),source)
 	writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FAST_COM.Send.Resync"%(link),0x1)
 
     return
 
+def getTriggerSource(isGLIB,device,link):
+    """
+    Set the trigger source
+    GLIB: 0=software, 1=backplane, 2=both 
+    OH:   0=GLIB,     1=external,  2=both
+    """
+    if isGLIB:
+        #readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link))
+        return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.SOURCE"%(link))
+    else:
+        return readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.SOURCE"%(link))
+        
 def setTriggerSBits(isGLIB,device,link,source):
     """
     Set the trigger sbit source
@@ -94,12 +109,24 @@ def setTriggerSBits(isGLIB,device,link,source):
     OH:   0=GLIB,     1=external,  2=both
     """
     if isGLIB:
-        writeRegister(device,"GLIB.GLIB_LINKS.TRIGGER.TDC_SBits",source)
+        #writeRegister(device,"GLIB.GLIB_LINKS.TRIGGER.TDC_SBits",source)
+        writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link),source)
     else:
         writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link),source)
 	writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FAST_COM.Send.Resync"%(link),0x1)
 
     return
+
+def getTriggerSBits(isGLIB,device,link):
+    """
+    Set the trigger sbit source
+    GLIB: 0=software, 1=backplane, 2=both 
+    OH:   0=GLIB,     1=external,  2=both
+    """
+    if isGLIB:
+        return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link))
+    else:
+        return readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link))
 
 def getClockingInfo(device,link):
     """

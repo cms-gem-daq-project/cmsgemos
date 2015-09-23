@@ -1,5 +1,5 @@
 import sys, os, time, signal, random
-sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${BUILD_HOME}/gemdaq-testing/setup/scripts')
 
 import uhal
 

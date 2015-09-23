@@ -2,7 +2,7 @@
 
 import sys, re, time, datetime, os
 
-sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${BUILD_HOME}/gemdaq-testing/setup/scripts')
 
 from PyChipsUser import *
 from registers import *

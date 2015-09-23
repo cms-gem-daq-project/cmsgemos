@@ -3,7 +3,7 @@
 import sys, re
 import time, datetime, os
 
-sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${BUILD_HOME}/gemdaq-testing/setup/scripts')
 
 import uhal
 from registers_uhal import *
@@ -44,10 +44,10 @@ if options.slot:
 	uTCAslot = 160+options.slot
 	print options.slot, uTCAslot
 ipaddr = '192.168.0.%d'%(uTCAslot)
-address_table = "file://${BUILD_HOME}/data/optohybrid_address_table.xml"
+address_table = "file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/optohybrid_address_table.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 optohybrid  = uhal.getDevice( "optohybrid" , uri, address_table )
-address_table = "file://${BUILD_HOME}/data/glib_address_table.xml"
+address_table = "file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/glib_address_table.xml"
 glib  = uhal.getDevice( "glib" , uri, address_table )
 
 ########################################
@@ -111,6 +111,7 @@ for link in (links.keys()):
 print 
 print "-> OH link Clocking (src, bkp):     VFAT         CDCE"
 for link in (links.keys()):
+        clocking = getClockingInfo(optohybrid,links[link]) 
 	print "-> %22s%d       (0x%x  0x%x)   (0x%x  0x%x)"%("link",links[link],
 							     clocking["vfatsrc"],clocking["vfatbkp"],
 							     clocking["cdcesrc"],clocking["cdcebkp"])
@@ -129,6 +130,9 @@ for link in (links.keys()):
 		errorCounts[links[link]].append(calculateLinkErrors(False,optohybrid,links[link],SAMPLE_TIME))
 sys.stdout.flush()
 
+
+#writeRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FAST_COM.Send.L1A"%(links[link]),1)
+#writeRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FAST_COM.Send.L1ACalPulse"%(links[link]),255)
 
 print 
 print "-> Counters    %8s     %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0","BX")

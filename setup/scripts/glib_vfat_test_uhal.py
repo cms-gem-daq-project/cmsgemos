@@ -2,7 +2,7 @@
 
 import sys, re, time, datetime, os
 
-sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${BUILD_HOME}/gemdaq-testing/setup/scripts')
 
 import uhal
 from registers_uhal import *
@@ -44,10 +44,10 @@ if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot
 ipaddr = '192.168.0.%d'%(uTCAslot)
-address_table = "file://${BUILD_HOME}/data/optohybrid_address_table.xml"
+address_table = "file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/optohybrid_address_table.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 optohybrid  = uhal.getDevice( "optohybrid" , uri, address_table )
-address_table = "file://${BUILD_HOME}/data/glib_address_table.xml"
+address_table = "file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/glib_address_table.xml"
 glib  = uhal.getDevice( "glib" , uri, address_table )
 
 ########################################
@@ -71,6 +71,7 @@ for gebslot in range(24):
 	vfats.append("slot%d"%(gebslot+1))
 
 ##time.sleep(5)
+controlRegs = {}
 chipids = []
 controlReg0 = []
 controlReg1 = []
@@ -86,6 +87,9 @@ for link in (links.keys()):
 					     readRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FIRMWARE"%(links[link])))
 
 print "GLIB links", links.keys()
+for control in range(4):
+        controlRegs["ctrl%d"%(control)] = []
+
 for chip in range(0,24):
 	baseNode = "OptoHybrid.GEB.VFATS.VFAT%d"%(chip)
 	if (0 not in links.keys()):
@@ -107,36 +111,36 @@ for chip in range(0,24):
 				print "GLIB link 2 missing, skipping %d"%chip
 			continue
 
-	if options.biasAll:
-		biasVFAT(optohybrid,chip)
-	if options.sleepAll:
-		regVal = readRegister(optohybrid,"%s.ContReg0"%(baseNode))
-		writeRegister(optohybrid,"%s.ContReg0"%(baseNode),regVal&0xFE)
-	if ((options.enabledChips) and (chip in chips)):
-		print "enabling chip %d"%(chip)
-		regVal = readRegister(optohybrid,"%s.ContReg0"%(baseNode))
-		writeRegister(optohybrid,"%s.ContReg0"%(baseNode),regVal|0x01)
-		
-
 	thechipid  = readRegister(optohybrid,"%s.ChipID1"%(baseNode))
 	if options.debug:
 		print "chip%d chipid1 0x%08x"%(chip,thechipid)
-	if (((thechipid>>16)&emptyMask) != ((0x050<<4)+(chip))):
-		thechipid  = (thechipid & ebmask)<<8
-		thechipid |= (readRegister(optohybrid,"%s.ChipID0"%(baseNode)) & ebmask)
-	else:
-		thechipid = 0xdead
-	chipids.append(("slot%d"%(chip),thechipid))
-	controlReg0.append(("slot%d"%(chip),
-			    readRegister(optohybrid,"%s.ContReg0"%(baseNode))&ebmask))
-	controlReg1.append(("slot%d"%(chip),
-			    readRegister(optohybrid,"%s.ContReg1"%(baseNode))&ebmask))
-	controlReg2.append(("slot%d"%(chip),
-			    readRegister(optohybrid,"%s.ContReg2"%(baseNode))&ebmask))
-	controlReg3.append(("slot%d"%(chip),
-			    readRegister(optohybrid,"%s.ContReg3"%(baseNode))&ebmask))
- 
 
+        chipids.append(("slot%d"%(chip),thechipid))
+        for control in range(4):
+                tmp = readVFAT(optohybrid, chip, "ContReg%d"%(control))
+                if (tmp>0):
+                        controlRegs["ctrl%d"%(control)].append(("slot%d"%(chip),tmp&ebmask))
+                else:
+                        controlRegs["ctrl%d"%(control)].append(("slot%d"%(chip),0x00))
+                        
+        if (thechipid == 0xdead):
+                if options.debug:
+                        print "bad chipID, not trying to write to chip %d"%(chip)
+        else:
+                # # nice to only send commands to chips that appear as not 0xdead
+                if options.biasAll:
+                        biasVFAT(optohybrid,chip)
+                if options.sleepAll:
+                        regVal = readVFAT(optohybrid, chip, "ContReg0")
+                        if (regVal > 0):
+                                writeVFAT(optohybrid, chip, "ContReg0", regVal&0xFE)
+                if ((options.enabledChips) and (chip in chips)):
+                        print "enabling chip %d"%(chip)
+                        regVal = readVFAT(optohybrid, chip, "ContReg0")
+                        if (regVal > 0):
+                                writeVFAT(optohybrid, chip, "ContReg0", regVal|0x01)
+
+ 
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
 for i,chip in enumerate(chipids):
 	if (int(chip[0][4:])%8==0):
@@ -144,10 +148,10 @@ for i,chip in enumerate(chipids):
 
 	print "%s%6s%s  %s0x%04x%s   0x%02x   0x%02x   0x%02x   0x%02x"%(colors.GREEN,chip[0],colors.ENDC,
 									 colors.CYAN,chip[1],colors.ENDC,
-									 controlReg0[i][1],
-									 controlReg1[i][1],
-									 controlReg2[i][1],
-									 controlReg3[i][1])
+                                                                         controlRegs["ctrl0"][i][1],
+                                                                         controlRegs["ctrl1"][i][1],
+                                                                         controlRegs["ctrl2"][i][1],
+                                                                         controlRegs["ctrl3"][i][1])
 	
 
 print
