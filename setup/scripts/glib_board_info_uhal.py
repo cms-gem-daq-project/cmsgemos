@@ -3,7 +3,7 @@
 import sys, re
 import time, datetime, os
 
-sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${BUILD_HOME}/gemdaq-testing/setup/scripts')
 
 import uhal
 from registers_uhal import *
@@ -48,7 +48,7 @@ if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot
 ipaddr = '192.168.0.%d'%(uTCAslot)
-address_table = "file://${BUILD_HOME}/data/glib_address_table.xml"
+address_table = "file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/glib_address_table.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 glib  = uhal.getDevice( "glib" , uri, address_table )
 
@@ -77,7 +77,7 @@ print
 for link in (links.keys()):
 	print link, links.keys()
 	print "-> GLIB link%d User FW :0x%08x"%(      link,readRegister(glib,"GLIB.GLIB_LINKS.LINK%d.USER_FW"%(link)))
-	print "-> GLIB link%d tracking data :0x%08x"%(link,readRegister(glib,"GLIB.GLIB_LINKS.TRG_DATA.DATA"))
+	#print "-> GLIB link%d tracking data :0x%08x"%(link,readRegister(glib,"GLIB.GLIB_LINKS.TRG_DATA.DATA"))
 print
 sys.stdout.flush()
 #exit(1)
@@ -99,14 +99,13 @@ sys.stdout.flush()
 if options.trgSrc in [0,1,2]:
 	for link in (links.keys()):
 		setTriggerSource(True,glib,link,options.trgSrc)
-		#writeRegister(glib,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link),options.trgSrc)
-		print "-> GLIB link%d trigger source:   0x%x"%(link,
-							       readRegister(glib,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link)))
+                print "-> GLIB link%d trigger source:   0x%x"%(link,getTriggerSource(True,glib,link))
+
 if options.sbitSrc in [1,2,3,4,5,6]:
 	for link in (links.keys()):
-		writeRegister(glib,"GLIB.GLIB_LINKS.LINK%d.TDC_SBit"%(link),options.sbitSrc)
-		print "-> GLIB link%d SBit to TDC: 0x%x"%(link,
-							  readRegister(glib,"GLIB.GLIB_LINKS.LINK%d.TDC_SBit"%(link)))
+		setTriggerSBits(True,glib,link options.sbitSrc)
+                print "-> GLIB link%d SBit to TDC: 0x%x"%(link,getTriggerSBits(True,glib,link))
+
 	
 sys.stdout.flush()
 print
@@ -117,9 +116,9 @@ print "-> GLIB link num: %10s  %12s    %10s    %10s    %10s    %10s    %10s"%("E
 sys.stdout.flush()
 
 for link in (links.keys()):
-	readTrackingInfo(glib,links[link])
+	#readTrackingInfo(glib,links[link])
 	rates = errorRate(errorCounts[link],SAMPLE_TIME)
-	counters = linkCounters(True,glib,False)
+	counters = linkCounters(True,glib,link,False)
 	print "-> link%d        : 0x%08x   (%6.2f%1sHz)    0x%08x    0x%08x    0x%08x    0x%08x    0x%08x"%(link,
 													    counters["LinkErrors"],
 													    rates[0], rates[1],
