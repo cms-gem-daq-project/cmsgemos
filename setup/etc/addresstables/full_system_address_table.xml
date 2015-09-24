@@ -3,10 +3,10 @@
   
   <node id="GLIB"
 	description="GLIB registers, divided into global and local (per optical link)"
-	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/glib_address_table.xml"/>
+	module="file://${GEM_ADDRESS_TABLE_PATH/glib_address_table.xml"/>
   
   <node id="OptoHybrid"
 	description="Optohybrid registers, divided into global and local (per optical link)"
-	module="file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/optohybrid_address_table.xml"/>
+	module="file://${GEM_ADDRESS_TABLE_PATH/optohybrid_address_table.xml"/>
   
 </node>

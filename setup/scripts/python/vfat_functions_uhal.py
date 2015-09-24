@@ -1,5 +1,5 @@
 import sys, os, time, signal, random
-sys.path.append('${BUILD_HOME}/gemdaq-testing/setup/scripts')
+sys.path.append('${GEM_PYTHON_PATH')
 
 import uhal
 from registers_uhal import *
