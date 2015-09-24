@@ -2,7 +2,7 @@
 
 import sys, re, time, datetime, os
 
-sys.path.append('${GEM_PYTHON_PATH')
+sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 from registers_uhal import *
@@ -44,10 +44,10 @@ if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot
 ipaddr = '192.168.0.%d'%(uTCAslot)
-address_table = "file://${GEM_ADDRESS_TABLE_PATH/optohybrid_address_table.xml"
+address_table = "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 optohybrid  = uhal.getDevice( "optohybrid" , uri, address_table )
-address_table = "file://${GEM_ADDRESS_TABLE_PATH/glib_address_table.xml"
+address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
 glib  = uhal.getDevice( "glib" , uri, address_table )
 
 ########################################

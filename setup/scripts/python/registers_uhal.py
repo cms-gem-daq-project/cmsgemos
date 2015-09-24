@@ -1,5 +1,5 @@
 import sys, os, time, signal, random
-sys.path.append('${GEM_PYTHON_PATH')
+sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 

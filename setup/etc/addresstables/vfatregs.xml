@@ -64,7 +64,7 @@
 		     Hardwired sleep value 0x80
 		     Software default value 0x80"/>
   <node id="VFATChannels"  address="0x11"
-	module="file://${GEM_ADDRESS_TABLE_PATH/vfatchanregs.xml"
+	module="file://${GEM_ADDRESS_TABLE_PATH}/vfatchanregs.xml"
 	description="Registers for the individual VFAT channels
 		     Hardwired sleep value 0x00
 		     Software default value 0x00"/>
