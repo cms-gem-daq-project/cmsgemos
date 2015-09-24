@@ -4,6 +4,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionFile)
 {
+  setDeviceBaseNode("VFATS."+vfatDevice);
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
@@ -11,12 +12,14 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionURI, addressTable)
 {
+  setDeviceBaseNode("VFATS."+vfatDevice);
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice,uhalDevice)
 {
+  setDeviceBaseNode("VFATS."+vfatDevice);
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
