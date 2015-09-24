@@ -44,7 +44,8 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::GEBData& geb
                            );
       void writeGEMevent   ( std::string outFile,
-                             bool OKprint,
+                             bool const& OKprint,
+                             std::string const& TypeDataFlag,
                              gem::readout::GEMDataAMCformat::GEMData& gem,
                              gem::readout::GEMDataAMCformat::GEBData& geb,
                              gem::readout::GEMDataAMCformat::VFATData& vfat
