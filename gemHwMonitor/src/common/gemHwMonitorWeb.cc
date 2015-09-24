@@ -61,15 +61,20 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
   for (unsigned int i = 0; i != gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().size(); i++) {
     if (cgi.queryCheckbox(gemHwMonitorSystem_->getDevice()->getSubDevicesRefs().at(i)->getDeviceId())) {
       //            //gem::hw::GEMHwDevice* crateDevice_ = new gem::hw::GEMHwDevice();
-      gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
-      crateDevice_->setDeviceIPAddress("192.168.0.162");
+      //this really needs to go
+      std::stringstream tmpURI;
+      tmpURI << "chtcp-2.0://localhost:10203?target=" << "192.168.0.162" << ":50001";
+      vfat_shared_ptr crateDevice_(new gem::hw::vfat::HwVFAT2("VFAT0", tmpURI.str(),
+                                                              "file://setup/etc/addresstables/geb_vfat_address_table.xml"));
+      //gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
+      //crateDevice_->setDeviceIPAddress("192.168.0.162");
       //crateDevice_->connectDevice();
       if (crateDevice_->isHwConnected()) {
         gemHwMonitorSystem_->setSubDeviceStatus(0,i);
       } else {
         gemHwMonitorSystem_->setSubDeviceStatus(1,i);
       }
-      delete crateDevice_;
+      //delete crateDevice_;
     }
   }
   this->controlPanel(in,out);
@@ -280,10 +285,15 @@ void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xg
             for (unsigned int j = 0; j != gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().size(); j++) {
               if (gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().at(j)->getDeviceId() == gemHwMonitorVFAT_.back()->getDevice()->getDeviceId()) {
                 gemHwMonitorVFAT_.back()->setDeviceConfiguration(*gemHwMonitorOH_.back()->getDevice()->getSubDevicesRefs().at(j));
-                vfatDevice_ = new gem::hw::vfat::HwVFAT2(gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
-                vfatDevice_->setDeviceIPAddress(glibIP);
+                std::stringstream tmpURI;
+                tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
+                vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(gemHwMonitorVFAT_.back()->getDevice()->getDeviceId(),
+                                                                         tmpURI.str(),
+                                                                         "file://setup/etc/addresstables/geb_vfat_address_table.xml"));
+                //vfatDevice_ = new gem::hw::vfat::HwVFAT2(gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
+                //vfatDevice_->setDeviceIPAddress(glibIP);
                 std::cout << "vfat ID from XML: " << gemHwMonitorVFAT_.back()->getDevice()->getDeviceId() << std::endl;
-                vfatDevice_->setDeviceBaseNode("VFATS."+gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
+                //vfatDevice_->setDeviceBaseNode("VFATS."+gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
                 //vfatDevice_->connectDevice();
                 if (vfatDevice_->isHwConnected()) {
                   gemHwMonitorVFAT_.back()->setDeviceStatus(0);
@@ -294,7 +304,7 @@ void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xg
                   gemHwMonitorOH_.back()->setSubDeviceStatus(2,i);
                   //gemHwMonitorOH_.back()->addSubDeviceStatus(2);
                 }
-                delete vfatDevice_;
+                //delete vfatDevice_;
               }
             }
           }
@@ -332,15 +342,20 @@ void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output *
           if (it->first == "IP") glibIP = it->second; 
           std::cout << "property: " << it->first << " - GLIB IP is "<<glibIP << std::endl;
         }
-        gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
-        glibDevice_->setDeviceIPAddress(glibIP);
+        std::stringstream tmpURI;
+        tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
+        glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
+                                                                "file://setup/etc/addresstables/glib_address_table.xml"));
+        //gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
+        //glibDevice_->setDeviceIPAddress(glibIP);
         //glibDevice_->connectDevice();
-        //if (glibDevice_->isHwConnected())
-        //{
-        //    gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(0);
-        //} else {
-        //    gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(2);
-        //}
+        //why is this commented?
+        if (glibDevice_->isHwConnected())
+        {
+            gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(0);
+        } else {
+            gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(2);
+        }
       }
     }
   }
@@ -407,15 +422,19 @@ void gem::hwMonitor::gemHwMonitorWeb::expandGLIB(xgi::Input * in, xgi::Output * 
           if (it->first == "IP") ohIP = it->second; 
           std::cout << "property: " << it->first << " - OH IP is " << ohIP << std::endl;
         }
-        gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
-        ohDevice_->setDeviceIPAddress(ohIP);
+        std::stringstream tmpURI;
+        tmpURI << "chtcp-2.0://localhost:10203?target=" << ohIP << ":50001";
+        ohDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
+                                                                                "file://setup/etc/addresstables/optohybrid_address_table.xml"));
+        //gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
+        //ohDevice_->setDeviceIPAddress(ohIP);
         //ohDevice_->connectDevice();
         if (ohDevice_->isHwConnected()) {
           gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(0);
         } else {
           gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(2);
         }
-        delete ohDevice_;
+        //delete ohDevice_;
       }
     }
   }
@@ -443,8 +462,12 @@ void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * o
   for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++) 
     if (it->first == "IP") glibIP = it->second;
 	
-  glibDevice_ = new gem::hw::glib::HwGLIB();
-  glibDevice_->setDeviceIPAddress(glibIP);
+  std::stringstream tmpURI;
+  tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
+  glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
+                                                          "file://setup/etc/addresstables/glib_address_table.xml"));
+  //glibDevice_ = new gem::hw::glib::HwGLIB();
+  //glibDevice_->setDeviceIPAddress(glibIP);
   //glibDevice_->connectDevice();
 
   *out << "<div class=\"panel panel-primary\">" << std::endl;
@@ -622,7 +645,7 @@ void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * o
   *out << "</div>" << std::endl;
   *out << cgicc::br()<< std::endl;
   *out << cgicc::hr()<< std::endl;
-  delete glibDevice_;
+  //delete glibDevice_;
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * out )
@@ -635,20 +658,24 @@ void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * ou
     if ((gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) && (!(gemHwMonitorOH_.at(i)->isConfigured()))) {
       indexOH_ = i;
       gemHwMonitorOH_.at(indexOH_)->setIsConfigured(true);
-      vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
-      vfatDevice_->setDeviceIPAddress(glibIP);
+      std::stringstream tmpURI;
+      tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
+      vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(vfatToShow_,tmpURI.str(),
+                                                               "file://setup/etc/addresstables/geb_vfat_address_table.xml"));
+      //vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
+      //vfatDevice_->setDeviceIPAddress(glibIP);
 			
       for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
         std::string vfatID_ = gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId();
         std::cout << "vfat ID from XML" << vfatID_ << std::endl;
-        vfatDevice_->setDeviceBaseNode("VFATS."+vfatID_);
+        //vfatDevice_->setDeviceBaseNode("VFATS."+vfatID_);
         //vfatDevice_->connectDevice();
         if (vfatDevice_->isHwConnected()) {
           gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(0);
         } else {
           gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(2);
         }
-        delete vfatDevice_;
+        //delete vfatDevice_;
       }
     }
   }
@@ -676,8 +703,13 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
   *out << cgicc::td();
   *out << "</tr>" << std::endl;
   *out << cgicc::table() <<std::endl;;
-  ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
-  ohDevice_->setDeviceIPAddress(glibIP);
+  
+  std::stringstream tmpURI;
+  tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
+  ohDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
+                                                                          "file://setup/etc/addresstables/optohybrid_address_table.xml"));
+  //ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
+  //ohDevice_->setDeviceIPAddress(glibIP);
   //ohDevice_->connectDevice();
   if (!ohDevice_->isHwConnected()) {
     *out << "<h1><div align=\"center\">Device connection failed!</div></h1>" << std::endl;
@@ -764,8 +796,12 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
         std::string currentVFATId = "VFAT";
         //currentVFATId += gemHwMonitorOH_.at(indexOH_)->getCurrentSubDeviceId(i+linkIncrenement);
         currentVFATId += std::to_string(i+linkIncrenement);
-        vfatDevice_ = new gem::hw::vfat::HwVFAT2(currentVFATId);
-        vfatDevice_->setDeviceIPAddress(glibIP);
+        std::stringstream tmpURI;
+        tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
+        vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(currentVFATId,tmpURI.str(),
+                                                                 "file://setup/etc/addresstables/geb_vfat_address_table.xml"));
+        //vfatDevice_ = new gem::hw::vfat::HwVFAT2(currentVFATId);
+        //vfatDevice_->setDeviceIPAddress(glibIP);
         //vfatDevice_->connectDevice();
         std::string runmode;
         int n_chan = 0;
@@ -780,7 +816,7 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
         } else {
           runmode = "N/A";
         }
-        delete vfatDevice_;
+        //delete vfatDevice_;
 				
         *out << cgicc::td();
         *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
@@ -897,7 +933,7 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
   }
   *out << cgicc::br()<< std::endl;
   *out << cgicc::hr()<< std::endl;
-  delete ohDevice_;
+  //delete ohDevice_;
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input * in, xgi::Output * out )
@@ -907,7 +943,7 @@ void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input * in, xgi::Output * 
   vfatToShow_ = cgi.getElement("vfatButton")->getValue();
   // Auto-pointer doesn't work for some reason. Improve this later.
   //for (unsigned int i = 0; i != gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().size(); i++) 
-  for (unsigned int i = 24*indexOH_; i < 24*(indexOH_+1); i++) {
+  for (int i = 24*indexOH_; i < 24*(indexOH_+1); i++) {
     //if (gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == vfatToShow_) 
     if (gemHwMonitorVFAT_.at(i)->getDevice()->getDeviceId() == vfatToShow_) {
       indexVFAT_ = i;
@@ -933,9 +969,13 @@ void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * o
     *out << "</div>" << std::endl;
     *out << "</div>" << std::endl;
   } else {
-    vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
-    vfatDevice_->setDeviceIPAddress(glibIP);
-    vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
+    std::stringstream tmpURI;
+    tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
+    vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(vfatToShow_,tmpURI.str(),
+                                                             "file://setup/etc/addresstables/geb_vfat_address_table.xml"));
+    //vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
+    //vfatDevice_->setDeviceIPAddress(glibIP);
+    //vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
     //vfatDevice_->connectDevice();
     // superfluous, as readVFAT2Counters is called in getAllSettings
     //vfatDevice_->readVFAT2Counters();
@@ -1088,7 +1128,7 @@ void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * o
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
 
-    delete vfatDevice_;
+    //delete vfatDevice_;
   }
 }
 
