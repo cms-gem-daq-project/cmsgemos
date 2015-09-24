@@ -3,7 +3,7 @@
 import sys, re
 import time, datetime, os
 
-sys.path.append('${BUILD_HOME}/gemdaq-testing/setup/scripts')
+sys.path.append('/opt/gemdaq/firmware/testing/src')
 
 import uhal
 from registers_uhal import *
@@ -48,7 +48,7 @@ if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot
 ipaddr = '192.168.0.%d'%(uTCAslot)
-address_table = "file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/glib_address_table.xml"
+address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 glib  = uhal.getDevice( "glib" , uri, address_table )
 
@@ -96,15 +96,15 @@ sys.stdout.flush()
 #    setXPoint1Outputs(glib,options.clksrc)
 #    getXpointInfo(glib)
 
-if options.trgSrc in [0,1,2]:
-	for link in (links.keys()):
+for link in (links.keys()):
+        if options.trgSrc in [0,1,2]:
 		setTriggerSource(True,glib,link,options.trgSrc)
-                print "-> GLIB link%d trigger source:   0x%x"%(link,getTriggerSource(True,glib,link))
+        print "-> GLIB link%d trigger source:   0x%x"%(link,getTriggerSource(True,glib,link))
 
-if options.sbitSrc in [1,2,3,4,5,6]:
-	for link in (links.keys()):
-		setTriggerSBits(True,glib,link,options.sbitSrc)
-                print "-> GLIB link%d SBit to TDC: 0x%x"%(link,getTriggerSBits(True,glib,link))
+for link in (links.keys()):
+        if options.sbitSrc in [1,2,3,4,5,6]:
+                setTriggerSBits(True,glib,link,options.sbitSrc)
+        print "-> GLIB link%d SBit to TDC: 0x%x"%(link,getTriggerSBits(True,glib,link))
 
 	
 sys.stdout.flush()
