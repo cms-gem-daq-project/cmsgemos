@@ -49,9 +49,9 @@ std::map<uint16_t, int> numEC = {};
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName, std::string const& outputType) :
-  gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker")))
+  m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker")))
 {
-  //gemLogger_   = log4cplus::Logger::getInstance("gem:readout:GEMDataParker");
+  //m_gemLogger   = log4cplus::Logger::getInstance("gem:readout:GEMDataParker");
   glibDevice_  = &glibDevice;
   outFileName_ = outFileName;
   outputType_  = outputType;

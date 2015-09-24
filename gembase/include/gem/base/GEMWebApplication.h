@@ -43,6 +43,11 @@ namespace gem {
       ~GEMWebApplication();
 
     protected:
+      //maybe only have the control panel built in the base class?
+      //perhaps can extend it in derived classes
+      virtual void controlPanel(  xgi::Input *in, xgi::Output *out )
+        throw (xgi::exception::Exception);
+
       virtual void monitorPage(xgi::Input *in, xgi::Output *out)
         throw (xgi::exception::Exception);
 	
@@ -57,37 +62,38 @@ namespace gem {
 
       // fsm specific functions, only called when the constructing app is derived from a
       // GEMFSMApplication
-      virtual void webInitialize(xgi::Input *in, xgi::Output *out )
+      void webInitialize(xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
-      virtual void webEnable(    xgi::Input *in, xgi::Output *out )
+      void webEnable(    xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
-      virtual void webConfigure( xgi::Input *in, xgi::Output *out )
+      void webConfigure( xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
-      virtual void webStart(     xgi::Input *in, xgi::Output *out )
+      void webStart(     xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
-      virtual void webPause(     xgi::Input *in, xgi::Output *out )
+      void webPause(     xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
-      virtual void webResume(    xgi::Input *in, xgi::Output *out )
+      void webResume(    xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
-      virtual void webStop(      xgi::Input *in, xgi::Output *out )
+      void webStop(      xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
-      virtual void webHalt(      xgi::Input *in, xgi::Output *out )
+      void webHalt(      xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
-      virtual void webReset(     xgi::Input *in, xgi::Output *out )
+      void webReset(     xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
 	
-      log4cplus::Logger gemLogger_;
+      log4cplus::Logger m_gemLogger;
 	
-      GEMMonitor*        gemMonitorP_;
-      GEMFSMApplication* gemFSMAppP_;
-      GEMApplication*    gemAppP_;
-      //xdaq::Application* gemAppP_;
+      GEMMonitor*        p_gemMonitor;
+      GEMFSMApplication* p_gemFSMApp;
+      GEMApplication*    p_gemApp;
+      //xdaq::Application* p_gemApp;
 
-      bool is_working_, is_initialized_, is_configured_, is_running_, is_paused_;
+      bool b_is_working, b_is_initialized, b_is_configured, b_is_running, b_is_paused;
 
     private:
-	
+
       GEMWebApplication(GEMWebApplication const&);
+      void buildCfgWebpage();
 
     };
   } // namespace gem::base

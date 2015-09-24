@@ -89,7 +89,7 @@ namespace gem {
       void actionPerformed(xdata::Event& event);
       
     protected:
-      log4cplus::Logger gemLogger_;
+      log4cplus::Logger m_gemLogger;
       
     private:
       /**

@@ -18,6 +18,27 @@ gem::hw::glib::GLIBManagerWeb::~GLIBManagerWeb()
   //default destructor
 }
 
+void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  if (p_gemFSMApp)
+    DEBUG("current state is" << dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->getCurrentState());
+  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
+  *out << "<div class=\"xdaq-tab\" title=\"GLIBManager Control Panel\" >"  << std::endl;
+  controlPanel(in,out);
+  *out << "</div>" << std::endl;
+
+  *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
+  monitorPage(in,out);
+  *out << "</div>" << std::endl;
+
+  std::string expURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/expertPage";
+  *out << "<div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
+  expertPage(in,out);
+  *out << "</div>" << std::endl;
+  *out << "</div>" << std::endl;
+}
+
 /*To be filled in with the monitor page code*/
 void gem::hw::glib::GLIBManagerWeb::monitorPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)

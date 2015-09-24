@@ -6,9 +6,6 @@
 
 #include "toolbox/task/exception/Exception.h"
 
-#include "xdata/Boolean.h"
-#include "xdata/Integer.h"
-
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
@@ -41,49 +38,25 @@ namespace gem {
       virtual ~GEMFSMApplication();
 
     protected:
-      //xgi interface
-      virtual void xgiInitialize(xgi::Input *in, xgi::Output *out );
-      virtual void xgiEnable(    xgi::Input *in, xgi::Output *out );
-      virtual void xgiConfigure( xgi::Input *in, xgi::Output *out );
-      virtual void xgiStart(     xgi::Input *in, xgi::Output *out );
-      virtual void xgiPause(     xgi::Input *in, xgi::Output *out );
-      virtual void xgiResume(    xgi::Input *in, xgi::Output *out );
-      virtual void xgiStop(      xgi::Input *in, xgi::Output *out );
-      virtual void xgiHalt(      xgi::Input *in, xgi::Output *out );
-      virtual void xgiReset(     xgi::Input *in, xgi::Output *out );
-
-
       /*
-      // SOAP interface
-      virtual xoap::MessageReference onEnable(     xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference onConfigure(  xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference onStart(      xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference onPause(      xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference onResume(     xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference onStop(       xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference onHalt(       xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference onReset(      xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference onRunSequence(xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference reset(        xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference fireEvent(    xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      virtual xoap::MessageReference createReply(  xoap::MessageReference message)
-      throw (xoap::exception::Exception);
+        xgi interface, should be treated the same way as a command recieved via SOAP,
+        or should maybe create a SOAP message and send it to the application
+        basically, should be no difference when receiving a command through the web
+        interface or from the function manager or via SOAP
+        make non virtual so as to not re-implement in derived classes
       */
+      void xgiInitialize(xgi::Input *in, xgi::Output *out );
+      void xgiConfigure( xgi::Input *in, xgi::Output *out );
+      void xgiStart(     xgi::Input *in, xgi::Output *out );
+      void xgiPause(     xgi::Input *in, xgi::Output *out );
+      void xgiResume(    xgi::Input *in, xgi::Output *out );
+      void xgiStop(      xgi::Input *in, xgi::Output *out );
+      void xgiHalt(      xgi::Input *in, xgi::Output *out );
+      void xgiReset(     xgi::Input *in, xgi::Output *out );
 
-      // work loop call-back functions
+      // directs commands to the proper workloop
       void workloopDriver(std::string const& command)
-        throw (::toolbox::task::exception::Exception);
+        throw (toolbox::task::exception::Exception);
 	
       std::string workLoopName;
       toolbox::task::ActionSignature* initSig_  ;
@@ -95,20 +68,20 @@ namespace gem {
       toolbox::task::ActionSignature* haltSig_  ;
       toolbox::task::ActionSignature* resetSig_ ;
 	
-      virtual bool initialize(toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool enable(    toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool configure( toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool start(     toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool pause(     toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool resume(    toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool stop(      toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool halt(      toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool reset(     toolbox::task::WorkLoop *wl) { return false; };
-      //virtual bool noAction(        toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool fail(      toolbox::task::WorkLoop *wl) { return false; };
+      // work loop call-back functions
+      bool initialize(toolbox::task::WorkLoop *wl);
+      bool configure( toolbox::task::WorkLoop *wl);
+      bool start(     toolbox::task::WorkLoop *wl);
+      bool pause(     toolbox::task::WorkLoop *wl);
+      bool resume(    toolbox::task::WorkLoop *wl);
+      bool stop(      toolbox::task::WorkLoop *wl);
+      bool halt(      toolbox::task::WorkLoop *wl);
+      bool reset(     toolbox::task::WorkLoop *wl);
+      //bool noAction(        toolbox::task::WorkLoop *wl) { return false; };
+      //bool fail(      toolbox::task::WorkLoop *wl) { return false; };
 
-      virtual bool calibrationAction(toolbox::task::WorkLoop *wl) { return false; };
-      virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl) { return false; };
+      bool calibrationAction(toolbox::task::WorkLoop *wl) { return false; };
+      bool calibrationSequencer(toolbox::task::WorkLoop *wl) { return false; };
 	
       /* state transitions
        * defines the behaviour of the application for each state transition
@@ -116,55 +89,55 @@ namespace gem {
        * implementations, common implementations will be merged into the base
        * application
        */
-      void transitionDriver(::toolbox::Event::Reference e)
-        throw (::toolbox::fsm::exception::Exception);
+      virtual void initializeAction() /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void configureAction()  /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void startAction()      /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void pauseAction()      /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void resumeAction()     /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void stopAction()       /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void haltAction()       /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void resetAction()      /*throw (gem::base::exception::Exception)*/ = 0;
+      //virtual void noAction()         /*throw (gem::base::exception::Exception)*/ = 0; 
 	
-      virtual void initializeAction() = 0;
-      virtual void configureAction( ) = 0;
-      virtual void enableAction(    ) = 0;
-      virtual void startAction(     ) = 0;
-      virtual void pauseAction(     ) = 0;
-      virtual void resumeAction(    ) = 0;
-      virtual void stopAction(      ) = 0;
-      virtual void haltAction(      ) = 0;
-	
-      virtual void noAction(        ) = 0; 
-      //virtual void failAction(      ) = 0; 
+      /* Responses to xdata::Event 
+       */
+      void transitionDriver(toolbox::Event::Reference e)
+        throw (toolbox::fsm::exception::Exception);
 	
       /* resetAction
        * takes the GEMFSM from a state to the uninitialzed state
        * recovery from a failed transition, or just a reset
        */
-      virtual void resetAction(::toolbox::Event::Reference e)
-        throw (::toolbox::fsm::exception::Exception);
+      virtual void resetAction(toolbox::Event::Reference e)
+        throw (toolbox::fsm::exception::Exception);
 	
       /* failAction
        * determines how to handle a failed transition
        * 
+      virtual void failAction(toolbox::Event::Reference e)
+        throw (toolbox::fsm::exception::Exception);
        */
-      virtual void failAction(::toolbox::Event::Reference e)
-        throw (::toolbox::fsm::exception::Exception);
 	
       /* stateChanged
        * 
        * 
        */
-      virtual void stateChanged(    toolbox::fsm::FiniteStateMachine &fsm)
-        throw (::toolbox::fsm::exception::Exception);
+      virtual void stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
+        throw (toolbox::fsm::exception::Exception);
 
       /* transitionFailed
        * 
        * 
        */
-      virtual void transitionFailed(::toolbox::Event::Reference event)
-        throw (::toolbox::fsm::exception::Exception);
+      virtual void transitionFailed(toolbox::Event::Reference event)
+        throw (toolbox::fsm::exception::Exception);
 
       /* fireEvent
        * Forwards a state change to the GEMFSM object
        * @param std::string event name of the event to pass to the GEMFSM
        */
       virtual void fireEvent(std::string event)
-        throw (::toolbox::fsm::exception::Exception);
+        throw (toolbox::fsm::exception::Exception);
 	
       /* changeState
        * Forwards a state change to the GEMFSM object
@@ -177,21 +150,25 @@ namespace gem {
        * @returns std::string name of the current state of the GEMFSM object
        */
       std::string getCurrentState() const {
-        return gemfsm_.getCurrentState();
+        return m_gemfsm.getCurrentState();
       };
 	
     private:
-      GEMFSM gemfsm_;
-	
-      toolbox::BSem wl_semaphore_;
+      GEMFSM m_gemfsm;
+      
+      double m_progress; // just to see the progress of the various transitions
+      bool b_accept_web_commands; //should we allow state transition commands from the web interface
 
-      toolbox::task::WorkLoop *wl_;
+      toolbox::BSem m_wl_semaphore;     //do we need a semaphore for the workloop?
+      toolbox::BSem m_db_semaphore;     //do we need a semaphore for the database?
+      toolbox::BSem m_cfg_semaphore;    //do we need a semaphore for the config file?
+      toolbox::BSem m_web_semaphore;    //do we need a semaphore for the web access?
+      toolbox::BSem m_infspc_semaphore; //do we need a semaphore for the infospace?
 
-      toolbox::task::ActionSignature *enable_signature_, *configure_signature_;
-      toolbox::task::ActionSignature *start_signature_,  *pause_signature_, *resume_signature_;
-      toolbox::task::ActionSignature *stop_signature_,   *halt_signature_;
-	
-      xdata::InfoSpace* gemAppStateInfoSpaceP_;
+      toolbox::task::WorkLoop *p_wl;
+
+      xdata::InfoSpace* p_gemAppStateInfoSpace;
+      xdata::String  m_state;
 
     };
     

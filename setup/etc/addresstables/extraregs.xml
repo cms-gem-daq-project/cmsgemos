@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="test"  address="0x00000003"    mask="0xffffffff"  permission="rw"/>
+
+  <node id="status_2"   address="0x00000007"  mask="0xffffffff"  permission="r"/>
+
+  <!--user space-->
+  <node id="user_ipb_regs"       address="0x40000000"  mask="0xffffffff"  permission="rw"/>
+  <!--example_status_regs-->
+  <node id="user_ipb_stat_regs"  address="0x40000000"  mask="0xffffffff"  permission="rw"/>
+  <!--example_control_regs-->
+  <node id="user_ipb_ctrl_regs"  address="0x40000040"  mask="0xffffffff"  permission="rw"/>
+  <node id="user_wb_regs"        address="0x80000000"  mask="0xffffffff"  permission="rw"/>
+
+  <!--sram memory space-->
+  <node id="sram1"  address="0x02000000"  mask="0xffffffff"  permission="rw"/>
+  <node id="sram2"  address="0x04000000"  mask="0xffffffff"  permission="rw"/>
+  
+  <!--
+  <node id="ctrl_sram" address="0x00000008"  permission="rw">
+    <node id="sram1_user_logic"	mask="0x00000001"/>
+    <node id="sram1_bist_run"	mask="0x00000002"/>
+    <node id="sram2_user_logic"	mask="0x00010000"/>
+    <node id="sram2_bist_run"	mask="0x00020000"/>
+    <node id="flash_select"	mask="0x00100000"/>
+  </node>
+
+  <node id="status_sram"  address="0x00000009"  permission="r">
+    <node id="sram1_bist_done"	  mask="0x00000001"/>
+    <node id="sram1_bist_ok"	  mask="0x00000002"/>
+    <node id="sram1_bist_errors"  mask="0x00000ff0"/>
+    <node id="sram2_bist_done"	  mask="0x00010000"/>
+    <node id="sram2_bist_ok"	  mask="0x00020000"/>
+    <node id="sram2_bist_errors"  mask="0x0ff00000"/>
+  </node>
+  -->
+  <node id="mac_ip_source"  address="0x0000001c"  mask="0x0fff0000"  permission="r"/>	
+  <node id="mac_b5"         address="0x0000001c"  mask="0x0000ff00"  permission="r"/>	
+  <node id="mac_b4"         address="0x0000001c"  mask="0x000000ff"  permission="r"/>	
+  <node id="mac_b3"         address="0x0000001d"  mask="0xff000000"  permission="r"/>	
+  <node id="mac_b2"         address="0x0000001d"  mask="0x00ff0000"  permission="r"/>	
+  <node id="mac_b1"         address="0x0000001d"  mask="0x0000ff00"  permission="r"/>	
+  <node id="mac_b0"         address="0x0000001d"  mask="0x000000ff"  permission="r"/>	
+  <node id="ip_addr"        address="0x0000001e"  mask="0xffffffff"  permission="r"/>	
+  <node id="ip_b3"          address="0x0000001e"  mask="0xff000000"  permission="r"/>	
+  <node id="ip_b2"          address="0x0000001e"  mask="0x00ff0000"  permission="r"/>	
+  <node id="ip_b1"          address="0x0000001e"  mask="0x0000ff00"  permission="r"/>	
+  <node id="ip_b0"          address="0x0000001e"  mask="0x000000ff"  permission="r"/>	
+</node>

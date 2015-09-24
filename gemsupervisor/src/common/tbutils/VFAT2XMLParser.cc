@@ -97,7 +97,7 @@ void gem::supervisor::tbutils::VFAT2XMLParser::parseXMLFile()
   xercesc::XMLPlatformUtils::Terminate();
 
   //vfatDevice_->getAllSettings();
-  //vfatParams_ = vfatDevice_->getVFAT2Params();
+  //m_vfatParams = vfatDevice_->getVFAT2Params();
 }
 
 ///////////////////////////////////////////////
