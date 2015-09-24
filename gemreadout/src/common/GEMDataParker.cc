@@ -260,7 +260,7 @@ int gem::readout::GEMDataParker::getGLIBData(
     if (islot<0 || islot > 23) {
       // islot out of [0-23]
       islotNegativeCount++;
-      if ( int(erros.size()) < 4095 ) erros.push_back(vfat);
+      if ( int(erros.size()) < 10000 ) erros.push_back(vfat);
       INFO(" ::getGLIBData warning !!! islot is negative " << islot << " NegativeCount " << islotNegativeCount << 
            " erros.size " << int(erros.size()) );
      /*
@@ -350,7 +350,6 @@ int gem::readout::GEMDataParker::getGLIBData(
   	   }// if localEvent
          }//end of GEB PayLoad Data
 
-         vfats.clear();
          geb.vfats.clear();
 
          uint32_t nErro = 0;
@@ -407,8 +406,8 @@ int gem::readout::GEMDataParker::getGLIBData(
        INFO(" CDE::getGLIBData vfats.size " << int(vfats.size()) <<" erros.size " << int(erros.size()) << 
             " locEvent " << locEvent << " event " << event_ );
 
+       vfats.clear();
        erros.clear();
-       geb.vfats.clear();
        locEvent = 0;
 
        // local event cleaning 
