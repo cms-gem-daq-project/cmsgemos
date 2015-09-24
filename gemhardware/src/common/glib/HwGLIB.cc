@@ -16,7 +16,8 @@ gem::hw::glib::HwGLIB::HwGLIB() :
   setAddressTableFileName("glib_address_table.xml");
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
-  INFO("HwGLIB ctor done");
+  
+  INFO("HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
@@ -28,6 +29,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
   m_slot(-1)
 {
   setDeviceBaseNode("GLIB");
+  INFO("HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
@@ -42,6 +44,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 {
   INFO("trying to create HwGLIB(" << glibDevice << "," << connectionURI << "," <<addressTable);
   setDeviceBaseNode("GLIB");
+  INFO("HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
@@ -54,6 +57,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 
 {
   setDeviceBaseNode("GLIB");
+  INFO("HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
@@ -89,7 +93,7 @@ gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
   //  
   //setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   
-  INFO("HwGLIB ctor done");
+  INFO("HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::~HwGLIB()

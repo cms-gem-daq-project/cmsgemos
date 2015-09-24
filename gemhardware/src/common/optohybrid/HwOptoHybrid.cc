@@ -13,6 +13,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   setDeviceBaseNode("OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
   //set up which links are active, so that the control can be done without specifying a link
+  INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
@@ -23,6 +24,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   m_controlLink(-1)  
 {
   setDeviceBaseNode("OptoHybrid");
+  INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
@@ -34,6 +36,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   m_controlLink(-1)  
 {
   setDeviceBaseNode("OptoHybrid");
+  INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
@@ -44,6 +47,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   m_controlLink(-1)  
 {
   setDeviceBaseNode("OptoHybrid");
+  INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
 /*
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
