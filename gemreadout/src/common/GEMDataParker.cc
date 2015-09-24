@@ -356,7 +356,7 @@ int gem::readout::GEMDataParker::getGLIBData(
          for (std::vector<GEMDataAMCformat::VFATData>::iterator iErr=erros.begin(); iErr != erros.end(); ++iErr) {
 
            uint32_t localEvent = (*iErr).BXfrOH;
-           DEBUG(" ::getGLIBData ERROR vfats BX 0x" << itBX->first << " EC " << localEvent );
+           DEBUG(" CDE::getGLIBData ERROR vfats BX 0x" << itBX->first << " EC " << localEvent );
 
            if ( itBX->first == localEvent ) {
              nErro++; 
@@ -368,45 +368,30 @@ int gem::readout::GEMDataParker::getGLIBData(
              vfat.BXfrOH = (*iErr).BXfrOH;
              vfat.crc    = (*iErr).crc;
              
-            /*
-             * VFATs Pay Load
-             */
-             geb.vfats.push_back(vfat);
-         
+             DEBUG(" CDE::getGLIBData " << " nErro " << nErro << " BX 0x" << std::hex << itBX->first << std::dec );
+
              /*
              GEMDataAMCformat::printVFATdataBits(nErro, vfat);
              */
              int islot = -1;
-
-             if ( !gem::readout::GEMDataParker::VFATfillData( islot, geb) ){
-                 if ( itBX->second == nErro ){
-                    /*
-                     * GEM ERRORS headers and trealers filling
-                     */
-                     gem::readout::GEMDataParker::GEMfillHeaders(event_, itBX->second, gem, geb);
-                     gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
+             gem::readout::GEMDataParker::VFATfillData( islot, geb);
+             gem::readout::GEMDataParker::GEMfillHeaders(event_, itBX->second, gem, geb);
+             gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
         
-                    /*
-                     * GEM ERRORS Event Writing
-                     */
-                     INFO(" ::getGLIBData writing...  geb.erros.size " << int(geb.vfats.size()) );
-                     TypeDataFlag = "Errors";
-                     if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(errFileName_, true, TypeDataFlag,
+            /*
+             * GEM ERRORS Event Writing
+             */
+             TypeDataFlag = "Errors";
+             if( nErro > 0) gem::readout::GEMDataParker::writeGEMevent(errFileName_, true, TypeDataFlag,
                                                                                                gem, geb, vfat);
-        
-                     geb.vfats.clear();
-        
-    	         }//end of writing event
-             }// if slot correct
   	   }// if localEvent
          }//end of GEB PayLoad Data
-
        }//end of all local events
 
        INFO(" CDE::getGLIBData vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
 	                     " erros.size " << std::setfill(' ') << std::setw(5) << int(erros.size()) << 
-                             " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
-            " event " << event_ );
+	                     " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << " event " << event_ );
+
        locEvent = 0;
 
        vfats.clear();
@@ -594,7 +579,7 @@ void gem::readout::GEMDataParker::writeGEMevent(
                                                 AMCVFATData& vfat
 ){
   if(OKprint){
-    INFO(" ::writeGEMevent vfat_ " << vfat_ << " event " << event_ << " sumVFAT " << (0x000000000fffffff & geb.header) <<
+    DEBUG(" ::writeGEMevent vfat_ " << vfat_ << " event " << event_ << " sumVFAT " << (0x000000000fffffff & geb.header) <<
          " geb.vfats.size " << int(geb.vfats.size()) );
   }
 
@@ -678,8 +663,10 @@ void gem::readout::GEMDataParker::writeGEMevent(
   } 
 
   uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40;
-  if(OKprint){
-    GEMDataAMCformat::show24bits(ZSFlag); INFO(" writeGEMevent:: " << TypeDataFlag << " end of event " << event_ << "\n");
+  if(OKprint && TypeDataFlag == "Errors" ){
+    GEMDataAMCformat::show24bits(ZSFlag); 
+    INFO(" CDE::writeGEMevent:: " << TypeDataFlag << " geb.vfats.size " << int(geb.vfats.size()) << 
+         " end of event " << event_ << "\n");
   }
   /* } // end of GEB */
 }
