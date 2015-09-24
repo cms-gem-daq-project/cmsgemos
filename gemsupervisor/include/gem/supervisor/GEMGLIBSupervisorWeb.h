@@ -57,6 +57,8 @@ namespace gem {
   }
 
   typedef std::shared_ptr<hw::vfat::HwVFAT2 > vfat_shared_ptr;
+  typedef std::shared_ptr<hw::glib::HwGLIB >  glib_shared_ptr;
+  typedef std::shared_ptr<hw::optohybrid::HwOptoHybrid > optohybrid_shared_ptr;
 
   namespace supervisor {
 
@@ -225,12 +227,14 @@ namespace gem {
 
         //supervisor application should not have any hw devices, should only send commands to manager applications
         //temporary fix just to get things working stably, should be using the manager
-        gem::hw::glib::HwGLIB* glibDevice_;
-        gem::hw::optohybrid::HwOptoHybrid* optohybridDevice_;
+        glib_shared_ptr glibDevice_;
+        //gem::hw::glib::HwGLIB* glibDevice_;
+        optohybrid_shared_ptr optohybridDevice_;
+        //gem::hw::optohybrid::HwOptoHybrid* optohybridDevice_;
         //std::vector< gem::hw::vfat::HwVFAT2* > vfatDevice_;
         std::vector<vfat_shared_ptr> vfatDevice_;
         //readout application should be running elsewhere, not tied to supervisor
-        gem::readout::GEMDataParker* gemDataParker;
+        std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
 
         // Counter
         int counter_[3];

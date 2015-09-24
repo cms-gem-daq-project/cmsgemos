@@ -592,12 +592,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   counter_ = {0,0,0};
 
-  glibDevice_       = new gem::hw::glib::HwGLIB();
-  glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+  std::stringstream tmpURI;
+  tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
+  //glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB());
+  glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
+                                                          "file://setup/etc/addresstables/glib_address_table.xml"));
   //glibDevice_->connectDevice();
 
-  optohybridDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
-  optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
+                                                                                  "file://setup/etc/addresstables/optohybrid_address_table.xml"));
+  //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   //optohybridDevice_->connectDevice();
 
   // Times for output files
@@ -625,7 +629,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     std::string VfatName = chip->toString();
 
     if (VfatName != ""){ 
-      vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName));
+      vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(),
+                                                               "file://setup/etc/addresstables/geb_vfat_address_table.xml"));
       tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
       //tmpVFATDevice->connectDevice();
       tmpVFATDevice->setRunMode(0);
@@ -672,7 +677,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   tmpType = confParams_.bag.outputType.toString();
 
   // Book GEM Data Parker
-  gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpType);
+  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpType));
 
   // Data Stream close
   outf.close();
@@ -835,6 +840,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
     //(*chip) = NULL;
     INFO((*chip)->printErrorCounts());
   }
+  /*
   delete glibDevice_;
   glibDevice_ = NULL;
 
@@ -843,7 +849,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
 
   delete gemDataParker;
   gemDataParker = NULL;
-
+  */
   is_configured_ = false;
 }
 
