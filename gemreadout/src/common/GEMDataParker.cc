@@ -403,12 +403,14 @@ int gem::readout::GEMDataParker::getGLIBData(
 
        }//end of all local events
 
-       INFO(" CDE::getGLIBData vfats.size " << int(vfats.size()) <<" erros.size " << int(erros.size()) << 
-            " locEvent " << locEvent << " event " << event_ );
+       INFO(" CDE::getGLIBData vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
+	                     " erros.size " << std::setfill(' ') << std::setw(5) << int(erros.size()) << 
+                             " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
+            " event " << event_ );
+       locEvent = 0;
 
        vfats.clear();
        erros.clear();
-       locEvent = 0;
 
        // local event cleaning 
        numEC.clear();
