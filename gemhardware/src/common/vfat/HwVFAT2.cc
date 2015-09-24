@@ -5,6 +5,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionFile)
 {
   setDeviceBaseNode("VFATS."+vfatDevice);
+  INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
@@ -13,6 +14,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionURI, addressTable)
 {
   setDeviceBaseNode("VFATS."+vfatDevice);
+  INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
@@ -20,6 +22,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice,uhalDevice)
 {
   setDeviceBaseNode("VFATS."+vfatDevice);
+  INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
@@ -47,6 +50,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
   //set run bit
 
   //hardware is running
+  INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
 gem::hw::vfat::HwVFAT2::~HwVFAT2()
