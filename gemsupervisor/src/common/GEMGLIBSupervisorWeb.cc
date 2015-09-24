@@ -1,12 +1,9 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
-//#include "gem/readout/GEMslotContents.h"
 
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
-
-//#include "gem/utils/GEMLogging.h"
 
 #include <iomanip>
 #include <iostream>
@@ -198,7 +195,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   }
   else if (is_running_) {
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","30");
+    head.addHeader("Refresh","7");
   }
 
   // If we are in "Running" state, check if GLIB has any data available
@@ -394,7 +391,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   hw_semaphore_.take();
 
   INFO(" webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(1);
+  optohybridDevice_->SendL1A(100);
 
   //counting "1" Internal triggers, one link enough 
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
@@ -544,7 +541,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  int* pDupm = gemDataParker->dumpData(readout_mask);
+  uint64_t* pDupm = gemDataParker->dumpData(readout_mask);
   if (pDupm) {
     counter_[0] = *pDupm;     // VFAT Blocks counter
     counter_[1] = *(pDupm+1); // Events counter
@@ -639,16 +636,25 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
   std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
 
+  std::string errFileName = "ERRORS_";
+  errFileName.append(utcTime);
+  errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
+  errFileName.append(".dat");
+  std::replace(errFileName.begin(), errFileName.end(), ' ', '_' );
+  std::replace(errFileName.begin(), errFileName.end(), ':', '-');
+
   confParams_.bag.outFileName = tmpFileName;
   std::ofstream outf(tmpFileName.c_str(), std::ios_base::app | std::ios::binary );
+  std::ofstream errf(errFileName.c_str(), std::ios_base::app | std::ios::binary );
 
   tmpType = confParams_.bag.outputType.toString();
 
   // Book GEM Data Parker
-  gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpType);
+  gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, tmpType);
 
   // Data Stream close
   outf.close();
+  errf.close();
 
   if (SetupFile.is_open()){
     SetupFile << " Latency       " << latency_ << std::endl;
@@ -665,6 +671,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       INFO("OptoHybrid device connected");
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
         if ((*chip)->isHwConnected()) {
+          INFO("VFAT device connected: chip ID = 0x"
+               << std::setw(4) << std::setfill('0') << std::hex
+               << (uint32_t)((*chip)->getChipID())  << std::dec);
+          INFO((*chip)->printErrorCounts());
 
           int islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
 
@@ -672,8 +682,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
               std::setw(3) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec);
 
           if (SetupFile.is_open()){
-            SetupFile << " VFAT device connected: slot " << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" << 
-              std::setw(3) << std::setfill('0') << std::hex << (uint32_t)((*chip)->getChipID()) << std::dec << std::endl;
+            SetupFile << " VFAT device connected: slot "
+                      << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" 
+                      << std::setw(3) << std::setfill('0') << std::hex
+                      << (uint32_t)((*chip)->getChipID()) << std::dec << std::endl;
             (*chip)->printDefaults(SetupFile);
           }
 
@@ -757,6 +769,19 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
 void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt) {
   is_running_ = false;
+  //reset all counters?
+  vfat_ = 0;
+  event_ = 0;
+  sumVFAT_ = 0;
+  counter_ = {0,0,0};
+  //turn off all chips?
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    (*chip)->setRunMode(0);
+    //using smart_ptr
+    //delete (*chip);
+    //(*chip) = NULL;
+    INFO((*chip)->printErrorCounts());
+  }
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
