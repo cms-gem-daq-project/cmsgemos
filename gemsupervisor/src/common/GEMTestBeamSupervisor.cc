@@ -9,7 +9,7 @@
 gem::supervisor::GEMTestBeamSupervisor::GEMTestBeamSupervisor(xdaq::ApplicationStub* stub) :
   xdaq::Application(stub),
   webInterface_(0),
-  gemLogger_(Logger::getInstance("gem::supervisor::GEMTestBeamSupervisor")),
+  m_gemLogger(Logger::getInstance("gem::supervisor::GEMTestBeamSupervisor")),
   isInitialized_(false),
   semaphore_(toolbox::BSem::FULL),
   wl_semaphore_(toolbox::BSem::EMPTY)

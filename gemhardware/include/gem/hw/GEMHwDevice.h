@@ -1,6 +1,9 @@
 #ifndef gem_hw_GEMHwDevice_h
 #define gem_hw_GEMHwDevice_h
 
+//#include "xdata/InfoSpace.h"
+#include "xdata/InfoSpaceFactory.h"
+
 #include "xdata/String.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
@@ -56,7 +59,7 @@ namespace gem {
         uint32_t RegisterSent    ;
 
       OpticalLinkStatus() : Errors(0),I2CReceived(0),I2CSent(0),RegisterReceived(0),RegisterSent(0) {};
-        void reset()       {Errors=0; I2CReceived=0; I2CSent=0; RegisterReceived=0; RegisterSent=0;return; };
+        void reset()       {Errors=0; I2CReceived=0; I2CSent=0; RegisterReceived=0; RegisterSent=0; return; };
       } OpticalLinkStatus;
 	
       typedef struct DeviceErrors {
@@ -66,7 +69,7 @@ namespace gem {
         int ControlHubErr;
 
       DeviceErrors() : BadHeader(0),ReadError(0),Timeout(0),ControlHubErr(0) {};
-        void reset()  {BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0;return; };
+        void reset() { BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0; return; };
       } DeviceErrors;
 	
       typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
@@ -76,20 +79,17 @@ namespace gem {
        * GEMHwDevice constructor 
        * @param deviceName string to put into the logger
        **/
-      GEMHwDevice(std::string const& deviceName
-                  /*xdaq::InfoSpace* const configInfoSpace
-                    xdaq::InfoSpace* const monitorInfoSpace
-                    gem::hw::GMEHwMonitor* const hwMonitor
-                  */
-                  );
+      GEMHwDevice(std::string const& deviceName);
 
-      GEMHwDevice(const std::string& connectionFile,
-                  const std::string& cardName
-                  /*xdaq::InfoSpace* const configInfoSpace
-                    xdaq::InfoSpace* const monitorInfoSpace
-                    gem::hw::GMEHwMonitor* const hwMonitor
-                  */
-                  );
+      GEMHwDevice(std::string const& deviceName,
+                  std::string const& connectionFile);
+
+      GEMHwDevice(std::string const& deviceName,
+                  std::string const& connectionURI,
+                  std::string const& addressTable);
+
+      GEMHwDevice(std::string const& deviceName,
+                  uhal::HwInterface& uhalDevice);
 
       /*
         GEMHwDevice(xdaq::Application* xdaqApp,
@@ -100,7 +100,7 @@ namespace gem {
       */
 
       virtual ~GEMHwDevice();
-	
+      /*
       virtual void connectDevice();
       virtual void releaseDevice();
       //virtual void initDevice();
@@ -112,7 +112,7 @@ namespace gem {
       //virtual void pauseDevice();
       //virtual void resumeDevice();
       //virtual void haltDevice();
-	
+      */
       virtual bool isHwConnected() { return p_gemHW != 0; };
 	
       /**
@@ -222,30 +222,43 @@ namespace gem {
       // These methods provide access to the member variables
       // specifying the uhal address table name and the IPbus protocol
       // version.
-      const std::string getAddressTableFileName() const { return addressTable_;   };
-      const std::string getIPbusProtocolVersion() const { return ipbusProtocol_;  };
-      const std::string getDeviceBaseNode()       const { return deviceBaseNode_; };
-      const std::string getDeviceIPAddress()      const { return deviceIPAddr_;   };
-      const std::string getDeviceID()             const { return deviceID_;       };
+      //getters
+      const std::string getControlHubIPAddress()  const { return m_controlHubIPAddress;};
+      const std::string getDeviceIPAddress()      const { return m_deviceIPAddress;    };
+      const std::string getIPBusProtocolVersion() const { return m_ipBusProtocol;      };
+      const std::string getAddressTableFileName() const { return m_addressTable;       };
 
-      void setAddressTableFileName(std::string const& name) {
-        addressTable_ = "file://${BUILD_HOME}/data/"+name; };
-      void setIPbusProtocolVersion(std::string const& version) {
-        ipbusProtocol_ = version; };
-      void setDeviceBaseNode(std::string const& deviceBase) {
-        deviceBaseNode_ = deviceBase; };
+      const std::string getDeviceBaseNode()       const { return m_deviceBaseNode; };
+      const std::string getDeviceID()             const { return m_deviceID;       };
+
+      const uint32_t getControlHubPort() const { return m_controlHubPort;};
+      const uint32_t getIPBusPort()      const { return m_ipBusPort;     };
+
+      //setters, should maybe be private/protected? defeats the purpose?
+      void setControlHubIPAddress(std::string const& ipAddress) {
+        m_controlHubIPAddress = ipAddress; };
+      void setIPBusProtocolVersion(std::string const& version) {
+        m_ipBusProtocol = version; };
       void setDeviceIPAddress(std::string const& deviceIPAddr) {
-        deviceIPAddr_ = deviceIPAddr; };
+        m_deviceIPAddress = deviceIPAddr; };
+      void setAddressTableFileName(std::string const& name) {
+        m_addressTable = "file://${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables/"+name; };
+
+      void setDeviceBaseNode(std::string const& deviceBase) {
+        m_deviceBaseNode = deviceBase; };
       void setDeviceID(std::string const& deviceID) {
-        deviceID_ = deviceID; };
+        m_deviceID = deviceID; };
+
+      void setControlHubPort(uint32_t const& port) {
+        m_controlHubPort = port; };
+      void setIPBusPort(uint32_t const& port) {
+        m_ipBusPort = port; };
 	
       uhal::HwInterface& getGEMHwInterface() const;
 	
       void updateErrorCounters(std::string const& errCode);
 	
-      DeviceErrors ipBusErrs_;
-	
-      std::string printErrorCounts() const;
+      virtual std::string printErrorCounts() const;
 	
       std::string uint32ToString(uint32_t const val) const {
         std::stringstream res;
@@ -279,23 +292,44 @@ namespace gem {
             <<(uint32_t)((val2 & (0x000000ff)))           << std::dec;
         return res.str(); };
 	
-      bool is_connected_;
+      DeviceErrors m_ipBusErrs;
+      
+      bool b_is_connected;
 
     protected:
       std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager;
       std::shared_ptr<uhal::HwInterface> p_gemHW;
 
-      log4cplus::Logger gemLogger_;
-		
-      mutable gem::utils::Lock hwLock_;
+      xdata::InfoSpace *p_hwCfgInfoSpace;       /* Infospace for configuration values */
 
-    private:
-      std::string addressTable_;
-      std::string ipbusProtocol_;
-      std::string deviceBaseNode_;
-      std::string deviceIPAddr_;
-      std::string deviceID_;
+      log4cplus::Logger m_gemLogger;
 		
+      mutable gem::utils::Lock m_hwLock;
+      
+      void setParametersFromInfoSpace();
+      void setup(std::string const& deviceName);
+      
+    private:
+      std::string m_controlHubIPAddress;
+      std::string m_addressTable;
+      std::string m_ipBusProtocol;
+      std::string m_deviceIPAddress;
+
+      std::string m_deviceBaseNode;
+      std::string m_deviceID;
+
+      uint32_t m_controlHubPort;
+      uint32_t m_ipBusPort;
+      
+      //infospace im(ex)portables
+      xdata::String xs_controlHubIPAddress;
+      xdata::String xs_deviceIPAddress;
+      xdata::String xs_ipBusProtocol;
+      xdata::String xs_addressTable;
+
+      xdata::UnsignedInteger32 xs_controlHubPort;
+      xdata::UnsignedInteger32 xs_ipBusPort;
+
       bool knownErrorCode(std::string const& errCode) const;
 	
       //std::string registerToChar(uint32_t value) const;	

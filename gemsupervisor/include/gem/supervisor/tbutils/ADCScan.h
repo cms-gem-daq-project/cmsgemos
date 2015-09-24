@@ -56,6 +56,8 @@ namespace gem {
     }
   }
   
+  typedef std::shared_ptr<hw::vfat::HwVFAT2 > vfat_shared_ptr;
+
   namespace supervisor {
     namespace tbutils {
 
@@ -193,7 +195,8 @@ namespace gem {
           uint32_t curDACValue;
           uint64_t stepSize_, samplesTaken_;
           bool is_working_, is_initialized_, is_configured_, is_running_;
-          gem::hw::vfat::HwVFAT2* vfatDevice_;
+          vfat_shared_ptr vfatDevice_;
+          //gem::hw::vfat::HwVFAT2* vfatDevice_;
 	  
           //dac register mapping
           //dacMap[regName] = <ADC to read, DAC Mode>

@@ -2,15 +2,47 @@
 #define gem_base_GEMApplication_h
 
 #include <cstdlib>
-#include "string.h"
-#include "limits.h"
+//#include "limits.h"
+#include <limits>
 #include <string>
-#include <string>
+#include <memory>
 #include <deque>
 #include <map>
 
 #include "xdaq/WebApplication.h"
 #include "xgi/framework/UIManager.h"
+
+#include "xdata/Boolean.h"
+#include "xdata/Integer.h"
+#include "xdata/Integer32.h"
+#include "xdata/Integer64.h"
+#include "xdata/UnsignedLong.h"
+#include "xdata/UnsignedInteger32.h"
+#include "xdata/UnsignedInteger64.h"
+#include "xdata/String.h"
+#include "xdata/Float.h" 
+#include "xdata/Double.h" 
+#include "xdata/Boolean.h"
+#include "xdata/Vector.h"
+#include "xdaq/XceptSerializer.h"
+
+#include "toolbox/string.h"
+
+#include "xgi/Input.h"
+#include "xgi/Method.h"
+#include "xgi/Output.h"
+#include "xoap/Method.h"
+
+#include "xcept/Exception.h"
+#include "xcept/tools.h"
+
+#include "xdaq/NamespaceURI.h"
+#include "xdaq/Application.h"
+#include "xdaq/ApplicationStub.h"
+#include "xdaq/ApplicationGroup.h"
+#include "xdaq/ApplicationContext.h"
+#include "xdaq/ApplicationDescriptorImpl.h"
+#include "xdaq/exception/Exception.h"
 
 #include "toolbox/TimeVal.h"
 
@@ -18,6 +50,10 @@
 #include "gem/utils/GEMLogging.h"
 #include "gem/base/exception/Exception.h"
 #include "gem/base/utils/exception/Exception.h"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
 
 namespace xdaq {
   class ApplicationStub;
@@ -49,12 +85,12 @@ namespace gem {
 
         std::string getFullURL();
 	
-        /**
-         * The init method is pure virtual in the base class, to ensure
-         * that it is fully implemented in every derived application,
-         * with a specific implementation
-         */
-        virtual void init() = 0;
+        ///**
+        // * The init method is pure virtual in the base class, to ensure
+        // * that it is fully implemented in every derived application,
+        // * with a specific implementation
+        // */
+        //virtual void init() = 0;
 	
         /**
          * The actionPerformed method will have a default implementation here
@@ -69,11 +105,11 @@ namespace gem {
         void xgiExpert( xgi::Input* in, xgi::Output* out);
 
       protected:
-        log4cplus::Logger gemLogger_;
+        log4cplus::Logger m_gemLogger;
 
-        xdata::InfoSpace *appInfoSpaceP_;             /*generic application parameters */
-        xdata::InfoSpace *monitorInfoSpaceP_;         /*monitoring parameters, stored in the appInfoSpace */
-        xdata::InfoSpace *configInfoSpaceP_;          /*configuration parameters, stored in the appInfoSpace */
+        xdata::InfoSpace *p_appInfoSpace;       /* generic application parameters */
+        xdata::InfoSpace *p_monitorInfoSpace;   /* monitoring parameters, stored in the appInfoSpace */
+        xdata::InfoSpace *p_configInfoSpace;    /* configuration parameters, stored in the appInfoSpace */
 						    
         virtual void importConfigurationParameters();
         virtual void fillConfigurationInfoSpace();
@@ -83,26 +119,31 @@ namespace gem {
         virtual void fillMonitoringInfoSpace();
         virtual void updateMonitoringInfoSpace();
 
-        virtual GEMWebApplication *getWebApp()  const { return gemWebInterfaceP_; };
-        virtual GEMMonitor        *getMonitor() const { return gemMonitorP_;      };
+        virtual GEMWebApplication *getWebApp()  const { return p_gemWebInterface; };
+        virtual GEMMonitor        *getMonitor() const { return p_gemMonitor;      };
 
-        GEMWebApplication *gemWebInterfaceP_; /* */
-        GEMMonitor        *gemMonitorP_;      /* */
+        GEMWebApplication *p_gemWebInterface; /* */
+        GEMMonitor        *p_gemMonitor;      /* */
 
         /**
          * various application properties
          */
-        xdaq::ApplicationDescriptor *appDescriptorP_; /* */
-        xdaq::ApplicationContext    *appContextP_;    /* */
-        xdaq::ApplicationGroup      *appGroupP_;      /* */
-        xdaq::Zone                  *appZoneP_;       /* */
+        xdaq::ApplicationDescriptor *p_appDescriptor; /* */
+        xdaq::ApplicationContext    *p_appContext;    /* */
+        xdaq::ApplicationGroup      *p_appGroup;      /* */
+        xdaq::Zone                  *p_appZone;       /* */
 
-        std::string xmlClass_;
-        unsigned long instance_;
-        std::string urn_;
+        std::string m_xmlClass;
+        std::string m_urn;
 	
+        uint32_t m_instance;
+
       private:
-	
+        xdata::Integer m_runNumber;
+        
+        xdata::String  m_runType;
+        xdata::String  m_cfgType;
+                
         //xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
 
       };

@@ -50,9 +50,15 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::GEBData& geb,
                              gem::readout::GEMDataAMCformat::VFATData& vfat );
 
+
+      /*
+      // SOAP interface, updates the header used for calibration runs
+      xoap::MessageReference updateCalibHeaders(xoap::MessageReference message)
+      throw (xoap::exception::Exception);
+      */
     private:
 
-      log4cplus::Logger gemLogger_;
+      log4cplus::Logger m_gemLogger;
       gem::hw::glib::HwGLIB* glibDevice_;
       std::string outFileName_;
       std::string outputType_;

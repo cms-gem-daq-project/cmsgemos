@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="sysregs">
+    <node id="sys_id">
+      <node id="system_id_char1"  address="0x00000001"  mask="0xff000000"  permission="r"/>
+      <node id="system_id_char2"  address="0x00000001"  mask="0x00ff0000"  permission="r"/>
+      <node id="system_id_char3"  address="0x00000001"  mask="0x0000ff00"  permission="r"/>
+      <node id="system_id_char4"  address="0x00000001"  mask="0x000000ff"  permission="r"/>
+    </node>
+    
+    <node id="board_id">
+      <node id="board_id_char1"  address="0x00000000"  mask="0xff000000"  permission="r"/>
+      <node id="board_id_char2"  address="0x00000000"  mask="0x00ff0000"  permission="r"/>
+      <node id="board_id_char3"  address="0x00000000"  mask="0x0000ff00"  permission="r"/>
+      <node id="board_id_char4"  address="0x00000000"  mask="0x000000ff"  permission="r"/>
+    </node>
+    
+    <node id="firmware_id">
+      <node id="ver_major"    address="0x00000002"  mask="0xf0000000"  permission="r"/>
+      <node id="ver_minor"    address="0x00000002"  mask="0x0f000000"  permission="r"/>
+      <node id="ver_build"    address="0x00000002"  mask="0x00ff0000"  permission="r"/>
+      <node id="firmware_yy"  address="0x00000002"  mask="0x0000fe00"  permission="r"/>
+      <node id="firmware_mm"  address="0x00000002"  mask="0x000001e0"  permission="r"/>
+      <node id="firmware_dd"  address="0x00000002"  mask="0x0000001f"  permission="r"/>
+    </node>
+  </node>
+</node>

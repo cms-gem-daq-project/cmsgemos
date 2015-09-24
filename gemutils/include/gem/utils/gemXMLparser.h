@@ -80,7 +80,7 @@ namespace gem {
       static void addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat);
       std::string xmlFile_;
       gemSystemProperties *gemSystem_;
-      log4cplus::Logger gemLogger_;
+      log4cplus::Logger m_gemLogger;
     };
   } // end namespace gem::utils
 } // end namespace gem

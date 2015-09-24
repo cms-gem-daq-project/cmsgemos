@@ -40,7 +40,7 @@ xdaq::WebApplication(s)
 
 gem::hw::vfat::VFAT2Manager::~VFAT2Manager()
 {
-  vfatDevice->releaseDevice();
+  //vfatDevice->releaseDevice();
 }
 
 void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
@@ -61,7 +61,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::4 device_ = " << device_.toString() << std::endl);
   vfatDevice = new HwVFAT2(device_.toString());
   vfatDevice->setDeviceIPAddress(ipAddr_.toString());
-  vfatDevice->connectDevice();
+  //vfatDevice->connectDevice();
   setLogLevelTo(uhal::Error());  // Maximise uHAL logging
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::5 device_ = " << device_.toString() << std::endl);
 
@@ -71,7 +71,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"vfatParams:" << std::endl
                   << vfatDevice->getVFAT2Params() << std::endl);
   //readVFAT2Registers();
-  vfatParams_ = vfatDevice->getVFAT2Params();
+  m_vfatParams = vfatDevice->getVFAT2Params();
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::6 device_ = " << device_.toString() << std::endl);
   
   try {
@@ -279,6 +279,7 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
 void gem::hw::vfat::VFAT2Manager::Default(xgi::Input * in, xgi::Output * out )
   throw (xgi::exception::Exception)
 {
+  LOG4CPLUS_INFO(this->getApplicationLogger(),vfatDevice->printErrorCounts());
   this->ControlPanel(in,out);
   //this->RegisterView(in,out);
 }
@@ -302,7 +303,7 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input * in, xgi::Output * ou
          << "    <link rel=\"stylesheet\" href=\"/gemdaq/gemhardware/html/css/vfat/vfatcommands.css\"/>"         << std::endl;
 
     
-    LOG4CPLUS_DEBUG(this->getApplicationLogger(),"building the control panel vfatParams_:" << vfatParams_);
+    LOG4CPLUS_DEBUG(this->getApplicationLogger(),"building the control panel m_vfatParams:" << m_vfatParams);
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"vfatDevice->getVFAT2Params():" << vfatDevice->getVFAT2Params());
     std::string method = toolbox::toString("/%s/controlVFAT2",getApplicationDescriptor()->getURN().c_str());
     *out << cgicc::form().set("method","POST")
@@ -330,13 +331,13 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input * in, xgi::Output * ou
          << cgicc::span().set("style","display:block;float:left") << std::endl;
 
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"building the VFATInfoLayout");
-    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createVFATInfoLayout(out, vfatParams_);
+    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createVFATInfoLayout(out, m_vfatParams);
     *out << cgicc::span()     << std::endl;
 
     *out << std::endl;
     *out << cgicc::span().set("style","display:block;float:right") << std::endl;
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"building the CounterLayout");
-    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCounterLayout(out, vfatParams_);
+    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCounterLayout(out, m_vfatParams);
     *out << cgicc::span()     << std::endl;
     *out << cgicc::comment() << "ending the VFAT2 Parameters fieldset" << cgicc::comment() << std::endl
          << cgicc::fieldset() << std::endl;
@@ -345,17 +346,17 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input * in, xgi::Output * ou
     *out << "        <fieldset class=\"vfatGlobalSettings\">" << std::endl
          << cgicc::legend("Global settings")      << std::endl;
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"building the ControlRegisterLayout");
-    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLayout(out, vfatParams_);
+    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLayout(out, m_vfatParams);
     *out << cgicc::br() << std::endl
          << std::endl;
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"building the SettingsLayout");
-    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createSettingsLayout(out, vfatParams_);
+    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createSettingsLayout(out, m_vfatParams);
 
     *out << cgicc::comment() << "ending the Global settings fieldset" << cgicc::comment() << std::endl
          << "	     </fieldset>" << std::endl;
     
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"building the ChannelRegisterLayout");
-    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLayout(out, vfatParams_);
+    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLayout(out, m_vfatParams);
     *out << cgicc::comment() << "ending the vfatSettings section" << cgicc::comment() << std::endl
          << "      </section>" << std::endl
     
@@ -369,13 +370,16 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input * in, xgi::Output * ou
       rightSide->set("class","vfatCommands");
     */
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"building the CommandLayout");
-    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(out, vfatParams_);
+    gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(out, m_vfatParams);
     
     *out << cgicc::section() << std::endl
-         << "Bad headers:: " << (vfatDevice->ipBusErrs_).BadHeader     << cgicc::br() << std::endl
-         << "Read errors:: " << (vfatDevice->ipBusErrs_).ReadError     << cgicc::br() << std::endl
-         << "Timeouts   :: " << (vfatDevice->ipBusErrs_).Timeout       << cgicc::br() << std::endl
-         << "CH errors  :: " << (vfatDevice->ipBusErrs_).ControlHubErr << cgicc::br() << std::endl
+         //<< "Errors     :: " << (vfatDevice->vfatErrors_).Error        << cgicc::br() << std::endl
+         //<< "Invalid    :: " << (vfatDevice->vfatErrors_).Invalid      << cgicc::br() << std::endl
+         //<< "RWMismatch :: " << (vfatDevice->vfatErrors_).RWMismatch   << cgicc::br() << std::endl
+         << "Bad headers:: " << (vfatDevice->m_ipBusErrs).BadHeader     << cgicc::br() << std::endl
+         << "Read errors:: " << (vfatDevice->m_ipBusErrs).ReadError     << cgicc::br() << std::endl
+         << "Timeouts   :: " << (vfatDevice->m_ipBusErrs).Timeout       << cgicc::br() << std::endl
+         << "CH errors  :: " << (vfatDevice->m_ipBusErrs).ControlHubErr << cgicc::br() << std::endl
          << cgicc::section() << std::endl;
     
     *out << cgicc::form() << cgicc::br() << std::endl;
@@ -804,13 +808,13 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
       vfatDevice->setChannelTrimDAC(1,cgi["Ch1TrimDAC"]->getIntegerValue());
     
     vfatDevice->readVFAT2Channel(1);
-    vfatParams_ = vfatDevice->getVFAT2Params();
+    m_vfatParams = vfatDevice->getVFAT2Params();
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"set channel 0/1 - 0x"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[0].fullChannelReg)<<std::dec<<"::<"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[0].calPulse0     )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[0].calPulse      )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[0].mask          )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[0].trimDAC       )<<std::dec<<">"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[0].fullChannelReg)<<std::dec<<"::<"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[0].calPulse0     )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[0].calPulse      )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[0].mask          )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[0].trimDAC       )<<std::dec<<">"
                     << std::endl);
   }
   
@@ -821,8 +825,8 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
     uint8_t chanSettings = vfatDevice->getChannelSettings(chan);
     
-    vfatParams_ = vfatDevice->getVFAT2Params();
-    vfatParams_.activeChannel = chan;
+    m_vfatParams = vfatDevice->getVFAT2Params();
+    m_vfatParams.activeChannel = chan;
     //vfatDevice->setActiveChannelWeb(chan);
   }
 
@@ -849,16 +853,16 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     //vfatDevice->getVFAT2Params().activeChannel = chan;
     //vfatDevice->readVFAT2Channel(vfatDevice->getVFAT2Params(),chan);
     vfatDevice->readVFAT2Channel(chan);
-    vfatParams_ = vfatDevice->getVFAT2Params();
-    vfatParams_.activeChannel = chan;
+    m_vfatParams = vfatDevice->getVFAT2Params();
+    m_vfatParams.activeChannel = chan;
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),
-                    "chan = "<< (unsigned)chan << "; activeChannel = " <<(unsigned)vfatParams_.activeChannel << std::endl);
+                    "chan = "<< (unsigned)chan << "; activeChannel = " <<(unsigned)m_vfatParams.activeChannel << std::endl);
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"set this channel " << (unsigned)chan << " - 0x"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].fullChannelReg)<<std::dec<<"::<"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].calPulse0     )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].calPulse      )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].mask          )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].trimDAC       )<<std::dec<<">"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].fullChannelReg)<<std::dec<<"::<"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].calPulse0     )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].calPulse      )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].mask          )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].trimDAC       )<<std::dec<<">"
                     << std::endl);
   }
   
@@ -884,14 +888,14 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     
     //vfatDevice->readVFAT2Channels(vfatDevice->getVFAT2Params());
     vfatDevice->readVFAT2Channels();
-    vfatParams_ = vfatDevice->getVFAT2Params();
-    vfatParams_.activeChannel = chan;
+    m_vfatParams = vfatDevice->getVFAT2Params();
+    m_vfatParams.activeChannel = chan;
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"set all channels " << (unsigned)chan << " - 0x"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].fullChannelReg)<<std::dec<<"::<"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].calPulse0     )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].calPulse      )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].mask          )<<std::dec<<":"
-                    <<std::hex<<static_cast<unsigned>(vfatParams_.channels[chan-1].trimDAC       )<<std::dec<<">"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].fullChannelReg)<<std::dec<<"::<"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].calPulse0     )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].calPulse      )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].mask          )<<std::dec<<":"
+                    <<std::hex<<static_cast<unsigned>(m_vfatParams.channels[chan-1].trimDAC       )<<std::dec<<">"
                     << std::endl);
   }
 
@@ -906,7 +910,7 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     vfatDevice->readVFATRegs(regValsToSet);
     //readVFAT2Registers(vfatDevice->getVFAT2Params());
     vfatDevice->getAllSettings();
-    vfatParams_ = vfatDevice->getVFAT2Params();
+    m_vfatParams = vfatDevice->getVFAT2Params();
   }
   else if (strcmp(controlOption.c_str(),"Write VFAT") == 0) {
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"Write VFAT button pressed with following registers");
@@ -927,7 +931,7 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
 
     //readVFAT2Registers(vfatDevice->getVFAT2Params());
     vfatDevice->getAllSettings();
-    vfatParams_ = vfatDevice->getVFAT2Params();
+    m_vfatParams = vfatDevice->getVFAT2Params();
   }
-  //vfatParams_ = vfatDevice->getVFAT2Params();
+  //m_vfatParams = vfatDevice->getVFAT2Params();
 }
