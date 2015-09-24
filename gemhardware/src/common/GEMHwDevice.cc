@@ -11,6 +11,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
   m_hwLock(toolbox::BSem::FULL, true)
 {
   INFO("GEMHwDevice(std::string, std::string) ctor");
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile));
   try {
     p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(p_gemConnectionManager->getDevice(deviceName)));
@@ -40,6 +41,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
   m_hwLock(toolbox::BSem::FULL, true)
 {
   INFO("GEMHwDevice(std::string, std::string, std::string) ctor");
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   try {
     p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName,
                                                                                                           connectionURI,
@@ -71,6 +73,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
   m_hwLock(toolbox::BSem::FULL, true)
 {
   INFO("GEMHwDevice(std::string, uhal::HwInterface) ctor");
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   try {
     p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice));
     //maybe get specific node, or pass this in as an argument?
@@ -103,6 +106,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   //monGEMHw_(0)
 {
   INFO("GEMHwDevice(std::string) ctor");
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
   
   toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
   INFO("Getting hwCfgInfoSpace with urn " << hwCfgURN.toString());
