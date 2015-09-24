@@ -404,7 +404,8 @@ int gem::readout::GEMDataParker::getGLIBData(
 
        }//end of all local events
 
-       INFO(" CDE::getGLIBData vfats.size " << int(vfats.size()) <<" erros.size " << int(erros.size()) << " event " << event_ );
+       INFO(" CDE::getGLIBData vfats.size " << int(vfats.size()) <<" erros.size " << int(erros.size()) << 
+            " locEvent " << locEvent << " event " << event_ );
 
        erros.clear();
        geb.vfats.clear();
