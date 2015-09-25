@@ -34,8 +34,6 @@ namespace gem {
 
       void GEMfillHeaders  ( uint32_t const& BC,
                              uint32_t const& BX,
-                           );
-      void VFATfillData    ( int const& counterVFATs,
                              gem::readout::GEMDataAMCformat::GEMData& gem,
                              gem::readout::GEMDataAMCformat::GEBData& geb 
                            );
