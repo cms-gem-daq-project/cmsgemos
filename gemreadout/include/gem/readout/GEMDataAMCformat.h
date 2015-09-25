@@ -19,7 +19,7 @@ namespace gem {
         uint16_t ChipID;      // 1110,     ChipID:12
         uint64_t lsData;      // channels from 1to64
         uint64_t msData;      // channels from 65to128
-        uint16_t BXfrOH;      // :16       BX from OH  
+        uint32_t BXfrOH;      // :32       BX from OH  
         uint16_t crc;         // :16       CRC
       };    
     
@@ -335,13 +335,13 @@ namespace gem {
       static bool printVFATdata(int event, const VFATData& vfat) {
         if ( event<0) return false;
         std::cout << "Received tracking data word:" << std::endl;
-        std::cout << "BC      :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.BC     << std::dec << std::endl;
-        std::cout << "EC      :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.EC     << std::dec << std::endl;
-        std::cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.ChipID << std::dec << std::endl;
-        std::cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.msData << std::dec << std::endl;
-        std::cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(8) << std::hex << vfat.lsData << std::dec << std::endl;
-        std::cout << "BXfrOH  :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.BXfrOH << std::dec << std::endl;
-        std::cout << "crc     :: 0x" << std::setfill('0') << std::setw(4) << std::hex << vfat.crc    << std::dec << std::endl;
+        std::cout << "BC      :: 0x" << std::setfill('0') << std::setw(4)  << std::hex << vfat.BC     << std::dec << std::endl;
+        std::cout << "EC      :: 0x" << std::setfill('0') << std::setw(4)  << std::hex << vfat.EC     << std::dec << std::endl;
+        std::cout << "ChipID  :: 0x" << std::setfill('0') << std::setw(4)  << std::hex << vfat.ChipID << std::dec << std::endl;
+        std::cout << "<127:64>:: 0x" << std::setfill('0') << std::setw(16) << std::hex << vfat.msData << std::dec << std::endl;
+        std::cout << "<63:0>  :: 0x" << std::setfill('0') << std::setw(16) << std::hex << vfat.lsData << std::dec << std::endl;
+        std::cout << "BXfrOH  :: 0x" << std::setfill('0') << std::setw(8)  << std::hex << vfat.BXfrOH << std::dec << std::endl;
+        std::cout << "crc     :: 0x" << std::setfill('0') << std::setw(4)  << std::hex << vfat.crc    << std::dec << std::endl;
         return true;
       };
 
@@ -436,7 +436,7 @@ namespace gem {
 
         uint8_t   b1010 = (0xf000 & vfat.BC) >> 12;
         show4bits(b1010); std::cout << " BC     0x" << std::hex << (0x0fff & vfat.BC) 
-                                    << std::setfill('0') << std::setw(4) << "    BX 0x" << vfat.BXfrOH << std::dec << std::endl;
+                                    << std::setfill('0') << std::setw(8) << "    BX 0x" << vfat.BXfrOH << std::dec << std::endl;
 
         uint8_t   b1100 = (0xf000 & vfat.EC) >> 12;
         uint16_t   EC   = (0x0ff0 & vfat.EC) >> 4;
@@ -449,7 +449,7 @@ namespace gem {
         show4bits(b1110); std::cout << " ChipID 0x" << std::hex << ChipID << std::dec << " " << std::endl;
 
         /* 
-           std::cout << "     bxNum  0x" << std::hex << ((0xff00 & vfat.bxNum) >> 8) << "        SBit " << (0x00ff & vfat.bxNum) << std::endl;
+        std::cout << "     bxNum  0x" << std::hex << ((0xff00 & vfat.bxNum) >> 8) << "        SBit " << (0x00ff & vfat.bxNum) << std::endl;
         */
 
         std::cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(16) << std::hex << vfat.msData << std::dec << std::endl;
