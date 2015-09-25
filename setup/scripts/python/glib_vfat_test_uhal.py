@@ -2,7 +2,7 @@
 
 import sys, re, time, datetime, os
 
-sys.path.append('${GEM_PYTHON_PATH}')
+sys.path.append('/opt/gemdaq/firmware/testing/src')
 
 import uhal
 from registers_uhal import *
@@ -115,7 +115,8 @@ for chip in range(0,24):
 	if options.debug:
 		print "chip%d chipid1 0x%08x"%(chip,thechipid)
 
-        chipids.append(("slot%d"%(chip),thechipid))
+        #chipids.append(("slot%d"%(chip),thechipid))
+        chipids.append(("slot%d"%(chip),getChipID(optohybrid, chip)))
         for control in range(4):
                 tmp = readVFAT(optohybrid, chip, "ContReg%d"%(control))
                 if (tmp>0):
@@ -129,16 +130,22 @@ for chip in range(0,24):
         else:
                 # # nice to only send commands to chips that appear as not 0xdead
                 if options.biasAll:
-                        biasVFAT(optohybrid,chip)
+                        #bias and enable
+                        biasVFAT(optohybrid,chip,True)
+                        #bias only
+                        biasVFAT(optohybrid,chip,False)
                 if options.sleepAll:
-                        regVal = readVFAT(optohybrid, chip, "ContReg0")
-                        if (regVal > 0):
-                                writeVFAT(optohybrid, chip, "ContReg0", regVal&0xFE)
+                        print "sleeping chip %d"%(chip)
+                        setRunMode(optohybrid, chip, False)
+                        #regVal = readVFAT(optohybrid, chip, "ContReg0")
+                        #if (regVal > 0):
+                        #        writeVFAT(optohybrid, chip, "ContReg0", regVal&0xFE)
                 if ((options.enabledChips) and (chip in chips)):
                         print "enabling chip %d"%(chip)
-                        regVal = readVFAT(optohybrid, chip, "ContReg0")
-                        if (regVal > 0):
-                                writeVFAT(optohybrid, chip, "ContReg0", regVal|0x01)
+                        setRunMode(optohybrid, chip, True)
+                        #regVal = readVFAT(optohybrid, chip, "ContReg0")
+                        #if (regVal > 0):
+                        #        writeVFAT(optohybrid, chip, "ContReg0", regVal|0x01)
 
  
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")

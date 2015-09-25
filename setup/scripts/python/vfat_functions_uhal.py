@@ -1,5 +1,5 @@
 import sys, os, time, signal, random
-sys.path.append('${GEM_PYTHON_PATH}')
+sys.path.append('/opt/gemdaq/firmware/testing/src')
 
 import uhal
 from registers_uhal import *
@@ -43,8 +43,21 @@ def setupDefaultCRs(device,chip, sleep=False, debug=False):
     writeVFAT(device, chip, "ContReg3", 0x00)
     return
 
-def biasVFAT(device,chip, debug=False):
-    writeVFAT(device, chip, "ContReg0",    0x37)
+def setRunMode(device,chip, sleep, debug=False):
+    regVal = readVFAT(optohybrid, chip, "ContReg0")
+    if (sleep):
+        writeVFAT(optohybrid, chip, "ContReg0", regVal&0xFE)
+    else:
+        writeVFAT(optohybrid, chip, "ContReg0", regVal|0x01)
+    return
+                        
+def biasVFAT(device,chip, enable=True, debug=False):
+    if (enable):
+        writeVFAT(device, chip, "ContReg0",    0x37)
+    else:
+        #what about leaving any other settings?
+        #not now, want a reproducible routine
+        writeVFAT(device, chip, "ContReg0",    0x36)
     writeVFAT(device, chip, "ContReg1",    0x00)
     writeVFAT(device, chip, "ContReg2",    0x30)
     writeVFAT(device, chip, "ContReg3",    0x00)
