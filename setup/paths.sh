@@ -1,7 +1,9 @@
-export BUILD_HOME=/home/mdalchen/gemdev/gem-daq-code
+#export BUILD_HOME=/home/mdalchen/gemdev/gem-daq-code
 if [[ -n "$BUILD_HOME" ]]; then
+  echo BUILD_HOME $BUILD_HOME
+else
     echo "BUILD_HOME not set, please set BUILD_HOME to the root of your repository and rerun this script" 
-  #exit(1)
+    return 1;
 fi
 #Run this script after you've set BUILD_HOME, or uncomment the previous line and set it to your BUILD_HOME
 
