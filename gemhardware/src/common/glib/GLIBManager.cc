@@ -217,8 +217,6 @@ void gem::hw::glib::GLIBManager::initializeAction()
       //p_gemWebInterface->glibInSlot(slot);
     }
   }  
-
-  uhal::setLogLevelTo( uhal::ErrorLevel() );
   
   int gemCrate = 1;
   
