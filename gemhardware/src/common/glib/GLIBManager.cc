@@ -303,7 +303,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
                << info.deviceIPAddress.toString() << ":" << info.ipBusPort.toString();
       }
       //std::string const uri = tmpURI.str();
-      m_glibs[slot] = std::shared_ptr<gem::hw::glib::HwGLIB>(new gem::hw::glib::HwGLIB(deviceName, tmpURI.str(), "file://setup/etc/addresstables/"+info.addressTable.toString()));
+      m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, tmpURI.str(), "file://setup/etc/addresstables/"+info.addressTable.toString()));
       //INFO("connecting to device");
       //m_glibs[slot]->connectDevice();
       INFO("connected");
@@ -329,7 +329,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
       continue;
     
     INFO("grabbing pointer to hardware device");
-    std::shared_ptr<gem::hw::glib::HwGLIB> glib = m_glibs[slot];
+    glib_shared_ptr glib = m_glibs[slot];
     
     if (glib->isHwConnected()) {
       //return;
@@ -344,36 +344,72 @@ void gem::hw::glib::GLIBManager::initializeAction()
 void gem::hw::glib::GLIBManager::configureAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  INFO("gem::hw::glib::GLIBManager::configureAction");
+
+  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
+    GLIBInfo& info = m_glibInfo[slot].bag;
+
+    if (!info.present)
+      continue;
+    
+    INFO("grabbing pointer to hardware device");
+    glib_shared_ptr glib = m_glibs[slot];
+    
+    if (glib->isHwConnected()) {
+      INFO("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
+      glib->setTrigSource(info.triggerSource.value_);
+      
+      //should FIFOs be emptied in configure or at start?
+      INFO("emptying trigger/tracking data FIFOs");
+      for (unsigned link = 0; link < 3; ++link) {
+        glib->flushTriggerFIFO(link);
+        glib->flushFIFO(link);
+      }
+      //what else is required for configuring the GLIB?
+      //need to reset optical links?
+      //reset counters?
+    } else {
+      WARN("GLIB in slot " << (slot+1) << " is not connected");
+    }
+  }
+  
+  INFO("gem::hw::glib::GLIBManager::configureAction end");
 }
 
 void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  //what is required for starting the GLIB?
 }
 
 void gem::hw::glib::GLIBManager::pauseAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  //what is required for pausing the GLIB?
 }
 
 void gem::hw::glib::GLIBManager::resumeAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  //what is required for resuming the GLIB?
 }
 
 void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  //what is required for stopping the GLIB?
 }
 
 void gem::hw::glib::GLIBManager::haltAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  //what is required for halting the GLIB?
 }
 
 void gem::hw::glib::GLIBManager::resetAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  //what is required for resetting the GLIB?
 }
 
 /*

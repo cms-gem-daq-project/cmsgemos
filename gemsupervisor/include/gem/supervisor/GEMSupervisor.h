@@ -51,6 +51,9 @@ namespace gem {
           throw (toolbox::fsm::exception::Exception);
       
       private:
+        bool isGEMApplication(const std::string& classname) const;
+        bool manageApplication(const std::string& classname) const;
+        
         mutable gem::utils::Lock deviceLock_;
         std::vector<xdaq::ApplicationDescriptor*> v_supervisedApps;
         xdaq::ApplicationDescriptor* readoutApp;
