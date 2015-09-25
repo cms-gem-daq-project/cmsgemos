@@ -46,6 +46,26 @@ uint32_t BX;
 std::map<uint32_t, uint32_t> numBX = {};
 std::map<uint32_t, uint32_t> BXexp = {{0,-1}};
 
+uint32_t bufferCount = 0;
+uint32_t islotNegativeCount = 0;
+uint32_t BXexp = -1;
+uint32_t BX;
+bool dumpGEMevent_ = false;
+
+//  EC "event conter"
+std::map<uint16_t, bool> isFirstEC = {{0, true}};
+std::map<uint16_t, uint32_t> ECexpEC = {{0,-1}};
+
+int counterVFATs = 0;
+std::map<uint16_t, int> counterVFATsEC = {{0,0}};
+
+uint64_t ZSFlag = 0;
+std::map<uint16_t, uint64_t> ZSFlagEC = {{0,0}};
+
+int event_ = 0; 
+int MaxEvent = 0;
+std::map<uint16_t, int> numEC = {};
+
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(
                                           gem::hw::glib::HwGLIB& glibDevice,
@@ -66,7 +86,6 @@ gem::readout::GEMDataParker::GEMDataParker(
   sumVFAT_ = 0;
 
   gem::readout::GEMslotContents::initSlots();
-
 }
 
 uint64_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
@@ -232,6 +251,67 @@ int gem::readout::GEMDataParker::getGLIBData(
       numBX.insert(std::pair<uint32_t, uint32_t>(BX,MaxEvent));
       DEBUG(" ::getGLIBData BX 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second );
     }
+
+    if (islot<0 && islot > 23) {
+      // islot out of [0-23]
+      islotNegativeCount++;
+      INFO(" ABC::getGLIBData warning !!! islot is negative " << islot << " islotNegativeCount " << islotNegativeCount );
+      continue;
+    }
+
+    // if (BX == BXexp) { // temporary off
+    if (evn == ECexpEC.find(evn)->second ) { 
+      isFirstEC.erase(evn);
+      isFirstEC.insert(std::pair<uint16_t, bool>(evn,false));
+    } else { 
+      isFirstEC.erase(evn);
+      isFirstEC.insert(std::pair<uint16_t, bool>(evn,true));
+    }
+  
+    INFO(" ABC::getGLIBData EC " << std::hex << evn << std::dec << " bool " << isFirstEC.find(evn)->second );
+    if ( isFirstEC.find(evn)->second ) {
+
+      isFirstEC.erase(evn);
+      isFirstEC.insert(std::pair<uint16_t, bool>(evn,false));
+
+      //BXexp = BX;
+      ECexpEC.erase(evn);
+      ECexpEC.insert(std::pair<uint16_t, uint32_t>(evn,evn));
+  
+      counterVFATs = 0;
+      counterVFATsEC.erase(evn);
+      counterVFATsEC.insert(std::pair<uint16_t, int>(evn,0));
+  
+      ZSFlag = 0;
+      ZSFlagEC.erase(evn);
+      ZSFlagEC.insert(std::pair<uint16_t, uint64_t>(evn,0));
+  
+      numEC.erase(evn);
+      numEC.insert(std::pair<uint16_t, int>(evn,0));
+
+      INFO(" ABC::getGLIBData isFirst  ECexp 0x" << std::hex << ECexpEC.find(evn)->second << " evn 0x" << evn << std::dec << 
+           " vfat_ " << vfat_ << " event_ " << event_ );
+
+    }
+    counterVFATs++;
+    counterVFATsEC.erase(evn);
+    counterVFATsEC.insert(std::pair<uint16_t, int>(evn,counterVFATs));
+  
+    bufferCount--;
+
+    std::map<uint16_t, int>::iterator it;
+    it=numEC.find(evn);
+    if (it != numEC.end()){
+      // local event calculator inside one buffer
+      MaxEvent = numEC.find(evn)->second;
+      MaxEvent++;
+      numEC.erase(evn);
+      numEC.insert(std::pair<uint16_t, int>(evn,MaxEvent));
+      INFO(" ABC::getGLIBData env 0x" << std::hex << evn << std::dec << " numEC " <<  numEC.find(evn)->second );
+    }
+
+    INFO(" ABC::getGLIBData event_ " << event_ << " vfat_ " << vfat_ << " counterVFATs " << counterVFATsEC.find(evn)->second <<
+	 " vfats.size " << int(vfats.size()) << std::hex << " evn 0x" << evn << std::dec );
 
     uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
     uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
@@ -446,7 +526,7 @@ bool gem::readout::GEMDataParker::VFATfillData(
      ZSFlag           = (ZSFlag | (1 << (23-islot))); // :24
      uint64_t ChamID  = 0xdea;                        // :12
      uint64_t sumVFAT = int(geb.vfats.size());        // :28
-    
+
      geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
     
      ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
@@ -465,8 +545,6 @@ bool gem::readout::GEMDataParker::VFATfillData(
 void gem::readout::GEMDataParker::GEMfillHeaders(
                                                  uint32_t const& event,
                                                  uint32_t const& BX,
-                                                 AMCGEMData& gem,
-                                                 AMCGEBData& geb
 ){
   /*
    *  GEM, All Chamber Data
