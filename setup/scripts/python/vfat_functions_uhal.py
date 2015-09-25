@@ -43,12 +43,14 @@ def setupDefaultCRs(device,chip, sleep=False, debug=False):
     writeVFAT(device, chip, "ContReg3", 0x00)
     return
 
-def setRunMode(device,chip, sleep, debug=False):
-    regVal = readVFAT(optohybrid, chip, "ContReg0")
-    if (sleep):
-        writeVFAT(optohybrid, chip, "ContReg0", regVal&0xFE)
+def setRunMode(device,chip, enable, debug=False):
+    regVal = readVFAT(device, chip, "ContReg0")
+    if (regVal < 0):
+        return
+    if (enable):
+        writeVFAT(device, chip, "ContReg0", regVal|0x01)
     else:
-        writeVFAT(optohybrid, chip, "ContReg0", regVal|0x01)
+        writeVFAT(device, chip, "ContReg0", regVal&0xFE)
     return
                         
 def biasVFAT(device,chip, enable=True, debug=False):
