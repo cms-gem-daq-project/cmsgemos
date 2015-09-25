@@ -524,8 +524,12 @@ uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& link) {
   std::stringstream regName;
   regName << "GLIB_LINKS.LINK" << (int)link << ".TRK_FIFO";
   fifocc = readReg(getDeviceBaseNode(),regName.str()+".DEPTH");
-  DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", link, getDeviceBaseNode().c_str(),
-                          regName.str().c_str(), ".DEPTH", fifocc));
+  DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d",
+                         link,
+                         getDeviceBaseNode().c_str(),
+                         regName.str().c_str(),
+                         ".DEPTH",
+                         fifocc));
   return fifocc;
 }
 
