@@ -18,9 +18,6 @@ namespace gem {
   }
   namespace readout {
     struct GEMDataAMCformat;
-    //struct VFATData;
-    //struct GEBData;
-    //struct GEMData;
   }
   namespace readout {
     class GEMDataParker
@@ -37,7 +34,8 @@ namespace gem {
       int  getGLIBData     ( uint8_t const& link,
                              gem::readout::GEMDataAMCformat::GEMData& gem,
                              gem::readout::GEMDataAMCformat::GEBData& geb,
-                             gem::readout::GEMDataAMCformat::VFATData& vfat );
+ 		             gem::readout::GEMDataAMCformat::VFATData& vfat
+                           );
       void GEMfillHeaders  ( uint16_t const& BC,
                              gem::readout::GEMDataAMCformat::GEMData& gem,
                              gem::readout::GEMDataAMCformat::GEBData& geb );

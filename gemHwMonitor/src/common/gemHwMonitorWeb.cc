@@ -66,9 +66,6 @@ void gem::hwMonitor::gemHwMonitorWeb::pingCrate(xgi::Input * in, xgi::Output * o
       tmpURI << "chtcp-2.0://localhost:10203?target=" << "192.168.0.162" << ":50001";
       vfat_shared_ptr crateDevice_(new gem::hw::vfat::HwVFAT2("VFAT0", tmpURI.str(),
                                                               "file://setup/etc/addresstables/geb_vfat_address_table.xml"));
-      //gem::hw::vfat::HwVFAT2* crateDevice_ = new gem::hw::vfat::HwVFAT2();
-      //crateDevice_->setDeviceIPAddress("192.168.0.162");
-      //crateDevice_->connectDevice();
       if (crateDevice_->isHwConnected()) {
         gemHwMonitorSystem_->setSubDeviceStatus(0,i);
       } else {

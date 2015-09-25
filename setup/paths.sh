@@ -1,11 +1,10 @@
-#export BUILD_HOME=</path/to/your/BUILD_HOME>
+#export BUILD_HOME=<your path>/gem-daq-code
 if [[ -n "$BUILD_HOME" ]]; then
     echo BUILD_HOME $BUILD_HOME
 else
-    echo "BUILD_HOME not set, please set BUILD_HOME to the root of your repository and rerun this script"
+    echo "BUILD_HOME not set, please set BUILD_HOME to the root of your repository (export BUILD_HOME=<your path>/gem-daq-code) and then rerun this script"
     return
 fi
-#Run this script after you've set BUILD_HOME, or uncomment the previous line and set it to your BUILD_HOME
 
 # The OS is not set in environment. We assume we are not cross-compiling, and try
 # to guess the OS
