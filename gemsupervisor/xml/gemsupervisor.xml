@@ -46,12 +46,12 @@
       <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
 		  xsi:type="soapenc:Struct">
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
-	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!-- position must be slot-1 -->
+	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[48]">
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="2"> <!-- position must be ((slot-1)*max oh cards per amc)+(link) -->
             <!--OptoHybridInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
             <crateID xsi:type="xsd:integer">1</crateID>
             <slot    xsi:type="xsd:integer">2</slot>
-            <link    xsi:type="xsd:integer">2</link>
+            <link    xsi:type="xsd:integer">0</link>
             <present xsi:type="xsd:boolean">true</present>
             
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>

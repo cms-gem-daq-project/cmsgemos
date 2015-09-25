@@ -10,6 +10,8 @@
 #include "gem/utils/LockGuard.h"
 
 #define MAX_AMCS_PER_CRATE 12
+#define MAX_OPTOHYBRIDS_PER_AMC 2
+//#define MAX_OPTOHYBRIDS_PER_CRATE 24
 
 namespace toolbox {
   namespace task{
