@@ -303,7 +303,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
                << info.deviceIPAddress.toString() << ":" << info.ipBusPort.toString();
       }
       //std::string const uri = tmpURI.str();
-      m_glibs[slot] = std::shared_ptr<gem::hw::glib::HwGLIB>(new gem::hw::glib::HwGLIB(deviceName, tmpURI.str(), "file://setup/etc/addresstables/"+info.addressTable.toString()));
+      m_glibs[slot] = std::shared_ptr<gem::hw::glib::HwGLIB>(new gem::hw::glib::HwGLIB(deviceName, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/"+info.addressTable.toString()));
       //INFO("connecting to device");
       //m_glibs[slot]->connectDevice();
       INFO("connected");

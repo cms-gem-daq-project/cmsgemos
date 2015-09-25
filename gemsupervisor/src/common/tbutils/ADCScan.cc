@@ -1066,7 +1066,7 @@ void gem::supervisor::tbutils::ADCScan::initializeAction(toolbox::Event::Referen
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
   vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString(),tmpURI.str(),
-                                                           "file://setup/etc/addresstables/testbeam_registers.xml"));
+                                                           "file://${GEM_ADDRESS_TABLE_PATH}/testbeam_registers.xml"));
   //vfatDevice_ = new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString());
   
   //vfatDevice_->setAddressTableFileName("allregsnonfram.xml");
