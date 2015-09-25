@@ -1,4 +1,4 @@
-#export BUILD_HOME=/home/mdalchen/gemdev/gem-daq-code
+#export BUILD_HOME=<your path>/gem-daq-code
 if [[ -n "$BUILD_HOME" ]]; then
   echo BUILD_HOME $BUILD_HOME
 else
