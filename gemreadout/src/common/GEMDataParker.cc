@@ -38,6 +38,7 @@ int counterVFATs = 0;
 std::map<uint32_t, int> counterVFAT = {{0,0}};
 
 int event_   = 0;
+int eRvent_  = 0;
 int MaxEvent = 0;
 int MaxErr   = 0;
 
@@ -211,7 +212,7 @@ int gem::readout::GEMDataParker::getGLIBData(
       numBX.erase(BX);
       numBX.insert(std::pair<uint32_t, uint32_t>(BX,0));
       DEBUG(" ABC::getGLIBData isFirst  BXexp 0x" << std::hex << BXexp.find(evn)->second << " BX 0x" << BX << std::dec << 
-           " vfat_ " << vfat_ << " event_ " << event_ );
+           " vfat_ " << vfat_ << " eRvent_ " << eRvent_ << " event_ " << event_ );
 
       errBX.erase(BX);
       errBX.insert(std::pair<uint32_t, uint32_t>(BX,0));
@@ -282,7 +283,7 @@ int gem::readout::GEMDataParker::getGLIBData(
         MaxEvent++;
         numBX.erase(BX);
         numBX.insert(std::pair<uint32_t, uint32_t>(BX,MaxEvent));
-        DEBUG(" ::getGLIBData BX 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second );
+        DEBUG(" ::getGLIBData BX 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second << " eRvent_ " << eRvent_ );
       }
 
      /*
@@ -296,7 +297,8 @@ int gem::readout::GEMDataParker::getGLIBData(
 
     if ( bufferCount == 0 ){
       
-       DEBUG(" CDE::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << " event " << event_);
+       DEBUG(" CDE::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << 
+             " eRvent_ " << eRvent_ << " event " << event_);
  
        uint32_t locEvent = 0;
        uint32_t locError = 0;
@@ -372,10 +374,10 @@ int gem::readout::GEMDataParker::getGLIBData(
  
        // contents all local events (one buffer, all links):
        for (std::map<uint32_t, uint32_t>::iterator irBX=errBX.begin(); irBX!=errBX.end(); ++irBX){
-          event_++;
+          eRvent_++;
           locError++;
           DEBUG(" ::getGLIBData END BX 0x" << std::hex << irBX->first << std::dec << " errBX " <<  irBX->second << 
-                " event_ " << event_ << " locError " << locError );
+                " eRvent_ " << eRvent_ << " locError " << locError );
  
           uint32_t nErro = 0;
           for (std::vector<GEMDataAMCformat::VFATData>::iterator iErr=erros.begin(); iErr != erros.end(); ++iErr) {
@@ -424,7 +426,7 @@ int gem::readout::GEMDataParker::getGLIBData(
       INFO(" CDE::getGLIBData vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
  	                     " erros.size " << std::setfill(' ') << std::setw(5) << int(erros.size()) << 
            " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
- 	  " locError   " << std::setfill(' ') << std::setw(6) << locError << " event " << event_
+ 	   " locError   " << std::setfill(' ') << std::setw(6) << locError << " eRvent " << eRvent_ << " event " << event_
       );
  
       locEvent = 0;
