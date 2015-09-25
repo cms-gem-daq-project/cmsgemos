@@ -1,7 +1,10 @@
 #export BUILD_HOME=</path/to/your/BUILD_HOME>
 if [[ -n "$BUILD_HOME" ]]; then
+    echo BUILD_HOME $BUILD_HOME
+else
     echo "BUILD_HOME not set, please set BUILD_HOME to the root of your repository and rerun this script"
-    exit(1)
+    return
+fi
 #Run this script after you've set BUILD_HOME, or uncomment the previous line and set it to your BUILD_HOME
 
 # The OS is not set in environment. We assume we are not cross-compiling, and try
