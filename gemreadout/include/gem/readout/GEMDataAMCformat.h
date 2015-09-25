@@ -449,7 +449,7 @@ namespace gem {
         show4bits(b1110); std::cout << " ChipID 0x" << std::hex << ChipID << std::dec << " " << std::endl;
 
         /* 
-        std::cout << "     bxNum  0x" << std::hex << ((0xff00 & vfat.bxNum) >> 8) << "        SBit " << (0x00ff & vfat.bxNum) << std::endl;
+        std::cout << "     bxNum  0x" << std::hex << ((0xff00 & vfat.bxNum) >> 8) << " SBit " << (0x00ff & vfat.bxNum) << std::endl;
         */
 
         std::cout << " <127:64>:: 0x" << std::setfill('0') << std::setw(16) << std::hex << vfat.msData << std::dec << std::endl;

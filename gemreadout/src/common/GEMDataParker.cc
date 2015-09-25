@@ -37,13 +37,14 @@ std::map<uint32_t, bool> isFirst = {{0, true}};
 int counterVFATs = 0;
 std::map<uint32_t, int> counterVFAT = {{0,0}};
 
-int event_ = 0;
+int event_   = 0;
 int MaxEvent = 0;
-std::map<uint32_t, int> numEC = {};
+int MaxErr   = 0;
 
 //  BX based "event conter"
 uint32_t BX;
 std::map<uint32_t, uint32_t> numBX = {};
+std::map<uint32_t, uint32_t> errBX = {};
 std::map<uint32_t, uint32_t> BXexp = {{0,-1}};
 
 // Main constructor
@@ -212,6 +213,9 @@ int gem::readout::GEMDataParker::getGLIBData(
       DEBUG(" ABC::getGLIBData isFirst  BXexp 0x" << std::hex << BXexp.find(evn)->second << " BX 0x" << BX << std::dec << 
            " vfat_ " << vfat_ << " event_ " << event_ );
 
+      errBX.erase(BX);
+      errBX.insert(std::pair<uint32_t, uint32_t>(BX,0));
+
       ZSFlag = 0;
 
     }
@@ -220,18 +224,6 @@ int gem::readout::GEMDataParker::getGLIBData(
     counterVFAT.insert(std::pair<uint32_t, int>(BX,counterVFATs));
   
     bufferCount--;
-
-    std::map<uint32_t, uint32_t>::iterator it;
-
-    it=numBX.find(BX);
-    if (it != numBX.end()){
-      // local event calculator inside one buffer, BX based 
-      MaxEvent = numBX.find(BX)->second;
-      MaxEvent++;
-      numBX.erase(BX);
-      numBX.insert(std::pair<uint32_t, uint32_t>(BX,MaxEvent));
-      DEBUG(" ::getGLIBData BX 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second );
-    }
 
     uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
     uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
@@ -257,7 +249,20 @@ int gem::readout::GEMDataParker::getGLIBData(
     INFO(" ABC::getGLIBData slot " << islot );
    */
 
+    std::map<uint32_t, uint32_t>::iterator it;
+    std::map<uint32_t, uint32_t>::iterator ir;
+
     if (islot<0 || islot > 23) {
+      ir=errBX.find(BX);
+      if (ir != errBX.end()){
+        // local event calculator inside one buffer, BX based 
+        MaxErr = errBX.find(BX)->second;
+        MaxErr++;
+        errBX.erase(BX);
+        errBX.insert(std::pair<uint32_t, uint32_t>(BX,MaxErr));
+        DEBUG(" ::getGLIBData Err BX 0x" << std::hex << BX << std::dec << " errBX " <<  errBX.find(evn)->second );
+      }
+  
       // islot out of [0-23]
       islotNegativeCount++;
       if ( int(erros.size()) < 10000 ) erros.push_back(vfat);
@@ -269,6 +274,17 @@ int gem::readout::GEMDataParker::getGLIBData(
       INFO(" ABC::getGLIBData wrong slot " << islot );
 
     } else {
+
+      it=numBX.find(BX);
+      if (it != numBX.end()){
+        // local event calculator inside one buffer, BX based 
+        MaxEvent = numBX.find(BX)->second;
+        MaxEvent++;
+        numBX.erase(BX);
+        numBX.insert(std::pair<uint32_t, uint32_t>(BX,MaxEvent));
+        DEBUG(" ::getGLIBData BX 0x" << std::hex << BX << std::dec << " numBX " <<  numBX.find(evn)->second );
+      }
+
      /*
       * VFATs Pay Load
       */
@@ -280,135 +296,156 @@ int gem::readout::GEMDataParker::getGLIBData(
 
     if ( bufferCount == 0 ){
       
-      DEBUG(" CDE::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << " event " << event_);
-
-      uint32_t locEvent = 0;
-      std::string TypeDataFlag = "PayLoad";
-
-      // contents all local events (one buffer, all links):
-      for (std::map<uint32_t, uint32_t>::iterator itBX=numBX.begin(); itBX!=numBX.end(); ++itBX){
-         event_++;
-         locEvent++;
-         DEBUG(" ::getGLIBData END BX 0x" << std::hex << itBX->first << std::dec << " numBX " <<  itBX->second << 
-               " event_ " << event_ << " locEvent " << locEvent );
-
-         uint32_t nChip = 0;
-         for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=vfats.begin(); iVFAT != vfats.end(); ++iVFAT) {
-
-           uint32_t localEvent = (*iVFAT).BXfrOH;
-           DEBUG(" ::getGLIBData vfats BX 0x" << itBX->first << " EC " << localEvent );
-
-           if ( itBX->first == localEvent ) {
-             nChip++;
-             vfat.BC     = (*iVFAT).BC;
-             vfat.EC     = (*iVFAT).EC;
-             vfat.ChipID = (*iVFAT).ChipID;
-             vfat.lsData = (*iVFAT).lsData;
-             vfat.msData = (*iVFAT).msData;
-             vfat.BXfrOH = (*iVFAT).BXfrOH;
-             vfat.crc    = (*iVFAT).crc;
-             
-            /*
-             * VFATs Pay Load
-             */
-             geb.vfats.push_back(vfat);
+       DEBUG(" CDE::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << " event " << event_);
+ 
+       uint32_t locEvent = 0;
+       uint32_t locError = 0;
+       std::string TypeDataFlag = "PayLoad";
+ 
+       // contents all local events (one buffer, all links):
+       for (std::map<uint32_t, uint32_t>::iterator itBX=numBX.begin(); itBX!=numBX.end(); ++itBX){
+          event_++;
+          locEvent++;
+          DEBUG(" ::getGLIBData END BX 0x" << std::hex << itBX->first << std::dec << " numBX " <<  itBX->second << 
+                " event_ " << event_ << " locEvent " << locEvent );
+ 
+          uint32_t nChip = 0;
+          for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=vfats.begin(); iVFAT != vfats.end(); ++iVFAT) {
+ 
+            uint32_t localEvent = (*iVFAT).BXfrOH;
+            DEBUG(" ::getGLIBData vfats BX 0x" << itBX->first << " EC " << localEvent );
+ 
+            if ( itBX->first == localEvent ) {
+              nChip++;
+              vfat.BC     = (*iVFAT).BC;
+              vfat.EC     = (*iVFAT).EC;
+              vfat.ChipID = (*iVFAT).ChipID;
+              vfat.lsData = (*iVFAT).lsData;
+              vfat.msData = (*iVFAT).msData;
+              vfat.BXfrOH = (*iVFAT).BXfrOH;
+              vfat.crc    = (*iVFAT).crc;
+              
+             /*
+              * VFATs Pay Load
+              */
+              geb.vfats.push_back(vfat);
+          
+              /*
+              GEMDataAMCformat::printVFATdataBits(nChip, vfat);
+              */
+              int islot = gem::readout::GEMslotContents::GEBslotIndex((uint32_t)vfat.ChipID );
+              if (islot<0 || islot > 23) { 
+                INFO(" ::getGLIBData  error slot " << islot);
+              }
+ 
+              if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ){
+ 	       if ( itBX->second == nChip ){
+ 
+                     /*    
+                      * GEM data filling
+                      */
+                      DEBUG(" writeGEMevent Complete and could be finally filled and keeped " );
+ 
+                     /*
+                      * GEM headers and trealers filling
+                      */
+                      gem::readout::GEMDataParker::GEMfillHeaders(event_, itBX->second, gem, geb);
+                      gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
          
-             /*
-             GEMDataAMCformat::printVFATdataBits(nChip, vfat);
-             */
-             int islot = gem::readout::GEMslotContents::GEBslotIndex((uint32_t)vfat.ChipID );
-             if (islot<0 || islot > 23) { 
-               INFO(" ::getGLIBData  error slot " << islot);
-             }
-
-             if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ){
-	       if ( itBX->second == nChip ){
-
-                    /*    
-                     * GEM data filling
-                     */
-                     DEBUG(" writeGEMevent Complete and could be finally filled and keeped " );
-
-                    /*
-                     * GEM headers and trealers filling
-                     */
-                     gem::readout::GEMDataParker::GEMfillHeaders(event_, itBX->second, gem, geb);
-                     gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
-        
-                    /*
-                     * GEM Event Writing
-                     */
-                     DEBUG(" ::getGLIBData writing...  geb.vfats.size " << int(geb.vfats.size()) );
-                     TypeDataFlag = "PayLoad";
-                     if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, true, TypeDataFlag,
-                                                                                               gem, geb, vfat);
-        
-                     geb.vfats.clear();
-        
-    	         }//end of writing event
-             }// if slot correct
-  	   }// if localEvent
+                     /*
+                      * GEM Event Writing
+                      */
+                      DEBUG(" ::getGLIBData writing...  geb.vfats.size " << int(geb.vfats.size()) );
+                      TypeDataFlag = "PayLoad";
+                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
+                                                                                                gem, geb, vfat);
+                      geb.vfats.clear();
+         
+ 	       }//end of writing event
+              }// if slot correct
+   	   }// if localEvent
+          }//end of GEB PayLoad Data
+       }// end itBX
+ 
+       geb.vfats.clear();
+       TypeDataFlag = "Errors";
+ 
+       // contents all local events (one buffer, all links):
+       for (std::map<uint32_t, uint32_t>::iterator irBX=errBX.begin(); irBX!=errBX.end(); ++irBX){
+          event_++;
+          locError++;
+          DEBUG(" ::getGLIBData END BX 0x" << std::hex << irBX->first << std::dec << " errBX " <<  irBX->second << 
+                " event_ " << event_ << " locError " << locError );
+ 
+          uint32_t nErro = 0;
+          for (std::vector<GEMDataAMCformat::VFATData>::iterator iErr=erros.begin(); iErr != erros.end(); ++iErr) {
+ 
+             uint32_t localErr = (*iErr).BXfrOH;
+             DEBUG(" CDE::getGLIBData ERROR vfats BX 0x" << irBX->first << " EC " << localErr );
+  
+             if( irBX->first == localErr ) {
+                nErro++; 
+                vfat.BC     = (*iErr).BC;
+                vfat.EC     = (*iErr).EC;
+                vfat.ChipID = (*iErr).ChipID;
+                vfat.lsData = (*iErr).lsData;
+                vfat.msData = (*iErr).msData;
+                vfat.BXfrOH = (*iErr).BXfrOH;
+                vfat.crc    = (*iErr).crc;
+                
+                DEBUG(" CDE::getGLIBData " << " nErro " << nErro << " BX 0x" << std::hex << irBX->first << std::dec );
+   
+               /*
+                * VFATs Errors
+                */
+                geb.vfats.push_back(vfat);
+   
+                if ( irBX->second == nErro ){
+                  /*
+                   GEMDataAMCformat::printVFATdataBits(nErro, vfat);
+                   */
+                   int islot = -1;
+                   gem::readout::GEMDataParker::VFATfillData( islot, geb);
+                   gem::readout::GEMDataParker::GEMfillHeaders(event_, irBX->second, gem, geb);
+                   gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
+              
+                  /*
+                   * GEM ERRORS Event Writing
+                   */
+                   TypeDataFlag = "Errors";
+                   if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(errFileName_, true, TypeDataFlag,
+                                                                                             gem, geb, vfat);
+     	      }// if localErr
+    	   }// if localErr
          }//end of GEB PayLoad Data
-
-         geb.vfats.clear();
-
-         uint32_t nErro = 0;
-         for (std::vector<GEMDataAMCformat::VFATData>::iterator iErr=erros.begin(); iErr != erros.end(); ++iErr) {
-
-           uint32_t localEvent = (*iErr).BXfrOH;
-           DEBUG(" CDE::getGLIBData ERROR vfats BX 0x" << itBX->first << " EC " << localEvent );
-
-           if ( itBX->first == localEvent ) {
-             nErro++; 
-             vfat.BC     = (*iErr).BC;
-             vfat.EC     = (*iErr).EC;
-             vfat.ChipID = (*iErr).ChipID;
-             vfat.lsData = (*iErr).lsData;
-             vfat.msData = (*iErr).msData;
-             vfat.BXfrOH = (*iErr).BXfrOH;
-             vfat.crc    = (*iErr).crc;
-             
-             DEBUG(" CDE::getGLIBData " << " nErro " << nErro << " BX 0x" << std::hex << itBX->first << std::dec );
-
-             /*
-             GEMDataAMCformat::printVFATdataBits(nErro, vfat);
-             */
-             int islot = -1;
-             gem::readout::GEMDataParker::VFATfillData( islot, geb);
-             gem::readout::GEMDataParker::GEMfillHeaders(event_, itBX->second, gem, geb);
-             gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
-        
-            /*
-             * GEM ERRORS Event Writing
-             */
-             TypeDataFlag = "Errors";
-             if( nErro > 0) gem::readout::GEMDataParker::writeGEMevent(errFileName_, true, TypeDataFlag,
-                                                                                               gem, geb, vfat);
-  	   }// if localEvent
-         }//end of GEB PayLoad Data
-       }//end of all local events
-
-       INFO(" CDE::getGLIBData vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
-	                     " erros.size " << std::setfill(' ') << std::setw(5) << int(erros.size()) << 
-	                     " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << " event " << event_ );
-
-       locEvent = 0;
-
-       vfats.clear();
-       erros.clear();
-
-       // local event cleaning 
-       numEC.clear();
-       numBX.clear();
-       MaxEvent = 0;
-
-       // reset event logic
-       isFirst.erase(BX);
-       isFirst.insert(std::pair<uint32_t, bool>(BX,true));
-
-       counterVFAT.clear();
-       ZSFlag = 0;
-
+      }//end irBX
+ 
+      geb.vfats.clear();
+      INFO(" CDE::getGLIBData vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
+ 	                     " erros.size " << std::setfill(' ') << std::setw(5) << int(erros.size()) << 
+           " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
+ 	  " locError   " << std::setfill(' ') << std::setw(6) << locError << " event " << event_
+      );
+ 
+      locEvent = 0;
+      locError = 0;
+ 
+      vfats.clear();
+      erros.clear();
+ 
+      // local event cleaning 
+      errBX.clear();
+      errBX.clear();
+      MaxEvent = 0;
+      MaxErr   = 0;
+ 
+      // reset event logic
+      isFirst.erase(BX);
+      isFirst.insert(std::pair<uint32_t, bool>(BX,true));
+ 
+      counterVFAT.clear();
+      ZSFlag = 0;
+ 
     }//end if, event writing
   }// while(!bufferDepth)
 
@@ -459,6 +496,108 @@ bool gem::readout::GEMDataParker::VFATfillData(
      return (true);
 
    }//end while
+}
+
+
+void gem::readout::GEMDataParker::writeGEMevent(
+                                                std::string  outFile,
+                                                bool const&  OKprint,
+                                                std::string const& TypeDataFlag,
+                                                AMCGEMData&  gem,
+                                                AMCGEBData&  geb,
+                                                AMCVFATData& vfat
+){
+  if(OKprint){
+    DEBUG(" ::writeGEMevent vfat_ " << vfat_ << " event " << event_ << " sumVFAT " << (0x000000000fffffff & geb.header) <<
+         " geb.vfats.size " << int(geb.vfats.size()) );
+  }
+
+  /*
+    int nGEB=0;
+    for (vector<GEBData>::iterator iGEB=gem.gebs.begin(); iGEB != gem.gebs.end(); ++iGEB) {
+    nGEB++; uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; show24bits(ZSFlag);
+  */
+
+ /*
+  *  GEM Chamber's Data
+  */
+
+  if (outputType_ == "Hex") {
+    GEMDataAMCformat::writeGEMhd1 (outFile, event_, gem);
+    GEMDataAMCformat::writeGEMhd2 (outFile, event_, gem);
+    GEMDataAMCformat::writeGEMhd3 (outFile, event_, gem);
+  } else {
+    GEMDataAMCformat::writeGEMhd1Binary (outFile, event_, gem);
+    GEMDataAMCformat::writeGEMhd2Binary (outFile, event_, gem);
+    GEMDataAMCformat::writeGEMhd3Binary (outFile, event_, gem);
+  } 
+
+ /*
+  *  GEB Headers Data
+  */
+
+  if (outputType_ == "Hex") {
+    GEMDataAMCformat::writeGEBheader (outFile, event_, geb);
+    GEMDataAMCformat::writeGEBrunhed (outFile, event_, geb);
+  } else {
+    GEMDataAMCformat::writeGEBheaderBinary (outFile, event_, geb);
+    GEMDataAMCformat::writeGEBrunhedBinary (outFile, event_, geb);
+  } // GEMDataAMCformat::printGEBheader (event_, geb);
+    
+ /*
+  *  GEB PayLoad Data
+  */
+
+  int nChip=0;
+  for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=geb.vfats.begin(); iVFAT != geb.vfats.end(); ++iVFAT) {
+    nChip++;
+    vfat.BC     = (*iVFAT).BC;
+    vfat.EC     = (*iVFAT).EC;
+    vfat.ChipID = (*iVFAT).ChipID;
+    vfat.lsData = (*iVFAT).lsData;
+    vfat.msData = (*iVFAT).msData;
+    vfat.crc    = (*iVFAT).crc;
+      
+    if (outputType_ == "Hex") {
+      GEMDataAMCformat::writeVFATdata (outFile, nChip, vfat); 
+    } else {
+      GEMDataAMCformat::writeVFATdataBinary (outFile, nChip, vfat);
+    };
+    if(OKprint && TypeDataFlag == "Errors" ){
+      //GEMDataAMCformat::printVFATdataBits(nChip, vfat);
+      DEBUG(" writeGEMevent slot " << gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)vfat.ChipID ) );
+    }
+  }//end of GEB PayLoad Data
+
+ /*
+  *  GEB Trailers Data
+  */
+
+  if (outputType_ == "Hex") {
+    GEMDataAMCformat::writeGEBtrailer (outFile, event_, geb);
+  } else {
+    GEMDataAMCformat::writeGEBtrailerBinary (outFile, event_, geb);
+  } 
+
+ /*
+  *  GEM Trailers Data
+  */
+
+  if (outputType_ == "Hex") {
+    GEMDataAMCformat::writeGEMtr2 (outFile, event_, gem);
+    GEMDataAMCformat::writeGEMtr1 (outFile, event_, gem);
+  } else {
+    GEMDataAMCformat::writeGEMtr2Binary (outFile, event_, gem);
+    GEMDataAMCformat::writeGEMtr1Binary (outFile, event_, gem);
+  } 
+
+  uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40;
+  if(OKprint /* && TypeDataFlag == "Errors" */ ){
+    GEMDataAMCformat::show24bits(ZSFlag); 
+    INFO(" CDE::writeGEMevent:: " << TypeDataFlag << " geb.vfats.size " << int(geb.vfats.size()) << 
+         " end of event " << event_ << "\n");
+  }
+  /* } // end of GEB */
 }
 
 
@@ -567,106 +706,4 @@ void gem::readout::GEMDataParker::GEMfillTrailers(
 
   DEBUG(" OHcrc " << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec);
 
-}
-
-
-void gem::readout::GEMDataParker::writeGEMevent(
-                                                std::string  outFile,
-                                                bool const&  OKprint,
-                                                std::string const& TypeDataFlag,
-                                                AMCGEMData&  gem,
-                                                AMCGEBData&  geb,
-                                                AMCVFATData& vfat
-){
-  if(OKprint){
-    DEBUG(" ::writeGEMevent vfat_ " << vfat_ << " event " << event_ << " sumVFAT " << (0x000000000fffffff & geb.header) <<
-         " geb.vfats.size " << int(geb.vfats.size()) );
-  }
-
-  /*
-    int nGEB=0;
-    for (vector<GEBData>::iterator iGEB=gem.gebs.begin(); iGEB != gem.gebs.end(); ++iGEB) {
-    nGEB++; uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; show24bits(ZSFlag);
-  */
-
- /*
-  *  GEM Chamber's Data
-  */
-
-  if (outputType_ == "Hex") {
-    GEMDataAMCformat::writeGEMhd1 (outFile, event_, gem);
-    GEMDataAMCformat::writeGEMhd2 (outFile, event_, gem);
-    GEMDataAMCformat::writeGEMhd3 (outFile, event_, gem);
-  } else {
-    GEMDataAMCformat::writeGEMhd1Binary (outFile, event_, gem);
-    GEMDataAMCformat::writeGEMhd2Binary (outFile, event_, gem);
-    GEMDataAMCformat::writeGEMhd3Binary (outFile, event_, gem);
-  } 
-
- /*
-  *  GEB Headers Data
-  */
-
-  if (outputType_ == "Hex") {
-    GEMDataAMCformat::writeGEBheader (outFile, event_, geb);
-    GEMDataAMCformat::writeGEBrunhed (outFile, event_, geb);
-  } else {
-    GEMDataAMCformat::writeGEBheaderBinary (outFile, event_, geb);
-    GEMDataAMCformat::writeGEBrunhedBinary (outFile, event_, geb);
-  } // GEMDataAMCformat::printGEBheader (event_, geb);
-    
- /*
-  *  GEB PayLoad Data
-  */
-
-  int nChip=0;
-  for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=geb.vfats.begin(); iVFAT != geb.vfats.end(); ++iVFAT) {
-    nChip++;
-    vfat.BC     = (*iVFAT).BC;
-    vfat.EC     = (*iVFAT).EC;
-    vfat.ChipID = (*iVFAT).ChipID;
-    vfat.lsData = (*iVFAT).lsData;
-    vfat.msData = (*iVFAT).msData;
-    vfat.crc    = (*iVFAT).crc;
-      
-    if (outputType_ == "Hex") {
-      GEMDataAMCformat::writeVFATdata (outFile, nChip, vfat); 
-    } else {
-      GEMDataAMCformat::writeVFATdataBinary (outFile, nChip, vfat);
-    };
-    if(OKprint && TypeDataFlag == "Errors" ){
-      GEMDataAMCformat::printVFATdataBits(nChip, vfat);
-      INFO(" writeGEMevent slot " << gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)vfat.ChipID ) );
-    }
-  }//end of GEB PayLoad Data
-
- /*
-  *  GEB Trailers Data
-  */
-
-  if (outputType_ == "Hex") {
-    GEMDataAMCformat::writeGEBtrailer (outFile, event_, geb);
-  } else {
-    GEMDataAMCformat::writeGEBtrailerBinary (outFile, event_, geb);
-  } 
-
- /*
-  *  GEM Trailers Data
-  */
-
-  if (outputType_ == "Hex") {
-    GEMDataAMCformat::writeGEMtr2 (outFile, event_, gem);
-    GEMDataAMCformat::writeGEMtr1 (outFile, event_, gem);
-  } else {
-    GEMDataAMCformat::writeGEMtr2Binary (outFile, event_, gem);
-    GEMDataAMCformat::writeGEMtr1Binary (outFile, event_, gem);
-  } 
-
-  uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40;
-  if(OKprint && TypeDataFlag == "Errors" ){
-    GEMDataAMCformat::show24bits(ZSFlag); 
-    INFO(" CDE::writeGEMevent:: " << TypeDataFlag << " geb.vfats.size " << int(geb.vfats.size()) << 
-         " end of event " << event_ << "\n");
-  }
-  /* } // end of GEB */
 }
