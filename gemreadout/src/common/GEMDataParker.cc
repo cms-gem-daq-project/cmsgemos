@@ -291,13 +291,13 @@ int gem::readout::GEMDataParker::getGLIBData(
       */
       if ( int(vfats.size()) < 90000 ) vfats.push_back(vfat);
       
-      INFO(" EVT::getGLIBData bufferDepth " << bufferDepth << " event_ " << event_ <<
+      DEBUG(" ::getGLIBData bufferDepth " << bufferDepth << " event_ " << event_ <<
 	   " vfats.size " << int(vfats.size()) << std::hex << " BX 0x" << BX << std::dec );
     }
 
     if ( bufferCount == 0 ){
       
-       INFO(" EVT::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << 
+       DEBUG(" ::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << 
              " eRvent_ " << eRvent_ << " event " << event_);
  
        uint32_t locEvent = 0;
@@ -306,16 +306,16 @@ int gem::readout::GEMDataParker::getGLIBData(
  
        // contents all local events (one buffer, all links):
        for (std::map<uint32_t, uint32_t>::iterator itBX=numBX.begin(); itBX!=numBX.end(); ++itBX){
-	  //event_++;
+	  event_++;
           locEvent++;
-          DEBUG(" EVT::getGLIBData END BX 0x" << std::hex << itBX->first << std::dec << " numBX " <<  itBX->second << 
+          DEBUG(" ::getGLIBData END BX 0x" << std::hex << itBX->first << std::dec << " numBX " <<  itBX->second << 
 	       " locEvent " << locEvent << " event_ " << event_ );
  
           uint32_t nChip = 0;
           for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=vfats.begin(); iVFAT != vfats.end(); ++iVFAT) {
  
             uint32_t localEvent = (*iVFAT).BXfrOH;
-            INFO(" EVT::getGLIBData vfats BX 0x" << std::hex << itBX->first << " EC 0x" << localEvent << std::dec << "\n");
+            DEBUG(" ::getGLIBData vfats BX 0x" << std::hex << itBX->first << " EC 0x" << localEvent << std::dec << "\n");
  
             if ( itBX->first == localEvent ) {
               nChip++;
@@ -353,7 +353,6 @@ int gem::readout::GEMDataParker::getGLIBData(
                       TypeDataFlag = "PayLoad";
                       if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
                                                                                                 gem, geb, vfat);
-                      event_ = event_ + locEvent;
                       geb.vfats.clear();
          
  	       }//end of writing event
