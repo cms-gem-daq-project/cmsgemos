@@ -13,7 +13,7 @@ namespace gem {
     class GEMSupervisorWeb: public gem::base::GEMWebApplication
       {
         //friend class GEMMonitor;
-        friend class GEMSupervisor;
+        //friend class GEMSupervisor;
         //friend class gem::base::GEMFSMApplication;
 
       public:

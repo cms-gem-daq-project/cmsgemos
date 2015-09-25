@@ -168,8 +168,10 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 {
   INFO("gem::hw::optohybrid::OptoHybridManager::initializeAction begin");
   for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(1000);
     INFO("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     for (int link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+      usleep(1000);
       INFO("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -311,7 +313,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   INFO("gem::hw::optohybrid::OptoHybridManager::configureAction");
   //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
   for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(1000);
     for (int link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+      usleep(1000);
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
 
@@ -350,26 +354,31 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 void gem::hw::optohybrid::OptoHybridManager::startAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::stopAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::haltAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resetAction()
@@ -378,8 +387,10 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
   //unregister listeners and items in info spaces
   INFO("gem::hw::optohybrid::OptoHybridManager::resetAction begin");
   for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(1000);
     INFO("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     for (int link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+      usleep(1000);
       INFO("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
