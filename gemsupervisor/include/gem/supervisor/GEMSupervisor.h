@@ -17,7 +17,9 @@ namespace gem {
     
     class GEMSupervisor : public gem::base::GEMFSMApplication
       {
+
         friend class GEMSupervisorWeb;
+
       public:
         XDAQ_INSTANTIATOR();
 
@@ -50,6 +52,9 @@ namespace gem {
         virtual void resetAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
       
+        std::vector<xdaq::ApplicationDescriptor*> getSupervisedAppDescriptors() {
+          return v_supervisedApps; };
+        
       private:
         bool isGEMApplication(const std::string& classname) const;
         bool manageApplication(const std::string& classname) const;

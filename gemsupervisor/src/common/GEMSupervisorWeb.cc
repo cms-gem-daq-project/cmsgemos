@@ -26,6 +26,10 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
   controlPanel(in,out);
+  
+  *out << cgicc::br();
+  
+  displayManagedStateTable(in,out);
   *out << "</div>" << std::endl;
 
   *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
@@ -121,8 +125,53 @@ void gem::supervisor::GEMSupervisorWeb::expertPage(xgi::Input * in, xgi::Output 
        << cgicc::fieldset().set("style","style=\"display:block\";padding:5px;margin:5px;list-style-type:none;margin-bottom:5px;line-height:18px;padding:2px 5px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;border:medium outset #CCC;")
        << std::endl
        << cgicc::legend("GEM Supervisor expert page")    << std::endl
-       << cgicc::br()                      << std::endl
+       << cgicc::br()       << std::endl
        << cgicc::span()     << std::endl
        << cgicc::fieldset() << std::endl
        << cgicc::section()  << std::endl;
+}
+
+void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  try {
+    std::vector<xdaq::ApplicationDescriptor*> managedApps =
+      dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getSupervisedAppDescriptors();
+    *out << "<table class=\"xdaq-table\">" << std::endl
+         << cgicc::thead() << std::endl
+         << cgicc::tr()    << std::endl //open
+         << cgicc::th()    << "Application Class (instance)" << cgicc::th() << std::endl
+         << cgicc::th()    << "State" << cgicc::th() << std::endl
+         << cgicc::tr()    << std::endl //close
+         << cgicc::thead() << std::endl 
+      
+         << "<tbody>" << std::endl;
+    
+    for (auto managedApp = managedApps.begin(); managedApp != managedApps.end(); ++managedApp)
+      *out << "<tr>"  << std::endl
+           << "<td>"  << std::endl
+           << cgicc::h3() 
+        //<< dynamic_cast<gem::base::GEMFSMApplication*>(*managedApp)->getURN()
+           << (*managedApp)->getClassName()
+           << "("
+           << (*managedApp)->getInstance()
+           << ")"
+           << cgicc::h3() << std::endl
+           << "</td>"     << std::endl
+           << "<td>"      << std::endl
+           << cgicc::h3() 
+           << dynamic_cast<gem::base::GEMFSMApplication*>(*managedApp)->getCurrentState()
+           << cgicc::h3() << std::endl
+           << "</td>"     << std::endl
+           << "</tr>"     << std::endl;
+    
+    *out << "</tbody>"  << std::endl
+         << "</table>"  << std::endl;
+  } catch (const xgi::exception::Exception& e) {
+    INFO("Something went wrong displaying managed application state table(xgi): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  } catch (const std::exception& e) {
+    INFO("Something went wrong displaying managed application state table(std): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  }
 }
