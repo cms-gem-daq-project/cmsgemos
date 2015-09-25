@@ -1,12 +1,9 @@
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
-//#include "gem/readout/GEMslotContents.h"
 
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
-
-//#include "gem/utils/GEMLogging.h"
 
 #include <iomanip>
 #include <iostream>
@@ -413,8 +410,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO(" webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(1);
+  INFO("webTrigger: sending L1A");
+  optohybridDevice_->SendL1A(2);
 
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
