@@ -54,6 +54,39 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
+bool gem::supervisor::GEMSupervisor::isGEMApplication(const std::string& classname) const
+{
+  if (classname.find("gem") != std::string::npos)
+    return true; // handle all HCAL applications
+  /*
+  if (m_otherClassesToSupport.count(classname) != 0)
+    return true; // include from list
+  */
+  return false;
+}
+
+bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classname) const
+{
+  if (classname == "GEMSupervisor")
+    return false; // ignore ourself
+  /*
+  if (m_otherClassesToSupport.count(classname) != 0)
+    return true; // include from list
+  */
+  if (classname.find("gem") != std::string::npos)
+    return true; // handle all GEM applications
+  if (classname.find("PeerTransport") != std::string::npos)
+    return false; // ignore all peer transports
+  /*
+  if ((classname == "TTCciControl" || classname == "ttc::TTCciControl") && m_handleTTCci.value_)
+    return true;
+  if ((classname == "LTCControl" || classname == "ttc::LTCControl") && m_handleTTCci.value_)
+    return true;
+  if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
+    return true;
+  */
+  return false; // assume not ok.
+}
 void gem::supervisor::GEMSupervisor::init()
 {
   v_supervisedApps.clear();
@@ -82,8 +115,10 @@ void gem::supervisor::GEMSupervisor::init()
       //with the application classes that we want to supervise
       //avoids the problem of picking up all the xDAQ related processes
       //if (isGEMSupervised(*j))
-      DEBUG("init::pushing " << (*j)->getClassName() << "(" << *j << ") to list of supervised applications");
-      v_supervisedApps.push_back(*j);
+      if (manageApplication((*j)->getClassName())) {
+        INFO("init::pushing " << (*j)->getClassName() << "(" << *j << ") to list of supervised applications");
+        v_supervisedApps.push_back(*j);
+      }
       DEBUG("done");
     } // done iterating over applications in group
     DEBUG("init::done iterating over applications in group");
@@ -107,36 +142,64 @@ void gem::supervisor::GEMSupervisor::initializeAction()
 void gem::supervisor::GEMSupervisor::configureAction()
   throw (gem::supervisor::exception::Exception)
 {
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO(std::string("Configuring ")+(*i)->getClassName());
+    gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",p_appContext,p_appDescriptor,*i);
+  }
 }
 
 void gem::supervisor::GEMSupervisor::startAction()
   throw (gem::supervisor::exception::Exception)
 {
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO(std::string("Starting ")+(*i)->getClassName());
+    gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",p_appContext,p_appDescriptor,*i);
+  }
 }
 
 void gem::supervisor::GEMSupervisor::pauseAction()
   throw (gem::supervisor::exception::Exception)
 {
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO(std::string("Pausing ")+(*i)->getClassName());
+    gem::utils::soap::GEMSOAPToolBox::sendCommand("Pause",p_appContext,p_appDescriptor,*i);
+  }
 }
 
 void gem::supervisor::GEMSupervisor::resumeAction()
   throw (gem::supervisor::exception::Exception)
 {
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO(std::string("Resuming ")+(*i)->getClassName());
+    gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume",p_appContext,p_appDescriptor,*i);
+  }
 }
 
 void gem::supervisor::GEMSupervisor::stopAction()
   throw (gem::supervisor::exception::Exception)
 {
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO(std::string("Stopping ")+(*i)->getClassName());
+    gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",p_appContext,p_appDescriptor,*i);
+  }
 }
 
 void gem::supervisor::GEMSupervisor::haltAction()
   throw (gem::supervisor::exception::Exception)
 {
+   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO(std::string("Halting ")+(*i)->getClassName());
+    gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",p_appContext,p_appDescriptor,*i);
+  }
 }
 
 void gem::supervisor::GEMSupervisor::resetAction()
   throw (gem::supervisor::exception::Exception)
 {
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO(std::string("Resetting ")+(*i)->getClassName());
+    gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",p_appContext,p_appDescriptor,*i);
+  }
 }
 
 /*
@@ -153,3 +216,5 @@ void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
 }
+
+//  LocalWords:  oid

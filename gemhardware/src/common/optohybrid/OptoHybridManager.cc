@@ -18,7 +18,8 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   present = false;
   crateID = -1;
   slotID  = -1;
-  controlHubIPAddress = "";
+  linkID  = -1;
+  controlHubAddress = "";
   deviceIPAddress     = "";
   ipBusProtocol       = "";
   addressTable        = "";
@@ -27,22 +28,27 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   
   triggerSource = 0;
   sbitSource    = 0;
+  vfatClkSrc    = 0;
+  cdceClkSrc    = 0;
 }
 
 void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo>* bag) {
   bag->addField("crateID",       &crateID);
   bag->addField("slot",          &slotID);
+  bag->addField("link",          &linkID);
   bag->addField("present",       &present);
 
-  bag->addField("ControlHubIPAddress", &controlHubIPAddress);
-  bag->addField("DeviceIPAddress",     &deviceIPAddress);
-  bag->addField("IPBusProtocol",       &ipBusProtocol);
-  bag->addField("AddressTable",        &addressTable);
-  bag->addField("ControlHubPort",      &controlHubPort);
-  bag->addField("IPBusPort",           &ipBusPort);
+  bag->addField("ControlHubAddress", &controlHubAddress);
+  bag->addField("DeviceIPAddress",   &deviceIPAddress);
+  bag->addField("IPBusProtocol",     &ipBusProtocol);
+  bag->addField("AddressTable",      &addressTable);
+  bag->addField("ControlHubPort",    &controlHubPort);
+  bag->addField("IPBusPort",         &ipBusPort);
             
   bag->addField("triggerSource", &triggerSource);
   bag->addField("sbitSource",    &sbitSource);
+  bag->addField("vfatClkSrc",    &vfatClkSrc);
+  bag->addField("cdceClkSrc",    &cdceClkSrc);
 }
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub* stub) :
@@ -56,6 +62,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub*
 
   //p_appInfoSpace->fireItemAvailable("crateID", &m_crateID);
   //p_appInfoSpace->fireItemAvailable("slot",    &m_slot);
+  //p_appInfoSpace->fireItemAvailable("link",    &m_link);
   p_appInfoSpace->fireItemAvailable("AllOptoHybridsInfo",  &m_optohybridInfo);
   p_appInfoSpace->fireItemAvailable("ConnectionFile",&m_connectionFile);
 
@@ -65,23 +72,27 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub*
   p_gemWebInterface = new gem::hw::optohybrid::OptoHybridManagerWeb(this);
   //p_gemMonitor      = new gem::hw::optohybrid::OptoHybridHwMonitor(this);
   DEBUG("done");
-  
+
+  /*
   for (int slot=1; slot <= MAX_AMCS_PER_CRATE; slot++) {
     if (m_optohybrids[slot-1])
       delete m_optohybrids[slot-1];
     m_optohybrids[slot-1] = 0;
   }
+  */
   //init();
   //getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/optohybrid/OptoHybridManager.png");
 }
 
 gem::hw::optohybrid::OptoHybridManager::~OptoHybridManager() {
   //memory management, maybe not necessary here?
+  /*
   for (int slot=1; slot <= MAX_AMCS_PER_CRATE; slot++) {
     if (m_optohybrids[slot-1])
       delete m_optohybrids[slot-1];
     m_optohybrids[slot-1] = 0;
   }  
+  */
 }
 
 // This is the callback used for handling xdata:Event objects
@@ -118,6 +129,41 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 void gem::hw::optohybrid::OptoHybridManager::configureAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  INFO("gem::hw::optohybrid::OptoHybridManager::configureAction");
+  //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
+  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; slot++) {
+    OptoHybridInfo& info = m_optohybridInfo[slot].bag;
+
+    if (!info.present)
+      continue;
+    
+    INFO("grabbing pointer to hardware device");
+    optohybrid_shared_ptr optohybrid = m_optohybrids[slot];
+    
+    if (optohybrid->isHwConnected()) {
+      INFO("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
+      optohybrid->setTrigSource(info.triggerSource.value_);
+      INFO("setting sbit source to 0x" << std::hex << info.sbitSource.value_ << std::dec);
+      optohybrid->setSBitSource(info.sbitSource.value_);
+      /*
+      INFO("setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
+      optohybrid->SetVFATClock(info.vfatClkSrc.value_,);
+      INFO("setting cdce clock source to 0x" << std::hex << info.cdceClkSrc.value_ << std::dec);
+      optohybrid->setSBitSource(info.cdceClkSrc.value_);
+      */
+      //should FIFOs be emptied in configure or at start?
+      INFO("emptying trigger/tracking data FIFOs");
+      for (unsigned link = 0; link < 3; ++link) {
+      }
+      //what else is required for configuring the OptoHybrid?
+      //need to reset optical links?
+      //reset counters?
+    } else {
+      WARN("OptoHybrid in slot " << (slot+1) << " is not connected");
+    }
+  }
+  
+  INFO("gem::hw::optohybrid::OptoHybridManager::configureAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::startAction()
