@@ -166,6 +166,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //enable specified AMCs
   m_slotMask = p_amc13->parseInputEnableList(m_amcInputEnableList,true);
   p_amc13->AMCInputEnable(m_slotMask);
+  usleep(500);
 
   //unlock the access
 }
@@ -174,6 +175,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //set the settings from the config options
+  usleep(500);
 }
 
 void gem::hw::amc13::AMC13Manager::startAction()
@@ -182,6 +184,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   DEBUG("Entering gem::hw::amc13::AMC13Manager::startAction()");
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
+  usleep(500);
   p_amc13->startRun();
 }
 
@@ -191,12 +194,14 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   //what does pause mean here?
   //if local triggers are enabled, do we have a separate trigger application?
   //we can just disable them here maybe?
+  usleep(500);
 }
 
 void gem::hw::amc13::AMC13Manager::resumeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //undo the actions taken in pauseAction
+  usleep(500);
 }
 
 void gem::hw::amc13::AMC13Manager::stopAction()
@@ -205,6 +210,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   DEBUG("Entering gem::hw::amc13::AMC13Manager::stopAction()");
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
+  usleep(500);
   p_amc13->endRun();
 }
 
@@ -212,12 +218,14 @@ void gem::hw::amc13::AMC13Manager::haltAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //what is necessary for a halt on the AMC13?
+  usleep(500);
 }
 
 void gem::hw::amc13::AMC13Manager::resetAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //what is necessary for a reset on the AMC13?
+  usleep(500);
 }
 
 /*These should maybe only be implemented in GEMFSMApplication,

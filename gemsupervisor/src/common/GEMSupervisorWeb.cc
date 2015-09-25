@@ -1,5 +1,8 @@
 #include "gem/supervisor/GEMSupervisorWeb.h"
 #include "gem/supervisor/GEMSupervisor.h"
+#include "xdata/InfoSpaceFactory.h"
+
+#include "gem/utils/GEMInfoSpaceToolBox.h"
 
 #include "gem/supervisor/exception/Exception.h"
 
@@ -147,24 +150,33 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
       
          << "<tbody>" << std::endl;
     
-    for (auto managedApp = managedApps.begin(); managedApp != managedApps.end(); ++managedApp)
+    for (auto managedApp = managedApps.begin(); managedApp != managedApps.end(); ++managedApp) {
       *out << "<tr>"  << std::endl
            << "<td>"  << std::endl
-           << cgicc::h3() 
-        //<< dynamic_cast<gem::base::GEMFSMApplication*>(*managedApp)->getURN()
-           << (*managedApp)->getClassName()
-           << "("
-           << (*managedApp)->getInstance()
-           << ")"
+           << cgicc::h3() ;
+      //<< dynamic_cast<gem::base::GEMFSMApplication*>(*managedApp)->getURN()
+      std::string classname = (*managedApp)->getClassName();
+      INFO("managed class name is " << classname);
+      *out << classname;
+      *out << "(";
+      unsigned int instance = (*managedApp)->getInstance();
+      INFO("managed class instance is " << instance);
+      *out << instance;
+      *out << ")"
            << cgicc::h3() << std::endl
            << "</td>"     << std::endl
            << "<td>"      << std::endl
-           << cgicc::h3() 
-           << dynamic_cast<gem::base::GEMFSMApplication*>(*managedApp)->getCurrentState()
-           << cgicc::h3() << std::endl
+           << cgicc::h3();
+      
+      INFO("trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
+      std::string classstate
+        = gem::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()),"FSMState");
+      *out << classstate;
+      INFO("managed class FSM state is " << classstate);
+      *out << cgicc::h3() << std::endl
            << "</td>"     << std::endl
            << "</tr>"     << std::endl;
-    
+    }
     *out << "</tbody>"  << std::endl
          << "</table>"  << std::endl;
   } catch (const xgi::exception::Exception& e) {

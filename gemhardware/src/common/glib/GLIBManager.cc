@@ -413,6 +413,7 @@ void gem::hw::glib::GLIBManager::configureAction()
   INFO("gem::hw::glib::GLIBManager::configureAction");
 
   for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(100);
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -446,30 +447,35 @@ void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for starting the GLIB?
+  usleep(100);
 }
 
 void gem::hw::glib::GLIBManager::pauseAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for pausing the GLIB?
+  usleep(100);
 }
 
 void gem::hw::glib::GLIBManager::resumeAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for resuming the GLIB?
+  usleep(100);
 }
 
 void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for stopping the GLIB?
+  usleep(100);
 }
 
 void gem::hw::glib::GLIBManager::haltAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for halting the GLIB?
+  usleep(100);
 }
 
 void gem::hw::glib::GLIBManager::resetAction()
@@ -480,6 +486,7 @@ void gem::hw::glib::GLIBManager::resetAction()
   
   INFO("gem::hw::glib::GLIBManager::resetAction begin");
   for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
+    usleep(100);
     INFO("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
     

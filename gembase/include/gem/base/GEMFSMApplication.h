@@ -148,6 +148,8 @@ namespace gem {
        */
       virtual xoap::MessageReference changeState(xoap::MessageReference msg);
 
+    public:
+      //is it a problem to make this public?
       /* getCurrentState
        * @returns std::string name of the current state of the GEMFSM object
        */
