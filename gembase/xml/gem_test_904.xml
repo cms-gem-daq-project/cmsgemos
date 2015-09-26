@@ -43,14 +43,14 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
           <CalPhase>0</CalPhase>
         </VFATSettings>
-	<!-- testing
+
         <VFATSettings VFATId="VFAT1">
           <CalMode>NORMAL</CalMode>
           <CalPolarity>NEGATIVE</CalPolarity>
@@ -70,9 +70,9 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
           <CalPhase>0</CalPhase>
@@ -97,9 +97,9 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
           <CalPhase>0</CalPhase>
@@ -124,9 +124,9 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
           <CalPhase>0</CalPhase>
@@ -151,14 +151,95 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
           <CalPhase>0</CalPhase>
         </VFATSettings>
-	-->
+
+        <VFATSettings VFATId="VFAT5">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT6">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT7">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
 	<!-- column 1 -->
         <VFATSettings VFATId="VFAT8">
           <CalMode>NORMAL</CalMode>
@@ -179,9 +260,198 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT9">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT10">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT11">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT12">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT13">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT14">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT15">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
           <CalPhase>0</CalPhase>
@@ -207,15 +477,15 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
           <CalPhase>0</CalPhase>
         </VFATSettings>
 
-        <VFATSettings VFATId="VFAT11">
+        <VFATSettings VFATId="VFAT17">
           <CalMode>NORMAL</CalMode>
           <CalPolarity>NEGATIVE</CalPolarity>
           <MSPolarity>NEGATIVE</MSPolarity>
@@ -234,15 +504,15 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
-          <CalPhase>0</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
+          <CalPhase>0</CalPhase>
         </VFATSettings>
 
-        <VFATSettings VFATId="VFAT12">
+        <VFATSettings VFATId="VFAT18">
           <CalMode>NORMAL</CalMode>
           <CalPolarity>NEGATIVE</CalPolarity>
           <MSPolarity>NEGATIVE</MSPolarity>
@@ -261,15 +531,15 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
-          <CalPhase>0</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
+          <CalPhase>0</CalPhase>
         </VFATSettings>
 
-        <VFATSettings VFATId="VFAT13">
+        <VFATSettings VFATId="VFAT19">
           <CalMode>NORMAL</CalMode>
           <CalPolarity>NEGATIVE</CalPolarity>
           <MSPolarity>NEGATIVE</MSPolarity>
@@ -288,12 +558,120 @@
           <IPreampOut>150</IPreampOut>
           <IShaper>150</IShaper>
           <IShaperFeed>100</IShaperFeed>
-          <IComp>75</IComp>
+          <IComp>90</IComp>
           <Latency>20</Latency>
-          <VCal>125</VCal>
+          <VCal>175</VCal>
           <VThreshold1>50</VThreshold1>
           <VThreshold2>0</VThreshold2>
-          <CalPhase>0</CalPhase><!-- not presented in the VFATRegisters(or is it CalOut of DacMode?)-->
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT20">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT21">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT22">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
+        </VFATSettings>
+
+        <VFATSettings VFATId="VFAT23">
+          <CalMode>NORMAL</CalMode>
+          <CalPolarity>NEGATIVE</CalPolarity>
+          <MSPolarity>NEGATIVE</MSPolarity>
+          <TriggerMode>GEMMODE</TriggerMode>
+          <RunMode>SLEEP</RunMode>
+          <ReHitCT>6.4MICROSEC</ReHitCT>
+          <LVDSPowerSave>OFF</LVDSPowerSave>
+          <DACMode>NORMAL</DACMode>
+          <DigInSel>DIGITAL</DigInSel>
+          <MSPulseLength>CLOCK3</MSPulseLength>
+          <HitCountMode>FASTOR</HitCountMode> 
+          <PbBG>OFF</PbBG>
+          <TrimDACRange>DEFAULT</TrimDACRange>
+          <IPreampIn>168</IPreampIn>
+          <IPreampFeed>80</IPreampFeed>
+          <IPreampOut>150</IPreampOut>
+          <IShaper>150</IShaper>
+          <IShaperFeed>100</IShaperFeed>
+          <IComp>90</IComp>
+          <Latency>20</Latency>
+          <VCal>175</VCal>
+          <VThreshold1>50</VThreshold1>
+          <VThreshold2>0</VThreshold2>
+          <CalPhase>0</CalPhase>
         </VFATSettings>
       </OH>
     </GLIB>

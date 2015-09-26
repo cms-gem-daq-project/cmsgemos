@@ -15,7 +15,7 @@
 #include "xoap/SOAPPart.h"
 #include "xoap/SOAPSerializer.h"
 
-xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSoapReply(std::string const& command,
+xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(std::string const& command,
                                                                        std::string const& response)
 {
   xoap::MessageReference reply        = xoap::createMessage();
@@ -26,7 +26,7 @@ xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSoapReply(std::stri
   return reply;
 }
 
-xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSoapFaultReply(std::string const& faultString,
+xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(std::string const& faultString,
                                                                             std::string const& faultCode,
                                                                             std::string const& detail,
                                                                             std::string const& faultActor)
@@ -59,19 +59,36 @@ xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSoapFaultReply(std:
   return reply;
 }
 
-xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeFSMSoapReply(std::string const& event,
+xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(std::string const& event,
                                                                           std::string const& state)
 {
+  //xoap::MessageFactory* messageFactory = xoap::MessageFactory::getInstance(soapProtocolVersion);
+  //xoap::MessageReference reply         = messageFactory->createMessage();
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
   xoap::SOAPBody         body          = envelope.getBody();
-  std::string            replyString   = event + " Response";
+  std::string            replyString   = event + "Response";
+  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG replyString "
+            << replyString << std::endl;
   xoap::SOAPName         replyName     = envelope.createName(replyString, "xdaq", XDAQ_NS_URI);
+  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG replyName "
+            << replyName.getLocalName() << std::endl;
   xoap::SOAPBodyElement  replyElement  = body.addBodyElement(replyName);
+  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG replyElement "
+            << replyElement.getTextContent() << std::endl;
   xoap::SOAPName         stateName     = envelope.createName("state", "xdaq", XDAQ_NS_URI);
+  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG stateName "
+            << stateName.getLocalName() << std::endl;
   xoap::SOAPElement      stateElement  = replyElement.addChildElement(stateName);
+  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG stateElement"
+            << stateElement.getTextContent() << std::endl;
   xoap::SOAPName         attributeName = envelope.createName("stateName", "xdaq", XDAQ_NS_URI);
+  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG attributeName "
+            << attributeName.getLocalName() << std::endl;
   stateElement.addAttribute(attributeName, state);
+  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG reply " << std::endl;
+  reply->writeTo(std::cout);
+  std::cout << std::endl;
   return reply;
 }
 
@@ -85,20 +102,12 @@ std::string gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(xoap::Messag
   DOMNode*     node     = body.getDOMNode();
   DOMNodeList* bodyList = node->getChildNodes();
 
-  /* what is this method doing differntly? when would this not work vs the other method?
-     for (unsigned int i = 0; i < bodyList->getLength(); i++) 
-     {
-     DOMNode* command = bodyList->item(i);
-     if (command->getNodeType() == DOMNode::ELEMENT_NODE)
-     return xoap::XMLCh2String(command->getLocalName());
-     }
-  */
   // The body should contain a single node with the name of the FSM
   // command to execute.
   if (bodyList->getLength() != 1) {
     XCEPT_RAISE(xoap::exception::Exception,
                 toolbox::toString("Expected exactly one element "
-                                  "in FSM command SOAP message, "
+                                  "in GEMFSM command SOAP message, "
                                   "but found %d.", bodyList->getLength()));
   }
   return xoap::XMLCh2String((bodyList->item(0))->getLocalName());  

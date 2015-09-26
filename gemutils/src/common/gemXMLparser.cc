@@ -10,11 +10,11 @@
 gem::utils::gemXMLparser::gemXMLparser(const std::string& xmlFile):
   xmlFile_(xmlFile),
   gemSystem_(new gemSystemProperties()),
-  gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:utils:GEMXMLParser")))
+  m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:utils:GEMXMLParser")))
 {
   //ogemSystem_ = new gemSystemProperties();
   gemSystem_->setDeviceId("GEM");
-  gemLogger_.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
+  m_gemLogger.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
 }
 
 
@@ -49,6 +49,9 @@ void gem::utils::gemXMLparser::parseXMLFile()
   parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
   parser->setDoNamespaces(false);
   parser->setCreateEntityReferenceNodes(false);
+  //parser->setCreateEntityReferenceNodes(true);
+  //parser->setExpandEntityReferences(true);
+  parser->setDoXInclude(true);
   //parser->setToCreateXMLDeclTypeNode(true);
   DEBUG("Xerces parser tuned up ");
 
@@ -81,6 +84,7 @@ void gem::utils::gemXMLparser::parseXMLFile()
 
   if (!errorsOccured) {
     DEBUG("DOM tree created succesfully");
+    this->outputXML(parser->getDocument(), "test.xml");
     xercesc::DOMNode * pDoc = parser->getDocument();
     DEBUG("Base node (getDocument) obtained");
     xercesc::DOMNode * n = pDoc->getFirstChild();
@@ -305,3 +309,40 @@ int gem::utils::gemXMLparser::countChildElementNodes(xercesc::DOMNode * pNode) {
   }
   return count;
 }
+void gem::utils::gemXMLparser::outputXML(xercesc::DOMDocument* pmyDOMDocument, std::string filePath) 
+{ 
+    //Return the first registered implementation that has the desired features. In this case, we are after a DOM implementation that has the LS feature... or Load/Save. 
+    xercesc::DOMImplementation *implementation = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("LS")); 
+
+    // Create a DOMLSSerializer which is used to serialize a DOM tree into an XML document. 
+    xercesc::DOMLSSerializer *serializer = ((xercesc::DOMImplementationLS*)implementation)->createLSSerializer(); 
+
+    // Make the output more human readable by inserting line feeds. 
+    if (serializer->getDomConfig()->canSetParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true)) 
+        serializer->getDomConfig()->setParameter(xercesc::XMLUni::fgDOMWRTFormatPrettyPrint, true); 
+
+    // The end-of-line sequence of characters to be used in the XML being written out.  
+    serializer->setNewLine(xercesc::XMLString::transcode("\n"));  
+
+    // Convert the path into Xerces compatible XMLCh*. 
+    //xercesc::XMLCh *tempFilePath = xercesc::XMLString::transcode(filePath.c_str()); 
+    XMLCh *tempFilePath = xercesc::XMLString::transcode(filePath.c_str()); 
+
+    // Specify the target for the XML output. 
+    xercesc::XMLFormatTarget *formatTarget = new xercesc::LocalFileFormatTarget(tempFilePath); 
+
+    // Create a new empty output destination object. 
+    xercesc::DOMLSOutput *output = ((xercesc::DOMImplementationLS*)implementation)->createLSOutput(); 
+
+    // Set the stream to our target. 
+    output->setByteStream(formatTarget); 
+
+    // Write the serialized output to the destination. 
+    serializer->write(pmyDOMDocument, output); 
+
+    // Cleanup. 
+    serializer->release(); 
+    xercesc::XMLString::release(&tempFilePath); 
+    delete formatTarget; 
+    output->release(); 
+} 

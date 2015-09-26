@@ -84,7 +84,7 @@ namespace gem {
 	  
           std::map<std::string,uint32_t>    vfatFullRegs_;
           std::map<std::string,uint8_t>     vfatRegs_;
-          VFAT2ControlParams vfatParams_;
+          VFAT2ControlParams m_vfatParams;
 
         private:
           std::vector<std::string>          nodes_;

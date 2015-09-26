@@ -1,5 +1,10 @@
-#export BUILD_HOME=</path/to/your/BUILD_HOME>
-#Run this script after you've set BUILD_HOME, or uncomment the previous line and set it to your BUILD_HOME
+#export BUILD_HOME=<your path>/gem-daq-code
+if [[ -n "$BUILD_HOME" ]]; then
+    echo BUILD_HOME $BUILD_HOME
+else
+    echo "BUILD_HOME not set, please set BUILD_HOME to the root of your repository (export BUILD_HOME=<your path>/gem-daq-code) and then rerun this script"
+    return
+fi
 
 # The OS is not set in environment. We assume we are not cross-compiling, and try
 # to guess the OS
@@ -48,3 +53,6 @@ export LD_LIBRARY_PATH=$BUILD_HOME/$project/gemhardware/lib/$XDAQ_OS/$XDAQ_PLATF
 export LD_LIBRARY_PATH=$BUILD_HOME/$project/gemsupervisor/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=$BUILD_HOME/$project/gemHwMonitor/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
 echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
+export GEM_ADDRESS_TABLE_PATH=${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables
+export GEM_PYTHON_PATH=${BUILD_HOME}/gemdaq-testing/setup/scripts/python
+export PYTHONPATH=${GEM_PYTHON_PATH}:${PYTHONPATH}

@@ -1,136 +1,51 @@
 //General structure taken blatantly from tcds::utils::HwDeviceTCA as we're using the same card
 
 #include "gem/hw/GEMHwDevice.h"
+#include "toolbox/net/URN.h"
+#include "gem/utils/GEMInfoSpaceToolBox.h"
 
-gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
-  //gemLogger_(gemLogger),
-  //gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT(deviceName))),
-  //p_gemConnectionManager(0),
-  //p_gemHW(0),
-  gemLogger_(log4cplus::Logger::getInstance(deviceName)),
-  hwLock_(toolbox::BSem::FULL, true),
-  is_connected_(false)
-  //monGEMHw_(0)
+gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
+                                  std::string const& connectionFile) :
+  b_is_connected(false),
+  m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
+  m_hwLock(toolbox::BSem::FULL, true)
 {
-  //need to grab these parameters from the xml file or from some configuration space/file/db
-  //gemLogger_ = log4cplus::Logger::getInstance(deviceName);
-  setAddressTableFileName("allregsnonfram.xml");
-  setIPbusProtocolVersion("2.0");
-  setDeviceBaseNode("");
-  setDeviceIPAddress("192.168.0.115");
-  setDeviceID("GEMHwDevice");
-  
-  ipBusErrs_.BadHeader     = 0;
-  ipBusErrs_.ReadError     = 0;
-  ipBusErrs_.Timeout       = 0;
-  ipBusErrs_.ControlHubErr = 0;
-    
+  INFO("GEMHwDevice(std::string, std::string) ctor");
   setLogLevelTo(uhal::Error());  // Minimise uHAL logging
-  //gem::hw::GEMHwDevice::initDevice();
-  /** 
-   * what's the difference between connect, init, enable for GLIB, VFAT, other devices?
-   * are all options necessary?
-   * steps from nothing to running:
-   * initDevice:
-   * check that register values are hardware default values, if not, something may be amiss
-   * enableDevice:
-   * set register values to sw default values -> hardware is enabled!
-   * configureDevice:
-   * set register values to desired values -> hardware is configured!
-   * startDevice:
-   * set run bit -> hardware is running
-   
-   * in this model, a device can be running while the C++ object no longer exists
-   * is this a good thing?  one can always at a later time connect again and turn the device off
-   * however, if we define the sequences as init->enable->configure->start
-   * then it will be non-trivial to connect to a running chip and set enable to off without
-   * repeating the steps...
-   **/
-}
-
-gem::hw::GEMHwDevice::GEMHwDevice(std::string const& connectionFile,
-                                  std::string const& cardName):
-  //p_gemConnectionManager(0),
-  //p_gemHW(0),
-  hwLock_(toolbox::BSem::FULL, true),
-  is_connected_(false)
-  //monGEMHw_(0)
-{
-  gemLogger_ = log4cplus::Logger::getInstance(cardName);
-  //set up device creation via connection manager
-  uhal::ConnectionManager ConnectXML("file://"+connectionFile);
-
-  //need to grab these parameters from the xml file or from some configuration space/file/db
-  setAddressTableFileName("allregsnonfram.xml");
-  setIPbusProtocolVersion("2.0");
-  setDeviceBaseNode("");
-  setDeviceIPAddress("192.168.0.115");
-  setDeviceID("GEMHwDevice");
-  
-  ipBusErrs_.BadHeader     = 0;
-  ipBusErrs_.ReadError     = 0;
-  ipBusErrs_.Timeout       = 0;
-  ipBusErrs_.ControlHubErr = 0;
-  
-  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
-}
-
-gem::hw::GEMHwDevice::~GEMHwDevice()
-{
-  //if (p_gemHW)
-  //  releaseDevice();
-  //if (p_gemConnectionManager)
-  //  delete p_gemConnectionManager;
-  //p_gemConnectionManager = 0;
-}
-
-std::string gem::hw::GEMHwDevice::printErrorCounts() const {
-  std::stringstream errstream;
-  errstream << "errors while accessing registers:"              << std::endl 
-            << "Bad header:  "       <<ipBusErrs_.BadHeader     << std::endl
-            << "Read errors: "       <<ipBusErrs_.ReadError     << std::endl
-            << "Timeouts:    "       <<ipBusErrs_.Timeout       << std::endl
-            << "Controlhub errors: " <<ipBusErrs_.ControlHubErr << std::endl;
-  INFO(errstream);
-  return errstream.str();
-}
-
-// void gem::hw::GEMHwDevice::connectDevice(std::string const& devicename, uhal::HwInterface& hw_)
-// {
-// }
-
-void gem::hw::GEMHwDevice::connectDevice()
-{
-  //std::string const addressTable      = "allregsnonfram.xml";    //cfgInfoSpaceP_->getString("addressTable");
-  std::string const controlhubAddress = "localhost";    //cfgInfoSpaceP_->getString("controlhubAddress");
-  std::string const deviceAddress     = deviceIPAddr_;  //cfgInfoSpaceP_->getString("deviceAddress");
-  uint32_t    const controlhubPort    = 10203;          //cfgInfoSpaceP_->getUInt32("controlhubPort");
-  uint32_t    const ipbusPort         = 50001;          //cfgInfoSpaceP_->getUInt32("ipbusPort");
-  
-  std::stringstream tmpUri;
-  if (controlhubAddress.size() > 0) {
-    DEBUG("Using control hub at address '" << controlhubAddress
-          << ", port number " << controlhubPort << "'.");
-    tmpUri << "chtcp-"<< getIPbusProtocolVersion() << "://" << controlhubAddress << ":" << controlhubPort
-           << "?target=" << deviceAddress << ":" << ipbusPort;
-  } else {
-    DEBUG("No control hub address specified -> "
-          "continuing with a direct connection.");
-    tmpUri << "ipbusudp-" << getIPbusProtocolVersion() << "://"
-           << deviceAddress << ":" << ipbusPort;
-  }
-  std::string const uri = tmpUri.str();
-  std::string const id  = getDeviceID();
-  std::string const addressTable = getAddressTableFileName();
-
-  INFO("uri, id, address table : " << uri << " " << id << " " << addressTable);
-  
-  //int retryCount = 0;
-  
-  std::shared_ptr<uhal::HwInterface> tmpHWP;
-  
+  p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile));
   try {
-    tmpHWP.reset(new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable)));
+    p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(p_gemConnectionManager->getDevice(deviceName)));
+  } catch (uhal::exception::FileNotFound const& err) {
+    std::string msg = toolbox::toString("Could not find uhal connection file '%s' ",
+                                        connectionFile.c_str());
+    ERROR(msg);
+  } catch (uhal::exception::exception const& err) {
+    std::string msgBase = "Could not obtain the uhal device from the connection manager";
+    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+    ERROR(msg);
+  } catch (std::exception const& err) {
+    ERROR("Unknown std::exception caught from uhal");
+    std::string msgBase = "Could not connect to th e hardware";
+    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+    ERROR(msg);
+  }
+  //should have pointer to device by here
+  setup(deviceName);
+  INFO("GEMHwDevice ctor done");
+}
+gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
+                                  std::string const& connectionURI,
+                                  std::string const& addressTable) :
+  b_is_connected(false),
+  m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
+  m_hwLock(toolbox::BSem::FULL, true)
+{
+  INFO("GEMHwDevice(std::string, std::string, std::string) ctor");
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+  try {
+    p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName,
+                                                                                                          connectionURI,
+                                                                                                          addressTable)));
   } catch (uhal::exception::FileNotFound const& err) {
     std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
                                         "(or one of its included address table modules).",
@@ -146,37 +61,348 @@ void gem::hw::GEMHwDevice::connectDevice()
     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     ERROR(msg);
   }
-  
-  p_gemHW.swap(tmpHWP);
-  if (isHwConnected())
-    INFO("connectDevice::HwDevice pointer active");
-  else
-    INFO("connectDevice::Unable to establish connection with the hardware.");
-  //maybe raise exception here?
+  //should have pointer to device by here
+  setup(deviceName);
+  INFO("GEMHwDevice ctor done");
 }
 
-void gem::hw::GEMHwDevice::configureDevice()
+gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
+                                  uhal::HwInterface& uhalDevice) :
+  b_is_connected(false),
+  m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
+  m_hwLock(toolbox::BSem::FULL, true)
 {
-  
-}
-
-void gem::hw::GEMHwDevice::releaseDevice()
-{
-  //if (p_gemHW != 0) {
-  //  delete p_gemHW;
-  //  p_gemHW = 0;
-  //}
-}
-
-void gem::hw::GEMHwDevice::enableDevice()
-{
-  if (!isHwConnected()) {
-    std::string msg = "Could not enable the hardware. " \
-      "(No hardware is connected.)";
+  INFO("GEMHwDevice(std::string, uhal::HwInterface) ctor");
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+  try {
+    p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice));
+    //maybe get specific node, or pass this in as an argument?
+    //p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice->getNode("someNode")));
+  } catch (uhal::exception::exception const& err) {
+    std::string msgBase = "Could not obtain the uhal device from the passed device";
+    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+    ERROR(msg);
+  } catch (std::exception const& err) {
+    ERROR("Unknown std::exception caught from uhal");
+    std::string msgBase = "Could not connect to th e hardware";
+    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     ERROR(msg);
   }
+  //should have pointer to device by here
+  setup(deviceName);
+  INFO("GEMHwDevice ctor done");
 }
 
+gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
+  b_is_connected(false),
+  m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
+  m_hwLock(toolbox::BSem::FULL, true),
+  m_controlHubIPAddress("localhost"),
+  m_addressTable("allregsnonfram.xml"),
+  m_ipBusProtocol("2.0"),
+  m_deviceIPAddress("192.168.0.115"),
+  m_controlHubPort(10203),
+  m_ipBusPort(50001)
+  //monGEMHw_(0)
+{
+  INFO("GEMHwDevice(std::string) ctor");
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+  
+  toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
+  INFO("Getting hwCfgInfoSpace with urn " << hwCfgURN.toString());
+  p_hwCfgInfoSpace = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+  
+  setParametersFromInfoSpace();
+
+  //time for these to come from a configuration setup
+  std::string const addressTable      = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
+  std::string const controlhubAddress = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
+  std::string const deviceIPAddress   = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
+  std::string const ipBusProtocol     = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
+  uint32_t    const controlhubPort    = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
+  uint32_t    const ipBusPort         = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
+  
+  std::stringstream tmpUri;
+  if (controlhubAddress.size() > 0) {
+    DEBUG("Using control hub at address '" << controlhubAddress
+          << ", port number "              << controlhubPort << "'.");
+    tmpUri << "chtcp-"<< ipBusProtocol << "://"
+           << controlhubAddress << ":" << controlhubPort
+           << "?target=" << deviceIPAddress << ":" << ipBusPort;
+  } else {
+    DEBUG("No control hub address specified -> "
+          "continuing with a direct connection.");
+    tmpUri << "ipbusudp-" << ipBusProtocol << "://"
+           << deviceIPAddress << ":" << ipBusPort;
+  }
+  std::string const uri = tmpUri.str();
+  //std::string const addressTable = getAddressTableFileName();
+
+  INFO("uri, deviceName, address table : " << uri << " " << deviceName << " " << addressTable);
+  try {
+    p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName,
+                                                                                                          uri,
+                                                                                                          addressTable)));
+  } catch (uhal::exception::FileNotFound const& err) {
+    std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
+                                        "(or one of its included address table modules).",
+                                        addressTable.c_str());
+    ERROR(msg);
+  } catch (uhal::exception::exception const& err) {
+    std::string msgBase = "Could not obtain the uhal device from the connection manager";
+    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+    ERROR(msg);
+  } catch (std::exception const& err) {
+    ERROR("Unknown std::exception caught from uhal");
+    std::string msgBase = "Could not connect to th e hardware";
+    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+    ERROR(msg);
+  }
+  //should have pointer to device by here
+  setup(deviceName);
+  INFO("GEMHwDevice ctor done");
+}
+
+//gem::hw::GEMHwDevice::GEMHwDevice(std::string const& connectionFile,
+//                                  std::string const& cardName):
+//  //p_gemConnectionManager(0),
+//  //p_gemHW(0),
+//  b_is_connected(false),
+//  m_gemLogger(log4cplus::Logger::getInstance(cardName)),
+//  m_hwLock(toolbox::BSem::FULL, true)
+//  //monGEMHw_(0)
+//{
+//  INFO("GEMHwDevice(std::string, std::string) ctor");
+//  //toolbox::net::URN hwCfgURN = this->createQualifiedInfoSpace(cardName);
+//  toolbox::net::URN hwCfgURN("urn:gem:hw:"+cardName);
+//  INFO("Getting hwCfgInfoSpace with urn " << hwCfgURN.toString());
+//  p_hwCfgInfoSpace = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+//  
+//  setParametersFromInfoSpace();
+//  //set up device creation via connection manager
+//  uhal::ConnectionManager ConnectXML("file://"+connectionFile);
+//
+//  //need to grab these parameters from the xml file or from some configuration space/file/db
+//  setDeviceBaseNode("");
+//  setDeviceID(cardName);
+//  
+//  m_ipBusErrs.BadHeader     = 0;
+//  m_ipBusErrs.ReadError     = 0;
+//  m_ipBusErrs.Timeout       = 0;
+//  m_ipBusErrs.ControlHubErr = 0;
+//  
+//  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+//  //should have pointer to device by here
+//  INFO("GEMHwDevice ctor done");
+//}
+//
+//gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName, uhal::HwInterface& uhalDevice):
+//  //p_gemConnectionManager(0),
+//  //p_gemHW(0),
+//  b_is_connected(false),
+//  m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
+//  m_hwLock(toolbox::BSem::FULL, true),
+//  m_controlHubIPAddress("localhost"),
+//  m_addressTable("allregsnonfram.xml"),
+//  m_ipBusProtocol("2.0"),
+//  m_deviceIPAddress("192.168.0.115"),
+//  m_controlHubPort(10203),
+//  m_ipBusPort(50001)
+//  //monGEMHw_(0)
+//{
+//  INFO("GEMHwDevice(std::string) ctor");
+//  p_gemHW = new uhal::HwInterface(uhalDevice);
+//
+//  INFO("GEMHwDevice(std::string, std::string) ctor");
+//  toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
+//  INFO("Getting hwCfgInfoSpace with urn " << hwCfgURN.toString());
+//  p_hwCfgInfoSpace = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+//  setParametersFromInfoSpace();
+//  //m_gemLogger = log4cplus::Logger::getInstance(deviceName);
+//
+//  //what about cases where the constructor is called without an infospace, e.g., CLI?
+//  //can CLI calls have a CLI InfoSpace?
+//  setDeviceBaseNode("");
+//  setDeviceID(deviceName);
+//  
+//  m_ipBusErrs.BadHeader     = 0;
+//  m_ipBusErrs.ReadError     = 0;
+//  m_ipBusErrs.Timeout       = 0;
+//  m_ipBusErrs.ControlHubErr = 0;
+//    
+//  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+//  //gem::hw::GEMHwDevice::initDevice();
+//  /** 
+//   * what's the difference between connect, init, enable for GLIB, VFAT, other devices?
+//   * are all options necessary?
+//   * steps from nothing to running:
+//   * initDevice:
+//   * check that register values are hardware default values, if not, something may be amiss
+//   * enableDevice:
+//   * set register values to sw default values -> hardware is enabled!
+//   * configureDevice:
+//   * set register values to desired values -> hardware is configured!
+//   * startDevice:
+//   * set run bit -> hardware is running
+//   
+//   * in this model, a device can be running while the C++ object no longer exists
+//   * is this a good thing?  one can always at a later time connect again and turn the device off
+//   * however, if we define the sequences as init->enable->configure->start
+//   * then it will be non-trivial to connect to a running chip and set enable to off without
+//   * repeating the steps...
+//   **/
+//  INFO("GEMHwDevice ctor done");
+//}
+
+gem::hw::GEMHwDevice::~GEMHwDevice()
+{
+  //if (p_gemHW)
+  //  releaseDevice();
+  //if (p_gemConnectionManager)
+  //  delete p_gemConnectionManager;
+  //p_gemConnectionManager = 0;
+}
+
+std::string gem::hw::GEMHwDevice::printErrorCounts() const {
+  std::stringstream errstream;
+  errstream << "errors while accessing registers:"               << std::endl 
+            << "Bad header:  "       <<m_ipBusErrs.BadHeader     << std::endl
+            << "Read errors: "       <<m_ipBusErrs.ReadError     << std::endl
+            << "Timeouts:    "       <<m_ipBusErrs.Timeout       << std::endl
+            << "Controlhub errors: " <<m_ipBusErrs.ControlHubErr << std::endl;
+  DEBUG(errstream);
+  return errstream.str();
+}
+
+void gem::hw::GEMHwDevice::setParametersFromInfoSpace()
+{
+  INFO("setParametersFromInfoSpace");
+  try {
+    INFO("trying to get parameters from the hwCfgInfoSpace");
+    setControlHubIPAddress( gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "ControlHubIPAddress"));
+    setIPBusProtocolVersion(gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "IPBusProtocol"));
+    setDeviceIPAddress(     gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "DeviceIPAddress"));
+    setAddressTableFileName(gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "AddressTable"));
+    
+    setControlHubPort(gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "ControlHubPort"));
+    setIPBusPort(     gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "IPBusPort"));
+    return;
+  } catch (gem::utils::exception::InfoSpaceProblem const& err) {
+    ERROR("Could not set the device parameters from the InfoSpace " <<
+          "(gem::utils::exception::InfoSpacePRoblem)::"
+          << err.what());
+  } catch (std::exception const& err) {
+    ERROR("Could not set the device parameters from the InfoSpace " << 
+          "(std::exception)"
+          << err.what());
+  }
+  //if we catch an exception, need to execute this, as successful operation will return in the try block
+  INFO("Setting default values as InfoSpace setting failed");
+  setControlHubIPAddress("localhost");
+  setAddressTableFileName("allregsnonfram.xml");
+  setIPBusProtocolVersion("2.0");
+  setDeviceIPAddress("192.168.0.115");
+
+  setControlHubPort(10203);
+  setIPBusPort(50001);
+  return;
+}
+
+void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
+{
+  setDeviceBaseNode("");
+  setDeviceID(deviceName);
+  
+  m_ipBusErrs.BadHeader     = 0;
+  m_ipBusErrs.ReadError     = 0;
+  m_ipBusErrs.Timeout       = 0;
+  m_ipBusErrs.ControlHubErr = 0;
+    
+  setLogLevelTo(uhal::Error());  // Minimise uHAL logging
+}
+//void gem::hw::GEMHwDevice::connectDevice()
+//{
+//  //time for these to come from a configuration setup
+//  std::string const addressTable      = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
+//  std::string const controlhubAddress = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
+//  std::string const deviceIPAddress   = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
+//  std::string const ipBusProtocol     = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
+//  uint32_t    const controlhubPort    = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
+//  uint32_t    const ipBusPort         = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
+//  
+//  std::stringstream tmpUri;
+//  if (controlhubAddress.size() > 0) {
+//    DEBUG("Using control hub at address '" << controlhubAddress
+//          << ", port number "              << controlhubPort << "'.");
+//    tmpUri << "chtcp-"<< ipBusProtocol << "://"
+//           << controlhubAddress << ":" << controlhubPort
+//           << "?target=" << deviceIPAddress << ":" << ipBusPort;
+//  } else {
+//    DEBUG("No control hub address specified -> "
+//          "continuing with a direct connection.");
+//    tmpUri << "ipbusudp-" << ipBusProtocol << "://"
+//           << deviceIPAddress << ":" << ipBusPort;
+//  }
+//  std::string const uri = tmpUri.str();
+//  std::string const id  = getDeviceID();
+//  //std::string const addressTable = getAddressTableFileName();
+//
+//  INFO("uri, id, address table : " << uri << " " << id << " " << addressTable);
+//  GEMHwDevice(id, uri, addressTable);
+//  //int retryCount = 0;
+//  
+//  if (!p_gemHW) {
+//    std::shared_ptr<uhal::HwInterface> tmpHWP;
+//    
+//    try {
+//      tmpHWP.reset(new uhal::HwInterface(uhal::ConnectionManager::getDevice(id, uri, addressTable)));
+//    } catch (uhal::exception::FileNotFound const& err) {
+//      std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
+//                                          "(or one of its included address table modules).",
+//                                          addressTable.c_str());
+//      ERROR(msg);
+//    } catch (uhal::exception::exception const& err) {
+//      std::string msgBase = "Could not obtain the uhal device from the connection manager";
+//      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+//      ERROR(msg);
+//    } catch (std::exception const& err) {
+//      ERROR("Unknown std::exception caught from uhal");
+//      std::string msgBase = "Could not connect to th e hardware";
+//      std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+//      ERROR(msg);
+//    }
+//    
+//    p_gemHW.swap(tmpHWP);
+//  }
+//  
+//  if (isHwConnected())
+//    INFO("connectDevice::HwDevice pointer active");
+//  else
+//    INFO("connectDevice::Unable to establish connection with the hardware.");
+//  //maybe raise exception here?
+//}
+//
+//void gem::hw::GEMHwDevice::configureDevice()
+//{
+//  
+//}
+//
+//void gem::hw::GEMHwDevice::releaseDevice()
+//{
+//  //if (p_gemHW != 0) {
+//  //  delete p_gemHW;
+//  //  p_gemHW = 0;
+//  //}
+//}
+//
+//void gem::hw::GEMHwDevice::enableDevice()
+//{
+//  if (!isHwConnected()) {
+//    std::string msg = "Could not enable the hardware. (No hardware is connected.)";
+//    ERROR(msg);
+//  }
+//}
+//
 //void gem::hw::GEMHwDevice::disableDevice()
 //{
 //
@@ -222,11 +448,12 @@ uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
     uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
     return hw;
   }
+  //have to fix the return value for failed access, better to return a pointer?
 }
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   int retryCount = 0;
@@ -273,7 +500,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   int retryCount = 0;
@@ -326,7 +553,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -362,7 +589,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 
 void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
   int retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -431,7 +658,7 @@ void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames)
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
   size_t numWords       = hw.getNode(name).getSize();
   DEBUG("reading block " << name << " which has size "<<numWords);
@@ -440,7 +667,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, size_t const& numWords)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
 
   std::vector<uint32_t> res(numWords);
@@ -488,7 +715,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   if (values.size() < 1) 
     return;
   
@@ -539,22 +766,22 @@ bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
 
 void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
   if (errCode.find("amount of data")    != std::string::npos)
-    ++ipBusErrs_.BadHeader;
+    ++m_ipBusErrs.BadHeader;
   if (errCode.find("INFO CODE = 0x4L")  != std::string::npos)
-    ++ipBusErrs_.ReadError;
+    ++m_ipBusErrs.ReadError;
   if ((errCode.find("INFO CODE = 0x6L") != std::string::npos) ||
       (errCode.find("timed out")        != std::string::npos))
-    ++ipBusErrs_.Timeout;
+    ++m_ipBusErrs.Timeout;
   if (errCode.find("ControlHub error code is: 4") != std::string::npos)
-    ++ipBusErrs_.ControlHubErr;
+    ++m_ipBusErrs.ControlHubErr;
   if ((errCode.find("had response field = 0x04") != std::string::npos) ||
       (errCode.find("had response field = 0x06") != std::string::npos))
-    ++ipBusErrs_.ControlHubErr;
+    ++m_ipBusErrs.ControlHubErr;
 }
 
 void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
   size_t numWords = hw.getNode(name).getSize();
   std::vector<uint32_t> zeros(numWords, 0);

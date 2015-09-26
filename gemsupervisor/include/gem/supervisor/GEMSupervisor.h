@@ -1,14 +1,11 @@
 #ifndef gem_supervisor_GEMSupervisor_h
 #define gem_supervisor_GEMSupervisor_h
 
-#include "xdaq/Application.h"
-#include "xdata/UnsignedLong.h"
-#include "xdata/UnsignedInteger32.h"
-
 #include "uhal/uhal.hpp"
 
 #include "gem/base/GEMFSMApplication.h"
 #include "gem/supervisor/GEMSupervisorWeb.h"
+#include "gem/supervisor/exception/Exception.h"
 
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
@@ -28,38 +25,24 @@ namespace gem {
 
         virtual ~GEMSupervisor();
       
-        void init();
+        virtual void init();
 
-        void actionPerformed(xdata::Event& event);
+        virtual void actionPerformed(xdata::Event& event);
 
       protected:
-        //virtual void xgiDefault(   xgi::Input *in, xgi::Output *out );
-      
-        virtual bool initialize(toolbox::task::WorkLoop *wl);
-        virtual bool enable(    toolbox::task::WorkLoop *wl);
-        virtual bool configure( toolbox::task::WorkLoop *wl);
-        virtual bool start(     toolbox::task::WorkLoop *wl);
-        virtual bool pause(     toolbox::task::WorkLoop *wl);
-        virtual bool resume(    toolbox::task::WorkLoop *wl);
-        virtual bool stop(      toolbox::task::WorkLoop *wl);
-        virtual bool halt(      toolbox::task::WorkLoop *wl);
-        virtual bool reset(     toolbox::task::WorkLoop *wl);
-        /* //virtual bool noAction(        toolbox::task::WorkLoop *wl); */
-        /* virtual bool fail(      toolbox::task::WorkLoop *wl); */
-      
         /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */
         /* virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl); */
 
         //state transitions
-        virtual void initializeAction();
-        virtual void enableAction(    );
-        virtual void configureAction( );
-        virtual void startAction(     );
-        virtual void pauseAction(     );
-        virtual void resumeAction(    );
-        virtual void stopAction(      );
-        virtual void haltAction(      );
-        virtual void noAction(        ); 
+        virtual void initializeAction() throw (gem::supervisor::exception::Exception);
+        virtual void configureAction()  throw (gem::supervisor::exception::Exception);
+        virtual void startAction()      throw (gem::supervisor::exception::Exception);
+        virtual void pauseAction()      throw (gem::supervisor::exception::Exception);
+        virtual void resumeAction()     throw (gem::supervisor::exception::Exception);
+        virtual void stopAction()       throw (gem::supervisor::exception::Exception);
+        virtual void haltAction()       throw (gem::supervisor::exception::Exception);
+        virtual void resetAction()      throw (gem::supervisor::exception::Exception);
+        //virtual void noAction()         throw (gem::supervisor::exception::Exception); 
       
         virtual void failAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception); 

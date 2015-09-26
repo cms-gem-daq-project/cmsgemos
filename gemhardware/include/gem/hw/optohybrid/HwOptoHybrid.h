@@ -18,23 +18,26 @@ namespace gem {
         {
         public:
           HwOptoHybrid();
+          HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionFile);
+          HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwOptoHybrid(std::string const& optohybridDevice, uhal::HwInterface& uhalDevice);
           HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
 
-          ~HwOptoHybrid();
-	
-          //virtual void connectDevice();
-          //virtual void releaseDevice();
-          //virtual void initDevice();
-          //virtual void enableDevice();
-          virtual void configureDevice();
-          virtual void configureDevice(std::string const& xmlSettings);
-          //virtual void configureDevice(std::string const& dbConnectionString);
-          //virtual void disableDevice();
-          //virtual void pauseDevice();
-          //virtual void startDevice();
-          //virtual void stopDevice();
-          //virtual void resumeDevice();
-          //virtual void haltDevice();
+          virtual ~HwOptoHybrid();
+          
+          //updating interfaces////virtual void connectDevice();
+          //updating interfaces////virtual void releaseDevice();
+          //updating interfaces////virtual void initDevice();
+          //updating interfaces////virtual void enableDevice();
+          //updating interfaces//virtual void configureDevice();
+          //updating interfaces//virtual void configureDevice(std::string const& xmlSettings);
+          //updating interfaces////virtual void configureDevice(std::string const& dbConnectionString);
+          //updating interfaces////virtual void disableDevice();
+          //updating interfaces////virtual void pauseDevice();
+          //updating interfaces////virtual void startDevice();
+          //updating interfaces////virtual void stopDevice();
+          //updating interfaces////virtual void resumeDevice();
+          //updating interfaces////virtual void haltDevice();
 
           virtual bool isHwConnected();
 
@@ -70,8 +73,8 @@ namespace gem {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)link << ".FIRMWARE";
             uint32_t fwver = readReg(getDeviceBaseNode(),regName.str());
-            INFO("OH link" << (int)link << " has firmware version 0x" 
-                 << std::hex << fwver << std::dec << std::endl);
+            DEBUG("OH link" << (int)link << " has firmware version 0x" 
+                  << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 					
@@ -111,7 +114,7 @@ namespace gem {
            * @param uint8_t resets control which bits to reset
            **/
           void ResetLinks(uint8_t const& resets) {
-            for (auto link = activeLinks.begin(); link != activeLinks.end(); ++link)
+            for (auto link = v_activeLinks.begin(); link != v_activeLinks.end(); ++link)
               LinkReset(link->first,resets);
           };
 	  
@@ -247,7 +250,7 @@ namespace gem {
           void setSBitSource(uint8_t const& mode, uint8_t const& link=0x0) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC.SBits",mode); };
+            writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits",mode); };
 
           /** Read the S-bit source
            * @retval uint8_t which VFAT chip is sending the S-bits
@@ -265,9 +268,10 @@ namespace gem {
           void SendL1A(uint64_t ntrigs, uint8_t const& link=0x0) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            for (uint64_t i = 0; i < ntrigs; ++i) 
+            for (uint64_t i = 0; i < ntrigs; ++i) {
               //sleep(1);
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.L1A",0x1);
+            }
           };
 
           /** Send an internal CalPulse
@@ -276,19 +280,27 @@ namespace gem {
           void SendCalPulse(uint64_t npulse, uint8_t const& link=0x0) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            for (uint64_t i = 0; i < npulse; ++i) 
+            for (uint64_t i = 0; i < npulse; ++i) {
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.CalPulse",0x1);
+              DEBUG("Sleeping for 0.1 mseconds...");
+              sleep(0.1);
+              DEBUG("back!");
+            }
           };
 
-          /** Send an internal L1A and CalPulse
+          /** Send a CalPulse followed by an L1A
            * @param uint64_t npulse, how many pairs to send
            * @param uint32_t delay, how long between L1A and CalPulse
            **/
           void SendL1ACal(uint64_t npulse, uint32_t delay, uint8_t const& link=0x0) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            for (uint64_t i = 0; i < npulse; ++i) 
+            for (uint64_t i = 0; i < npulse; ++i) {
               writeReg(getDeviceBaseNode(),regName.str()+".FAST_COM.Send.L1ACalPulse",delay);
+              DEBUG("Sleeping for 0.5 mseconds...");
+              sleep(0.5);
+              DEBUG("back!");
+            }
           };
 
           /** Send an internal Resync
@@ -479,22 +491,15 @@ namespace gem {
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             return getGEMHwInterface(); };
 
-          std::vector<linkStatus> getActiveLinks() { return activeLinks; }
-          bool isLinkActive(int i) { return links[i]; }
+          std::vector<linkStatus> getActiveLinks() { return v_activeLinks; }
+          bool isLinkActive(int i) { return b_links[i]; }
 
         protected:
-          //uhal::ConnectionManager *manageOptoHybridConnection;
-          //log4cplus::Logger logOptoHybrid_;
-          //uhal::HwInterface *hwOptoHybrid_;
-					
-          //uhal::HwInterface& getOptoHybridHwDevice() const;
-					
           //OptoHybridMonitor *monOptoHybrid_;
-					
 
-          bool links[3];
+          bool b_links[3];
 	    
-          std::vector<linkStatus> activeLinks;
+          std::vector<linkStatus> v_activeLinks;
 
         private:
           uint8_t m_controlLink;
