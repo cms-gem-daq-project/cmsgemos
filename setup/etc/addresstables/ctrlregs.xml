@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="ctrl"                   address="0x00000004"  mask="0xffffffff"  permissions="rw">
+    <node id="pcie_clk_fsel"	    address="0x00000004"  mask="0x00000001"  permission="rw"/>
+    <node id="pcie_clk_mr"	    address="0x00000004"  mask="0x00000002"  permission="rw"/>
+    <node id="pcie_clk_oe"	    address="0x00000004"  mask="0x00000004"  permission="rw"/>
+    <node id="cdce_powerup"	    address="0x00000004"  mask="0x00000010"  permission="rw"/>
+    <node id="cdce_refsel"	    address="0x00000004"  mask="0x00000020"  permission="rw"/>
+    <node id="cdce_sync"	    address="0x00000004"  mask="0x00000040"  permission="rw"/>
+    <node id="cdce_ctrl_sel"        address="0x00000004"  mask="0x00000080"  permission="rw"/>
+    <node id="tclkb_dr_en"	    address="0x00000004"  mask="0x00000200"  permission="rw"/>
+    <node id="xpoint2_s10"	    address="0x00000004"  mask="0x00001000"  permission="rw"/>
+    <node id="xpoint2_s11"	    address="0x00000004"  mask="0x00002000"  permission="rw"/>
+    <node id="xpoint1_s10"	    address="0x00000004"  mask="0x00010000"  permission="rw"/>
+    <node id="xpoint1_s11"	    address="0x00000004"  mask="0x00020000"  permission="rw"/>
+    <node id="xpoint1_s20"	    address="0x00000004"  mask="0x00040000"  permission="rw"/>
+    <node id="xpoint1_s21"	    address="0x00000004"  mask="0x00080000"  permission="rw"/>
+    <node id="xpoint1_s30"	    address="0x00000004"  mask="0x00100000"  permission="rw"/>
+    <node id="xpoint1_s31"	    address="0x00000004"  mask="0x00200000"  permission="rw"/>
+    <node id="xpoint1_s40"	    address="0x00000004"  mask="0x00400000"  permission="rw"/>
+    <node id="xpoint1_s41"	    address="0x00000004"  mask="0x00800000"  permission="rw"/>
+    <node id="gbt_phase_mon_reset"  address="0x00000004"  mask="0x04000000"  permission="rw"/>
+    <node id="fpga_program_b_trst"  address="0x00000004"  mask="0x10000000"  permission="rw"/>
+  </node>
+
+  <node id="ctrl_2"        address="0x00000005"  mask="0xffffffff"  permissions="rw">
+    <node id="icap_page"   address="0x00000005"  mask="0x00000003"  permission="rw"/>
+    <node id="icap_trigg"  address="0x00000005"  mask="0x00000010"  permission="rw"/>
+  </node>
+</node>

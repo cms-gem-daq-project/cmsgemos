@@ -35,6 +35,11 @@ namespace gem {
       class VFAT2Settings;
     }
   }
+
+  typedef std::shared_ptr<hw::vfat::HwVFAT2 > vfat_shared_ptr;
+  typedef std::shared_ptr<hw::glib::HwGLIB >  glib_shared_ptr;
+  typedef std::shared_ptr<hw::optohybrid::HwOptoHybrid > optohybrid_shared_ptr;
+
   namespace hwMonitor {
     class gemHwMonitorWeb: public xdaq::WebApplication//, xdata::ActionListener
       {
@@ -117,9 +122,9 @@ namespace gem {
         std::string ohToShow_;
         std::string vfatToShow_;
         std::string glibIP;
-        gem::hw::glib::HwGLIB* glibDevice_;
-        gem::hw::optohybrid::HwOptoHybrid* ohDevice_;
-        gem::hw::vfat::HwVFAT2* vfatDevice_;
+        glib_shared_ptr       glibDevice_;
+        optohybrid_shared_ptr ohDevice_;
+        vfat_shared_ptr       vfatDevice_;
         std::vector<std::string> checkedCrates_;
 
         void printVFAThwParameters(const char* key, const char* value1, const char* value2, xgi::Output * out)

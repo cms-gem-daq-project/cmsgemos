@@ -16,16 +16,19 @@ namespace gem {
         {
         public:
           HwGLIB();
+          HwGLIB(std::string const& glibDevice, std::string const& connectionFile);
+          HwGLIB(std::string const& glibDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwGLIB(std::string const& glibDevice, uhal::HwInterface& uhalDevice);
           HwGLIB(int const& crate, int const& slot);
 	
-          ~HwGLIB();
+          virtual ~HwGLIB();
 
           //virtual void connectDevice();
           //virtual void releaseDevice();
           //virtual void initDevice();
           //virtual void enableDevice();
-          virtual void configureDevice();
-          virtual void configureDevice(std::string const& xmlSettings);
+          //virtual void configureDevice();
+          //virtual void configureDevice(std::string const& xmlSettings);
           //virtual void configureDevice(std::string const& dbConnectionString);
           //virtual void disableDevice();
           //virtual void pauseDevice();
@@ -348,10 +351,35 @@ namespace gem {
            * @param uint8_t resets control which bits to reset
            **/
           void ResetLinks(uint8_t const& resets) {
-            for (auto link = activeLinks.begin(); link != activeLinks.end(); ++link)
+            for (auto link = v_activeLinks.begin(); link != v_activeLinks.end(); ++link)
               LinkReset(link->first,resets);
           };
 	  
+          /** Read the Trigger source
+           * @retval uint8_t 0 from GLIB, 1 from AMC13, 2 from both
+           **/
+          uint8_t getTrigSource(uint8_t const& link=0x0) { 
+            std::stringstream regName;
+            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
+            return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE"); };
+
+
+          /** Set the S-bit source
+           * @param uint8_t chip
+           **/
+          void setSBitSource(uint8_t const& mode, uint8_t const& link=0x0) {
+            std::stringstream regName;
+            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
+            writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits",mode); };
+
+          /** Read the S-bit source
+           * @retval uint8_t which VFAT chip is sending the S-bits
+           **/
+          uint8_t getSBitSource(uint8_t const& link=0x0) {
+            std::stringstream regName;
+            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
+            return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits"); };
+
           /** Read the trigger data
            * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
            **/
@@ -394,18 +422,11 @@ namespace gem {
 
 
         protected:
-          //uhal::ConnectionManager *manageGLIBConnection;
-          //log4cplus::Logger logGLIB_;
-          //uhal::HwInterface *hwGLIB_;
-
-          //uhal::HwInterface& getGLIBHwDevice();
-
           //GLIBMonitor *monGLIB_;
-
 	
-          bool links[3];
+          bool b_links[3];
 	    
-          std::vector<linkStatus> activeLinks;
+          std::vector<linkStatus> v_activeLinks;
 
         private:
           uint8_t m_controlLink;

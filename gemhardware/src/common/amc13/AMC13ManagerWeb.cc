@@ -20,6 +20,27 @@ gem::hw::amc13::AMC13ManagerWeb::~AMC13ManagerWeb()
   //default destructor
 }
 
+void gem::hw::amc13::AMC13ManagerWeb::webDefault(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  if (p_gemFSMApp)
+    DEBUG("current state is" << dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState());
+  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
+  *out << "<div class=\"xdaq-tab\" title=\"AMC13 Control Panel\" >"  << std::endl;
+  controlPanel(in,out);
+  *out << "</div>" << std::endl;
+
+  *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
+  monitorPage(in,out);
+  *out << "</div>" << std::endl;
+
+  std::string expURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/expertPage";
+  *out << "<div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
+  expertPage(in,out);
+  *out << "</div>" << std::endl;
+  *out << "</div>" << std::endl;
+}
+
 /*To be filled in with the monitor page code
  * right now it just prints out the status page that the AMC13 generates
  * in the future it will be nice to add other monitoring to a separate tab perhaps
@@ -42,11 +63,15 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
     } catch (const xgi::exception::Exception& e) {
       level = 2;
       WARN("Caught xgi::exception " << e.what());
-      XCEPT_RAISE(xgi::exception::Exception, e.what());
+      //XCEPT_RAISE(xgi::exception::Exception, e.what());
     } catch (const std::exception& e) {
       level = 2;
       WARN("Caught std::exception " << e.what());
-      XCEPT_RAISE(xgi::exception::Exception, e.what());
+      //XCEPT_RAISE(xgi::exception::Exception, e.what());
+    } catch (...) {
+      level = 2;
+      WARN("Caught unknown exception");
+      //XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
   else 
     level = 2;
@@ -54,7 +79,7 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
   DEBUG("current level is "      << level);
 
   //form and control to set the display level of information
-  std::string method = toolbox::toString("/%s/monitorView",gemFSMAppP_->getApplicationDescriptor()->getURN().c_str());
+  std::string method = toolbox::toString("/%s/monitorView",p_gemFSMApp->getApplicationDescriptor()->getURN().c_str());
   *out << cgicc::form().set("method","POST").set("action",method) << std::endl;
   
   *out << cgicc::section().set("style","display:inline-block;float:left") << std::endl
@@ -85,14 +110,18 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
            cgicc::input().set("type","radio").set("name","level").set("value","3").set("checked") :
            cgicc::input().set("type","radio").set("name","level").set("value","3"))
        << "maximum" << std::endl
+       << (level == 99 ?
+           cgicc::input().set("type","radio").set("name","level").set("value","99").set("checked") :
+           cgicc::input().set("type","radio").set("name","level").set("value","99"))
+       << "expert" << std::endl
 
        << cgicc::br()     << std::endl
        << cgicc::div()    << std::endl
        << cgicc::span().set("style","display:block;float:left") << std::endl;
   
   try {
-    if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(gemFSMAppP_)->getAMC13Device()) {
-      ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(gemFSMAppP_)->getAMC13Device()->getStatus();
+    if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
+      ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus();
       s->SetHTML();
       s->Report(level,*out);
     } else {

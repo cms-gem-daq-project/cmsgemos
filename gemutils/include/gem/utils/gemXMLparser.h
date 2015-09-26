@@ -4,9 +4,19 @@
 #include <string>
 #include <map>
 
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMElement.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/util/OutOfMemoryException.hpp>
+#include <xercesc/framework/XMLFormatter.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
+#include <xercesc/dom/DOMDocument.hpp>
+#include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMImplementationRegistry.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
+#include <xercesc/dom/DOMLSOutput.hpp>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -62,6 +72,7 @@ namespace gem {
        *   Count child nodes of element type of the given XML node
        */
       int countChildElementNodes(xercesc::DOMNode * pNode);
+      void outputXML(xercesc::DOMDocument* pmyDOMDocument, std::string filePath);
 
     private:
       static void addProperty(const char* key, const xercesc::DOMNode* n, gemGLIBProperties* glib);
@@ -69,7 +80,7 @@ namespace gem {
       static void addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat);
       std::string xmlFile_;
       gemSystemProperties *gemSystem_;
-      log4cplus::Logger gemLogger_;
+      log4cplus::Logger m_gemLogger;
     };
   } // end namespace gem::utils
 } // end namespace gem

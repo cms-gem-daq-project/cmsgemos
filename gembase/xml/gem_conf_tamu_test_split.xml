@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GEMSystem>
+<uTCACrate CrateId="Crate01">
+	<MCH MCHId="MCH01">
+	</MCH>
+	<AMC AMCId="AMC01">
+	</AMC>
+	<GLIB GLIBId="GLIB10">
+        <Station>GE1/1</Station>
+        <FW>X.Y.Z</FW>
+        <IP>192.168.0.170</IP>
+        <DEPTH>0</DEPTH><!--Number of events in the FIFO-->
+        <TDC_SBits>0</TDC_SBits> <!-- Selects which VFAT2 sends SBits. Currently 0-5, should be 0-23-->
+        <OH OHId="OH1" xmlns:xi="http://www.w3.org/2001/XInclude">
+            <xi:include href="/home/mdalchen/gemdev/gem-daq-code/gemdaq-testing/gembase/xml/gem_tamu_OH.xml" parse="text"/>
+        </OH>
+	</GLIB>
+</uTCACrate>
+</GEMSystem>

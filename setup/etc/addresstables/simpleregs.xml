@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--  The tags attribute is a free test attribute which meaning is defined by the uHAL user -->
+<node id="glib_regs">
+  <node id="sysregs"  description="GLIB system registers">
+    <node id="board_id"  address="0x00000000"  mask="0xffffffff"  permission="r"
+	  description="GLIB board ID code">
+      <!--node id="board_id_char1"  mask="0xff000000"/>
+      <node id="board_id_char2"  mask="0x00ff0000"/>
+      <node id="board_id_char3"  mask="0x0000ff00"/>
+      <node id="board_id_char4"  mask="0x000000ff"/-->
+    </node> <!--end board_id -->
+    
+    <node id="system_id"  address="0x00000001"  mask="0xffffffff"  permission="r"
+	  description="GLIB system ID code">
+      <!--node id="system_id_char1"  mask="0xff000000"/>
+      <node id="system_id_char2"  mask="0x00ff0000"/>
+      <node id="system_id_char3"  mask="0x0000ff00"/>
+      <node id="system_id_char4"  mask="0x000000ff"/-->
+    </node> <!--end system_id -->
+    
+    <node id="firmware_id"  address="0x00000002"  mask="0xffffffff"  permission="r" 
+	  description="GLIB firmware date (dd.mm.yy) and version number (x.y.z)">
+      <!--node id="ver_major"    mask="0xf0000000"/>
+      <node id="ver_minor"    mask="0x0f000000"/>
+      <node id="ver_build"    mask="0x00ff0000"/>
+      <node id="firmware_yy"  mask="0x0000fe00"/>
+      <node id="firmware_mm"  mask="0x000001e0"/>
+      <node id="firmware_dd"  mask="0x0000001f"/-->
+    </node> <!--end firmware_id -->
+  </node> <!--end sysregs -->
+
+  <node id="test"  address="0x00000003"    mask="0xffffffff"  permission="rw"
+	description="Register for testing purposes only"/>
+</node> <!--end glib_regs-->
