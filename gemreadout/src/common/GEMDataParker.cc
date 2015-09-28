@@ -416,7 +416,7 @@ int gem::readout::GEMDataParker::getGLIBData(
  
       geb.vfats.clear();
       INFO(" ::getGLIBData vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
- 	                     " erros.size " << std::setfill(' ') << std::setw(3) << int(erros.size()) << 
+ 	                     " erros.size " << std::setfill(' ') << std::setw(4) << int(erros.size()) << 
            " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
  	   " locError   " << std::setfill(' ') << std::setw(3) << locError << " event " << event_
       );
