@@ -196,7 +196,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   }
   else if (is_running_) {
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","30");
+    head.addHeader("Refresh","7");
   }
 
   if (is_configured_) {
@@ -410,8 +410,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO("webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(2);
+  INFO(" webTrigger: sending L1A");
+  optohybridDevice_->SendL1A(100);
 
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
@@ -569,7 +569,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  int* pDupm = gemDataParker->dumpData(readout_mask);
+  uint64_t* pDupm = gemDataParker->dumpData(readout_mask);
   if (pDupm) {
     counter_[0] = *pDupm;     // VFAT Blocks counter
     counter_[1] = *(pDupm+1); // Events counter
@@ -668,16 +668,25 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
   std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
 
+  std::string errFileName = "ERRORS_";
+  errFileName.append(utcTime);
+  errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
+  errFileName.append(".dat");
+  std::replace(errFileName.begin(), errFileName.end(), ' ', '_' );
+  std::replace(errFileName.begin(), errFileName.end(), ':', '-');
+
   confParams_.bag.outFileName = tmpFileName;
   std::ofstream outf(tmpFileName.c_str(), std::ios_base::app | std::ios::binary );
+  std::ofstream errf(errFileName.c_str(), std::ios_base::app | std::ios::binary );
 
   tmpType = confParams_.bag.outputType.toString();
 
   // Book GEM Data Parker
-  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpType));
+  gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, tmpType);
 
   // Data Stream close
   outf.close();
+  errf.close();
 
   if (SetupFile.is_open()){
     SetupFile << " Latency       " << latency_   << std::endl;
