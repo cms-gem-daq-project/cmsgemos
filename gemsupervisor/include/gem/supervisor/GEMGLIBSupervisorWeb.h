@@ -237,7 +237,7 @@ namespace gem {
         std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
 
         // Counter
-        int counter_[3];
+        uint64_t counter_[3];
 
         // VFAT Blocks Counter
         int vfat_;
