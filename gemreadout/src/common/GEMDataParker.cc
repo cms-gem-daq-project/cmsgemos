@@ -53,8 +53,8 @@ gem::readout::GEMDataParker::GEMDataParker(
                                           std::string const& errFileName, 
                                           std::string const& outputType) 
                                           :
-                                          gemLogger_(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))
-){
+                                          m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))
+                                                     ){
   //gemLogger_   = log4cplus::Logger::getInstance("gem:readout:GEMDataParker");
   glibDevice_  = &glibDevice;
   outFileName_ = outFileName;
