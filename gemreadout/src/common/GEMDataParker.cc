@@ -20,6 +20,9 @@ typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
 std::vector<AMCVFATData> vfats;
 std::vector<AMCVFATData> erros;
 
+int MaxVFATS = 60000;  
+int MaxERRS  = 10000;
+
 uint16_t gem::readout::GEMslotContents::slot[24] = {
   0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
   0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
@@ -205,6 +208,10 @@ int gem::readout::GEMDataParker::getGLIBData(
     DEBUG(" ::getGLIBData ES " << std::hex << ES << std::dec << " bool " << isFirst.find(ES)->second );
     if ( isFirst.find(ES)->second ) {
 
+      // VFATS dimensions have limits
+      vfats.reserve(MaxVFATS);
+      erros.reserve(MaxERRS);
+
       isFirst.erase(ES);
       isFirst.insert(std::pair<uint32_t, bool>(ES,false));
 
@@ -272,7 +279,7 @@ int gem::readout::GEMDataParker::getGLIBData(
   
       // islot out of [0-23]
       islotNegativeCount++;
-      if ( int(erros.size()) < 10000 ) erros.push_back(vfat);
+      if ( int(erros.size()) <MaxERRS ) erros.push_back(vfat);
       DEBUG(" ::getGLIBData warning !!! islot is undefined " << islot << " NegativeCount " << islotNegativeCount << 
            " erros.size " << int(erros.size()) );
      /*
@@ -296,7 +303,7 @@ int gem::readout::GEMDataParker::getGLIBData(
      /*
       * VFATs Pay Load
       */
-      if ( int(vfats.size()) < 90000 ) vfats.push_back(vfat);
+      if ( int(vfats.size()) < MaxVFATS ) vfats.push_back(vfat);
       
       DEBUG(" ::getGLIBData bufferDepth " << bufferDepth << " event_ " << event_ <<
 	   " vfats.size " << int(vfats.size()) << std::hex << " ES 0x" << ES << std::dec );
