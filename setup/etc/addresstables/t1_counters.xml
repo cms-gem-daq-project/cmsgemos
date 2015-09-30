@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="L1A"      address="0x0"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+  <node id="CalPulse" address="0x1"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+  <node id="Resync"   address="0x2"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+  <node id="BC0"      address="0x3"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+</node>
