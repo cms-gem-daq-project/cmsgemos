@@ -101,10 +101,10 @@ namespace gem {
             };
           };
           
-          mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
+          mutable gem::utils::Lock m_deviceLock;//[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
 	  
-          optohybrid_shared_ptr m_optohybrids[MAX_AMCS_PER_CRATE];
-          xdata::InfoSpace*     is_optohybrids[MAX_AMCS_PER_CRATE];
+          optohybrid_shared_ptr m_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
+          xdata::InfoSpace*     is_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;
           xdata::String        m_connectionFile;
         }; //end class OptoHybridManager
