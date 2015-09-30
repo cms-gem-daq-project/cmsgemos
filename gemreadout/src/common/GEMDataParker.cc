@@ -46,8 +46,8 @@ int MaxEvent = 0;
 int MaxErr   = 0;
 
 /*
- *  BC+EC are using for event selection
- *  uint32_t ES = ( EC << 12 ) | (BC);
+ *  ES have been used for event selection
+ *     uint32_t ES = ( EC << 12 ) | (BC);
 */
 
 uint32_t ES;
@@ -195,7 +195,10 @@ int gem::readout::GEMDataParker::getGLIBData(
     islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)chipid );
 
     // GEM Event selector
-    ES = ( evn << 12 ) | (bcn);
+    ES = ( ( 0x0ff0 & evn ) << 12 ) | ( 0x0fff & bcn);
+    INFO(" ::getGLIBData vfats ES 0x" << std::hex << ( 0x000fffff & ES ) << " EC 0x" << ( 0x0ff0 & evn ) << 
+         " BC 0x" << ( 0x0fff & bcn ) << std::dec );
+
 
     if ( ES == ESexp.find(ES)->second ) { 
       isFirst.erase(ES);
@@ -258,10 +261,10 @@ int gem::readout::GEMDataParker::getGLIBData(
     bufferDepth = (uint64_t)glibDevice_->getFIFOOccupancy(link);
   
    /*
-    * dump VFAT data
+    * dump VFAT data 
     GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
     INFO(" ::getGLIBData slot " << islot );
-   */
+    */
 
     std::map<uint32_t, uint32_t>::iterator it;
     std::map<uint32_t, uint32_t>::iterator ir;
@@ -328,8 +331,10 @@ int gem::readout::GEMDataParker::getGLIBData(
           uint32_t nChip = 0;
           for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=vfats.begin(); iVFAT != vfats.end(); ++iVFAT) {
  
-            uint32_t localEvent = ((*iVFAT).EC << 12 )|((*iVFAT).BC);
-            DEBUG(" ::getGLIBData vfats ES 0x" << std::hex << itES->first << " EC 0x" << localEvent << std::dec << "\n");
+            uint32_t localEvent = (( 0x0ff0 & (*iVFAT).EC ) << 12 ) | ( 0x0fff & (*iVFAT).BC );
+            INFO(" ::getGLIBData vfats ES 0x" << std::hex << ( 0x000fffff & itES->first ) << " and from vfat 0x" << 
+                 ( 0x000fffff & localEvent ) << " EC 0x" << ( 0x0ff0 & (*iVFAT).EC ) << 
+                 " BC 0x" << ( 0x0fff & (*iVFAT).BC ) << std::dec );
  
             if ( itES->first == localEvent ) {
               nChip++;
@@ -346,9 +351,9 @@ int gem::readout::GEMDataParker::getGLIBData(
               */
               geb.vfats.push_back(vfat);
           
-              /*
+              /* */
               GEMDataAMCformat::printVFATdataBits(nChip, vfat);
-              */
+
               int islot = gem::readout::GEMslotContents::GEBslotIndex((uint32_t)vfat.ChipID );
               if (islot<0 || islot > 23) { 
                 INFO(" ::getGLIBData  coutld be error&warning slot " << islot);
@@ -365,7 +370,7 @@ int gem::readout::GEMDataParker::getGLIBData(
                       */
                       DEBUG(" ::getGLIBData writing...  geb.vfats.size " << int(geb.vfats.size()) );
                       TypeDataFlag = "PayLoad";
-                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
+                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, true, TypeDataFlag,
                                                                                                 gem, geb, vfat);
                       geb.vfats.clear();
          
