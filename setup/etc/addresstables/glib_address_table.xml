@@ -12,22 +12,14 @@
     <node id="SRAM2"  address="0x04000000"  mask="0xffffffff"  permission="rw"
 	  description="SRAM2 memory space"/>
     
-    <!-- removed mask="0xffffffff"  -->
     <node id="ICAP"  address="0x00000200"  mode="non-incremental"  permission="rw"
 	  description="ICAP memory space (seems to not work at the moment)"/>
     
     <node id="FLASH"  address="0x08000000"  description="FLASH memory banks"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/glib_flash_bank_registers.xml"/>
     
-    <!-- registers for the VFAT tracking data 0x50Y00000 for OptoHybrid Y -->
-    <node id="TRK_DATA"  address="0x50000000"  permission="rw"
-          module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_data.xml"
-	  description="VFAT tracking data FIFO, must do a FIFO read, one FIFO per OptoHybrid"/>
-    
-    <node id="COUNTERS"  address="0x60000000"  permission="rw"
-          module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_data.xml"
-	  description="VFAT tracking data FIFO, must do a FIFO read, one FIFO per OptoHybrid"/>
-    
+    <!-- USER firmware functionality -->
+    <!-- registers for the OptoHybrids 0x40Y00000 for OptoHybrid Y -->
     <node id="OptoHybrid_0"  address="0x40000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 0 connected to GLIB"/>
@@ -35,6 +27,16 @@
     <node id="OptoHybrid_1"  address="0x40100000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 1 connected to GLIB"/>
+
+    <!-- registers for the VFAT tracking data 0x50Y00000 for OptoHybrid Y -->
+    <node id="TRK_DATA"  address="0x50000000"  permission="rw"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_data.xml"
+	  description="VFAT tracking data FIFO, must do a FIFO read, one FIFO per OptoHybrid"/>
+    
+    <node id="COUNTERS"  address="0x60000000"  permission="rw"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_counters.xml"
+	  description="Various counters on the GLIB"/>
+    
     <!--
     <node id="TRK_DATA"  address="0x40020000"
 	  description="VFAT tracking data registers">

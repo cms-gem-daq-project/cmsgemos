@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
-  <node id="TOGGLE" address="0x0"  permission="w"
+  <node id="TOGGLE" address="0x0"  mask="0x1"  permission="w"
         description="Toggle the T1 controller on/off"/>
   <node id="MODE"   address="0x1"  mask="0x7"  permission="rw"
         description="3 bits to select the mode:
