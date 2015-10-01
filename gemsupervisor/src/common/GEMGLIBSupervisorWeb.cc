@@ -192,11 +192,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   }
   else if (is_working_) {
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","7");
+    head.addHeader("Refresh","3");
   }
   else if (is_running_) {
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","7");
+    head.addHeader("Refresh","3");
   }
 
   if (is_configured_) {
@@ -411,7 +411,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   hw_semaphore_.take();
 
   INFO(" webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(100);
+  optohybridDevice_->SendL1A(5);
 
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
@@ -525,6 +525,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
   // GLIB data buffer validation
   boost::format linkForm("LINK%d");
+
   uint32_t fifoDepth[3];
 
   //lots of repetition here
@@ -534,7 +535,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
     fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
   if (readout_mask&0x4)
     fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
-    
+
   if (fifoDepth[0])
     INFO("bufferDepth[0] (runAction) = " << std::hex << fifoDepth[0] << std::dec);
   if (fifoDepth[1])
@@ -544,6 +545,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
   // Get the size of GLIB data buffer
   uint32_t bufferDepth = 0;
+
   if (readout_mask&0x1)
     bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
   if (readout_mask&0x2)
@@ -597,9 +599,13 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   //glibDevice_->connectDevice();
 
   optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
-                                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"));
+                      "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"));
   //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   //optohybridDevice_->connectDevice();
+
+  INFO("setTrigSource GLIB, OH mode 0, link 0");
+  optohybridDevice_->setTrigSource(0, 0x0);
+  glibDevice_->setTrigSource(0, 0x0);
 
   // Times for output files
   time_t now  = time(0);
@@ -682,7 +688,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   tmpType = confParams_.bag.outputType.toString();
 
   // Book GEM Data Parker
-  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, tmpType));
+  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new 
+                                  gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, tmpType)
+                                 );
 
   // Data Stream close
   outf.close();
@@ -763,16 +771,17 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_running_ = true;
   hw_semaphore_.take();
 
-  /*
-   * set trigger source
-  optohybridDevice_->setTrigSource(0x0);
-  optohybridDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
-  glibDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
-  */
+  INFO("setTrigSource GLIB, OH mode 0, link 0");
+  optohybridDevice_->setTrigSource(0, 0x0);
+  glibDevice_->setTrigSource(0, 0x0);
 
   INFO("Enabling run mode for selected VFATs");
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(1);
+
+  INFO("setTrigSource GLIB OH mode 0, link 0");
+  optohybridDevice_->setTrigSource(0, 0x0);
+  glibDevice_->setTrigSource(0, 0x0);
 
   //flush FIFO, how to disable a specific, misbehaving, chip
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
@@ -823,6 +832,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   event_ = 0;
   sumVFAT_ = 0;
   counter_ = {0,0,0};
+
+  INFO("setTrigSource GLIB, OH mode 0, link 0");
+  optohybridDevice_->setTrigSource(0, 0x0);
+  glibDevice_->setTrigSource(0, 0x0);
+
   //turn off all chips?
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);
