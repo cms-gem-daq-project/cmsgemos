@@ -72,53 +72,81 @@ uint64_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
 {
   uint64_t *point = &counter_[0]; 
   uint32_t bufferCount[4] = {0,0,0,0};
+  uint32_t Counter[4] = {0,0,0,0};
 
   //if [0-7] in deviceNum
   if (readout_mask & 0x1) {
-    gem::readout::GEMDataParker::dumpDataToDisk(0x0, bufferCount);
+    uint32_t* pDu = gem::readout::GEMDataParker::dumpDataToDisk(0x0, bufferCount);
+    Counter[0] = *(pDu+0);
+    Counter[1] = *(pDu+1);
+    Counter[2] = *(pDu+2);
+    Counter[3] = *(pDu+3);
     DEBUG(" ::dumpData link0 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] );
   }
   //if [8-15] in deviceNum
   if (readout_mask & 0x2) {
-    gem::readout::GEMDataParker::dumpDataToDisk(0x1, bufferCount);
+    uint32_t* pDu = gem::readout::GEMDataParker::dumpDataToDisk(0x1, bufferCount);
+    Counter[0] = *(pDu+0);
+    Counter[1] = *(pDu+1);
+    Counter[2] = *(pDu+2);
+    Counter[3] = *(pDu+3);
     DEBUG(" ::dumpData link1 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] );
   }
   //if [16-23] in deviceNum
   if (readout_mask & 0x4) {
-    gem::readout::GEMDataParker::dumpDataToDisk(0x2, bufferCount);
+    uint32_t* pDu = gem::readout::GEMDataParker::dumpDataToDisk(0x2, bufferCount); 
+    Counter[0] = *(pDu+0);
+    Counter[1] = *(pDu+1);
+    Counter[2] = *(pDu+2);
+    Counter[3] = *(pDu+3);
+ 
     DEBUG(" ::dumpData link2 " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] );
   }
 
-  INFO(" ABC::dumpData " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
+  DEBUG(" ::dumpData " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
        " Combined bufferDepth[3] " << bufferCount[3] );
+
+  INFO(" ::dumpDataToDisk  bufferCount[0] " << Counter[0] << " bufferCount[1] " << Counter[1] << " bufferCount[2] " << Counter[2] << 
+       " Combined Buffer " << Counter[3] );
 
   return point;
 }
 
 
-void gem::readout::GEMDataParker::dumpDataToDisk(
+uint32_t* gem::readout::GEMDataParker::dumpDataToDisk(
 						 uint8_t const& link,
                                                  uint32_t bufferCount[4]
 ){
+  uint32_t Counter[4];
+  uint32_t *point = &bufferCount[0]; 
   /*
    * get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
    */
-  vfat_ = gem::readout::GEMDataParker::getGLIBData(link,bufferCount);
+  uint32_t* pDupm = gem::readout::GEMDataParker::getGLIBData(link,bufferCount);
 
-  counter_[0] = vfat_;
-  counter_[1] = event_;
-  counter_[2] = counterVFATs;
+  Counter[0] = *(pDupm+0);
+  Counter[1] = *(pDupm+1);
+  Counter[2] = *(pDupm+2);
+  Counter[3] = *(pDupm+3);
+  
+  INFO(" ::dumpDataToDisk" << 
+       " [0] "  << std::setfill(' ') << std::setw(6) << Counter[0] << 
+       " [1] "  << std::setfill(' ') << std::setw(6) << Counter[1] << 
+       " [2] "  << std::setfill(' ') << std::setw(6) << Counter[2] << 
+       " Com "  << std::setfill(' ') << std::setw(7) << Counter[3] );
 
-  DEBUG(" ::dumpDataToDisk " << "counter VFATs " << counter_[0] << " event " << counter_[1] << 
+  DEBUG(" ::dumpDataToDisk " << "counter VFATs " << std::setfill(' ') << std::setw(5) << counter_[0] << " event " << counter_[1] << 
         " , per event counter VFATs " << counter_[2]);
 
+  return point;
 }
 
 
-int gem::readout::GEMDataParker::getGLIBData(
-					     uint8_t const& link,
-                                             uint32_t bufferCount[4]
+uint32_t* gem::readout::GEMDataParker::getGLIBData(
+					          uint8_t const& link,
+                                                  uint32_t bufferCount[4]
 ){
+  uint32_t *point = &bufferCount[0]; 
  /*  
   *  GEM Event Data Format definition
   */
@@ -135,15 +163,24 @@ int gem::readout::GEMDataParker::getGLIBData(
   uint64_t msVFAT, lsVFAT;
 
   /** the FIFO depth is not reliable */
-  INFO(" ::getGLIBData bufferCount[" << (int)link << "] " << bufferCount[link] << std::dec);
+  DEBUG(" ::getGLIBData bufferCount[" << (int)link << "] " << bufferCount[link] << std::dec);
 
   while ( glibDevice_->hasTrackingData(link) ) {
     std::vector<uint32_t> data;
     data = glibDevice_->getTrackingData(link);
  
     bufferCount[(int)link]++; 
-    bufferCount[3] += bufferCount[(int)link];
- 
+
+    /* 
+    if (link == 0 && bufferCount[0] != 0 ){ 
+      INFO(" ::dumpData " << " bufferCount[0] " << bufferCount[0] );
+    } else if (link == 1 && bufferCount[1] != 0 ){
+      INFO(" ::dumpData " << " bufferCount[1] " << bufferCount[1] );
+    } else if (link == 2 && bufferCount[1] != 2 ){
+      INFO(" ::dumpData " << " bufferCount[2] " << bufferCount[2] );
+    }
+    */
+
     // read trigger data
     TrigReg = glibDevice_->readTriggerFIFO(link);
     BXOHTrig = TrigReg >> 6;
@@ -180,6 +217,7 @@ int gem::readout::GEMDataParker::getGLIBData(
       isFirst.insert(std::pair<uint32_t, bool>(BX,true));
     }
   
+    /*
     DEBUG(" ::getGLIBData BX " << std::hex << BX << std::dec << " bool " << isFirst.find(BX)->second );
     if ( isFirst.find(BX)->second ) {
 
@@ -207,7 +245,8 @@ int gem::readout::GEMDataParker::getGLIBData(
     counterVFATs++;
     counterVFAT.erase(BX);
     counterVFAT.insert(std::pair<uint32_t, int>(BX,counterVFATs));
-  
+    */
+
     //bufferCount[]--;
 
     uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
@@ -232,6 +271,7 @@ int gem::readout::GEMDataParker::getGLIBData(
     INFO(" ::getGLIBData slot " << islot );
    */
 
+    /*
     std::map<uint32_t, uint32_t>::iterator it;
     std::map<uint32_t, uint32_t>::iterator ir;
 
@@ -255,7 +295,7 @@ int gem::readout::GEMDataParker::getGLIBData(
       * dump VFAT data
       GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
       INFO(" ::getGLIBData wrong slot " << islot );
-      */
+      *
 
     } else {
 
@@ -271,12 +311,13 @@ int gem::readout::GEMDataParker::getGLIBData(
 
      /*
       * VFATs Pay Load
-      */
+      *
       if ( int(vfats.size()) < 90000 ) vfats.push_back(vfat);
       
       DEBUG(" ::getGLIBData event_ " << event_ <<
 	   " vfats.size " << int(vfats.size()) << std::hex << " BX 0x" << BX << std::dec );
     }
+    */
 
     /*
     if ( bufferCount == 0 ){
@@ -408,7 +449,9 @@ int gem::readout::GEMDataParker::getGLIBData(
 */
 
   }// while(glibDevice_->hasTrackingData(link))
-  return vfat_;
+
+  bufferCount[3] += bufferCount[(int)link];
+  return point;
 }
 
 
