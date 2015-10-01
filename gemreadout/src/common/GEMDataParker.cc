@@ -209,6 +209,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
     islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)chipid );
 
+    /*
     if ( BX == BXexp.find(BX)->second ) { 
       isFirst.erase(BX);
       isFirst.insert(std::pair<uint32_t, bool>(BX,false));
@@ -216,7 +217,8 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
       isFirst.erase(BX);
       isFirst.insert(std::pair<uint32_t, bool>(BX,true));
     }
-  
+    */
+
     /*
     DEBUG(" ::getGLIBData BX " << std::hex << BX << std::dec << " bool " << isFirst.find(BX)->second );
     if ( isFirst.find(BX)->second ) {
@@ -266,10 +268,9 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     vfat.crc    = vfatcrc;                                // crc:16
 
    /*
-    * dump VFAT data
+    * dump VFAT data */
     GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
     INFO(" ::getGLIBData slot " << islot );
-   */
 
     /*
     std::map<uint32_t, uint32_t>::iterator it;
