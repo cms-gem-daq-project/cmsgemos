@@ -20,7 +20,7 @@ typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
 std::vector<AMCVFATData> vfats;
 std::vector<AMCVFATData> erros;
 
-int MaxVFATS = 60000;  
+int MaxVFATS = 90000;  
 int MaxERRS  = 10000;
 
 uint16_t gem::readout::GEMslotContents::slot[24] = {
