@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
-  <node id="THLAT"  address="0x0000000"  permission="w"
+  <node id="THLAT"  address="0x0000000"  permission="rw"
         description="Control the onboard threshold/latency scan routine">
-    <node id="START"  address="0x0"  mask="0xFFFFFFFF"  permission="w"
+    <node id="START"  address="0x0"  mask="0x1"  permission="w"
           description="Start the specified scan routine
                        Will also empty the results FIFO from the previous scan"/>
     <node id="MODE"  address="0x1"  mask="0xF"  permission="rw"
@@ -44,9 +44,9 @@
           description="Local reset of the module"/>
   </node>
 
-  <node id="DAC"    address="0x2000000"  permission="w"
+  <node id="DAC"    address="0x2000000"  permission="rw"
         description="Control the onboard DAC scan routine">
-    <node id="START"    address="0x0"  mask="0xFFFFFFFF"  permission="w"
+    <node id="START"    address="0x0"  mask="0x1"  permission="w"
           description="Start the specified scan routine
                        Will also empty the results FIFO from the previous scan"/>
     <node id="MODE"     address="0x1"  mask="0xF"  permission="rw"
