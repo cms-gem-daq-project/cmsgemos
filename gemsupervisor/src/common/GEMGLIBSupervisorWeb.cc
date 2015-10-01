@@ -771,17 +771,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_running_ = true;
   hw_semaphore_.take();
 
-  INFO("setTrigSource GLIB, OH mode 0, link 0");
+  INFO("setTrigSource OH mode 0, link 0");
   optohybridDevice_->setTrigSource(0, 0x0);
-  glibDevice_->setTrigSource(0, 0x0);
 
   INFO("Enabling run mode for selected VFATs");
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(1);
-
-  INFO("setTrigSource GLIB OH mode 0, link 0");
-  optohybridDevice_->setTrigSource(0, 0x0);
-  glibDevice_->setTrigSource(0, 0x0);
 
   //flush FIFO, how to disable a specific, misbehaving, chip
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
@@ -820,6 +815,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
   CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
   CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
+
+  INFO("setTrigSource GLIB mode 2, link 0");
+  glibDevice_->setTrigSource(2, 0x0);
 
   hw_semaphore_.give();
   is_working_ = false;
