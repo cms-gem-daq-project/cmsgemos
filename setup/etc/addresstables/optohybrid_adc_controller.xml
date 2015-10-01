@@ -20,16 +20,16 @@
         description="Returns the value from the ADC for channel 8"/>
   <node id="ADC9"  address="0x9"  permission="r"
         description="Returns the value from the ADC for channel 9"/>
-  <node id="ADC10"  address="0xA"  permission="r"
+  <node id="ADC10"  address="0xa"  permission="r"
         description="Returns the value from the ADC for channel 10"/>
-  <node id="ADC11"  address="0xB"  permission="r"
+  <node id="ADC11"  address="0xb"  permission="r"
         description="Returns the value from the ADC for channel 11"/>
-  <node id="ADC12"  address="0xC"  permission="r"
+  <node id="ADC12"  address="0xc"  permission="r"
         description="Returns the value from the ADC for channel 12"/>
-  <node id="ADC13"  address="0xD"  permission="r"
+  <node id="ADC13"  address="0xd"  permission="r"
         description="Returns the value from the ADC for channel 13"/>
-  <node id="ADC14"  address="0xE"  permission="r"
+  <node id="ADC14"  address="0xe"  permission="r"
         description="Returns the value from the ADC for channel 14"/>
-  <node id="ADC15"  address="0xF"  permission="r"
+  <node id="ADC15"  address="0xf"  permission="r"
         description="Returns the value from the ADC for channel 15"/>
 </node>

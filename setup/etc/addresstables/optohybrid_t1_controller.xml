@@ -14,13 +14,13 @@
                      1: CalPulse
                      2: Resync
                      3: BC0"/>
-  <node id="NUMBER"   address="0x3"  mask="0xFFFFFFFF"  permission="rw"
+  <node id="NUMBER"   address="0x3"  mask="0xffffffff"  permission="rw"
         description="Number of repetitions to send (only for mode 0 and 1)
                      default is 0 = infinite"/>
-  <node id="INTERVAL" address="0x4"  mask="0xFFFFFFFF"  permission="rw"
+  <node id="INTERVAL" address="0x4"  mask="0xffffffff"  permission="rw"
         description="How many BX between signals (only for mode 0 and 1)
                      Minimum 3"/>
-  <node id="DELAY"   address="0x5"  mask="0xFFFFFFFF"  permission="rw"
+  <node id="DELAY"   address="0x5"  mask="0xffffffff"  permission="rw"
         description="Number of clock cycles between CalPulse and L1A (only for mode 1).
                      Between 3 clock cycles and INTERVAL - 3 clock cycles "/>
   
@@ -29,33 +29,33 @@
                      64 bit patterns for each signal">
     <node id="L1A"       address="0x1"  permission="rw"
           description="L1A sequence to generate">
-      <node id="LSB"  address="0x0"  mask="0xFFFFFFFF"  permission="rw"/>
-      <node id="MSB"  address="0x1"  mask="0xFFFFFFFF"  permission="rw"/>
+      <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
+      <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
     </node>
     <node id="CalPulse"  address="0x8"  permission="rw"
           description="CalPulse sequence to generate">
-      <node id="LSB"  address="0x0"  mask="0xFFFFFFFF"  permission="rw"/>
-      <node id="MSB"  address="0x1"  mask="0xFFFFFFFF"  permission="rw"/>
+      <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
+      <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
     </node>
-    <node id="Resyc"     address="0xA"  permission="rw"
+    <node id="Resyc"     address="0xa"  permission="rw"
           description="Resyc sequence to generate">
-      <node id="LSB"  address="0x0"  mask="0xFFFFFFFF"  permission="rw"/>
-      <node id="MSB"  address="0x1"  mask="0xFFFFFFFF"  permission="rw"/>
+      <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
+      <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
     </node>
-    <node id="BC0"       address="0xC"  permission="rw"
+    <node id="BC0"       address="0xc"  permission="rw"
           description="BC0 sequence to generate">
-      <node id="LSB"  address="0x0"  mask="0xFFFFFFFF"  permission="rw"/>
-      <node id="MSB"  address="0x1"  mask="0xFFFFFFFF"  permission="rw"/>
+      <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
+      <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
     </node>
   </node>
   
-  <node id="MONITOR"    address="0xE"  mask="0xF"  permission="rw"
+  <node id="MONITOR"    address="0xe"  mask="0xf"  permission="rw"
         description="Status monitor for the T1 controller (4 bits):
                      0: nothing running
                      1: mode 1 running
                      2: mode 2 running
                      3: mode 3 running"/>
    
-  <node id="RESET"    address="0xF"  mask="0xFFFFFFFF"  permission="rw"
+  <node id="RESET"    address="0xF"  mask="0xffffffff"  permission="rw"
         description=""/>
 </node> 
