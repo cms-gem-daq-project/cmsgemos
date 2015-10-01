@@ -5,28 +5,28 @@
     <node id="START"  address="0x0"  mask="0x1"  permission="w"
           description="Start the specified scan routine
                        Will also empty the results FIFO from the previous scan"/>
-    <node id="MODE"  address="0x1"  mask="0xF"  permission="rw"
+    <node id="MODE"  address="0x1"  mask="0xf"  permission="rw"
           description="Select the scan mode (4 bits):
                        0: Threshold scan (per VFAT)
                        1: Threshold scan (per channel)
                        2: Lateny scan"/>
-    <node id="CHIP"  address="0x2"  mask="0x1F"  permission="rw"
+    <node id="CHIP"  address="0x2"  mask="0x1f"  permission="rw"
           description="Select which VFAT2 to scan (5 bits [0,23])"/>
-    <node id="CHAN"  address="0x3"  mask="0xFF"  permission="rw"
+    <node id="CHAN"  address="0x3"  mask="0xff"  permission="rw"
           description="Select which channel to do a per channel threshold scan on (8 bits [0,255])
                        (only for per-channel threshold scan)"/>
-    <node id="MIN"  address="0x4"  mask="0xF"  permission="rw"
+    <node id="MIN"  address="0x4"  mask="0xf"  permission="rw"
           description="Minimum value of the register to scan from (8 bits [0,255])
                        Default: 0x0"/>
-    <node id="MAX"  address="0x5"  mask="0xF"  permission="rw"
+    <node id="MAX"  address="0x5"  mask="0xf"  permission="rw"
           description="Maximum value of the register to scan to (8 bits [0,255])
                        Default: 0xFF"/>
-    <node id="STEP"  address="0x6"  mask="0xF"  permission="rw"
+    <node id="STEP"  address="0x6"  mask="0xf"  permission="rw"
           description="How much to step the register value by each point (8 bits [0,255])
                        Default: 0x1"/>
-    <node id="NTRIGS"  address="0x7"  mask="0xFFFFFF"  permission="rw"
+    <node id="NTRIGS"  address="0x7"  mask="0xffffff"  permission="rw"
           description="Number of triggers to collect at each scan point
-                       Default: 0 = 0xFFFFFF"/>
+                       Default: 0 = 0xffffff"/>
     <node id="RESULTS"  address="0x8"  mode="non-incremental"  permission="r"
           description="FIFO holding the scan results
                        This register will return the data
@@ -40,7 +40,7 @@
                        1: threshold scan running
                        2: channel threshold scan running
                        3: latency scan running"/>
-    <node id="RESET"    address="0xA"  mask="0xFFFFFFFF"  permission="rw"
+    <node id="RESET"    address="0xa"  mask="0xffffffff"  permission="rw"
           description="Local reset of the module"/>
   </node>
 
@@ -49,7 +49,7 @@
     <node id="START"    address="0x0"  mask="0x1"  permission="w"
           description="Start the specified scan routine
                        Will also empty the results FIFO from the previous scan"/>
-    <node id="MODE"     address="0x1"  mask="0xF"  permission="rw"
+    <node id="MODE"     address="0x1"  mask="0xf"  permission="rw"
           description="Select the DAC to scan (4 bits):
                        0: IPreampIn
                        1: IPreampFeed
@@ -61,20 +61,20 @@
                        7: VThreshold1
                        8: VCal
                        9: CalOut"/>
-    <node id="CHIP"     address="0x2"  mask="0x1F"  permission="rw"
+    <node id="CHIP"     address="0x2"  mask="0x1f"  permission="rw"
           description="Select which VFAT2 to scan (5 bits [0,23])"/>
-    <node id="MIN"      address="0x3"  mask="0xF"  permission="rw"
+    <node id="MIN"      address="0x3"  mask="0xf"  permission="rw"
           description="Minimum value of the register to scan from (8 bits [0,255])
                        Default: 0x0"/>
-    <node id="MAX"      address="0x4"  mask="0xF"  permission="rw"
+    <node id="MAX"      address="0x4"  mask="0xf"  permission="rw"
           description="Maximum value of the register to scan to (8 bits [0,255])
                        Default: 0xFF"/>
-    <node id="STEP"     address="0x5"  mask="0xF"  permission="rw"
+    <node id="STEP"     address="0x5"  mask="0xf"  permission="rw"
           description="How much to step the register value by each point (8 bits [0,255])
                        Default: 0x1"/>
-    <node id="NTRIGS"   address="0x6"  mask="0xFFFFFF"  permission="rw"
+    <node id="NTRIGS"   address="0x6"  mask="0xffffff"  permission="rw"
           description="Number of triggers to collect at each scan point
-                       Default: 0 = 0xFFFFFF"/>
+                       Default: 0 = 0xffffff"/>
     <node id="RESULTS"  address="0x7"  mode="non-incremental"  permission="r"
           description="FIFO holding the scan results
                        This register will return the data
@@ -86,7 +86,7 @@
           description="Status monitor for the threshold/latency scan controller (1 bit):
                        0: nothing running
                        1: scanning a DAC"/>
-    <node id="RESET"    address="0x9"  mask="0xFFFFFFFF"  permission="rw"
+    <node id="RESET"    address="0x9"  mask="0xffffffff"  permission="rw"
           description="Local reset of the module"/>
   </node>
 </node>

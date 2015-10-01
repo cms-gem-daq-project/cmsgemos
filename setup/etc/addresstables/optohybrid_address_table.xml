@@ -33,11 +33,11 @@
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_counters.xml"
 	  description="ADC provided on the OptoHybrid"/>
     -->
-    <node id="COUNTERS"  address="0xA000000"
+    <node id="COUNTERS"  address="0xa000000"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_counters.xml"
 	  description="Counters provided on the OptoHybrid"/>
 
-    <node id="CONTROL"  address="0xB000000"
+    <node id="CONTROL"  address="0xb000000"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_control_registers.xml"
 	  description="Control registers of the OptoHybrid"/>
   </node> <!-- end optohybrid block -->

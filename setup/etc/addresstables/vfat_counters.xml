@@ -62,37 +62,37 @@
           description="write any value to the register to reset the counter
                        Use mask to only allow writing to the first bit"/>
   </node>
-  <node id="VFAT10"   address="0x0A"  permission="r"
+  <node id="VFAT10"   address="0x0a"  permission="r"
         description="CRC counters for the tracking data for VFAT10">
     <node id="Reset"  address="0x0"  mask="0x1"  permission="w"
           description="write any value to the register to reset the counter
                        Use mask to only allow writing to the first bit"/>
   </node>
-  <node id="VFAT11"   address="0x0B"  permission="r"
+  <node id="VFAT11"   address="0x0b"  permission="r"
         description="CRC counters for the tracking data for VFAT11">
     <node id="Reset"  address="0x0"  mask="0x1"  permission="w"
           description="write any value to the register to reset the counter
                        Use mask to only allow writing to the first bit"/>
   </node>
-  <node id="VFAT12"   address="0x0C"  permission="r"
+  <node id="VFAT12"   address="0x0c"  permission="r"
         description="CRC counters for the tracking data for VFAT12">
     <node id="Reset"  address="0x0"  mask="0x1"  permission="w"
           description="write any value to the register to reset the counter
                        Use mask to only allow writing to the first bit"/>
   </node>
-  <node id="VFAT13"   address="0x0D"  permission="r"
+  <node id="VFAT13"   address="0x0d"  permission="r"
         description="CRC counters for the tracking data for VFAT13">
     <node id="Reset"  address="0x0"  mask="0x1"  permission="w"
           description="write any value to the register to reset the counter
                        Use mask to only allow writing to the first bit"/>
   </node>
-  <node id="VFAT14"   address="0x0E"  permission="r"
+  <node id="VFAT14"   address="0x0e"  permission="r"
         description="CRC counters for the tracking data for VFAT14">
     <node id="Reset"  address="0x0"  mask="0x1"  permission="w"
           description="write any value to the register to reset the counter
                        Use mask to only allow writing to the first bit"/>
   </node>
-  <node id="VFAT15"   address="0x0F"  permission="r"
+  <node id="VFAT15"   address="0x0f"  permission="r"
         description="CRC counters for the tracking data for VFAT15">
     <node id="Reset"  address="0x0"  mask="0x1"  permission="w"
           description="write any value to the register to reset the counter

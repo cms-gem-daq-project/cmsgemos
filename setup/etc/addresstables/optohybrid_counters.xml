@@ -20,7 +20,7 @@
     <node id="EXTERNAL"  address="0x08"  permission="rw"
           module="file://${GEM_ADDRESS_TABLE_PATH}/t1_counters.xml"
           description="T1 signals recieved from an external source"/>
-    <node id="LOOPBACK"  address="0x0C"  permission="rw"
+    <node id="LOOPBACK"  address="0x0c"  permission="rw"
           module="file://${GEM_ADDRESS_TABLE_PATH}/t1_counters.xml"
           description="T1 signals sent in loopback mode"/>
     <node id="SENT"      address="0x10"  permission="rw"

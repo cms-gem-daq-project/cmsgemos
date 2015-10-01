@@ -3,5 +3,4 @@
 <node id="optohybrid_v1"
       address="0x40050000"
       module="file://${GLIBTEST}/data/optohybrid_v1_slaves.xml"
-      description="Optohybrid V1 registers controled by the GLIB user registers"
-      />
+      description="Optohybrid V1 registers controled by the GLIB user registers"/>

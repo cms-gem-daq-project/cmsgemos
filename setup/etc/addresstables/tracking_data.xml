@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
   <node id="OptoHybrid_0" address="0x000000"  permission="rw"
-        description="Tracking FIFO connected to OptoHybrid 0">
-    <node id="FIFO" address="0x0"  mode="non-incremenal"  permission="r"
-          description="FIFO to store the tracking data coming from the VFATs connected to OptoHybrid 0"/>
-    <node id="FLUSH" address="0x0"  mask="0x1"  permission="w"
-          description="Flush the FIFO by writing a 1 to it"/>
-  </node> 
-
+	module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_fifo.xml"
+        description="Tracking FIFO connected to OptoHybrid 0"/>
+  
   <node id="OptoHybrid_1" address="0x100000"  permission="rw"
-        description="Tracking FIFO connected to OptoHybrid 1">
-    <node id="FIFO" address="0x0"  mode="non-incremenal"  permission="r"
-          description="FIFO to store the tracking data coming from the VFATs connected to OptoHybrid 1"/>
-    <node id="FLUSH" address="0x0"  mask="0x1"  permission="w"
-          description="Flush the FIFO by writing a 1 to it"/>
-  </node> 
+	module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_fifo.xml"
+        description="Tracking FIFO connected to OptoHybrid 1"/>
 </node> <!-- end top block -->
