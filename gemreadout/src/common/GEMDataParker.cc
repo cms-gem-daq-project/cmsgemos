@@ -143,7 +143,7 @@ int gem::readout::GEMDataParker::getGLIBData(
   int islot = -1;
 
   // Booking FIFO variables
-  uint8_t  SBit, flags;
+  uint8_t  SBit, flags, ECff;
   uint16_t bcn, evn, chipid, vfatcrc;
   uint32_t TrigReg, BXOHTrig;
   uint64_t msVFAT, lsVFAT;
@@ -192,12 +192,12 @@ int gem::readout::GEMDataParker::getGLIBData(
     flags   = (0x0000000f & data.at(5));
     vfatcrc = (0x0000ffff & data.at(0));
 
+    ECff = evn;
     islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)chipid );
 
     // GEM Event selector
-    ES = ( ( 0x0ff0 & evn ) << 12 ) | ( 0x0fff & bcn);
-    INFO(" ::getGLIBData vfats ES 0x" << std::hex << ( 0x000fffff & ES ) << " EC 0x" << ( 0x0ff0 & evn ) << 
-         " BC 0x" << ( 0x0fff & bcn ) << std::dec );
+    ES = ( ECff << 12 ) | bcn;
+    DEBUG(" ::getGLIBData vfats ES 0x" << std::hex << ( 0x00ffffff & ES ) << " EC 0x" << ECff << " BC 0x" << bcn << std::dec );
 
 
     if ( ES == ESexp.find(ES)->second ) { 
@@ -306,13 +306,13 @@ int gem::readout::GEMDataParker::getGLIBData(
      /*
       * VFATs Pay Load
       */
-      if ( int(vfats.size()) < MaxVFATS ) vfats.push_back(vfat);
+      if ( int(vfats.size()) <= MaxVFATS ) vfats.push_back(vfat);
       
       DEBUG(" ::getGLIBData bufferDepth " << bufferDepth << " event_ " << event_ <<
 	   " vfats.size " << int(vfats.size()) << std::hex << " ES 0x" << ES << std::dec );
     }
 
-    if ( bufferCount == 0 ){
+    if ( bufferCount == 0 || int(vfats.size() == MaxVFATS ) ){
       
        DEBUG(" ::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << 
              " eRvent_ " << eRvent_ << " event " << event_);
@@ -331,10 +331,11 @@ int gem::readout::GEMDataParker::getGLIBData(
           uint32_t nChip = 0;
           for (std::vector<GEMDataAMCformat::VFATData>::iterator iVFAT=vfats.begin(); iVFAT != vfats.end(); ++iVFAT) {
  
-            uint32_t localEvent = (( 0x0ff0 & (*iVFAT).EC ) << 12 ) | ( 0x0fff & (*iVFAT).BC );
-            INFO(" ::getGLIBData vfats ES 0x" << std::hex << ( 0x000fffff & itES->first ) << " and from vfat 0x" << 
-                 ( 0x000fffff & localEvent ) << " EC 0x" << ( 0x0ff0 & (*iVFAT).EC ) << 
-                 " BC 0x" << ( 0x0fff & (*iVFAT).BC ) << std::dec );
+            ECff = ( (0x0ff0 & (*iVFAT).EC ) >> 4);
+            uint32_t localEvent = ( ECff << 12 ) | ( 0x0fff & (*iVFAT).BC );
+
+            DEBUG(" ::getGLIBData vfats ES 0x" << std::hex << ( 0x00ffffff & itES->first ) << " and from vfat 0x" << 
+                 ( 0x00ffffff & localEvent ) << " EC 0x" << ECff << " BC 0x" << ( 0x0fff & (*iVFAT).BC ) << std::dec );
  
             if ( itES->first == localEvent ) {
               nChip++;
@@ -351,8 +352,9 @@ int gem::readout::GEMDataParker::getGLIBData(
               */
               geb.vfats.push_back(vfat);
           
-              /* */
+              /*
               GEMDataAMCformat::printVFATdataBits(nChip, vfat);
+              */
 
               int islot = gem::readout::GEMslotContents::GEBslotIndex((uint32_t)vfat.ChipID );
               if (islot<0 || islot > 23) { 
@@ -370,7 +372,7 @@ int gem::readout::GEMDataParker::getGLIBData(
                       */
                       DEBUG(" ::getGLIBData writing...  geb.vfats.size " << int(geb.vfats.size()) );
                       TypeDataFlag = "PayLoad";
-                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, true, TypeDataFlag,
+                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
                                                                                                 gem, geb, vfat);
                       geb.vfats.clear();
          
@@ -392,7 +394,8 @@ int gem::readout::GEMDataParker::getGLIBData(
           uint32_t nErro = 0;
           for (std::vector<GEMDataAMCformat::VFATData>::iterator iErr=erros.begin(); iErr != erros.end(); ++iErr) {
  
-             uint32_t localErr = ((*iErr).EC << 12 )|((*iErr).BC);
+             ECff = ( (0x0ff0 & (*iErr).EC ) >> 4);
+             uint32_t localErr = ( ECff << 12 ) | ( 0x0fff & (*iErr).BC );
              DEBUG(" ::getGLIBData ERROR vfats ES 0x" << irES->first << " EC " << localErr );
   
              if( irES->first == localErr ) {
