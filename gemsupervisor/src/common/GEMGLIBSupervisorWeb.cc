@@ -526,7 +526,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   // GLIB data buffer validation
   boost::format linkForm("LINK%d");
 
-  uint32_t fifoDepth[3];
+  uint32_t fifoDepth[3] = {0,0,0};
 
   //lots of repetition here
   if (readout_mask&0x1)
