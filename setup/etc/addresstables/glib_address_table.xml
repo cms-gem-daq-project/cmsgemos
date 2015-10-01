@@ -20,6 +20,7 @@
     
     <!-- USER firmware functionality -->
     <!-- registers for the OptoHybrids 0x40Y00000 for OptoHybrid Y -->
+    <!--
     <node id="OptoHybrid_0"  address="0x40000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 0 connected to GLIB"/>
@@ -27,13 +28,13 @@
     <node id="OptoHybrid_1"  address="0x40100000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 1 connected to GLIB"/>
-
+    -->
     <!-- registers for the VFAT tracking data 0x50Y00000 for OptoHybrid Y -->
-    <node id="TRK_DATA"  address="0x50000000"  permission="rw"
+    <node id="TRK_DATA"  address="0x50000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_data.xml"
 	  description="VFAT tracking data FIFO, must do a FIFO read, one FIFO per OptoHybrid"/>
     
-    <node id="COUNTERS"  address="0x60000000"  permission="rw"
+    <node id="COUNTERS"  address="0x60000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_counters.xml"
 	  description="Various counters on the GLIB"/>
     
@@ -54,7 +55,7 @@
 	    description="First phi column">
       </node> <! - - end column 0 block  - ->
     </node> <! - - end tracking_data block  - ->
-    
+    -->
     <node id="GLIB_LINKS"  address="0x40040000">
       <node id="LINK0"  address="0x000"
 	    module="file://${GEM_ADDRESS_TABLE_PATH}/glib_optical_links.xml"
@@ -74,20 +75,19 @@
 	      description="VFAT trigger data register
 			   Read: 28 MSB are the BX counter, 6 LSB, one fbit per VFAT2 (logical OR of all S-bits)
 			   Write: empty the buffer"/>
-  	<! - -
+  	<!--
 	<node id="FIFO_FLUSH"  address="0x180"  mask="0xffffffff"  permission="w"
 	      description="empty the trigger data FIFO"/>
-	- - >
+	-->
       </node>
 
       <node id="TRIGGER">
-	<node id="SOURCE"  address="0x10D"  mask="0xffffffff"  permission="rw"
+	<node id="SOURCE"  address="0x10d"  mask="0xffffffff"  permission="rw"
 	      description="select the trigger source, GLIB(0), TTC(1), both(2)"/>
 	<node id="TDC_SBits"  address="0x181"  mask="0xffffffff"  permission="rw"
 	      description="select which VFAT will send SBits to send to the TDC (0-5)"/>
       </node>
-    </node><!- - end GLIB_LINKS - ->
-    -->
+    </node><!-- end GLIB_LINKS -->
     
     
     <node id="TEST">

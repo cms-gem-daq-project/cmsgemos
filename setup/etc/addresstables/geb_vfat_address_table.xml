@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
-
   <node id="Broadcast"  address="0x1000000"
 	module="file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"
 	description="complete GEB address table">
@@ -131,11 +130,11 @@
   </node> <!-- end VFATS block -->
 
   <!--
-  <node id="VFAT_ADC"  address="0x40030155"
-	description="VFAT2 ADC values">
-    <node id="Voltage"  address="0x0"  mask="0xFFFFFFFF"  permission="r"
-	  description="read the voltage ADC off the VFAT chip" />
-    <node id="Current"  address="0x1"  mask="0xFFFFFFFF"  permission="r"
-	  description="send CalPulse command to system" />
-  </node> <!-- end ADC block -->
+     <node id="VFAT_ADC"  address="0x40030155"
+	   description="VFAT2 ADC values">
+       <node id="Voltage"  address="0x0"  mask="0xFFFFFFFF"  permission="r"
+	     description="read the voltage ADC off the VFAT chip" />
+       <node id="Current"  address="0x1"  mask="0xFFFFFFFF"  permission="r"
+	     description="send CalPulse command to system" />
+     </node> <!-- end ADC block -->
 </node> <!-- end top block -->
