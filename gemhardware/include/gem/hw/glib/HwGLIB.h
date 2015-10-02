@@ -303,11 +303,13 @@ namespace gem {
           //user core functionality
           /** Read the user firmware register using m_controlLink
            * @returns a hex number corresponding to the build date
+           * OBSOLETE in V2 firmware
            **/
           uint32_t getUserFirmware();
 	  
           /** Read the user firmware register using m_controlLink
            * @returns a std::string corresponding to the build date
+           * OBSOLETE in V2 firmware
            **/
           std::string getUserFirmwareDate();
 
@@ -316,6 +318,7 @@ namespace gem {
            * @returns a hex number corresponding to the build date
            * is private to ensure that it is only used internally
            * link agnostic versions should be used outside of HwGLIB
+           * OBSOLETE in V2 firmware
            **/
           uint32_t getUserFirmware(uint8_t const& link);
 	  
@@ -323,6 +326,7 @@ namespace gem {
            * @returns a string corresponding to the build date
            * is private to ensure that it is only used internally
            * link agnostic versions should be used outside of HwGLIB
+           * OBSOLETE in V2 firmware
            **/
           std::string getUserFirmwareDate(uint8_t const& link);
 	  
