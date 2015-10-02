@@ -694,7 +694,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   }
   ////this is not good!!!
   //hw_semaphore_.give();
-
   /** Super hacky, also doesn't work as the state is taken from the FSM rather
       than this parameter (as it should), J.S July 16
       Failure of any of the conditions at the moment does't take the FSM to error, should it? J.S. Sep 13
