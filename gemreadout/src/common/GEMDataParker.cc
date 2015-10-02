@@ -176,7 +176,10 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
     data = glibDevice_->getTrackingData(link);
 
-    for (int iword =0; iword<7; iword++ ) dataque.push(data.at(iword));
+    for (int iword=0; iword<7; iword++ ){
+      std::cout << " iword " << iword << " " << std::hex << data.at(iword) << std::dec << std::endl;
+      dataque.push(data.at(iword));
+    }
 
     bufferCount[(int)link]++; 
 
@@ -492,38 +495,43 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   while (!dataque.empty()){
     iQue++;
     datafront = dataque.front();
+    std::cout << " iQue " << iQue << " " << std::hex << datafront << std::dec << std::endl;
+
     if (iQue == 0 ){
-      dat41   = ( 0xffff0000 & datafront >> 16 );
-      vfatcrc = ( 0x0000ffff & datafront);
-      std::cout << " vfatcrc 0x" << std::hex << vfatcrc << " dat41 0x" << dat41 << std::dec << std:: endl;
+        dat41   = ((0xffff0000 & datafront) >> 16 );
+        vfatcrc = (0x0000ffff & datafront);
+        //std::cout << " 0: " << " vfatcrc 0x" << std::hex << vfatcrc << std::dec << std:: endl;
     } else if ( iQue == 1 ){
-      dat40   = ( 0x0000ffff & datafront << 16 );
-      dat31   = ( 0xffff0000 & datafront >> 16 );
-      std::cout << " dat40 0x" << std::hex << dat40 << " dat31 0x" << dat31 << std::dec << std:: endl;
+	dat40   = ((0x0000ffff & datafront) << 16 );
+	dat31   = ((0xffff0000 & datafront) >> 16 );
     } else if ( iQue == 2 ){
-      dat21   = ( 0xffff0000 & datafront >> 16 );
-      dat30   = ( 0x0000ffff & datafront << 16 );
-      std::cout << " dat21 0x" << std::hex << dat21 << " dat30 0x" << dat30 << std::dec << std:: endl;
+	dat21   = ((0xffff0000 & datafront) >> 16 );
+	dat30   = ((0x0000ffff & datafront) << 16 );
     } else if ( iQue == 3 ){
-      dat11   = ( 0xffff0000 & datafront >> 16);
-      dat20   = ( 0x0000ffff & datafront << 16);
-      std::cout << " dat11 0x" << std::hex << dat11 << " dat20 0x" << dat20 << std::dec << std:: endl;
+        dat11   = ((0xffff0000 & datafront) >> 16 );
+        dat20   = ((0x0000ffff & datafront) << 16 );
     } else if ( iQue == 4 ){
-      b1110   = ( 0xf0000000 & datafront >> 28 );
-      chipid  = ( 0x0fff0000 & datafront >> 16 );
-      dat10   = ( 0x0000ffff & datafront << 16 );
-      std::cout << " dat10 0x" << std::hex << dat10 << " chipid 0x" << chipid << std::dec << std:: endl;
+        b1110   = ((0xf0000000 & datafront) >> 28 );
+        chipid  = ((0x0fff0000 & datafront) >> 16 );
+        dat10   = ((0x0000ffff & datafront) << 16 );
     } else if ( iQue == 5 ){
-      b1010   = ( 0xf0000000 & datafront >> 28 );
-      b1100   = ( 0x0000f000 & datafront >> 12 );
-      bcn     = ( 0x0fff0000 & datafront >> 16 );
-      evn     = ( 0x00000ff0 & datafront >>  4 );
-      flags   = ( 0x0000000f & datafront );
+        b1010   = ((0xf0000000 & datafront) >> 28 );
+        b1100   = ((0x0000f000 & datafront) >> 12 );
+        bcn     = ((0x0fff0000 & datafront) >> 16 );
+        evn     = ((0x00000ff0 & datafront) >>  4 );
+        flags   = (0x0000000f & datafront);
     } else if ( iQue == 6 ){
-      BX      = datafront;
+        BX      = datafront;
     }
     dataque.pop();
   }
+  INFO(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
+  /*
+  std::cout << " dat10 0x" << std::hex << dat10 << " dat11 0x" << dat11 << std::dec << std:: endl;
+  std::cout << " dat20 0x" << std::hex << dat20 << " dat21 0x" << dat21 << std::dec << std:: endl;
+  std::cout << " dat30 0x" << std::hex << dat30 << " dat31 0x" << dat31 << std::dec << std:: endl;
+  std::cout << " dat40 0x" << std::hex << dat40 << " dat41 0x" << dat41 << std::dec << std:: endl;
+  */
 
   uint64_t data1  = dat10 | dat11;
   uint64_t data2  = dat20 | dat21;
