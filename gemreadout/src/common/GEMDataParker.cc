@@ -9,6 +9,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <vector>
+#include <queue>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -46,6 +47,9 @@ uint32_t BX;
 std::map<uint32_t, uint32_t> numBX = {};
 std::map<uint32_t, uint32_t> errBX = {};
 std::map<uint32_t, uint32_t> BXexp = {{0,-1}};
+
+// The main data flow
+std::queue<uint32_t> dataque;
 
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(
@@ -167,20 +171,15 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
   while ( glibDevice_->hasTrackingData(link) ) {
     std::vector<uint32_t> data;
+
     data = glibDevice_->getTrackingData(link);
- 
+
+    for (int iword =1; iword<7; iword++ ) dataque.push(data.at(iword));
+    INFO(" ::getGLIBData dataque.size " << dataque.size() );
+
     bufferCount[(int)link]++; 
 
-    /* 
-    if (link == 0 && bufferCount[0] != 0 ){ 
-      INFO(" ::dumpData " << " bufferCount[0] " << bufferCount[0] );
-    } else if (link == 1 && bufferCount[1] != 0 ){
-      INFO(" ::dumpData " << " bufferCount[1] " << bufferCount[1] );
-    } else if (link == 2 && bufferCount[1] != 2 ){
-      INFO(" ::dumpData " << " bufferCount[2] " << bufferCount[2] );
-    }
-    */
-
+    /*
     // read trigger data
     TrigReg = glibDevice_->readTriggerFIFO(link);
     BXOHTrig = TrigReg >> 6;
@@ -195,7 +194,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
       /* do not ignore incorrect data
          WARN("VFAT headers do not match expectation");
          continue;
-      */
+      *
     }
 
     BX = data.at(6);
@@ -247,7 +246,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     counterVFATs++;
     counterVFAT.erase(BX);
     counterVFAT.insert(std::pair<uint32_t, int>(BX,counterVFATs));
-    */
+    *
 
     //bufferCount[]--;
 
@@ -268,7 +267,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     vfat.crc    = vfatcrc;                                // crc:16
 
    /*
-    * dump VFAT data */
+    * dump VFAT data *
     GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
     INFO(" ::getGLIBData slot " << islot );
 
