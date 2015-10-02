@@ -176,12 +176,17 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     data = glibDevice_->getTrackingData(link);
 
     for (int iword=0; iword<7; iword++ ){
-      std::cout << " iword " << iword << " " << std::hex << data.at(iword) << std::dec << std::endl;
       dataque.push(data.at(iword));
     }
 
     bufferCount[(int)link]++; 
 
+    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(link,bufferCount);
+    Counter[0] = *(pDQ+0);
+    Counter[1] = *(pDQ+1);
+    Counter[2] = *(pDQ+2);
+    Counter[3] = *(pDQ+3);
+  
     /*
     uint16_t b1010, b1100, b1110;
     b1010 = ((data.at(5) & 0xF0000000)>>28);
@@ -267,12 +272,6 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     GEMDataAMCformat::printVFATdataBits(vfat_, vftmp);
     INFO(" ::getGLIBData slot " << islot );
    
-    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(link,bufferCount);
-    Counter[0] = *(pDQ+0);
-    Counter[1] = *(pDQ+1);
-    Counter[2] = *(pDQ+2);
-    Counter[3] = *(pDQ+3);
-  
     /*
     std::map<uint32_t, uint32_t>::iterator it;
     std::map<uint32_t, uint32_t>::iterator ir;
@@ -474,13 +473,12 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   // Booking FIFO variables
   uint8_t  flags, ECff;
   uint16_t bcn, evn, chipid, vfatcrc;
+  uint16_t b1010, b1100, b1110;
   uint64_t msVFAT, lsVFAT;
   uint32_t dat10,dat11, dat20,dat21, dat30,dat31, dat40,dat41;
   uint32_t BX, ES;
 
   INFO(" ::GEMEventMaker dataque.size " << dataque.size() );
-
-  uint16_t b1010, b1100, b1110;
 
   int iQue = -1;
   uint32_t datafront = 0;
