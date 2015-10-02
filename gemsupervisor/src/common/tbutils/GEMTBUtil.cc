@@ -1444,19 +1444,19 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
-                                                          "file://setup/etc/addresstables/glib_address_table.xml"));
+                                                          "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   //glibDevice_ = new gem::hw::glib::HwGLIB();
   //glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   //glibDevice_->connectDevice();
   
   optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
-                                                                                  "file://setup/etc/addresstables/optohybrid_address_table.xml"));
+                                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"));
   //optohybridDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
   //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   //optohybridDevice_->connectDevice();
 
   vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString(),tmpURI.str(),
-                                                           "file://setup/etc/addresstables/geb_vfat_address_table.xml"));
+                                                           "file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
   //vfatDevice_ = new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString());
   //  vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
   //vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
