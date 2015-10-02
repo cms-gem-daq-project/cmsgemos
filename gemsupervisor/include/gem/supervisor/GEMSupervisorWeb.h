@@ -14,6 +14,7 @@ namespace gem {
       {
         //friend class GEMMonitor;
         //friend class GEMSupervisor;
+        //friend class gem::base::GEMFSMApplication;
 
       public:
         GEMSupervisorWeb(GEMSupervisor *gemSupervisorApp);
@@ -29,6 +30,9 @@ namespace gem {
           throw (xgi::exception::Exception);
 	
         virtual void expertPage(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
+	
+        void displayManagedStateTable(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 	
       private:

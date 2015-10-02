@@ -15,6 +15,8 @@ namespace gem {
       class HwGLIB;
       class GLIBManagerWeb;
 
+      typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
+  
       class GLIBManager : public gem::base::GEMFSMApplication
         {
 	  

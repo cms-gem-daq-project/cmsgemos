@@ -10,6 +10,7 @@
 #include "gem/base/GEMFSM.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/GEMInfoSpaceToolBox.h"
 #include "gem/utils/exception/Exception.h"
 
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"
@@ -193,6 +194,13 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   p_gemfsm->setInitialState(STATE_INITIAL);
   p_gemfsm->reset();
 
+  m_gemFSMState = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
+
+  p_gemApp->getApplicationInfoSpace()->fireItemAvailable("FSMState",        &m_gemFSMState);
+  p_gemApp->getApplicationInfoSpace()->fireItemAvailable("ReasonForFailure",&m_reasonForFailure);
+  p_gemApp->getApplicationInfoSpace()->fireItemValueRetrieve("FSMState");
+  p_gemApp->getApplicationInfoSpace()->fireItemValueRetrieve("ReasonForFailure");
+
   // // Find connection to RCMS.
   //   p_gemApp->getApplicationInfoSpace()->fireItemAvailable("rcmsStateListener",      
   // 							 m_gemRCMSNotifier.getRcmsStateListenerParameter());
@@ -352,6 +360,7 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   INFO("GEMFSM::stateChanged() begin");
   m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
   //p_appStateInfoSpaceHandler->setFSMState(state_);
+  gem::utils::GEMInfoSpaceToolBox::setString(p_gemApp->getApplicationInfoSpace(),"FSMState",m_gemFSMState.toString());
   INFO("GEMFSM::stateChanged:Current state is: [" << m_gemFSMState.toString() << "]");
   /* TCDS way
   // Send notification to Run Control

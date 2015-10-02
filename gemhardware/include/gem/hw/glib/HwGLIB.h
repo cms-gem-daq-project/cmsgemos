@@ -355,6 +355,28 @@ namespace gem {
               LinkReset(link->first,resets);
           };
 	  
+          /** Set the Trigger source
+           * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
+           **/
+          void setTrigSource(uint8_t const& mode, uint8_t const& link=0x0) {
+            std::stringstream regName;
+            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
+            switch (mode) {
+            case(0):
+              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
+              return;
+            case(1):
+              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
+              return;
+            case(2):
+              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
+              return;
+            default:
+              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",0x2);
+              return;
+            }
+          };
+
           /** Read the Trigger source
            * @retval uint8_t 0 from GLIB, 1 from AMC13, 2 from both
            **/
