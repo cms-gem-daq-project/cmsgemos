@@ -153,9 +153,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
   uint32_t *point = &bufferCount[0]; 
   uint32_t Counter[4] = {0,0,0,0};
 
- /*  
-  *  GEM Event Data Format definition
-  */
+  /*
   AMCGEMData  gem; 
   AMCGEBData  geb;
   AMCVFATData vftmp;
@@ -168,8 +166,9 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
   uint32_t TrigReg, BXOHTrig;
   uint64_t msVFAT, lsVFAT;
 
-  /** the FIFO depth is not reliable */
+  /** the FIFO depth is not reliable 
   DEBUG(" ::getGLIBData bufferCount[" << (int)link << "] " << bufferCount[link] << std::dec);
+  */
 
   while ( glibDevice_->hasTrackingData(link) ) {
     std::vector<uint32_t> data;
@@ -183,12 +182,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
     bufferCount[(int)link]++; 
 
-    /* read trigger data
-    TrigReg = glibDevice_->readTriggerFIFO(link);
-    BXOHTrig = TrigReg >> 6;
-    SBit = TrigReg & 0x0000003F;
-    */
-
+    /*
     uint16_t b1010, b1100, b1110;
     b1010 = ((data.at(5) & 0xF0000000)>>28);
     b1100 = ((data.at(5) & 0x0000F000)>>12);
@@ -198,7 +192,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
       /* do not ignore incorrect data
          WARN("VFAT headers do not match expectation");
          continue;
-      */
+      *
     }
 
     BX = data.at(6);
@@ -252,7 +246,6 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     counterVFAT.insert(std::pair<uint32_t, int>(BX,counterVFATs));
 
     bufferCount[]--;
-    */
 
     uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
     uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
@@ -270,8 +263,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     vftmp.BXfrOH = BX;                                     // BXfrOH:32
     vftmp.crc    = vfatcrc;                                // crc:16
 
-   /*
-    * dump VFAT data */
+    * dump VFAT data 
     GEMDataAMCformat::printVFATdataBits(vfat_, vftmp);
     INFO(" ::getGLIBData slot " << islot );
    
@@ -495,12 +487,11 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   while (!dataque.empty()){
     iQue++;
     datafront = dataque.front();
-    std::cout << " iQue " << iQue << " " << std::hex << datafront << std::dec << std::endl;
+    DEBUG(" ::GEMEventMaker iQue " << iQue << " " << std::hex << datafront << std::dec );
 
     if (iQue == 0 ){
         dat41   = ((0xffff0000 & datafront) >> 16 );
         vfatcrc = (0x0000ffff & datafront);
-        //std::cout << " 0: " << " vfatcrc 0x" << std::hex << vfatcrc << std::dec << std:: endl;
     } else if ( iQue == 1 ){
 	dat40   = ((0x0000ffff & datafront) << 16 );
 	dat31   = ((0xffff0000 & datafront) >> 16 );
@@ -526,12 +517,6 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
     dataque.pop();
   }
   INFO(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
-  /*
-  std::cout << " dat10 0x" << std::hex << dat10 << " dat11 0x" << dat11 << std::dec << std:: endl;
-  std::cout << " dat20 0x" << std::hex << dat20 << " dat21 0x" << dat21 << std::dec << std:: endl;
-  std::cout << " dat30 0x" << std::hex << dat30 << " dat31 0x" << dat31 << std::dec << std:: endl;
-  std::cout << " dat40 0x" << std::hex << dat40 << " dat41 0x" << dat41 << std::dec << std:: endl;
-  */
 
   uint64_t data1  = dat10 | dat11;
   uint64_t data2  = dat20 | dat21;
