@@ -406,6 +406,48 @@ namespace gem {
             regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
             return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits"); };
 
+          ///Counters
+          /** Get the recorded number of L1A signals received from the TTC decoder
+           **/
+          uint32_t GetL1ACount() {
+            return readReg(getDeviceBaseNode(),"COUNTERS.T1.L1A"); };
+	  
+          /** Get the recorded number of CalPulse signals received from the TTC decoder
+           **/
+          uint32_t GetCalPulseCount() {
+            return readReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse"); };
+	  
+          /** Get the recorded number of Resync signals received from the TTC decoder
+           **/
+          uint32_t GetResyncCount() {
+            return readReg(getDeviceBaseNode(),"COUNTERS.T1.Resync"); };
+          
+          /** Get the recorded number of BC0 signals
+           **/
+          uint32_t GetBC0Count() {
+            return readReg(getDeviceBaseNode(),"COUNTERS.T1.BC0"); };
+          
+          ///Counter resets
+          /** Reset the recorded number of L1A signals received from the TTC decoder
+           **/
+          void ResetL1ACount() {
+            return writeReg(getDeviceBaseNode(),"COUNTERS.T1.L1A.Reset", 0x1); };
+	  
+          /** Reset the recorded number of CalPulse signals received from the TTC decoder
+           **/
+          void ResetCalPulseCount() {
+            return writeReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse.Reset", 0x1); };
+	  
+          /** Reset the recorded number of Resync signals received from the TTC decoder
+           **/
+          void ResetResyncCount() {
+            return writeReg(getDeviceBaseNode(),"COUNTERS.T1.Resync.Reset", 0x1); };
+          
+          /** Reset the recorded number of BC0 signals
+           **/
+          void ResetBC0Count() {
+            return writeReg(getDeviceBaseNode(),"COUNTERS.T1.BC0.Reset", 0x1); };
+          
           /** Read the trigger data
            * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
            **/
