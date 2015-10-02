@@ -121,7 +121,7 @@ uint32_t* gem::readout::GEMDataParker::dumpDataToDisk(
 						 uint8_t const& link,
                                                  uint32_t bufferCount[4]
 ){
-  uint32_t Counter[4];
+  uint32_t Counter[4] = {0,0,0,0};
   uint32_t *point = &bufferCount[0]; 
   /*
    * get GLIB data from one VFAT chip, as it's (update that part for MP7 when it'll be)
@@ -151,9 +151,10 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
                                                   uint32_t bufferCount[4]
 ){
   uint32_t *point = &bufferCount[0]; 
+  uint32_t Counter[4] = {0,0,0,0};
  /*  
   *  GEM Event Data Format definition
-  */
+  *
   AMCGEMData  gem; 
   AMCGEBData  geb;
   AMCVFATData vfat;
@@ -165,6 +166,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
   uint16_t bcn, evn, chipid, vfatcrc;
   uint32_t TrigReg, BXOHTrig;
   uint64_t msVFAT, lsVFAT;
+  */
 
   /** the FIFO depth is not reliable */
   DEBUG(" ::getGLIBData bufferCount[" << (int)link << "] " << bufferCount[link] << std::dec);
@@ -175,10 +177,15 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     data = glibDevice_->getTrackingData(link);
 
     for (int iword =1; iword<7; iword++ ) dataque.push(data.at(iword));
-    INFO(" ::getGLIBData dataque.size " << dataque.size() );
 
     bufferCount[(int)link]++; 
 
+    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(link,bufferCount);
+    Counter[0] = *(pDQ+0);
+    Counter[1] = *(pDQ+1);
+    Counter[2] = *(pDQ+2);
+    Counter[3] = *(pDQ+3);
+  
     /*
     // read trigger data
     TrigReg = glibDevice_->readTriggerFIFO(link);
@@ -451,6 +458,31 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
   }// while(glibDevice_->hasTrackingData(link))
 
   bufferCount[3] += bufferCount[(int)link];
+  return point;
+}
+
+
+uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
+					          uint8_t const& link,
+                                                  uint32_t bufferCount[4]
+){
+  uint32_t *point = &bufferCount[0];
+ /*  
+  *  GEM Event Data Format definition
+  */
+  AMCGEMData  gem; 
+  AMCGEBData  geb;
+  AMCVFATData vfat;
+
+  int islot = -1;
+
+  // Booking FIFO variables
+  uint8_t  flags;
+  uint16_t bcn, evn, chipid, vfatcrc;
+  uint64_t msVFAT, lsVFAT;
+
+  INFO(" ::GEMEventMaker dataque.size " << dataque.size() );
+
   return point;
 }
 
