@@ -146,7 +146,7 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
       //if (this->getFirmware(link)) {
       if ((this->getFirmwareDate(link)).rfind("15") != std::string::npos) {
         b_links[link] = true;
-        INFO("link" << link << " present(" << this->getFirmware(link) << ")");
+        INFO("link" << link << " present(0x" << std::hex << this->getFirmware(link) << std::dec << ")");
         tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
       } else {
         b_links[link] = false;

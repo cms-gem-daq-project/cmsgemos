@@ -171,7 +171,7 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
       //if (this->getUserFirmware(link)) {
       if ((this->getUserFirmwareDate(link)).rfind("15") != std::string::npos) {
         b_links[link] = true;
-        INFO("link" << link << " present(" << this->getUserFirmware(link) << ")");
+        INFO("link" << link << " present(0x" << std::hex << this->getUserFirmware(link) << std::dec << ")");
         tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
       } else {
         b_links[link] = false;
