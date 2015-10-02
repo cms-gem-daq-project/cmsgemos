@@ -160,7 +160,7 @@ gem::hw::glib::HwGLIB::~HwGLIB()
 bool gem::hw::glib::HwGLIB::isHwConnected() 
 {
   if ( b_is_connected ) {
-    DEBUG("basic check: HwGLIB connection good");
+    INFO("basic check: HwGLIB connection good");
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     std::vector<linkStatus> tmp_activeLinks;
@@ -175,7 +175,8 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
         tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
       } else {
         b_links[link] = false;
-        DEBUG("link" << link << " not reachable (unable to find 15 in the firmware string)");
+        INFO("link" << link << " not reachable (unable to find 15 in the firmware string)"
+             << " user firmware version " << this->getUserFirmwareDate(link));
       }
     }
     v_activeLinks = tmp_activeLinks;
@@ -187,7 +188,7 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
       return true;
     } else {
       b_is_connected = false;
-      DEBUG("not connected - control link" << (int)m_controlLink);
+      INFO("not connected - control link" << (int)m_controlLink);
       return false;
     }
   } else if (m_controlLink < 0)
