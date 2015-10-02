@@ -35,6 +35,9 @@ namespace gem {
       uint32_t* getGLIBData( uint8_t const& link,
                              uint32_t bufferCount[4]
                            );
+      uint32_t* GEMEventMaker( uint8_t const& link,
+                               uint32_t bufferCount[4]
+                             );
       void GEMfillHeaders  ( uint32_t const& BC,
                              uint32_t const& BX,
                              gem::readout::GEMDataAMCformat::GEMData& gem,

@@ -152,12 +152,13 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 ){
   uint32_t *point = &bufferCount[0]; 
   uint32_t Counter[4] = {0,0,0,0};
+
  /*  
   *  GEM Event Data Format definition
-  *
+  */
   AMCGEMData  gem; 
   AMCGEBData  geb;
-  AMCVFATData vfat;
+  AMCVFATData vftmp;
 
   int islot = -1;
 
@@ -166,7 +167,6 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
   uint16_t bcn, evn, chipid, vfatcrc;
   uint32_t TrigReg, BXOHTrig;
   uint64_t msVFAT, lsVFAT;
-  */
 
   /** the FIFO depth is not reliable */
   DEBUG(" ::getGLIBData bufferCount[" << (int)link << "] " << bufferCount[link] << std::dec);
@@ -176,21 +176,15 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
     data = glibDevice_->getTrackingData(link);
 
-    for (int iword =1; iword<7; iword++ ) dataque.push(data.at(iword));
+    for (int iword =0; iword<7; iword++ ) dataque.push(data.at(iword));
 
     bufferCount[(int)link]++; 
 
-    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(link,bufferCount);
-    Counter[0] = *(pDQ+0);
-    Counter[1] = *(pDQ+1);
-    Counter[2] = *(pDQ+2);
-    Counter[3] = *(pDQ+3);
-  
-    /*
-    // read trigger data
+    /* read trigger data
     TrigReg = glibDevice_->readTriggerFIFO(link);
     BXOHTrig = TrigReg >> 6;
     SBit = TrigReg & 0x0000003F;
+    */
 
     uint16_t b1010, b1100, b1110;
     b1010 = ((data.at(5) & 0xF0000000)>>28);
@@ -201,7 +195,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
       /* do not ignore incorrect data
          WARN("VFAT headers do not match expectation");
          continue;
-      *
+      */
     }
 
     BX = data.at(6);
@@ -253,9 +247,9 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     counterVFATs++;
     counterVFAT.erase(BX);
     counterVFAT.insert(std::pair<uint32_t, int>(BX,counterVFATs));
-    *
 
-    //bufferCount[]--;
+    bufferCount[]--;
+    */
 
     uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
     uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
@@ -265,19 +259,25 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     lsVFAT = (data3 << 32) | (data4);
     msVFAT = (data1 << 32) | (data2);
 
-    vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
-    vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4
-    vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
-    vfat.lsData = lsVFAT;                                 // lsData:64
-    vfat.msData = msVFAT;                                 // msData:64
-    vfat.BXfrOH = BX;                                     // BXfrOH:32
-    vfat.crc    = vfatcrc;                                // crc:16
+    vftmp.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
+    vftmp.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4
+    vftmp.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
+    vftmp.lsData = lsVFAT;                                 // lsData:64
+    vftmp.msData = msVFAT;                                 // msData:64
+    vftmp.BXfrOH = BX;                                     // BXfrOH:32
+    vftmp.crc    = vfatcrc;                                // crc:16
 
    /*
-    * dump VFAT data *
-    GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
+    * dump VFAT data */
+    GEMDataAMCformat::printVFATdataBits(vfat_, vftmp);
     INFO(" ::getGLIBData slot " << islot );
-
+   
+    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(link,bufferCount);
+    Counter[0] = *(pDQ+0);
+    Counter[1] = *(pDQ+1);
+    Counter[2] = *(pDQ+2);
+    Counter[3] = *(pDQ+3);
+  
     /*
     std::map<uint32_t, uint32_t>::iterator it;
     std::map<uint32_t, uint32_t>::iterator ir;
@@ -477,12 +477,91 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   int islot = -1;
 
   // Booking FIFO variables
-  uint8_t  flags;
+  uint8_t  flags, ECff;
   uint16_t bcn, evn, chipid, vfatcrc;
   uint64_t msVFAT, lsVFAT;
+  uint32_t dat10,dat11, dat20,dat21, dat30,dat31, dat40,dat41;
+  uint32_t BX, ES;
 
   INFO(" ::GEMEventMaker dataque.size " << dataque.size() );
 
+  uint16_t b1010, b1100, b1110;
+
+  int iQue = -1;
+  uint32_t datafront = 0;
+  while (!dataque.empty()){
+    iQue++;
+    datafront = dataque.front();
+    if (iQue == 0 ){
+      dat41   = ( 0xffff0000 & datafront >> 16 );
+      vfatcrc = ( 0x0000ffff & datafront);
+      std::cout << " vfatcrc 0x" << std::hex << vfatcrc << " dat41 0x" << dat41 << std::dec << std:: endl;
+    } else if ( iQue == 1 ){
+      dat40   = ( 0x0000ffff & datafront << 16 );
+      dat31   = ( 0xffff0000 & datafront >> 16 );
+      std::cout << " dat40 0x" << std::hex << dat40 << " dat31 0x" << dat31 << std::dec << std:: endl;
+    } else if ( iQue == 2 ){
+      dat21   = ( 0xffff0000 & datafront >> 16 );
+      dat30   = ( 0x0000ffff & datafront << 16 );
+      std::cout << " dat21 0x" << std::hex << dat21 << " dat30 0x" << dat30 << std::dec << std:: endl;
+    } else if ( iQue == 3 ){
+      dat11   = ( 0xffff0000 & datafront >> 16);
+      dat20   = ( 0x0000ffff & datafront << 16);
+      std::cout << " dat11 0x" << std::hex << dat11 << " dat20 0x" << dat20 << std::dec << std:: endl;
+    } else if ( iQue == 4 ){
+      b1110   = ( 0xf0000000 & datafront >> 28 );
+      chipid  = ( 0x0fff0000 & datafront >> 16 );
+      dat10   = ( 0x0000ffff & datafront << 16 );
+      std::cout << " dat10 0x" << std::hex << dat10 << " chipid 0x" << chipid << std::dec << std:: endl;
+    } else if ( iQue == 5 ){
+      b1010   = ( 0xf0000000 & datafront >> 28 );
+      b1100   = ( 0x0000f000 & datafront >> 12 );
+      bcn     = ( 0x0fff0000 & datafront >> 16 );
+      evn     = ( 0x00000ff0 & datafront >>  4 );
+      flags   = ( 0x0000000f & datafront );
+    } else if ( iQue == 6 ){
+      BX      = datafront;
+    }
+    dataque.pop();
+  }
+
+  uint64_t data1  = dat10 | dat11;
+  uint64_t data2  = dat20 | dat21;
+  uint64_t data3  = dat30 | dat31;
+  uint64_t data4  = dat40 | dat41;
+
+  if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))) {
+    /* do not ignore incorrect data
+       WARN("VFAT headers do not match expectation");
+       continue;
+    */
+  }
+
+  vfat_++;
+
+  ECff = evn;
+  islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)chipid );
+
+  // GEM Event selector
+  ES = ( ECff << 12 ) | bcn;
+  DEBUG(" ::getGLIBData vfats ES 0x" << std::hex << ( 0x00ffffff & ES ) << " EC 0x" << ECff << " BC 0x" << bcn << std::dec );
+
+  lsVFAT = (data3 << 32) | (data4);
+  msVFAT = (data1 << 32) | (data2);
+
+  vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
+  vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4
+  vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
+  vfat.lsData = lsVFAT;                                 // lsData:64
+  vfat.msData = msVFAT;                                 // msData:64
+  vfat.BXfrOH = BX;                                     // BXfrOH:32
+  vfat.crc    = vfatcrc;                                // crc:16
+
+  /*
+   * dump VFAT data */
+   GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
+   INFO(" ::getGLIBData slot " << islot );
+    
   return point;
 }
 
