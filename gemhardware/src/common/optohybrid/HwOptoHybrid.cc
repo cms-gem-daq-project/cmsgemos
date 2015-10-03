@@ -9,8 +9,9 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   m_controlLink(-1)  
 {
   setDeviceID("OptoHybridHw");
-  setAddressTableFileName("optohybrid_address_table.xml");
-  setDeviceBaseNode("OptoHybrid");
+  setAddressTableFileName("glib_address_table.xml");
+  //need to know which device this is 0 or 1?
+  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
   //set up which links are active, so that the control can be done without specifying a link
   INFO("HwOptoHybrid ctor done " << isHwConnected());
@@ -23,7 +24,9 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   b_links({false,false,false}),
   m_controlLink(-1)  
 {
-  setDeviceBaseNode("OptoHybrid");
+  std::stringstream basenode;
+  basenode << "GLIB.OptoHybrid_" << *optohybridDevice.rbegin() << ".OptoHybrid";
+  setDeviceBaseNode(basenode.str());
   INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
 
@@ -35,7 +38,9 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   b_links({false,false,false}),
   m_controlLink(-1)  
 {
-  setDeviceBaseNode("OptoHybrid");
+  std::stringstream basenode;
+  basenode << "GLIB.OptoHybrid_" << *optohybridDevice.rbegin() << ".OptoHybrid";
+  setDeviceBaseNode(basenode.str());
   INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
 
@@ -46,7 +51,9 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   b_links({false,false,false}),
   m_controlLink(-1)  
 {
-  setDeviceBaseNode("OptoHybrid");
+  std::stringstream basenode;
+  basenode << "GLIB.OptoHybrid_" << *optohybridDevice.rbegin() << ".OptoHybrid";
+  setDeviceBaseNode(basenode.str());
   INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
 /*
@@ -65,7 +72,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
   //p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
   //p_gemHW = std::shared_ptr<uhal::HwInterface>(p_gemConnectionManager->getDevice(this->getDeviceID()));
-  //setAddressTableFileName("optohybrid_address_table.xml");
+  //setAddressTableFileName("glib_address_table.xml");
   //setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
   setDeviceBaseNode("OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
@@ -135,40 +142,16 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection");
 
-    //try {
-    //try to read from each of the three links
-    
-    std::vector<linkStatus> tmp_activeLinks;
-    tmp_activeLinks.reserve(3);
-    for (unsigned int link = 0; link < 3; ++link) {
-      //need to make sure that this works only for "valid" FW results
-      // for the moment we can do a check to see that 2015 appears in the string
-      //if (this->getFirmware()) {
-      if ((this->getFirmwareDate()).rfind("15") != std::string::npos) {
-        b_links[link] = true;
-        INFO("link" << link << " present(0x" << std::hex << this->getFirmware() << std::dec << ")");
-        tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus()));
-      } else {
-        b_links[link] = false;
-        DEBUG("link" << link << " not reachable (unable to find 15 in the firmware string)");
-      }
-    }
-    v_activeLinks = tmp_activeLinks;
-    if (!v_activeLinks.empty()) {
+    if ((this->getFirmwareDate()).rfind("15") != std::string::npos) {
       b_is_connected = true;
-      m_controlLink = (v_activeLinks.begin())->first;
-      INFO("connected - control link" << (int)m_controlLink);
-      INFO("HwOptoHybrid connection good");
+      INFO("OptoHybrid present(0x" << std::hex << this->getFirmware() << std::dec << ")");
       return true;
     } else {
       b_is_connected = false;
-      DEBUG("not connected - control link" << (int)m_controlLink);
+      DEBUG("OptoHybrid not reachable (unable to find 15 in the firmware string)");
       return false;
     }
-  } else if (m_controlLink < 0)
-    return false;
-  else
-    return false;
+  }
 }
 
 
@@ -178,7 +161,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkS
   
   linkStatus.TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRK_ERR"));
   linkStatus.TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRG_ERR"));
-  linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.DATA_REC"));
+  linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.DATA_Packets"));
   return linkStatus;
 }
 
