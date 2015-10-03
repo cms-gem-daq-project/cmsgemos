@@ -395,7 +395,7 @@ namespace gem {
            * @param uint32_t ntrigs, how many L1As to send
            * @param uint32_t rate, rate at which signals will be generated
            **/
-          void SendL1A(uint32_t const& ntrigs, uint32_t const& rate=1) {
+          void sendL1A(uint32_t const& ntrigs, uint32_t const& rate=1) {
             T1Sequence sequence;
             configureT1Generator(0x0, 0x0, sequence, true);
             startT1Generator(ntrigs,rate, 0);
@@ -405,7 +405,7 @@ namespace gem {
            * @param uint32_t npulse, how many CalPulses to send
            * @param uint32_t rate, rate at which signals will be generated
            **/
-          void SendCalPulse(uint32_t const& npulse, uint32_t const& rate=1) {
+          void sendCalPulse(uint32_t const& npulse, uint32_t const& rate=1) {
             T1Sequence sequence;
             configureT1Generator(0x0, 0x1, sequence, true);
             startT1Generator(npulse,rate, 0);
@@ -416,7 +416,7 @@ namespace gem {
            * @param uint32_t delay, how long between L1A and CalPulse
            * @param uint32_t rate, rate at which signals will be generated
            **/
-          void SendL1ACal(uint32_t const& npulse, uint32_t const& delay, uint32_t const& rate=1) {
+          void sendL1ACal(uint32_t const& npulse, uint32_t const& delay, uint32_t const& rate=1) {
             T1Sequence sequence;
             configureT1Generator(0x1, 0x0, sequence, true);
             startT1Generator(npulse,rate, delay);
@@ -427,7 +427,7 @@ namespace gem {
            * @param uint32_t rate, rate at which signals will be generated
            * 
            **/
-          void SendResync(uint32_t const& nresync=1,uint32_t const& rate=1) {
+          void sendResync(uint32_t const& nresync=1,uint32_t const& rate=1) {
             T1Sequence sequence;
             configureT1Generator(0x0, 0x2, sequence, true);
             startT1Generator(nresync, rate, 0); };
@@ -438,12 +438,25 @@ namespace gem {
            * @param uint32_t rate, rate at which signals will be generated
            * 
            **/
-          void SendBC0(uint32_t const& nbc0=1, uint32_t const& rate=1) {
+          void sendBC0(uint32_t const& nbc0=1, uint32_t const& rate=1) {
             T1Sequence sequence;
             configureT1Generator(0x0, 0x3, sequence, true);
             startT1Generator(nbc0, rate, 0); };
 
           ///Counters
+
+          /** Get the recorded number of IPBus signals sent/received by the GLIB
+           * @param uint8_t mode which counter
+           * bit 1 OptoHybridStrobe
+           * bit 2 OptoHybridAck
+           * bit 3 TrackingStrobe
+           * bit 4 TrackingAck
+           * bit 5 CounterStrobe
+           * bit 6 CounterAck
+           * @returns OptoHybridWBCounters struct, with updated values for the ones specified in the mask
+           **/
+          OptoHybridWBCounters getWBCounters(uint8_t const& mode);
+	  
           /** Get the recorded number of T1 signals
            * @param signal specifies which T1 signal counter to read
            * 0 L1A
@@ -492,7 +505,7 @@ namespace gem {
            * 3 from looping back the sbits
            * 4 sent along the GEB
            **/
-          uint32_t GetL1ACount(uint8_t const& mode) {
+          uint32_t getL1ACount(uint8_t const& mode) {
             return getT1Count(0x0, mode); };
 	  
           /** Get the recorded number of CalPulse signals
@@ -503,7 +516,7 @@ namespace gem {
            * 3 from looping back the sbits
            * 4 sent along the GEB
            **/
-          uint32_t GetCalPulseCount(uint8_t const& mode) {
+          uint32_t getCalPulseCount(uint8_t const& mode) {
             return getT1Count(0x1, mode); };
 	  
           /** Get the recorded number of Resync signals
@@ -514,7 +527,7 @@ namespace gem {
            * 3 from looping back the sbits
            * 4 sent along the GEB
            **/
-          uint32_t GetResyncCount(uint8_t const& mode=0x0) {
+          uint32_t getResyncCount(uint8_t const& mode=0x0) {
             return getT1Count(0x2, mode); };
 
           /** Get the recorded number of BC0 signals
@@ -525,13 +538,13 @@ namespace gem {
            * 3 from looping back the sbits
            * 4 sent along the GEB
            **/
-          uint32_t GetBC0Count(uint8_t const& mode=0x0) {
+          uint32_t getBC0Count(uint8_t const& mode=0x0) {
             return getT1Count(0x3, mode); };
           
           /** Get the recorded number of BXCount signals
            * OBSOLETE in V2 firmware
            **/
-          uint32_t GetBXCountCount() {
+          uint32_t getBXCountCount() {
             return 0x0;
             /*
             std::stringstream regName;
@@ -603,11 +616,11 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void ResetL1ACount(uint8_t const& mode) {
+          void resetL1ACount(uint8_t const& mode) {
             resetT1Count(0x0,mode);
           };
 	  
-          /** Get the recorded number of CalPulse signals
+          /** Reset recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to reset
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -616,10 +629,10 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void ResetCalPulseCount(uint8_t const& mode) {
+          void resetCalPulseCount(uint8_t const& mode) {
             return resetT1Count(0x1, mode); };
           
-          /** Get the recorded number of Resync signals
+          /** Reset recorded number of Resync signals
            * @param mode specifies which CalPulse counter to reset
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -628,10 +641,10 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void ResetResyncCount(uint8_t const& mode=0x0) {
+          void resetResyncCount(uint8_t const& mode=0x0) {
             return resetT1Count(0x2, mode); };
 
-          /** Get the recorded number of BC0 signals
+          /** Reset recorded number of BC0 signals
            * @param mode specifies which CalPulse counter to reset
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -640,19 +653,21 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void ResetBC0Count(uint8_t const& mode=0x0) {
+          void resetBC0Count(uint8_t const& mode=0x0) {
             return resetT1Count(0x3, mode); };
 
-          /** Get the recorded number of BXCount signals
+          /** Reset recorded number of BXCount signals
            * OBSOLETE in V2 firmawre
            **/
-          void ResetBXCount() { return; };
+          void resetBXCount() { return; };
 	  
           uhal::HwInterface& getOptoHybridHwInterface() const {
             return getGEMHwInterface(); };
 
           std::vector<linkStatus> getActiveLinks() { return v_activeLinks; }
           bool isLinkActive(int i) { return b_links[i]; }
+
+          OptoHybridWBCounters m_wbCounters; /** wishbone transaction counters */
 
         protected:
           //OptoHybridMonitor *monOptoHybrid_;
