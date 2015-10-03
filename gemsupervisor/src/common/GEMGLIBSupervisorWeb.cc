@@ -411,7 +411,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   hw_semaphore_.take();
 
   INFO(" webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(1);
+  optohybridDevice_->sendL1A(1);
 
   L1ACount_[0] = optohybridDevice_->getL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->getL1ACount(1); //internal
@@ -430,12 +430,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi:
   //INFO("webCalPulse: sending 1 CalPulse with 25 clock delayed L1A");
   for (int offset = -12; offset < 13; ++offset) {
     INFO("webCalPulse: sending 10 CalPulses with L1As delayed by " << (int)latency_ + offset <<  " clocks");
-    optohybridDevice_->SendL1ACal(2, latency_ + offset);
+    optohybridDevice_->sendL1ACal(2, latency_ + offset);
     INFO("Sleeping for 0.5 seconds...");
     sleep(0.5);
     INFO("back!");
   }
-  //optohybridDevice_->SendL1ACal(1, latency_);
+  //optohybridDevice_->sendL1ACal(1, latency_);
   //sleep(0.1);
   //need some sleep here?
   CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //internal
@@ -453,7 +453,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webResync(xgi::Input * in, xgi::Outp
   hw_semaphore_.take();
 
   INFO("webResync: sending Resync");
-  optohybridDevice_->SendResync();
+  optohybridDevice_->sendResync();
   ResyncCount_ = optohybridDevice_->getResyncCount();
 
   hw_semaphore_.give();
@@ -467,7 +467,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webBC0(xgi::Input * in, xgi::Output 
   hw_semaphore_.take();
 
   INFO("webBC0: sending BC0");
-  optohybridDevice_->SendBC0();
+  optohybridDevice_->sendBC0();
   BC0Count_ = optohybridDevice_->getBC0Count();
 
   hw_semaphore_.give();
@@ -489,7 +489,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::task::WorkL
   // fire "Configure" event to FSM
   fireEvent("Configure");
 
-  optohybridDevice_->SendResync();
+  optohybridDevice_->sendResync();
   // resetting BX counter
   // optohybridDevice_->resetBXCount();
   //   ERROR - No branch found with ID-path "OptoHybrid.OptoHybrid_LINKS.LINK0.COUNTERS.RESETS.BXCount"
@@ -791,7 +791,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   //send resync
   INFO("Sending a resync");
-  optohybridDevice_->SendResync();
+  optohybridDevice_->sendResync();
 
   //reset counters
   INFO("Resetting counters");
