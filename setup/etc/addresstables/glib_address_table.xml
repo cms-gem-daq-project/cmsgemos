@@ -20,7 +20,6 @@
     
     <!-- USER firmware functionality -->
     <!-- registers for the OptoHybrids 0x40Y00000 for OptoHybrid Y -->
-    <!--
     <node id="OptoHybrid_0"  address="0x40000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 0 connected to GLIB"/>
@@ -28,7 +27,7 @@
     <node id="OptoHybrid_1"  address="0x40100000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 1 connected to GLIB"/>
-    -->
+
     <!-- registers for the VFAT tracking data 0x50Y00000 for OptoHybrid Y -->
     <node id="TRK_DATA"  address="0x50000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_data.xml"
