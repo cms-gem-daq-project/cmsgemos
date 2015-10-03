@@ -51,17 +51,38 @@ namespace gem {
     {
 
     public:
+      /** @struct OpticalLinkStatus
+       *  @brief This structure stores retrieved counters related to the GTX link
+       *  @var OpticalLinkStatus::TRK_Errors
+       *  TRK_Errors is a counter for the number of errors on the tracking data link
+       *  @var OpticalLinkStatus::TRG_Errors
+       *  TRG_Errors is a counter for the number of errors on the trigger data link
+       *  @var OpticalLinkStatus::Data_Packets
+       *  Data_Packets is a counter for the number of data packets transferred on the tracking data link
+       */
       typedef struct OpticalLinkStatus {
-        uint32_t Errors          ;
-        uint32_t I2CReceived     ; 
-        uint32_t I2CSent         ;
-        uint32_t RegisterReceived;
-        uint32_t RegisterSent    ;
-
-      OpticalLinkStatus() : Errors(0),I2CReceived(0),I2CSent(0),RegisterReceived(0),RegisterSent(0) {};
-        void reset()       {Errors=0; I2CReceived=0; I2CSent=0; RegisterReceived=0; RegisterSent=0; return; };
+        uint32_t TRK_Errors  ;
+        uint32_t TRG_Errors  ;
+        uint32_t Data_Packets;
+        
+      OpticalLinkStatus() : 
+        TRK_Errors(0),TRG_Errors(0),Data_Packets(0) {};
+        void reset() {
+          TRK_Errors=0; TRG_Errors=0;Data_Packets=0;
+          return; };
       } OpticalLinkStatus;
 	
+      /** @struct DeviceErrors
+       *  @brief This structure stores retrieved counters related to the IPBus transaction errors
+       *  @var DeviceErrors::BadHeader
+       *  BadHeader is a counter for the number times the IPBus transaction returned a bad header
+       *  @var DeviceErrors::ReadError
+       *  ReadError is a counter for the number read transaction errors
+       *  @var DeviceErrors::Timeout
+       *  Timeout is a counter for the number for the number of timeouts
+       *  @var DeviceErrors::ControlHubErr
+       *  ControlHubErr is a counter for the number control hub errors encountered
+       */
       typedef struct DeviceErrors {
         int BadHeader    ;
         int ReadError    ;
