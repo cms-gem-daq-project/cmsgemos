@@ -143,11 +143,11 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
     for (unsigned int link = 0; link < 3; ++link) {
       //need to make sure that this works only for "valid" FW results
       // for the moment we can do a check to see that 2015 appears in the string
-      //if (this->getFirmware(link)) {
-      if ((this->getFirmwareDate(link)).rfind("15") != std::string::npos) {
+      //if (this->getFirmware()) {
+      if ((this->getFirmwareDate()).rfind("15") != std::string::npos) {
         b_links[link] = true;
-        INFO("link" << link << " present(0x" << std::hex << this->getFirmware(link) << std::dec << ")");
-        tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
+        INFO("link" << link << " present(0x" << std::hex << this->getFirmware() << std::dec << ")");
+        tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus()));
       } else {
         b_links[link] = false;
         DEBUG("link" << link << " not reachable (unable to find 15 in the firmware string)");
@@ -172,56 +172,24 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
 }
 
 
-gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkStatus(uint8_t const& link) {
-  
+gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkStatus()
+{
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
-
-  //put these into a checkLink(link) function that will return bool, since they're used often
-  if (link > 2) {
-    std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
-    ERROR(msg);
-    //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
-  } else if (!b_links[link]) {
-    std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
-    ERROR(msg);
-    //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
-  } else {
-    std::stringstream regName;
-    regName << "OptoHybrid_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Counter.";
-    linkStatus.Errors           = readReg(getDeviceBaseNode(),regName.str()+"LinkErr"       );
-    linkStatus.I2CReceived      = readReg(getDeviceBaseNode(),regName.str()+"RecI2CRequests");
-    linkStatus.I2CSent          = readReg(getDeviceBaseNode(),regName.str()+"SntI2CRequests");
-    linkStatus.RegisterReceived = readReg(getDeviceBaseNode(),regName.str()+"RecRegRequests");
-    linkStatus.RegisterSent     = readReg(getDeviceBaseNode(),regName.str()+"SntRegRequests");
-  }
+  
+  linkStatus.TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRK_ERR"));
+  linkStatus.TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRG_ERR"));
+  linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.DATA_REC"));
   return linkStatus;
 }
 
-void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t const& link, uint8_t const& resets) {
-  if (link > 2) {
-    std::string msg = toolbox::toString("Link status requested for link (%d): outside expectation (0-2)",link);
-    ERROR(msg);
-    //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
-    return;
-  } else if (!b_links[link]) {
-    std::string msg = toolbox::toString("Link status requested inactive link (%d)",link);
-    ERROR(msg);
-    //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
-    return;
-  }
-  
-  std::stringstream regName;
-  regName << "OptoHybrid_LINKS.LINK" << (int)link << ".OPTICAL_LINKS.Resets";
-  if (resets&0x01)
-    writeReg(getDeviceBaseNode(),regName.str()+"LinkErr",0x1);
-  if (resets&0x02)
-    writeReg(getDeviceBaseNode(),regName.str()+"RecI2CRequests",0x1);
-  if (resets&0x04)
-    writeReg(getDeviceBaseNode(),regName.str()+"SntI2CRequests",0x1);
-  if (resets&0x08)
-    writeReg(getDeviceBaseNode(),regName.str()+"RecRegRequests",0x1);
-  if (resets&0x10)
-    writeReg(getDeviceBaseNode(),regName.str()+"SntRegRequests",0x1);
+void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t const& resets)
+{
+  if (resets&0x1)
+    writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRK_ERR.Reset"),0x1);
+  if (resets&0x2)
+    writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRG_ERR.Reset"),0x1);
+  if (resets&0x4)
+    writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.DATA_Packets.Reset"),0x1);
 }
 
 //uint32_t gem::hw::optohybrid::HwOptoHybrid::readTriggerData() {
