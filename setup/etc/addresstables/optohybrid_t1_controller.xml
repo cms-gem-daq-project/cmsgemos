@@ -37,7 +37,7 @@
       <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
       <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
     </node>
-    <node id="Resyc"     address="0xa"  permission="rw"
+    <node id="Resync"    address="0xa"  permission="rw"
           description="Resyc sequence to generate">
       <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
       <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
