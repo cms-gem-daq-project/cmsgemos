@@ -60,9 +60,41 @@ namespace gem {
               return; };
           } OptoHybridWBCounters;
           
+          /** @struct OptoHybridT1Counters
+           *  @brief This struct stores retrieved counters related to the OptoHybrid T1 signals
+           *  @var OptoHybridT1Counters::AMC13
+           *  AMC13 contains the counters for T1 signals received from the GLIB TTC decder
+           *  @var OptoHybridT1Counters::Firmware
+           *  Firmware contains the counters for T1 signals generated in the firmware module
+           *  @var OptoHybridT1Counters::External
+           *  External contains the counters for T1 signals received an external sourcd
+           *  @var OptoHybridT1Counters::Loopback
+           *  Loopback contains the counters for T1 signals looped back onto the system
+           *  @var OptoHybridT1Counters::Sent
+           *  Sent contains the counters for T1 signals sent by the OptoHybrid to the GEB
+           */
+          typedef struct OptoHybridT1Counters {
+            uint32_t AMC13[4]   ; 
+            uint32_t Firmware[4];
+            uint32_t External[4];
+            uint32_t Loopback[4];
+            uint32_t Sent[4]    ;
+            
+          OptoHybridT1Counters() : 
+            AMC13({0,0,0,0}),Firmware({0,0,0,0}),
+              External({0,0,0,0}),Loopback({0,0,0,0}),
+              Sent({0,0,0,0}) {};
+            void reset() {
+              AMC13={0,0,0,0};Firmware={0,0,0,0};
+              External={0,0,0,0};Loopback={0,0,0,0};
+              Sent={0,0,0,0};
+              return; };
+          } OptoHybridT1Counters;
+          
           HwOptoHybrid();
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionFile);
-          HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI,
+                       std::string const& addressTable);
           HwOptoHybrid(std::string const& optohybridDevice, uhal::HwInterface& uhalDevice);
           HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
 
@@ -109,32 +141,6 @@ namespace gem {
             return retval.str();
           };
 					
-        private:
-          /** Read the firmware register for a given link
-           * @returns a hex number corresponding to the build date
-           * is private to ensure that it is only used internally
-           * link agnostic versions should be used outside of HwOptoHybrid
-           * OBSOLETE in V2 firmware
-          uint32_t getFirmware() {
-            uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
-            DEBUG("OH has firmware version 0x" 
-                  << std::hex << fwver << std::dec << std::endl);
-            return fwver;
-          };
-           **/
-					
-          /** Read the firmware register for a given link
-           * @returns a string corresponding to the build date
-           * is private to ensure that it is only used internally
-           * link agnostic versions should be used outside of HwOptoHybrid
-           * OBSOLETE in V2 firmware
-          std::string getFirmwareDate() {
-            std::stringstream retval;
-            retval << "0x" << std::hex << getFirmware() << std::dec << std::endl;
-            return retval.str();
-          };
-           **/
-					
         public:
           /** Read the link status registers, store the information in a struct
            * @retval _status a struct containing the status bits of the optical link
@@ -168,20 +174,33 @@ namespace gem {
 
           //Clocking
           /** Setup the VFAT clock 
+           * @param uint8_t source
+           * 0x0 on board oscillator
+           * 0x1 GTX recovered clock
+           * 0x2 external clock
+           **/
+          void setRefClock(uint8_t const& source) {
+            writeReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK"  ,(uint32_t)source  );
+          };
+
+          /** Setup the VFAT clock 
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
+           * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
-          void SetVFATClock(bool source, bool fallback, uint8_t const& link=0x0) {
+          void setVFATClock(bool source, bool fallback) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.SOURCE"  ,(uint32_t)source  );
             writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.FALLBACK",(uint32_t)fallback);
           };
+
           /** VFAT clock status
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
+           * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
-          std::pair<bool,bool> StatusVFATClock(uint8_t const& link=0x0) {
+          std::pair<bool,bool> StatusVFATClock() {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.SOURCE");
@@ -193,8 +212,9 @@ namespace gem {
           /** Setup the CDCE clock 
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
+           * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
-          void SetCDCEClock(bool source, bool fallback, uint8_t const& link=0x0) {
+          void setCDCEClock(bool source, bool fallback) {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE"  ,(uint32_t)source  );
@@ -204,8 +224,9 @@ namespace gem {
           /** CDCE clock status
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
+           * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
-          std::pair<bool,bool> StatusCDCEClock(uint8_t const& link=0x0) {
+          std::pair<bool,bool> StatusCDCEClock() {
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
             uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE");
@@ -303,13 +324,13 @@ namespace gem {
            * @param uint32_t mask which s-bits to forward (maximum 6)
            **/
           void setSBitSource(uint32_t const& mask) {
-            writeReg(getDeviceBaseNode(),".CONTROL.TDC_SBits",mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBits",mask); };
 
           /** Read the S-bit source
            * @retval uint32_t which VFAT chips are sending S-bits
            **/
           uint32_t getSBitSource() {
-            return readReg(getDeviceBaseNode(),".CONTROL.TDC.SBits"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBits"); };
 
 
           /**
@@ -423,174 +444,211 @@ namespace gem {
             startT1Generator(nbc0, rate, 0); };
 
           ///Counters
-          /** Get the recorded number of L1A signals
-           * @param mode specifies which L1A counter to read
-           * 0 external
-           * 1 internal
-           * 2 delayed (sent along with a CalPulse)
-           * 3 total
+          /** Get the recorded number of T1 signals
+           * @param signal specifies which T1 signal counter to read
+           * 0 L1A
+           * 1 CalPulse
+           * 2 Resync
+           * 3 BC0
+           * @param mode specifies which T1 counter to read
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
            **/
-          uint32_t GetL1ACount(uint8_t const& mode, uint8_t const& link=0x0) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+          uint32_t getT1Count(uint8_t const& signal, uint8_t const& mode) {
+            std::stringstream t1Signal;
+            if (signal == 0x0)
+              t1Signal << "L1A";
+            if (signal == 0x1)
+              t1Signal << "CalPulse";
+            if (signal == 0x2)
+              t1Signal << "Resync";
+            if (signal == 0x3)
+              t1Signal << "BC0";
+            
             switch(mode) {
             case 0:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.L1A.External");
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.%s",     (t1Signal.str()).c_str()));
             case 1:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.L1A.Internal");
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.INTERNAL.%s",(t1Signal.str()).c_str()));
             case 2:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.L1A.Delayed");
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.EXTERNAL.%s",(t1Signal.str()).c_str()));
             case 3:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.L1A.Total");
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.LOOPBACK.%s",(t1Signal.str()).c_str()));
+            case 4:
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s",    (t1Signal.str()).c_str()));
             default:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.L1A.Total");
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s",    (t1Signal.str()).c_str()));
             }
           };
+	  
+          /** Get the recorded number of L1A signals
+           * @param mode specifies which L1A counter to read
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
+           **/
+          uint32_t GetL1ACount(uint8_t const& mode) {
+            return getT1Count(0x0, mode); };
 	  
           /** Get the recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to read
-           * 0 internal
-           * 1 delayed (sent along with a L1A)
-           * 2 total
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
            **/
-          uint32_t GetCalPulseCount(uint8_t const& mode, uint8_t const& link=0x0) {
+          uint32_t GetCalPulseCount(uint8_t const& mode) {
+            return getT1Count(0x1, mode); };
+	  
+          /** Get the recorded number of Resync signals
+           * @param mode specifies which L1A counter to read
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
+           **/
+          uint32_t GetResyncCount(uint8_t const& mode=0x0) {
+            return getT1Count(0x2, mode); };
+
+          /** Get the recorded number of BC0 signals
+           * @param mode specifies which L1A counter to read
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
+           **/
+          uint32_t GetBC0Count(uint8_t const& mode=0x0) {
+            return getT1Count(0x3, mode); };
+          
+          /** Get the recorded number of BXCount signals
+           * OBSOLETE in V2 firmware
+           **/
+          uint32_t GetBXCountCount() {
+            return 0x0;
+            /*
             std::stringstream regName;
             regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+            return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.BXCount");
+            */
+          };
+	  
+          ///Resets
+          /** Get the recorded number of T1 signals
+           * @param mode specifies which T1 counter to read
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
+           * 5 all
+           **/
+          void resetT1Count(uint8_t const& signal, uint8_t const& mode) {
+            std::stringstream t1Signal;
+            if (signal == 0x0)
+              t1Signal << "L1A";
+            if (signal == 0x1)
+              t1Signal << "CalPulse";
+            if (signal == 0x2)
+              t1Signal << "Resync";
+            if (signal == 0x3)
+              t1Signal << "BC0";
+            
             switch(mode) {
             case 0:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.CalPulse.Internal");
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
+              return;
             case 1:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.CalPulse.Delayed");
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              return;
             case 2:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.CalPulse.Total");
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              return;
+            case 3:
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              return;
+            case 4:
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
+              return;
+            case 5:
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
+              return;
             default:
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.CalPulse.Total");
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
+              return;
             }
           };
 	  
-          /** Get the recorded number of Resync signals
-           **/
-          uint32_t GetResyncCount(uint8_t const& link=0x0) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.Resync"); };
-
-          /** Get the recorded number of BC0 signals
-           **/
-          uint32_t GetBC0Count(uint8_t const& link=0x0) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.BC0"); };
-
-          /** Get the recorded number of BXCount signals
-           **/
-          uint32_t GetBXCountCount(uint8_t const& link=0x0) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.BXCount"); };
-	  
-          ///Resets
           /** Reset recorded number of L1A signals
            * @param mode specifies which L1A counter to reset
-           * 0 none
-           * 1 external
-           * 2 internal
-           * 3 delayed (sent along with a CalPulse)
-           * 4 total (all)
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
+           * 5 all
            **/
           void ResetL1ACount(uint8_t const& mode) {
-            return ResetL1ACount(mode,m_controlLink); };
-          void ResetL1ACount(uint8_t const& mode, uint8_t const& link) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            switch(mode) {
-            case 0:
-              return;
-            case 1:
-              return writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.External", 0x1);
-            case 2:
-              return writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.Internal", 0x1);
-            case 3:
-              return writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.Delayed", 0x1);
-            case 4:
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.External", 0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.Internal", 0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.Delayed",  0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.Total",    0x1);
-              return;
-            default:
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.External", 0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.Internal", 0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.Delayed",  0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.L1A.Total",    0x1);
-              return;
-            }
+            resetT1Count(0x0,mode);
           };
 	  
           /** Get the recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to reset
-           * 0 none
-           * 1 internal
-           * 2 delayed (sent along with a CalPulse)
-           * 3 total (all)
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
+           * 5 all
            **/
           void ResetCalPulseCount(uint8_t const& mode) {
-            return ResetCalPulseCount(mode,m_controlLink); };
-
-          void ResetCalPulseCount(uint8_t const& mode, uint8_t const& link) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            switch(mode) {
-            case 0:
-            case 1:
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.CalPulse.Internal", 0x1);
-              return;
-            case 2:
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.CalPulse.Delayed", 0x1);
-              return;
-            case 3:
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.CalPulse.Internal", 0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.CalPulse.Delayed",  0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.CalPulse.Total",    0x1);
-              return;
-            default:
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.CalPulse.Internal", 0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.CalPulse.Delayed",  0x1);
-              writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.CalPulse.Total",    0x1);
-              return;
-            }
-          };
-	  
+            return resetT1Count(0x1, mode); };
+          
           /** Get the recorded number of Resync signals
+           * @param mode specifies which CalPulse counter to reset
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
+           * 5 all
            **/
-          void ResetResyncCount() {
-            return ResetResyncCount(m_controlLink); };
-          void ResetResyncCount(uint8_t const& link) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            return writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.Resync", 0x1); };
+          void ResetResyncCount(uint8_t const& mode=0x0) {
+            return resetT1Count(0x2, mode); };
 
           /** Get the recorded number of BC0 signals
+           * @param mode specifies which CalPulse counter to reset
+           * 0 from the TTC decoder on the GLIB
+           * 1 from the T1 generator in the firmware
+           * 2 from an external source
+           * 3 from looping back the sbits
+           * 4 sent along the GEB
+           * 5 all
            **/
-          void ResetBC0Count() {
-            return ResetBC0Count(m_controlLink); };
-          void ResetBC0Count(uint8_t const& link) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            return writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.BC0", 0x1); };
+          void ResetBC0Count(uint8_t const& mode=0x0) {
+            return resetT1Count(0x3, mode); };
 
           /** Get the recorded number of BXCount signals
+           * OBSOLETE in V2 firmawre
            **/
-          void ResetBXCount() {
-            return ResetBXCount(m_controlLink); };
-          void ResetBXCount(uint8_t const& link) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            return writeReg(getDeviceBaseNode(),regName.str()+".COUNTERS.RESETS.BXCount", 0x1); };
+          void ResetBXCount() { return; };
 	  
-          uhal::HwInterface& getOptoHybridHwInterface(uint8_t const& link=0x0) const {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+          uhal::HwInterface& getOptoHybridHwInterface() const {
             return getGEMHwInterface(); };
 
           std::vector<linkStatus> getActiveLinks() { return v_activeLinks; }
