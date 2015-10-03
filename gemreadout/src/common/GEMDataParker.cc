@@ -139,8 +139,11 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 ){
   uint32_t *point = &bufferCount[0];
   bool dumpGEMevent_ = false;
+
   int MaxVFATS = 8;
   int MaxERRS  = 4095;
+  int MaxEvent = 0;
+  int MaxErr   = 0;
   
   std::map<uint32_t, bool> isFirst = {{0, true}};
 
@@ -278,7 +281,52 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
       ZSFlag = 0;
 
     }
+    counterVFATs++;
+    counterVFAT.erase(ES);
+    counterVFAT.insert(std::pair<uint32_t, int>(ES,counterVFATs));
 
+    std::map<uint32_t, uint32_t>::iterator it;// pay load events 
+    std::map<uint32_t, uint32_t>::iterator ir;// errors events
+
+    if (islot<0 || islot > 23) {
+      ir=errES.find(ES);
+      if (ir != errES.end()){
+        // local event calculator inside one buffer, ES based 
+        MaxErr = errES.find(ES)->second;
+        MaxErr++;
+        errES.erase(ES);
+        errES.insert(std::pair<uint32_t, uint32_t>(ES,MaxErr));
+        DEBUG(" ::getGLIBData Err ES 0x" << std::hex << ES << std::dec << " errES " <<  errES.find(ES)->second );
+      }
+  
+      // islot out of [0-23]
+      if ( int(erros.size()) <MaxERRS ) erros.push_back(vfat);
+      DEBUG(" ::getGLIBData warning !!! islot is undefined " << islot << " erros.size " << int(erros.size()) );
+     /*
+      * dump VFAT data
+      GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
+      INFO(" ::getGLIBData wrong slot " << islot );
+      */
+
+    } else {
+
+      it=numES.find(ES);
+      if (it != numES.end()){
+        // local event calculator inside one buffer, ES based 
+        MaxEvent = numES.find(ES)->second;
+        MaxEvent++;
+        numES.erase(ES);
+        numES.insert(std::pair<uint32_t, uint32_t>(ES,MaxEvent));
+        DEBUG(" ::getGLIBData ES 0x" << std::hex << ES << std::dec << " numES " <<  numES.find(ES)->second << " eRvent_ " << eRvent_ );
+      }
+     /*
+      * VFATs Pay Load
+      */
+      if ( int(vfats.size()) <= MaxVFATS ) vfats.push_back(vfat);
+      
+      DEBUG(" ::getGLIBData event_ " << event_ << " vfats.size " << int(vfats.size()) << std::hex << " ES 0x" << ES << std::dec );
+
+    }//end of event selection 
 
   return point;
 }
