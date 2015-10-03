@@ -194,13 +194,13 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
       //need to make sure that this works only for "valid" FW results
       // for the moment we can do a check to see that 2015 appears in the string
       // this no longer will work as desired, how to get whether the GTX is active?
-      if ((this->getFirmwareDate()).rfind("15") != std::string::npos) {
+      if ((this->getFirmwareVer()).rfind("5.") != std::string::npos) {
         b_links[link] = true;
         INFO("link" << link << " present(" << this->getFirmwareVer() << ")");
         tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
       } else {
         b_links[link] = false;
-        INFO("link" << link << " not reachable (unable to find 15 in the firmware string)"
+        INFO("link" << link << " not reachable (unable to find 5 in the firmware string)"
              << " user firmware version " << this->getFirmwareVer());
       }
     }
@@ -493,7 +493,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_
   if (linkCheck(link, "Link status")) {
     linkStatus.TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRK_ERR",link));
     linkStatus.TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRG_ERR",link));
-    linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.DATA_REC",link));
+    linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.DATA_Packets",link));
   }
   return linkStatus;
 }
