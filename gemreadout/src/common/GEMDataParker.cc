@@ -28,8 +28,8 @@ uint16_t gem::readout::GEMslotContents::slot[24] = {
 };
 bool gem::readout::GEMslotContents::isFileRead = false;
 
-int event_   = 0;
-int eRvent_  = 0;
+int event_ = 0;
+int rvent_ = 0;
 
 uint64_t ZSFlag = 0;
 
@@ -52,6 +52,7 @@ gem::readout::GEMDataParker::GEMDataParker(
   counter_ = {0,0,0};
   vfat_ = 0;
   event_ = 0;
+  rvent_ = 0;
   sumVFAT_ = 0;
 
   gem::readout::GEMslotContents::initSlots();
@@ -138,7 +139,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
                                                   uint32_t bufferCount[4]
 ){
   uint32_t *point = &bufferCount[0];
-  bool dumpGEMevent_ = false;
+  bool dumpGEMevent = false;
 
   int MaxVFATS = 8;
   int MaxERRS  = 4095;
@@ -248,6 +249,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   if ( ES == ESexp.find(ES)->second ) { 
      isFirst.erase(ES);
      isFirst.insert(std::pair<uint32_t, bool>(ES,false));
+     dumpGEMevent = true;
   } else { 
      isFirst.erase(ES);
      isFirst.insert(std::pair<uint32_t, bool>(ES,true));
@@ -273,7 +275,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
       numES.erase(ES);
       numES.insert(std::pair<uint32_t, uint32_t>(ES,0));
       DEBUG(" ::getGLIBData isFirst  ESexp 0x" << std::hex << ESexp.find(ES)->second << " ES 0x" << ES << std::dec << 
-           " vfat_ " << vfat_ << " eRvent_ " << eRvent_ << " event_ " << event_ );
+           " vfat_ " << vfat_ << " rvent_ " << rvent_ << " event_ " << event_ );
 
       errES.erase(ES);
       errES.insert(std::pair<uint32_t, uint32_t>(ES,0));
@@ -296,7 +298,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
         MaxErr++;
         errES.erase(ES);
         errES.insert(std::pair<uint32_t, uint32_t>(ES,MaxErr));
-        DEBUG(" ::getGLIBData Err ES 0x" << std::hex << ES << std::dec << " errES " <<  errES.find(ES)->second );
+        DEBUG(" ::getGLIBData Err ES 0x" << std::hex << ES << std::dec << " errES " <<  errES.find(ES)->second << " rvent_ " << rvent_ );
       }
   
       // islot out of [0-23]
@@ -317,7 +319,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
         MaxEvent++;
         numES.erase(ES);
         numES.insert(std::pair<uint32_t, uint32_t>(ES,MaxEvent));
-        INFO(" ::getGLIBData ES 0x" << std::hex << ES << std::dec << " numES " <<  numES.find(ES)->second << " eRvent_ " << eRvent_ );
+        INFO(" ::getGLIBData ES 0x" << std::hex << ES << std::dec << " numES " <<  numES.find(ES)->second << " event_ " << event_ );
       }
      /*
       * VFATs Pay Load
@@ -328,14 +330,14 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 
     }//end of event selection 
 
-    INFO(" ::GEMEventMaker isFirst " << isFirst.find(ES)->second << 
+    INFO(" ::GEMEventMaker dumpGEMevent " << dumpGEMevent <<
          " numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second );
 
-    if ( isFirst.find(ES)->second && ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0) ){
+    if ( dumpGEMevent && ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0) ){
        INFO("::GEMEventMaker keeping all evens here ");
   
        INFO(" ::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << 
-             " eRvent_ " << eRvent_ << " event " << event_);
+             " rvent_ " << rvent_ << " event " << event_);
  
        uint32_t locEvent = 0;
        uint32_t locError = 0;
@@ -409,9 +411,9 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 
        // contents all local events (one buffer, all links):
        for (std::map<uint32_t, uint32_t>::iterator irES=errES.begin(); irES!=errES.end(); ++irES){
-	  //eRvent_++;
+	  event_++;
           DEBUG(" ::getGLIBData END ES 0x" << std::hex << irES->first << std::dec << " errES " <<  irES->second << 
-                " eRvent_ " << eRvent_ );
+                " rvent_ " << rvent_ );
  
           uint32_t nErro = 0;
           for (std::vector<GEMDataAMCformat::VFATData>::iterator iErr=erros.begin(); iErr != erros.end(); ++iErr) {
@@ -443,7 +445,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
                    */
                    int islot = -1;
                    gem::readout::GEMDataParker::VFATfillData( islot, geb);
-                   gem::readout::GEMDataParker::GEMfillHeaders(eRvent_, irES->second, gem, geb);
+                   gem::readout::GEMDataParker::GEMfillHeaders(rvent_, irES->second, gem, geb);
                    gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
               
                   /*
@@ -482,7 +484,8 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
  
       counterVFAT.clear();
       ZSFlag = 0;
- 
+      dumpGEMevent = false;
+
     }// end of writing all events for slected ES
 
   return point;
