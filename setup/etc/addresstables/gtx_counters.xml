@@ -9,4 +9,9 @@
         description="Error counter on the trigger data optical link">
     <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
   </node>
+
+  <node id="DATA_Packets"   address="0x4"  permission="r"
+        description="Number of received data packets counter on the optical link">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
 </node>
