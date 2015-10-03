@@ -178,3 +178,29 @@ void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t const& resets)
 //uint32_t gem::hw::optohybrid::HwOptoHybrid::readTriggerData() {
 //  return uint32_t value;
 //}
+
+std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::string const& name,
+                                                                       uint32_t const& mask,
+                                                                       bool reset=false)
+{
+  if (reset)
+    writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
+  writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
+  uint32_t tmp = readReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.%s", name.c_str()));
+  
+  std::stringstream regName;
+  regName << getDeviceBaseNode() << "GEB.Broadcast.Results";
+  return readBlock(regName.str(),24);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
+                                                       uint32_t const& mask,
+                                                       uint32_t const& value,
+                                                       bool reset=false)
+{
+  if (reset)
+    writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
+  writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
+  writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.%s", name.c_str()),value);
+  //return readBlock(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Results"),24);
+}
