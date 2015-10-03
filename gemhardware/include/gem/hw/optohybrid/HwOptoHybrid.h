@@ -455,7 +455,7 @@ namespace gem {
            * bit 6 CounterAck
            * @returns OptoHybridWBCounters struct, with updated values for the ones specified in the mask
            **/
-          OptoHybridWBCounters getWBCounters(uint8_t const& mode);
+          //OptoHybridWBCounters getWBCounters(uint8_t const& mode);
 	  
           /** Get the recorded number of T1 signals
            * @param signal specifies which T1 signal counter to read
@@ -660,7 +660,42 @@ namespace gem {
            * OBSOLETE in V2 firmawre
            **/
           void resetBXCount() { return; };
-	  
+
+          //pertaining to VFATs
+          /** Returns VFATs to the 0 run mode
+           * 
+           */
+          void resetVFATs() {
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.RESET"),0x1); };
+          
+          /** Returns the VFAT tracking data mask that the OptoHybrid uses to determine which data
+           *  packets to send to the GLIB
+           * 
+           */
+          uint32_t getVFATMask() {
+            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK")); };
+          
+          /** Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
+           *  packets to send to the GLIB
+           *  a 0 means the VFAT will NOT be masked, and it's data packets will go to the GLIB
+           *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the GLIB
+           */
+          void setVFATMask(uint32_t const& mask) {
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK"),mask); };
+          
+          /** Sends a read request to all (un-masked) VFATs on the same register
+           * @param std::string name name of the register to broadcast the request to
+           * @returns a std::vector of uint32_t words, one response for each VFAT
+           */
+          std::vector<uint32_t> broadcastRead(std::string const& name, uint32_t const& mask, bool reset);
+          
+          /** Sends a write request to all (un-masked) VFATs on the same register
+           * @param std::string name name of the register to broadcast the request to
+           * @param uint32_t value value to be written to all VFATs receiving the broadcast
+           * @returns a std::vector of uint32_t words, one response for each VFAT
+           */
+          void broadcastWrite(std::string const& name, uint32_t const& mask, uint32_t const& value, bool reset);
+          
           uhal::HwInterface& getOptoHybridHwInterface() const {
             return getGEMHwInterface(); };
 
