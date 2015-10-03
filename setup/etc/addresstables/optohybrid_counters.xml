@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
   <node id="WB"  address="0x00"  permission="rw"
+        module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_wishbone_counters.xml"
         description="Counters related to the OptoHybrid wishbone">
   </node>
 
