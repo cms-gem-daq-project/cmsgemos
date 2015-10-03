@@ -15,6 +15,44 @@ namespace gem {
       class HwGLIB: public gem::hw::GEMHwDevice
         {
         public:
+          
+          static const unsigned N_GTX = 2; /**maximum number of GTX links on the GLIB*/
+
+          /** @struct GLIBIPBusCounters
+           *  @brief This structure stores retrieved counters related to the GLIB IPBus transactions
+           *  @var GLIBIPBusCounters::OptoHybridStrobe
+           *  OptoHybridStrobe is a counter for the number of errors on the tracking data link
+           *  @var GLIBIPBusCounters::OptoHybridAck
+           *  OptoHybridAck is a counter for the number of errors on the trigger data link
+           *  @var GLIBIPBusCounters::TrackingStrobe
+           *  TrackingStrobe is a counter for the number of errors on the tracking data link
+           *  @var GLIBIPBusCounters::TrackingAck
+           *  TrackingAck is a counter for the number of errors on the trigger data link
+           *  @var GLIBIPBusCounters::CounterStrobe
+           *  CounterStrobe is a counter for the number of errors on the tracking data link
+           *  @var GLIBIPBusCounters::CounterAck
+           *  CounterAck is a counter for the number of errors on the trigger data link
+           */
+          typedef struct GLIBIPBusCounters {
+            uint32_t OptoHybridStrobe; 
+            uint32_t OptoHybridAck   ;
+            uint32_t TrackingStrobe  ;
+            uint32_t TrackingAck     ;
+            uint32_t CounterStrobe   ;
+            uint32_t CounterAck      ;
+            
+          GLIBIPBusCounters() : 
+            OptoHybridStrobe(0),OptoHybridAck(0),
+              TrackingStrobe(0),TrackingAck(0),
+              CounterStrobe(0),CounterAck(0) {};
+            void reset() {
+              OptoHybridStrobe=0; OptoHybridAck=0;
+              TrackingStrobe=0;   TrackingAck=0;
+              CounterStrobe=0;    CounterAck=0;
+              return; };
+          } GLIBIPBusCounters;
+          
+          
           HwGLIB();
           HwGLIB(std::string const& glibDevice, std::string const& connectionFile);
           HwGLIB(std::string const& glibDevice, std::string const& connectionURI, std::string const& addressTable);
@@ -330,24 +368,28 @@ namespace gem {
            **/
           std::string getUserFirmwareDate(uint8_t const& link);
 	  
+          /** Check if the link requested is known to be operational
+           * @param uint8_t link GTX link to be queried
+           * @param std::string opMsg Operation message to append to the log message
+           * @returns true if the link is in range and active, false otherwise
+           **/
+          bool linkCheck(uint8_t const& link, std::string const& opMsg);
+
         public:
           /** Read the link status registers, store the information in a struct
            * @param uint8_t link is the number of the link to query
            * @retval _status a struct containing the status bits of the optical link
-           * @throws gem::hw::glib::exception::InvalidLink if the link number is outside of 0-2
+           * @throws gem::hw::glib::exception::InvalidLink if the link number is outside of 0-1
            **/
           GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& link);
 	  
           /** Reset the link status registers
            * @param uint8_t link is the number of the link to query
            * @param uint8_t resets control which bits to reset
-           * 0x00
-           * bit 1 - ErrCnt      0x01
-           * bit 2 - VFATI2CRec  0x02
-           * bit 3 - VFATI2CSnt  0x04
-           * bit 4 - RegisterRec 0x08
-           * bit 5 - RegisterSnt 0x10
-           * @throws gem::hw::glib::exception::InvalidLink if the link number is outside of 0-2
+           * bit 1 - TRK_ErrCnt         0x1
+           * bit 2 - TRG_ErrCnt         0x2
+           * bit 3 - Data_Rec           0x4
+           * @throws gem::hw::glib::exception::InvalidLink if the link number is outside of 0-1
            **/
           void LinkReset(uint8_t const& link, uint8_t const& resets);
 
@@ -361,6 +403,7 @@ namespace gem {
 	  
           /** Set the Trigger source
            * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
+           * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
            **/
           void setTrigSource(uint8_t const& mode, uint8_t const& link=0x0) {
             std::stringstream regName;
@@ -383,6 +426,7 @@ namespace gem {
 
           /** Read the Trigger source
            * @retval uint8_t 0 from GLIB, 1 from AMC13, 2 from both
+           * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
            **/
           uint8_t getTrigSource(uint8_t const& link=0x0) { 
             std::stringstream regName;
@@ -407,45 +451,70 @@ namespace gem {
             return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits"); };
 
           ///Counters
+          /** Get the recorded number of IPBus signals sent/received by the GLIB
+           * @param uint8_2 link which GTX
+           * @param uint8_2 mode which counter
+           * bit 1 OptoHybridStrobe
+           * bit 2 OptoHybridAck
+           * bit 3 TrackingStrobe
+           * bit 4 TrackingAck
+           * bit 5 CounterStrobe
+           * bit 6 CounterAck
+           * @returns GLIBIPBusCounters struct, with updated values for the ones specified in the mask
+           **/
+          GLIBIPBusCounters getIPBusCounters(uint8_t const& link, uint8_t const& mode);
+	  
           /** Get the recorded number of L1A signals received from the TTC decoder
            **/
-          uint32_t GetL1ACount() {
+          uint32_t getL1ACount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.L1A"); };
 	  
           /** Get the recorded number of CalPulse signals received from the TTC decoder
            **/
-          uint32_t GetCalPulseCount() {
+          uint32_t getCalPulseCount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse"); };
 	  
           /** Get the recorded number of Resync signals received from the TTC decoder
            **/
-          uint32_t GetResyncCount() {
+          uint32_t getResyncCount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.Resync"); };
           
           /** Get the recorded number of BC0 signals
            **/
-          uint32_t GetBC0Count() {
+          uint32_t getBC0Count() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.BC0"); };
           
           ///Counter resets
+          /** Get the recorded number of IPBus signals sent/received by the GLIB
+           * @param uint8_2 link which GTX
+           * @param uint8_2 mode which counter
+           * bit 1 OptoHybridStrobe
+           * bit 2 OptoHybridAck
+           * bit 3 TrackingStrobe
+           * bit 4 TrackingAck
+           * bit 5 CounterStrobe
+           * bit 6 CounterAck
+           **/
+          void resetIPBusCounters(uint8_t const& link, uint8_t const& mode);
+	  
           /** Reset the recorded number of L1A signals received from the TTC decoder
            **/
-          void ResetL1ACount() {
+          void resetL1ACount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.L1A.Reset", 0x1); };
 	  
           /** Reset the recorded number of CalPulse signals received from the TTC decoder
            **/
-          void ResetCalPulseCount() {
+          void resetCalPulseCount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse.Reset", 0x1); };
 	  
           /** Reset the recorded number of Resync signals received from the TTC decoder
            **/
-          void ResetResyncCount() {
+          void resetResyncCount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.Resync.Reset", 0x1); };
           
           /** Reset the recorded number of BC0 signals
            **/
-          void ResetBC0Count() {
+          void resetBC0Count() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.BC0.Reset", 0x1); };
           
           /** Read the trigger data
@@ -488,12 +557,14 @@ namespace gem {
            **/
           void flushFIFO(uint8_t const& link);
 
-
+          
+          std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each link, IPBus counters */
+          
         protected:
           //GLIBMonitor *monGLIB_;
 	
-          bool b_links[3];
-	    
+          bool b_links[N_GTX];
+          
           std::vector<linkStatus> v_activeLinks;
 
         private:
