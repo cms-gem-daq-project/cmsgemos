@@ -410,7 +410,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO(" webTrigger: sending L1A");
+  INFO("webTrigger: sending L1A");
   optohybridDevice_->SendL1A(1);
 
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
@@ -624,7 +624,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   std::replace(SetupFileName.begin(), SetupFileName.end(), ' ', '_' );
   std::replace(SetupFileName.begin(), SetupFileName.end(), ':', '-');
 
-  LOG4CPLUS_INFO(getApplicationLogger(),"::configureAction " << "Created Setup file " << SetupFileName );
+  INFO("::configureAction Created Setup file " << SetupFileName );
 
   std::ofstream SetupFile(SetupFileName.c_str(), std::ios::app );
   if (SetupFile.is_open()){
