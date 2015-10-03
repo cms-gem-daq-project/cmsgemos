@@ -29,9 +29,6 @@ namespace gem {
       ~GEMDataParker() {};
 
       uint64_t* dumpData   ( uint8_t const& mask );
-      uint32_t* dumpDataToDisk  ( uint8_t const& link,
-                                  uint32_t bufferCount[4]
-                           );
       uint32_t* getGLIBData( uint8_t const& link,
                              uint32_t bufferCount[4]
                            );
