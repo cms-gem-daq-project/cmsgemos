@@ -452,8 +452,8 @@ namespace gem {
 
           ///Counters
           /** Get the recorded number of IPBus signals sent/received by the GLIB
-           * @param uint8_2 link which GTX
-           * @param uint8_2 mode which counter
+           * @param uint8_t link which GTX
+           * @param uint8_t mode which counter
            * bit 1 OptoHybridStrobe
            * bit 2 OptoHybridAck
            * bit 3 TrackingStrobe
@@ -486,8 +486,8 @@ namespace gem {
           
           ///Counter resets
           /** Get the recorded number of IPBus signals sent/received by the GLIB
-           * @param uint8_2 link which GTX
-           * @param uint8_2 mode which counter
+           * @param uint8_t link which GTX
+           * @param uint8_t mode which counter
            * bit 1 OptoHybridStrobe
            * bit 2 OptoHybridAck
            * bit 3 TrackingStrobe
