@@ -30,6 +30,8 @@ bool gem::readout::GEMslotContents::isFileRead = false;
 
 int event_ = 0;
 int rvent_ = 0;
+int MaxEvent = 0;
+int MaxErr   = 0;
 
 uint64_t ZSFlag = 0;
 
@@ -143,8 +145,6 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 
   int MaxVFATS = 8;
   int MaxERRS  = 4095;
-  int MaxEvent = 0;
-  int MaxErr   = 0;
   
   std::map<uint32_t, bool> isFirst = {{0, true}};
 
@@ -242,9 +242,10 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   vfat.crc    = vfatcrc;                                // crc:16
 
  /*
-  * dump VFAT data */
+  * dump VFAT data
   GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
   INFO(" ::getGLIBData slot " << islot <<"\n");
+  */
 
   if ( ES == ESexp.find(ES)->second ) { 
      isFirst.erase(ES);
@@ -305,16 +306,14 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
         errES.insert(std::pair<uint32_t, uint32_t>(ES,MaxErr));
         DEBUG(" ::getGLIBData Err ES 0x" << std::hex << ES << std::dec << " errES " <<  errES.find(ES)->second << " rvent_ " << rvent_ );
       }
-  
       // islot out of [0-23]
       if ( int(erros.size()) <MaxERRS ) erros.push_back(vfat);
       DEBUG(" ::getGLIBData warning !!! islot is undefined " << islot << " erros.size " << int(erros.size()) );
      /*
-      * dump VFAT data
+      * dump VFAT data 
       GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
-      INFO(" ::getGLIBData wrong slot " << islot );
+      INFO(" ::getGLIBData wrong slot " << islot <<"\n");
       */
-
     } else {
 
       it=numES.find(ES);
@@ -325,7 +324,11 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
         numES.erase(ES);
         numES.insert(std::pair<uint32_t, uint32_t>(ES,MaxEvent));
         INFO(" ::getGLIBData ES 0x" << std::hex << ES << std::dec << " numES " <<  numES.find(ES)->second << " event_ " << event_ );
-      }
+       /*
+        * dump VFAT data */
+        GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
+        INFO(" ::getGLIBData pay load slot " << islot <<"\n");
+        }
      /*
       * VFATs Pay Load
       */
