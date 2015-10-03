@@ -428,8 +428,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       
       //should FIFOs be emptied in configure or at start?
       INFO("emptying trigger/tracking data FIFOs");
-      for (unsigned link = 0; link < 3; ++link) {
-        glib->flushTriggerFIFO(link);
+      for (unsigned link = 0; link < HwGLIB::N_GTX; ++link) {
+        //glib->flushTriggerFIFO(link);
         glib->flushFIFO(link);
       }
       //what else is required for configuring the GLIB?
