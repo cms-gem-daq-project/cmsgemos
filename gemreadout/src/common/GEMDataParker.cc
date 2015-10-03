@@ -96,7 +96,7 @@ uint64_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
   DEBUG(" ::dumpData " << " counter VFATs " << counter_[0] << " , per event counter VFATs " << counter_[2] <<
        " Combined bufferDepth[3] " << bufferCount[3] );
 
-  INFO(" ::dumpDataToDisk  bufferCount[0] " << Counter[0] << " bufferCount[1] " << Counter[1] << " bufferCount[2] " << Counter[2] << 
+  DEBUG(" ::dumpDataToDisk  bufferCount[0] " << Counter[0] << " bufferCount[1] " << Counter[1] << " bufferCount[2] " << Counter[2] << 
        " Combined Buffer " << Counter[3] );
 
   return point;
@@ -244,15 +244,20 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
  /*
   * dump VFAT data */
   GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
-  INFO(" ::getGLIBData slot " << islot );
+  INFO(" ::getGLIBData slot " << islot <<"\n");
 
   if ( ES == ESexp.find(ES)->second ) { 
      isFirst.erase(ES);
      isFirst.insert(std::pair<uint32_t, bool>(ES,false));
-     dumpGEMevent = true;
+     dumpGEMevent = false;
   } else { 
      isFirst.erase(ES);
      isFirst.insert(std::pair<uint32_t, bool>(ES,true));
+     dumpGEMevent = true;
+       INFO(" ::GEMEventMaker 1 dumpGEMevent " << dumpGEMevent <<
+            " numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second );
+     if ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0 ){
+     }
   }
 
   DEBUG(" ::getGLIBData ES " << std::hex << ES << std::dec << " bool " << isFirst.find(ES)->second );
@@ -330,14 +335,13 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 
     }//end of event selection 
 
-    INFO(" ::GEMEventMaker dumpGEMevent " << dumpGEMevent <<
+    INFO(" ::GEMEventMaker 2 dumpGEMevent " << dumpGEMevent <<
          " numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second );
 
-    if ( dumpGEMevent && ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0) ){
-       INFO("::GEMEventMaker keeping all evens here ");
+    if ( 1<0 && ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0) ){
+       INFO(" ::GEMEventMaker keeping all evens here ");
   
-       INFO(" ::getGLIBData vfats.size " << int(vfats.size()) << " bufferCount " << bufferCount << 
-             " rvent_ " << rvent_ << " event " << event_);
+       INFO(" ::getGLIBData vfats.size " << int(vfats.size()) << " rvent_ " << rvent_ << " event " << event_);
  
        uint32_t locEvent = 0;
        uint32_t locError = 0;
