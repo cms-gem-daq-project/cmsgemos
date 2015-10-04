@@ -336,9 +336,10 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
         INFO(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " numES " <<  numES.find(ES)->second << 
              " MaxEvent " << MaxEvent <<" event_ " << event_ );
        /*
-        * dump VFAT data */
+        * dump VFAT data 
         GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
         INFO(" ::GEMEventMaker payload slot " << islot <<"\n");
+        */
 
         }
      /*
