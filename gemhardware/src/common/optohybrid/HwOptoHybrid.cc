@@ -216,12 +216,12 @@ void gem::hw::optohybrid::HwOptoHybrid::updateWBSlaveCounters()
   std::stringstream regName;
   regName << "COUNTERS.WB.SLAVE";
   for (unsigned i2c = 0; i2c < 6; ++i2c) {
-    m_wbSlaveCounters.GTX.at(i2c).first     = readReg(getDeviceBaseNode(),
+    m_wbSlaveCounters.I2C.at(i2c).first     = readReg(getDeviceBaseNode(),
                                                       regName.str() +
-                                                      toolbox::toString(".Strobe.GTX%d.Reset",i2c));
-    m_wbSlaveCounters.GTX.at(i2c).second    = readReg(getDeviceBaseNode(),
+                                                      toolbox::toString(".Strobe.I2C%d.Reset",i2c));
+    m_wbSlaveCounters.I2C.at(i2c).second    = readReg(getDeviceBaseNode(),
                                                       regName.str() +
-                                                      toolbox::toString(".Ack.GTX%d.Reset",i2c)   );
+                                                      toolbox::toString(".Ack.I2C%d.Reset",i2c)   );
   }
   m_wbSlaveCounters.ExtI2C.first    = readReg(getDeviceBaseNode(),regName.str() + ".Strobe.ExtI2C"  );
   m_wbSlaveCounters.ExtI2C.second   = readReg(getDeviceBaseNode(),regName.str() + ".Ack.ExtI2C"     );
