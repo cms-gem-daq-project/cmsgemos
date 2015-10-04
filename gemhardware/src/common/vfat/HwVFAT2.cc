@@ -32,7 +32,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
   //this->gem::hw::GEMHwDevice::GEMHwDevice();
   //gem::hw::vfat::HwVFAT2::initDevice();
   //can use a different address table for the VFAT access
-  setAddressTableFileName("geb_vfat_address_table.xml");
+  setAddressTableFileName("glib_address_table.xml");
   setDeviceID("VFAT2Hw");
   setDeviceBaseNode("VFATS."+vfatDevice);
   b_is_connected = false;

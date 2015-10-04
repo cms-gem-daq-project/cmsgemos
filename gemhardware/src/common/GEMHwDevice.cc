@@ -492,7 +492,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
-  std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read register %s",name.c_str());
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register %s",name.c_str());
   ERROR(msg);
   //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   return res;
@@ -707,7 +707,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
-  std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read block");
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read block");
   ERROR(msg);
   //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   return res;
