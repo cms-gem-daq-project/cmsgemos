@@ -174,7 +174,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   uint32_t dat10,dat11, dat20,dat21, dat30,dat31, dat40,dat41;
   uint32_t BX, ES;
 
-  INFO(" ::GEMEventMaker dataque.size " << dataque.size() );
+  DEBUG(" ::GEMEventMaker dataque.size " << dataque.size() );
 
   int iQue = -1;
   uint32_t datafront = 0;
@@ -210,7 +210,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
     }
     dataque.pop();
   }
-  INFO(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
+  DEBUG(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
 
   uint64_t data1  = dat10 | dat11;
   uint64_t data2  = dat20 | dat21;
@@ -252,7 +252,8 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 
   if ( ES == ESexp /* ESexp.find(ES)->second */ ) { 
      isFirst = false;
-     INFO(" ::GEMEventMaker ES      numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second );
+     event_++;
+     INFO(" ::GEMEventMaker ES      numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << " event " << event_);
     /*
      isFirst.erase(ES);
      isFirst.insert(std::pair<uint32_t, bool>(ES,false));
@@ -364,9 +365,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
     INFO(" ::GEMEventMaker 2 dumpGEMevent " << dumpGEMevent <<
          " numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second );
 
-    if ( 1<0 && ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0) ){
-       INFO(" ::GEMEventMaker keeping all evens here ");
-  
+    if ( dumpGEMevent && ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0) ){
        INFO(" ::GEMEventMaker vfats.size " << int(vfats.size()) << " rvent_ " << rvent_ << " event " << event_);
  
        uint32_t locEvent = 0;
@@ -375,7 +374,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
  
        // contents all local events (one buffer, all links):
        for (std::map<uint32_t, uint32_t>::iterator itES=numES.begin(); itES!=numES.end(); ++itES){
-	  event_++;
+	  //event_++;
           locEvent++;
           DEBUG(" ::GEMEventMaker END ES 0x" << std::hex << itES->first << std::dec << " numES " <<  itES->second << 
 	       " locEvent " << locEvent << " event_ " << event_ );
@@ -423,7 +422,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
                       */
                       DEBUG(" ::GEMEventMaker writing...  geb.vfats.size " << int(geb.vfats.size()) );
                       TypeDataFlag = "PayLoad";
-                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
+                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, true, TypeDataFlag,
                                                                                                 gem, geb, vfat);
                       geb.vfats.clear();
          
@@ -441,7 +440,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 
        // contents all local events (one buffer, all links):
        for (std::map<uint32_t, uint32_t>::iterator irES=errES.begin(); irES!=errES.end(); ++irES){
-	  event_++;
+	  //event_++;
           DEBUG(" ::GEMEventMaker END ES 0x" << std::hex << irES->first << std::dec << " errES " <<  irES->second << 
                 " rvent_ " << rvent_ );
  
@@ -666,7 +665,7 @@ void gem::readout::GEMDataParker::writeGEMevent(
   uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40;
   if( OKprint ){
     GEMDataAMCformat::show24bits(ZSFlag); 
-    INFO(" ::writeGEMevent:: " << TypeDataFlag << " geb.vfats.size " << int(geb.vfats.size()) << 
+    INFO(" ::writeGEMevent " << TypeDataFlag << " geb.vfats.size " << int(geb.vfats.size()) << 
          " end of event " << event_ << "\n");
   }
   /* } // end of GEB */
