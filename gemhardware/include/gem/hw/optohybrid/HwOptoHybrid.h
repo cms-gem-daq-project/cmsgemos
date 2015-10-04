@@ -504,46 +504,25 @@ namespace gem {
           ///Counters
 
           /** Get the recorded number of signals sent/received by the OptoHybrid wishbone master
-           * @param uint8_t mode which counter
-           * bit 1 GTXStrobe
-           * bit 2 GTXAck
-           * bit 3 ExtI2CStrobe
-           * bit 4 ExtI2CAck
-           * bit 5 ScanStrobe
-           * bit 6 ScanAck
-           * bit 7 DACStrobe
-           * bit 8 DACAck
-           * @returns OptoHybridWBMasterCounters struct, with updated values for the ones specified in the mask
+           * @returns OptoHybridWBMasterCounters struct, with updated values
            **/
           OptoHybridWBMasterCounters getWBMasterCounters() { return m_wbMasterCounters; };
           void updateWBMasterCounters();
           void resetWBMasterCounters();
 
           /** Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
-           * @param uint32_t mode which counter
-           * bits 1-11 I2CStrobe (odd only)
-           * bits 2-12 I2CAck (even only)
-           * bit 13 ExtI2CStrobe
-           * bit 14 ExtI2CAck
-           * bit 15 ScanStrobe
-           * bit 16 ScanAck
-           * bit 17 T1Strobe
-           * bit 18 T1Ack
-           * bit 19 DACStrobe
-           * bit 20 DACAck
-           * bit 21 ADCStrobe
-           * bit 22 ADCAck
-           * bit 23 ClockingStrobe
-           * bit 24 ClockingAck
-           * bit 25 CountersStrobe
-           * bit 26 CountersAck
-           * bit 27 SystemStrobe
-           * bit 28 SystemAck
-           * @returns OptoHybridWBSlaveCounters struct, with updated values for the ones specified in the mask
+           * @returns OptoHybridWBSlaveCounters struct, with updated values
            **/
           OptoHybridWBSlaveCounters getWBSlaveCounters() { return m_wbSlaveCounters; };
           void updateWBSlaveCounters();
           void resetWBSlaveCounters();
+
+          /** Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
+           * @returns OptoHybridT1Counters struct, with updated values
+           **/
+          OptoHybridT1Counters getT1Counters() { return m_t1Counters; };
+          void updateT1Counters();
+          void resetT1Counters();
 	  
           /** Get the recorded number of T1 signals
            * @param signal specifies which T1 signal counter to read
