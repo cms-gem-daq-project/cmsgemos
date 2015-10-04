@@ -289,6 +289,19 @@ void gem::hw::optohybrid::HwOptoHybrid::resetT1Counters()
   m_t1Counters.reset();
 }
 
+void gem::hw::optohybrid::HwOptoHybrid::updateVFATCRCCounters()
+{
+  for (unsigned slot = 0; slot < 24; ++slot)
+    m_vfatCRCCounters.CRCCounters.at(slot) = getVFATCRCCount(slot);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::resetVFATCRCCounters()
+{
+  for (unsigned slot = 0; slot < 24; ++slot)
+    resetVFATCRCCount(slot);
+  m_vfatCRCCounters.reset();
+}
+
 std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::string const& name,
                                                                        uint32_t const& mask,
                                                                        bool reset)
