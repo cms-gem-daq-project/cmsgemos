@@ -167,10 +167,10 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   INFO("gem::hw::optohybrid::OptoHybridManager::initializeAction begin");
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(1000);
     INFO("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
-    for (int link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       usleep(1000);
       INFO("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -312,24 +312,26 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 {
   INFO("gem::hw::optohybrid::OptoHybridManager::configureAction");
   //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(1000);
-    for (int link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       usleep(1000);
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
 
-      INFO("line 231: info is: " << info.toString());
+      DEBUG("configureAction::info is: " << info.toString());
       if (!info.present)
         continue;
       
-      INFO("grabbing pointer to hardware device");
+      DEBUG("configureAction::grabbing pointer to hardware device");
       optohybrid_shared_ptr optohybrid = m_optohybrids[index];
       
       if (optohybrid->isHwConnected()) {
-        INFO("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
+        INFO("configureAction::setting trigger source to 0x" 
+             << std::hex << info.triggerSource.value_ << std::dec);
         optohybrid->setTrigSource(info.triggerSource.value_);
-        INFO("setting sbit source to 0x" << std::hex << info.sbitSource.value_ << std::dec);
+        INFO("configureAction::setting sbit source to 0x"
+             << std::hex << info.sbitSource.value_ << std::dec);
         optohybrid->setSBitSource(info.sbitSource.value_);
         /*
         INFO("setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
@@ -337,7 +339,21 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         INFO("setting cdce clock source to 0x" << std::hex << info.cdceClkSrc.value_ << std::dec);
         optohybrid->setSBitSource(info.cdceClkSrc.value_);
         */
-        for (unsigned olink = 0; olink < 3; ++olink) {
+        /*
+        for (unsigned olink = 0; olink < HwGLIB::N_GTX; ++olink) {
+        }
+        */
+        
+        std::vector<uint32_t> connectedChipID0 = optohybrid->broadcastRead("ChipID0",0xffffffff);
+        std::vector<uint32_t> connectedChipID1 = optohybrid->broadcastRead("ChipID1",0xffffffff);
+        {
+          auto id0 = connectedChipID0.begin();
+          auto id1 = connectedChipID0.begin();
+          INFO(std::setw(12) << "ChipID 1" << std::setw(12) << "ChipID 0");
+          for (; id0 != connectedChipID0.end(); ++id0, ++id1) {
+            INFO(std::setw(10) << "0x" << std::hex << *id1 << std::dec << 
+                 std::setw(10) << "0x" << std::hex << *id0 << std::dec);
+          }
         }
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
@@ -386,10 +402,10 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
 {
   //unregister listeners and items in info spaces
   INFO("gem::hw::optohybrid::OptoHybridManager::resetAction begin");
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(1000);
     INFO("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
-    for (int link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       usleep(1000);
       INFO("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;

@@ -25,12 +25,6 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
-/* IPBus transactions still have some problems in the firmware
-   so it helps to retry a few times in the case of a failure
-   that is recognized
-*/
-#define MAX_IPBUS_RETRIES 25
-
 typedef uhal::exception::exception uhalException;
 
 typedef std::pair<std::string, uint32_t> register_pair;
@@ -51,6 +45,12 @@ namespace gem {
     {
 
     public:
+      /* IPBus transactions still have some problems in the firmware
+         so it helps to retry a few times in the case of a failure
+         that is recognized
+      */
+      static const unsigned MAX_IPBUS_RETRIES = 25;
+
       /** @struct OpticalLinkStatus
        *  @brief This structure stores retrieved counters related to the GTX link
        *  @var OpticalLinkStatus::TRK_Errors

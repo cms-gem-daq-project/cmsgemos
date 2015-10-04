@@ -18,47 +18,105 @@ namespace gem {
         {
         public:
 
-          /** @struct OptoHybridWBCounters
+          /** @struct OptoHybridWBMasterCounters
            *  @brief This struct stores retrieved counters related to the OptoHybrid wishbone transactions
-           *  @var OptoHybridWBCounters::GTXStrobg
-           *  GTXStrobe is a counter for the number of sent requests on the GTX
-           *  @var OptoHybridWBCounters::GTXAck
-           *  GTXAck is a counter for the number of received requests on the GTX
-           *  @var OptoHybridWBCounters::ExtI2CStrobe
-           *  ExtI2CStrobe is a counter for the number of sent requests on the extended I2C
-           *  @var OptoHybridWBCounters::ExtI2CAck
-           *  ExtI2CAck is a counter for the number of received requests on the extended I2C
-           *  @var OptoHybridWBScans::ScanStrobe
-           *  ScanStrobe is a counter for the number of sent scan requests
-           *  @var OptoHybridWBScans::ScanAck
-           *  ScanAck is a counter for the number of received scan requests
-           *  @var OptoHybridWBDACs::DACStrobe
-           *  DACStrobe is a counter for the number of sent DAC requests
-           *  @var OptoHybridWBDACs::DACAck
-           *  DACAck is a counter for the number of received DAC requests
+           *  @var OptoHybridWBMasterCounters::GTX
+           *  GTX is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowledge(second) requests on the GTX
+           *  @var OptoHybridWBMasterCounters::ExtI2C
+           *  ExtI2C is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowledge(second) requests on the extended I2C module
+           *  @var OptoHybridWBMasterCounters::Scan
+           *  Scan is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowledge(second) requests on the Scan module
+           *  @var OptoHybridWBMasterCounters::DAC
+           *  DAC is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowldege(second) requests on the DAC module
            */
-          typedef struct OptoHybridWBCounters {
-            uint32_t GTXStrobe   ; 
-            uint32_t GTXAck      ;
-            uint32_t ExtI2CStrobe;
-            uint32_t ExtI2CAck   ;
-            uint32_t ScanStrobe  ;
-            uint32_t ScanAck     ;
-            uint32_t DACStrobe   ;
-            uint32_t DACAck      ;
+          typedef struct OptoHybridWBMasterCounters {
+            std::pair<uint32_t,uint32_t> GTX   ; 
+            std::pair<uint32_t,uint32_t> ExtI2C; 
+            std::pair<uint32_t,uint32_t> Scan  ; 
+            std::pair<uint32_t,uint32_t> DAC   ; 
             
-          OptoHybridWBCounters() : 
-            GTXStrobe(0),GTXAck(0),
-              ExtI2CStrobe(0),ExtI2CAck(0),
-              ScanStrobe(0),ScanAck(0),
-              DACStrobe(0),DACAck(0) {};
+          OptoHybridWBMasterCounters() : 
+            GTX(std::make_pair(0,0)),
+              ExtI2C(std::make_pair(0,0)),
+              Scan(std::make_pair(0,0)),
+              DAC(std::make_pair(0,0)) {};
+
             void reset() {
-              GTXStrobe=0;    GTXAck=0;
-              ExtI2CStrobe=0; ExtI2CAck=0;
-              ScanStrobe=0;   ScanAck=0;
-              DACStrobe=0;    DACAck=0;
+              GTX=std::make_pair(0,0);
+              ExtI2C=std::make_pair(0,0);
+              Scan=std::make_pair(0,0);
+              DAC=std::make_pair(0,0);
               return; };
-          } OptoHybridWBCounters;
+          } OptoHybridWBMasterCounters;
+          
+          /** @struct OptoHybridWBSlaveCounters
+           *  @brief This struct stores retrieved counters related to the OptoHybrid wishbone transactions
+           *  @var OptoHybridWBSlaveCounters::I2C
+           *  I2C is a std::vector<std::pair of uint32_t>, size of 6, containing counters for the number
+           *  of strobe(first) and acknowledge(second) requests on each of the 6 [0-5] I2C modules
+           *  @var OptoHybridWBSlaveCounters::ExtI2C
+           *  ExtI2C is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowledge(second) requests on the extended I2C module
+           *  @var OptoHybridWBSlaveCounters::Scan
+           *  Scan is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowledge(second) requests on the Scan module
+           *  @var OptoHybridWBSlaveCounters::T1
+           *  T1 is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowledge(second) requests on the T1 module
+           *  @var OptoHybridWBSlaveCounters::DAC
+           *  DAC is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowldege(second) requests on the DAC module
+           *  @var OptoHybridWBSlaveCounters::ADC
+           *  ADC is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowldege(second) requests on the ADC module
+           *  @var OptoHybridWBSlaveCounters::Clocking
+           *  Clocking is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowldege(second) requests on the Clocking module
+           *  @var OptoHybridWBSlaveCounters::Counters
+           *  Counters is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowldege(second) requests on the Counters module
+           *  @var OptoHybridWBSlaveCounters::System
+           *  System is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           *  and acknowldege(second) requests on the System module
+           */
+          typedef struct OptoHybridWBSlaveCounters {
+            std::vector<std::pair<uint32_t,uint32_t> > I2C; 
+            std::pair<uint32_t,uint32_t> ExtI2C; 
+            std::pair<uint32_t,uint32_t> Scan  ; 
+            std::pair<uint32_t,uint32_t> T1    ; 
+            std::pair<uint32_t,uint32_t> DAC   ; 
+            std::pair<uint32_t,uint32_t> ADC   ; 
+            std::pair<uint32_t,uint32_t> Clocking; 
+            std::pair<uint32_t,uint32_t> Counters; 
+            std::pair<uint32_t,uint32_t> System  ; 
+            
+          OptoHybridWBSlaveCounters() : 
+            I2C(6, std::make_pair(0,0)),
+              ExtI2C(std::make_pair(0,0)),
+              Scan(std::make_pair(0,0)),
+              T1(std::make_pair(0,0)),
+              DAC(std::make_pair(0,0)),
+              ADC(std::make_pair(0,0)),
+              Clocking(std::make_pair(0,0)),
+              Counters(std::make_pair(0,0)),
+              System(std::make_pair(0,0)) {};
+
+            void reset() {
+              std::fill(I2C.begin(), I2C.end(), std::make_pair(0,0));
+              ExtI2C=std::make_pair(0,0);
+              Scan=std::make_pair(0,0);
+              T1=std::make_pair(0,0);
+              DAC=std::make_pair(0,0);
+              ADC=std::make_pair(0,0);
+              Clocking=std::make_pair(0,0);
+              Counters=std::make_pair(0,0);
+              System=std::make_pair(0,0);
+              return; };
+          } OptoHybridWBSlaveCounters;
           
           /** @struct OptoHybridT1Counters
            *  @brief This struct stores retrieved counters related to the OptoHybrid T1 signals
@@ -74,20 +132,20 @@ namespace gem {
            *  Sent contains the counters for T1 signals sent by the OptoHybrid to the GEB
            */
           typedef struct OptoHybridT1Counters {
-            uint32_t AMC13[4]   ; 
-            uint32_t Firmware[4];
-            uint32_t External[4];
-            uint32_t Loopback[4];
-            uint32_t Sent[4]    ;
+            std::vector<uint32_t> AMC13   ; 
+            std::vector<uint32_t> Firmware;
+            std::vector<uint32_t> External;
+            std::vector<uint32_t> Loopback;
+            std::vector<uint32_t> Sent    ;
             
           OptoHybridT1Counters() : 
-            AMC13({0,0,0,0}),Firmware({0,0,0,0}),
-              External({0,0,0,0}),Loopback({0,0,0,0}),
-              Sent({0,0,0,0}) {};
+            AMC13(4, 0),Firmware(4, 0),External(4, 0),Loopback(4, 0),Sent(4, 0) {};
             void reset() {
-              AMC13={0,0,0,0};Firmware={0,0,0,0};
-              External={0,0,0,0};Loopback={0,0,0,0};
-              Sent={0,0,0,0};
+              std::fill(AMC13.begin(),    AMC13.end(),    0);
+              std::fill(Firmware.begin(), Firmware.end(), 0);
+              std::fill(External.begin(), External.end(), 0);
+              std::fill(Loopback.begin(), Loopback.end(), 0);
+              std::fill(Sent.begin(),     Sent.end(),     0);
               return; };
           } OptoHybridT1Counters;
           
@@ -445,17 +503,47 @@ namespace gem {
 
           ///Counters
 
-          /** Get the recorded number of IPBus signals sent/received by the GLIB
+          /** Get the recorded number of signals sent/received by the OptoHybrid wishbone master
            * @param uint8_t mode which counter
-           * bit 1 OptoHybridStrobe
-           * bit 2 OptoHybridAck
-           * bit 3 TrackingStrobe
-           * bit 4 TrackingAck
-           * bit 5 CounterStrobe
-           * bit 6 CounterAck
-           * @returns OptoHybridWBCounters struct, with updated values for the ones specified in the mask
+           * bit 1 GTXStrobe
+           * bit 2 GTXAck
+           * bit 3 ExtI2CStrobe
+           * bit 4 ExtI2CAck
+           * bit 5 ScanStrobe
+           * bit 6 ScanAck
+           * bit 7 DACStrobe
+           * bit 8 DACAck
+           * @returns OptoHybridWBMasterCounters struct, with updated values for the ones specified in the mask
            **/
-          //OptoHybridWBCounters getWBCounters(uint8_t const& mode);
+          OptoHybridWBMasterCounters getWBMasterCounters() { return m_wbMasterCounters; };
+          void updateWBMasterCounters();
+          void resetWBMasterCounters();
+
+          /** Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
+           * @param uint32_t mode which counter
+           * bits 1-11 I2CStrobe (odd only)
+           * bits 2-12 I2CAck (even only)
+           * bit 13 ExtI2CStrobe
+           * bit 14 ExtI2CAck
+           * bit 15 ScanStrobe
+           * bit 16 ScanAck
+           * bit 17 T1Strobe
+           * bit 18 T1Ack
+           * bit 19 DACStrobe
+           * bit 20 DACAck
+           * bit 21 ADCStrobe
+           * bit 22 ADCAck
+           * bit 23 ClockingStrobe
+           * bit 24 ClockingAck
+           * bit 25 CountersStrobe
+           * bit 26 CountersAck
+           * bit 27 SystemStrobe
+           * bit 28 SystemAck
+           * @returns OptoHybridWBSlaveCounters struct, with updated values for the ones specified in the mask
+           **/
+          OptoHybridWBSlaveCounters getWBSlaveCounters() { return m_wbSlaveCounters; };
+          void updateWBSlaveCounters();
+          void resetWBSlaveCounters();
 	  
           /** Get the recorded number of T1 signals
            * @param signal specifies which T1 signal counter to read
@@ -687,14 +775,15 @@ namespace gem {
            * @param std::string name name of the register to broadcast the request to
            * @returns a std::vector of uint32_t words, one response for each VFAT
            */
-          std::vector<uint32_t> broadcastRead(std::string const& name, uint32_t const& mask, bool reset);
+          std::vector<uint32_t> broadcastRead(std::string const& name, uint32_t const& mask, bool reset=false);
           
           /** Sends a write request to all (un-masked) VFATs on the same register
            * @param std::string name name of the register to broadcast the request to
            * @param uint32_t value value to be written to all VFATs receiving the broadcast
            * @returns a std::vector of uint32_t words, one response for each VFAT
            */
-          void broadcastWrite(std::string const& name, uint32_t const& mask, uint32_t const& value, bool reset);
+          void broadcastWrite(std::string const& name, uint32_t const& mask, uint32_t const& value,
+                              bool reset=false);
           
           uhal::HwInterface& getOptoHybridHwInterface() const {
             return getGEMHwInterface(); };
@@ -702,7 +791,9 @@ namespace gem {
           std::vector<linkStatus> getActiveLinks() { return v_activeLinks; }
           bool isLinkActive(int i) { return b_links[i]; }
 
-          OptoHybridWBCounters m_wbCounters; /** wishbone transaction counters */
+          OptoHybridWBMasterCounters m_wbMasterCounters; /** wishbone master transaction counters */
+          OptoHybridWBSlaveCounters  m_wbSlaveCounters;  /** wishbone slave transaction counters */
+          OptoHybridT1Counters       m_t1Counters;       /** t1 command counters */
 
         protected:
           //OptoHybridMonitor *monOptoHybrid_;
