@@ -35,6 +35,10 @@ namespace gem {
       uint32_t* GEMEventMaker( uint8_t const& link,
                                uint32_t bufferCount[4]
                              );
+      void GEMevSelector   ( const  uint32_t& ES,
+                             int MaxEvent = 0,
+                             int MaxErr   = 0
+                           );
       void GEMfillHeaders  ( uint32_t const& BC,
                              uint32_t const& BX,
                              gem::readout::GEMDataAMCformat::GEMData& gem,
