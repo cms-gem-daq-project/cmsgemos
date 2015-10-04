@@ -149,7 +149,26 @@ namespace gem {
               return; };
           } OptoHybridT1Counters;
           
-          HwOptoHybrid();
+           /** @struct OptoHybridVFATCRCCounters
+           *  @brief This struct stores retrieved counters related to the OptoHybrid CRC check on 
+           *  the received VFAT data packets
+           *  @var OptoHybridVFATCRCCounters::CRCCounters
+           *  CRCCounters contains the counters for the CRC performed on the
+           *  received VFAT packets from each chip
+           *  - first is the number of Valid CRCs
+           *  - second is the number of Incorrect CRCs
+           */
+          typedef struct OptoHybridVFATCRCCounters {
+            std::vector<std::pair<uint32_t,uint32_t> > CRCCounters;
+            
+          OptoHybridVFATCRCCounters() : 
+            CRCCounters(24, std::make_pair(0,0)) {};
+            void reset() {
+              std::fill(CRCCounters.begin(), CRCCounters.end(), std::make_pair(0,0));
+              return; };
+          } OptoHybridVFATCRCCounters;
+          
+         HwOptoHybrid();
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionFile);
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI,
                        std::string const& addressTable);
@@ -524,6 +543,14 @@ namespace gem {
           void updateT1Counters();
           void resetT1Counters();
 	  
+          /** Get the recorded number of valid/incorrect CRCs performed by the OptoHybrid 
+           *  on the data packets received from the VFATs
+           * @returns OptoHybridT1Counters struct, with updated values
+           **/
+          OptoHybridVFATCRCCounters getVFATCRCCounters() { return m_vfatCRCCounters; };
+          void updateVFATCRCCounters();
+          void resetVFATCRCCounters();
+	  
           /** Get the recorded number of T1 signals
            * @param signal specifies which T1 signal counter to read
            * 0 L1A
@@ -764,15 +791,46 @@ namespace gem {
           void broadcastWrite(std::string const& name, uint32_t const& mask, uint32_t const& value,
                               bool reset=false);
           
+          /** Get the number of valid/incorrect CRCs performed by the OptoHybrid
+              on the received data packets from a given VFAT
+           * @param slot specifies which VFAT counters to read
+           * 0-23
+           **/
+          std::pair<uint32_t,uint32_t> getVFATCRCCount(uint8_t const& chip) {
+            std::stringstream vfatCRC;
+            vfatCRC << "COUNTERS.CRC.";
+            uint32_t valid     = readReg(getDeviceBaseNode(),
+                                         toolbox::toString("COUNTERS.CRC.VALID.VFAT%d",    chip));
+            uint32_t incorrect = readReg(getDeviceBaseNode(),
+                                         toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d",chip));
+            return std::make_pair<uint32_t, uint32_t>(valid,incorrect);
+          };
+	  
+          /** Reset the number of valid/incorrect CRCs performed by the OptoHybrid
+              on the received data packets from a given VFAT
+           * @param slot specifies which VFAT counters to read
+           * 0-23
+           **/
+          void resetVFATCRCCount(uint8_t const& chip) {
+            std::stringstream vfatCRC;
+            vfatCRC << "COUNTERS.CRC.";
+            writeReg(getDeviceBaseNode(),
+                     toolbox::toString("COUNTERS.CRC.VALID.VFAT%d.Reset",    chip),0x1);
+            writeReg(getDeviceBaseNode(),
+                     toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d.Reset",chip),0x1);
+            return;
+          };
+	  
           uhal::HwInterface& getOptoHybridHwInterface() const {
             return getGEMHwInterface(); };
 
           std::vector<linkStatus> getActiveLinks() { return v_activeLinks; }
           bool isLinkActive(int i) { return b_links[i]; }
 
-          OptoHybridWBMasterCounters m_wbMasterCounters; /** wishbone master transaction counters */
-          OptoHybridWBSlaveCounters  m_wbSlaveCounters;  /** wishbone slave transaction counters */
-          OptoHybridT1Counters       m_t1Counters;       /** t1 command counters */
+          OptoHybridWBMasterCounters m_wbMasterCounters; /** Wishbone master transaction counters */
+          OptoHybridWBSlaveCounters  m_wbSlaveCounters;  /** Wishbone slave transaction counters */
+          OptoHybridT1Counters       m_t1Counters;       /** T1 command counters */
+          OptoHybridVFATCRCCounters  m_vfatCRCCounters;  /** VFAT CRC counters */
 
         protected:
           //OptoHybridMonitor *monOptoHybrid_;
