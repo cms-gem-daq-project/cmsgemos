@@ -123,12 +123,6 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
     data = glibDevice_->getTrackingData(link);
 
-    for (int iword=0; iword<7; iword++ ){
-      dataque.push(data.at(iword));
-    }
-
-    bufferCount[(int)link]++; 
-
     uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(link,bufferCount);
     Counter[0] = *(pDQ+0);
     Counter[1] = *(pDQ+1);
@@ -140,6 +134,15 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
          " numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
          " vfats.size " << vfats.size() << " erros.size " << erros.size() << " ES 0x" << std::hex << ES << std::dec << 
          " event " << Counter[1] );
+
+    uint32_t contqueue = 0; 
+    for (int iword=0; iword<7; iword++ ){
+      contqueue++;
+      dataque.push(data.at(iword));
+      //INFO(" ::getGLIBData contqueue" << contqueue << " dataque.size " << dataque.size() );
+    }
+
+    bufferCount[(int)link]++; 
 
  }// while(glibDevice_->hasTrackingData(link))
 
@@ -250,7 +253,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   vfat.crc    = vfatcrc;                                // crc:16
 
  /*
-  * dump VFAT data
+  * dump VFAT data 
   GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
   INFO(" ::GEMEventMaker slot " << islot <<"\n");
   */
