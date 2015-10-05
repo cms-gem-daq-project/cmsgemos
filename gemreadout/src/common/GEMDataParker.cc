@@ -28,6 +28,7 @@ uint16_t gem::readout::GEMslotContents::slot[24] = {
 };
 bool gem::readout::GEMslotContents::isFileRead = false;
 
+uint32_t kUPDATE = 1;
 int event_ = 0;
 int rvent_ = 0;
 
@@ -498,12 +499,15 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
       }//end irES
  
       geb.vfats.clear();
-      INFO(" ::GEMEventMaker vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
- 	                     " erros.size " << std::setfill(' ') << std::setw(3) << int(erros.size()) << 
-           " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
- 	   " locError   " << std::setfill(' ') << std::setw(3) << locError << " event " << event_
-      );
- 
+      
+      if (event_%kUPDATE == 0 &&  event_ != 0) {
+         DEBUG(" ::GEMEventMaker vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
+ 	                       " erros.size " << std::setfill(' ') << std::setw(3) << int(erros.size()) << 
+                               " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
+ 	                       " locError   " << std::setfill(' ') << std::setw(3) << locError << " event " << event_
+           );
+      }
+
       locEvent = 0;
  
       vfats.clear();
