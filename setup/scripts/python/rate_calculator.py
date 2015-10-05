@@ -6,21 +6,26 @@ def errorRate(errorCounts,sampleTime):
     pair1 = [first, second]
     returns a pair which is the rate (averaged over the number of trials) and the modifier string (k, M, G)
     """
-    rate = 0.
-    modifier = ""
-    for trial in errorCounts:
-        tmprate = ((trial[1]-trial[0])/(1.0*sampleTime))
-        rate = rate + tmprate
-
-    rate = rate / len(errorCounts)
-    if rate > 1000000000:
-        modifier = "G"
-        rate = rate/1000000000.
-    elif rate > 1000000:
-        modifier = "M"
-        rate = rate/1000000.
-    elif rate > 1000:
-        modifier = "k"
-        rate = rate/1000.
+    rates = {}
+    modifier = {}
+    for link in ("TRK","TRG"):
+        rate = 0
+        lastCount = 0
+        for trial in errorCounts:
+            tmprate = ((trial[link][1]-trial[link][0])/(1.0*sampleTime))
+            rate = rate + tmprate
+            lastCount = trial[link][1]
+            
+        rate = rate / len(errorCounts)
+        if rate > 1000000000:
+            modifier = "G"
+            rate = rate/1000000000.
+        elif rate > 1000000:
+            modifier = "M"
+            rate = rate/1000000.
+        elif rate > 1000:
+            modifier = "k"
+            rate = rate/1000.
+        rates[link] = [lastCount,rate,modifier]
         
-    return rate,modifier
+    return rates

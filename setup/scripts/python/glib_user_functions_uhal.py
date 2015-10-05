@@ -4,16 +4,18 @@ sys.path.append('${GEM_PYTHON_PATH}')
 import uhal
 from registers_uhal import *
 
-def calculateLinkErrors(isGLIB,device,link,sampleTime):
-    baseNode = "GLIB.GLIB_LINKS.LINK%d"%(link)
+def calculateLinkErrors(isGLIB,device,sampleTime):
+    baseNode = "GLIB.COUNTERS.GTX0"
+    errorCounts = {}
     if not isGLIB:
-        baseNode = "OptoHybrid.OptoHybrid_LINKS.LINK%d"%(link)
+        baseNode = "GLIB.OptoHybrid_0.OptoHybrid.COUNTERS.GTX"
 
-    writeRegister(device,"%s.OPTICAL_LINKS.Resets.LinkErr"%(baseNode),0x1)
-    first = readRegister(device,"%s.OPTICAL_LINKS.Counter.LinkErr"%(baseNode))
-    time.sleep(sampleTime)
-    second = readRegister(device,"%s.OPTICAL_LINKS.Counter.LinkErr"%(baseNode))
-    errorCounts = [first,second]
+    for link in ("TRK","TRG"):
+        writeRegister(device,"%s.%s_ERR.Reset"%(baseNode,link),0x1)
+        first = readRegister(device,"%s.%s_ERR"%(baseNode,link))
+        time.sleep(sampleTime)
+        second = readRegister(device,"%s.%s_ERR"%(baseNode,link))
+        errorCounts[link] = [first,second]
     return errorCounts
 
 def linkCounters(isGLIB,device,link,doReset=False):
@@ -128,18 +130,19 @@ def getTriggerSBits(isGLIB,device,link):
     else:
         return readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link))
 
-def getClockingInfo(device,link):
+def getClockingInfo(device):
     """
     Get the OptoHybrid clocking information
     """
     clocking = {}
 
-    clocking["fpgaplllock"] = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.FPGA_PLL_LOCKED"%(link))
-    clocking["cdcelock"]    = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.CDCE_LOCKED"%(    link))
-    clocking["gtpreclock"]  = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.GTP_REC_LOCKED"%( link))
-    clocking["vfatsrc"]     = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.VFAT.SOURCE"%(    link))
-    clocking["cdcesrc"]     = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.CDCE.SOURCE"%(    link))
-    clocking["vfatbkp"]     = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.VFAT.FALLBACK"%(  link))
-    clocking["cdcebkp"]     = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.CDCE.FALLBACK"%(  link))
+    clocking["fpgaplllock"] = readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.STATUS.FPGA_PLL_LOCK")
+    clocking["extplllock"]  = readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.STATUS.EXT_PLL_LOCK" )
+    clocking["cdcelock"]    = readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.STATUS.CDCE_LOCK"    )
+    clocking["gtxreclock"]  = readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.STATUS.GTX_LOCK" )
+    #clocking["vfatsrc"]     = readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.CLOCKING.VFAT.SOURCE"  )
+    #clocking["cdcesrc"]     = readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.CLOCKING.CDCE.SOURCE"  )
+    #clocking["vfatbkp"]     = readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.CLOCKING.VFAT.FALLBACK")
+    #clocking["cdcebkp"]     = readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.CLOCKING.CDCE.FALLBACK")
 
     return clocking
