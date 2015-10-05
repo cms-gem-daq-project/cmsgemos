@@ -60,6 +60,13 @@ def getBasicSystemInfo(glib):
                                                readRegister(glib,"GLIB.SYSTEM.IP_INFO.B2"),
                                                readRegister(glib,"GLIB.SYSTEM.IP_INFO.B1"),
                                                readRegister(glib,"GLIB.SYSTEM.IP_INFO.B0"))
+    
+    print "-> hw_addr           :%02x.%02x.%02x.%02x.%02x.%02x"%(readRegister(glib,"GLIB.SYSTEM.HW_ID.B6"),
+                                                                 readRegister(glib,"GLIB.SYSTEM.HW_ID.B5"),
+                                                                 readRegister(glib,"GLIB.SYSTEM.HW_ID.B4"),
+                                                                 readRegister(glib,"GLIB.SYSTEM.HW_ID.B3"),
+                                                                 readRegister(glib,"GLIB.SYSTEM.HW_ID.B2"),
+                                                                 readRegister(glib,"GLIB.SYSTEM.HW_ID.B1"))
     amc_slot = readRegister(glib,"GLIB.SYSTEM.STATUS.V6_CPLD") & 0x0f
     
     print "-> cpld bus state    :", "%02x"%(readRegister(glib,"GLIB.SYSTEM.STATUS.V6_CPLD"))
