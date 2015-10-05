@@ -1,3 +1,5 @@
+/** @file GLIBManager.h */ 
+
 #ifndef gem_hw_glib_GLIBManager_h
 #define gem_hw_glib_GLIBManager_h
 
