@@ -43,12 +43,14 @@ uTCAslot = 15
 if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot
-ipaddr = '192.168.0.%d'%(uTCAslot)
-address_table = "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
-uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
-optohybrid  = uhal.getDevice( "optohybrid" , uri, address_table )
+ipaddr        = '192.168.0.%d'%(uTCAslot)
+uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
+
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
-glib  = uhal.getDevice( "glib" , uri, address_table )
+optohybrid    = uhal.getDevice( "optohybrid" , uri, address_table )
+
+address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
+glib          = uhal.getDevice( "glib"       , uri, address_table )
 
 ########################################
 # IP address
@@ -59,6 +61,26 @@ if options.debug:
 	print "  Opening GLIB with IP", ipaddr
 	print "--=======================================--"
 	getSystemInfo(glib)
+        print "The nodes within GLIB are:"
+        for inode in glib.getNode("GLIB").getNodes():
+                print inode, "attributes ..."
+                node = glib.getNode("GLIB."+inode)
+                print "Address:0x%08x"%(node.getAddress())
+                # Bit-mask of node
+                print "Mask:   0x%08x"%(node.getMask())
+                # Mode enum - one of uhal.BlockReadWriteMode.SINGLE (default), INCREMENTAL and NON_INCREMENTAL,
+                #  or HIERARCHICAL for top-level nodes nesting other nodes.
+                print "Mode:", node.getMode()
+                # One of uhal.NodePermission.READ, WRITE and READWRITE
+                print "R/W:", node.getPermission()
+                # In units of 32-bits. All single registers and FIFOs have default size of 1
+                print "Size (in units of 32-bits):", node.getSize()
+                # User-definable string from address table - in principle a comma separated list of values
+                #print "Tags:", node.getTags()
+                ## Map of user-definable, semicolon-delimited parameter=value pairs specified in the "parameters"
+                ##  xml address file attribute.
+                #print "Parameters:", node.getParameters()
+
 
 print
 print "--=======================================--"
@@ -80,18 +102,16 @@ controlReg3 = []
 emptyMask = 0xFFFF
 thechipid = 0x0000
 ## these need to be done in a link specific way, so select the first available link
-for link in (links.keys()):
-	print "GLIB link%d User FW: 0x%08x"%(link,readRegister(glib,"GLIB.GLIB_LINKS.LINK%d.USER_FW"%(link)))
-for link in (links.keys()):
-	print "OH link%d FW:        0x%08x"%(links[link],
-					     readRegister(optohybrid,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FIRMWARE"%(links[link])))
+print "GLIB FW: 0x%08x"%(readRegister(glib,"GLIB.SYSTEM.FIRMWARE"))
+print "OH   FW: 0x%08x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.STATUS.FW"))
+print "Trying to do a block read on all VFATs chipID0"
+print readAllVFATs(glib, 0x0fffffff, "ChipID0",True)
 
-print "GLIB links", links.keys()
 for control in range(4):
         controlRegs["ctrl%d"%(control)] = []
 
 for chip in range(0,24):
-	baseNode = "OptoHybrid.GEB.VFATS.VFAT%d"%(chip)
+	baseNode = "GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS.VFAT%d"%(chip)
 	if (0 not in links.keys()):
 		if (chip < 8):
 			#print "link 0 and chip %d check %d"%(chip,chip < 8)
