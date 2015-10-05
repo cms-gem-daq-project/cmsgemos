@@ -1,3 +1,5 @@
+/** @file OptoHybridManager.h */ 
+
 #ifndef gem_hw_optohybrid_OptoHybridManager_h
 #define gem_hw_optohybrid_OptoHybridManager_h
 
