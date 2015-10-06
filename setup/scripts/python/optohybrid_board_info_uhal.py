@@ -25,6 +25,8 @@ parser.add_option("-b", "--sbitout", type="int", dest="sbitSrc",
 		  help="use s-bit from VFAT <num>", metavar="sbitSrc")
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
 		  help="print extra debugging information", metavar="debug")
+parser.add_option("-l", "--localT1", action="store_true", dest="localT1",
+		  help="enable the localT1 controller", metavar="localT1")
 parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
 		  help="calculate link error rates for N seconds", metavar="errorRate")
 (options, args) = parser.parse_args()
@@ -57,10 +59,27 @@ print
 #print "-> OH VFATs accessible: 0x%x"%(readRegister(glib,"VFATs_TEST"))
 print "OH:  %6s  %7s  %8s  %7s  %6s  %6s"%("TrgSrc","SBitSrc","FPGA PLL","EXT PLL","CDCE","GTX")
 if options.trgSrc in [0,1,2,3,4]:
-        setTriggerSource(False,optohybrid,links[link],options.trgSrc)
+        setTriggerSource(False,optohybrid,options.trgSrc)
 	
+print "localT1 status"
+print "          0x%x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"))
+if options.localT1:
+        #configureLocalT1(optohybrid,0x0,0x0,0,25,100)
+        sendL1ACalPulse(optohybrid,15)
+
+print "localT1 status"
+print "          0x%x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"))
+print readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE")
+#writeRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE",0x1)
+print readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE")
+print "localT1 status"
+print "          0x%x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"))
+#writeRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE",0x1)
+print "localT1 status"
+print "          0x%x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"))
+
 if options.sbitSrc in [1,2,3,4,5,6]:
-        setTriggerSBits(False,optohybrid,links[link],options.sbitSrc)
+        setTriggerSBits(False,optohybrid,options.sbitSrc)
 
 clocking = getClockingInfo(optohybrid)
 #OH:  TrgSrc  SBitSrc  FPGA PLL    EXT PLL    CDCE     GTX
