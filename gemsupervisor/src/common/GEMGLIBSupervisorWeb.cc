@@ -205,7 +205,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
     L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
     L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
     L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
-    
+
+    INFO(" L1ACount  ext " << L1ACount_[0] << " int " << L1ACount_[1] << " del " << L1ACount_[2] << " tot " << L1ACount_[3] );    
+
     CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
     CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
     CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
@@ -604,12 +606,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   //optohybridDevice_->connectDevice();
 
   INFO("setTrigSource GLIB, OH mode 0");
-  optohybridDevice_->setTrigSource(0, 0x0);
-  optohybridDevice_->setTrigSource(0, 0x1);
-  optohybridDevice_->setTrigSource(0, 0x2);
-  glibDevice_->setTrigSource(0, 0x0);
-  glibDevice_->setTrigSource(0, 0x1);
-  glibDevice_->setTrigSource(0, 0x2);
+  optohybridDevice_->setTrigSource(2, 0x0);
+  optohybridDevice_->setTrigSource(2, 0x1);
+  optohybridDevice_->setTrigSource(2, 0x2);
+  glibDevice_->setTrigSource(2, 0x0);
+  glibDevice_->setTrigSource(2, 0x1);
+  glibDevice_->setTrigSource(2, 0x2);
 
   // Times for output files
   time_t now  = time(0);
@@ -671,7 +673,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   }
 
   // Create a new output file for Data flow
-  std::string tmpFileName = "GEM_DAQ_", tmpType = "";
+  std::string tmpFileName = "GEMDAQ_", tmpType = "";
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
   tmpFileName.append(".dat");
@@ -776,9 +778,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();
 
   INFO("setTrigSource OH mode 0");
-  optohybridDevice_->setTrigSource(0, 0x0);
-  optohybridDevice_->setTrigSource(0, 0x1);
-  optohybridDevice_->setTrigSource(0, 0x2);
+  optohybridDevice_->setTrigSource(2, 0x0);
+  optohybridDevice_->setTrigSource(2, 0x1);
+  optohybridDevice_->setTrigSource(2, 0x2);
 
   INFO("Enabling run mode for selected VFATs");
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
@@ -805,6 +807,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   //reset counters
   INFO("Resetting counters");
+  optohybridDevice_->ResetL1ACount(0x0);
+  optohybridDevice_->ResetL1ACount(0x1);
+  optohybridDevice_->ResetL1ACount(0x2);
   optohybridDevice_->ResetL1ACount(0x4);
   L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
   L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
@@ -840,12 +845,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   counter_ = {0,0,0};
 
   INFO("setTrigSource GLIB, OH mode 0");
-  optohybridDevice_->setTrigSource(0, 0x0);
-  optohybridDevice_->setTrigSource(0, 0x1);
-  optohybridDevice_->setTrigSource(0, 0x2);
-  glibDevice_->setTrigSource(0, 0x0);
-  glibDevice_->setTrigSource(0, 0x1);
-  glibDevice_->setTrigSource(0, 0x2);
+  optohybridDevice_->setTrigSource(2, 0x0);
+  optohybridDevice_->setTrigSource(2, 0x1);
+  optohybridDevice_->setTrigSource(2, 0x2);
+  glibDevice_->setTrigSource(2, 0x0);
+  glibDevice_->setTrigSource(2, 0x1);
+  glibDevice_->setTrigSource(2, 0x2);
 
   //turn off all chips?
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {

@@ -28,7 +28,7 @@ uint16_t gem::readout::GEMslotContents::slot[24] = {
 };
 bool gem::readout::GEMslotContents::isFileRead = false;
 
-uint32_t kUPDATE = 1;
+uint32_t kUPDATE = 5000, kUPDATE7 = 7;
 int event_ = 0;
 int rvent_ = 0;
 
@@ -124,11 +124,13 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
     data = glibDevice_->getTrackingData(link);
 
+    /*
     uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(link,bufferCount);
     Counter[0] = *(pDQ+0);
     Counter[1] = *(pDQ+1);
     Counter[2] = event_; // *(pDQ+2);
     Counter[3] = *(pDQ+3);
+    */
   
     uint32_t ES = Counter[3];
     DEBUG(" ::getGLIBData dumpGEMevent " << dumpGEMevent <<
@@ -140,7 +142,9 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     for (int iword=0; iword<7; iword++ ){
       contqueue++;
       dataque.push(data.at(iword));
-      //INFO(" ::getGLIBData contqueue" << contqueue << " dataque.size " << dataque.size() );
+      if (contqueue%kUPDATE7 == 0 &&  contqueue != 0) {
+        INFO(" ::getGLIBData dataque.push  conter " << contqueue << " dataque.size " << dataque.size() );
+      }
     }
 
     bufferCount[(int)link]++; 
@@ -501,7 +505,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
       geb.vfats.clear();
       
       if (event_%kUPDATE == 0 &&  event_ != 0) {
-         DEBUG(" ::GEMEventMaker vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
+         INFO(" ::GEMEventMaker vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
  	                       " erros.size " << std::setfill(' ') << std::setw(3) << int(erros.size()) << 
                                " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
  	                       " locError   " << std::setfill(' ') << std::setw(3) << locError << " event " << event_
