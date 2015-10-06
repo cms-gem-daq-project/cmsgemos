@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
   <node id="FIFO" address="0x0"  mode="non-incremenal"  permission="r"
-        description="FIFO to store the tracking data coming from the VFATs connected to OptoHybrid 1"/>
+        description="FIFO to store the tracking data coming from the VFATs connected to the OptoHybrid"/>
   <node id="FLUSH" address="0x0"  mask="0x1"  permission="w"
         description="Flush the FIFO by writing a 1 to it"/>
   
