@@ -16,7 +16,7 @@ class colors:
 	ENDC    = '\033[0m'
 
         
-def readRegister(device,register):
+def readRegister(device, register, debug=False):
         """
 	read register 'register' from uhal device 'device'
 	returns value of the register
@@ -48,7 +48,7 @@ def readRegister(device,register):
 	return 0x0
 	# return 0x0
 
-def readBlock(device,register, nwords):
+def readBlock(device,register, nwords, debug=False):
 	"""
 	read block 'register' from uhal device 'device'
 	returns 'nwords' values in the register
@@ -57,10 +57,12 @@ def readBlock(device,register, nwords):
         nRetries = 0
 	while (nRetries < gMAX_RETRIES):
 		try:
-                        print "reading %d words from register %s"%(nwords,register)
+                        if (debug):
+                                print "reading %d words from register %s"%(nwords,register)
                         words = device.getNode(register).readBlock(nwords)
 			device.dispatch()
-                        print words
+                        if (debug):
+                                print words
 			return words
 	#want to be able to return nothing in the result of a failed transaction
 		except uhal.exception, e:
@@ -82,7 +84,7 @@ def readBlock(device,register, nwords):
 	return 0x0
 	# return 0x0
 	
-def writeRegister(device,register, value):
+def writeRegister(device, register, value, debug=False):
 	"""
 	write value 'value' into register 'register' from uhal device 'device'
 	"""
