@@ -52,6 +52,7 @@ def readAllVFATs(device, mask, reg, debug=False):
     #    return -1
     #else :
     #    return vfatVals
+    print "returning vfatVals"
     return vfatVals
 
 def writeVFAT(device, chip, reg, value, debug=False):
