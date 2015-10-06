@@ -30,7 +30,10 @@ def readAllVFATs(device, mask, reg, debug=False):
     vfatVal  = readRegister(device,"%s.Request.%s"%(baseNode,reg))
     if (debug):
         print "vfatVal = 0x%08x"%(vfatVal)
-    vfatVals = readBlock(device,"%s.Results"%(baseNode),24)
+    vfatVals = []
+    for vfat in range(24):
+        vfatVals.append(readRegister(device,"%s.Results"%(baseNode)))
+    #vfatVals = readBlock(device,"%s.Results"%(baseNode),24)
     if (debug and vfatVals):
         for i,val in enumerate(vfatVals):
             print "%d: value = 0x%08x"%(i,vfatVal)
