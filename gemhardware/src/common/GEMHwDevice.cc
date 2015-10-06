@@ -752,6 +752,32 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
   }
 }
 
+std::vector<uint32_t> gem::hw::GEMHwDevice::readFIFO(std::string const& name)
+{
+  return readBlock(name);
+}
+
+std::vector<uint32_t> gem::hw::GEMHwDevice::readFIFO(std::string const& name, size_t const& numWords)
+{
+  std::vector<uint32_t> result;
+  for (size_t word = 0; word < numWords; ++word)
+    result.push_back(readReg(name));
+
+  return result;
+}
+
+void gem::hw::GEMHwDevice::writeFIFO(std::string const& name, std::vector<uint32_t> const values)
+{
+  for (auto word = values.begin(); word != values.end(); ++word)
+    writeReg(name,*word);
+
+  return;
+}
+
+void gem::hw::GEMHwDevice::zeroFIFO(std::string const& name)
+{
+  return writeReg(name+".FLUSH",0x0);
+}
 
 bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
   return ((errCode.find("amount of data")              != std::string::npos) ||

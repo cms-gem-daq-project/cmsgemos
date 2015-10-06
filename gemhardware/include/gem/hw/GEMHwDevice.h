@@ -238,6 +238,36 @@ namespace gem {
        * @param regName block or memory to zero
        */
       void zeroBlock( std::string const& regName);
+      
+      /** readFIFO(std::string const& regName)
+       * read from a FIFO
+       * @param regName fixed size memory block to read from
+       */
+      std::vector<uint32_t> readFIFO( std::string const& regName);
+      //size_t readFIFO( std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
+      
+      /** readFIFO(std::string const& regName, size_t const nWords)
+       * read from a FIFO
+       * @param regName FIFO to read from
+       * @param nWords number of words to read from the FIFO
+       * @retval returns a vector of 32 bit unsigned value
+       */
+      std::vector<uint32_t> readFIFO( std::string const& regName,
+                                      size_t      const& nWords);
+      
+      /** writeFIFO(std::string const& regName, std::vector<uint32_t> const values)
+       * write to a FIFO
+       * @param regName FIFO to write to
+       * @param values list of 32-bit words to write into the FIFO
+       */
+      void writeFIFO(std::string           const& regName,
+                     std::vector<uint32_t> const values);
+      
+      /** zeroFIFO( std::string const& regName)
+       * reset a FIFO
+       * @param regName FIFO to zero
+       */
+      void zeroFIFO( std::string const& regName);
 
 
       // These methods provide access to the member variables
