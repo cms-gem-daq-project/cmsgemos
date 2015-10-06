@@ -313,7 +313,12 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
   
   std::stringstream regName;
   regName << getDeviceBaseNode() << ".GEB.Broadcast.Results";
-  return readBlock(regName.str(),24);
+  //std::vector<uint32_t> results;
+  //for (unsigned res = 0; res < 24; ++res)
+  //  results.push_back(readReg(regName.str()));
+  //return results;
+  return readFIFO(regName.str(),24);
+  //return readBlock(regName.str(),24);
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
