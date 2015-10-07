@@ -73,25 +73,20 @@ print "Fake tracking data:"
 print
 from trackingUnpacker import VFAT2TrackingData
 
+mask = 0xffabab00
+if options.bias:
+        biasAllVFATs(optohybrid, mask)
+        writeAllVFATs(optohybrid, mask, "Latency", options.latency)
+        regValue = (0x00 | ((options.mspl)<<4))
+        writeAllVFATs(optohybrid, mask, "ContReg2",regValue)
 #need to set this up for proper link awareness
 # also need to be aware that GLIB link and OH link are not necessarily the same
 chipIDs = {}
 chipIDs["chip"] = {}
 chipIDs["slot"] = {}
+
+
 for chip in range(0,8):
-	regVal = readVFAT(optohybrid, chip, "ContReg0")
-	if (options.multVFATs):
-		writeVFAT(optohybrid, chip, "ContReg0",regVal&0xFF)
-	else:
-		writeVFAT(optohybrid, chip, "ContReg0",regVal&0xFE)
-
-	regValue = (0x00 | ((options.mspl)<<4))
-	writeVFAT(optohybrid, chip, "ContReg2",regValue)
-	writeVFAT(optohybrid, chip, "ContReg3",0x00)
-	if options.invasive:
-		biasVFAT(optohybrid,"slot%d"(chip))
-	writeVFAT(optohybrid, chip, "Latency",options.latency)
-
 	chipIDs["chip"][chip]  = ((readVFAT(optohybrid, chip, "ChipID1")&0xFF)<<8)
 	chipIDs["chip"][chip] |= ( readVFAT(optohybrid, chip, "ChipID0")&0xFF)
         chipIDs["slot"][chip] = chip
