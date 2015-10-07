@@ -77,6 +77,18 @@ def readTrackingInfo(device,link):
         print "%s: 0x%08x"%(word,data[word])
     return data
 
+def readFIFODepth(device,link):
+    """
+    read the tracking FIFO depth from given optical link
+    """
+    baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(link)
+
+    data = {}
+    data["isFULL"]    = readRegister(device,"%s.ISFULL"%(baseNode))
+    data["isEMPTY"]   = readRegister(device,"%s.ISEMPTY"%(baseNode))
+    data["Occupancy"] = readRegister(device,"%s.DEPTH"%(baseNode))
+    return data
+
 def setTriggerSource(isGLIB,device,source):
     """
     Set the trigger source
