@@ -168,7 +168,7 @@ namespace gem {
               return; };
           } OptoHybridVFATCRCCounters;
           
-         HwOptoHybrid();
+          HwOptoHybrid();
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionFile);
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI,
                        std::string const& addressTable);

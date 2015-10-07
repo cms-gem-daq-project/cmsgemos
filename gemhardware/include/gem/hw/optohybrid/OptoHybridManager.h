@@ -54,6 +54,11 @@ namespace gem {
             throw (toolbox::fsm::exception::Exception);
 	
         private:
+	  uint32_t parseVFATMaskList(std::string const&);
+	  bool     isValidSlotNumber(std::string const&);
+
+          std::vector<uint32_t> v_vfatBroadcastMask;// one for each optohybrid
+
           class OptoHybridInfo {
             
           public:
@@ -73,6 +78,9 @@ namespace gem {
             
             xdata::UnsignedInteger32 controlHubPort;
             xdata::UnsignedInteger32 ipBusPort;
+
+            xdata::String            vfatBroadcastList;
+            xdata::UnsignedInteger32 vfatBroadcastMask;
             
             //registers to set
             xdata::Integer triggerSource;
