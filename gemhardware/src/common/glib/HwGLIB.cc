@@ -611,6 +611,11 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& link)
   if (linkCheck(link, "Flush FIFO")) {
     std::stringstream regName;
     regName << "TRK_DATA.OptoHybrid_" << (int)link;
+    INFO("Tracking FIFO " 
+         << " ISFULL 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")   << std::dec
+         << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
+         << std::endl
+         << "Depth 0x"   << std::hex << getFIFOOccupancy(link) << std::dec);
     writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
   }
 }
