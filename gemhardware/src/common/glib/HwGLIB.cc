@@ -602,8 +602,8 @@ std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& link
   std::stringstream regName;
   regName << getDeviceBaseNode() << "TRK_DATA.OptoHybrid_" << (int)link << ".FIFO";
   //return single VFAT block 7x32 bits
-  return readFIFO(regName.str(),7);
-  //return readBlock(regName.str(),7);
+  //return readFIFO(regName.str(),7);
+  return readBlock(regName.str(),7);
 }
 
 void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& link)
@@ -611,11 +611,10 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& link)
   if (linkCheck(link, "Flush FIFO")) {
     std::stringstream regName;
     regName << "TRK_DATA.OptoHybrid_" << (int)link;
-    INFO("Tracking FIFO " 
+    INFO("Tracking FIFO" << (int)link << ":"
          << " ISFULL 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")   << std::dec
          << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
-         << std::endl
-         << "Depth 0x"   << std::hex << getFIFOOccupancy(link) << std::dec);
+         << " Depth 0x"   << std::hex << getFIFOOccupancy(link) << std::dec);
     writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
   }
 }
