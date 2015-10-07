@@ -105,8 +105,8 @@ thechipid = 0x0000
 print "GLIB FW: 0x%08x"%(readRegister(glib,"GLIB.SYSTEM.FIRMWARE"))
 print "OH   FW: 0x%08x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.STATUS.FW"))
 print "Trying to do a block read on all VFATs chipID0"
-print readAllVFATs(glib, 0x0fffffff, "ChipID0", options.debug)
-print readAllVFATs(glib, 0x0fffffff, "ChipID1", options.debug)
+print readAllVFATs(glib, 0xf0000000, "ChipID0", options.debug)
+print readAllVFATs(glib, 0xf0000000, "ChipID1", options.debug)
 
 for control in range(4):
         controlRegs["ctrl%d"%(control)] = []

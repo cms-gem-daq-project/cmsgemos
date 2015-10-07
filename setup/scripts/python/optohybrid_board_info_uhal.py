@@ -61,22 +61,9 @@ print "OH:  %6s  %7s  %8s  %7s  %6s  %6s"%("TrgSrc","SBitSrc","FPGA PLL","EXT PL
 if options.trgSrc in [0,1,2,3,4]:
         setTriggerSource(False,optohybrid,options.trgSrc)
 	
-print "localT1 status"
-print "          0x%x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"))
 if options.localT1:
         #configureLocalT1(optohybrid,0x0,0x0,0,25,100)
         sendL1ACalPulse(optohybrid,15)
-
-print "localT1 status"
-print "          0x%x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"))
-print readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE")
-#writeRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE",0x1)
-print readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE")
-print "localT1 status"
-print "          0x%x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"))
-#writeRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE",0x1)
-print "localT1 status"
-print "          0x%x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"))
 
 if options.sbitSrc in [1,2,3,4,5,6]:
         setTriggerSBits(False,optohybrid,options.sbitSrc)

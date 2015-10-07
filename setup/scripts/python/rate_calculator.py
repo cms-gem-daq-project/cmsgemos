@@ -16,6 +16,7 @@ def errorRate(errorCounts,sampleTime):
             rate = rate + tmprate
             lastCount = trial[link][1]
             
+        modifier = ""
         rate = rate / len(errorCounts)
         if rate > 1000000000:
             modifier = "G"
