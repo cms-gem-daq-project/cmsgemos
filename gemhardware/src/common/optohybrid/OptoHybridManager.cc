@@ -344,8 +344,8 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         }
         */
         
-        std::vector<uint32_t> connectedChipID0 = optohybrid->broadcastRead("ChipID0",0xffffffff);
-        std::vector<uint32_t> connectedChipID1 = optohybrid->broadcastRead("ChipID1",0xffffffff);
+        std::vector<uint32_t> connectedChipID0 = optohybrid->broadcastRead("ChipID0",0xf0000000);
+        std::vector<uint32_t> connectedChipID1 = optohybrid->broadcastRead("ChipID1",0xf0000000);
         {
           auto id0 = connectedChipID0.begin();
           auto id1 = connectedChipID0.begin();
