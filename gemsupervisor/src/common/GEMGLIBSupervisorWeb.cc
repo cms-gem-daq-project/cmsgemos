@@ -1,3 +1,4 @@
+#include<unistd.h>
 #include "gem/supervisor/GEMGLIBSupervisorWeb.h"
 #include "gem/readout/GEMDataParker.h"
 
@@ -596,8 +597,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   //glibDevice_->connectDevice();
 
-  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
-                                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"));
+  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid_0", tmpURI.str(),
+                                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+  //                                                                                "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"));
+
+
   //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   //optohybridDevice_->connectDevice();
 
@@ -627,7 +631,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
     if (VfatName != ""){ 
       vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(),
-                                                               "file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
+                                                               "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+                                                               //"file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
       tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
       //tmpVFATDevice->connectDevice();
       tmpVFATDevice->setRunMode(0);

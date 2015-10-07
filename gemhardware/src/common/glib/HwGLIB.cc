@@ -600,7 +600,7 @@ std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& link
   } 
   
   std::stringstream regName;
-  regName << getDeviceBaseNode() << "TRK_DATA.OptoHybrid_" << (int)link << ".FIFO";
+  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)link << ".FIFO";
   //return single VFAT block 7x32 bits
   //return readFIFO(regName.str(),7);
   return readBlock(regName.str(),7);
