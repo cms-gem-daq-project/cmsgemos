@@ -66,6 +66,7 @@
 
             <triggerSource xsi:type="xsd:integer">4</triggerSource>
             <sbitSource    xsi:type="xsd:integer">5</sbitSource>
+            <refClkSrc    xsi:type="xsd:integer">1</refClkSrc>
           </OptoHybridInfo>
 	</AllOptoHybridsInfo>
       </properties>

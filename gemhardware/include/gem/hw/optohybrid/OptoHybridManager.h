@@ -85,6 +85,7 @@ namespace gem {
             //registers to set
             xdata::Integer triggerSource;
             xdata::Integer sbitSource;
+            xdata::Integer refClkSrc;
             xdata::Integer vfatClkSrc;
             xdata::Integer cdceClkSrc;
             
@@ -102,10 +103,15 @@ namespace gem {
                  << "addressTable:"      << addressTable.toString()      << std::endl
                  << "controlHubPort:"    << controlHubPort.toString()    << std::endl
                  << "ipBusPort:"         << ipBusPort.toString()         << std::endl
-                 << "triggerSource:0x"   << triggerSource.toString()     << std::endl
-                 << "sbitSource:0x"      << sbitSource.toString()        << std::endl
-                 << "vfatClkSrc:0x"      << vfatClkSrc.toString()        << std::endl
-                 << "cdceClkSrc:0x"      << cdceClkSrc.toString()        << std::endl
+
+                 << "vfatBroadcastList:"   << vfatBroadcastList.toString() << std::endl
+                 << "vfatBroadcastMask:0x" << vfatBroadcastMask.toString() << std::endl
+
+                 << "triggerSource:0x" << triggerSource.toString() << std::endl
+                 << "sbitSource:0x"    << sbitSource.toString()    << std::endl
+                 << "refClkSrc:0x"     << refClkSrc.toString()     << std::endl
+                 << "vfatClkSrc:0x"    << vfatClkSrc.toString()    << std::endl
+                 << "cdceClkSrc:0x"    << cdceClkSrc.toString()    << std::endl
                  << std::endl;
               return os.str();
             };

@@ -19,6 +19,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   crateID = -1;
   slotID  = -1;
   linkID  = -1;
+
   controlHubAddress = "";
   deviceIPAddress     = "";
   ipBusProtocol       = "";
@@ -28,6 +29,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   
   triggerSource = 0;
   sbitSource    = 0;
+  refClkSrc     = 0;
   vfatClkSrc    = 0;
   cdceClkSrc    = 0;
 }
@@ -50,6 +52,7 @@ void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdat
             
   bag->addField("triggerSource", &triggerSource);
   bag->addField("sbitSource",    &sbitSource);
+  bag->addField("refClkSrc",     &refClkSrc);
   bag->addField("vfatClkSrc",    &vfatClkSrc);
   bag->addField("cdceClkSrc",    &cdceClkSrc);
 }
@@ -428,9 +431,12 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         INFO("configureAction::setting sbit source to 0x"
              << std::hex << info.sbitSource.value_ << std::dec);
         optohybrid->setSBitSource(info.sbitSource.value_);
+        INFO("setting reference clock source to 0x"
+             << std::hex << info.refClkSrc.value_ << std::dec);
+        optohybrid->setReferenceClock(info.refClkSrc.value_,);
         /*
         INFO("setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
-        optohybrid->SetVFATClock(info.vfatClkSrc.value_,);
+        optohybrid->setVFATClock(info.vfatClkSrc.value_,);
         INFO("setting cdce clock source to 0x" << std::hex << info.cdceClkSrc.value_ << std::dec);
         optohybrid->setSBitSource(info.cdceClkSrc.value_);
         */
