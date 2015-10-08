@@ -48,7 +48,7 @@ def optohybridCounters(device,link=0,doReset=False):
         #T1 counters
         for t1src in ["TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
             for t1 in ["L1A", "CalPulse","Resync","BC0"]:
-                writeRegister(device,"%s.T1.%s.%s.Reset"%(baseNode, t1),0x1)
+                writeRegister(device,"%s.T1.%s.%s.Reset"%(baseNode, t1src, t1),0x1)
 
         writeRegister(device,"%s.GTX.TRK_ERR.Reset"%(     baseNode), 0x1)
         writeRegister(device,"%s.GTX.TRG_ERR.Reset"%(     baseNode), 0x1)
