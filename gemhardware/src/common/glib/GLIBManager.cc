@@ -240,7 +240,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
   throw (gem::hw::glib::exception::Exception)
 {
   INFO("gem::hw::glib::GLIBManager::initializeAction begin");
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
     INFO("GLIBManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     GLIBInfo& info = m_glibInfo[slot].bag;
     if ((m_amcEnableMask >> (slot)) & 0x1) {
@@ -257,7 +257,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     }
   }  
   
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     GLIBInfo& info = m_glibInfo[slot].bag;
     
     //check the config file if there should be a GLIB in the specified slot, if not, do not initialize
@@ -388,7 +388,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     //p_gemWebInterface->glibInSlot(slot);
   }
 
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -412,7 +412,7 @@ void gem::hw::glib::GLIBManager::configureAction()
 {
   INFO("gem::hw::glib::GLIBManager::configureAction");
 
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(100);
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -485,7 +485,7 @@ void gem::hw::glib::GLIBManager::resetAction()
   //unregister listeners and items in info spaces
   
   INFO("gem::hw::glib::GLIBManager::resetAction begin");
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
     usleep(100);
     INFO("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
