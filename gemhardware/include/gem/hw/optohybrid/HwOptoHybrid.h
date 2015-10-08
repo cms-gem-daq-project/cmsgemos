@@ -256,7 +256,7 @@ namespace gem {
            * 0x1 GTX recovered clock
            * 0x2 external clock
            **/
-          void setRefClock(uint8_t const& source) {
+          void setReferenceClock(uint8_t const& source) {
             writeReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK"  ,(uint32_t)source  );
           };
 
