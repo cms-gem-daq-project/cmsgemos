@@ -433,7 +433,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         optohybrid->setSBitSource(info.sbitSource.value_);
         INFO("setting reference clock source to 0x"
              << std::hex << info.refClkSrc.value_ << std::dec);
-        optohybrid->setReferenceClock(info.refClkSrc.value_,);
+        optohybrid->setReferenceClock(info.refClkSrc.value_);
         /*
         INFO("setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
         optohybrid->setVFATClock(info.vfatClkSrc.value_,);
