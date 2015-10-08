@@ -29,8 +29,8 @@ parser.add_option("-n", "--nTrigs", type="int", dest="nTrigs",
 		  help="number of L1A signals to send", metavar="nTrigs", default=25)
 parser.add_option("-c", "--chip", type="string", dest="chip",
 		  help="vfat to control", metavar="chip", default="slot13")
-parser.add_option("-f", "--fallback", type="int", dest="fallback",
-		  help="allow clock fallback on both VFAT and CDCE (1) or not (0)", metavar="fallback", default=1)
+parser.add_option("-f", "--flush", action="store_true", dest="flush",
+		  help="flush the tracking FIFO before starting", metavar="flush")
 parser.add_option("-k", "--extclk", type="int", dest="extclk",
 		  help="use external clock source (1) or not (0)", metavar="extclk", default=0)
 parser.add_option("-i", "--invasive", action="store_true", dest="invasive",
@@ -127,9 +127,10 @@ def displayChipInfo(regkeys):
 	return
 displayChipInfo(chipIDs)
 print "TRACKING INFO SCRIPT UNDER DEVELOPMENT"
-
-sendResync(optohybrid,25)
-sendBC0(optohybrid,25)
+if options.flush:
+        flushTrackingFIFO(glib,0)
+        sendResync(optohybrid,25)
+        sendBC0(optohybrid,25)
 #time.sleep(5)
 fifoInfo = readFIFODepth(glib,0)
 print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
@@ -179,13 +180,8 @@ for block in range(nBlocks):
 	crc    = hex(trackingPacket[5]&0x0000ffff)
 	bx     = hex(trackingPacket[6])
 
-        print "check1 = %s"%(check1)
-        print "check2 = %s"%(check2)
-        print "check3 = %s"%(check3)
-        print "flags  = %s"%(flags )
-        print "bc     = %s"%(bc    )
-        print "ec     = %s"%(ec    )
-        print "chipid = %s"%(chipid)
+        print "check1(%s)  check2(%s)  check3(%s)  flags(%s)"%(check1,check2,check3,flags)
+        print "bc(%s)  ec(%s)  chipid(%s)"%(bc,ec,chipid)
         # print "data1  = %s"%(data1 )
         # print "data2  = %s"%(data2 )
         # print "data3  = %s"%(data3 )
