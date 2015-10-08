@@ -549,7 +549,7 @@ namespace gem {
               TRK_DATA.COLX.DATA_RDY
               TRK_DATA.COLX.DATA.[0-6]
           */
-          std::vector<uint32_t> getTrackingData(uint8_t const& link);
+          std::vector<uint32_t> getTrackingData(uint8_t const& link, size_t const& nBlocks=1);
 
           /** Empty the tracking data FIFO
            * @param uint8_t link is the number of the link to query

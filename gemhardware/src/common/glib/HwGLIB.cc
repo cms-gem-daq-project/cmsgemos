@@ -592,18 +592,19 @@ bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& link)
   return hasData;
 }
 
-std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& link)
+std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& link, size_t const& nBlocks)
 {
   if (!linkCheck(link, "Tracking data")) {
-    std::vector<uint32_t> data(7,0x0);
+    //do we really want to return a huge vector of 0s?
+    std::vector<uint32_t> data(7*nBlocks,0x0);
     return data;
   } 
   
   std::stringstream regName;
-  regName << getDeviceBaseNode() << "TRK_DATA.OptoHybrid_" << (int)link << ".FIFO";
-  //return single VFAT block 7x32 bits
-  //return readFIFO(regName.str(),7);
-  return readBlock(regName.str(),7);
+  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)link << ".FIFO";
+  //best way to read a real block? make getTrackingData ask for N blocks?
+  //can we return the memory another way, rather than a vector?
+  return readBlock(regName.str(),7*nBlocks);
 }
 
 void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& link)
