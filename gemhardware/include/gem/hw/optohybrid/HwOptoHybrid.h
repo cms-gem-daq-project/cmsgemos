@@ -577,17 +577,17 @@ namespace gem {
             
             switch(mode) {
             case 0:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.%s",     (t1Signal.str()).c_str()));
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s",     (t1Signal.str()).c_str()));
             case 1:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.INTERNAL.%s",(t1Signal.str()).c_str()));
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s",(t1Signal.str()).c_str()));
             case 2:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.EXTERNAL.%s",(t1Signal.str()).c_str()));
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s",(t1Signal.str()).c_str()));
             case 3:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.LOOPBACK.%s",(t1Signal.str()).c_str()));
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s",(t1Signal.str()).c_str()));
             case 4:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s",    (t1Signal.str()).c_str()));
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
             default:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s",    (t1Signal.str()).c_str()));
+              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
             }
           };
 	  
@@ -670,33 +670,33 @@ namespace gem {
             
             switch(mode) {
             case 0:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
               return;
             case 1:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
               return;
             case 2:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
               return;
             case 3:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
               return;
             case 4:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
               return;
             case 5:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
               return;
             default:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
+              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
               return;
             }
           };
