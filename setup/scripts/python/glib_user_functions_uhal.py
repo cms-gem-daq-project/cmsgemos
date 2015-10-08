@@ -89,6 +89,15 @@ def readFIFODepth(device,link):
     data["Occupancy"] = readRegister(device,"%s.DEPTH"%(baseNode))
     return data
 
+def flushTrackingFIFO(device,link):
+    """
+    Flush the tracking FIFO from given optical link
+    """
+    baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(link)
+
+    writeRegister(device,"%s.FLUSH"%(baseNode),0x1)
+    return
+
 def setTriggerSource(isGLIB,device,source):
     """
     Set the trigger source
