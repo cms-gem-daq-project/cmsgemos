@@ -540,17 +540,19 @@ namespace gem {
           */
           bool hasTrackingData(uint8_t const& link);
 
-          /** get the tracking data, have to do this intelligently, as each column will be independent (for now)
+          /** get the tracking data, have to do this intelligently, as IPBus transactions are expensive
               and need to pack all events together
-              OR we put the column data in it's own block, and figure it out later...
-              * @param uint8_t link is the number of the column of the tracking data to read
+              * @param uint8_t gtx is the number of the GTX tracking data to read
               * @retval std::vector<uint32_t> returns the 7 data words in the buffer, for a single chip
               * maybe better to return a block of memory...
               TRK_DATA.COLX.DATA_RDY
               TRK_DATA.COLX.DATA.[0-6]
           */
-          std::vector<uint32_t> getTrackingData(uint8_t const& link, size_t const& nBlocks=1);
-
+          std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
+          //which of these will be better and do what we want
+          uint32_t getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1, uint64_t* data);
+          //which of these will be better and do what we want
+          uint32_t getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1, std::vector< ::toolbox::mem::Reference* >& data);
           /** Empty the tracking data FIFO
            * @param uint8_t link is the number of the link to query
            * 
