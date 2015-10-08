@@ -4,21 +4,7 @@ sys.path.append('${GEM_PYTHON_PATH}')
 import uhal
 from registers_uhal import *
 
-def calculateLinkErrors(isGLIB,device,sampleTime):
-    baseNode = "GLIB.COUNTERS.GTX0"
-    errorCounts = {}
-    if not isGLIB:
-        baseNode = "GLIB.OptoHybrid_0.OptoHybrid.COUNTERS.GTX"
-
-    for link in ("TRK","TRG"):
-        writeRegister(device,"%s.%s_ERR.Reset"%(baseNode,link),0x1)
-        first = readRegister(device,"%s.%s_ERR"%(baseNode,link))
-        time.sleep(sampleTime)
-        second = readRegister(device,"%s.%s_ERR"%(baseNode,link))
-        errorCounts[link] = [first,second]
-    return errorCounts
-
-def optohybridCounters(device,link=0,doReset=False):
+def optohybridCounters(device,gtx=0,doReset=False):
     """
     read the optical link counters, returning a map
     if doReset is true, just send the reset command and pass
@@ -27,7 +13,7 @@ def optohybridCounters(device,link=0,doReset=False):
     T1:TTC,INTERNAL,EXTERNAL,LOOPBACK,SENT
     GTX
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS"%(link)
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS"%(gtx)
 
     if doReset:
         for wbcnt in ["Strobe","Ack"]:
@@ -95,47 +81,19 @@ def optohybridCounters(device,link=0,doReset=False):
         counters["GTX"]["DATA_Packets"] = readRegister(device,"%s.GTX.DATA_Packets"%(baseNode))
         return counters
 
-def readTrackingInfo(device,link):
-    """
-    read the tracking info from given optical link, returning a map
-    """
-    baseNode = "GLIB.TRK_DATA.COL%d"%(link)
-
-    data = {}
-    data["hasData"] = readRegister(device,"%s.DATA_RDY"%(baseNode))
-    for word in range(1,6):
-        data["data%d"%(word)] = readRegister(device,"%s.DATA.%d"%(baseNode,word))
-    
-    for word in data.keys():
-        print "%s: 0x%08x"%(word,data[word])
-    return data
-
-def readFIFODepth(device,link):
-    """
-    read the tracking FIFO depth from given optical link
-    """
-    baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(link)
-
-    data = {}
-    data["isFULL"]    = readRegister(device,"%s.ISFULL"%(baseNode))
-    data["isEMPTY"]   = readRegister(device,"%s.ISEMPTY"%(baseNode))
-    data["Occupancy"] = readRegister(device,"%s.DEPTH"%(baseNode))
-    return data
-
-def setTriggerSource(isGLIB,device,source):
+def setTriggerSource(device,gtx,source):
     """
     Set the trigger source
-    GLIB: 0=software, 1=backplane, 2=both 
-    OH:   0=TTC,     1=FIRMWARE,  2=both 4=ALL
+    OH:   0=TTC, 1=FIRMWARE, 2=EXTERNAL, 3=LOOPBACK
     """
-    if isGLIB:
-        #writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link),source)
-        writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.SOURCE",source)
-    else:
-        writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.CONTROL.TRIGGER.SOURCE",source)
-	#writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid_COM.Send.Resync"%(link),0x1)
+    return writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(gtx),source)
 
-    return
+def getTriggerSource(device,gtx):
+    """
+    Get the trigger source
+    OH:   0=TTC, 1=FIRMWARE, 2=EXTERNAL, 3=LOOPBACK
+    """
+    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(gtx))
 
 def configureLocalT1(device,mode,t1type,delay,interval,number):
     """
@@ -212,44 +170,6 @@ def sendBC0(device,interval,number=1):
     if not readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"):
         writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE",0x1)
     return
-
-def getTriggerSource(isGLIB,device,link):
-    """
-    Set the trigger source
-    GLIB: 0=software, 1=backplane, 2=both 
-    OH:   0=GLIB,     1=external,  2=both
-    """
-    if isGLIB:
-        #readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link))
-        return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.SOURCE"%(link))
-    else:
-        return readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.SOURCE"%(link))
-        
-def setTriggerSBits(isGLIB,device,link,source):
-    """
-    Set the trigger sbit source
-    GLIB: 0=software, 1=backplane, 2=both 
-    OH:   0=GLIB,     1=external,  2=both
-    """
-    if isGLIB:
-        #writeRegister(device,"GLIB.GLIB_LINKS.TRIGGER.TDC_SBits",source)
-        writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link),source)
-    else:
-        writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link),source)
-	writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FAST_COM.Send.Resync"%(link),0x1)
-
-    return
-
-def getTriggerSBits(isGLIB,device,link):
-    """
-    Set the trigger sbit source
-    GLIB: 0=software, 1=backplane, 2=both 
-    OH:   0=GLIB,     1=external,  2=both
-    """
-    if isGLIB:
-        return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link))
-    else:
-        return readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link))
 
 def setReferenceClock(device,source):
     """

@@ -16,6 +16,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="slot in uTCA crate", metavar="slot", default=15)
+parser.add_option("-g", "--gtx", type="int", dest="gtx",
+		  help="GTX on the GLIB", metavar="gtx", default=0)
 parser.add_option("-r", "--reset", action="store_true", dest="resetCounters",
 		  help="reset link error counters", metavar="resetCounters")
 parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
@@ -91,16 +93,8 @@ print
 #exit(1)
 
 if (options.resetCounters):
-        optohybridCounters(optohybrid,0,True)
+        optohybridCounters(optohybrid,options.gtx,True)
 
-errorCounts = []
-SAMPLE_TIME = 1.
-for trial in range(options.errorRate):
-        errorCounts.append(calculateLinkErrors(False,optohybrid,SAMPLE_TIME))
-sys.stdout.flush()
-
-
-print 
 print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
 counters = optohybridCounters(optohybrid)
 for key in counters["T1"]:
@@ -111,21 +105,20 @@ for key in counters["T1"]:
                                                            counters["T1"][key]["BC0"])
 	
 print
-print
 print "--=======================================--"
 print "-> OH: %10s  %12s"%("ErrCnt","(rate)")
-#print "-> OH: %10s  %12s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)",
-                                                           #"I2CRecCnt","I2CSndCnt",
-                                                           #"RegRecCnt","RegSndCnt")
+errorCounts = []
+SAMPLE_TIME = 1.
+for trial in range(options.errorRate):
+        errorCounts.append(calculateLinkErrors(False,optohybrid,options.gtx,SAMPLE_TIME))
+sys.stdout.flush()
+
 rates = errorRate(errorCounts,SAMPLE_TIME)
 #counters = optohybridCounters(optohybrid)
 print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
 print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
-#print "-> link%d      : 0x%08x   (%6.2f%1sHz)    0x%08x    0x%08x    0x%08x    0x%08x"%(counters["LinkErrors"],
-                                                                                        #counters["RecI2CRequests"],
-                                                                                        #counters["SntI2CRequests"],
-                                                                                        #counters["RecRegRequests"],
-                                                                                        #counters["SntRegRequests"])
+print 
+
 exit(1)
 print
 print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")

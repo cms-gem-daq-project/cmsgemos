@@ -18,6 +18,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="slot in uTCA crate", metavar="slot", default=15)
+parser.add_option("-g", "--gtx", type="int", dest="gtx",
+		  help="GTX on the GLIB", metavar="gtx", default=0)
 parser.add_option("-c", "--clksrc", type="string", dest="clksrc",
 		  help="select the input for the XPoint1 outputs", metavar="clksrc", default="local")
 parser.add_option("-r", "--reset", action="store_true", dest="resetCounters",
@@ -26,8 +28,6 @@ parser.add_option("-x", "--external", type="int", dest="trgSrc",
 		  help="change trigger source", metavar="trgSrc")
 parser.add_option("-b", "--sbitout", type="int", dest="sbitSrc",
 		  help="use s-bit from VFAT <num>", metavar="sbitSrc")
-parser.add_option("-o", "--links", type="string", dest="activeLinks", action='append',
-		  help="pair of connected optical links (GLIB,OH)", metavar="activeLinks", default=[])
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
 		  help="print extra debugging information", metavar="debug")
 parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
@@ -35,12 +35,6 @@ parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
 parser.add_option("-u", "--user", action="store_true", dest="userOnly",
 		  help="print user information only", metavar="userOnly")
 (options, args) = parser.parse_args()
-
-links = {}
-for link in options.activeLinks:
-	pair = map(int, link.split(","))
-	links[pair[0]] = pair[1]
-print "links", links
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
@@ -72,69 +66,29 @@ print "--=======================================--"
 print
 
 if (options.resetCounters):
-	for link in (links.keys()):
-		linkCounters(True,glib,link,True)
-print
-for link in (links.keys()):
-	print link, links.keys()
-	print "-> GLIB link%d User FW :0x%08x"%(      link,readRegister(glib,"GLIB.GLIB_LINKS.LINK%d.USER_FW"%(link)))
-	#print "-> GLIB link%d tracking data :0x%08x"%(link,readRegister(glib,"GLIB.GLIB_LINKS.TRG_DATA.DATA"))
+        glibCounters(True,glib,options.gtx,True)
 print
 sys.stdout.flush()
-#exit(1)
-#errorCounts = {}
-#for link in (links.keys()):
-#	errorCounts[link] = []
-#SAMPLE_TIME = 1.
-#for link in (links.keys()):
-#	for trial in range(options.errorRate):
-#		errorCounts[link].append(calculateLinkErrors(True,glib,link,SAMPLE_TIME))
-#sys.stdout.flush()
-#
-##if (options.clksrc):
-##    print
-##    print "changing the xpoint1 clock routing"
-##    setXPoint1Outputs(glib,options.clksrc)
-##    getXpointInfo(glib)
-#
-#for link in (links.keys()):
-#        if options.trgSrc in [0,1,2]:
-#		setTriggerSource(True,glib,link,options.trgSrc)
-#        print "-> GLIB link%d trigger source:   0x%x"%(link,getTriggerSource(True,glib,link))
-#
-#for link in (links.keys()):
-#        if options.sbitSrc in [1,2,3,4,5,6]:
-#                setTriggerSBits(True,glib,link,options.sbitSrc)
-#        print "-> GLIB link%d SBit to TDC: 0x%x"%(link,getTriggerSBits(True,glib,link))
-#
-#	
-#sys.stdout.flush()
-#print
-#print "--=======================================--"
-#print "-> GLIB link num: %10s  %12s    %10s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)","FIFO_Occ",
-#									      "I2CRecCnt","I2CSndCnt",
-#									      "RegRecCnt","RegSndCnt")
+errorCounts = []
+SAMPLE_TIME = 1.
+for trial in range(options.errorRate):
+        errorCounts.append(calculateLinkErrors(True,glib,options.gtx,SAMPLE_TIME))
+sys.stdout.flush()
+
+rates = errorRate(errorCounts,SAMPLE_TIME)
+#counters = optohybridCounters(optohybrid)
+print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
+print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
+print 
+
 sys.stdout.flush()
 print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
-counters = glibCounters(glib)
+counters = glibCounters(glib,options.gtx)
 print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(
         "",
         counters["T1"]["L1A"],
         counters["T1"]["CalPulse"],
         counters["T1"]["Resync"],
         counters["T1"]["BC0"])
-
-#for link in (links.keys()):
-#	#readTrackingInfo(glib,links[link])
-#	rates = errorRate(errorCounts[link],SAMPLE_TIME)
-#	counters = linkCounters(True,glib,link,False)
-#	print "-> link%d        : 0x%08x   (%6.2f%1sHz)    0x%08x    0x%08x    0x%08x    0x%08x    0x%08x"%(link,
-#													    counters["LinkErrors"],
-#													    rates[0], rates[1],
-#													    counters["TRK_FIFO_Depth"],
-#													    counters["RecI2CRequests"],
-#													    counters["SntI2CRequests"],
-#													    counters["RecRegRequests"],
-#													    counters["SntRegRequests"])
 print "--=======================================--"
 sys.stdout.flush()
