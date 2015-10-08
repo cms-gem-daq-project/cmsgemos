@@ -166,10 +166,11 @@ int gem::readout::GEMDataParker::getGLIBData(
     }
 
     // read trigger data
+    /* not yet working
     TrigReg = glibDevice_->readTriggerFIFO(link);
     BXOHTrig = TrigReg >> 6;
     SBit = TrigReg & 0x0000003F;
-
+    */
     uint16_t b1010, b1100, b1110;
     b1010 = ((data.at(5) & 0xF0000000)>>28);
     b1100 = ((data.at(5) & 0x0000F000)>>12);
@@ -262,9 +263,10 @@ int gem::readout::GEMDataParker::getGLIBData(
   
    /*
     * dump VFAT data 
+    */
     GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
     INFO(" ::getGLIBData slot " << islot );
-    */
+
 
     std::map<uint32_t, uint32_t>::iterator it;
     std::map<uint32_t, uint32_t>::iterator ir;
