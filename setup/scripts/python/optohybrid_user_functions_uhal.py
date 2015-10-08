@@ -18,48 +18,81 @@ def calculateLinkErrors(isGLIB,device,sampleTime):
         errorCounts[link] = [first,second]
     return errorCounts
 
-def linkCounters(isGLIB,device,link,doReset=False):
+def optohybridCounters(device,link=0,doReset=False):
     """
     read the optical link counters, returning a map
     if doReset is true, just send the reset command and pass
+    WB:MASTER,SLAVE
+    CRC:VALID,INCORRECT
+    T1:TTC,INTERNAL,EXTERNAL,LOOPBACK,SENT
+    GTX
     """
-    baseNode = "GLIB"
-    if not isGLIB:
-        baseNode = "GLIB.OptoHybrid_%d.OptoHybrid"%(link)
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS"%(link)
 
     if doReset:
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.LinkErr"%(       baseNode),0x1)
-        if isGLIB:
-            print "emptying FIFO: %s.TRK_FIFO.FLUSH"%(baseNode)
-            writeRegister(device,"%s.TRK_FIFO.FLUSH"%(                 baseNode),0x1)
-        else:
-            writeRegister(device,"%s.COUNTERS.RESETS.L1A.Total"%(     baseNode),0x1)
-            writeRegister(device,"%s.COUNTERS.RESETS.CalPulse.Total"%(baseNode),0x1)
-            writeRegister(device,"%s.COUNTERS.RESETS.Resync"%(        baseNode),0x1)
-            writeRegister(device,"%s.COUNTERS.RESETS.BC0"%(           baseNode),0x1)
+        for wbcnt in ["Strobe","Ack"]:
+            writeRegister(device,"%s.WB.MASTER.%s.GTX.Reset"%(   baseNode, wbcnt),0x1)
+            writeRegister(device,"%s.WB.MASTER.%s.ExtI2C.Reset"%(baseNode, wbcnt),0x1)
+            writeRegister(device,"%s.WB.MASTER.%s.Scan.Reset"%(  baseNode, wbcnt),0x1)
+            writeRegister(device,"%s.WB.MASTER.%s.DAC.Reset"%(   baseNode, wbcnt),0x1)
+            # wishbone slaves
+            for i2c in range(6):
+                writeRegister(device,"%s.WB.SLAVE.%s.I2C%d.Reset"%(baseNode, wbcnt, i2c),0x1)
+            for slave in ["ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"]:
+                writeRegister(device,"%s.WB.SLAVE.%s.%s.Reset"%(baseNode, wbcnt, slave),0x1)
+        #CRC counters
+        for vfat in range(24):
+            writeRegister(device,"%s.CRC.VALID.VFAT%d.Reset"%(    baseNode, vfat),0x1)
+            writeRegister(device,"%s.CRC.INCORRECT.VFAT%d.Reset"%(baseNode, vfat),0x1)
 
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.RecI2CRequests"%(baseNode),0x1)
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.SntI2CRequests"%(baseNode),0x1)
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.RecRegRequests"%(baseNode),0x1)
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.SntRegRequests"%(baseNode),0x1)
+        #T1 counters
+        for t1src in ["TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
+            for t1 in ["L1A", "CalPulse","Resync","BC0"]:
+                writeRegister(device,"%s.T1.%s.%s.Reset"%(baseNode, t1),0x1)
+
+        writeRegister(device,"%s.GTX.TRK_ERR.Reset"%(     baseNode), 0x1)
+        writeRegister(device,"%s.GTX.TRG_ERR.Reset"%(     baseNode), 0x1)
+        writeRegister(device,"%s.GTX.DATA_Packets.Reset"%(baseNode), 0x1)
         return
     else:
         counters = {}
-        counters["LinkErrors"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.LinkErr"%(baseNode))
-        if isGLIB:
-            counters["TRK_FIFO_Depth"] = readRegister(device,"%s.TRK_FIFO.DEPTH"%(       baseNode))
-            print "FIFO: %s.TRK_FIFO.DEPTH = %d (0x%x)"%(baseNode, counters["TRK_FIFO_Depth"], counters["TRK_FIFO_Depth"])
-        else:                                                                            
-            counters["L1A"]     = readRegister(device,"%s.COUNTERS.L1A.Total"%(      baseNode))
-            counters["Cal"]     = readRegister(device,"%s.COUNTERS.CalPulse.Total"%( baseNode))
-            counters["Resync"]  = readRegister(device,"%s.COUNTERS.Resync"%(         baseNode))
-            counters["BC0"]     = readRegister(device,"%s.COUNTERS.BC0"%(            baseNode))
-            counters["BXCount"] = readRegister(device,"%s.COUNTERS.BXCount"%(        baseNode))
+        
+        counters["WB"] = {}
+        counters["WB"]["MASTER"] = {}
+        counters["WB"]["SLAVE"]  = {}
+        for wbcnt in ["Strobe","Ack"]:
+            counters["WB"]["MASTER"][wbcnt] = {}
+            counters["WB"]["MASTER"][wbcnt]["GTX"] = readRegister(device,"%s.WB.MASTER.%s.GTX"%(   baseNode, wbcnt))
+            counters["WB"]["MASTER"][wbcnt]["ExtI2C"] = readRegister(device,"%s.WB.MASTER.%s.ExtI2C"%(baseNode, wbcnt))
+            counters["WB"]["MASTER"][wbcnt]["Scan"] = readRegister(device,"%s.WB.MASTER.%s.Scan"%(  baseNode, wbcnt))
+            counters["WB"]["MASTER"][wbcnt]["DAC"] = readRegister(device,"%s.WB.MASTER.%s.DAC"%(   baseNode, wbcnt))
 
-        counters["RecI2CRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.RecI2CRequests"%(baseNode))
-        counters["SntI2CRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.SntI2CRequests"%(baseNode))
-        counters["RecRegRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.RecRegRequests"%(baseNode))
-        counters["SntRegRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.SntRegRequests"%(baseNode))
+            # wishbone slaves
+            counters["WB"]["SLAVE"][wbcnt]  = {}
+            for i2c in range(6):
+                counters["WB"]["MASTER"][wbcnt]["I2C%d"%i2c] = readRegister(device,"%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
+            for slave in ["ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"]:
+                counters["WB"]["MASTER"][wbcnt][slave] = readRegister(device,"%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
+        
+        #CRC counters
+        counters["CRC"] = {}
+        counters["CRC"]["VALID"]     = {}
+        counters["CRC"]["INCORRECT"] = {}
+        for vfat in range(24):
+            counters["CRC"]["VALID"]["VFAT%d"%vfat]     = readRegister(device,"%s.CRC.VALID.VFAT%d"%(    baseNode, vfat))
+            counters["CRC"]["INCORRECT"]["VFAT%d"%vfat] = readRegister(device,"%s.CRC.INCORRECT.VFAT%d"%(baseNode, vfat))
+
+        #T1 counters
+        counters["T1"] = {}
+        for t1src in ["TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
+            counters["T1"][t1src] = {}
+            for t1 in ["L1A", "CalPulse","Resync","BC0"]:
+                counters["T1"][t1src][t1] = readRegister(device,"%s.T1.%s.%s"%(baseNode, t1src, t1))
+
+        counters["GTX"] = {}
+        counters["GTX"]["TRK_ERR"] = readRegister(device,"%s.GTX.TRK_ERR"%(baseNode))
+        counters["GTX"]["TRG_ERR"] = readRegister(device,"%s.GTX.TRG_ERR"%(baseNode))
+        counters["GTX"]["DATA_Packets"] = readRegister(device,"%s.GTX.DATA_Packets"%(baseNode))
         return counters
 
 def readTrackingInfo(device,link):
