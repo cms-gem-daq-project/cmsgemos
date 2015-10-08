@@ -9,6 +9,7 @@ from glib_system_info_uhal import *
 from vfat_functions_uhal import *
 from rate_calculator import errorRate
 from glib_user_functions_uhal import *
+from optohybrid_user_functions_uhal import *
 
 from optparse import OptionParser
 parser = OptionParser()
@@ -127,8 +128,8 @@ def displayChipInfo(regkeys):
 displayChipInfo(chipIDs)
 print "TRACKING INFO SCRIPT UNDER DEVELOPMENT"
 
-#writeRegister(glib,"SendResync",0x1)
-#writeRegister(glib,"SendBC0",0x1)
+sendResync(optohybrid,25)
+sendBC0(optohybrid,25)
 #time.sleep(5)
 fifoInfo = readFIFODepth(glib,0)
 print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
@@ -158,24 +159,30 @@ for block in range(nBlocks):
 	#data4  = bin(((0x0000ffff & trackingPacket[1]) << 16) | ((0xffff0000 & trackingPacket[0]) >> 16))
 	#crc    = hex(0x0000ffff & trackingPacket[0])
 	#bx     = hex(trackingPacket[6])
+        
+        ## go in order, word by word to be sure
+	check1 = bin((trackingPacket[0]&0xf0000000)>>28)
+	bc     = hex((trackingPacket[0]&0x0fff0000)>>16)
+	check2 = bin((trackingPacket[0]&0x0000f000)>>12)
+	ec     = hex((trackingPacket[0]&0x00000ff0)>>4)
+	flags  = bin((trackingPacket[0]&0x00000004))
 
-	check1 = bin((trackingPacket[0]&0xF0000000)>>28)
-	check2 = bin((trackingPacket[0]&0x0000F000)>>12)
-	check3 = bin((trackingPacket[1]&0xF0000000)>>28)
-	
-	bc     = hex((0x0fff0000 & trackingPacket[0]) >> 16)
-	ec     = hex((0x00000ff0 & trackingPacket[0]) >> 4)
-	chipid = hex((0x0fff0000 & trackingPacket[1]) >> 16)
-	data1  = bin(((0x0000ffff & trackingPacket[1]) << 16) | ((0xffff0000 & trackingPacket[2]) >> 16))
-	data2  = bin(((0x0000ffff & trackingPacket[3]) << 16) | ((0xffff0000 & trackingPacket[3]) >> 16))
-	data3  = bin(((0x0000ffff & trackingPacket[3]) << 16) | ((0xffff0000 & trackingPacket[4]) >> 16))
-	data4  = bin(((0x0000ffff & trackingPacket[4]) << 16) | ((0xffff0000 & trackingPacket[5]) >> 16))
-	crc    = hex(0x0000ffff & trackingPacket[5])
+	check3 = bin((trackingPacket[1]&0xf0000000)>>28)
+	chipid = hex((trackingPacket[1]&0x0fff0000)>>16)
+
+        #data1-4 are just 4 32 bit words, could easily have broken it up more sensibly into 16bit words and 32bit words, depending on the VFAT packet
+	data1  = bin(((trackingPacket[1]&0x0000ffff) << 16) | ((trackingPacket[2]&0xffff0000) >> 16))#strips 127:96 (127:112 and 111:96)
+	data2  = bin(((trackingPacket[3]&0x0000ffff) << 16) | ((trackingPacket[3]&0xffff0000) >> 16))#strips 95:64  (95:80 and 79:64)
+	data3  = bin(((trackingPacket[3]&0x0000ffff) << 16) | ((trackingPacket[4]&0xffff0000) >> 16))#strips 63:32  (63:48 and 47:32)
+	data4  = bin(((trackingPacket[4]&0x0000ffff) << 16) | ((trackingPacket[5]&0xffff0000) >> 16))#strips 31:0   (31:16 and 15:0)
+
+	crc    = hex(trackingPacket[5]&0x0000ffff)
 	bx     = hex(trackingPacket[6])
 
         print "check1 = %s"%(check1)
         print "check2 = %s"%(check2)
         print "check3 = %s"%(check3)
+        print "flags  = %s"%(flags )
         print "bc     = %s"%(bc    )
         print "ec     = %s"%(ec    )
         print "chipid = %s"%(chipid)
@@ -183,10 +190,8 @@ for block in range(nBlocks):
         # print "data2  = %s"%(data2 )
         # print "data3  = %s"%(data3 )
         # print "data4  = %s"%(data4 )
-        # print "crc    = %s"%(crc   )
+        print "crc    = %s"%(crc   )
         print "bx     = %s"%(bx    )
-	print "chipid = %s"%(chipid)
-	
 
 print
 print "--=======================================--"

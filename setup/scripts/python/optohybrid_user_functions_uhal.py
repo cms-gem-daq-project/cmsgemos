@@ -189,6 +189,30 @@ def sendL1ACalPulse(device,delay,number=0):
         #writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE",0x1)
     return
 
+def sendResync(device,interval,number=1):
+    """
+    Send a Resync signal
+    """
+    writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.RESET",0x1)
+    print "configuring the T1 controller for mode 0x0, interval 25, nsignals %d"%(number)
+    configureLocalT1(device,0x0,0x2,0x0,25,number)
+    print "current T1 status",readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR")
+    if not readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"):
+        writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE",0x1)
+    return
+
+def sendBC0(device,interval,number=1):
+    """
+    Send a BC0 signal
+    """
+    writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.RESET",0x1)
+    print "configuring the T1 controller for mode 0x0, interval 25, nsignals %d"%(number)
+    configureLocalT1(device,0x0,0x3,0x0,25,number)
+    print "current T1 status",readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR")
+    if not readRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.MONITOR"):
+        writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.T1Controller.TOGGLE",0x1)
+    return
+
 def getTriggerSource(isGLIB,device,link):
     """
     Set the trigger source
