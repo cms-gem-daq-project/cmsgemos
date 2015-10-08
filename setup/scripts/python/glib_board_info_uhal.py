@@ -82,51 +82,59 @@ for link in (links.keys()):
 print
 sys.stdout.flush()
 #exit(1)
-errorCounts = {}
-for link in (links.keys()):
-	errorCounts[link] = []
-SAMPLE_TIME = 1.
-for link in (links.keys()):
-	for trial in range(options.errorRate):
-		errorCounts[link].append(calculateLinkErrors(True,glib,link,SAMPLE_TIME))
+#errorCounts = {}
+#for link in (links.keys()):
+#	errorCounts[link] = []
+#SAMPLE_TIME = 1.
+#for link in (links.keys()):
+#	for trial in range(options.errorRate):
+#		errorCounts[link].append(calculateLinkErrors(True,glib,link,SAMPLE_TIME))
+#sys.stdout.flush()
+#
+##if (options.clksrc):
+##    print
+##    print "changing the xpoint1 clock routing"
+##    setXPoint1Outputs(glib,options.clksrc)
+##    getXpointInfo(glib)
+#
+#for link in (links.keys()):
+#        if options.trgSrc in [0,1,2]:
+#		setTriggerSource(True,glib,link,options.trgSrc)
+#        print "-> GLIB link%d trigger source:   0x%x"%(link,getTriggerSource(True,glib,link))
+#
+#for link in (links.keys()):
+#        if options.sbitSrc in [1,2,3,4,5,6]:
+#                setTriggerSBits(True,glib,link,options.sbitSrc)
+#        print "-> GLIB link%d SBit to TDC: 0x%x"%(link,getTriggerSBits(True,glib,link))
+#
+#	
+#sys.stdout.flush()
+#print
+#print "--=======================================--"
+#print "-> GLIB link num: %10s  %12s    %10s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)","FIFO_Occ",
+#									      "I2CRecCnt","I2CSndCnt",
+#									      "RegRecCnt","RegSndCnt")
 sys.stdout.flush()
+print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
+counters = glibCounters(glib)
+print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(
+        "",
+        counters["T1"]["L1A"],
+        counters["T1"]["CalPulse"],
+        counters["T1"]["Resync"],
+        counters["T1"]["BC0"])
 
-#if (options.clksrc):
-#    print
-#    print "changing the xpoint1 clock routing"
-#    setXPoint1Outputs(glib,options.clksrc)
-#    getXpointInfo(glib)
-
-for link in (links.keys()):
-        if options.trgSrc in [0,1,2]:
-		setTriggerSource(True,glib,link,options.trgSrc)
-        print "-> GLIB link%d trigger source:   0x%x"%(link,getTriggerSource(True,glib,link))
-
-for link in (links.keys()):
-        if options.sbitSrc in [1,2,3,4,5,6]:
-                setTriggerSBits(True,glib,link,options.sbitSrc)
-        print "-> GLIB link%d SBit to TDC: 0x%x"%(link,getTriggerSBits(True,glib,link))
-
-	
-sys.stdout.flush()
-print
-print "--=======================================--"
-print "-> GLIB link num: %10s  %12s    %10s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)","FIFO_Occ",
-									      "I2CRecCnt","I2CSndCnt",
-									      "RegRecCnt","RegSndCnt")
-sys.stdout.flush()
-
-for link in (links.keys()):
-	#readTrackingInfo(glib,links[link])
-	rates = errorRate(errorCounts[link],SAMPLE_TIME)
-	counters = linkCounters(True,glib,link,False)
-	print "-> link%d        : 0x%08x   (%6.2f%1sHz)    0x%08x    0x%08x    0x%08x    0x%08x    0x%08x"%(link,
-													    counters["LinkErrors"],
-													    rates[0], rates[1],
-													    counters["TRK_FIFO_Depth"],
-													    counters["RecI2CRequests"],
-													    counters["SntI2CRequests"],
-													    counters["RecRegRequests"],
-													    counters["SntRegRequests"])
+#for link in (links.keys()):
+#	#readTrackingInfo(glib,links[link])
+#	rates = errorRate(errorCounts[link],SAMPLE_TIME)
+#	counters = linkCounters(True,glib,link,False)
+#	print "-> link%d        : 0x%08x   (%6.2f%1sHz)    0x%08x    0x%08x    0x%08x    0x%08x    0x%08x"%(link,
+#													    counters["LinkErrors"],
+#													    rates[0], rates[1],
+#													    counters["TRK_FIFO_Depth"],
+#													    counters["RecI2CRequests"],
+#													    counters["SntI2CRequests"],
+#													    counters["RecRegRequests"],
+#													    counters["SntRegRequests"])
 print "--=======================================--"
 sys.stdout.flush()

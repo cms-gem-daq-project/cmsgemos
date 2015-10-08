@@ -18,6 +18,52 @@ def calculateLinkErrors(isGLIB,device,sampleTime):
         errorCounts[link] = [first,second]
     return errorCounts
 
+def glibCounters(device,gtx=0,doReset=False):
+    """
+    read the optical gtx counters, returning a map
+    if doReset is true, just send the reset command and pass
+    IPBus:Strobe,Ack
+    T1:L1A,CalPulse,Resync,BC0
+    GTX:
+    """
+    baseNode = "GLIB.COUNTERS"
+
+    if doReset:
+        for ipbcnt in ["Strobe","Ack"]:
+            writeRegister(device,"%s.IPBus.%s.OptoHybrid_%d.Reset"%(baseNode, ipbcnt, gtx),0x1)
+            writeRegister(device,"%s.IPBus.%s.TRK_%d.Reset"%(       baseNode, ipbcnt, gtx),0x1)
+            writeRegister(device,"%s.IPBus.%s.Counters_%d.Reset"%(  baseNode, ipbcnt, gtx),0x1)
+
+        #T1 counters
+        for t1 in ["L1A", "CalPulse","Resync","BC0"]:
+            writeRegister(device,"%s.T1.%s.Reset"%(baseNode, t1),0x1)
+
+        writeRegister(device,"%s.GTX%d.TRK_ERR.Reset"%(     baseNode, gtx), 0x1)
+        writeRegister(device,"%s.GTX%d.TRG_ERR.Reset"%(     baseNode, gtx), 0x1)
+        writeRegister(device,"%s.GTX%d.DATA_Packets.Reset"%(baseNode, gtx), 0x1)
+        return
+    else:
+        counters = {}
+        
+        counters["IPBus"] = {}
+        for ipbcnt in ["Strobe","Ack"]:
+            counters["IPBus"][ipbcnt] = {}
+            for ipb in ["OptoHybrid","TRK"]:
+                counters["IPBus"][ipbcnt][ipb] = readRegister(device,"%s.IPBus.%s.%s_%d"%(   baseNode, ipbcnt,ipb,gtx))
+            counters["IPBus"][ipbcnt]["Counters"] = readRegister(device,"%s.IPBus.%s.Counters"%(baseNode, ipbcnt))
+
+
+        #T1 counters
+        counters["T1"] = {}
+        for t1 in ["L1A", "CalPulse","Resync","BC0"]:
+            counters["T1"][t1] = readRegister(device,"%s.T1.%s"%(baseNode, t1))
+
+        counters["GTX%d"%(gtx)] = {}
+        counters["GTX%d"%(gtx)]["TRK_ERR"]      = readRegister(device,"%s.GTX%d.TRK_ERR"%(baseNode,gtx))
+        counters["GTX%d"%(gtx)]["TRG_ERR"]      = readRegister(device,"%s.GTX%d.TRG_ERR"%(baseNode,gtx))
+        counters["GTX%d"%(gtx)]["DATA_Packets"] = readRegister(device,"%s.GTX%d.DATA_Packets"%(baseNode,gtx))
+        return counters
+
 def linkCounters(isGLIB,device,link,doReset=False):
     """
     read the optical link counters, returning a map
