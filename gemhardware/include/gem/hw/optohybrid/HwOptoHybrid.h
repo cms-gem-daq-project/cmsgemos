@@ -485,7 +485,7 @@ namespace gem {
           void sendCalPulse(uint32_t const& npulse, uint32_t const& rate=1) {
             T1Sequence sequence;
             configureT1Generator(0x0, 0x1, sequence, true);
-            startT1Generator(npulse,rate, 0);
+            startT1Generator(npulse, rate, 0);
           };
           
           /** Send a CalPulse followed by an L1A
