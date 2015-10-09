@@ -506,6 +506,8 @@ namespace gem {
            * 
            **/
           void sendResync(uint32_t const& nresync=1,uint32_t const& rate=1) {
+            writeReg(getDeviceBaseNode(), "CONTROL.TRIGGER.SOURCE",0x1);
+            writeReg(getDeviceBaseNode(), "CONTROL.CLOCK.REF_CLK",0x1);
             T1Sequence sequence;
             configureT1Generator(0x0, 0x2, sequence, true);
             startT1Generator(nresync, rate, 0); };
