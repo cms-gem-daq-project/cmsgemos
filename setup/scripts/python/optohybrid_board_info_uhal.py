@@ -60,17 +60,17 @@ print "-> -----------------"
 print
 
 if options.clkSrc in [0,1,2]:
-        setReferenceClock(optohybrid,options.trgSrc)
+        setReferenceClock(optohybrid,options.gtx,options.trgSrc)
 #print "-> OH VFATs accessible: 0x%x"%(readRegister(glib,"VFATs_TEST"))
 if options.trgSrc in [0,1,2,3,4]:
-        setTriggerSource(False,optohybrid,options.trgSrc)
+        setTriggerSource(optohybrid,options.gtx,options.trgSrc)
 	
 if options.localT1:
         #configureLocalT1(optohybrid,0x0,0x0,0,25,100)
         sendL1ACalPulse(optohybrid,15)
 
 if options.sbitSrc in [1,2,3,4,5,6]:
-        setTriggerSBits(False,optohybrid,options.sbitSrc)
+        setTriggerSBits(False,optohybrid,options.gtx,options.sbitSrc)
 
 clocking = getClockingInfo(optohybrid)
 #OH:  TrgSrc  SBitSrc  FPGA PLL    EXT PLL    CDCE     GTX  RefCLKSrc

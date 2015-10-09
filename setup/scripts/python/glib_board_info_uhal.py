@@ -66,7 +66,7 @@ print "--=======================================--"
 print
 
 if (options.resetCounters):
-        glibCounters(True,glib,options.gtx,True)
+        glibCounters(glib,options.gtx,True)
 print
 sys.stdout.flush()
 errorCounts = []

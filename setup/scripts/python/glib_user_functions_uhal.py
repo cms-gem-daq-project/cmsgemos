@@ -33,7 +33,7 @@ def glibCounters(device,gtx,doReset=False):
         for ipbcnt in ["Strobe","Ack"]:
             writeRegister(device,"%s.IPBus.%s.OptoHybrid_%d.Reset"%(baseNode, ipbcnt, gtx),0x1)
             writeRegister(device,"%s.IPBus.%s.TRK_%d.Reset"%(       baseNode, ipbcnt, gtx),0x1)
-            writeRegister(device,"%s.IPBus.%s.Counters_%d.Reset"%(  baseNode, ipbcnt, gtx),0x1)
+            writeRegister(device,"%s.IPBus.%s.Counters.Reset"%(     baseNode, ipbcnt),     0x1)
 
         #T1 counters
         for t1 in ["L1A", "CalPulse","Resync","BC0"]:
