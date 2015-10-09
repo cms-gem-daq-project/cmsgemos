@@ -3,7 +3,7 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://cmslab1:3003">
+  <xc:Context url="http://cmslab1:4004">
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
@@ -33,8 +33,8 @@
 	    <item xsi:type="xsd:string" soapenc:position="[20]">VFAT20</item>
 	    <item xsi:type="xsd:string" soapenc:position="[21]">VFAT21</item>
 	    <item xsi:type="xsd:string" soapenc:position="[22]">VFAT22</item>
--->
 	    <item xsi:type="xsd:string" soapenc:position="[23]">VFAT23</item>
+-->
 	  </deviceName>
 	  <!--deviceNum xsi:type="xsd:string">192.168.0.162</deviceNum-->
 	  <latency xsi:type="xsd:unsignedShort">25</latency>

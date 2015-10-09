@@ -13,7 +13,9 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionURI, addressTable)
 {
+  //setDeviceBaseNode("VFATS."+vfatDevice);
   setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  setAddressTableFileName(addressTable);
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
