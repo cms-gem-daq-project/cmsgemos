@@ -86,7 +86,7 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onHalt,      "Halt",      XDAQ_NS_URI);
 
   // Initiate and activate main workloop
-  wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("GEMGLIBSupervisorWebWorkLoop", "waiting");
+  wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("GEMGLIBSupervisorWebWorkLoop", "polling"); // waiting
   wl_->activate();
 
   // Workloop bindings
@@ -96,6 +96,7 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   halt_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction,      "haltAction"     );
   run_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction"      );
   read_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction"     );
+  select_signature_    = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::selectAction,    "selectAction"   );
 
   // Define FSM states
   fsm_.addState('I', "Initial",    this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
@@ -206,7 +207,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
     L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
     L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
 
-    INFO(" L1ACount  ext " << L1ACount_[0] << " int " << L1ACount_[1] << " del " << L1ACount_[2] << " tot " << L1ACount_[3] );    
+    DEBUG(" L1ACount  ext " << L1ACount_[0] << " int " << L1ACount_[1] << " del " << L1ACount_[2] << " tot " << L1ACount_[3] );    
 
     CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
     CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
@@ -563,7 +564,8 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth) {
     wl_->submit(read_signature_);
-  }
+    //wl_->submit(select_signature_);
+  }//end bufferDepth
 
   return false;
 }
@@ -585,6 +587,28 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
   return false;
 }
+
+
+bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop *wl)
+{
+  wl_semaphore_.take();
+  hw_semaphore_.take();
+
+  uint32_t  Counter[4] = {0,0,0,0};
+  uint32_t* pDQ = gemDataParker->selectData();
+  if (pDQ) {
+    Counter[0] = *(pDQ+0);
+    Counter[1] = *(pDQ+1);
+    Counter[2] = *(pDQ+2); // Events counter
+    Counter[3] = *(pDQ+3);
+  }
+
+  hw_semaphore_.give();
+  wl_semaphore_.give();
+
+  return false;
+}
+
 
 // State transitions
 void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt) {

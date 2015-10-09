@@ -14,6 +14,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
+#include "TStopwatch.h"
+
 typedef std::shared_ptr<int*> link_shared_ptr;
 typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
 typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
@@ -45,6 +47,8 @@ uint64_t ZSFlag = 0;
 // The main data flow
 std::queue<uint32_t> dataque;
 
+uint32_t contvfats_ = 0;
+
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(
                                           gem::hw::glib::HwGLIB& glibDevice,
@@ -72,6 +76,8 @@ uint64_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
   uint64_t *point = &counter_[0]; 
   uint32_t bufferCount[4] = {0,0,0,0};
   uint32_t Counter[4] = {0,0,0,0};
+
+  contvfats_ = 0;
 
   //if [0-7] in deviceNum
   if (readout_mask & 0x1) {
@@ -118,46 +124,68 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 ){
   uint32_t *point = &bufferCount[0]; 
   uint32_t Counter[4] = {0,0,0,0};
+  TStopwatch timer;
 
+  //timer.Start();
   while ( glibDevice_->hasTrackingData(link) ) {
     std::vector<uint32_t> data;
 
+    timer.Start();
     data = glibDevice_->getTrackingData(link);
+    timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
+
+    DEBUG(" ::getGLIBData The time for one call of getTrackingData(link) " << RT);
 
     /*
-    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(link,bufferCount);
-    Counter[0] = *(pDQ+0);
-    Counter[1] = *(pDQ+1);
-    Counter[2] = event_; // *(pDQ+2);
-    Counter[3] = *(pDQ+3);
-    */
-  
     uint32_t ES = Counter[3];
     DEBUG(" ::getGLIBData dumpGEMevent " << dumpGEMevent <<
          " numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
          " vfats.size " << vfats.size() << " erros.size " << erros.size() << " ES 0x" << std::hex << ES << std::dec << 
          " event " << Counter[1] );
+    */
 
-    uint32_t contqueue = 0; 
+    uint32_t contqueue = 0;
     for (int iword=0; iword<7; iword++ ){
       contqueue++;
       dataque.push(data.at(iword));
       if (contqueue%kUPDATE7 == 0 &&  contqueue != 0) {
-        INFO(" ::getGLIBData dataque.push  conter " << contqueue << " dataque.size " << dataque.size() );
+        contvfats_++;
+        /*
+        INFO(" ::getGLIBData conter " << contqueue << " contvfats " << contvfats_ << " dataque.size " << dataque.size() 
+        */
       }
     }
 
-    bufferCount[(int)link]++; 
+    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(bufferCount);
+    Counter[0] = *(pDQ+0);
+    Counter[2] = event_; // *(pDQ+2);
+    Counter[3] = *(pDQ+3);
 
- }// while(glibDevice_->hasTrackingData(link))
+    //bufferCount[(int)link]++; 
+  }// while(glibDevice_->hasTrackingData(link))
 
-  bufferCount[3] += bufferCount[(int)link];
+  //bufferCount[3] += bufferCount[(int)link];
+  Counter[1] = contvfats_; // *(pDQ+1);
+
+  return point;
+}
+
+
+uint32_t* gem::readout::GEMDataParker::selectData(
+){
+  uint32_t Counter[4] = {0,0,0,0};
+  uint32_t *point = &Counter[0]; 
+
+  uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
+  Counter[0] = *(pDQ+0);
+  Counter[2] = *(pDQ+2);
+  Counter[3] = *(pDQ+3);
+
   return point;
 }
 
 
 uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
-					          uint8_t const& link,
                                                   uint32_t bufferCount[4]
 ){
   uint32_t *point = &bufferCount[0];
@@ -438,7 +466,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
                       */
                       DEBUG(" ::GEMEventMaker writing...  geb.vfats.size " << int(geb.vfats.size()) );
                       TypeDataFlag = "PayLoad";
-                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
+                      if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, true, TypeDataFlag,
                                                                                                 gem, geb, vfat);
                       geb.vfats.clear();
          
