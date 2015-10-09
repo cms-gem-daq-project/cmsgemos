@@ -190,17 +190,17 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     std::vector<linkStatus> tmp_activeLinks;
     tmp_activeLinks.reserve(N_GTX);
-    for (unsigned int link = 0; link < N_GTX; ++link) {
+    for (unsigned int gtx = 0; gtx < N_GTX; ++gtx) {
       //need to make sure that this works only for "valid" FW results
       // for the moment we can do a check to see that 2015 appears in the string
       // this no longer will work as desired, how to get whether the GTX is active?
       if ((this->getFirmwareVer()).rfind("5.") != std::string::npos) {
-        b_links[link] = true;
-        INFO("link" << link << " present(" << this->getFirmwareVer() << ")");
-        tmp_activeLinks.push_back(std::make_pair(link,this->LinkStatus(link)));
+        b_links[gtx] = true;
+        INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
+        tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       } else {
-        b_links[link] = false;
-        INFO("link" << link << " not reachable (unable to find 5 in the firmware string)"
+        b_links[gtx] = false;
+        INFO("gtx" << gtx << " not reachable (unable to find 5 in the firmware string)"
              << " user firmware version " << this->getFirmwareVer());
       }
     }
@@ -208,12 +208,12 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
     if (!v_activeLinks.empty()) {
       b_is_connected = true;
       m_controlLink = (v_activeLinks.begin())->first;
-      INFO("connected - control link" << (int)m_controlLink);
-      INFO("checked links: HwGLIB connection good");
+      INFO("connected - control gtx" << (int)m_controlLink);
+      INFO("checked gtxs: HwGLIB connection good");
       return true;
     } else {
       b_is_connected = false;
-      INFO("not connected - control link" << (int)m_controlLink);
+      INFO("not connected - control gtx" << (int)m_controlLink);
       return false;
     }
   } else if (m_controlLink < 0)
@@ -441,14 +441,14 @@ uint32_t gem::hw::glib::HwGLIB::getUserFirmware()
   return getUserFirmware(m_controlLink);
 }
 
-uint32_t gem::hw::glib::HwGLIB::getUserFirmware(uint8_t const& link)
+uint32_t gem::hw::glib::HwGLIB::getUserFirmware(uint8_t const& gtx)
 {
   // This returns the user firmware build date. 
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream regName;
-  regName << "GLIB_LINKS.LINK" << (int)link << ".USER_FW";
+  regName << "GLIB_LINKS.LINK" << (int)gtx << ".USER_FW";
   uint32_t userfw = readReg(getDeviceBaseNode(),regName.str());
-  DEBUG("GLIB link" << (int)link << " has firmware version 0x" 
+  DEBUG("GLIB link" << (int)gtx << " has firmware version 0x" 
         << std::hex << userfw << std::dec << std::endl);
   return userfw;
 }
@@ -461,24 +461,24 @@ std::string gem::hw::glib::HwGLIB::getUserFirmwareDate()
   return res.str();
 }
 
-std::string gem::hw::glib::HwGLIB::getUserFirmwareDate(uint8_t const& link)
+std::string gem::hw::glib::HwGLIB::getUserFirmwareDate(uint8_t const& gtx)
 {
   // This returns the user firmware build date. 
   std::stringstream res;
-  res << "0x"<< std::hex << getUserFirmware(link) << std::dec;
+  res << "0x"<< std::hex << getUserFirmware(gtx) << std::dec;
   return res.str();
 }
 
-bool gem::hw::glib::HwGLIB::linkCheck(uint8_t const& link, std::string const& opMsg)
+bool gem::hw::glib::HwGLIB::linkCheck(uint8_t const& gtx, std::string const& opMsg)
 {
-  if (link > N_GTX) {
-    std::string msg = toolbox::toString("%s requested for link (%d): outside expectation (0-%d)",
-                                        opMsg.c_str(), link, N_GTX);
+  if (gtx > N_GTX) {
+    std::string msg = toolbox::toString("%s requested for gtx (%d): outside expectation (0-%d)",
+                                        opMsg.c_str(), gtx, N_GTX);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return false;
-  } else if (!b_links[link]) {
-    std::string msg = toolbox::toString("%s requested inactive link (%d)",opMsg.c_str(), link);
+  } else if (!b_links[gtx]) {
+    std::string msg = toolbox::toString("%s requested inactive gtx (%d)",opMsg.c_str(), gtx);
     ERROR(msg);
     //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
     return false;
@@ -486,65 +486,65 @@ bool gem::hw::glib::HwGLIB::linkCheck(uint8_t const& link, std::string const& op
   return true;
 }
 
-gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_t const& link)
+gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::glib::HwGLIB::LinkStatus(uint8_t const& gtx)
 {
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
 
-  if (linkCheck(link, "Link status")) {
-    linkStatus.TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRK_ERR",link));
-    linkStatus.TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRG_ERR",link));
-    linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.DATA_Packets",link));
+  if (linkCheck(gtx, "Link status")) {
+    linkStatus.TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRK_ERR",gtx));
+    linkStatus.TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRG_ERR",gtx));
+    linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.DATA_Packets",gtx));
   }
   return linkStatus;
 }
 
-void gem::hw::glib::HwGLIB::LinkReset(uint8_t const& link, uint8_t const& resets)
+void gem::hw::glib::HwGLIB::LinkReset(uint8_t const& gtx, uint8_t const& resets)
 {
 
   //right now this just resets the counters, but we need to be able to "reset" the link too
-  if (linkCheck(link, "Link reset")) {
+  if (linkCheck(gtx, "Link reset")) {
     if (resets&0x1)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRK_ERR.Reset",link),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRK_ERR.Reset",gtx),0x1);
     if (resets&0x2)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRG_ERR.Reset",link),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.TRG_ERR.Reset",gtx),0x1);
     if (resets&0x4)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.DATA_Packets.Reset",link),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX%d.DATA_Packets.Reset",gtx),0x1);
   }
 }
 
 
-gem::hw::glib::HwGLIB::GLIBIPBusCounters gem::hw::glib::HwGLIB::getIPBusCounters(uint8_t const& link,
+gem::hw::glib::HwGLIB::GLIBIPBusCounters gem::hw::glib::HwGLIB::getIPBusCounters(uint8_t const& gtx,
                                                                                  uint8_t const& mode)
 {
   
-  if (linkCheck(link, "IPBus counter")) {
+  if (linkCheck(gtx, "IPBus counter")) {
     if (mode&0x01)
-      m_ipBusCounters.at(link).OptoHybridStrobe = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d",link));
+      m_ipBusCounters.at(gtx).OptoHybridStrobe = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d",gtx));
     if (mode&0x02)
-      m_ipBusCounters.at(link).OptoHybridAck    = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d",link));
+      m_ipBusCounters.at(gtx).OptoHybridAck    = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d",gtx));
     if (mode&0x04)
-      m_ipBusCounters.at(link).TrackingStrobe   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d",link));
+      m_ipBusCounters.at(gtx).TrackingStrobe   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d",gtx));
     if (mode&0x08)
-      m_ipBusCounters.at(link).TrackingAck      = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d",link));
+      m_ipBusCounters.at(gtx).TrackingAck      = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d",gtx));
     if (mode&0x10)
-      m_ipBusCounters.at(link).CounterStrobe    = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.Counters"));
+      m_ipBusCounters.at(gtx).CounterStrobe    = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.Counters"));
     if (mode&0x20)
-      m_ipBusCounters.at(link).CounterAck       = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.Counters"));
+      m_ipBusCounters.at(gtx).CounterAck       = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.Counters"));
   }
-  return m_ipBusCounters.at(link);
+  return m_ipBusCounters.at(gtx);
 }
 
-void gem::hw::glib::HwGLIB::resetIPBusCounters(uint8_t const& link, uint8_t const& resets)
+void gem::hw::glib::HwGLIB::resetIPBusCounters(uint8_t const& gtx, uint8_t const& resets)
 {  
-  if (linkCheck(link, "Reset IPBus counters")) {
+  if (linkCheck(gtx, "Reset IPBus counters")) {
     if (resets&0x01)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d.Reset",link),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d.Reset",gtx),0x1);
     if (resets&0x02)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d.Reset",link),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d.Reset",gtx),0x1);
     if (resets&0x04)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.TRK_%d.Reset",link),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.TRK_%d.Reset",gtx),0x1);
     if (resets&0x08)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.TRK_%d.Reset",link),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.TRK_%d.Reset",gtx),0x1);
     if (resets&0x10)
       writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.Counters.Reset"),0x1);
     if (resets&0x20)
@@ -552,7 +552,7 @@ void gem::hw::glib::HwGLIB::resetIPBusCounters(uint8_t const& link, uint8_t cons
   }
 }
 
-uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO(uint8_t const& link)
+uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO(uint8_t const& gtx)
 {
   std::stringstream regName;
   regName << "GLIB_LINKS.TRG_DATA";
@@ -560,77 +560,91 @@ uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO(uint8_t const& link)
   return trgword;
 }
 
-void gem::hw::glib::HwGLIB::flushTriggerFIFO(uint8_t const& link)
+void gem::hw::glib::HwGLIB::flushTriggerFIFO(uint8_t const& gtx)
 {
   std::stringstream regName;
-  regName << "GLIB_LINKS.LINK" << (int)link << ".TRIGGER";
+  regName << "GLIB_LINKS.LINK" << (int)gtx << ".TRIGGER";
   writeReg(getDeviceBaseNode(),regName.str()+".FIFO_FLUSH",0x1);
 }
 
-uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& link)
+uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& gtx)
 {
   uint32_t fifocc = 0;
-  if (linkCheck(link, "FIFO occupancy")) {
+  if (linkCheck(gtx, "FIFO occupancy")) {
     std::stringstream regName;
-    regName << "TRK_DATA.OptoHybrid_" << (int)link;
+    regName << "TRK_DATA.OptoHybrid_" << (int)gtx;
     fifocc = readReg(getDeviceBaseNode(),regName.str()+".DEPTH");
-    DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", link, getDeviceBaseNode().c_str(),
+    DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", gtx, getDeviceBaseNode().c_str(),
                             regName.str().c_str(), ".DEPTH", fifocc));
   }
   //the fifo occupancy is in number of 32 bit words
   return fifocc/7;
 }
 
-bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& link)
+bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& gtx)
 {
   bool hasData = false;
-  if (linkCheck(link, "Tracking data")) {
+  if (linkCheck(gtx, "Tracking data")) {
     std::stringstream regName;
-    regName << "TRK_DATA.OptoHybrid_" << (int)link << ".ISEMPTY";
+    regName << "TRK_DATA.OptoHybrid_" << (int)gtx << ".ISEMPTY";
     hasData = !readReg(getDeviceBaseNode(),regName.str());
   }
   return hasData;
 }
 
-std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& link, size_t const& nBlocks)
+std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, size_t const& nBlocks)
 {
-  if (!linkCheck(link, "Tracking data")) {
+  if (!linkCheck(gtx, "Tracking data")) {
     //do we really want to return a huge vector of 0s?
     std::vector<uint32_t> data(7*nBlocks,0x0);
     return data;
   } 
   
   std::stringstream regName;
-  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)link << ".FIFO";
+  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";
   //best way to read a real block? make getTrackingData ask for N blocks?
   //can we return the memory another way, rather than a vector?
   return readBlock(regName.str(),7*nBlocks);
 }
 
-uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& link, size_t const& nBlocks, uint64_t* data)
+uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint64_t* data, size_t const& nBlocks)
 {
-  if (!linkCheck(link, "Tracking data")) {
-    //do we really want to return a huge vector of 0s?
-    std::vector<uint32_t> data(7*nBlocks,0x0);
-    return data;
+  if (!linkCheck(gtx, "Tracking data")) {
+    return 0;
   } 
   
   std::stringstream regName;
-  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)link << ".FIFO";
+  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";
   //best way to read a real block? make getTrackingData ask for N blocks?
   //can we return the memory another way, rather than a vector?
-  return readBlock(regName.str(),7*nBlocks);
+  //readBlock(regName.str(),7*nBlocks);
+  return nBlocks;
 }
 
-void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& link)
+uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
+                                                size_t const& nBlocks)
 {
-  if (linkCheck(link, "Flush FIFO")) {
+  if (!linkCheck(gtx, "Tracking data")) {
+    return 0;
+  } 
+  
+  std::stringstream regName;
+  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";
+  //best way to read a real block? make getTrackingData ask for N blocks?
+  //can we return the memory another way, rather than a vector?
+  //readBlock(regName.str(),7*nBlocks);
+  return nBlocks;
+}
+
+void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
+{
+  if (linkCheck(gtx, "Flush FIFO")) {
     std::stringstream regName;
-    regName << "TRK_DATA.OptoHybrid_" << (int)link;
-    INFO("Tracking FIFO" << (int)link << ":"
+    regName << "TRK_DATA.OptoHybrid_" << (int)gtx;
+    INFO("Tracking FIFO" << (int)gtx << ":"
          << " ISFULL 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")   << std::dec
          << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
-         << " Depth 0x"   << std::hex << getFIFOOccupancy(link) << std::dec);
+         << " Depth 0x"   << std::hex << getFIFOOccupancy(gtx) << std::dec);
     writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
   }
 }
