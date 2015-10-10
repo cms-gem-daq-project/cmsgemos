@@ -18,21 +18,22 @@ namespace gem {
         {
         public:
 
-          /** @struct OptoHybridWBMasterCounters
-           *  @brief This struct stores retrieved counters related to the OptoHybrid wishbone transactions
-           *  @var OptoHybridWBMasterCounters::GTX
-           *  GTX is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowledge(second) requests on the GTX
-           *  @var OptoHybridWBMasterCounters::ExtI2C
-           *  ExtI2C is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowledge(second) requests on the extended I2C module
-           *  @var OptoHybridWBMasterCounters::Scan
-           *  Scan is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowledge(second) requests on the Scan module
-           *  @var OptoHybridWBMasterCounters::DAC
-           *  DAC is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowldege(second) requests on the DAC module
-           */
+          /**
+           * @struct OptoHybridWBMasterCounters
+           * @brief This struct stores retrieved counters related to the OptoHybrid wishbone transactions
+           * @var OptoHybridWBMasterCounters::GTX
+           * GTX is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowledge(second) requests on the GTX
+           * @var OptoHybridWBMasterCounters::ExtI2C
+           * ExtI2C is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowledge(second) requests on the extended I2C module
+           * @var OptoHybridWBMasterCounters::Scan
+           * Scan is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowledge(second) requests on the Scan module
+           * @var OptoHybridWBMasterCounters::DAC
+           * DAC is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowldege(second) requests on the DAC module
+           **/
           typedef struct OptoHybridWBMasterCounters {
             std::pair<uint32_t,uint32_t> GTX   ; 
             std::pair<uint32_t,uint32_t> ExtI2C; 
@@ -53,36 +54,37 @@ namespace gem {
               return; };
           } OptoHybridWBMasterCounters;
           
-          /** @struct OptoHybridWBSlaveCounters
-           *  @brief This struct stores retrieved counters related to the OptoHybrid wishbone transactions
-           *  @var OptoHybridWBSlaveCounters::I2C
-           *  I2C is a std::vector<std::pair of uint32_t>, size of 6, containing counters for the number
-           *  of strobe(first) and acknowledge(second) requests on each of the 6 [0-5] I2C modules
-           *  @var OptoHybridWBSlaveCounters::ExtI2C
-           *  ExtI2C is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowledge(second) requests on the extended I2C module
-           *  @var OptoHybridWBSlaveCounters::Scan
-           *  Scan is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowledge(second) requests on the Scan module
-           *  @var OptoHybridWBSlaveCounters::T1
-           *  T1 is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowledge(second) requests on the T1 module
-           *  @var OptoHybridWBSlaveCounters::DAC
-           *  DAC is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowldege(second) requests on the DAC module
-           *  @var OptoHybridWBSlaveCounters::ADC
-           *  ADC is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowldege(second) requests on the ADC module
-           *  @var OptoHybridWBSlaveCounters::Clocking
-           *  Clocking is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowldege(second) requests on the Clocking module
-           *  @var OptoHybridWBSlaveCounters::Counters
-           *  Counters is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowldege(second) requests on the Counters module
-           *  @var OptoHybridWBSlaveCounters::System
-           *  System is a std::pair of uint32_t, containing counters for the number of strobe(first)
-           *  and acknowldege(second) requests on the System module
-           */
+          /**
+           * @struct OptoHybridWBSlaveCounters
+           * @brief This struct stores retrieved counters related to the OptoHybrid wishbone transactions
+           * @var OptoHybridWBSlaveCounters::I2C
+           * I2C is a std::vector<std::pair of uint32_t>, size of 6, containing counters for the number
+           * of strobe(first) and acknowledge(second) requests on each of the 6 [0-5] I2C modules
+           * @var OptoHybridWBSlaveCounters::ExtI2C
+           * ExtI2C is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowledge(second) requests on the extended I2C module
+           * @var OptoHybridWBSlaveCounters::Scan
+           * Scan is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowledge(second) requests on the Scan module
+           * @var OptoHybridWBSlaveCounters::T1
+           * T1 is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowledge(second) requests on the T1 module
+           * @var OptoHybridWBSlaveCounters::DAC
+           * DAC is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowldege(second) requests on the DAC module
+           * @var OptoHybridWBSlaveCounters::ADC
+           * ADC is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowldege(second) requests on the ADC module
+           * @var OptoHybridWBSlaveCounters::Clocking
+           * Clocking is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowldege(second) requests on the Clocking module
+           * @var OptoHybridWBSlaveCounters::Counters
+           * Counters is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowldege(second) requests on the Counters module
+           * @var OptoHybridWBSlaveCounters::System
+           * System is a std::pair of uint32_t, containing counters for the number of strobe(first)
+           * and acknowldege(second) requests on the System module
+           **/
           typedef struct OptoHybridWBSlaveCounters {
             std::vector<std::pair<uint32_t,uint32_t> > I2C; 
             std::pair<uint32_t,uint32_t> ExtI2C; 
@@ -118,19 +120,20 @@ namespace gem {
               return; };
           } OptoHybridWBSlaveCounters;
           
-          /** @struct OptoHybridT1Counters
-           *  @brief This struct stores retrieved counters related to the OptoHybrid T1 signals
-           *  @var OptoHybridT1Counters::AMC13
-           *  AMC13 contains the counters for T1 signals received from the GLIB TTC decder
-           *  @var OptoHybridT1Counters::Firmware
-           *  Firmware contains the counters for T1 signals generated in the firmware module
-           *  @var OptoHybridT1Counters::External
-           *  External contains the counters for T1 signals received an external sourcd
-           *  @var OptoHybridT1Counters::Loopback
-           *  Loopback contains the counters for T1 signals looped back onto the system
-           *  @var OptoHybridT1Counters::Sent
-           *  Sent contains the counters for T1 signals sent by the OptoHybrid to the GEB
-           */
+          /**
+           * @struct OptoHybridT1Counters
+           * @brief This struct stores retrieved counters related to the OptoHybrid T1 signals
+           * @var OptoHybridT1Counters::AMC13
+           * AMC13 contains the counters for T1 signals received from the GLIB TTC decder
+           * @var OptoHybridT1Counters::Firmware
+           * Firmware contains the counters for T1 signals generated in the firmware module
+           * @var OptoHybridT1Counters::External
+           * External contains the counters for T1 signals received an external sourcd
+           * @var OptoHybridT1Counters::Loopback
+           * Loopback contains the counters for T1 signals looped back onto the system
+           * @var OptoHybridT1Counters::Sent
+           * Sent contains the counters for T1 signals sent by the OptoHybrid to the GEB
+           **/
           typedef struct OptoHybridT1Counters {
             std::vector<uint32_t> AMC13   ; 
             std::vector<uint32_t> Firmware;
@@ -149,15 +152,16 @@ namespace gem {
               return; };
           } OptoHybridT1Counters;
           
-           /** @struct OptoHybridVFATCRCCounters
-           *  @brief This struct stores retrieved counters related to the OptoHybrid CRC check on 
-           *  the received VFAT data packets
-           *  @var OptoHybridVFATCRCCounters::CRCCounters
-           *  CRCCounters contains the counters for the CRC performed on the
-           *  received VFAT packets from each chip
-           *  - first is the number of Valid CRCs
-           *  - second is the number of Incorrect CRCs
-           */
+           /**
+            * @struct OptoHybridVFATCRCCounters
+            *  @brief This struct stores retrieved counters related to the OptoHybrid CRC check on 
+            *  the received VFAT data packets
+            *  @var OptoHybridVFATCRCCounters::CRCCounters
+            *  CRCCounters contains the counters for the CRC performed on the
+            *  received VFAT packets from each chip
+            *  - first is the number of Valid CRCs
+            *  - second is the number of Incorrect CRCs
+            **/
           typedef struct OptoHybridVFATCRCCounters {
             std::vector<std::pair<uint32_t,uint32_t> > CRCCounters;
             
@@ -198,7 +202,8 @@ namespace gem {
            **/
           //std::string getBoardID()   const;
 
-          /** Read the firmware register
+          /**
+           * Read the firmware register
            * @returns a hex number corresponding to the build date
            **/
 
@@ -209,7 +214,8 @@ namespace gem {
             return fwver;
           };
 	    
-          /** Read the firmware register
+          /**
+           * Read the firmware register
            * @returns a string corresponding to the build date
            **/
           std::string getFirmwareDate() {
@@ -219,12 +225,14 @@ namespace gem {
           };
 					
         public:
-          /** Read the link status registers, store the information in a struct
+          /**
+           * Read the link status registers, store the information in a struct
            * @retval _status a struct containing the status bits of the optical link
            **/
           GEMHwDevice::OpticalLinkStatus LinkStatus();
 
-          /** Reset the link status registers
+          /**
+           * Reset the link status registers
            * @param uint8_t resets control which bits to reset
            * bit 1 - TRK_ErrCnt         0x1
            * bit 2 - TRG_ErrCnt         0x2
@@ -232,7 +240,8 @@ namespace gem {
            **/
           void LinkReset(uint8_t const& resets);
 
-          /** Reset the all link status registers
+          /**
+           * Reset the all link status registers
            * @param uint8_t resets control which bits to reset
            * OBSOLETE in new V2 firmware
            **/
@@ -244,13 +253,15 @@ namespace gem {
             */
           };
 	  
-          /** Read the trigger data
+          /**
+           * Read the trigger data
            * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
            **/
           //uint32_t readTriggerData();
 
           //Clocking
-          /** Setup the VFAT clock 
+          /**
+           * Setup the OptoHybrid clock 
            * @param uint8_t source
            * 0x0 on board oscillator
            * 0x1 GTX recovered clock
@@ -260,56 +271,71 @@ namespace gem {
             writeReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK"  ,(uint32_t)source  );
           };
 
-          /** Setup the VFAT clock 
+          /**
+           * Setup the VFAT clock 
+           * @returns uint32_t clock source
+           * 0x0 on board oscillator
+           * 0x1 GTX recovered clock
+           * 0x2 external clock
+           **/
+          uint32_t getReferenceClock() {
+            return readReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK");
+          };
+
+          /**
+           * Setup the VFAT clock 
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
            * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
           void setVFATClock(bool source, bool fallback) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.SOURCE"  ,(uint32_t)source  );
-            writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.FALLBACK",(uint32_t)fallback);
+            //std::stringstream regName;
+            //regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+            //writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.SOURCE"  ,(uint32_t)source  );
+            //writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.FALLBACK",(uint32_t)fallback);
           };
 
-          /** VFAT clock status
+          /**
+           * VFAT clock status
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
            * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
           std::pair<bool,bool> StatusVFATClock() {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.SOURCE");
-            uint32_t flb = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.FALLBACK");
-            //maybe do a check to ensure that the value has been read properly?
-            return std::make_pair(src,flb);
+           // std::stringstream regName;
+           // regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+           // uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.SOURCE");
+           // uint32_t flb = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.FALLBACK");
+           // //maybe do a check to ensure that the value has been read properly?
+            return std::make_pair(0,0);
           };
 
-          /** Setup the CDCE clock 
+          /**
+           * Setup the CDCE clock 
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
            * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
           void setCDCEClock(bool source, bool fallback) {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE"  ,(uint32_t)source  );
-            writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.FALLBACK",(uint32_t)fallback);
+            //std::stringstream regName;
+            //regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+            //writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE"  ,(uint32_t)source  );
+            //writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.FALLBACK",(uint32_t)fallback);
           };
       
-          /** CDCE clock status
+          /**
+           * CDCE clock status
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
            * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
           std::pair<bool,bool> StatusCDCEClock() {
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE");
-            uint32_t flb = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.FALLBACK");
-            //maybe do a check to ensure that the value has been read properly?
-            return std::make_pair(src,flb);
+            //std::stringstream regName;
+            //regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+            //uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE");
+            //uint32_t flb = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.FALLBACK");
+            ////maybe do a check to ensure that the value has been read properly?
+            return std::make_pair(0,0);
           };
 
           ///** Read the VFAT clock source
@@ -354,7 +380,8 @@ namespace gem {
           //bool getCDCEFallback();
 
 
-          /** Set the Trigger source
+          /**
+           * Set the Trigger source
            * @param uint8_t mode
            * 0 from GLIB TTC decoder
            * 1 from OptoHybrid firmware (T1 module)
@@ -385,7 +412,8 @@ namespace gem {
             }
           };
 
-          /** Read the Trigger source
+          /**
+           * Read the Trigger source
            * @retval uint8_t
            * 0 from GLIB TTC decoder
            * 1 from OptoHybrid firmware (T1 module)
@@ -397,13 +425,15 @@ namespace gem {
             return readReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE"); };
 
 
-          /** Set the S-bit source
+          /**
+           * Set the S-bit source
            * @param uint32_t mask which s-bits to forward (maximum 6)
            **/
           void setSBitSource(uint32_t const& mask) {
             writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBits",mask); };
 
-          /** Read the S-bit source
+          /**
+           * Read the S-bit source
            * @retval uint32_t which VFAT chips are sending S-bits
            **/
           uint32_t getSBitSource() {
@@ -422,6 +452,20 @@ namespace gem {
             uint64_t bc0_seq;
           } T1Sequence;
           
+          /**
+           * @brief the T1 module is very different between V1/1.5 and V2
+           * @param uint8_t mode can be any of
+           *  - 0 Single command
+           *  - 1 CalPulse followed by L1A
+           *  - 2 Follow the sequence specified
+           * @param uint8_t type is the type of command to send for mode 0
+           *  - 0 L1A
+           *  - 1 CalPulse
+           *  - 2 Resync
+           *  - 3 BC0
+           * @param T1Sequence sequence is a sequence of T1 signals to generate
+           * @param bool reset says whether to reset the module or not
+          **/
           void configureT1Generator(uint8_t const& mode, uint8_t const& type,
                                     T1Sequence sequence,
                                     bool reset) {
@@ -443,8 +487,13 @@ namespace gem {
             }
           };
           
+          /**
+           * @brief Start the T1 generator (must be configured first or have a configuration already loaded)
+           * @param uint32_t ntrigs number of signals to send before stopping (0 will send continuously)
+           * @param uint32_t rate rate at which to repeat the sending
+           * @param uint32_t delay delay between CalPulse and L1A (only for T1 mode 1)
+           **/
           void startT1Generator(uint32_t const& ntrigs, uint32_t const& rate, uint32_t const& delay) {
-            //passing ntrigs=0 will send the specified T1 signals continuously continuously
             uint32_t interval = 1/(rate*0.000000025);
             
             writeReg(getDeviceBaseNode(),"T1Controller.NUMBER"  ,ntrigs  );
@@ -456,6 +505,10 @@ namespace gem {
               writeReg(getDeviceBaseNode(),"T1Controller.TOGGLE",0x1);
           };
           
+          /**
+           * @brief Stop the T1 generator
+           * @param bool reset tells whether to reset the state of the module
+           **/
           void stopT1Generator(bool reset) {
             //don't toggle on if the generator is currently not running
             if (statusT1Generator())
@@ -464,11 +517,17 @@ namespace gem {
               writeReg(getDeviceBaseNode(),"T1Controller.RESET",0x1);
           };
           
+          /**
+           * @brief Status of the T1 generator
+           * @returns uint8_t the status of the T1 generator, telling which mode is running
+           * (0 is nothing running)
+           **/
           uint8_t statusT1Generator() {
             return readReg(getDeviceBaseNode(),"T1Controller.MONITOR");
           };
-          /* Generate and send specific T1 commands on the OptoHybrid */
-          /** Send an internal L1A
+
+          /**
+           * Send an internal L1A
            * @param uint32_t ntrigs, how many L1As to send
            * @param uint32_t rate, rate at which signals will be generated
            **/
@@ -478,7 +537,8 @@ namespace gem {
             startT1Generator(ntrigs,rate, 0);
           };
 
-          /** Send an internal CalPulse
+          /**
+           * Send an internal CalPulse
            * @param uint32_t npulse, how many CalPulses to send
            * @param uint32_t rate, rate at which signals will be generated
            **/
@@ -488,7 +548,8 @@ namespace gem {
             startT1Generator(npulse, rate, 0);
           };
           
-          /** Send a CalPulse followed by an L1A
+          /**
+           * Send a CalPulse followed by an L1A
            * @param uint32_t npulse, how many pairs to send
            * @param uint32_t delay, how long between L1A and CalPulse
            * @param uint32_t rate, rate at which signals will be generated
@@ -499,10 +560,10 @@ namespace gem {
             startT1Generator(npulse,rate, delay);
           };
 
-          /** Send an internal Resync
+          /**
+           * Send an internal Resync
            * @param uint32_t nresync, total number of resync signals to send
            * @param uint32_t rate, rate at which signals will be generated
-           * 
            **/
           void sendResync(uint32_t const& nresync=1,uint32_t const& rate=1) {
             T1Sequence sequence;
@@ -510,10 +571,10 @@ namespace gem {
             startT1Generator(nresync, rate, 0); };
 
 
-          /** Send an internal BC0
+          /**
+           * Send an internal BC0
            * @param uint32_t nbc0, total number of BC0 signals to send
            * @param uint32_t rate, rate at which signals will be generated
-           * 
            **/
           void sendBC0(uint32_t const& nbc0=1, uint32_t const& rate=1) {
             T1Sequence sequence;
@@ -522,28 +583,32 @@ namespace gem {
 
           ///Counters
 
-          /** Get the recorded number of signals sent/received by the OptoHybrid wishbone master
+          /**
+           * Get the recorded number of signals sent/received by the OptoHybrid wishbone master
            * @returns OptoHybridWBMasterCounters struct, with updated values
            **/
           OptoHybridWBMasterCounters getWBMasterCounters() { return m_wbMasterCounters; };
           void updateWBMasterCounters();
           void resetWBMasterCounters();
 
-          /** Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
+          /**
+           * Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
            * @returns OptoHybridWBSlaveCounters struct, with updated values
            **/
           OptoHybridWBSlaveCounters getWBSlaveCounters() { return m_wbSlaveCounters; };
           void updateWBSlaveCounters();
           void resetWBSlaveCounters();
 
-          /** Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
+          /**
+           * Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
            * @returns OptoHybridT1Counters struct, with updated values
            **/
           OptoHybridT1Counters getT1Counters() { return m_t1Counters; };
           void updateT1Counters();
           void resetT1Counters();
 	  
-          /** Get the recorded number of valid/incorrect CRCs performed by the OptoHybrid 
+          /**
+           * Get the recorded number of valid/incorrect CRCs performed by the OptoHybrid 
            *  on the data packets received from the VFATs
            * @returns OptoHybridT1Counters struct, with updated values
            **/
@@ -551,18 +616,19 @@ namespace gem {
           void updateVFATCRCCounters();
           void resetVFATCRCCounters();
 	  
-          /** Get the recorded number of T1 signals
+          /**
+           * Get the recorded number of T1 signals
            * @param signal specifies which T1 signal counter to read
-           * 0 L1A
-           * 1 CalPulse
-           * 2 Resync
-           * 3 BC0
+           *  - 0 L1A
+           *  - 1 CalPulse
+           *  - 2 Resync
+           *  - 3 BC0
            * @param mode specifies which T1 counter to read
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
+           *  - 0 from the TTC decoder on the GLIB
+           *  - 1 from the T1 generator in the firmware
+           *  - 2 from an external source
+           *  - 3 from looping back the sbits
+           *  - 4 sent along the GEB
            **/
           uint32_t getT1Count(uint8_t const& signal, uint8_t const& mode) {
             std::stringstream t1Signal;

@@ -437,20 +437,14 @@ bool gem::hw::glib::HwGLIB::CDCELockStatus()
 /** User core functionality **/
 uint32_t gem::hw::glib::HwGLIB::getUserFirmware()
 {
-  // This returns the user firmware build date. 
-  return getUserFirmware(m_controlLink);
+  // This returns the firmware register (V2 removed the user firmware specific). 
+  return readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
 }
 
 uint32_t gem::hw::glib::HwGLIB::getUserFirmware(uint8_t const& gtx)
 {
-  // This returns the user firmware build date. 
-  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
-  std::stringstream regName;
-  regName << "GLIB_LINKS.LINK" << (int)gtx << ".USER_FW";
-  uint32_t userfw = readReg(getDeviceBaseNode(),regName.str());
-  DEBUG("GLIB link" << (int)gtx << " has firmware version 0x" 
-        << std::hex << userfw << std::dec << std::endl);
-  return userfw;
+  // This returns the firmware register (V2 removed the user firmware specific). 
+  return readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
 }
 
 std::string gem::hw::glib::HwGLIB::getUserFirmwareDate()
@@ -554,17 +548,23 @@ void gem::hw::glib::HwGLIB::resetIPBusCounters(uint8_t const& gtx, uint8_t const
 
 uint32_t gem::hw::glib::HwGLIB::readTriggerFIFO(uint8_t const& gtx)
 {
-  std::stringstream regName;
-  regName << "GLIB_LINKS.TRG_DATA";
-  uint32_t trgword = readReg(getDeviceBaseNode(),regName.str()+".DATA");
-  return trgword;
+  /*
+    std::stringstream regName;
+    regName << "GLIB_LINKS.TRG_DATA";
+    uint32_t trgword = readReg(getDeviceBaseNode(),regName.str()+".DATA");
+  */
+  return 0;
 }
 
 void gem::hw::glib::HwGLIB::flushTriggerFIFO(uint8_t const& gtx)
 {
+  //V2 firmware hasn't got trigger fifo yet
+  return;
+  /*
   std::stringstream regName;
   regName << "GLIB_LINKS.LINK" << (int)gtx << ".TRIGGER";
   writeReg(getDeviceBaseNode(),regName.str()+".FIFO_FLUSH",0x1);
+  */
 }
 
 uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& gtx)
