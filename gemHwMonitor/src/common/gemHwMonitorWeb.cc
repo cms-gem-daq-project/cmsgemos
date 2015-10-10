@@ -286,13 +286,8 @@ void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xg
                 tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
                 vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(gemHwMonitorVFAT_.back()->getDevice()->getDeviceId(),
                                                                          tmpURI.str(),
-                                                                         //"file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
                                                                          "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-                //vfatDevice_ = new gem::hw::vfat::HwVFAT2(gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
-                //vfatDevice_->setDeviceIPAddress(glibIP);
                 std::cout << "vfat ID from XML: " << gemHwMonitorVFAT_.back()->getDevice()->getDeviceId() << std::endl;
-                //vfatDevice_->setDeviceBaseNode("VFATS."+gemHwMonitorVFAT_.back()->getDevice()->getDeviceId());
-                //vfatDevice_->connectDevice();
                 if (vfatDevice_->isHwConnected()) {
                   gemHwMonitorVFAT_.back()->setDeviceStatus(0);
                   gemHwMonitorOH_.back()->setSubDeviceStatus(0,i);
@@ -335,7 +330,6 @@ void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output *
         gemHwMonitorGLIB_.at(i)->setDeviceConfiguration(*gemHwMonitorCrate_.at(indexCrate_)->getDevice()->getSubDevicesRefs().at(i));
         std::map <std::string, std::string> glibProperties_;
         glibProperties_ = gemHwMonitorGLIB_.at(i)->getDevice()->getDeviceProperties();
-        //std::string glibIP = "192.168.0.164";
         for (auto it = glibProperties_.begin(); it != glibProperties_.end(); it++) {
           if (it->first == "IP") glibIP = it->second; 
           std::cout << "property: " << it->first << " - GLIB IP is "<<glibIP << std::endl;
@@ -344,15 +338,11 @@ void gem::hwMonitor::gemHwMonitorWeb::expandCrate(xgi::Input * in, xgi::Output *
         tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
         glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                                 "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-        //gem::hw::glib::HwGLIB* glibDevice_ = new gem::hw::glib::HwGLIB();
-        //glibDevice_->setDeviceIPAddress(glibIP);
-        //glibDevice_->connectDevice();
-        //why is this commented?
         if (glibDevice_->isHwConnected())
-        {
+          {
             gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(0);
-        } else {
-            gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(2);
+          } else {
+          gemHwMonitorCrate_.at(indexCrate_)->addSubDeviceStatus(2);
         }
       }
     }
@@ -420,19 +410,18 @@ void gem::hwMonitor::gemHwMonitorWeb::expandGLIB(xgi::Input * in, xgi::Output * 
           if (it->first == "IP") ohIP = it->second; 
           std::cout << "property: " << it->first << " - OH IP is " << ohIP << std::endl;
         }
+        //this needs to come from the xml config somehow
+        int ohGTX = 0;
+        std::string currentOHId = toolbox::toString("HwOptoHybrid_%d",ohGTX);
         std::stringstream tmpURI;
         tmpURI << "chtcp-2.0://localhost:10203?target=" << ohIP << ":50001";
-        ohDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid_0", tmpURI.str(),
+        ohDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(currentOHId, tmpURI.str(),
                                                                                 "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-        //gem::hw::optohybrid::HwOptoHybrid* ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
-        //ohDevice_->setDeviceIPAddress(ohIP);
-        //ohDevice_->connectDevice();
         if (ohDevice_->isHwConnected()) {
           gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(0);
         } else {
           gemHwMonitorGLIB_.at(indexGLIB_)->addSubDeviceStatus(2);
         }
-        //delete ohDevice_;
       }
     }
   }
@@ -464,16 +453,16 @@ void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * o
   tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  //glibDevice_ = new gem::hw::glib::HwGLIB();
-  //glibDevice_->setDeviceIPAddress(glibIP);
-  //glibDevice_->connectDevice();
 
   *out << "<div class=\"panel panel-primary\">" << std::endl;
-  *out << "<div class=\"panel-heading\">" << std::endl;
-  *out << "<h1><div align=\"center\">Chip Id : "<< glibToShow_ << "<br> Firmware version : " << glibDevice_->getUserFirmwareDate() << "</div></h1>" << std::endl;
-  *out << "</div>" << std::endl;
+  *out << "<div class=\"panel-heading\">"       << std::endl;
+  *out << "<h1><div align=\"center\">Chip Id : "<< glibToShow_
+       << "<br> Firmware version : " << glibDevice_->getUserFirmwareDate()
+       << "</div></h1>" << std::endl;
+  *out << "</div>"      << std::endl;
   *out << "<div class=\"panel-body\">" << std::endl;
-  *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "</div></h3>" << std::endl;
+  *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "
+       << crateToShow_ << "</div></h3>" << std::endl;
   std::string methodExpandOH = toolbox::toString("/%s/expandOH", getApplicationDescriptor()->getURN().c_str());
   *out << cgicc::table().set("class","table");
   *out << "<tr><h2><div align=\"center\">Connected Optohybrids</div></h2></tr>" << std::endl;
@@ -484,11 +473,14 @@ void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * o
     *out << cgicc::td();
     *out << cgicc::form().set("method","POST").set("action", methodExpandOH) << std::endl ;
     if (gemHwMonitorGLIB_.at(indexGLIB_)->getSubDeviceStatus(i) == 0) {
-      *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"ohButton\" value=\"" << currentOHId << "\">" << currentOHId<< "</button>" << std::endl;
+      *out << "<button type=\"submit\" class=\"btn btn-success\" name=\"ohButton\" value=\""
+           << currentOHId << "\">" << currentOHId<< "</button>" << std::endl;
     } else if (gemHwMonitorGLIB_.at(indexGLIB_)->getSubDeviceStatus(i) == 1) {
-      *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"ohButton\" value=\"" << currentOHId << "\">" << currentOHId<< "</button>" << std::endl;
+      *out << "<button type=\"submit\" class=\"btn btn-warning\" name=\"ohButton\" value=\""
+           << currentOHId << "\">" << currentOHId<< "</button>" << std::endl;
     } else if (gemHwMonitorGLIB_.at(indexGLIB_)->getSubDeviceStatus(i) == 2) {
-      *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"ohButton\" value=\"" << currentOHId << "\" disabled>" << currentOHId<< "</button>" << std::endl;
+      *out << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"ohButton\" value=\""
+           << currentOHId << "\" disabled>" << currentOHId<< "</button>" << std::endl;
     }
     *out << cgicc::form() << std::endl;
     *out << cgicc::td();
@@ -502,50 +494,37 @@ void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * o
   *out << cgicc::table().set("class","table");
   *out << "<tr>" << std::endl;
   *out << "<td>" << std::endl;
-  *out << "Link N" << std::endl;
+  *out << "GTX N" << std::endl;
   *out << "</td>" << std::endl;
   *out << "<td>" << std::endl;
-  *out << "Link Err" << std::endl;
+  *out << "Tracking Link Err" << std::endl;
   *out << "</td>" << std::endl;
   *out << "<td>" << std::endl;
-  *out << "Received VFAT2 I2C requests" << std::endl;
+  *out << "Trigger Link Err" << std::endl;
   *out << "</td>" << std::endl;
   *out << "<td>" << std::endl;
-  *out << "Sent VFAT2 I2C requests" << std::endl;
-  *out << "</td>" << std::endl;
-  *out << "<td>" << std::endl;
-  *out << "Received register requests" << std::endl;
-  *out << "</td>" << std::endl;
-  *out << "<td>" << std::endl;
-  *out << "Sent register requests" << std::endl;
+  *out << "Received Data Packets" << std::endl;
   *out << "</td>" << std::endl;
   *out << "</tr>" << std::endl;
     
-  /*
-  for (uint8_t i=0; i<3; i++) {
+  for (uint8_t i = 0; i < gem::hw::glib::HwGLIB::N_GTX; ++i) {
     linkStatus_ = glibDevice_->LinkStatus(i);
     *out << "<tr>" << std::endl;
     *out << "<td>" << std::endl;
     *out << (int)i << std::endl;
     *out << "</td>" << std::endl;
     *out << "<td>" << std::endl;
-    *out << linkStatus_.Errors << std::endl;
+    *out << linkStatus_.TRK_Errors << std::endl;
     *out << "</td>" << std::endl;
     *out << "<td>" << std::endl;
-    *out << linkStatus_.I2CReceived << std::endl;
+    *out << linkStatus_.TRG_Errors << std::endl;
     *out << "</td>" << std::endl;
     *out << "<td>" << std::endl;
-    *out << linkStatus_.I2CSent << std::endl;
-    *out << "</td>" << std::endl;
-    *out << "<td>" << std::endl;
-    *out << linkStatus_.RegisterReceived << std::endl;
-    *out << "</td>" << std::endl;
-    *out << "<td>" << std::endl;
-    *out << linkStatus_.RegisterSent << std::endl;
+    *out << linkStatus_.Data_Packets << std::endl;
     *out << "</td>" << std::endl;
     *out << "</tr>" << std::endl;
-  }
-  */
+    }
+  
   // moved table header outside the loop
   *out << cgicc::table() <<std::endl;
 
@@ -645,7 +624,6 @@ void gem::hwMonitor::gemHwMonitorWeb::glibPanel(xgi::Input * in, xgi::Output * o
   *out << "</div>" << std::endl;
   *out << cgicc::br()<< std::endl;
   *out << cgicc::hr()<< std::endl;
-  //delete glibDevice_;
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * out )
@@ -655,27 +633,22 @@ void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * ou
   ohToShow_ = cgi.getElement("ohButton")->getValue();
   // Auto-pointer doesn't work for some reason. Improve this later.
   for (unsigned int i = 0; i != gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().size(); i++) {
-    if ((gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_) && (!(gemHwMonitorOH_.at(i)->isConfigured()))) {
+    if ((gemHwMonitorGLIB_.at(indexGLIB_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId() == ohToShow_)
+        && (!(gemHwMonitorOH_.at(i)->isConfigured()))) {
       indexOH_ = i;
       gemHwMonitorOH_.at(indexOH_)->setIsConfigured(true);
       std::stringstream tmpURI;
       tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
       vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(vfatToShow_,tmpURI.str(),
                                                                "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-      //vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
-      //vfatDevice_->setDeviceIPAddress(glibIP);
-			
       for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
         std::string vfatID_ = gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId();
         std::cout << "vfat ID from XML" << vfatID_ << std::endl;
-        //vfatDevice_->setDeviceBaseNode("VFATS."+vfatID_);
-        //vfatDevice_->connectDevice();
         if (vfatDevice_->isHwConnected()) {
           gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(0);
         } else {
           gemHwMonitorOH_.at(indexOH_)->addSubDeviceStatus(2);
         }
-        //delete vfatDevice_;
       }
     }
   }
@@ -704,13 +677,12 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
   *out << "</tr>" << std::endl;
   *out << cgicc::table() <<std::endl;;
   
+  //this needs to come from the xml config somehow
+  int ohGTX = 0;
+  std::string currentOHId = toolbox::toString("HwOptoHybrid_%d",ohGTX);
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
-  ohDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid_0", tmpURI.str(),
-                                                                          "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  //ohDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
-  //ohDevice_->setDeviceIPAddress(glibIP);
-  //ohDevice_->connectDevice();
+  ohDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(currentOHId, tmpURI.str(),
   if (!ohDevice_->isHwConnected()) {
     *out << "<h1><div align=\"center\">Device connection failed!</div></h1>" << std::endl;
   } else {
@@ -719,12 +691,17 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
     activeLinks_ = ohDevice_->getActiveLinks();
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
-    *out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : " << ohDevice_->getFirmwareDate() << "</div></h1>" << std::endl;
+    *out << "<h1><div align=\"center\">Chip Id : "<< ohToShow_ << "<br> Firmware version : "
+         << ohDevice_->getFirmwareDate() << "</div></h1>" << std::endl;
     *out << "</div>" << std::endl;
     *out << "<div class=\"panel-body\">" << std::endl;
-    *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "<< crateToShow_ << "::" << glibToShow_ << "</div></h3>" << std::endl;
-    std::string methodExpandVFAT = toolbox::toString("/%s/expandVFAT", getApplicationDescriptor()->getURN().c_str());
+    *out << "<h3><div class=\"alert alert-info\" role=\"alert\" align=\"center\">Device base node : "
+         << crateToShow_ << "::" << glibToShow_ << "</div></h3>" << std::endl;
+    std::string methodExpandVFAT = toolbox::toString("/%s/expandVFAT",
+                                                     getApplicationDescriptor()->getURN().c_str());
+
     gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus_;
+    /*
     for (int i = 0; i < 3; i++) {
       if (!ohDevice_->isLinkActive(i)) {
         *out << "<div class=\"panel panel-danger\">" << std::endl;
@@ -734,116 +711,91 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
         *out << "</div>" << std::endl;
       }
     }
-
-    for (auto l = activeLinks_.begin(); l != activeLinks_.end(); l++) {
-      uint8_t i = l->first;
-      *out << "<div class=\"panel panel-info\">" << std::endl;
-      *out << "<div class=\"panel-heading\">" << std::endl;
-
-      *out << cgicc::table().set("class","table");
-      *out << "<tr><h2><div align=\"center\">LINK " << (int)i << " Status </div></h2></tr>" << std::endl;
-      *out << "<tr>" << std::endl;
-      *out << "<tr>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << "Link N" << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << "Link Err" << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << "Received VFAT2 I2C requests" << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << "Sent VFAT2 I2C requests" << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << "Received register requests" << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << "Sent register requests" << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "</tr>" << std::endl;
-
-      /*
-      linkStatus_ = ohDevice_->LinkStatus(i);
-      *out << "<tr>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << (int)i << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << linkStatus_.Errors << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << linkStatus_.I2CReceived << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << linkStatus_.I2CSent << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << linkStatus_.RegisterReceived << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "<td>" << std::endl;
-      *out << linkStatus_.RegisterSent << std::endl;
-      *out << "</td>" << std::endl;
-      *out << "</tr>" << std::endl;
-      */
-      *out << cgicc::table() <<std::endl;
-
-      *out << cgicc::table().set("class","table");
-      *out << "<tr><h3><div align=\"center\">Connected VFAT's</div></h3></tr>" << std::endl;
-      *out << "<tr>" << std::endl;
-      //for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
-      int linkIncrenement = 8*i;
-      for (long long int i=0; i<8; i++) { // because compiler doesn't reconginze -std=c++11…
-        std::string currentVFATId = "VFAT";
-        //currentVFATId += gemHwMonitorOH_.at(indexOH_)->getCurrentSubDeviceId(i+linkIncrenement);
-        currentVFATId += std::to_string(i+linkIncrenement);
-        std::stringstream tmpURI;
-        tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
-        vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(currentVFATId,tmpURI.str(),
-                                                                 "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-        //vfatDevice_ = new gem::hw::vfat::HwVFAT2(currentVFATId);
-        //vfatDevice_->setDeviceIPAddress(glibIP);
-        //vfatDevice_->connectDevice();
-        std::string runmode;
-        int n_chan = 0;
-        if (vfatDevice_->isHwConnected()) {
-          // superfluous, as readVFAT2Counters is called in getAllSettings
-          //vfatDevice_->readVFAT2Counters();
-          vfatDevice_->getAllSettings(); // takes time. See with Jared how to make it better
-          runmode = gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode);
-          for (uint8_t chan = 1; chan < 129; ++chan) {
-            if (vfatDevice_->getVFAT2Params().channels[chan-1].mask < 1) n_chan++;
-          }
-        } else {
-          runmode = "N/A";
+    */
+    //for (auto l = activeLinks_.begin(); l != activeLinks_.end(); l++) {//no longer multiple links on OH
+    *out << "<div class=\"panel panel-info\">" << std::endl;
+    *out << "<div class=\"panel-heading\">" << std::endl;
+    
+    *out << cgicc::table().set("class","table");
+    *out << "<tr><h2><div align=\"center\">Optical Link Status </div></h2></tr>" << std::endl;
+    *out << "<tr>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << "Tracking Link Err" << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << "Trigger Link Err" << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << "Received Data Packets" << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "</tr>" << std::endl;
+    
+    linkStatus_ = ohDevice_->LinkStatus();
+    *out << "<tr>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << linkStatus_.TRK_Errors << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << linkStatus_.TRG_Errors << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << linkStatus_.Data_Packets << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "</tr>" << std::endl;
+    *out << cgicc::table() <<std::endl;
+    
+    *out << cgicc::table().set("class","table");
+    *out << "<tr><h3><div align=\"center\">Connected VFAT's</div></h3></tr>" << std::endl;
+    *out << "<tr>" << std::endl;
+    //for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
+    //int linkIncreement = 8*i;
+    for (long long int i=0; i<24; i++) { // because compiler doesn't reconginze -std=c++11…
+      std::string currentVFATId = "VFAT";
+      //currentVFATId += gemHwMonitorOH_.at(indexOH_)->getCurrentSubDeviceId(i+linkIncreement);
+      currentVFATId += std::to_string(i);
+      std::stringstream tmpURI;
+      tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
+      vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(currentVFATId,tmpURI.str(),
+                                                               "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+      std::string runmode;
+      int n_chan = 0;
+      if (vfatDevice_->isHwConnected()) {
+        vfatDevice_->getAllSettings(); // takes time. See with Jared how to make it better
+        runmode = gem::hw::vfat::RunModeToString.at(vfatDevice_->getVFAT2Params().runMode);
+        for (uint8_t chan = 1; chan < 129; ++chan) {
+          if (vfatDevice_->getVFAT2Params().channels[chan-1].mask < 1) n_chan++;
         }
-        //delete vfatDevice_;
-				
-        *out << cgicc::td();
-        *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
-        if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 0) {
-          *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-success\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << n_chan << "</button></div>" << std::endl;
-        } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 1) {
-          *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << n_chan << "</button></div>" << std::endl;
-        } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 2) {
-          *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-danger\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" <<  "000" << "</button></div>" << std::endl;
-        } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncrenement) == 3) {
-          *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << "000" << "</button></div>" << std::endl;
-        }
-				
-        *out << cgicc::form() << std::endl;
-        *out << cgicc::br();
-        *out << "<div align=\"center\">" << runmode << "</div>" << std::endl;
-        *out << cgicc::td();
+      } else {
+        runmode = "N/A";
       }
-      *out << "</tr>" << std::endl;
-      *out << cgicc::table() <<std::endl;
-      *out << "</div>" << std::endl;
+				
+      *out << cgicc::td();
+      *out << cgicc::form().set("method","POST").set("action", methodExpandVFAT) << std::endl ;
+      //if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i+linkIncreement) == 0) {
+      if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 0) {
+        *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-success\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << n_chan << "</button></div>" << std::endl;
+      } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 1) {
+        *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-warning\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" << n_chan << "</button></div>" << std::endl;
+      } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 2) {
+        *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-danger\" name=\"vfatButton\" value=\"" << currentVFATId << "\">" <<  "000" << "</button></div>" << std::endl;
+      } else if (gemHwMonitorOH_.at(indexOH_)->getSubDeviceStatus(i) == 3) {
+        *out << "<div align=\"center\">" << "<button type=\"submit\" class=\"btn btn-disabled\" name=\"vfatButton\" value=\"" << currentVFATId << "\" disabled>" << "000" << "</button></div>" << std::endl;
+      }
+				
+      *out << cgicc::form() << std::endl;
       *out << cgicc::br();
+      *out << "<div align=\"center\">" << runmode << "</div>" << std::endl;
+      *out << cgicc::td();
     }
+    *out << "</tr>" << std::endl;
+    *out << cgicc::table() <<std::endl;
+    *out << "</div>" << std::endl;
+    *out << cgicc::br();
+    //}//no more link dependence
+
+    /*
     std::pair<bool,bool> statusVFATClock_;
-    statusVFATClock_ = ohDevice_->StatusVFATClock(/*link*/);
+    statusVFATClock_ = ohDevice_->StatusVFATClock();
     *out << cgicc::table().set("class","table");
     *out << "<tr>" << std::endl;
     *out << "<td>" << std::endl;
@@ -864,7 +816,7 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
     //*out << cgicc::table() <<std::endl;
 		
     std::pair<bool,bool> statusCDCEClock_;
-    statusCDCEClock_ = ohDevice_->StatusCDCEClock(/*link*/);
+    statusCDCEClock_ = ohDevice_->StatusCDCEClock();
     //*out << cgicc::table().set("class","table");
     *out << "<tr>" << std::endl;
     *out << "<td>" << std::endl;
@@ -883,14 +835,22 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
     *out << "</td>" << std::endl;
     *out << "</tr>" << std::endl;
     //*out << cgicc::table() <<std::endl;
-		
+    */		
     //*out << cgicc::table().set("class","table");
+    *out << "<tr>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << "Reference Clock Source" << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "<td>" << std::endl;
+    *out << (int)ohDevice_->getReferenceClock() << std::endl;
+    *out << "</td>" << std::endl;
+    *out << "</tr>" << std::endl;
     *out << "<tr>" << std::endl;
     *out << "<td>" << std::endl;
     *out << "Trigger Source" << std::endl;
     *out << "</td>" << std::endl;
     *out << "<td>" << std::endl;
-    *out << (int)ohDevice_->getTrigSource(/*link*/) << std::endl;
+    *out << (int)ohDevice_->getTrigSource() << std::endl;
     *out << "</td>" << std::endl;
     *out << "</tr>" << std::endl;
     *out << "<tr>" << std::endl;
@@ -898,44 +858,70 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
     *out << "S-bit Source" << std::endl;
     *out << "</td>" << std::endl;
     *out << "<td>" << std::endl;
-    *out << (int)ohDevice_->getSBitSource(/*link*/) << std::endl;
+    *out << (int)ohDevice_->getSBitSource() << std::endl;
     *out << "</td>" << std::endl;
     *out << "</tr>" << std::endl;
     //*out << cgicc::table() <<std::endl;
  
-    const char *l1CountNames[] = {"External L1 Counter", "Internal L1 Counter", "Delayed L1 Counter","Total L1 Counter"};
-    //*out << cgicc::table().set("class","table");
-//    for (uint8_t i = 0; i<4; i++) {
-//      *out << "<tr>" << std::endl;
-//      *out << "<td>" << std::endl;
-//      *out << l1CountNames[i] << std::endl;
-//      *out << "</td>" << std::endl;
-//      *out << "<td>" << std::endl;
-//      *out << ohDevice_->GetL1ACount(i/*,link*/) << std::endl;
-//      *out << "</td>" << std::endl;
-//      *out << "</tr>" << std::endl;
-//    }
-//    //*out << cgicc::table() <<std::endl;
-//		
-//    const char *calPulseCountNames[] = {"Internal CalPulse Counter", "Delayed CalPulse Counter","Total CalPulse Counter"};
-//    //*out << cgicc::table().set("class","table");
-//    for (uint8_t i = 0; i<3; i++) {
-//      *out << "<tr>" << std::endl;
-//      *out << "<td>" << std::endl;
-//      *out << calPulseCountNames[i] << std::endl;
-//      *out << "</td>" << std::endl;
-//      *out << "<td>" << std::endl;
-//      *out << ohDevice_->GetCalPulseCount(i/*,link*/) << std::endl;
-//      *out << "</td>" << std::endl;
-//      *out << "</tr>" << std::endl;
-//    }
+    const char *l1CountNames[] = {"TTC T1 Counter",
+                                  "Internal T1 Counter",
+                                  "External T1 Counter",
+                                  "Loopback T1 Counter",
+                                  "Sent T1 Counter"};
+    *out << cgicc::table().set("class","table");
+    for (uint8_t i = 0; i<5; i++) {
+      *out << "<tr>"  << std::endl;
+      *out << "<td>"  << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "<td>"  << std::endl;
+      *out << l1CountNames[i] << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+    }
+
+    for (uint8_t i = 0; i<5; i++) {
+      *out << "<tr>" << std::endl;
+      *out << "<td>" << std::endl;
+      *out << "L1A" << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "<td>" << std::endl;
+      *out << ohDevice_->getL1ACount(i) << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+
+      *out << "<tr>" << std::endl;
+      *out << "<td>" << std::endl;
+      *out << "CalPulse" << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "<td>" << std::endl;
+      *out << ohDevice_->getCalPulseCount(i) << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+
+      *out << "<tr>" << std::endl;
+      *out << "<td>" << std::endl;
+      *out << "Resync" << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "<td>" << std::endl;
+      *out << ohDevice_->getResyncCount(i) << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+
+      *out << "<tr>" << std::endl;
+      *out << "<td>" << std::endl;
+      *out << "BC0" << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "<td>" << std::endl;
+      *out << ohDevice_->getBC0Count(i) << std::endl;
+      *out << "</td>" << std::endl;
+      *out << "</tr>" << std::endl;
+    }
     *out << cgicc::table() <<std::endl;
 		
     *out << "</div>" << std::endl;
   }
   *out << cgicc::br()<< std::endl;
   *out << cgicc::hr()<< std::endl;
-  //delete ohDevice_;
 }
 
 void gem::hwMonitor::gemHwMonitorWeb::expandVFAT(xgi::Input * in, xgi::Output * out )
@@ -975,12 +961,6 @@ void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * o
     tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
     vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(vfatToShow_,tmpURI.str(),
                                                              "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-    //vfatDevice_ = new gem::hw::vfat::HwVFAT2(vfatToShow_);
-    //vfatDevice_->setDeviceIPAddress(glibIP);
-    //vfatDevice_->setDeviceBaseNode("VFATS."+vfatToShow_);
-    //vfatDevice_->connectDevice();
-    // superfluous, as readVFAT2Counters is called in getAllSettings
-    //vfatDevice_->readVFAT2Counters();
     vfatDevice_->getAllSettings();
     std::string methodExpandCrate = toolbox::toString("/%s/expandCrate", getApplicationDescriptor()->getURN().c_str());
     std::string methodExpandGLIB = toolbox::toString("/%s/expandGLIB", getApplicationDescriptor()->getURN().c_str());
@@ -1092,6 +1072,7 @@ void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * o
     for (int i=0;i<8;i++) {
       *out << "<td>" << std::endl;
       *out << "<table class=\"table\" >" << std::endl;
+      
       for (int j=4;j<103;j+=24) {
         for (int k=0;k<3;k++) {
           unsigned int chann = 3*i + j + k;
@@ -1129,8 +1110,6 @@ void gem::hwMonitor::gemHwMonitorWeb::vfatPanel(xgi::Input * in, xgi::Output * o
 	
     *out << cgicc::br()<< std::endl;
     *out << cgicc::hr()<< std::endl;
-
-    //delete vfatDevice_;
   }
 }
 

@@ -248,17 +248,18 @@ namespace gem {
         // VFATs counter per event
         int sumVFAT_;
 
+        //all T1 signals have 5 sources TTC Firmware External Loopback Sent
         // L1A trigger counting
-        uint32_t L1ACount_[4];
+        uint32_t m_l1aCount[5];
 
         // CalPulse counting
-        uint32_t CalPulseCount_[3];
+        uint32_t m_calPulseCount[5];
 
         // Resync counting
-        uint32_t ResyncCount_;
+        uint32_t m_resyncCount[5];
 
         // BC0 counting
-        uint32_t BC0Count_;
+        uint32_t m_bc0Count[5];
 
         void fireEvent(std::string name);
         void stateChanged(toolbox::fsm::FiniteStateMachine &fsm);

@@ -11,6 +11,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   setDeviceID("OptoHybridHw");
   setAddressTableFileName("glib_address_table.xml");
   //need to know which device this is 0 or 1?
+  //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
   //set up which links are active, so that the control can be done without specifying a link
@@ -315,12 +316,8 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
   std::stringstream regName;
   regName << getDeviceBaseNode() << ".GEB.Broadcast.Results";
   std::vector<uint32_t> results;
-  //for (unsigned res = 0; res < 24; ++res)
-  //usleep(1000*5); //5ms
-  //  results.push_back(readReg(regName.str()));
-  //return results;
-  //return readFIFO(regName.str(),24);
-  return readBlock(regName.str(),24);
+  //need to compute the number of required reads based on the mask
+  return readBlock(regName.str(),std::bitset<32>(~mask).count());
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
