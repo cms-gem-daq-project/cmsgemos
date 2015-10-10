@@ -9,6 +9,7 @@ from glib_system_info_uhal import *
 from vfat_functions_uhal import *
 from rate_calculator import errorRate
 from glib_user_functions_uhal import *
+from optohybrid_user_functions_uhal import *
 
 from optparse import OptionParser
 parser = OptionParser()
@@ -28,8 +29,8 @@ parser.add_option("-n", "--nTrigs", type="int", dest="nTrigs",
 		  help="number of L1A signals to send", metavar="nTrigs", default=25)
 parser.add_option("-c", "--chip", type="string", dest="chip",
 		  help="vfat to control", metavar="chip", default="slot13")
-parser.add_option("-f", "--fallback", type="int", dest="fallback",
-		  help="allow clock fallback on both VFAT and CDCE (1) or not (0)", metavar="fallback", default=1)
+parser.add_option("-f", "--flush", action="store_true", dest="flush",
+		  help="flush the tracking FIFO before starting", metavar="flush")
 parser.add_option("-k", "--extclk", type="int", dest="extclk",
 		  help="use external clock source (1) or not (0)", metavar="extclk", default=0)
 parser.add_option("-i", "--invasive", action="store_true", dest="invasive",
@@ -127,9 +128,10 @@ def displayChipInfo(regkeys):
 	return
 displayChipInfo(chipIDs)
 print "TRACKING INFO SCRIPT UNDER DEVELOPMENT"
-
-#writeRegister(glib,"SendResync",0x1)
-#writeRegister(glib,"SendBC0",0x1)
+if options.flush:
+        flushTrackingFIFO(glib,0)
+        sendResync(optohybrid,25)
+        sendBC0(optohybrid,25)
 #time.sleep(5)
 fifoInfo = readFIFODepth(glib,0)
 print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
@@ -145,34 +147,48 @@ for block in range(nBlocks):
         trackingPacket = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_0.FIFO",7)
         print trackingPacket
         #exit(1)
-	check1 = bin((trackingPacket[5]&0xF0000000)>>28)
-	check2 = bin((trackingPacket[5]&0x0000F000)>>12)
-	check3 = bin((trackingPacket[4]&0xF0000000)>>28)
-	
-	bc     = hex((0x0fff0000 & trackingPacket[5]) >> 16)
-	ec     = hex((0x00000ff0 & trackingPacket[5]) >> 4)
-	chipid = hex((0x0fff0000 & trackingPacket[4]) >> 16)
-	data1  = bin(((0x0000ffff & trackingPacket[4]) << 16) | ((0xffff0000 & trackingPacket[3]) >> 16))
-	data2  = bin(((0x0000ffff & trackingPacket[3]) << 16) | ((0xffff0000 & trackingPacket[2]) >> 16))
-	data3  = bin(((0x0000ffff & trackingPacket[2]) << 16) | ((0xffff0000 & trackingPacket[1]) >> 16))
-	data4  = bin(((0x0000ffff & trackingPacket[1]) << 16) | ((0xffff0000 & trackingPacket[0]) >> 16))
-	crc    = hex(0x0000ffff & trackingPacket[0])
+        ##tracking data from v1 and v1.5
+	#check1 = bin((trackingPacket[5]&0xF0000000)>>28)
+	#check2 = bin((trackingPacket[5]&0x0000F000)>>12)
+	#check3 = bin((trackingPacket[4]&0xF0000000)>>28)
+	#
+	#bc     = hex((0x0fff0000 & trackingPacket[5]) >> 16)
+	#ec     = hex((0x00000ff0 & trackingPacket[5]) >> 4)
+	#chipid = hex((0x0fff0000 & trackingPacket[4]) >> 16)
+	#data1  = bin(((0x0000ffff & trackingPacket[4]) << 16) | ((0xffff0000 & trackingPacket[3]) >> 16))
+	#data2  = bin(((0x0000ffff & trackingPacket[3]) << 16) | ((0xffff0000 & trackingPacket[2]) >> 16))
+	#data3  = bin(((0x0000ffff & trackingPacket[2]) << 16) | ((0xffff0000 & trackingPacket[1]) >> 16))
+	#data4  = bin(((0x0000ffff & trackingPacket[1]) << 16) | ((0xffff0000 & trackingPacket[0]) >> 16))
+	#crc    = hex(0x0000ffff & trackingPacket[0])
+	#bx     = hex(trackingPacket[6])
+        
+        ## go in order, word by word to be sure
+	check1 = bin((trackingPacket[0]&0xf0000000)>>28)
+	bc     = hex((trackingPacket[0]&0x0fff0000)>>16)
+	check2 = bin((trackingPacket[0]&0x0000f000)>>12)
+	ec     = hex((trackingPacket[0]&0x00000ff0)>>4)
+	flags  = bin((trackingPacket[0]&0x00000004))
+
+	check3 = bin((trackingPacket[1]&0xf0000000)>>28)
+	chipid = hex((trackingPacket[1]&0x0fff0000)>>16)
+
+        #data1-4 are just 4 32 bit words, could easily have broken it up more sensibly into 16bit words and 32bit words, depending on the VFAT packet
+	data1  = bin(((trackingPacket[1]&0x0000ffff) << 16) | ((trackingPacket[2]&0xffff0000) >> 16))#strips 127:96 (127:112 and 111:96)
+	data2  = bin(((trackingPacket[3]&0x0000ffff) << 16) | ((trackingPacket[3]&0xffff0000) >> 16))#strips 95:64  (95:80 and 79:64)
+	data3  = bin(((trackingPacket[3]&0x0000ffff) << 16) | ((trackingPacket[4]&0xffff0000) >> 16))#strips 63:32  (63:48 and 47:32)
+	data4  = bin(((trackingPacket[4]&0x0000ffff) << 16) | ((trackingPacket[5]&0xffff0000) >> 16))#strips 31:0   (31:16 and 15:0)
+
+	crc    = hex(trackingPacket[5]&0x0000ffff)
 	bx     = hex(trackingPacket[6])
 
-        print "check1 = %s"%(check1)
-        print "check2 = %s"%(check2)
-        print "check3 = %s"%(check3)
-        print "bc     = %s"%(bc    )
-        print "ec     = %s"%(ec    )
-        print "chipid = %s"%(chipid)
+        print "check1(%s)  check2(%s)  check3(%s)  flags(%s)"%(check1,check2,check3,flags)
+        print "bc(%s)  ec(%s)  chipid(%s)"%(bc,ec,chipid)
         # print "data1  = %s"%(data1 )
         # print "data2  = %s"%(data2 )
         # print "data3  = %s"%(data3 )
         # print "data4  = %s"%(data4 )
-        # print "crc    = %s"%(crc   )
+        print "crc    = %s"%(crc   )
         print "bx     = %s"%(bx    )
-	print "chipid = %s"%(chipid)
-	
 
 print
 print "--=======================================--"

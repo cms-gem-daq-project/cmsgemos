@@ -166,14 +166,15 @@ int gem::readout::GEMDataParker::getGLIBData(
     }
 
     // read trigger data
+    /* not yet working
     TrigReg = glibDevice_->readTriggerFIFO(link);
     BXOHTrig = TrigReg >> 6;
     SBit = TrigReg & 0x0000003F;
-
+    */
     uint16_t b1010, b1100, b1110;
-    b1010 = ((data.at(5) & 0xF0000000)>>28);
-    b1100 = ((data.at(5) & 0x0000F000)>>12);
-    b1110 = ((data.at(4) & 0xF0000000)>>28);
+    b1010 = ((data.at(0) & 0xF0000000)>>28);
+    b1100 = ((data.at(0) & 0x0000F000)>>12);
+    b1110 = ((data.at(1) & 0xF0000000)>>28);
 	
     if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))) {
       /* do not ignore incorrect data
@@ -186,11 +187,11 @@ int gem::readout::GEMDataParker::getGLIBData(
     BX = data.at(6);
     vfat_++;
 
-    bcn     = (0x0fff0000 & data.at(5)) >> 16;
-    evn     = (0x00000ff0 & data.at(5)) >> 4;
-    chipid  = (0x0fff0000 & data.at(4)) >> 16;
-    flags   = (0x0000000f & data.at(5));
-    vfatcrc = (0x0000ffff & data.at(0));
+    bcn     = (0x0fff0000 & data.at(0)) >> 16;
+    evn     = (0x00000ff0 & data.at(0)) >> 4;
+    chipid  = (0x0fff0000 & data.at(1)) >> 16;
+    flags   = (0x0000000f & data.at(0));
+    vfatcrc = (0x0000ffff & data.at(5));
 
     ECff = evn;
     islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)chipid );
@@ -242,10 +243,10 @@ int gem::readout::GEMDataParker::getGLIBData(
   
     bufferCount--;
 
-    uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
-    uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
-    uint64_t data3  = ((0x0000ffff & data.at(2)) << 16) | ((0xffff0000 & data.at(1)) >> 16);
-    uint64_t data4  = ((0x0000ffff & data.at(1)) << 16) | ((0xffff0000 & data.at(0)) >> 16);
+    uint64_t data1  = ((0x0000ffff & data.at(1)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
+    uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
+    uint64_t data3  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(4)) >> 16);
+    uint64_t data4  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(5)) >> 16);
   
     lsVFAT = (data3 << 32) | (data4);
     msVFAT = (data1 << 32) | (data2);
@@ -262,9 +263,10 @@ int gem::readout::GEMDataParker::getGLIBData(
   
    /*
     * dump VFAT data 
+    */
     GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
     INFO(" ::getGLIBData slot " << islot );
-    */
+
 
     std::map<uint32_t, uint32_t>::iterator it;
     std::map<uint32_t, uint32_t>::iterator ir;

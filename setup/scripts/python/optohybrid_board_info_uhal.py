@@ -8,6 +8,7 @@ sys.path.append('${GEM_PYTHON_PATH}')
 import uhal
 from registers_uhal import *
 from glib_user_functions_uhal import *
+from optohybrid_user_functions_uhal import *
 from rate_calculator import errorRate
 
 from optparse import OptionParser
@@ -15,10 +16,12 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="slot in uTCA crate", metavar="slot", default=15)
+parser.add_option("-g", "--gtx", type="int", dest="gtx",
+		  help="GTX on the GLIB", metavar="gtx", default=0)
 parser.add_option("-r", "--reset", action="store_true", dest="resetCounters",
 		  help="reset link error counters", metavar="resetCounters")
-parser.add_option("-k", "--extClock", action="store_true", dest="useExtClk",
-		  help="use external clock on OH", metavar="useExtClk")
+parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
+		  help="which reference clock to use on OH", metavar="clkSrc")
 parser.add_option("-x", "--extTrig", type="int", dest="trgSrc",
 		  help="change trigger source", metavar="trgSrc")
 parser.add_option("-b", "--sbitout", type="int", dest="sbitSrc",
@@ -56,81 +59,74 @@ print "-> -----------------"
 
 print
 
+if options.clkSrc in [0,1,2]:
+        setReferenceClock(optohybrid,options.gtx,options.trgSrc)
 #print "-> OH VFATs accessible: 0x%x"%(readRegister(glib,"VFATs_TEST"))
-print "OH:  %6s  %7s  %8s  %7s  %6s  %6s"%("TrgSrc","SBitSrc","FPGA PLL","EXT PLL","CDCE","GTX")
 if options.trgSrc in [0,1,2,3,4]:
-        setTriggerSource(False,optohybrid,options.trgSrc)
+        setTriggerSource(optohybrid,options.gtx,options.trgSrc)
 	
 if options.localT1:
         #configureLocalT1(optohybrid,0x0,0x0,0,25,100)
         sendL1ACalPulse(optohybrid,15)
 
 if options.sbitSrc in [1,2,3,4,5,6]:
-        setTriggerSBits(False,optohybrid,options.sbitSrc)
+        setTriggerSBits(False,optohybrid,options.gtx,options.sbitSrc)
 
 clocking = getClockingInfo(optohybrid)
-#OH:  TrgSrc  SBitSrc  FPGA PLL    EXT PLL    CDCE     GTX
-#->:     0x0      0x0       0x0       0x0      0x1     0x1
-
-print "->:     0x%x      0x%x       0x%x      0x%x     0x%x     0x%x"%(
+#OH:  TrgSrc  SBitSrc  FPGA PLL    EXT PLL    CDCE     GTX  RefCLKSrc
+#->:     0x0      0x0       0x0       0x0      0x1     0x1        0x1
+print "OH:  %6s  %7s  %8s  %7s  %6s  %6s  %9s"%("TrgSrc","SBitSrc","FPGA PLL","EXT PLL","CDCE","GTX","RefCLKSrc")
+print "->:     0x%x      0x%x       0x%x      0x%x     0x%x     0x%x        0x%x"%(
         readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.CONTROL.TRIGGER.SOURCE"),
         readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.CONTROL.OUTPUT.SBits"),
         clocking["fpgaplllock"],
         clocking["extplllock"],
         clocking["cdcelock"],
-        clocking["gtxreclock"])
+        clocking["gtxreclock"],
+        clocking["refclock"])
 	
 print 
-#print "-> OH link Clocking (src, bkp):     VFAT         CDCE"
-#for link in (links.keys()):
-#        clocking = getClockingInfo(optohybrid,links[link]) 
-#	print "-> %22s%d       (0x%x  0x%x)   (0x%x  0x%x)"%("link",links[link],
-#							     clocking["vfatsrc"],clocking["vfatbkp"],
-#							     clocking["cdcesrc"],clocking["cdcebkp"])
-	
+#print "-> OH Clocking (src, bkp):     VFAT         CDCE"
+#print "-> %22s%d       (0x%x  0x%x)   (0x%x  0x%x)"%("link",links[link],
+#						     clocking["vfatsrc"],clocking["vfatbkp"],
+#						     clocking["cdcesrc"],clocking["cdcebkp"])
 #exit(1)
-#if (options.resetCounters):
-#        linkCounters(False,optohybrid,links[link],True)
 
-errorCounts = []
-SAMPLE_TIME = 1.
-for trial in range(options.errorRate):
-        errorCounts.append(calculateLinkErrors(False,optohybrid,SAMPLE_TIME))
-sys.stdout.flush()
+if (options.resetCounters):
+        optohybridCounters(optohybrid,options.gtx,True)
 
-
-##print 
-##print "-> Counters    %8s     %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0","BX")
-##counters = linkCounters(False,optohybrid,links[link],False)
-##print "->      0x%08x   0x%08x   0x%08x   0x%08x   0x%08x"%(links[link],
-##									  counters["L1A"],
-##									  counters["Cal"],
-##									  counters["Resync"],
-##									  counters["BC0"],
-##									  counters["BXCount"])
+print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
+counters = optohybridCounters(optohybrid)
+for key in counters["T1"]:
+        print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(key,
+                                                           counters["T1"][key]["L1A"],
+                                                           counters["T1"][key]["CalPulse"],
+                                                           counters["T1"][key]["Resync"],
+                                                           counters["T1"][key]["BC0"])
 	
-print
 print
 print "--=======================================--"
 print "-> OH: %10s  %12s"%("ErrCnt","(rate)")
-#print "-> OH: %10s  %12s    %10s    %10s    %10s    %10s"%("ErrCnt","(rate)",
-                                                           #"I2CRecCnt","I2CSndCnt",
-                                                           #"RegRecCnt","RegSndCnt")
+errorCounts = []
+SAMPLE_TIME = 1.
+for trial in range(options.errorRate):
+        errorCounts.append(calculateLinkErrors(False,optohybrid,options.gtx,SAMPLE_TIME))
+sys.stdout.flush()
+
 rates = errorRate(errorCounts,SAMPLE_TIME)
-#counters = linkCounters(False,optohybrid,links[link],False)
+#counters = optohybridCounters(optohybrid)
 print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
 print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
-#print "-> link%d      : 0x%08x   (%6.2f%1sHz)    0x%08x    0x%08x    0x%08x    0x%08x"%(counters["LinkErrors"],
-                                                                                        #counters["RecI2CRequests"],
-                                                                                        #counters["SntI2CRequests"],
-                                                                                        #counters["RecRegRequests"],
-                                                                                        #counters["SntRegRequests"])
+print 
+
 exit(1)
 print
-vfatRange = ["0-7","8-15","16-23"]
-for link in (links.keys()):
-	print "FIFO%d depth = %d"%(link,readRegister(glib,"GLIB.GLIB_LINKS.LINK%d.TRK_FIFO.DEPTH"%(link)))
-	print "vfat (%s) have data: 0x%x"%(link,readRegister(optohybrid,"OptoHybrid.GEB.TRK_DATA.COL%d.DATA_RDY%d"%(link)))
+print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
+for gtx in range(2):
+        fifoInfo = readFIFODepth(glib,gtx)
+        print "       %8s  %7s  %10s"%("0x%x"%(fifoInfo["isEMPTY"]),
+                                       "0x%x"%(fifoInfo["isFULL"]),
+                                       "0x%x"%(fifoInfo["Occupancy"]))
 	
 
 print
