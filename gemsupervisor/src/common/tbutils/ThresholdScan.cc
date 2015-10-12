@@ -142,7 +142,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   //timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
 
   LOG4CPLUS_INFO(getApplicationLogger(),
-		 " ABC TriggersSeen " << confParams_.bag.triggersSeen);
+		 " ::TriggersSeen " << confParams_.bag.triggersSeen);
   /*  LOG4CPLUS_DEBUG(getApplicationLogger(),
       " TriggersSeen " << confParams_.bag.triggersSeen << " ADCVoltage " << confParams_.bag.ADCVoltage 
       << " ADCurrent " << confParams_.bag.ADCurrent );*/
@@ -154,7 +154,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     //    vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
 
     LOG4CPLUS_INFO(getApplicationLogger(),
-		   "ABC Not enough triggers, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
+		   " ::run Not enough triggers, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
     
     //    vfatDevice_->setDeviceBaseNode("GLIB");
   
@@ -197,7 +197,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	      confParams_.bag.ADCurrent = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFAT_ADC.Current");
 	      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       */ 
-      LOG4CPLUS_INFO(getApplicationLogger(),"ABC Not enough entries in the buffer, run mode 0x" 
+      LOG4CPLUS_INFO(getApplicationLogger()," ::run Not enough entries in the buffer, run mode 0x" 
 		     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
 
       hw_semaphore_.give();
@@ -207,7 +207,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     else {
       //maybe don't do the readout as a workloop?
       hw_semaphore_.take();
-      LOG4CPLUS_INFO(getApplicationLogger(),"ABC Buffer full, reading out, run mode 0x" 
+      LOG4CPLUS_INFO(getApplicationLogger()," ::run Buffer full, reading out, run mode 0x" 
                      << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
 
       hw_semaphore_.give();
@@ -221,7 +221,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   else {
 
     hw_semaphore_.take();
-    LOG4CPLUS_INFO(getApplicationLogger(),"ABC Enough triggers, reading out, run mode 0x" 
+    LOG4CPLUS_INFO(getApplicationLogger()," ::run Enough triggers, reading out, run mode 0x" 
                    << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
 
     vfatDevice_->setRunMode(0);
@@ -244,7 +244,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       }      
     }
     
-//reset counters
+    //reset counters
     optohybridDevice_->ResetL1ACount(0x4);
     optohybridDevice_->ResetResyncCount();
     optohybridDevice_->ResetBC0Count();
@@ -253,7 +253,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     
     hw_semaphore_.give();
 
-    LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
+    LOG4CPLUS_INFO(getApplicationLogger()," ::Scan point TriggersSeen " 
 		   << confParams_.bag.triggersSeen );
 
     if ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 ) {
@@ -263,7 +263,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.take();
 
       LOG4CPLUS_INFO(getApplicationLogger(),
-		     "ABC VT1 is 0, reading out, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec );
+		     " ::run VT1 is 0, reading out, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec );
 
       hw_semaphore_.give();
       wl_semaphore_.give();
@@ -276,13 +276,14 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
       hw_semaphore_.take();
 
-      LOG4CPLUS_INFO(getApplicationLogger()," ABC run: VT1= " 
+      LOG4CPLUS_INFO(getApplicationLogger()," ::run: VT1= " 
 		     << scanParams_.bag.deviceVT1 << " VT2-VT1= " << scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1 
 		     << " bag.maxThresh= " << scanParams_.bag.maxThresh 
 		     << " abs(VT2-VT1) " << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
 
       LOG4CPLUS_INFO(getApplicationLogger(),
-		     "ABC VT2-VT1 is less than the max threshold, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
+	        " ::run VT2-VT1 is less than the max threshold, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << 
+                std::dec);
 
       hw_semaphore_.give();
       //how to ensure that the VT1 never goes negative
@@ -306,7 +307,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
       vfatDevice_->setRunMode(1);
 
-      LOG4CPLUS_INFO(getApplicationLogger(),"ABC Resubmitting the run workloop, run mode 0x" 
+      LOG4CPLUS_INFO(getApplicationLogger()," :: Resubmitting the run workloop, run mode 0x" 
                      << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
 
       hw_semaphore_.give();
@@ -318,7 +319,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       //wl_semaphore_.take();
       hw_semaphore_.take();
 
-      LOG4CPLUS_INFO(getApplicationLogger(),"ABC reached max threshold, stopping out, run mode 0x" 
+      LOG4CPLUS_INFO(getApplicationLogger()," :: reached max threshold, stopping out, run mode 0x" 
                      << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
 
       hw_semaphore_.give();
