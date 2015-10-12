@@ -446,7 +446,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
               * VFATs Pay Load
               */
               geb.vfats.push_back(vfat);
-              /*
+              /* 
               GEMDataAMCformat::printVFATdataBits(nChip, vfat);
               */
 
