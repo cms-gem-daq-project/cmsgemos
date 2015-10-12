@@ -377,7 +377,7 @@ namespace gem {
             }
           };
 
-          /** Read the Trigger source
+           /** Read the Trigger source
            * @retval uint8_t 0 from GLIB, 1 from AMC13, 2 from both
            **/
           uint8_t getTrigSource(uint8_t const& link=0x0) { 

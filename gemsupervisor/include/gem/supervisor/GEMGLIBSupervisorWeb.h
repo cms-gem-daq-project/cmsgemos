@@ -150,6 +150,10 @@ namespace gem {
          *    Dump to disk all data available in GLIB data buffer
          */
         bool readAction(toolbox::task::WorkLoop *wl);
+        /**
+         *    Select all data available in GLIB data buffer
+         */
+        bool selectAction(toolbox::task::WorkLoop *wl);
 
         // State transitions
         /**
@@ -214,6 +218,7 @@ namespace gem {
         toolbox::task::ActionSignature *start_signature_;
         toolbox::task::ActionSignature *run_signature_;
         toolbox::task::ActionSignature *read_signature_;
+        toolbox::task::ActionSignature *select_signature_;
 
         toolbox::fsm::FiniteStateMachine fsm_;
 
