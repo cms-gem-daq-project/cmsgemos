@@ -96,6 +96,7 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   halt_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::haltAction,      "haltAction"     );
   run_signature_       = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::runAction,       "runAction"      );
   read_signature_      = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::readAction,      "readAction"     );
+  select_signature_    = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::selectAction,    "selectAction"   );
 
   // Define FSM states
   fsm_.addState('I', "Initial",    this, &gem::supervisor::GEMGLIBSupervisorWeb::stateChanged);
@@ -192,11 +193,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   }
   else if (is_working_) {
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","7");
+    head.addHeader("Refresh","3");
   }
   else if (is_running_) {
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","7");
+    head.addHeader("Refresh","3");
   }
 
   if (is_configured_) {
@@ -593,7 +594,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
     fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
   if (readout_mask&0x4)
     fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
-    
+
   if (fifoDepth[0])
     INFO("bufferDepth[0] (runAction) = " << std::hex << fifoDepth[0] << std::dec);
   if (fifoDepth[1])
@@ -603,6 +604,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
   // Get the size of GLIB data buffer
   uint32_t bufferDepth = 0;
+
   if (readout_mask&0x1)
     bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
   if (readout_mask&0x2)
@@ -618,7 +620,8 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth) {
     wl_->submit(read_signature_);
-  }
+    //wl_->submit(select_signature_);
+  }//end bufferDepth
 
   return false;
 }
@@ -641,6 +644,28 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   return false;
 }
 
+
+bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop *wl)
+{
+  wl_semaphore_.take();
+  hw_semaphore_.take();
+
+  uint32_t  Counter[4] = {0,0,0,0};
+  uint32_t* pDQ = gemDataParker->selectData();
+  if (pDQ) {
+    Counter[0] = *(pDQ+0);
+    Counter[1] = *(pDQ+1);
+    Counter[2] = *(pDQ+2); // Events counter
+    Counter[3] = *(pDQ+3);
+  }
+
+  hw_semaphore_.give();
+  wl_semaphore_.give();
+
+  return false;
+}
+
+
 // State transitions
 void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Reference evt) {
   is_working_ = true;
@@ -660,6 +685,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   //optohybridDevice_->connectDevice();
 
+  INFO("setTrigSource GLIB, OH mode 0");
+  optohybridDevice_->setTrigSource(2, 0x0);
+  optohybridDevice_->setTrigSource(2, 0x1);
+  optohybridDevice_->setTrigSource(2, 0x2);
+  glibDevice_->setTrigSource(2, 0x0);
+  glibDevice_->setTrigSource(2, 0x1);
+  glibDevice_->setTrigSource(2, 0x2);
+
   // Times for output files
   time_t now  = time(0);
   tm    *gmtm = gmtime(&now);
@@ -673,7 +706,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   std::replace(SetupFileName.begin(), SetupFileName.end(), ' ', '_' );
   std::replace(SetupFileName.begin(), SetupFileName.end(), ':', '-');
 
-  LOG4CPLUS_INFO(getApplicationLogger(),"::configureAction " << "Created Setup file " << SetupFileName );
+  INFO("::configureAction Created Setup file " << SetupFileName );
 
   std::ofstream SetupFile(SetupFileName.c_str(), std::ios::app );
   if (SetupFile.is_open()){
@@ -720,7 +753,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   }
 
   // Create a new output file for Data flow
-  std::string tmpFileName = "GEM_DAQ_", tmpType = "";
+  std::string tmpFileName = "GEMDAQ_", tmpType = "";
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
   tmpFileName.append(".dat");
@@ -741,7 +774,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   tmpType = confParams_.bag.outputType.toString();
 
   // Book GEM Data Parker
-  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, tmpType));
+  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new 
+                                  gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, tmpType)
+                                 );
 
   // Data Stream close
   outf.close();
@@ -822,12 +857,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_running_ = true;
   hw_semaphore_.take();
 
-  /*
-   * set trigger source
-  optohybridDevice_->setTrigSource(0x0);
-  optohybridDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
-  glibDevice_->setSBitSource((unsigned)confParams_.bag.deviceNum[11]);
-  */
+  INFO("setTrigSource OH mode 0");
+  optohybridDevice_->setTrigSource(2, 0x0);
+  optohybridDevice_->setTrigSource(2, 0x1);
+  optohybridDevice_->setTrigSource(2, 0x2);
 
   INFO("Enabling run mode for selected VFATs");
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
@@ -883,6 +916,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
   m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
 
+  INFO("setTrigSource GLIB mode 2");
+  glibDevice_->setTrigSource(2, 0x0);
+  glibDevice_->setTrigSource(2, 0x1);
+  glibDevice_->setTrigSource(2, 0x2);
+
   hw_semaphore_.give();
   is_working_ = false;
 }
@@ -894,6 +932,15 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   event_ = 0;
   sumVFAT_ = 0;
   counter_ = {0,0,0};
+
+  INFO("setTrigSource GLIB, OH mode 0");
+  optohybridDevice_->setTrigSource(2, 0x0);
+  optohybridDevice_->setTrigSource(2, 0x1);
+  optohybridDevice_->setTrigSource(2, 0x2);
+  glibDevice_->setTrigSource(2, 0x0);
+  glibDevice_->setTrigSource(2, 0x1);
+  glibDevice_->setTrigSource(2, 0x2);
+
   //turn off all chips?
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);

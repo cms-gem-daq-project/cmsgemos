@@ -34,7 +34,7 @@
 	    <item xsi:type="xsd:string" soapenc:position="[22]">VFAT22</item-->
 	    <item xsi:type="xsd:string" soapenc:position="[23]">VFAT23</item>
 	  </deviceName>
-	  <!--deviceNum xsi:type="xsd:string">192.168.0.162</deviceNum-->
+	  <!--deviceNum xsi:type="xsd:string">192.168.0.169</deviceNum-->
 	  <latency xsi:type="xsd:unsignedShort">25</latency>
 	  <triggerSource xsi:type="xsd:unsignedShort">0</triggerSource>
 	  <deviceChipID xsi:type="xsd:unsignedShort">1</deviceChipID>
