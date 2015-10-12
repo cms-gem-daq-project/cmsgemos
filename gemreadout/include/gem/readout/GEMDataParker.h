@@ -29,9 +29,16 @@ namespace gem {
       ~GEMDataParker() {};
 
       uint64_t* dumpData   ( uint8_t const& mask );
-      void dumpDataToDisk  ( uint8_t const& link );
-      int  getGLIBData     ( uint8_t const& link );
-
+      uint32_t* selectData ();
+      uint32_t* getGLIBData( uint8_t const& link,
+                             uint32_t bufferCount[4]
+                           );
+      uint32_t* GEMEventMaker( uint32_t bufferCount[4]
+                             );
+      void GEMevSelector   ( const  uint32_t& ES,
+                             int MaxEvent = 0,
+                             int MaxErr   = 0
+                           );
       void GEMfillHeaders  ( uint32_t const& BC,
                              uint32_t const& BX,
                              gem::readout::GEMDataAMCformat::GEMData& gem,
