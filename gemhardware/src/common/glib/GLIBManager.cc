@@ -525,7 +525,6 @@ void gem::hw::glib::GLIBManager::resetAction()
     if (is_glibs[slot]->hasItem("IPBusPort"))
       is_glibs[slot]->fireItemRevoked("IPBusPort");
   }
-  
 }
 
 /*
