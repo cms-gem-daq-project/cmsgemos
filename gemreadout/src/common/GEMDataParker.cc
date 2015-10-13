@@ -146,7 +146,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
       if (contqueue%kUPDATE7 == 0 &&  contqueue != 0) {
         contvfats_++;
         /*
-        INFO(" ::getGLIBData conter " << contqueue << " contvfats " << contvfats_ << " dataque.size " << dataque.size() 
+        INFO(" ::getGLIBData conter "  << contqueue << " contvfats " << contvfats_ << " dataque.size " << dataque.size() 
         */
       }
     }

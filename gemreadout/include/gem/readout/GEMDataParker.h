@@ -25,7 +25,7 @@ namespace gem {
                             std::string const& outFileName, 
                             std::string const& errFileName, 
                             std::string const& outputType
-                           );
+                            );
       ~GEMDataParker() {};
 
       uint32_t* dumpData   ( uint8_t const& mask );
