@@ -1,6 +1,7 @@
 #ifndef gem_supervisor_tbutils_GEMTBUtil_h
 #define gem_supervisor_tbutils_GEMTBUtil_h
 
+
 #include <map>
 #include <string>
 
@@ -13,6 +14,8 @@
 #include "xdaq/NamespaceURI.h"
 #include "xoap/Method.h"
 #include "xoap/MessageFactory.h"
+
+#include "log4cplus/logger.h"
 
 #include "toolbox/Event.h"
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"
@@ -63,18 +66,12 @@ namespace gem {
       class HwGLIB;
     }
   }
-  /*
   namespace readout {
     struct VFATData;
   }
   namespace readout {
     class GEMDataParker;
   }
-  */
-
-  typedef std::shared_ptr<hw::vfat::HwVFAT2 > vfat_shared_ptr;
-  typedef std::shared_ptr<hw::glib::HwGLIB >  glib_shared_ptr;
-  typedef std::shared_ptr<hw::optohybrid::HwOptoHybrid > optohybrid_shared_ptr;
 
   namespace supervisor {
     namespace tbutils {
@@ -197,6 +194,8 @@ namespace gem {
 	  
 	protected:
 
+	  log4cplus::Logger gemLogger_;
+
 	  toolbox::fsm::AsynchronousFiniteStateMachine* fsmP_;
 
 	  toolbox::task::WorkLoop *wl_;
@@ -223,12 +222,12 @@ namespace gem {
 
 	  uint64_t nTriggers_;
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
-          vfat_shared_ptr       vfatDevice_;
-          glib_shared_ptr       glibDevice_;
-          optohybrid_shared_ptr optohybridDevice_;
+	  gem::hw::vfat::HwVFAT2* vfatDevice_;
+	  gem::hw::glib::HwGLIB* glibDevice_;
+	  gem::hw::optohybrid::HwOptoHybrid* optohybridDevice_;
+	  //readout application should be running elsewhere, not tied to supervisor                                                                                                  
+	  gem::readout::GEMDataParker* gemDataParker;
 
-	  //readout application should be running elsewhere, not tied to supervisor
-	  //SB gem::readout::GEMDataParker* gemDataParker;
 
 	  // Counter
 	  int counter_[3];

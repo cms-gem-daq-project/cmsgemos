@@ -1,8 +1,6 @@
+#include "gem/readout/GEMDataAMCformat.h"
 #include "gem/supervisor/tbutils/LatencyScan.h"
-
-//SB #include "gem/readout/GEMDataAMCformat.h"
-//SB #include "gem/readout/GEMDataParker.h"
-
+#include "gem/readout/GEMDataParker.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
@@ -31,12 +29,6 @@
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::LatencyScan)
 
-/*
-typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
-typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
-typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
-*/
-
 //
 void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
@@ -57,6 +49,7 @@ void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::
 
 gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
+
   gem::supervisor::tbutils::GEMTBUtil(s)
 {
 
@@ -112,173 +105,194 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   optohybridDevice_->SendL1ACal(1,15);   
   sleep(1);
 
+
   //count triggers
   confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
   CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
   CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
   CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
 
-  LOG4CPLUS_INFO(getApplicationLogger()," ******sent trigger ***** " << "trigger count" << confParams_.bag.triggersSeen);
+
+
+    LOG4CPLUS_INFO(getApplicationLogger()," ******sent trigger ***** "
+		   << "trigger count" << confParams_.bag.triggersSeen);
+
 
   hw_semaphore_.give();//end sendL1ACalpulse
 
-  //----------------------------------------------------------------
-  for(int i = 0 ; i < 24 ; ++i){
-    if(confParams_.bag.deviceName[i].toString() != ""){
-      LOG4CPLUS_INFO(getApplicationLogger()," Scanning VFAT =  " << confParams_.bag.deviceName[i].toString());
-	  
-      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+  // if triggersSeen < N triggers
+  if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
 
-	// if triggersSeen < N triggers
-	if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
+    hw_semaphore_.take();//vfat log info
 
-	  hw_semaphore_.take();//glib buffer depth
-    
-	  // GLIB data buffer validation                                                 
-	  uint32_t fifoDepth[3];
-    
-	  if (readout_mask&0x1)
-	    fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
-	  if (readout_mask&0x2)
-	    fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
-	  if (readout_mask&0x4)
-	    fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
+    //        LOG4CPLUS_INFO(getApplicationLogger(),
+    //		   "Not enough triggers, run mode 0x" << std::hex << (int)vfatDevice_->getRunMode() << std::dec);
      
-	  // Get the size of GLIB data buffer       
-	  uint32_t bufferDepth;
-	  if (readout_mask&0x1) {
-	    bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
-	  }
-	  if (readout_mask&0x2) {
-	    bufferDepth = glibDevice_->getFIFOOccupancy(0x1);     
-	  }
-	  if (readout_mask&0x4) {
-	    bufferDepth = glibDevice_->getFIFOOccupancy(0x2);     
-	  }
-
-	  hw_semaphore_.give();// end glib buffer depth 
-
-	  if (bufferDepth < 10) {
-	    hw_semaphore_.take();//oh trigger counter update
-
-	    //trigger seen and CalCounters  updated
-	    confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
-	    CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
-	    CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
-	    CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
-
-	    hw_semaphore_.give();//oh trigger counter update
-	    wl_semaphore_.give();
-	    return true;
-	  } 
-	  else{ // buffer depth is less tha 10
-
-	    wl_semaphore_.give();
-	    wl_->submit(readSig_);
-
-	    return true;
-	  } // end else buffer < 10
-	  //wl_semaphore_.give();
-	}// end triggerSeen < N triggers
-	else { 
-
-	  hw_semaphore_.take(); //vfat log 
-	  //disable triggers
-	  optohybridDevice_->setTrigSource(0x1);   
-	  //SB glibDevice_->setTrigSource(0x0);   
-	  sleep(1);
-	  vfatDevice_->setRunMode(0);
-
-	  hw_semaphore_.give(); //end vfat log
-	  wl_semaphore_.give();
-
-	  wl_->submit(readSig_);    
-
-	  //histolatency->Fill((int)currentLatency_, eventsSeen_);
-	  histolatency->Fill((int)currentLatency_, channelSeen_);
-
-	  std::string imgName = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/latencyscan/"
-	    +confParams_.bag.deviceName.toString()+"_Latency_scan.png";
-
-	  outputCanvas->cd();
-	  histolatency->Draw("ep0");
-	  outputCanvas->Update();
-	  outputCanvas->SaveAs(TString(imgName));
-
-	  hw_semaphore_.take();// vfat setrun0
-	  wl_semaphore_.take();
-
-	  // flush fifo
-	  for (int i = 0; i < 2; ++i){
-	    if (readout_mask >> i) {
-	      glibDevice_->flushFIFO(i);
-	      while (glibDevice_->hasTrackingData(i))
-		std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
-	      glibDevice_->flushFIFO(i);
-	    }      
-	  }
-
-	  //reset counters
-	  optohybridDevice_->ResetL1ACount(0x4);
-	  //optohybridDevice_->ResetResyncCount();
-	  //optohybridDevice_->ResetBC0Count();
-	  optohybridDevice_->ResetCalPulseCount(0x3);
-	  //felipe 1 
-	  //    optohybridDevice_->SendResync();     
+    hw_semaphore_.give();//vfat log info
+    hw_semaphore_.take();//glib buffer depth
     
-	  hw_semaphore_.give(); //end glib flush fifo
+    // GLIB data buffer validation                                                 
+    uint32_t fifoDepth[3];
+    
+    if (readout_mask&0x1)
+      fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
+    if (readout_mask&0x2)
+      fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
+    if (readout_mask&0x4)
+      fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
+     
+    // Get the size of GLIB data buffer       
+    uint32_t bufferDepth;
+    if (readout_mask&0x1) {
+      bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
+    }
+    if (readout_mask&0x2) {
+      bufferDepth = glibDevice_->getFIFOOccupancy(0x1);     
+    }
+    if (readout_mask&0x4) {
+      bufferDepth = glibDevice_->getFIFOOccupancy(0x2);     
+    }
 
-	  LOG4CPLUS_INFO(getApplicationLogger()," Scan point TriggersSeen " 
-			 << confParams_.bag.triggersSeen );
+    hw_semaphore_.give();// end glib buffer depth 
 
-	  //if max Latency - current Latency >= stepsize
-	  if (scanParams_.bag.maxLatency - currentLatency_ >= scanParams_.bag.stepSize) {
+    if (bufferDepth < 1) {
+      hw_semaphore_.take();//oh trigger counter update
 
-	    hw_semaphore_.take();// vfat get latency
+      //trigger seen and CalCounters  updated
+      confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
+      CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
+      CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
+      CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
 
-	    LOG4CPLUS_INFO(getApplicationLogger(),"we've seen enough triggers, changing the latency");
-	    LOG4CPLUS_INFO(getApplicationLogger(), "CurLaten " << (int)currentLatency_ 
-			   << " TrigSeen " << confParams_.bag.triggersSeen 
-			   << " CalPulses " << CalPulseCount_[2] 
-			   << " eventsSeen " << eventsSeen_ 
-			   << "channelseen " << channelSeen_ ); 
+      hw_semaphore_.give();//oh trigger counter update
+      hw_semaphore_.take();//vfat log
 
-	    if ((currentLatency_ + scanParams_.bag.stepSize) < 0xFF) {
-	      vfatDevice_->setLatency(currentLatency_ + scanParams_.bag.stepSize);
-	    } else  { 
-	      vfatDevice_->setLatency(0xFF);
-	    }
+      LOG4CPLUS_DEBUG(getApplicationLogger(),"Not enough entries in the buffer, run mode 0x" 
+		      << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
 
-	    currentLatency_ = vfatDevice_->getLatency();
+      hw_semaphore_.give(); //end vfat log
+      wl_semaphore_.give();
+      return true;
+    } 
+    else{ // buffer depth is less tha 10
 
-	    vfatDevice_->setRunMode(1);      
-	    optohybridDevice_->setTrigSource(0x2);
-	    //SB glibDevice_->setTrigSource(0x2);
+      hw_semaphore_.take(); // vfat log info
+      LOG4CPLUS_INFO(getApplicationLogger()," Buffer full, reading out, run mode 0x" 
+		     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
 
-	    confParams_.bag.triggersSeen =  0;
-	    eventsSeen_   = 0;  
-	    channelSeen_ = 0;
+      hw_semaphore_.give(); // end vfat log info
+      wl_semaphore_.give();
+      wl_->submit(readSig_);
+
+      return true;
+    } // end else buffer < 10
+    //wl_semaphore_.give();
+  }// end triggerSeen < N triggers
+  else { 
+
+    hw_semaphore_.take(); //vfat log 
+    LOG4CPLUS_INFO(getApplicationLogger(),"Enough triggers, reading out, run mode 0x" 
+		   << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
+
+    //disable triggers
+    optohybridDevice_->setTrigSource(0x1);   
+    glibDevice_->setTrigSource(0x0);   
+    sleep(1);
+    vfatDevice_->setRunMode(0);
+
+    hw_semaphore_.give(); //end vfat log
+    wl_semaphore_.give();
+
+    wl_->submit(readSig_);    
+    LOG4CPLUS_INFO(getApplicationLogger()," *****termina de leer ***** ");
+    //histolatency->Fill((int)currentLatency_, eventsSeen_);
+    histolatency->Fill((int)currentLatency_, channelSeen_);
+
+    std::string imgName = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/latencyscan/"
+      +confParams_.bag.deviceName.toString()+"_Latency_scan.png";
+    outputCanvas->cd();
+    histolatency->Draw("ep0");
+    outputCanvas->Update();
+    outputCanvas->SaveAs(TString(imgName));
+    
+
+    hw_semaphore_.take();// vfat setrun0
+    wl_semaphore_.take();
+
+    // flush fifo
+    for (int i = 0; i < 2; ++i){
+      if (readout_mask >> i) {
+	glibDevice_->flushFIFO(i);
+	while (glibDevice_->hasTrackingData(i))
+	  std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
+	glibDevice_->flushFIFO(i);
+      }      
+    }
+
+    //reset counters
+    optohybridDevice_->ResetL1ACount(0x4);
+    //optohybridDevice_->ResetResyncCount();
+    //optohybridDevice_->ResetBC0Count();
+    optohybridDevice_->ResetCalPulseCount(0x3);
+    //felipe 1
+    optohybridDevice_->SendResync();     
+    
+    hw_semaphore_.give(); //end glib flush fifo
+
+    LOG4CPLUS_INFO(getApplicationLogger()," Scan point TriggersSeen " 
+		   << confParams_.bag.triggersSeen );
+
+    //if max Latency - current Latency >= stepsize
+    if (scanParams_.bag.maxLatency - currentLatency_ >= scanParams_.bag.stepSize) {
+
+      hw_semaphore_.take();// vfat get latency
+
+      LOG4CPLUS_INFO(getApplicationLogger(),"we've seen enough triggers, changing the latency");
+      LOG4CPLUS_INFO(getApplicationLogger(), "CurLaten " << (int)currentLatency_ 
+		     << " TrigSeen " << confParams_.bag.triggersSeen 
+		     << " CalPulses " << CalPulseCount_[2] 
+		     << " eventsSeen " << eventsSeen_ 
+		     << "channelseen " << channelSeen_ ); 
+
+      if ((currentLatency_ + scanParams_.bag.stepSize) < 0xFF) {
+	vfatDevice_->setLatency(currentLatency_ + scanParams_.bag.stepSize);
+      } else  { 
+	vfatDevice_->setLatency(0xFF);
+      }
+
+      currentLatency_ = vfatDevice_->getLatency();
+
+      vfatDevice_->setRunMode(1);      
+      optohybridDevice_->setTrigSource(0x2);
+      glibDevice_->setTrigSource(0x2);
+
+      confParams_.bag.triggersSeen =  0;
+      eventsSeen_   = 0;  
+      channelSeen_ = 0;
  
-	    hw_semaphore_.give(); // end vfat
-	    wl_semaphore_.give();	
+      LOG4CPLUS_INFO(getApplicationLogger(),"Resubmitting the run workloop, run mode 0x" 
+		     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
 
-	    return true;	
-	  } // end if maxLat - curreLat > step
-	  else {
+      hw_semaphore_.give(); // end vfat
+      wl_semaphore_.give();	
 
-	    wl_semaphore_.give();
-	    //wl_->submit(stopSig_);
-	    return false; 
-      
-	  }//end else
-    
-	}//end else triggerseen < N triggers
+      return true;	
+    } // end if maxLat - curreLat > step
+    else {
 
-      }//end for vfatdevice
-      
-    }//end if device name
+      hw_semaphore_.take();//vfat log 
 
-  }//end if i < 24
+      LOG4CPLUS_INFO(getApplicationLogger()," reached max latency, stopping out, run mode 0x" 
+		     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
+
+      hw_semaphore_.give();// end log vfat
+      wl_semaphore_.give();
+      wl_->submit(stopSig_);
+      return false; 
+
+    }//end else
+
+  }//end else triggerseen < N triggers
   return false;
 }//end run
 
@@ -286,6 +300,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
 bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl)    
 {
+  gem::readout::VFATData vfat;
+
   int ievent=0;
 
   wl_semaphore_.take();
@@ -304,12 +320,14 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
     bufferDepth = glibDevice_->getFIFOOccupancy(0x2);     
   }
   
-  LOG4CPLUS_INFO(getApplicationLogger()," readFIFO bufferDepth " << std::hex << bufferDepth << std::dec );
+  LOG4CPLUS_INFO(getApplicationLogger()," START READING" );
   LOG4CPLUS_INFO(getApplicationLogger(), " CurLaten " << (int)currentLatency_ 
 		 << " TrigSeen " << confParams_.bag.triggersSeen 
 		 << " CalPulses " << CalPulseCount_[2] 
 		 << " eventsSeen " << eventsSeen_
 		 << "channelSeen " << channelSeen_ ); 
+
+  INFO("readFIFO bufferDepth = " << std::hex << bufferDepth << std::dec);
 
   //grab events from the fifo
   bool isFirst = true;
@@ -389,7 +407,6 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
     lsData = (data3 << 32) | (data4);
     msData = (data1 << 32) | (data2);
 
-    /*
     vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
     vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
     vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
@@ -397,9 +414,9 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
     vfat.msData = msData;                                 // msData:64
     vfat.crc    = crc;                                    // crc:16
 
-    gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
-    */
 
+    gem::readout::printVFATdataBits(ievent, vfat);
+    
     if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
       if (readout_mask&0x1)
@@ -419,10 +436,11 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
       bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
     if (readout_mask&0x4)
       bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
+    
    
     //    vfatDevice_->readVFAT2Channel(1);
     
-    
+    //    if(((lsData>>9) && 0x1) || ((lsData>>10) && 0x1) || ((lsData>>11) && 0x1)){
     if((lsData>>63) && 0x1){
       ++channelSeen_;
     }
@@ -433,11 +451,10 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
       ++eventsSeen_;
     }
   }
-  
-  
-  LOG4CPLUS_INFO(getApplicationLogger(), "END READING*****CurLaten " << (int)currentLatency_ << 
-            " TrigSeen " << confParams_.bag.triggersSeen << " CalPulses " << CalPulseCount_[2] << 
-            " eventsSeen " << eventsSeen_ << " channelSeen " << channelSeen_ ); 
+
+   
+  LOG4CPLUS_INFO(getApplicationLogger(), "END READING*****CurLaten " << (int)currentLatency_ << " TrigSeen " << confParams_.bag.triggersSeen << " CalPulses " << CalPulseCount_[2] 
+		 << " eventsSeen " << eventsSeen_ << " channelSeen " << channelSeen_ ); 
 
   hw_semaphore_.give();
   wl_semaphore_.give();
@@ -955,7 +972,9 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   confParams_.bag.outFileName = tmpFileName;
 
   // Book GEM Data Parker                                                                 
-  //SB gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpFileName);
+  gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpFileName);
+
+
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Creating file " << confParams_.bag.outFileName.toString());
   //std::fstream scanStream(confParams_.bag.outFileName.c_str(),
@@ -972,7 +991,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
   //set trigger source
   optohybridDevice_->setTrigSource(0x2);   
-  //SB glibDevice_->setTrigSource(0x2);   
+  glibDevice_->setTrigSource(0x2);   
 
   //set clock source
   optohybridDevice_->SetVFATClock(1,1,0x0);    
@@ -1010,10 +1029,9 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   //start readout
   scanStream.close();
 
-  if (histolatency) {
-    delete histolatency;
-    histolatency = 0;
-  }
+  if (histolatency)  delete histolatency;
+  histolatency = 0;
+  
   int minVal = scanParams_.bag.minLatency;
   int maxVal = scanParams_.bag.maxLatency;
   int nBins = (maxVal - minVal +1)/(scanParams_.bag.stepSize);

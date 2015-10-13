@@ -2,10 +2,11 @@
 #include "gem/hw/vfat/HwVFAT2.h"
 
 //felipe 3
-//SB #include "gem/readout/GEMDataParker.h"
+#include "gem/readout/GEMDataParker.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 #include "gem/utils/GEMLogging.h"
+
 
 #include "TH1.h"
 #include "TFile.h"
@@ -24,6 +25,7 @@
 #include "cgicc/HTTPRedirectHeader.h"
 
 #include "gem/supervisor/tbutils/VFAT2XMLParser.h"
+
 #include "TStopwatch.h"
 
 //XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::GEMTBUtil)
@@ -77,6 +79,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
 gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
   xdaq::WebApplication(s),
+  gemLogger_(this->getApplicationLogger()),
   fsmP_(0),
   wl_semaphore_(toolbox::BSem::FULL),
   hw_semaphore_(toolbox::BSem::FULL),
@@ -93,8 +96,8 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   is_working_     (false),
   is_initialized_ (false),
   is_configured_  (false),
-  is_running_     (false)//,
-  //vfatDevice_(0)
+  is_running_     (false),
+  vfatDevice_(0)
 {
   gErrorIgnoreLevel = kWarning;
   
@@ -180,19 +183,19 @@ gem::supervisor::tbutils::GEMTBUtil::~GEMTBUtil()
   wl_ = 0;
   */
   
-  LOG4CPLUS_INFO(getApplicationLogger(),"histo = " << std::hex << histo << std::dec);
+  LOG4CPLUS_INFO(getApplicationLogger(),"histo = 0x" << std::hex << histo << std::dec);
   if (histo)
     delete histo;
   histo = 0;
 
   for (int hi = 0; hi < 128; ++hi) {
-    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = " << std::hex << histos[hi] << std::dec);
+    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
     if (histos[hi])
       delete histos[hi];
     histos[hi] = 0;
   }
 
-  LOG4CPLUS_INFO(getApplicationLogger(),"outputCanvas = " << std::hex << outputCanvas << std::dec);
+  LOG4CPLUS_INFO(getApplicationLogger(),"outputCanvas = 0x" << std::hex << outputCanvas << std::dec);
   if (outputCanvas)
     delete outputCanvas;
   outputCanvas = 0;
@@ -1248,7 +1251,11 @@ void gem::supervisor::tbutils::GEMTBUtil::webResetCounters(xgi::Input *in, xgi::
     LOG4CPLUS_INFO(getApplicationLogger(), "resetting counters entries");
     
     hw_semaphore_.take();
+    //felipe-1
+    //    vfatDevice_->setDeviceBaseNode("OptoHybrid.COUNTERS.RESETS");
     
+    INFO("GEMTBUtil::webResetCounters Reseting counters");
+      
     if (cgi.queryCheckbox("RstL1AExt") )
       optohybridDevice_->ResetL1ACount(0x1);
     
@@ -1441,26 +1448,18 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
   hw_semaphore_.take();
 
-  std::stringstream tmpURI;
-  tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
-  glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
-                                                          "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  //glibDevice_ = new gem::hw::glib::HwGLIB();
-  //glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  //glibDevice_->connectDevice();
-  
-  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
-                                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"));
-  //optohybridDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
-  //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  //optohybridDevice_->connectDevice();
+  glibDevice_       = new gem::hw::glib::HwGLIB();
+  glibDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+  glibDevice_->connectDevice();
 
-  vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString(),tmpURI.str(),
-                                                           "file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
-  //vfatDevice_ = new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString());
+  optohybridDevice_ = new gem::hw::optohybrid::HwOptoHybrid();
+  optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+  optohybridDevice_->connectDevice();
+
+  vfatDevice_ = new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString());
   //  vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
-  //vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  //vfatDevice_->connectDevice();
+  vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+  vfatDevice_->connectDevice();
 
   //read in default parameters from an xml file?
   //vfatDevice_->setRegisters(xmlFile);
@@ -1562,19 +1561,19 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
     is_running_ = false;
   }
   
-  /*  LOG4CPLUS_INFO(getApplicationLogger(),"histolatency = " << std::hex << histolatency << std::dec);
+  /*  LOG4CPLUS_INFO(getApplicationLogger(),"histolatency = 0x" << std::hex << histolatency << std::dec);
   if (histolatency)
     delete histolatency;
   histolatency = 0;
   */
 
-  LOG4CPLUS_INFO(getApplicationLogger(),"histo = " << std::hex << histo << std::dec);
+  LOG4CPLUS_INFO(getApplicationLogger(),"histo = 0x" << std::hex << histo << std::dec);
   if (histo)
     delete histo;
   histo = 0;
   
   for (int hi = 0; hi < 128; ++hi) {
-    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = " << std::hex << histos[hi] << std::dec);
+    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
     if (histos[hi])
       delete histos[hi];
     histos[hi] = 0;
@@ -1612,30 +1611,28 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
   sumVFAT_ = 0;
   counter_ = {0,0,0};
 
-  //delete glibDevice_;
-  //glibDevice_ = NULL;
-  //
-  //delete optohybridDevice_;
-  //optohybridDevice_ = NULL;
+  delete glibDevice_;
+  glibDevice_ = NULL;
 
-  /* SB
+  delete optohybridDevice_;
+  optohybridDevice_ = NULL;
+
   delete gemDataParker;
   gemDataParker = NULL;
-  */
 
-  /*  LOG4CPLUS_INFO(getApplicationLogger(),"histolatency = " << std::hex << histolatency <<
+  /*  LOG4CPLUS_INFO(getApplicationLogger(),"histolatency = 0x" << std::hex << histolatency <<
  std::dec);
   if (histolatency)
     delete histolatency;
   histolatency = 0;
   */
-  LOG4CPLUS_INFO(getApplicationLogger(),"histo = " << std::hex << histo << std::dec);
+  LOG4CPLUS_INFO(getApplicationLogger(),"histo = 0x" << std::hex << histo << std::dec);
   if (histo)
     delete histo;
   histo = 0;
 
   for (int hi = 0; hi < 128; ++hi) {
-    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = " << std::hex << histos[hi] << std::dec);
+    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
     if (histos[hi])
       delete histos[hi];
     histos[hi] = 0;
@@ -1665,13 +1662,13 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   hw_semaphore_.take();
   vfatDevice_->setRunMode(0);
 
-  //if (vfatDevice_->isHwConnected())
-  //  vfatDevice_->releaseDevice();
+  if (vfatDevice_->isHwConnected())
+    vfatDevice_->releaseDevice();
   
-  //if (vfatDevice_)
-  //  delete vfatDevice_;
-  //
-  //vfatDevice_ = 0;
+  if (vfatDevice_)
+    delete vfatDevice_;
+  
+  vfatDevice_ = 0;
   //sleep(2);
   hw_semaphore_.give();
 
