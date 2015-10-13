@@ -15,10 +15,12 @@ std::string gem::utils::GEMInfoSpaceToolBox::getString(xdata::InfoSpace* infoSpa
     xdata::Serializable* s = infoSpace->find(itemName);
     infoSpace->fireItemValueRetrieve(itemName);
     xdata::String* res = dynamic_cast<xdata::String*>(s);
+    std::cout << "INFO found string " << res->toString() << std::endl;
     infoSpace->unlock();
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace String item '" + itemName + "'.";
+    std::cout << "ERROR " << msg << std::endl;
     XCEPT_RAISE(gem::utils::exception::InfoSpaceProblem, msg);
     return "";
   } 
@@ -113,10 +115,12 @@ bool gem::utils::GEMInfoSpaceToolBox::setString(xdata::InfoSpace* infoSpace,std:
     xdata::String* res = dynamic_cast<xdata::String*>(s);
     *res = value;
     infoSpace->fireItemValueChanged(itemName);
+    std::cout << "INFO set value to string " << res->toString() << std::endl;
     infoSpace->unlock();
     return true;
   } catch (...) {
-    std::string msg = "Trying to read a non-existent InfoSpace String item '" + itemName + "'.";
+    std::string msg = "Trying to set a non-existent InfoSpace String item '" + itemName + "'.";
+    std::cout << "ERROR " << msg << std::endl;
     XCEPT_RAISE(gem::utils::exception::InfoSpaceProblem, msg);
     return false;
   } 
@@ -134,7 +138,7 @@ bool gem::utils::GEMInfoSpaceToolBox::setBool(xdata::InfoSpace* infoSpace,std::s
     infoSpace->unlock();
     return true;
   } catch (...) {
-    std::string msg = "Trying to read a non-existent InfoSpace Boolean item '" + itemName + "'.";
+    std::string msg = "Trying to set a non-existent InfoSpace Boolean item '" + itemName + "'.";
     XCEPT_RAISE(gem::utils::exception::InfoSpaceProblem, msg);
     return false;
   } 
@@ -152,7 +156,7 @@ bool gem::utils::GEMInfoSpaceToolBox::setDouble(xdata::InfoSpace* infoSpace,std:
     infoSpace->unlock();
     return true;
   } catch (...) {
-    std::string msg = "Trying to read a non-existent InfoSpace Double item '" + itemName + "'.";
+    std::string msg = "Trying to set a non-existent InfoSpace Double item '" + itemName + "'.";
     XCEPT_RAISE(gem::utils::exception::InfoSpaceProblem, msg);
     return false;
   } 
@@ -170,7 +174,7 @@ bool gem::utils::GEMInfoSpaceToolBox::setInteger(xdata::InfoSpace* infoSpace,std
     infoSpace->unlock();
     return true;
   } catch (...) {
-    std::string msg = "Trying to read a non-existent InfoSpace Integer item '" + itemName + "'.";
+    std::string msg = "Trying to set a non-existent InfoSpace Integer item '" + itemName + "'.";
     XCEPT_RAISE(gem::utils::exception::InfoSpaceProblem, msg);
     return false;
   } 
@@ -188,7 +192,7 @@ bool gem::utils::GEMInfoSpaceToolBox::setUInt32(xdata::InfoSpace* infoSpace,std:
     infoSpace->unlock();
     return true;
   } catch (...) {
-    std::string msg = "Trying to read a non-existent InfoSpace UnsignedInteger32 item '" + itemName + "'.";
+    std::string msg = "Trying to set a non-existent InfoSpace UnsignedInteger32 item '" + itemName + "'.";
     XCEPT_RAISE(gem::utils::exception::InfoSpaceProblem, msg);
     return false;
   } 
@@ -206,7 +210,7 @@ bool gem::utils::GEMInfoSpaceToolBox::setUInt64(xdata::InfoSpace* infoSpace,std:
     infoSpace->unlock();
     return true;
   } catch (...) {
-    std::string msg = "Trying to read a non-existent InfoSpace UnsignedInteger64 item '" + itemName + "'.";
+    std::string msg = "Trying to set a non-existent InfoSpace UnsignedInteger64 item '" + itemName + "'.";
     XCEPT_RAISE(gem::utils::exception::InfoSpaceProblem, msg);
     return false;
   } 

@@ -10,6 +10,9 @@
 #include "gem/utils/LockGuard.h"
 
 #define MAX_AMCS_PER_CRATE 12
+#define MAX_OPTOHYBRIDS_PER_AMC 2
+#define MAX_VFATS_PER_GEB 24
+//#define MAX_OPTOHYBRIDS_PER_CRATE 24
 
 namespace toolbox {
   namespace task{
@@ -146,6 +149,8 @@ namespace gem {
        */
       virtual xoap::MessageReference changeState(xoap::MessageReference msg);
 
+    public:
+      //is it a problem to make this public?
       /* getCurrentState
        * @returns std::string name of the current state of the GEMFSM object
        */
