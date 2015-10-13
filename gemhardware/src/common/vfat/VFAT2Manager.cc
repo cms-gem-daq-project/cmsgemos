@@ -59,9 +59,10 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   }
   //Initialize the HW device, should have picked up the device string from the xml file by now
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::4 device_ = " << device_.toString() << std::endl);
-  vfatDevice = new HwVFAT2(device_.toString());
-  vfatDevice->setDeviceIPAddress(ipAddr_.toString());
-  //vfatDevice->connectDevice();
+  std::stringstream tmpURI;
+  tmpURI << "chtcp-2.0://localhost:10203?target=" << ipAddr_.toString() << ":50001";
+  vfatDevice = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(device_.toString(), tmpURI.str(),
+                                                          "file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
   setLogLevelTo(uhal::Error());  // Maximise uHAL logging
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::5 device_ = " << device_.toString() << std::endl);
 
