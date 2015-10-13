@@ -228,7 +228,7 @@ namespace gem {
         FILE* outputFile;
         uint64_t latency_;
         uint64_t deviceVT1_;
-        bool is_working_, is_initialized_, is_configured_, is_running_;
+        bool is_working_, is_initialized_,  is_configured_, is_running_;
 
         //supervisor application should not have any hw devices, should only send commands to manager applications
         //temporary fix just to get things working stably, should be using the manager
@@ -242,7 +242,7 @@ namespace gem {
         std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
 
         // Counter
-        uint64_t counter_[3];
+        uint32_t counter_[5];
 
         // VFAT Blocks Counter
         int vfat_;
