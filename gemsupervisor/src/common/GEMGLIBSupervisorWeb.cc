@@ -685,13 +685,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   //optohybridDevice_->connectDevice();
 
-  INFO("setTrigSource GLIB, OH mode 0");
-  optohybridDevice_->setTrigSource(2, 0x0);
-  optohybridDevice_->setTrigSource(2, 0x1);
-  optohybridDevice_->setTrigSource(2, 0x2);
-  glibDevice_->setTrigSource(2, 0x0);
-  glibDevice_->setTrigSource(2, 0x1);
-  glibDevice_->setTrigSource(2, 0x2);
+  INFO("setTrigSource OH mode 1");
+  optohybridDevice_->setTrigSource(0x1);
 
   // Times for output files
   time_t now  = time(0);
@@ -857,10 +852,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_running_ = true;
   hw_semaphore_.take();
 
-  INFO("setTrigSource OH mode 0");
-  optohybridDevice_->setTrigSource(2, 0x0);
-  optohybridDevice_->setTrigSource(2, 0x1);
-  optohybridDevice_->setTrigSource(2, 0x2);
+  INFO("setTrigSource OH mode 1");
+  optohybridDevice_->setTrigSource(0x1);
 
   INFO("Enabling run mode for selected VFATs");
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
@@ -916,10 +909,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
   m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
 
-  INFO("setTrigSource GLIB mode 2");
-  glibDevice_->setTrigSource(2, 0x0);
-  glibDevice_->setTrigSource(2, 0x1);
-  glibDevice_->setTrigSource(2, 0x2);
+  INFO("setTrigSource OH Trigger source 0");
+  optohybridDevice_->setTrigSource(0x0);
 
   hw_semaphore_.give();
   is_working_ = false;
@@ -934,12 +925,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   counter_ = {0,0,0};
 
   INFO("setTrigSource GLIB, OH mode 0");
-  optohybridDevice_->setTrigSource(2, 0x0);
-  optohybridDevice_->setTrigSource(2, 0x1);
-  optohybridDevice_->setTrigSource(2, 0x2);
-  glibDevice_->setTrigSource(2, 0x0);
-  glibDevice_->setTrigSource(2, 0x1);
-  glibDevice_->setTrigSource(2, 0x2);
+  optohybridDevice_->setTrigSource(0x1);
 
   //turn off all chips?
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
