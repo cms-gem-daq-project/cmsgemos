@@ -595,7 +595,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop
   hw_semaphore_.take();
 
   uint32_t  Counter[5] = {0,0,0,0,0};
-  uint32_t* pDQ = gemDataParker->selectData(Counter);
+  uint32_t* pDQ =  gemDataParker->selectData(Counter);
   if (pDQ) {
     Counter[0] = *(pDQ+0);
     Counter[1] = *(pDQ+1); // Events counter
