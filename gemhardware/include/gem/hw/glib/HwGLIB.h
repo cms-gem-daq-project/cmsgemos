@@ -356,7 +356,7 @@ namespace gem {
           };
 	  
           /** Set the Trigger source
-           * @param uint8_t mode 0 from GLIB, 1 from AMC13, 2 from both
+           * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
            **/
           void setTrigSource(uint8_t const& mode, uint8_t const& link=0x0) {
             std::stringstream regName;

@@ -255,13 +255,10 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
            << "</tr>"     << std::endl
            << "</tbody>"  << std::endl
            << "</table>"  << std::endl;
-    }
-  
-    catch (const xgi::exception::Exception& e) {
+    } catch (const xgi::exception::Exception& e) {
       INFO("Something went wrong displaying web control panel(xgi): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
       INFO("Something went wrong displaying web control panel(std): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }

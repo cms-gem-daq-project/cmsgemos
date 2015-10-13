@@ -1,3 +1,5 @@
+/** @file OptoHybridManager.h */ 
+
 #ifndef gem_hw_optohybrid_OptoHybridManager_h
 #define gem_hw_optohybrid_OptoHybridManager_h
 
@@ -14,6 +16,8 @@ namespace gem {
 
       class HwOptoHybrid;
       class OptoHybridManagerWeb;
+
+      typedef std::shared_ptr<HwOptoHybrid> optohybrid_shared_ptr;
       
       class OptoHybridManager : public gem::base::GEMFSMApplication
         {
@@ -59,9 +63,10 @@ namespace gem {
             xdata::Boolean present;
             xdata::Integer crateID;
             xdata::Integer slotID;
+            xdata::Integer linkID;
 
             //configuration parameters
-            xdata::String controlHubIPAddress;
+            xdata::String controlHubAddress;
             xdata::String deviceIPAddress;
             xdata::String ipBusProtocol;
             xdata::String addressTable;
@@ -71,7 +76,9 @@ namespace gem {
             
             //registers to set
             xdata::Integer triggerSource;
-            xdata::Integer sbitSource;            
+            xdata::Integer sbitSource;
+            xdata::Integer vfatClkSrc;
+            xdata::Integer cdceClkSrc;
             
             inline std::string toString() {
               // write obj to stream
@@ -79,24 +86,27 @@ namespace gem {
               os << "present:" << present.toString() << std::endl
                  << "crateID:" << crateID.toString() << std::endl
                  << "slotID:"  << slotID.toString()  << std::endl
+                 << "linkID:"  << linkID.toString()  << std::endl
                 
-                 << "controlHubIPAddress:" << controlHubIPAddress.toString() << std::endl
-                 << "deviceIPAddress:"     << deviceIPAddress.toString()     << std::endl
-                 << "ipBusProtocol:"       << ipBusProtocol.toString()       << std::endl
-                 << "addressTable:"        << addressTable.toString()        << std::endl
-                 << "controlHubPort:"      << controlHubPort.toString()      << std::endl
-                 << "ipBusPort:"           << ipBusPort.toString()           << std::endl
-                 << "triggerSource:0x"     << triggerSource.toString()       << std::endl
-                 << "sbitSource:0x"        << sbitSource.toString()          << std::endl
+                 << "controlHubAddress:" << controlHubAddress.toString() << std::endl
+                 << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
+                 << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl
+                 << "addressTable:"      << addressTable.toString()      << std::endl
+                 << "controlHubPort:"    << controlHubPort.toString()    << std::endl
+                 << "ipBusPort:"         << ipBusPort.toString()         << std::endl
+                 << "triggerSource:0x"   << triggerSource.toString()     << std::endl
+                 << "sbitSource:0x"      << sbitSource.toString()        << std::endl
+                 << "vfatClkSrc:0x"      << vfatClkSrc.toString()        << std::endl
+                 << "cdceClkSrc:0x"      << cdceClkSrc.toString()        << std::endl
                  << std::endl;
               return os.str();
             };
           };
           
-          mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
+          mutable gem::utils::Lock m_deviceLock;//[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
 	  
-          HwOptoHybrid* m_optohybrids[MAX_AMCS_PER_CRATE];
-          xdata::InfoSpace* is_optohybrids[MAX_AMCS_PER_CRATE];
+          optohybrid_shared_ptr m_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
+          xdata::InfoSpace*     is_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;
           xdata::String        m_connectionFile;
         }; //end class OptoHybridManager
