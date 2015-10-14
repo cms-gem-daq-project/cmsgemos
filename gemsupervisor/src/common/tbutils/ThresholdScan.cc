@@ -1,7 +1,9 @@
 #include "gem/supervisor/tbutils/ThresholdScan.h"
 #include "gem/supervisor/tbutils/ThresholdEvent.h"
+
 #include "gem/readout/GEMDataParker.h"
 #include "gem/readout/GEMDataAMCformat.h"
+
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
@@ -26,6 +28,10 @@
 #include "cgicc/HTTPRedirectHeader.h"
 #include "gem/supervisor/tbutils/VFAT2XMLParser.h"
 #include "TStopwatch.h"
+
+#include <iostream>
+#include "xdata/Vector.h"
+#include <string>
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::ThresholdScan)
 
@@ -56,12 +62,8 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
 
 gem::supervisor::tbutils::ThresholdScan::ThresholdScan(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
-  //  xdaq::WebApplication(s),
   gem::supervisor::tbutils::GEMTBUtil(s)
 {
-  // Detect when the setting of default parameters has been performed
-  //SB this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
-
   getApplicationInfoSpace()->fireItemAvailable("scanParams", &scanParams_);
   getApplicationInfoSpace()->fireItemValueRetrieve("scanParams", &scanParams_);
 
@@ -109,13 +111,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   //send triggers
   hw_semaphore_.take();
-
-  // trigger times calculation
-  // timer.Start();
   for (size_t trig = 0; trig < 500; ++trig) optohybridDevice_->SendL1A(0x1);  
-
-  //count triggers   // was internal
-  confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
 
   //count triggers
   confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
@@ -129,21 +125,22 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   LOG4CPLUS_INFO(getApplicationLogger(),
 		 " ABC TriggersSeen " << confParams_.bag.triggersSeen);
-  /*  LOG4CPLUS_DEBUG(getApplicationLogger(),
-      " TriggersSeen " << confParams_.bag.triggersSeen << " ADCVoltage " << confParams_.bag.ADCVoltage 
-      << " ADCurrent " << confParams_.bag.ADCurrent );*/
 
-  //if
+  //flush FIFO
+  /*  for (int i = 0; i < 2; ++i){
+    if (readout_mask >> i) {
+      glibDevice_->flushFIFO(i);
+      while (glibDevice_->hasTrackingData(i))
+	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
+      glibDevice_->flushFIFO(i);
+    }      
+    }*/
+
+  // if triggersSeen < N triggers
   if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
- 
-    hw_semaphore_.take();
-    //    vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
-
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "ABC Not enough triggers, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
     
-    //    vfatDevice_->setDeviceBaseNode("GLIB");
-  
+    hw_semaphore_.take();
+    
     // GLIB data buffer validation                                                 
     uint32_t fifoDepth[3];
     
@@ -167,60 +164,46 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     }
 
     hw_semaphore_.give();
-
-    if (bufferDepth < 10) {
+    
+    if (bufferDepth < 1) {
       hw_semaphore_.take();
-
+      
       //triggersSeen update 
       confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
       CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
       CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
       CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
-
-      //ADC Voltage, Current, update
-      /*      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB");
-	      confParams_.bag.ADCVoltage = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFAT_ADC.Voltage");
-	      confParams_.bag.ADCurrent = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFAT_ADC.Current");
-	      vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
-      */ 
-      LOG4CPLUS_INFO(getApplicationLogger(),"ABC Not enough entries in the buffer, run mode 0x" 
-		     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
+      
       hw_semaphore_.give();
       wl_semaphore_.give();
       return true;
     }
     else {
-      //maybe don't do the readout as a workloop?
-      hw_semaphore_.take();
-      LOG4CPLUS_INFO(getApplicationLogger(),"ABC Buffer full, reading out, run mode 0x" 
-                     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
-      hw_semaphore_.give();
       wl_semaphore_.give();
-      wl_->submit(readSig_);
-
+      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	wl_->submit(readSig_);
+      }
+      
       return true;
-    }
+    }//end else buffer<1
     //wl_semaphore_.give();
-  }
+  }//end if triggerSeen < nTrigger
   else {
-
+    
     hw_semaphore_.take();
-    LOG4CPLUS_INFO(getApplicationLogger(),"ABC Enough triggers, reading out, run mode 0x" 
-                   << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
-    vfatDevice_->setRunMode(0);
-
-    hw_semaphore_.give();
-    wl_semaphore_.give();
-
-    wl_->submit(readSig_);
-
-    wl_semaphore_.take();
-    hw_semaphore_.take();
-   
-    //flush FIFO
+    
+    for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	  (*chip)->setRunMode(0);
+	  
+	  hw_semaphore_.give();
+	  wl_semaphore_.give();
+	  wl_->submit(readSig_);
+	  
+	  wl_semaphore_.take();
+	  hw_semaphore_.take();
+    }
+	  
+	  //flush FIFO
     for (int i = 0; i < 2; ++i){
       if (readout_mask >> i) {
 	glibDevice_->flushFIFO(i);
@@ -230,57 +213,52 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       }      
     }
     
-//reset counters
+    //reset counters
     optohybridDevice_->ResetL1ACount(0x4);
     optohybridDevice_->ResetResyncCount();
     optohybridDevice_->ResetBC0Count();
     optohybridDevice_->ResetCalPulseCount(0x3);
     optohybridDevice_->SendResync();     
-    
+	  
     hw_semaphore_.give();
-
+	  
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
 		   << confParams_.bag.triggersSeen );
-
+    
     if ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 ) {
-      // ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 )
-
-      //wl_semaphore_.take();
-      hw_semaphore_.take();
-
-      LOG4CPLUS_INFO(getApplicationLogger(),
-		     "ABC VT1 is 0, reading out, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec );
-
-      hw_semaphore_.give();
       wl_semaphore_.give();
       wl_->submit(stopSig_);
       return false;
-
-    }
-    else if ( (scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) <= scanParams_.bag.maxThresh ) {
-      // else if ( (scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) <= scanParams_.bag.maxThresh ) { 
-
+      
+    }//end if deviceVT1=0
+    else if ( (scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) <= scanParams_.bag.maxThresh ) {    
+      //if VT2 - VT1 <= maxThreshold
+      
       hw_semaphore_.take();
-
+      
       LOG4CPLUS_INFO(getApplicationLogger()," ABC run: VT1= " 
 		     << scanParams_.bag.deviceVT1 << " VT2-VT1= " << scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1 
 		     << " bag.maxThresh= " << scanParams_.bag.maxThresh 
 		     << " abs(VT2-VT1) " << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
 
-      LOG4CPLUS_INFO(getApplicationLogger(),
-		     "ABC VT2-VT1 is less than the max threshold, run mode 0x" << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
       hw_semaphore_.give();
       //how to ensure that the VT1 never goes negative
       hw_semaphore_.take();
+      //if VT1 > stepSize      
       if (scanParams_.bag.deviceVT1 > scanParams_.bag.stepSize) {
-	vfatDevice_->setVThreshold1(scanParams_.bag.deviceVT1 - scanParams_.bag.stepSize);
-      } else {
-	vfatDevice_->setVThreshold1(0);
-      }
-
-      scanParams_.bag.deviceVT1    = vfatDevice_->getVThreshold1();
-      scanParams_.bag.deviceVT2    = vfatDevice_->getVThreshold2();
+	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	  (*chip)->setVThreshold1(scanParams_.bag.deviceVT1 - scanParams_.bag.stepSize);
+	}
+      } else { //end if VT1 > stepsize, begin else
+	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	  (*chip)->setVThreshold1(0);
+	}
+      }// end else VT1 <stepsize
+      
+      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	scanParams_.bag.deviceVT1    = (*chip)->getVThreshold1();
+	scanParams_.bag.deviceVT2    = (*chip)->getVThreshold2();
+      }	
       confParams_.bag.triggersSeen = 0;
 
       //reset counters
@@ -289,37 +267,35 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       optohybridDevice_->ResetBC0Count();
       optohybridDevice_->ResetCalPulseCount(0x3);
       optohybridDevice_->SendResync();     
-
-      vfatDevice_->setRunMode(1);
-
-      LOG4CPLUS_INFO(getApplicationLogger(),"ABC Resubmitting the run workloop, run mode 0x" 
-                     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
+      
+      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {	
+	(*chip)->setRunMode(1);
+      }
 
       hw_semaphore_.give();
       wl_semaphore_.give();	
       return true;	
-    }
+    }//else if VT2-VT1 < maxthreshold 
     else {
- 
-      //wl_semaphore_.take();
       hw_semaphore_.take();
-
-      LOG4CPLUS_INFO(getApplicationLogger(),"ABC reached max threshold, stopping out, run mode 0x" 
-                     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
+      wl_->submit(stopSig_);      
       hw_semaphore_.give();
       wl_semaphore_.give();
-      wl_->submit(stopSig_);
-      return false; 
-    }
-  }
-}
+	   
+      return true; 
+    }//end else
+    
+  }//end else triggerseen < N triggers
+  
+  return false; 
+}//end run
 
 //might be better done not as a workloop?
 bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* wl)
 {
   //VFATEvent vfat;
-  gem::readout::VFATData vfat;
+   
+  gem::readout::GEMDataAMCformat::VFATData vfat;
 
   int ievent=0;
 
@@ -329,7 +305,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   std::string tmpFileName = confParams_.bag.outFileName.toString();
 
   //maybe not even necessary?
-  //vfatDevice_->setRunMode(0);
+  //vfat_tDevice_->setRunMode(0);
   //sleep(5);
   //read the fifo (x3 times fifo depth), add headers, write to disk, save disk
   //  boost::format linkForm("LINK%d");
@@ -357,19 +333,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
     std::vector<uint32_t> data;
     //readInWords(data);
-    
-    /*    LOG4CPLUS_DEBUG(getApplicationLogger(),"Trying to read register "<<vfatDevice_->getDeviceBaseNode()<<".DATA_RDY");
-	  if (vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"DATA_RDY")) {
-	  LOG4CPLUS_DEBUG(getApplicationLogger(),"Trying to read the block at "<<vfatDevice_->getDeviceBaseNode()<<".DATA");
-	  //data = vfatDevice_->readBlock("OptoHybrid.GEB.TRK_DATA.COL1.DATA");
-	  //data = vfatDevice_->readBlock("OptoHybrid.GEB.TRK_DATA.COL1.DATA",7);
-	  for (int word = 0; word < 7; ++word) {
-	  std::stringstream ss9;
-	  ss9 << "DATA." << word;
-	  data.push_back(vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),ss9.str()));
-	  }
-	  }*/
-
+  
     uint32_t TrigReg, bxNumTr;
     uint8_t sBit;
 
@@ -452,19 +416,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       vfat.delVT = delVT;
       vfat.bxNum = (bxNum << 6) | sBit);
     */
-    // keepEvent(tmpFileName, ievent, ev, ch);
 
-    /*    if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
-    // dump VFAT data
-    gem::readout::printVFATdataBits(ievent, vfat);
-    LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
-
-    vfatDevice_->setDeviceBaseNode("GLIB");
-    bufferDepth = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"LINK1.TRK_FIFO.DEPTH");
-    TrigReg = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"TRG_DATA.DATA");
-    continue;
-    }
-    */
     if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
       if (readout_mask&0x1)
@@ -479,7 +431,8 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     }
     /*
      * dump VFAT data */
-    gem::readout::printVFATdataBits(ievent, vfat);
+    gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
+    //    gem::readout::printVFATdataBits(ievent, vfat);
 
     if (readout_mask&0x1)
       bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
@@ -489,7 +442,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
     
 
-    
+    /*    
     //Maybe add another histogramt that is a combined all channels histogram
     histo->Fill(delVT,(lsData||msData));
 
@@ -500,7 +453,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
       else
 	histos[chan]->Fill(delVT,((msData>>(chan-64)))&0x1);
     }
-
+    */
   }
 
   hw_semaphore_.give();
@@ -693,7 +646,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
       //have a menu for selecting the VFAT
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
 
-      selectVFAT(out);
+      selectMultipleVFAT(out);
       scanParameters(out);
       
       *out << cgicc::input().set("type", "submit")
@@ -707,8 +660,8 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
       //this will allow the parameters to be set to the chip and scan routine
 
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-      
-      selectVFAT(out);
+
+      selectMultipleVFAT(out);
       scanParameters(out);
       
       //adding aysen's xml parser
@@ -731,8 +684,8 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
     else if (!is_running_) {
       //hardware is initialized and configured, we can start the run
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Start") << std::endl;
-      
-      selectVFAT(out);
+
+      selectMultipleVFAT(out);      
       scanParameters(out);
       
       *out << cgicc::input().set("type", "submit")
@@ -744,7 +697,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
     else if (is_running_) {
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
       
-      selectVFAT(out);
+      selectMultipleVFAT(out);
       scanParameters(out);
       
       *out << cgicc::input().set("type", "submit")
@@ -877,26 +830,6 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
 	  << cgicc::thead() << std::endl 
 	  << "<tbody>" << std::endl;
     
-    /*     if (is_initialized_ && vfatDevice_) {
-      hw_semaphore_.take();
-      *out << "<tr>" << std::endl
-	   << "<td>" << "GLIB" << "</td>"
-	   << "<td>" << glibDevice_->readReg("TEST.GLIB") << "</td>"
-	   << "</tr>"   << std::endl
-	
-	   << "<tr>" << std::endl
-	   << "<td>" << "OptoHybrid" << "</td>"
-	   << "<td>" << glibDevice_->readReg("TEST.OptoHybrid") << "</td>"
-	   << "</tr>"       << std::endl
-	
-	   << "<tr>" << std::endl
-	   << "<td>" << "VFATs" << "</td>"
-	   << "<td>" << glibDevice_->readReg("TEST.VFATs") << "</td>"
-	   << "</tr>"      << std::endl;
-      
-        hw_semaphore_.give();
-    }
-    */
     *out << "</tbody>" << std::endl
 	 << "</table>" << std::endl
 	 << "</td>"    << std::endl
@@ -1021,53 +954,49 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   hw_semaphore_.take();
 
   //make sure device is not running
-  vfatDevice_->setRunMode(0);
-
-  /****unimplemented at the moment
-       if ((confParams_.bag.settingsFile.toString()).rfind("xml") != std::string::npos) {
-       LOG4CPLUS_INFO(getApplicationLogger(),"loading settings from XML file");
-       gem::supervisor::tbutils::VFAT2XMLParser::VFAT2XMLParser theParser(confParams_.bag.settingsFile.toString(),
-       vfatDevice_);
-       theParser.parseXMLFile();
-       }
-  */
   
-  //else {
-  LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
-  //default settings for the frontend
-  vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
-  vfatDevice_->setCalibrationMode(0x0); //set to normal
-  vfatDevice_->setMSPolarity(     0x1); //negative
-  vfatDevice_->setCalPolarity(    0x1); //negative
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    (*chip)->setRunMode(0);
+
+
+    LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
+    //default settings for the frontend
+    (*chip)->setTriggerMode(    0x3); //set to S1 to S8
+    (*chip)->setCalibrationMode(0x0); //set to normal
+    (*chip)->setMSPolarity(     0x1); //negative
+    (*chip)->setCalPolarity(    0x1); //negative
     
-  vfatDevice_->setProbeMode(        0x0);
-  vfatDevice_->setLVDSMode(         0x0);
-  vfatDevice_->setDACMode(          0x0);
-  vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
+    (*chip)->setProbeMode(        0x0);
+    (*chip)->setLVDSMode(         0x0);
+    (*chip)->setDACMode(          0x0);
+    (*chip)->setHitCountCycleTime(0x0); //maximum number of bits
     
-  vfatDevice_->setHitCountMode( 0x0);
-  vfatDevice_->setMSPulseLength(0x3);
-  vfatDevice_->setInputPadMode( 0x0);
-  vfatDevice_->setTrimDACRange( 0x0);
-  vfatDevice_->setBandgapPad(   0x0);
-  vfatDevice_->sendTestPattern( 0x0);
+    (*chip)->setHitCountMode( 0x0);
+    (*chip)->setMSPulseLength(0x3);
+    (*chip)->setInputPadMode( 0x0);
+    (*chip)->setTrimDACRange( 0x0);
+    (*chip)->setBandgapPad(   0x0);
+    (*chip)->sendTestPattern( 0x0);
         
-  vfatDevice_->setIPreampIn(  168);
-  vfatDevice_->setIPreampFeed(150);
-  vfatDevice_->setIPreampOut(  80);
-  vfatDevice_->setIShaper(    150);
-  vfatDevice_->setIShaperFeed(100);
-  vfatDevice_->setIComp(      120);
+    (*chip)->setIPreampIn(  168);
+    (*chip)->setIPreampFeed(150);
+    (*chip)->setIPreampOut(  80);
+    (*chip)->setIShaper(    150);
+    (*chip)->setIShaperFeed(100);
+    (*chip)->setIComp(      120);
 
-  vfatDevice_->setLatency(latency_);
-  //}
+    (*chip)->setLatency(latency_);
+    //}
   
-  vfatDevice_->setVThreshold1(maxThresh_-minThresh_);
-  vfatDevice_->setVThreshold2(std::max(0,maxThresh_));
-  scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
-  scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
+    (*chip)->setVThreshold1(maxThresh_-minThresh_);
+    (*chip)->setVThreshold2(std::max(0,maxThresh_));
+    scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
+    scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
 
-  scanParams_.bag.latency = vfatDevice_->getLatency();
+    scanParams_.bag.latency = (*chip)->getLatency();
+
+  }
+
   is_configured_ = true;
   hw_semaphore_.give();
 
@@ -1178,15 +1107,6 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   is_running_ = true;
   hw_semaphore_.take();
 
-  /*
-  //set clock source
-  vfatDevice_->setDeviceBaseNode("OptoHybrid.CLOCKING");
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"VFAT.SOURCE",  0x0); // 0x1
-  //vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"VFAT.FALLBACK",0x1);
-  vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"CDCE.SOURCE",  0x0);
-  //vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"CDCE.FALLBACK",0x1);
-  */
-
   //send resync
   optohybridDevice_->SendResync();
 
@@ -1200,15 +1120,14 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   optohybridDevice_->setTrigSource(0x2);   
   glibDevice_->setTrigSource(0x2);   
 
-  //  vfatDevice_->setDeviceBaseNode("GLIB");
-  //vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),"TDC_SBits",(unsigned)confParams_.bag.deviceNum);
-  
-  vfatDevice_->setVThreshold1(maxThresh_-minThresh_);
-  vfatDevice_->setVThreshold2(std::max(0,maxThresh_));
-  scanParams_.bag.deviceVT1 = vfatDevice_->getVThreshold1();
-  scanParams_.bag.deviceVT2 = vfatDevice_->getVThreshold2();
-
-  scanParams_.bag.latency = vfatDevice_->getLatency();
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    (*chip)->setVThreshold1(maxThresh_-minThresh_);
+    (*chip)->setVThreshold2(std::max(0,maxThresh_));
+    scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
+    scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
+    
+    scanParams_.bag.latency = (*chip)->getLatency();
+  }
 
   //start readout
   scanStream.close();
@@ -1262,7 +1181,11 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
     }
   }
 
-  vfatDevice_->setRunMode(1);
+  //  int islot=0;
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    (*chip)->setRunMode(1);
+  }
+
   hw_semaphore_.give();
 
 

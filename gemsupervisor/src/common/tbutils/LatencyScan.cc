@@ -1,6 +1,8 @@
-#include "gem/readout/GEMDataAMCformat.h"
 #include "gem/supervisor/tbutils/LatencyScan.h"
+
+#include "gem/readout/GEMDataAMCformat.h"
 #include "gem/readout/GEMDataParker.h"
+
 #include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
@@ -29,6 +31,14 @@
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::LatencyScan)
 
+/*
+  typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
+  typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
+  typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
+*/
+
+
+
 //
 void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
@@ -49,7 +59,6 @@ void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::
 
 gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
-
   gem::supervisor::tbutils::GEMTBUtil(s)
 {
 
@@ -105,30 +114,19 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   optohybridDevice_->SendL1ACal(1,15);   
   sleep(1);
 
-
   //count triggers
   confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
   CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
   CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
   CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
 
-
-
-    LOG4CPLUS_INFO(getApplicationLogger()," ******sent trigger ***** "
-		   << "trigger count" << confParams_.bag.triggersSeen);
-
+  LOG4CPLUS_INFO(getApplicationLogger()," ******sent trigger ***** " << "trigger count" << confParams_.bag.triggersSeen);
 
   hw_semaphore_.give();//end sendL1ACalpulse
 
   // if triggersSeen < N triggers
   if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
 
-    hw_semaphore_.take();//vfat log info
-
-    //        LOG4CPLUS_INFO(getApplicationLogger(),
-    //		   "Not enough triggers, run mode 0x" << std::hex << (int)vfatDevice_->getRunMode() << std::dec);
-     
-    hw_semaphore_.give();//vfat log info
     hw_semaphore_.take();//glib buffer depth
     
     // GLIB data buffer validation                                                 
@@ -165,25 +163,16 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
 
       hw_semaphore_.give();//oh trigger counter update
-      hw_semaphore_.take();//vfat log
-
-      LOG4CPLUS_DEBUG(getApplicationLogger(),"Not enough entries in the buffer, run mode 0x" 
-		      << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
-      hw_semaphore_.give(); //end vfat log
       wl_semaphore_.give();
       return true;
     } 
-    else{ // buffer depth is less tha 10
+    else{ // buffer depth is less tha 1
 
-      hw_semaphore_.take(); // vfat log info
-      LOG4CPLUS_INFO(getApplicationLogger()," Buffer full, reading out, run mode 0x" 
-		     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
-      hw_semaphore_.give(); // end vfat log info
       wl_semaphore_.give();
-      wl_->submit(readSig_);
-
+      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	wl_->submit(readSig_);
+      }
+	    
       return true;
     } // end else buffer < 10
     //wl_semaphore_.give();
@@ -191,34 +180,34 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   else { 
 
     hw_semaphore_.take(); //vfat log 
-    LOG4CPLUS_INFO(getApplicationLogger(),"Enough triggers, reading out, run mode 0x" 
-		   << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
     //disable triggers
     optohybridDevice_->setTrigSource(0x1);   
-    glibDevice_->setTrigSource(0x0);   
+    //SB glibDevice_->setTrigSource(0x0);   
     sleep(1);
-    vfatDevice_->setRunMode(0);
 
-    hw_semaphore_.give(); //end vfat log
-    wl_semaphore_.give();
+    for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	    
+      (*chip)->setRunMode(0);
 
-    wl_->submit(readSig_);    
-    LOG4CPLUS_INFO(getApplicationLogger()," *****termina de leer ***** ");
-    //histolatency->Fill((int)currentLatency_, eventsSeen_);
-    histolatency->Fill((int)currentLatency_, channelSeen_);
-
-    std::string imgName = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/latencyscan/"
-      +confParams_.bag.deviceName.toString()+"_Latency_scan.png";
-    outputCanvas->cd();
-    histolatency->Draw("ep0");
-    outputCanvas->Update();
-    outputCanvas->SaveAs(TString(imgName));
-    
-
+      hw_semaphore_.give(); //end vfat log
+      wl_semaphore_.give();
+	    
+      wl_->submit(readSig_);    
+	    
+      //histolatency->Fill((int)currentLatency_, eventsSeen_);
+      histolatency->Fill((int)currentLatency_, channelSeen_);
+	    
+      std::string imgName = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/latencyscan/"
+	+confParams_.bag.deviceName.toString()+"_Latency_scan.png";
+	    
+      outputCanvas->cd();
+      histolatency->Draw("ep0");
+      outputCanvas->Update();
+      outputCanvas->SaveAs(TString(imgName));
+    }
     hw_semaphore_.take();// vfat setrun0
     wl_semaphore_.take();
-
+	  
     // flush fifo
     for (int i = 0; i < 2; ++i){
       if (readout_mask >> i) {
@@ -234,45 +223,47 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     //optohybridDevice_->ResetResyncCount();
     //optohybridDevice_->ResetBC0Count();
     optohybridDevice_->ResetCalPulseCount(0x3);
-    //felipe 1
     optohybridDevice_->SendResync();     
     
     hw_semaphore_.give(); //end glib flush fifo
 
-    LOG4CPLUS_INFO(getApplicationLogger()," Scan point TriggersSeen " 
-		   << confParams_.bag.triggersSeen );
+    INFO(" Scan point TriggersSeen " << confParams_.bag.triggersSeen );
 
     //if max Latency - current Latency >= stepsize
     if (scanParams_.bag.maxLatency - currentLatency_ >= scanParams_.bag.stepSize) {
 
       hw_semaphore_.take();// vfat get latency
 
-      LOG4CPLUS_INFO(getApplicationLogger(),"we've seen enough triggers, changing the latency");
-      LOG4CPLUS_INFO(getApplicationLogger(), "CurLaten " << (int)currentLatency_ 
-		     << " TrigSeen " << confParams_.bag.triggersSeen 
-		     << " CalPulses " << CalPulseCount_[2] 
-		     << " eventsSeen " << eventsSeen_ 
-		     << "channelseen " << channelSeen_ ); 
-
+      INFO("we've seen enough triggers, changing the latency");
+      INFO( "CurLaten " << (int)currentLatency_ 
+	    << " TrigSeen " << confParams_.bag.triggersSeen 
+	    << " CalPulses " << CalPulseCount_[2] 
+	    << " eventsSeen " << eventsSeen_ 
+	    << "channelseen " << channelSeen_ ); 
+      
       if ((currentLatency_ + scanParams_.bag.stepSize) < 0xFF) {
-	vfatDevice_->setLatency(currentLatency_ + scanParams_.bag.stepSize);
+
+	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	  (*chip)->setLatency(currentLatency_ + scanParams_.bag.stepSize);
+	}
       } else  { 
-	vfatDevice_->setLatency(0xFF);
+
+	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	  (*chip)->setLatency(0xFF);
+	}	 
+      }//end else
+
+      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	currentLatency_ = (*chip)->getLatency();
+	(*chip)->setRunMode(1);      
       }
-
-      currentLatency_ = vfatDevice_->getLatency();
-
-      vfatDevice_->setRunMode(1);      
       optohybridDevice_->setTrigSource(0x2);
-      glibDevice_->setTrigSource(0x2);
-
+      //SB glibDevice_->setTrigSource(0x2);
+	    
       confParams_.bag.triggersSeen =  0;
       eventsSeen_   = 0;  
       channelSeen_ = 0;
  
-      LOG4CPLUS_INFO(getApplicationLogger(),"Resubmitting the run workloop, run mode 0x" 
-		     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
       hw_semaphore_.give(); // end vfat
       wl_semaphore_.give();	
 
@@ -280,19 +271,14 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     } // end if maxLat - curreLat > step
     else {
 
-      hw_semaphore_.take();//vfat log 
-
-      LOG4CPLUS_INFO(getApplicationLogger()," reached max latency, stopping out, run mode 0x" 
-		     << std::hex << (unsigned)vfatDevice_->getRunMode() << std::dec);
-
-      hw_semaphore_.give();// end log vfat
       wl_semaphore_.give();
       wl_->submit(stopSig_);
       return false; 
-
+	    
     }//end else
-
+	  
   }//end else triggerseen < N triggers
+
   return false;
 }//end run
 
@@ -300,8 +286,11 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
 bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl)    
 {
-  gem::readout::VFATData vfat;
+  
+  // gem::readout::GEMDataAMCformat::VFATData vfat;
 
+  gem::readout::GEMDataAMCformat::VFATData vfat;
+  
   int ievent=0;
 
   wl_semaphore_.take();
@@ -320,14 +309,12 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
     bufferDepth = glibDevice_->getFIFOOccupancy(0x2);     
   }
   
-  LOG4CPLUS_INFO(getApplicationLogger()," START READING" );
+  LOG4CPLUS_INFO(getApplicationLogger()," readFIFO bufferDepth " << std::hex << bufferDepth << std::dec );
   LOG4CPLUS_INFO(getApplicationLogger(), " CurLaten " << (int)currentLatency_ 
 		 << " TrigSeen " << confParams_.bag.triggersSeen 
 		 << " CalPulses " << CalPulseCount_[2] 
 		 << " eventsSeen " << eventsSeen_
 		 << "channelSeen " << channelSeen_ ); 
-
-  INFO("readFIFO bufferDepth = " << std::hex << bufferDepth << std::dec);
 
   //grab events from the fifo
   bool isFirst = true;
@@ -407,16 +394,17 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
     lsData = (data3 << 32) | (data4);
     msData = (data1 << 32) | (data2);
 
-    vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
-    vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
-    vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
-    vfat.lsData = lsData;                                 // lsData:64
-    vfat.msData = msData;                                 // msData:64
-    vfat.crc    = crc;                                    // crc:16
+
+      vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
+      vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
+      vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
+      vfat.lsData = lsData;                                 // lsData:64
+      vfat.msData = msData;                                 // msData:64
+      vfat.crc    = crc;                                    // crc:16
+
+    gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
 
 
-    gem::readout::printVFATdataBits(ievent, vfat);
-    
     if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
       LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
       if (readout_mask&0x1)
@@ -436,11 +424,10 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
       bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
     if (readout_mask&0x4)
       bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
-    
    
     //    vfatDevice_->readVFAT2Channel(1);
     
-    //    if(((lsData>>9) && 0x1) || ((lsData>>10) && 0x1) || ((lsData>>11) && 0x1)){
+    
     if((lsData>>63) && 0x1){
       ++channelSeen_;
     }
@@ -451,10 +438,11 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
       ++eventsSeen_;
     }
   }
-
-   
-  LOG4CPLUS_INFO(getApplicationLogger(), "END READING*****CurLaten " << (int)currentLatency_ << " TrigSeen " << confParams_.bag.triggersSeen << " CalPulses " << CalPulseCount_[2] 
-		 << " eventsSeen " << eventsSeen_ << " channelSeen " << channelSeen_ ); 
+  
+  
+  LOG4CPLUS_INFO(getApplicationLogger(), "END READING*****CurLaten " << (int)currentLatency_ << 
+		 " TrigSeen " << confParams_.bag.triggersSeen << " CalPulses " << CalPulseCount_[2] << 
+		 " eventsSeen " << eventsSeen_ << " channelSeen " << channelSeen_ ); 
 
   hw_semaphore_.give();
   wl_semaphore_.give();
@@ -585,7 +573,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
       //have a menu for selecting the VFAT
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
 
-      selectVFAT(out);
+      selectMultipleVFAT(out);
       scanParameters(out);
 
       *out << cgicc::input().set("type", "submit")
@@ -600,7 +588,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
 
-      selectVFAT(out);
+      selectMultipleVFAT(out);
       scanParameters(out);
 
       *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80")
@@ -618,7 +606,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
       //hardware is initialized and configured, we can start the run
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Start") << std::endl;
 
-      selectVFAT(out);
+      selectMultipleVFAT(out);
       scanParameters(out);
 
       *out << cgicc::input().set("type", "submit")
@@ -630,7 +618,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
     else if (is_running_) {
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
 
-      selectVFAT(out);
+      selectMultipleVFAT(out);
       scanParameters(out);
 
       *out << cgicc::input().set("type", "submit")
@@ -856,42 +844,64 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   LOG4CPLUS_INFO(getApplicationLogger(), "attempting to configure device");
 
   //make sure device is not running
-  vfatDevice_->setRunMode(0);
+
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+
+  (*chip)->setRunMode(0);
 
   LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
   //default settings for the frontend
-  vfatDevice_->setTriggerMode(    0x3); //set to S1 to S8
-  vfatDevice_->setCalibrationMode(0x0); //set to normal
-  vfatDevice_->setMSPolarity(     0x1); //negative
-  vfatDevice_->setCalPolarity(    0x1); //negative
+  (*chip)->setTriggerMode(    0x3); //set to S1 to S8
+  (*chip)->setCalibrationMode(0x0); //set to normal
+  (*chip)->setMSPolarity(     0x1); //negative
+  (*chip)->setCalPolarity(    0x1); //negative
 
-  vfatDevice_->setProbeMode(        0x0);
-  vfatDevice_->setLVDSMode(         0x0);
-  vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
+  (*chip)->setProbeMode(        0x0);
+  (*chip)->setLVDSMode(         0x0);
+  (*chip)->setHitCountCycleTime(0x0); //maximum number of bits
 
-  vfatDevice_->setHitCountMode( 0x0);
-  vfatDevice_->setMSPulseLength(0x3);
-  vfatDevice_->setInputPadMode( 0x0);
-  vfatDevice_->setTrimDACRange( 0x0);
-  vfatDevice_->setBandgapPad(   0x0);
-  vfatDevice_->sendTestPattern( 0x0);
+  (*chip)->setHitCountMode( 0x0);
+  (*chip)->setMSPulseLength(0x3);
+  (*chip)->setInputPadMode( 0x0);
+  (*chip)->setTrimDACRange( 0x0);
+  (*chip)->setBandgapPad(   0x0);
+  (*chip)->sendTestPattern( 0x0);
 
-  vfatDevice_->setVCal(100);
-  vfatDevice_->setIPreampIn(  168);
-  vfatDevice_->setIPreampFeed(150);
-  vfatDevice_->setIPreampOut(  80);
-  vfatDevice_->setIShaper(    150);
-  vfatDevice_->setIShaperFeed(100);
-  vfatDevice_->setIComp(       75);//120
+  (*chip)->setVCal(100);
+  (*chip)->setIPreampIn(  168);
+  (*chip)->setIPreampFeed(150);
+  (*chip)->setIPreampOut(  80);
+  (*chip)->setIShaper(    150);
+  (*chip)->setIShaperFeed(100);
+  (*chip)->setIComp(       75);//120
 
-  vfatDevice_->setVThreshold1( 50);//50
-  vfatDevice_->setVThreshold2(  0);
+  (*chip)->setVThreshold1( 50);//50
+  (*chip)->setVThreshold2(  0);
 
+
+
+  LOG4CPLUS_INFO(getApplicationLogger(), "setting DAC mode to normal");
+  (*chip)->setDACMode(gem::hw::vfat::StringToDACMode.at("OFF"));
+
+  LOG4CPLUS_INFO(getApplicationLogger(), "setting starting latency value");
+  (*chip)->setLatency(    scanParams_.bag.minLatency);
+
+  LOG4CPLUS_INFO(getApplicationLogger(), "reading back current latency value");
+  currentLatency_ = (*chip)->getLatency();
+
+  LOG4CPLUS_INFO(getApplicationLogger(), "CurrentLatency" << currentLatency_);
+
+  LOG4CPLUS_INFO(getApplicationLogger(), "device configured");
+  is_configured_ = true;
+
+
+
+  }
 
   //enable channel 
   /*  vfatDevice_->enableCalPulseToChannel(10,true);
-  vfatDevice_->enableCalPulseToChannel(11,true);
-  vfatDevice_->enableCalPulseToChannel(12,true);*/
+      vfatDevice_->enableCalPulseToChannel(11,true);
+      vfatDevice_->enableCalPulseToChannel(12,true);*/
 
   //flush fifo
   for (int i = 0; i < 2; ++i){
@@ -910,22 +920,6 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   optohybridDevice_->ResetCalPulseCount(0x3);
   optohybridDevice_->SendResync();      
   //  vfatDevice_->setRunMode(1);      
-
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "setting DAC mode to normal");
-  vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at("OFF"));
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "setting starting latency value");
-  vfatDevice_->setLatency(    scanParams_.bag.minLatency);
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "reading back current latency value");
-  currentLatency_ = vfatDevice_->getLatency();
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "CurrentLatency" << currentLatency_);
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "device configured");
-  is_configured_ = true;
-
 
   hw_semaphore_.give();
 
@@ -951,12 +945,8 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
 
-  LOG4CPLUS_INFO(getApplicationLogger(), "before wl_semaphore");
-
   wl_semaphore_.take();
   is_working_ = true;
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "get the wl semaphore");
 
   time_t now = time(0);
   tm *gmtm = gmtime(&now);
@@ -972,9 +962,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   confParams_.bag.outFileName = tmpFileName;
 
   // Book GEM Data Parker                                                                 
-  gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpFileName);
-
-
+  //SB gemDataParker = new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, tmpFileName);
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Creating file " << confParams_.bag.outFileName.toString());
   //std::fstream scanStream(confParams_.bag.outFileName.c_str(),
@@ -991,7 +979,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
   //set trigger source
   optohybridDevice_->setTrigSource(0x2);   
-  glibDevice_->setTrigSource(0x2);   
+  //SB glibDevice_->setTrigSource(0x2);   
 
   //set clock source
   optohybridDevice_->SetVFATClock(1,1,0x0);    
@@ -1020,18 +1008,23 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
   //enable the channels 56-64 
   /*  vfatDevice_->enableCalPulseToChannel(10,true);
-  vfatDevice_->enableCalPulseToChannel(11,true);
-  vfatDevice_->enableCalPulseToChannel(12,true);*/
+      vfatDevice_->enableCalPulseToChannel(11,true);
+      vfatDevice_->enableCalPulseToChannel(12,true);*/
 
-  vfatDevice_->setRunMode(1);
-  hw_semaphore_.give();//end vfat
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    (*chip)->setRunMode(1);
+  }
+
+
+hw_semaphore_.give();//end vfat
 
   //start readout
   scanStream.close();
 
-  if (histolatency)  delete histolatency;
-  histolatency = 0;
-  
+  if (histolatency) {
+    delete histolatency;
+    histolatency = 0;
+  }
   int minVal = scanParams_.bag.minLatency;
   int maxVal = scanParams_.bag.maxLatency;
   int nBins = (maxVal - minVal +1)/(scanParams_.bag.stepSize);
@@ -1039,6 +1032,8 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
 
   //felipe+1
+
+
   wl_->submit(runSig_);
   is_working_ = false;
   wl_semaphore_.give();
@@ -1053,14 +1048,14 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
   gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
   {
 
-  confParams_.bag.nTriggers  = 100U;
-  scanParams_.bag.minLatency = 0U;
-  scanParams_.bag.maxLatency = 25U;
-  scanParams_.bag.stepSize   = 1U;
-  scanParams_.bag.threshold = -100U;
-  confParams_.bag.deviceName   = "";
-  confParams_.bag.deviceChipID = 0x0;
+    confParams_.bag.nTriggers  = 100U;
+    scanParams_.bag.minLatency = 0U;
+    scanParams_.bag.maxLatency = 25U;
+    scanParams_.bag.stepSize   = 1U;
+    scanParams_.bag.threshold = -100U;
+    //    confParams_.bag.deviceName   = "";
+    confParams_.bag.deviceChipID = 0x0;
 
-  is_working_     = false;
+    is_working_     = false;
   }
 }
