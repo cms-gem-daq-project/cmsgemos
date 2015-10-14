@@ -5,20 +5,109 @@
 
   <xc:Context url="http://gem904daq01:5040">
 
-    <xc:Application class="gem::supervisor::GEMSupervisorWeb" id="254" instance="0" network="local">
+    <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMSupervisor"
 		  xsi:type="soapenc:Struct">
-	<myParameter xsi:type="xsd:unsignedLong">0x47454d73</myParameter>
-	<!--71 69 77 33-->
-	<!--myVector xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[2]">
-	  <item xsi:type="xsd:integer" soapenc:position="[0]">1234</item>
-	  <item xsi:type="xsd:integer" soapenc:position="[1]">4321</item>
-	</myVector-->
+	<!--
+	   <rcmsStateListener xsi:type="soapenc:Struct">
+             <classname xsi:type="xsd:string">RCMSStateListener</classname>
+             <instance xsi:type="xsd:unsignedInt">0</instance>
+           </rcmsStateListener>
+	   -->    
       </properties>
     </xc:Application>
-    
+
+    <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="3" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
+		  xsi:type="soapenc:Struct">
+	<AMCSlots       xsi:type="xsd:string">2</AMCSlots>
+	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
+	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!-- position must be slot-1 -->
+            <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
+            <crateID xsi:type="xsd:integer">1</crateID>
+            <slot    xsi:type="xsd:integer">2</slot>
+            <present xsi:type="xsd:boolean">true</present>
+            
+            <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.162</DeviceIPAddress>
+            <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
+            <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
+            <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
+            <IPBusPort         xsi:type="xsd:unsignedInt">50001</IPBusPort>
+            
+            <triggerSource xsi:type="xsd:integer">2</triggerSource>
+            <sbitSource    xsi:type="xsd:integer">5</sbitSource>
+          </GLIBInfo>
+	</AllGLIBsInfo>
+      </properties>
+    </xc:Application>
+
+    <xc:Application class="gem::hw::optohybrid::OptoHybridManager" id="35" instance="3" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
+		  xsi:type="soapenc:Struct">
+	<AMCSlots       xsi:type="xsd:string">2</AMCSlots>
+	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
+	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!-- position must be slot-1 -->
+            <!--OptoHybridInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
+            <crateID xsi:type="xsd:integer">1</crateID>
+            <slot    xsi:type="xsd:integer">2</slot>
+            <link    xsi:type="xsd:integer">2</link>
+            <present xsi:type="xsd:boolean">true</present>
+            
+            <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.162</DeviceIPAddress>
+            <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
+            <AddressTable      xsi:type="xsd:string">optohybrid_address_table.xml</AddressTable>
+            <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
+            <IPBusPort         xsi:type="xsd:unsignedInt">50001</IPBusPort>
+            
+            <triggerSource xsi:type="xsd:integer">2</triggerSource>
+            <sbitSource    xsi:type="xsd:integer">5</sbitSource>
+          </OptoHybridInfo>
+	</AllOptoHybridsInfo>
+      </properties>
+    </xc:Application>
+
+    <xc:Application class="gem::hw::amc13::AMC13Manager" id="260" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
+		  xsi:type="soapenc:Struct">
+	<!--
+	<rcmsStateListener xsi:type="soapenc:Struct">
+          <classname xsi:type="xsd:string">RCMSStateListener</classname>
+          <instance xsi:type="xsd:unsignedInt">0</instance>
+        </rcmsStateListener>
+	-->    
+      </properties>
+    </xc:Application>
+
+    <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:GEMSupervisor"
+		  xsi:type="soapenc:Struct">
+	<!--
+	<rcmsStateListener xsi:type="soapenc:Struct">
+          <classname xsi:type="xsd:string">RCMSStateListener</classname>
+          <instance xsi:type="xsd:unsignedInt">0</instance>
+        </rcmsStateListener>
+	-->    
+      </properties>
+    </xc:Application>
+
+    <xc:Module>${XDAQ_ROOT}/lib/libxdaq2rc.so</xc:Module>
+
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_utils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
 
   </xc:Context>
+
+  <!--
+  <xc:Context url="http://gem904daq01:10000/rcms">
+    <xc:Application class="RCMSStateListener" id="50" instance="0" network="local" path="/services/replycommandreceiver" />
+    <xc:Module>${XDAQ_ROOT}/lib/libxdaq2rc.so</xc:Module>
+  </xc:Context>
+  -->
 
 </xc:Partition>

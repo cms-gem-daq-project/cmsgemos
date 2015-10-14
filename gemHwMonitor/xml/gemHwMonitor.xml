@@ -3,7 +3,7 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://cmslab1:3003">
+  <xc:Context url="http://gem904daq01:5555">
     <xc:Application class="gem::hwMonitor::gemHwMonitorWeb" id="254" instance="0" network="local">
     </xc:Application>
     
