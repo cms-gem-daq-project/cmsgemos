@@ -96,6 +96,7 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   fsmP_(0),
   wl_semaphore_(toolbox::BSem::FULL),
   hw_semaphore_(toolbox::BSem::FULL),
+
   initSig_ (0),
   confSig_ (0),
   startSig_(0),
@@ -104,13 +105,12 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   resetSig_(0),
   //  runSig_  (0),
   readSig_ (0),
-  //deviceName_(""),
-  //deviceChipID_(0x0),
+  readout_mask(0x0),
   is_working_     (false),
   is_initialized_ (false),
   is_configured_  (false),
   is_running_     (false)
-  //vfatDevice_(0)
+
 {
   gErrorIgnoreLevel = kWarning;
   
