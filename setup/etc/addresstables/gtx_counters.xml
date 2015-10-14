@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="TRK_ERR"   address="0x0"  permission="r"
+        description="Error counter on the tracking data optical link">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+  
+  <node id="TRG_ERR"   address="0x2"  permission="r"
+        description="Error counter on the trigger data optical link">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="DATA_Packets"   address="0x4"  permission="r"
+        description="Number of received data packets counter on the optical link">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+</node>

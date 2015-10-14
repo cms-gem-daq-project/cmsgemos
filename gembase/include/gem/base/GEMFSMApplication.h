@@ -9,11 +9,6 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
-#define MAX_AMCS_PER_CRATE 12
-#define MAX_OPTOHYBRIDS_PER_AMC 2
-#define MAX_VFATS_PER_GEB 24
-//#define MAX_OPTOHYBRIDS_PER_CRATE 24
-
 namespace toolbox {
   namespace task{
     class WorkLoop;
@@ -31,6 +26,11 @@ namespace gem {
     class GEMFSMApplication : public GEMApplication
     {
     public:
+      static const unsigned MAX_AMCS_PER_CRATE      = 12;
+      static const unsigned MAX_OPTOHYBRIDS_PER_AMC = 2;
+      static const unsigned MAX_VFATS_PER_GEB       = 24;
+      //static const unsigned MAX_OPTOHYBRIDS_PER_CRATE = 24;
+      
       friend class GEMFSM;
       //friend class GEMApplication;
       friend class GEMWebApplication;

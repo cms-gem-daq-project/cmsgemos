@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="ADC0"  address="0x0"  permission="r"
+        description="Returns the value from the ADC for channel 0"/>
+  <node id="ADC1"  address="0x1"  permission="r"
+        description="Returns the value from the ADC for channel 1"/>
+  <node id="ADC2"  address="0x2"  permission="r"
+        description="Returns the value from the ADC for channel 2"/>
+  <node id="ADC3"  address="0x3"  permission="r"
+        description="Returns the value from the ADC for channel 3"/>
+  <node id="ADC4"  address="0x4"  permission="r"
+        description="Returns the value from the ADC for channel 4"/>
+  <node id="ADC5"  address="0x5"  permission="r"
+        description="Returns the value from the ADC for channel 5"/>
+  <node id="ADC6"  address="0x6"  permission="r"
+        description="Returns the value from the ADC for channel 6"/>
+  <node id="ADC7"  address="0x7"  permission="r"
+        description="Returns the value from the ADC for channel 7"/>
+  <node id="ADC8"  address="0x8"  permission="r"
+        description="Returns the value from the ADC for channel 8"/>
+  <node id="ADC9"  address="0x9"  permission="r"
+        description="Returns the value from the ADC for channel 9"/>
+  <node id="ADC10"  address="0xa"  permission="r"
+        description="Returns the value from the ADC for channel 10"/>
+  <node id="ADC11"  address="0xb"  permission="r"
+        description="Returns the value from the ADC for channel 11"/>
+  <node id="ADC12"  address="0xc"  permission="r"
+        description="Returns the value from the ADC for channel 12"/>
+  <node id="ADC13"  address="0xd"  permission="r"
+        description="Returns the value from the ADC for channel 13"/>
+  <node id="ADC14"  address="0xe"  permission="r"
+        description="Returns the value from the ADC for channel 14"/>
+  <node id="ADC15"  address="0xf"  permission="r"
+        description="Returns the value from the ADC for channel 15"/>
+</node>
