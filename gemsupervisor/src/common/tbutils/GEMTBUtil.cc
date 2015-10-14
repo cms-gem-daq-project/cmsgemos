@@ -56,9 +56,9 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
 
   outFileName  = tmpFileName;
-  settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
+  //settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
 
-  deviceIP      = "192.168.0.169";
+  //deviceIP      = "192.168.0.169";
 
   //stablish the number of VFATs and the entry is 
   for (int i = 0; i < 24; ++i) {
@@ -239,18 +239,12 @@ void gem::supervisor::tbutils::GEMTBUtil::actionPerformed(xdata::Event& event)
 {
   // This is called after all default configuration values have been
   // loaded (from the XDAQ configuration file).
-  /*  if (event.type() == "urn:xdaq-event:setDefaultValues") {
+  if (event.type() == "urn:xdaq-event:setDefaultValues") {
     std::stringstream ss;
     ss << "ipAddr_=[" << ipAddr_.toString() << "]" << std::endl;
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), ss.str());
     confParams_.bag.deviceIP = ipAddr_;
-    }*/
-
-
-
-
-
-
+  }
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::fireEvent(const std::string& name)
@@ -423,7 +417,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << "<tbody>" << std::endl
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "External"    << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->GetL1ACount(0x0) << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x0) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstL1AExt")
 	                                      .set("name","RstL1AExt")
@@ -432,7 +426,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "Internal"    << cgicc::td() << std::endl
-	   << cgicc::td()    <<  optohybridDevice_->GetL1ACount(0x1) << cgicc::td() << std::endl
+	   << cgicc::td()    <<  optohybridDevice_->getL1ACount(0x1) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstL1AInt")
 	                                      .set("name","RstL1AInt")
@@ -441,7 +435,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "Delayed"     << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->GetL1ACount(0x2) << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x2) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstL1ADel")
 	                                      .set("name","RstL1ADel")
@@ -450,7 +444,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "Total"       << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->GetL1ACount(0x3) << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x3) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstL1ATot")
 	                                      .set("name","RstL1ATot")
@@ -475,7 +469,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << "<tr>" << std::endl
 	//	   << "<tr>" << std::endl
 	   << cgicc::td()    << "Internal"  << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->GetCalPulseCount(0x0)  << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x0)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstCalPulseInt")
 	                                      .set("name","RstCalPulseInt")
@@ -484,7 +478,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "Delayed"  << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->GetCalPulseCount(0x1)  << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x1)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstCalPulseDel")
 	                                      .set("name","RstCalPulseDel")
@@ -493,7 +487,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "Total"     << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->GetCalPulseCount(0x2) << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x2) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstCalPulseTot")
 	                                      .set("name","RstCalPulseTot")
@@ -516,7 +510,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << "<tbody>" << std::endl
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "Resync"    << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->GetResyncCount() << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getResyncCount() << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstResync")
 	                                      .set("name","RstResync")
@@ -525,7 +519,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "BC0"       << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->GetBC0Count() << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getBC0Count() << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstBC0")
 	                                      .set("name","RstBC0")
@@ -534,7 +528,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 
 	   << "<tr>" << std::endl
 	   << cgicc::td()  << "BXCount"   << cgicc::td() << std::endl
-	   << cgicc::td()  << optohybridDevice_->GetBXCountCount() << cgicc::td() << std::endl
+	   << cgicc::td()  << optohybridDevice_->getBXCountCount() << cgicc::td() << std::endl
 	   << cgicc::td()  << "" << cgicc::td() << std::endl
 	   << "</tr>"      << std::endl
 	   << "</tbody>"   << std::endl
@@ -1106,31 +1100,31 @@ void gem::supervisor::tbutils::GEMTBUtil::webResetCounters(xgi::Input *in, xgi::
     INFO("GEMTBUtil::webResetCounters Reseting counters");
       
     if (cgi.queryCheckbox("RstL1AExt") )
-      optohybridDevice_->ResetL1ACount(0x1);
+      optohybridDevice_->resetL1ACount(0x1);
     
     if (cgi.queryCheckbox("RstL1AInt") ) 
-      optohybridDevice_->ResetL1ACount(0x2);
+      optohybridDevice_->resetL1ACount(0x2);
     
     if (cgi.queryCheckbox("RstL1ADel") ) 
-      optohybridDevice_->ResetL1ACount(0x3);
+      optohybridDevice_->resetL1ACount(0x3);
 
     if (cgi.queryCheckbox("RstL1ATot") ) 
-    optohybridDevice_->ResetL1ACount(0x4);
+    optohybridDevice_->resetL1ACount(0x4);
 
     if (cgi.queryCheckbox("RstCalPulseInt") ) 
-      optohybridDevice_->ResetCalPulseCount(0x1);
+      optohybridDevice_->resetCalPulseCount(0x1);
     
     if (cgi.queryCheckbox("RstCalPulseDel") ) 
-      optohybridDevice_->ResetCalPulseCount(0x2);
+      optohybridDevice_->resetCalPulseCount(0x2);
     
     if (cgi.queryCheckbox("RstCalPulseTot") ) 
-      optohybridDevice_->ResetCalPulseCount(0x3);
+      optohybridDevice_->resetCalPulseCount(0x3);
     
     if (cgi.queryCheckbox("RstResync") ) 
-      optohybridDevice_->ResetResyncCount();
+      optohybridDevice_->resetResyncCount();
     
     if (cgi.queryCheckbox("RstBC0") ) 
-      optohybridDevice_->ResetBC0Count();
+      optohybridDevice_->resetBC0Count();
 
     hw_semaphore_.give();
 
@@ -1194,37 +1188,37 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
       if (element != cgi.getElements().end())
 	delay = element->getIntegerValue();
       hw_semaphore_.take();
-      optohybridDevice_->SendResync();
+      optohybridDevice_->sendResync();
       for (unsigned int com = 0; com < 15; ++com)
-	optohybridDevice_->SendL1ACal(10, delay);
+	optohybridDevice_->sendL1ACal(10, delay);
 	hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send L1A") == 0) {
       INFO("Send L1A button pressed");
       hw_semaphore_.take();
-      optohybridDevice_->SendL1A(0x1);
+      optohybridDevice_->sendL1A(0x1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send CalPulse") == 0) {
       INFO("Send CalPulse button pressed");
       hw_semaphore_.take();
-      optohybridDevice_->SendCalPulse(0x1);
+      optohybridDevice_->sendCalPulse(0x1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send Resync") == 0) {
       INFO("Send Resync button pressed");
       hw_semaphore_.take();
-      optohybridDevice_->SendResync();
+      optohybridDevice_->sendResync();
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send BC0") == 0) {
       INFO("Send BC0 button pressed");
       hw_semaphore_.take();
-      optohybridDevice_->SendBC0();
+      optohybridDevice_->sendBC0();
       hw_semaphore_.give();
     }
 
@@ -1281,8 +1275,8 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
-  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
-                      "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"));
+  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
+                      "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   
 
   int islot=0;
@@ -1302,7 +1296,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
       INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
     }
 
-    vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
+    vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
     tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
     tmpVFATDevice->setRunMode(0);
