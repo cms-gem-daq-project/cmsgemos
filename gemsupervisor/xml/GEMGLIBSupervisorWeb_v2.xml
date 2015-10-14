@@ -3,17 +3,17 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://gem904daq01:5555">
+  <xc:Context url="http://gem904daq01:5042">
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
 	  <deviceIP xsi:type="xsd:string">192.168.0.169</deviceIP>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">
 	    <item xsi:type="xsd:string" soapenc:position="[0]">VFAT0</item>
-	    <!--item xsi:type="xsd:string" soapenc:position="[1]">VFAT1</item>
+	    <item xsi:type="xsd:string" soapenc:position="[1]">VFAT1</item>
 	    <item xsi:type="xsd:string" soapenc:position="[2]">VFAT2</item>
 	    <item xsi:type="xsd:string" soapenc:position="[3]">VFAT3</item>
-	    <item xsi:type="xsd:string" soapenc:position="[4]">VFAT4</item>
+	    <!--item xsi:type="xsd:string" soapenc:position="[4]">VFAT4</item>
 	    <item xsi:type="xsd:string" soapenc:position="[5]">VFAT5</item>
 	    <item xsi:type="xsd:string" soapenc:position="[6]">VFAT6</item>
 	    <item xsi:type="xsd:string" soapenc:position="[7]">VFAT7</item>
