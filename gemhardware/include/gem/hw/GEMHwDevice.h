@@ -25,12 +25,6 @@
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
 
-/* IPBus transactions still have some problems in the firmware
-   so it helps to retry a few times in the case of a failure
-   that is recognized
-*/
-#define MAX_IPBUS_RETRIES 25
-
 typedef uhal::exception::exception uhalException;
 
 typedef std::pair<std::string, uint32_t> register_pair;
@@ -51,17 +45,46 @@ namespace gem {
     {
 
     public:
-      typedef struct OpticalLinkStatus {
-        uint32_t Errors          ;
-        uint32_t I2CReceived     ; 
-        uint32_t I2CSent         ;
-        uint32_t RegisterReceived;
-        uint32_t RegisterSent    ;
+      /* IPBus transactions still have some problems in the firmware
+         so it helps to retry a few times in the case of a failure
+         that is recognized
+      */
+      static const unsigned MAX_IPBUS_RETRIES = 25;
 
-      OpticalLinkStatus() : Errors(0),I2CReceived(0),I2CSent(0),RegisterReceived(0),RegisterSent(0) {};
-        void reset()       {Errors=0; I2CReceived=0; I2CSent=0; RegisterReceived=0; RegisterSent=0; return; };
+      /**
+       * @struct OpticalLinkStatus
+       * @brief This structure stores retrieved counters related to the GTX link
+       * @var OpticalLinkStatus::TRK_Errors
+       * TRK_Errors is a counter for the number of errors on the tracking data link
+       * @var OpticalLinkStatus::TRG_Errors
+       * TRG_Errors is a counter for the number of errors on the trigger data link
+       * @var OpticalLinkStatus::Data_Packets
+       * Data_Packets is a counter for the number of data packets transferred on the tracking data link
+       **/
+      typedef struct OpticalLinkStatus {
+        uint32_t TRK_Errors  ;
+        uint32_t TRG_Errors  ;
+        uint32_t Data_Packets;
+        
+      OpticalLinkStatus() : 
+        TRK_Errors(0),TRG_Errors(0),Data_Packets(0) {};
+        void reset() {
+          TRK_Errors=0; TRG_Errors=0;Data_Packets=0;
+          return; };
       } OpticalLinkStatus;
 	
+      /**
+       * @struct DeviceErrors
+       * @brief This structure stores retrieved counters related to the IPBus transaction errors
+       * @var DeviceErrors::BadHeader
+       * BadHeader is a counter for the number times the IPBus transaction returned a bad header
+       * @var DeviceErrors::ReadError
+       * ReadError is a counter for the number read transaction errors
+       * @var DeviceErrors::Timeout
+       * Timeout is a counter for the number for the number of timeouts
+       * @var DeviceErrors::ControlHubErr
+       * ControlHubErr is a counter for the number control hub errors encountered
+       **/
       typedef struct DeviceErrors {
         int BadHeader    ;
         int ReadError    ;
@@ -75,7 +98,7 @@ namespace gem {
       typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
       //typedef std::vector<linkStatus>                linkStatus;
 
-      /** 
+      /**
        * GEMHwDevice constructor 
        * @param deviceName string to put into the logger
        **/
@@ -90,14 +113,6 @@ namespace gem {
 
       GEMHwDevice(std::string const& deviceName,
                   uhal::HwInterface& uhalDevice);
-
-      /*
-        GEMHwDevice(xdaq::Application* xdaqApp,
-        std::string& addressFileName,
-        std::string& ipAddress,
-        std::string& controlHubAddress,
-        );
-      */
 
       virtual ~GEMHwDevice();
       /*
@@ -122,13 +137,15 @@ namespace gem {
        * unless there are GEM specific functions we need to implement)
        */
 
-      /** readReg(std::string const& regName)
+      /**
+       * readReg(std::string const& regName)
        * @param regName name of the register to read 
        * @retval returns the 32 bit unsigned value in the register
        */
       uint32_t readReg( std::string const& regName);
 
-      /** readReg(std::string const& regPrefix, std::string const& regName)
+      /**
+       * readReg(std::string const& regPrefix, std::string const& regName)
        * @param regPrefix prefix in the address table, possibly root nodes
        * @param regName name of the register to read from the address table
        * @retval returns the 32 bit unsigned value
@@ -137,20 +154,23 @@ namespace gem {
                         const std::string &regName) {
         return readReg(regPrefix+"."+regName); };
 
-      /** readRegs( register_pair_list &regList)
+      /**
+       * readRegs( register_pair_list &regList)
        * read list of registers in a single transaction (one dispatch call)
        * into the supplied vector regList
        * @param regList list of register name and uint32_t value to store the result
        */
       void     readRegs( register_pair_list &regList);
 
-      /** writeReg(std::string const& regName, uint32_t const val)
+      /**
+       * writeReg(std::string const& regName, uint32_t const val)
        * @param regName name of the register to read 
        * @param val value to write to the register
        */
       void     writeReg( std::string const& regName, uint32_t const val);
 
-      /** writeReg(std::string const& regPrefux, std::string const& regName, uint32_t const val)
+      /**
+       * writeReg(std::string const& regPrefux, std::string const& regName, uint32_t const val)
        * @param regPrefix prefix in the address table to the register
        * @param regName name of the register to write to 
        * @param val value to write to the register
@@ -160,14 +180,16 @@ namespace gem {
                          uint32_t const val) {
         return writeReg(regPrefix+"."+regName, val); };
 
-      /** writeRegs(register_pair_list const& regList)
+      /**
+       * writeRegs(register_pair_list const& regList)
        * write list of registers in a single transaction (one dispatch call)
        * using the supplied vector regList
        * @param regList std::vector of a pairs of register names and values to write
        */
       void     writeRegs(register_pair_list const& regList);
 
-      /** writeRegs(register_pair_list const& regList)
+      /**
+       * writeRegs(register_pair_list const& regList)
        * write single value to a list of registers in a single transaction
        * (one dispatch call) using the supplied vector regList
        * @param regList list of registers to write a value to
@@ -175,27 +197,31 @@ namespace gem {
        */
       void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue);
 	
-      /** zeroReg(std::string const& regName)
+      /**
+       * zeroReg(std::string const& regName)
        * write zero to a single register
        * @param regName register to zero
        */
       void     zeroReg(  std::string const& regName) { writeReg(regName,0); };
 
-      /** zeroRegs(std::vector<std::string> const& regNames)
+      /**
+       * zeroRegs(std::vector<std::string> const& regNames)
        * write zero to a list of registers in a single transaction (one dispatch call)
        * using the supplied vector regNames
        * @param regNames registers to zero
        */
       void     zeroRegs( std::vector<std::string> const& regNames);
 
-      /** readBlock(std::string const& regName)
+      /**
+       * readBlock(std::string const& regName)
        * read from a memory block
        * @param regName fixed size memory block to read from
        */
       std::vector<uint32_t> readBlock( std::string const& regName);
       //size_t readBlock( std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
 
-      /** readBlock(std::string const& regName, size_t const nWords)
+      /**
+       * readBlock(std::string const& regName, size_t const nWords)
        * read from a memory block
        * @param regName memory block to read from
        * @param nWords size of the memory block to read
@@ -204,7 +230,8 @@ namespace gem {
       std::vector<uint32_t> readBlock( std::string const& regName,
                                        size_t      const& nWords);
 
-      /** writeBlock(std::string const& regName, std::vector<uint32_t> const values)
+      /**
+       * writeBlock(std::string const& regName, std::vector<uint32_t> const values)
        * write to a memory block
        * @param regName memory block to write to
        * @param values list of 32-bit words to write into the memory block
@@ -212,11 +239,46 @@ namespace gem {
       void writeBlock(std::string           const& regName,
                       std::vector<uint32_t> const values);
 
-      /** zeroBlock( std::string const& regName)
+      /**
+       * zeroBlock( std::string const& regName)
        * write zeros to a block of memory
        * @param regName block or memory to zero
        */
       void zeroBlock( std::string const& regName);
+      
+      /**
+       * readFIFO(std::string const& regName)
+       * read from a FIFO
+       * @param regName fixed size memory block to read from
+       */
+      std::vector<uint32_t> readFIFO( std::string const& regName);
+      //size_t readFIFO( std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
+      
+      /**
+       * readFIFO(std::string const& regName, size_t const nWords)
+       * read from a FIFO
+       * @param regName FIFO to read from
+       * @param nWords number of words to read from the FIFO
+       * @retval returns a vector of 32 bit unsigned value
+       */
+      std::vector<uint32_t> readFIFO( std::string const& regName,
+                                      size_t      const& nWords);
+      
+      /**
+       * writeFIFO(std::string const& regName, std::vector<uint32_t> const values)
+       * write to a FIFO
+       * @param regName FIFO to write to
+       * @param values list of 32-bit words to write into the FIFO
+       */
+      void writeFIFO(std::string           const& regName,
+                     std::vector<uint32_t> const values);
+      
+      /**
+       * zeroFIFO( std::string const& regName)
+       * reset a FIFO
+       * @param regName FIFO to zero
+       */
+      void zeroFIFO( std::string const& regName);
 
 
       // These methods provide access to the member variables
@@ -333,10 +395,7 @@ namespace gem {
       bool knownErrorCode(std::string const& errCode) const;
 	
       //std::string registerToChar(uint32_t value) const;	
-
     }; //end class GEMHwDevice
-
   } //end namespace gem::hw
-
 } //end namespace gem
 #endif

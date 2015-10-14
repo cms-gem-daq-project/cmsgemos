@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="OptoHybrid_0"  address="0x0"  permission="r"
+        description="">
+    <node id="Reset"       address="0x0"  mask="0x1"  permission="w"
+          description=""/>
+  </node>
+  <node id="OptoHybrid_1"  address="0x1"  permission="r"
+        description="">
+    <node id="Reset"       address="0x0"  mask="0x1"  permission="w"
+          description=""/>
+  </node>
+  <node id="TRK_0"         address="0x2"  permission="r"
+        description="">
+    <node id="Reset"       address="0x0"  mask="0x1"  permission="w"
+          description=""/>
+  </node>
+  <node id="TRK_1"         address="0x3"  permission="r"
+        description="">
+    <node id="Reset"       address="0x0"  mask="0x1"  permission="w"
+          description=""/>
+  </node>
+  <node id="Counters"      address="0x4"  permission="r"
+        description="">
+    <node id="Reset"       address="0x0"  mask="0x1"  permission="w"
+          description=""/>
+  </node>
+</node>

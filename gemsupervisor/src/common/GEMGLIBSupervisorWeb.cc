@@ -202,20 +202,29 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 
   if (is_configured_) {
     //counting "1" Internal triggers, one link enough 
-    L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
-    L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
-    L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
-    L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
-
-    DEBUG(" L1ACount  ext " << L1ACount_[0] << " int " << L1ACount_[1] << " del " << L1ACount_[2] << " tot " << L1ACount_[3] );    
-
-    CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
-    CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
-    CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
+    m_l1aCount[0] = optohybridDevice_->getL1ACount(0); //ttc
+    m_l1aCount[1] = optohybridDevice_->getL1ACount(1); //internal/firmware
+    m_l1aCount[2] = optohybridDevice_->getL1ACount(2); //external
+    m_l1aCount[3] = optohybridDevice_->getL1ACount(3); //loopback 
+    m_l1aCount[4] = optohybridDevice_->getL1ACount(4); //sent
+   
+    m_calPulseCount[0] = optohybridDevice_->getCalPulseCount(0); //ttc
+    m_calPulseCount[1] = optohybridDevice_->getCalPulseCount(1); //internal/firmware
+    m_calPulseCount[2] = optohybridDevice_->getCalPulseCount(2); //external
+    m_calPulseCount[3] = optohybridDevice_->getCalPulseCount(3); //loopback 
+    m_calPulseCount[4] = optohybridDevice_->getCalPulseCount(4); //sent
     
-    ResyncCount_ = optohybridDevice_->GetResyncCount();
+    m_resyncCount[0] = optohybridDevice_->getResyncCount(0); //ttc
+    m_resyncCount[1] = optohybridDevice_->getResyncCount(1); //internal/firmware
+    m_resyncCount[2] = optohybridDevice_->getResyncCount(2); //external
+    m_resyncCount[3] = optohybridDevice_->getResyncCount(3); //loopback 
+    m_resyncCount[4] = optohybridDevice_->getResyncCount(4); //sent
     
-    BC0Count_ = optohybridDevice_->GetBC0Count();
+    m_bc0Count[0] = optohybridDevice_->getBC0Count(0); //ttc
+    m_bc0Count[1] = optohybridDevice_->getBC0Count(1); //internal/firmware
+    m_bc0Count[2] = optohybridDevice_->getBC0Count(2); //external
+    m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
+    m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
   }
   // If we are in "Running" state, check if GLIB has any data available
   if (is_running_) wl_->submit(run_signature_);
@@ -242,20 +251,57 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 
   // Show current state, counter, output filename
   std::string theState = fsm_.getStateName(fsm_.getCurrentState());
-  *out << "Current state: "       << theState                          << cgicc::br();
-  *out << "Event counter: "       << counter_[1]  << " Events counter" << cgicc::br();
-  *out << "L1A counter: "         << L1ACount_[0] << " (external) "
-       << L1ACount_[1] << " (internal) "
-       << L1ACount_[2] << " (delayed) "
-       << L1ACount_[3] << " (total)"
-       << cgicc::br();
-  *out << "CalPulse counter: "
-       << CalPulseCount_[0] << " (internal) "
-       << CalPulseCount_[1] << " (delayed) "
-       << CalPulseCount_[2] << " (total)"
-       << cgicc::br();
-  *out << "Resync counter: "      << ResyncCount_    << cgicc::br();
-  *out << "BC0 counter: "         << BC0Count_       << cgicc::br();
+  *out << "Current state: "       << theState                          << cgicc::br() << std::endl;
+  *out << "Event counter: "       << counter_[1]  << " Events counter" << cgicc::br() << std::endl;
+  //*out << "<table class=\"xdaq-table\">" << std::endl
+  *out << cgicc::table().set("class", "xdaq-table") << std::endl
+       << cgicc::thead() << std::endl
+       << cgicc::tr()    << std::endl //open
+       << cgicc::th()    << "T1 counters" << cgicc::th() << std::endl
+       << cgicc::th()    << "TTC"         << cgicc::th() << std::endl
+       << cgicc::th()    << "Firmware"    << cgicc::th() << std::endl
+       << cgicc::th()    << "External"    << cgicc::th() << std::endl
+       << cgicc::th()    << "Loopback"    << cgicc::th() << std::endl
+       << cgicc::th()    << "Sent"        << cgicc::th() << std::endl
+       << cgicc::tr()    << std::endl //close
+       << cgicc::thead() << std::endl 
+    
+       << cgicc::tbody() << std::endl 
+       << cgicc::br()    << std::endl;
+  *out << cgicc::tr() << std::endl
+       << cgicc::td() << "L1A:"        << cgicc::td() << std::endl
+       << cgicc::td() << m_l1aCount[0] << cgicc::td() << std::endl
+       << cgicc::td() << m_l1aCount[1] << cgicc::td() << std::endl
+       << cgicc::td() << m_l1aCount[2] << cgicc::td() << std::endl
+       << cgicc::td() << m_l1aCount[3] << cgicc::td() << std::endl
+       << cgicc::td() << m_l1aCount[4] << cgicc::td() << std::endl
+       << cgicc::tr() << cgicc::br() << std::endl;
+  *out << cgicc::tr() << std::endl
+       << cgicc::td() << "CalPulse:"        << cgicc::td() << std::endl
+       << cgicc::td() << m_calPulseCount[0] << cgicc::td() << std::endl
+       << cgicc::td() << m_calPulseCount[1] << cgicc::td() << std::endl
+       << cgicc::td() << m_calPulseCount[2] << cgicc::td() << std::endl
+       << cgicc::td() << m_calPulseCount[3] << cgicc::td() << std::endl
+       << cgicc::td() << m_calPulseCount[4] << cgicc::td() << std::endl
+       << cgicc::tr() << cgicc::br() << std::endl;
+  *out << cgicc::tr() << std::endl
+       << cgicc::td() << "Resync:"        << cgicc::td() << std::endl
+       << cgicc::td() << m_resyncCount[0] << cgicc::td() << std::endl
+       << cgicc::td() << m_resyncCount[1] << cgicc::td() << std::endl
+       << cgicc::td() << m_resyncCount[2] << cgicc::td() << std::endl
+       << cgicc::td() << m_resyncCount[3] << cgicc::td() << std::endl
+       << cgicc::td() << m_resyncCount[4] << cgicc::td() << std::endl
+       << cgicc::tr() << cgicc::br() << std::endl;
+  *out << cgicc::tr() << std::endl
+       << cgicc::td() << "BC0:"        << cgicc::td() << std::endl
+       << cgicc::td() << m_bc0Count[0] << cgicc::td() << std::endl
+       << cgicc::td() << m_bc0Count[1] << cgicc::td() << std::endl
+       << cgicc::td() << m_bc0Count[2] << cgicc::td() << std::endl
+       << cgicc::td() << m_bc0Count[3] << cgicc::td() << std::endl
+       << cgicc::td() << m_bc0Count[4] << cgicc::td() << std::endl
+       << cgicc::tr() << cgicc::br() << std::endl
+       << cgicc::tbody() << std::endl << cgicc::br()
+       << cgicc::table() << std::endl << cgicc::br();
   *out << "VFAT blocks counter: " << counter_[0]     << " dumped to disk"          << cgicc::br();
   *out << "VFATs counter, last event: " << counter_[2]     << " VFATs chips" << cgicc::br();
   *out << "Output filename: "     << confParams_.bag.outFileName.toString()        << cgicc::br();
@@ -376,7 +422,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
       }
     }//end if VfatName
   }//end for chip
-  
+  //hard code the readout mask for now, since this readout mask is an artifact of V1.5 /**JS Oct 8*/
+  readout_mask = 0x1;
   // Initiate configure workloop
   wl_->submit(configure_signature_);
 
@@ -414,13 +461,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   hw_semaphore_.take();
 
   INFO(" webTrigger: sending L1A");
-  optohybridDevice_->SendL1A(1);
+  optohybridDevice_->sendL1A(1);
 
-  L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
-  L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
-  L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
-  L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
-
+  m_l1aCount[0] = optohybridDevice_->getL1ACount(0); //ttc
+  m_l1aCount[1] = optohybridDevice_->getL1ACount(1); //internal/firmware
+  m_l1aCount[2] = optohybridDevice_->getL1ACount(2); //external
+  m_l1aCount[3] = optohybridDevice_->getL1ACount(3); //loopback 
+  m_l1aCount[4] = optohybridDevice_->getL1ACount(4); //sent
+  
   hw_semaphore_.give();
 
   // Go back to main web interface
@@ -433,17 +481,19 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi:
   //INFO("webCalPulse: sending 1 CalPulse with 25 clock delayed L1A");
   for (int offset = -12; offset < 13; ++offset) {
     INFO("webCalPulse: sending 10 CalPulses with L1As delayed by " << (int)latency_ + offset <<  " clocks");
-    optohybridDevice_->SendL1ACal(2, latency_ + offset);
+    optohybridDevice_->sendL1ACal(2, latency_ + offset);
     INFO("Sleeping for 0.5 seconds...");
     sleep(0.5);
     INFO("back!");
   }
-  //optohybridDevice_->SendL1ACal(1, latency_);
+  //optohybridDevice_->sendL1ACal(1, latency_);
   //sleep(0.1);
   //need some sleep here?
-  CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
-  CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
-  CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
+  m_calPulseCount[0] = optohybridDevice_->getCalPulseCount(0); //ttc
+  m_calPulseCount[1] = optohybridDevice_->getCalPulseCount(1); //internal/firmware
+  m_calPulseCount[2] = optohybridDevice_->getCalPulseCount(2); //external
+  m_calPulseCount[3] = optohybridDevice_->getCalPulseCount(3); //loopback 
+  m_calPulseCount[4] = optohybridDevice_->getCalPulseCount(4); //sent
   
   hw_semaphore_.give();
 
@@ -456,9 +506,13 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webResync(xgi::Input * in, xgi::Outp
   hw_semaphore_.take();
 
   INFO("webResync: sending Resync");
-  optohybridDevice_->SendResync();
-  ResyncCount_ = optohybridDevice_->GetResyncCount();
-
+  optohybridDevice_->sendResync();
+  m_resyncCount[0] = optohybridDevice_->getResyncCount(0); //ttc
+  m_resyncCount[1] = optohybridDevice_->getResyncCount(1); //internal/firmware
+  m_resyncCount[2] = optohybridDevice_->getResyncCount(2); //external
+  m_resyncCount[3] = optohybridDevice_->getResyncCount(3); //loopback 
+  m_resyncCount[4] = optohybridDevice_->getResyncCount(4); //sent
+  
   hw_semaphore_.give();
 
   // Go back to main web interface
@@ -470,9 +524,13 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webBC0(xgi::Input * in, xgi::Output 
   hw_semaphore_.take();
 
   INFO("webBC0: sending BC0");
-  optohybridDevice_->SendBC0();
-  BC0Count_ = optohybridDevice_->GetBC0Count();
-
+  optohybridDevice_->sendBC0();
+  m_bc0Count[0] = optohybridDevice_->getBC0Count(0); //ttc
+  m_bc0Count[1] = optohybridDevice_->getBC0Count(1); //internal/firmware
+  m_bc0Count[2] = optohybridDevice_->getBC0Count(2); //external
+  m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
+  m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
+  
   hw_semaphore_.give();
 
   // Go back to main web interface
@@ -492,9 +550,9 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::task::WorkL
   // fire "Configure" event to FSM
   fireEvent("Configure");
 
-  optohybridDevice_->SendResync();
+  optohybridDevice_->sendResync();
   // resetting BX counter
-  // optohybridDevice_->ResetBXCount();
+  // optohybridDevice_->resetBXCount();
   //   ERROR - No branch found with ID-path "OptoHybrid.OptoHybrid_LINKS.LINK0.COUNTERS.RESETS.BXCount"
 
   return false;
@@ -527,8 +585,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   hw_semaphore_.take();
 
   // GLIB data buffer validation
-  boost::format linkForm("LINK%d");
-
   uint32_t fifoDepth[3] = {0,0,0};
 
   //lots of repetition here
@@ -625,19 +681,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   //glibDevice_->connectDevice();
-
-  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid", tmpURI.str(),
-                      "file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"));
+  //have to hack this so the constructor finds the correct base node, needs fixing /**JS Oct 8*/
+  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
+                                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   //optohybridDevice_->connectDevice();
 
-  INFO("setTrigSource GLIB, OH mode 0");
-  optohybridDevice_->setTrigSource(2, 0x0);
-  optohybridDevice_->setTrigSource(2, 0x1);
-  optohybridDevice_->setTrigSource(2, 0x2);
-  glibDevice_->setTrigSource(2, 0x0);
-  glibDevice_->setTrigSource(2, 0x1);
-  glibDevice_->setTrigSource(2, 0x2);
+  INFO("setTrigSource OH mode 1");
+  optohybridDevice_->setTrigSource(0x1);
 
   // Times for output files
   time_t now  = time(0);
@@ -665,7 +716,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
     if (VfatName != ""){ 
       vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(),
-                                                               "file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
+                                                               "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
       tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
       //tmpVFATDevice->connectDevice();
       tmpVFATDevice->setRunMode(0);
@@ -803,10 +854,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_running_ = true;
   hw_semaphore_.take();
 
-  INFO("setTrigSource OH mode 0");
-  optohybridDevice_->setTrigSource(2, 0x0);
-  optohybridDevice_->setTrigSource(2, 0x1);
-  optohybridDevice_->setTrigSource(2, 0x2);
+  INFO("setTrigSource OH mode 1");
+  optohybridDevice_->setTrigSource(0x1);
 
   INFO("Enabling run mode for selected VFATs");
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
@@ -829,34 +878,41 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   //send resync
   INFO("Sending a resync");
-  optohybridDevice_->SendResync();
+  optohybridDevice_->sendResync();
 
   //reset counters
   INFO("Resetting counters");
-  optohybridDevice_->ResetL1ACount(0x0);
-  optohybridDevice_->ResetL1ACount(0x1);
-  optohybridDevice_->ResetL1ACount(0x2);
-  optohybridDevice_->ResetL1ACount(0x4);
-  L1ACount_[0] = optohybridDevice_->GetL1ACount(0); //external
-  L1ACount_[1] = optohybridDevice_->GetL1ACount(1); //internal
-  L1ACount_[2] = optohybridDevice_->GetL1ACount(2); //delayed
-  L1ACount_[3] = optohybridDevice_->GetL1ACount(3); //total
+  optohybridDevice_->resetL1ACount(0x5);
+  optohybridDevice_->resetResyncCount(0x5);
+  optohybridDevice_->resetBC0Count(0x5);
+  optohybridDevice_->resetCalPulseCount(0x5);
 
-  optohybridDevice_->ResetResyncCount();
-  ResyncCount_ = optohybridDevice_->GetResyncCount();
+  m_l1aCount[0] = optohybridDevice_->getL1ACount(0); //ttc
+  m_l1aCount[1] = optohybridDevice_->getL1ACount(1); //internal/firmware
+  m_l1aCount[2] = optohybridDevice_->getL1ACount(2); //external
+  m_l1aCount[3] = optohybridDevice_->getL1ACount(3); //loopback 
+  m_l1aCount[4] = optohybridDevice_->getL1ACount(4); //sent
+   
+  m_calPulseCount[0] = optohybridDevice_->getCalPulseCount(0); //ttc
+  m_calPulseCount[1] = optohybridDevice_->getCalPulseCount(1); //internal/firmware
+  m_calPulseCount[2] = optohybridDevice_->getCalPulseCount(2); //external
+  m_calPulseCount[3] = optohybridDevice_->getCalPulseCount(3); //loopback 
+  m_calPulseCount[4] = optohybridDevice_->getCalPulseCount(4); //sent
+    
+  m_resyncCount[0] = optohybridDevice_->getResyncCount(0); //ttc
+  m_resyncCount[1] = optohybridDevice_->getResyncCount(1); //internal/firmware
+  m_resyncCount[2] = optohybridDevice_->getResyncCount(2); //external
+  m_resyncCount[3] = optohybridDevice_->getResyncCount(3); //loopback 
+  m_resyncCount[4] = optohybridDevice_->getResyncCount(4); //sent
+    
+  m_bc0Count[0] = optohybridDevice_->getBC0Count(0); //ttc
+  m_bc0Count[1] = optohybridDevice_->getBC0Count(1); //internal/firmware
+  m_bc0Count[2] = optohybridDevice_->getBC0Count(2); //external
+  m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
+  m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
 
-  optohybridDevice_->ResetBC0Count();
-  BC0Count_ = optohybridDevice_->GetBC0Count();
-
-  optohybridDevice_->ResetCalPulseCount(0x3);
-  CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
-  CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
-  CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
-
-  INFO("setTrigSource GLIB mode 2");
-  glibDevice_->setTrigSource(2, 0x0);
-  glibDevice_->setTrigSource(2, 0x1);
-  glibDevice_->setTrigSource(2, 0x2);
+  INFO("setTrigSource OH Trigger source 0");
+  optohybridDevice_->setTrigSource(0x0);
 
   hw_semaphore_.give();
   is_working_ = false;
@@ -871,12 +927,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   counter_ = {0,0,0};
 
   INFO("setTrigSource GLIB, OH mode 0");
-  optohybridDevice_->setTrigSource(2, 0x0);
-  optohybridDevice_->setTrigSource(2, 0x1);
-  optohybridDevice_->setTrigSource(2, 0x2);
-  glibDevice_->setTrigSource(2, 0x0);
-  glibDevice_->setTrigSource(2, 0x1);
-  glibDevice_->setTrigSource(2, 0x2);
+  optohybridDevice_->setTrigSource(0x1);
 
   //turn off all chips?
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {

@@ -111,14 +111,14 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
   //send L1A and Calpulse
   hw_semaphore_.take();//oh sendL1ACalpulse
-  optohybridDevice_->SendL1ACal(1,15);   
+  optohybridDevice_->sendL1ACal(1,15);   
   sleep(1);
 
   //count triggers
-  confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
-  CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
-  CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
-  CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
+  confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x3);// total L1A
+  CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //internal
+  CalPulseCount_[1] = optohybridDevice_->getCalPulseCount(1); //delayed
+  CalPulseCount_[2] = optohybridDevice_->getCalPulseCount(2); //total
 
   LOG4CPLUS_INFO(getApplicationLogger()," ******sent trigger ***** " << "trigger count" << confParams_.bag.triggersSeen);
 
@@ -157,10 +157,10 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.take();//oh trigger counter update
 
       //trigger seen and CalCounters  updated
-      confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
-      CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
-      CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
-      CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
+      confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x3);// total L1A
+      CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //internal
+      CalPulseCount_[1] = optohybridDevice_->getCalPulseCount(1); //delayed
+      CalPulseCount_[2] = optohybridDevice_->getCalPulseCount(2); //total
 
       hw_semaphore_.give();//oh trigger counter update
       wl_semaphore_.give();
@@ -219,11 +219,11 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     }
 
     //reset counters
-    optohybridDevice_->ResetL1ACount(0x4);
-    //optohybridDevice_->ResetResyncCount();
-    //optohybridDevice_->ResetBC0Count();
-    optohybridDevice_->ResetCalPulseCount(0x3);
-    optohybridDevice_->SendResync();     
+    optohybridDevice_->resetL1ACount(0x4);
+    //optohybridDevice_->resetResyncCount();
+    //optohybridDevice_->resetBC0Count();
+    optohybridDevice_->resetCalPulseCount(0x3);
+    optohybridDevice_->sendResync();     
     
     hw_semaphore_.give(); //end glib flush fifo
 
@@ -914,11 +914,11 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   }
 
   //reset counters
-  optohybridDevice_->ResetL1ACount(0x4);
-  optohybridDevice_->ResetResyncCount();
-  optohybridDevice_->ResetBC0Count();
-  optohybridDevice_->ResetCalPulseCount(0x3);
-  optohybridDevice_->SendResync();      
+  optohybridDevice_->resetL1ACount(0x4);
+  optohybridDevice_->resetResyncCount();
+  optohybridDevice_->resetBC0Count();
+  optohybridDevice_->resetCalPulseCount(0x3);
+  optohybridDevice_->sendResync();      
   //  vfatDevice_->setRunMode(1);      
 
   hw_semaphore_.give();
@@ -982,15 +982,15 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   //SB glibDevice_->setTrigSource(0x2);   
 
   //set clock source
-  optohybridDevice_->SetVFATClock(1,1,0x0);    
-  optohybridDevice_->SetCDCEClock(1,1,0x0); 
+  //optohybridDevice_->setVFATClock(1,1,0x0);    
+  //optohybridDevice_->setCDCEClock(1,1,0x0); 
   //send resync
-  optohybridDevice_->SendResync();
+  optohybridDevice_->sendResync();
   //reset counters
-  optohybridDevice_->ResetL1ACount(0x4);
-  optohybridDevice_->ResetResyncCount();
-  optohybridDevice_->ResetBC0Count();
-  optohybridDevice_->ResetCalPulseCount(0x3);
+  optohybridDevice_->resetL1ACount(0x4);
+  optohybridDevice_->resetResyncCount();
+  optohybridDevice_->resetBC0Count();
+  optohybridDevice_->resetCalPulseCount(0x3);
 
 
   hw_semaphore_.give();//end oh reset counters
