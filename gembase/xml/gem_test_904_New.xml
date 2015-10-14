@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE GEMSystem [
+<!ENTITY % entities SYSTEM "entities.ent">
+%entities;
+]>
+<GEMSystem>
+  <uTCACrate CrateId="Crate01">
+    <MCH MCHId="MCH01">&MCH_01;</MCH>
+    <AMC13 AMCId="AMC01">&AMC_01;</AMC13>
+    <GLIB GLIBId="GLIB02">
+	   &GLIB_02;
+<!--
+		<OH OHId="OH01">
+		  &OH_01;
+		  <VFATSettings VFATId="VFAT0">&VFAT_00;</VFATSettings>
+		  <VFATSettings VFATId="VFAT8">&VFAT_08;</VFATSettings>
+		  <VFATSettings VFATId="VFAT11">&VFAT_11;</VFATSettings>
+		  <VFATSettings VFATId="VFAT12">&VFAT_12;</VFATSettings>
+		  <VFATSettings VFATId="VFAT13">&VFAT_13;</VFATSettings>
+		  <VFATSettings VFATId="VFAT16">&VFAT_16;</VFATSettings>
+		</OH>
+-->		  
+	 </GLIB>
+  </uTCACrate>
+</GEMSystem>
