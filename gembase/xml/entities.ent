@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For MCH files -->
+<!ENTITY MCH_01 SYSTEM "gem_test_904_MCH1.xml">
+
+<!-- For AMC13 files -->
+<!ENTITY AMC_01 SYSTEM "gem_test_904_AMC1.xml">
+
+<!-- For GLIB files -->
+<!ENTITY GLIB_01 SYSTEM "gem_test_904_GLIB2.xml">
+<!ENTITY GLIB_02 SYSTEM "gem_test_904_GLIB2.xml">
+
+<!-- For OH files -->
+<!ENTITY OH_01 SYSTEM "gem_test_904_OH1.xml">
+<!ENTITY OH_02 SYSTEM "gem_test_904_OH1.xml">
+
+<!-- For VFAT files -->
+<!--  These are work fine!!
+<!ENTITY VFAT_00 SYSTEM "./gem_test_904_V0.xml">
+<!ENTITY VFAT_00 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_00 PUBLIC "vfat0" "gem_test_904_V0.xml">
+      This one doesn't work!!
+<!ENTITY VFAT_00 SYSTEM "${BUILD_HOME}/gemdaq-testing/gembase/xml/gem_test_904_V0.xml">
+-->
+<!ENTITY VFAT_00 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_01 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_02 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_03 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_04 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_05 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_06 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_07 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_08 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_09 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_10 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_11 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_12 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_13 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_14 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_15 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_16 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_17 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_18 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_19 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_20 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_21 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_22 SYSTEM "gem_test_904_V0.xml">
+<!ENTITY VFAT_23 SYSTEM "gem_test_904_V0.xml">
+
+
+
+

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- VFAT Parameters-->
+
+	 <CalMode>NORMAL</CalMode>
+    <CalPolarity>NEGATIVE</CalPolarity>
+    <MSPolarity>NEGATIVE</MSPolarity>
+    <TriggerMode>GEMMODE</TriggerMode>
+    <RunMode>SLEEP</RunMode>
+    <ReHitCT>6.4MICROSEC</ReHitCT>
+    <LVDSPowerSave>OFF</LVDSPowerSave>
+    <DACMode>NORMAL</DACMode>
+    <DigInSel>DIGITAL</DigInSel>
+    <MSPulseLength>CLOCK3</MSPulseLength>
+    <HitCountMode>FASTOR</HitCountMode> 
+    <PbBG>OFF</PbBG>
+    <TrimDACRange>DEFAULT</TrimDACRange>
+    <IPreampIn>168</IPreampIn>
+    <IPreampFeed>80</IPreampFeed>
+    <IPreampOut>150</IPreampOut>
+    <IShaper>150</IShaper>
+    <IShaperFeed>100</IShaperFeed>
+    <IComp>75</IComp>
+    <Latency>20</Latency>
+    <VCal>125</VCal>
+    <VThreshold1>50</VThreshold1>
+    <VThreshold2>0</VThreshold2>
+    <CalPhase>0</CalPhase>
