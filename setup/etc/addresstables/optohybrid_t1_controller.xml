@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="TOGGLE" address="0x0"  mask="0x1"  permission="w"
+        description="Toggle the T1 controller on/off"/>
+  <node id="MODE"   address="0x1"  mask="0x7"  permission="rw"
+        description="3 bits to select the mode:
+                     0: Send N T1 commands of type type with an interval of interval BXs.
+                     1: Send N packets composed of a Calpulse followed by an LV1A separated by delay BXs.
+                     2: Send T1 commands according to a pattern defined by the sequence registers"/>
+  
+  <node id="TYPE" address="0x2"  mask="0xf" permission="rw"
+        description="4 bits to select the type of T1 signal (only for mode 0 and 1)
+                     0: L1A
+                     1: CalPulse
+                     2: Resync
+                     3: BC0"/>
+  <node id="NUMBER"   address="0x3"  mask="0xffffffff"  permission="rw"
+        description="Number of repetitions to send (only for mode 0 and 1)
+                     default is 0 = infinite"/>
+  <node id="INTERVAL" address="0x4"  mask="0xffffffff"  permission="rw"
+        description="How many BX between signals (only for mode 0 and 1)
+                     Minimum 3"/>
+  <node id="DELAY"   address="0x5"  mask="0xffffffff"  permission="rw"
+        description="Number of clock cycles between CalPulse and L1A (only for mode 1).
+                     Between 3 clock cycles and INTERVAL - 3 clock cycles "/>
+  
+  <node id="Sequence"  address="0x6"  permission="rw"
+        description="Define sequences of signals to generate (only for mod 2),
+                     64 bit patterns for each signal">
+    <node id="L1A"       address="0x1"  permission="rw"
+          description="L1A sequence to generate">
+      <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
+      <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
+    </node>
+    <node id="CalPulse"  address="0x8"  permission="rw"
+          description="CalPulse sequence to generate">
+      <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
+      <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
+    </node>
+    <node id="Resync"    address="0xa"  permission="rw"
+          description="Resyc sequence to generate">
+      <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
+      <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
+    </node>
+    <node id="BC0"       address="0xc"  permission="rw"
+          description="BC0 sequence to generate">
+      <node id="LSB"  address="0x0"  mask="0xffffffff"  permission="rw"/>
+      <node id="MSB"  address="0x1"  mask="0xffffffff"  permission="rw"/>
+    </node>
+  </node>
+  
+  <node id="MONITOR"    address="0xe"  mask="0xf"  permission="rw"
+        description="Status monitor for the T1 controller (4 bits):
+                     0: nothing running
+                     1: mode 1 running
+                     2: mode 2 running
+                     3: mode 3 running"/>
+   
+  <node id="RESET"    address="0xF"  mask="0xffffffff"  permission="rw"
+        description=""/>
+</node> 

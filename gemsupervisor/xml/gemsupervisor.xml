@@ -19,17 +19,17 @@
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">2</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">11</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!-- position must be slot-1 -->
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="10"> <!-- position must be slot-1 -->
             <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
             <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">2</slot>
+            <slot    xsi:type="xsd:integer">11</slot>
             <present xsi:type="xsd:boolean">true</present>
             
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
-            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.162</DeviceIPAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.171</DeviceIPAddress>
             <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
             <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
             <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
@@ -47,22 +47,26 @@
 		  xsi:type="soapenc:Struct">
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[48]">
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="2"> <!-- position must be ((slot-1)*max oh cards per amc)+(link) -->
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="20"> <!-- position must be ((slot-1)*max oh cards per amc)+(link) -->
             <!--OptoHybridInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
             <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">2</slot>
+            <slot    xsi:type="xsd:integer">11</slot>
             <link    xsi:type="xsd:integer">0</link>
             <present xsi:type="xsd:boolean">true</present>
             
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
-            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.162</DeviceIPAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.171</DeviceIPAddress>
             <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
-            <AddressTable      xsi:type="xsd:string">optohybrid_address_table.xml</AddressTable>
+            <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
             <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
             <IPBusPort         xsi:type="xsd:unsignedInt">50001</IPBusPort>
             
-            <triggerSource xsi:type="xsd:integer">2</triggerSource>
+            <VFATBroadcastList xsi:type="xsd:string">0-7,10,12,14,18,20,22</VFATBroadcastList>
+            <VFATBroadcastMask xsi:type="xsd:unsignedInt">0</VFATBroadcastMask>
+
+            <triggerSource xsi:type="xsd:integer">4</triggerSource>
             <sbitSource    xsi:type="xsd:integer">5</sbitSource>
+            <refClkSrc    xsi:type="xsd:integer">1</refClkSrc>
           </OptoHybridInfo>
 	</AllOptoHybridsInfo>
       </properties>
