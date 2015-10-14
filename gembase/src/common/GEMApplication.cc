@@ -40,6 +40,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
     XCEPT_RETHROW(xdaq::exception::Exception, "Failed to get GEM application information", e);
   }
   
+  INFO("GEM application has infospace named " << p_appInfoSpace->name());
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiDefault, "Default"    );
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
