@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- OH Parameters -->
+
+  <TrigSource>ALL</TrigSource> <!-- Trigger source, original name SOURCE. Possible values: GLIB(0), LEMO(1), ALL(2)-->
+  <TDC_SBits>0</TDC_SBits> <!-- Selects which VFAT2 sends SBits. Currently 0-5, should be 0-23-->
+  <VFATClock>INT</VFATClock> <!-- Clock source, original name SOURCE. Possible values: INT(0, internal clock), EXT(1,external clock)-->
+  <VFATFallback>ON</VFATFallback><!--ON(1)allow the OH switch to onboard clock if VFAT doesn't lock, OFF(0) do not allow-->
+  <CDCEClock>VFAT</CDCEClock><!--VFAT(0, same clock as VFAT) or GLIB(1, same clock as GLIB)-->
+  <CDCEFallback>ON</CDCEFallback><!--ON(1)allow the OH switch to onboard clock if CDCE doesn't lock, OFF(0) do not allow-->
+  <FPGAPLLLock>OFF</FPGAPLLLock>
+  <CDCELock>OFF</CDCELock>
+  <GTPLock>OFF</GTPLock>
+  <FW>X.Y.Z</FW>
+  <IP>192.168.0.162</IP>
+  <!-- It's the same
+  -->
+    <VFATSettings VFATId="VFAT0">&VFAT_00;</VFATSettings>
+	 <VFATSettings VFATId="VFAT8">&VFAT_08;</VFATSettings>
+	 <VFATSettings VFATId="VFAT11">&VFAT_11;</VFATSettings>
+	 <VFATSettings VFATId="VFAT12">&VFAT_12;</VFATSettings>
+	 <VFATSettings VFATId="VFAT13">&VFAT_13;</VFATSettings>
+	 <VFATSettings VFATId="VFAT16">&VFAT_16;</VFATSettings>

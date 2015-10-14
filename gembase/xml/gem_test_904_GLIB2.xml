@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- GLIB Parameters -->
+  
+  <Station>GE1/1</Station>
+  <FW>X.Y.Z</FW>
+  <IP>192.168.0.162</IP>
+  <DEPTH>0</DEPTH><!--Number of events in the FIFO-->
+  <TDC_SBits>0</TDC_SBits> <!-- Selects which VFAT2 sends SBits. Currently 0-5, should be 0-23-->
+  <!-- It's the same!
+  -->
+    <OH OHId="OH01">&OH_01;</OH>
+
