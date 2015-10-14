@@ -105,7 +105,7 @@
     <node id="B0"   mask="0x000000ff" />
   </node> <!--end ip_info-->
   
-  <!--node id="HW_ID"  address="0x0000001e"  permission="r"
+  <node id="HW_ID"  address="0x0000001e"  permission="r"
 	description="only in firmware versions 5.3 and up">
     <node id="B1"   address="0x0"  mask="0x0000ff00" />
     <node id="B2"   address="0x0"  mask="0x000000ff" />
@@ -113,7 +113,7 @@
     <node id="B4"   address="0x0"  mask="0x00ff0000" />
     <node id="B5"   address="0x1"  mask="0x0000ff00" />
     <node id="B6"   address="0x1"  mask="0x000000ff" />
-  </node-->
+  </node>
   <!--end ip_info-->
   
 </node>

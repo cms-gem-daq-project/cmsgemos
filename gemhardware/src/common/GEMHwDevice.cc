@@ -456,7 +456,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
 
-  int retryCount = 0;
+  unsigned retryCount = 0;
   uint32_t res;
   DEBUG("gem::hw::GEMHwDevice::readReg " << name << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -492,7 +492,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
-  std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read register %s",name.c_str());
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register %s",name.c_str());
   ERROR(msg);
   //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   return res;
@@ -503,7 +503,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
 
-  int retryCount = 0;
+  unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
     try {
       std::vector<std::pair<std::string,uhal::ValWord<uint32_t> > > vals;
@@ -555,7 +555,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
-  int retryCount = 0;
+  unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
     try {
       hw.getNode(name).write(val);
@@ -591,7 +591,7 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
-  int retryCount = 0;
+  unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
     try {
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
@@ -672,7 +672,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
 
   std::vector<uint32_t> res(numWords);
 
-  int retryCount = 0;
+  unsigned retryCount = 0;
   if (numWords < 1) 
     return res;
   
@@ -707,7 +707,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
-  std::string msg = toolbox::toString("Maximum number of retries reached, ubable to read block");
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read block");
   ERROR(msg);
   //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
   return res;
@@ -720,7 +720,7 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
     return;
   
   uhal::HwInterface& hw = getGEMHwInterface();
-  int retryCount = 0;
+  unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
     try {
       hw.getNode(name).writeBlock(values);
@@ -752,6 +752,32 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
   }
 }
 
+std::vector<uint32_t> gem::hw::GEMHwDevice::readFIFO(std::string const& name)
+{
+  return readBlock(name);
+}
+
+std::vector<uint32_t> gem::hw::GEMHwDevice::readFIFO(std::string const& name, size_t const& numWords)
+{
+  std::vector<uint32_t> result;
+  for (size_t word = 0; word < numWords; ++word)
+    result.push_back(readReg(name));
+
+  return result;
+}
+
+void gem::hw::GEMHwDevice::writeFIFO(std::string const& name, std::vector<uint32_t> const values)
+{
+  for (auto word = values.begin(); word != values.end(); ++word)
+    writeReg(name,*word);
+
+  return;
+}
+
+void gem::hw::GEMHwDevice::zeroFIFO(std::string const& name)
+{
+  return writeReg(name+".FLUSH",0x0);
+}
 
 bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
   return ((errCode.find("amount of data")              != std::string::npos) ||

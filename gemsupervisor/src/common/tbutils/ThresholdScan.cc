@@ -111,13 +111,13 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   //send triggers
   hw_semaphore_.take();
-  for (size_t trig = 0; trig < 500; ++trig) optohybridDevice_->SendL1A(0x1);  
+  for (size_t trig = 0; trig < 500; ++trig) optohybridDevice_->sendL1A(0x1);  
 
   //count triggers
-  confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
-  CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
-  CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
-  CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
+  confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x3);// total L1A
+  CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //internal
+  CalPulseCount_[1] = optohybridDevice_->getCalPulseCount(1); //delayed
+  CalPulseCount_[2] = optohybridDevice_->getCalPulseCount(2); //total
 
   hw_semaphore_.give();
   
@@ -169,10 +169,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.take();
       
       //triggersSeen update 
-      confParams_.bag.triggersSeen =  optohybridDevice_->GetL1ACount(0x3);// total L1A
-      CalPulseCount_[0] = optohybridDevice_->GetCalPulseCount(0); //internal
-      CalPulseCount_[1] = optohybridDevice_->GetCalPulseCount(1); //delayed
-      CalPulseCount_[2] = optohybridDevice_->GetCalPulseCount(2); //total
+      confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x3);// total L1A
+      CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //internal
+      CalPulseCount_[1] = optohybridDevice_->getCalPulseCount(1); //delayed
+      CalPulseCount_[2] = optohybridDevice_->getCalPulseCount(2); //total
       
       hw_semaphore_.give();
       wl_semaphore_.give();
@@ -214,11 +214,11 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     }
     
     //reset counters
-    optohybridDevice_->ResetL1ACount(0x4);
-    optohybridDevice_->ResetResyncCount();
-    optohybridDevice_->ResetBC0Count();
-    optohybridDevice_->ResetCalPulseCount(0x3);
-    optohybridDevice_->SendResync();     
+    optohybridDevice_->resetL1ACount(0x4);
+    optohybridDevice_->resetResyncCount();
+    optohybridDevice_->resetBC0Count();
+    optohybridDevice_->resetCalPulseCount(0x3);
+    optohybridDevice_->sendResync();     
 	  
     hw_semaphore_.give();
 	  
@@ -262,11 +262,11 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       confParams_.bag.triggersSeen = 0;
 
       //reset counters
-      optohybridDevice_->ResetL1ACount(0x4);
-      optohybridDevice_->ResetResyncCount();
-      optohybridDevice_->ResetBC0Count();
-      optohybridDevice_->ResetCalPulseCount(0x3);
-      optohybridDevice_->SendResync();     
+      optohybridDevice_->resetL1ACount(0x4);
+      optohybridDevice_->resetResyncCount();
+      optohybridDevice_->resetBC0Count();
+      optohybridDevice_->resetCalPulseCount(0x3);
+      optohybridDevice_->sendResync();     
       
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {	
 	(*chip)->setRunMode(1);
@@ -1108,13 +1108,13 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   hw_semaphore_.take();
 
   //send resync
-  optohybridDevice_->SendResync();
+  optohybridDevice_->sendResync();
 
   //reset counters
-  optohybridDevice_->ResetL1ACount(0x4);
-  optohybridDevice_->ResetResyncCount();
-  optohybridDevice_->ResetBC0Count();
-  optohybridDevice_->ResetCalPulseCount(0x3);
+  optohybridDevice_->resetL1ACount(0x4);
+  optohybridDevice_->resetResyncCount();
+  optohybridDevice_->resetBC0Count();
+  optohybridDevice_->resetCalPulseCount(0x3);
   
   //set trigger source
   optohybridDevice_->setTrigSource(0x2);   
