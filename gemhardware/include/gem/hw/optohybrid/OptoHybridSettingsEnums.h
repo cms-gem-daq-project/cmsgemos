@@ -64,8 +64,10 @@ namespace gem {
         struct TriggerMode { //Trigger mode settings
           enum ETriggerMode { //Trigger mode settings
             GLIB     = 0x0, //Take the triggers coming from the GLIB
-            EXTERNAL = 0x1, //Use the triggers coming from the LEMO connector
-            BOTH     = 0x2, //Use all sources of triggers
+            FIRMWARE = 0x1, //Take the triggers coming from the firmware module
+            EXTERNAL = 0x2, //Use the triggers coming from the LEMO connector
+            LOOPBACK = 0x3, //Use looped back s-bits
+            ALL      = 0x4, //Use all sources of triggers
           } TriggerMode;
         };
 	
