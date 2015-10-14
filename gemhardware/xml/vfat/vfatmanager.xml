@@ -3,17 +3,17 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://gem904daq01:5002">
+  <xc:Context url="http://gem904daq01:4445">
 
     <xc:Application class="gem::hw::vfat::VFAT2Manager" id="30" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT0</device>
-	<ipAddr xsi:type="xsd:string">192.168.0.162</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.169</ipAddr>
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
-
+<!--
     <xc:Application class="gem::hw::vfat::VFAT2Manager" id="31" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
@@ -50,9 +50,14 @@
       </properties>
     </xc:Application>
 
+-->
+
     <xc:Application class="gem::hw::amc13::AMC13Manager" id="259" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
 		  xsi:type="soapenc:Struct">
+
+
+
 	<!--
 	<rcmsStateListener xsi:type="soapenc:Struct">
           <classname xsi:type="xsd:string">RCMSStateListener</classname>
