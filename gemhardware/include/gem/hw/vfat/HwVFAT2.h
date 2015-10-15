@@ -12,8 +12,6 @@
 
 #include "gem/hw/vfat/exception/Exception.h"
 
-#define N_VFAT2_CHANNELS 128
-
 typedef std::pair<std::string, uint8_t> vfat_reg_pair;
 typedef std::vector<vfat_reg_pair>      vfat_reg_pair_list;
 
@@ -36,6 +34,8 @@ namespace gem {
       class HwVFAT2: public gem::hw::GEMHwDevice
         {
         public:
+          static const unsigned N_VFAT2_CHANNELS = 128;
+          
           typedef struct TransactionErrors {
             int Error     ;
             int Invalid   ;
@@ -46,7 +46,8 @@ namespace gem {
           } TransactionErrors;
 
           HwVFAT2(std::string const& vfatDevice, std::string const& connectionFile);
-          HwVFAT2(std::string const& vfatDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwVFAT2(std::string const& vfatDevice, std::string const& connectionURI,
+                  std::string const& addressTable);
           HwVFAT2(std::string const& vfatDevice, uhal::HwInterface& uhalDevice);
           HwVFAT2(std::string const& vfatDevice="VFAT13");
 
