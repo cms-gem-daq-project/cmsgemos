@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="I2C0"  address="0x0"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="I2C1"  address="0x1"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="I2C2"  address="0x2"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="I2C3"  address="0x3"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="I2C4"  address="0x4"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="I2C5"  address="0x5"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="ExtI2C"   address="0x6"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="Scan"     address="0x7"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="T1"       address="0x8"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="DAC"       address="0x9"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="ADC"       address="0xa"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="Clocking"  address="0xb"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="Counters"  address="0xc"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+  <node id="System"    address="0xd"  permission="r">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+
+</node>

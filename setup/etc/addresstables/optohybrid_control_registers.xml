@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="VFAT"  address="0x0"  permission="rw"
+	description="Control on the OptoHybrid related to the VFATs">
+    <node id="MASK"  address="0x0"  mask="0xffffffff"  permission="rw"
+          description="Masks individual VFATs from sending tracking data packets"/>
+    <node id="RESET"  address="0x3"  mask="0x1"  permission="w"
+          description="Returns to a 0 state"/>
+  </node>
+  <node id="TRIGGER" address="0x1" permission="rw"
+        description="Trigger options for the OptoHybrid">
+    <node id="SOURCE"  address="0x0"  mask="0x7"  permission="rw"
+          description="Selects the source of T1 signals sent to the GEB (3 bits [0,4]:
+                       0: T1 from GLIB TTC decoder over backplane (AMC13)
+                       1: T1 from OptoHybrid firmware
+                       2: T1 from external source
+                       3: Internal loopback on S-bits
+                       4: Logical OR of all sources"/>
+    <node id="LOOPBACK"  address="0x1"  mask="0x1f"  permission="rw"
+          description="Selects the S-bit source to loop back  (5 bits)"/>
+  </node>
+
+  <node id="CLOCK"  address="0x4"  permission="rw"
+	description="Control on the OptoHybrid related to the clocking">
+    <node id="REF_CLK"  address="0x0"  mask="0x3"  permission="rw"
+          description="Select the reference clock source (3 bits):
+                       0: on board oscillator
+                       1: GTX recovered clock
+                       2: external clock"/>
+  </node>
+  
+  <node id="OUTPUT"  address="0x5"  permission="rw"
+	description="Control on the OptoHybrid related to the SBits sent out">
+    <node id="SBits"  address="0x0"  permission="rw"
+          description="Select the SBit sources to send out (30 bits, maximum 6 may be set high)"/>
+  </node>
+</node> <!-- end top block -->

@@ -11,22 +11,22 @@
 	module="file://${GEM_ADDRESS_TABLE_PATH}/trigger_registers.xml"
 	description="global trigger setup"/>
   
-  <node id="CLOCKING"  address="0x4B"
+  <node id="CLOCKING"  address="0x4b"
 	module="file://${GEM_ADDRESS_TABLE_PATH}/clocking_registers.xml"
 	description="global clocking registers"/>
   
-  <node id="COUNTERS"  address="0x5A"
+  <node id="COUNTERS"  address="0x5a"
 	module="file://${GEM_ADDRESS_TABLE_PATH}/counter_registers.xml"
 	description="global counter registers"/>
   
-  <node id="FIRMWARE"  address="0x57"  mask="0xFFFFFFFF"  permission="r"
+  <node id="FIRMWARE"  address="0x57"  mask="0xffffffff"  permission="r"
 	description="version of the optohybrid firmware"/>
 
   <node id="VFAT_ADC"  address="0x40030155"
 	description="VFAT2 ADC values">
-    <node id="Voltage"  address="0x0"  mask="0xFFFFFFFF"  permission="r"
+    <node id="Voltage"  address="0x0"  mask="0xffffffff"  permission="r"
 	  description="read the voltage ADC off the VFAT chip" />
-    <node id="Current"  address="0x1"  mask="0xFFFFFFFF"  permission="r"
+    <node id="Current"  address="0x1"  mask="0xffffffff"  permission="r"
 	  description="send CalPulse command to system" />
   </node> <!-- end ADC block -->
 </node> <!-- end top block -->

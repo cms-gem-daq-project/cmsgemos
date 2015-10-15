@@ -51,16 +51,22 @@
   <connection id="gem.shelf01.glib09" uri="chtcp-2.0://localhost:10203?target=192.168.0.169:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
-  <connection id="gem.shelf01.glib02.optohybrid00" uri="chtcp-2.0://localhost:10203?target=192.168.0.162:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml" />
-  <connection id="gem.shelf01.glib02.optohybrid01" uri="chtcp-2.0://localhost:10203?target=192.168.0.162:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml" />
+  <connection id="gem.shelf01.glib09.optohybrid00" uri="chtcp-2.0://localhost:10203?target=192.168.0.169:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
+  <connection id="gem.shelf01.glib09.optohybrid01" uri="chtcp-2.0://localhost:10203?target=192.168.0.169:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
 
   <connection id="gem.shelf01.glib10" uri="chtcp-2.0://localhost:10203?target=192.168.0.170:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
 
   <connection id="gem.shelf01.glib11" uri="chtcp-2.0://localhost:10203?target=192.168.0.171:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
+  <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
+  <connection id="gem.shelf01.glib11.optohybrid00" uri="chtcp-2.0://localhost:10203?target=192.168.0.171:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
+  <connection id="gem.shelf01.glib11.optohybrid01" uri="chtcp-2.0://localhost:10203?target=192.168.0.171:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
+
 
   <connection id="gem.shelf01.glib12" uri="chtcp-2.0://localhost:10203?target=192.168.0.171:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
