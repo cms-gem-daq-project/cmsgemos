@@ -124,32 +124,24 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
   //timer.Start();
   while ( glibDevice_->hasTrackingData(link) ) {
-    std::vector<uint32_t> data;
 
-    // timer.Start();
-    data = glibDevice_->getTrackingData(link);
+    timer.Start();
+    std::vector<uint32_t> data = glibDevice_->getTrackingData(link, glibDevice_->getFIFOOccupancy(link));
     /*
-      timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
-      DEBUG(" ::getGLIBData The time for one call of getTrackingData(link) " << RT);
+    timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
+    INFO(" ::getGLIBData The time for one call of getTrackingData(link) " << RT);
     */
+
+    for (auto iword = data.begin(); iword != data.end(); ++iword){
+      INFO(" found word 0x" << std::setw(8) << std::setfill('0') <<std::hex << *iword << std::dec);
+      dataque.push(*iword);
+    }
 
     /*
       DEBUG(" ::getGLIBData numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
       " vfats.size " << vfats.size() << " erros.size " << erros.size() << " ES 0x" << std::hex << ES << std::dec << 
       " event " << Counter[1] );
     */
-
-    uint32_t contqueue = 0;
-    for (int iword=0; iword<7; iword++ ){
-      contqueue++;
-      dataque.push(data.at(iword));
-      if (contqueue%kUPDATE7 == 0 &&  contqueue != 0) {
-        contvfats_++;
-        /*
-	  INFO(" ::getGLIBData conter "  << contqueue << " contvfats " << contvfats_ << " dataque.size " << dataque.size() 
-        */
-      }
-    }
 
     uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
     Counter[0] = *(pDQ+0); // VFAT Blocks counter
@@ -285,10 +277,9 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   vfat.crc    = vfatcrc;                                // crc:16
 
   /*
-   * dump VFAT data 
+   * dump VFAT data */
    GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
    INFO(" ::GEMEventMaker slot " << islot <<"\n");
-  */
 
   if ( ES == ESexp /* ESexp.find(ES)->second */ ) { 
     isFirst = false;
