@@ -118,15 +118,20 @@ uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
 uint32_t* gem::readout::GEMDataParker::getGLIBData(
 						   uint8_t const& link,
 						   uint32_t Counter[5]
-						   ){
+						   )
+{
   uint32_t *point = &Counter[0]; 
   TStopwatch timer;
+  uint8_t const gtx = 0;
 
   //timer.Start();
   while ( glibDevice_->hasTrackingData(link) ) {
 
     timer.Start();
     std::vector<uint32_t> data = glibDevice_->getTrackingData(link, glibDevice_->getFIFOOccupancy(link));
+
+    INFO(" data.size " << data.size() );
+
     /*
     timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
     INFO(" ::getGLIBData The time for one call of getTrackingData(link) " << RT);
@@ -153,7 +158,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     DEBUG(" ::getGLIBData VFATs [0] " << Counter[0] << " VFATs per event [2] " << Counter[2] << 
 	  " numES [3] " << Counter[3] << " errES [4] " << Counter[4] << " event [1] " << Counter[1] << " event_ " << event_ );
 
-  }// while(glibDevice_->hasTrackingData(link))
+  }
 
   return point;
 }
