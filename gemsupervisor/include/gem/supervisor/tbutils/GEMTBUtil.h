@@ -1,6 +1,7 @@
 #ifndef gem_supervisor_tbutils_GEMTBUtil_h
 #define gem_supervisor_tbutils_GEMTBUtil_h
 
+
 #include <map>
 #include <string>
 
@@ -13,6 +14,8 @@
 #include "xdaq/NamespaceURI.h"
 #include "xoap/Method.h"
 #include "xoap/MessageFactory.h"
+
+#include "log4cplus/logger.h"
 
 #include "toolbox/Event.h"
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"
@@ -30,6 +33,7 @@
 #include "xdata/UnsignedInteger.h"
 #include "xdata/UnsignedShort.h"
 #include "xdata/Integer.h"
+#include "xdata/Vector.h"
 
 #include "TStopwatch.h"
 
@@ -63,14 +67,12 @@ namespace gem {
       class HwGLIB;
     }
   }
-  /*
   namespace readout {
     struct VFATData;
   }
   namespace readout {
     class GEMDataParker;
   }
-  */
 
   typedef std::shared_ptr<hw::vfat::HwVFAT2 > vfat_shared_ptr;
   typedef std::shared_ptr<hw::glib::HwGLIB >  glib_shared_ptr;
@@ -154,7 +156,9 @@ namespace gem {
 	    throw (toolbox::fsm::exception::Exception);
 	  
 	  //web display helpers
-	  virtual void selectVFAT(xgi::Output* out)
+	  //	  virtual void selectVFAT(xgi::Output* out)
+	  //  throw (xgi::exception::Exception);
+	  virtual void selectMultipleVFAT(xgi::Output* out)
 	    throw (xgi::exception::Exception);
 	  virtual void scanParameters(xgi::Output* out)
 	    throw (xgi::exception::Exception)=0;
@@ -184,18 +188,23 @@ namespace gem {
 	    xdata::String        outFileName;
 	    xdata::String        settingsFile;
 
-	    xdata::String        deviceName;
+	    xdata::Vector<xdata::String>  deviceName;
+	    xdata::Vector<xdata::Integer> deviceNum;
 	    xdata::String        deviceIP;
-	    xdata::Integer       deviceNum;
 	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedInteger64 triggersSeen;
 	    xdata::Integer       ADCVoltage;
 	    xdata::Integer       ADCurrent;
+
+	    xdata::UnsignedShort deviceVT1;
+	    xdata::UnsignedShort deviceVT2;
 	    
 	  };
 	  
 	protected:
+
+	  log4cplus::Logger m_gemLogger;
 
 	  toolbox::fsm::AsynchronousFiniteStateMachine* fsmP_;
 
@@ -223,12 +232,13 @@ namespace gem {
 
 	  uint64_t nTriggers_;
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
-          vfat_shared_ptr       vfatDevice_;
-          glib_shared_ptr       glibDevice_;
-          optohybrid_shared_ptr optohybridDevice_;
 
-	  //readout application should be running elsewhere, not tied to supervisor
-	  //SB gem::readout::GEMDataParker* gemDataParker;
+	  //readout application should be running elsewhere, not tied to supervisor                                                                           
+        glib_shared_ptr glibDevice_;
+        optohybrid_shared_ptr optohybridDevice_;
+        std::vector<vfat_shared_ptr> vfatDevice_;
+
+        std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
 
 	  // Counter
 	  int counter_[3];
@@ -251,6 +261,11 @@ namespace gem {
 	  TCanvas* outputCanvas;
 
           TStopwatch timer;
+
+	  xdata::Bag<ConfigParams> scanParams_;
+	  uint64_t eventsSeen_,channelSeen_;
+	  uint8_t  currentLatency_;
+
 
 	protected:
 

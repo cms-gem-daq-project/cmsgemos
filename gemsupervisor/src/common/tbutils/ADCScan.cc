@@ -85,8 +85,7 @@ gem::supervisor::tbutils::ADCScan::ADCScan(xdaq::ApplicationStub * s)
   is_working_     (false),
   is_initialized_ (false),
   is_configured_  (false),
-  is_running_     (false)//,
-  //vfatDevice_(0)
+  is_running_     (false)
 {
 
   curDACRegValue = 0;
@@ -1063,19 +1062,15 @@ void gem::supervisor::tbutils::ADCScan::initializeAction(toolbox::Event::Referen
   //here the connection to the device should be made
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
   hw_semaphore_.take();
-  std::stringstream tmpURI;
-  tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
-  vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString(),tmpURI.str(),
-                                                           "file://${GEM_ADDRESS_TABLE_PATH}/testbeam_registers.xml"));
-  //vfatDevice_ = new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString());
+  vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString()));
   
   //vfatDevice_->setAddressTableFileName("allregsnonfram.xml");
   //vfatDevice_->setDeviceBaseNode("user_regs.vfats."+confParams_.bag.deviceName.toString());
-  //vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
-  //vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
+  vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
+  vfatDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
   //sleep(1);
-  //vfatDevice_->connectDevice();
+  //  vfatDevice_->connectDevice();
   
   //read in default parameters from an xml file?
   //vfatDevice_->setRegisters(xmlFile);
@@ -1312,13 +1307,9 @@ void gem::supervisor::tbutils::ADCScan::resetAction(toolbox::Event::Reference e)
   //vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
   vfatDevice_->setRunMode(0);
 
-  //if (vfatDevice_->isHwConnected())
-  //  vfatDevice_->releaseDevice();
-  
-  //if (vfatDevice_)
-  //  delete vfatDevice_;
-  //
-  //vfatDevice_ = 0;
+  /*  if (vfatDevice_->isHwConnected())
+    vfatDevice_->releaseDevice();
+  */
   sleep(2);
   hw_semaphore_.give();
 
