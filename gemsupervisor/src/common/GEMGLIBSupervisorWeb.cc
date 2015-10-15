@@ -631,7 +631,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  uint64_t* pDupm = gemDataParker->dumpData(readout_mask);
+  uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
   if (pDupm) {
     counter_[0] = *pDupm;     // VFAT Blocks counter
     counter_[1] = *(pDupm+1); // Events counter
@@ -650,13 +650,15 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop
   wl_semaphore_.take();
   hw_semaphore_.take();
 
-  uint32_t  Counter[4] = {0,0,0,0};
-  uint32_t* pDQ = gemDataParker->selectData();
+  uint32_t  Counter[5] = {0,0,0,0,0};
+  uint32_t* pDQ =  gemDataParker->selectData(Counter);
   if (pDQ) {
     Counter[0] = *(pDQ+0);
-    Counter[1] = *(pDQ+1);
-    Counter[2] = *(pDQ+2); // Events counter
+    Counter[1] = *(pDQ+1); // Events counter
+    Counter[2] = *(pDQ+2); 
     Counter[3] = *(pDQ+3);
+    Counter[4] = *(pDQ+4);
+    Counter[5] = *(pDQ+5);
   }
 
   hw_semaphore_.give();
