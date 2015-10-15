@@ -217,28 +217,30 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
     datafront = dataque.front();
     DEBUG(" ::GEMEventMaker iQue " << iQue << " " << std::hex << datafront << std::dec );
 
-    if (iQue == 0 ){
-      dat41   = ((0xffff0000 & datafront) >> 16 );
-      vfatcrc = (0x0000ffff & datafront);
-    } else if ( iQue == 1 ){
-      dat40   = ((0x0000ffff & datafront) << 16 );
-      dat31   = ((0xffff0000 & datafront) >> 16 );
-    } else if ( iQue == 2 ){
-      dat21   = ((0xffff0000 & datafront) >> 16 );
-      dat30   = ((0x0000ffff & datafront) << 16 );
-    } else if ( iQue == 3 ){
-      dat11   = ((0xffff0000 & datafront) >> 16 );
-      dat20   = ((0x0000ffff & datafront) << 16 );
-    } else if ( iQue == 4 ){
-      b1110   = ((0xf0000000 & datafront) >> 28 );
-      chipid  = ((0x0fff0000 & datafront) >> 16 );
-      dat10   = ((0x0000ffff & datafront) << 16 );
-    } else if ( iQue == 5 ){
+    if ( iQue == 0 ){
+      // 1010, BC, 1100, EC, Flags
       b1010   = ((0xf0000000 & datafront) >> 28 );
       b1100   = ((0x0000f000 & datafront) >> 12 );
       bcn     = ((0x0fff0000 & datafront) >> 16 );
       evn     = ((0x00000ff0 & datafront) >>  4 );
       flags   = (0x0000000f & datafront);
+    } else if ( iQue == 1 ){
+      // 1110, ChipID, dat10
+      b1110   = ((0xf0000000 & datafront) >> 28 );
+      chipid  = ((0x0fff0000 & datafront) >> 16 );
+      dat10   = ((0x0000ffff & datafront) << 16 );
+    } else if ( iQue == 2 ){
+      dat11   = ((0xffff0000 & datafront) >> 16 );
+      dat20   = ((0x0000ffff & datafront) << 16 );
+    } else if ( iQue == 3 ){
+      dat40   = ((0x0000ffff & datafront) << 16 );
+      dat31   = ((0xffff0000 & datafront) >> 16 );
+    } else if ( iQue == 4 ){
+      dat21   = ((0xffff0000 & datafront) >> 16 );
+      dat30   = ((0x0000ffff & datafront) << 16 );
+    } else if ( iQue == 5 ){
+      dat41   = ((0xffff0000 & datafront) >> 16 );
+      vfatcrc = (0x0000ffff & datafront);
     } else if ( iQue == 6 ){
       BX      = datafront;
     }
