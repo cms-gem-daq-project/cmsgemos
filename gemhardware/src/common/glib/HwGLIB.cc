@@ -93,14 +93,10 @@ gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
   
   //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml" );
   INFO("getting the ConnectionManager pointer");
-  //p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
-  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://../data/connections_ch.xml"));
+  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  //p_gemConnectionManager.reset(new uhal::ConnectionManager("file://../data/connections_ch.xml"));
   INFO("getting HwInterface " << getDeviceID() << " pointer from ConnectionManager");
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
-  //p_gemConnectionManager = new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml");
-  //p_gemHW = new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID()));
-  //setAddressTableFileName("glib_address_table.xml");
-  //setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
   INFO("setting the device base node");
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
