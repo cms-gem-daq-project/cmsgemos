@@ -800,6 +800,20 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
   return res;
 }
 
+uint32_t gem::hw::GEMHwDevice::readBlock(std::string const& name, uint32_t* buffer,
+                                         size_t const& numWords)
+{
+  //not yet implemented
+  return 0;
+}
+
+uint32_t gem::hw::GEMHwDevice::readBlock(std::string const& name, std::vector<toolbox::mem::Reference*>& buffer,
+                                         size_t const& numWords)
+{
+  //not yet implemented
+  return 0;
+}
+
 void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint32_t> const values)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);

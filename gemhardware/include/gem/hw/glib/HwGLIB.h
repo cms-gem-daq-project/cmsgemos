@@ -5,8 +5,6 @@
 #include "toolbox/SyncQueue.h"
 #include "i2o/i2o.h"
 #include "toolbox/Task.h"
-#include "toolbox/mem/Reference.h"
-#include "toolbox/mem/Pool.h"
 
 #include "gem/hw/glib/exception/Exception.h"
 //#include "gem/hw/glib/GLIBMonitor.h"

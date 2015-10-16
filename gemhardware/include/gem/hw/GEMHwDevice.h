@@ -8,6 +8,8 @@
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
 #include "toolbox/string.h"
+#include "toolbox/mem/Reference.h"
+#include "toolbox/mem/Pool.h"
 
 #include <iomanip>
 
@@ -232,7 +234,6 @@ namespace gem {
        * @param regName fixed size memory block to read from
        */
       std::vector<uint32_t> readBlock( std::string const& regName);
-      //size_t readBlock( std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
 
       /**
        * readBlock(std::string const& regName, size_t const nWords)
@@ -243,6 +244,10 @@ namespace gem {
        */
       std::vector<uint32_t> readBlock( std::string const& regName,
                                        size_t      const& nWords);
+
+      uint32_t readBlock(std::string const& regName, uint32_t* buffer, size_t const& nWords);
+      uint32_t readBlock(std::string const& regName, std::vector<toolbox::mem::Reference*>& buffer,
+                         size_t const& nWords);
 
       /**
        * writeBlock(std::string const& regName, std::vector<uint32_t> const values)
