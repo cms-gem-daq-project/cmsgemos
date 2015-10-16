@@ -603,11 +603,15 @@ std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx,
   return readBlock(regName.str(),7*nBlocks);
 }
 
-uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint64_t* data, size_t const& nBlocks)
+uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks)
 {
-  if (!linkCheck(gtx, "Tracking data")) {
+  if (data==NULL) {
+    std::string msg = toolbox::toString("Block read requested for null pointer");
+    ERROR(msg);
+    XCEPT_RAISE(gem::hw::optohybrid::exception::NULLReadoutPointer,msg);
+  } else if (!linkCheck(gtx, "Tracking data")) {
     return 0;
-  } 
+  }
   
   std::stringstream regName;
   regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";

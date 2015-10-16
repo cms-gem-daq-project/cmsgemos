@@ -622,16 +622,16 @@ namespace gem {
            * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
            * and need to pack all events together
            * @param uint8_t gtx is the number of the GTX tracking data to read
-           * @param size_t nBlocks is the number of blocks (7*32bit words) to read
+           * @param size_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
            * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
           **/
           std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
           //which of these will be better and do what we want
-          uint32_t getTrackingData(uint8_t const& gtx, uint64_t* data, size_t const& nBlocks=1);
+          uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
           //which of these will be better and do what we want
           uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
                                    size_t const& nBlocks=1);
-
+          
           /**
            * Empty the tracking data FIFO
            * @param uint8_t gtx is the number of the gtx to query
