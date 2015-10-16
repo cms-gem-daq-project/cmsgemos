@@ -145,6 +145,13 @@ namespace gem {
       uint32_t readReg( std::string const& regName);
 
       /**
+       * readReg(uint32_t const& regAddr)
+       * @param regAddr address of the register to read 
+       * @retval returns the 32 bit unsigned value in the register
+       */
+      uint32_t readReg( uint32_t const& regAddr);
+
+      /**
        * readReg(std::string const& regPrefix, std::string const& regName)
        * @param regPrefix prefix in the address table, possibly root nodes
        * @param regName name of the register to read from the address table
@@ -168,6 +175,13 @@ namespace gem {
        * @param val value to write to the register
        */
       void     writeReg( std::string const& regName, uint32_t const val);
+
+      /**
+       * writeReg(uint32_t const& regAddr, uint32_t const val)
+       * @param regAddr address of the register to read 
+       * @param val value to write to the register
+       */
+      void     writeReg( uint32_t const& regAddr, uint32_t const val);
 
       /**
        * writeReg(std::string const& regPrefux, std::string const& regName, uint32_t const val)
