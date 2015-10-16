@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <ctime>
+#include <queue>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -304,6 +305,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
   // Get the size of GLIB data buffer       
   uint32_t bufferDepth;
+  uint32_t TrigReg;
 
   if (readout_mask&0x1){ 
     bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
@@ -319,6 +321,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   while (bufferDepth) {
 
     std::vector<uint32_t> data;
+    std::queue<uint32_t> data_fifo;     
 
     // read trigger data 
     if (readout_mask&0x1 && glibDevice_->hasTrackingData(0x0)) {
@@ -1167,7 +1170,6 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   }
 
   hw_semaphore_.give();
-
   //start scan routine
   wl_->submit(runSig_);
   

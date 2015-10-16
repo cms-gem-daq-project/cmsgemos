@@ -193,8 +193,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	    
       wl_->submit(readSig_);    
 	    
-      histolatency->Fill((int)currentLatency_, eventsSeen_);
-      //histolatency->Fill((int)currentLatency_, channelSeen_);
+      //      histolatency->Fill((int)currentLatency_, eventsSeen_);
+      histolatency->Fill((int)currentLatency_, channelSeen_);
 	    
       std::string imgName = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/latencyscan/"
 	+confParams_.bag.deviceName.toString()+"_Latency_scan.png";
@@ -301,6 +301,7 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
 
   // Get the size of GLIB data buffer       
   uint32_t bufferDepth;
+  uint32_t TrigReg;
 
   if (readout_mask&0x1){ 
     bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
