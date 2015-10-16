@@ -58,7 +58,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   outFileName  = tmpFileName;
   //settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
 
-  //deviceIP      = "192.168.0.169";
+  //  deviceIP      = "192.168.0.170";
 
   //stablish the number of VFATs and the entry is 
   for (int i = 0; i < 24; ++i) {
@@ -416,8 +416,26 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
       
 	   << "<tbody>" << std::endl
 	   << "<tr>" << std::endl
-	   << cgicc::td()    << "External"    << cgicc::td() << std::endl
+	   << cgicc::td()    << "TTC_on_GLIB"    << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x0) << cgicc::td() << std::endl
+	   << cgicc::td()    << cgicc::input().set("type","checkbox")
+	                                      .set("id","RstL1ATTC")
+	                                      .set("name","RstL1ATTC")
+	   << cgicc::td()    << std::endl
+	   << "</tr>" << std::endl
+
+	   << "<tr>" << std::endl
+	   << cgicc::td()    << "T1_in_Firmware"    << cgicc::td() << std::endl
+	   << cgicc::td()    <<  optohybridDevice_->getL1ACount(0x1) << cgicc::td() << std::endl
+	   << cgicc::td()    << cgicc::input().set("type","checkbox")
+	                                      .set("id","RstL1AT1")
+	                                      .set("name","RstL1AT1")
+	   << cgicc::td()    << std::endl
+	   << "</tr>" << std::endl
+
+	   << "<tr>" << std::endl
+	   << cgicc::td()    << "External"     << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x2) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
 	                                      .set("id","RstL1AExt")
 	                                      .set("name","RstL1AExt")
@@ -425,29 +443,20 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << "</tr>" << std::endl
 
 	   << "<tr>" << std::endl
-	   << cgicc::td()    << "Internal"    << cgicc::td() << std::endl
-	   << cgicc::td()    <<  optohybridDevice_->getL1ACount(0x1) << cgicc::td() << std::endl
-	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstL1AInt")
-	                                      .set("name","RstL1AInt")
-	   << cgicc::td()    << std::endl
-	   << "</tr>" << std::endl
-
-	   << "<tr>" << std::endl
-	   << cgicc::td()    << "Delayed"     << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x2) << cgicc::td() << std::endl
-	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstL1ADel")
-	                                      .set("name","RstL1ADel")
-	   << cgicc::td()    << std::endl
-	   << "</tr>" << std::endl
-
-	   << "<tr>" << std::endl
-	   << cgicc::td()    << "Total"       << cgicc::td() << std::endl
+	   << cgicc::td()    << "Loopback_sBits"       << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x3) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstL1ATot")
-	                                      .set("name","RstL1ATot")
+	                                      .set("id","RstL1Asbits")
+	                                      .set("name","RstL1Asbits")
+	   << cgicc::td()    << std::endl
+	   << "</tr>" << std::endl
+
+	   << "<tr>" << std::endl
+	   << cgicc::td()    << "Sent_along_GEB"     << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x4) << cgicc::td() << std::endl
+	   << cgicc::td()    << cgicc::input().set("type","checkbox")
+	                                      .set("id","RstL1AGEB")
+	                                      .set("name","RstL1AGEB")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -468,31 +477,53 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << "<tbody>" << std::endl
 	   << "<tr>" << std::endl
 	//	   << "<tr>" << std::endl
-	   << cgicc::td()    << "Internal"  << cgicc::td() << std::endl
+	   << cgicc::td()    << "TTC_on_GLIB"  << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x0)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstCalPulseInt")
-	                                      .set("name","RstCalPulseInt")
+	                                      .set("id","RstCalPulseTTC")
+	                                      .set("name","RstCalPulseTTC")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
 	   << "<tr>" << std::endl
-	   << cgicc::td()    << "Delayed"  << cgicc::td() << std::endl
+
+	   << cgicc::td()    << "T1_in_Firmware"  << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x1)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstCalPulseDel")
-	                                      .set("name","RstCalPulseDel")
+	                                      .set("id","RstCalPulseT1")
+	                                      .set("name","RstCalPulseT1")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
 	   << "<tr>" << std::endl
-	   << cgicc::td()    << "Total"     << cgicc::td() << std::endl
-	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x2) << cgicc::td() << std::endl
+
+	   << cgicc::td()    << "External"  << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x2)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstCalPulseTot")
-	                                      .set("name","RstCalPulseTot")
+	                                      .set("id","RstCalPulseExt")
+	                                      .set("name","RstCalPulseExt")
+	   << cgicc::td()    << std::endl
+	   << "</tr>" << std::endl
+
+	   << "<tr>" << std::endl
+	   << cgicc::td()    << "Loopback_sBits"     << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x3) << cgicc::td() << std::endl
+	   << cgicc::td()    << cgicc::input().set("type","checkbox")
+	                                      .set("id","RstCalPulseSbit")
+	                                      .set("name","RstCalPulseSbit")
 	   << cgicc::td() << std::endl
 	   << "</tr>"     << std::endl
+
+	   << "<tr>" << std::endl
+
+	   << cgicc::td()    << "Sent_along_GEB"  << cgicc::td() << std::endl
+	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x4)  << cgicc::td() << std::endl
+	   << cgicc::td()    << cgicc::input().set("type","checkbox")
+	                                      .set("id","RstCalPulseGEB")
+	                                      .set("name","RstCalPulseGEB")
+	   << cgicc::td()    << std::endl
+	   << "</tr>" << std::endl
+
 	   << "</tbody>"  << std::endl
 	   << "</table>"  << std::endl
 	   << "</td>"     << std::endl;
@@ -657,20 +688,30 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
       *out << cgicc::tr() << std::endl;
       *out << cgicc::td() << std::endl
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
-                            .set("id","GLIBsrc").set("value","GLIB")
+                            .set("id","GLIBsrc").set("value","TTC_GLIB_trsSrc")
 	                    .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x0 ? "checked" : "")
 
-	   << cgicc::label("GLIB").set("for","GLIBSrc") << std::endl
+	   << cgicc::label("TTC_GLIB_trsSrc").set("for","GLIBSrc") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
-	                    .set("id","ExtSrc").set("value","Ext")
+	                    .set("id","T1_Src").set("value","T1_trgSrc")
                             .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x1 ? "checked" : "")
-	   << cgicc::label("Ext (LEMO)").set("for","ExtSrc") << std::endl
+	   << cgicc::label("T1_trgSrc").set("for","T1_Src") << std::endl
+	   << cgicc::br()
+	   << cgicc::input().set("type","radio").set("name","trgSrc")
+	                    .set("id","Ext").set("value","Ext_trgSrc")
+                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x2 ? "checked" : "")
+	   << cgicc::label("Ext_trgSrc").set("for","Ext") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("type","radio").set("name","trgSrc").set("checked")
-                            .set("id","BothSrc").set("value","Both")
-                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x2 ? "checked" : "")
-	   << cgicc::label("Both").set("for","BothSrc") << std::endl
+                            .set("id","sBitSrc").set("value","sbits_trgSrc")
+                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x3 ? "checked" : "")
+	   << cgicc::label("sbits_trgSrc").set("for","sBitSrc") << std::endl
+	   << cgicc::br()
+	   << cgicc::input().set("type","radio").set("name","trgSrc")
+	                    .set("id","Total").set("value","Total_trgSrc")
+                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x4 ? "checked" : "")
+	   << cgicc::label("Total_trgSrc").set("for","Total") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("class","button").set("type","submit")
 	                    .set("value","SetTriggerSource").set("name","SendFastCommand")
@@ -1004,10 +1045,10 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
       
       
       //std::string tmpDeviceName = cgi["VFATDevice"]->getValue();
-      INFO( "Web_deviceName[i]_::"             << confParams_.bag.deviceName[i].toString());
-      INFO( "Web_setting deviceName[i]_ to ::" << tmpDeviceName);
+      INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
+      INFO( "Web_setting deviceName to ::" << tmpDeviceName);
       confParams_.bag.deviceName[i] = tmpDeviceName;
-      INFO( "Web_deviceName[i]_::"             << confParams_.bag.deviceName[i].toString());
+      INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
       
       int tmpDeviceNum = -1;
       tmpDeviceName.erase(0,4);
@@ -1099,26 +1140,35 @@ void gem::supervisor::tbutils::GEMTBUtil::webResetCounters(xgi::Input *in, xgi::
     
     INFO("GEMTBUtil::webResetCounters Reseting counters");
       
-    if (cgi.queryCheckbox("RstL1AExt") )
+    if (cgi.queryCheckbox("RstL1ATTC") )
+      optohybridDevice_->resetL1ACount(0x0);
+    
+    if (cgi.queryCheckbox("RstL1AT1") ) 
       optohybridDevice_->resetL1ACount(0x1);
     
-    if (cgi.queryCheckbox("RstL1AInt") ) 
+    if (cgi.queryCheckbox("RstL1AExt") ) 
       optohybridDevice_->resetL1ACount(0x2);
-    
-    if (cgi.queryCheckbox("RstL1ADel") ) 
+
+    if (cgi.queryCheckbox("RstL1Asbits") ) 
       optohybridDevice_->resetL1ACount(0x3);
 
-    if (cgi.queryCheckbox("RstL1ATot") ) 
-    optohybridDevice_->resetL1ACount(0x4);
+    if (cgi.queryCheckbox("RstL1AGEB") ) 
+      optohybridDevice_->resetL1ACount(0x4);
 
-    if (cgi.queryCheckbox("RstCalPulseInt") ) 
+    if (cgi.queryCheckbox("RstCalPulseTTC") ) 
+      optohybridDevice_->resetCalPulseCount(0x0);
+
+    if (cgi.queryCheckbox("RstCalPulseT1") ) 
       optohybridDevice_->resetCalPulseCount(0x1);
     
-    if (cgi.queryCheckbox("RstCalPulseDel") ) 
+    if (cgi.queryCheckbox("RstCalPulseExt") ) 
       optohybridDevice_->resetCalPulseCount(0x2);
     
-    if (cgi.queryCheckbox("RstCalPulseTot") ) 
+    if (cgi.queryCheckbox("RstCalPulseSbit") ) 
       optohybridDevice_->resetCalPulseCount(0x3);
+
+    if (cgi.queryCheckbox("RstCalPulseGEB") ) 
+      optohybridDevice_->resetCalPulseCount(0x4);
     
     if (cgi.queryCheckbox("RstResync") ) 
       optohybridDevice_->resetResyncCount();
@@ -1190,21 +1240,21 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
       hw_semaphore_.take();
       optohybridDevice_->sendResync();
       for (unsigned int com = 0; com < 15; ++com)
-	optohybridDevice_->sendL1ACal(10, delay);
+	optohybridDevice_->sendL1ACal(10, delay,1);
 	hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send L1A") == 0) {
       INFO("Send L1A button pressed");
       hw_semaphore_.take();
-      optohybridDevice_->sendL1A(0x1);
+      optohybridDevice_->sendL1A(10,1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send CalPulse") == 0) {
       INFO("Send CalPulse button pressed");
       hw_semaphore_.take();
-      optohybridDevice_->sendCalPulse(0x1);
+      optohybridDevice_->sendCalPulse(0x1,1);
       hw_semaphore_.give();
     }
 
@@ -1227,17 +1277,21 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
       hw_semaphore_.take();
       cgicc::form_iterator fi = cgi.getElement("trgSrc");
       if( !fi->isEmpty() && fi != (*cgi).end()) {  
-	if (strcmp((**fi).c_str(),"GLIB") == 0) {
+	if (strcmp((**fi).c_str(),"TTC_GLIB_trsSrc") == 0) {
 	  confParams_.bag.triggerSource = 0x0;
 	  optohybridDevice_->setTrigSource(0x0); 
 	}
-	else if (strcmp((**fi).c_str(),"Ext") == 0) {
+	else if (strcmp((**fi).c_str(),"T1_trgSrc") == 0) {
 	  confParams_.bag.triggerSource = 0x1;
 	  optohybridDevice_->setTrigSource(0x1);
 	}
-	else if (strcmp((**fi).c_str(),"Both") == 0) {
+	else if (strcmp((**fi).c_str(),"Ext_trgSrc") == 0) {
 	  confParams_.bag.triggerSource = 0x2;
 	  optohybridDevice_->setTrigSource(0x2);
+	}
+	else if (strcmp((**fi).c_str(),"sbits_trgSrc") == 0) {
+	  confParams_.bag.triggerSource = 0x3;
+	  optohybridDevice_->setTrigSource(0x3);
 	}
       }
       hw_semaphore_.give();
@@ -1279,17 +1333,16 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
                       "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   
 
-  int islot=0;
   for(int i=0;i<24;++i){
   //  int i=0;
   std::string VfatName = confParams_.bag.deviceName[i].toString();
   if (VfatName != "") {
-    if ( islot >= 0 ) {
-      if (islot < 8)
+    if ( i >= 0 ) {
+      if (i < 8)
         readout_mask |= 0x1; //slot [0-7] maps to 1
-      else if (islot < 16)
+      else if (i < 16)
         readout_mask |= 0x2; //slot [8-15] maps to 2
-      else if (islot < 24)
+      else if (i < 24)
         readout_mask |= 0x4; //slot [16-23] maps to 4
       
       INFO(" webConfigure : DeviceName " << VfatName );
@@ -1302,7 +1355,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
     tmpVFATDevice->setRunMode(0);
     //      tmpVFATDevice_->readVFAT2Counters();
     confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
-      
+    INFO(" CHIPID   :: " << confParams_.bag.deviceChipID);      
     // need to put all chips in sleep mode to start off
     vfatDevice_.push_back(tmpVFATDevice);
   }//end if VfatName
