@@ -138,7 +138,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
     */
 
     for (auto iword = data.begin(); iword != data.end(); ++iword){
-      INFO(" found word 0x" << std::setw(8) << std::setfill('0') <<std::hex << *iword << std::dec);
+      DEBUG(" found word 0x" << std::setw(8) << std::setfill('0') <<std::hex << *iword << std::dec);
       dataque.push(*iword);
     }
 
@@ -148,16 +148,18 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
       " event " << Counter[1] );
     */
 
-    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
-    Counter[0] = *(pDQ+0); // VFAT Blocks counter
-    Counter[1] = *(pDQ+1); // Events counter
-    Counter[2] = *(pDQ+2); // VFATs per last event  
-    Counter[3] = *(pDQ+3); // numES
-    Counter[4] = *(pDQ+4); // errES
-
-    DEBUG(" ::getGLIBData VFATs [0] " << Counter[0] << " VFATs per event [2] " << Counter[2] << 
-	  " numES [3] " << Counter[3] << " errES [4] " << Counter[4] << " event [1] " << Counter[1] << " event_ " << event_ );
-
+    while (!dataque.empty()){
+      uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
+      Counter[0] = *(pDQ+0); // VFAT Blocks counter
+      Counter[1] = *(pDQ+1); // Events counter
+      Counter[2] = *(pDQ+2); // VFATs per last event  
+      Counter[3] = *(pDQ+3); // numES
+      Counter[4] = *(pDQ+4); // errES
+  
+      DEBUG(" ::getGLIBData VFATs [0] " << Counter[0] << " VFATs per event [2] " << Counter[2] << 
+  	  " numES [3] " << Counter[3] << " errES [4] " << Counter[4] << " event [1] " << Counter[1] << " event_ " << event_ );
+    }
+  
   }
 
   return point;
@@ -208,12 +210,11 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   uint32_t dat10,dat11, dat20,dat21, dat30,dat31, dat40,dat41;
   uint32_t BX, ES;
 
-  DEBUG(" ::GEMEventMaker dataque.size " << dataque.size() );
+  INFO(" ::GEMEventMaker dataque.size " << dataque.size() );
 
-  int iQue = -1;
   uint32_t datafront = 0;
-  while (!dataque.empty()){
-    iQue++;
+  for (int iQue=0; iQue<7; iQue++ ){
+    //while (!dataque.empty()){
     datafront = dataque.front();
     DEBUG(" ::GEMEventMaker iQue " << iQue << " " << std::hex << datafront << std::dec );
 
@@ -246,7 +247,8 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
     }
     dataque.pop();
   }// end queue
-  DEBUG(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
+
+  INFO(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
 
   uint64_t data1  = dat10 | dat11;
   uint64_t data2  = dat20 | dat21;
