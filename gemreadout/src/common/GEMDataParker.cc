@@ -1,5 +1,20 @@
 #include "gem/readout/GEMDataParker.h"
+#include "gem/readout/exception/Exception.h"
 #include "gem/hw/glib/HwGLIB.h"
+
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+
+#include "toolbox/mem/MemoryPoolFactory.h"
+#include "toolbox/mem/CommittedHeapAllocator.h"
+#include "i2o/Method.h"
+//#include "i2oBinding.h"
+#include "i2o/utils/AddressMap.h"
+
+#include "toolbox/string.h"
+#include "xercesc/dom/DOMNode.hpp"
+#include "xercesc/dom/DOMNodeList.hpp"
+#include "xercesc/util/XercesDefs.hpp"
+#include "xcept/tools.h"
 
 #include <boost/utility/binary.hpp>
 #include <bitset>
@@ -47,6 +62,9 @@ uint64_t ZSFlag = 0;
 std::queue<uint32_t> dataque;
 uint32_t contvfats_ = 0;
 
+const int gem::readout::GEMDataParker::I2O_READOUT_NOTIFY=0x84;
+const int gem::readout::GEMDataParker::I2O_READOUT_CONFIRM=0x85;
+
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(
                                            gem::hw::glib::HwGLIB& glibDevice,
@@ -56,6 +74,10 @@ gem::readout::GEMDataParker::GEMDataParker(
   :
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))
               ){
+  //these bindings necessitate that the GEMDataParker inherit from some xdaq application stuff
+  //i2o::bind(this,&GEMDataParker::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
+  //xoap::bind(this,&GEMDataParker::updateScanParameters,"UpdateScanParameter","urn:GEMDataParker-soap:1");
+
   glibDevice_  = &glibDevice;
   outFileName_ = outFileName;
   errFileName_ = errFileName;
@@ -113,6 +135,45 @@ uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
   return point;
 }
 
+xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  INFO("GEMDataParker::updateScanParameters()");
+  if (msg.isNull()) {
+    XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
+  }
+  
+  std::string commandName    = "undefined";
+  std::string parameterValue = "-1";
+  try {
+    std::pair<std::string, std::string> command
+      = gem::utils::soap::GEMSOAPToolBox::extractCommandWithParameter(msg);
+    commandName = command.first;
+    parameterValue = command.second;
+    INFO("GEMDataParker received command " << commandName);
+  } catch(xoap::exception::Exception& err) {
+    std::string msgBase = toolbox::toString("Unable to extract command from CommandWithParameter SOAP message");
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top,
+                         toolbox::toString("%s.", msgBase.c_str()), err);
+    //p_gemApp->notifyQualified("error", top);
+    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
+    std::string faultCode   = "Client";
+    std::string detail      = toolbox::toString("%s: %s.",
+                                                msgBase.c_str(),
+                                                err.message().c_str());
+    //this has to change to something real, but will come when data parker becomes the gem readout application
+    std::string faultActor = "";
+    xoap::MessageReference reply =
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
+    return reply;
+  }
+  //this has to be injected into the GEM header
+  scanParam = std::stoi(parameterValue);
+  DEBUG(toolbox::toString("GEMDataParker::updateScanParameters() received command '%s' with value. %s",
+                          commandName.c_str(), parameterValue.c_str()));
+  gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
+}
 
 uint32_t* gem::readout::GEMDataParker::getGLIBData(
 						   uint8_t const& link,
@@ -121,17 +182,33 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
   uint32_t *point = &Counter[0]; 
   TStopwatch timer;
 
-  //timer.Start();
+  timer.Start();
+  Float_t whileStart = (Float_t)timer.RealTime();
+  INFO(" ::getGLIBData Starting while loop readout, FIFO depth 0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << " "
+       << whileStart);
   while ( glibDevice_->hasTrackingData(link) ) {
-    timer.Start();
+    //timer.Start();
+    Float_t getTrackingStart = (Float_t)timer.RealTime();
+    INFO(" ::getGLIBData initiating call to getTrackingData(link," << glibDevice_->getFIFOOccupancy(link) << ") "
+         << getTrackingStart);
     std::vector<uint32_t> data = glibDevice_->getTrackingData(link, glibDevice_->getFIFOOccupancy(link));
-    timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
-    INFO(" ::getGLIBData The time for one call of getTrackingData(link) " << RT);
-    
-    INFO("Reading out seen words");
-    for (auto iword = data.begin(); iword != data.end(); ++iword)
-      INFO(" found word 0x" << std::setw(8) << std::setfill('0') <<std::hex << *iword << std::dec);
-    
+    Float_t getTrackingFinish = (Float_t)timer.RealTime();
+    INFO(" ::getGLIBData The time for one call of getTrackingData(link) " << getTrackingFinish
+         << std::endl << "FIFO depth 0x" << std::hex << glibDevice_->getFIFOOccupancy(link));
+
+    /*
+    Float_t dumpStart = (Float_t)timer.RealTime();
+    INFO("Pushing to queue seen words " << dumpStart
+         << std::endl << "FIFO depth 0x" << std::hex << glibDevice_->getFIFOOccupancy(link));
+    for (auto iword = data.begin(); iword != data.end(); ++iword) {
+      dataque.push(*iword);
+      INFO(" found word 0x" << std::setw(8) << std::setfill('0') <<std::hex << *iword << std::dec
+           << std::endl << "FIFO occupancy 0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << std::dec);
+    }
+    Float_t dumpFinish = (Float_t)timer.RealTime();
+    INFO(" ::getGLIBData The time to push all received data into the queue " << dumpFinish
+         << std::endl << "FIFO depth 0x" << std::hex << glibDevice_->getFIFOOccupancy(link));
+    */
     /*
       DEBUG(" ::getGLIBData numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
       " vfats.size " << vfats.size() << " erros.size " << erros.size() << " ES 0x" << std::hex << ES << std::dec << 
@@ -147,7 +224,6 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 	INFO(" ::getGLIBData conter " << contqueue << " contvfats " << contvfats_ << " dataque.size " << dataque.size() 
       }
     }
-    */
 
     uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
     Counter[0] = *(pDQ+0); // VFAT Blocks counter
@@ -158,8 +234,17 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
 
     DEBUG(" ::getGLIBData VFATs [0] " << Counter[0] << " VFATs per event [2] " << Counter[2] << 
 	  " numES [3] " << Counter[3] << " errES [4] " << Counter[4] << " event [1] " << Counter[1] << " event_ " << event_ );
-
+    */
+    INFO(" ::getGLIBData end of while loop do we go again?" << std::endl
+         << " FIFO occupancy  0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << std::endl
+         << " hasTrackingData 0x" << std::hex << glibDevice_->hasTrackingData(link)  << std::endl
+         << " FIFO occupancy  0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << std::endl
+         );
   }// while(glibDevice_->hasTrackingData(link))
+  timer.Stop();
+  Float_t whileFinish = (Float_t)timer.RealTime();
+  INFO(" ::getGLIBData The time for while loop execution " << whileFinish
+       << std::endl << "FIFO depth 0x" << std::hex << glibDevice_->getFIFOOccupancy(link));
 
   return point;
 }
@@ -757,6 +842,8 @@ void gem::readout::GEMDataParker::GEMfillHeaders(
   // RunType:4, all other depends from RunType
   uint64_t RunType = BOOST_BINARY( 1 ); // :4
 
+  //this needs to be populated with dummy values so migration can be made simply
+  //scanParam;
   geb.runhed  = (RunType << 60);
 
 }

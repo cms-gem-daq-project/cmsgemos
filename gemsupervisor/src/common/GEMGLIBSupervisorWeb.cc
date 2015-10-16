@@ -54,6 +54,9 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   m_gemLogger(this->getApplicationLogger()),
   wl_semaphore_(toolbox::BSem::FULL),
   hw_semaphore_(toolbox::BSem::FULL),
+  //readout_mask, as it is currently implemented, is not sensible in the V2 firmware
+  //can consider using this as the tracking/broadcast mask (initializing to 0xffffffff (everything masked off)
+  //readout_mask(0xffffffff),
   readout_mask(0x0),
   is_working_ (false),
   is_initialized_ (false),
@@ -302,10 +305,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
        << cgicc::tr() << cgicc::br() << std::endl
        << cgicc::tbody() << std::endl << cgicc::br()
        << cgicc::table() << std::endl << cgicc::br();
-  *out << "VFAT blocks counter: " << counter_[0]     << " dumped to disk"          << cgicc::br();
-  *out << "VFATs counter, last event: " << counter_[2]     << " VFATs chips" << cgicc::br();
-  *out << "Output filename: "     << confParams_.bag.outFileName.toString()        << cgicc::br();
-  *out << "Output type: "         << confParams_.bag.outputType.toString()         << cgicc::br();
+  *out << "VFAT blocks counter: "       << counter_[0] << " dumped to disk" << std::endl << cgicc::br();
+  *out << "VFATs counter, last event: " << counter_[2] << " VFATs chips"    << std::endl << cgicc::br();
+  *out << "Output filename: " << confParams_.bag.outFileName.toString() << std::endl << cgicc::br();
+  *out << "Output type: "     << confParams_.bag.outputType.toString()  << std::endl << cgicc::br();
 
   // Table with action buttons
   *out << cgicc::table().set("border","0");
@@ -317,8 +320,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
       // Configure button
       *out << cgicc::td();
       std::string configureButton = toolbox::toString("/%s/Configure",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",configureButton) << std::endl ;
-      *out << cgicc::input().set("type","submit").set("value","Configure")    << std::endl ;
+      *out << cgicc::form().set("method","GET").set("action",configureButton) << std::endl;
+      *out << cgicc::input().set("type","submit").set("value","Configure")    << std::endl;
       *out << cgicc::form();
       *out << cgicc::td();
     } else {
@@ -326,56 +329,56 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
         // Start button
         *out << cgicc::td();
         std::string startButton = toolbox::toString("/%s/Start",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","GET").set("action",startButton) << std::endl ;
-        *out << cgicc::input().set("type","submit").set("value","Start")    << std::endl ;
+        *out << cgicc::form().set("method","GET").set("action",startButton) << std::endl;
+        *out << cgicc::input().set("type","submit").set("value","Start")    << std::endl;
         *out << cgicc::form();
         *out << cgicc::td();
       } else {
         // Stop button
         *out << cgicc::td();
         std::string stopButton = toolbox::toString("/%s/Stop",getApplicationDescriptor()->getURN().c_str());
-        *out << cgicc::form().set("method","GET").set("action",stopButton) << std::endl ;
-        *out << cgicc::input().set("type","submit").set("value","Stop")    << std::endl ;
+        *out << cgicc::form().set("method","GET").set("action",stopButton) << std::endl;
+        *out << cgicc::input().set("type","submit").set("value","Stop")    << std::endl;
         *out << cgicc::form();
         *out << cgicc::td();
       }
       // Halt button
       *out << cgicc::td();
       std::string haltButton = toolbox::toString("/%s/Halt",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",haltButton) << std::endl ;
-      *out << cgicc::input().set("type","submit").set("value","Halt")    << std::endl ;
+      *out << cgicc::form().set("method","GET").set("action",haltButton) << std::endl;
+      *out << cgicc::input().set("type","submit").set("value","Halt")    << std::endl;
       *out << cgicc::form();
       *out << cgicc::td();
     
       // Send L1A signal
       *out << cgicc::td();
       std::string triggerButton = toolbox::toString("/%s/Trigger",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",triggerButton) << std::endl ;
-      *out << cgicc::input().set("type","submit").set("value","Send L1A")   << std::endl ;
+      *out << cgicc::form().set("method","GET").set("action",triggerButton) << std::endl;
+      *out << cgicc::input().set("type","submit").set("value","Send L1A")   << std::endl;
       *out << cgicc::form();
       *out << cgicc::td();
     
       // Send L1ACalPulse signal
       *out << cgicc::td();
       std::string calpulseButton = toolbox::toString("/%s/L1ACalPulse",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",calpulseButton)      << std::endl ;
-      *out << cgicc::input().set("type","submit").set("value","Send L1ACalPulse") << std::endl ;
+      *out << cgicc::form().set("method","GET").set("action",calpulseButton)      << std::endl;
+      *out << cgicc::input().set("type","submit").set("value","Send L1ACalPulse") << std::endl;
       *out << cgicc::form();
       *out << cgicc::td();
     
       // Send Resync signal
       *out << cgicc::td();
       std::string resyncButton = toolbox::toString("/%s/Resync",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",resyncButton)   << std::endl ;
-      *out << cgicc::input().set("type","submit").set("value","Send Resync") << std::endl ;
+      *out << cgicc::form().set("method","GET").set("action",resyncButton)   << std::endl;
+      *out << cgicc::input().set("type","submit").set("value","Send Resync") << std::endl;
       *out << cgicc::form();
       *out << cgicc::td();
     
       // Send BC0 signal
       *out << cgicc::td();
       std::string bc0Button = toolbox::toString("/%s/BC0",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",bc0Button)   << std::endl ;
-      *out << cgicc::input().set("type","submit").set("value","Send BC0") << std::endl ;
+      *out << cgicc::form().set("method","GET").set("action",bc0Button)   << std::endl;
+      *out << cgicc::input().set("type","submit").set("value","Send BC0") << std::endl;
       *out << cgicc::form();
       *out << cgicc::td();
     }// end is_configured
@@ -405,24 +408,23 @@ void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::O
 void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out ) {
   // Derive device number from device name
 
-  int islot=0;
+  int islot = 0;
   for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++islot ) {
     std::string VfatName = chip->toString();
     if (VfatName != ""){ 
       if ( islot >= 0 ) {
-        if (islot < 8)
-          readout_mask |= 0x1; //slot [0-7] maps to 1
-        else if (islot < 16)
-          readout_mask |= 0x2; //slot [8-15] maps to 2
-        else if (islot < 24)
-          readout_mask |= 0x4; //slot [16-23] maps to 4
-  
+        //readout_mask, as it is currently implemented, is not sensible in the V2 firmware
+        //can consider using this as the tracking/broadcast mask (initializing to 0xffffffff (everything masked off)
+        //readout_mask &= (0xffffffff & 0x0 <<;
+        readout_mask |= 0x1 << islot;
         INFO(" webConfigure : DeviceName " << VfatName );
         INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
       }
     }//end if VfatName
   }//end for chip
   //hard code the readout mask for now, since this readout mask is an artifact of V1.5 /**JS Oct 8*/
+  readout_mask = ~readout_mask;
+  INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
   readout_mask = 0x1;
   // Initiate configure workloop
   wl_->submit(configure_signature_);
@@ -461,7 +463,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   hw_semaphore_.take();
 
   INFO(" webTrigger: sending L1A");
-  optohybridDevice_->sendL1A(1);
+  optohybridDevice_->sendL1A(0, 20);
 
   m_l1aCount[0] = optohybridDevice_->getL1ACount(0); //ttc
   m_l1aCount[1] = optohybridDevice_->getL1ACount(1); //internal/firmware
