@@ -734,6 +734,7 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
   ohDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(currentOHId, tmpURI.str(),
+                                                                                "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   if (!ohDevice_->isHwConnected()) {
     *out << "<h1><div align=\"center\">Device connection failed!</div></h1>" << std::endl;
   } else {
