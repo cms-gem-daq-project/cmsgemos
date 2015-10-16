@@ -470,7 +470,7 @@ bool gem::hw::glib::HwGLIB::linkCheck(uint8_t const& gtx, std::string const& opM
   } else if (!b_links[gtx]) {
     std::string msg = toolbox::toString("%s requested inactive gtx (%d)",opMsg.c_str(), gtx);
     ERROR(msg);
-    //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return false;
   }
   return true;
@@ -608,7 +608,7 @@ uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint32_t* da
   if (data==NULL) {
     std::string msg = toolbox::toString("Block read requested for null pointer");
     ERROR(msg);
-    XCEPT_RAISE(gem::hw::optohybrid::exception::NULLReadoutPointer,msg);
+    XCEPT_RAISE(gem::hw::glib::exception::NULLReadoutPointer,msg);
   } else if (!linkCheck(gtx, "Tracking data")) {
     return 0;
   }
