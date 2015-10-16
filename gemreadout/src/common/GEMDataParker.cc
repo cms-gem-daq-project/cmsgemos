@@ -123,17 +123,16 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
   uint32_t *point = &Counter[0]; 
   TStopwatch timer;
   uint8_t const gtx = 0;
+  uint32_t dataqueSize;
+  Float_t RT;
 
-  //timer.Start();
+  timer.Start();
   while ( glibDevice_->hasTrackingData(link) ) {
 
-    timer.Start();
     std::vector<uint32_t> data = glibDevice_->getTrackingData(link, glibDevice_->getFIFOOccupancy(link));
 
-    INFO(" data.size " << data.size() );
-
     /*
-    timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
+    timer.Continue(); RT = (Float_t)timer.RealTime();
     INFO(" ::getGLIBData The time for one call of getTrackingData(link) " << RT);
     */
 
@@ -148,7 +147,9 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
       " event " << Counter[1] );
     */
 
-    while (!dataque.empty()){
+    dataqueSize = dataque.size();
+
+    while (1>0 && !dataque.empty()){
       uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
       Counter[0] = *(pDQ+0); // VFAT Blocks counter
       Counter[1] = *(pDQ+1); // Events counter
@@ -159,8 +160,15 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
       DEBUG(" ::getGLIBData VFATs [0] " << Counter[0] << " VFATs per event [2] " << Counter[2] << 
   	  " numES [3] " << Counter[3] << " errES [4] " << Counter[4] << " event [1] " << Counter[1] << " event_ " << event_ );
     }
-  
-  }
+    if (event_%kUPDATE == 0 &&  event_ != 0) {
+      timer.Stop(); RT = (Float_t)timer.RealTime();
+      INFO(" ::getGLIBData  dataqueSize " << dataqueSize << " GEMEventMaker RT " << RT );
+    }
+
+  }//end while
+
+  timer.Stop(); RT = (Float_t)timer.RealTime();
+  INFO(" ::getGLIBData dataque.Size "<< dataqueSize << " The time for collection and selection data " << RT);
 
   return point;
 }
@@ -210,7 +218,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   uint32_t dat10,dat11, dat20,dat21, dat30,dat31, dat40,dat41;
   uint32_t BX, ES;
 
-  INFO(" ::GEMEventMaker dataque.size " << dataque.size() );
+  DEBUG(" ::GEMEventMaker dataque.size " << dataque.size() );
 
   uint32_t datafront = 0;
   for (int iQue=0; iQue<7; iQue++ ){
@@ -248,7 +256,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
     dataque.pop();
   }// end queue
 
-  INFO(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
+  DEBUG(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
 
   uint64_t data1  = dat10 | dat11;
   uint64_t data2  = dat20 | dat21;
@@ -286,9 +294,10 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   vfat.crc    = vfatcrc;                                // crc:16
 
   /*
-   * dump VFAT data */
+   * dump VFAT data
    GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
    INFO(" ::GEMEventMaker slot " << islot <<"\n");
+   */
 
   if ( ES == ESexp /* ESexp.find(ES)->second */ ) { 
     isFirst = false;
@@ -382,8 +391,10 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 
   }//end of event selection 
 
-  DEBUG(" ::GEMEventMaker END numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
-	" vfats.size " << vfats.size() << " erros.size " << erros.size() << " event_ " << event_ );
+  if (event_%kUPDATE == 0 &&  event_ != 0) {
+    INFO(" ::GEMEventMaker END numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
+  	 " vfats.size " << vfats.size() << " erros.size " << erros.size() << " event_ " << event_ );
+  }
 
   Counter[0] = vfat_;
   Counter[1] = event_;
@@ -463,7 +474,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
                */
               DEBUG(" ::GEMEventMaker writing...  geb.vfats.size " << int(geb.vfats.size()) );
               TypeDataFlag = "PayLoad";
-              if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, true, TypeDataFlag,
+              if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
                                                                                         gem, geb, vfat);
               geb.vfats.clear();
          
