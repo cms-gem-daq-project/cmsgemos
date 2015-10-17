@@ -230,7 +230,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
     m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
   }
   // If we are in "Running" state, check if GLIB has any data available
-  if (is_running_) wl_->submit(run_signature_);
+  //if (is_running_) wl_->submit(run_signature_);
 
   // Page title
   *out << cgicc::h1("GEM DAQ Supervisor")<< std::endl;
@@ -418,18 +418,18 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
         //readout_mask &= (0xffffffff & 0x0 <<;
         readout_mask |= 0x1 << islot;
         INFO(" webConfigure : DeviceName " << VfatName );
-        INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+        INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec );
       }
     }//end if VfatName
   }//end for chip
   //hard code the readout mask for now, since this readout mask is an artifact of V1.5 /**JS Oct 8*/
   readout_mask = ~readout_mask;
-  INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+  INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec );
   readout_mask = 0x1;
   // Initiate configure workloop
   wl_->submit(configure_signature_);
 
-  INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec);
+  INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec);
   // Go back to main web interface
   this->webRedirect(in, out);
 }
@@ -598,11 +598,11 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
     fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
 
   if (fifoDepth[0])
-    INFO("bufferDepth[0] (runAction) = " << std::hex << fifoDepth[0] << std::dec);
+    DEBUG("bufferDepth[0] (runAction) = 0x" << std::hex << fifoDepth[0] << std::dec);
   if (fifoDepth[1])
-    INFO("bufferDepth[1] (runAction) = " << std::hex << fifoDepth[1] << std::dec);
+    DEBUG("bufferDepth[1] (runAction) = 0x" << std::hex << fifoDepth[1] << std::dec);
   if (fifoDepth[2])
-    INFO("bufferDepth[2] (runAction) = " << std::hex << fifoDepth[2] << std::dec);
+    DEBUG("bufferDepth[2] (runAction) = 0x" << std::hex << fifoDepth[2] << std::dec);
 
   // Get the size of GLIB data buffer
   uint32_t bufferDepth = 0;
@@ -617,20 +617,21 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   wl_semaphore_.give();
   hw_semaphore_.give();
 
-  INFO("Combined bufferDepth = " << std::hex << bufferDepth << std::dec);
+  DEBUG("Combined bufferDepth = 0x" << std::hex << bufferDepth << std::dec);
 
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth) {
     wl_->submit(read_signature_);
-    //wl_->submit(select_signature_);
+    wl_->submit(select_signature_);
   }//end bufferDepth
 
-  return false;
+  //should possibly return true so the workloop is automatically resubmitted
+  return true;
 }
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *wl)
 {
-  wl_semaphore_.take();
+  //wl_semaphore_.take();
   hw_semaphore_.take();
 
   uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
@@ -641,16 +642,17 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   }
 
   hw_semaphore_.give();
-  wl_semaphore_.give();
+  //wl_semaphore_.give();
 
+  //should possibly return true so the workloop is automatically resubmitted
   return false;
 }
 
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop *wl)
 {
-  wl_semaphore_.take();
-  hw_semaphore_.take();
+  //wl_semaphore_.take();
+  //hw_semaphore_.take();
 
   uint32_t  Counter[5] = {0,0,0,0,0};
   uint32_t* pDQ =  gemDataParker->selectData(Counter);
@@ -663,9 +665,9 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop
     Counter[5] = *(pDQ+5);
   }
 
-  hw_semaphore_.give();
-  wl_semaphore_.give();
-
+  //hw_semaphore_.give();
+  //wl_semaphore_.give();
+  //should possibly return true so the workloop is automatically resubmitted
   return false;
 }
 
@@ -922,6 +924,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   hw_semaphore_.give();
   is_working_ = false;
+  //start running
+  wl_->submit(run_signature_);
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt) {
