@@ -18,7 +18,8 @@ namespace gem {
       protected:
 
         //copy from HCAL readout application
-        virtual int readout(unsigned int expected, unsigned int* eventNumbers, std::vector< ::toolbox::mem::Reference* >& data) = 0;
+        virtual int readout(unsigned int expected, unsigned int* eventNumbers,
+                            std::vector< ::toolbox::mem::Reference* >& data) = 0;
 
         virtual void init();
 

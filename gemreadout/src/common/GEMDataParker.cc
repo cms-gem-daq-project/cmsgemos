@@ -122,9 +122,11 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(
   TStopwatch timer;
 
   //timer.Start();
-  while ( glibDevice_->hasTrackingData(link) ) {
+  //while ( glibDevice_->hasTrackingData(link) ) {
+  while ( glibDevice_->getFIFOVFATBlockOccupancy(link) ) {
     timer.Start();
-    std::vector<uint32_t> data = glibDevice_->getTrackingData(link, glibDevice_->getFIFOOccupancy(link));
+    std::vector<uint32_t> data = glibDevice_->getTrackingData(link,
+                                                              glibDevice_->getFIFOVFATBlockOccupancy(link));
     timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
     INFO(" ::getGLIBData The time for one call of getTrackingData(link) " << RT);
     
