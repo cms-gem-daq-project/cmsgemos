@@ -7,7 +7,7 @@
     <xc:Application class="RCMSStateListener" id="50" instance="3" network="local" path="/services/replycommandreceiver" />
   </xc:Context>
   
-  <xc:Context url="http://gem904daq01:5077">
+  <xc:Context url="http://gem904daq01:5555">
     <!--xc:Application class="gem::base::GEMApplication" id="253" instance="0" network="local">
       <rcmsStateListener xsi:type="soapenc:Struct">
         <classname xsi:type="xsd:string">RCMSStateListener</classname>

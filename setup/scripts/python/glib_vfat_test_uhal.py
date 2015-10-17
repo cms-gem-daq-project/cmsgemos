@@ -32,7 +32,7 @@ for link in options.activeLinks:
 	pair = map(int, link.split(","))
 	links[pair[0]] = pair[1]
 print "links", links
-
+chips = []
 if options.enabledChips:
 	chips = [int(n) for n in options.enabledChips.split(",")] 
 	print "chips", chips
@@ -104,23 +104,29 @@ chipID1s = readAllVFATs(glib, 0xf0000000, "ChipID1", options.debug)
 
 chipids = dict(map(lambda slotID: (slotID,(((chipID1s[slotID])&0xff)<<8)|(chipID0s[slotID]&0xff)), range(0,24)))
 controls = []
-chipmask = 0xffabab00
-controlRegs = {}
-for control in range(4):
-        controls.append(readAllVFATs(glib, 0xf0000000, "ContReg%d"%(control), options.debug))
-        controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
+chipmask = 0xff000000
 
 if options.debug:
         print chipids
         print controlRegs
         
 if options.biasAll:
-        biasAllVFATs(optohybrid,mask)
-#if options.sleepAll:
-#        print "sleeping chip %d"%(chip)
-#        setRunMode(optohybrid, chip, False)
+        biasAllVFATs(optohybrid,chipmask)
+if options.sleepAll:
+	for chip in range(24):
+		print "sleeping chip %d"%(chip)
+		setRunMode(optohybrid, chip, False)
+
+for chip in chips:
+	print "enabling chip %d"%(chip)
+	setRunMode(optohybrid, chip, True)
 
  
+controlRegs = {}
+for control in range(4):
+        controls.append(readAllVFATs(glib, 0xf0000000, "ContReg%d"%(control), options.debug))
+        controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
+
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
 for chip in chipids.keys():
 	if (int(chip)%8==0):
