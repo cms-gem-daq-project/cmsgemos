@@ -57,9 +57,15 @@ namespace gem {
           } GLIBIPBusCounters;
           
           
+          /**
+           * Constructors, the preferred constructor is with a connection file and device name
+           * as the IP address and address table can be managed there, rather than hard coded
+           * Constrution from crateID and slotID uses this constructor as the back end
+           **/
           HwGLIB();
           HwGLIB(std::string const& glibDevice, std::string const& connectionFile);
-          HwGLIB(std::string const& glibDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwGLIB(std::string const& glibDevice, std::string const& connectionURI,
+                 std::string const& addressTable);
           HwGLIB(std::string const& glibDevice, uhal::HwInterface& uhalDevice);
           HwGLIB(int const& crate, int const& slot);
 	
@@ -602,11 +608,19 @@ namespace gem {
           void flushTriggerFIFO(uint8_t const& gtx);
 
           /**
-           * Read the tracking data FIFO occupancy
+           * Read the tracking data FIFO occupancy in terms of raw 32bit words
            * @param uint8_t gtx is the number of the gtx to query
-           * @retval uint32_t returns the number of events in the tracking data FIFO
+           * @retval uint32_t returns the number of words in the tracking data FIFO
            **/
           uint32_t getFIFOOccupancy(uint8_t const& gtx);
+
+          /**
+           * Read the tracking data FIFO occupancy in terms of the number of 7x32bit words
+           * composing a single VFAT block
+           * @param uint8_t gtx is the number of the gtx to query
+           * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
+           **/
+          uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
 
           /**
            * see if there is tracking data available

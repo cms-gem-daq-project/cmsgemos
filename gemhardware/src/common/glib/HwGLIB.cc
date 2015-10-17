@@ -574,7 +574,13 @@ uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& gtx)
                             regName.str().c_str(), ".DEPTH", fifocc));
   }
   //the fifo occupancy is in number of 32 bit words
-  return fifocc/7;
+  return fifocc;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getFIFOVFATBlockOccupancy(uint8_t const& gtx)
+{
+  //what to return when the occupancy is not a full VFAT block?
+  return getFIFOOccupancy(link)/7;
 }
 
 bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& gtx)
@@ -585,6 +591,8 @@ bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& gtx)
     regName << "TRK_DATA.OptoHybrid_" << (int)gtx << ".ISEMPTY";
     hasData = !readReg(getDeviceBaseNode(),regName.str());
   }
+  //if the FIFO is fragmented, this will return true but we won't read a full block
+  //what to do in this case?
   return hasData;
 }
 
