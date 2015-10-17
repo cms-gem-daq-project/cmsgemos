@@ -93,14 +93,10 @@ gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
   
   //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml" );
   INFO("getting the ConnectionManager pointer");
-  //p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
-  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://../data/connections_ch.xml"));
+  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  //p_gemConnectionManager.reset(new uhal::ConnectionManager("file://../data/connections_ch.xml"));
   INFO("getting HwInterface " << getDeviceID() << " pointer from ConnectionManager");
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
-  //p_gemConnectionManager = new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml");
-  //p_gemHW = new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID()));
-  //setAddressTableFileName("glib_address_table.xml");
-  //setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
   INFO("setting the device base node");
   setDeviceBaseNode("GLIB");
   //gem::hw::glib::HwGLIB::initDevice();
@@ -474,7 +470,7 @@ bool gem::hw::glib::HwGLIB::linkCheck(uint8_t const& gtx, std::string const& opM
   } else if (!b_links[gtx]) {
     std::string msg = toolbox::toString("%s requested inactive gtx (%d)",opMsg.c_str(), gtx);
     ERROR(msg);
-    //XCEPT_RAISE(gem::hw::optohybrid::exception::InvalidLink,msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return false;
   }
   return true;
@@ -578,7 +574,13 @@ uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& gtx)
                             regName.str().c_str(), ".DEPTH", fifocc));
   }
   //the fifo occupancy is in number of 32 bit words
-  return fifocc/7;
+  return fifocc;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getFIFOVFATBlockOccupancy(uint8_t const& gtx)
+{
+  //what to return when the occupancy is not a full VFAT block?
+  return getFIFOOccupancy(gtx)/7;
 }
 
 bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& gtx)
@@ -589,6 +591,8 @@ bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& gtx)
     regName << "TRK_DATA.OptoHybrid_" << (int)gtx << ".ISEMPTY";
     hasData = !readReg(getDeviceBaseNode(),regName.str());
   }
+  //if the FIFO is fragmented, this will return true but we won't read a full block
+  //what to do in this case?
   return hasData;
 }
 
@@ -607,11 +611,15 @@ std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx,
   return readBlock(regName.str(),7*nBlocks);
 }
 
-uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint64_t* data, size_t const& nBlocks)
+uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks)
 {
-  if (!linkCheck(gtx, "Tracking data")) {
+  if (data==NULL) {
+    std::string msg = toolbox::toString("Block read requested for null pointer");
+    ERROR(msg);
+    XCEPT_RAISE(gem::hw::glib::exception::NULLReadoutPointer,msg);
+  } else if (!linkCheck(gtx, "Tracking data")) {
     return 0;
-  } 
+  }
   
   std::stringstream regName;
   regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";

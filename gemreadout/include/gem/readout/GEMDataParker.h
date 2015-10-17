@@ -13,8 +13,11 @@
 
 #include "xdata/String.h"
 #include <string>
+#include <queue>
 
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/Lock.h"
+#include "gem/utils/LockGuard.h"
 
 namespace gem {
   namespace hw {
@@ -83,6 +86,12 @@ namespace gem {
       std::string errFileName_;
       std::string outputType_;
 
+      //queue safety
+      mutable gem::utils::Lock m_queueLock;
+      // The main data flow
+      std::queue<uint32_t> dataque;
+
+      
       /*
        * Counter all in one
        *   [0] VFAT's Blocks Counter
