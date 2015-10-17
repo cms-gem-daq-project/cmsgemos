@@ -117,13 +117,6 @@ for chip in range(0,24):
 
         #chipids.append(("slot%d"%(chip),thechipid))
         chipids.append(("slot%d"%(chip),getChipID(optohybrid, chip)))
-        for control in range(4):
-                tmp = readVFAT(optohybrid, chip, "ContReg%d"%(control))
-                if (tmp>0):
-                        controlRegs["ctrl%d"%(control)].append(("slot%d"%(chip),tmp&ebmask))
-                else:
-                        controlRegs["ctrl%d"%(control)].append(("slot%d"%(chip),0x00))
-                        
         if (thechipid == 0xdead):
                 if options.debug:
                         print "bad chipID, not trying to write to chip %d"%(chip)
@@ -146,6 +139,13 @@ for chip in range(0,24):
                         #regVal = readVFAT(optohybrid, chip, "ContReg0")
                         #if (regVal > 0):
                         #        writeVFAT(optohybrid, chip, "ContReg0", regVal|0x01)
+        for control in range(4):
+                tmp = readVFAT(optohybrid, chip, "ContReg%d"%(control))
+                if (tmp>0):
+                        controlRegs["ctrl%d"%(control)].append(("slot%d"%(chip),tmp&ebmask))
+                else:
+                        controlRegs["ctrl%d"%(control)].append(("slot%d"%(chip),0x00))
+                        
 
  
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
