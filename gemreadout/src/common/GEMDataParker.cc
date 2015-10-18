@@ -360,150 +360,153 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
     DEBUG(" ::GEMEventMaker (pre pop) dataque.size " << dataque.size() );
     dataque.pop();
     DEBUG(" ::GEMEventMaker (post pop)  dataque.size " << dataque.size() );
-  }// end queue
-  INFO(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
+    //this seems like a HUGE bug
+    //}// end queue while loop
+    INFO(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
 
-  uint64_t data1  = dat10 | dat11;
-  uint64_t data2  = dat20 | dat21;
-  uint64_t data3  = dat30 | dat31;
-  uint64_t data4  = dat40 | dat41;
+    uint64_t data1  = dat10 | dat11;
+    uint64_t data2  = dat20 | dat21;
+    uint64_t data3  = dat30 | dat31;
+    uint64_t data4  = dat40 | dat41;
 
-  /*
-    if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))) {
-    * do not ignore incorrect data
-    WARN("VFAT headers do not match expectation");
-    continue;
-    *
-    }*/
+    /*
+      if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))) {
+      * do not ignore incorrect data
+      WARN("VFAT headers do not match expectation");
+      continue;
+      *
+      }*/
 
-  vfat_++;
+    vfat_++;
 
-  ECff = evn;
-  islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)chipid );
+    ECff = evn;
+    islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)chipid );
 
-  // GEM Event selector
-  ES = ( ECff << 12 ) | bcn;
-  DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec <<
-        " vftas.size " << vfats.size() << " erros.size " << erros.size() << " numES " << numES.find(ES)->second << 
-        " errES " << errES.find(ES)->second << " isFirst " << isFirst << " event " << event_);
+    // GEM Event selector
+    ES = ( ECff << 12 ) | bcn;
+    DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec <<
+          " vftas.size " << vfats.size() << " erros.size " << erros.size() << " numES " << numES.find(ES)->second << 
+          " errES " << errES.find(ES)->second << " isFirst " << isFirst << " event " << event_);
 
-  lsVFAT = (data3 << 32) | (data4);
-  msVFAT = (data1 << 32) | (data2);
+    lsVFAT = (data3 << 32) | (data4);
+    msVFAT = (data1 << 32) | (data2);
 
-  vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
-  vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4
-  vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
-  vfat.lsData = lsVFAT;                                 // lsData:64
-  vfat.msData = msVFAT;                                 // msData:64
-  vfat.BXfrOH = BX;                                     // BXfrOH:32
-  vfat.crc    = vfatcrc;                                // crc:16
+    vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
+    vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4
+    vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
+    vfat.lsData = lsVFAT;                                 // lsData:64
+    vfat.msData = msVFAT;                                 // msData:64
+    vfat.BXfrOH = BX;                                     // BXfrOH:32
+    vfat.crc    = vfatcrc;                                // crc:16
 
-  /*
-   * dump VFAT data 
-   GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
-   INFO(" ::GEMEventMaker slot " << islot <<"\n");
-  */
-
-  if ( ES == ESexp /* ESexp.find(ES)->second */ ) { 
-    isFirst = false;
-    DEBUG(" ::GEMEventMaker ESexp numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
-          " isFirst " << isFirst << " event " << event_);
-  } else { 
-    isFirst = true;
-
-    if ( vfats.size() != 0 || erros.size() != 0 ) {
-      numES.erase(ES);
-      numES.insert(std::pair<uint32_t, uint32_t>(ES,vfats.size()));
-      errES.erase(ES);
-      errES.insert(std::pair<uint32_t, uint32_t>(ES,erros.size()));
-
-      DEBUG(" ::GEMEventMaker isFirst vftas.size " << vfats.size() << " erros.size " << erros.size() <<
-            " numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << " isFirst " << isFirst << " event " << event_);
-
-      DEBUG(" ::GEMEventMaker isFirst GEMevSelector ");
-      gem::readout::GEMDataParker::GEMevSelector(ES, MaxEvent, MaxErr);
-    } 
-
-    event_++;
-
-    // VFATS dimensions have limits
-    vfats.reserve(MaxVFATS);
-    erros.reserve(MaxERRS);
-
-    ESexp = ES;
-
-    counterVFATs = 0;
-    counterVFAT.erase(ES);
-    counterVFAT.insert(std::pair<uint32_t, int>(ES,0));
-
-    numES.erase(ES);
-    numES.insert(std::pair<uint32_t, uint32_t>(ES,0));
-    errES.erase(ES);
-    errES.insert(std::pair<uint32_t, uint32_t>(ES,0));
-
-    ZSFlag = 0;
-  }
-
-  DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " bool " << isFirst );
-  counterVFATs++;
-  counterVFAT.erase(ES);
-  counterVFAT.insert(std::pair<uint32_t, int>(ES,counterVFATs));
-
-  std::map<uint32_t, uint32_t>::iterator it;// pay load events 
-  std::map<uint32_t, uint32_t>::iterator ir;// errors events
-  if (islot < 0 || islot > 23) {
-    ir=errES.find(ES);
-    if (ir != errES.end()) {
-      // local event calculator inside one buffer, ES based 
-      MaxErr = errES.find(ES)->second;
-      MaxErr++;
-      errES.erase(ES);
-      errES.insert(std::pair<uint32_t, uint32_t>(ES,MaxErr));
-      DEBUG(" ::GEMEventMaker Err ES 0x" << std::hex << ES << std::dec << " errES " <<  errES.find(ES)->second << 
-            " rvent_ " << rvent_ );
-    }
-    // islot out of [0-23]
-    if ( int(erros.size()) <MaxERRS ) erros.push_back(vfat);
-    DEBUG(" ::GEMEventMaker warning !!! islot is undefined " << islot << " erros.size " << int(erros.size()) );
     /*
      * dump VFAT data 
      GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
-     INFO(" ::GEMEventMaker wrong slot " << islot <<"\n");
+     INFO(" ::GEMEventMaker slot " << islot <<"\n");
     */
 
-  } else {
-    it = numES.find(ES);
-    if (it != numES.end()) {
-      // local event calculator inside one buffer, ES based 
-      MaxEvent = numES.find(ES)->second;
-      MaxEvent++;
+    if ( ES == ESexp /* ESexp.find(ES)->second */ ) { 
+      isFirst = false;
+      DEBUG(" ::GEMEventMaker ESexp numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
+            " isFirst " << isFirst << " event " << event_);
+    } else { 
+      isFirst = true;
+
+      if ( vfats.size() != 0 || erros.size() != 0 ) {
+        numES.erase(ES);
+        numES.insert(std::pair<uint32_t, uint32_t>(ES,vfats.size()));
+        errES.erase(ES);
+        errES.insert(std::pair<uint32_t, uint32_t>(ES,erros.size()));
+
+        DEBUG(" ::GEMEventMaker isFirst vftas.size " << vfats.size() << " erros.size " << erros.size() <<
+              " numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << " isFirst " << isFirst << " event " << event_);
+
+        DEBUG(" ::GEMEventMaker isFirst GEMevSelector ");
+        gem::readout::GEMDataParker::GEMevSelector(ES, MaxEvent, MaxErr);
+      } 
+
+      event_++;
+
+      // VFATS dimensions have limits
+      vfats.reserve(MaxVFATS);
+      erros.reserve(MaxERRS);
+
+      ESexp = ES;
+
+      counterVFATs = 0;
+      counterVFAT.erase(ES);
+      counterVFAT.insert(std::pair<uint32_t, int>(ES,0));
+
       numES.erase(ES);
-      numES.insert(std::pair<uint32_t, uint32_t>(ES,MaxEvent));
-      DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " numES " <<  numES.find(ES)->second << 
-            " MaxEvent " << MaxEvent <<" event_ " << event_ );
+      numES.insert(std::pair<uint32_t, uint32_t>(ES,0));
+      errES.erase(ES);
+      errES.insert(std::pair<uint32_t, uint32_t>(ES,0));
+
+      ZSFlag = 0;
+    }
+
+    DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " bool " << isFirst );
+    counterVFATs++;
+    counterVFAT.erase(ES);
+    counterVFAT.insert(std::pair<uint32_t, int>(ES,counterVFATs));
+
+    std::map<uint32_t, uint32_t>::iterator it;// pay load events 
+    std::map<uint32_t, uint32_t>::iterator ir;// errors events
+    if (islot < 0 || islot > 23) {
+      ir=errES.find(ES);
+      if (ir != errES.end()) {
+        // local event calculator inside one buffer, ES based 
+        MaxErr = errES.find(ES)->second;
+        MaxErr++;
+        errES.erase(ES);
+        errES.insert(std::pair<uint32_t, uint32_t>(ES,MaxErr));
+        DEBUG(" ::GEMEventMaker Err ES 0x" << std::hex << ES << std::dec << " errES " <<  errES.find(ES)->second << 
+              " rvent_ " << rvent_ );
+      }
+      // islot out of [0-23]
+      if ( int(erros.size()) <MaxERRS ) erros.push_back(vfat);
+      DEBUG(" ::GEMEventMaker warning !!! islot is undefined " << islot << " erros.size " << int(erros.size()) );
       /*
        * dump VFAT data 
        GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
-       DEBUG(" ::GEMEventMaker payload slot " << islot <<"\n");
+       INFO(" ::GEMEventMaker wrong slot " << islot <<"\n");
       */
 
-    }
-    /*
-     * VFATs Pay Load
-     */
-    if ( int(vfats.size()) <= MaxVFATS ) vfats.push_back(vfat);
-    DEBUG(" ::GEMEventMaker event_ " << event_ << " vfats.size " << vfats.size() << std::hex << " ES 0x" << ES << std::dec );
+    } else {
+      it = numES.find(ES);
+      if (it != numES.end()) {
+        // local event calculator inside one buffer, ES based 
+        MaxEvent = numES.find(ES)->second;
+        MaxEvent++;
+        numES.erase(ES);
+        numES.insert(std::pair<uint32_t, uint32_t>(ES,MaxEvent));
+        DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " numES " <<  numES.find(ES)->second << 
+              " MaxEvent " << MaxEvent <<" event_ " << event_ );
+        /*
+         * dump VFAT data 
+         GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
+         DEBUG(" ::GEMEventMaker payload slot " << islot <<"\n");
+        */
 
-  }//end of event selection 
+      }
+      /*
+       * VFATs Pay Load
+       */
+      if ( int(vfats.size()) <= MaxVFATS ) vfats.push_back(vfat);
+      DEBUG(" ::GEMEventMaker event_ " << event_ << " vfats.size " << vfats.size() << std::hex << " ES 0x" << ES << std::dec );
 
-  DEBUG(" ::GEMEventMaker END numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
-	" vfats.size " << vfats.size() << " erros.size " << erros.size() << " event_ " << event_ );
+    }//end of event selection 
 
-  Counter[0] = vfat_;
-  Counter[1] = event_;
-  Counter[2] = numES.find(ES)->second + errES.find(ES)->second;
-  Counter[3] = numES.find(ES)->second;
-  Counter[4] = errES.find(ES)->second;
+    DEBUG(" ::GEMEventMaker END numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
+          " vfats.size " << vfats.size() << " erros.size " << erros.size() << " event_ " << event_ );
+
+    Counter[0] = vfat_;
+    Counter[1] = event_;
+    Counter[2] = numES.find(ES)->second + errES.find(ES)->second;
+    Counter[3] = numES.find(ES)->second;
+    Counter[4] = errES.find(ES)->second;
+    //maybe the while loop should end here??
+  }// end queue while loop
 
   return point;
 }
