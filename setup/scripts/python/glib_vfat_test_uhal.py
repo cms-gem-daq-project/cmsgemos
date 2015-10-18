@@ -17,8 +17,6 @@ parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="slot in uTCA crate", metavar="slot", default=15)
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
 		  help="print extra debugging information", metavar="debug")
-parser.add_option("-o", "--links", type="string", dest="activeLinks", action='append',
-		  help="pair of connected optical links", metavar="activeLinks", default=[])
 parser.add_option("-z", "--sleep", action="store_true", dest="sleepAll",
 		  help="set all chips into sleep mode", metavar="sleepAll")
 parser.add_option("-b", "--bias", action="store_true", dest="biasAll",
@@ -105,22 +103,26 @@ chipID1s = readAllVFATs(glib, 0xf0000000, "ChipID1", options.debug)
 chipids = dict(map(lambda slotID: (slotID,(((chipID1s[slotID])&0xff)<<8)|(chipID0s[slotID]&0xff)), range(0,24)))
 controls = []
 chipmask = 0xff000000
+controlRegs = {}
+for control in range(4):
+        controls.append(readAllVFATs(glib, 0xf0000000, "ContReg%d"%(control), options.debug))
+        controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
 
 if options.debug:
         print chipids
         print controlRegs
         
 if options.biasAll:
-        biasAllVFATs(optohybrid,chipmask)
+        biasAllVFATs(optohybrid,mask)
+
 if options.sleepAll:
-	for chip in range(24):
-		print "sleeping chip %d"%(chip)
-		setRunMode(optohybrid, chip, False)
+        for chip in range(24):
+                print "sleeping chip %d"%(chip)
+                setRunMode(optohybrid, chip, False)
 
 for chip in chips:
-	print "enabling chip %d"%(chip)
-	setRunMode(optohybrid, chip, True)
-
+        print "enabling chip %d"%(chip)
+        setRunMode(optohybrid, chip, True)
  
 controlRegs = {}
 for control in range(4):
