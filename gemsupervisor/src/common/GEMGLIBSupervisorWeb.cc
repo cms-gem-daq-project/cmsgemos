@@ -621,7 +621,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
   // If GLIB data buffer has non-zero size, initiate read workloop
   // have to also ensure that a final readout takes place after the triggers are disabled
-  if (bufferDepth) {
+  if (bufferDepth > 7) {
     wl_->submit(read_signature_);
     wl_->submit(select_signature_);
   }//end bufferDepth
