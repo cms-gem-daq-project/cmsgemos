@@ -7,7 +7,7 @@ import GEMDAQProcess
 
 class GEMTestbeamDAQConfig:
 
-    def __init__(self,configFile,fullConfig,useDummyFerol):
+    def __init__(self,configFile,fullConfig):
         self.xdaqProcesses = []
         self.configFilePath = "/tmp/GEMTestbeamDAQ_"+str(os.getpid())+".xml"
         self._config = ConfigParser.ConfigParser()
@@ -18,6 +18,7 @@ class GEMTestbeamDAQConfig:
         with open("/proc/sys/net/ipv4/ip_local_port_range") as portRange:
             self._validPortsMin,self._validPortsMax = [int(x) for x in portRange.readline().split()]
 
+        enabledChips  = self.getEnabledChips()
         dataSource = self.getDataSource()
         writeData  = self.getWriteData()
         runNumber  = self.getRunNumber()
@@ -214,6 +215,45 @@ class GEMTestbeamDAQConfig:
   2 - Generator core of the AMC13   (L6G_CORE_GENERATOR_SOURCE)
   3 - Loopback at the FEROL         (L6G_LOOPBACK_GENERATOR_SOURCE)
   4 - SLINK data source             (SLINK_SOURCE)""")
+
+        prompt = "=> "
+        try:
+            default = possibleDataSources.index(dataSource) + 1
+            prompt += '['+str(default)+'] '
+        except ValueError:
+            default = 0
+
+        chosenDataSource = None
+        while chosenDataSource is None:
+            answer = raw_input(prompt)
+            answer = answer or default
+            try:
+                index = int(answer) - 1
+                if index < 0:
+                    raise ValueError
+                chosenDataSource = possibleDataSources[index]
+            except (ValueError,NameError,TypeError,IndexError):
+                print("Please enter a valid choice [1.."+str(len(possibleDataSources))+"]")
+
+        dataSource = chosenDataSource
+        self._config.set('Input','dataSource',dataSource)
+
+        return dataSource
+
+
+    def getEnabledChips(self):
+        dataSource = None
+        possibleDataSources = range(0,24)
+
+        try:
+            dataSource = self._config.get('Input','dataSource')
+        except ConfigParser.NoSectionError:
+            self._config.add_section('Input')
+        except ConfigParser.NoOptionError:
+            pass
+
+        print("""Please select the VFAT chips to be used (comma and hyphen separated list:
+  e.g., 0,4,6-9,20""")
 
         prompt = "=> "
         try:
