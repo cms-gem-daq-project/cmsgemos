@@ -343,16 +343,29 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
       flags   = (0x0000000f & datafront);
       
       if (!(b1010 == 0xa && b1100 == 0xc)) {
-        /* we have a misaligned word, increment misalignment counter, pop queue,
-           push bad value into some form of storage for later analysis?
-           then continue with the loop, but without incrementing iQue so we hopefully
-           eventually align again
-        */
-        INFO(" ::GEMEventMaker found misaligned word 0x"
-             << std::setfill('0') << std::hex << datafront << std::dec
-             << " queue dataque.size " << dataque.size() );
-        dataque.pop();
-        continue;
+        bool misAligned_ = true;
+        while ((misAligned_) && (dataque.size()>6)){
+          /* we have a misaligned word, increment misalignment counter, pop queue,
+             push bad value into some form of storage for later analysis?
+             then continue with the loop, but without incrementing iQue so we hopefully
+             eventually align again
+             
+             Do not go through all the loop with condition statements 
+             since iQue stays the same and we removed 7 blocks
+             -MD
+          */
+          INFO(" ::GEMEventMaker found misaligned word 0x"
+               << std::setfill('0') << std::hex << datafront << std::dec
+               << " queue dataque.size " << dataque.size() );
+          dataque.pop();
+          datafront = dataque.front();
+          b1010   = ((0xf0000000 & datafront) >> 28 );
+          b1100   = ((0x0000f000 & datafront) >> 12 );
+          bcn     = ((0x0fff0000 & datafront) >> 16 );
+          evn     = ((0x00000ff0 & datafront) >>  4 );
+          flags   = (0x0000000f & datafront);
+          if ((b1010 == 0xa && b1100 == 0xc)) { misAligned_ = false;}
+        }// end of while misaligned
       }
     } else if ( (iQue%7) == 6 ) {
       BX      = datafront;

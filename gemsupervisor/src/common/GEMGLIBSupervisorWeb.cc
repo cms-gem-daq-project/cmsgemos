@@ -586,7 +586,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 {
   wl_semaphore_.take();
   hw_semaphore_.take();
-
+/*
   // GLIB data buffer validation
   uint32_t fifoDepth[3] = {0,0,0};
 
@@ -614,7 +614,9 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
     bufferDepth += glibDevice_->getFIFOOccupancy(0x1);
   if (readout_mask&0x4)
     bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
-
+*/
+  uint32_t bufferDepth = 0;
+  bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(0x0);
   wl_semaphore_.give();
   hw_semaphore_.give();
 
@@ -859,8 +861,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_running_ = true;
   hw_semaphore_.take();
 
-  INFO("setTrigSource OH mode 1");
-  optohybridDevice_->setTrigSource(0x1);
+  INFO("setTrigSource OH mode 0");
+  optohybridDevice_->setTrigSource(0x0);
 
   INFO("Enabling run mode for selected VFATs");
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
