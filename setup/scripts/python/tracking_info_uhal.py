@@ -75,11 +75,11 @@ print
 from trackingUnpacker import VFAT2TrackingData
 
 mask = 0xffabab00
-if options.bias:
-        biasAllVFATs(optohybrid, mask)
-        writeAllVFATs(optohybrid, mask, "Latency", options.latency)
-        regValue = (0x00 | ((options.mspl)<<4))
-        writeAllVFATs(optohybrid, mask, "ContReg2",regValue)
+#if options.bias:
+#        biasAllVFATs(optohybrid, mask)
+#        writeAllVFATs(optohybrid, mask, "Latency", options.latency)
+#        regValue = (0x00 | ((options.mspl)<<4))
+#        writeAllVFATs(optohybrid, mask, "ContReg2",regValue)
 #need to set this up for proper link awareness
 # also need to be aware that GLIB link and OH link are not necessarily the same
 chipIDs = {}
@@ -92,40 +92,41 @@ for chip in range(0,8):
 	chipIDs["chip"][chip] |= ( readVFAT(optohybrid, chip, "ChipID0")&0xFF)
         chipIDs["slot"][chip] = chip
         
-slotbase = "GEB  SlotID::"
-base     = "     ChipID::"
-perslot  = "0x%x"
-perchip  = "0x%04x"
-perreg   = "0x%02x"
-registerList = [
-	"ContReg0",
-	"ContReg1",
-	"ContReg2",
-	"ContReg3",
-	"Latency",
-	"IPreampIn",
-	"IPreampFeed",
-	"IPreampOut",
-	"IShaper",
-	"IShaperFeed",
-	"IComp",
-	"VCal",
-	"VThreshold1",
-	"VThreshold2",
-	"CalPhase",
-        ]
-
-def displayChipInfo(regkeys):
-        slotmap = map(lambda slotID: perslot%(regkeys["slot"][slotID]), regkeys["slot"].keys())
-	print "%s   %s"%(slotbase,'    '.join(map(str, slotmap)))
-	chipmap = map(lambda chipID: perchip%(regkeys["chip"][chipID]), regkeys["chip"].keys())
-	print "%s%s"%(base, ' '.join(map(str, chipmap)))
-	for reg in registerList:
-                regmap = map(lambda chip: perreg%(readVFAT(optohybrid,chip,reg)&0xFF), regkeys["chip"].keys())
-		#print "%11s::"%reg, regmap
-		print "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
-	return
-displayChipInfo(chipIDs)
+#slotbase = "GEB  SlotID::"
+#base     = "     ChipID::"
+#perslot  = "0x%x"
+#perchip  = "0x%04x"
+#perreg   = "0x%02x"
+#registerList = [
+#	"ContReg0",
+#	"ContReg1",
+#	"ContReg2",
+#	"ContReg3",
+#	"Latency",
+#	"IPreampIn",
+#	"IPreampFeed",
+#	"IPreampOut",
+#	"IShaper",
+#	"IShaperFeed",
+#	"IComp",
+#	"VCal",
+#	"VThreshold1",
+#	"VThreshold2",
+#	"CalPhase",
+#        ]
+#
+#def displayChipInfo(regkeys):
+#        slotmap = map(lambda slotID: perslot%(regkeys["slot"][slotID]), regkeys["slot"].keys())
+#	print "%s   %s"%(slotbase,'    '.join(map(str, slotmap)))
+#	chipmap = map(lambda chipID: perchip%(regkeys["chip"][chipID]), regkeys["chip"].keys())
+#	print "%s%s"%(base, ' '.join(map(str, chipmap)))
+#	for reg in registerList:
+#                regmap = map(lambda chip: perreg%(readVFAT(optohybrid,chip,reg)&0xFF), regkeys["chip"].keys())
+#		#print "%11s::"%reg, regmap
+#		print "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
+#	return
+displayChipInfo(optohybrid,chipIDs)
+exit(1)
 print "TRACKING INFO SCRIPT UNDER DEVELOPMENT"
 if options.flush:
         flushTrackingFIFO(glib,0)
