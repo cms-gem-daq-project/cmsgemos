@@ -620,6 +620,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   DEBUG("Combined bufferDepth = 0x" << std::hex << bufferDepth << std::dec);
 
   // If GLIB data buffer has non-zero size, initiate read workloop
+  // have to also ensure that a final readout takes place after the triggers are disabled
   if (bufferDepth) {
     wl_->submit(read_signature_);
     wl_->submit(select_signature_);
