@@ -222,7 +222,7 @@ namespace gem {
 
         toolbox::fsm::FiniteStateMachine fsm_;
 
-        uint8_t readout_mask;
+        uint32_t readout_mask;
         xdata::Bag<ConfigParams> confParams_;
 
         FILE* outputFile;
@@ -233,10 +233,7 @@ namespace gem {
         //supervisor application should not have any hw devices, should only send commands to manager applications
         //temporary fix just to get things working stably, should be using the manager
         glib_shared_ptr glibDevice_;
-        //gem::hw::glib::HwGLIB* glibDevice_;
         optohybrid_shared_ptr optohybridDevice_;
-        //gem::hw::optohybrid::HwOptoHybrid* optohybridDevice_;
-        //std::vector< gem::hw::vfat::HwVFAT2* > vfatDevice_;
         std::vector<vfat_shared_ptr> vfatDevice_;
         //readout application should be running elsewhere, not tied to supervisor
         std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
