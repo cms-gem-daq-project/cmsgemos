@@ -623,7 +623,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   // have to also ensure that a final readout takes place after the triggers are disabled
   if (bufferDepth > 7) {
     wl_->submit(read_signature_);
-    wl_->submit(select_signature_);
+    //wl_->submit(select_signature_);
   }//end bufferDepth
 
   //should possibly return true so the workloop is automatically resubmitted
@@ -632,6 +632,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *wl)
 {
+  //is the workloop lock necessary here?
   //wl_semaphore_.take();
   hw_semaphore_.take();
 
@@ -653,7 +654,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop *wl)
 {
   //wl_semaphore_.take();
-  //hw_semaphore_.take();
 
   uint32_t  Counter[5] = {0,0,0,0,0};
   uint32_t* pDQ =  gemDataParker->selectData(Counter);
@@ -665,10 +665,9 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop
     Counter[4] = *(pDQ+4);
     Counter[5] = *(pDQ+5);
   }
-
-  //hw_semaphore_.give();
+  
+  //maybe don't lock the workloop here?
   //wl_semaphore_.give();
-  //should possibly return true so the workloop is automatically resubmitted
   return false;
 }
 
@@ -927,6 +926,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_working_ = false;
   //start running
   wl_->submit(run_signature_);
+  wl_->submit(select_signature_);
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt) {
@@ -948,6 +948,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
     //(*chip) = NULL;
     INFO((*chip)->printErrorCounts());
   }
+  wl_->submit(select_signature_);
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
@@ -972,6 +973,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
   delete gemDataParker;
   gemDataParker = NULL;
   */
+  wl_->submit(select_signature_);
   is_configured_ = false;
 }
 
