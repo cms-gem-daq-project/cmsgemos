@@ -229,8 +229,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
     m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
     m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
   }
-  // If we are in "Running" state, check if GLIB has any data available
-  //if (is_running_) wl_->submit(run_signature_);
 
   // Page title
   *out << cgicc::h1("GEM DAQ Supervisor")<< std::endl;
