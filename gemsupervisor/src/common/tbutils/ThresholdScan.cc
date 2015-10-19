@@ -361,8 +361,7 @@ for (auto iword = data.begin(); iword != data.end(); ++iword){
     uint32_t BX;
     uint32_t data10, data11, data20, data21, data30, data31, data40, data41;
     uint64_t data1, data2, data3, data4, msData, lsData;
-
-    uint32_t datafront = 0;
+    double   delVT;
 
     for(int j=1; j<8;j++){
     uint32_t datafront = data_fifo.front();
@@ -403,6 +402,7 @@ for (auto iword = data.begin(); iword != data.end(); ++iword){
     lsData = (data3 << 32) | (data4);
     msData = (data1 << 32) | (data2);
 
+    delVT = (scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1);
     
     vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
     vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
@@ -432,6 +432,17 @@ for (auto iword = data.begin(); iword != data.end(); ++iword){
       bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
     if (readout_mask&0x4)
       bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
+
+    //Maybe add another histogramt that is a combined all channels histogram
+    histo->Fill(delVT,(lsData||msData));
+
+    //I think it would be nice to time this...
+    for (int chan = 0; chan < 128; ++chan) {
+      if (chan < 64)
+	histos[chan]->Fill(delVT,((lsData>>chan))&0x1);
+      else
+	histos[chan]->Fill(delVT,((msData>>(chan-64)))&0x1);
+    }
    
   } // end while buffer
 
