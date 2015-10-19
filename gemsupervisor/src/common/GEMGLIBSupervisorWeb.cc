@@ -30,7 +30,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   triggerSource = 0x0;
   deviceChipID  = 0x0; 
-  //can't assume a single value for all chips
+  // can't assume a single value for all chips
   deviceVT1     = 0x0; 
   deviceVT2     = 0x0; 
 
@@ -55,9 +55,9 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   m_gemLogger(this->getApplicationLogger()),
   wl_semaphore_(toolbox::BSem::FULL),
   hw_semaphore_(toolbox::BSem::FULL),
-  //readout_mask, as it is currently implemented, is not sensible in the V2 firmware
-  //can consider using this as the tracking/broadcast mask (initializing to 0xffffffff (everything masked off)
-  //readout_mask(0xffffffff),
+  // readout_mask, as it is currently implemented, is not sensible in the V2 firmware
+  // can consider using this as the tracking/broadcast mask (initializing to 0xffffffff (everything masked off)
+  // readout_mask(0xffffffff),
   readout_mask(0x0),
   is_working_ (false),
   is_initialized_ (false),
@@ -133,7 +133,7 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   fsm_.setInitialState('H');
   fsm_.reset();
 
-  counter_ = {0,0,0};
+  m_counter = {0,0,0,0,0};
 
 }
 
@@ -201,36 +201,19 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   }
   else if (is_running_) {
     cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-    head.addHeader("Refresh","3");
+    head.addHeader("Refresh","30");
   }
 
   if (is_configured_) {
-    //counting "1" Internal triggers, one link enough 
-    m_l1aCount[0] = optohybridDevice_->getL1ACount(0); //ttc
-    m_l1aCount[1] = optohybridDevice_->getL1ACount(1); //internal/firmware
-    m_l1aCount[2] = optohybridDevice_->getL1ACount(2); //external
-    m_l1aCount[3] = optohybridDevice_->getL1ACount(3); //loopback 
-    m_l1aCount[4] = optohybridDevice_->getL1ACount(4); //sent
-   
-    m_calPulseCount[0] = optohybridDevice_->getCalPulseCount(0); //ttc
-    m_calPulseCount[1] = optohybridDevice_->getCalPulseCount(1); //internal/firmware
-    m_calPulseCount[2] = optohybridDevice_->getCalPulseCount(2); //external
-    m_calPulseCount[3] = optohybridDevice_->getCalPulseCount(3); //loopback 
-    m_calPulseCount[4] = optohybridDevice_->getCalPulseCount(4); //sent
-    
-    m_resyncCount[0] = optohybridDevice_->getResyncCount(0); //ttc
-    m_resyncCount[1] = optohybridDevice_->getResyncCount(1); //internal/firmware
-    m_resyncCount[2] = optohybridDevice_->getResyncCount(2); //external
-    m_resyncCount[3] = optohybridDevice_->getResyncCount(3); //loopback 
-    m_resyncCount[4] = optohybridDevice_->getResyncCount(4); //sent
-    
-    m_bc0Count[0] = optohybridDevice_->getBC0Count(0); //ttc
-    m_bc0Count[1] = optohybridDevice_->getBC0Count(1); //internal/firmware
-    m_bc0Count[2] = optohybridDevice_->getBC0Count(2); //external
-    m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
-    m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
+    for (unsigned count = 0; count < 5; ++count) {
+      // 0 ttc, 1 internal/firmware, 2 external, 3 loopback, 4 sent
+      m_l1aCount[count]      = optohybridDevice_->getL1ACount(count);
+      m_calPulseCount[count] = optohybridDevice_->getCalPulseCount(count);
+      m_resyncCount[count]   = optohybridDevice_->getResyncCount(count);
+      m_bc0Count[count]      = optohybridDevice_->getBC0Count(count);
+    }
   }
-
+  
   // Page title
   *out << cgicc::h1("GEM DAQ Supervisor")<< std::endl;
 
@@ -254,18 +237,18 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
   // Show current state, counter, output filename
   std::string theState = fsm_.getStateName(fsm_.getCurrentState());
   *out << "Current state: "       << theState                          << cgicc::br() << std::endl;
-  *out << "Event counter: "       << counter_[1]  << " Events counter" << cgicc::br() << std::endl;
-  //*out << "<table class=\"xdaq-table\">" << std::endl
+  *out << "Event counter: "       << m_counter[1]  << " Events counter" << cgicc::br() << std::endl;
+  // *out << "<table class=\"xdaq-table\">" << std::endl
   *out << cgicc::table().set("class", "xdaq-table") << std::endl
        << cgicc::thead() << std::endl
-       << cgicc::tr()    << std::endl //open
+       << cgicc::tr()    << std::endl // open
        << cgicc::th()    << "T1 counters" << cgicc::th() << std::endl
        << cgicc::th()    << "TTC"         << cgicc::th() << std::endl
        << cgicc::th()    << "Firmware"    << cgicc::th() << std::endl
        << cgicc::th()    << "External"    << cgicc::th() << std::endl
        << cgicc::th()    << "Loopback"    << cgicc::th() << std::endl
        << cgicc::th()    << "Sent"        << cgicc::th() << std::endl
-       << cgicc::tr()    << std::endl //close
+       << cgicc::tr()    << std::endl // close
        << cgicc::thead() << std::endl 
     
        << cgicc::tbody() << std::endl 
@@ -304,8 +287,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
        << cgicc::tr() << cgicc::br() << std::endl
        << cgicc::tbody() << std::endl << cgicc::br()
        << cgicc::table() << std::endl << cgicc::br();
-  *out << "VFAT blocks counter: "       << counter_[0] << " dumped to disk" << std::endl << cgicc::br();
-  *out << "VFATs counter, last event: " << counter_[2] << " VFATs chips"    << std::endl << cgicc::br();
+  *out << "VFAT blocks counter: "       << m_counter[0] << " dumped to disk" << std::endl << cgicc::br();
+  *out << "VFATs counter, last event: " << m_counter[2] << " VFATs chips"    << std::endl << cgicc::br();
   *out << "Output filename: " << confParams_.bag.outFileName.toString() << std::endl << cgicc::br();
   *out << "Output type: "     << confParams_.bag.outputType.toString()  << std::endl << cgicc::br();
 
@@ -334,54 +317,163 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
         *out << cgicc::td();
       } else {
         // Stop button
-        *out << cgicc::td();
+        *out << cgicc::td()   << std::endl;
         std::string stopButton = toolbox::toString("/%s/Stop",getApplicationDescriptor()->getURN().c_str());
         *out << cgicc::form().set("method","GET").set("action",stopButton) << std::endl;
         *out << cgicc::input().set("type","submit").set("value","Stop")    << std::endl;
-        *out << cgicc::form();
-        *out << cgicc::td();
+        *out << cgicc::form() << std::endl;
+        *out << cgicc::td()   << std::endl;
       }
       // Halt button
-      *out << cgicc::td();
+      *out << cgicc::td()   << std::endl;
       std::string haltButton = toolbox::toString("/%s/Halt",getApplicationDescriptor()->getURN().c_str());
       *out << cgicc::form().set("method","GET").set("action",haltButton) << std::endl;
       *out << cgicc::input().set("type","submit").set("value","Halt")    << std::endl;
-      *out << cgicc::form();
-      *out << cgicc::td();
+      *out << cgicc::form() << std::endl;
+      *out << cgicc::td()   << std::endl;
     
+      // Firmware T1 generator
+      // make a table, first column is the command, next three are the parameters (N T1 signals, rate, delay (only for L1A+CalPulse)
+      *out << cgicc::td() << std::endl; // opens the T1 portion of the command table
+      //start new table, but have to not close the previous one
+      std::ostringstream t1Table;
+      
+      //t1Table << cgicc::table().set("border","0") << std::endl
+      //t1Table << cgicc::table().set("class", "xdaq-table") << std::endl
+      t1Table << "<table \"class\"=\"xdaq-table\">" << std::endl
+              << cgicc::thead() << std::endl
+              << "<tr>"    << std::endl // open
+              << cgicc::th()    << "T1 Signal" << cgicc::th() << std::endl
+              << cgicc::th()    << "N T1s"     << cgicc::th() << std::endl
+              << cgicc::th()    << "Rate"      << cgicc::th() << std::endl
+              << cgicc::th()    << "Delay"     << cgicc::th() << std::endl
+              << "</tr>"    << std::endl // close
+              << cgicc::thead() << std::endl;
+      
+      t1Table << cgicc::tbody() << std::endl 
+              << "<tr>" << std::endl;
+
       // Send L1A signal
-      *out << cgicc::td();
       std::string triggerButton = toolbox::toString("/%s/Trigger",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",triggerButton) << std::endl;
-      *out << cgicc::input().set("type","submit").set("value","Send L1A")   << std::endl;
-      *out << cgicc::form();
-      *out << cgicc::td();
+      t1Table << cgicc::form().set("method","GET").set("action",triggerButton) << std::endl;
+
+      t1Table << "<td>" << std::endl
+              << cgicc::input().set("type","submit").set("value","Send L1A") << std::endl
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("NTrigs").set("for","NTrigs")
+              << cgicc::input().set("type","number").set("style","width:100px").set("id","NTrigs").set("name","NTrigs")
+        .set("min","0x0").set("max","0xFFFFFFFF").set("value","0")
+              << std::endl
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("Rate").set("for","Rate")
+              << cgicc::input().set("type","number").set("style","width:100px").set("id","Rate").set("name","Rate")
+        .set("min","0").set("max","").set("value","2500")
+              << std::endl;
+
+      t1Table << "<td>" << std::endl
+              << "</td>" << std::endl;
+
+      t1Table << cgicc::form() << std::endl
+              << "</tr>"   << std::endl;
     
       // Send L1ACalPulse signal
-      *out << cgicc::td();
+      t1Table << "<tr>" << std::endl;
       std::string calpulseButton = toolbox::toString("/%s/L1ACalPulse",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",calpulseButton)      << std::endl;
-      *out << cgicc::input().set("type","submit").set("value","Send L1ACalPulse") << std::endl;
-      *out << cgicc::form();
-      *out << cgicc::td();
+      t1Table << cgicc::form().set("method","GET").set("action",calpulseButton) << std::endl;
+
+      t1Table << "<td>" << std::endl
+              << cgicc::input().set("type","submit").set("value","Send L1ACalPulse") << std::endl
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("NTrigs").set("for","NTrigs")
+              << cgicc::input().set("type","number").set("style","width:100px").set("id","NTrigs").set("name","NTrigs")
+        .set("min","0x0").set("max","0xFFFFFFFF").set("value","0")
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("Delay").set("for","Delay")
+              << cgicc::input().set("type","number").set("style","width:100px").set("id","Delay").set("name","Delay")
+        .set("min","0x0").set("max","0xFF").set("value","15")
+              << std::endl
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("Rate").set("for","Rate")
+              << cgicc::input().set("type","number").set("style","width:100px").set("id","Rate").set("name","Rate")
+        .set("min","0").set("max","").set("value","2500")
+              << std::endl;
+      t1Table << cgicc::form() << std::endl
+              << "</tr>"   << std::endl;
     
       // Send Resync signal
-      *out << cgicc::td();
+      t1Table << "<tr>" << std::endl;
       std::string resyncButton = toolbox::toString("/%s/Resync",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",resyncButton)   << std::endl;
-      *out << cgicc::input().set("type","submit").set("value","Send Resync") << std::endl;
-      *out << cgicc::form();
-      *out << cgicc::td();
+      t1Table << cgicc::form().set("method","GET").set("action",resyncButton)   << std::endl;
+      
+      t1Table << "<td>" << std::endl
+              << cgicc::input().set("type","submit").set("value","Send Resync") << std::endl
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("NResyncs").set("for","NResyncs")
+              << cgicc::input().set("type","number").set("style","width:100px").set("id","NResyncs").set("name","NResyncs")
+        .set("min","0x0").set("max","0xFFFFFFFF").set("value","1")
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("Rate").set("for","Rate")
+              << cgicc::input().set("type","number").set("style","width:100px").set("id","Rate").set("name","Rate")
+        .set("min","0").set("max","").set("value","1")
+              << std::endl;
+
+      t1Table << "<td>" << std::endl
+              << "</td>" << std::endl;
+
+      t1Table << cgicc::form() << std::endl
+              << "</tr>"   << std::endl;
     
       // Send BC0 signal
-      *out << cgicc::td();
+      t1Table << "<tr>" << std::endl;
       std::string bc0Button = toolbox::toString("/%s/BC0",getApplicationDescriptor()->getURN().c_str());
-      *out << cgicc::form().set("method","GET").set("action",bc0Button)   << std::endl;
-      *out << cgicc::input().set("type","submit").set("value","Send BC0") << std::endl;
-      *out << cgicc::form();
-      *out << cgicc::td();
+      t1Table << cgicc::form().set("method","GET").set("action",bc0Button) << std::endl;
+
+      t1Table << "<td>" << std::endl
+              << cgicc::input().set("type","submit").set("value","Send BC0") << std::endl
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("NBC0s").set("for","NBC0s")
+              << cgicc::input().set("type","number").set("style","width:100px")
+        .set("id","NBC0s").set("name","NBC0s")
+        .set("min","0x0").set("max","0xFFFFFFFF").set("value","1")
+              << std::endl
+              << "</td>" << std::endl;
+      
+      t1Table << "<td>" << std::endl
+        //<< cgicc::label("Rate").set("for","Rate")
+              << cgicc::input().set("type","number").set("style","width:100px").set("id","Rate").set("name","Rate")
+        .set("min","0").set("max","").set("value","1")
+              << std::endl;
+      
+      t1Table << "<td>" << std::endl
+              << "</td>" << std::endl;
+
+      t1Table << cgicc::form()  << std::endl
+              << "</tr>"    << std::endl;
+      
+      t1Table << cgicc::tbody() << std::endl
+              << "</table>"     << std::endl; // closes the T1 command sub-table
+      //using the t1Table stringstream did not reset the tag counter
+      //<< cgicc::table() << std::endl; // closes the T1 command sub-table
+      *out << t1Table.str();
+      *out << cgicc::td()    << std::endl; // closes T1 half of the command table
     }// end is_configured
-  }//end is_working
+  }// end is_working
   // Finish row with action buttons
   *out << cgicc::tr();
 
@@ -411,16 +503,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
     std::string VfatName = chip->toString();
     if (VfatName != ""){ 
       if ( islot >= 0 ) {
-        //readout_mask, as it is currently implemented, is not sensible in the V2 firmware
-        //can consider using this as the tracking/broadcast mask (initializing to 0xffffffff (everything masked off)
-        //readout_mask &= (0xffffffff & 0x0 <<;
+        // readout_mask, as it is currently implemented, is not sensible in the V2 firmware
+        // can consider using this as the tracking/broadcast mask (initializing to 0xffffffff (everything masked off)
+        // readout_mask &= (0xffffffff & 0x0 <<;
         readout_mask |= 0x1 << islot;
         INFO(" webConfigure : DeviceName " << VfatName );
         INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec );
       }
-    }//end if VfatName
-  }//end for chip
-  //hard code the readout mask for now, since this readout mask is an artifact of V1.5 /**JS Oct 8*/
+    }// end if VfatName
+  }// end for chip
+  // hard code the readout mask for now, since this readout mask is an artifact of V1.5 /**JS Oct 8*/
   readout_mask = ~readout_mask;
   INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec );
   readout_mask = 0x1;
@@ -461,13 +553,13 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   hw_semaphore_.take();
 
   INFO(" webTrigger: sending L1A");
-  optohybridDevice_->sendL1A(0, 20);
-
-  m_l1aCount[0] = optohybridDevice_->getL1ACount(0); //ttc
-  m_l1aCount[1] = optohybridDevice_->getL1ACount(1); //internal/firmware
-  m_l1aCount[2] = optohybridDevice_->getL1ACount(2); //external
-  m_l1aCount[3] = optohybridDevice_->getL1ACount(3); //loopback 
-  m_l1aCount[4] = optohybridDevice_->getL1ACount(4); //sent
+  cgicc::Cgicc cgi(in);
+  optohybridDevice_->sendL1A(cgi["NTrigs"]->getIntegerValue(),
+                             cgi["Rate"]->getIntegerValue());
+  
+  for (unsigned count = 0; count < 5; ++count)
+    // 0 ttc, 1 internal/firmware, 2 external, 3 loopback, 4 sent
+    m_l1aCount[count]      = optohybridDevice_->getL1ACount(count);
   
   hw_semaphore_.give();
 
@@ -478,15 +570,21 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi::Output * out ) {
   // Send L1A signal
   hw_semaphore_.take();
+  /*
   for (int offset = -12; offset < 13; ++offset) {
     INFO("webCalPulse: sending 10 CalPulses with L1As delayed by " << (int)latency_ + offset <<  " clocks");
     optohybridDevice_->sendL1ACal(2, latency_ + offset);
   }
-  m_calPulseCount[0] = optohybridDevice_->getCalPulseCount(0); //ttc
-  m_calPulseCount[1] = optohybridDevice_->getCalPulseCount(1); //internal/firmware
-  m_calPulseCount[2] = optohybridDevice_->getCalPulseCount(2); //external
-  m_calPulseCount[3] = optohybridDevice_->getCalPulseCount(3); //loopback 
-  m_calPulseCount[4] = optohybridDevice_->getCalPulseCount(4); //sent
+  */
+  INFO("webCalPulse: CalPulses with L1As delayed");
+  cgicc::Cgicc cgi(in);
+  optohybridDevice_->sendL1ACal(cgi["NTrigs"]->getIntegerValue(),
+                                cgi["Delay"]->getIntegerValue(),
+                                cgi["Rate"]->getIntegerValue());
+  
+  for (unsigned count = 0; count < 5; ++count)
+    // 0 ttc, 1 internal/firmware, 2 external, 3 loopback, 4 sent
+    m_calPulseCount[count] = optohybridDevice_->getCalPulseCount(count);
   
   hw_semaphore_.give();
 
@@ -499,12 +597,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webResync(xgi::Input * in, xgi::Outp
   hw_semaphore_.take();
 
   INFO("webResync: sending Resync");
-  optohybridDevice_->sendResync();
-  m_resyncCount[0] = optohybridDevice_->getResyncCount(0); //ttc
-  m_resyncCount[1] = optohybridDevice_->getResyncCount(1); //internal/firmware
-  m_resyncCount[2] = optohybridDevice_->getResyncCount(2); //external
-  m_resyncCount[3] = optohybridDevice_->getResyncCount(3); //loopback 
-  m_resyncCount[4] = optohybridDevice_->getResyncCount(4); //sent
+  cgicc::Cgicc cgi(in);
+  optohybridDevice_->sendResync(cgi["NResyncs"]->getIntegerValue(),
+                                cgi["Rate"]->getIntegerValue());
+  for (unsigned count = 0; count < 5; ++count)
+    // 0 ttc, 1 internal/firmware, 2 external, 3 loopback, 4 sent
+    m_resyncCount[count]   = optohybridDevice_->getResyncCount(count);
   
   hw_semaphore_.give();
 
@@ -517,12 +615,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webBC0(xgi::Input * in, xgi::Output 
   hw_semaphore_.take();
 
   INFO("webBC0: sending BC0");
-  optohybridDevice_->sendBC0();
-  m_bc0Count[0] = optohybridDevice_->getBC0Count(0); //ttc
-  m_bc0Count[1] = optohybridDevice_->getBC0Count(1); //internal/firmware
-  m_bc0Count[2] = optohybridDevice_->getBC0Count(2); //external
-  m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
-  m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
+  cgicc::Cgicc cgi(in);
+  optohybridDevice_->sendBC0(cgi["NBC0s"]->getIntegerValue(),
+                             cgi["Rate"]->getIntegerValue());
+  for (unsigned count = 0; count < 5; ++count)
+    // 0 ttc, 1 internal/firmware, 2 external, 3 loopback, 4 sent
+    m_bc0Count[count]  = optohybridDevice_->getBC0Count(count);
   
   hw_semaphore_.give();
 
@@ -584,9 +682,9 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth>3) {
     wl_->submit(read_signature_);
-  }//end bufferDepth
+  }// end bufferDepth
 
-  //should possibly return true so the workloop is automatically resubmitted
+  // should possibly return true so the workloop is automatically resubmitted
   return true;
 }
 
@@ -596,29 +694,29 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
   uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
   if (pDupm) {
-    counter_[0] = *pDupm;     // VFAT Blocks counter
-    counter_[1] = *(pDupm+1); // Events counter
-    counter_[2] = *(pDupm+2); // Sum VFAT per last event
+    // m_counter[0] = *pDupm;     // VFAT Blocks counter
+    // m_counter[1] = *(pDupm+1); // Events counter
+    // m_counter[2] = *(pDupm+2); // Sum VFAT per last event
   }
 
   hw_semaphore_.give();
 
-  //should possibly return true so the workloop is automatically resubmitted
+  // should possibly return true so the workloop is automatically resubmitted
   return false;
 }
 
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop *wl)
 {
-  uint32_t  Counter[5] = {0,0,0,0,0};
-  uint32_t* pDQ =  gemDataParker->selectData(Counter);
+  // uint32_t  Counter[5] = {0,0,0,0,0};
+  uint32_t* pDQ =  gemDataParker->selectData(m_counter);
   if (pDQ) {
-    Counter[0] = *(pDQ+0);
-    Counter[1] = *(pDQ+1); // Events counter
-    Counter[2] = *(pDQ+2); 
-    Counter[3] = *(pDQ+3);
-    Counter[4] = *(pDQ+4);
-    Counter[5] = *(pDQ+5);
+    m_counter[0] = *(pDQ+0);
+    m_counter[1] = *(pDQ+1); // Events counter
+    m_counter[2] = *(pDQ+2); 
+    m_counter[3] = *(pDQ+3);
+    m_counter[4] = *(pDQ+4);
+    m_counter[5] = *(pDQ+5);
   }
 
   if (is_running_)
@@ -633,7 +731,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   is_working_ = true;
   hw_semaphore_.take();
 
-  counter_ = {0,0,0};
+  m_counter = {0,0,0,0,0};
 
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
@@ -735,8 +833,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     SetupFile << " Latency       " << latency_   << std::endl;
     SetupFile << " Threshold     " << deviceVT1_ << std::endl << std::endl;
   }
-  ////this is not good!!!
-  //hw_semaphore_.give();
+  // this is not good!!!
+  // hw_semaphore_.give();
   /** Super hacky, also doesn't work as the state is taken from the FSM rather
       than this parameter (as it should), J.S July 16
       Failure of any of the conditions at the moment does't take the FSM to error, should it? J.S. Sep 13
@@ -795,7 +893,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   // Setup header close
   SetupFile.close();
 
-  //is_configured_  = true;
+  // is_configured_  = true;
   is_working_     = false;    
   
 }
@@ -814,7 +912,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(1);
 
-  //flush FIFO, how to disable a specific, misbehaving, chip
+  // flush FIFO, how to disable a specific, misbehaving, chip
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
   for (int i = 0; i < 2; ++i) {
     DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
@@ -829,40 +927,24 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
     }
   }
 
-  //send resync
+  // send resync
   INFO("Sending a resync");
   optohybridDevice_->sendResync();
 
-  //reset counters
+  // reset counters
   INFO("Resetting counters");
   optohybridDevice_->resetL1ACount(0x5);
   optohybridDevice_->resetResyncCount(0x5);
   optohybridDevice_->resetBC0Count(0x5);
   optohybridDevice_->resetCalPulseCount(0x5);
 
-  m_l1aCount[0] = optohybridDevice_->getL1ACount(0); //ttc
-  m_l1aCount[1] = optohybridDevice_->getL1ACount(1); //internal/firmware
-  m_l1aCount[2] = optohybridDevice_->getL1ACount(2); //external
-  m_l1aCount[3] = optohybridDevice_->getL1ACount(3); //loopback 
-  m_l1aCount[4] = optohybridDevice_->getL1ACount(4); //sent
-   
-  m_calPulseCount[0] = optohybridDevice_->getCalPulseCount(0); //ttc
-  m_calPulseCount[1] = optohybridDevice_->getCalPulseCount(1); //internal/firmware
-  m_calPulseCount[2] = optohybridDevice_->getCalPulseCount(2); //external
-  m_calPulseCount[3] = optohybridDevice_->getCalPulseCount(3); //loopback 
-  m_calPulseCount[4] = optohybridDevice_->getCalPulseCount(4); //sent
-    
-  m_resyncCount[0] = optohybridDevice_->getResyncCount(0); //ttc
-  m_resyncCount[1] = optohybridDevice_->getResyncCount(1); //internal/firmware
-  m_resyncCount[2] = optohybridDevice_->getResyncCount(2); //external
-  m_resyncCount[3] = optohybridDevice_->getResyncCount(3); //loopback 
-  m_resyncCount[4] = optohybridDevice_->getResyncCount(4); //sent
-    
-  m_bc0Count[0] = optohybridDevice_->getBC0Count(0); //ttc
-  m_bc0Count[1] = optohybridDevice_->getBC0Count(1); //internal/firmware
-  m_bc0Count[2] = optohybridDevice_->getBC0Count(2); //external
-  m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
-  m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
+  for (unsigned count = 0; count < 5; ++count) {
+    // 0 ttc, 1 internal/firmware, 2 external, 3 loopback, 4 sent
+    m_l1aCount[count]      = optohybridDevice_->getL1ACount(count);
+    m_calPulseCount[count] = optohybridDevice_->getCalPulseCount(count);
+    m_resyncCount[count]   = optohybridDevice_->getResyncCount(count);
+    m_bc0Count[count]      = optohybridDevice_->getBC0Count(count);
+  }
 
   INFO("setTrigSource OH Trigger source 0x" << std::hex << confParams_.bag.triggerSource << std::dec);
   glibDevice_->flushFIFO(0);
@@ -873,23 +955,23 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   hw_semaphore_.give();
   is_working_ = false;
-  //start running
+  // start running
   wl_->submit(run_signature_);
   wl_->submit(select_signature_);
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt) {
   is_running_ = false;
-  //reset all counters?
-  vfat_ = 0;
-  event_ = 0;
-  sumVFAT_ = 0;
-  counter_ = {0,0,0};
+  // reset all counters?
+  vfat_     = 0;
+  event_    = 0;
+  sumVFAT_  = 0;
+  m_counter = {0,0,0,0,0};
 
   INFO("setTrigSource GLIB, OH mode 0");
   optohybridDevice_->setTrigSource(0x1);
 
-  //turn off all chips?
+  // turn off all chips?
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);
     INFO((*chip)->printErrorCounts());
@@ -900,7 +982,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
 
-  counter_ = {0,0,0};
+  m_counter = {0,0,0,0,0};
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);
