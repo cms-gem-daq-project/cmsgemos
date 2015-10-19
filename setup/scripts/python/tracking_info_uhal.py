@@ -75,6 +75,7 @@ print
 from trackingUnpacker import VFAT2TrackingData
 
 chipmask = 0xffabab00
+
 if options.bias:
         biasAllVFATs(optohybrid, chipmask)
         writeAllVFATs(optohybrid, chipmask, "Latency", options.latency)
