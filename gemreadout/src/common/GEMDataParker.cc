@@ -1,5 +1,19 @@
 #include "gem/readout/GEMDataParker.h"
+#include "gem/readout/exception/Exception.h"
 #include "gem/hw/glib/HwGLIB.h"
+
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+
+#include "toolbox/mem/MemoryPoolFactory.h"
+#include "toolbox/mem/CommittedHeapAllocator.h"
+#include "i2o/Method.h"
+#include "i2o/utils/AddressMap.h"
+
+#include "toolbox/string.h"
+#include "xercesc/dom/DOMNode.hpp"
+#include "xercesc/dom/DOMNodeList.hpp"
+#include "xercesc/util/XercesDefs.hpp"
+#include "xcept/tools.h"
 
 #include <boost/utility/binary.hpp>
 #include <bitset>
@@ -9,7 +23,6 @@
 #include <sstream>
 #include <cstdlib>
 #include <vector>
-#include <queue>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -43,20 +56,24 @@ uint32_t ESexp = -1;
 bool isFirst = true;
 uint64_t ZSFlag = 0;
 
-// The main data flow
-std::queue<uint32_t> dataque;
-
 uint32_t contvfats_ = 0;
 
+const int gem::readout::GEMDataParker::I2O_READOUT_NOTIFY=0x84;
+const int gem::readout::GEMDataParker::I2O_READOUT_CONFIRM=0x85;
+
 // Main constructor
-gem::readout::GEMDataParker::GEMDataParker(
-                                           gem::hw::glib::HwGLIB& glibDevice,
+gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName, 
                                            std::string const& errFileName, 
                                            std::string const& outputType) 
   :
-  m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))
-              ){
+  m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))),
+  m_queueLock(toolbox::BSem::FULL, true)
+{
+  //these bindings necessitate that the GEMDataParker inherit from some xdaq application stuff
+  //i2o::bind(this,&GEMDataParker::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
+  //xoap::bind(this,&GEMDataParker::updateScanParameters,"UpdateScanParameter","urn:GEMDataParker-soap:1");
+
   glibDevice_  = &glibDevice;
   outFileName_ = outFileName;
   errFileName_ = errFileName;
@@ -70,7 +87,7 @@ gem::readout::GEMDataParker::GEMDataParker(
   gem::readout::GEMslotContents::initSlots();
 }
 
-uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
+uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
 {
   uint32_t *point = &counter_[0]; 
   contvfats_ = 0;
@@ -114,62 +131,114 @@ uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask )
   return point;
 }
 
+xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  INFO("GEMDataParker::updateScanParameters()");
+  if (msg.isNull()) {
+    XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
+  }
+  
+  std::string commandName    = "undefined";
+  std::string parameterValue = "-1";
+  try {
+    std::pair<std::string, std::string> command
+      = gem::utils::soap::GEMSOAPToolBox::extractCommandWithParameter(msg);
+    commandName = command.first;
+    parameterValue = command.second;
+    INFO("GEMDataParker received command " << commandName);
+  } catch(xoap::exception::Exception& err) {
+    std::string msgBase = toolbox::toString("Unable to extract command from CommandWithParameter SOAP message");
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top,
+                         toolbox::toString("%s.", msgBase.c_str()), err);
+    //p_gemApp->notifyQualified("error", top);
+    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
+    std::string faultCode   = "Client";
+    std::string detail      = toolbox::toString("%s: %s.",
+                                                msgBase.c_str(),
+                                                err.message().c_str());
+    //this has to change to something real, but will come when data parker becomes the gem readout application
+    std::string faultActor = "";
+    xoap::MessageReference reply =
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
+    return reply;
+  }
+  //this has to be injected into the GEM header
+  scanParam = std::stoi(parameterValue);
+  DEBUG(toolbox::toString("GEMDataParker::updateScanParameters() received command '%s' with value. %s",
+                          commandName.c_str(), parameterValue.c_str()));
+  gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
+}
 
-uint32_t* gem::readout::GEMDataParker::getGLIBData(
-						   uint8_t const& link,
-						   uint32_t Counter[5]
-						   ){
+uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, uint32_t Counter[5])
+{
   uint32_t *point = &Counter[0]; 
   TStopwatch timer;
+  uint8_t const gtx = 0;
+  uint32_t dataqueSize;
+  Float_t RT;
 
-  //timer.Start();
-  while ( glibDevice_->hasTrackingData(link) ) {
-    std::vector<uint32_t> data;
-
-    // timer.Start();
-    data = glibDevice_->getTrackingData(link);
-    /*
-      timer.Stop(); Float_t RT = (Float_t)timer.RealTime();
-      DEBUG(" ::getGLIBData The time for one call of getTrackingData(link) " << RT);
-    */
-
-    /*
-      DEBUG(" ::getGLIBData numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
-      " vfats.size " << vfats.size() << " erros.size " << erros.size() << " ES 0x" << std::hex << ES << std::dec << 
-      " event " << Counter[1] );
-    */
+  timer.Start();
+  Float_t whileStart = (Float_t)timer.RealTime();
+  DEBUG(" ::getGLIBData Starting while loop readout " << whileStart
+       << std::endl << "FIFO VFAT block depth 0x" << std::hex
+       << glibDevice_->getFIFOVFATBlockOccupancy(link)
+       << std::endl << "FIFO depth 0x" << std::hex
+       << glibDevice_->getFIFOOccupancy(link)
+       );
+  //while ( glibDevice_->hasTrackingData(link) ) {
+  while ( glibDevice_->getFIFOVFATBlockOccupancy(link) ) {
+    //timer.Start();
+    Float_t getTrackingStart = (Float_t)timer.RealTime();
+    DEBUG(" ::getGLIBData initiating call to getTrackingData(link,"
+         << glibDevice_->getFIFOVFATBlockOccupancy(link) << ") "
+         << getTrackingStart);
+    std::vector<uint32_t> data = glibDevice_->getTrackingData(link,
+                                                              glibDevice_->getFIFOVFATBlockOccupancy(link));
+    Float_t getTrackingFinish = (Float_t)timer.RealTime();
+    DEBUG(" ::getGLIBData The time for one call of getTrackingData(link) " << getTrackingFinish
+         << std::endl << "FIFO VFAT block depth 0x" << std::hex
+         << glibDevice_->getFIFOVFATBlockOccupancy(link)
+         << std::endl << "FIFO depth 0x" << std::hex
+         << glibDevice_->getFIFOOccupancy(link)
+         );
 
     uint32_t contqueue = 0;
-    for (int iword=0; iword<7; iword++ ){
+    for (auto iword = data.begin(); iword != data.end(); ++iword) {
       contqueue++;
-      dataque.push(data.at(iword));
+      //gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_queueLock);
+      DEBUG(" ::getGLIBData pushing into queue 0x"
+           << std::setfill('0') << std::setw(8) << std::hex << *iword << std::dec );
+      dataque.push(*iword);
       if (contqueue%kUPDATE7 == 0 &&  contqueue != 0) {
         contvfats_++;
-        /*
-	  INFO(" ::getGLIBData conter "  << contqueue << " contvfats " << contvfats_ << " dataque.size " << dataque.size() 
-        */
+	DEBUG(" ::getGLIBData conter " << contqueue << " contvfats " << contvfats_
+             << " dataque.size " << dataque.size());
       }
     }
-
-    uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
-    Counter[0] = *(pDQ+0); // VFAT Blocks counter
-    Counter[1] = *(pDQ+1); // Events counter
-    Counter[2] = *(pDQ+2); // VFATs per last event  
-    Counter[3] = *(pDQ+3); // numES
-    Counter[4] = *(pDQ+4); // errES
-
-    DEBUG(" ::getGLIBData VFATs [0] " << Counter[0] << " VFATs per event [2] " << Counter[2] << 
-	  " numES [3] " << Counter[3] << " errES [4] " << Counter[4] << " event [1] " << Counter[1] << " event_ " << event_ );
-
+    DEBUG(" ::getGLIBData end of while loop do we go again?" << std::endl
+         << " FIFO VFAT block occupancy  0x" << std::hex << glibDevice_->getFIFOVFATBlockOccupancy(link)
+         << std::endl
+         << " FIFO occupancy             0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << std::endl
+         << " hasTrackingData            0x" << std::hex << glibDevice_->hasTrackingData(link)  << std::endl
+         );
   }// while(glibDevice_->hasTrackingData(link))
-
+  timer.Stop();
+  Float_t whileFinish = (Float_t)timer.RealTime();
+  DEBUG(" ::getGLIBData The time for while loop execution " << whileFinish
+       << std::endl
+         << " FIFO VFAT block occupancy  0x" << std::hex << glibDevice_->getFIFOVFATBlockOccupancy(link)
+         << std::endl
+         << " FIFO occupancy             0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << std::endl
+         << " hasTrackingData            0x" << std::hex << glibDevice_->hasTrackingData(link)  << std::endl
+       );
   return point;
 }
 
 
-uint32_t* gem::readout::GEMDataParker::selectData(
-                                                  uint32_t Counter[5]
-						  ){
+uint32_t* gem::readout::GEMDataParker::selectData(uint32_t Counter[5])
+{
   uint32_t *point = &Counter[0]; 
 
   uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
@@ -184,9 +253,8 @@ uint32_t* gem::readout::GEMDataParker::selectData(
 }
 
 
-uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
-						     uint32_t Counter[5]
-						     ){
+uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
+{
   uint32_t *point = &Counter[0];
 
   int MaxVFATS = 32;
@@ -211,41 +279,71 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   uint32_t dat10,dat11, dat20,dat21, dat30,dat31, dat40,dat41;
   uint32_t BX, ES;
 
+  if (dataque.empty()) return point;
   DEBUG(" ::GEMEventMaker dataque.size " << dataque.size() );
 
-  int iQue = -1;
+  //int iQue = 0;
   uint32_t datafront = 0;
-  while (!dataque.empty()){
-    iQue++;
+  //while (!dataque.empty()) {
+  for (int iQue = 0; iQue < 7; iQue++){
     datafront = dataque.front();
-    DEBUG(" ::GEMEventMaker iQue " << iQue << " " << std::hex << datafront << std::dec );
-
-    if (iQue == 0 ){
+    DEBUG(" ::GEMEventMaker iQue " << iQue << " 0x"
+         << std::setfill('0') << std::setw(8) << std::hex << datafront << std::dec );
+    //this never seems to get reset? maybe iQue%7 to read the words after the first block?
+    if ((iQue%7) == 5 ) {
       dat41   = ((0xffff0000 & datafront) >> 16 );
       vfatcrc = (0x0000ffff & datafront);
-    } else if ( iQue == 1 ){
+    } else if ( (iQue%7) == 4 ) {
       dat40   = ((0x0000ffff & datafront) << 16 );
       dat31   = ((0xffff0000 & datafront) >> 16 );
-    } else if ( iQue == 2 ){
+    } else if ( (iQue%7) == 3 ) {
       dat21   = ((0xffff0000 & datafront) >> 16 );
       dat30   = ((0x0000ffff & datafront) << 16 );
-    } else if ( iQue == 3 ){
+    } else if ( (iQue%7) == 2 ) {
       dat11   = ((0xffff0000 & datafront) >> 16 );
       dat20   = ((0x0000ffff & datafront) << 16 );
-    } else if ( iQue == 4 ){
+    } else if ( (iQue%7) == 1 ) {
       b1110   = ((0xf0000000 & datafront) >> 28 );
       chipid  = ((0x0fff0000 & datafront) >> 16 );
       dat10   = ((0x0000ffff & datafront) << 16 );
-    } else if ( iQue == 5 ){
+    } else if ( (iQue%7) == 0 ) {
       b1010   = ((0xf0000000 & datafront) >> 28 );
       b1100   = ((0x0000f000 & datafront) >> 12 );
       bcn     = ((0x0fff0000 & datafront) >> 16 );
       evn     = ((0x00000ff0 & datafront) >>  4 );
       flags   = (0x0000000f & datafront);
-    } else if ( iQue == 6 ){
+      
+      if (!(b1010 == 0xa && b1100 == 0xc)) {
+        bool misAligned_ = true;
+        while ((misAligned_) && (dataque.size()>6)){
+          /* we have a misaligned word, increment misalignment counter, pop queue,
+             push bad value into some form of storage for later analysis?
+             then continue with the loop, but without incrementing iQue so we hopefully
+             eventually align again
+             
+             Do not go through all the loop with condition statements 
+             since iQue stays the same and we removed 7 blocks
+             -MD
+          */
+          INFO(" ::GEMEventMaker found misaligned word 0x"
+               << std::setfill('0') << std::hex << datafront << std::dec
+               << " queue dataque.size " << dataque.size() );
+          dataque.pop();
+          datafront = dataque.front();
+          b1010   = ((0xf0000000 & datafront) >> 28 );
+          b1100   = ((0x0000f000 & datafront) >> 12 );
+          bcn     = ((0x0fff0000 & datafront) >> 16 );
+          evn     = ((0x00000ff0 & datafront) >>  4 );
+          flags   = (0x0000000f & datafront);
+          if ((b1010 == 0xa && b1100 == 0xc)) { misAligned_ = false;}
+        }// end of while misaligned
+      }
+    } else if ( (iQue%7) == 6 ) {
       BX      = datafront;
     }
+    DEBUG(" ::GEMEventMaker (pre pop) dataque.size " << dataque.size() );
     dataque.pop();
+    DEBUG(" ::GEMEventMaker (post pop)  dataque.size " << dataque.size() );
   }// end queue
   DEBUG(" ::GEMEventMaker after pop dataque.size " << dataque.size() );
 
@@ -253,14 +351,6 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   uint64_t data2  = dat20 | dat21;
   uint64_t data3  = dat30 | dat31;
   uint64_t data4  = dat40 | dat41;
-
-  /*
-    if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))) {
-    * do not ignore incorrect data
-    WARN("VFAT headers do not match expectation");
-    continue;
-    *
-    }*/
 
   vfat_++;
 
@@ -284,12 +374,6 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   vfat.BXfrOH = BX;                                     // BXfrOH:32
   vfat.crc    = vfatcrc;                                // crc:16
 
-  /*
-   * dump VFAT data 
-   GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
-   INFO(" ::GEMEventMaker slot " << islot <<"\n");
-  */
-
   if ( ES == ESexp /* ESexp.find(ES)->second */ ) { 
     isFirst = false;
     DEBUG(" ::GEMEventMaker ESexp numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
@@ -297,7 +381,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   } else { 
     isFirst = true;
 
-    if ( vfats.size() != 0 || erros.size() != 0 ){
+    if ( vfats.size() != 0 || erros.size() != 0 ) {
       numES.erase(ES);
       numES.insert(std::pair<uint32_t, uint32_t>(ES,vfats.size()));
       errES.erase(ES);
@@ -330,16 +414,16 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
     ZSFlag = 0;
   }
 
-  DEBUG(" ::GEMEventMaker ES " << std::hex << ES << std::dec << " bool " << isFirst );
+  DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " bool " << isFirst );
   counterVFATs++;
   counterVFAT.erase(ES);
   counterVFAT.insert(std::pair<uint32_t, int>(ES,counterVFATs));
 
   std::map<uint32_t, uint32_t>::iterator it;// pay load events 
   std::map<uint32_t, uint32_t>::iterator ir;// errors events
-  if (islot<0 || islot > 23) {
+  if (islot < 0 || islot > 23) {
     ir=errES.find(ES);
-    if (ir != errES.end()){
+    if (ir != errES.end()) {
       // local event calculator inside one buffer, ES based 
       MaxErr = errES.find(ES)->second;
       MaxErr++;
@@ -351,15 +435,9 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
     // islot out of [0-23]
     if ( int(erros.size()) <MaxERRS ) erros.push_back(vfat);
     DEBUG(" ::GEMEventMaker warning !!! islot is undefined " << islot << " erros.size " << int(erros.size()) );
-    /*
-     * dump VFAT data 
-     GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
-     INFO(" ::GEMEventMaker wrong slot " << islot <<"\n");
-    */
-
   } else {
-    it=numES.find(ES);
-    if (it != numES.end()){
+    it = numES.find(ES);
+    if (it != numES.end()) {
       // local event calculator inside one buffer, ES based 
       MaxEvent = numES.find(ES)->second;
       MaxEvent++;
@@ -367,12 +445,6 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
       numES.insert(std::pair<uint32_t, uint32_t>(ES,MaxEvent));
       DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " numES " <<  numES.find(ES)->second << 
             " MaxEvent " << MaxEvent <<" event_ " << event_ );
-      /*
-       * dump VFAT data 
-       GEMDataAMCformat::printVFATdataBits(vfat_, vfat);
-       DEBUG(" ::GEMEventMaker payload slot " << islot <<"\n");
-      */
-
     }
     /*
      * VFATs Pay Load
@@ -382,8 +454,10 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
 
   }//end of event selection 
 
-  DEBUG(" ::GEMEventMaker END numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
-	" vfats.size " << vfats.size() << " erros.size " << erros.size() << " event_ " << event_ );
+  if (event_%kUPDATE == 0 &&  event_ != 0) {
+    DEBUG(" ::GEMEventMaker END numES " << numES.find(ES)->second << " errES " << errES.find(ES)->second << 
+  	 " vfats.size " << vfats.size() << " erros.size " << erros.size() << " event_ " << event_ );
+  }
 
   Counter[0] = vfat_;
   Counter[1] = event_;
@@ -394,11 +468,8 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(
   return point;
 }
 
-void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
-                                                int MaxEvent,
-                                                int MaxErr
-                                                ){
-
+void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES, int MaxEvent, int MaxErr)
+{
   /*  
    *  GEM Event Data Format definition
    */
@@ -406,7 +477,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
   AMCGEBData  geb;
   AMCVFATData vfat;
 
-  if ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0 ){
+  if ( numES.find(ES)->second != 0 || errES.find(ES)->second != 0 ) {
     DEBUG(" ::GEMEventMaker vfats.size " << int(vfats.size()) << " rvent_ " << rvent_ << " event " << event_);
  
     uint32_t locEvent = 0;
@@ -414,7 +485,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
     std::string TypeDataFlag = "PayLoad";
  
     // contents all local events (one buffer, all links):
-    for (std::map<uint32_t, uint32_t>::iterator itES=numES.begin(); itES!=numES.end(); ++itES){
+    for (std::map<uint32_t, uint32_t>::iterator itES=numES.begin(); itES!=numES.end(); ++itES) {
       //event_++;
       locEvent++;
       DEBUG(" ::GEMEventMaker END ES 0x" << std::hex << itES->first << std::dec << " numES " <<  itES->second << 
@@ -448,12 +519,12 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
           */
 
           int islot = gem::readout::GEMslotContents::GEBslotIndex((uint32_t)vfat.ChipID );
-          if (islot<0 || islot > 23) { 
-            INFO(" ::GEMEventMaker  coutld be error&warning slot " << islot);
+          if (islot < 0 || islot > 23) { 
+            DEBUG(" ::GEMEventMaker  could be error&warning slot " << islot);
           }
  
-          if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ){
-            if ( itES->second == nChip ){
+          if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ) {
+            if ( itES->second == nChip ) {
  
               gem::readout::GEMDataParker::GEMfillHeaders(event_, itES->second, gem, geb);
               gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
@@ -463,7 +534,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
                */
               DEBUG(" ::GEMEventMaker writing...  geb.vfats.size " << int(geb.vfats.size()) );
               TypeDataFlag = "PayLoad";
-              if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, true, TypeDataFlag,
+              if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
                                                                                         gem, geb, vfat);
               geb.vfats.clear();
          
@@ -477,7 +548,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
     TypeDataFlag = "Errors";
 
     // contents all local events (one buffer, all links):
-    for (std::map<uint32_t, uint32_t>::iterator irES=errES.begin(); irES!=errES.end(); ++irES){
+    for (std::map<uint32_t, uint32_t>::iterator irES=errES.begin(); irES!=errES.end(); ++irES) {
       //event_++;
       DEBUG(" ::GEMEventMaker END ES 0x" << std::hex << irES->first << std::dec << " errES " <<  irES->second << 
             " rvent_ " << rvent_ );
@@ -506,7 +577,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
            * VFATs Errors
            */
           geb.vfats.push_back(vfat);
-          if ( irES->second == nErro ){
+          if ( irES->second == nErro ) {
             /*
               GEMDataAMCformat::printVFATdataBits(nErro, vfat);
             */
@@ -530,7 +601,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
     geb.vfats.clear();
       
     if (event_%kUPDATE == 0 &&  event_ != 0) {
-      INFO(" ::GEMEventMaker vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
+      DEBUG(" ::GEMEventMaker vfats.size " << std::setfill(' ') << std::setw(7) << int(vfats.size()) <<
            " erros.size " << std::setfill(' ') << std::setw(3) << int(erros.size()) << 
            " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent << 
            " locError   " << std::setfill(' ') << std::setw(3) << locError << " event " << event_
@@ -555,10 +626,8 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES,
   }// end of writing all events for slected ES
 }
 
-bool gem::readout::GEMDataParker::VFATfillData(
-                                               int const& islot,
-                                               AMCGEBData&  geb
-                                               ){
+bool gem::readout::GEMDataParker::VFATfillData(int const& islot, AMCGEBData&  geb)
+{
   /*
    * One GEM bord loop, 24 VFAT chips maximum
    * VFAT position definition on the board, in the future from OH
@@ -601,24 +670,14 @@ bool gem::readout::GEMDataParker::VFATfillData(
 }
 
 
-void gem::readout::GEMDataParker::writeGEMevent(
-                                                std::string  outFile,
-                                                bool const&  OKprint,
+void gem::readout::GEMDataParker::writeGEMevent(std::string  outFile, bool const&  OKprint,
                                                 std::string const& TypeDataFlag,
-                                                AMCGEMData&  gem,
-                                                AMCGEBData&  geb,
-                                                AMCVFATData& vfat
-                                                ){
-  if(OKprint){
+                                                AMCGEMData&  gem, AMCGEBData&  geb, AMCVFATData& vfat)
+{
+  if(OKprint) {
     DEBUG(" ::writeGEMevent vfat_ " << vfat_ << " event " << event_ << " sumVFAT " << (0x000000000fffffff & geb.header) <<
           " geb.vfats.size " << int(geb.vfats.size()) );
   }
-
-  /*
-    int nGEB=0;
-    for (vector<GEBData>::iterator iGEB=gem.gebs.begin(); iGEB != gem.gebs.end(); ++iGEB) {
-    nGEB++; uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; show24bits(ZSFlag);
-  */
 
   /*
    *  GEM Chamber's Data
@@ -665,7 +724,7 @@ void gem::readout::GEMDataParker::writeGEMevent(
     } else {
       GEMDataAMCformat::writeVFATdataBinary (outFile, nChip, vfat);
     };
-    if( OKprint ){
+    if( OKprint ) {
       //GEMDataAMCformat::printVFATdataBits(nChip, vfat);
       DEBUG(" writeGEMevent slot " << gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)vfat.ChipID ) );
     }
@@ -694,21 +753,18 @@ void gem::readout::GEMDataParker::writeGEMevent(
   } 
 
   uint64_t ZSFlag =  (0xffffff0000000000 & geb.header) >> 40;
-  if( OKprint ){
+  if( OKprint ) {
     GEMDataAMCformat::show24bits(ZSFlag); 
-    INFO(" ::writeGEMevent " << TypeDataFlag << " geb.vfats.size " << int(geb.vfats.size()) << 
+    DEBUG(" ::writeGEMevent " << TypeDataFlag << " geb.vfats.size " << int(geb.vfats.size()) << 
          " end of event " << event_ << "\n");
   }
   /* } // end of GEB */
 }
 
 
-void gem::readout::GEMDataParker::GEMfillHeaders(
-                                                 uint32_t const& event,
-                                                 uint32_t const& BX,
-                                                 AMCGEMData& gem,
-                                                 AMCGEBData& geb
-                                                 ){
+void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t const& BX,
+                                                 AMCGEMData& gem, AMCGEBData& geb)
+{
   /*
    *  GEM, All Chamber Data
    */
@@ -759,15 +815,15 @@ void gem::readout::GEMDataParker::GEMfillHeaders(
   // RunType:4, all other depends from RunType
   uint64_t RunType = BOOST_BINARY( 1 ); // :4
 
+  //this needs to be populated with dummy values so migration can be made simply
+  //scanParam;
   geb.runhed  = (RunType << 60);
 
 }
 
 
-void gem::readout::GEMDataParker::GEMfillTrailers(
-                                                  AMCGEMData&  gem,
-                                                  AMCGEBData&  geb
-                                                  ){
+void gem::readout::GEMDataParker::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
+{
   /*
    *  GEM, All Chamber Data
    */
@@ -806,5 +862,5 @@ void gem::readout::GEMDataParker::GEMfillTrailers(
   OHwCount   = (0x0000ffff00000000 & geb.trailer) >> 32; 
   ChamStatus = (0x00000000ffff0000 & geb.trailer) >> 16;
 
-  DEBUG(" OHcrc " << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec);
+  DEBUG(" OHcrc 0x" << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec);
 }

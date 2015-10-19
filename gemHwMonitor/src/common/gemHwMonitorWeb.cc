@@ -684,7 +684,6 @@ void gem::hwMonitor::gemHwMonitorWeb::expandOH(xgi::Input * in, xgi::Output * ou
       tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
       vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(vfatToShow_,tmpURI.str(),
                                                                "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-			
       for (int i=0; i<gemHwMonitorOH_.at(indexOH_)->getNumberOfSubDevices(); i++) {
         std::string vfatID_ = gemHwMonitorOH_.at(indexOH_)->getDevice()->getSubDevicesRefs().at(i)->getDeviceId();
         std::cout << "vfat ID from XML" << vfatID_ << std::endl;
@@ -735,7 +734,7 @@ void gem::hwMonitor::gemHwMonitorWeb::ohPanel(xgi::Input * in, xgi::Output * out
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << glibIP << ":50001";
   ohDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(currentOHId, tmpURI.str(),
-                                                                          "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+                                                                                "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   if (!ohDevice_->isHwConnected()) {
     *out << "<h1><div align=\"center\">Device connection failed!</div></h1>" << std::endl;
   } else {
