@@ -25,11 +25,6 @@ parser.add_option("-e", "--enable", type="string", dest="enabledChips",
 		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
 (options, args) = parser.parse_args()
 
-links = {}
-for link in options.activeLinks:
-	pair = map(int, link.split(","))
-	links[pair[0]] = pair[1]
-print "links", links
 chips = []
 if options.enabledChips:
 	chips = [int(n) for n in options.enabledChips.split(",")] 
