@@ -230,8 +230,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
     m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
     m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
   }
-  // If we are in "Running" state, check if GLIB has any data available
-  //if (is_running_) wl_->submit(run_signature_);
 
   // Page title
   *out << cgicc::h1("GEM DAQ Supervisor")<< std::endl;
@@ -396,7 +394,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::O
   try{
     cgicc::Cgicc cgi(in);
     confParams_.bag.outputType = cgi["value"]->getValue();
-    //INFO(" outputType " << confParams_.bag.outputType.toString());
 
     // re-display form page 
     this->webDefault(in,out);		
@@ -481,17 +478,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi::Output * out ) {
   // Send L1A signal
   hw_semaphore_.take();
-  //INFO("webCalPulse: sending 1 CalPulse with 25 clock delayed L1A");
   for (int offset = -12; offset < 13; ++offset) {
     INFO("webCalPulse: sending 10 CalPulses with L1As delayed by " << (int)latency_ + offset <<  " clocks");
     optohybridDevice_->sendL1ACal(2, latency_ + offset);
-    INFO("Sleeping for 0.5 seconds...");
-    sleep(0.5);
-    INFO("back!");
   }
-  //optohybridDevice_->sendL1ACal(1, latency_);
-  //sleep(0.1);
-  //need some sleep here?
   m_calPulseCount[0] = optohybridDevice_->getCalPulseCount(0); //ttc
   m_calPulseCount[1] = optohybridDevice_->getCalPulseCount(1); //internal/firmware
   m_calPulseCount[2] = optohybridDevice_->getCalPulseCount(2); //external
@@ -554,9 +544,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::task::WorkL
   fireEvent("Configure");
 
   optohybridDevice_->sendResync();
-  // resetting BX counter
-  // optohybridDevice_->resetBXCount();
-  //   ERROR - No branch found with ID-path "OptoHybrid.OptoHybrid_LINKS.LINK0.COUNTERS.RESETS.BXCount"
 
   return false;
 }
@@ -586,35 +573,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 {
   wl_semaphore_.take();
   hw_semaphore_.take();
-/*
-  // GLIB data buffer validation
-  uint32_t fifoDepth[3] = {0,0,0};
 
-  //lots of repetition here
-  if (readout_mask&0x1)
-    fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
-  if (readout_mask&0x2)
-    fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
-  if (readout_mask&0x4)
-    fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
-
-  if (fifoDepth[0])
-    DEBUG("bufferDepth[0] (runAction) = 0x" << std::hex << fifoDepth[0] << std::dec);
-  if (fifoDepth[1])
-    DEBUG("bufferDepth[1] (runAction) = 0x" << std::hex << fifoDepth[1] << std::dec);
-  if (fifoDepth[2])
-    DEBUG("bufferDepth[2] (runAction) = 0x" << std::hex << fifoDepth[2] << std::dec);
-
-  // Get the size of GLIB data buffer
-  uint32_t bufferDepth = 0;
-
-  if (readout_mask&0x1)
-    bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
-  if (readout_mask&0x2)
-    bufferDepth += glibDevice_->getFIFOOccupancy(0x1);
-  if (readout_mask&0x4)
-    bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
-*/
   uint32_t bufferDepth = 0;
   bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(0x0);
   wl_semaphore_.give();
@@ -623,9 +582,8 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   DEBUG("Combined bufferDepth = 0x" << std::hex << bufferDepth << std::dec);
 
   // If GLIB data buffer has non-zero size, initiate read workloop
-  if (bufferDepth) {
+  if (bufferDepth>3) {
     wl_->submit(read_signature_);
-    wl_->submit(select_signature_);
   }//end bufferDepth
 
   //should possibly return true so the workloop is automatically resubmitted
@@ -634,7 +592,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *wl)
 {
-  //wl_semaphore_.take();
   hw_semaphore_.take();
 
   uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
@@ -645,7 +602,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
   }
 
   hw_semaphore_.give();
-  //wl_semaphore_.give();
 
   //should possibly return true so the workloop is automatically resubmitted
   return false;
@@ -654,8 +610,6 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop *wl)
 {
-  //wl_semaphore_.take();
-  //hw_semaphore_.take();
 
   uint32_t  Counter[5] = {0,0,0,0,0};
   uint32_t* pDQ =  gemDataParker->selectData(Counter);
@@ -668,10 +622,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop
     Counter[5] = *(pDQ+5);
   }
 
-  //hw_semaphore_.give();
-  //wl_semaphore_.give();
-  //should possibly return true so the workloop is automatically resubmitted
-  return false;
+  if (is_running_) {return true;} else {return false;}
 }
 
 
@@ -684,16 +635,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
-  //glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB());
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  //glibDevice_->connectDevice();
-  //have to hack this so the constructor finds the correct base node, needs fixing /**JS Oct 8*/
   optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
                                                                                   "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  //optohybridDevice_->setDeviceIPAddress(confParams_.bag.deviceIP);
-  //optohybridDevice_->connectDevice();
-
   INFO("setTrigSource OH mode 1");
   optohybridDevice_->setTrigSource(0x1);
 
@@ -725,7 +670,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(),
                                                                "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
       tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
-      //tmpVFATDevice->connectDevice();
       tmpVFATDevice->setRunMode(0);
       // need to put all chips in sleep mode to start off
       vfatDevice_.push_back(tmpVFATDevice);
@@ -735,7 +679,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   islot=0;
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
     (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
-    //(*chip)->connectDevice();
     (*chip)->readVFAT2Counters();
     (*chip)->setRunMode(0);
 
@@ -859,6 +802,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   is_working_ = true;
 
   is_running_ = true;
+
   hw_semaphore_.take();
 
   INFO("setTrigSource OH mode 0");
@@ -918,17 +862,19 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   m_bc0Count[3] = optohybridDevice_->getBC0Count(3); //loopback 
   m_bc0Count[4] = optohybridDevice_->getBC0Count(4); //sent
 
-  INFO("setTrigSource OH Trigger source 0");
+  INFO("setTrigSource OH Trigger source 0x" << std::hex << confParams_.bag.triggerSource << std::dec);
   glibDevice_->flushFIFO(0);
   optohybridDevice_->sendResync();
   optohybridDevice_->sendBC0();
   optohybridDevice_->sendResync();
-  optohybridDevice_->setTrigSource(0x0);
+  optohybridDevice_->setTrigSource(confParams_.bag.triggerSource);
 
   hw_semaphore_.give();
   is_working_ = false;
   //start running
   wl_->submit(run_signature_);
+
+  wl_->submit(select_signature_);
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference evt) {
@@ -945,11 +891,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   //turn off all chips?
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);
-    //using smart_ptr
-    //delete (*chip);
-    //(*chip) = NULL;
     INFO((*chip)->printErrorCounts());
   }
+  wl_->submit(select_signature_);
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
@@ -959,21 +903,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);
-    //using smart_ptr
-    //delete (*chip);
-    //(*chip) = NULL;
     INFO((*chip)->printErrorCounts());
   }
-  /*
-  delete glibDevice_;
-  glibDevice_ = NULL;
-
-  delete optohybridDevice_;
-  optohybridDevice_ = NULL;
-
-  delete gemDataParker;
-  gemDataParker = NULL;
-  */
+  wl_->submit(select_signature_);
   is_configured_ = false;
 }
 
