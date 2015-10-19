@@ -3,10 +3,21 @@
 
 #include "gem/readout/GEMDataAMCformat.h"
 
+#include "toolbox/SyncQueue.h"
+#include "i2o/i2o.h"
+#include "toolbox/Task.h"
+#include "toolbox/mem/Pool.h"
+
+#include "xoap/MessageReference.h"
+#include "xoap/Method.h"
+
 #include "xdata/String.h"
 #include <string>
+#include <queue>
 
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/Lock.h"
+#include "gem/utils/LockGuard.h"
 
 namespace gem {
   namespace hw {
@@ -18,9 +29,13 @@ namespace gem {
     struct GEMDataAMCformat;
   }
   namespace readout {
+
     class GEMDataParker
     {
     public:
+      static const int I2O_READOUT_NOTIFY;
+      static const int I2O_READOUT_CONFIRM;
+
       GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice, 
                             std::string const& outFileName, 
                             std::string const& errFileName, 
@@ -58,12 +73,11 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::GEBData& geb,
                              gem::readout::GEMDataAMCformat::VFATData& vfat
                            );
-      /*
-      // SOAP interface, updates the header used for calibration runs
-      xoap::MessageReference updateCalibHeaders(xoap::MessageReference message)
-      throw (xoap::exception::Exception);
-      */
 
+      // SOAP interface, updates the header used for calibration runs
+      xoap::MessageReference updateScanParameters(xoap::MessageReference message)
+        throw (xoap::exception::Exception);
+      
     private:
 
       log4cplus::Logger m_gemLogger;
@@ -72,6 +86,12 @@ namespace gem {
       std::string errFileName_;
       std::string outputType_;
 
+      //queue safety
+      mutable gem::utils::Lock m_queueLock;
+      // The main data flow
+      std::queue<uint32_t> dataque;
+
+      
       /*
        * Counter all in one
        *   [0] VFAT's Blocks Counter
@@ -88,7 +108,8 @@ namespace gem {
          
       // VFATs counter per event
       int sumVFAT_;
-
+      
+      int16_t scanParam;
     };
   }
 }

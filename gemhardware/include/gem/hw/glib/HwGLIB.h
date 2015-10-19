@@ -5,8 +5,6 @@
 #include "toolbox/SyncQueue.h"
 #include "i2o/i2o.h"
 #include "toolbox/Task.h"
-#include "toolbox/mem/Reference.h"
-#include "toolbox/mem/Pool.h"
 
 #include "gem/hw/glib/exception/Exception.h"
 //#include "gem/hw/glib/GLIBMonitor.h"
@@ -59,9 +57,15 @@ namespace gem {
           } GLIBIPBusCounters;
           
           
+          /**
+           * Constructors, the preferred constructor is with a connection file and device name
+           * as the IP address and address table can be managed there, rather than hard coded
+           * Constrution from crateID and slotID uses this constructor as the back end
+           **/
           HwGLIB();
           HwGLIB(std::string const& glibDevice, std::string const& connectionFile);
-          HwGLIB(std::string const& glibDevice, std::string const& connectionURI, std::string const& addressTable);
+          HwGLIB(std::string const& glibDevice, std::string const& connectionURI,
+                 std::string const& addressTable);
           HwGLIB(std::string const& glibDevice, uhal::HwInterface& uhalDevice);
           HwGLIB(int const& crate, int const& slot);
 	
@@ -604,11 +608,19 @@ namespace gem {
           void flushTriggerFIFO(uint8_t const& gtx);
 
           /**
-           * Read the tracking data FIFO occupancy
+           * Read the tracking data FIFO occupancy in terms of raw 32bit words
            * @param uint8_t gtx is the number of the gtx to query
-           * @retval uint32_t returns the number of events in the tracking data FIFO
+           * @retval uint32_t returns the number of words in the tracking data FIFO
            **/
           uint32_t getFIFOOccupancy(uint8_t const& gtx);
+
+          /**
+           * Read the tracking data FIFO occupancy in terms of the number of 7x32bit words
+           * composing a single VFAT block
+           * @param uint8_t gtx is the number of the gtx to query
+           * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
+           **/
+          uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
 
           /**
            * see if there is tracking data available
@@ -622,16 +634,16 @@ namespace gem {
            * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
            * and need to pack all events together
            * @param uint8_t gtx is the number of the GTX tracking data to read
-           * @param size_t nBlocks is the number of blocks (7*32bit words) to read
+           * @param size_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
            * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
           **/
           std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
           //which of these will be better and do what we want
-          uint32_t getTrackingData(uint8_t const& gtx, uint64_t* data, size_t const& nBlocks=1);
+          uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
           //which of these will be better and do what we want
           uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
                                    size_t const& nBlocks=1);
-
+          
           /**
            * Empty the tracking data FIFO
            * @param uint8_t gtx is the number of the gtx to query
