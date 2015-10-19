@@ -147,3 +147,62 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
   }
   return true;
 }
+
+std::pair<std::string,std::string> gem::utils::soap::GEMSOAPToolBox::extractCommandWithParameter(xoap::MessageReference const& msg)
+{
+  xoap::SOAPPart     part = msg->getSOAPPart();
+  xoap::SOAPEnvelope env  = part.getEnvelope();
+  xoap::SOAPBody     body = env.getBody();
+  
+  DOMNode*     node     = body.getDOMNode();
+  DOMNodeList* bodyList = node->getChildNodes();
+
+  // The body should contain a single node with the name of the
+  // command to execute and the command should have a child text node with the parameter.
+  if (bodyList->getLength() != 1) {
+    XCEPT_RAISE(xoap::exception::Exception,
+                toolbox::toString("Expected exactly one element "
+                                  "in CommandWithParameter SOAP message, "
+                                  "but found %d.", bodyList->getLength()));
+  }
+  std::string commandName    = xoap::XMLCh2String((bodyList->item(0))->getLocalName());
+  std::string parameterValue = xoap::XMLCh2String((bodyList->item(0))->getNodeValue());
+  return std::make_pair(commandName,parameterValue);
+}
+
+bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameter(std::string const& cmd, int const& parameter,
+                                                                xdaq::ApplicationContext* appCxt,
+                                                                xdaq::ApplicationDescriptor* srcDsc,
+                                                                xdaq::ApplicationDescriptor* destDsc
+                                                     )
+  throw (gem::utils::exception::Exception)
+{
+  try {
+    xoap::MessageReference msg = xoap::createMessage();
+    
+    xoap::SOAPEnvelope env = msg->getSOAPPart().getEnvelope();
+    xoap::SOAPName soapcmd = env.createName(cmd,"xdaq", XDAQ_NS_URI);
+    xoap::SOAPBodyElement paramValue = env.getBody().addBodyElement(soapcmd);
+    paramValue.addTextNode(toolbox::toString("%d",parameter));
+    
+    xoap::MessageReference response = appCxt->postSOAP(msg,*srcDsc,*destDsc);
+    std::string  tool;
+    xoap::dumpTree(response->getSOAPPart().getEnvelope().getDOMNode(),tool);
+    
+    //LOG4CPLUS_INFO(logger, "sendParameter(" + cmd + ") received response: " + tool);
+    
+  } catch (xcept::Exception& e) {
+    XCEPT_RETHROW(gem::utils::exception::SOAPException,
+                  ::toolbox::toString("Sending parameter  %s (value %d) failed [%s]",
+                                      cmd.c_str(), parameter, e.what()),e);
+  } catch (std::exception& e) {
+    XCEPT_RAISE(gem::utils::exception::SOAPException,
+                ::toolbox::toString("Sending parameter  %s (value %d) failed [%s]",
+                                    cmd.c_str(), parameter, e.what()));
+  } catch (...) {
+    XCEPT_RAISE(gem::utils::exception::SOAPException,
+                ::toolbox::toString("Sending parameter  %s (value %d) failed",
+                                    cmd.c_str(), parameter));
+  }
+  return true;
+}
