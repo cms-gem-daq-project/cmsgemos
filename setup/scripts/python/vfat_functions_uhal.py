@@ -37,7 +37,7 @@ def readAllVFATs(device, mask, reg, debug=False):
     if (debug and vfatVals):
         for i,val in enumerate(vfatVals):
             print "%d: value = 0x%08x"%(i,vfatVal)
-    ## do check on status
+    ## do check on status, maybe only do the check in the calling code
     #if ((vfatVals >> 26) & 0x1) :
     #    if debug:
     #        print "error on block VFAT transaction (%s)"%(reg)
@@ -150,7 +150,7 @@ def biasAllVFATs(device, mask, enable=True, debug=False):
 def getChipID(device,chip, debug=False):
     thechipid = 0x0000
     #baseNode = "GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS.VFAT%d"%(chip)
-    emptyMask = 0xFFFF
+    emptyMask = 0xffff
     ebmask = 0x000000ff
     thechipid  = readVFAT(device, chip, "ChipID1")
     if (thechipid < 0):
@@ -162,3 +162,48 @@ def getChipID(device,chip, debug=False):
         thechipid = 0xdead
     
     return thechipid
+
+def getAllChipIDs(device, mask=0xf0000000, debug=False):
+    """Returns a map of slot number to chip ID, for chips enabled in the mask
+    Currently does not only return the unmasked values, but all values
+    To be fixed in a future version"""
+    chipID0s = readAllVFATs(device, mask, "ChipID0", debug)
+    chipID1s = readAllVFATs(device, mask, "ChipID1", debug)
+    ##make unknown chips report 0xdead
+    return dict(map(lambda slotID: (slotID, (((chipID1s[slotID])&0xff)<<8)|(chipID0s[slotID]&0xff)
+                                    #if (((chipID1s[slotID]>>16)&0xffff) != ((0x050<<4)+(slotID))) else 0xdead),
+                                    if (((chipID1s[slotID]>>16)&0xffff) == 0x0000) else 0xdead),
+                    range(0,24)))
+
+def displayChipInfo(device, regkeys, mask=0xf0000000, debug=False):
+    """Takes as an argument a map of slot number to chip IDs and prints
+    out all the information for the selected chips, would like for 0xdead
+    chips to be red, but don't have time to really do this now """
+    slotbase = "GEB  SlotID::"
+    base     = "     ChipID::"
+    perslot  = "%3d"
+    perchip  = "0x%04x"
+    perreg   = "0x%02x"
+    registerList = [
+	"ContReg0","ContReg1","ContReg2","ContReg3",
+	"Latency",
+	"IPreampIn","IPreampFeed","IPreampOut",
+	"IShaper","IShaperFeed",
+	"IComp",
+	"VCal",
+	"VThreshold1",
+	"VThreshold2",
+	"CalPhase",
+        ]
+    
+    slotmap = map(lambda slotID: perslot%(slotID), regkeys.keys())
+    print "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
+    chipmap = map(lambda chipID: perchip%(regkeys[chipID]), regkeys.keys())
+    print "%s%s%s%s"%(base,colors.CYAN,' '.join(map(str, chipmap)),colors.ENDC)
+    for reg in registerList:
+        #regmap = map(lambda chip: perreg%(readVFAT(device,chip,reg)&0xff), regkeys.keys())
+        regValues = readAllVFATs(device, mask, reg, debug)
+        regmap = map(lambda chip: perreg%(chip&0xff), regValues)
+        print "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
+        
+    return    
