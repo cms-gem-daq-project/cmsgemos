@@ -379,7 +379,24 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
 	b1110   = ((0xf0000000 & datafront) >> 28 );
 	chipid  = ((0x0fff0000 & datafront) >> 16 );
 	data10   = (uint16_t)((0x0000ffff & datafront) << 16 );
-      } else if ( j == 3 ){
+      }
+      if (!(((b1010 == 0xa) && (b1100==0xc)))){
+	LOG4CPLUS_INFO(getApplicationLogger(),"VFAT Data Package is misAligned");
+	bool misAligned_ = true;
+	while ((misAligned_) && (data_fifo.size()>6)){
+	  
+	  data_fifo.pop();
+	  datafront = data_fifo.front();
+	  b1010   = ((0xf0000000 & datafront) >> 28 );
+	  bcn     = ((0x0fff0000 & datafront) >> 16 );
+	  b1100   = ((0x0000f000 & datafront) >> 12 );
+	  evn     = (uint8_t)((0x00000ff0 & datafront) >>  4 );
+	  flags   = (0x0000000f & datafront);
+	  if ((b1010 == 0xa && b1100 == 0xc)) { misAligned_ = false;}
+	}//end while misaligned
+      }// end if it is misaligned
+            
+      if ( j == 3 ){
 	data11   = (uint16_t)((0xffff0000 & datafront) >> 16 );
 	data20   = (uint16_t)((0x0000ffff & datafront) << 16 );
       } else if ( j == 4 ){
@@ -394,8 +411,11 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
       } else if ( j == 7 ){
 	BX      = (uint32_t)datafront;
       }
-      data_fifo.pop();
-    }
+
+    
+    data_fifo.pop();
+    
+    }// end for words
 
     data1  = data10 | data11;
     data2  = data20 | data21;
@@ -428,17 +448,6 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
       ++eventsSeen_;
     }    
 
-    if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
-      LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
-      if (readout_mask&0x1)
-	bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
-      if (readout_mask&0x2)
-	bufferDepth += glibDevice_->getFIFOOccupancy(0x1);
-      if (readout_mask&0x4)
-	bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
-      continue;
-    }
-     
     if (readout_mask&0x1)
       bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
     if (readout_mask&0x2)
