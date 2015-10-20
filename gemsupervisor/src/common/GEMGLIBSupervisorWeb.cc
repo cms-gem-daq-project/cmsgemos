@@ -133,7 +133,7 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   fsm_.setInitialState('H');
   fsm_.reset();
 
-  m_counter = {0,0,0,0,0};
+  m_counter = {0,0,0,0,0,0};
 
 }
 
@@ -708,7 +708,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 
 bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop *wl)
 {
-  // uint32_t  Counter[5] = {0,0,0,0,0};
+  // uint32_t  Counter[5] = {0,0,0,0,0,0};
   uint32_t* pDQ =  gemDataParker->selectData(m_counter);
   if (pDQ) {
     m_counter[0] = *(pDQ+0);
@@ -731,7 +731,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   is_working_ = true;
   hw_semaphore_.take();
 
-  m_counter = {0,0,0,0,0};
+  m_counter = {0,0,0,0,0,0};
 
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
@@ -966,7 +966,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   vfat_     = 0;
   event_    = 0;
   sumVFAT_  = 0;
-  m_counter = {0,0,0,0,0};
+  m_counter = {0,0,0,0,0,0};
 
   INFO("setTrigSource GLIB, OH mode 0");
   optohybridDevice_->setTrigSource(0x1);
@@ -982,7 +982,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
 
-  m_counter = {0,0,0,0,0};
+  m_counter = {0,0,0,0,0,0};
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);

@@ -237,7 +237,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, uint32_t
 }
 
 
-uint32_t* gem::readout::GEMDataParker::selectData(uint32_t Counter[5])
+uint32_t* gem::readout::GEMDataParker::selectData(uint32_t Counter[6])
 {
   uint32_t *point = &Counter[0]; 
 
@@ -253,7 +253,7 @@ uint32_t* gem::readout::GEMDataParker::selectData(uint32_t Counter[5])
 }
 
 
-uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
+uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[6])
 {
   uint32_t *point = &Counter[0];
 
