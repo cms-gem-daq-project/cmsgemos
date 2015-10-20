@@ -208,6 +208,7 @@ namespace gem {
            **/
 
           uint32_t getFirmware() {
+  std::cout << "oh device base node " << getDeviceBaseNode() << std::endl;
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
             DEBUG("OH has firmware version 0x" 
                   << std::hex << fwver << std::dec << std::endl);
@@ -566,6 +567,8 @@ namespace gem {
            * @param uint32_t rate, rate at which signals will be generated
            **/
           void sendResync(uint32_t const& nresync=1,uint32_t const& rate=1) {
+            writeReg(getDeviceBaseNode(), "CONTROL.TRIGGER.SOURCE",0x0);
+            writeReg(getDeviceBaseNode(), "CONTROL.CLOCK.REF_CLK",0x1);
             T1Sequence sequence;
             configureT1Generator(0x0, 0x2, sequence, true);
             startT1Generator(nresync, rate, 0); };
@@ -657,7 +660,8 @@ namespace gem {
             }
           };
 	  
-          /** Get the recorded number of L1A signals
+          /**
+           * Get the recorded number of L1A signals
            * @param mode specifies which L1A counter to read
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -668,7 +672,8 @@ namespace gem {
           uint32_t getL1ACount(uint8_t const& mode) {
             return getT1Count(0x0, mode); };
 	  
-          /** Get the recorded number of CalPulse signals
+          /**
+           * Get the recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to read
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -679,7 +684,8 @@ namespace gem {
           uint32_t getCalPulseCount(uint8_t const& mode) {
             return getT1Count(0x1, mode); };
 	  
-          /** Get the recorded number of Resync signals
+          /**
+           * Get the recorded number of Resync signals
            * @param mode specifies which L1A counter to read
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -690,7 +696,8 @@ namespace gem {
           uint32_t getResyncCount(uint8_t const& mode=0x0) {
             return getT1Count(0x2, mode); };
 
-          /** Get the recorded number of BC0 signals
+          /**
+           * Get the recorded number of BC0 signals
            * @param mode specifies which L1A counter to read
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -701,7 +708,8 @@ namespace gem {
           uint32_t getBC0Count(uint8_t const& mode=0x0) {
             return getT1Count(0x3, mode); };
           
-          /** Get the recorded number of BXCount signals
+          /**
+           * Get the recorded number of BXCount signals
            * OBSOLETE in V2 firmware
            **/
           uint32_t getBXCountCount() {
@@ -714,7 +722,8 @@ namespace gem {
           };
 	  
           ///Resets
-          /** Get the recorded number of T1 signals
+          /**
+           * Get the recorded number of T1 signals
            * @param mode specifies which T1 counter to read
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -767,7 +776,8 @@ namespace gem {
             }
           };
 	  
-          /** Reset recorded number of L1A signals
+          /**
+           * Reset recorded number of L1A signals
            * @param mode specifies which L1A counter to reset
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -780,7 +790,8 @@ namespace gem {
             resetT1Count(0x0,mode);
           };
 	  
-          /** Reset recorded number of CalPulse signals
+          /**
+           * Reset recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to reset
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -792,7 +803,8 @@ namespace gem {
           void resetCalPulseCount(uint8_t const& mode) {
             return resetT1Count(0x1, mode); };
           
-          /** Reset recorded number of Resync signals
+          /**
+           * Reset recorded number of Resync signals
            * @param mode specifies which CalPulse counter to reset
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -804,7 +816,8 @@ namespace gem {
           void resetResyncCount(uint8_t const& mode=0x0) {
             return resetT1Count(0x2, mode); };
 
-          /** Reset recorded number of BC0 signals
+          /**
+           * Reset recorded number of BC0 signals
            * @param mode specifies which CalPulse counter to reset
            * 0 from the TTC decoder on the GLIB
            * 1 from the T1 generator in the firmware
@@ -816,26 +829,30 @@ namespace gem {
           void resetBC0Count(uint8_t const& mode=0x0) {
             return resetT1Count(0x3, mode); };
 
-          /** Reset recorded number of BXCount signals
+          /**
+           * Reset recorded number of BXCount signals
            * OBSOLETE in V2 firmawre
            **/
           void resetBXCount() { return; };
 
           //pertaining to VFATs
-          /** Returns VFATs to the 0 run mode
+          /**
+           * Returns VFATs to the 0 run mode
            * 
            */
           void resetVFATs() {
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.RESET"),0x1); };
           
-          /** Returns the VFAT tracking data mask that the OptoHybrid uses to determine which data
-           *  packets to send to the GLIB
+          /**
+           * Returns the VFAT tracking data mask that the OptoHybrid uses to determine which data
+           * packets to send to the GLIB
            * 
            */
           uint32_t getVFATMask() {
             return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK")); };
           
-          /** Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
+          /**
+           * Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
            *  packets to send to the GLIB
            *  a 0 means the VFAT will NOT be masked, and it's data packets will go to the GLIB
            *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the GLIB
@@ -843,13 +860,15 @@ namespace gem {
           void setVFATMask(uint32_t const& mask) {
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK"),mask); };
           
-          /** Sends a read request to all (un-masked) VFATs on the same register
+          /**
+           * Sends a read request to all (un-masked) VFATs on the same register
            * @param std::string name name of the register to broadcast the request to
            * @returns a std::vector of uint32_t words, one response for each VFAT
            */
           std::vector<uint32_t> broadcastRead(std::string const& name, uint32_t const& mask, bool reset=false);
           
-          /** Sends a write request to all (un-masked) VFATs on the same register
+          /**
+           * Sends a write request to all (un-masked) VFATs on the same register
            * @param std::string name name of the register to broadcast the request to
            * @param uint32_t value value to be written to all VFATs receiving the broadcast
            * @returns a std::vector of uint32_t words, one response for each VFAT
@@ -857,8 +876,9 @@ namespace gem {
           void broadcastWrite(std::string const& name, uint32_t const& mask, uint32_t const& value,
                               bool reset=false);
           
-          /** Get the number of valid/incorrect CRCs performed by the OptoHybrid
-              on the received data packets from a given VFAT
+          /**
+           * Get the number of valid/incorrect CRCs performed by the OptoHybrid
+           * on the received data packets from a given VFAT
            * @param slot specifies which VFAT counters to read
            * 0-23
            **/
@@ -872,8 +892,9 @@ namespace gem {
             return std::make_pair<uint32_t, uint32_t>(valid,incorrect);
           };
 	  
-          /** Reset the number of valid/incorrect CRCs performed by the OptoHybrid
-              on the received data packets from a given VFAT
+          /**
+           * Reset the number of valid/incorrect CRCs performed by the OptoHybrid
+           * on the received data packets from a given VFAT
            * @param slot specifies which VFAT counters to read
            * 0-23
            **/
