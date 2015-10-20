@@ -39,6 +39,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   b_links({false,false,false}),
   m_controlLink(-1)  
 {
+  setAddressTableFileName("glib_address_table.xml");
   std::stringstream basenode;
   basenode << "GLIB.OptoHybrid_" << *optohybridDevice.rbegin() << ".OptoHybrid";
   setDeviceBaseNode(basenode.str());

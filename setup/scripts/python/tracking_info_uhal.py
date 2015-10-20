@@ -74,7 +74,8 @@ print "Fake tracking data:"
 print
 from trackingUnpacker import VFAT2TrackingData
 
-mask = 0xffabab00
+#mask = 0xffabab00
+mask = 0x00000000
 if options.bias:
         biasAllVFATs(optohybrid, mask)
         writeAllVFATs(optohybrid, mask, "Latency", options.latency)
