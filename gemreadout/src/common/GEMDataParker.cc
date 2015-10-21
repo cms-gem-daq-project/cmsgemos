@@ -480,16 +480,16 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   uint64_t AmcNo       = BOOST_BINARY( 1 );            // :4 
   uint64_t ZeroFlag    = BOOST_BINARY( 0000 );         // :4
   uint64_t LV1ID       = (0x0000000000ffffff & event); // :24
-  uint64_t BXID        = (0x00000000ffffffff & BX);    // :12  ! why we have only 12 Bits for BX !
-  //uint64_t DataLgth    = BOOST_BINARY( 1 );          // :20
+  uint64_t BXID        = 0;                            // :12  ! why we have only 12 Bits for BX !
+  uint64_t DataLgth    = BOOST_BINARY( 1 );            // :20
 
-  gem.header1 = (AmcNo <<60)|(ZeroFlag << 56)|(LV1ID << 32)|(BXID); // (BXID << 20)|(DataLgth);
+  gem.header1 = (AmcNo <<60)|(ZeroFlag << 56)|(LV1ID << 32)|(BXID << 20)|(DataLgth);
 
   AmcNo    =  (0xf000000000000000 & gem.header1) >> 60;
   ZeroFlag =  (0x0f00000000000000 & gem.header1) >> 56; 
   LV1ID    =  (0x00ffffff00000000 & gem.header1) >> 32; 
-  BXID     =  (0x00000000ffffffff & gem.header1); // >> 20 
-  //DataLgth =  (0x00000000000fffff & gem.header1);
+  BXID     =  (0x00000000ffffffff & gem.header1) >> 20;
+  DataLgth =  (0x00000000000fffff & gem.header1);
 
   DEBUG(" ::GEMfillHeaders event " << event << " LV1ID " << LV1ID << " BXID " << BXID);
 
