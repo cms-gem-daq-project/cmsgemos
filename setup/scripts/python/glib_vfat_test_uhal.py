@@ -97,14 +97,14 @@ emptyMask = 0xFFFF
 thechipid = 0x0000
 ## these need to be done in a link specific way, so select the first available link
 print "GLIB FW: 0x%08x"%(readRegister(glib,"GLIB.SYSTEM.FIRMWARE"))
-print "OH   FW: 0x%08x"%(readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.FW")%(options.gtx))
+print "OH   FW: 0x%08x"%(readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.FW"%(options.gtx)))
 print "Trying to do a block read on all VFATs chipID0"
-#chipID0s = readAllVFATs(glib, 0xf0000000, "ChipID0", options.debug)
-#chipID1s = readAllVFATs(glib, 0xf0000000, "ChipID1", options.debug)
+#chipID0s = readAllVFATs(glib, options.gtx, 0xf0000000, "ChipID0", options.debug)
+#chipID1s = readAllVFATs(glib, options.gtx, 0xf0000000, "ChipID1", options.debug)
 
 controls = []
 chipmask = 0xff000000
-chipids = getAllChipIDs(glib,chipmask)
+chipids = getAllChipIDs(glib, options.gtx, chipmask)
 print chipids
 
 if options.debug:
@@ -112,23 +112,23 @@ if options.debug:
         print controlRegs
         
 if options.biasAll:
-        biasAllVFATs(optohybrid,mask)
+        biasAllVFATs(optohybrid, options.gtx, mask)
 
 if options.sleepAll:
         for chip in range(24):
                 print "sleeping chip %d"%(chip)
-                setRunMode(optohybrid, chip, False)
+                setRunMode(optohybrid, options.gtx, chip, False)
 
 for chip in chips:
         print "enabling chip %d"%(chip)
-        setRunMode(optohybrid, chip, True)
+        setRunMode(optohybrid, options.gtx, chip, True)
  
 controlRegs = {}
 for control in range(4):
-        controls.append(readAllVFATs(glib, 0xf0000000, "ContReg%d"%(control), options.debug))
+        controls.append(readAllVFATs(glib, options.gtx, 0xf0000000, "ContReg%d"%(control), options.debug))
         controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
 
-displayChipInfo(glib, chipids)
+displayChipInfo(glib, options.gtx, chipids)
 
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
 for chip in chipids.keys():

@@ -108,7 +108,7 @@ for block in range(nBlocks):
         fifoInfo = readFIFODepth(glib,0)
         print "FIFO:  isEmpty  isFull     depth"
         print "          0x%x   0x%x       0x%x"%(fifoInfo["isEMPTY"],fifoInfo["isFULL"],fifoInfo["Occupancy"])
-        trackingPacket = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_0.FIFO",7)
+        trackingPacket = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(options.gtx),7)
         print trackingPacket
         #exit(1)
         ##tracking data from v1 and v1.5
