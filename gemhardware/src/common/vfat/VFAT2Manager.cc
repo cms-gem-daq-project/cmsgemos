@@ -64,6 +64,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   vfatDevice = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(device_.toString(), tmpURI.str(),
 							  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   //vfatDevice->connectDevice();
+
   setLogLevelTo(uhal::Error());  // Maximise uHAL logging
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::5 device_ = " << device_.toString() << std::endl);
 
