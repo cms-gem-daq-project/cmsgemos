@@ -22,6 +22,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   outFileName  = "";
   outputType   = "Hex";
+  ohGTXLink    = 0;
 
   for (int i = 0; i < 24; ++i) {
     deviceName.push_back("");
@@ -42,6 +43,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   bag->addField("deviceNum",     &deviceNum  );
 
   bag->addField("deviceIP",      &deviceIP    );
+  bag->addField("ohGTXLink",     &ohGTXLink   );
   bag->addField("triggerSource", &triggerSource );
   bag->addField("deviceChipID",  &deviceChipID  );
   bag->addField("deviceVT1",     &deviceVT1   );
@@ -144,6 +146,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
   if (event.type() == "urn:xdaq-event:setDefaultValues") {
     std::stringstream ss;
     ss << "deviceIP=["    << confParams_.bag.deviceIP.toString()    << "]" << std::endl;
+    ss << "ohGTXLink=["   << confParams_.bag.ohGTXLink.toString()   << "]" << std::endl;
     ss << "outFileName=[" << confParams_.bag.outFileName.toString() << "]" << std::endl;
     ss << "outputType=["  << confParams_.bag.outputType.toString()  << "]" << std::endl;
     ss << "latency=["     << confParams_.bag.latency.toString()     << "]" << std::endl;
@@ -498,6 +501,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::O
 void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out ) {
   // Derive device number from device name
 
+  /*
   int islot = 0;
   for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++islot ) {
     std::string VfatName = chip->toString();
@@ -512,10 +516,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
       }
     }// end if VfatName
   }// end for chip
-  // hard code the readout mask for now, since this readout mask is an artifact of V1.5 /**JS Oct 8*/
+  // hard code the readout mask for now, since this readout mask is an artifact of V1.5 / * *JS Oct 8 * /
   readout_mask = ~readout_mask;
-  INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec );
-  readout_mask = 0x1;
+  */
+  readout_mask = confParams_.bag.ohGTXLink;
+
   // Initiate configure workloop
   wl_->submit(configure_signature_);
 
@@ -737,7 +742,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
+
+  // assumes only a single glib per optohybrid and hard codes the optohybrid to be on GTX 0
+  // better to take this as a configuration parameter, or have the active links in this
+  std::string ohDeviceName = toolbox::toString("HwOptoHybrid%d",confParams_.bag.ohGTXLink);
+  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, tmpURI.str(),
+  //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
                                                                                   "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   INFO("setTrigSource OH mode 1");
   optohybridDevice_->setTrigSource(0x1);
@@ -914,18 +924,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   // flush FIFO, how to disable a specific, misbehaving, chip
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  for (int i = 0; i < 2; ++i) {
-    DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-    if ((readout_mask >> i)&0x1) {
-      DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)) {
-        glibDevice_->flushFIFO(i);
-        std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
-      }
-      glibDevice_->flushFIFO(i);
-    }
+  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask);
   }
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
 
   // send resync
   INFO("Sending a resync");
