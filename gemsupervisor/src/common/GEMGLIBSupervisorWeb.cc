@@ -721,6 +721,8 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop
 
   if (is_running_) 
     return true;
+  else if (gemDataParker->queueDepth() > 0)
+          return true;
   else 
     return false;
 }
@@ -966,7 +968,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   vfat_     = 0;
   event_    = 0;
   sumVFAT_  = 0;
-  m_counter = {0,0,0,0,0};
+  //m_counter = {0,0,0,0,0}; do not reset displaying counters
 
   INFO("setTrigSource GLIB, OH mode 0");
   optohybridDevice_->setTrigSource(0x1);
@@ -976,6 +978,21 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
     (*chip)->setRunMode(0);
     INFO((*chip)->printErrorCounts());
   }
+  // flush FIFO, how to disable a specific, misbehaving, chip
+  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  for (int i = 0; i < 2; ++i) {
+    DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
+    if ((readout_mask >> i)&0x1) {
+      DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
+      glibDevice_->flushFIFO(i);
+      while (glibDevice_->hasTrackingData(i)) {
+        glibDevice_->flushFIFO(i);
+        std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
+      }
+      glibDevice_->flushFIFO(i);
+    }
+  }
+
   wl_->submit(select_signature_);
 }
 
@@ -988,6 +1005,21 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
     (*chip)->setRunMode(0);
     INFO((*chip)->printErrorCounts());
   }
+  // flush FIFO, how to disable a specific, misbehaving, chip
+  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  for (int i = 0; i < 2; ++i) {
+    DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
+    if ((readout_mask >> i)&0x1) {
+      DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
+      glibDevice_->flushFIFO(i);
+      while (glibDevice_->hasTrackingData(i)) {
+        glibDevice_->flushFIFO(i);
+        std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
+      }
+      glibDevice_->flushFIFO(i);
+    }
+  }
+
   wl_->submit(select_signature_);
   is_configured_ = false;
 }
