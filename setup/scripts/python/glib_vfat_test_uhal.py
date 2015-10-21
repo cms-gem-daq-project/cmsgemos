@@ -92,16 +92,13 @@ thechipid = 0x0000
 print "GLIB FW: 0x%08x"%(readRegister(glib,"GLIB.SYSTEM.FIRMWARE"))
 print "OH   FW: 0x%08x"%(readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.STATUS.FW"))
 print "Trying to do a block read on all VFATs chipID0"
-chipID0s = readAllVFATs(glib, 0xf0000000, "ChipID0", options.debug)
-chipID1s = readAllVFATs(glib, 0xf0000000, "ChipID1", options.debug)
+#chipID0s = readAllVFATs(glib, 0xf0000000, "ChipID0", options.debug)
+#chipID1s = readAllVFATs(glib, 0xf0000000, "ChipID1", options.debug)
 
-chipids = dict(map(lambda slotID: (slotID,(((chipID1s[slotID])&0xff)<<8)|(chipID0s[slotID]&0xff)), range(0,24)))
 controls = []
 chipmask = 0xff000000
-controlRegs = {}
-for control in range(4):
-        controls.append(readAllVFATs(glib, 0xf0000000, "ContReg%d"%(control), options.debug))
-        controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
+chipids = getAllChipIDs(glib,chipmask)
+print chipids
 
 if options.debug:
         print chipids
@@ -123,6 +120,8 @@ controlRegs = {}
 for control in range(4):
         controls.append(readAllVFATs(glib, 0xf0000000, "ContReg%d"%(control), options.debug))
         controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
+
+displayChipInfo(glib, chipids)
 
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
 for chip in chipids.keys():

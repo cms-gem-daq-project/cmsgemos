@@ -22,6 +22,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   outFileName  = "";
   outputType   = "Hex";
+  ohGTXLink    = 0;
 
   for (int i = 0; i < 24; ++i) {
     deviceName.push_back("");
@@ -42,6 +43,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   bag->addField("deviceNum",     &deviceNum  );
 
   bag->addField("deviceIP",      &deviceIP    );
+  bag->addField("ohGTXLink",     &ohGTXLink   );
   bag->addField("triggerSource", &triggerSource );
   bag->addField("deviceChipID",  &deviceChipID  );
   bag->addField("deviceVT1",     &deviceVT1   );
@@ -134,7 +136,6 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   fsm_.reset();
 
   m_counter = {0,0,0,0,0};
-
 }
 
 void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
@@ -144,6 +145,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
   if (event.type() == "urn:xdaq-event:setDefaultValues") {
     std::stringstream ss;
     ss << "deviceIP=["    << confParams_.bag.deviceIP.toString()    << "]" << std::endl;
+    ss << "ohGTXLink=["   << confParams_.bag.ohGTXLink.toString()   << "]" << std::endl;
     ss << "outFileName=[" << confParams_.bag.outFileName.toString() << "]" << std::endl;
     ss << "outputType=["  << confParams_.bag.outputType.toString()  << "]" << std::endl;
     ss << "latency=["     << confParams_.bag.latency.toString()     << "]" << std::endl;
@@ -213,7 +215,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
       m_bc0Count[count]      = optohybridDevice_->getBC0Count(count);
     }
   }
-
+  
   // Page title
   *out << cgicc::h1("GEM DAQ Supervisor")<< std::endl;
 
@@ -236,7 +238,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
 
   // Show current state, counter, output filename
   std::string theState = fsm_.getStateName(fsm_.getCurrentState());
-  *out << "Current state: "       << theState                            << cgicc::br() << std::endl;
+  *out << "Current state: "       << theState                           << cgicc::br() << std::endl;
   *out << "Event counter: "       << m_counter[1]  << " Events counter" << cgicc::br() << std::endl;
   // *out << "<table class=\"xdaq-table\">" << std::endl
   *out << cgicc::table().set("class", "xdaq-table") << std::endl
@@ -322,15 +324,15 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
         *out << cgicc::form().set("method","GET").set("action",stopButton) << std::endl;
         *out << cgicc::input().set("type","submit").set("value","Stop")    << std::endl;
         *out << cgicc::form() << std::endl;
-        *out << cgicc::td() << std::endl;
+        *out << cgicc::td()   << std::endl;
       }
       // Halt button
-      *out << cgicc::td() << std::endl;
+      *out << cgicc::td()   << std::endl;
       std::string haltButton = toolbox::toString("/%s/Halt",getApplicationDescriptor()->getURN().c_str());
       *out << cgicc::form().set("method","GET").set("action",haltButton) << std::endl;
       *out << cgicc::input().set("type","submit").set("value","Halt")    << std::endl;
       *out << cgicc::form() << std::endl;
-      *out << cgicc::td() << std::endl;
+      *out << cgicc::td()   << std::endl;
     
       // Firmware T1 generator
       // make a table, first column is the command, next three are the parameters (N T1 signals, rate, delay (only for L1A+CalPulse)
@@ -498,6 +500,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::setParameter(xgi::Input * in, xgi::O
 void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::Output * out ) {
   // Derive device number from device name
 
+  /*
   int islot = 0;
   for (auto chip = confParams_.bag.deviceName.begin(); chip != confParams_.bag.deviceName.end(); ++chip, ++islot ) {
     std::string VfatName = chip->toString();
@@ -512,10 +515,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
       }
     }// end if VfatName
   }// end for chip
-  // hard code the readout mask for now, since this readout mask is an artifact of V1.5 /**JS Oct 8*/
+  // hard code the readout mask for now, since this readout mask is an artifact of V1.5 / * *JS Oct 8 * /
   readout_mask = ~readout_mask;
-  INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec );
-  readout_mask = 0x1;
+  */
+  readout_mask = confParams_.bag.ohGTXLink;
+
   // Initiate configure workloop
   wl_->submit(configure_signature_);
 
@@ -570,12 +574,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi::Output * out ) {
   // Send L1A signal
   hw_semaphore_.take();
-/*
-  for (int offset = -12; offset < 13; ++offset) {
-    INFO("webCalPulse: sending 10 CalPulses with L1As delayed by " << (int)latency_ + offset <<  " clocks");
-    optohybridDevice_->sendL1ACal(2, latency_ + offset);
-  }
-*/
   INFO("webCalPulse: CalPulses with L1As delayed");
   cgicc::Cgicc cgi(in);
   optohybridDevice_->sendL1ACal(cgi["NTrigs"]->getIntegerValue(),
@@ -722,7 +720,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop
   if (is_running_) 
     return true;
   else if (gemDataParker->queueDepth() > 0)
-          return true;
+    return true;
   else 
     return false;
 }
@@ -739,7 +737,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
+
+  // assumes only a single glib per optohybrid and hard codes the optohybrid to be on GTX 0
+  // better to take this as a configuration parameter, or have the active links in this
+  std::string ohDeviceName = toolbox::toString("HwOptoHybrid%d",confParams_.bag.ohGTXLink.value_);
+  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, tmpURI.str(),
+  //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
                                                                                   "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   INFO("setTrigSource OH mode 1");
   optohybridDevice_->setTrigSource(0x1);
@@ -916,18 +919,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   // flush FIFO, how to disable a specific, misbehaving, chip
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  for (int i = 0; i < 2; ++i) {
-    DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-    if ((readout_mask >> i)&0x1) {
-      DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)) {
-        glibDevice_->flushFIFO(i);
-        std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
-      }
-      glibDevice_->flushFIFO(i);
-    }
+  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask);
   }
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
 
   // send resync
   INFO("Sending a resync");
@@ -957,6 +956,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   hw_semaphore_.give();
   is_working_ = false;
+
+  m_counter = {0,0,0,0,0};// maybe instead reset the counters here in start rather than stop?
+
   // start running
   wl_->submit(run_signature_);
   wl_->submit(select_signature_);
@@ -999,7 +1001,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
 void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference evt) {
   is_running_ = false;
 
-  m_counter = {0,0,0,0,0};
+  //m_counter = {0,0,0,0,0}; do not reset displaying counters (should possibly treat the same as halt?
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);
