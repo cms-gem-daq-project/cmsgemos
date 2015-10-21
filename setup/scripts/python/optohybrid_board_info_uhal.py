@@ -32,6 +32,9 @@ parser.add_option("-l", "--localT1", action="store_true", dest="localT1",
 		  help="enable the localT1 controller", metavar="localT1")
 parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
 		  help="calculate link error rates for N seconds", metavar="errorRate")
+parser.add_option("--testbeam", action="store_true", dest="testbeam",
+		  help="fixed IP address for testbeam", metavar="testbeam")
+
 (options, args) = parser.parse_args()
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
@@ -41,6 +44,8 @@ if options.slot:
 	uTCAslot = 160+options.slot
 	print options.slot, uTCAslot
 ipaddr        = '192.168.0.%d'%(uTCAslot)
+if options.testbeam:
+        ipaddr        = '137.138.115.185'
 uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
