@@ -71,6 +71,7 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::GEBData& geb,
                              gem::readout::GEMDataAMCformat::VFATData& vfat
                            );
+      int queueDepth       () {return dataque.size();}
 
       // SOAP interface, updates the header used for calibration runs
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)

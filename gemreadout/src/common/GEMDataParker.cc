@@ -184,7 +184,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, uint32_t
       dataque.push(*iword);
       if (contqueue%kUPDATE7 == 0 &&  contqueue != 0) {
         contvfats_++;
-	    DEBUG(" ::getGLIBData conter " << contqueue << " contvfats " << contvfats_
+	    DEBUG(" ::getGLIBData counter " << contqueue << " contvfats " << contvfats_
              << " dataque.size " << dataque.size());
       }
     }
@@ -194,7 +194,7 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, uint32_t
          << " FIFO occupancy             0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << std::endl
          << " hasTrackingData            0x" << std::hex << glibDevice_->hasTrackingData(link)  << std::endl
          );
-  }// while(glibDevice_->hasTrackingData(link))
+  }// while(glibDevice_->getFIFOVFATBlockOccupancy(link))
   timer.Stop();
   Float_t whileFinish = (Float_t)timer.RealTime();
   DEBUG(" ::getGLIBData The time for while loop execution " << whileFinish
@@ -207,17 +207,17 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, uint32_t
   return point;
 }
 
-uint32_t* gem::readout::GEMDataParker::selectData(uint32_t counter_[5])
+uint32_t* gem::readout::GEMDataParker::selectData(uint32_t Counter[5])
 {
-  uint32_t *point = &counter_[0]; 
-  uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(counter_);
-  for (unsigned count = 0; count < 5; ++count) counter_[count] = *(pDQ+count);
+  uint32_t *point = &Counter[0]; 
+  uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
+  for (unsigned count = 0; count < 5; ++count) Counter[count] = *(pDQ+count);
   return point;
 }
 
-uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t counter_[5])
+uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
 {
-  uint32_t *point = &counter_[0];
+  uint32_t *point = &Counter[0];
 
   AMCGEMData  gem; 
   AMCGEBData  geb;
@@ -289,11 +289,11 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t counter_[5])
     DEBUG(" ::GEMEventMaker event_ " << event_ << " vfats.size " << vfats.size() << std::hex << " ES 0x" << ES << std::dec );
   }//end of event selection 
 
-  counter_[0] = vfat_;
-  counter_[1] = event_;
-  counter_[2] = vfats.size() + erros.size();
-  counter_[3] = vfats.size();
-  counter_[4] = erros.size();
+  Counter[0] = vfat_;
+  Counter[1] = event_;
+  Counter[2] = vfats.size() + erros.size();
+  Counter[3] = vfats.size();
+  Counter[4] = erros.size();
 
   return point;
 }
