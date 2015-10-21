@@ -23,6 +23,9 @@ parser.add_option("-b", "--bias", action="store_true", dest="biasAll",
 		  help="set all chips with default bias parameters", metavar="biasAll")
 parser.add_option("-e", "--enable", type="string", dest="enabledChips",
 		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
+parser.add_option("--testbeam", action="store_true", dest="testbeam",
+		  help="fixed IP address for testbeam", metavar="testbeam")
+
 (options, args) = parser.parse_args()
 
 chips = []
@@ -37,6 +40,8 @@ if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot
 ipaddr        = '192.168.0.%d'%(uTCAslot)
+if options.testbeam:
+        ipaddr        = '137.138.115.185'
 uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
