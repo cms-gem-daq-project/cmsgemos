@@ -193,6 +193,8 @@ namespace gem {
           xdata::String          outFileName;
           xdata::String          outputType;
 
+          xdata::Integer         ohGTXLink;
+
           xdata::Vector<xdata::String>  deviceName;
           xdata::Vector<xdata::Integer> deviceNum;
 
