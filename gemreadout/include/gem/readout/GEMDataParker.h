@@ -51,9 +51,7 @@ namespace gem {
                            );
       uint32_t* GEMEventMaker( uint32_t Counter[5]
                              );
-      void GEMevSelector   ( const  uint32_t& ES,
-                             int MaxEvent = 0,
-                             int MaxErr   = 0
+      void GEMevSelector   ( const  uint32_t& ES
                            );
       void GEMfillHeaders  ( uint32_t const& BC,
                              uint32_t const& BX,
@@ -73,12 +71,22 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::GEBData& geb,
                              gem::readout::GEMDataAMCformat::VFATData& vfat
                            );
+      int queueDepth       () {return dataque.size();}
 
       // SOAP interface, updates the header used for calibration runs
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)
         throw (xoap::exception::Exception);
       
     private:
+
+      void readVFATblock(std::queue<uint32_t>& m_dataque);
+      uint32_t dat10,dat11, dat20,dat21, dat30,dat31, dat40,dat41;
+      uint32_t BX;
+      uint16_t bcn, evn, chipid, vfatcrc;
+      uint16_t b1010, b1100, b1110;
+      uint8_t  flags;
+      static const int MaxVFATS = 24; // was 32 ???
+      static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?
 
       log4cplus::Logger m_gemLogger;
       gem::hw::glib::HwGLIB* glibDevice_;
@@ -97,6 +105,8 @@ namespace gem {
        *   [0] VFAT's Blocks Counter
        *   [1] Events Counter
        *   [2] VFATs counter per last event
+       *   [3] Good Events counter
+       *   [4] Bad Events counter
        */
       uint32_t counter_[5];
 
