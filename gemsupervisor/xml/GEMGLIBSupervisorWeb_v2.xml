@@ -46,7 +46,7 @@
       </properties>
     </xc:Application>
 
-    <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="256" instance="0" network="local">
+    <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="256" instance="1" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
 	  <slotFileName xsi:type="xsd:string">slot_table_testbeam_OH1.csv</slotFileName>
