@@ -828,7 +828,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
 
   std::string errFileName = "ERRORS_";
-  errFileName.append(toolbox::toString("_GTX%d",confParams_.bag.ohGTXLink.value_));
+  errFileName.append(toolbox::toString("GTX%d_",confParams_.bag.ohGTXLink.value_));
   errFileName.append(utcTime);
   errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
   errFileName.append(".dat");
