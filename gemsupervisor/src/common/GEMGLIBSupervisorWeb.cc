@@ -815,6 +815,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   // Create a new output file for Data flow
   std::string tmpFileName = "GEMDAQ_", tmpType = "";
+  tmpFileName.append(toolbox::toString("GTX%d_",confParams_.bag.ohGTXLink.value_));
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
   tmpFileName.append(".dat");
@@ -822,6 +823,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
 
   std::string errFileName = "ERRORS_";
+  errFileName.append(toolbox::toString("_GTX%d",confParams_.bag.ohGTXLink.value_));
   errFileName.append(utcTime);
   errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
   errFileName.append(".dat");
