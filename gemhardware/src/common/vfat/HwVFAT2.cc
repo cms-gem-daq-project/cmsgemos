@@ -98,11 +98,11 @@ void gem::hw::vfat::HwVFAT2::loadDefaults()
   
   
   setIPreampIn(  168);
-  setIPreampFeed(150);
-  setIPreampOut(  80);
+  setIPreampFeed( 80);
+  setIPreampOut( 150);
   setIShaper(    150);
   setIShaperFeed(100);
-  setIComp(       90);
+  setIComp(       75);
   
   setLatency(15);
   
