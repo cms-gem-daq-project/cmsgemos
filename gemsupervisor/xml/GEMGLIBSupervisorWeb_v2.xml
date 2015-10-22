@@ -7,6 +7,7 @@
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
+	  <slotFileName xsi:type="xsd:string">slot_table_testbeam_OH0.csv</slotFileName>
 	  <deviceIP xsi:type="xsd:string">137.138.115.185</deviceIP>
 	  <ohGTXLink xsi:type="xsd:integer">0</ohGTXLink>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">
@@ -48,6 +49,7 @@
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="256" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
+	  <slotFileName xsi:type="xsd:string">slot_table_testbeam_OH1.csv</slotFileName>
 	  <deviceIP xsi:type="xsd:string">137.138.115.185</deviceIP>
 	  <ohGTXLink xsi:type="xsd:integer">1</ohGTXLink>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">

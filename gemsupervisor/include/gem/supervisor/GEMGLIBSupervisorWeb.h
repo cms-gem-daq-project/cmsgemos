@@ -191,6 +191,7 @@ namespace gem {
 
           xdata::String          deviceIP;
           xdata::String          outFileName;
+          xdata::String          slotFileName;
           xdata::String          outputType;
 
           xdata::Integer         ohGTXLink;
