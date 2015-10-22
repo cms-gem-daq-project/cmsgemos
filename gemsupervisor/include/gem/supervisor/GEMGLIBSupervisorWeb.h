@@ -37,6 +37,8 @@
 #include "xgi/framework/Method.h"
 #include "cgicc/HTMLClasses.h"
 
+#include "gem/readout/GEMslotContents.h"
+
 #include <string>
 
 namespace gem {
@@ -208,6 +210,8 @@ namespace gem {
 
       private:
 
+        std::unique_ptr<gem::readout::GEMslotContents> slotInfo;
+        
         log4cplus::Logger m_gemLogger;
 	
         toolbox::task::WorkLoopFactory* wlf_;

@@ -88,7 +88,9 @@ namespace gem {
       uint8_t  flags;
       static const int MaxVFATS = 24; // was 32 ???
       static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?
-
+      
+      std::unique_ptr<GEMslotContents> slotInfo;
+      
       log4cplus::Logger m_gemLogger;
       gem::hw::glib::HwGLIB* glibDevice_;
       std::string outFileName_;

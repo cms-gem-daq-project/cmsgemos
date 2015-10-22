@@ -9,24 +9,30 @@
 namespace gem {
   namespace readout {
 
-    struct GEMslotContents {
+    class GEMslotContents {
       //struct is a class with all members public by default
+    public:     
+      GEMslotContents(const std::string& slotFile) {
+        slotFile_ = slotFile;
+        getSlotCfg();
+      };
+    private:
+      uint16_t slot[24];
+      bool isFileRead;
+      std::string slotFile_;
 
-      static uint16_t slot[24];
-      static bool isFileRead;
-
-      static void initSlots(const std::string& slotFile="slot_table.csv") {
+       void initSlots() {
         for (int i = 0; i < 24; ++i)
           slot[i] = 0xfff;
         isFileRead = false;
         return;
       };
 
-      static void getSlotCfg(const std::string& slotFile="slot_table.csv") {
+      void getSlotCfg() {
         std::ifstream ifile;
         std::string path = std::getenv("BUILD_HOME");
         path +="/gemdaq-testing/gemreadout/data/";
-        path += slotFile;
+        path += slotFile_;
         ifile.open(path);
         
         if(!ifile.is_open()) {
@@ -50,14 +56,14 @@ namespace gem {
         ifile.close();
         isFileRead = true;
       };
-      
+
+    public:
       /*
        *  Slot Index converter from Hex ChipID
        */
-      static int GEBslotIndex(const uint32_t& GEBChipID,
-                              const std::string& slotFile) {
-        if (!isFileRead) getSlotCfg(slotFile);
+      int GEBslotIndex(const uint32_t& GEBChipID) {
         int indxslot = -1;
+        std::cout << "\nUsing slot file: " << slotFile_ << std::endl;
         for (int islot = 0; islot < 24; islot++) {
           if ( (GEBChipID & 0x0fff ) == slot[islot] ) indxslot = islot;
         }//end for slot
