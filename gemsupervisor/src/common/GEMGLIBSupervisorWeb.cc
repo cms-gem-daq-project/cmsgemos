@@ -299,8 +299,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webDefault(xgi::Input * in, xgi::Out
        << cgicc::tr() << cgicc::br() << std::endl
        << cgicc::tbody() << std::endl << cgicc::br()
        << cgicc::table() << std::endl << cgicc::br();
-  *out << "VFAT blocks counter: "       << m_counter[0] << " dumped to disk" << std::endl << cgicc::br();
+  *out << "VFAT blocks counter:       " << m_counter[0] << " dumped to disk" << std::endl << cgicc::br();
   *out << "VFATs counter, last event: " << m_counter[2] << " VFATs chips"    << std::endl << cgicc::br();
+  *out << "VFAT good blocks counter:  " << m_counter[3] << " dumped to GEMDAQ" << std::endl << cgicc::br();
+  *out << "VFAT bad blocks counter:   " << m_counter[4] << " dumped to ERRORS" << std::endl << cgicc::br();
   *out << "Output filename: " << confParams_.bag.outFileName.toString() << std::endl << cgicc::br();
   *out << "Output type: "     << confParams_.bag.outputType.toString()  << std::endl << cgicc::br();
 
@@ -681,7 +683,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   hw_semaphore_.take();
 
   uint32_t bufferDepth = 0;
-  bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(0x0);
+  bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
   wl_semaphore_.give();
   hw_semaphore_.give();
 
@@ -942,7 +944,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);
-    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
   }
   // once more for luck
   glibDevice_->flushFIFO(readout_mask);
@@ -967,7 +970,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   }
 
   INFO("setTrigSource OH Trigger source 0x" << std::hex << confParams_.bag.triggerSource << std::dec);
-  glibDevice_->flushFIFO(0);
+  glibDevice_->flushFIFO(readout_mask);
   optohybridDevice_->sendResync();
   optohybridDevice_->sendBC0();
   optohybridDevice_->sendResync();
@@ -1001,18 +1004,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   }
   // flush FIFO, how to disable a specific, misbehaving, chip
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  for (int i = 0; i < 2; ++i) {
-    DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-    if ((readout_mask >> i)&0x1) {
-      DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)) {
-        glibDevice_->flushFIFO(i);
-        std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
-      }
-      glibDevice_->flushFIFO(i);
-    }
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
   }
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
 
   wl_->submit(select_signature_);
 }
@@ -1028,18 +1027,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
   }
   // flush FIFO, how to disable a specific, misbehaving, chip
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  for (int i = 0; i < 2; ++i) {
-    DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-    if ((readout_mask >> i)&0x1) {
-      DEBUG("Flushing FIFO" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)) {
-        glibDevice_->flushFIFO(i);
-        std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
-      }
-      glibDevice_->flushFIFO(i);
-    }
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
   }
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
 
   wl_->submit(select_signature_);
   is_configured_ = false;

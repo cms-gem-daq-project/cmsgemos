@@ -63,7 +63,7 @@ namespace gem {
        */
       int GEBslotIndex(const uint32_t& GEBChipID) {
         int indxslot = -1;
-        std::cout << "\nUsing slot file: " << slotFile_ << std::endl;
+        //std::cout << "\nUsing slot file: " << slotFile_ << std::endl;
         for (int islot = 0; islot < 24; islot++) {
           if ( (GEBChipID & 0x0fff ) == slot[islot] ) indxslot = islot;
         }//end for slot

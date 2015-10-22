@@ -104,9 +104,9 @@ void gem::hw::vfat::HwVFAT2::loadDefaults()
   setIShaperFeed(100);
   setIComp(       75);
   
-  setLatency(15);
+  setLatency(9);
   
-  setVThreshold1(25);
+  setVThreshold1(60);
   setVThreshold2(0);
 }
 

@@ -86,9 +86,15 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
 
 uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
 {
+  DEBUG("Reading out dumpData(" << (int)readout_mask << ")");
   uint32_t *point = &counter_[0]; 
   contvfats_ = 0;
-
+  uint32_t* pDu = gem::readout::GEMDataParker::getGLIBData(readout_mask, counter_);
+  DEBUG("point 0x" << std::hex << point << " pDu 0x" << pDu << std::dec);
+  if (pDu)
+    for (unsigned count = 0; count < 5; ++count) counter_[count] = *(pDu+count);
+  
+  /*
   //if [0-7] in deviceNum
   if (readout_mask & 0x1) {
     uint32_t* pDu = gem::readout::GEMDataParker::getGLIBData(0x0, counter_);
@@ -104,7 +110,7 @@ uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
     uint32_t* pDu = gem::readout::GEMDataParker::getGLIBData(0x2, counter_); 
     for (unsigned count = 0; count < 5; ++count) counter_[count] = *(pDu+count);
   }
-
+  */
   return point;
 }
 
@@ -148,7 +154,7 @@ xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::M
   gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
 }
 
-uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, uint32_t Counter[5])
+uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& gtx, uint32_t Counter[5])
 {
   uint32_t *point = &Counter[0]; 
   TStopwatch timer;
@@ -157,24 +163,24 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, uint32_t
   Float_t whileStart = (Float_t)timer.RealTime();
   DEBUG(" ::getGLIBData Starting while loop readout " << whileStart
        << std::endl << "FIFO VFAT block depth 0x" << std::hex
-       << glibDevice_->getFIFOVFATBlockOccupancy(link)
+       << glibDevice_->getFIFOVFATBlockOccupancy(gtx)
        << std::endl << "FIFO depth 0x" << std::hex
-       << glibDevice_->getFIFOOccupancy(link)
+       << glibDevice_->getFIFOOccupancy(gtx)
        );
-  while ( glibDevice_->getFIFOVFATBlockOccupancy(link) ) {
+  while ( glibDevice_->getFIFOVFATBlockOccupancy(gtx) ) {
     //timer.Start();
     Float_t getTrackingStart = (Float_t)timer.RealTime();
-    DEBUG(" ::getGLIBData initiating call to getTrackingData(link,"
-         << glibDevice_->getFIFOVFATBlockOccupancy(link) << ") "
+    DEBUG(" ::getGLIBData initiating call to getTrackingData(gtx,"
+         << glibDevice_->getFIFOVFATBlockOccupancy(gtx) << ") "
          << getTrackingStart);
-    std::vector<uint32_t> data = glibDevice_->getTrackingData(link,
-                                                              glibDevice_->getFIFOVFATBlockOccupancy(link));
+    std::vector<uint32_t> data = glibDevice_->getTrackingData(gtx,
+                                                              glibDevice_->getFIFOVFATBlockOccupancy(gtx));
     Float_t getTrackingFinish = (Float_t)timer.RealTime();
-    DEBUG(" ::getGLIBData The time for one call of getTrackingData(link) " << getTrackingFinish
+    DEBUG(" ::getGLIBData The time for one call of getTrackingData(gtx) " << getTrackingFinish
          << std::endl << "FIFO VFAT block depth 0x" << std::hex
-         << glibDevice_->getFIFOVFATBlockOccupancy(link)
+         << glibDevice_->getFIFOVFATBlockOccupancy(gtx)
          << std::endl << "FIFO depth 0x" << std::hex
-         << glibDevice_->getFIFOOccupancy(link)
+         << glibDevice_->getFIFOOccupancy(gtx)
          );
 
     uint32_t contqueue = 0;
@@ -191,20 +197,20 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& link, uint32_t
       }
     }
     DEBUG(" ::getGLIBData end of while loop do we go again?" << std::endl
-         << " FIFO VFAT block occupancy  0x" << std::hex << glibDevice_->getFIFOVFATBlockOccupancy(link)
+         << " FIFO VFAT block occupancy  0x" << std::hex << glibDevice_->getFIFOVFATBlockOccupancy(gtx)
          << std::endl
-         << " FIFO occupancy             0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << std::endl
-         << " hasTrackingData            0x" << std::hex << glibDevice_->hasTrackingData(link)  << std::endl
+         << " FIFO occupancy             0x" << std::hex << glibDevice_->getFIFOOccupancy(gtx) << std::endl
+         << " hasTrackingData            0x" << std::hex << glibDevice_->hasTrackingData(gtx)  << std::endl
          );
-  }// while(glibDevice_->getFIFOVFATBlockOccupancy(link))
+  }// while(glibDevice_->getFIFOVFATBlockOccupancy(gtx))
   timer.Stop();
   Float_t whileFinish = (Float_t)timer.RealTime();
   DEBUG(" ::getGLIBData The time for while loop execution " << whileFinish
        << std::endl
-         << " FIFO VFAT block occupancy  0x" << std::hex << glibDevice_->getFIFOVFATBlockOccupancy(link)
+         << " FIFO VFAT block occupancy  0x" << std::hex << glibDevice_->getFIFOVFATBlockOccupancy(gtx)
          << std::endl
-         << " FIFO occupancy             0x" << std::hex << glibDevice_->getFIFOOccupancy(link) << std::endl
-         << " hasTrackingData            0x" << std::hex << glibDevice_->hasTrackingData(link)  << std::endl
+         << " FIFO occupancy             0x" << std::hex << glibDevice_->getFIFOOccupancy(gtx) << std::endl
+         << " hasTrackingData            0x" << std::hex << glibDevice_->hasTrackingData(gtx)  << std::endl
        );
   return point;
 }

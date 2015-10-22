@@ -124,7 +124,6 @@ print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK
 print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
 print 
 
-exit(1)
 print
 print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
 for gtx in range(2):
@@ -136,5 +135,3 @@ for gtx in range(2):
 
 print
 print "--=======================================--"
-
-
