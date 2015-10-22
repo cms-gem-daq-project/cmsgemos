@@ -39,7 +39,8 @@ namespace gem {
       GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice, 
                             std::string const& outFileName, 
                             std::string const& errFileName, 
-                            std::string const& outputType
+                            std::string const& outputType,
+                            std::string const& slotFileName                            
                             );
       ~GEMDataParker() {};
 
@@ -91,6 +92,7 @@ namespace gem {
       log4cplus::Logger m_gemLogger;
       gem::hw::glib::HwGLIB* glibDevice_;
       std::string outFileName_;
+      std::string slotFileName_;
       std::string errFileName_;
       std::string outputType_;
 
@@ -98,7 +100,6 @@ namespace gem {
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
       std::queue<uint32_t> dataque;
-
       
       /*
        * Counter all in one

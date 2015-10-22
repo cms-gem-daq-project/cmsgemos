@@ -22,7 +22,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   outFileName  = "";
   outputType   = "Hex";
-  //ohGTXLink    = 0;
+  slotFileName = "slot_table.csv";
+  ohGTXLink    = 0;
 
   for (int i = 0; i < 24; ++i) {
     deviceName.push_back("");
@@ -38,6 +39,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
   bag->addField("latency",       &latency );
   bag->addField("outputType",    &outputType  );
   bag->addField("outFileName",   &outFileName );
+  bag->addField("slotFileName",  &slotFileName);
 
   bag->addField("deviceName",    &deviceName );
   bag->addField("deviceNum",     &deviceNum  );
@@ -144,15 +146,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
   // loaded (from the XDAQ configuration file).
   if (event.type() == "urn:xdaq-event:setDefaultValues") {
     std::stringstream ss;
-    ss << "deviceIP=["    << confParams_.bag.deviceIP.toString()    << "]" << std::endl;
-    ss << "ohGTXLink=["   << confParams_.bag.ohGTXLink.toString()   << "]" << std::endl;
-    ss << "outFileName=[" << confParams_.bag.outFileName.toString() << "]" << std::endl;
-    ss << "outputType=["  << confParams_.bag.outputType.toString()  << "]" << std::endl;
-    ss << "latency=["     << confParams_.bag.latency.toString()     << "]" << std::endl;
+    ss << "deviceIP=["      << confParams_.bag.deviceIP.toString()      << "]" << std::endl;
+    ss << "ohGTXLink=["     << confParams_.bag.ohGTXLink.toString()     << "]" << std::endl;
+    ss << "outFileName=["   << confParams_.bag.outFileName.toString()   << "]" << std::endl;
+    ss << "slotFileName=["  << confParams_.bag.slotFileName.toString()  << "]" << std::endl;
+    ss << "outputType=["    << confParams_.bag.outputType.toString()    << "]" << std::endl;
+    ss << "latency=["       << confParams_.bag.latency.toString()       << "]" << std::endl;
     ss << "triggerSource=[" << confParams_.bag.triggerSource.toString() << "]" << std::endl;
     ss << "deviceChipID=["  << confParams_.bag.deviceChipID.toString()  << "]" << std::endl;
-    ss << "deviceVT1=[" << confParams_.bag.deviceVT1.toString() << "]" << std::endl;
-    ss << "deviceVT2=[" << confParams_.bag.deviceVT2.toString() << "]" << std::endl;
+    ss << "deviceVT1=["     << confParams_.bag.deviceVT1.toString()     << "]" << std::endl;
+    ss << "deviceVT2=["     << confParams_.bag.deviceVT2.toString()     << "]" << std::endl;
 
     auto num = confParams_.bag.deviceNum.begin();
     for (auto chip = confParams_.bag.deviceName.begin();
@@ -832,10 +835,13 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   tmpType = confParams_.bag.outputType.toString();
 
   // Book GEM Data Parker
-  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new 
-                                  gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, tmpType)
-                                 );
-
+  gemDataParker =
+    std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_,
+                                                                                 tmpFileName,
+                                                                                 errFileName,
+                                                                                 tmpType,
+                                                                                 confParams_.bag.slotFileName.toString()));
+  
   // Data Stream close
   outf.close();
   errf.close();
@@ -861,13 +867,14 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
                << (uint32_t)((*chip)->getChipID())  << std::dec);
           INFO((*chip)->printErrorCounts());
 
-          int islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)((*chip)->getChipID()) );
+          int islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)((*chip)->getChipID()),
+                                                                   confParams_.bag.slotFileName.toString());
 
           if (SetupFile.is_open()){
             SetupFile << " VFAT device connected: slot "
                       << std::setw(2) << std::setfill('0') << islot << " chip ID = 0x" 
                       << std::setw(3) << std::setfill('0') << std::hex
-                      << (uint32_t)((*chip)->getChipID()) << std::dec << std::endl;
+                      << (uint32_t)((*chip)->getChipID())  << std::dec << std::endl;
             (*chip)->printDefaults(SetupFile);
           }
           is_configured_  = true;

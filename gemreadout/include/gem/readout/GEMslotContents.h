@@ -15,17 +15,18 @@ namespace gem {
       static uint16_t slot[24];
       static bool isFileRead;
 
-      static void initSlots() {
+      static void initSlots(const std::string& slotFile="slot_table.csv") {
         for (int i = 0; i < 24; ++i)
           slot[i] = 0xfff;
         isFileRead = false;
         return;
       };
 
-      static void getSlotCfg() {
+      static void getSlotCfg(const std::string& slotFile="slot_table.csv") {
         std::ifstream ifile;
         std::string path = std::getenv("BUILD_HOME");
-        path +="/gemdaq-testing/gemreadout/data/slot_table.csv";
+        path +="/gemdaq-testing/gemreadout/data/";
+        path += slotFile;
         ifile.open(path);
         
         if(!ifile.is_open()) {
@@ -53,8 +54,9 @@ namespace gem {
       /*
        *  Slot Index converter from Hex ChipID
        */
-      static int GEBslotIndex(const uint32_t& GEBChipID) {
-        if (!isFileRead) getSlotCfg();
+      static int GEBslotIndex(const uint32_t& GEBChipID,
+                              const std::string& slotFile) {
+        if (!isFileRead) getSlotCfg(slotFile);
         int indxslot = -1;
         for (int islot = 0; islot < 24; islot++) {
           if ( (GEBChipID & 0x0fff ) == slot[islot] ) indxslot = islot;
