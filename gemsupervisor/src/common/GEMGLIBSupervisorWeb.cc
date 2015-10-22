@@ -763,6 +763,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   // Setup file, information header
   std::string SetupFileName = "Setup_";
+  SetupFileName.append(toolbox::toString("GTX%d_",confParams_.bag.ohGTXLink.value_));
   SetupFileName.append(utcTime);
   SetupFileName.erase(std::remove(SetupFileName.begin(), SetupFileName.end(), '\n'), SetupFileName.end());
   SetupFileName.append(".txt");
@@ -783,6 +784,9 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
     if (VfatName != ""){ 
       vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(),
                                                                "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+      tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
+                                                         confParams_.bag.ohGTXLink.value_,
+                                                         VfatName.c_str()));
       tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
       tmpVFATDevice->setRunMode(0);
       // need to put all chips in sleep mode to start off
