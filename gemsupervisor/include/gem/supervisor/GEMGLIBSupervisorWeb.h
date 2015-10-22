@@ -209,6 +209,7 @@ namespace gem {
 
         log4cplus::Logger m_gemLogger;
 	
+        toolbox::task::WorkLoopFactory* wlf_;
         toolbox::task::WorkLoop *wl_;
 
         toolbox::BSem wl_semaphore_;

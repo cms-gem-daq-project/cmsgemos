@@ -22,7 +22,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   outFileName  = "";
   outputType   = "Hex";
-  ohGTXLink    = 0;
+  //ohGTXLink    = 0;
 
   for (int i = 0; i < 24; ++i) {
     deviceName.push_back("");
@@ -92,8 +92,8 @@ gem::supervisor::GEMGLIBSupervisorWeb::GEMGLIBSupervisorWeb(xdaq::ApplicationStu
   xoap::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::onHalt,      "Halt",      XDAQ_NS_URI);
 
   // Initiate and activate main workloop
-  wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("GEMGLIBSupervisorWebWorkLoop", "waiting");
-  wl_->activate();
+  
+  wlf_  = toolbox::task::WorkLoopFactory::getInstance();
 
   // Workloop bindings
   configure_signature_ = toolbox::task::bind(this, &gem::supervisor::GEMGLIBSupervisorWeb::configureAction, "configureAction");
@@ -162,6 +162,12 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
     INFO(ss.str());
   }
 
+  // get the workloop instance after loading config parameters
+  wl_ = wlf_->getWorkLoop(toolbox::toString("GEMGLIBSupervisorWebWorkLoop_GTX%d",
+                                            confParams_.bag.ohGTXLink.value_),
+                          "waiting");
+  if (!wl_->isActive())
+    wl_->activate();
 }
 
 xoap::MessageReference gem::supervisor::GEMGLIBSupervisorWeb::onConfigure(xoap::MessageReference message) {
