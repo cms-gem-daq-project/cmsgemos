@@ -36,12 +36,12 @@ typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
 std::vector<AMCVFATData> vfats;
 std::vector<AMCVFATData> erros;
 
-uint16_t gem::readout::GEMslotContents::slot[24] = {
-  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-};
-bool gem::readout::GEMslotContents::isFileRead = false;
+//uint16_t gem::readout::GEMslotContents::slot[24] = {
+//  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+//  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+//  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
+//};
+//bool gem::readout::GEMslotContents::isFileRead = false;
 
 uint32_t kUPDATE = 5000, kUPDATE7 = 7;
 int event_ = 0;
@@ -81,7 +81,7 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   rvent_ = 0;
   sumVFAT_ = 0;
 
-  gem::readout::GEMslotContents::initSlots(slotFileName_);
+  slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(slotFileName_));
 }
 
 uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
@@ -228,7 +228,6 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
   int islot = -1;
 
   // Booking FIFO variables
-  uint8_t  ECff;
   uint64_t msVFAT, lsVFAT;
   uint32_t ES;
 
@@ -244,8 +243,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
 
   vfat_++;
 
-  islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)chipid,
-                                                       slotFileName_ );
+  islot = slotInfo->GEBslotIndex( (uint32_t)chipid);
 
   // GEM Event selector
   ES = ( evn << 12 ) | bcn;
@@ -329,8 +327,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
       nChip++;
       // VFATs Pay Load
       geb.vfats.push_back(*iVFAT);
-      int islot = gem::readout::GEMslotContents::GEBslotIndex((uint32_t)(*iVFAT).ChipID,
-                                                              slotFileName_);
+      int islot = slotInfo->GEBslotIndex((uint32_t)(*iVFAT).ChipID);
       DEBUG(" ::GEMEventMaker slot number " << islot );
  
       if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ) {

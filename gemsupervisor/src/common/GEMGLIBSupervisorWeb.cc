@@ -163,6 +163,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
         ss << "Device name: " << chip->toString() << std::endl;
       }
     INFO(ss.str());
+    slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(confParams_.bag.slotFileName.toString()));
   }
 
   // get the workloop instance after loading config parameters
@@ -873,8 +874,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
                << (uint32_t)((*chip)->getChipID())  << std::dec);
           INFO((*chip)->printErrorCounts());
 
-          int islot = gem::readout::GEMslotContents::GEBslotIndex( (uint32_t)((*chip)->getChipID()),
-                                                                   confParams_.bag.slotFileName.toString());
+          int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
 
           if (SetupFile.is_open()){
             SetupFile << " VFAT device connected: slot "
