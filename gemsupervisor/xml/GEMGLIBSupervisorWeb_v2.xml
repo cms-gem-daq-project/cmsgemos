@@ -3,12 +3,12 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://localhost:5042">
+  <xc:Context url="http://gem904daq02:5042">
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
 	  <deviceIP xsi:type="xsd:string">137.138.115.185</deviceIP>
-	  <ohGTXLink xsi:type="xsd:Integer">0</ohGTXLink>
+	  <ohGTXLink xsi:type="xsd:integer">0</ohGTXLink>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">
 	    <!--item xsi:type="xsd:string" soapenc:position="[0]">VFAT0</item>
 	    <item xsi:type="xsd:string" soapenc:position="[1]">VFAT1</item-->
@@ -49,7 +49,7 @@
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
 	  <deviceIP xsi:type="xsd:string">137.138.115.185</deviceIP>
-	  <ohGTXLink xsi:type="xsd:Integer">1</ohGTXLink>
+	  <ohGTXLink xsi:type="xsd:integer">1</ohGTXLink>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">
 	    <!--item xsi:type="xsd:string" soapenc:position="[0]">VFAT0</item>
 	    <item xsi:type="xsd:string" soapenc:position="[1]">VFAT1</item-->
