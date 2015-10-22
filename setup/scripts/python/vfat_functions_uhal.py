@@ -170,7 +170,7 @@ def displayChipInfo(device, gtx, regkeys, mask=0xf0000000, debug=False):
     """Takes as an argument a map of slot number to chip IDs and prints
     out all the information for the selected chips, would like for 0xdead
     chips to be red, but don't have time to really do this now """
-    slotbase = "GEB  SlotID::"
+    slotbase = "GEB%d SlotID::"%(gtx)
     base     = "     ChipID::"
     perslot  = "%3d"
     perchip  = "0x%04x"
