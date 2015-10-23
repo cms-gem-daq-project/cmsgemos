@@ -37,6 +37,8 @@
 #include "xgi/framework/Method.h"
 #include "cgicc/HTMLClasses.h"
 
+#include "gem/readout/GEMslotContents.h"
+
 #include <string>
 
 namespace gem {
@@ -191,7 +193,10 @@ namespace gem {
 
           xdata::String          deviceIP;
           xdata::String          outFileName;
+          xdata::String          slotFileName;
           xdata::String          outputType;
+
+          xdata::Integer         ohGTXLink;
 
           xdata::Vector<xdata::String>  deviceName;
           xdata::Vector<xdata::Integer> deviceNum;
@@ -205,8 +210,11 @@ namespace gem {
 
       private:
 
+        std::unique_ptr<gem::readout::GEMslotContents> slotInfo;
+        
         log4cplus::Logger m_gemLogger;
 	
+        toolbox::task::WorkLoopFactory* wlf_;
         toolbox::task::WorkLoop *wl_;
 
         toolbox::BSem wl_semaphore_;

@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <ctime>
+#include <queue>
+
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -36,8 +38,6 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::LatencyScan)
   typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
   typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
 */
-
-
 
 //
 void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
@@ -57,8 +57,8 @@ void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::
 
 }
 
-gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)
-  throw (xdaq::exception::Exception) :
+gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)  throw (xdaq::exception::Exception) :
+
   gem::supervisor::tbutils::GEMTBUtil(s)
 {
 
@@ -109,18 +109,20 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     return false;
   }
 
-  //send L1A and Calpulse
+
   hw_semaphore_.take();//oh sendL1ACalpulse
-  optohybridDevice_->sendL1ACal(1,15);   
+
+  //send L1A and Calpulse
+  optohybridDevice_->sendL1ACal(1,15);  //from T1 generator
   sleep(1);
 
-  //count triggers
-  confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x3);// total L1A
-  CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //internal
-  CalPulseCount_[1] = optohybridDevice_->getCalPulseCount(1); //delayed
-  CalPulseCount_[2] = optohybridDevice_->getCalPulseCount(2); //total
+  //count triggers and Calpulses coming from TTC
+  confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x1);
+  CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x1); 
 
-  LOG4CPLUS_INFO(getApplicationLogger()," ******sent trigger ***** " << "trigger count" << confParams_.bag.triggersSeen);
+  LOG4CPLUS_INFO(getApplicationLogger(),"***sent trigger *** "
+		 << "trigger count " << confParams_.bag.triggersSeen
+		 << " CalpulseCount " << CalPulseCount_[0]);
 
   hw_semaphore_.give();//end sendL1ACalpulse
 
@@ -157,16 +159,14 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.take();//oh trigger counter update
 
       //trigger seen and CalCounters  updated
-      confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x3);// total L1A
-      CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //internal
-      CalPulseCount_[1] = optohybridDevice_->getCalPulseCount(1); //delayed
-      CalPulseCount_[2] = optohybridDevice_->getCalPulseCount(2); //total
-
+      confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);// L1A from GLIB
+      CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //from GLIB
+ 
       hw_semaphore_.give();//oh trigger counter update
       wl_semaphore_.give();
       return true;
     } 
-    else{ // buffer depth is less tha 1
+    else{ // buffer depth is less than 1
 
       wl_semaphore_.give();
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -181,8 +181,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
     hw_semaphore_.take(); //vfat log 
     //disable triggers
-    optohybridDevice_->setTrigSource(0x1);   
-    //SB glibDevice_->setTrigSource(0x0);   
+    //    optohybridDevice_->setTrigSource(0x1); //from GLIB   
+ 
     sleep(1);
 
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -194,8 +194,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	    
       wl_->submit(readSig_);    
 	    
-      //histolatency->Fill((int)currentLatency_, eventsSeen_);
-      histolatency->Fill((int)currentLatency_, channelSeen_);
+      histolatency->Fill((int)currentLatency_, eventsSeen_);
+      //histolatency->Fill((int)currentLatency_, channelSeen_);
 	    
       std::string imgName = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/latencyscan/"
 	+confParams_.bag.deviceName.toString()+"_Latency_scan.png";
@@ -204,27 +204,32 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       histolatency->Draw("ep0");
       outputCanvas->Update();
       outputCanvas->SaveAs(TString(imgName));
-    }
+    }// end for  
     hw_semaphore_.take();// vfat setrun0
     wl_semaphore_.take();
 	  
-    // flush fifo
-    for (int i = 0; i < 2; ++i){
-      if (readout_mask >> i) {
+  //flush fifo
+  for (int i = 0; i < 2; ++i){
+    if ((readout_mask >> i)&0x1) {
+      glibDevice_->flushFIFO(i);
+      while (glibDevice_->hasTrackingData(i)){
 	glibDevice_->flushFIFO(i);
-	while (glibDevice_->hasTrackingData(i))
-	  std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
-	glibDevice_->flushFIFO(i);
-      }      
+	INFO( " has data" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
+	//get trackindata has another entry 
+	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i, glibDevice_->getFIFOOccupancy(i));
+      }
+	glibDevice_->flushFIFO(i);      
     }
+  }
 
     //reset counters
-    optohybridDevice_->resetL1ACount(0x4);
-    //optohybridDevice_->resetResyncCount();
-    //optohybridDevice_->resetBC0Count();
-    optohybridDevice_->resetCalPulseCount(0x3);
+    optohybridDevice_->resetL1ACount(0x1);
+    optohybridDevice_->resetResyncCount();
+    optohybridDevice_->resetBC0Count();
+    optohybridDevice_->resetCalPulseCount(0x1);
     optohybridDevice_->sendResync();     
-    
+    optohybridDevice_->sendBC0();          
+
     hw_semaphore_.give(); //end glib flush fifo
 
     INFO(" Scan point TriggersSeen " << confParams_.bag.triggersSeen );
@@ -257,9 +262,10 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	currentLatency_ = (*chip)->getLatency();
 	(*chip)->setRunMode(1);      
       }
-      optohybridDevice_->setTrigSource(0x2);
+      optohybridDevice_->setTrigSource(0x1);//from glib
       //SB glibDevice_->setTrigSource(0x2);
-	    
+
+      CalPulseCount_[0] = 0;	    
       confParams_.bag.triggersSeen =  0;
       eventsSeen_   = 0;  
       channelSeen_ = 0;
@@ -286,8 +292,6 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
 bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl)    
 {
-  
-  // gem::readout::GEMDataAMCformat::VFATData vfat;
 
   gem::readout::GEMDataAMCformat::VFATData vfat;
   
@@ -298,6 +302,7 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
 
   // Get the size of GLIB data buffer       
   uint32_t bufferDepth;
+  uint32_t TrigReg;
 
   if (readout_mask&0x1){ 
     bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
@@ -312,35 +317,29 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
   LOG4CPLUS_INFO(getApplicationLogger()," readFIFO bufferDepth " << std::hex << bufferDepth << std::dec );
   LOG4CPLUS_INFO(getApplicationLogger(), " CurLaten " << (int)currentLatency_ 
 		 << " TrigSeen " << confParams_.bag.triggersSeen 
-		 << " CalPulses " << CalPulseCount_[2] 
+		 << " CalPulses " << CalPulseCount_[0] 
 		 << " eventsSeen " << eventsSeen_
 		 << "channelSeen " << channelSeen_ ); 
 
   //grab events from the fifo
-  bool isFirst = true;
-  uint32_t bxNum, bxExp;
-
   while (bufferDepth) {
     
     std::vector<uint32_t> data;
-     
-    data.reserve(7);
-    uint32_t TrigReg, bxNumTr;
-    uint8_t sBit;
-    
+    std::queue<uint32_t> data_fifo;     
+
     // read trigger data 
     if (readout_mask&0x1 && glibDevice_->hasTrackingData(0x0)) {
-      data = glibDevice_->getTrackingData(0x0);
+      data = glibDevice_->getTrackingData(0x0,glibDevice_->getFIFOOccupancy(0x0));
       TrigReg = glibDevice_->readTriggerFIFO(0x0);
     }
     
     if (readout_mask&0x2 && glibDevice_->hasTrackingData(0x1)) {
-      data = glibDevice_->getTrackingData(0x1);
+      data = glibDevice_->getTrackingData(0x1,glibDevice_->getFIFOOccupancy(0x1));
       TrigReg = glibDevice_->readTriggerFIFO(0x1);
     }
     
     if (readout_mask&0x4 && glibDevice_->hasTrackingData(0x2)) {
-      data = glibDevice_->getTrackingData(0x2);
+      data = glibDevice_->getTrackingData(0x2,glibDevice_->getFIFOOccupancy(0x2));
       TrigReg = glibDevice_->readTriggerFIFO(0x2);
     }
 
@@ -355,78 +354,89 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
       continue;
     }
     
-    bxNumTr = TrigReg >> 6;
-    sBit = TrigReg & 0x0000003F;
+    for (auto iword = data.begin(); iword != data.end(); ++iword){
+      data_fifo.push(*iword);
+    }
      
     //make sure we are aligned
-     
-    //if (!checkHeaders(data)) 
     uint16_t b1010, b1100, b1110;
-    b1010 = ((data.at(5) & 0xF0000000)>>28);
-    b1100 = ((data.at(5) & 0x0000F000)>>12);
-    b1110 = ((data.at(4) & 0xF0000000)>>28);
-    
-    bxNum = data.at(6);
-
     uint16_t bcn, evn, crc, chipid;
-    uint64_t msData, lsData;
     uint8_t  flags;
-    //    double   delVT;
+    uint32_t BX;
+    uint32_t data10, data11, data20, data21, data30, data31, data40, data41;
+    uint64_t data1, data2, data3, data4, msData, lsData;
+
+    //    uint32_t datafront = 0;
+    for(int j=1; j<8;j++){
+    uint32_t datafront = data_fifo.front();
+      if ( j == 1 ){
+	b1010   = ((0xf0000000 & datafront) >> 28 );
+	bcn     = ((0x0fff0000 & datafront) >> 16 );
+	b1100   = ((0x0000f000 & datafront) >> 12 );
+	evn     = (uint8_t)((0x00000ff0 & datafront) >>  4 );
+	flags   = (0x0000000f & datafront);
+      } else if ( j == 2 ){
+	b1110   = ((0xf0000000 & datafront) >> 28 );
+	chipid  = ((0x0fff0000 & datafront) >> 16 );
+	data10   = (uint16_t)((0x0000ffff & datafront) << 16 );
+      }
+      if (!(((b1010 == 0xa) && (b1100==0xc)))){
+	LOG4CPLUS_INFO(getApplicationLogger(),"VFAT Data Package is misAligned");
+	bool misAligned_ = true;
+	while ((misAligned_) && (data_fifo.size()>6)){
+	  
+	  data_fifo.pop();
+	  datafront = data_fifo.front();
+	  b1010   = ((0xf0000000 & datafront) >> 28 );
+	  bcn     = ((0x0fff0000 & datafront) >> 16 );
+	  b1100   = ((0x0000f000 & datafront) >> 12 );
+	  evn     = (uint8_t)((0x00000ff0 & datafront) >>  4 );
+	  flags   = (0x0000000f & datafront);
+	  if ((b1010 == 0xa && b1100 == 0xc)) { misAligned_ = false;}
+	}//end while misaligned
+      }// end if it is misaligned
+            
+      if ( j == 3 ){
+	data11   = (uint16_t)((0xffff0000 & datafront) >> 16 );
+	data20   = (uint16_t)((0x0000ffff & datafront) << 16 );
+      } else if ( j == 4 ){
+	data40   = (uint16_t)((0x0000ffff & datafront) << 16 );
+	data31   = (uint16_t)((0xffff0000 & datafront) >> 16 );
+      } else if ( j == 5 ){
+	data21   = (uint16_t)((0xffff0000 & datafront) >> 16 );
+	data30   = (uint16_t)((0x0000ffff & datafront) << 16 );
+      } else if ( j == 6 ){
+	data41   = (uint16_t)((0xffff0000 & datafront) >> 16 );
+	crc = (uint16_t)(0x0000ffff & datafront);
+      } else if ( j == 7 ){
+	BX      = (uint32_t)datafront;
+      }
+
     
-    if (isFirst)
-      bxExp = bxNum;
-     
-    if (bxNum == bxExp)
-      isFirst = false;
-     
-    bxNum  = data.at(6);
-    bcn    = (0x0fff0000 & data.at(5)) >> 16;
-    evn    = (0x00000ff0 & data.at(5)) >> 4;
-    chipid = (0x0fff0000 & data.at(4)) >> 16;
-    flags  = (0x0000000f & data.at(5));
-    crc    = (0x0000ffff & data.at(0));
+    data_fifo.pop();
     
-    uint64_t data1  = ((0x0000ffff & data.at(4)) << 16) | ((0xffff0000 & data.at(3)) >> 16);
-    uint64_t data2  = ((0x0000ffff & data.at(3)) << 16) | ((0xffff0000 & data.at(2)) >> 16);
-    uint64_t data3  = ((0x0000ffff & data.at(2)) << 16) | ((0xffff0000 & data.at(1)) >> 16);
-    uint64_t data4  = ((0x0000ffff & data.at(1)) << 16) | ((0xffff0000 & data.at(0)) >> 16);
-     
+    }// end for words
+
+    data1  = data10 | data11;
+    data2  = data20 | data21;
+    data3  = data30 | data31;
+    data4  = data40 | data41;
+
+    
     lsData = (data3 << 32) | (data4);
     msData = (data1 << 32) | (data2);
 
-
-      vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
-      vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
-      vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
-      vfat.lsData = lsData;                                 // lsData:64
-      vfat.msData = msData;                                 // msData:64
-      vfat.crc    = crc;                                    // crc:16
-
-    gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
-
-
-    if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
-      LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
-      if (readout_mask&0x1)
-	bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
-      if (readout_mask&0x2)
-	bufferDepth += glibDevice_->getFIFOOccupancy(0x1);
-      if (readout_mask&0x4)
-	bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
-      
-      //  TrigReg = glibDevice_->readTriggerFIFO(0x2);
-      continue;
-    }
-     
-    if (readout_mask&0x1)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
-    if (readout_mask&0x2)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
-    if (readout_mask&0x4)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
-   
-    //    vfatDevice_->readVFAT2Channel(1);
     
+    vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
+    vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
+    vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
+    vfat.lsData = lsData;                                 // lsData:64
+    vfat.msData = msData;                                 // msData:64
+    vfat.BXfrOH = BX;                                     // BXfrOH:32
+    vfat.crc    = crc;                                    // crc:16
+   
+    //print data package    
+    gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
     
     if((lsData>>63) && 0x1){
       ++channelSeen_;
@@ -436,12 +446,19 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
     //without this, it will just count the reveived data packets, which is not quite right
     if (lsData || msData){
       ++eventsSeen_;
-    }
-  }
+    }    
+
+    if (readout_mask&0x1)
+      bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
+    if (readout_mask&0x2)
+      bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
+    if (readout_mask&0x4)
+      bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
+  }//end while buffer
   
   
   LOG4CPLUS_INFO(getApplicationLogger(), "END READING*****CurLaten " << (int)currentLatency_ << 
-		 " TrigSeen " << confParams_.bag.triggersSeen << " CalPulses " << CalPulseCount_[2] << 
+		 " TrigSeen " << confParams_.bag.triggersSeen << " CalPulses " << CalPulseCount_[0] << 
 		 " eventsSeen " << eventsSeen_ << " channelSeen " << channelSeen_ ); 
 
   hw_semaphore_.give();
@@ -847,14 +864,16 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 
-  (*chip)->setRunMode(0);
-
-  LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
-  //default settings for the frontend
-  (*chip)->setTriggerMode(    0x3); //set to S1 to S8
-  (*chip)->setCalibrationMode(0x0); //set to normal
-  (*chip)->setMSPolarity(     0x1); //negative
-  (*chip)->setCalPolarity(    0x1); //negative
+    confParams_.bag.deviceChipID = (*chip)->getChipID();
+    (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
+    (*chip)->setRunMode(0);
+    
+    LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
+    //default settings for the frontend
+    (*chip)->setTriggerMode(    0x3); //set to S1 to S8
+    (*chip)->setCalibrationMode(0x0); //set to normal
+    (*chip)->setMSPolarity(     0x1); //negative
+    (*chip)->setCalPolarity(    0x1); //negative
 
   (*chip)->setProbeMode(        0x0);
   (*chip)->setLVDSMode(         0x0);
@@ -905,20 +924,24 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
   //flush fifo
   for (int i = 0; i < 2; ++i){
-    if (readout_mask >> i) {
+    if ((readout_mask >> i)&0x1) {
       glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i))
-	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
-      glibDevice_->flushFIFO(i);
+      while (glibDevice_->hasTrackingData(i)){
+	glibDevice_->flushFIFO(i);
+	INFO( " has data" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
+	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i, glibDevice_->getFIFOOccupancy(i));
+      }
+      glibDevice_->flushFIFO(i);      
     }
   }
 
   //reset counters
-  optohybridDevice_->resetL1ACount(0x4);
+  optohybridDevice_->resetL1ACount(0x1);
+  optohybridDevice_->resetCalPulseCount(0x1);
   optohybridDevice_->resetResyncCount();
   optohybridDevice_->resetBC0Count();
-  optohybridDevice_->resetCalPulseCount(0x3);
   optohybridDevice_->sendResync();      
+  optohybridDevice_->sendBC0();          
   //  vfatDevice_->setRunMode(1);      
 
   hw_semaphore_.give();
@@ -978,33 +1001,38 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();//oh reset counters
 
   //set trigger source
-  optohybridDevice_->setTrigSource(0x2);   
-  //SB glibDevice_->setTrigSource(0x2);   
+  optohybridDevice_->setTrigSource(0x1);//from GLIB   
 
   //set clock source
   //optohybridDevice_->setVFATClock(1,1,0x0);    
   //optohybridDevice_->setCDCEClock(1,1,0x0); 
-  //send resync
-  optohybridDevice_->sendResync();
+
   //reset counters
-  optohybridDevice_->resetL1ACount(0x4);
+  optohybridDevice_->resetL1ACount(0x1);
   optohybridDevice_->resetResyncCount();
   optohybridDevice_->resetBC0Count();
-  optohybridDevice_->resetCalPulseCount(0x3);
-
+  optohybridDevice_->resetCalPulseCount(0x1);
+  optohybridDevice_->sendResync();     
+  optohybridDevice_->sendBC0();          
 
   hw_semaphore_.give();//end oh reset counters
   hw_semaphore_.take();//glib flush fifo
 
-  //flush FIFO                                                                            
+  //flush fifo
   for (int i = 0; i < 2; ++i){
-    if (readout_mask >> i) {
+    if ((readout_mask >> i)&0x1) {
       glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i))
-	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i);
-      glibDevice_->flushFIFO(i);
+      while (glibDevice_->hasTrackingData(i)){
+	glibDevice_->flushFIFO(i);
+	INFO( " has data" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
+	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i, glibDevice_->getFIFOOccupancy(i));
+      }
+      glibDevice_->flushFIFO(i);      
     }
   }
+  
+  optohybridDevice_->sendResync();      
+  optohybridDevice_->sendBC0();          
 
   //enable the channels 56-64 
   /*  vfatDevice_->enableCalPulseToChannel(10,true);
@@ -1016,7 +1044,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   }
 
 
-hw_semaphore_.give();//end vfat
+  hw_semaphore_.give();//end vfat
 
   //start readout
   scanStream.close();
@@ -1039,7 +1067,6 @@ hw_semaphore_.give();//end vfat
   wl_semaphore_.give();
 
 }
-
 //
 void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
