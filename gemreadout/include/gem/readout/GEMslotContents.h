@@ -36,7 +36,7 @@ namespace gem {
         ifile.open(path);
         
         if(!ifile.is_open()) {
-          std::cout << "\nThe file: " << ifile << " is missing.\n" << std::endl;
+          std::cout << "[GEMslotContents]: The file: " << ifile << " is missing.\n" << std::endl;
           isFileRead = false;
           return;
         };        
