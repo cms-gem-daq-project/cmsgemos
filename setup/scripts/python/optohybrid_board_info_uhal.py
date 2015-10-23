@@ -32,6 +32,9 @@ parser.add_option("-l", "--localT1", action="store_true", dest="localT1",
 		  help="enable the localT1 controller", metavar="localT1")
 parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
 		  help="calculate link error rates for N seconds", metavar="errorRate")
+parser.add_option("--testbeam", action="store_true", dest="testbeam",
+		  help="fixed IP address for testbeam", metavar="testbeam")
+
 (options, args) = parser.parse_args()
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
@@ -41,6 +44,8 @@ if options.slot:
 	uTCAslot = 160+options.slot
 	print options.slot, uTCAslot
 ipaddr        = '192.168.0.%d'%(uTCAslot)
+if options.testbeam:
+        ipaddr        = '137.138.115.185'
 uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
@@ -66,19 +71,19 @@ if options.trgSrc in [0,1,2,3,4]:
         setTriggerSource(optohybrid,options.gtx,options.trgSrc)
 	
 if options.localT1:
-        #configureLocalT1(optohybrid,0x0,0x0,0,25,100)
-        sendL1ACalPulse(optohybrid,15)
+        #configureLocalT1(optohybrid,options.gtx,0x0,0x0,0,25,100)
+        sendL1ACalPulse(optohybrid,options.gtx,15)
 
 if options.sbitSrc in [1,2,3,4,5,6]:
         setTriggerSBits(False,optohybrid,options.gtx,options.sbitSrc)
 
-clocking = getClockingInfo(optohybrid)
+clocking = getClockingInfo(optohybrid,options.gtx)
 #OH:  TrgSrc  SBitSrc  FPGA PLL    EXT PLL    CDCE     GTX  RefCLKSrc
 #->:     0x0      0x0       0x0       0x0      0x1     0x1        0x1
 print "OH:  %6s  %7s  %8s  %7s  %6s  %6s  %9s"%("TrgSrc","SBitSrc","FPGA PLL","EXT PLL","CDCE","GTX","RefCLKSrc")
 print "->:     0x%x      0x%x       0x%x      0x%x     0x%x     0x%x        0x%x"%(
-        readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.CONTROL.TRIGGER.SOURCE"),
-        readRegister(optohybrid,"GLIB.OptoHybrid_0.OptoHybrid.CONTROL.OUTPUT.SBits"),
+        readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
+        readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.OUTPUT.SBits"%(options.gtx)),
         clocking["fpgaplllock"],
         clocking["extplllock"],
         clocking["cdcelock"],
@@ -96,7 +101,7 @@ if (options.resetCounters):
         optohybridCounters(optohybrid,options.gtx,True)
 
 print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
-counters = optohybridCounters(optohybrid)
+counters = optohybridCounters(optohybrid,options.gtx)
 for key in counters["T1"]:
         print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(key,
                                                            counters["T1"][key]["L1A"],
@@ -114,12 +119,11 @@ for trial in range(options.errorRate):
 sys.stdout.flush()
 
 rates = errorRate(errorCounts,SAMPLE_TIME)
-#counters = optohybridCounters(optohybrid)
+#counters = optohybridCounters(optohybrid,options.gtx)
 print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
 print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
 print 
 
-exit(1)
 print
 print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
 for gtx in range(2):
@@ -131,5 +135,3 @@ for gtx in range(2):
 
 print
 print "--=======================================--"
-
-

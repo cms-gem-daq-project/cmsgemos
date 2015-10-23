@@ -15,6 +15,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="slot in uTCA crate, default is 15", metavar="slot", default=15)
+parser.add_option("-g", "--gtx", type="int", dest="gtx",
+		  help="GTX on the GLIB", metavar="gtx", default=0)
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
 		  help="print debugging information, default is false", metavar="debug")
 parser.add_option("-v", "--multiple", action="store_true", dest="multVFATs",
@@ -39,6 +41,9 @@ parser.add_option("-b", "--bias", action="store_true", dest="bias",
 		  help="set default parameters onto all chips and then quit, default is false", metavar="bias")
 parser.add_option("-e", "--extTrig", type="int", dest="trgSrc",
 		  help="change trigger source", metavar="trgSrc")
+parser.add_option("--testbeam", action="store_true", dest="testbeam",
+		  help="fixed IP address for testbeam", metavar="testbeam")
+
 (options, args) = parser.parse_args()
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
@@ -48,6 +53,8 @@ if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot
 ipaddr        = '192.168.0.%d'%(uTCAslot)
+if options.testbeam:
+        ipaddr        = '137.138.115.185'
 uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
@@ -74,59 +81,16 @@ print "Fake tracking data:"
 print
 from trackingUnpacker import VFAT2TrackingData
 
-#mask = 0xffabab00
-mask = 0x00000000
+chipmask = 0xffabab00
+
 if options.bias:
-        biasAllVFATs(optohybrid, mask)
-        writeAllVFATs(optohybrid, mask, "Latency", options.latency)
+        biasAllVFATs(optohybrid, chipmask)
+        writeAllVFATs(optohybrid, chipmask, "Latency", options.latency)
         regValue = (0x00 | ((options.mspl)<<4))
-        writeAllVFATs(optohybrid, mask, "ContReg2",regValue)
-#need to set this up for proper link awareness
-# also need to be aware that GLIB link and OH link are not necessarily the same
-chipIDs = {}
-chipIDs["chip"] = {}
-chipIDs["slot"] = {}
+        writeAllVFATs(optohybrid, chipmask, "ContReg2",regValue)
 
-
-for chip in range(0,8):
-	chipIDs["chip"][chip]  = ((readVFAT(optohybrid, chip, "ChipID1")&0xFF)<<8)
-	chipIDs["chip"][chip] |= ( readVFAT(optohybrid, chip, "ChipID0")&0xFF)
-        chipIDs["slot"][chip] = chip
-        
-slotbase = "GEB  SlotID::"
-base     = "     ChipID::"
-perslot  = "0x%x"
-perchip  = "0x%04x"
-perreg   = "0x%02x"
-registerList = [
-	"ContReg0",
-	"ContReg1",
-	"ContReg2",
-	"ContReg3",
-	"Latency",
-	"IPreampIn",
-	"IPreampFeed",
-	"IPreampOut",
-	"IShaper",
-	"IShaperFeed",
-	"IComp",
-	"VCal",
-	"VThreshold1",
-	"VThreshold2",
-	"CalPhase",
-        ]
-
-def displayChipInfo(regkeys):
-        slotmap = map(lambda slotID: perslot%(regkeys["slot"][slotID]), regkeys["slot"].keys())
-	print "%s   %s"%(slotbase,'    '.join(map(str, slotmap)))
-	chipmap = map(lambda chipID: perchip%(regkeys["chip"][chipID]), regkeys["chip"].keys())
-	print "%s%s"%(base, ' '.join(map(str, chipmap)))
-	for reg in registerList:
-                regmap = map(lambda chip: perreg%(readVFAT(optohybrid,chip,reg)&0xFF), regkeys["chip"].keys())
-		#print "%11s::"%reg, regmap
-		print "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
-	return
-displayChipInfo(chipIDs)
+chipIDs = getAllChipIDs(optohybrid,chipmask)
+displayChipInfo(optohybrid,chipIDs)
 print "TRACKING INFO SCRIPT UNDER DEVELOPMENT"
 if options.flush:
         flushTrackingFIFO(glib,0)
@@ -144,7 +108,7 @@ for block in range(nBlocks):
         fifoInfo = readFIFODepth(glib,0)
         print "FIFO:  isEmpty  isFull     depth"
         print "          0x%x   0x%x       0x%x"%(fifoInfo["isEMPTY"],fifoInfo["isFULL"],fifoInfo["Occupancy"])
-        trackingPacket = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_0.FIFO",7)
+        trackingPacket = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(options.gtx),7)
         print trackingPacket
         #exit(1)
         ##tracking data from v1 and v1.5

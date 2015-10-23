@@ -39,7 +39,8 @@ namespace gem {
       GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice, 
                             std::string const& outFileName, 
                             std::string const& errFileName, 
-                            std::string const& outputType
+                            std::string const& outputType,
+                            std::string const& slotFileName                            
                             );
       ~GEMDataParker() {};
 
@@ -87,10 +88,13 @@ namespace gem {
       uint8_t  flags;
       static const int MaxVFATS = 24; // was 32 ???
       static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?
-
+      
+      std::unique_ptr<GEMslotContents> slotInfo;
+      
       log4cplus::Logger m_gemLogger;
       gem::hw::glib::HwGLIB* glibDevice_;
       std::string outFileName_;
+      std::string slotFileName_;
       std::string errFileName_;
       std::string outputType_;
 
@@ -98,7 +102,6 @@ namespace gem {
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
       std::queue<uint32_t> dataque;
-
       
       /*
        * Counter all in one

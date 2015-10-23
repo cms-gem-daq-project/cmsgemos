@@ -116,11 +116,3 @@ def getTriggerSBits(isGLIB,device,gtx):
         return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(gtx))
     else:
         return readRegister(device,"GLIB.OptoHybrid_%d.TRIGGER.TDC.SBits"%(gtx))
-
-def setReferenceClock(device,source):
-    """
-    Set the reference clock source on the OptoHybrid
-    OH:   0=onboard,     1=GTX recovered,  2=external clock
-    """
-    writeRegister(device,"GLIB.OptoHybrid_0.OptoHybrid.CONTROL.CLOCK.REF_CLK",source)
-    return
