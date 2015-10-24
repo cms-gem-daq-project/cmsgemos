@@ -533,6 +533,18 @@ void gem::supervisor::tbutils::LatencyScan::scanParameters(xgi::Output *out)
       .set("value",boost::str(boost::format("%d")%(eventsSeen_)))
 	 << cgicc::br()   << std::endl
 
+	 << cgicc::label("MinLatency").set("for","MinLatency") << std::endl
+	 << cgicc::input().set("id","MinLatency").set("name","MinLatency")
+      .set("type","number").set("min","0").set("max","255")
+      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.minLatency)))
+	 << std::endl
+	 << cgicc::label("Set Threshold").set("for","Threshold") << std::endl
+	 << cgicc::input().set("id","Threshold").set("name","Threshold")
+      .set("type","number").set("min","0").set("max","255")
+      .set("value",boost::str(boost::format("%d")%(eventsSeen_)))
+	 << cgicc::br()   << std::endl
+
+
 	 << cgicc::span() << std::endl;
   }
   catch (const xgi::exception::Exception& e) {
@@ -844,6 +856,10 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
     if (element != cgi.getElements().end())
       confParams_.bag.nTriggers  = element->getIntegerValue();
 
+    element = cgi.getElement("Threshold");
+    if (element != cgi.getElements().end())
+      scanParams_.bag.threshold  = element->getIntegerValue();
+
     cgicc::form_iterator fi = cgi.getElement("SetTrigSrc");
     if (strcmp((**fi).c_str(),"Calpulse+L1A") == 0) {
       confParams_.bag.triggerSource = 0x1;
@@ -942,7 +958,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   (*chip)->setIShaperFeed(100);
   (*chip)->setIComp(       75);//120
 
-  (*chip)->setVThreshold1( 50);//50
+  (*chip)->setVThreshold1(scanParams_.bag.threshold);//50
   (*chip)->setVThreshold2(  0);
 
 
@@ -1131,7 +1147,7 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
     scanParams_.bag.minLatency = 0U;
     scanParams_.bag.maxLatency = 25U;
     scanParams_.bag.stepSize   = 1U;
-    scanParams_.bag.threshold = -100U;
+    scanParams_.bag.threshold  = 50U;
     //    confParams_.bag.deviceName   = "";
     confParams_.bag.deviceChipID = 0x0;
 
