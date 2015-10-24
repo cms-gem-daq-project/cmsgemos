@@ -1124,7 +1124,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
   
   //set trigger source
-  optohybridDevice_->setTrigSource(0x1);//from GLIB   
+  optohybridDevice_->setTrigSource(0x4);// All trigger sources   
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setVThreshold1(maxThresh_-minThresh_);
