@@ -541,8 +541,7 @@ void gem::hw::vfat::VFAT2Manager::controlVFAT2(xgi::Input * in, xgi::Output * ou
   try
     {
       cgicc::Cgicc cgi(in);
-      std::vector<cgicc::FormEntry> myElements = cgi.getElements();
-      
+      //std::vector<cgicc::FormEntry> myElements = cgi.getElements();
       //for (unsigned int formiter = 0; formiter < myElements.size(); ++formiter) {
       //	LOG4CPLUS_DEBUG(this->getApplicationLogger(),"form element name: "  + myElements.at(formiter).getName() );
       //	LOG4CPLUS_DEBUG(this->getApplicationLogger(),"form element value: " + myElements.at(formiter).getValue());
