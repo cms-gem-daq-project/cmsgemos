@@ -175,11 +175,17 @@ namespace gem {
 	  //action performed callback
 	  virtual void actionPerformed(xdata::Event& event);
 
+	  //select OH 
+	  virtual void selectOptohybridDevice(xgi::Output* out)
+	    throw (xgi::exception::Exception);
+
 	  class ConfigParams 
 	  {
 	  public:
 	    //void getFromFile(const std::string& fileName);
 	    virtual void registerFields(xdata::Bag<ConfigParams> *bag);
+
+	    xdata::Integer         ohGTXLink;
 	    
 	    xdata::UnsignedInteger readoutDelay;
 

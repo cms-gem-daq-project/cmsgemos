@@ -653,6 +653,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
       //have a menu for selecting the VFAT
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
 
+      selectOptohybridDevice(out);
       selectMultipleVFAT(out);
       scanParameters(out);
       
@@ -668,6 +669,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
 
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
 
+      selectOptohybridDevice(out);
       selectMultipleVFAT(out);
       scanParameters(out);
       
@@ -692,6 +694,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
       //hardware is initialized and configured, we can start the run
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Start") << std::endl;
 
+      selectOptohybridDevice(out);
       selectMultipleVFAT(out);      
       scanParameters(out);
       
@@ -704,6 +707,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
     else if (is_running_) {
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
       
+      selectOptohybridDevice(out);
       selectMultipleVFAT(out);
       scanParameters(out);
       
