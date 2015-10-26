@@ -619,6 +619,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
       //have a menu for selecting the VFAT
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
 
+      selectOptohybridDevice(out);
       selectMultipleVFAT(out);
       selectTrigSource(out);
       scanParameters(out);
@@ -636,6 +637,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
 
+      selectOptohybridDevice(out);
       selectMultipleVFAT(out);
       selectTrigSource(out);
       scanParameters(out);
@@ -656,6 +658,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
       //hardware is initialized and configured, we can start the run
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Start") << std::endl;
 
+      selectOptohybridDevice(out);
       selectMultipleVFAT(out);
       selectTrigSource(out);
       scanParameters(out);
@@ -670,6 +673,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
     else if (is_running_) {
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
 
+      selectOptohybridDevice(out);
       selectMultipleVFAT(out);
       selectTrigSource(out);
       scanParameters(out);
