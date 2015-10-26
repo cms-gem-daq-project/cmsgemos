@@ -245,7 +245,6 @@ void gem::supervisor::tbutils::GEMTBUtil::actionPerformed(xdata::Event& event)
   if (event.type() == "urn:xdaq-event:setDefaultValues") {
     std::stringstream ss;
     ss << "ipAddr_=[" << ipAddr_.toString() << "]" << std::endl;
-    ss << "ohGTXLink=["     << confParams_.bag.ohGTXLink.toString()     << "]" << std::endl;
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), ss.str());
     confParams_.bag.deviceIP = ipAddr_;
   }
@@ -1035,12 +1034,12 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
     cgicc::form_iterator oh = cgi.getElement("SetOH");
     if (strcmp((**oh).c_str(),"OH_0") == 0) {
       confParams_.bag.ohGTXLink.value_= 0;
-      INFO("OH_0 has been selected " << confParams_.bag.triggerSource);
+      INFO("OH_0 has been selected " << confParams_.bag.ohGTXLink);
     }//if OH_0
     if (strcmp((**oh).c_str(),"OH_1") == 0) {
       confParams_.bag.ohGTXLink.value_= 1;
-      INFO("OH_0 has been selected " << confParams_.bag.triggerSource);
-    }//if OH_0
+      INFO("OH_1 has been selected " << confParams_.bag.ohGTXLink);
+    }//if OH_1
 
     for(int i = 0; i < 24; ++i) {    
       std::stringstream currentChipID;
@@ -1069,13 +1068,14 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
       tmpDeviceName.erase(0,4);
       tmpDeviceNum = atoi(tmpDeviceName.c_str());
       
-      if (tmpDeviceNum < 8)
+      readout_mask = confParams_.bag.ohGTXLink;
+      /*      if (tmpDeviceNum < 8)
 	readout_mask |= 0x1;
       else if (tmpDeviceNum < 16)
 	readout_mask |= 0x2;
       else if (tmpDeviceNum < 24)
 	readout_mask |= 0x4;
-      
+      */
       INFO( "deviceNum[i]_::"             << confParams_.bag.deviceNum[i].toString());
       INFO( "setting deviceNum[i]_ to ::" << tmpDeviceNum);
       confParams_.bag.deviceNum[i] = tmpDeviceNum;
@@ -1357,17 +1357,19 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   //  int i=0;
   std::string VfatName = confParams_.bag.deviceName[i].toString();
   if (VfatName != "") {
-    if ( i >= 0 ) {
-      if (i < 8)
+
+  readout_mask = confParams_.bag.ohGTXLink;
+  /* if ( i >= 0 ) {
+	if (i < 8)
         readout_mask |= 0x1; //slot [0-7] maps to 1
       else if (i < 16)
         readout_mask |= 0x2; //slot [8-15] maps to 2
       else if (i < 24)
         readout_mask |= 0x4; //slot [16-23] maps to 4
-      
+  */  
       INFO(" webConfigure : DeviceName " << VfatName );
       INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
-    }
+      //}
 
     vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
@@ -1692,4 +1694,4 @@ catch (const xgi::exception::Exception& e) {
    XCEPT_RAISE(xgi::exception::Exception, e.what());
  }
 
-}// end void selectTrigSource
+}// end void selectoptohybrid

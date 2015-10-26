@@ -139,25 +139,11 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     
     // GLIB data buffer validation                                                 
     uint32_t fifoDepth[3];
-    
-    if (readout_mask&0x1)
-      fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
-    if (readout_mask&0x2)
-      fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
-    if (readout_mask&0x4)
-      fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
-     
+    fifoDepth[0] = glibDevice_->getFIFOOccupancy(readout_mask);
+
     // Get the size of GLIB data buffer       
     uint32_t bufferDepth;
-    if (readout_mask&0x1) {
-      bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
-    }
-    if (readout_mask&0x2) {
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x1);     
-    }
-    if (readout_mask&0x4) {
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x2);     
-    }
+    bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
 
     hw_semaphore_.give();// end glib buffer depth 
 
@@ -187,7 +173,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     
     hw_semaphore_.take(); //vfat log 
     //disable triggers
-    if(confParams_.bag.triggerSource=0x1){
+    if(confParams_.bag.triggerSource.value_==0x1){
       optohybridDevice_->stopT1Generator(true);
     } else { 
       optohybridDevice_->setTrigSource(0x1);       
@@ -217,20 +203,18 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.take();// vfat setrun0
     wl_semaphore_.take();
 	  
-  //flush fifo
-  for (int i = 0; i < 2; ++i){
-    if ((readout_mask >> i)&0x1) {
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)){
-	glibDevice_->flushFIFO(i);
-	INFO( " has data" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-	//get trackindata has another entry 
-	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i, glibDevice_->getFIFOOccupancy(i));
-      }
-	glibDevice_->flushFIFO(i);      
-    }
+ // flush FIFO, how to disable a specific, misbehaving, chip
+  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
   }
-
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
+  
     //reset counters
     optohybridDevice_->resetL1ACount(0x1);
     optohybridDevice_->resetResyncCount();
@@ -272,13 +256,13 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	(*chip)->setRunMode(1);      
       }
     
-      if(confParams_.bag.triggerSource=0x0){
+      if(confParams_.bag.triggerSource.value_==0x0){
 	optohybridDevice_->setTrigSource(0x0);//from AMC13   
-      }else if(confParams_.bag.triggerSource=0x1){
+      }else if(confParams_.bag.triggerSource.value_==0x1){
 	optohybridDevice_->setTrigSource(0x1);//from T1   
-      }else if(confParams_.bag.triggerSource=0x2){
+      }else if(confParams_.bag.triggerSource.value_==0x2){
 	optohybridDevice_->setTrigSource(0x2);//from sbits   
-      }else if(confParams_.bag.triggerSource=0x3){
+      }else if(confParams_.bag.triggerSource.value_==0x3){
 	optohybridDevice_->setTrigSource(0x3);//from Ext_LEMO   
       }
     
@@ -321,15 +305,7 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
   uint32_t bufferDepth;
   uint32_t TrigReg;
 
-  if (readout_mask&0x1){ 
-    bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
-  }
-  if (readout_mask&0x2){ 
-    bufferDepth = glibDevice_->getFIFOOccupancy(0x1);     
-  }
-  if (readout_mask&0x4){
-    bufferDepth = glibDevice_->getFIFOOccupancy(0x2);     
-  }
+    bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
   
   LOG4CPLUS_INFO(getApplicationLogger()," readFIFO bufferDepth " << std::hex << bufferDepth << std::dec );
   LOG4CPLUS_INFO(getApplicationLogger(), " CurLaten " << (int)currentLatency_ 
@@ -345,29 +321,15 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
     std::queue<uint32_t> data_fifo;     
 
     // read trigger data 
-    if (readout_mask&0x1 && glibDevice_->hasTrackingData(0x0)) {
-      data = glibDevice_->getTrackingData(0x0,glibDevice_->getFIFOOccupancy(0x0));
-      TrigReg = glibDevice_->readTriggerFIFO(0x0);
-    }
-    
-    if (readout_mask&0x2 && glibDevice_->hasTrackingData(0x1)) {
-      data = glibDevice_->getTrackingData(0x1,glibDevice_->getFIFOOccupancy(0x1));
-      TrigReg = glibDevice_->readTriggerFIFO(0x1);
-    }
-    
-    if (readout_mask&0x4 && glibDevice_->hasTrackingData(0x2)) {
-      data = glibDevice_->getTrackingData(0x2,glibDevice_->getFIFOOccupancy(0x2));
-      TrigReg = glibDevice_->readTriggerFIFO(0x2);
-    }
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
+
+      data = glibDevice_->getTrackingData(0x0,glibDevice_->getFIFOOccupancy(readout_mask));
+      TrigReg = glibDevice_->readTriggerFIFO(readout_mask);
 
     //if no data has been found, shouldn't be the case, but still, need to not process any further:
     if (data.size() == 0) {
-      if (readout_mask&0x1)
-        bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
-      if (readout_mask&0x2)
-        bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
-      if (readout_mask&0x4)
-        bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
+        bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
       continue;
     }
     
@@ -465,12 +427,7 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
       ++eventsSeen_;
     }    
 
-    if (readout_mask&0x1)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
-    if (readout_mask&0x2)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
-    if (readout_mask&0x4)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
+      bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
   }//end while buffer
   
   
@@ -864,25 +821,25 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
     if (element != cgi.getElements().end())
       scanParams_.bag.threshold  = element->getIntegerValue();
 
-    cgicc::form_iterator fi = cgi.getElement("SetTrigSrc");
-    if (strcmp((**fi).c_str(),"Calpulse+L1A") == 0) {
+    cgicc::form_iterator trgsrciterator = cgi.getElement("SetTrigSrc");
+    if (strcmp((**trgsrciterator).c_str(),"Calpulse+L1A") == 0) {
       confParams_.bag.triggerSource = 0x1;
       optohybridDevice_->setTrigSource(0x1); 
       INFO("Fake Latency Scan sending Calpulses+L1As. TrigSource : " << confParams_.bag.triggerSource);
     }//if calpulse+l1a
-    else if (strcmp((**fi).c_str(),"sBits_looping_back") == 0) {
-      confParams_.bag.triggerSource = 0x2;
-      optohybridDevice_->setTrigSource(0x2);
+    else if (strcmp((**trgsrciterator).c_str(),"sBits_looping_back") == 0) {
+      confParams_.bag.triggerSource = 0x3;
+      optohybridDevice_->setTrigSource(0x3);
       INFO("Sending Calpulses and sbits come back from the OH. TrigSource : " << confParams_.bag.triggerSource );
     }//if sbits looping back
-    else if (strcmp((**fi).c_str(),"Ext_Trigger_AMC13") == 0) {
+    else if (strcmp((**trgsrciterator).c_str(),"Ext_Trigger_AMC13") == 0) {
       confParams_.bag.triggerSource = 0x0;
       optohybridDevice_->setTrigSource(0x0);
       INFO("Real signals and the trigger comes from the AMC13. TrigSource : " << confParams_.bag.triggerSource );
     }//if external
-    else if (strcmp((**fi).c_str(),"Ext_LEMO_Cable") == 0) {
-      confParams_.bag.triggerSource = 0x3;
-      optohybridDevice_->setTrigSource(0x3);
+    else if (strcmp((**trgsrciterator).c_str(),"Ext_LEMO_Cable") == 0) {
+      confParams_.bag.triggerSource = 0x2;
+      optohybridDevice_->setTrigSource(0x2);
       INFO("Real signals and the trigger comes from the LEMO Cable. TrigSource : " << confParams_.bag.triggerSource );
     }//if external
 
@@ -991,17 +948,16 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
       vfatDevice_->enableCalPulseToChannel(12,true);*/
 
   //flush fifo
-  for (int i = 0; i < 2; ++i){
-    if ((readout_mask >> i)&0x1) {
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)){
-	glibDevice_->flushFIFO(i);
-	INFO( " has data" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i, glibDevice_->getFIFOOccupancy(i));
-      }
-      glibDevice_->flushFIFO(i);      
-    }
+  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
   }
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
 
   //reset counters
   optohybridDevice_->resetL1ACount(0x1);
@@ -1069,13 +1025,13 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();//oh reset counters
 
   //set trigger source
-  if(confParams_.bag.triggerSource=0x0){
+  if(confParams_.bag.triggerSource.value_==0x0){
     optohybridDevice_->setTrigSource(0x0);//from AMC13   
-  }else if(confParams_.bag.triggerSource=0x1){
+  }else if(confParams_.bag.triggerSource.value_==0x1){
     optohybridDevice_->setTrigSource(0x1);//from T1   
-  }else if(confParams_.bag.triggerSource=0x2){
+  }else if(confParams_.bag.triggerSource.value_==0x2){
     optohybridDevice_->setTrigSource(0x2);//from sbits   
-  }else if(confParams_.bag.triggerSource=0x3){
+  }else if(confParams_.bag.triggerSource.value_==0x3){
     optohybridDevice_->setTrigSource(0x3);//from Ext_LEMO   
   }
 
@@ -1095,17 +1051,16 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();//glib flush fifo
 
   //flush fifo
-  for (int i = 0; i < 2; ++i){
-    if ((readout_mask >> i)&0x1) {
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)){
-	glibDevice_->flushFIFO(i);
-	INFO( " has data" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i, glibDevice_->getFIFOOccupancy(i));
-      }
-      glibDevice_->flushFIFO(i);      
-    }
+  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
   }
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
   
   optohybridDevice_->sendResync();      
   optohybridDevice_->sendBC0();          
@@ -1168,9 +1123,9 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
       isDisabled = true;
 
     cgicc::input triggersourceselection;
-    if (isDisabled)
+    /*    if (isDisabled)
       triggersourceselection.set("disabled","disabled");
-    else
+      else*/
       *out   << "<table>"     << std::endl
 	     << "<tr>"   << std::endl
 	     << "<td>" << "Select kind of Latency Scan: " << "</td>" << std::endl	 
