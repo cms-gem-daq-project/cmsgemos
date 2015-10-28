@@ -3,25 +3,24 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-<xc:Context url="http://gem904daq01:4444">
+<xc:Context url="http://gem904daq02:5055">
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.169</ipAddr>
+	<ipAddr xsi:type="xsd:string">137.138.115.185</ipAddr>
       </properties>
     </xc:Application>
 
-
+<!--
     <xc:Application class="gem::supervisor::tbutils::ADCScan" id="255" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ADCScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.169</ipAddr>
+	<ipAddr xsi:type="xsd:string">137.138.115.185</ipAddr>
       </properties>
     </xc:Application>
-<!--
 -->
 
     <xc:Application class="gem::supervisor::tbutils::LatencyScan" id="256" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:LatencyScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.169</ipAddr>
+	<ipAddr xsi:type="xsd:string">137.138.115.185</ipAddr>
       </properties>
     </xc:Application>
 
