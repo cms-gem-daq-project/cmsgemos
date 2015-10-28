@@ -199,7 +199,16 @@ namespace gem {
           hiVFATsn->Draw();
           gROOT->ProcessLine(".!mkdir -p ./"+prefix);
           c->Print(prefix+hiVFATsn->GetTitle()+".png","png");
-
+          hiClusterMult->Draw();
+          c->Print(prefix+hiClusterMult->GetTitle()+".png","png");
+          hiClusterSize->Draw();
+          c->Print(prefix+hiClusterSize->GetTitle()+".png","png");
+          for (unsigned i = 0; i < NVFAT; i++){
+            hiStripsFired[i]->Draw();
+            c->Print(prefix+hiStripsFired[i]->GetTitle()+".png","png");
+          }
+          hiBeamProfile->Draw();
+          c->Print(prefix+hiBeamProfile->GetTitle()+".png","png");
         }
     };
   }
