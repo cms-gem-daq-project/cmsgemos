@@ -47,12 +47,14 @@ void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::
   maxLatency    = 17U;
   stepSize      = 1U;
   nTriggers = 10;
-  threshold = -100;
+  threshold = 25;
+  MSPulseLength = 3;
 
   bag->addField("minLatency",  &minLatency);
   bag->addField("maxLatency",  &maxLatency);
   bag->addField("stepSize",    &stepSize );
   bag->addField("threshold",   &threshold );
+  bag->addField("MSPulseLength",   &MSPulseLength );
   bag->addField("nTriggers",    &nTriggers   );
 
 }
@@ -495,7 +497,13 @@ void gem::supervisor::tbutils::LatencyScan::scanParameters(xgi::Output *out)
 	 << cgicc::input().set("id","Threshold").set("name","Threshold")
       .set("type","number").set("min","0").set("max","255")
       .set("value",boost::str(boost::format("%d")%(scanParams_.bag.threshold)))
+	 << cgicc::br()  // << std::endl
+	 << cgicc::label("Set MSPulseLength").set("for","MSPulseLength") << std::endl
+	 << cgicc::input().set("id","MSPulseLength").set("name","MSPulseLength")
+      .set("type","number").set("min","0").set("max","3")
+      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.MSPulseLength)))
 	 << cgicc::br()   << std::endl
+
 
       /*	 << cgicc::label("MinLatency").set("for","MinLatency") << std::endl
 	 << cgicc::input().set("id","MinLatency").set("name","MinLatency")
@@ -819,9 +827,9 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
     if (element != cgi.getElements().end())
       confParams_.bag.nTriggers  = element->getIntegerValue();
 
-    element = cgi.getElement("Threshold");
+    element = cgi.getElement("MSPulseLength");
     if (element != cgi.getElements().end())
-      scanParams_.bag.threshold  = element->getIntegerValue();
+      scanParams_.bag.MSPulseLength  = element->getIntegerValue();
 
     cgicc::form_iterator trgsrciterator = cgi.getElement("SetTrigSrc");
     if (strcmp((**trgsrciterator).c_str(),"Calpulse+L1A") == 0) {
@@ -907,7 +915,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   (*chip)->setHitCountCycleTime(0x0); //maximum number of bits
 
   (*chip)->setHitCountMode( 0x0);
-  (*chip)->setMSPulseLength(0x3);
+  (*chip)->setMSPulseLength(scanParams_.bag.MSPulseLength);
   (*chip)->setInputPadMode( 0x0);
   (*chip)->setTrimDACRange( 0x0);
   (*chip)->setBandgapPad(   0x0);
@@ -1103,13 +1111,14 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
   gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
   {
 
-    confParams_.bag.nTriggers  = 100U;
+    confParams_.bag.nTriggers  = 10U;
     scanParams_.bag.minLatency = 0U;
     scanParams_.bag.maxLatency = 25U;
     scanParams_.bag.stepSize   = 1U;
-    scanParams_.bag.threshold  = 50U;
+    scanParams_.bag.threshold  = 25U;
+    scanParams_.bag.MSPulseLength  = 3;
     //    confParams_.bag.deviceName   = "";
-    confParams_.bag.deviceChipID = 0x0;
+    //    confParams_.bag.deviceChipID = 0x0;
 
     is_working_     = false;
   }

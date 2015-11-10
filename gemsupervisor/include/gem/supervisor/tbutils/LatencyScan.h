@@ -85,6 +85,7 @@ namespace gem {
 	xdata::UnsignedShort  nTriggers;
 	    
 	xdata::Integer  threshold;
+	xdata::Integer  MSPulseLength;
       };
 	  
     private:
@@ -96,7 +97,7 @@ namespace gem {
       //std::fstream* scanStream;
       //0xdeadbeef
 
-      int minLatency_, maxLatency_, threshold_;
+      int minLatency_, maxLatency_, threshold_, MSPulseLength;
       uint8_t  currentLatency_;
       uint64_t stepSize_,eventsSeen_,channelSeen_;
       uint64_t totaltriggercounter_;
