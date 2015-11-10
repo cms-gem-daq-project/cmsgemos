@@ -1373,6 +1373,11 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
     vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
+      tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
+                                                         confParams_.bag.ohGTXLink.value_,
+                                                         VfatName.c_str()));
+
+
     tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
     tmpVFATDevice->setRunMode(0);
     //      tmpVFATDevice_->readVFAT2Counters();
@@ -1461,17 +1466,6 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
   histolatency = 0;
   */
 
-  INFO("histo = 0x" << std::hex << histo << std::dec);
-  if (histo)
-    delete histo;
-  histo = 0;
-  
-  for (int hi = 0; hi < 128; ++hi) {
-    INFO("histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
-    if (histos[hi])
-      delete histos[hi];
-    histos[hi] = 0;
-  }
   //if (scanStream->is_open())
   INFO("Closling file");
   //scanStream->close();
@@ -1663,27 +1657,29 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
     bool isDisabled = false;
     if (is_running_ || is_configured_ || is_initialized_)
       isDisabled = true;
+    
+    // cgicc::input OHselection;
 
-    cgicc::input OHselection;
+    
+    *out   << "<table>"     << std::endl
+	   << "<tr>"   << std::endl
+	   << "<td>" << "Select kind of Latency Scan: " << "</td>" << std::endl	 
+	   << "</tr>"     << std::endl
+	   << "<tr>" << std::endl
+	   << "<td>" << std::endl;
     if (isDisabled)
-      OHselection.set("disabled","disabled");
+      *out << cgicc::select().set("name","SetOH").set("disabled","disabled") << std::endl;
     else
-      *out   << "<table>"     << std::endl
-	     << "<tr>"   << std::endl
-	     << "<td>" << "Select kind of Latency Scan: " << "</td>" << std::endl	 
-	     << "</tr>"     << std::endl
-	     << "<tr>" << std::endl
-	     << "<td>" << std::endl
-	     << cgicc::select().set("name","SetOH") << std::endl
-	     << cgicc::option("OH_0").set("value","OH_0")
-	     << cgicc::option("OH_1").set("value","OH_1")
-	     << cgicc::select()<< std::endl
-	     << "</td>"    << std::endl
-	     << "</tr>"    << std::endl
-	     << "</table>" << std::endl;
+      *out << cgicc::select().set("name","SetOH") << std::endl
+	   << cgicc::option("OH_0").set("value","OH_0")
+	   << cgicc::option("OH_1").set("value","OH_1")
+	   << cgicc::select()<< std::endl
+	   << "</td>"    << std::endl
+	   << "</tr>"    << std::endl
+	   << "</table>" << std::endl;
     /*      *out << "<tr><td class=\"title\"> Select Latency Scan: </td>"
-	      << "<td class=\"form\">"*/
-
+	    << "<td class=\"form\">"*/
+    
 }//end try
 catch (const xgi::exception::Exception& e) {
   INFO("Something went wrong setting the trigger source): " << e.what());

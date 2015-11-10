@@ -115,11 +115,11 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   //send L1A and Calpulse
   if((unsigned)confParams_.bag.triggerSource == (unsigned)0x1){
   optohybridDevice_->sendL1ACal(1,15);  //from T1 generator
-  sleep(1);
+  //  sleep(1);
   }
   if((unsigned)confParams_.bag.triggerSource == (unsigned)0x2){
   optohybridDevice_->sendCalPulse(1);  //from T1 generator
-  sleep(1);
+  //  sleep(1);
   }
   
   //count triggers and Calpulses coming from TTC
@@ -137,9 +137,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
     hw_semaphore_.take();//glib buffer depth
     
-    // GLIB data buffer validation                                                 
-    uint32_t fifoDepth[3];
-    fifoDepth[0] = glibDevice_->getFIFOOccupancy(readout_mask);
+    // GLIB data buffer validation                                             
+    //    fifoDepth[0] = glibDevice_->getFIFOOccupancy(readout_mask);
 
     // Get the size of GLIB data buffer       
     uint32_t bufferDepth;
@@ -178,7 +177,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     } else { 
       optohybridDevice_->setTrigSource(0x1);       
     }
-    sleep(1);
+    //    sleep(1);
 
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	    
@@ -324,6 +323,8 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
     std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
                                                                  glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
 
+
+    // read trigger data 
       data = glibDevice_->getTrackingData(0x0,glibDevice_->getFIFOOccupancy(readout_mask));
       TrigReg = glibDevice_->readTriggerFIFO(readout_mask);
 
@@ -490,16 +491,17 @@ void gem::supervisor::tbutils::LatencyScan::scanParameters(xgi::Output *out)
       .set("value",boost::str(boost::format("%d")%(eventsSeen_)))
 	 << cgicc::br()   << std::endl
 
-	 << cgicc::label("MinLatency").set("for","MinLatency") << std::endl
-	 << cgicc::input().set("id","MinLatency").set("name","MinLatency")
-      .set("type","number").set("min","0").set("max","255")
-      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.minLatency)))
-	 << std::endl
 	 << cgicc::label("Set Threshold").set("for","Threshold") << std::endl
 	 << cgicc::input().set("id","Threshold").set("name","Threshold")
       .set("type","number").set("min","0").set("max","255")
-      .set("value",boost::str(boost::format("%d")%(eventsSeen_)))
+      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.threshold)))
 	 << cgicc::br()   << std::endl
+
+      /*	 << cgicc::label("MinLatency").set("for","MinLatency") << std::endl
+	 << cgicc::input().set("id","MinLatency").set("name","MinLatency")
+      .set("type","number").set("min","0").set("max","255")
+      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.minLatency)))
+      << std::endl*/
 
 
 	 << cgicc::span() << std::endl;
@@ -923,7 +925,6 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   (*chip)->setVThreshold2(  0);
 
 
-
   LOG4CPLUS_INFO(getApplicationLogger(), "setting DAC mode to normal");
   (*chip)->setDACMode(gem::hw::vfat::StringToDACMode.at("OFF"));
 
@@ -1122,30 +1123,31 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
     if (is_running_ || is_configured_ || is_initialized_)
       isDisabled = true;
 
-    cgicc::input triggersourceselection;
-    /*    if (isDisabled)
-      triggersourceselection.set("disabled","disabled");
-      else*/
-      *out   << "<table>"     << std::endl
-	     << "<tr>"   << std::endl
-	     << "<td>" << "Select kind of Latency Scan: " << "</td>" << std::endl	 
-	     << "</tr>"     << std::endl
-	     << "<tr>" << std::endl
-	     << "<td>" << std::endl
-	     << cgicc::select().set("name","SetTrigSrc") << std::endl
-	     << cgicc::option("Calpulse+L1A").set("value","Calpulse+L1A")
-	     << cgicc::option("sBits_looping_back").set("value","sBits_looping_back")  
-	     << cgicc::option("Ext_Trigger_AMC13").set("value","Ext_Trigger_AMC13")  
-	     << cgicc::option("Ext_LEMO_Cable").set("value","Ext_LEMO_Cable") << std::endl
-	     << cgicc::select()<< std::endl
-	     << "</td>"    << std::endl
-	     << "</tr>"    << std::endl
-	     << "</table>" << std::endl;
-    /*      *out << "<tr><td class=\"title\"> Select Latency Scan: </td>"
-	      << "<td class=\"form\">"*/
+    //    cgicc::input triggersourceselection;
 
-}//end try
-catch (const xgi::exception::Exception& e) {
+    *out << "<table>"     << std::endl
+	 << "<tr>"   << std::endl
+	 << "<td>" << "Select kind of Latency Scan: " << "</td>" << std::endl	 
+	 << "</tr>"     << std::endl
+	 << "<tr>" << std::endl
+	 << "<td>" << std::endl;
+    if (isDisabled)
+      *out << cgicc::select().set("name","SetTrigSrc").set("disabled","disabled") << std::endl;  
+    else
+      *out << cgicc::select().set("name","SetTrigSrc") << std::endl
+	   << cgicc::option("Calpulse+L1A").set("value","Calpulse+L1A")
+	   << cgicc::option("sBits_looping_back").set("value","sBits_looping_back")  
+	   << cgicc::option("Ext_Trigger_AMC13").set("value","Ext_Trigger_AMC13")  
+	   << cgicc::option("Ext_LEMO_Cable").set("value","Ext_LEMO_Cable") << std::endl
+	   << cgicc::select()<< std::endl
+	   << "</td>"    << std::endl
+	   << "</tr>"    << std::endl
+	   << "</table>" << std::endl;
+    /*      *out << "<tr><td class=\"title\"> Select Latency Scan: </td>"
+	    << "<td class=\"form\">"*/
+    
+  }//end try
+  catch (const xgi::exception::Exception& e) {
   INFO("Something went wrong setting the trigger source): " << e.what());
   XCEPT_RAISE(xgi::exception::Exception, e.what());
  }
