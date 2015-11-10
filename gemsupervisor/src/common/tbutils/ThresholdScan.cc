@@ -128,28 +128,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
     
     hw_semaphore_.take();
-    
-    // GLIB data buffer validation                                                 
-    uint32_t fifoDepth[3];
-    
-    if (readout_mask&0x1)
-      fifoDepth[0] = glibDevice_->getFIFOOccupancy(0x0);
-    if (readout_mask&0x2)
-      fifoDepth[1] = glibDevice_->getFIFOOccupancy(0x1);
-    if (readout_mask&0x4)
-      fifoDepth[2] = glibDevice_->getFIFOOccupancy(0x2);
-     
+
     // Get the size of GLIB data buffer       
     uint32_t bufferDepth;
-    if (readout_mask&0x1) {
-      bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
-    }
-    if (readout_mask&0x2) {
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x1);     
-    }
-    if (readout_mask&0x4) {
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x2);     
-    }
+    bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
 
     hw_semaphore_.give();
     
@@ -193,19 +175,17 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	  wl_semaphore_.take();
 	  hw_semaphore_.take();
 	  
-  //flush fifo
-  for (int i = 0; i < 2; ++i){
-    if ((readout_mask >> i)&0x1) {
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)){
-	glibDevice_->flushFIFO(i);
-	INFO( " has data" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-	//get trackindata has another entry 
-	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i, glibDevice_->getFIFOOccupancy(i));
-      }
-      glibDevice_->flushFIFO(i);
-    }
+ // flush FIFO, how to disable a specific, misbehaving, chip
+  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
   }
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
 
     //reset counters
     optohybridDevice_->resetL1ACount(0x1);
@@ -307,15 +287,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   uint32_t bufferDepth;
   uint32_t TrigReg;
 
-  if (readout_mask&0x1){ 
-    bufferDepth  = glibDevice_->getFIFOOccupancy(0x0); 
-  }
-  if (readout_mask&0x2){ 
-    bufferDepth = glibDevice_->getFIFOOccupancy(0x1);     
-  }
-  if (readout_mask&0x4){
-    bufferDepth = glibDevice_->getFIFOOccupancy(0x2);     
-  }
+  bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
   
   //grab events from the fifo
   while (bufferDepth) {
@@ -324,29 +296,12 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
     std::queue<uint32_t> data_fifo;     
 
     // read trigger data 
-    if (readout_mask&0x1 && glibDevice_->hasTrackingData(0x0)) {
-      data = glibDevice_->getTrackingData(0x0);
-      TrigReg = glibDevice_->readTriggerFIFO(0x0);
-    }
-    
-    if (readout_mask&0x2 && glibDevice_->hasTrackingData(0x1)) {
-      data = glibDevice_->getTrackingData(0x1);
-      TrigReg = glibDevice_->readTriggerFIFO(0x1);
-    }
-    
-    if (readout_mask&0x4 && glibDevice_->hasTrackingData(0x2)) {
-      data = glibDevice_->getTrackingData(0x2);
-      TrigReg = glibDevice_->readTriggerFIFO(0x2);
-    }
+      data = glibDevice_->getTrackingData(0x0,glibDevice_->getFIFOOccupancy(readout_mask));
+      TrigReg = glibDevice_->readTriggerFIFO(readout_mask);
 
     //if no data has been found, shouldn't be the case, but still, need to not process any further:
     if (data.size() == 0) {
-      if (readout_mask&0x1)
-        bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
-      if (readout_mask&0x2)
-        bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
-      if (readout_mask&0x4)
-        bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
+        bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
       continue;
     }
 
@@ -431,23 +386,7 @@ for (auto iword = data.begin(); iword != data.end(); ++iword){
     //print data package        
     gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
 
-    if (!(((b1010 == 0xa) && (b1100==0xc) && (b1110==0xe)))){
-      LOG4CPLUS_INFO(getApplicationLogger(),"VFAT headers do not match expectation");
-      if (readout_mask&0x1)
-	bufferDepth  = glibDevice_->getFIFOOccupancy(0x0);
-      if (readout_mask&0x2)
-	bufferDepth += glibDevice_->getFIFOOccupancy(0x1);
-      if (readout_mask&0x4)
-	bufferDepth += glibDevice_->getFIFOOccupancy(0x2);
-      continue;
-    }
-     
-    if (readout_mask&0x1)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x0);
-    if (readout_mask&0x2)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x1);
-    if (readout_mask&0x4)
-      bufferDepth = glibDevice_->getFIFOOccupancy(0x2);  
+      bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
 
     //Maybe add another histogramt that is a combined all channels histogram
     histo->Fill(delVT,(lsData||msData));
@@ -1181,17 +1120,17 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   }
 
   //flush fifo
-  for (int i = 0; i < 2; ++i){
-    if ((readout_mask >> i)&0x1) {
-      glibDevice_->flushFIFO(i);
-      while (glibDevice_->hasTrackingData(i)){
-	glibDevice_->flushFIFO(i);
-	INFO( " has data" << i << " (depth " << glibDevice_->getFIFOOccupancy(i));
-	std::vector<uint32_t> dumping = glibDevice_->getTrackingData(i, glibDevice_->getFIFOOccupancy(i));
-      }
-      
-    }
+  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  glibDevice_->flushFIFO(readout_mask);
+  while (glibDevice_->hasTrackingData(readout_mask)) {
+    glibDevice_->flushFIFO(readout_mask);
+    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
   }
+  // once more for luck
+  glibDevice_->flushFIFO(readout_mask);
+
 
   optohybridDevice_->sendResync();      
   optohybridDevice_->sendBC0();          
