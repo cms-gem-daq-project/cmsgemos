@@ -112,7 +112,7 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
 
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
-    *out << "<h1><div align=\"center\">GEM System Configuration - UNDER CONSTRUCTION</div></h1>" << std::endl;
+    *out << "<h1><div align=\"center\">GEM System Configuration</div></h1>" << std::endl;
     *out << "</div>" << std::endl;
     *out << "<div class=\"panel-body\">" << std::endl;
 
