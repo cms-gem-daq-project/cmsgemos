@@ -31,6 +31,13 @@
 #include "gem/supervisor/tbutils/VFAT2XMLParser.h"
 #include "TStopwatch.h"
 
+/*#include "xoap/Method.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/MessageReference.h"
+#include "xoap/domutils.h"
+#include "xoap/SOAPEnvelope.h"
+*/
+
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::LatencyScan)
 
 /*
@@ -111,6 +118,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     return false;
   }
 
+  xoap::MessageReference msg = xoap::createMessage();
+
 
   hw_semaphore_.take();//oh sendL1ACalpulse
 
@@ -163,6 +172,9 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
       wl_semaphore_.give();
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	//aqui voy a enviar el mensaje
+	xoap::bind(this, &gem::supervisor::tbutils::LatencyScan::testmns,  "TrestMns",  XDAQ_NS_URI);
+
 	wl_->submit(readSig_);
       }
 	    
@@ -1188,6 +1200,13 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
 
 }// end void selectTrigSource
 
+
+xoap::MessageReference gem::supervisor::tbutils::LatencyScan::testmns(xoap::MessageReference message)
+  throw (xoap::exception::Exception) {
+  is_working_ = true;
+  INFO("------------------The message has been sent--------------------");
+  return message;
+}
 
 
 

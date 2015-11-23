@@ -20,6 +20,10 @@ namespace gem {
 	LatencyScan(xdaq::ApplicationStub * s)
 	  throw (xdaq::exception::Exception);
 	~LatencyScan();
+
+	
+	virtual xoap::MessageReference testmns(xoap::MessageReference message)
+	  throw (xoap::exception::Exception);
 	
 	// HyperDAQ interface
 	void webDefault(xgi::Input *in, xgi::Output *out)
