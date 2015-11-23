@@ -117,9 +117,9 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   //send L1A and Calpulse
   if((unsigned)confParams_.bag.triggerSource == (unsigned)0x1){
   optohybridDevice_->sendL1ACal(1,15);  //from T1 generator
-  //  sleep(1);
+  sleep(0.5);
   }
-  if((unsigned)confParams_.bag.triggerSource == (unsigned)0x2){
+  if((unsigned)confParams_.bag.triggerSource == (unsigned)0x3){
   optohybridDevice_->sendCalPulse(1);  //from T1 generator
   //  sleep(1);
   }
@@ -831,28 +831,21 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
     if (element != cgi.getElements().end())
       scanParams_.bag.MSPulseLength  = element->getIntegerValue();
 
-    cgicc::form_iterator trgsrciterator = cgi.getElement("SetTrigSrc");
-    if (strcmp((**trgsrciterator).c_str(),"Calpulse+L1A") == 0) {
-      confParams_.bag.triggerSource = 0x1;
-      optohybridDevice_->setTrigSource(0x1); 
-      INFO("Fake Latency Scan sending Calpulses+L1As. TrigSource : " << confParams_.bag.triggerSource);
-    }//if calpulse+l1a
-    else if (strcmp((**trgsrciterator).c_str(),"sBits_looping_back") == 0) {
-      confParams_.bag.triggerSource = 0x3;
-      optohybridDevice_->setTrigSource(0x3);
-      INFO("Sending Calpulses and sbits come back from the OH. TrigSource : " << confParams_.bag.triggerSource );
-    }//if sbits looping back
-    else if (strcmp((**trgsrciterator).c_str(),"Ext_Trigger_AMC13") == 0) {
-      confParams_.bag.triggerSource = 0x0;
-      optohybridDevice_->setTrigSource(0x0);
-      INFO("Real signals and the trigger comes from the AMC13. TrigSource : " << confParams_.bag.triggerSource );
-    }//if external
-    else if (strcmp((**trgsrciterator).c_str(),"Ext_LEMO_Cable") == 0) {
-      confParams_.bag.triggerSource = 0x2;
-      optohybridDevice_->setTrigSource(0x2);
-      INFO("Real signals and the trigger comes from the LEMO Cable. TrigSource : " << confParams_.bag.triggerSource );
-    }//if external
-
+  //set trigger source
+  if(confParams_.bag.triggerSource.value_==0x0){
+    optohybridDevice_->setTrigSource(0x0);//from AMC13
+    INFO("Real signals and the trigger comes from the AMC13. TrigSource : " << confParams_.bag.triggerSource );   
+  }else if(confParams_.bag.triggerSource.value_==0x1){
+    optohybridDevice_->setTrigSource(0x1);//from T1   
+    INFO("Fake Latency Scan sending Calpulses+L1As. TrigSource : " << confParams_.bag.triggerSource);
+  }else if(confParams_.bag.triggerSource.value_==0x3){
+    optohybridDevice_->setTrigSource(0x3);//from sbits   
+    INFO("Sending Calpulses and the s-bits come back from the OH. TrigSource : " << confParams_.bag.triggerSource );
+  }else if(confParams_.bag.triggerSource.value_==0x2){
+    optohybridDevice_->setTrigSource(0x2);//from Ext_LEMO   
+    INFO("Real signals and the trigger comes from the LEMO Cable. TrigSource : " << confParams_.bag.triggerSource );
+  }
+  
   }//end try
   catch (const xgi::exception::Exception & e) {
     XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -1124,6 +1117,83 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
   }
 }
 
+
+void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  try {
+    bool isDisabled = false;
+    if (is_running_ || is_configured_ || is_initialized_)
+      isDisabled = true;
+
+    cgicc::input triggersourceselection;
+
+    *out << "<table>"     << std::endl
+	 << "<tr>"   << std::endl
+	 << "<td>" << "Trigger Source Select: " << "</td>" << std::endl	 
+	 << "</tr>"     << std::endl
+	 << "<tr>" << std::endl
+	 << "<td>" << std::endl;
+
+    if(isDisabled){
+      triggersourceselection.set("type","radio").set("name","SetTrigSrc").set("disabled","disabled");
+    }else{
+    *out << "<tr>" << "<td>" << std::endl
+	 << triggersourceselection.set("type","radio").set("name","SetTrigSrc")
+      .set("id","T1_source").set("value","Calpulse+L1A")
+      .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x1 ? "checked" : "")
+	 << cgicc::label("Calpulse+L1A").set("for","T1_source") 
+	 << "</td>" << "</tr>" << std::endl
+	 << cgicc::br();
+    
+    *out << "<tr>" << "<td>" << std::endl 
+	 << triggersourceselection.set("type","radio").set("name","SetTrigSrc")
+      .set("id","sbits").set("value","Internal loopback of s-bits")
+      .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x3 ? "checked" : "")
+	 << cgicc::label("Internal loopback of s-bits").set("for","sbits") 
+	 << "</td>" << "</tr>" << std::endl
+	 << cgicc::br();
+    
+    *out << "<tr>" << "<td>" << std::endl 
+	 << triggersourceselection.set("type","radio").set("name","SetTrigSrc")
+      .set("id","extGLIB").set("value","External Trigger from AMC13")
+      .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x0 ? "checked" : "")
+	 << cgicc::label("External Trigger from AMC13").set("for","extGLIB")
+	 << "</td>" << "</tr>" << std::endl
+	 << cgicc::br();    
+    
+    *out << "<tr>" << "<td>" << std::endl 
+	 << triggersourceselection.set("type","radio").set("name","SetTrigSrc")
+      .set("id","extLEMO").set("value","External Trigger from LEMO")
+      .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x2 ? "checked" : "")
+	 << cgicc::label("External Trigger from LEMO").set("for","extLEMO") 
+	 << "</td>" << "</tr>" << std::endl
+	 << cgicc::br();    
+
+  }//    else    
+
+  *out   << "</td>"    << std::endl
+	 << "</tr>"    << std::endl
+	 << "</table>" << std::endl;
+  
+  }//end try
+  catch (const xgi::exception::Exception& e) {
+  INFO("Something went wrong setting the trigger source): " << e.what());
+  XCEPT_RAISE(xgi::exception::Exception, e.what());
+ }
+ catch (const std::exception& e) {
+   INFO("Something went wrong setting the trigger source): " << e.what());
+   XCEPT_RAISE(xgi::exception::Exception, e.what());
+ }
+
+}// end void selectTrigSource
+
+
+
+
+
+
+/*
 void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
   throw (xgi::exception::Exception)
 {
@@ -1140,9 +1210,8 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
 	 << "</tr>"     << std::endl
 	 << "<tr>" << std::endl
 	 << "<td>" << std::endl;
-    if (isDisabled)
-      *out << cgicc::select().set("name","SetTrigSrc").set("disabled","disabled") << std::endl;  
-    else
+
+    //    if (!isDisabled)
       *out << cgicc::select().set("name","SetTrigSrc") << std::endl
 	   << cgicc::option("Calpulse+L1A").set("value","Calpulse+L1A")
 	   << cgicc::option("sBits_looping_back").set("value","sBits_looping_back")  
@@ -1152,9 +1221,12 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
 	   << "</td>"    << std::endl
 	   << "</tr>"    << std::endl
 	   << "</table>" << std::endl;
+    //    else
+      //      *out << cgicc::select().set("name","SetTrigSrc").set("selected").set("disabled","disabled") << std::endl;  
+      */
     /*      *out << "<tr><td class=\"title\"> Select Latency Scan: </td>"
 	    << "<td class=\"form\">"*/
-    
+/*   
   }//end try
   catch (const xgi::exception::Exception& e) {
   INFO("Something went wrong setting the trigger source): " << e.what());
@@ -1167,3 +1239,4 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
 
 }// end void selectTrigSource
 
+*/

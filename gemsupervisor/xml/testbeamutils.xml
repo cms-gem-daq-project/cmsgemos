@@ -6,14 +6,14 @@
 <xc:Context url="http://gem904daq01:4444">
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.169</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.171</ipAddr>
       </properties>
     </xc:Application>
 
 
     <xc:Application class="gem::supervisor::tbutils::ADCScan" id="255" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ADCScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.169</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.171</ipAddr>
       </properties>
     </xc:Application>
 <!--
@@ -21,7 +21,7 @@
 
     <xc:Application class="gem::supervisor::tbutils::LatencyScan" id="256" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:LatencyScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.169</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.171</ipAddr>
       </properties>
     </xc:Application>
 

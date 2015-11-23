@@ -1618,22 +1618,23 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
       *out << "<span class=\"label label-primary\">" << currentChipID.str() << "</span>" << std::endl;
 
       
-      if (isDisabled)
+      if(isDisabled){
         vfatselection.set("type","checkbox").set("name",form.str()).set("disabled","disabled");
-      else
+      INFO(" VFATSelected is  " << confParams_.bag.deviceName[i].toString());
+      }else{
         vfatselection.set("type","checkbox").set("name",form.str());
               
-      *out << ((confParams_.bag.deviceName[i].toString().compare(currentChipID.str())) == 0 ?
-               vfatselection.set("checked","checked").set("multiple","multiple") :
-               vfatselection.set("value",currentChipID.str())) << std::endl;
+	*out << ((confParams_.bag.deviceName[i].toString().compare(currentChipID.str())) == 0 ?
+		 vfatselection.set("checked","checked").set("multiple","multiple") :
+		 vfatselection.set("value",currentChipID.str())) << std::endl;
       
-      *out << cgicc::td() << std::endl;
-      if( i == 7 || i == 15) {
-        *out << cgicc::tr() << std::endl //close
-             << cgicc::tr() << std::endl;//open
-          }
-      INFO(" VFATSelected is  " << confParams_.bag.deviceName[i].toString());
-    }
+	*out << cgicc::td() << std::endl;
+	if( i == 7 || i == 15) {
+	  *out << cgicc::tr() << std::endl //close
+	       << cgicc::tr() << std::endl;//open
+	}// end if 
+      }//end else
+    }// end if nChips
     
     *out << cgicc::tr()    << std::endl;
     *out << cgicc::table() << std::endl;
@@ -1667,9 +1668,9 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
 	   << "</tr>"     << std::endl
 	   << "<tr>" << std::endl
 	   << "<td>" << std::endl;
-    if (isDisabled)
+    /*    if (isDisabled)
       *out << cgicc::select().set("name","SetOH").set("disabled","disabled") << std::endl;
-    else
+      else*/
       *out << cgicc::select().set("name","SetOH") << std::endl
 	   << cgicc::option("OH_0").set("value","OH_0")
 	   << cgicc::option("OH_1").set("value","OH_1")
