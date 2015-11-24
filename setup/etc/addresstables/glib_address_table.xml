@@ -88,7 +88,7 @@
       </node>
     </node><!-- end GLIB_LINKS -->
     
-    <node id="DAQ_LINK"
+    <node id="DAQ"
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_daq_link_registers.xml"
           description="registers related to the control of the GLIB DAQ link"/>
     
