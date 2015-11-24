@@ -36,7 +36,8 @@ parser.add_option("-u", "--user", action="store_true", dest="userOnly",
 		  help="print user information only", metavar="userOnly")
 parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
-
+parser.add_option("--daq_enable", type="int", dest="daq_enable",
+		  help="enable daq output", metavar="daq_enable", default=-1)
 (options, args) = parser.parse_args()
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
@@ -72,9 +73,10 @@ print
 
 print "-> GLIB L1A ID :0x%08x"%(readRegister(glib,"GLIB.DAQ.L1AID"))
 
-#if options.daqConf >= 0:
-#	writeRegister(glib, "GLIB_daq_control", options.daqConf)
-#
+if (options.daq_enable>=0):
+  writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
+  print "Reset daq_enable: %i"%(options.daq_enable)
+
 print "-> GLIB DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
 print "-> GLIB DAQ status reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
 print "-> GLIB DAQ global flags :0x%08x"%(readRegister(glib,"GLIB.DAQ.FLAGS"))
