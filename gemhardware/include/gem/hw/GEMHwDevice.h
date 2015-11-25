@@ -377,6 +377,8 @@ namespace gem {
       
       bool b_is_connected;
 
+      xdata::InfoSpace* getHwInfoSpace() { return p_hwCfgInfoSpace; };
+
     protected:
       std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager;
       std::shared_ptr<uhal::HwInterface> p_gemHW;

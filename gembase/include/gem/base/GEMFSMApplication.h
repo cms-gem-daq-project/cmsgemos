@@ -29,10 +29,8 @@ namespace gem {
       static const unsigned MAX_AMCS_PER_CRATE      = 12;
       static const unsigned MAX_OPTOHYBRIDS_PER_AMC = 2;
       static const unsigned MAX_VFATS_PER_GEB       = 24;
-      //static const unsigned MAX_OPTOHYBRIDS_PER_CRATE = 24;
       
       friend class GEMFSM;
-      //friend class GEMApplication;
       friend class GEMWebApplication;
 	
       GEMFSMApplication(xdaq::ApplicationStub *stub)
@@ -42,7 +40,7 @@ namespace gem {
 
     protected:
       /*
-        xgi interface, should be treated the same way as a command recieved via SOAP,
+        xgi interfaces, should be treated the same way as a command recieved via SOAP,
         or should maybe create a SOAP message and send it to the application
         basically, should be no difference when receiving a command through the web
         interface or from the function manager or via SOAP

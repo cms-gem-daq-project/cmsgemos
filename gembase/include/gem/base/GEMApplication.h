@@ -106,11 +106,18 @@ namespace gem {
 
       protected:
         log4cplus::Logger m_gemLogger;
+        
+        std::shared_ptr<gem::utils::GEMInfoSpaceToolBox> p_infoSpaceToolBox;
+        std::shared_ptr<gem::utils::GEMInfoSpaceToolBox> p_appInfoSpaceToolBox;
+        std::shared_ptr<gem::utils::GEMInfoSpaceToolBox> p_monitorInfoSpaceToolBox;
+        std::shared_ptr<gem::utils::GEMInfoSpaceToolBox> p_configInfoSpaceToolBox;
 
         xdata::InfoSpace *p_appInfoSpace;       /* generic application parameters */
+        // maybe instead of multiple info spaces, use sets inside the infospace toolbox?
         xdata::InfoSpace *p_monitorInfoSpace;   /* monitoring parameters, stored in the appInfoSpace */
         xdata::InfoSpace *p_configInfoSpace;    /* configuration parameters, stored in the appInfoSpace */
-						    
+
+        // some of these, namely update, move to monitor?
         virtual void importConfigurationParameters();
         virtual void fillConfigurationInfoSpace();
         virtual void updateConfigurationInfoSpace();
