@@ -8,6 +8,7 @@
 
 #include "gem/hw/glib/GLIBManagerWeb.h"
 #include "gem/hw/glib/GLIBManager.h"
+#include "gem/hw/glib/GLIBMonitor.h"
 
 #include "gem/hw/glib/HwGLIB.h"
 //#include "gem/hw/glib/exception/Exception.h"
@@ -351,7 +352,9 @@ void gem::hw::glib::GLIBManager::initializeAction()
       //still uses the above method behind the scenes
       //m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_));
       m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
-
+      m_glibMonitors[slot] = std::make_shared<GLIBMonitor>(GLIBMonitor(m_glibs[slot], this));
+      // m_glibMonitors[slot]->addInfoSpace("");
+      // m_glibMonitors[slot]->startMonitoring();
       /*
       //maybe make this into a commonly used function? createHwURI(what though)
       //std::string tmpURI = toolbox::toString();

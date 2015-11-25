@@ -16,13 +16,15 @@ namespace gem {
 
       class HwGLIB;
       class GLIBManagerWeb;
+      class GLIBMonitor;
 
       typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
   
       class GLIBManager : public gem::base::GEMFSMApplication
         {
 	  
-          friend class GLIBManagerWeb;
+          //friend class GLIBManagerWeb;
+          //friend class GLIBMonitor;
 
         public:
           XDAQ_INSTANTIATOR();
@@ -104,8 +106,9 @@ namespace gem {
           
           mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
 	  
-          std::shared_ptr<HwGLIB> m_glibs[MAX_AMCS_PER_CRATE];
-          xdata::InfoSpace* is_glibs[MAX_AMCS_PER_CRATE];
+          glib_shared_ptr              m_glibs[MAX_AMCS_PER_CRATE];
+          std::shared_ptr<GLIBMonitor> m_glibMonitors[MAX_AMCS_PER_CRATE];
+          xdata::InfoSpace*            is_glibs[MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
           xdata::String        m_amcSlots;
           xdata::String        m_connectionFile;
