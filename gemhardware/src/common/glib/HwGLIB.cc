@@ -385,6 +385,12 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output
 uint8_t gem::hw::glib::HwGLIB::SFPStatus(uint8_t const& sfpcage)
 {
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  if (sfpcage < 1 || sfpcage > 4) {
+    std::string msg = toolbox::toString("Status requested for SFP (%d): outside expectation (1,4)", sfpcage);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
+    return 0;
+  }
   std::stringstream regName;
   regName << "SYSTEM.STATUS.SFP" << (int)sfpcage << ".STATUS";
   return (uint8_t)readReg(getDeviceBaseNode(),regName.str());
@@ -394,7 +400,7 @@ bool gem::hw::glib::HwGLIB::FMCPresence(bool fmc2)
 {
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream regName;
-  regName << "SYSTEM.STATUS.FMC" << (int)fmc2 << "_PRESENT";
+  regName << "SYSTEM.STATUS.FMC" << (int)fmc2+1 << "_PRESENT";
   return (bool)readReg(getDeviceBaseNode(),regName.str());
 }
 

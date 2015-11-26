@@ -28,6 +28,7 @@ namespace gem {
         virtual ~GLIBMonitor();
         
         virtual void updateMonitorables();
+        void setupHwMonitoring();
       private:
         std::shared_ptr<HwGLIB> p_glib;
         

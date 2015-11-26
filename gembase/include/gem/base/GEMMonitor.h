@@ -86,40 +86,42 @@ namespace gem {
          * @param infoSpace is the info space tool box to monitor
          * 
          */
-        virtual void addInfoSpace(std::string const& name, gem::base::utils::GEMInfoSpaceToolBox* infoSpace);
+        void addInfoSpace(std::string const& name,
+                          std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> infoSpace);
 
         /**
          * Add a set of monitorables into the specified info space tool box object
          * @param name is the name of the set of monitorables
          * @param infoSpace is the info space into which the monitorables will be created
          */
-        virtual void addMonitorableSet(std::string const& name, gem::base::utils::GEMInfoSpaceToolBox* infoSpace);
+        void addMonitorableSet(std::string const& name, std::string const& infoSpaceName);
 
         /**
          * Add a monitorable to set of monitorables
          * @param setname is the name of the set of monitorables into which the monitorable will be added
-         * @param infoSpace is the GEMInfoSpaceToolBox that manages this monitorable item
+         * @param infoSpaceName is the name of GEMInfoSpaceToolBox that manages this monitorable item
          * @param monpair is a pair of the name of the monitorable, and possibly the register to read
          * @param type is type of item that should be updated
          * @param format is the way the values will be displayed
          */
-        virtual void addMonitorable(std::string const& setname,
-                                    gem::base::utils::GEMInfoSpaceToolBox* infoSpace,
-                                    std::pair<std::string const&,std::string const&> monpair,
-                                    utils::GEMInfoSpaceToolBox::UpdateType type,
-                                    std::string const& format);
+        void addMonitorable(std::string const& setname,
+                            std::string const& infoSpaceName,
+                            std::pair<std::string,std::string> const& monpair,
+                            utils::GEMInfoSpaceToolBox::UpdateType type,
+                            std::string const& format);
         
         typedef struct {
           std::string name;
           std::string regname;
-          gem::base::utils::GEMInfoSpaceToolBox* infoSpace;
+          std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> infoSpace;
           utils::GEMInfoSpaceToolBox::UpdateType updatetype;
           std::string format;
         } GEMMonitorable;
         
       protected:
-        std::unordered_map<std::string, gem::base::utils::GEMInfoSpaceToolBox*> m_infoSpaceMap;
-        std::unordered_map<std::string, gem::base::utils::GEMInfoSpaceToolBox*> m_monitorableSetInfoSpaceMap;
+        std::unordered_map<std::string,
+          std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> > m_infoSpaceMap;
+        std::unordered_map<std::string, std::list<std::string> >                m_monitorableSetInfoSpaceMap;
         std::unordered_map<std::string,
           std::list<std::pair<std::string, GEMMonitorable> > > m_monitorableSetsMap;
         

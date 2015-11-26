@@ -366,8 +366,27 @@ void gem::hw::glib::GLIBManager::initializeAction()
       //still uses the above method behind the scenes
       //m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_));
       m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
+
+      is_glibs[slot]->createString("BOARD_ID",      m_glibs[slot]->getBoardID(),      GEMUpdateType::NOUPDATE);
+      is_glibs[slot]->createString("SYSTEM_ID",     m_glibs[slot]->getSystemID(),     GEMUpdateType::NOUPDATE);
+      is_glibs[slot]->createString("FIRMWARE_ID",   m_glibs[slot]->getFirmwareVer(),  GEMUpdateType::NOUPDATE);
+      is_glibs[slot]->createString("FIRMWARE_DATE", m_glibs[slot]->getFirmwareDate(), GEMUpdateType::NOUPDATE);
+      is_glibs[slot]->createString("IP_ADDRESS",    m_glibs[slot]->getIPAddress(),    GEMUpdateType::NOUPDATE);
+      is_glibs[slot]->createString("MAC_ADDRESS",   m_glibs[slot]->getMACAddress(),   GEMUpdateType::NOUPDATE);
+      is_glibs[slot]->createUInt32("SFP1_STATUS",   m_glibs[slot]->SFPStatus(1),      GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("SFP2_STATUS",   m_glibs[slot]->SFPStatus(2),      GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("SFP3_STATUS",   m_glibs[slot]->SFPStatus(3),      GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("SFP4_STATUS",   m_glibs[slot]->SFPStatus(4),      GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("FMC1_STATUS",   m_glibs[slot]->FMCPresence(0),    GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("FMC2_STATUS",   m_glibs[slot]->FMCPresence(1),    GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("FPGA_RESET",    m_glibs[slot]->FPGAResetStatus(), GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("GBE_INT",       m_glibs[slot]->GbEInterrupt(),    GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("V6_CPLD",       m_glibs[slot]->V6CPLDStatus(),    GEMUpdateType::HW32);
+      is_glibs[slot]->createUInt32("CPLD_LOCK",     m_glibs[slot]->CDCELockStatus(),  GEMUpdateType::HW32);
+
       m_glibMonitors[slot] = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs[slot], this));
-      m_glibMonitors[slot]->addInfoSpace(deviceName, is_glibs[slot].get());
+      m_glibMonitors[slot]->addInfoSpace("HWMonitoring", is_glibs[slot]);
+      m_glibMonitors[slot]->setupHwMonitoring();
       //m_glibMonitors[slot]->startMonitoring();
       /*
       //maybe make this into a commonly used function? createHwURI(what though)
