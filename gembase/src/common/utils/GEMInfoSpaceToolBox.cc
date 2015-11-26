@@ -47,7 +47,7 @@ gem::base::utils::GEMInfoSpaceToolBox::~GEMInfoSpaceToolBox()
 }
 
 //how to template this?
-bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& itemName, std::string const& value, UpdateType type)
+bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& itemName, std::string const& value, UpdateType type, std::string const& docstring)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -58,8 +58,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& item
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(STRING, type, itemName, "docstring");
-    //test// m_itemMap.insert(std::make_pair(itemName, *item));
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(STRING, type, itemName, docstring);
+    m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::String *ptr = new xdata::String(value);
     m_stringItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
@@ -88,7 +88,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemName, bool const& value, UpdateType type)
+bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemName, bool const& value, UpdateType type, std::string const& docstring)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -99,8 +99,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemNa
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(BOOL, type, itemName, "docstring");
-    //test// m_itemMap.insert(std::make_pair(itemName, *item));
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(BOOL, type, itemName, docstring);
+    m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::Boolean *ptr = new xdata::Boolean(value);
     m_boolItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
@@ -129,7 +129,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemNa
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& itemName, double const& value, UpdateType type)
+bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& itemName, double const& value, UpdateType type, std::string const& docstring)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -140,8 +140,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& item
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(DOUBLE, type, itemName, "docstring");
-    //test// m_itemMap.insert(std::make_pair(itemName, *item));
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(DOUBLE, type, itemName, docstring);
+    m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::Double *ptr = new xdata::Double(value);
     m_doubleItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
@@ -170,7 +170,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& itemName, int const& value, UpdateType type)
+bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& itemName, int const& value, UpdateType type, std::string const& docstring)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -181,8 +181,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& ite
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER, type, itemName, "docstring");
-    //test// m_itemMap.insert(std::make_pair(itemName, *item));
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER, type, itemName, docstring);
+    m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::Integer *ptr = new xdata::Integer(value);
     m_intItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
@@ -211,7 +211,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& ite
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& itemName, uint32_t const& value, UpdateType type)
+bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& itemName, uint32_t const& value, UpdateType type, std::string const& docstring)
 {
   INFO("Trying to create uint32_t " << itemName << " in infoSpace " << p_infoSpace->name() << std::hex << p_infoSpace->hasItem(itemName));
   try {
@@ -224,8 +224,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& item
     }
 
     INFO("Creating GEMInfoSpaceItem");
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT32, type, itemName, "docstring");
-    //test// m_itemMap.insert(std::make_pair(itemName, *item));
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT32, type, itemName, docstring);
+    m_itemMap.insert(std::make_pair(itemName, item));
 
     INFO("Creating xdata::UnsignedInteger32 *ptr");
     xdata::UnsignedInteger32 *ptr = new xdata::UnsignedInteger32(value);
@@ -257,7 +257,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& itemName, uint64_t const& value, UpdateType type)
+bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& itemName, uint64_t const& value, UpdateType type, std::string const& docstring)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -268,8 +268,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& item
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT64, type, itemName, "docstring");
-    //test// m_itemMap.insert(std::make_pair(itemName, *item));
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT64, type, itemName, docstring);
+    m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::UnsignedInteger64 *ptr = new xdata::UnsignedInteger64(value);
     m_uint64Items.insert(std::make_pair(itemName, std::make_pair(value, ptr)));

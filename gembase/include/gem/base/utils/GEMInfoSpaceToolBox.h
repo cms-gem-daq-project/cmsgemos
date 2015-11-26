@@ -63,11 +63,11 @@ namespace gem {
                           NOUPDATE  //!< Value is not to be updated
         };
       
-        /**
-         * Wrapper around a generic GEMInfoSpaceItem
-         */
         class GEMInfoSpaceItem
         {
+          /**
+           * Wrapper around a generic GEMInfoSpaceItem
+           */
         public:
         GEMInfoSpaceItem(ItemType itype, UpdateType utype, std::string const& itemname, std::string const& docstring)
           : m_itype(itype),
@@ -111,12 +111,18 @@ namespace gem {
         ~GEMInfoSpaceToolBox();
 
         //methods copied from tcds info space helper
-        bool createString( std::string const& itemName, std::string const& value, UpdateType type=NOUPDATE);
-        bool createBool(   std::string const& itemName, bool        const& value, UpdateType type=NOUPDATE);
-        bool createDouble( std::string const& itemName, double      const& value, UpdateType type=NOUPDATE);
-        bool createInteger(std::string const& itemName, int         const& value, UpdateType type=HW32);
-        bool createUInt32( std::string const& itemName, uint32_t    const& value, UpdateType type=HW32);
-        bool createUInt64( std::string const& itemName, uint64_t    const& value, UpdateType type=HW64);
+        bool createString( std::string const& itemName, std::string const& value,
+                           UpdateType type=NOUPDATE, std::string const& docstring="docstring");
+        bool createBool(   std::string const& itemName, bool        const& value,
+                           UpdateType type=NOUPDATE, std::string const& docstring="docstring");
+        bool createDouble( std::string const& itemName, double      const& value,
+                           UpdateType type=NOUPDATE, std::string const& docstring="docstring");
+        bool createInteger(std::string const& itemName, int         const& value,
+                           UpdateType type=HW32, std::string const& docstring="docstring");
+        bool createUInt32( std::string const& itemName, uint32_t    const& value,
+                           UpdateType type=HW32, std::string const& docstring="docstring");
+        bool createUInt64( std::string const& itemName, uint64_t    const& value,
+                           UpdateType type=HW64, std::string const& docstring="docstring");
       
         //methods copied from tcds info space helper
         std::string getString( std::string const& itemName);
@@ -142,13 +148,14 @@ namespace gem {
         bool setUInt32( std::string const& itemName, uint32_t    const& value);
         bool setUInt64( std::string const& itemName, uint64_t    const& value);
 
-        xdata::InfoSpace* getInfoSpace() { return p_infoSpace;         };
-        std::string       name()         { return p_infoSpace->name(); };
+        xdata::InfoSpace* getInfoSpace()  { return p_infoSpace;         };
+        std::string       name()          { return p_infoSpace->name(); };
+        bool find(std::string const& key) { return m_itemMap.find(key) != m_itemMap.end(); };
 
       private:
         log4cplus::Logger m_gemLogger;
 
-        std::unordered_map<std::string, GEMInfoSpaceItem&> m_itemMap;
+        std::unordered_map<std::string, GEMInfoSpaceItem*> m_itemMap;
 
         // maps of variables and their associated xdata types
         std::unordered_map<std::string, std::pair<uint32_t,    xdata::UnsignedInteger32* > >  m_uint32Items;

@@ -155,6 +155,7 @@ namespace gem {
       std::string getCurrentState() const {
         return m_gemfsm.getCurrentState();
       };
+      std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppStateISToolBox() { return p_appStateInfoSpaceToolBox;     };
 	
     private:
       GEMFSM m_gemfsm;
@@ -171,9 +172,9 @@ namespace gem {
       toolbox::task::WorkLoop *p_wl;
 
     protected:
-      std::shared_ptr<utils::GEMInfoSpaceToolBox> p_gemAppStateInfoSpaceToolBox;
+      std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appStateInfoSpaceToolBox;
 
-      xdata::InfoSpace* p_gemAppStateInfoSpace;
+      xdata::InfoSpace* p_appStateInfoSpace;
       xdata::String  m_state;
 
     };

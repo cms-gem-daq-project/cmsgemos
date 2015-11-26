@@ -106,28 +106,28 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   m_state = m_gemfsm.getCurrentState();
   
   p_appInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
-  //p_gemAppStateInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
-  //p_gemAppStateInfoSpace->addItemRetrieveListener( "GEMFSMState", this);
-  //p_gemAppStateInfoSpace->addItemChangedListener(  "GEMFSMState", this);
-  //p_gemAppStateInfoSpace->addGroupRetrieveListener("GEMFSMState", this);
-  //p_gemAppStateInfoSpace->addGroupChangedListener( "GEMFSMState", this);
+  //p_appStateInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
+  //p_appStateInfoSpace->addItemRetrieveListener( "GEMFSMState", this);
+  //p_appStateInfoSpace->addItemChangedListener(  "GEMFSMState", this);
+  //p_appStateInfoSpace->addGroupRetrieveListener("GEMFSMState", this);
+  //p_appStateInfoSpace->addGroupChangedListener( "GEMFSMState", this);
   toolbox::net::URN appStateISURN(m_urn+toolbox::toString(":appState-infospace"));
   if (xdata::getInfoSpaceFactory()->hasItem(appStateISURN.toString())) {
     INFO("GEMApplication::infospace " << appStateISURN.toString() << " already exists, getting");
-    p_gemAppStateInfoSpace = xdata::getInfoSpaceFactory()->get(appStateISURN.toString());
+    p_appStateInfoSpace = xdata::getInfoSpaceFactory()->get(appStateISURN.toString());
   } else {
     INFO("GEMApplication::infospace " << appStateISURN.toString() << " does not exist, creating");
-    p_gemAppStateInfoSpace = xdata::getInfoSpaceFactory()->create(appStateISURN.toString());
+    p_appStateInfoSpace = xdata::getInfoSpaceFactory()->create(appStateISURN.toString());
   }
-  p_gemAppStateInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
-                                                                                                             p_gemAppStateInfoSpace,
-                                                                                                             //p_gemMonitor,
-                                                                                                             false));
-  p_appInfoSpace->fireItemAvailable("application:state", p_gemAppStateInfoSpace );
-  //p_gemAppStateInfoSpace->fireItemAvailable("State",&m_state);
+  p_appStateInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
+                                                                                                          p_appStateInfoSpace,
+                                                                                                          //p_gemMonitor,
+                                                                                                          false));
+  p_appInfoSpace->fireItemAvailable("application:state", p_appStateInfoSpace );
+  //p_appStateInfoSpace->fireItemAvailable("State",&m_state);
 
   p_appInfoSpaceToolBox->createString(        "State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
-  p_gemAppStateInfoSpaceToolBox->createString("State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appStateInfoSpaceToolBox->createString("State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
   //p_appInfoSpace->fireItemAvailable("State",&m_state);
   p_appInfoSpace->fireItemValueRetrieve("State");
   //gemAppStateInfoSpace_.setFSMState(m_gemfsm.getCurrentStateName());
