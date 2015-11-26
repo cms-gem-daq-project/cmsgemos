@@ -12,6 +12,7 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 //#include "gem/hw/glib/exception/Exception.h"
+typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBManager);
 
@@ -277,12 +278,16 @@ void gem::hw::glib::GLIBManager::initializeAction()
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
       INFO("initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+      is_glibs[slot] = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>(new gem::base::utils::GEMInfoSpaceToolBox(this,
+                                                                                                                        xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
+                                                                                                                        true));
     } else {
       INFO("initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
-    }
-
+      // is_glibs[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
+      is_glibs[slot] = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>(new gem::base::utils::GEMInfoSpaceToolBox(this,
+                                                                                                                         hwCfgURN.toString(),
+                                                                                                                         true));
+  }
     INFO("exporting config parameters into infospace");
       /* figure out how to make it work like this
          probably just have to define begin/end for OptoHybridInfo class and iterators
@@ -290,6 +295,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
         if (is_optohybrids[slot]->hasItem(monitorable->getName()))
           is_optohybrids[slot]->fireItemAvailable(monitorable->getName(), monitorable->getSerializableValue());
       */
+    /*
     if (!is_glibs[slot]->hasItem("ControlHubAddress"))
       is_glibs[slot]->fireItemAvailable("ControlHubAddress", &info.controlHubAddress);
     
@@ -307,13 +313,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     
     if (!is_glibs[slot]->hasItem("IPBusPort"))
       is_glibs[slot]->fireItemAvailable("IPBusPort",         &info.ipBusPort);
-    //is_glibs[slot]->fireItemAvailable("ControlHubAddress", &info.controlHubAddress);
-    //is_glibs[slot]->fireItemAvailable("IPBusProtocol",     &info.ipBusProtocol);
-    //is_glibs[slot]->fireItemAvailable("DeviceIPAddress",   &info.deviceIPAddress);
-    //is_glibs[slot]->fireItemAvailable("AddressTable",      &info.addressTable);
-    //is_glibs[slot]->fireItemAvailable("ControlHubPort",    &info.controlHubPort);
-    //is_glibs[slot]->fireItemAvailable("IPBusPort",         &info.ipBusPort);
-    
+
     INFO("InfoSpace found item: ControlHubAddress " << is_glibs[slot]->find("ControlHubAddress"));
     INFO("InfoSpace found item: IPBusProtocol "     << is_glibs[slot]->find("IPBusProtocol")    );
     INFO("InfoSpace found item: DeviceIPAddress "   << is_glibs[slot]->find("DeviceIPAddress")  );
@@ -334,7 +334,6 @@ void gem::hw::glib::GLIBManager::initializeAction()
     is_glibs[slot]->fireItemValueChanged("AddressTable");
     is_glibs[slot]->fireItemValueChanged("ControlHubPort");
     is_glibs[slot]->fireItemValueChanged("IPBusPort");
-
     
     INFO("initializeAction::info:" << info.toString());
     INFO("InfoSpace item value: ControlHubAddress " << info.controlHubAddress.toString());
@@ -344,6 +343,21 @@ void gem::hw::glib::GLIBManager::initializeAction()
     INFO("InfoSpace item value: ControlHubPort "    << info.controlHubPort.toString()   );
     INFO("InfoSpace item value: IPBusPort "         << info.ipBusPort.toString()        );
     
+    */
+    is_glibs[slot]->createString("ControlHubAddress", info.controlHubAddress.value_, GEMUpdateType::NOUPDATE);
+    is_glibs[slot]->createString("IPBusProtocol",     info.ipBusProtocol.value_    , GEMUpdateType::NOUPDATE);
+    is_glibs[slot]->createString("DeviceIPAddress",   info.deviceIPAddress.value_  , GEMUpdateType::NOUPDATE);
+    is_glibs[slot]->createString("AddressTable",      info.addressTable.value_     , GEMUpdateType::NOUPDATE);
+    is_glibs[slot]->createUInt32("ControlHubPort",    info.controlHubPort.value_   , GEMUpdateType::NOUPDATE);
+    is_glibs[slot]->createUInt32("IPBusPort",         info.ipBusPort.value_        , GEMUpdateType::NOUPDATE);
+    
+    INFO("InfoSpace found item: ControlHubAddress " << is_glibs[slot]->getString("ControlHubAddress"));
+    INFO("InfoSpace found item: IPBusProtocol "     << is_glibs[slot]->getString("IPBusProtocol")    );
+    INFO("InfoSpace found item: DeviceIPAddress "   << is_glibs[slot]->getString("DeviceIPAddress")  );
+    INFO("InfoSpace found item: AddressTable "      << is_glibs[slot]->getString("AddressTable")     );
+    INFO("InfoSpace found item: ControlHubPort "    << is_glibs[slot]->getUInt32("ControlHubPort")   );
+    INFO("InfoSpace found item: IPBusPort "         << is_glibs[slot]->getUInt32("IPBusPort")        );
+
     try {
       INFO("obtaining pointer to HwGLIB");
       /*this constructor is not sensible, as the connection file is expected to be found from the
@@ -352,9 +366,9 @@ void gem::hw::glib::GLIBManager::initializeAction()
       //still uses the above method behind the scenes
       //m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_));
       m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
-      m_glibMonitors[slot] = std::make_shared<GLIBMonitor>(GLIBMonitor(m_glibs[slot], this));
-      // m_glibMonitors[slot]->addInfoSpace("");
-      // m_glibMonitors[slot]->startMonitoring();
+      m_glibMonitors[slot] = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs[slot], this));
+      m_glibMonitors[slot]->addInfoSpace(deviceName, is_glibs[slot].get());
+      //m_glibMonitors[slot]->startMonitoring();
       /*
       //maybe make this into a commonly used function? createHwURI(what though)
       //std::string tmpURI = toolbox::toString();
@@ -503,12 +517,16 @@ void gem::hw::glib::GLIBManager::resetAction()
     
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
       INFO("resetAction::infospace " << hwCfgURN.toString() << " already exists, getting");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+      //is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+      is_glibs[slot].swap(std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>(new gem::base::utils::GEMInfoSpaceToolBox(this,
+                                                                                                                            xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
+                                                                                                                            true)));
     } else {
       INFO("resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
       continue;
     }
-    
+  
+    /*  what does revoking do? how to do it with the info space tool box?
     INFO("revoking config parameters infospace");
     if (is_glibs[slot]->hasItem("ControlHubAddress"))
       is_glibs[slot]->fireItemRevoked("ControlHubAddress");
@@ -527,6 +545,7 @@ void gem::hw::glib::GLIBManager::resetAction()
     
     if (is_glibs[slot]->hasItem("IPBusPort"))
       is_glibs[slot]->fireItemRevoked("IPBusPort");
+    */
   }
 }
 

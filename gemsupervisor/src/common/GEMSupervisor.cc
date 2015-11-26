@@ -8,6 +8,7 @@
 
 #include "gem/supervisor/GEMSupervisorWeb.h"
 #include "gem/supervisor/GEMSupervisor.h"
+#include "gem/supervisor/GEMSupervisorMonitor.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 
@@ -23,7 +24,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   //xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
   DEBUG("Creating the GEMSupervisorWeb interface");
-  p_gemMonitor      = new gem::base::GEMMonitor(this->getApplicationLogger(),this);
+  p_gemMonitor      = new gem::supervisor::GEMSupervisorMonitor(this);
   // p_gemMonitor      = new gem::supervisor::GEMSupervisorMonitor(this->getApplicationLogger(),this);
   p_gemWebInterface = new gem::supervisor::GEMSupervisorWeb(this);
   DEBUG("done");

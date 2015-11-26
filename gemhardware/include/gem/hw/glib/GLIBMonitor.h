@@ -31,6 +31,24 @@ namespace gem {
       private:
         std::shared_ptr<HwGLIB> p_glib;
         
+        // system_monitorables
+        //  "BOARD_ID"
+        //  "SYSTEM_ID"
+        //  "FIRMWARE_ID"
+        //  "FIRMWARE_DATE"
+        //  "IP_ADDRESS"
+        //  "MAC_ADDRESS"
+        //  "SFP1_STATUS"
+        //  "SFP2_STATUS"
+        //  "SFP3_STATUS"
+        //  "SFP4_STATUS"
+        //  "FMC1_STATUS"
+        //  "FMC2_STATUS"
+        //  "FPGA_RESET"
+        //  "GBE_INT"
+        //  "V6_CPLD"
+        //  "CPLD_LOCK"
+          
       }; // end class GLIBMonitor
             
     }// end namespace gem::hw::glib

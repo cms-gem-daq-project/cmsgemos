@@ -24,13 +24,13 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::ApplicationSt
 gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gemApp) : 
   m_gemLogger(logger)
 {
-  addInfoSpace("Application",gemApp->getApplicationInfoSpace());
+  addInfoSpace("Application",gemApp->getAppISToolBox().get());
 }
 
 gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* gemFSMApp) : 
   m_gemLogger(logger)
 {
-  addInfoSpace("Application",gemFSMApp->getApplicationInfoSpace());
+  addInfoSpace("Application",gemFSMApp->getAppISToolBox().get());
   
 }
 
@@ -44,23 +44,23 @@ void gem::base::GEMMonitor::timeExpired(toolbox::task::TimerEvent&)
   updateMonitorables();
 }
 
-void gem::base::GEMMonitor::addInfoSpace(std::string const& name, xdata::InfoSpace* infoSpace)
+void gem::base::GEMMonitor::addInfoSpace(std::string const& name, gem::base::utils::GEMInfoSpaceToolBox* infoSpace)
 {
   // should we key by name or infoSpace->name(), such that the infoSpace could be retrieved from the infoSpaceFactory
-  std::unordered_map<std::string, xdata::InfoSpace*>::const_iterator it = m_infoSpaceMap.find(infoSpace->name());
-  // std::unordered_map<std::string, xdata::InfoSpace*>::const_iterator it = m_infoSpaceMap.find(name);
+  std::unordered_map<std::string, gem::base::utils::GEMInfoSpaceToolBox*>::const_iterator it = m_infoSpaceMap.find(infoSpace->name());
+  // std::unordered_map<std::string, gem::base::utils::GEMInfoSpaceToolBox*>::const_iterator it = m_infoSpaceMap.find(name);
   if (it != m_infoSpaceMap.end()) {
     // ERROR( "GEMMonitor: infospace " << infoSpace->name() << " already exists in monitor!" );
     ERROR( "GEMMonitor: infospace " << name << " already exists in monitor!" );
     return;
   }
   DEBUG( "GEMMonitor: adding infospace " << infoSpace->name() );
-  m_infoSpaceMap.insert(std::make_pair<std::string, xdata::InfoSpace*>(infoSpace->name(),infoSpace));
+  m_infoSpaceMap.insert(std::make_pair<std::string, gem::base::utils::GEMInfoSpaceToolBox*>(infoSpace->name(),infoSpace));
   // DEBUG( "GEMMonitor: adding infospace " << name );
-  // m_infoSpaceMap.insert(std::make_pair<std::string, xdata::InfoSpace*>(name,infoSpace));
+  // m_infoSpaceMap.insert(std::make_pair<std::string, gem::base::utils::GEMInfoSpaceToolBox*>(name,infoSpace));
 }
 
-void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, xdata::InfoSpace* infoSpace)
+void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, gem::base::utils::GEMInfoSpaceToolBox* infoSpace)
 {
   std::unordered_map<std::string,
     std::list<std::pair<std::string, GEMMonitorable> > >::const_iterator it;
@@ -76,9 +76,9 @@ void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, xdata:
 }
 
 void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
-                                           xdata::InfoSpace* infoSpace,
+                                           gem::base::utils::GEMInfoSpaceToolBox* infoSpace,
                                            std::pair<std::string const&, std::string const&> monpair,
-                                           gem::utils::GEMInfoSpaceToolBox::UpdateType type,
+                                           gem::base::utils::GEMInfoSpaceToolBox::UpdateType type,
                                            std::string const& format)
 {
   std::unordered_map<std::string,

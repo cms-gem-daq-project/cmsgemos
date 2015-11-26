@@ -2,7 +2,7 @@
 
 #include "gem/hw/GEMHwDevice.h"
 #include "toolbox/net/URN.h"
-#include "gem/utils/GEMInfoSpaceToolBox.h"
+#include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionFile) :
@@ -115,12 +115,12 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   setParametersFromInfoSpace();
 
   //time for these to come from a configuration setup
-  std::string const addressTable      = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
-  std::string const controlhubAddress = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
-  std::string const deviceIPAddress   = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
-  std::string const ipBusProtocol     = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
-  uint32_t    const controlhubPort    = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
-  uint32_t    const ipBusPort         = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
+  std::string const addressTable      = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
+  std::string const controlhubAddress = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
+  std::string const deviceIPAddress   = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
+  std::string const ipBusProtocol     = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
+  uint32_t    const controlhubPort    = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
+  uint32_t    const ipBusPort         = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
   
   std::stringstream tmpUri;
   if (controlhubAddress.size() > 0) {
@@ -279,15 +279,15 @@ void gem::hw::GEMHwDevice::setParametersFromInfoSpace()
   INFO("setParametersFromInfoSpace");
   try {
     INFO("trying to get parameters from the hwCfgInfoSpace");
-    setControlHubIPAddress( gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "ControlHubIPAddress"));
-    setIPBusProtocolVersion(gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "IPBusProtocol"));
-    setDeviceIPAddress(     gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "DeviceIPAddress"));
-    setAddressTableFileName(gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "AddressTable"));
+    setControlHubIPAddress( gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "ControlHubIPAddress"));
+    setIPBusProtocolVersion(gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "IPBusProtocol"));
+    setDeviceIPAddress(     gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "DeviceIPAddress"));
+    setAddressTableFileName(gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "AddressTable"));
     
-    setControlHubPort(gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "ControlHubPort"));
-    setIPBusPort(     gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "IPBusPort"));
+    setControlHubPort(gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "ControlHubPort"));
+    setIPBusPort(     gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "IPBusPort"));
     return;
-  } catch (gem::utils::exception::InfoSpaceProblem const& err) {
+  } catch (gem::base::utils::exception::InfoSpaceProblem const& err) {
     ERROR("Could not set the device parameters from the InfoSpace " <<
           "(gem::utils::exception::InfoSpacePRoblem)::"
           << err.what());
@@ -323,12 +323,12 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 //void gem::hw::GEMHwDevice::connectDevice()
 //{
 //  //time for these to come from a configuration setup
-//  std::string const addressTable      = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
-//  std::string const controlhubAddress = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
-//  std::string const deviceIPAddress   = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
-//  std::string const ipBusProtocol     = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
-//  uint32_t    const controlhubPort    = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
-//  uint32_t    const ipBusPort         = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
+//  std::string const addressTable      = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
+//  std::string const controlhubAddress = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
+//  std::string const deviceIPAddress   = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
+//  std::string const ipBusProtocol     = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
+//  uint32_t    const controlhubPort    = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
+//  uint32_t    const ipBusPort         = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
 //  
 //  std::stringstream tmpUri;
 //  if (controlhubAddress.size() > 0) {

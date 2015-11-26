@@ -170,6 +170,9 @@ namespace gem {
 
       toolbox::task::WorkLoop *p_wl;
 
+    protected:
+      std::shared_ptr<utils::GEMInfoSpaceToolBox> p_gemAppStateInfoSpaceToolBox;
+
       xdata::InfoSpace* p_gemAppStateInfoSpace;
       xdata::String  m_state;
 
