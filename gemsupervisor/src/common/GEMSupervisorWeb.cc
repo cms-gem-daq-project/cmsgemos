@@ -2,7 +2,7 @@
 #include "gem/supervisor/GEMSupervisor.h"
 #include "xdata/InfoSpaceFactory.h"
 
-#include "gem/utils/GEMInfoSpaceToolBox.h"
+#include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 #include "gem/supervisor/exception/Exception.h"
 
@@ -170,7 +170,7 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
       
       INFO("trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
       std::string classstate
-        = gem::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()),"FSMState");
+        = gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()),"FSMState");
       *out << classstate;
       INFO("managed class FSM state is " << classstate);
       *out << cgicc::h3() << std::endl

@@ -92,13 +92,13 @@ namespace gem {
                  << "slotID:"  << slotID.toString()  << std::endl
                 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
-                 << "deviceIPAddress:"   << deviceIPAddress.toString()     << std::endl
-                 << "ipBusProtocol:"     << ipBusProtocol.toString()       << std::endl
-                 << "addressTable:"      << addressTable.toString()        << std::endl
-                 << "controlHubPort:"    << controlHubPort.toString()      << std::endl
-                 << "ipBusPort:"         << ipBusPort.toString()           << std::endl
-                 << "triggerSource:0x"   << triggerSource.toString()       << std::endl
-                 << "sbitSource:0x"      << sbitSource.toString()          << std::endl
+                 << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
+                 << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl
+                 << "addressTable:"      << addressTable.toString()      << std::endl
+                 << "controlHubPort:"    << controlHubPort.value_        << std::endl
+                 << "ipBusPort:"         << ipBusPort.value_             << std::endl
+                 << "triggerSource:0x"   << std::hex << triggerSource.value_ << std::dec << std::endl
+                 << "sbitSource:0x"      << std::hex << sbitSource.value_    << std::dec << std::endl
                  << std::endl;
               return os.str();
             };
@@ -108,7 +108,8 @@ namespace gem {
 	  
           glib_shared_ptr              m_glibs[MAX_AMCS_PER_CRATE];
           std::shared_ptr<GLIBMonitor> m_glibMonitors[MAX_AMCS_PER_CRATE];
-          xdata::InfoSpace*            is_glibs[MAX_AMCS_PER_CRATE];
+          //xdata::InfoSpace*            is_glibs[MAX_AMCS_PER_CRATE];
+          std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_glibs[MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
           xdata::String        m_amcSlots;
           xdata::String        m_connectionFile;

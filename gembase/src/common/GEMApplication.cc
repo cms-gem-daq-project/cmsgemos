@@ -40,18 +40,36 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
     XCEPT_RETHROW(xdaq::exception::Exception, "Failed to get GEM application information", e);
   }
   
-  p_appInfoSpaceToolBox = std::shared_ptr<gem::utils::GEMInfoSpaceToolBox>(new gem::utils::GEMInfoSpaceToolBox(this,
-                                                                                                               p_appInfoSpace,
-                                                                                                               p_gemMonitor,
-                                                                                                               false));
-  p_monitorInfoSpaceToolBox = std::shared_ptr<gem::utils::GEMInfoSpaceToolBox>(new gem::utils::GEMInfoSpaceToolBox(this,
-                                                                                                                   p_monitorInfoSpace,
-                                                                                                                   p_gemMonitor,
-                                                                                                                   false));
-  p_configInfoSpaceToolBox = std::shared_ptr<gem::utils::GEMInfoSpaceToolBox>(new gem::utils::GEMInfoSpaceToolBox(this,
-                                                                                                                  p_configInfoSpace,
-                                                                                                                  p_gemMonitor,
-                                                                                                                  false));
+  p_appInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
+                                                                                                     p_appInfoSpace,
+                                                                                                     //p_gemMonitor,
+                                                                                                     false));
+  INFO(m_urn);
+  toolbox::net::URN monISURN(m_urn+toolbox::toString(":monitoring-infospace"));
+  if (xdata::getInfoSpaceFactory()->hasItem(monISURN.toString())) {
+    INFO("GEMApplication::infospace " << monISURN.toString() << " already exists, getting");
+    p_monitorInfoSpace = xdata::getInfoSpaceFactory()->get(monISURN.toString());
+  } else {
+    INFO("GEMApplication::infospace " << monISURN.toString() << " does not exist, creating");
+    p_monitorInfoSpace = xdata::getInfoSpaceFactory()->create(monISURN.toString());
+  }
+  p_monitorInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
+                                                                                                         p_monitorInfoSpace,
+                                                                                                         //p_gemMonitor,
+                                                                                                         false));
+  toolbox::net::URN cfgISURN(m_urn+toolbox::toString(":config-infospace"));
+  if (xdata::getInfoSpaceFactory()->hasItem(cfgISURN.toString())) {
+    INFO("GEMApplication::infospace " << cfgISURN.toString() << " already exists, getting");
+    p_configInfoSpace = xdata::getInfoSpaceFactory()->get(cfgISURN.toString());
+  } else {
+    INFO("GEMApplication::infospace " << cfgISURN.toString() << " does not exist, creating");
+    p_configInfoSpace = xdata::getInfoSpaceFactory()->create(cfgISURN.toString());
+  }
+  p_configInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
+                                                                                                        p_configInfoSpace,
+                                                                                                        //p_gemMonitor,
+                                                                                                        false));
+  
   INFO("GEM application has infospace named " << p_appInfoSpace->name());
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiDefault, "Default"    );
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
@@ -71,9 +89,10 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->fireItemAvailable("monitoring:parameters",    p_monitorInfoSpace);
   //p_appInfoSpace->fireItemAvailable("reasonForFailure", &reasonForFailure_);
 
-  p_appInfoSpaceToolBox->createUInt32("RunNumber",m_runNumber.value_,  gem::utils::GEMInfoSpaceToolBox::NOUPDATE);
-  p_appInfoSpaceToolBox->createString("RunType",  m_runType.toString(),gem::utils::GEMInfoSpaceToolBox::NOUPDATE);
-  p_appInfoSpaceToolBox->createString("CfgType",  m_cfgType.toString(),gem::utils::GEMInfoSpaceToolBox::NOUPDATE);
+  // all should come from initialize
+  p_appInfoSpaceToolBox->createUInt32("RunNumber",m_runNumber.value_,  utils::GEMInfoSpaceToolBox::NOUPDATE);
+  p_appInfoSpaceToolBox->createString("RunType",  m_runType.toString(),utils::GEMInfoSpaceToolBox::NOUPDATE);
+  p_appInfoSpaceToolBox->createString("CfgType",  m_cfgType.toString(),utils::GEMInfoSpaceToolBox::NOUPDATE);
   //p_appInfoSpace->fireItemAvailable("RunNumber",&m_runNumber);
   //p_appInfoSpace->fireItemAvailable("RunType",  &m_runType  );
   //p_appInfoSpace->fireItemAvailable("CfgType",  &m_cfgType  );
