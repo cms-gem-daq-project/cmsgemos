@@ -3,8 +3,7 @@
 import sys, re
 import time, datetime, os
 
-sys.path.append('/home/mdalchen/gemdev/gem-daq-code/gemdaq-testing/setup/scripts/src')
-#sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 from registers_uhal import *
@@ -36,6 +35,8 @@ parser.add_option("-u", "--user", action="store_true", dest="userOnly",
 		  help="print user information only", metavar="userOnly")
 parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
+parser.add_option("--daq_enable", type="int", dest="daq_enable",
+		  help="enable daq output", metavar="daq_enable", default=-1)
 
 (options, args) = parser.parse_args()
 
@@ -63,6 +64,35 @@ print
 
 if not options.userOnly:
 	getSystemInfo(glib)
+print
+print "--=======================================--"
+print "-> DAQ INFORMATION"
+print "--=======================================--"
+print
+
+print "-> GLIB L1A ID :0x%08x"%(readRegister(glib,"GLIB.DAQ.L1AID"))
+
+if (options.daq_enable>=0):
+        writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
+        print "Reset daq_enable: %i"%(options.daq_enable)
+
+print "-> GLIB DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
+print "-> GLIB DAQ status reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
+print "-> GLIB DAQ global flags :0x%08x"%(readRegister(glib,"GLIB.DAQ.FLAGS"))
+print "-> GLIB DAQ corrupted VFAT block counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.CORRUPT_CNT"))
+print "-> GLIB DAQ built events cnt :0x%08x"%(readRegister(glib,"GLIB.DAQ.EVT_BUILT"))
+print "-> GLIB DAQ sent events cnt :0x%08x"%(readRegister(glib,"GLIB.DAQ.EVT_SENT"))
+
+print "-> GLIB DAQ GTX dispersion error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.DISPER_ERR"))
+print "-> GLIB DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.NOTINTABLE_ERR"))
+
+print "-> GLIB DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_0"))
+print "-> GLIB DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_1"))
+print "-> GLIB DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_2"))
+print "-> GLIB DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_3"))
+print "-> GLIB DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_4"))
+print "-> GLIB DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_5"))
+print "-> GLIB DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_6"))
 	
 print
 print "--=======================================--"
