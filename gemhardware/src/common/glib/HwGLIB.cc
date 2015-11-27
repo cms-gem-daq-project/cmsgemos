@@ -662,3 +662,64 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
     writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
   }
 }
+
+
+void gem::hw::glib::HwGLIB::enableDAQLink()
+{
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkControl()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.CONTROL");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkStatus()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.STATUS");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkFlags()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.FLAGS");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkCorruptCount()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.CORRUPT_CNT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkEventsBuilt()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.EVT_BUILT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkEventsSent()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.EVT_SENT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkL1AID()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.L1AID");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkDebug(uint8_t const& mode)
+{
+  if (mode < 0 || mode > 6 ) {
+    ERROR("Invalid DAQ LINK debug register (" << (int)mode << " specified. Expected 0-6");
+    return 0;
+  }
+  std::stringstream regName;
+  regName << "DAQ.DEBUG_" << (int)mode;
+  return readReg(getDeviceBaseNode(),regName.str());
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkDisperErrors()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.DISPER_ERR");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkNonidentifiableErrors()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.NOTINTABLE_ERR");
+}

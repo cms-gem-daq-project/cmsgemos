@@ -93,7 +93,7 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   DEBUG("Created task bindings");
 
   std::stringstream tmpLoopName;
-  uint32_t instanceNumber = this->getApplicationDescriptor()->getInstance();
+  uint32_t instanceNumber = this->getApplicationDescriptor()->getLocalId();
   std::string className   = this->getApplicationDescriptor()->getClassName();
   DEBUG("Obtained instance and class names " << instanceNumber << ", " << className);
 

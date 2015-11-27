@@ -651,7 +651,19 @@ namespace gem {
            **/
           void flushFIFO(uint8_t const& gtx);
 
-          
+          // DAQ LINK functionality
+          void enableDAQLink();
+          uint32_t getDAQLinkControl();
+          uint32_t getDAQLinkStatus();
+          uint32_t getDAQLinkFlags();
+          uint32_t getDAQLinkCorruptCount();
+          uint32_t getDAQLinkEventsBuilt();
+          uint32_t getDAQLinkEventsSent();
+          uint32_t getDAQLinkL1AID();
+          uint32_t getDAQLinkDebug(uint8_t const& mode);
+          uint32_t getDAQLinkDisperErrors();
+          uint32_t getDAQLinkNonidentifiableErrors();
+
           std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
           
         protected:

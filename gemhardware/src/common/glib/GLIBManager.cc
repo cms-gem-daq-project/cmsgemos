@@ -278,16 +278,16 @@ void gem::hw::glib::GLIBManager::initializeAction()
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
       INFO("initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
-      is_glibs[slot] = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>(new gem::base::utils::GEMInfoSpaceToolBox(this,
-                                                                                                                        xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
-                                                                                                                        true));
+      is_glibs[slot] = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
+                                                                                xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
+                                                                                true));
     } else {
       INFO("initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
       // is_glibs[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
-      is_glibs[slot] = std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>(new gem::base::utils::GEMInfoSpaceToolBox(this,
-                                                                                                                         hwCfgURN.toString(),
-                                                                                                                         true));
-  }
+      is_glibs[slot] = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
+                                                                                hwCfgURN.toString(),
+                                                                                true));
+    }
     INFO("exporting config parameters into infospace");
       /* figure out how to make it work like this
          probably just have to define begin/end for OptoHybridInfo class and iterators
@@ -367,27 +367,12 @@ void gem::hw::glib::GLIBManager::initializeAction()
       //m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_));
       m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
 
-      is_glibs[slot]->createString("BOARD_ID",      m_glibs[slot]->getBoardID(),      GEMUpdateType::NOUPDATE);
-      is_glibs[slot]->createString("SYSTEM_ID",     m_glibs[slot]->getSystemID(),     GEMUpdateType::NOUPDATE);
-      is_glibs[slot]->createString("FIRMWARE_ID",   m_glibs[slot]->getFirmwareVer(),  GEMUpdateType::NOUPDATE);
-      is_glibs[slot]->createString("FIRMWARE_DATE", m_glibs[slot]->getFirmwareDate(), GEMUpdateType::NOUPDATE);
-      is_glibs[slot]->createString("IP_ADDRESS",    m_glibs[slot]->getIPAddress(),    GEMUpdateType::NOUPDATE);
-      is_glibs[slot]->createString("MAC_ADDRESS",   m_glibs[slot]->getMACAddress(),   GEMUpdateType::NOUPDATE);
-      is_glibs[slot]->createUInt32("SFP1_STATUS",   m_glibs[slot]->SFPStatus(1),      GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("SFP2_STATUS",   m_glibs[slot]->SFPStatus(2),      GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("SFP3_STATUS",   m_glibs[slot]->SFPStatus(3),      GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("SFP4_STATUS",   m_glibs[slot]->SFPStatus(4),      GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("FMC1_STATUS",   m_glibs[slot]->FMCPresence(0),    GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("FMC2_STATUS",   m_glibs[slot]->FMCPresence(1),    GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("FPGA_RESET",    m_glibs[slot]->FPGAResetStatus(), GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("GBE_INT",       m_glibs[slot]->GbEInterrupt(),    GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("V6_CPLD",       m_glibs[slot]->V6CPLDStatus(),    GEMUpdateType::HW32);
-      is_glibs[slot]->createUInt32("CPLD_LOCK",     m_glibs[slot]->CDCELockStatus(),  GEMUpdateType::HW32);
+      createGLIBInfoSpaceItems(is_glibs[slot], m_glibs[slot]);
 
-      m_glibMonitors[slot] = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs[slot], this));
+      m_glibMonitors[slot] = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs[slot], this, slot));
       m_glibMonitors[slot]->addInfoSpace("HWMonitoring", is_glibs[slot]);
       m_glibMonitors[slot]->setupHwMonitoring();
-      //m_glibMonitors[slot]->startMonitoring();
+      m_glibMonitors[slot]->startMonitoring();
       /*
       //maybe make this into a commonly used function? createHwURI(what though)
       //std::string tmpURI = toolbox::toString();
@@ -537,9 +522,9 @@ void gem::hw::glib::GLIBManager::resetAction()
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
       INFO("resetAction::infospace " << hwCfgURN.toString() << " already exists, getting");
       //is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
-      is_glibs[slot].swap(std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>(new gem::base::utils::GEMInfoSpaceToolBox(this,
-                                                                                                                            xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
-                                                                                                                            true)));
+      is_glibs[slot].swap(is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
+                                                                                   xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
+                                                                                   true)));
     } else {
       INFO("resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
       continue;
@@ -581,4 +566,33 @@ void gem::hw::glib::GLIBManager::failAction(toolbox::Event::Reference e)
 
 void gem::hw::glib::GLIBManager::resetAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
+}
+
+
+void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib)
+{
+  is_glib->createString("BOARD_ID",      glib->getBoardID(),      GEMUpdateType::NOUPDATE);
+  is_glib->createString("SYSTEM_ID",     glib->getSystemID(),     GEMUpdateType::NOUPDATE);
+  is_glib->createString("FIRMWARE_ID",   glib->getFirmwareVer(),  GEMUpdateType::NOUPDATE);
+  is_glib->createString("FIRMWARE_DATE", glib->getFirmwareDate(), GEMUpdateType::NOUPDATE);
+  is_glib->createString("IP_ADDRESS",    glib->getIPAddress(),    GEMUpdateType::NOUPDATE);
+  is_glib->createString("MAC_ADDRESS",   glib->getMACAddress(),   GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("SFP1_STATUS",   glib->SFPStatus(1),      GEMUpdateType::HW32);
+  is_glib->createUInt32("SFP2_STATUS",   glib->SFPStatus(2),      GEMUpdateType::HW32);
+  is_glib->createUInt32("SFP3_STATUS",   glib->SFPStatus(3),      GEMUpdateType::HW32);
+  is_glib->createUInt32("SFP4_STATUS",   glib->SFPStatus(4),      GEMUpdateType::HW32);
+  is_glib->createUInt32("FMC1_STATUS",   glib->FMCPresence(0),    GEMUpdateType::HW32);
+  is_glib->createUInt32("FMC2_STATUS",   glib->FMCPresence(1),    GEMUpdateType::HW32);
+  is_glib->createUInt32("FPGA_RESET",    glib->FPGAResetStatus(), GEMUpdateType::HW32);
+  is_glib->createUInt32("GBE_INT",       glib->GbEInterrupt(),    GEMUpdateType::HW32);
+  is_glib->createUInt32("V6_CPLD",       glib->V6CPLDStatus(),    GEMUpdateType::HW32);
+  is_glib->createUInt32("CPLD_LOCK",     glib->CDCELockStatus(),  GEMUpdateType::HW32);
+
+  is_glib->createUInt32("CONTROL",     glib->getDAQLinkControl(),      GEMUpdateType::HW32);
+  is_glib->createUInt32("STATUS",      glib->getDAQLinkStatus(),       GEMUpdateType::HW32);
+  is_glib->createUInt32("FLAGS",       glib->getDAQLinkFlags(),        GEMUpdateType::HW32);
+  is_glib->createUInt32("CORRUPT_CNT", glib->getDAQLinkCorruptCount(), GEMUpdateType::HW32);
+  is_glib->createUInt32("EVT_BUILT",   glib->getDAQLinkEventsBuilt(),  GEMUpdateType::HW32);
+  is_glib->createUInt32("EVT_SENT",    glib->getDAQLinkEventsSent(),   GEMUpdateType::HW32);
+  is_glib->createUInt32("L1AID",       glib->getDAQLinkL1AID(),        GEMUpdateType::HW32);
 }

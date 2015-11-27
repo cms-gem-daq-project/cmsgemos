@@ -19,11 +19,12 @@ namespace gem {
       class GLIBMonitor;
 
       typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
-  
+      typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
+
       class GLIBManager : public gem::base::GEMFSMApplication
         {
 	  
-          //friend class GLIBManagerWeb;
+          friend class GLIBManagerWeb;
           //friend class GLIBMonitor;
 
         public:
@@ -58,7 +59,7 @@ namespace gem {
         private:
 	  uint16_t parseAMCEnableList(std::string const&);
 	  bool     isValidSlotNumber( std::string const&);
-
+          void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
           uint16_t m_amcEnableMask;
 
           class GLIBInfo {
@@ -109,7 +110,7 @@ namespace gem {
           glib_shared_ptr              m_glibs[MAX_AMCS_PER_CRATE];
           std::shared_ptr<GLIBMonitor> m_glibMonitors[MAX_AMCS_PER_CRATE];
           //xdata::InfoSpace*            is_glibs[MAX_AMCS_PER_CRATE];
-          std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_glibs[MAX_AMCS_PER_CRATE];
+          is_toolbox_ptr               is_glibs[MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
           xdata::String        m_amcSlots;
           xdata::String        m_connectionFile;
