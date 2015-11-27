@@ -34,39 +34,64 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
 {
   // create the values to be monitored in the info space
   addMonitorableSet("SYSTEM", "HWMonitoring");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("BOARD_ID",      "GLIB.SYSTEM.BOARD_ID"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("BOARD_ID", "GLIB.SYSTEM.BOARD_ID"),
                  GEMUpdateType::NOUPDATE, "char");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("SYSTEM_ID",     "GLIB.SYSTEM.SYSTEM_ID"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("SYSTEM_ID", "GLIB.SYSTEM.SYSTEM_ID"),
                  GEMUpdateType::NOUPDATE, "char");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("FIRMWARE_ID",   "GLIB.SYSTEM.FIRMWARE.ID"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("FIRMWARE_ID", "GLIB.SYSTEM.FIRMWARE.ID"),
                  GEMUpdateType::NOUPDATE, "char");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("FIRMWARE_DATE", "GLIB.SYSTEM.FIRMWARE.DATE"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("FIRMWARE_DATE", "GLIB.SYSTEM.FIRMWARE.DATE"),
                  GEMUpdateType::NOUPDATE, "date");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("IP_ADDRESS",    "GLIB.SYSTEM.IP_INFO"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("IP_ADDRESS", "GLIB.SYSTEM.IP_INFO"),
                  GEMUpdateType::NOUPDATE, "ip");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("MAC_ADDRESS",   "GLIB.SYSTEM.MAC"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("MAC_ADDRESS", "GLIB.SYSTEM.MAC"),
                  GEMUpdateType::NOUPDATE, "mac");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("SFP1_STATUS",   "GLIB.SYSTEM.STATUS.SFP1.STATUS"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("SFP1_STATUS", "GLIB.SYSTEM.STATUS.SFP1.STATUS"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("SFP2_STATUS",   "GLIB.SYSTEM.STATUS.SFP2.STATUS"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("SFP2_STATUS", "GLIB.SYSTEM.STATUS.SFP2.STATUS"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("SFP3_STATUS",   "GLIB.SYSTEM.STATUS.SFP3.STATUS"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("SFP3_STATUS", "GLIB.SYSTEM.STATUS.SFP3.STATUS"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("SFP4_STATUS",   "GLIB.SYSTEM.STATUS.SFP4.STATUS"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("SFP4_STATUS", "GLIB.SYSTEM.STATUS.SFP4.STATUS"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("FMC1_STATUS",   "GLIB.SYSTEM.STATUS.FMC1_PRESENT"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("FMC1_STATUS", "GLIB.SYSTEM.STATUS.FMC1_PRESENT"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("FMC2_STATUS",   "GLIB.SYSTEM.STATUS.FMC2_PRESENT"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("FMC2_STATUS", "GLIB.SYSTEM.STATUS.FMC2_PRESENT"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("FPGA_RESET",    "GLIB.SYSTEM.STATUS.FPGA_RESET"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("FPGA_RESET", "GLIB.SYSTEM.STATUS.FPGA_RESET"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("GBE_INT",       "GLIB.SYSTEM.STATUS.GBE_INT"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("GBE_INT",  "GLIB.SYSTEM.STATUS.GBE_INT"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("V6_CPLD",       "GLIB.SYSTEM.STATUS.V6_CPLD"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("V6_CPLD",  "GLIB.SYSTEM.STATUS.V6_CPLD"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("SYSTEM", "HWMonitoring", std::make_pair("CPLD_LOCK",     "GLIB.SYSTEM.STATUS.CDCE_LOCK"),
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("CPLD_LOCK", "GLIB.SYSTEM.STATUS.CDCE_LOCK"),
                  GEMUpdateType::HW32, "hex");
   
+
+  addMonitorableSet("", "HWMonitoring");
+
+  addMonitorableSet("", "HWMonitoring");
+
+  addMonitorableSet("COUNTERS", "HWMonitoring");
+
+  addMonitorableSet("DAQ", "HWMonitoring");
+
   updateMonitorables();
 }
 
@@ -97,8 +122,9 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
         (monitem->second.infoSpace)->setUInt32(monitem->first,
                                                p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
       } else if (monitem->second.updatetype == GEMUpdateType::HW64) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
+        uint32_t lower = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".LOWER").getAddress());
+        uint32_t upper = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".UPPER").getAddress());
+        (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)upper) << 32) + lower);
       } else if (monitem->second.updatetype == GEMUpdateType::PROCESS) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
                                                p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
