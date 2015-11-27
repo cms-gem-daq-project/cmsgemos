@@ -15,8 +15,8 @@
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
-gem::hw::glib::GLIBMonitor::GLIBMonitor(std::shared_ptr<HwGLIB> glib, GLIBManager* glibManager) :
-  GEMMonitor(glibManager->getApplicationLogger(), static_cast<gem::base::GEMFSMApplication*>(glibManager)),
+gem::hw::glib::GLIBMonitor::GLIBMonitor(std::shared_ptr<HwGLIB> glib, GLIBManager* glibManager, int const& index) :
+  GEMMonitor(glibManager->getApplicationLogger(), static_cast<gem::base::GEMFSMApplication*>(glibManager), index),
   p_glib(glib)
 {
   // application info space is added in the base class constructor
@@ -84,13 +84,34 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
   
 
-  addMonitorableSet("", "HWMonitoring");
+  //addMonitorableSet("", "HWMonitoring");
 
-  addMonitorableSet("", "HWMonitoring");
+  addMonitorableSet("GTX_LINKS", "HWMonitoring");
 
   addMonitorableSet("COUNTERS", "HWMonitoring");
 
   addMonitorableSet("DAQ", "HWMonitoring");
+  addMonitorable("DAQ", "HWMonitoring",
+                 std::make_pair("CONTROL", "GLIB.DAQ.CONTROL"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ", "HWMonitoring",
+                 std::make_pair("STATUS", "GLIB.DAQ.STATUS"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ", "HWMonitoring",
+                 std::make_pair("FLAGS", "GLIB.DAQ.FLAGS"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ", "HWMonitoring",
+                 std::make_pair("CORRUPT_CNT", "GLIB.DAQ.CORRUPT_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ", "HWMonitoring",
+                 std::make_pair("EVT_BUILT", "GLIB.DAQ.EVT_BUILT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ", "HWMonitoring",
+                 std::make_pair("EVT_SENT", "GLIB.DAQ.EVT_SENT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ", "HWMonitoring",
+                 std::make_pair("L1AID", "GLIB.DAQ.L1AID"),
+                 GEMUpdateType::HW32, "hex");
 
   updateMonitorables();
 }
@@ -141,3 +162,43 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
   } // end loop over monitorableSets
 }
 
+void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
+{
+  DEBUG("GLIBMonitor::buildMonitorPage");
+  
+  auto monsets = m_monitorableSetInfoSpaceMap.find("HWMonitoring")->second;
+  
+  // loop over the list of monitor sets and grab the monitorables from each one
+  // create a div tab for each set, and a table for each set of values
+  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
+  for (auto monset = monsets.begin(); monset != monsets.end(); ++monset) {
+    *out << "<div class=\"xdaq-tab\" title=\"" << *monset << "\" >"  << std::endl;
+    *out << "<table class=\"xdaq-table\">" << std::endl
+         << cgicc::thead() << std::endl
+         << cgicc::tr()    << std::endl //open
+         << cgicc::th()    << "Register name" << cgicc::th() << std::endl
+         << cgicc::th()    << "Value"         << cgicc::th() << std::endl
+         << cgicc::tr()    << std::endl //close
+         << cgicc::thead() << std::endl 
+         << "<tbody>" << std::endl;
+    
+    for (auto monitem = m_monitorableSetsMap.find(*monset)->second.begin();
+         monitem != m_monitorableSetsMap.find(*monset)->second.end(); ++monitem) {
+      *out << "<tr>"    << std::endl
+           << "<td>"    << std::endl
+           << monitem->first
+           << "</td>"   << std::endl;
+        
+      *out << "<td>"    << std::endl
+           << monitem->second.regname
+           << "</td>"   << std::endl
+           << "</tr>"   << std::endl
+           << "</td>"   << std::endl;
+    }
+    *out << "</tbody>"  << std::endl
+         << "</table>"  << std::endl
+         << "</div>"    << std::endl;
+  }
+  *out << "</div>"  << std::endl;
+  
+}

@@ -10,10 +10,14 @@
 #include "log4cplus/logger.h"
 
 #include "xdaq/ApplicationStub.h"
+#include "toolbox/task/TimerFactory.h"
 #include "toolbox/task/TimerListener.h"
 #include "toolbox/task/TimerEvent.h"
 #include "toolbox/lang/Class.h"
 #include "toolbox/TimeVal.h"
+#include "toolbox/TimeInterval.h"
+
+#include "cgicc/HTMLClasses.h"
 
 #include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
@@ -25,6 +29,11 @@ namespace toolbox {
 
 namespace xdata {
   class InfoSpace;
+}
+
+namespace xgi {
+  class Input;
+  class Output;
 }
 
 namespace gem {
@@ -46,14 +55,14 @@ namespace gem {
          * @param logger the logger object from the calling application
          * @param gemApp the pointer to the calling application
          */
-        GEMMonitor(log4cplus::Logger& logger, xdaq::ApplicationStub* stub);
+        GEMMonitor(log4cplus::Logger& logger, xdaq::ApplicationStub* stub, int const& index);
 
         /**
          * Constructor from GEMApplication derived classes
          * @param logger the logger object from the calling application
          * @param gemApp the pointer to the calling application
          */
-        GEMMonitor(log4cplus::Logger& logger, GEMApplication* gemApp);
+        GEMMonitor(log4cplus::Logger& logger, GEMApplication* gemApp, int const& index);
 
         /**
          * Constructor from GEMFSMApplication derived classes
@@ -61,7 +70,7 @@ namespace gem {
          * @param logger the logger object from the calling application
          * @param gemApp the pointer to the calling application
          */
-        GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* gemFSMApp);
+        GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* gemFSMApp, int const& index);
 
         /**
          * Destructor 
@@ -70,10 +79,15 @@ namespace gem {
         virtual ~GEMMonitor();
         
         /**
-         * Inherited from TimerListener, must be implemented
-         * 
+         * Start the monitoring
          */
-        virtual void timeExpired(toolbox::task::TimerEvent&);
+        void startMonitoring();
+
+        /**
+         * Inherited from TimerListener, must be implemented
+         * @param event
+         */
+        virtual void timeExpired(toolbox::task::TimerEvent& event);
 
         /**
          * Update method, pure virtual, must be implemented in specific monitor class
@@ -87,7 +101,8 @@ namespace gem {
          * 
          */
         void addInfoSpace(std::string const& name,
-                          std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> infoSpace);
+                          std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> infoSpace,
+                          toolbox::TimeInterval const& interval=toolbox::TimeInterval(30,0));
 
         /**
          * Add a set of monitorables into the specified info space tool box object
@@ -120,8 +135,12 @@ namespace gem {
         
       protected:
         std::unordered_map<std::string,
-          std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> > m_infoSpaceMap;
-        std::unordered_map<std::string, std::list<std::string> >                m_monitorableSetInfoSpaceMap;
+          std::pair<std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>,
+          toolbox::TimeInterval> > m_infoSpaceMap;
+        
+        std::unordered_map<std::string,
+          std::list<std::string> > m_monitorableSetInfoSpaceMap;
+        
         std::unordered_map<std::string,
           std::list<std::pair<std::string, GEMMonitorable> > > m_monitorableSetsMap;
         
@@ -129,6 +148,8 @@ namespace gem {
         // std::shared_ptr<GEMFSM>         p_gemFSM;
         
         log4cplus::Logger m_gemLogger;
+        toolbox::task::Timer* m_timer;   // timer for general info space updates
+        toolbox::task::Timer* m_hwtimer; // time for hw updates
         
       };
   }
