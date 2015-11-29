@@ -21,9 +21,12 @@ namespace gem {
 	  throw (xdaq::exception::Exception);
 	~LatencyScan();
 
-	
-	virtual xoap::MessageReference testmns(xoap::MessageReference message)
-	  throw (xoap::exception::Exception);
+	//SOAP MEssage	
+	//	virtual xoap::MessageReference testmns(xoap::MessageReference message)
+	//  throw (xoap::exception::Exception);
+
+	void sendMessage(xgi::Input *in, xgi::Output *out)
+	  throw (xgi::exception::Exception);
 	
 	// HyperDAQ interface
 	void webDefault(xgi::Input *in, xgi::Output *out)
@@ -75,7 +78,7 @@ namespace gem {
 	void displayHistograms(xgi::Output* out)
 	  throw (xgi::exception::Exception);
         void selectTrigSource(xgi::Output* out)
-	    throw (xgi::exception::Exception);
+	  throw (xgi::exception::Exception);
 	    
       class ConfigParams 
       {
@@ -87,6 +90,7 @@ namespace gem {
 	xdata::UnsignedShort  minLatency;
 	xdata::UnsignedShort  maxLatency;
 	xdata::UnsignedShort  nTriggers;
+	//	xdata::UnsignedShort  triggerSource_;
 	    
 	xdata::Integer  threshold;
 	xdata::Integer  MSPulseLength;

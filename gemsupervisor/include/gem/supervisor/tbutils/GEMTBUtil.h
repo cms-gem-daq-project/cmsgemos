@@ -160,6 +160,8 @@ namespace gem {
 	  //  throw (xgi::exception::Exception);
 	  virtual void selectMultipleVFAT(xgi::Output* out)
 	    throw (xgi::exception::Exception);
+	  //	  virtual void selectTrigSource(xgi::Output* out)
+	  //	    throw (xgi::exception::Exception);
 	  virtual void scanParameters(xgi::Output* out)
 	    throw (xgi::exception::Exception)=0;
 	  virtual void showCounterLayout(xgi::Output* out)
@@ -205,6 +207,7 @@ namespace gem {
 
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
+	    xdata::UnsignedShort  triggerSource_;
 	    
 	  };
 	  
@@ -246,6 +249,7 @@ namespace gem {
 
         std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
 
+
 	  // Counter
 	  int counter_[3];
 	  
@@ -257,7 +261,7 @@ namespace gem {
 	  
 	  // VFATs counter per event
 	  int sumVFAT_;
-	  
+
 	  // CalPulse counting
 	  uint32_t CalPulseCount_[3];
 	  
@@ -271,7 +275,7 @@ namespace gem {
 	  xdata::Bag<ConfigParams> scanParams_;
 	  uint64_t eventsSeen_,channelSeen_;
 	  uint8_t  currentLatency_;
-
+	  uint64_t triggerSource_;
 
 	protected:
 
