@@ -66,13 +66,13 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
     deviceNum.push_back(-1);
   }
 
-  triggerSource = 0x0;
+  triggerSource = 0x9;
   deviceChipID  = 0x0;
 
   triggersSeen = 0;
   ADCVoltage = 0;
   ADCurrent = 0;
-  ohGTXLink    = 0;
+  ohGTXLink    = 3;
 
   bag->addField("readoutDelay", &readoutDelay);
   bag->addField("nTriggers",    &nTriggers);
@@ -89,6 +89,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   bag->addField("triggersSeen", &triggersSeen);
   bag->addField("ADCVoltage",   &ADCVoltage);
   bag->addField("ADCurrent",    &ADCurrent);
+  bag->addField("triggerSource",&triggerSource);
 
 }
 
@@ -691,8 +692,8 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
       *out << cgicc::tr() << std::endl;
       *out << cgicc::td() << std::endl
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
-                            .set("id","GLIBsrc").set("value","TTC_GLIB_trsSrc")
-	                    .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x0 ? "checked" : "")
+	                    .set("id","GLIBsrc").set("value","TTC_GLIB_trsSrc")
+	.set((unsigned)confParams_.bag.triggerSource == (unsigned)0x0 ? "checked" : "")
 
 	   << cgicc::label("TTC_GLIB_trsSrc").set("for","GLIBSrc") << std::endl
 	   << cgicc::br()
@@ -1082,7 +1083,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
       INFO( "deviceNum[i]_::"             << confParams_.bag.deviceNum[i].toString());
       
     }//end for
-    
+  
     //change the status to initializing and make sure the page displays this information
   }
   catch (const xgi::exception::Exception & e) {
@@ -1390,6 +1391,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
 
 
+
     
   is_initialized_ = true;
   hw_semaphore_.give();
@@ -1573,7 +1575,8 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   //  confParams_.bag.deviceName   = "";
   confParams_.bag.deviceChipID = 0x0;
   confParams_.bag.triggersSeen = 0;
-  
+  confParams_.bag.triggerSource = 0x9;
+
   //wl_->submit(resetSig_);
   
   //sleep(5);
@@ -1620,19 +1623,19 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
       
       if(isDisabled){
         vfatselection.set("type","checkbox").set("name",form.str()).set("disabled","disabled");
-      INFO(" VFATSelected is  " << confParams_.bag.deviceName[i].toString());
+	INFO(" VFATSelected is  " << confParams_.bag.deviceName[i].toString());      
       }else{
         vfatselection.set("type","checkbox").set("name",form.str());
-              
-	*out << ((confParams_.bag.deviceName[i].toString().compare(currentChipID.str())) == 0 ?
-		 vfatselection.set("checked","checked").set("multiple","multiple") :
-		 vfatselection.set("value",currentChipID.str())) << std::endl;
+      }
+      *out << ((confParams_.bag.deviceName[i].toString().compare(currentChipID.str())) == 0 ?
+	       vfatselection.set("checked","checked").set("multiple","multiple") :
+	       vfatselection.set("value",currentChipID.str())) << std::endl;
       
-	*out << cgicc::td() << std::endl;
-	if( i == 7 || i == 15) {
-	  *out << cgicc::tr() << std::endl //close
-	       << cgicc::tr() << std::endl;//open
-	}// end if 
+      *out << cgicc::td() << std::endl;
+      if( i == 7 || i == 15) {
+	*out << cgicc::tr() << std::endl //close
+	     << cgicc::tr() << std::endl;//open
+	//  }// end if 
       }//end else
     }// end if nChips
     
@@ -1664,13 +1667,17 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
     
     *out   << "<table>"     << std::endl
 	   << "<tr>"   << std::endl
-	   << "<td>" << "Select kind of Latency Scan: " << "</td>" << std::endl	 
+	   << "<td>" << "OH GTX Link " << "</td>" << std::endl	 
 	   << "</tr>"     << std::endl
 	   << "<tr>" << std::endl
 	   << "<td>" << std::endl;
-    /*    if (isDisabled)
-      *out << cgicc::select().set("name","SetOH").set("disabled","disabled") << std::endl;
-      else*/
+    if (isDisabled)
+      *out << cgicc::select().set("name","SetOH").set("disabled","disabled") 
+	   << cgicc::option("OH_0").set("value","OH_0")
+	   << cgicc::option("OH_1").set("value","OH_1")
+	   << cgicc::select().set("disabled","disabled") << std::endl
+	   << std::endl;
+    else
       *out << cgicc::select().set("name","SetOH") << std::endl
 	   << cgicc::option("OH_0").set("value","OH_0")
 	   << cgicc::option("OH_1").set("value","OH_1")
@@ -1692,3 +1699,18 @@ catch (const xgi::exception::Exception& e) {
  }
 
 }// end void selectoptohybrid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
