@@ -83,7 +83,7 @@
             <!-- <VFATTrackingList xsi:type="xsd:string">3,7,11,15,19,23</VFATTrackingList> -->
             <!-- <VFATTrackingMask xsi:type="xsd:unsignedInt">0</VFATTrackingMask> -->
 
-            <triggerSource xsi:type="xsd:integer">4</triggerSource>
+            <triggerSource xsi:type="xsd:integer">0</triggerSource>
             <sbitSource    xsi:type="xsd:integer">5</sbitSource>
             <refClkSrc    xsi:type="xsd:integer">1</refClkSrc>
           </OptoHybridInfo>
@@ -102,11 +102,11 @@
         -->
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
-          <AMCInputEnableList xsi:type="xsd:string">10</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">1-9,11,12 </AMCIgnoreTTSList>
+          <AMCInputEnableList xsi:type="xsd:string">4,10</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">1-3,5-9,11,12 </AMCIgnoreTTSList>
           
-          <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
-          <EnableFakeData      xsi:type="xsd:boolean">true</EnableFakeData>
+          <EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
+          <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
           <EnableLocalTTC      xsi:type="xsd:boolean">false</EnableLocalTTC>
           <EnableLocalL1A      xsi:type="xsd:boolean">false</EnableLocalL1A>

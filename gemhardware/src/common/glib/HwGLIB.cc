@@ -224,8 +224,16 @@ std::string gem::hw::glib::HwGLIB::getBoardID()
   // The board ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "???";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.BOARD_ID");
-  res = uint32ToString(val);
+  res = gem::utils::uint32ToString(val);
   return res;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getBoardIDRaw()
+{
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The board ID consists of four characters encoded as a 32-bit unsigned int
+  uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.BOARD_ID");
+  return val;
 }
 
 std::string gem::hw::glib::HwGLIB::getSystemID()
@@ -234,8 +242,16 @@ std::string gem::hw::glib::HwGLIB::getSystemID()
   // The system ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "???";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.SYSTEM_ID");
-  res = uint32ToString(val);
+  res = gem::utils::uint32ToString(val);
   return res;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getSystemIDRaw()
+{
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The system ID consists of four characters encoded as a 32-bit unsigned int
+  uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.SYSTEM_ID");
+  return val;
 }
 
 std::string gem::hw::glib::HwGLIB::getIPAddress()
@@ -243,8 +259,15 @@ std::string gem::hw::glib::HwGLIB::getIPAddress()
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::string res = "N/A";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.IP_INFO");
-  res = uint32ToDottedQuad(val);
+  res = gem::utils::uint32ToDottedQuad(val);
   return res;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getIPAddressRaw()
+{
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.IP_INFO");
+  return val;
 }
 
 std::string gem::hw::glib::HwGLIB::getMACAddress()
@@ -253,8 +276,16 @@ std::string gem::hw::glib::HwGLIB::getMACAddress()
   std::string res = "N/A";
   uint32_t val1 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.UPPER");
   uint32_t val2 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.LOWER");
-  res = uint32ToGroupedHex(val1,val2);
+  res = gem::utils::uint32ToGroupedHex(val1,val2);
   return res;
+}
+
+uint64_t gem::hw::glib::HwGLIB::getMACAddressRaw()
+{
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  uint32_t val1 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.UPPER");
+  uint32_t val2 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.LOWER");
+  return ((uint64_t)val1 << 32) + val2;
 }
 
 std::string gem::hw::glib::HwGLIB::getFirmwareDate()
@@ -271,11 +302,19 @@ std::string gem::hw::glib::HwGLIB::getFirmwareDate()
     << "-"      << std::setw(2) << mm
     << "-"      << std::setw(2) << dd;
   */
-  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
   res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
       << "-"  << std::setw(2) << ((fwid>>5)&0x0f)
       << "-"  << std::setw(2) << ((fwid>>9)&0x7f);
   return res.str();
+}
+
+uint32_t gem::hw::glib::HwGLIB::getFirmwareDateRaw()
+{
+  // This returns the firmware build date. 
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
+  return fwid;
 }
 
 std::string gem::hw::glib::HwGLIB::getFirmwareVer()
@@ -291,11 +330,19 @@ std::string gem::hw::glib::HwGLIB::getFirmwareVer()
     res << versionMajor << "." << versionMinor << "." << versionBuild;
   */
 
-  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
-  res << ((fwid>>28)&0x0f) << "." 
-      << ((fwid>>24)&0x0f) << "."
-      << ((fwid>>16)&0xff);
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
+  res << ((fwid>>12)&0x0f) << "." 
+      << ((fwid>>8) &0x0f) << "."
+      << ((fwid)    &0xff);
   return res.str();
+}
+
+uint32_t gem::hw::glib::HwGLIB::getFirmwareVerRaw()
+{
+  // This returns the firmware version number. 
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
+  return fwid;
 }
 
 void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& input, uint8_t const& output)

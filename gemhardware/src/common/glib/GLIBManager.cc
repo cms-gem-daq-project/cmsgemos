@@ -522,34 +522,33 @@ void gem::hw::glib::GLIBManager::resetAction()
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
       INFO("resetAction::infospace " << hwCfgURN.toString() << " already exists, getting");
       //is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
-      is_glibs[slot].swap(is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
-                                                                                   xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
-                                                                                   true)));
+      //is_glibs[slot].swap(is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
+      //                                                                             xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
+      //                                                                             true)));
+      //is_glibs[slot]->reset();
     } else {
       INFO("resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
       continue;
     }
   
-    /*  what does revoking do? how to do it with the info space tool box?
-    INFO("revoking config parameters infospace");
-    if (is_glibs[slot]->hasItem("ControlHubAddress"))
-      is_glibs[slot]->fireItemRevoked("ControlHubAddress");
+    DEBUG("revoking config parameters infospace");
+    if (is_glibs[slot]->getInfoSpace()->hasItem("ControlHubAddress"))
+      is_glibs[slot]->getInfoSpace()->fireItemRevoked("ControlHubAddress");
     
-    if (is_glibs[slot]->hasItem("IPBusProtocol"))
-      is_glibs[slot]->fireItemRevoked("IPBusProtocol");
+    if (is_glibs[slot]->getInfoSpace()->hasItem("IPBusProtocol"))
+      is_glibs[slot]->getInfoSpace()->fireItemRevoked("IPBusProtocol");
     
-    if (is_glibs[slot]->hasItem("DeviceIPAddress"))
-      is_glibs[slot]->fireItemRevoked("DeviceIPAddress");
+    if (is_glibs[slot]->getInfoSpace()->hasItem("DeviceIPAddress"))
+      is_glibs[slot]->getInfoSpace()->fireItemRevoked("DeviceIPAddress");
     
-    if (is_glibs[slot]->hasItem("AddressTable"))
-      is_glibs[slot]->fireItemRevoked("AddressTable");
+    if (is_glibs[slot]->getInfoSpace()->hasItem("AddressTable"))
+      is_glibs[slot]->getInfoSpace()->fireItemRevoked("AddressTable");
     
-    if (is_glibs[slot]->hasItem("ControlHubPort"))
-      is_glibs[slot]->fireItemRevoked("ControlHubPort");
+    if (is_glibs[slot]->getInfoSpace()->hasItem("ControlHubPort"))
+      is_glibs[slot]->getInfoSpace()->fireItemRevoked("ControlHubPort");
     
-    if (is_glibs[slot]->hasItem("IPBusPort"))
-      is_glibs[slot]->fireItemRevoked("IPBusPort");
-    */
+    if (is_glibs[slot]->getInfoSpace()->hasItem("IPBusPort"))
+      is_glibs[slot]->getInfoSpace()->fireItemRevoked("IPBusPort");
   }
 }
 
@@ -571,12 +570,12 @@ void gem::hw::glib::GLIBManager::resetAction(toolbox::Event::Reference e)
 
 void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib)
 {
-  is_glib->createString("BOARD_ID",      glib->getBoardID(),      GEMUpdateType::NOUPDATE);
-  is_glib->createString("SYSTEM_ID",     glib->getSystemID(),     GEMUpdateType::NOUPDATE);
-  is_glib->createString("FIRMWARE_ID",   glib->getFirmwareVer(),  GEMUpdateType::NOUPDATE);
-  is_glib->createString("FIRMWARE_DATE", glib->getFirmwareDate(), GEMUpdateType::NOUPDATE);
-  is_glib->createString("IP_ADDRESS",    glib->getIPAddress(),    GEMUpdateType::NOUPDATE);
-  is_glib->createString("MAC_ADDRESS",   glib->getMACAddress(),   GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("BOARD_ID",      glib->getBoardIDRaw(),      GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_glib->createUInt32("SYSTEM_ID",     glib->getSystemIDRaw(),     GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_glib->createUInt32("FIRMWARE_ID",   glib->getFirmwareVerRaw(),  GEMUpdateType::NOUPDATE, "docstring", "fwver");
+  is_glib->createUInt32("FIRMWARE_DATE", glib->getFirmwareDateRaw(), GEMUpdateType::NOUPDATE, "docstring", "date");
+  is_glib->createUInt32("IP_ADDRESS",    glib->getIPAddressRaw(),    GEMUpdateType::NOUPDATE, "docstring", "ip");
+  is_glib->createUInt64("MAC_ADDRESS",   glib->getMACAddressRaw(),   GEMUpdateType::NOUPDATE, "docstring", "mac");
   is_glib->createUInt32("SFP1_STATUS",   glib->SFPStatus(1),      GEMUpdateType::HW32);
   is_glib->createUInt32("SFP2_STATUS",   glib->SFPStatus(2),      GEMUpdateType::HW32);
   is_glib->createUInt32("SFP3_STATUS",   glib->SFPStatus(3),      GEMUpdateType::HW32);

@@ -36,13 +36,13 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   addMonitorableSet("SYSTEM", "HWMonitoring");
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("BOARD_ID", "GLIB.SYSTEM.BOARD_ID"),
-                 GEMUpdateType::NOUPDATE, "char");
+                 GEMUpdateType::NOUPDATE, "id");
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("SYSTEM_ID", "GLIB.SYSTEM.SYSTEM_ID"),
-                 GEMUpdateType::NOUPDATE, "char");
+                 GEMUpdateType::NOUPDATE, "id");
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("FIRMWARE_ID", "GLIB.SYSTEM.FIRMWARE.ID"),
-                 GEMUpdateType::NOUPDATE, "char");
+                 GEMUpdateType::NOUPDATE, "fwver");
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("FIRMWARE_DATE", "GLIB.SYSTEM.FIRMWARE.DATE"),
                  GEMUpdateType::NOUPDATE, "date");
@@ -131,27 +131,28 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       DEBUG("GLIBMonitor: Updating monitorable " << monitem->first);
       if (monitem->second.updatetype == GEMUpdateType::HW8) {
+        // have to also get the mask...
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
       } else if (monitem->second.updatetype == GEMUpdateType::HW16) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
       } else if (monitem->second.updatetype == GEMUpdateType::HW24) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
       } else if (monitem->second.updatetype == GEMUpdateType::HW32) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
       } else if (monitem->second.updatetype == GEMUpdateType::HW64) {
-        uint32_t lower = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".LOWER").getAddress());
-        uint32_t upper = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".UPPER").getAddress());
+        uint32_t lower = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".LOWER").getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask();
+        uint32_t upper = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".UPPER").getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask();
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)upper) << 32) + lower);
       } else if (monitem->second.updatetype == GEMUpdateType::PROCESS) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
       } else if (monitem->second.updatetype == GEMUpdateType::TRACKER) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()));
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
       } else if (monitem->second.updatetype == GEMUpdateType::NOUPDATE) {
         continue;
       } else {
@@ -176,24 +177,37 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
     *out << "<table class=\"xdaq-table\">" << std::endl
          << cgicc::thead() << std::endl
          << cgicc::tr()    << std::endl //open
-         << cgicc::th()    << "Register name" << cgicc::th() << std::endl
-         << cgicc::th()    << "Value"         << cgicc::th() << std::endl
+         << cgicc::th()    << "Register name"    << cgicc::th() << std::endl
+         << cgicc::th()    << "Register address" << cgicc::th() << std::endl
+         << cgicc::th()    << "Value"            << cgicc::th() << std::endl
+         << cgicc::th()    << "Description"      << cgicc::th() << std::endl
          << cgicc::tr()    << std::endl //close
          << cgicc::thead() << std::endl 
          << "<tbody>" << std::endl;
     
     for (auto monitem = m_monitorableSetsMap.find(*monset)->second.begin();
          monitem != m_monitorableSetsMap.find(*monset)->second.end(); ++monitem) {
-      *out << "<tr>"    << std::endl
-           << "<td>"    << std::endl
+      *out << "<tr>"    << std::endl;
+      
+      *out << "<td>"    << std::endl
            << monitem->first
            << "</td>"   << std::endl;
         
       *out << "<td>"    << std::endl
            << monitem->second.regname
-           << "</td>"   << std::endl
-           << "</tr>"   << std::endl
            << "</td>"   << std::endl;
+
+      DEBUG(monitem->first << " formatted to "
+            << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+      *out << "<td>"    << std::endl
+           << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+           << "</td>"   << std::endl;
+
+      *out << "<td>"    << std::endl
+           << "description"
+           << "</td>"   << std::endl;
+
+      *out << "</tr>"   << std::endl;
     }
     *out << "</tbody>"  << std::endl
          << "</table>"  << std::endl

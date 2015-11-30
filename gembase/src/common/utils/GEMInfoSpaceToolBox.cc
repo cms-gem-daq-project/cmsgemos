@@ -4,6 +4,7 @@
 
 #include "gem/base/utils/exception/Exception.h"
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/GEMRegisterUtils.h"
 
 #include "xdaq/ApplicationStub.h"
 
@@ -18,8 +19,9 @@ gem::base::utils::GEMInfoSpaceToolBox::GEMInfoSpaceToolBox(gem::base::GEMApplica
   //p_gemMonitor(gemMonitor),
   p_infoSpace(infoSpace)
 {
-  INFO("Created GEMInfoSpaceToolBox from application " << gemApp->getApplicationDescriptor()->getClassName() <<
-       " and existing InfoSpace " << infoSpace->name());
+  INFO("Created GEMInfoSpaceToolBox from application " 
+       << gemApp->getApplicationDescriptor()->getClassName()
+       << " and existing InfoSpace " << infoSpace->name());
 }
 
 gem::base::utils::GEMInfoSpaceToolBox::GEMInfoSpaceToolBox(gem::base::GEMApplication* gemApp,
@@ -32,12 +34,14 @@ gem::base::utils::GEMInfoSpaceToolBox::GEMInfoSpaceToolBox(gem::base::GEMApplica
 {
   if (xdata::getInfoSpaceFactory()->hasItem(infoSpaceName)) {
     p_infoSpace = xdata::getInfoSpaceFactory()->get(infoSpaceName);
-    INFO("Created GEMInfoSpaceToolBox from application " << gemApp->getApplicationDescriptor()->getClassName() <<
-         " and existing InfoSpace " << infoSpaceName);
+    INFO("Created GEMInfoSpaceToolBox from application "
+         << gemApp->getApplicationDescriptor()->getClassName()
+         << " and existing InfoSpace " << infoSpaceName);
   } else {
     p_infoSpace = xdata::getInfoSpaceFactory()->create(infoSpaceName);
-    INFO("Created GEMInfoSpaceToolBox from application " << gemApp->getApplicationDescriptor()->getClassName() <<
-         " and new InfoSpace " << infoSpaceName);
+    INFO("Created GEMInfoSpaceToolBox from application "
+         << gemApp->getApplicationDescriptor()->getClassName()
+         << " and new InfoSpace " << infoSpaceName);
   }
 }
 
@@ -47,7 +51,7 @@ gem::base::utils::GEMInfoSpaceToolBox::~GEMInfoSpaceToolBox()
 }
 
 //how to template this?
-bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& itemName, std::string const& value, UpdateType type, std::string const& docstring)
+bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& itemName, std::string const& value, UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -58,7 +62,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& item
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(STRING, type, itemName, docstring);
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(STRING, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::String *ptr = new xdata::String(value);
@@ -88,7 +92,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemName, bool const& value, UpdateType type, std::string const& docstring)
+bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemName, bool const& value, UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -99,7 +103,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemNa
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(BOOL, type, itemName, docstring);
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(BOOL, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::Boolean *ptr = new xdata::Boolean(value);
@@ -129,7 +133,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemNa
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& itemName, double const& value, UpdateType type, std::string const& docstring)
+bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& itemName, double const& value, UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -140,7 +144,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& item
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(DOUBLE, type, itemName, docstring);
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(DOUBLE, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::Double *ptr = new xdata::Double(value);
@@ -170,7 +174,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& itemName, int const& value, UpdateType type, std::string const& docstring)
+bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& itemName, int const& value, UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -181,7 +185,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& ite
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER, type, itemName, docstring);
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::Integer *ptr = new xdata::Integer(value);
@@ -211,7 +215,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& ite
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& itemName, uint32_t const& value, UpdateType type, std::string const& docstring)
+bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& itemName, uint32_t const& value, UpdateType type, std::string const& docstring, std::string const& format)
 {
   INFO("Trying to create uint32_t " << itemName << " in infoSpace " << p_infoSpace->name() << std::hex << p_infoSpace->hasItem(itemName));
   try {
@@ -224,7 +228,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& item
     }
 
     INFO("Creating GEMInfoSpaceItem");
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT32, type, itemName, docstring);
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT32, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
     INFO("Creating xdata::UnsignedInteger32 *ptr");
@@ -257,7 +261,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& itemName, uint64_t const& value, UpdateType type, std::string const& docstring)
+bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& itemName, uint64_t const& value, UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -268,7 +272,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& item
       return false;
     }
 
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT64, type, itemName, docstring);
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT64, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
     xdata::UnsignedInteger64 *ptr = new xdata::UnsignedInteger64(value);
@@ -603,5 +607,62 @@ uint64_t gem::base::utils::GEMInfoSpaceToolBox::getUInt64(xdata::InfoSpace* info
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return 0;
   } 
+}
+
+std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string const& itemName, std::string const& format)
+{
+  DEBUG("GEMInfoSpaceToolBox::getFormattedItem(" << itemName << "," << format << ")");
+  auto item = m_itemMap.find(itemName);
+  if (item == m_itemMap.end()) {
+    std::string err = itemName + "' does not exist in this infospace.";
+    WARN(err);
+    return "Item not found";
+  }
+  std::stringstream result;
+  GEMInfoSpaceItem* isItem = item->second;
+  DEBUG(itemName << " found in infospace " << std::hex << isItem << std::dec);
+  ItemType type = isItem->m_itype;
+  
+  if ( type == UINT32 ) {   
+    uint32_t val = this->getUInt32(itemName);
+    DEBUG(itemName << " has value " << std::hex << val << std::dec);
+    if ( format == "" || format == "hex" ) {
+      result << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
+    } else if ( format == "dec" ) {
+      result << std::dec << val;
+    } else if ( format == "hex/dec" ) {
+      result << "0x" << std::setw(8) << std::setfill('0') << std::hex
+             << val << " / " << std::dec << val;
+    } else if ( format == "ip" ) {
+      result << std::dec << gem::utils::uint32ToDottedQuad(val);
+    } else if ( format == "date" ) {
+      result << std::dec << "20" << std::setfill('0') << std::setw(2) << (val&0x1f)
+             << "-"  << std::setw(2) << ((val>>5)&0x0f)
+             << "-"  << std::setw(2) << ((val>>9)&0x7f);
+    } else if ( format == "id" ) {
+      // expects four 8-bit chars
+      result << std::dec << gem::utils::uint32ToString(val);
+    } else if ( format == "fwver" ) {
+      // expects Major(4).Minor(4).Build(8)
+      result << ((val>>12)&0x0f) << "." 
+             << ((val>>8) &0x0f) << "."
+             << ((val)    &0xff);
+    }
+  } else if (type == UINT64) { // end if type == UINT32
+    uint64_t val = this->getUInt64(itemName);
+    DEBUG(itemName << " has value " << std::hex << val << std::dec);
+    if ( format == "" || format == "hex" ) {
+      result << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
+    } else if ( format == "dec" ) {
+      result << std::dec << val;
+    } else if ( format == "hex/dec" ) {
+      result << "0x" << std::setw(8) << std::setfill('0') << std::hex
+             << val << " / " << std::dec << val;
+    } else if ( format == "mac" ) {
+      result << gem::utils::uint32ToGroupedHex((val>>32),val&(uint32_t)0xffffffff);
+    }
+  } // end if type == UINT64
+  
+  return result.str();
 }
 
