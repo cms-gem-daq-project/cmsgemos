@@ -125,6 +125,12 @@ namespace gem {
                             utils::GEMInfoSpaceToolBox::UpdateType type,
                             std::string const& format);
         
+        /**
+         * Takes care of cleaning up the monitor after a reset
+         * should empty all lists and maps of known items
+         */
+        virtual void reset() {};
+
         typedef struct {
           std::string name;
           std::string regname;

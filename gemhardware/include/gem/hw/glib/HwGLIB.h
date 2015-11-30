@@ -99,10 +99,22 @@ namespace gem {
           std::string getBoardID()  ;
 
           /**
+           * Read the board ID registers
+           * @returns the GLIB board ID as 32 bit unsigned
+           **/
+          uint32_t getBoardIDRaw()  ;
+
+          /**
            * Read the system information register
            * @returns a string corresponding to the system ID
            **/
           std::string getSystemID();
+
+          /**
+           * Read the system information register
+           * @returns a string corresponding to the system ID as 32 bit unsigned
+           **/
+          uint32_t getSystemIDRaw();
 
           /**
            * Read the IP address register
@@ -111,11 +123,23 @@ namespace gem {
           std::string getIPAddress();
 
           /**
+           * Read the IP address register
+           * @returns the IP address of the board as a 32 bit unsigned
+           **/
+          uint32_t getIPAddressRaw();
+
+          /**
            * Read the MAC address register
            * @returns a string corresponding to the MAC address of the board
            **/
           std::string getMACAddress();
 
+          /**
+           * Read the MAC address register
+           * @returns the MAC address of the board as a 64 bit unsigned
+           **/
+          uint64_t getMACAddressRaw();
+          
           /**
            * Read the system firmware register
            * @returns a string corresponding to firmware version
@@ -124,9 +148,21 @@ namespace gem {
 
           /**
            * Read the system firmware register
+           * @returns the firmware version as a 32 bit unsigned
+           **/
+          uint32_t getFirmwareVerRaw();
+
+          /**
+           * Read the system firmware register
            * @returns a string corresponding to the build date
            **/
           std::string getFirmwareDate();
+	  
+          /**
+           * Read the system firmware register
+           * @returns the build date as a 32 bit unsigned
+           **/
+          uint32_t getFirmwareDateRaw();
 	  
           //external clocking control functions
           /**

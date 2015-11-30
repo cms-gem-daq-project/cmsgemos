@@ -69,10 +69,11 @@ namespace gem {
            * Wrapper around a generic GEMInfoSpaceItem
            */
         public:
-        GEMInfoSpaceItem(ItemType itype, UpdateType utype, std::string const& itemname, std::string const& docstring)
+        GEMInfoSpaceItem(ItemType itype, UpdateType utype, std::string const& itemname, std::string const& docstring, std::string const& format)
           : m_itype(itype),
             m_utype(utype),
             m_name(itemname),
+            m_format(format),
             m_docstring(docstring)
             {};
           
@@ -81,6 +82,7 @@ namespace gem {
           ItemType    m_itype;
           UpdateType  m_utype;
           std::string m_name;
+          std::string m_format;
           std::string m_docstring;
         };
       
@@ -112,19 +114,23 @@ namespace gem {
 
         //methods copied from tcds info space helper
         bool createString( std::string const& itemName, std::string const& value,
-                           UpdateType type=NOUPDATE, std::string const& docstring="docstring");
+                           UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
         bool createBool(   std::string const& itemName, bool        const& value,
-                           UpdateType type=NOUPDATE, std::string const& docstring="docstring");
+                           UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
         bool createDouble( std::string const& itemName, double      const& value,
-                           UpdateType type=NOUPDATE, std::string const& docstring="docstring");
+                           UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
         bool createInteger(std::string const& itemName, int         const& value,
-                           UpdateType type=HW32, std::string const& docstring="docstring");
+                           UpdateType type=HW32, std::string const& docstring="docstring", std::string const& format="hex");
         bool createUInt32( std::string const& itemName, uint32_t    const& value,
-                           UpdateType type=HW32, std::string const& docstring="docstring");
+                           UpdateType type=HW32, std::string const& docstring="docstring", std::string const& format="hex");
         bool createUInt64( std::string const& itemName, uint64_t    const& value,
-                           UpdateType type=HW64, std::string const& docstring="docstring");
+                           UpdateType type=HW64, std::string const& docstring="docstring", std::string const& format="hex");
       
         //methods copied from tcds info space helper
+        /**
+         * Gets the value of the monitored item in the infospace, does not require a toolbox instance
+         * @param itemName is the name of the item in the infospace
+         */
         std::string getString( std::string const& itemName);
         bool        getBool(   std::string const& itemName);
         double      getDouble( std::string const& itemName);
@@ -133,6 +139,11 @@ namespace gem {
         uint64_t    getUInt64( std::string const& itemName);
       
         //methods copied from tcds info space helper, static, for access without an instance
+        /**
+         * Gets the value of the monitored item in the infospace, does not require a toolbox instance
+         * @param infoSpace is the infospace in which the item is stored
+         * @param itemName is the name of the item in the infospace
+         */
         static std::string getString( xdata::InfoSpace* infoSpace, std::string const& itemName);
         static bool        getBool(   xdata::InfoSpace* infoSpace, std::string const& itemName);
         static double      getDouble( xdata::InfoSpace* infoSpace, std::string const& itemName);
@@ -141,6 +152,12 @@ namespace gem {
         static uint64_t    getUInt64( xdata::InfoSpace* infoSpace, std::string const& itemName);
       
         //methods copied from tcds info space helper
+
+        /**
+         * Sets the value of the monitored item in the infospace
+         * @param itemName is the name of the item in the infospace
+         * @param value is the value to assign to the item in the infospace
+         */
         bool setString( std::string const& itemName, std::string const& value);
         bool setBool(   std::string const& itemName, bool        const& value);
         bool setDouble( std::string const& itemName, double      const& value);
@@ -152,6 +169,18 @@ namespace gem {
         std::string       name()          { return p_infoSpace->name(); };
         bool find(std::string const& key) { return m_itemMap.find(key) != m_itemMap.end(); };
 
+        /**
+         * Way to display items in a formatted way
+         * @returns the item from the infospace according to the type and format specified
+         */
+        std::string getFormattedItem(std::string const& itemName, std::string const& format);
+        
+        /**
+         * Takes care of cleaning up the infospace after a reset
+         * should empty all lists and maps of known items
+         */
+        void reset() {};
+        
       private:
         log4cplus::Logger m_gemLogger;
 
