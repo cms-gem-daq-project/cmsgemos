@@ -133,26 +133,34 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
       if (monitem->second.updatetype == GEMUpdateType::HW8) {
         // have to also get the mask...
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress(),
+                                                               p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask()));
       } else if (monitem->second.updatetype == GEMUpdateType::HW16) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress(),
+                                                               p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask()));
       } else if (monitem->second.updatetype == GEMUpdateType::HW24) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress(),
+                                                               p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask()));
       } else if (monitem->second.updatetype == GEMUpdateType::HW32) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress(),
+                                                               p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask()));
       } else if (monitem->second.updatetype == GEMUpdateType::HW64) {
-        uint32_t lower = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".LOWER").getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask();
-        uint32_t upper = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".UPPER").getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask();
+        uint32_t lower = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".LOWER").getAddress(),
+                                         p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
+        uint32_t upper = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".UPPER").getAddress(),
+                                         p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)upper) << 32) + lower);
       } else if (monitem->second.updatetype == GEMUpdateType::PROCESS) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress(),
+                                                               p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask()));
       } else if (monitem->second.updatetype == GEMUpdateType::TRACKER) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
-                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress()) & p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
+                                               p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress(),
+                                                               p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask()));
       } else if (monitem->second.updatetype == GEMUpdateType::NOUPDATE) {
         continue;
       } else {

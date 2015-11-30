@@ -549,6 +549,59 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
   return res;
 }
 
+uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& mask)
+{
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
+  uhal::HwInterface& hw = getGEMHwInterface();
+
+  unsigned retryCount = 0;
+  uint32_t res;
+  DEBUG("gem::hw::GEMHwDevice::readReg 0x" << std::setfill('0') << std::setw(8)
+        << std::hex << address << std::dec << std::endl);
+  while (retryCount < MAX_IPBUS_RETRIES) {
+    try {
+      uhal::ValWord<uint32_t> val = hw.getClient().read(address,mask);
+      hw.dispatch();
+      res = val.value();
+      DEBUG("Successfully read register 0x" << std::setfill('0') << std::setw(8)
+            << std::hex << address << std::dec << " with mask " 
+            << std::hex << mask << std::dec << " with value " 
+            << std::setfill('0') << std::setw(8) << std::hex << res << std::dec 
+            << " retry count is " << retryCount << ". Should move on to next operation");
+      return res;
+      //break;
+    } catch (uhal::exception::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not read register '0x%08x' (uHAL)", address);
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      if (knownErrorCode(errCode)) {
+        ++retryCount;
+        if (retryCount > 4)
+          DEBUG("Failed to read register 0x" << std::setfill('0') << std::setw(8)
+                << std::hex << address << std::dec << " with mask "
+                << std::hex << address << std::dec
+                << ", retrying. retryCount("<<retryCount<<")"
+                << std::endl);
+        updateErrorCounters(errCode);
+        continue;
+      } else {
+        ERROR(msg);
+        //XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
+    } catch (std::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not read register '0x%08x' (std)", address);
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      ERROR(msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+    }
+  }
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register 0x%08x",
+                                      address);
+  ERROR(msg);
+  //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  return res;
+}
+
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
