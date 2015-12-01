@@ -26,7 +26,9 @@ namespace gem {
         virtual ~GEMSupervisorMonitor();
         
         virtual void updateMonitorables();
-      private:
+        void buildStateTable(xgi::Output* out);
+          
+          private:
           
       }; // end class GEMSupervisorMonitor
             

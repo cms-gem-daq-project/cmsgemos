@@ -19,6 +19,7 @@ namespace gem {
       {
 
         friend class GEMSupervisorWeb;
+        friend class GEMSupervisorMonitor;
 
       public:
         XDAQ_INSTANTIATOR();

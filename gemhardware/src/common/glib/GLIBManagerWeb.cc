@@ -43,6 +43,10 @@ void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input * in, xgi::Output * ou
   *out << "</div>" << std::endl;
 
   *out << "</div>" << std::endl;
+  std::string updateLink = "/" + p_gemApp->m_urn + "/update";
+  *out << "<script type=\"text/javascript\">"            << std::endl
+       << "    startUpdate( \"" << updateLink << "\" );" << std::endl
+       << "</script>" << std::endl;
 }
 
 /*To be filled in with the monitor page code*/
