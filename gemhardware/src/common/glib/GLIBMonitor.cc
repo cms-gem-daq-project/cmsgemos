@@ -84,7 +84,22 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
   
 
-  //addMonitorableSet("", "HWMonitoring");
+  addMonitorableSet("IPBus", "HWMonitoring");
+  addMonitorable("IPBus", "HWMonitoring",
+                 std::make_pair("OptoHybrid_0", "GLIB.COUNTERS.IPBus"),
+                 GEMUpdateType::I2CSTAT, "i2chex");
+  addMonitorable("IPBus", "HWMonitoring",
+                 std::make_pair("OptoHybrid_1", "GLIB.COUNTERS.IPBus"),
+                 GEMUpdateType::I2CSTAT, "i2chex");
+  addMonitorable("IPBus", "HWMonitoring",
+                 std::make_pair("TRK_0", "GLIB.COUNTERS.IPBus"),
+                 GEMUpdateType::I2CSTAT, "i2chex");
+  addMonitorable("IPBus", "HWMonitoring",
+                 std::make_pair("TRK_1", "GLIB.COUNTERS.IPBus"),
+                 GEMUpdateType::I2CSTAT, "i2chex");
+  addMonitorable("IPBus", "HWMonitoring",
+                 std::make_pair("Counters", "GLIB.COUNTERS.IPBus"),
+                 GEMUpdateType::I2CSTAT, "i2chex");
 
   addMonitorableSet("GTX_LINKS", "HWMonitoring");
 
@@ -153,6 +168,16 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
         uint32_t upper = p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname+".UPPER").getAddress(),
                                          p_glib->getGEMHwInterface().getNode(monitem->second.regname).getMask());
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)upper) << 32) + lower);
+      } else if (monitem->second.updatetype == GEMUpdateType::I2CSTAT) {
+        std::stringstream strobeReg;
+        strobeReg << monitem->second.regname << ".Strobe." << monitem->first;
+        uint32_t strobe = p_glib->readReg(p_glib->getGEMHwInterface().getNode(strobeReg.str()).getAddress(),
+                                          p_glib->getGEMHwInterface().getNode(strobeReg.str()).getMask());
+        std::stringstream ackReg;
+        ackReg << monitem->second.regname << ".Ack." << monitem->first;
+        uint32_t ack = p_glib->readReg(p_glib->getGEMHwInterface().getNode(ackReg.str()).getAddress(),
+                                       p_glib->getGEMHwInterface().getNode(ackReg.str()).getMask());
+        (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)ack) << 32) + strobe);
       } else if (monitem->second.updatetype == GEMUpdateType::PROCESS) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,
                                                p_glib->readReg(p_glib->getGEMHwInterface().getNode(monitem->second.regname).getAddress(),
