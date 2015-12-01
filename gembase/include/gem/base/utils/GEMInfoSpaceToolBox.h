@@ -58,6 +58,7 @@ namespace gem {
                           HW24,     //!< Used for certain VFAT registers, 24-bits only, e.g., HitCount
                           HW32,     //!< Generic 32-bit hardware register
                           HW64,     //!< Combines two 32-bit registers into a 64-bit value
+                          I2CSTAT,  //!< Takes care of registers which have a strobe/acknowlege counter
                           PROCESS,  //!< Copied from Ferol, not sure of the use case
                           TRACKER,  //!< Copied from Ferol, not sure of the use case
                           NOUPDATE  //!< Value is not to be updated

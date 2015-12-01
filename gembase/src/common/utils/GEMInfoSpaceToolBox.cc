@@ -651,7 +651,13 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
   } else if (type == UINT64) { // end if type == UINT32
     uint64_t val = this->getUInt64(itemName);
     DEBUG(itemName << " has value " << std::hex << val << std::dec);
-    if ( format == "" || format == "hex" ) {
+    if ( format == "i2cdec" ) {
+      result << (val&(uint32_t)0xffffffff) << " (str.)" << std::endl
+             << (val>>32) << " (ack.) ";
+    } else if ( format == "i2chex" ) {
+      result << std::hex << "0x" << (val&(uint32_t)0xffffffff) << " (str.)" << std::endl
+             << "0x" << (val>>32) << " (ack.) " << std::dec;
+    } else if ( format == "" || format == "hex" ) {
       result << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
     } else if ( format == "dec" ) {
       result << std::dec << val;
