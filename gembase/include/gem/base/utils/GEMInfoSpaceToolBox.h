@@ -179,7 +179,7 @@ namespace gem {
          * Takes care of cleaning up the infospace after a reset
          * should empty all lists and maps of known items
          */
-        void reset() {};
+        void reset();
         
       private:
         log4cplus::Logger m_gemLogger;

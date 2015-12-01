@@ -30,16 +30,19 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gem
   addInfoSpace("Application",  gemApp->getAppISToolBox()); // update on state changes
   addInfoSpace("Configuration",gemApp->getCfgISToolBox()); // update on changes to parameters
   addInfoSpace("Monitoring",   gemApp->getMonISToolBox()); // update with interval try {
+
+  m_timerName = toolbox::toString("%s:MonitoringTimer%d",gemApp->m_urn,index);
+  
   try {
-    DEBUG("Creating timer with name " << gemApp->m_urn << ":MonitoringTimer%d");
-    m_timer = toolbox::task::getTimerFactory()->createTimer(toolbox::toString("%s:MonitoringTimer%d",
-                                                                              gemApp->m_urn,
-                                                                              index));
+    DEBUG("Creating timer with name " << m_timerName);
+    if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
+      m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
+    else
+      m_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
     m_timer->stop();
   } catch (toolbox::task::exception::Exception& te) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Cannot run GEMMonitor, timer already created", te);
   }
-  
 }
 
 gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* gemFSMApp, int const& index) : 
@@ -49,16 +52,19 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* 
   addInfoSpace("Configuration",gemFSMApp->getCfgISToolBox()); // update on changes to parameters
   addInfoSpace("Monitoring",   gemFSMApp->getMonISToolBox()); // update with interval
   addInfoSpace("AppState",     gemFSMApp->getAppStateISToolBox()); // update with interval for state changes
+  
+  m_timerName = toolbox::toString("%s:MonitoringTimer%d",gemFSMApp->m_urn,index);
+  
   try {
-    DEBUG("Creating timer with name " << gemFSMApp->m_urn << ":MonitoringTimer%d");
-    m_timer = toolbox::task::getTimerFactory()->createTimer(toolbox::toString("%s:MonitoringTimer%d",
-                                                                              gemFSMApp->m_urn,
-                                                                              index));
+    DEBUG("Creating timer with name " << m_timerName);
+    if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
+      m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
+    else
+      m_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
     m_timer->stop();
   } catch (toolbox::task::exception::Exception& te) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Cannot run GEMMonitor, timer already created", te);
   }
-  
 }
 
 gem::base::GEMMonitor::~GEMMonitor()
@@ -84,6 +90,12 @@ void gem::base::GEMMonitor::startMonitoring()
   }
   
   updateMonitorables();
+}
+
+void gem::base::GEMMonitor::stopMonitoring()
+{
+  DEBUG("GEMMonitor::stopMonitoring");
+  m_timer->stop();
 }
 
 void gem::base::GEMMonitor::timeExpired(toolbox::task::TimerEvent& event)
@@ -160,3 +172,13 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
   addInfoSpace(setname, infoSpace);
 }
 
+void gem::base::GEMMonitor::reset()
+{
+  stopMonitoring();
+  //have to get rid of the timer 
+  DEBUG("GEMMonitor::reset");
+  for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
+    m_timer->remove(infoSpace->first);
+  }
+  toolbox::task::getTimerFactory()->removeTimer(m_timerName);
+}
