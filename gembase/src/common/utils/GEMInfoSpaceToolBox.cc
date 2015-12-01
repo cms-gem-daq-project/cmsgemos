@@ -666,3 +666,17 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
   return result.str();
 }
 
+void gem::base::utils::GEMInfoSpaceToolBox::reset()
+{
+  // empty the itemMap, so it can be repopulated?
+  m_itemMap.clear();
+  
+  // empty the item lists?
+  m_uint32Items.clear();
+  m_uint64Items.clear();
+  m_boolItems.clear();
+  m_intItems.clear();
+  m_doubleItems.clear();
+  m_stringItems.clear();
+
+}

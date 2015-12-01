@@ -84,6 +84,11 @@ namespace gem {
         void startMonitoring();
 
         /**
+         * Stop the monitoring
+         */
+        void stopMonitoring();
+
+        /**
          * Inherited from TimerListener, must be implemented
          * @param event
          */
@@ -129,7 +134,7 @@ namespace gem {
          * Takes care of cleaning up the monitor after a reset
          * should empty all lists and maps of known items
          */
-        virtual void reset() {};
+        virtual void reset();
 
         typedef struct {
           std::string name;
@@ -155,7 +160,9 @@ namespace gem {
         
         log4cplus::Logger m_gemLogger;
         toolbox::task::Timer* m_timer;   // timer for general info space updates
+        std::string m_timerName;
         toolbox::task::Timer* m_hwtimer; // time for hw updates
+        std::string m_hwTimerName;
         
       };
   }
