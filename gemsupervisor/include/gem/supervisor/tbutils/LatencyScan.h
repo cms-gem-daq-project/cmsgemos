@@ -75,8 +75,6 @@ namespace gem {
 	//web display helpers
 	void scanParameters(xgi::Output* out)
 	  throw (xgi::exception::Exception);
-	void displayHistograms(xgi::Output* out)
-	  throw (xgi::exception::Exception);
         void selectTrigSource(xgi::Output* out)
 	  throw (xgi::exception::Exception);
 	    
@@ -93,6 +91,8 @@ namespace gem {
 	//	xdata::UnsignedShort  triggerSource_;
 	    
 	xdata::Integer  threshold;
+	xdata::Integer  deviceVT1;
+	xdata::Integer  deviceVT2;
 	xdata::Integer  MSPulseLength;
       };
 	  
