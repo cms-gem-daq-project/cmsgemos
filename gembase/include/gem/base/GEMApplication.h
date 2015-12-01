@@ -140,6 +140,8 @@ namespace gem {
         GEMWebApplication *p_gemWebInterface; /* */
         GEMMonitor        *p_gemMonitor;      /* */
 
+      public:
+        // should these be protected?
         /**
          * various application properties
          */

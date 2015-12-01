@@ -422,7 +422,9 @@ void gem::hw::glib::GLIBManager::initializeAction()
       //return;
       INFO("connected a card in slot " << (slot+1));
     } else {
-      WARN("GLIB in slot " << (slot+1) << " is not connected");
+      ERROR("GLIB in slot " << (slot+1) << " is not connected");
+      fireEvent("Fail");
+      //maybe raise exception so as to not continue with other cards?
     }
   }
   INFO("gem::hw::glib::GLIBManager::initializeAction end");
