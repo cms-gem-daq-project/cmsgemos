@@ -170,8 +170,6 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 	  virtual void showBufferLayout(xgi::Output* out)
 	    throw (xgi::exception::Exception);
-	  virtual void displayHistograms(xgi::Output* out)
-	    throw (xgi::exception::Exception)=0;
 	  virtual void redirect(xgi::Input* in, xgi::Output* out);
 	  
 	  //action performed callback

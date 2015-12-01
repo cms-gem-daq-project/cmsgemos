@@ -201,36 +201,6 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
 gem::supervisor::tbutils::GEMTBUtil::~GEMTBUtil()
   
 {
-  /*
-  wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:GEMTBUtil","waiting");
-  //should we check to see if it's running and try to stop?
-  wl_->cancel();
-  wl_ = 0;
-  */
-  
-  INFO("histo = 0x" << std::hex << histo << std::dec);
-  if (histo)
-    delete histo;
-  histo = 0;
-
-  for (int hi = 0; hi < 128; ++hi) {
-    INFO("histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
-    if (histos[hi])
-      delete histos[hi];
-    histos[hi] = 0;
-  }
-
-  INFO("outputCanvas = 0x" << std::hex << outputCanvas << std::dec);
-  if (outputCanvas)
-    delete outputCanvas;
-  outputCanvas = 0;
-  
-  //if (scanStream) {
-  //  if (scanStream->is_open())
-  //    scanStream->close();
-  //  delete scanStream;
-  //}
-  //scanStream = 0;
 
   if (fsmP_)
     delete fsmP_;
@@ -753,13 +723,6 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
   hw_semaphore_.give();
 }
 
-
-void gem::supervisor::tbutils::GEMTBUtil::displayHistograms(xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  //needs to be explicitly defined in the derived class
-}
-
 void gem::supervisor::tbutils::GEMTBUtil::redirect(xgi::Input *in, xgi::Output* out) {
   //change the status to halting and make sure the page displays this information
   std::string redURL = "/" + getApplicationDescriptor()->getURN() + "/Default";
@@ -922,7 +885,6 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
       use the file name of the histogram that is saved in readFIFO
     */
     *out << "<div class=\"xdaq-tab\" title=\"Channel histograms\">"  << std::endl;
-    displayHistograms(out);
     
     *out << "</div>" << std::endl;
     *out << "</div>" << std::endl;
@@ -1462,21 +1424,8 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
     is_running_ = false;
   }
   
-  /*  INFO("histolatency = 0x" << std::hex << histolatency << std::dec);
-  if (histolatency)
-    delete histolatency;
-  histolatency = 0;
-  */
 
-  //if (scanStream->is_open())
   INFO("Closling file");
-  //scanStream->close();
-  //delete scanStream;
-  //scanStream = 0;
-  
-  //wl_->submit(stopSig_);
-  //wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:GEMTBUtil","waiting");
-  //wl_->cancel();
   sleep(0.001);
   is_working_ = false;
 }
@@ -1504,34 +1453,6 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
   event_ = 0;
   sumVFAT_ = 0;
   counter_ = {0,0,0};
-
-  /*  delete glibDevice_;
-  glibDevice_ = NULL;
-
-  delete optohybridDevice_;
-  optohybridDevice_ = NULL;
-
-  delete gemDataParker;
-  gemDataParker = NULL;
-  */
-
-  /*  INFO("histolatency = 0x" << std::hex << histolatency <<
- std::dec);
-  if (histolatency)
-    delete histolatency;
-  histolatency = 0;
-  */
-  INFO("histo = 0x" << std::hex << histo << std::dec);
-  if (histo)
-    delete histo;
-  histo = 0;
-
-  for (int hi = 0; hi < 128; ++hi) {
-    INFO("histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
-    if (histos[hi])
-      delete histos[hi];
-    histos[hi] = 0;
-  }
 
   //wl_->submit(haltSig_);
   

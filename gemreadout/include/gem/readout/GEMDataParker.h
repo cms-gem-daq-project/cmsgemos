@@ -74,6 +74,9 @@ namespace gem {
                            );
       int queueDepth       () {return dataque.size();}
 
+      //      void ScanRoutines    ( u_int8_t latency_m, u_int8_t VT1_m, u_int8_t VT2_m,  gem::readout::GEMDataAMCformat::GEBData& geb);
+      void ScanRoutines    ( uint8_t const& readout_mask, u_int8_t latency_m, u_int8_t VT1_m, u_int8_t VT2_m);
+
       // SOAP interface, updates the header used for calibration runs
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)
         throw (xoap::exception::Exception);

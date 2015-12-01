@@ -632,3 +632,21 @@ void gem::readout::GEMDataParker::readVFATblock(std::queue<uint32_t>& m_dataque)
     DEBUG(" ::GEMEventMaker (post pop)  dataque.size " << m_dataque.size() );
   }// end queue
 }
+void gem::readout::GEMDataParker::ScanRoutines(uint8_t const& readout_mask,u_int8_t latency_m, u_int8_t VT1_m, u_int8_t VT2_m)
+{
+  // RunType:4, all other depends from RunType
+  AMCGEBData  geb;
+  //  gem::readout::GEMDataAMCformat::GEBData& geb;
+  //  AMCGEBData&  geb;
+  uint64_t RunType = BOOST_BINARY( 1 ); // :4
+  /* uint8_t latency_bin = BOOST_BINARY( latency_m ); // :4
+  uint8_t VT1_bin = BOOST_BINARY( VT1_m ); // :4
+  uint8_t VT2_bin = BOOST_BINARY( VT2_m ); // :4
+  */
+
+  //  uint32_t* pDupm =  gemDataParker->dumpData(readout_mask);
+
+  gem::readout::GEMDataParker::dumpData(readout_mask);
+
+  geb.runhed  = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
+}

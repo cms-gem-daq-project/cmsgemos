@@ -42,10 +42,10 @@
 
 
 /*#include "xoap/Method.h"
-#include "xoap/MessageFactory.h"
-#include "xoap/MessageReference.h"
-#include "xoap/domutils.h"
-#include "xoap/SOAPEnvelope.h"
+  #include "xoap/MessageFactory.h"
+  #include "xoap/MessageReference.h"
+  #include "xoap/domutils.h"
+  #include "xoap/SOAPEnvelope.h"
 */
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::LatencyScan)
@@ -64,14 +64,16 @@ void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::
   maxLatency    = 17U;
   stepSize      = 1U;
   nTriggers = 10;
-  threshold = 25;
+  deviceVT1 = 25;
+  deviceVT2 = 0;
   MSPulseLength = 3;
   //  triggerSource_ = 0x7;
 
   bag->addField("minLatency",  &minLatency);
   bag->addField("maxLatency",  &maxLatency);
   bag->addField("stepSize",    &stepSize );
-  bag->addField("threshold",   &threshold );
+  bag->addField("VT2",   &deviceVT1 );
+  bag->addField("VT1",   &deviceVT2 );
   bag->addField("MSPulseLength",   &MSPulseLength );
   bag->addField("nTriggers",    &nTriggers   );
   //  bag->addField("triggerSource_",&triggerSource_);
@@ -112,13 +114,6 @@ gem::supervisor::tbutils::LatencyScan::~LatencyScan()
   //should we check to see if it's running and try to stop?
   wl_->cancel();
   wl_ = 0;
-
-  if (histolatency) delete histolatency;
-  histolatency = 0;
-
-  if (outputCanvas) delete outputCanvas;
-  outputCanvas = 0;
-
 }
 bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 {
@@ -134,13 +129,13 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
   //send L1A and Calpulse
   if((unsigned)confParams_.bag.triggerSource_.value_ == (unsigned)0x1){
-  optohybridDevice_->sendL1ACal(1,15);  //from T1 generator
-  sleep(0.5);
+    optohybridDevice_->sendL1ACal(1,15);  //from T1 generator
+    sleep(0.5);
   }/*
-  if((unsigned)confParams_.bag.triggerSource_.value_ == (unsigned)0x3){
-  optohybridDevice_->sendCalPulse(1);  //from T1 generator
-  //  sleep(1);
-  }*/
+     if((unsigned)confParams_.bag.triggerSource_.value_ == (unsigned)0x3){
+     optohybridDevice_->sendCalPulse(1);  //from T1 generator
+     //  sleep(1);
+     }*/
   
   //count triggers and Calpulses coming from TTC
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x1);
@@ -212,31 +207,21 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	    
       wl_->submit(readSig_);    
 	    
-      histolatency->Fill((int)currentLatency_, eventsSeen_);
-      //histolatency->Fill((int)currentLatency_, channelSeen_);
-	    
-      std::string imgName = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/latencyscan/"
-	+confParams_.bag.deviceName.toString()+"_Latency_scan.png";
-	    
-      outputCanvas->cd();
-      histolatency->Draw("ep0");
-      outputCanvas->Update();
-      outputCanvas->SaveAs(TString(imgName));
     }// end for  
     hw_semaphore_.take();// vfat setrun0
     wl_semaphore_.take();
 	  
- // flush FIFO, how to disable a specific, misbehaving, chip
-  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
-  glibDevice_->flushFIFO(readout_mask);
-  while (glibDevice_->hasTrackingData(readout_mask)) {
+    // flush FIFO, how to disable a specific, misbehaving, chip
+    INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+    DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
     glibDevice_->flushFIFO(readout_mask);
-    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
-                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
-  }
-  // once more for luck
-  glibDevice_->flushFIFO(readout_mask);
+    while (glibDevice_->hasTrackingData(readout_mask)) {
+      glibDevice_->flushFIFO(readout_mask);
+      std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
+								   glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
+    }
+    // once more for luck
+    glibDevice_->flushFIFO(readout_mask);
   
     //reset counters
     optohybridDevice_->resetL1ACount(0x1);
@@ -276,6 +261,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	currentLatency_ = (*chip)->getLatency();
+	scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
+	scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
 	(*chip)->setRunMode(1);      
       }
     
@@ -311,7 +298,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   }//end else triggerseen < N triggers
 
   return false;
-  }//end run
+}//end run
 
 
 
@@ -329,7 +316,7 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
   uint32_t bufferDepth;
   uint32_t TrigReg;
 
-    bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
+  bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
   
   LOG4CPLUS_INFO(getApplicationLogger()," readFIFO bufferDepth " << std::hex << bufferDepth << std::dec );
   LOG4CPLUS_INFO(getApplicationLogger(), " CurLaten " << (int)currentLatency_ 
@@ -350,111 +337,19 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
 
 
     // read trigger data 
-      data = glibDevice_->getTrackingData(0x0,glibDevice_->getFIFOOccupancy(readout_mask));
-      TrigReg = glibDevice_->readTriggerFIFO(readout_mask);
+    data = glibDevice_->getTrackingData(0x0,glibDevice_->getFIFOOccupancy(readout_mask));
+    TrigReg = glibDevice_->readTriggerFIFO(readout_mask);
 
     //if no data has been found, shouldn't be the case, but still, need to not process any further:
     if (data.size() == 0) {
-        bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
+      bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
       continue;
     }
     
-    for (auto iword = data.begin(); iword != data.end(); ++iword){
-      data_fifo.push(*iword);
-    }
-     
-    //make sure we are aligned
-    uint16_t b1010, b1100, b1110;
-    uint16_t bcn, evn, crc, chipid;
-    uint8_t  flags;
-    uint32_t BX;
-    uint32_t data10, data11, data20, data21, data30, data31, data40, data41;
-    uint64_t data1, data2, data3, data4, msData, lsData;
+    //void* pDupm = gemDataParker->ScanRoutines(readout_mask,currentLatency_,deviceVT1,deviceVT2);
+    gemDataParker->ScanRoutines(readout_mask,currentLatency_,scanParams_.bag.deviceVT1,scanParams_.bag.deviceVT2);
 
-    //    uint32_t datafront = 0;
-    for(int j=1; j<8;j++){
-    uint32_t datafront = data_fifo.front();
-      if ( j == 1 ){
-	b1010   = ((0xf0000000 & datafront) >> 28 );
-	bcn     = ((0x0fff0000 & datafront) >> 16 );
-	b1100   = ((0x0000f000 & datafront) >> 12 );
-	evn     = (uint8_t)((0x00000ff0 & datafront) >>  4 );
-	flags   = (0x0000000f & datafront);
-      } else if ( j == 2 ){
-	b1110   = ((0xf0000000 & datafront) >> 28 );
-	chipid  = ((0x0fff0000 & datafront) >> 16 );
-	data10   = (uint16_t)((0x0000ffff & datafront) << 16 );
-      }      else if ( j == 3 ){
-	data11   = (uint16_t)((0xffff0000 & datafront) >> 16 );
-	data20   = (uint16_t)((0x0000ffff & datafront) << 16 );
-      } else if ( j == 4 ){
-	data40   = (uint16_t)((0x0000ffff & datafront) << 16 );
-	data31   = (uint16_t)((0xffff0000 & datafront) >> 16 );
-      } else if ( j == 5 ){
-	data21   = (uint16_t)((0xffff0000 & datafront) >> 16 );
-	data30   = (uint16_t)((0x0000ffff & datafront) << 16 );
-      } else if ( j == 6 ){
-	data41   = (uint16_t)((0xffff0000 & datafront) >> 16 );
-	crc = (uint16_t)(0x0000ffff & datafront);
-      } else if ( j == 7 ){
-	BX      = (uint32_t)datafront;
-      }
-
-      /*
-      if (!(((b1010 == 0xa) && (b1100==0xc)))){
-	LOG4CPLUS_INFO(getApplicationLogger(),"VFAT Data Package is misAligned");
-	bool misAligned_ = true;
-	while ((misAligned_) && (data_fifo.size()>6)){
-	  
-	  data_fifo.pop();
-	  datafront = data_fifo.front();
-	  b1010   = ((0xf0000000 & datafront) >> 28 );
-	  bcn     = ((0x0fff0000 & datafront) >> 16 );
-	  b1100   = ((0x0000f000 & datafront) >> 12 );
-	  evn     = (uint8_t)((0x00000ff0 & datafront) >>  4 );
-	  flags   = (0x0000000f & datafront);
-	  if ((b1010 == 0xa && b1100 == 0xc)) { misAligned_ = false;}
-	}//end while misaligned
-      }// end if it is misaligned
-      */            
-
-    
-    data_fifo.pop();
-    
-    }// end for words
-
-    data1  = data10 | data11;
-    data2  = data20 | data21;
-    data3  = data30 | data31;
-    data4  = data40 | data41;
-
-    
-    lsData = (data3 << 32) | (data4);
-    msData = (data1 << 32) | (data2);
-
-    
-    vfat.BC     = ( b1010 << 12 ) | (bcn);                // 1010     | bcn:12
-    vfat.EC     = ( b1100 << 12 ) | (evn << 4) | (flags); // 1100     | EC:8      | Flag:4 (zero?)
-    vfat.ChipID = ( b1110 << 12 ) | (chipid);             // 1110     | ChipID:12
-    vfat.lsData = lsData;                                 // lsData:64
-    vfat.msData = msData;                                 // msData:64
-    vfat.BXfrOH = BX;                                     // BXfrOH:32
-    vfat.crc    = crc;                                    // crc:16
-   
-    //print data package    
-    gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
-    
-    if((lsData>>63) && 0x1){
-      ++channelSeen_;
-    }
-
-    //only count events if there is a hit in the data packet
-    //without this, it will just count the reveived data packets, which is not quite right
-    if (lsData || msData){
-      ++eventsSeen_;
-    }    
-
-      bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
+    bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
   }//end while buffer
   
   
@@ -467,6 +362,7 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
 
   return false;
 }
+
 
 void gem::supervisor::tbutils::LatencyScan::scanParameters(xgi::Output *out)
   throw (xgi::exception::Exception)
@@ -517,11 +413,19 @@ void gem::supervisor::tbutils::LatencyScan::scanParameters(xgi::Output *out)
       .set("value",boost::str(boost::format("%d")%(eventsSeen_)))
 	 << cgicc::br()   << std::endl
 
-	 << cgicc::label("Set Threshold").set("for","Threshold") << std::endl
-	 << cgicc::input().set("id","Threshold").set("name","Threshold")
+	 << cgicc::label("Set VT1").set("for","VT1") << std::endl
+	 << cgicc::input().set("id","VT1").set("name","VT1")
       .set("type","number").set("min","0").set("max","255")
-      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.threshold)))
+      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.deviceVT1)))
+	 << std::endl
+      //	 << cgicc::br()  // << std::endl
+
+	 << cgicc::label("Set VT2").set("for","VT2") << std::endl
+	 << cgicc::input().set("id","VT2").set("name","VT2")
+      .set("type","number").set("min","0").set("max","255")
+      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.deviceVT2)))
 	 << cgicc::br()  // << std::endl
+
 	 << cgicc::label("Set MSPulseLength").set("for","MSPulseLength") << std::endl
 	 << cgicc::input().set("id","MSPulseLength").set("name","MSPulseLength")
       .set("type","number").set("min","0").set("max","3")
@@ -530,10 +434,10 @@ void gem::supervisor::tbutils::LatencyScan::scanParameters(xgi::Output *out)
 
 
       /*	 << cgicc::label("MinLatency").set("for","MinLatency") << std::endl
-	 << cgicc::input().set("id","MinLatency").set("name","MinLatency")
-      .set("type","number").set("min","0").set("max","255")
-      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.minLatency)))
-      << std::endl*/
+		 << cgicc::input().set("id","MinLatency").set("name","MinLatency")
+		 .set("type","number").set("min","0").set("max","255")
+		 .set("value",boost::str(boost::format("%d")%(scanParams_.bag.minLatency)))
+		 << std::endl*/
 
 
 	 << cgicc::span() << std::endl;
@@ -547,29 +451,6 @@ void gem::supervisor::tbutils::LatencyScan::scanParameters(xgi::Output *out)
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
-
-
-
-//
-void gem::supervisor::tbutils::LatencyScan::displayHistograms(xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  try {
-    *out << cgicc::img().set("src","/gemdaq/gemsupervisor/html/images/tbutils/latencyscan/"+
-			     confParams_.bag.deviceName.toString()+"_Latency_scan.png")
-      .set("id","vfatChannelHisto")
-	 << cgicc::br()  << std::endl;
-  }
-  catch (const xgi::exception::Exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying displayHistograms(xgi): " << e.what());
-    XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying displayHistograms(std): " << e.what());
-    XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-}
-
 
 //
 void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Output *out)
@@ -613,7 +494,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 
       selectOptohybridDevice(out);
       selectMultipleVFAT(out);
-      selectTrigSource(out);
+      //      selectTrigSource(out);
       scanParameters(out);
 
       *out << cgicc::input().set("type", "submit")
@@ -734,7 +615,6 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
       use the file name of the histogram that is saved in readFIFO
     */
     *out << "<div class=\"xdaq-tab\" title=\"Scan histogram\">"  << std::endl;
-    displayHistograms(out);
 
     *out << "</div>" << std::endl;
     *out << "</div>" << std::endl;
@@ -879,8 +759,8 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
     }
     if (strcmp((**new_triggersource).c_str(),"External Trigger from LEMO") == 0) {
       confParams_.bag.triggerSource_ = 2;
-    optohybridDevice_->setTrigSource(0x2);//from Ext_LEMO   
-    INFO("Real signals and the trigger comes from the LEMO Cable. TrigSource : " << confParams_.bag.triggerSource_ );
+      optohybridDevice_->setTrigSource(0x2);//from Ext_LEMO   
+      INFO("Real signals and the trigger comes from the LEMO Cable. TrigSource : " << confParams_.bag.triggerSource_ );
     }
 
   }//end try
@@ -960,42 +840,44 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
     (*chip)->setMSPolarity(     0x1); //negative
     (*chip)->setCalPolarity(    0x1); //negative
 
-  (*chip)->setProbeMode(        0x0);
-  (*chip)->setLVDSMode(         0x0);
-  (*chip)->setHitCountCycleTime(0x0); //maximum number of bits
+    (*chip)->setProbeMode(        0x0);
+    (*chip)->setLVDSMode(         0x0);
+    (*chip)->setHitCountCycleTime(0x0); //maximum number of bits
 
-  (*chip)->setHitCountMode( 0x0);
-  (*chip)->setMSPulseLength(scanParams_.bag.MSPulseLength);
-  (*chip)->setInputPadMode( 0x0);
-  (*chip)->setTrimDACRange( 0x0);
-  (*chip)->setBandgapPad(   0x0);
-  (*chip)->sendTestPattern( 0x0);
+    (*chip)->setHitCountMode( 0x0);
+    (*chip)->setMSPulseLength(scanParams_.bag.MSPulseLength);
+    (*chip)->setInputPadMode( 0x0);
+    (*chip)->setTrimDACRange( 0x0);
+    (*chip)->setBandgapPad(   0x0);
+    (*chip)->sendTestPattern( 0x0);
 
-  (*chip)->setVCal(100);
-  (*chip)->setIPreampIn(  168);
-  (*chip)->setIPreampFeed(150);
-  (*chip)->setIPreampOut(  80);
-  (*chip)->setIShaper(    150);
-  (*chip)->setIShaperFeed(100);
-  (*chip)->setIComp(       75);//120
+    (*chip)->setVCal(100);
+    (*chip)->setIPreampIn(  168);
+    (*chip)->setIPreampFeed(150);
+    (*chip)->setIPreampOut(  80);
+    (*chip)->setIShaper(    150);
+    (*chip)->setIShaperFeed(100);
+    (*chip)->setIComp(       75);//120
+    /*
+    (*chip)->setVThreshold1(scanParams_.bag.threshold);//50
+    (*chip)->setVThreshold2(  0);*/
 
-  (*chip)->setVThreshold1(scanParams_.bag.threshold);//50
-  (*chip)->setVThreshold2(  0);
+    (*chip)->setVThreshold1(scanParams_.bag.deviceVT1);//50
+    (*chip)->setVThreshold2(scanParams_.bag.deviceVT2);//0
 
+    LOG4CPLUS_INFO(getApplicationLogger(), "setting DAC mode to normal");
+    (*chip)->setDACMode(gem::hw::vfat::StringToDACMode.at("OFF"));
 
-  LOG4CPLUS_INFO(getApplicationLogger(), "setting DAC mode to normal");
-  (*chip)->setDACMode(gem::hw::vfat::StringToDACMode.at("OFF"));
+    LOG4CPLUS_INFO(getApplicationLogger(), "setting starting latency value");
+    (*chip)->setLatency(    scanParams_.bag.minLatency);
 
-  LOG4CPLUS_INFO(getApplicationLogger(), "setting starting latency value");
-  (*chip)->setLatency(    scanParams_.bag.minLatency);
+    LOG4CPLUS_INFO(getApplicationLogger(), "reading back current latency value");
+    currentLatency_ = (*chip)->getLatency();
 
-  LOG4CPLUS_INFO(getApplicationLogger(), "reading back current latency value");
-  currentLatency_ = (*chip)->getLatency();
+    LOG4CPLUS_INFO(getApplicationLogger(), "CurrentLatency" << currentLatency_);
 
-  LOG4CPLUS_INFO(getApplicationLogger(), "CurrentLatency" << currentLatency_);
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "device configured");
-  is_configured_ = true;
+    LOG4CPLUS_INFO(getApplicationLogger(), "device configured");
+    is_configured_ = true;
 
 
 
@@ -1029,19 +911,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
   hw_semaphore_.give();
 
-  if (histolatency) delete histolatency;
-  histolatency = 0;
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "setting up histogram");
-  int minVal = scanParams_.bag.minLatency;
-  int maxVal = scanParams_.bag.maxLatency;
-  int nBins = (maxVal - minVal +1)/(scanParams_.bag.stepSize);
-  histolatency = new TH1D("LatencyScan", "Latency scan", nBins, minVal-0.5, maxVal+0.5);
-
-  outputCanvas = new TCanvas("outputCanvas","outputCanvas",600,800);
-
   LOG4CPLUS_INFO(getApplicationLogger(), "configure routine completed");
-
 
   is_working_    = false;
 
@@ -1139,15 +1009,6 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   //start readout
   scanStream.close();
 
-  if (histolatency) {
-    delete histolatency;
-    histolatency = 0;
-  }
-  int minVal = scanParams_.bag.minLatency;
-  int maxVal = scanParams_.bag.maxLatency;
-  int nBins = (maxVal - minVal +1)/(scanParams_.bag.stepSize);
-  histolatency = new TH1D("LatencyScan", "Latency scan", nBins, minVal-0.5, maxVal+0.5);
-
   wl_->submit(runSig_);
   is_working_ = false;
   wl_semaphore_.give();
@@ -1165,7 +1026,8 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
     scanParams_.bag.minLatency = 0U;
     scanParams_.bag.maxLatency = 25U;
     scanParams_.bag.stepSize   = 1U;
-    scanParams_.bag.threshold  = 25U;
+    scanParams_.bag.deviceVT1  = 25U;
+    scanParams_.bag.deviceVT2  = 0U;
     scanParams_.bag.MSPulseLength  = 3;
     confParams_.bag.triggerSource_  = 8;
     //    confParams_.bag.deviceName   = "";
@@ -1243,13 +1105,13 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
     INFO("After selection function Trigger Source : " << confParams_.bag.triggerSource_);       
   }//end try
   catch (const xgi::exception::Exception& e) {
-  INFO("Something went wrong setting the trigger source): " << e.what());
-  XCEPT_RAISE(xgi::exception::Exception, e.what());
+    INFO("Something went wrong setting the trigger source): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
- catch (const std::exception& e) {
-   INFO("Something went wrong setting the trigger source): " << e.what());
-   XCEPT_RAISE(xgi::exception::Exception, e.what());
- }
+  catch (const std::exception& e) {
+    INFO("Something went wrong setting the trigger source): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  }
 
 }// end void selectTrigSource
 
