@@ -459,7 +459,9 @@ void gem::hw::glib::GLIBManager::configureAction()
       //need to reset optical links?
       //reset counters?
     } else {
-      WARN("GLIB in slot " << (slot+1) << " is not connected");
+      ERROR("GLIB in slot " << (slot+1) << " is not connected");
+      fireEvent("Fail");
+      //maybe raise exception so as to not continue with other cards?
     }
   }
   

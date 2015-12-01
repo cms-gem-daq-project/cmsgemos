@@ -462,7 +462,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         //need to reset optical links?
         //reset counters?
       } else {
-        WARN("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        ERROR("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        fireEvent("Fail");
+        //maybe raise exception so as to not continue with other cards?
       }
     }
   }
