@@ -39,7 +39,6 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::ThresholdScan)
 bool First = true, Last = false;
 
 TH1F* RTime = NULL;
-TCanvas *can = NULL;
 
 void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
@@ -47,7 +46,6 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
   minThresh    = -80;
   maxThresh    = 20;
   stepSize     = 5U;
-  currentHisto = 0U;
 
   deviceVT1    = 0x0;
   deviceVT2    = 0x0;
@@ -55,7 +53,6 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
   bag->addField("minThresh",   &minThresh);
   bag->addField("maxThresh",   &maxThresh);
   bag->addField("stepSize",    &stepSize );
-  bag->addField("currentHisto",&currentHisto);
   bag->addField("deviceVT1",   &deviceVT1   );
   bag->addField("deviceVT2",   &deviceVT2   );
 
@@ -87,17 +84,6 @@ gem::supervisor::tbutils::ThresholdScan::~ThresholdScan()
   //should we check to see if it's running and try to stop?
   wl_->cancel();
   wl_ = 0;
-  
-  if (histo) delete histo;
-  histo = 0;
-
-  for (int hi = 0; hi < 128; ++hi) {
-    if (histos[hi]) delete histos[hi];
-    histos[hi] = 0;
-  }
-
-  if (outputCanvas) delete outputCanvas;
-  outputCanvas = 0;
 
 }
 
@@ -387,43 +373,10 @@ for (auto iword = data.begin(); iword != data.end(); ++iword){
     gem::readout::GEMDataAMCformat::printVFATdataBits(ievent, vfat);
 
       bufferDepth = glibDevice_->getFIFOOccupancy(readout_mask);
-
-    //Maybe add another histogramt that is a combined all channels histogram
-    histo->Fill(delVT,(lsData||msData));
-
-    //I think it would be nice to time this...
-    for (int chan = 0; chan < 128; ++chan) {
-      if (chan < 64)
-	histos[chan]->Fill(delVT,((lsData>>chan))&0x1);
-      else
-	histos[chan]->Fill(delVT,((msData>>(chan-64)))&0x1);
-    }
    
   } // end while buffer
 
   hw_semaphore_.give();
-
-  std::string imgRoot = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/tscan/";
-  std::stringstream ss;
-  ss << "chanthresh0.png";
-  std::string imgName = ss.str();
-  outputCanvas->cd();
-  histo->Draw("ep0l");
-  outputCanvas->Update();
-  outputCanvas->SaveAs(TString(imgRoot+imgName));
-
-  for (int chan = 0; chan < 128; ++chan) {
-    imgRoot = "${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html/images/tbutils/tscan/";
-    ss.clear();
-    ss.str(std::string());
-    ss << "chanthresh" << (chan+1) << ".png";
-    imgName = ss.str();
-    outputCanvas->cd();
-    histos[chan]->Draw("ep0l");
-    outputCanvas->Update();
-    outputCanvas->SaveAs(TString(imgRoot+imgName));
-  }
-
   wl_semaphore_.give();
 
   return false;
@@ -502,54 +455,6 @@ void gem::supervisor::tbutils::ThresholdScan::scanParameters(xgi::Output *out)
   }
   catch (const std::exception& e) {
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying VFATS(std): " << e.what());
-    XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-}
-
-void gem::supervisor::tbutils::ThresholdScan::displayHistograms(xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  try {
-    *out << cgicc::form().set("method","POST").set("action", "") << std::endl;
-    
-    *out << cgicc::table().set("class","xdaq-table") << std::endl
-	 << cgicc::thead() << std::endl
-	 << cgicc::tr()    << std::endl //open
-	 << cgicc::th()    << "Select Channel" << cgicc::th() << std::endl
-	 << cgicc::th()    << "Histogram"      << cgicc::th() << std::endl
-	 << cgicc::tr()    << std::endl //close
-	 << cgicc::thead() << std::endl 
-      
-	 << cgicc::tbody() << std::endl;
-    
-    *out << cgicc::tr()  << std::endl;
-    *out << cgicc::td()
-	 << cgicc::label("Channel").set("for","ChannelHist") << std::endl
-	 << cgicc::input().set("id","ChannelHist").set("name","ChannelHist")
-      .set("type","number").set("min","0").set("max","128")
-      .set("value",scanParams_.bag.currentHisto.toString())
-	 << std::endl
-	 << cgicc::br() << std::endl;
-    *out << cgicc::input().set("class","button").set("type","button")
-      .set("value","SelectChannel").set("name","DisplayHistogram")
-      .set("onClick","changeImage(this.form)");
-    *out << cgicc::td() << std::endl;
-
-    *out << cgicc::td()  << std::endl
-	 << cgicc::img().set("src","/gemdaq/gemsupervisor/html/images/tbutils/tscan/chanthresh"+scanParams_.bag.currentHisto.toString()+".png")
-      .set("id","vfatChannelHisto")
-	 << cgicc::td()    << std::endl;
-    *out << cgicc::tr()    << std::endl
-	 << cgicc::tbody() << std::endl
-	 << cgicc::table() << std::endl;
-    *out << cgicc::form() << cgicc::br() << std::endl;
-  }
-  catch (const xgi::exception::Exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying displayHistograms(xgi): " << e.what());
-    XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying displayHistograms(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -714,7 +619,6 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
       use the file name of the histogram that is saved in readFIFO
     */
     *out << "<div class=\"xdaq-tab\" title=\"Channel histograms\">"  << std::endl;
-    displayHistograms(out);
     
     *out << "</div>" << std::endl;
     *out << "</div>" << std::endl;
@@ -950,43 +854,6 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   is_configured_ = true;
   hw_semaphore_.give();
 
-  if (histo) {
-    delete histo;
-    histo = 0;
-  }
-  std::stringstream histName, histTitle;
-  histName  << "allchannels";
-  histTitle << "Threshold scan for all channels";
-
-  int minTh = scanParams_.bag.minThresh;
-  int maxTh = scanParams_.bag.maxThresh;
-  int nBins = ((maxTh - minTh) + 1)/(scanParams_.bag.stepSize);
-
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"histogram name and title: " << histName.str() 
-		  << ", " << histTitle.str()
-		  << "(" << nBins << " bins)");
-  histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
-  
-  for (unsigned int hi = 0; hi < 128; ++hi) {
-    if (histos[hi]) {
-      delete histos[hi];
-      histos[hi] = 0;
-    }
-    
-    histName.clear();
-    histName.str(std::string());
-    histTitle.clear();
-    histTitle.str(std::string());
-
-    histName  << "channel"<<(hi+1);
-    histTitle << "Threshold scan for channel "<<(hi+1);
-    LOG4CPLUS_DEBUG(getApplicationLogger(),"histogram name and title: " << histName.str() 
-		    << ", " << histTitle.str()
-		    << "(" << nBins << " bins)");
-    histos[hi] = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
-  }
-  outputCanvas = new TCanvas("outputCanvas","outputCanvas",600,800);
-
   is_working_    = false;
 }
 
@@ -1080,44 +947,6 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
   //start readout
   scanStream.close();
-
-  if (histo) {
-    delete histo;
-    histo = 0;
-  }
-  std::stringstream histName, histTitle;
-  histName  << "allchannels";
-  histTitle << "Threshold scan for all channels";
-  int minTh = scanParams_.bag.minThresh;
-  int maxTh = scanParams_.bag.maxThresh;
-  int nBins = ((maxTh - minTh) + 1)/(scanParams_.bag.stepSize);
-
-  /*
-  //write Applicatie  header
-  ah.minTh = minTh;
-  ah.maxTh = maxTh;
-  ah.stepSize = scanParams_.bag.stepSize;
-  keepAppHeader(tmpFileName, ah);
-  */
-
-  histo = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
-  
-  for (unsigned int hi = 0; hi < 128; ++hi) {
-    LOG4CPLUS_INFO(getApplicationLogger(),"histos[" << hi << "] = 0x" << std::hex << histos[hi] << std::dec);
-    if (histos[hi]) {
-      delete histos[hi];
-      histos[hi] = 0;
-    }
-    
-    histName.clear();
-    histName.str(std::string());
-    histTitle.clear();
-    histTitle.str(std::string());
-
-    histName  << "channel"<<(hi+1);
-    histTitle << "Threshold scan for channel "<<(hi+1);
-    histos[hi] = new TH1F(histName.str().c_str(), histTitle.str().c_str(), nBins, minTh-0.5, maxTh+0.5);
-  }
 
   //flush fifo
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
