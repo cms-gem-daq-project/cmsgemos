@@ -9,8 +9,8 @@
 	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
       </properties>
     </xc:Application>
-
 <!--
+
     <xc:Application class="gem::supervisor::tbutils::ADCScan" id="255" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ADCScan" xsi:type="soapenc:Struct">
 	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
