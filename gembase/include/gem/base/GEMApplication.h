@@ -107,6 +107,7 @@ namespace gem {
         void xgiDefault(xgi::Input* in, xgi::Output* out);
         void xgiMonitor(xgi::Input* in, xgi::Output* out);
         void xgiExpert( xgi::Input* in, xgi::Output* out);
+        void jsonUpdate(xgi::Input* in, xgi::Output* out);
 
         std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppISToolBox() { return p_appInfoSpaceToolBox;     };
         std::shared_ptr<utils::GEMInfoSpaceToolBox> getMonISToolBox() { return p_monitorInfoSpaceToolBox; };

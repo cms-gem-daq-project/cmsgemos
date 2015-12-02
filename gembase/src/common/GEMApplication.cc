@@ -74,6 +74,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiDefault, "Default"    );
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
+  xgi::framework::deferredbind(this, this, &GEMApplication::jsonUpdate, "jsonUpdate" );
 
   p_appInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
   //what other listeners are available through this interface?
@@ -215,5 +216,10 @@ void gem::base::GEMApplication::xgiMonitor(xgi::Input* in, xgi::Output* out)
 void gem::base::GEMApplication::xgiExpert(xgi::Input* in, xgi::Output* out)
 {
   p_gemWebInterface->expertPage(in,out);
+}
+
+void gem::base::GEMApplication::jsonUpdate(xgi::Input* in, xgi::Output* out)
+{
+  p_gemWebInterface->jsonUpdate(in,out);
 }
 // End of file

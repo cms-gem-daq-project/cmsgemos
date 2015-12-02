@@ -599,9 +599,16 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("EVT_SENT",    glib->getDAQLinkEventsSent(),   GEMUpdateType::HW32);
   is_glib->createUInt32("L1AID",       glib->getDAQLinkL1AID(),        GEMUpdateType::HW32);
 
-  is_glib->createUInt64("OptoHybrid_0", 0, GEMUpdateType::I2CSTAT, "docstring", "i2chex");
-  is_glib->createUInt64("OptoHybrid_1", 0, GEMUpdateType::I2CSTAT, "docstring", "i2chex");
-  is_glib->createUInt64("TRK_0",        0, GEMUpdateType::I2CSTAT, "docstring", "i2chex");
-  is_glib->createUInt64("TRK_1",        0, GEMUpdateType::I2CSTAT, "docstring", "i2chex");
-  is_glib->createUInt64("Counters",     0, GEMUpdateType::I2CSTAT, "docstring", "i2chex");
+  is_glib->createUInt64("OptoHybrid_0", 0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
+  is_glib->createUInt64("OptoHybrid_1", 0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
+  is_glib->createUInt64("TRK_0",        0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
+  is_glib->createUInt64("TRK_1",        0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
+  is_glib->createUInt64("Counters",     0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
+
+  is_glib->createUInt32("GTX0_TRG_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
+  is_glib->createUInt32("GTX0_TRK_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
+  is_glib->createUInt32("GTX0_DATA_Packets", 0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
+  is_glib->createUInt32("GTX1_TRG_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
+  is_glib->createUInt32("GTX1_TRK_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
+  is_glib->createUInt32("GTX1_DATA_Packets", 0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
 }

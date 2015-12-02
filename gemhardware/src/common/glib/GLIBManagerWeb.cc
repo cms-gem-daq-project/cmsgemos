@@ -23,6 +23,9 @@ void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input * in, xgi::Output * ou
 {
   if (p_gemFSMApp)
     DEBUG("current state is" << dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->getCurrentState());
+  *out << cgicc::script().set("type","text/javascript")
+    .set("src","/gemdaq/gemhardware/html/scripts/glib/glib.js")
+       << cgicc::script() << std::endl;
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "<div class=\"xdaq-tab\" title=\"GLIBManager Control Panel\" >"  << std::endl;
   controlPanel(in,out);
@@ -43,7 +46,7 @@ void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input * in, xgi::Output * ou
   *out << "</div>" << std::endl;
 
   *out << "</div>" << std::endl;
-  std::string updateLink = "/" + p_gemApp->m_urn + "/update";
+  std::string updateLink = "/" + p_gemApp->m_urn + "/jsonUpdate";
   *out << "<script type=\"text/javascript\">"            << std::endl
        << "    startUpdate( \"" << updateLink << "\" );" << std::endl
        << "</script>" << std::endl;
@@ -89,3 +92,12 @@ void gem::hw::glib::GLIBManagerWeb::cardPage(xgi::Input * in, xgi::Output * out)
   *out << "</div>" << std::endl;
 }
 
+void gem::hw::glib::GLIBManagerWeb::jsonUpdate(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
+    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    if (card)
+      card->jsonUpdateItemSets(out);
+  }
+}
