@@ -11,6 +11,7 @@
 
 #include "gem/base/GEMMonitor.h"
 #include "gem/base/GEMApplication.h"
+#include "gem/base/GEMWebApplication.h"
 #include "gem/base/GEMFSMApplication.h"
 
 #include "xgi/Input.h"
@@ -170,6 +171,60 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
   }
   
   addInfoSpace(setname, infoSpace);
+}
+
+std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(std::string const& setname)
+{
+  std::list< std::vector<std::string> > result;
+  auto itemSet = m_monitorableSetsMap.find(setname);
+  if (itemSet == m_monitorableSetsMap.end()) {
+    ERROR("Set named " << setname << " does not exist in monitor");
+    return result;
+  }
+
+  std::list<std::pair<std::string, GEMMonitorable> > itemList = itemSet->second;
+  for (auto item = itemList.begin(); item != itemList.end(); ++item) {
+    auto gemItem = item->second;
+    std::vector<std::string> itl;
+    auto gemIS = gemItem.infoSpace;
+    std::string val = gemIS->getFormattedItem(gemItem.name,gemItem.format);
+    std::string doc = gemIS->getItemDocstring(gemItem.name);
+    itl.push_back(gemItem.name);
+    itl.push_back(val);
+    itl.push_back(doc);
+    itl.push_back(gemItem.regname);
+    result.push_back(itl);
+  }
+  return result;
+}
+
+void gem::base::GEMMonitor::jsonUpdateItemSet(std::string const& setname, std::ostream *out)
+{
+  *out << "\"" << setname << "\" : [ \n";
+  std::list< std::vector<std::string> > items = getFormattedItemSet(setname);
+  std::list< std::vector<std::string> >::const_iterator it;
+
+  for ( it = items.begin(); it != items.end(); it++ ) {
+    std::string val = gem::base::GEMWebApplication::jsonEscape( (*it)[1] );
+    *out << "{ \"name\":\"" << setname << "_" << (*it)[0] << "\",\"value\":\"" << val << "\" },\n";
+  }
+  *out << " ],\n";
+}
+
+void gem::base::GEMMonitor::jsonUpdateItemSets(xgi::Output *out)
+{
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  *out << " { \n";
+  for (auto iset = m_monitorableSetsMap.begin(); iset != m_monitorableSetsMap.end(); ++iset)
+    jsonUpdateItemSet(iset->first,out);
+  *out << " } \n";
+}
+
+void gem::base::GEMMonitor::jsonUpdateInfoSpaces(xgi::Output *out)
+{
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  *out << " { \n";
+  *out << " } \n";
 }
 
 void gem::base::GEMMonitor::reset()

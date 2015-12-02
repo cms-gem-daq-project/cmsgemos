@@ -633,6 +633,8 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
     } else if ( format == "hex/dec" ) {
       result << "0x" << std::setw(8) << std::setfill('0') << std::hex
              << val << " / " << std::dec << val;
+    } else if ( format == "raw/rate" ) { // for a counter, get the raw count, plus the rate
+      result << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
     } else if ( format == "ip" ) {
       result << std::dec << gem::utils::uint32ToDottedQuad(val);
     } else if ( format == "date" ) {
@@ -651,12 +653,14 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
   } else if (type == UINT64) { // end if type == UINT32
     uint64_t val = this->getUInt64(itemName);
     DEBUG(itemName << " has value " << std::hex << val << std::dec);
-    if ( format == "i2cdec" ) {
+    if ( format == "i2c/dec" ) {
       result << (val&(uint32_t)0xffffffff) << " (str.)" << std::endl
              << (val>>32) << " (ack.) ";
-    } else if ( format == "i2chex" ) {
-      result << std::hex << "0x" << (val&(uint32_t)0xffffffff) << " (str.)" << std::endl
-             << "0x" << (val>>32) << " (ack.) " << std::dec;
+    } else if ( format == "i2c/hex" ) {
+      result << "0x" << std::setw(8) << std::setfill('0') 
+             << std::hex << (val&(uint32_t)0xffffffff) << " (str.)" << std::endl
+             << "0x" << std::setw(8) << std::setfill('0') 
+             << (val>>32) << " (ack.) " << std::dec;
     } else if ( format == "" || format == "hex" ) {
       result << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
     } else if ( format == "dec" ) {
@@ -671,6 +675,22 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
   
   return result.str();
 }
+
+std::string gem::base::utils::GEMInfoSpaceToolBox::getItemDocstring(std::string const& itemName)
+{
+  DEBUG("GEMInfoSpaceToolBox::getItemDocstring(" << itemName << ")");
+  auto item = m_itemMap.find(itemName);
+  if (item == m_itemMap.end()) {
+    std::string err = itemName + "' does not exist in this infospace.";
+    WARN(err);
+    return "Item not found";
+  }
+  std::stringstream result;
+  GEMInfoSpaceItem* isItem = item->second;
+  DEBUG(itemName << " found in infospace " << std::hex << isItem << std::dec);
+  return isItem->m_docstring;
+}
+
 
 void gem::base::utils::GEMInfoSpaceToolBox::reset()
 {

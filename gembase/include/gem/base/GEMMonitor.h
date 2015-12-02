@@ -131,6 +131,22 @@ namespace gem {
                             std::string const& format);
         
         /**
+         * A way to get the formatted information from the items in the set
+         * @param setname the name of the set for which to print the information
+         * @returns a list of name, value, regname, docstring values for each item in the set
+         */
+        std::list<std::vector<std::string> > getFormattedItemSet(std::string const& setname);
+        
+        /**
+         * Manages updating the items on web pages using json and ajax
+         * @param setname the name of the set for which to print the information
+         * @param out is the output xgi page
+         */
+        void jsonUpdateItemSet(   std::string const& setname, std::ostream *out);
+        void jsonUpdateItemSets(  xgi::Output *out);
+        void jsonUpdateInfoSpaces(xgi::Output *out);
+        
+        /**
          * Takes care of cleaning up the monitor after a reset
          * should empty all lists and maps of known items
          */

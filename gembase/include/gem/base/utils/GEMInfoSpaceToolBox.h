@@ -121,7 +121,7 @@ namespace gem {
         bool createDouble( std::string const& itemName, double      const& value,
                            UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
         bool createInteger(std::string const& itemName, int         const& value,
-                           UpdateType type=HW32, std::string const& docstring="docstring", std::string const& format="hex");
+                           UpdateType type=HW32, std::string const& docstring="docstring", std::string const& format="dec");
         bool createUInt32( std::string const& itemName, uint32_t    const& value,
                            UpdateType type=HW32, std::string const& docstring="docstring", std::string const& format="hex");
         bool createUInt64( std::string const& itemName, uint64_t    const& value,
@@ -172,9 +172,18 @@ namespace gem {
 
         /**
          * Way to display items in a formatted way
+         * @param itemName is the name of the item in the info space
+         * @param format is the format that the value should be displayed as
          * @returns the item from the infospace according to the type and format specified
          */
         std::string getFormattedItem(std::string const& itemName, std::string const& format);
+        
+        /**
+         * Print the docstring associated with the infospace item
+         * @param itemName is the name of the item in the info space
+         * @returns the docstring associated with the info space item
+         */
+        std::string getItemDocstring(std::string const& itemName);
         
         /**
          * Takes care of cleaning up the infospace after a reset
