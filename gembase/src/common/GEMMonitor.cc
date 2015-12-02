@@ -82,6 +82,7 @@ void gem::base::GEMMonitor::startMonitoring()
   DEBUG("GEMMonitor::startMonitoring");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
     toolbox::TimeInterval interval;
+    //how often do we want to update the mon items?
     interval.fromString("00:00:00:00:02");
     toolbox::TimeVal startTime;
     startTime = toolbox::TimeVal::gettimeofday();
@@ -101,7 +102,7 @@ void gem::base::GEMMonitor::stopMonitoring()
 
 void gem::base::GEMMonitor::timeExpired(toolbox::task::TimerEvent& event)
 {
-  DEBUG("GEMMonitor::timeExpired received event:" << event.type());
+  INFO("GEMMonitor::timeExpired received event:" << event.type());
   updateMonitorables();
 }
 
@@ -124,7 +125,7 @@ void gem::base::GEMMonitor::addInfoSpace(std::string const& name,
   DEBUG( "GEMMonitor::addInfoSpace adding infospace " << name );
   m_infoSpaceMap.insert(std::make_pair(name, std::make_pair(infoSpace, interval)));
   std::list<std::string> emptyList;
-  m_monitorableSetInfoSpaceMap.insert(std::make_pair(name,emptyList));
+  m_infoSpaceMonitorableSetMap.insert(std::make_pair(name,emptyList));
 }
 
 void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::string const& infoSpaceName)
@@ -140,7 +141,9 @@ void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::s
   m_monitorableSetsMap.insert(std::make_pair<std::string const&,
                               std::list<std::pair<std::string, GEMMonitorable> > >(setname, emptySet));
   
-  m_monitorableSetInfoSpaceMap.find(infoSpaceName)->second.push_back(setname);
+  m_infoSpaceMonitorableSetMap.find(infoSpaceName)->second.push_back(setname);
+  
+  m_monitorableSetInfoSpaceMap.insert(std::make_pair(setname,infoSpaceName));
 }
 
 void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
@@ -173,6 +176,15 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
   addInfoSpace(setname, infoSpace);
 }
 
+std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> gem::base::GEMMonitor::getInfoSpace(std::string const& setname)
+{
+  std::string infoSpaceName = m_monitorableSetInfoSpaceMap.find(setname)->second;
+  auto infoSpacePair = m_infoSpaceMap.find(infoSpaceName)->second;
+  auto infoSpace = infoSpacePair.first;
+  return infoSpace;
+}
+
+
 std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(std::string const& setname)
 {
   std::list< std::vector<std::string> > result;
@@ -200,24 +212,27 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
 
 void gem::base::GEMMonitor::jsonUpdateItemSet(std::string const& setname, std::ostream *out)
 {
+  if (m_monitorableSetsMap.find(setname)->second.empty()) {
+    WARN("Monitorable set " << setname << " is empty, not exporting as JSON");
+    return;
+  }
   *out << "\"" << setname << "\" : [ \n";
   std::list< std::vector<std::string> > items = getFormattedItemSet(setname);
   std::list< std::vector<std::string> >::const_iterator it;
 
   for ( it = items.begin(); it != items.end(); it++ ) {
     std::string val = gem::base::GEMWebApplication::jsonEscape( (*it)[1] );
-    *out << "{ \"name\":\"" << setname << "_" << (*it)[0] << "\",\"value\":\"" << val << "\" },\n";
+    *out << "{ \"name\":\"" << std::hex << getInfoSpace(setname) << std::dec << (*it)[0]
+         << "\",\"value\":\"" << val << "\" },\n";
   }
   *out << " ],\n";
+  // can't have a trailing comma for the last entry...
 }
 
 void gem::base::GEMMonitor::jsonUpdateItemSets(xgi::Output *out)
 {
-  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  *out << " { \n";
   for (auto iset = m_monitorableSetsMap.begin(); iset != m_monitorableSetsMap.end(); ++iset)
     jsonUpdateItemSet(iset->first,out);
-  *out << " } \n";
 }
 
 void gem::base::GEMMonitor::jsonUpdateInfoSpaces(xgi::Output *out)

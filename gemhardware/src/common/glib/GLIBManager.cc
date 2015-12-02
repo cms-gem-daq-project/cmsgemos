@@ -591,6 +591,11 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("V6_CPLD",       glib->V6CPLDStatus(),    GEMUpdateType::HW32);
   is_glib->createUInt32("CPLD_LOCK",     glib->CDCELockStatus(),  GEMUpdateType::HW32);
 
+  is_glib->createUInt32("L1A",      glib->getL1ACount(),      GEMUpdateType::HW32);
+  is_glib->createUInt32("CalPulse", glib->getCalPulseCount(), GEMUpdateType::HW32);
+  is_glib->createUInt32("Resync",   glib->getResyncCount(),   GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0",      glib->getBC0Count(),      GEMUpdateType::HW32);
+
   is_glib->createUInt32("CONTROL",     glib->getDAQLinkControl(),      GEMUpdateType::HW32);
   is_glib->createUInt32("STATUS",      glib->getDAQLinkStatus(),       GEMUpdateType::HW32);
   is_glib->createUInt32("FLAGS",       glib->getDAQLinkFlags(),        GEMUpdateType::HW32);

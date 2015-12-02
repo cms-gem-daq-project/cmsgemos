@@ -130,6 +130,13 @@ namespace gem {
                             utils::GEMInfoSpaceToolBox::UpdateType type,
                             std::string const& format);
         
+        
+        /**
+         * @param setname is the name of item set to find the owning info space
+         * @returns a pointer to the GEMInfoSpaceToolBox containing the items in the set
+         */
+        std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> getInfoSpace(std::string const& setname);
+
         /**
          * A way to get the formatted information from the items in the set
          * @param setname the name of the set for which to print the information
@@ -161,13 +168,19 @@ namespace gem {
         } GEMMonitorable;
         
       protected:
+        // map between infoSpaceName and info space toolbox plus update interval
         std::unordered_map<std::string,
           std::pair<std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>,
           toolbox::TimeInterval> > m_infoSpaceMap;
         
+        // map between infoSpaceName and all monitorable set names in that info space
         std::unordered_map<std::string,
-          std::list<std::string> > m_monitorableSetInfoSpaceMap;
+          std::list<std::string> > m_infoSpaceMonitorableSetMap;
         
+        // map between monitorable set and infospace name to which the set belongs
+        std::unordered_map<std::string, std::string> m_monitorableSetInfoSpaceMap;
+        
+        // map between monitorable set name, and the monitorables in each set
         std::unordered_map<std::string,
           std::list<std::pair<std::string, GEMMonitorable> > > m_monitorableSetsMap;
         

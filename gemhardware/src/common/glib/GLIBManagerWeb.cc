@@ -95,9 +95,15 @@ void gem::hw::glib::GLIBManagerWeb::cardPage(xgi::Input * in, xgi::Output * out)
 void gem::hw::glib::GLIBManagerWeb::jsonUpdate(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  *out << " { \n";
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
     auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
-    if (card)
+    if (card) {
+      *out << "\"glib" << std::setw(2) << std::setfill('0') << (i+1) << "\"  : { \n";
       card->jsonUpdateItemSets(out);
+      *out << " }, \n";
+    }
   }
+  *out << " } \n";
 }
