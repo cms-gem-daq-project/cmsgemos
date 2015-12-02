@@ -89,6 +89,13 @@ namespace gem {
         void stopMonitoring();
 
         /**
+         * Setup the basic monitoring for all GEMApplications, can be further reimplemented in derived
+         * classes, provided the first call is to the base implementation (which will happen in the constructor
+         * @param isFSMApp determines whether or not this monitor is for a GEMFSMApplication derived class
+         */
+        virtual void setupMonitoring(bool isFSMApp);
+
+        /**
          * Inherited from TimerListener, must be implemented
          * @param event
          */
@@ -97,6 +104,7 @@ namespace gem {
         /**
          * Update method, pure virtual, must be implemented in specific monitor class
          * Should perform all actions to update any values stored in the monitor info space
+         * (prefer a pure virtual function or requirement that derived classes call base implementation?)
          */
         virtual void updateMonitorables()=0;
 
@@ -107,7 +115,7 @@ namespace gem {
          */
         void addInfoSpace(std::string const& name,
                           std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> infoSpace,
-                          toolbox::TimeInterval const& interval=toolbox::TimeInterval(30,0));
+                          toolbox::TimeInterval const& interval=toolbox::TimeInterval(5,0));
 
         /**
          * Add a set of monitorables into the specified info space tool box object
@@ -184,7 +192,8 @@ namespace gem {
         std::unordered_map<std::string,
           std::list<std::pair<std::string, GEMMonitorable> > > m_monitorableSetsMap;
         
-        std::shared_ptr<GEMApplication> p_gemApp;
+        //std::shared_ptr<GEMApplication> p_gemApp;
+        GEMApplication* p_gemApp;
         // std::shared_ptr<GEMFSM>         p_gemFSM;
         
         log4cplus::Logger m_gemLogger;

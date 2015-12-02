@@ -19,6 +19,8 @@
 
 #include "xdata/InfoSpace.h"
 
+typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
+
 gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::ApplicationStub* stub, int const& index) : 
   m_gemLogger(logger)
 {
@@ -28,11 +30,14 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::ApplicationSt
 gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gemApp, int const& index) : 
   m_gemLogger(logger)
 {
+  p_gemApp = gemApp;
   addInfoSpace("Application",  gemApp->getAppISToolBox()); // update on state changes
   addInfoSpace("Configuration",gemApp->getCfgISToolBox()); // update on changes to parameters
   addInfoSpace("Monitoring",   gemApp->getMonISToolBox()); // update with interval try {
 
-  m_timerName = toolbox::toString("%s:MonitoringTimer%d",gemApp->m_urn,index);
+  std::stringstream timerName;
+  timerName << gemApp->m_urn << ":MonitoringTimer" << index;
+  m_timerName = timerName.str();
   
   try {
     DEBUG("Creating timer with name " << m_timerName);
@@ -49,12 +54,15 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gem
 gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* gemFSMApp, int const& index) : 
   m_gemLogger(logger)
 {
-  addInfoSpace("Application",  gemFSMApp->getAppISToolBox()); // update on state changes
-  addInfoSpace("Configuration",gemFSMApp->getCfgISToolBox()); // update on changes to parameters
-  addInfoSpace("Monitoring",   gemFSMApp->getMonISToolBox()); // update with interval
-  addInfoSpace("AppState",     gemFSMApp->getAppStateISToolBox()); // update with interval for state changes
+  p_gemApp = static_cast<gem::base::GEMApplication*>(gemFSMApp);
+  addInfoSpace("Application",        gemFSMApp->getAppISToolBox()); // update on state changes
+  addInfoSpace("Configuration",      gemFSMApp->getCfgISToolBox()); // update on changes to parameters
+  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox()); // update with interval
+  addInfoSpace("AppStateMonitoring", gemFSMApp->getAppStateISToolBox()); // update with interval for state changes
   
-  m_timerName = toolbox::toString("%s:MonitoringTimer%d",gemFSMApp->m_urn,index);
+  std::stringstream timerName;
+  timerName << gemFSMApp->m_urn << ":MonitoringTimer" << index;
+  m_timerName = timerName.str();
   
   try {
     DEBUG("Creating timer with name " << m_timerName);
@@ -98,6 +106,25 @@ void gem::base::GEMMonitor::stopMonitoring()
 {
   DEBUG("GEMMonitor::stopMonitoring");
   m_timer->stop();
+}
+
+void gem::base::GEMMonitor::setupMonitoring(bool isFSMApp)
+{
+  // create the values to be monitored in the info space
+  addMonitorableSet("AppParameters", "Application");
+  addMonitorable("AppParameters", "Application",
+                 std::make_pair("RunNumber", ""),
+                 GEMUpdateType::PROCESS, "");
+  addMonitorable("AppParameters", "Application",
+                 std::make_pair("RunType", ""),
+                 GEMUpdateType::PROCESS, "");
+  addMonitorable("AppParameters", "Application",
+                 std::make_pair("CfgType", ""),
+                 GEMUpdateType::PROCESS, "");
+  if (isFSMApp)
+    addMonitorable("AppParameters", "Application",
+                   std::make_pair("State", ""),
+                   GEMUpdateType::PROCESS, "");
 }
 
 void gem::base::GEMMonitor::timeExpired(toolbox::task::TimerEvent& event)
@@ -206,6 +233,12 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
     itl.push_back(doc);
     itl.push_back(gemItem.regname);
     result.push_back(itl);
+    DEBUG("Set named " << setname << " has members"
+          << " name: "    << itl.at(0)
+          << " val: "     << itl.at(1)
+          << " doc: "     << itl.at(2)
+          << " regname: " << itl.at(3)
+          );
   }
   return result;
 }
@@ -216,13 +249,14 @@ void gem::base::GEMMonitor::jsonUpdateItemSet(std::string const& setname, std::o
     WARN("Monitorable set " << setname << " is empty, not exporting as JSON");
     return;
   }
+  INFO("Found monitorable set " << setname << " while updating for JSON export");
   *out << "\"" << setname << "\" : [ \n";
   std::list< std::vector<std::string> > items = getFormattedItemSet(setname);
   std::list< std::vector<std::string> >::const_iterator it;
 
   for ( it = items.begin(); it != items.end(); it++ ) {
     std::string val = gem::base::GEMWebApplication::jsonEscape( (*it)[1] );
-    *out << "{ \"name\":\"" << std::hex << getInfoSpace(setname) << std::dec << (*it)[0]
+    *out << "{ \"name\":\"" << getInfoSpace(setname)->name() << "-" << (*it)[0]
          << "\",\"value\":\"" << val << "\" },\n";
   }
   *out << " ],\n";

@@ -193,11 +193,12 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   // Start out with the FSM in its initial state: Initial.
   p_gemfsm->setInitialState(STATE_INITIAL);
   p_gemfsm->reset();
-
+  
   m_gemFSMState = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
+  DEBUG("GEMFSM::GEMFSM current state is " << m_gemFSMState.toString());
 
-  p_gemApp->getAppISToolBox()->createString("FSMState",        "", utils::GEMInfoSpaceToolBox::PROCESS);
-  p_gemApp->getAppISToolBox()->createString("ReasonForFailure","", utils::GEMInfoSpaceToolBox::PROCESS);
+  p_gemApp->getAppISToolBox()->createString("FSMState",        m_gemFSMState.toString(), utils::GEMInfoSpaceToolBox::PROCESS);
+  p_gemApp->getAppISToolBox()->createString("ReasonForFailure","",                       utils::GEMInfoSpaceToolBox::PROCESS);
   
   //p_gemApp->getApplicationInfoSpace()->fireItemAvailable("FSMState",        &m_gemFSMState);
   //p_gemApp->getApplicationInfoSpace()->fireItemAvailable("ReasonForFailure",&m_reasonForFailure);

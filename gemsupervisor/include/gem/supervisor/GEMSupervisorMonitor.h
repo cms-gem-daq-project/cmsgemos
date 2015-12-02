@@ -18,17 +18,17 @@ namespace gem {
 
         /**
          * Constructor from GEMFSMApplication derived classes
-         * @param glib the HwGLIB uhal device which is to be monitored
-         * @param glibManager the manager application for the GLIB to be monitored
+         * @param gemSupervisor the supervisor application to be monitored
          */
-        GEMSupervisorMonitor(GEMSupervisor* glibSupervisor);
+        GEMSupervisorMonitor(GEMSupervisor* gemSupervisor);
         
         virtual ~GEMSupervisorMonitor();
         
         virtual void updateMonitorables();
+        void setupAppStateMonitoring();
         void buildStateTable(xgi::Output* out);
-          
-          private:
+
+      private:
           
       }; // end class GEMSupervisorMonitor
             

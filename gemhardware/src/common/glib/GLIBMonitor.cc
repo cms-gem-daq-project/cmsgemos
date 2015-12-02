@@ -254,7 +254,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
       DEBUG(monitem->first << " formatted to "
             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
       //this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
-      *out << "<td id=\"" << std::hex << monitem->second.infoSpace << std::dec << monitem->first << "\">" << std::endl
+      *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
            << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
            << "</td>"   << std::endl;
 

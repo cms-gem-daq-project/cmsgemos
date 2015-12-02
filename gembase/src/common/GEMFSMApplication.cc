@@ -93,13 +93,13 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   DEBUG("Created task bindings");
 
   std::stringstream tmpLoopName;
-  uint32_t instanceNumber = this->getApplicationDescriptor()->getLocalId();
+  uint32_t localID = this->getApplicationDescriptor()->getLocalId();
   std::string className   = this->getApplicationDescriptor()->getClassName();
-  DEBUG("Obtained instance and class names " << instanceNumber << ", " << className);
+  DEBUG("Obtained local ID and class names " << localID << ", " << className);
 
   //also want to get the name of the GEM FSM aplication to put it into this commandLoopName
   tmpLoopName << "urn:toolbox-task-workloop:"
-              << className << ":" << instanceNumber;
+              << className << ":" << localID;
   workLoopName = tmpLoopName.str();
   DEBUG("Created workloop name " << workLoopName);
 
@@ -126,7 +126,7 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   p_appInfoSpace->fireItemAvailable("application:state", p_appStateInfoSpace );
   //p_appStateInfoSpace->fireItemAvailable("State",&m_state);
 
-  p_appInfoSpaceToolBox->createString(        "State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString(     "State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
   p_appStateInfoSpaceToolBox->createString("State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
   //p_appInfoSpace->fireItemAvailable("State",&m_state);
   p_appInfoSpace->fireItemValueRetrieve("State");

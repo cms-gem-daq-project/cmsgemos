@@ -44,6 +44,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
                                                                                                      p_appInfoSpace,
                                                                                                      //p_gemMonitor,
                                                                                                      false));
+  INFO("GEMApplication::application infospace has name: " << p_appInfoSpace->name());
   INFO(m_urn);
   toolbox::net::URN monISURN(m_urn+toolbox::toString(":monitoring-infospace"));
   if (xdata::getInfoSpaceFactory()->hasItem(monISURN.toString())) {
@@ -74,29 +75,23 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiDefault, "Default"    );
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
+  // only used for passing data, does not need to bind to the in-framework model
   xgi::bind(this, &GEMApplication::jsonUpdate, "jsonUpdate" );
 
   p_appInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
-  //what other listeners are available through this interface?
   p_appInfoSpace->addListener(this, "urn:xdata-event:ItemGroupRetrieveEvent");
   p_appInfoSpace->addListener(this, "urn:xdata-event:ItemGroupChangedEvent");
   p_appInfoSpace->addListener(this, "urn:xdata-event:ItemRetrieveEvent");
   p_appInfoSpace->addListener(this, "urn:xdata-event:ItemChangedEvent");
 
-  //how to have infospaces inside infospaces, or listeners on multiple infospaces
-  //p_configInfoSpace->addListener( this, "urn:xdaq-event:setDefaultValues");
-  //p_monitorInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
   p_appInfoSpace->fireItemAvailable("configuration:parameters", p_configInfoSpace );
   p_appInfoSpace->fireItemAvailable("monitoring:parameters",    p_monitorInfoSpace);
-  //p_appInfoSpace->fireItemAvailable("reasonForFailure", &reasonForFailure_);
 
   // all should come from initialize
-  p_appInfoSpaceToolBox->createUInt32("RunNumber",m_runNumber.value_,  utils::GEMInfoSpaceToolBox::NOUPDATE);
-  p_appInfoSpaceToolBox->createString("RunType",  m_runType.toString(),utils::GEMInfoSpaceToolBox::NOUPDATE);
-  p_appInfoSpaceToolBox->createString("CfgType",  m_cfgType.toString(),utils::GEMInfoSpaceToolBox::NOUPDATE);
-  //p_appInfoSpace->fireItemAvailable("RunNumber",&m_runNumber);
-  //p_appInfoSpace->fireItemAvailable("RunType",  &m_runType  );
-  //p_appInfoSpace->fireItemAvailable("CfgType",  &m_cfgType  );
+  p_appInfoSpaceToolBox->createUInt32("RunNumber",m_runNumber.value_,  utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString("RunType",  m_runType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString("CfgType",  m_cfgType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
+  //p_appInfoSpaceToolBox->createString("reasonForFailure", &reasonForFailure_,utils::GEMInfoSpaceToolBox::PROCESS);
 
   //is this the correct syntax? what does it really do?
   p_appInfoSpace->addItemRetrieveListener("RunNumber", this);

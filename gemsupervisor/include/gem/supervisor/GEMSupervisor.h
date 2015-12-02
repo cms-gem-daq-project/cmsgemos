@@ -14,6 +14,7 @@ namespace gem {
   namespace supervisor {
     
     class GEMSupervisorWeb;
+    class GEMSupervisorMonitor;
     
     class GEMSupervisor : public gem::base::GEMFSMApplication
       {
@@ -59,6 +60,8 @@ namespace gem {
       private:
         bool isGEMApplication(const std::string& classname) const;
         bool manageApplication(const std::string& classname) const;
+
+        std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
         
         mutable gem::utils::Lock deviceLock_;
         std::vector<xdaq::ApplicationDescriptor*> v_supervisedApps;
