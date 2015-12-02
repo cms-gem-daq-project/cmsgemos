@@ -64,7 +64,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& item
 
     GEMInfoSpaceItem* item = new GEMInfoSpaceItem(STRING, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
-
+    
     xdata::String *ptr = new xdata::String(value);
     m_stringItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
     
@@ -650,7 +650,7 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
              << ((val>>8) &0x0f) << "."
              << ((val)    &0xff);
     }
-  } else if (type == UINT64) { // end if type == UINT32
+  } else if (type == UINT64) { // end of type == UINT32
     uint64_t val = this->getUInt64(itemName);
     DEBUG(itemName << " has value " << std::hex << val << std::dec);
     if ( format == "i2c/dec" ) {
@@ -671,7 +671,17 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
     } else if ( format == "mac" ) {
       result << gem::utils::uint32ToGroupedHex((val>>32),val&(uint32_t)0xffffffff);
     }
-  } // end if type == UINT64
+    
+  } else if (type == STRING) {  // end of type == UINT64
+    std::string val = this->getString(itemName);
+    DEBUG(itemName << " has value " << val);
+    if ( format == "" ) {
+      result << val;
+    } else  {
+      WARN("Unsupported format " << format);
+      result << val;
+    }
+  } // end of type == STRING
   
   return result.str();
 }

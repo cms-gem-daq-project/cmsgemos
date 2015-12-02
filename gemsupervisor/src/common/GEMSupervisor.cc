@@ -31,6 +31,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   //p_gemMonitor      = new gem generic system monitor
   
   v_supervisedApps.clear();
+  // reset the GEMInfoSpaceToolBox object?
   //where can we get some nice PNG images for our different applications?
   getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemsupervisor/images/supervisor/GEMSupervisor.png");
   init();
@@ -121,12 +122,24 @@ void gem::supervisor::GEMSupervisor::init()
       if (manageApplication((*j)->getClassName())) {
         INFO("init::pushing " << (*j)->getClassName() << "(" << *j << ") to list of supervised applications");
         v_supervisedApps.push_back(*j);
+        std::stringstream managedAppStateName;
+        managedAppStateName << (*j)->getClassName() << "-lid:" << (*j)->getLocalId();
+        std::stringstream managedAppStateURN;
+        managedAppStateURN << (*j)->getURN();
+        p_appStateInfoSpaceToolBox->createString(managedAppStateName.str(),managedAppStateURN.str());
       }
       DEBUG("done");
     } // done iterating over applications in group
     DEBUG("init::done iterating over applications in group");
   } // done iterating over groups in zone
   DEBUG("init::done iterating over groups in zone");
+  
+  DEBUG("init::starting the monitoring");
+
+  // when to do this, have to make sure that all applications have been loaded...
+  //p_gemMonitor->addInfoSpace("AppStateMonitoring", p_appStateInfoSpaceToolBox);
+  dynamic_cast<gem::supervisor::GEMSupervisorMonitor*>(p_gemMonitor)->setupAppStateMonitoring();
+  p_gemMonitor->startMonitoring();
 };
 
 //state transitions

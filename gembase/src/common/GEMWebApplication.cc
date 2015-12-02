@@ -107,6 +107,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
   DEBUG("controlPanel");
   //*out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
   
+  // maybe the control part should only be displayed if the application is not supervised?
   if (p_gemFSMApp) {
     try {
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
@@ -284,10 +285,25 @@ void gem::base::GEMWebApplication::expertPage(xgi::Input * in, xgi::Output * out
 }
 
 /*To be filled in with the json update code*/
+/*
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
   DEBUG("jsonUpdate");
+}
+*/
+void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  *out << " { \n";
+  auto monitor = p_gemFSMApp->p_gemMonitor;
+  //if (p_gemMonitor) {
+  if (monitor) {
+    //p_gemMonitor->jsonUpdateItemSets(out);
+    monitor->jsonUpdateItemSets(out);
+  }
+  *out << " } \n";
 }
 
 /** FSM callbacks */
