@@ -32,7 +32,7 @@ void gem::supervisor::GEMSupervisorMonitor::updateMonitorables()
 
 void gem::supervisor::GEMSupervisorMonitor::buildStateTable(xgi::Output* out)
 {
-  //auto monsets = m_monitorableSetInfoSpaceMap.find("ManagedAppStates")->second;
+  //auto monsets = m_infoSpaceMonitorableSetMap.find("ManagedAppStates")->second;
 
   try {
     std::vector<xdaq::ApplicationDescriptor*> managedApps =

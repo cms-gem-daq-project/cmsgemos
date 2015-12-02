@@ -122,6 +122,18 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::PROCESS, "raw/rate");
 
   addMonitorableSet("COUNTERS", "HWMonitoring");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("L1A", "GLIB.COUNTERS.T1.L1A"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("CalPulse", "GLIB.COUNTERS.T1.CalPulse"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("Resync", "GLIB.COUNTERS.T1.Resync"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("BC0", "GLIB.COUNTERS.T1.BC0"),
+                 GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("DAQ", "HWMonitoring");
   addMonitorable("DAQ", "HWMonitoring",
@@ -213,7 +225,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
 {
   DEBUG("GLIBMonitor::buildMonitorPage");
   
-  auto monsets = m_monitorableSetInfoSpaceMap.find("HWMonitoring")->second;
+  auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
   
   // loop over the list of monitor sets and grab the monitorables from each one
   // create a div tab for each set, and a table for each set of values
@@ -241,7 +253,8 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
         
       DEBUG(monitem->first << " formatted to "
             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
-      *out << "<td id=\"" << monitem->first << "\">" << std::endl
+      //this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
+      *out << "<td id=\"" << std::hex << monitem->second.infoSpace << std::dec << monitem->first << "\">" << std::endl
            << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
            << "</td>"   << std::endl;
 
