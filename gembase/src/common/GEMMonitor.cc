@@ -21,19 +21,32 @@
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
-gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::ApplicationStub* stub, int const& index) : 
+gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::Application* xdaqApp, int const& index) : 
   m_gemLogger(logger)
 {
+  std::stringstream timerName;
+  timerName << xdaqApp->getApplicationDescriptor()->getURN() << ":MonitoringTimer" << index;
+  m_timerName = timerName.str();
   
+  try {
+    DEBUG("Creating timer with name " << m_timerName);
+    if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
+      m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
+    else
+      m_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
+    m_timer->stop();
+  } catch (toolbox::task::exception::Exception& te) {
+    XCEPT_RETHROW(xdaq::exception::Exception, "Cannot run GEMMonitor, timer already created", te);
+  }  
 }
 
 gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gemApp, int const& index) : 
   m_gemLogger(logger)
 {
   p_gemApp = gemApp;
-  addInfoSpace("Application",  gemApp->getAppISToolBox(), toolbox::TimeInterval(5,0)); // update on state changes
-  addInfoSpace("Configuration",gemApp->getCfgISToolBox(), toolbox::TimeInterval(5,0)); // update on changes to parameters
-  addInfoSpace("Monitoring",   gemApp->getMonISToolBox(), toolbox::TimeInterval(5,0)); // update with interval try {
+  addInfoSpace("Application",  gemApp->getAppISToolBox(), toolbox::TimeInterval(3,0)); // update on state changes
+  addInfoSpace("Configuration",gemApp->getCfgISToolBox(), toolbox::TimeInterval(60,0)); // update on changes to parameters
+  addInfoSpace("Monitoring",   gemApp->getMonISToolBox(), toolbox::TimeInterval(7,0)); // update with interval try {
 
   std::stringstream timerName;
   timerName << gemApp->m_urn << ":MonitoringTimer" << index;
@@ -56,9 +69,9 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* 
 {
   p_gemApp = static_cast<gem::base::GEMApplication*>(gemFSMApp);
   // maybe it's really better to use the listener functionality... which we can put into the actionPerformed callback!
-  addInfoSpace("Application",        gemFSMApp->getAppISToolBox(), toolbox::TimeInterval(5,0)); // update on state changes
+  addInfoSpace("Application",        gemFSMApp->getAppISToolBox(), toolbox::TimeInterval(3,0)); // update on state changes
   addInfoSpace("Configuration",      gemFSMApp->getCfgISToolBox(), toolbox::TimeInterval(60,0)); // update on changes to parameters
-  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox(), toolbox::TimeInterval(5,0)); // update with interval
+  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox(), toolbox::TimeInterval(7,0)); // update with interval
   addInfoSpace("AppStateMonitoring", gemFSMApp->getAppStateISToolBox(), toolbox::TimeInterval(5,0)); // update with interval for state changes
   
   std::stringstream timerName;
@@ -86,13 +99,16 @@ void gem::base::GEMMonitor::startMonitoring()
 {
   DEBUG("GEMMonitor::startMonitoring");
   
+  try {
+    m_timer->stop();
+  } catch (toolbox::task::exception::NotActive const& ex) {
+    WARN("GEMMonitor::startMonitoring could not stop timer " << ex.what());
+  }
+  
   m_timer->start();
   
   DEBUG("GEMMonitor::startMonitoring");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    toolbox::TimeInterval interval;
-    //how often do we want to update the mon items?
-    interval.fromString("00:00:00:00:02");
     toolbox::TimeVal startTime;
     startTime = toolbox::TimeVal::gettimeofday();
     m_timer->scheduleAtFixedRate(startTime, this, infoSpace->second.second,
@@ -246,6 +262,11 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
 
 void gem::base::GEMMonitor::jsonUpdateItemSet(std::string const& setname, std::ostream *out)
 {
+  if (m_monitorableSetsMap.find(setname) == m_monitorableSetsMap.end()) {
+    WARN("Monitorable set " << setname << " not found, not exporting as JSON");
+    return;
+  }
+    
   if (m_monitorableSetsMap.find(setname)->second.empty()) {
     WARN("Monitorable set " << setname << " is empty, not exporting as JSON");
     return;
@@ -279,11 +300,32 @@ void gem::base::GEMMonitor::jsonUpdateInfoSpaces(xgi::Output *out)
 
 void gem::base::GEMMonitor::reset()
 {
-  stopMonitoring();
   //have to get rid of the timer 
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    m_timer->remove(infoSpace->first);
+    DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from m_timer");
+    try {
+      m_timer->remove(infoSpace->first);
+    } catch (toolbox::task::exception::Exception& te) {
+      ERROR("Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+    }
   }
-  toolbox::task::getTimerFactory()->removeTimer(m_timerName);
+  stopMonitoring();
+  DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
+  try {
+    toolbox::task::getTimerFactory()->removeTimer(m_timerName);
+  } catch (toolbox::task::exception::Exception& te) {
+    ERROR("Caught exception while removing timer " << m_timerName << " " << te.what());
+  }
+  
+  // is this necessary? how to do for some applications and not others?
+  // make this simply an interface and force every derived application to implement it properly
+  // without this, then the json updates will continue and eventually fail
+  /*
+  DEBUG("GEMMonitor::reset - clearing all maps");
+  m_infoSpaceMap.clear();
+  m_infoSpaceMonitorableSetMap.clear();
+  m_monitorableSetInfoSpaceMap.clear();
+  m_monitorableSetsMap.clear();
+  */
 }
