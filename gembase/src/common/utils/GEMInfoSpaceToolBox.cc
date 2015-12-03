@@ -309,12 +309,12 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getString(std::string const& 
     xdata::Serializable* s = p_infoSpace->find(itemName);
     p_infoSpace->fireItemValueRetrieve(itemName);
     xdata::String* res = dynamic_cast<xdata::String*>(s);
-    std::cout << "INFO found string " << res->toString() << std::endl;
+    DEBUG("found string " << res->toString());
     p_infoSpace->unlock();
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace String item '" + itemName + "'.";
-    std::cout << "ERROR " << msg << std::endl;
+    ERROR(msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return "";
   } 
@@ -328,6 +328,7 @@ bool gem::base::utils::GEMInfoSpaceToolBox::getBool(std::string const& itemName)
     p_infoSpace->fireItemValueRetrieve(itemName);
     xdata::Boolean* res = dynamic_cast<xdata::Boolean*>(s);
     p_infoSpace->unlock();
+    DEBUG("found bool " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace Boolean item '" + itemName + "'.";
@@ -344,6 +345,7 @@ double gem::base::utils::GEMInfoSpaceToolBox::getDouble(std::string const& itemN
     p_infoSpace->fireItemValueRetrieve(itemName);
     xdata::Double* res = dynamic_cast<xdata::Double*>(s);
     p_infoSpace->unlock();
+    DEBUG("found double " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace Double item '" + itemName + "'.";
@@ -360,6 +362,7 @@ int gem::base::utils::GEMInfoSpaceToolBox::getInteger(std::string const& itemNam
     p_infoSpace->fireItemValueRetrieve(itemName);
     xdata::Integer* res = dynamic_cast<xdata::Integer*>(s);
     p_infoSpace->unlock();
+    DEBUG("found integer " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace Integer item '" + itemName + "'.";
@@ -376,6 +379,7 @@ uint32_t gem::base::utils::GEMInfoSpaceToolBox::getUInt32(std::string const& ite
     p_infoSpace->fireItemValueRetrieve(itemName);
     xdata::UnsignedInteger32* res = dynamic_cast<xdata::UnsignedInteger32*>(s);
     p_infoSpace->unlock();
+    DEBUG("found uint32_t " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace UnsignedInteger32 item '" + itemName + "'.";
@@ -392,6 +396,7 @@ uint64_t gem::base::utils::GEMInfoSpaceToolBox::getUInt64(std::string const& ite
     p_infoSpace->fireItemValueRetrieve(itemName);
     xdata::UnsignedInteger64* res = dynamic_cast<xdata::UnsignedInteger64*>(s);
     p_infoSpace->unlock();
+    DEBUG("found uint64_t " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace UnsignedInteger64 item '" + itemName + "'.";
@@ -409,12 +414,12 @@ bool gem::base::utils::GEMInfoSpaceToolBox::setString(std::string const& itemNam
     xdata::String* res = dynamic_cast<xdata::String*>(s);
     *res = value;
     p_infoSpace->fireItemValueChanged(itemName);
-    std::cout << "INFO set value to string " << res->toString() << std::endl;
+    INFO("set value to string " << res->toString());
     p_infoSpace->unlock();
     return true;
   } catch (...) {
     std::string msg = "Trying to set a non-existent InfoSpace String item '" + itemName + "'.";
-    std::cout << "ERROR " << msg << std::endl;
+    ERROR(msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return false;
   } 
@@ -518,12 +523,14 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::InfoSpace* i
     xdata::Serializable* s = infoSpace->find(itemName);
     infoSpace->fireItemValueRetrieve(itemName);
     xdata::String* res = dynamic_cast<xdata::String*>(s);
-    std::cout << "INFO found string " << res->toString() << std::endl;
     infoSpace->unlock();
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_DEBUG(gemLogger,"found string " << res->toString());
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace String item '" + itemName + "'.";
-    std::cout << "ERROR " << msg << std::endl;
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_ERROR(gemLogger,msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return "";
   } 
@@ -537,9 +544,13 @@ bool gem::base::utils::GEMInfoSpaceToolBox::getBool(xdata::InfoSpace* infoSpace,
     infoSpace->fireItemValueRetrieve(itemName);
     xdata::Boolean* res = dynamic_cast<xdata::Boolean*>(s);
     infoSpace->unlock();
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_DEBUG(gemLogger,"found bool " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace Boolean item '" + itemName + "'.";
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_ERROR(gemLogger,msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return 0;
   } 
@@ -553,9 +564,13 @@ double gem::base::utils::GEMInfoSpaceToolBox::getDouble(xdata::InfoSpace* infoSp
     infoSpace->fireItemValueRetrieve(itemName);
     xdata::Double* res = dynamic_cast<xdata::Double*>(s);
     infoSpace->unlock();
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_DEBUG(gemLogger,"found double " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace Double item '" + itemName + "'.";
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_ERROR(gemLogger,msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return 0;
   } 
@@ -569,9 +584,13 @@ int gem::base::utils::GEMInfoSpaceToolBox::getInteger(xdata::InfoSpace* infoSpac
     infoSpace->fireItemValueRetrieve(itemName);
     xdata::Integer* res = dynamic_cast<xdata::Integer*>(s);
     infoSpace->unlock();
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_DEBUG(gemLogger,"found integer " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace Integer item '" + itemName + "'.";
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_ERROR(gemLogger,msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return 0;
   } 
@@ -585,9 +604,13 @@ uint32_t gem::base::utils::GEMInfoSpaceToolBox::getUInt32(xdata::InfoSpace* info
     infoSpace->fireItemValueRetrieve(itemName);
     xdata::UnsignedInteger32* res = dynamic_cast<xdata::UnsignedInteger32*>(s);
     infoSpace->unlock();
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_DEBUG(gemLogger,"found uint32_t " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace UnsignedInteger32 item '" + itemName + "'.";
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_ERROR(gemLogger,msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return 0;
   } 
@@ -601,9 +624,13 @@ uint64_t gem::base::utils::GEMInfoSpaceToolBox::getUInt64(xdata::InfoSpace* info
     infoSpace->fireItemValueRetrieve(itemName);
     xdata::UnsignedInteger64* res = dynamic_cast<xdata::UnsignedInteger64*>(s);
     infoSpace->unlock();
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_DEBUG(gemLogger,"found uint64_t " << res->value_);
     return res->value_;
   } catch (...) {
     std::string msg = "Trying to read a non-existent InfoSpace UnsignedInteger64 item '" + itemName + "'.";
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_ERROR(gemLogger,msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return 0;
   } 
@@ -704,10 +731,16 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getItemDocstring(std::string 
 
 void gem::base::utils::GEMInfoSpaceToolBox::reset()
 {
-  // empty the itemMap, so it can be repopulated?
+  // simply empty the itemMap, so it can be repopulated, or also revoke items in the infospace?
+  for (auto item = m_itemMap.begin(); item != m_itemMap.end(); ++item) {
+    p_infoSpace->lock();
+    p_infoSpace->fireItemRevoked(item->first);
+    p_infoSpace->unlock();
+  }
+  // now clear out the map so it could be repopulated
   m_itemMap.clear();
   
-  // empty the item lists?
+  // simply empty the item lists?
   m_uint32Items.clear();
   m_uint64Items.clear();
   m_boolItems.clear();
