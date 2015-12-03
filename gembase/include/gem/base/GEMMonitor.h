@@ -9,6 +9,7 @@
 
 #include "log4cplus/logger.h"
 
+#include "xdaq/Application.h"
 #include "xdaq/ApplicationStub.h"
 #include "toolbox/task/TimerFactory.h"
 #include "toolbox/task/TimerListener.h"
@@ -55,7 +56,7 @@ namespace gem {
          * @param logger the logger object from the calling application
          * @param gemApp the pointer to the calling application
          */
-        GEMMonitor(log4cplus::Logger& logger, xdaq::ApplicationStub* stub, int const& index);
+        GEMMonitor(log4cplus::Logger& logger, xdaq::Application* xdaqApp, int const& index);
 
         /**
          * Constructor from GEMApplication derived classes

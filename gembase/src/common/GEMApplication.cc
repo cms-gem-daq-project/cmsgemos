@@ -23,7 +23,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   m_runType("")
 
 {
-  INFO("called gem::base::GEMApplication constructor");
+  DEBUG("GEMApplication::called gem::base::GEMApplication constructor");
   
   p_gemWebInterface = new GEMWebApplication(this);
 
@@ -44,14 +44,14 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
                                                                                                      p_appInfoSpace,
                                                                                                      //p_gemMonitor,
                                                                                                      false));
-  INFO("GEMApplication::application infospace has name: " << p_appInfoSpace->name());
-  INFO(m_urn);
+  DEBUG("GEMApplication::application infospace has name: " << p_appInfoSpace->name());
+  DEBUG(m_urn);
   toolbox::net::URN monISURN(m_urn+toolbox::toString(":monitoring-infospace"));
   if (xdata::getInfoSpaceFactory()->hasItem(monISURN.toString())) {
-    INFO("GEMApplication::infospace " << monISURN.toString() << " already exists, getting");
+    DEBUG("GEMApplication::GEMApplication::infospace " << monISURN.toString() << " already exists, getting");
     p_monitorInfoSpace = xdata::getInfoSpaceFactory()->get(monISURN.toString());
   } else {
-    INFO("GEMApplication::infospace " << monISURN.toString() << " does not exist, creating");
+    DEBUG("GEMApplication::GEMApplication::infospace " << monISURN.toString() << " does not exist, creating");
     p_monitorInfoSpace = xdata::getInfoSpaceFactory()->create(monISURN.toString());
   }
   p_monitorInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
@@ -60,10 +60,10 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
                                                                                                          false));
   toolbox::net::URN cfgISURN(m_urn+toolbox::toString(":config-infospace"));
   if (xdata::getInfoSpaceFactory()->hasItem(cfgISURN.toString())) {
-    INFO("GEMApplication::infospace " << cfgISURN.toString() << " already exists, getting");
+    DEBUG("GEMApplication::GEMApplication::infospace " << cfgISURN.toString() << " already exists, getting");
     p_configInfoSpace = xdata::getInfoSpaceFactory()->get(cfgISURN.toString());
   } else {
-    INFO("GEMApplication::infospace " << cfgISURN.toString() << " does not exist, creating");
+    DEBUG("GEMApplication::GEMApplication::infospace " << cfgISURN.toString() << " does not exist, creating");
     p_configInfoSpace = xdata::getInfoSpaceFactory()->create(cfgISURN.toString());
   }
   p_configInfoSpaceToolBox = std::shared_ptr<utils::GEMInfoSpaceToolBox>(new utils::GEMInfoSpaceToolBox(this,
@@ -71,7 +71,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
                                                                                                         //p_gemMonitor,
                                                                                                         false));
   
-  INFO("GEM application has infospace named " << p_appInfoSpace->name());
+  DEBUG("GEMApplication::GEM application has infospace named " << p_appInfoSpace->name());
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiDefault, "Default"    );
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiMonitor, "monitorView");
   xgi::framework::deferredbind(this, this, &GEMApplication::xgiExpert,  "expertView" );
@@ -101,13 +101,13 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->addItemChangedListener( "RunType",   this);
   p_appInfoSpace->addItemChangedListener( "CfgType",   this);
 
-  INFO("gem::base::GEMApplication constructed");
+  DEBUG("GEMApplication::gem::base::GEMApplication constructed");
 }
 
 
 gem::base::GEMApplication::~GEMApplication() 
 {
-  INFO("gem::base::GEMApplication destructor called");
+  DEBUG("GEMApplication::gem::base::GEMApplication destructor called");
   
 }
 

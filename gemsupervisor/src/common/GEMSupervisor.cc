@@ -216,6 +216,7 @@ void gem::supervisor::GEMSupervisor::resetAction()
     INFO(std::string("Resetting ")+(*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",p_appContext,p_appDescriptor,*i);
   }
+  //gem::base::GEMFSMApplication::resetAction();
 }
 
 /*

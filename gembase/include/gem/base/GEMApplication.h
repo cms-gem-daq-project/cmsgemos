@@ -109,6 +109,7 @@ namespace gem {
         void xgiExpert( xgi::Input* in, xgi::Output* out);
         void jsonUpdate(xgi::Input* in, xgi::Output* out);
 
+        // std::shared_ptr<utils::GEMInfoSpaceToolBox> getGEMISToolBox() { return p_infoSpaceToolBox;       };
         std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppISToolBox() { return p_appInfoSpaceToolBox;     };
         std::shared_ptr<utils::GEMInfoSpaceToolBox> getMonISToolBox() { return p_monitorInfoSpaceToolBox; };
         std::shared_ptr<utils::GEMInfoSpaceToolBox> getCfgISToolBox() { return p_configInfoSpaceToolBox;  };
@@ -116,7 +117,7 @@ namespace gem {
       protected:
         log4cplus::Logger m_gemLogger;
         
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_infoSpaceToolBox;
+        // std::shared_ptr<utils::GEMInfoSpaceToolBox> p_infoSpaceToolBox;
         std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appInfoSpaceToolBox;
         std::shared_ptr<utils::GEMInfoSpaceToolBox> p_monitorInfoSpaceToolBox;
         std::shared_ptr<utils::GEMInfoSpaceToolBox> p_configInfoSpaceToolBox;

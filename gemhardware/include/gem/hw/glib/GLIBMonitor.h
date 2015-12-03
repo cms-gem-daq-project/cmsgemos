@@ -28,6 +28,7 @@ namespace gem {
         virtual ~GLIBMonitor();
         
         virtual void updateMonitorables();
+        virtual void reset();
         void setupHwMonitoring();
         void buildMonitorPage(xgi::Output* out);
         std::string getDeviceID() { return p_glib->getDeviceID(); }

@@ -16,7 +16,7 @@
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 gem::hw::glib::GLIBMonitor::GLIBMonitor(std::shared_ptr<HwGLIB> glib, GLIBManager* glibManager, int const& index) :
-  GEMMonitor(glibManager->getApplicationLogger(), static_cast<gem::base::GEMFSMApplication*>(glibManager), index),
+  GEMMonitor(glibManager->getApplicationLogger(), static_cast<xdaq::Application*>(glibManager), index),
   p_glib(glib)
 {
   // application info space is added in the base class constructor
@@ -224,6 +224,10 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
 void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
 {
   DEBUG("GLIBMonitor::buildMonitorPage");
+  if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
+    WARN("Unable to find item set HWMonitoring in monitor");
+    return;
+  }
   
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
   
@@ -274,4 +278,31 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
   }
   *out << "</div>"  << std::endl;
   
+}
+
+void gem::hw::glib::GLIBMonitor::reset()
+{
+  //have to get rid of the timer 
+  DEBUG("GEMMonitor::reset");
+  for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
+    DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from m_timer");
+    try {
+      m_timer->remove(infoSpace->first);
+    } catch (toolbox::task::exception::Exception& te) {
+      ERROR("Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+    }
+  }
+  stopMonitoring();
+  DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
+  try {
+    toolbox::task::getTimerFactory()->removeTimer(m_timerName);
+  } catch (toolbox::task::exception::Exception& te) {
+    ERROR("Caught exception while removing timer " << m_timerName << " " << te.what());
+  }
+  
+  DEBUG("GEMMonitor::reset - clearing all maps");
+  m_infoSpaceMap.clear();
+  m_infoSpaceMonitorableSetMap.clear();
+  m_monitorableSetInfoSpaceMap.clear();
+  m_monitorableSetsMap.clear();
 }
