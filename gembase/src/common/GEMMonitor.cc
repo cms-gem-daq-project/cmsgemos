@@ -31,9 +31,9 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gem
   m_gemLogger(logger)
 {
   p_gemApp = gemApp;
-  addInfoSpace("Application",  gemApp->getAppISToolBox()); // update on state changes
-  addInfoSpace("Configuration",gemApp->getCfgISToolBox()); // update on changes to parameters
-  addInfoSpace("Monitoring",   gemApp->getMonISToolBox()); // update with interval try {
+  addInfoSpace("Application",  gemApp->getAppISToolBox(), toolbox::TimeInterval(5,0)); // update on state changes
+  addInfoSpace("Configuration",gemApp->getCfgISToolBox(), toolbox::TimeInterval(5,0)); // update on changes to parameters
+  addInfoSpace("Monitoring",   gemApp->getMonISToolBox(), toolbox::TimeInterval(5,0)); // update with interval try {
 
   std::stringstream timerName;
   timerName << gemApp->m_urn << ":MonitoringTimer" << index;
@@ -55,10 +55,11 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* 
   m_gemLogger(logger)
 {
   p_gemApp = static_cast<gem::base::GEMApplication*>(gemFSMApp);
-  addInfoSpace("Application",        gemFSMApp->getAppISToolBox()); // update on state changes
-  addInfoSpace("Configuration",      gemFSMApp->getCfgISToolBox()); // update on changes to parameters
-  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox()); // update with interval
-  addInfoSpace("AppStateMonitoring", gemFSMApp->getAppStateISToolBox()); // update with interval for state changes
+  // maybe it's really better to use the listener functionality... which we can put into the actionPerformed callback!
+  addInfoSpace("Application",        gemFSMApp->getAppISToolBox(), toolbox::TimeInterval(5,0)); // update on state changes
+  addInfoSpace("Configuration",      gemFSMApp->getCfgISToolBox(), toolbox::TimeInterval(60,0)); // update on changes to parameters
+  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox(), toolbox::TimeInterval(5,0)); // update with interval
+  addInfoSpace("AppStateMonitoring", gemFSMApp->getAppStateISToolBox(), toolbox::TimeInterval(5,0)); // update with interval for state changes
   
   std::stringstream timerName;
   timerName << gemFSMApp->m_urn << ":MonitoringTimer" << index;
@@ -129,7 +130,7 @@ void gem::base::GEMMonitor::setupMonitoring(bool isFSMApp)
 
 void gem::base::GEMMonitor::timeExpired(toolbox::task::TimerEvent& event)
 {
-  INFO("GEMMonitor::timeExpired received event:" << event.type());
+  DEBUG("GEMMonitor::timeExpired received event:" << event.type());
   updateMonitorables();
 }
 
@@ -249,7 +250,7 @@ void gem::base::GEMMonitor::jsonUpdateItemSet(std::string const& setname, std::o
     WARN("Monitorable set " << setname << " is empty, not exporting as JSON");
     return;
   }
-  INFO("Found monitorable set " << setname << " while updating for JSON export");
+  DEBUG("Found monitorable set " << setname << " while updating for JSON export");
   *out << "\"" << setname << "\" : [ \n";
   std::list< std::vector<std::string> > items = getFormattedItemSet(setname);
   std::list< std::vector<std::string> >::const_iterator it;
