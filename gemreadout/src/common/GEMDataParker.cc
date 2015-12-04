@@ -1,4 +1,5 @@
 #include "gem/readout/GEMDataParker.h"
+#include "gem/readout/gemOnlineDQM.h"
 #include "gem/readout/exception/Exception.h"
 #include "gem/hw/glib/HwGLIB.h"
 
@@ -80,7 +81,7 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   event_ = 0;
   rvent_ = 0;
   sumVFAT_ = 0;
-
+  m_gemOnlineDQM = new gem::readout::gemOnlineDQM(slotFileName_);
   slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(slotFileName_));
 }
 
@@ -346,6 +347,8 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
           TypeDataFlag = "PayLoad";
           if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
                                                                                     gem, geb, vfat);
+          // update online histograms
+          m_gemOnlineDQM->Update(geb);
           geb.vfats.clear();
         }// end of writing event
       }// if slot correct
