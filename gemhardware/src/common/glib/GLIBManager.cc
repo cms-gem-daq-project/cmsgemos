@@ -336,10 +336,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (!info.present)
       continue;
     
-    DEBUG("grabbing pointer to hardware device");
-    glib_shared_ptr glib = m_glibs[slot];
-    
-    if (glib->isHwConnected()) {
+    if (m_glibs[slot]->isHwConnected()) {
       DEBUG("connected a card in slot " << (slot+1));
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
@@ -363,18 +360,15 @@ void gem::hw::glib::GLIBManager::configureAction()
     if (!info.present)
       continue;
     
-    INFO("grabbing pointer to hardware device");
-    glib_shared_ptr glib = m_glibs[slot];
-    
-    if (glib->isHwConnected()) {
-      INFO("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
-      glib->setTrigSource(info.triggerSource.value_);
+    if (m_glibs[slot]->isHwConnected()) {
+      DEBUG("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
+      m_glibs[slot]->setTrigSource(info.triggerSource.value_);
       
       //should FIFOs be emptied in configure or at start?
-      INFO("emptying trigger/tracking data FIFOs");
+      DEBUG("emptying trigger/tracking data FIFOs");
       for (unsigned link = 0; link < HwGLIB::N_GTX; ++link) {
-        //glib->flushTriggerFIFO(link);
-        glib->flushFIFO(link);
+        //m_glibs[slot]->flushTriggerFIFO(link);
+        m_glibs[slot]->flushFIFO(link);
       }
       //what else is required for configuring the GLIB?
       //need to reset optical links?
