@@ -373,6 +373,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       //what else is required for configuring the GLIB?
       //need to reset optical links?
       //reset counters?
+      //setup run mode?
+      //setup DAQ mode?
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
       fireEvent("Fail");
