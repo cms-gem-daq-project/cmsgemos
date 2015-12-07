@@ -226,6 +226,7 @@ void gem::hw::amc13::AMC13Manager::resetAction()
 {
   //what is necessary for a reset on the AMC13?
   usleep(500);
+  //gem::base::GEMFSMApplication::resetAction();
 }
 
 /*These should maybe only be implemented in GEMFSMApplication,
