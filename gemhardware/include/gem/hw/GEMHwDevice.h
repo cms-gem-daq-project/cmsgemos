@@ -30,8 +30,17 @@
 
 typedef uhal::exception::exception uhalException;
 
+// for multiple reads with single dispatch with named registers
 typedef std::pair<std::string, uint32_t> register_pair;
 typedef std::vector<register_pair>       register_pair_list;
+
+// for multiple reads with single dispatch with addressed registers
+typedef std::pair<uint32_t, uint32_t>           addressed_register_pair;
+typedef std::vector<addressed_register_pair>    addressed_register_pair_list;
+
+// for multiple reads with single dispatch with addressed and masked registers
+typedef std::pair<std::pair<uint32_t, uint32_t>, uint32_t> masked_register_pair;
+typedef std::vector<masked_register_pair>                  masked_register_pair_list;
 
 typedef std::pair<std::string, uhal::ValWord<uint32_t> > register_value;
 typedef std::vector<register_value>                      register_val_list;
@@ -179,6 +188,22 @@ namespace gem {
        * @param regList list of register name and uint32_t value to store the result
        */
       void     readRegs( register_pair_list &regList);
+
+      /**
+       * readRegs( addressed_register_pair_list &regList)
+       * read list of registers in a single transaction (one dispatch call)
+       * into the supplied vector regList
+       * @param regList list of register address and uint32_t value to store the result
+       */
+      void     readRegs( addressed_register_pair_list &regList);
+
+      /**
+       * readRegs( masked_register_pair_list &regList)
+       * read list of registers in a single transaction (one dispatch call)
+       * into the supplied vector regList
+       * @param regList list of register address/mask pair and uint32_t value to store the result
+       */
+      void     readRegs( masked_register_pair_list &regList);
 
       /**
        * writeReg(std::string const& regName, uint32_t const val)
