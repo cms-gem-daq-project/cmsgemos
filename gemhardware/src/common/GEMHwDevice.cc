@@ -441,9 +441,9 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 {
   if (p_gemHW == NULL) {
-    std::string msg = "Trying to access hardware before connecting.";
+    std::string msg = "Trying to access hardware before connecting!";
     ERROR(msg);
-    //XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
+    XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
   } else {
     uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
     return hw;
