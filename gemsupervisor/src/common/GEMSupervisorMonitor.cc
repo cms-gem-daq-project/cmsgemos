@@ -48,7 +48,11 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
 
 void gem::supervisor::GEMSupervisorMonitor::updateMonitorables()
 {
+  updateApplicationStates();
+}
 
+void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
+{
   DEBUG("GEMSupervisorMonitor: Updating AppStates monitorables");
   auto monlist = m_monitorableSetsMap.find("AppStates");
   if (monlist == m_monitorableSetsMap.end()) {
