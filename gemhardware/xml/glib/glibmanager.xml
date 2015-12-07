@@ -20,17 +20,17 @@
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">2</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">11</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!-- position must be slot-1 -->
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="10"> <!-- position must be slot-1 -->
             <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
             <crateID xsi:type="xsd:integer">1</crateID>
             <slot    xsi:type="xsd:integer">2</slot>
             <present xsi:type="xsd:boolean">true</present>
             
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
-            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.162</DeviceIPAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.171</DeviceIPAddress>
             <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
             <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
             <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>

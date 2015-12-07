@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="VALID"      address="0x0"
+        module="file://${GEM_ADDRESS_TABLE_PATH}/vfat_counters.xml"
+        description="Counter for each VFAT number of data packets with valid CRC"/>
+  
+  <node id="INCORRECT" address="0x18"
+        module="file://${GEM_ADDRESS_TABLE_PATH}/vfat_counters.xml"
+        description="Counter for each VFAT number of data packets with incorrect CRC"/>
+</node>

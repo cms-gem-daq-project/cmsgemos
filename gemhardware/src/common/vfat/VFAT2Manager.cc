@@ -62,7 +62,9 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << ipAddr_.toString() << ":50001";
   vfatDevice = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(device_.toString(), tmpURI.str(),
-                                                          "file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"));
+							  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+  //vfatDevice->connectDevice();
+
   setLogLevelTo(uhal::Error());  // Maximise uHAL logging
   LOG4CPLUS_DEBUG(this->getApplicationLogger(),"VFAT2Manager::VFAT2Manager::5 device_ = " << device_.toString() << std::endl);
 
@@ -539,8 +541,7 @@ void gem::hw::vfat::VFAT2Manager::controlVFAT2(xgi::Input * in, xgi::Output * ou
   try
     {
       cgicc::Cgicc cgi(in);
-      std::vector<cgicc::FormEntry> myElements = cgi.getElements();
-      
+      //std::vector<cgicc::FormEntry> myElements = cgi.getElements();
       //for (unsigned int formiter = 0; formiter < myElements.size(); ++formiter) {
       //	LOG4CPLUS_DEBUG(this->getApplicationLogger(),"form element name: "  + myElements.at(formiter).getName() );
       //	LOG4CPLUS_DEBUG(this->getApplicationLogger(),"form element value: " + myElements.at(formiter).getValue());
@@ -824,7 +825,7 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     //stored values, and ensure the web page displays that channel
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"Get channel button pressed");
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
-    uint8_t chanSettings = vfatDevice->getChannelSettings(chan);
+    // uint8_t chanSettings = vfatDevice->getChannelSettings(chan);
     
     m_vfatParams = vfatDevice->getVFAT2Params();
     m_vfatParams.activeChannel = chan;

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="FW"  address="0x0"  permission="r"
+	description="Firmware version on the OH"/>
+
+  <node id="FPGA_PLL_LOCK"  address="0x1"  mask="0x1"  permission="r"
+        description="Returns the lock status of the FPGA clock PLL"/>
+  <node id="EXT_PLL_LOCK"   address="0x2"  mask="0x1"  permission="r"
+        description="Returns the lock status of the external clock PLL"/>
+  <node id="CDCE_LOCK"      address="0x3"  mask="0x1"  permission="r"
+        description="Returns the lock status of the CDCE"/>
+  <node id="GTX_LOCK"       address="0x4"  mask="0x1"  permission="r"
+        description="Returns the lock status of the recovered clock (GTX)"/>
+</node> <!-- end top block -->

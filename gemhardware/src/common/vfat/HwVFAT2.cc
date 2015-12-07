@@ -4,7 +4,8 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionFile)
 {
-  setDeviceBaseNode("VFATS."+vfatDevice);
+  //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
+  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
@@ -13,7 +14,8 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionURI, addressTable)
 {
-  setDeviceBaseNode("VFATS."+vfatDevice);
+  //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
+  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
@@ -21,7 +23,8 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice,uhalDevice)
 {
-  setDeviceBaseNode("VFATS."+vfatDevice);
+  //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
+  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
@@ -32,9 +35,10 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
   //this->gem::hw::GEMHwDevice::GEMHwDevice();
   //gem::hw::vfat::HwVFAT2::initDevice();
   //can use a different address table for the VFAT access
-  setAddressTableFileName("geb_vfat_address_table.xml");
+  setAddressTableFileName("glib_address_table.xml");
   setDeviceID("VFAT2Hw");
-  setDeviceBaseNode("VFATS."+vfatDevice);
+  //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
+  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
   b_is_connected = false;
   //what's the difference between connect, init, enable for VFAT?
   //check that register values are hardware default values, if not, something may be amiss
@@ -94,15 +98,15 @@ void gem::hw::vfat::HwVFAT2::loadDefaults()
   
   
   setIPreampIn(  168);
-  setIPreampFeed(150);
-  setIPreampOut(  80);
+  setIPreampFeed( 80);
+  setIPreampOut( 150);
   setIShaper(    150);
   setIShaperFeed(100);
   setIComp(       75);
   
-  setLatency(15);
+  setLatency(9);
   
-  setVThreshold1(25);
+  setVThreshold1(60);
   setVThreshold2(0);
 }
 
