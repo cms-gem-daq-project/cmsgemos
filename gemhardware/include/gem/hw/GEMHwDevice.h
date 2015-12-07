@@ -182,6 +182,13 @@ namespace gem {
         return readReg(regPrefix+"."+regName); };
 
       /**
+       * readMaskedAddress(std::string const& regName)
+       * @param regName name of the register to read
+       * @retval returns the 32 bit unsigned value in the register
+       */
+      uint32_t readMaskedAddress( std::string const& regName);
+
+      /**
        * readRegs( register_pair_list &regList)
        * read list of registers in a single transaction (one dispatch call)
        * into the supplied vector regList

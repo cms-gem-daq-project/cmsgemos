@@ -602,6 +602,13 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& 
   return res;
 }
 
+uint32_t gem::hw::GEMHwDevice::readMaskedAddress(std::string const& name)
+{
+  uint32_t address = getGEMHwInterface().getNode(name).getAddress();
+  uint32_t mask    = getGEMHwInterface().getNode(name).getMask();
+  return readReg(address,mask);
+}
+
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
@@ -672,7 +679,7 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
     } catch (uhal::exception::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
-        msgBase += toolbox::toString(" '0x%x mask 0x%x'", curReg->first);
+        msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first);
       std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
@@ -686,7 +693,7 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
     } catch (std::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
-        msgBase += toolbox::toString(" '0x%x mask 0x%x'", curReg->first);
+        msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first);
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       ERROR(msg);
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
@@ -719,7 +726,7 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
     } catch (uhal::exception::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
-        msgBase += toolbox::toString(" '0x%x mask 0x%x'", curReg->first.first, curReg->first.second);
+        msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first.first, curReg->first.second);
       std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
@@ -733,7 +740,7 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
     } catch (std::exception const& err) {
       std::string msgBase = "Could not read from register in list:";
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
-        msgBase += toolbox::toString(" '0x%x mask 0x%x'", curReg->first.first, curReg->first.second);
+        msgBase += toolbox::toString(" '0x%08x mask 0x%08x'", curReg->first.first, curReg->first.second);
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       ERROR(msg);
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
@@ -833,15 +840,6 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        /* would need to loop the debug message as curReg is out of scope here
-           if (retryCount > 4)
-           for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
-           DEBUG("Failed to write value 0x" << std::hex <<
-           curReg->second << std::dec <<
-           " to register " << curReg->first <<
-           ", retrying. retryCount("<<retryCount<<")"
-           << std::endl);
-        */
         updateErrorCounters(errCode);
         continue;
       } else {
