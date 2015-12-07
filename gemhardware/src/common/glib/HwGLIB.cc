@@ -224,8 +224,16 @@ std::string gem::hw::glib::HwGLIB::getBoardID()
   // The board ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "???";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.BOARD_ID");
-  res = uint32ToString(val);
+  res = gem::utils::uint32ToString(val);
   return res;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getBoardIDRaw()
+{
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The board ID consists of four characters encoded as a 32-bit unsigned int
+  uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.BOARD_ID");
+  return val;
 }
 
 std::string gem::hw::glib::HwGLIB::getSystemID()
@@ -234,8 +242,16 @@ std::string gem::hw::glib::HwGLIB::getSystemID()
   // The system ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "???";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.SYSTEM_ID");
-  res = uint32ToString(val);
+  res = gem::utils::uint32ToString(val);
   return res;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getSystemIDRaw()
+{
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  // The system ID consists of four characters encoded as a 32-bit unsigned int
+  uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.SYSTEM_ID");
+  return val;
 }
 
 std::string gem::hw::glib::HwGLIB::getIPAddress()
@@ -243,8 +259,15 @@ std::string gem::hw::glib::HwGLIB::getIPAddress()
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::string res = "N/A";
   uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.IP_INFO");
-  res = uint32ToDottedQuad(val);
+  res = gem::utils::uint32ToDottedQuad(val);
   return res;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getIPAddressRaw()
+{
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  uint32_t val = readReg(getDeviceBaseNode(),"SYSTEM.IP_INFO");
+  return val;
 }
 
 std::string gem::hw::glib::HwGLIB::getMACAddress()
@@ -253,8 +276,16 @@ std::string gem::hw::glib::HwGLIB::getMACAddress()
   std::string res = "N/A";
   uint32_t val1 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.UPPER");
   uint32_t val2 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.LOWER");
-  res = uint32ToGroupedHex(val1,val2);
+  res = gem::utils::uint32ToGroupedHex(val1,val2);
   return res;
+}
+
+uint64_t gem::hw::glib::HwGLIB::getMACAddressRaw()
+{
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  uint32_t val1 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.UPPER");
+  uint32_t val2 = readReg(getDeviceBaseNode(),"SYSTEM.MAC.LOWER");
+  return ((uint64_t)val1 << 32) + val2;
 }
 
 std::string gem::hw::glib::HwGLIB::getFirmwareDate()
@@ -271,11 +302,19 @@ std::string gem::hw::glib::HwGLIB::getFirmwareDate()
     << "-"      << std::setw(2) << mm
     << "-"      << std::setw(2) << dd;
   */
-  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
   res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
       << "-"  << std::setw(2) << ((fwid>>5)&0x0f)
       << "-"  << std::setw(2) << ((fwid>>9)&0x7f);
   return res.str();
+}
+
+uint32_t gem::hw::glib::HwGLIB::getFirmwareDateRaw()
+{
+  // This returns the firmware build date. 
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
+  return fwid;
 }
 
 std::string gem::hw::glib::HwGLIB::getFirmwareVer()
@@ -291,11 +330,19 @@ std::string gem::hw::glib::HwGLIB::getFirmwareVer()
     res << versionMajor << "." << versionMinor << "." << versionBuild;
   */
 
-  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE");
-  res << ((fwid>>28)&0x0f) << "." 
-      << ((fwid>>24)&0x0f) << "."
-      << ((fwid>>16)&0xff);
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
+  res << ((fwid>>12)&0x0f) << "." 
+      << ((fwid>>8) &0x0f) << "."
+      << ((fwid)    &0xff);
   return res.str();
+}
+
+uint32_t gem::hw::glib::HwGLIB::getFirmwareVerRaw()
+{
+  // This returns the firmware version number. 
+  //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
+  return fwid;
 }
 
 void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& input, uint8_t const& output)
@@ -385,6 +432,12 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output
 uint8_t gem::hw::glib::HwGLIB::SFPStatus(uint8_t const& sfpcage)
 {
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
+  if (sfpcage < 1 || sfpcage > 4) {
+    std::string msg = toolbox::toString("Status requested for SFP (%d): outside expectation (1,4)", sfpcage);
+    ERROR(msg);
+    //XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
+    return 0;
+  }
   std::stringstream regName;
   regName << "SYSTEM.STATUS.SFP" << (int)sfpcage << ".STATUS";
   return (uint8_t)readReg(getDeviceBaseNode(),regName.str());
@@ -394,7 +447,7 @@ bool gem::hw::glib::HwGLIB::FMCPresence(bool fmc2)
 {
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream regName;
-  regName << "SYSTEM.STATUS.FMC" << (int)fmc2 << "_PRESENT";
+  regName << "SYSTEM.STATUS.FMC" << (int)fmc2+1 << "_PRESENT";
   return (bool)readReg(getDeviceBaseNode(),regName.str());
 }
 
@@ -655,4 +708,65 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
          << " Depth 0x"   << std::hex << getFIFOOccupancy(gtx) << std::dec);
     writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
   }
+}
+
+
+void gem::hw::glib::HwGLIB::enableDAQLink()
+{
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkControl()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.CONTROL");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkStatus()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.STATUS");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkFlags()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.FLAGS");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkCorruptCount()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.CORRUPT_CNT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkEventsBuilt()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.EVT_BUILT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkEventsSent()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.EVT_SENT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkL1AID()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.L1AID");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkDebug(uint8_t const& mode)
+{
+  if (mode < 0 || mode > 6 ) {
+    ERROR("Invalid DAQ LINK debug register (" << (int)mode << " specified. Expected 0-6");
+    return 0;
+  }
+  std::stringstream regName;
+  regName << "DAQ.DEBUG_" << (int)mode;
+  return readReg(getDeviceBaseNode(),regName.str());
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkDisperErrors()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.DISPER_ERR");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkNonidentifiableErrors()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.NOTINTABLE_ERR");
 }

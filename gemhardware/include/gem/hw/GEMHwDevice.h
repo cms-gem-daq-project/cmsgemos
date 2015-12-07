@@ -19,6 +19,7 @@
 #include "uhal/Utilities.hpp"
 
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/GEMRegisterUtils.h"
 
 /* would like to avoid rewriting this nice functionality,
    but the code isn't in the main xdaq release.
@@ -152,6 +153,14 @@ namespace gem {
        * @retval returns the 32 bit unsigned value in the register
        */
       uint32_t readReg( uint32_t const& regAddr);
+
+      /**
+       * readReg(uint32_t const& regAddr)
+       * @param regAddr address of the register to read 
+       * @param regMask mask of the register to read 
+       * @retval returns the 32 bit unsigned value in the register
+       */
+      uint32_t readReg( uint32_t const& regAddr, uint32_t const& regMask);
 
       /**
        * readReg(std::string const& regPrefix, std::string const& regName)
@@ -340,8 +349,9 @@ namespace gem {
       void updateErrorCounters(std::string const& errCode);
 	
       virtual std::string printErrorCounts() const;
-	
-      std::string uint32ToString(uint32_t const val) const {
+
+      /*
+      static std::string uint32ToString(uint32_t const val) const {
         std::stringstream res;
         res <<(char)((val & (0xff000000)) / 16777216);
         res <<(char)((val & (0x00ff0000)) / 65536);
@@ -349,7 +359,7 @@ namespace gem {
         res <<(char)((val & (0x000000ff)));
         return res.str(); };
 
-      std::string uint32ToDottedQuad(uint32_t const val) const {
+      static std::string uint32ToDottedQuad(uint32_t const val) const {
         std::stringstream res;
         res << (uint32_t)((val & (0xff000000)) / 16777216)<< std::dec << ".";
         res << (uint32_t)((val & (0x00ff0000)) / 65536)   << std::dec << ".";
@@ -357,7 +367,7 @@ namespace gem {
         res << (uint32_t)((val & (0x000000ff)))           << std::dec;
         return res.str(); };
 	
-      std::string uint32ToGroupedHex(uint32_t const val1, uint32_t const val2) const {
+      static std::string uint32ToGroupedHex(uint32_t const val1, uint32_t const val2) const {
         std::stringstream res;
         res << std::setfill('0') << std::setw(2) << std::hex
             <<(uint32_t)((val1 & (0x0000ff00)) / 256)     << std::dec << ":";
@@ -372,10 +382,12 @@ namespace gem {
         res << std::setfill('0') << std::setw(2) << std::hex
             <<(uint32_t)((val2 & (0x000000ff)))           << std::dec;
         return res.str(); };
-	
+      */	
       DeviceErrors m_ipBusErrs;
       
       bool b_is_connected;
+
+      xdata::InfoSpace* getHwInfoSpace() { return p_hwCfgInfoSpace; };
 
     protected:
       std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager;

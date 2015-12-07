@@ -32,6 +32,9 @@ namespace gem {
           virtual void expertPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
           
+          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+          
           void cardPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
           

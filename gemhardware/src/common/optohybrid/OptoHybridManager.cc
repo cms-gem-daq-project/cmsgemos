@@ -287,57 +287,60 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 
       if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
         INFO("initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
-        is_optohybrids[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+        is_optohybrids[index] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+
+        /*
+        createOptoHybridInfoSpaceItems(is_optohybrids[index], m_optohybrids[index]);
+        
+        m_optohybridMonitors[index] = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids[index], this, slot+1));
+        m_optohybridMonitors[index]->addInfoSpace("HWMonitoring", is_optohybrids[index]);
+        m_optohybridMonitors[index]->setupHwMonitoring();
+        m_optohybridMonitors[index]->startMonitoring();
+        */
       } else {
         INFO("initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
-        is_optohybrids[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
+        is_optohybrids[index] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
       }
       
       INFO("exporting config parameters into infospace");
-      /* figure out how to make it work like this
-         probably just have to define begin/end for OptoHybridInfo class and iterators
-      for (auto monitorable = info.begin(); monitorable != info.end(); ++monitorable)
-        if (is_optohybrids[slot]->hasItem(monitorable->getName()))
-          is_optohybrids[slot]->fireItemAvailable(monitorable->getName(), monitorable->getSerializableValue());
-      */
-      if (!is_optohybrids[slot]->hasItem("ControlHubAddress"))
-        is_optohybrids[slot]->fireItemAvailable("ControlHubAddress", &info.controlHubAddress);
+      if (!is_optohybrids[index]->hasItem("ControlHubAddress"))
+        is_optohybrids[index]->fireItemAvailable("ControlHubAddress", &info.controlHubAddress);
       
-      if (!is_optohybrids[slot]->hasItem("IPBusProtocol"))
-        is_optohybrids[slot]->fireItemAvailable("IPBusProtocol",     &info.ipBusProtocol);
+      if (!is_optohybrids[index]->hasItem("IPBusProtocol"))
+        is_optohybrids[index]->fireItemAvailable("IPBusProtocol",     &info.ipBusProtocol);
       
-      if (!is_optohybrids[slot]->hasItem("DeviceIPAddress"))
-        is_optohybrids[slot]->fireItemAvailable("DeviceIPAddress",   &info.deviceIPAddress);
+      if (!is_optohybrids[index]->hasItem("DeviceIPAddress"))
+        is_optohybrids[index]->fireItemAvailable("DeviceIPAddress",   &info.deviceIPAddress);
       
-      if (!is_optohybrids[slot]->hasItem("AddressTable"))
-        is_optohybrids[slot]->fireItemAvailable("AddressTable",      &info.addressTable);
+      if (!is_optohybrids[index]->hasItem("AddressTable"))
+        is_optohybrids[index]->fireItemAvailable("AddressTable",      &info.addressTable);
       
-      if (!is_optohybrids[slot]->hasItem("ControlHubPort"))
-        is_optohybrids[slot]->fireItemAvailable("ControlHubPort",    &info.controlHubPort);
+      if (!is_optohybrids[index]->hasItem("ControlHubPort"))
+        is_optohybrids[index]->fireItemAvailable("ControlHubPort",    &info.controlHubPort);
       
-      if (!is_optohybrids[slot]->hasItem("IPBusPort"))
-        is_optohybrids[slot]->fireItemAvailable("IPBusPort",         &info.ipBusPort);
+      if (!is_optohybrids[index]->hasItem("IPBusPort"))
+        is_optohybrids[index]->fireItemAvailable("IPBusPort",         &info.ipBusPort);
 
-      INFO("InfoSpace found item: ControlHubAddress " << is_optohybrids[slot]->find("ControlHubAddress"));
-      INFO("InfoSpace found item: IPBusProtocol "     << is_optohybrids[slot]->find("IPBusProtocol")    );
-      INFO("InfoSpace found item: DeviceIPAddress "   << is_optohybrids[slot]->find("DeviceIPAddress")  );
-      INFO("InfoSpace found item: AddressTable "      << is_optohybrids[slot]->find("AddressTable")     );
-      INFO("InfoSpace found item: ControlHubPort "    << is_optohybrids[slot]->find("ControlHubPort")   );
-      INFO("InfoSpace found item: IPBusPort "         << is_optohybrids[slot]->find("IPBusPort")        );
+      INFO("InfoSpace found item: ControlHubAddress " << is_optohybrids[index]->find("ControlHubAddress"));
+      INFO("InfoSpace found item: IPBusProtocol "     << is_optohybrids[index]->find("IPBusProtocol")    );
+      INFO("InfoSpace found item: DeviceIPAddress "   << is_optohybrids[index]->find("DeviceIPAddress")  );
+      INFO("InfoSpace found item: AddressTable "      << is_optohybrids[index]->find("AddressTable")     );
+      INFO("InfoSpace found item: ControlHubPort "    << is_optohybrids[index]->find("ControlHubPort")   );
+      INFO("InfoSpace found item: IPBusPort "         << is_optohybrids[index]->find("IPBusPort")        );
     
-      is_optohybrids[slot]->fireItemValueRetrieve("ControlHubAddress");
-      is_optohybrids[slot]->fireItemValueRetrieve("IPBusProtocol");
-      is_optohybrids[slot]->fireItemValueRetrieve("DeviceIPAddress");
-      is_optohybrids[slot]->fireItemValueRetrieve("AddressTable");
-      is_optohybrids[slot]->fireItemValueRetrieve("ControlHubPort");
-      is_optohybrids[slot]->fireItemValueRetrieve("IPBusPort");
+      is_optohybrids[index]->fireItemValueRetrieve("ControlHubAddress");
+      is_optohybrids[index]->fireItemValueRetrieve("IPBusProtocol");
+      is_optohybrids[index]->fireItemValueRetrieve("DeviceIPAddress");
+      is_optohybrids[index]->fireItemValueRetrieve("AddressTable");
+      is_optohybrids[index]->fireItemValueRetrieve("ControlHubPort");
+      is_optohybrids[index]->fireItemValueRetrieve("IPBusPort");
 
-      is_optohybrids[slot]->fireItemValueChanged("ControlHubAddress");
-      is_optohybrids[slot]->fireItemValueChanged("IPBusProtocol");
-      is_optohybrids[slot]->fireItemValueChanged("DeviceIPAddress");
-      is_optohybrids[slot]->fireItemValueChanged("AddressTable");
-      is_optohybrids[slot]->fireItemValueChanged("ControlHubPort");
-      is_optohybrids[slot]->fireItemValueChanged("IPBusPort");
+      is_optohybrids[index]->fireItemValueChanged("ControlHubAddress");
+      is_optohybrids[index]->fireItemValueChanged("IPBusProtocol");
+      is_optohybrids[index]->fireItemValueChanged("DeviceIPAddress");
+      is_optohybrids[index]->fireItemValueChanged("AddressTable");
+      is_optohybrids[index]->fireItemValueChanged("ControlHubPort");
+      is_optohybrids[index]->fireItemValueChanged("IPBusPort");
 
       INFO("initializeAction::info:" << info.toString());
       INFO("InfoSpace item value: ControlHubAddress " << info.controlHubAddress.toString());
@@ -348,35 +351,10 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       INFO("InfoSpace item value: IPBusPort "         << info.ipBusPort.toString()        );
     
       try {
-        INFO("obtaining pointer to HwOptoHybrid " << deviceName
-             << " (slot " << slot+1 << ")"
-             << " (link " << link   << ")");
+        DEBUG("obtaining pointer to HwOptoHybrid " << deviceName
+              << " (slot " << slot+1 << ")"
+              << " (link " << link   << ")");
         m_optohybrids[index] = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(deviceName,m_connectionFile.toString()));
-        
-        /*
-        //still uses the above method behind the scenes
-        //m_optohybrids[index] = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(info.crateID.value_,info.slotID.value_,info.linkID.value_));
-        
-        //maybe make this into a commonly used function? createHwURI(what though)
-        //std::string tmpURI = toolbox::toString();
-        std::stringstream tmpURI;
-        if (info.controlHubAddress.toString().size() > 0) {
-          INFO("Using control hub at address '" << info.controlHubAddress.toString()
-               << ", port number "              << info.controlHubPort.toString() << "'.");
-          tmpURI << "chtcp-"<< info.ipBusProtocol.toString() << "://"
-                 << info.controlHubAddress.toString() << ":" << info.controlHubPort.toString()
-                 << "?target=" << info.deviceIPAddress.toString() << ":" << info.ipBusPort.toString();
-        } else {
-          INFO("No control hub address specified -> continuing with a direct connection.");
-          tmpURI << "ipbusudp-" << info.ipBusProtocol.toString() << "://"
-                 << info.deviceIPAddress.toString() << ":" << info.ipBusPort.toString();
-        }
-        //std::string const uri = tmpURI.str();
-        m_optohybrids[index] = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(deviceName, tmpURI.str(), "file://setup/etc/addresstables/"+info.addressTable.toString()));
-        //INFO("connecting to device");
-        //m_optohybrids[index]->connectDevice();
-        */
-        INFO("connected");
       } catch (gem::hw::optohybrid::exception::Exception const& ex) {
         ERROR("caught exception " << ex.what());
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "initializeAction failed");
@@ -387,18 +365,21 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         ERROR("caught exception " << ex.what());
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "initializeAction failed");
       }
+      DEBUG("connected");
       //set the web view to be empty or grey
       //if (!info.present.value_) continue;
       //p_gemWebInterface->optohybridInSlot(slot);
 
-      INFO("grabbing pointer to hardware device");
-      optohybrid_shared_ptr optohybrid = m_optohybrids[index];
+      DEBUG("grabbing pointer to hardware device");
+      //optohybrid_shared_ptr optohybrid = m_optohybrids[index];
 
-      if (optohybrid->isHwConnected()) {
-        //return;
+      if (m_optohybrids[index]->isHwConnected()) {
         INFO("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1));
       } else {
-        WARN("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        ERROR("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        fireEvent("Fail");
+        //maybe raise exception so as to not continue with other cards? let's just return for the moment
+        return;
       }
     }
   }  
@@ -460,7 +441,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         //need to reset optical links?
         //reset counters?
       } else {
-        WARN("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        ERROR("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        fireEvent("Fail");
+        //maybe raise exception so as to not continue with other cards?
       }
     }
   }
@@ -517,39 +500,41 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
       // set up the info space here rather than in initialize (where it can then get unset in reset?
       // should a value be set up for all of them by default?
 
-      INFO("revoking hwCfgInfoSpace items for board connected on link " << link << " to GLIB in slot " << (slot+1));
+      DEBUG("revoking hwCfgInfoSpace items for board connected on link " << link << " to GLIB in slot " << (slot+1));
       toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
                                                                  info.crateID.value_,
                                                                  info.slotID.value_,
                                                                  info.linkID.value_));
       if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-        INFO("resetAction::infospace " << hwCfgURN.toString() << " already exists, getting");
-        is_optohybrids[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+        DEBUG("resetAction::infospace " << hwCfgURN.toString() << " already exists, getting");
+        is_optohybrids[index] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+        
+        DEBUG("revoking config parameters into infospace");
+        // reset the hw infospace toolbox
+        // is_optohybrids[index]->reset();
+        if (is_optohybrids[index]->hasItem("ControlHubAddress"))
+          is_optohybrids[index]->fireItemRevoked("ControlHubAddress");
+        
+        if (is_optohybrids[index]->hasItem("IPBusProtocol"))
+          is_optohybrids[index]->fireItemRevoked("IPBusProtocol");
+        
+        if (is_optohybrids[index]->hasItem("DeviceIPAddress"))
+          is_optohybrids[index]->fireItemRevoked("DeviceIPAddress");
+        
+        if (is_optohybrids[index]->hasItem("AddressTable"))
+          is_optohybrids[index]->fireItemRevoked("AddressTable");
+        
+        if (is_optohybrids[index]->hasItem("ControlHubPort"))
+          is_optohybrids[index]->fireItemRevoked("ControlHubPort");
+        
+        if (is_optohybrids[index]->hasItem("IPBusPort"))
+          is_optohybrids[index]->fireItemRevoked("IPBusPort");
       } else {
         INFO("resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
         continue;
       }
-      
-      INFO("revoking config parameters into infospace");
-      if (is_optohybrids[slot]->hasItem("ControlHubAddress"))
-        is_optohybrids[slot]->fireItemRevoked("ControlHubAddress");
-      
-      if (is_optohybrids[slot]->hasItem("IPBusProtocol"))
-        is_optohybrids[slot]->fireItemRevoked("IPBusProtocol");
-      
-      if (is_optohybrids[slot]->hasItem("DeviceIPAddress"))
-        is_optohybrids[slot]->fireItemRevoked("DeviceIPAddress");
-      
-      if (is_optohybrids[slot]->hasItem("AddressTable"))
-        is_optohybrids[slot]->fireItemRevoked("AddressTable");
-      
-      if (is_optohybrids[slot]->hasItem("ControlHubPort"))
-        is_optohybrids[slot]->fireItemRevoked("ControlHubPort");
-      
-      if (is_optohybrids[slot]->hasItem("IPBusPort"))
-        is_optohybrids[slot]->fireItemRevoked("IPBusPort");
-    }
-  }
+    } // end loop on link < MAX_OPTOHYBRIDS_PER_AMC
+  } // end loop on slot < MAX_AMCS_PER_CRATE
 }
 
 /*
