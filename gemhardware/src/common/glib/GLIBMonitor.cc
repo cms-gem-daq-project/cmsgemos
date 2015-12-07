@@ -170,6 +170,7 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
 {
   // define how to update the desired values
   // get SYSTEM monitorables
+  // can this be split into two loops, one just to do a list read, the second to fill the InfoSpace with the returned values
   DEBUG("GLIBMonitor: Updating monitorables");
   for (auto monlist = m_monitorableSetsMap.begin(); monlist != m_monitorableSetsMap.end(); ++monlist) {
     DEBUG("GLIBMonitor: Updating monitorables in set " << monlist->first);
