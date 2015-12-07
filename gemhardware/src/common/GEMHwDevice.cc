@@ -631,13 +631,6 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        /* would need to loop the debug message as curReg is out of scope here
-           if (retryCount > 4)
-           for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
-           DEBUG("Failed to read register " << curReg->first <<
-           ", retrying. retryCount("<<retryCount<<")"
-           << std::endl);
-        */
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -648,6 +641,99 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
       std::string msgBase = "Could not read from register in list:";
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
         msgBase += toolbox::toString(" '%s'", curReg->first.c_str());
+      std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
+      ERROR(msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+    }
+  }
+}
+
+void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
+{
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
+  uhal::HwInterface& hw = getGEMHwInterface();
+
+  unsigned retryCount = 0;
+  while (retryCount < MAX_IPBUS_RETRIES) {
+    try {
+      std::vector<std::pair<uint32_t, uhal::ValWord<uint32_t> > > vals;
+      //vals.reserve(regList.size());
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+        vals.push_back(std::make_pair(curReg->first,hw.getClient().read(curReg->first)));
+      hw.dispatch();
+
+      //would like to have these local to the loop, how to do...?
+      auto curVal = vals.begin();
+      auto curReg = regList.begin();
+      for ( ; curReg != regList.end(); ++curVal,++curReg) 
+        curReg->second = (curVal->second).value();
+      return;
+      //break;
+    } catch (uhal::exception::exception const& err) {
+      std::string msgBase = "Could not read from register in list:";
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+        msgBase += toolbox::toString(" '0x%x mask 0x%x'", curReg->first);
+      std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      if (knownErrorCode(errCode)) {
+        ++retryCount;
+        updateErrorCounters(errCode);
+        continue;
+      } else {
+        ERROR(msg);
+        //XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
+    } catch (std::exception const& err) {
+      std::string msgBase = "Could not read from register in list:";
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+        msgBase += toolbox::toString(" '0x%x mask 0x%x'", curReg->first);
+      std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
+      ERROR(msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+    }
+  }
+}
+
+void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
+{
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
+  uhal::HwInterface& hw = getGEMHwInterface();
+
+  unsigned retryCount = 0;
+  while (retryCount < MAX_IPBUS_RETRIES) {
+    try {
+      std::vector<std::pair<std::pair<uint32_t,uint32_t>,uhal::ValWord<uint32_t> > > vals;
+      //vals.reserve(regList.size());
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+        vals.push_back(std::make_pair(std::make_pair(curReg->first.first,curReg->first.second),
+                                      hw.getClient().read(curReg->first.first,curReg->second)));
+      hw.dispatch();
+
+      //would like to have these local to the loop, how to do...?
+      auto curVal = vals.begin();
+      auto curReg = regList.begin();
+      for ( ; curReg != regList.end(); ++curVal,++curReg) 
+        curReg->second = (curVal->second).value();
+      return;
+      //break;
+    } catch (uhal::exception::exception const& err) {
+      std::string msgBase = "Could not read from register in list:";
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+        msgBase += toolbox::toString(" '0x%x mask 0x%x'", curReg->first.first, curReg->first.second);
+      std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      if (knownErrorCode(errCode)) {
+        ++retryCount;
+        updateErrorCounters(errCode);
+        continue;
+      } else {
+        ERROR(msg);
+        //XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
+    } catch (std::exception const& err) {
+      std::string msgBase = "Could not read from register in list:";
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+        msgBase += toolbox::toString(" '0x%x mask 0x%x'", curReg->first.first, curReg->first.second);
       std::string msg = toolbox::toString("%s (std): %s.", msgBase.c_str(), err.what());
       ERROR(msg);
       //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
