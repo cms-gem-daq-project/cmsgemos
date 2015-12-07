@@ -1,0 +1,14 @@
+# Ignore everything
+*
+# Don't ignore subdirectories
+!*/
+# Don't ignore source files, etc
+!*.gitignore
+!*.cc
+!*.h
+!*.py
+!setup/etc/addresstables/*.xml
+!setup/paths.sh
+!setup/etc/profile.d/*sh
+!setup/etc/yum.repos.d/*.repo
+!*.rules
