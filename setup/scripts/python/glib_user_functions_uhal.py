@@ -4,142 +4,115 @@ sys.path.append('${GEM_PYTHON_PATH}')
 import uhal
 from registers_uhal import *
 
-def calculateLinkErrors(isGLIB,device,link,sampleTime):
-    baseNode = "GLIB.GLIB_LINKS.LINK%d"%(link)
+def calculateLinkErrors(isGLIB,device,gtx,sampleTime):
+    baseNode = "GLIB.COUNTERS.GTX%d"%(gtx)
+    errorCounts = {}
     if not isGLIB:
-        baseNode = "OptoHybrid.OptoHybrid_LINKS.LINK%d"%(link)
+        baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS.GTX"%(gtx)
 
-    writeRegister(device,"%s.OPTICAL_LINKS.Resets.LinkErr"%(baseNode),0x1)
-    first = readRegister(device,"%s.OPTICAL_LINKS.Counter.LinkErr"%(baseNode))
-    time.sleep(sampleTime)
-    second = readRegister(device,"%s.OPTICAL_LINKS.Counter.LinkErr"%(baseNode))
-    errorCounts = [first,second]
+    for link in ("TRK","TRG"):
+        writeRegister(device,"%s.%s_ERR.Reset"%(baseNode,link),0x1)
+        first = readRegister(device,"%s.%s_ERR"%(baseNode,link))
+        time.sleep(sampleTime)
+        second = readRegister(device,"%s.%s_ERR"%(baseNode,link))
+        errorCounts[link] = [first,second]
     return errorCounts
 
-def linkCounters(isGLIB,device,link,doReset=False):
+
+def glibCounters(device,gtx,doReset=False):
     """
-    read the optical link counters, returning a map
+    read the optical gtx counters, returning a map
     if doReset is true, just send the reset command and pass
+    IPBus:Strobe,Ack
+    T1:L1A,CalPulse,Resync,BC0
+    GTX:
     """
-    baseNode = "GLIB.GLIB_LINKS.LINK%d"%(link)
-    if not isGLIB:
-        baseNode = "OptoHybrid.OptoHybrid_LINKS.LINK%d"%(link)
+    baseNode = "GLIB.COUNTERS"
 
     if doReset:
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.LinkErr"%(       baseNode),0x1)
-        if isGLIB:
-            print "emptying FIFO: %s.TRK_FIFO.FLUSH"%(baseNode)
-            writeRegister(device,"%s.TRK_FIFO.FLUSH"%(                 baseNode),0x1)
-        else:
-            writeRegister(device,"%s.COUNTERS.RESETS.L1A.Total"%(     baseNode),0x1)
-            writeRegister(device,"%s.COUNTERS.RESETS.CalPulse.Total"%(baseNode),0x1)
-            writeRegister(device,"%s.COUNTERS.RESETS.Resync"%(        baseNode),0x1)
-            writeRegister(device,"%s.COUNTERS.RESETS.BC0"%(           baseNode),0x1)
+        for ipbcnt in ["Strobe","Ack"]:
+            writeRegister(device,"%s.IPBus.%s.OptoHybrid_%d.Reset"%(baseNode, ipbcnt, gtx),0x1)
+            writeRegister(device,"%s.IPBus.%s.TRK_%d.Reset"%(       baseNode, ipbcnt, gtx),0x1)
+            writeRegister(device,"%s.IPBus.%s.Counters.Reset"%(     baseNode, ipbcnt),     0x1)
 
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.RecI2CRequests"%(baseNode),0x1)
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.SntI2CRequests"%(baseNode),0x1)
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.RecRegRequests"%(baseNode),0x1)
-        writeRegister(device,"%s.OPTICAL_LINKS.Resets.SntRegRequests"%(baseNode),0x1)
+        #T1 counters
+        for t1 in ["L1A", "CalPulse","Resync","BC0"]:
+            writeRegister(device,"%s.T1.%s.Reset"%(baseNode, t1),0x1)
+
+        writeRegister(device,"%s.GTX%d.TRK_ERR.Reset"%(     baseNode, gtx), 0x1)
+        writeRegister(device,"%s.GTX%d.TRG_ERR.Reset"%(     baseNode, gtx), 0x1)
+        writeRegister(device,"%s.GTX%d.DATA_Packets.Reset"%(baseNode, gtx), 0x1)
         return
     else:
         counters = {}
-        counters["LinkErrors"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.LinkErr"%(baseNode))
-        if isGLIB:
-            counters["TRK_FIFO_Depth"] = readRegister(device,"%s.TRK_FIFO.DEPTH"%(       baseNode))
-            print "FIFO: %s.TRK_FIFO.DEPTH = %d (0x%x)"%(baseNode, counters["TRK_FIFO_Depth"], counters["TRK_FIFO_Depth"])
-        else:                                                                            
-            counters["L1A"]     = readRegister(device,"%s.COUNTERS.L1A.Total"%(      baseNode))
-            counters["Cal"]     = readRegister(device,"%s.COUNTERS.CalPulse.Total"%( baseNode))
-            counters["Resync"]  = readRegister(device,"%s.COUNTERS.Resync"%(         baseNode))
-            counters["BC0"]     = readRegister(device,"%s.COUNTERS.BC0"%(            baseNode))
-            counters["BXCount"] = readRegister(device,"%s.COUNTERS.BXCount"%(        baseNode))
+        
+        counters["IPBus"] = {}
+        for ipbcnt in ["Strobe","Ack"]:
+            counters["IPBus"][ipbcnt] = {}
+            for ipb in ["OptoHybrid","TRK"]:
+                counters["IPBus"][ipbcnt][ipb] = readRegister(device,"%s.IPBus.%s.%s_%d"%(   baseNode, ipbcnt,ipb,gtx))
+            counters["IPBus"][ipbcnt]["Counters"] = readRegister(device,"%s.IPBus.%s.Counters"%(baseNode, ipbcnt))
 
-        counters["RecI2CRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.RecI2CRequests"%(baseNode))
-        counters["SntI2CRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.SntI2CRequests"%(baseNode))
-        counters["RecRegRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.RecRegRequests"%(baseNode))
-        counters["SntRegRequests"] = readRegister(device,"%s.OPTICAL_LINKS.Counter.SntRegRequests"%(baseNode))
+
+        #T1 counters
+        counters["T1"] = {}
+        for t1 in ["L1A", "CalPulse","Resync","BC0"]:
+            counters["T1"][t1] = readRegister(device,"%s.T1.%s"%(baseNode, t1))
+
+        counters["GTX%d"%(gtx)] = {}
+        counters["GTX%d"%(gtx)]["TRK_ERR"]      = readRegister(device,"%s.GTX%d.TRK_ERR"%(baseNode,gtx))
+        counters["GTX%d"%(gtx)]["TRG_ERR"]      = readRegister(device,"%s.GTX%d.TRG_ERR"%(baseNode,gtx))
+        counters["GTX%d"%(gtx)]["DATA_Packets"] = readRegister(device,"%s.GTX%d.DATA_Packets"%(baseNode,gtx))
         return counters
 
-def readTrackingInfo(device,link):
-    """
-    read the tracking info from given optical link, returning a map
-    """
-    baseNode = "GLIB.TRK_DATA.COL%d"%(link)
 
-    data = {}
-    data["hasData"] = readRegister(device,"%s.DATA_RDY"%(baseNode))
-    for word in range(1,6):
-        data["data%d"%(word)] = readRegister(device,"%s.DATA.%d"%(baseNode,word))
+def readTrackingInfo(device,gtx,nBlocks=1):
+    """
+    read the tracking info from given optical gtx, returning a map
+    """
+    baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(gtx)
+    data = readBlock(device,"%s.FIFO"%(baseNode,7*nBlocks))
     
-    for word in data.keys():
-        print "%s: 0x%08x"%(word,data[word])
+    #for word in data:
+    #    print "%s: 0x%08x"%(word,data)
     return data
 
-def setTriggerSource(isGLIB,device,link,source):
+def flushTrackingFIFO(device,gtx):
     """
-    Set the trigger source
-    GLIB: 0=software, 1=backplane, 2=both 
-    OH:   0=GLIB,     1=external,  2=both
+    Flush the tracking FIFO from given optical gtx
     """
-    if isGLIB:
-        #writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link),source)
-        writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.SOURCE"%(link),source)
-    else:
-        writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.SOURCE"%(link),source)
-	writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FAST_COM.Send.Resync"%(link),0x1)
-
+    baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(gtx)
+    writeRegister(device,"%s.FLUSH"%(baseNode),0x1)
     return
 
-def getTriggerSource(isGLIB,device,link):
+def readFIFODepth(device,gtx):
     """
-    Set the trigger source
-    GLIB: 0=software, 1=backplane, 2=both 
-    OH:   0=GLIB,     1=external,  2=both
+    read the tracking FIFO depth from given optical gtx
     """
-    if isGLIB:
-        #readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TrgSrc"%(link))
-        return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.SOURCE"%(link))
-    else:
-        return readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.SOURCE"%(link))
+    baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(gtx)
+
+    data = {}
+    data["isFULL"]    = readRegister(device,"%s.ISFULL"%(baseNode))
+    data["isEMPTY"]   = readRegister(device,"%s.ISEMPTY"%(baseNode))
+    data["Occupancy"] = readRegister(device,"%s.DEPTH"%(baseNode))
+    return data
         
-def setTriggerSBits(isGLIB,device,link,source):
+def setTriggerSBits(isGLIB,device,gtx,source):
     """
     Set the trigger sbit source
-    GLIB: 0=software, 1=backplane, 2=both 
-    OH:   0=GLIB,     1=external,  2=both
     """
     if isGLIB:
-        #writeRegister(device,"GLIB.GLIB_LINKS.TRIGGER.TDC_SBits",source)
-        writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link),source)
+        writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(gtx),source)
     else:
-        writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link),source)
-	writeRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.FAST_COM.Send.Resync"%(link),0x1)
-
+        writeRegister(device,"GLIB.OptoHybrid_%d.TRIGGER.TDC.SBits"%(gtx),source)
+        sendResync(device,1,1)
     return
 
-def getTriggerSBits(isGLIB,device,link):
+def getTriggerSBits(isGLIB,device,gtx):
     """
-    Set the trigger sbit source
-    GLIB: 0=software, 1=backplane, 2=both 
-    OH:   0=GLIB,     1=external,  2=both
+    Get the trigger sbit source
     """
     if isGLIB:
-        return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link))
+        return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(gtx))
     else:
-        return readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.TRIGGER.TDC_SBits"%(link))
-
-def getClockingInfo(device,link):
-    """
-    Get the OptoHybrid clocking information
-    """
-    clocking = {}
-
-    clocking["fpgaplllock"] = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.FPGA_PLL_LOCKED"%(link))
-    clocking["cdcelock"]    = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.CDCE_LOCKED"%(    link))
-    clocking["gtpreclock"]  = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.GTP_REC_LOCKED"%( link))
-    clocking["vfatsrc"]     = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.VFAT.SOURCE"%(    link))
-    clocking["cdcesrc"]     = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.CDCE.SOURCE"%(    link))
-    clocking["vfatbkp"]     = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.VFAT.FALLBACK"%(  link))
-    clocking["cdcebkp"]     = readRegister(device,"OptoHybrid.OptoHybrid_LINKS.LINK%d.CLOCKING.CDCE.FALLBACK"%(  link))
-
-    return clocking
+        return readRegister(device,"GLIB.OptoHybrid_%d.TRIGGER.TDC.SBits"%(gtx))

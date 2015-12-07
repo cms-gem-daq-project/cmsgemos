@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="IPBus"   address="0x00"
+	description="counters for IPBus transactions">
+    <node id="Strobe"   address="0x0"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_ipbus_counters.xml"
+          description="Counters for the IPBus strobe requests"/>
+    <node id="Ack"      address="0x5"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_ipbus_counters.xml"
+          description="Counters for the IPBus acknowledgements"/>
+  </node>
+  
+  <node id="T1"   address="0x0a"
+        module="file://${GEM_ADDRESS_TABLE_PATH}/t1_counters.xml"
+	description="counters for T1 information coming from AMC13">
+  </node>
+  
+  <node id="GTX0"   address="0x0e"
+        module="file://${GEM_ADDRESS_TABLE_PATH}/gtx_counters.xml"
+        description="counters for GTX0 error information"/>
+  <node id="GTX1"   address="0x10"
+        module="file://${GEM_ADDRESS_TABLE_PATH}/gtx_counters.xml"
+        description="counters for GTX1 error information"/>
+</node>

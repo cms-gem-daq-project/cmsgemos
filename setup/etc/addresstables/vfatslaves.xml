@@ -30,16 +30,16 @@
 	module="file://${GEM_ADDRESS_TABLE_PATH}/vfatregs.xml"
 	description="column 1, TOTEM hybrid VFAT chip J57 connector"/>
   
-  <node id="ADC"  address="0x2014C"
+  <node id="ADC"  address="0x2014c"
 	description="VFAT2 ADC values (absolute register start 0x4003014C)">
-    <node id="Voltage"  address="0x0"  mask="0xFFFFFFFF"  permission="r"
+    <node id="Voltage"  address="0x0"  mask="0xffffffff"  permission="r"
 	  description="read the voltage ADC off the VFAT chip" />
-    <node id="Current"  address="0x1"  mask="0xFFFFFFFF"  permission="w"
+    <node id="Current"  address="0x1"  mask="0xffffffff"  permission="w"
 	  description="send CalPulse command to system" />
   </node> <!-- end ADC block -->
   
   <node id="VFAT_RESP"
-	address="0x20000"  mask="0xFFFFFFFF"  permission="r"
+	address="0x20000"  mask="0xffffffff"  permission="r"
 	description="read the response from the VFAT transaction"/>
   
 </node>

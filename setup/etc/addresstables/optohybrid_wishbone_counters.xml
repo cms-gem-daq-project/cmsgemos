@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="MASTER"  address="0x0">
+    <node id="Strobe"  address="0x0"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/wishbone_master_counters.xml"
+          description=""/>
+    <node id="Ack"  address="0x4"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/wishbone_master_counters.xml"
+          description=""/>
+  </node>
+  
+  <node id="SLAVE"  address="0x8"
+        description="">
+    <node id="Strobe"  address="0x0"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/wishbone_slave_counters.xml"
+          description=""/>
+    <node id="Ack"  address="0xe"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/wishbone_slave_counters.xml"
+          description=""/>
+  </node>
+  
+</node>

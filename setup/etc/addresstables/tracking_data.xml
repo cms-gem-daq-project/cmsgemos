@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="OptoHybrid_0" address="0x000000"
+	module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_fifo.xml"
+        description="Tracking FIFO connected to OptoHybrid 0"/>
+  
+  <node id="OptoHybrid_1" address="0x100000"
+	module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_fifo.xml"
+        description="Tracking FIFO connected to OptoHybrid 1"/>
+</node> <!-- end top block -->
