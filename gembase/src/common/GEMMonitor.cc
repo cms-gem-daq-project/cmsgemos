@@ -29,7 +29,7 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::Application* 
   m_timerName = timerName.str();
   
   try {
-    DEBUG("Creating timer with name " << m_timerName);
+    DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
       m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
@@ -53,7 +53,7 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gem
   m_timerName = timerName.str();
   
   try {
-    DEBUG("Creating timer with name " << m_timerName);
+    DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
       m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
@@ -79,7 +79,7 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* 
   m_timerName = timerName.str();
   
   try {
-    DEBUG("Creating timer with name " << m_timerName);
+    DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
       m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
@@ -234,7 +234,7 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
   std::list< std::vector<std::string> > result;
   auto itemSet = m_monitorableSetsMap.find(setname);
   if (itemSet == m_monitorableSetsMap.end()) {
-    ERROR("Set named " << setname << " does not exist in monitor");
+    ERROR("GEMMonitor::Set named " << setname << " does not exist in monitor");
     return result;
   }
 
@@ -250,7 +250,7 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
     itl.push_back(doc);
     itl.push_back(gemItem.regname);
     result.push_back(itl);
-    DEBUG("Set named " << setname << " has members"
+    DEBUG("GEMMonitor::Set named " << setname << " has members"
           << " name: "    << itl.at(0)
           << " val: "     << itl.at(1)
           << " doc: "     << itl.at(2)
@@ -263,15 +263,15 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
 void gem::base::GEMMonitor::jsonUpdateItemSet(std::string const& setname, std::ostream *out)
 {
   if (m_monitorableSetsMap.find(setname) == m_monitorableSetsMap.end()) {
-    WARN("Monitorable set " << setname << " not found, not exporting as JSON");
+    WARN("GEMMonitor::Monitorable set " << setname << " not found, not exporting as JSON");
     return;
   }
     
   if (m_monitorableSetsMap.find(setname)->second.empty()) {
-    WARN("Monitorable set " << setname << " is empty, not exporting as JSON");
+    WARN("GEMMonitor::Monitorable set " << setname << " is empty, not exporting as JSON");
     return;
   }
-  DEBUG("Found monitorable set " << setname << " while updating for JSON export");
+  DEBUG("GEMMonitor::Found monitorable set " << setname << " while updating for JSON export");
   *out << "\"" << setname << "\" : [ \n";
   std::list< std::vector<std::string> > items = getFormattedItemSet(setname);
   std::list< std::vector<std::string> >::const_iterator it;
@@ -307,7 +307,7 @@ void gem::base::GEMMonitor::reset()
     try {
       m_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
-      ERROR("Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+      ERROR("GEMMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }
   }
   stopMonitoring();
@@ -315,7 +315,7 @@ void gem::base::GEMMonitor::reset()
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
   } catch (toolbox::task::exception::Exception& te) {
-    ERROR("Caught exception while removing timer " << m_timerName << " " << te.what());
+    ERROR("GEMMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
   }
   
   // is this necessary? how to do for some applications and not others?

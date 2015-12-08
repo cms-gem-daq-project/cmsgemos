@@ -256,7 +256,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
            << monitem->first
            << "</td>"   << std::endl;
         
-      DEBUG(monitem->first << " formatted to "
+      DEBUG("GLIBMonitor::" << monitem->first << " formatted to "
             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
       //this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
       *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -286,11 +286,11 @@ void gem::hw::glib::GLIBMonitor::reset()
   //have to get rid of the timer 
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from m_timer");
+    DEBUG("GLIBMonitor::reset removing " << infoSpace->first << " from m_timer");
     try {
       m_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
-      ERROR("Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+      ERROR("GLIBMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }
   }
   stopMonitoring();
@@ -298,10 +298,10 @@ void gem::hw::glib::GLIBMonitor::reset()
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
   } catch (toolbox::task::exception::Exception& te) {
-    ERROR("Caught exception while removing timer " << m_timerName << " " << te.what());
+    ERROR("GLIBMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
   }
   
-  DEBUG("GEMMonitor::reset - clearing all maps");
+  DEBUG("GLIBMonitor::reset - clearing all maps");
   m_infoSpaceMap.clear();
   m_infoSpaceMonitorableSetMap.clear();
   m_monitorableSetInfoSpaceMap.clear();
