@@ -35,6 +35,9 @@ namespace gem {
           virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
           
+          void buildCardSummaryTable(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+          
           void cardPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
           

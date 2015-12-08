@@ -110,9 +110,18 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
   // maybe the control part should only be displayed if the application is not supervised?
   if (p_gemFSMApp) {
     try {
+      cgicc::Cgicc cgi(in);
+      std::string fsmcommand = "";
+      cgicc::form_iterator iter = cgi.getElement("fsmcommand");
+      if ( iter == cgi.getElements().end() ) {
+        WARN("GEMWebApplication::did not find fsmcommand while processing form");
+      } else {
+        fsmcommand = **iter;
+      }
+
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
-      DEBUG("controlPanel:: current state " << state);
-      ////update the page refresh 
+      INFO("controlPanel:: current state " << state);
+      ////update the page refresh, move this functionality to AJAX/JS
       if (!b_is_working && !b_is_running) {
       } else if (b_is_working) {
         cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
@@ -122,11 +131,15 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
         head.addHeader("Refresh","30");
       }
 
+      *out << cgicc::form().set("method","POST").set("id","fsmControl") << std::endl
+           << cgicc::input().set("type", "hidden").set("id","fsmcommand")
+           << cgicc::form() << std::endl;
+
       *out << "<table class=\"xdaq-table\">" << std::endl
            << cgicc::thead() << std::endl
            << cgicc::tr()    << std::endl //open
            << cgicc::th()    << "Control" << cgicc::th() << std::endl
-           << cgicc::th()    << "State" << cgicc::th() << std::endl
+           << cgicc::th()    << "State"   << cgicc::th() << std::endl
            << cgicc::tr()    << std::endl //close
            << cgicc::thead() << std::endl 
       
@@ -138,76 +151,93 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
 
       if (state == "Initial") {
         //send the initialize command
-        *out << "<tr>" << std::endl << "<td>"    << std::endl
-             << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
+        *out << "<tr>" << std::endl << "<td>" << std::endl
+             << "<button onclick=\"gemFSMWebCommand( \'Initialize\' )\">Initialize</button> Send Initialize to the FSM"
+             << cgicc::br() << std::endl;
+        
+        /*<< cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
         *out << cgicc::input().set("type", "submit")
           .set("name", "command").set("title", "Initialize GEM system.")
           .set("value", "Initialize") << std::endl;
-        *out << cgicc::form() << std::endl
-             << "</td>"       << std::endl
-             << "</tr>"       << std::endl;
+          *out << cgicc::form() << std::endl*/
+        *out << "</td>" << std::endl
+             << "</tr>" << std::endl;
       } else {
         if (state == "Halted") {
           //this will allow the parameters to be set to the chip and scan routine
-          *out << "<tr>" << std::endl << "<td colspan=\"2\">"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
+          *out << "<tr>" << std::endl << "<td colspan=\"2\">" << std::endl
+               << "<button onclick=\"gemFSMWebCommand( \'Configure\' )\">Configure</button> Send Configure to the FSM"
+               << cgicc::br() << std::endl;
+          /*<< cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Configure FSM")
             .set("value", "Configure") << std::endl;
-          *out << cgicc::form()        << std::endl
-               << "</td>" << std::endl
+            *out << cgicc::form()        << std::endl*/
+          *out << "</td>" << std::endl
                << "</tr>" << std::endl;
         } else if (state == "Configured") {
           //this will allow the parameters to be set to the chip and scan routine
           *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
+             << "<button onclick=\"gemFSMWebCommand( \'Configure\' )\">Configure</button> Send Configure to the FSM"
+             << cgicc::br() << std::endl;
+          /*<< cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Configure FSM")
             .set("value", "Configure") << std::endl;
-          *out << cgicc::form()        << std::endl
-               << "</td>" << std::endl;
+            *out << cgicc::form()        << std::endl*/
+          *out << "</td>" << std::endl;
           
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Start") << std::endl;
+          *out << "<td>"  << std::endl
+               << "<button onclick=\"gemFSMWebCommand( \'Start\' )\">Start</button> Send Start to the FSM"
+               << cgicc::br() << std::endl;
+          /**out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Start") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Start FSM")
             .set("value", "Start") << std::endl;
-          *out << cgicc::form()    << std::endl
-               << "</td>" << std::endl
+            *out << cgicc::form()    << std::endl*/
+          *out << "</td>" << std::endl
                << "</tr>" << std::endl;
         } else if (state == "Running") {
           *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
+             << "<button onclick=\"gemFSMWebCommand( \'Stop\' )\">Stop</button> Send Stop to the FSM"
+             << cgicc::br() << std::endl;
+          /*<< cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Stop FSM")
             .set("value", "Stop") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl;
+            *out << cgicc::form()   << std::endl*/
+          *out << "</td>" << std::endl;
           
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Pause") << std::endl;
+          *out << "<td>"  << std::endl
+               << "<button onclick=\"gemFSMWebCommand( \'Pause\' )\">Pause</button> Send Pause to the FSM"
+               << cgicc::br() << std::endl;
+          /**out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Pause") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Pause FSM")
             .set("value", "Pause") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl
+            *out << cgicc::form()   << std::endl*/
+          *out << "</td>" << std::endl
                << "</tr>" << std::endl;
         } else if (state == "Paused") {
           *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
+             << "<button onclick=\"gemFSMWebCommand( \'Stop\' )\">Stop</button> Send Stop to the FSM"
+             << cgicc::br() << std::endl;
+          /*<< cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Stop FSM")
             .set("value", "Stop") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl;
+            *out << cgicc::form()   << std::endl*/
+          *out << "</td>" << std::endl;
           
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Resume") << std::endl;
+          *out << "<td>"  << std::endl
+               << "<button onclick=\"gemFSMWebCommand( \'Resume\' )\">Resume</button> Send Resume to the FSM"
+               << cgicc::br() << std::endl;
+          /**out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Resume") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Resume FSM")
             .set("value", "Resume") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl
+            *out << cgicc::form()   << std::endl*/
+          *out << "</td>" << std::endl
                << "</tr>" << std::endl;
         }
         
@@ -220,33 +250,42 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
           *out << "<tr>"    << std::endl
                << "<td>"    << std::endl;
           //always should have a halt/reset command?
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Halt") << std::endl;
+          *out << "<button onclick=\"gemFSMWebCommand( \'Halt\' )\">Halt</button> Send Halt to the FSM"
+               << cgicc::br() << std::endl;
+          /**out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Halt") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Halt GEM system FSM.")
             .set("value", "Halt") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl;
+            *out << cgicc::form() << std::endl*/
+          *out << "</td>" << std::endl;
           
           *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
+          *out << "<button onclick=\"gemFSMWebCommand( \'Reset\' )\">Reset</button> Send Reset to the FSM"
+               << cgicc::br() << std::endl;
+          /**out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Reset GEM FSM.")
             .set("value", "Reset") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl
+            *out << cgicc::form() << std::endl*/
+          *out << "</td>" << std::endl
                << "</tr>" << std::endl;
         } else if (state == "Failed" || state == "Error") {
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
+          *out << "<button onclick=\"gemFSMWebCommand( \'Reset\' )\">Reset</button> Send Reset to the FSM"
+               << cgicc::br() << std::endl;
+          /**out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
           *out << cgicc::input().set("type", "submit")
             .set("name", "command").set("title", "Reset GEM FSM.")
             .set("value", "Reset") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl
+            *out << cgicc::form() << std::endl*/
+          *out << "</td>" << std::endl
                << "</tr>" << std::endl;
         }
       }//end check on Initial vs Other
       *out << "</table>" << std::endl
            << "</td>"  << std::endl
+           << "</br>"  << std::endl
+           << "Last command was: "          << std::endl
+           << "<div id=\"fsmdebug\"></div>" << std::endl
            << "<td>"  << std::endl
            << cgicc::h3() 
         //change the colour to red if failed maybe

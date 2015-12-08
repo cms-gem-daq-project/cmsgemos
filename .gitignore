@@ -7,6 +7,8 @@
 !*.cc
 !*.h
 !*.py
+!*.js
+!*.css
 !setup/etc/addresstables/*.xml
 !setup/paths.sh
 !setup/etc/profile.d/*sh
