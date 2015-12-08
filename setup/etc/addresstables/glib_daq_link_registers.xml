@@ -32,7 +32,7 @@
     <node id="EVN"                   address="0x2"/>
   </node>
 
-  <node id="DEBUG"  address="0x9" permission="r"  mode="incremental"  size="7"
+  <node id="LASTBLOCK"  address="0x9" permission="r"  mode="incremental"  size="7"
         description="contains the last 192+32 bits received from the VFAT and OH, probably better to implement as a block">
     <!--
     <node id=""  address="0x0"/>
