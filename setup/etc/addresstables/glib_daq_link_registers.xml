@@ -11,20 +11,20 @@
     <node id="VFAT_LARGE_BLOCK"   mask="0x00000040"/>
     <node id="VFAT_NO_MARKER"     mask="0x00000080"/>
 
-    <node id="INPUT_FIFO_HAD_OFLOW"   mask="0x00000010"/>
-    <node id="INPUT_FIFO_HAD_UFLOW"   mask="0x00000020"/>
-    <node id="EVENT_FIFO_HAD_OFLOW"   mask="0x00000040"/>
-    <node id="EVT_SIZE_ERR"           mask="0x00000080"/>
+    <node id="INPUT_FIFO_HAD_OFLOW"   mask="0x00000100"/>
+    <node id="INPUT_FIFO_HAD_UFLOW"   mask="0x00000200"/>
+    <node id="EVENT_FIFO_HAD_OFLOW"   mask="0x00000400"/>
+    <node id="EVT_SIZE_ERR"           mask="0x00000800"/>
 
-    <node id="INPUT_FIFO_IS_UFLOW"    mask="0x00000100"/>
-    <node id="INPUT_FIFO_IS_FULL"     mask="0x00000200"/>
-    <node id="INPUT_FIFO_IS_AFULL"    mask="0x00000400"/>
-    <node id="INPUT_FIFO_IS_EMPTY"    mask="0x00000800"/>
+    <node id="INPUT_FIFO_IS_UFLOW"    mask="0x01000000"/>
+    <node id="INPUT_FIFO_IS_FULL"     mask="0x02000000"/>
+    <node id="INPUT_FIFO_IS_AFULL"    mask="0x04000000"/>
+    <node id="INPUT_FIFO_IS_EMPTY"    mask="0x08000000"/>
 
-    <node id="EVENT_FIFO_IS_UFLOW"    mask="0x00001000"/>
-    <node id="EVENT_FIFO_IS_FULL"     mask="0x00002000"/>
-    <node id="EVENT_FIFO_IS_AFULL"    mask="0x00004000"/>
-    <node id="EVENT_FIFO_IS_EMPTY"    mask="0x00008000"/>
+    <node id="EVENT_FIFO_IS_UFLOW"    mask="0x10000000"/>
+    <node id="EVENT_FIFO_IS_FULL"     mask="0x20000000"/>
+    <node id="EVENT_FIFO_IS_AFULL"    mask="0x40000000"/>
+    <node id="EVENT_FIFO_IS_EMPTY"    mask="0x80000000"/>
   </node>
 
   <node id="COUNTERS"  permission="r">
