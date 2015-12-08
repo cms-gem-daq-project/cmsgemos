@@ -30,6 +30,9 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
   if (p_gemFSMApp)
     DEBUG("current supervisor state is" << dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getCurrentState());
   *out << cgicc::script().set("type","text/javascript")
+    .set("src","/gemdaq/gembase/html/scripts/gemfsmwebcontrol.js")
+       << cgicc::script() << std::endl;
+  *out << cgicc::script().set("type","text/javascript")
     .set("src","/gemdaq/gemsupervisor/html/scripts/gemsupervisor.js")
        << cgicc::script() << std::endl;
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
