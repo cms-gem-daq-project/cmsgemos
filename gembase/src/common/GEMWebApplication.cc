@@ -124,6 +124,14 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
         fsmcommand = **iter;
       }
       */
+    } catch (const xgi::exception::Exception& e) {
+      ERROR("Something went wrong processing web control panel form(xgi): " << e.what());
+      XCEPT_RAISE(xgi::exception::Exception, e.what());
+    } catch (const std::exception& e) {
+      ERROR("Something went wrong processing web control panel form(std): " << e.what());
+      XCEPT_RAISE(xgi::exception::Exception, e.what());
+    }
+    try {
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
       INFO("controlPanel:: current state " << state);
       ////update the page refresh, move this functionality to AJAX/JS
@@ -157,60 +165,49 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
       if (state == "Initial") {
         //send the initialize command
         *out << "<tr>" << std::endl << "<td>" << std::endl
-             << "<button onclick=\"gemFSMWebCommand( \'Initialize\' )\">Initialize</button> Send Initialize to the FSM"
-             << cgicc::br() << std::endl;
-        
-        /*<< cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Initialize GEM system.")
-          .set("value", "Initialize") << std::endl;
-          *out << cgicc::form() << std::endl*/
-        *out << "</td>" << std::endl
+             << "<button onclick=\"gemFSMWebCommand(\'Initialize\')\">Initialize</button>"
+             << cgicc::br() << std::endl
+             << "</td>" << std::endl
              << "</tr>" << std::endl;
       } else {
         if (state == "Halted") {
           //this will allow the parameters to be set to the chip and scan routine
           *out << "<tr>" << std::endl << "<td colspan=\"2\">" << std::endl
-               << "<button onclick=\"gemFSMWebCommand( \'Configure\' )\">Configure</button> Send Configure to the FSM"
-               << cgicc::br() << std::endl;
-          /*<< cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Configure FSM")
-            .set("value", "Configure") << std::endl;
-            *out << cgicc::form()        << std::endl*/
-          *out << "</td>" << std::endl
+               << "<button onclick=\"gemFSMWebCommand(\'Configure\')\">Configure</button>"
+               << cgicc::br() << std::endl
+               << "</td>" << std::endl
                << "</tr>" << std::endl;
         } else if (state == "Configured") {
           //this will allow the parameters to be set to the chip and scan routine
           *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << "<button onclick=\"gemFSMWebCommand( \'Configure\' )\">Configure</button> Send Configure to the FSM"
+               << "<button onclick=\"gemFSMWebCommand(\'Configure\')\">Configure</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl;
           
           *out << "<td>"  << std::endl
-               << "<button onclick=\"gemFSMWebCommand( \'Start\' )\">Start</button> Send Start to the FSM"
+               << "<button onclick=\"gemFSMWebCommand(\'Start\')\">Start</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl
                << "</tr>" << std::endl;
         } else if (state == "Running") {
           *out << "<tr>" << std::endl << "<td>"    << std::endl
-             << "<button onclick=\"gemFSMWebCommand( \'Stop\' )\">Stop</button> Send Stop to the FSM"
+             << "<button onclick=\"gemFSMWebCommand(\'Stop\')\">Stop</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl;
           
           *out << "<td>"  << std::endl
-               << "<button onclick=\"gemFSMWebCommand( \'Pause\' )\">Pause</button> Send Pause to the FSM"
+               << "<button onclick=\"gemFSMWebCommand(\'Pause\')\">Pause</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl
                << "</tr>" << std::endl;
         } else if (state == "Paused") {
           *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << "<button onclick=\"gemFSMWebCommand( \'Stop\' )\">Stop</button> Send Stop to the FSM"
+               << "<button onclick=\"gemFSMWebCommand(\'Stop\')\">Stop</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl;
           
           *out << "<td>"  << std::endl
-               << "<button onclick=\"gemFSMWebCommand( \'Resume\' )\">Resume</button> Send Resume to the FSM"
+               << "<button onclick=\"gemFSMWebCommand(\'Resume\')\">Resume</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl
                << "</tr>" << std::endl;
@@ -225,17 +222,17 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
           *out << "<tr>"    << std::endl
                << "<td>"    << std::endl;
           //always should have a halt/reset command?
-          *out << "<button onclick=\"gemFSMWebCommand( \'Halt\' )\">Halt</button> Send Halt to the FSM"
+          *out << "<button onclick=\"gemFSMWebCommand(\'Halt\')\">Halt</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl;
           
           *out << "<td>"  << std::endl;
-          *out << "<button onclick=\"gemFSMWebCommand( \'Reset\' )\">Reset</button> Send Reset to the FSM"
+          *out << "<button onclick=\"gemFSMWebCommand(\'Reset\')\">Reset</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl
                << "</tr>" << std::endl;
         } else if (state == "Failed" || state == "Error") {
-          *out << "<button onclick=\"gemFSMWebCommand( \'Reset\' )\">Reset</button> Send Reset to the FSM"
+          *out << "<button onclick=\"gemFSMWebCommand(\'Reset\')\">Reset</button>"
                << cgicc::br() << std::endl
                << "</td>" << std::endl
                << "</tr>" << std::endl;

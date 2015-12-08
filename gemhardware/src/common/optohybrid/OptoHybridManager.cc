@@ -198,66 +198,6 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
 
 void gem::hw::optohybrid::OptoHybridManager::init()
 {
-  /*
-  DEBUG("OptoHybridManager::init begin");
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
-    for (int link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
-      unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
-      OptoHybridInfo& info = m_optohybridInfo[index].bag;
-      
-      if (!info.present)
-        continue;
-      // set up the info space here rather than in initialize (where it can then get unset in reset?
-      // should a value be set up for all of them by default?
-
-      DEBUG("OptoHybridManager::creating hwCfgInfoSpace items for board connected on link " << link << " to GLIB in slot " << (slot+1));
-      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
-                                                                 info.crateID.value_,
-                                                                 info.slotID.value_,
-                                                                 info.linkID.value_));
-      if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-        DEBUG("OptoHybridManager::init::infospace " << hwCfgURN.toString() << " already exists, getting");
-        is_optohybrids[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
-      } else {
-        DEBUG("OptoHybridManager::init::infospace " << hwCfgURN.toString() << " does not exist, creating");
-        is_optohybrids[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
-      }
-      
-      DEBUG("OptoHybridManager::exporting config parameters into infospace");
-      is_optohybrids[slot]->fireItemAvailable("ControlHubAddress", &info.controlHubAddress);
-      is_optohybrids[slot]->fireItemAvailable("IPBusProtocol",     &info.ipBusProtocol);
-      is_optohybrids[slot]->fireItemAvailable("DeviceIPAddress",   &info.deviceIPAddress);
-      is_optohybrids[slot]->fireItemAvailable("AddressTable",      &info.addressTable);
-      is_optohybrids[slot]->fireItemAvailable("ControlHubPort",    &info.controlHubPort);
-      is_optohybrids[slot]->fireItemAvailable("IPBusPort",         &info.ipBusPort);
-      
-      is_optohybrids[slot]->fireItemValueChanged("ControlHubAddress");
-      is_optohybrids[slot]->fireItemValueChanged("IPBusProtocol");
-      is_optohybrids[slot]->fireItemValueChanged("DeviceIPAddress");
-      is_optohybrids[slot]->fireItemValueChanged("AddressTable");
-      is_optohybrids[slot]->fireItemValueChanged("ControlHubPort");
-      is_optohybrids[slot]->fireItemValueChanged("IPBusPort");
-      
-      DEBUG("OptoHybridManager::InfoSpace found item: ControlHubAddress " << is_optohybrids[slot]->find("ControlHubAddress"));
-      DEBUG("OptoHybridManager::InfoSpace found item: IPBusProtocol "     << is_optohybrids[slot]->find("IPBusProtocol")    );
-      DEBUG("OptoHybridManager::InfoSpace found item: DeviceIPAddress "   << is_optohybrids[slot]->find("DeviceIPAddress")  );
-      DEBUG("OptoHybridManager::InfoSpace found item: AddressTable "      << is_optohybrids[slot]->find("AddressTable")     );
-      DEBUG("OptoHybridManager::InfoSpace found item: ControlHubPort "    << is_optohybrids[slot]->find("ControlHubPort")   );
-      DEBUG("OptoHybridManager::InfoSpace found item: IPBusPort "         << is_optohybrids[slot]->find("IPBusPort")        );
-      
-      DEBUG("OptoHybridManager::info:" << info.toString());
-    
-      DEBUG("OptoHybridManager::InfoSpace item value: ControlHubAddress " << info.controlHubAddress.toString());
-      DEBUG("OptoHybridManager::InfoSpace item value: IPBusProtocol "     << info.ipBusProtocol.toString()    );
-      DEBUG("OptoHybridManager::InfoSpace item value: DeviceIPAddress "   << info.deviceIPAddress.toString()  );
-      DEBUG("OptoHybridManager::InfoSpace item value: AddressTable "      << info.addressTable.toString()     );
-      DEBUG("OptoHybridManager::InfoSpace item value: ControlHubPort "    << info.controlHubPort.toString()   );
-      DEBUG("OptoHybridManager::InfoSpace item value: IPBusPort "         << info.ipBusPort.toString()        );
-    }
-  }
-  */
 }
 
 //state transitions
