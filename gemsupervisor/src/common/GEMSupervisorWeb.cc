@@ -28,7 +28,7 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    DEBUG("current supervisor state is" << dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getCurrentState());
+    DEBUG("GEMSupervisorWeb::current supervisor state is" << dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getCurrentState());
   *out << cgicc::script().set("type","text/javascript")
     .set("src","/gemdaq/gembase/html/scripts/gemfsmwebcontrol.js")
        << cgicc::script() << std::endl;
@@ -68,28 +68,28 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
 void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("Rendering GEMSupervisorWeb monitorPage");
-  DEBUG("current level is "      << level);
+  DEBUG("GEMSupervisorWeb::Rendering GEMSupervisorWeb monitorPage");
+  DEBUG("GEMSupervisorWeb::current level is "      << level);
   if (level != 5) {
     try {
       cgicc::Cgicc cgi(in);
       int radio_i       = cgi["level"]->getIntegerValue();
-      DEBUG("radio button value is " << radio_i);
+      DEBUG("GEMSupervisorWeb::radio button value is " << radio_i);
       level = static_cast<size_t>(radio_i);
-      DEBUG("setting GEMSupervisor display status info to " << level);
+      DEBUG("GEMSupervisorWeb::setting GEMSupervisor display status info to " << level);
     } catch (const xgi::exception::Exception& e) {
       level = 2;
-      WARN("Caught xgi::exception " << e.what());
+      WARN("GEMSupervisorWeb::Caught xgi::exception " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     } catch (const std::exception& e) {
       level = 2;
-      WARN("Caught std::exception " << e.what());
+      WARN("GEMSupervisorWeb::Caught std::exception " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
   } else  {
     level = 2;
   }
-  DEBUG("current level is "      << level);
+  DEBUG("GEMSupervisorWeb::current level is "      << level);
 
   //form and control to set the display level of information
   std::string method = toolbox::toString("/%s/Default",p_gemFSMApp->getApplicationDescriptor()->getURN().c_str());
@@ -108,20 +108,20 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
     .set("name","setLevel") << std::endl
 
        << (level == 0 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","0").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","0"))
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","0").set("checked") :
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","0"))
        << "version" << std::endl
        << (level == 1 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","1").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","1"))
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","1").set("checked") :
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","1"))
        << "minimum" << std::endl
        << (level == 2 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","2").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","2"))
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","2").set("checked") :
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","2"))
        << "default" << std::endl
        << (level == 3 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","3").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","3"))
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","3").set("checked") :
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","3"))
        << "maximum" << std::endl
 
        << cgicc::br()     << std::endl
@@ -138,7 +138,7 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
 void gem::supervisor::GEMSupervisorWeb::expertPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("rendering GEMSupervisorWeb expertPage");
+  DEBUG("GEMSupervisorWeb::rendering GEMSupervisorWeb expertPage");
   //should put all this style information into a common CSS sheet
   *out << cgicc::section().set("style","display:inline-block;float:left") << std::endl
        << cgicc::fieldset().set("style","style=\"display:block\";padding:5px;margin:5px;list-style-type:none;margin-bottom:5px;line-height:18px;padding:2px 5px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;border:medium outset #CCC;")
@@ -172,11 +172,11 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
            << cgicc::h3() ;
       //<< dynamic_cast<gem::base::GEMFSMApplication*>(*managedApp)->getURN()
       std::string classname = (*managedApp)->getClassName();
-      INFO("managed class name is " << classname);
+      INFO("GEMSupervisorWeb::managed class name is " << classname);
       *out << classname;
       *out << "(";
       unsigned int instance = (*managedApp)->getInstance();
-      INFO("managed class instance is " << instance);
+      INFO("GEMSupervisorWeb::managed class instance is " << instance);
       *out << instance;
       *out << ")"
            << cgicc::h3() << std::endl
@@ -184,11 +184,11 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
            << "<td>"      << std::endl
            << cgicc::h3();
       
-      INFO("trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
+      INFO("GEMSupervisorWeb::trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
       std::string classstate
         = gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()),"FSMState");
       *out << classstate;
-      INFO("managed class FSM state is " << classstate);
+      INFO("GEMSupervisorWeb::managed class FSM state is " << classstate);
       *out << cgicc::h3() << std::endl
            << "</td>"     << std::endl
            << "</tr>"     << std::endl;
@@ -196,10 +196,10 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
     *out << "</tbody>"  << std::endl
          << "</table>"  << std::endl;
   } catch (const xgi::exception::Exception& e) {
-    INFO("Something went wrong displaying managed application state table(xgi): " << e.what());
+    ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    INFO("Something went wrong displaying managed application state table(std): " << e.what());
+    ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
