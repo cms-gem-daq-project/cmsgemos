@@ -12,3 +12,4 @@
 !setup/etc/profile.d/*sh
 !setup/etc/yum.repos.d/*.repo
 !*.rules
+*#*
