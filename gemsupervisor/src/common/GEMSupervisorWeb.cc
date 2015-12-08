@@ -72,11 +72,15 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
   DEBUG("GEMSupervisorWeb::current level is "      << level);
   if (level != 5) {
     try {
+      DEBUG("in: " << std::hex << in << " out: " << std::hex << out << std::dec);
       cgicc::Cgicc cgi(in);
-      int radio_i       = cgi["level"]->getIntegerValue();
-      DEBUG("GEMSupervisorWeb::radio button value is " << radio_i);
-      level = static_cast<size_t>(radio_i);
-      DEBUG("GEMSupervisorWeb::setting GEMSupervisor display status info to " << level);
+      for (auto dbg = cgi.getElements().begin(); dbg != cgi.getElements().end(); ++dbg) {
+        DEBUG("Found cgi element: " << dbg->getName());
+      }
+      //int radio_i       = cgi["level"]->getIntegerValue();
+      //DEBUG("GEMSupervisorWeb::radio button value is " << radio_i);
+      //level = static_cast<size_t>(radio_i);
+      //DEBUG("GEMSupervisorWeb::setting GEMSupervisor display status info to " << level);
     } catch (const xgi::exception::Exception& e) {
       level = 2;
       WARN("GEMSupervisorWeb::Caught xgi::exception " << e.what());

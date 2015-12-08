@@ -181,60 +181,6 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
 
 void gem::hw::glib::GLIBManager::init()
 {
-  /*
-  DEBUG("GLIBManager::init begin");
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
-    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
-    GLIBInfo& info = m_glibInfo[slot].bag;
-    
-    if (!info.present)
-      continue;
-    
-    toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d",
-                                                               info.crateID.value_,
-                                                               info.slotID.value_));
-
-    DEBUG("GLIBManager::creating hwCfgInfoSpace items for GLIB in slot " << (slot+1) << " with URN " << hwCfgURN.toString());
-    if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      DEBUG("GLIBManager::init::infospace " << hwCfgURN.toString() << " already exists, getting");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
-    } else {
-      DEBUG("GLIBManager::init::infospace " << hwCfgURN.toString() << " does not exist, creating");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
-    }
-    
-    DEBUG("GLIBManager::exporting config parameters into infospace");
-    is_glibs[slot]->fireItemAvailable("ControlHubAddress", &info.controlHubAddress);
-    is_glibs[slot]->fireItemAvailable("IPBusProtocol",     &info.ipBusProtocol);
-    is_glibs[slot]->fireItemAvailable("DeviceIPAddress",   &info.deviceIPAddress);
-    is_glibs[slot]->fireItemAvailable("AddressTable",      &info.addressTable);
-    is_glibs[slot]->fireItemAvailable("ControlHubPort",    &info.controlHubPort);
-    is_glibs[slot]->fireItemAvailable("IPBusPort",         &info.ipBusPort);
-    
-    is_glibs[slot]->fireItemValueChanged("ControlHubAddress");
-    is_glibs[slot]->fireItemValueChanged("IPBusProtocol");
-    is_glibs[slot]->fireItemValueChanged("DeviceIPAddress");
-    is_glibs[slot]->fireItemValueChanged("AddressTable");
-    is_glibs[slot]->fireItemValueChanged("ControlHubPort");
-    is_glibs[slot]->fireItemValueChanged("IPBusPort");
-    
-    DEBUG("GLIBManager::InfoSpace found item: ControlHubAddress " << is_glibs[slot]->find("ControlHubAddress"));
-    DEBUG("GLIBManager::InfoSpace found item: IPBusProtocol "     << is_glibs[slot]->find("IPBusProtocol")    );
-    DEBUG("GLIBManager::InfoSpace found item: DeviceIPAddress "   << is_glibs[slot]->find("DeviceIPAddress")  );
-    DEBUG("GLIBManager::InfoSpace found item: AddressTable "      << is_glibs[slot]->find("AddressTable")     );
-    DEBUG("GLIBManager::InfoSpace found item: ControlHubPort "    << is_glibs[slot]->find("ControlHubPort")   );
-    DEBUG("GLIBManager::InfoSpace found item: IPBusPort "         << is_glibs[slot]->find("IPBusPort")        );
-    
-    DEBUG("GLIBManager::info:" << info.toString());
-
-    DEBUG("GLIBManager::InfoSpace item value: ControlHubAddress " << info.controlHubAddress.toString());
-    DEBUG("GLIBManager::InfoSpace item value: IPBusProtocol "     << info.ipBusProtocol.toString()    );
-    DEBUG("GLIBManager::InfoSpace item value: DeviceIPAddress "   << info.deviceIPAddress.toString()  );
-    DEBUG("GLIBManager::InfoSpace item value: AddressTable "      << info.addressTable.toString()     );
-    DEBUG("GLIBManager::InfoSpace item value: ControlHubPort "    << info.controlHubPort.toString()   );
-    DEBUG("GLIBManager::InfoSpace item value: IPBusPort "         << info.ipBusPort.toString()        );
-  }
-  */
 }
 
 //state transitions
