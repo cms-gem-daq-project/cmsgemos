@@ -13,10 +13,13 @@
     <node id="TTC_RDY"         address="0x0"  mask="0x00000004"/>
     <node id="DAQ_AFULL"       address="0x0"  mask="0x00000008"/>
     <node id="TTS_STATE"       address="0x0"  mask="0xf0000000"/>
-    <node id="NOTINTABLE_ERR"  address="0x1"  mask="0x0000ffff"/>
-    <node id="DISPER_ERR"      address="0x2"  mask="0x0000ffff"/>
-    <node id="L1AID"           address="0x3"  mask="0x00ffffff"/>
-    <node id="EVT_SENT"        address="0x4"  mask="0xffffffff"/>
+  </node>
+  <node id="EXT_STATUS"  address="0x2"  permission="r"
+        description="DAQ global extended status registers">
+    <node id="NOTINTABLE_ERR"  address="0x0"  mask="0x0000ffff"/>
+    <node id="DISPER_ERR"      address="0x1"  mask="0x0000ffff"/>
+    <node id="L1AID"           address="0x2"  mask="0x00ffffff"/>
+    <node id="EVT_SENT"        address="0x3"  mask="0xffffffff"/>
   </node>
 
   <node id="GTX0"  address="0x10"
