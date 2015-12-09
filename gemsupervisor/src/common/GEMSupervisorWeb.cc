@@ -71,6 +71,10 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
   if (level != 5) {
     try {
       cgicc::Cgicc cgi(in);
+      DEBUG("GEMSupervisorWeb::cgi has " << cgi.getElements().size() << " elements, attempting to print their names");
+      for (auto dbg = cgi.getElements().begin(); dbg != cgi.getElements().end(); ++dbg) {
+        DEBUG("Found cgi element: " << dbg->getName());
+      }
       int radio_i       = cgi["level"]->getIntegerValue();
       DEBUG("radio button value is " << radio_i);
       level = static_cast<size_t>(radio_i);
