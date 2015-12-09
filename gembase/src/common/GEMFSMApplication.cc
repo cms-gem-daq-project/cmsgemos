@@ -156,7 +156,7 @@ void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* ou
   } //is it OK to then call webInitialize?
   DEBUG("GEMFSMApplication::xgiInitialize end");
   //p_gemWebInterface->webInitialize(in,out);
-  p_gemWebInterface->webDefault(in,out);
+  p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiConfigure(xgi::Input* in, xgi::Output* out)
@@ -170,7 +170,7 @@ void gem::base::GEMFSMApplication::xgiConfigure(xgi::Input* in, xgi::Output* out
     }
   }
   //p_gemWebInterface->webConfigure(in,out);
-  p_gemWebInterface->webDefault(in,out);
+  p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiStart(xgi::Input* in, xgi::Output* out)
@@ -184,7 +184,7 @@ void gem::base::GEMFSMApplication::xgiStart(xgi::Input* in, xgi::Output* out)
     }
   }
   //p_gemWebInterface->webStart(in,out);
-  p_gemWebInterface->webDefault(in,out);
+  p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiStop(xgi::Input* in, xgi::Output* out)
@@ -198,7 +198,7 @@ void gem::base::GEMFSMApplication::xgiStop(xgi::Input* in, xgi::Output* out)
     }
   }
   //p_gemWebInterface->webStop(in,out);
-  p_gemWebInterface->webDefault(in,out);
+  p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiPause(xgi::Input* in, xgi::Output* out)
@@ -212,7 +212,7 @@ void gem::base::GEMFSMApplication::xgiPause(xgi::Input* in, xgi::Output* out)
     }
   }
   //p_gemWebInterface->webPause(in,out);
-  p_gemWebInterface->webDefault(in,out);
+  p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiResume(xgi::Input* in, xgi::Output* out)
@@ -226,7 +226,7 @@ void gem::base::GEMFSMApplication::xgiResume(xgi::Input* in, xgi::Output* out)
     }
   }
   //p_gemWebInterface->webResume(in,out);
-  p_gemWebInterface->webDefault(in,out);
+  p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiHalt(xgi::Input* in, xgi::Output* out)
@@ -240,7 +240,7 @@ void gem::base::GEMFSMApplication::xgiHalt(xgi::Input* in, xgi::Output* out)
     }
   }
   //p_gemWebInterface->webHalt(in,out);
-  p_gemWebInterface->webDefault(in,out);
+  p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out)
@@ -254,7 +254,7 @@ void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out)
     }
   }  
   //p_gemWebInterface->webReset(in,out);
-  p_gemWebInterface->webDefault(in,out);
+  p_gemWebInterface->webRedirect(in,out);
 }
 
 
