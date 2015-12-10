@@ -72,6 +72,7 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
   DEBUG("GEMSupervisorWeb::in: " << std::hex << in << " out: " << std::hex << out << std::dec);
   DEBUG("GEMSupervisorWeb::current level is "      << level);
   if (level != 5) {
+    /*
     try {
       cgicc::Cgicc cgi(in);
       DEBUG("GEMSupervisorWeb::cgi has " << cgi.getElements().size() << " elements, attempting to print their names");
@@ -91,6 +92,7 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
       WARN("GEMSupervisorWeb::Caught std::exception " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
+    */
   } else  {
     level = 2;
   }
