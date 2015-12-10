@@ -689,6 +689,7 @@ namespace gem {
 
           // DAQ LINK functionality
           void enableDAQLink();
+          void resetDAQLink();
           uint32_t getDAQLinkControl();
           uint32_t getDAQLinkStatus();
           //uint32_t getDAQLinkFlags();

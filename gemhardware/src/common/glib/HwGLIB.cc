@@ -713,6 +713,13 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 
 void gem::hw::glib::HwGLIB::enableDAQLink()
 {
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAQ_ENABLE", 0x1);
+}
+
+void gem::hw::glib::HwGLIB::resetDAQLink()
+{
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x1);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x0);
 }
 
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkControl()

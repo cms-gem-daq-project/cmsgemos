@@ -171,7 +171,7 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
     //how to handle passing in various values nested in a vector in a bag
     for (auto slot = m_glibInfo.begin(); slot != m_glibInfo.end(); ++slot) {
       if (slot->bag.present.value_)
-        INFO("line 183::Found attribute:" << slot->bag.toString());
+        INFO("GLIBManager::Found attribute:" << slot->bag.toString());
     }
     //p_gemMonitor->startMonitoring();
   }
@@ -364,6 +364,9 @@ void gem::hw::glib::GLIBManager::configureAction()
       DEBUG("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
       m_glibs[slot]->setTrigSource(info.triggerSource.value_);
       
+      // reset the DAQ
+      m_glibs[slot]->resetDAQLink();
+      
       //should FIFOs be emptied in configure or at start?
       DEBUG("emptying trigger/tracking data FIFOs");
       for (unsigned link = 0; link < HwGLIB::N_GTX; ++link) {
@@ -389,7 +392,24 @@ void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for starting the GLIB?
-  usleep(100);
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    GLIBInfo& info = m_glibInfo[slot].bag;
+
+    if (!info.present)
+      continue;
+    
+    if (m_glibs[slot]->isHwConnected()) {
+      DEBUG("connected a card in slot " << (slot+1));
+      // enable the DAQ
+      m_glibs[slot]->enableDAQLink();
+      usleep(100);
+    } else {
+      ERROR("GLIB in slot " << (slot+1) << " is not connected");
+      fireEvent("Fail");
+      //maybe raise exception so as to not continue with other cards? let's just return for the moment
+      return;
+    }
+  }
 }
 
 void gem::hw::glib::GLIBManager::pauseAction()
