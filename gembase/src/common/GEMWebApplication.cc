@@ -105,14 +105,11 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
   throw (xgi::exception::Exception)
 {
   DEBUG("controlPanel");
-  //*out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
-  
   // maybe the control part should only be displayed if the application is not supervised?
   if (p_gemFSMApp) {
     try {
       cgicc::Cgicc cgi(in);
       std::string fsmcommand = "";
-      /*
       for (auto dbg = cgi.getElements().begin(); dbg != cgi.getElements().end(); ++dbg ) {
         DEBUG("Found cgi element: " << dbg->getName());
       }
@@ -123,7 +120,6 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
       } else {
         fsmcommand = **iter;
       }
-      */
     } catch (const xgi::exception::Exception& e) {
       ERROR("Something went wrong processing web control panel form(xgi): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -143,11 +139,9 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
         cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
         head.addHeader("Refresh","30");
       }
-      /*
       *out << cgicc::form().set("method","POST").set("id","fsmControl") << std::endl
            << cgicc::input().set("type", "hidden").set("id","fsmcommand").set("name","fsmcommand").set("value","") << std::endl
            << cgicc::form() << std::endl;
-      */
       *out << "<table class=\"xdaq-table\">" << std::endl
            << cgicc::thead() << std::endl
            << cgicc::tr()    << std::endl //open
