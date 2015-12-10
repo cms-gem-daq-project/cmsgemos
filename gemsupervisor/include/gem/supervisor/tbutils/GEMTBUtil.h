@@ -37,6 +37,8 @@
 
 #include "TStopwatch.h"
 
+#include "gem/readout/GEMslotContents.h"
+
 class TH1D;
 class TH1F;
 class TFile;
@@ -179,6 +181,10 @@ namespace gem {
 	  virtual void selectOptohybridDevice(xgi::Output* out)
 	    throw (xgi::exception::Exception);
 
+	  //link data parker and scan routines
+	  void dumpRoutinesData( uint8_t const& mask, u_int8_t latency, u_int8_t VT1, u_int8_t VT2 );
+
+
 	  class ConfigParams 
 	  {
 	  public:
@@ -192,6 +198,8 @@ namespace gem {
 	    xdata::UnsignedInteger nTriggers;
 
 	    xdata::String        outFileName;
+	    xdata::String        slotFileName;
+
 	    xdata::String        settingsFile;
 
 	    xdata::Vector<xdata::String>  deviceName;
@@ -205,11 +213,15 @@ namespace gem {
 
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
-	    xdata::UnsignedShort  triggerSource_;
-	    
+	    xdata::UnsignedShort triggerSource_;
+
+
+
 	  };
 	  
 	protected:
+
+	  std::unique_ptr<gem::readout::GEMslotContents> slotInfo;
 
 	  log4cplus::Logger m_gemLogger;
 
@@ -230,6 +242,8 @@ namespace gem {
 
 	  //ConfigParams confParams_;
 	  uint8_t readout_mask;
+
+
 	  xdata::Bag<ConfigParams> confParams_;
 	  xdata::String ipAddr_;
 	  
@@ -241,19 +255,19 @@ namespace gem {
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
 
 	  //readout application should be running elsewhere, not tied to supervisor                                                                           
-        glib_shared_ptr glibDevice_;
-        optohybrid_shared_ptr optohybridDevice_;
-        std::vector<vfat_shared_ptr> vfatDevice_;
-
-        std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
-
-
+	  glib_shared_ptr glibDevice_;
+	  optohybrid_shared_ptr optohybridDevice_;
+	  std::vector<vfat_shared_ptr> vfatDevice_;
+	  
+	  std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
+	  
+	  
 	  // Counter
-	  int counter_[3];
+
 	  
 	  // VFAT Blocks Counter
 	  int vfat_;
-
+	  
 	  // Events Counter     
 	  int event_;
 	  
@@ -272,8 +286,11 @@ namespace gem {
 
 	  xdata::Bag<ConfigParams> scanParams_;
 	  uint64_t eventsSeen_,channelSeen_;
-	  uint8_t  currentLatency_;
 	  uint64_t triggerSource_;
+	  uint8_t  currentLatency_,deviceVT1,deviceVT2;
+	  uint32_t counter_[5];
+	  //	  int latency_m, VT1_m, VT2_m;
+	  uint32_t m_counter[5]; 
 
 	protected:
 

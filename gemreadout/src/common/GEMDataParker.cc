@@ -36,12 +36,6 @@ typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
 std::vector<AMCVFATData> vfats;
 std::vector<AMCVFATData> erros;
 
-//uint16_t gem::readout::GEMslotContents::slot[24] = {
-//  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-//  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-//  0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,0xfff,
-//};
-//bool gem::readout::GEMslotContents::isFileRead = false;
 
 uint32_t kUPDATE = 5000, kUPDATE7 = 7;
 int event_ = 0;
@@ -69,6 +63,7 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   //  these bindings necessitate that the GEMDataParker inherit from some xdaq application stuff
   //  i2o::bind(this,&GEMDataParker::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
   //  xoap::bind(this,&GEMDataParker::updateScanParameters,"UpdateScanParameter","urn:GEMDataParker-soap:1");
+  INFO("Data Parker");
 
   glibDevice_   = &glibDevice;
   outFileName_  = outFileName;
@@ -86,6 +81,8 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
 
 uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
 {
+
+  INFO("info dump data parker");
   DEBUG("Reading out dumpData(" << (int)readout_mask << ")");
   uint32_t *point = &counter_[0]; 
   contvfats_ = 0;
@@ -482,6 +479,12 @@ void gem::readout::GEMDataParker::writeGEMevent(std::string  outFile, bool const
 void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t const& BX,
                                                  AMCGEMData& gem, AMCGEBData& geb)
 {
+
+
+
+
+
+
   // GEM, All Chamber Data
   // GEM Event Headers [1]
   uint64_t AmcNo       = BOOST_BINARY( 1 );            // :4 
@@ -528,10 +531,34 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
 
   // RunType:4, all other depends from RunType
   uint64_t RunType = BOOST_BINARY( 1 ); // :4
+  
+  
 
   //this needs to be populated with dummy values so migration can be made simply
   //scanParam;
-  geb.runhed  = (RunType << 60);
+
+  INFO(" GEMfillHeaders::GEMDataParker Latency = " << (int)latency_m );
+  INFO(" GEMfillHeaders::GEMDataParker VT1     = " << (int)VT1_m   );    //<< "VT1_hex    " << (std::hex)VT1_m    );
+  INFO(" GEMfillHeaders::GEMDataParker VT2     = " << (int)VT2_m );       //<< "VT2_hex    " << (std::hex)VT2_m    );
+
+
+  INFO(" ::RunType " << std::setfill('0') << std::setw(4) << std::hex << RunType << std::dec );
+  INFO(" ::latency " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)latency_m << std::hex );
+  INFO(" ::VT1     " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)VT1_m << std::hex );
+  INFO(" ::VT2     " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)VT2_m << std::hex );
+
+  INFO("  runtype | " <<   (((((((RunType << 4) << 4) | latency_m) << 4) | VT1_m) << 4) | VT2_m) );
+  INFO("  runtype + " <<   (((((((RunType << 4) << 4) + latency_m) << 4) + VT1_m) << 4) + VT2_m) );
+
+
+  geb.runhed  = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
+  //  geb.runhed  = (((((((RunType << 4) + latency_m) << 8) + VT1_m) << 8) + VT2_m) << 8); suggested by Jared
+
+
+
+
+  // last geb header:
+  //  geb.runhed  = (RunType << 60);
 }// end GEMfillHeaders
 
 void gem::readout::GEMDataParker::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
@@ -632,21 +659,35 @@ void gem::readout::GEMDataParker::readVFATblock(std::queue<uint32_t>& m_dataque)
     DEBUG(" ::GEMEventMaker (post pop)  dataque.size " << m_dataque.size() );
   }// end queue
 }
-void gem::readout::GEMDataParker::ScanRoutines(uint8_t const& readout_mask,u_int8_t latency_m, u_int8_t VT1_m, u_int8_t VT2_m)
+
+
+
+
+void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_, u_int8_t VT2_)
 {
-  // RunType:4, all other depends from RunType
-  AMCGEBData  geb;
-  //  gem::readout::GEMDataAMCformat::GEBData& geb;
-  //  AMCGEBData&  geb;
-  uint64_t RunType = BOOST_BINARY( 1 ); // :4
-  /* uint8_t latency_bin = BOOST_BINARY( latency_m ); // :4
-  uint8_t VT1_bin = BOOST_BINARY( VT1_m ); // :4
-  uint8_t VT2_bin = BOOST_BINARY( VT2_m ); // :4
-  */
 
-  //  uint32_t* pDupm =  gemDataParker->dumpData(readout_mask);
+  latency_m = latency_;
+  VT1_m = VT1_;
+  VT2_m = VT2_;
+  
+// RunType:4, all other depends from RunType
+/*  AMCGEBData  geb;
+uint64_t RunType = BOOST_BINARY( 1 ); // :4
+uint8_t latency_bin = BOOST_BINARY( latency_m ); // :4
+uint8_t VT1_bin = BOOST_BINARY( VT1_m ); // :4
+uint8_t VT2_bin = BOOST_BINARY( VT2_m ); // :4
+*/
 
-  gem::readout::GEMDataParker::dumpData(readout_mask);
+  //  uint32_t* pDupm = dumpData(readout_mask);
+/*  
+  dumpData(readout_mask);
+  if(dumpData(readout_mask)){
+    INFO("dumpData"); 
+  }
+*/  
+  INFO( " Dataparker scan routines Latency = " << (int)latency_m  << " VT1 = " << (int)VT1_m << " VT2 = " << (int)VT2_m);
+INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
+  
 
-  geb.runhed  = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
 }
+

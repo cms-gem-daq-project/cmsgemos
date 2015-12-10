@@ -56,6 +56,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
 
   outFileName  = tmpFileName;
+  slotFileName = "slot_table_904_2.csv";
   //settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
 
   //  deviceIP      = "192.168.0.170";
@@ -90,6 +91,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   bag->addField("ADCVoltage",   &ADCVoltage);
   bag->addField("ADCurrent",    &ADCurrent);
   bag->addField("triggerSource",&triggerSource);
+  bag->addField("slotFileName",  &slotFileName);
 
 }
 
@@ -192,8 +194,8 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   fsmP_->reset();
 
   /*
-  wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:GEMTBUtil","waiting");
-  wl_->activate();
+    wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:GEMTBUtil","waiting");
+    wl_->activate();
   */
   
 }
@@ -216,6 +218,10 @@ void gem::supervisor::tbutils::GEMTBUtil::actionPerformed(xdata::Event& event)
   if (event.type() == "urn:xdaq-event:setDefaultValues") {
     std::stringstream ss;
     ss << "ipAddr_=[" << ipAddr_.toString() << "]" << std::endl;
+    ss << "slotFileName=["  << confParams_.bag.slotFileName.toString()  << "]" << std::endl;
+
+    slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(confParams_.bag.slotFileName.toString()));
+    
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), ss.str());
     confParams_.bag.deviceIP = ipAddr_;
   }
@@ -393,8 +399,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "TTC_on_GLIB"    << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x0) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstL1ATTC")
-	                                      .set("name","RstL1ATTC")
+	.set("id","RstL1ATTC")
+	.set("name","RstL1ATTC")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -402,8 +408,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "T1_in_Firmware"    << cgicc::td() << std::endl
 	   << cgicc::td()    <<  optohybridDevice_->getL1ACount(0x1) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstL1AT1")
-	                                      .set("name","RstL1AT1")
+	.set("id","RstL1AT1")
+	.set("name","RstL1AT1")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -411,8 +417,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "External"     << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x2) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstL1AExt")
-	                                      .set("name","RstL1AExt")
+	.set("id","RstL1AExt")
+	.set("name","RstL1AExt")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -420,8 +426,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "Loopback_sBits"       << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x3) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstL1Asbits")
-	                                      .set("name","RstL1Asbits")
+	.set("id","RstL1Asbits")
+	.set("name","RstL1Asbits")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -429,8 +435,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "Sent_along_GEB"     << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getL1ACount(0x4) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstL1AGEB")
-	                                      .set("name","RstL1AGEB")
+	.set("id","RstL1AGEB")
+	.set("name","RstL1AGEB")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -454,8 +460,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "TTC_on_GLIB"  << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x0)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstCalPulseTTC")
-	                                      .set("name","RstCalPulseTTC")
+	.set("id","RstCalPulseTTC")
+	.set("name","RstCalPulseTTC")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -464,8 +470,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "T1_in_Firmware"  << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x1)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstCalPulseT1")
-	                                      .set("name","RstCalPulseT1")
+	.set("id","RstCalPulseT1")
+	.set("name","RstCalPulseT1")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -474,8 +480,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "External"  << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x2)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstCalPulseExt")
-	                                      .set("name","RstCalPulseExt")
+	.set("id","RstCalPulseExt")
+	.set("name","RstCalPulseExt")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -483,8 +489,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "Loopback_sBits"     << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x3) << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstCalPulseSbit")
-	                                      .set("name","RstCalPulseSbit")
+	.set("id","RstCalPulseSbit")
+	.set("name","RstCalPulseSbit")
 	   << cgicc::td() << std::endl
 	   << "</tr>"     << std::endl
 
@@ -493,8 +499,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "Sent_along_GEB"  << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getCalPulseCount(0x4)  << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstCalPulseGEB")
-	                                      .set("name","RstCalPulseGEB")
+	.set("id","RstCalPulseGEB")
+	.set("name","RstCalPulseGEB")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -517,8 +523,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "Resync"    << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getResyncCount() << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstResync")
-	                                      .set("name","RstResync")
+	.set("id","RstResync")
+	.set("name","RstResync")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -526,8 +532,8 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::td()    << "BC0"       << cgicc::td() << std::endl
 	   << cgicc::td()    << optohybridDevice_->getBC0Count() << cgicc::td() << std::endl
 	   << cgicc::td()    << cgicc::input().set("type","checkbox")
-	                                      .set("id","RstBC0")
-	                                      .set("name","RstBC0")
+	.set("id","RstBC0")
+	.set("name","RstBC0")
 	   << cgicc::td()    << std::endl
 	   << "</tr>" << std::endl
 
@@ -577,11 +583,11 @@ void gem::supervisor::tbutils::GEMTBUtil::showBufferLayout(xgi::Output *out)
 
       *out << cgicc::br() << std::endl;
       *out << cgicc::input().set("class","button").set("type","submit")
-	                    .set("value","FlushFIFO").set("name","SendFastCommand")
+	.set("value","FlushFIFO").set("name","SendFastCommand")
 	   << std::endl; 
 
       *out << cgicc::input().set("class","button").set("type","submit")
-	                    .set("value","SendTestPackets").set("name","SendFastCommand")
+	.set("value","SendTestPackets").set("name","SendFastCommand")
 	   << std::endl; 
      
       *out << cgicc::form() << std::endl
@@ -625,30 +631,30 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
       
       *out << cgicc::tr()  << std::endl;
       *out << cgicc::td()  << cgicc::input().set("class","button").set("type","submit")
-                                            .set("value","Send L1A").set("name","SendFastCommand")
+	.set("value","Send L1A").set("name","SendFastCommand")
 	   << cgicc::td()  << std::endl;
       *out << cgicc::td()  << cgicc::input().set("class","button").set("type","submit")
-                                            .set("value","Send CalPulse").set("name","SendFastCommand")
+	.set("value","Send CalPulse").set("name","SendFastCommand")
 	   << cgicc::td()  << std::endl;
       *out << cgicc::td()  << cgicc::input().set("class","button").set("type","submit")
-                                            .set("value","Send Resync").set("name","SendFastCommand")
+	.set("value","Send Resync").set("name","SendFastCommand")
 	   << cgicc::td()  << std::endl;
       *out << cgicc::td()  << cgicc::input().set("class","button").set("type","submit")
-                                            .set("value","Send BC0").set("name","SendFastCommand")
+	.set("value","Send BC0").set("name","SendFastCommand")
 	   << cgicc::td()  << std::endl;
       *out << cgicc::td()  << cgicc::input().set("class","button").set("type","submit")
-	                                    .set("value","Send L1A+CalPulse").set("name","SendFastCommand")
+	.set("value","Send L1A+CalPulse").set("name","SendFastCommand")
 	   << cgicc::br()  << std::endl
 	   << cgicc::input().set("id","CalPulseDelay").set("name","CalPulseDelay")
-                            .set("type","number").set("min","0").set("max","255")
-                            .set("value","4")
+	.set("type","number").set("min","0").set("max","255")
+	.set("value","4")
 	   << cgicc::td()  << std::endl;
 
       *out << cgicc::tr()    << std::endl
 	   << cgicc::tbody() << std::endl
 	   << cgicc::table() << std::endl;
 	
-	//trigger setup
+      //trigger setup
       *out << cgicc::table().set("class","xdaq-table") << std::endl
 	   << cgicc::thead() << std::endl
 	   << cgicc::tr()    << std::endl //open
@@ -662,33 +668,33 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
       *out << cgicc::tr() << std::endl;
       *out << cgicc::td() << std::endl
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
-	                    .set("id","GLIBsrc").set("value","TTC_GLIB_trsSrc")
+	.set("id","GLIBsrc").set("value","TTC_GLIB_trsSrc")
 	.set((unsigned)confParams_.bag.triggerSource == (unsigned)0x0 ? "checked" : "")
 
 	   << cgicc::label("TTC_GLIB_trsSrc").set("for","GLIBSrc") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
-	                    .set("id","T1_Src").set("value","T1_trgSrc")
-                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x1 ? "checked" : "")
+	.set("id","T1_Src").set("value","T1_trgSrc")
+	.set((unsigned)confParams_.bag.triggerSource == (unsigned)0x1 ? "checked" : "")
 	   << cgicc::label("T1_trgSrc").set("for","T1_Src") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
-	                    .set("id","Ext").set("value","Ext_trgSrc")
-                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x2 ? "checked" : "")
+	.set("id","Ext").set("value","Ext_trgSrc")
+	.set((unsigned)confParams_.bag.triggerSource == (unsigned)0x2 ? "checked" : "")
 	   << cgicc::label("Ext_trgSrc").set("for","Ext") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("type","radio").set("name","trgSrc").set("checked")
-                            .set("id","sBitSrc").set("value","sbits_trgSrc")
-                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x3 ? "checked" : "")
+	.set("id","sBitSrc").set("value","sbits_trgSrc")
+	.set((unsigned)confParams_.bag.triggerSource == (unsigned)0x3 ? "checked" : "")
 	   << cgicc::label("sbits_trgSrc").set("for","sBitSrc") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
-	                    .set("id","Total").set("value","Total_trgSrc")
-                            .set((unsigned)confParams_.bag.triggerSource == (unsigned)0x4 ? "checked" : "")
+	.set("id","Total").set("value","Total_trgSrc")
+	.set((unsigned)confParams_.bag.triggerSource == (unsigned)0x4 ? "checked" : "")
 	   << cgicc::label("Total_trgSrc").set("for","Total") << std::endl
 	   << cgicc::br()
 	   << cgicc::input().set("class","button").set("type","submit")
-	                    .set("value","SetTriggerSource").set("name","SendFastCommand")
+	.set("value","SetTriggerSource").set("name","SendFastCommand")
 	   << cgicc::td() << std::endl;
       
       std::string isReadonly = "";
@@ -698,12 +704,12 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
       *out << cgicc::td() << std::endl
 	   << cgicc::label("SBitSelect").set("for","SBitSelect") << std::endl
 	   << cgicc::input().set("class","vfatBiasInput").set("id","SBitSelect" ).set("name","SBitSelect")
-                        .set("type","number").set("min","0").set("max","5")
-	                .set("value",confParams_.bag.deviceNum.toString())
-                        .set(isReadonly)
+	.set("type","number").set("min","0").set("max","5")
+	.set("value",confParams_.bag.deviceNum.toString())
+	.set(isReadonly)
 	   << cgicc::input().set("class","button").set("type","submit")
-	                    .set("value","SBitSelect").set("name","SendFastCommand")
-	<< cgicc::td() << std::endl;
+	.set("value","SBitSelect").set("name","SendFastCommand")
+	   << cgicc::td() << std::endl;
 
       *out << cgicc::tr()    << std::endl
 	   << cgicc::tbody() << std::endl
@@ -751,6 +757,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
     *out << "<div class=\"xdaq-tab-wrapper\">"            << std::endl;
     *out << "<div class=\"xdaq-tab\" title=\"Control\">"  << std::endl;
 
+
     *out << "<table class=\"xdaq-table\">" << std::endl
 	 << cgicc::thead() << std::endl
 	 << cgicc::tr()    << std::endl //open
@@ -785,15 +792,11 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
       selectMultipleVFAT(out);
       scanParameters(out);
       
-      //adding aysen's xml parser
-      //std::string setConfFile = toolbox::toString("/%s/setConfFile",getApplicationDescriptor()->getURN().c_str());
-      //*out << cgicc::form().set("method","POST").set("action",setConfFile) << std::endl ;
-      
+
+
       *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80")
- 	                    .set("ENCTYPE","multipart/form-data").set("readonly")
-                            .set("value",confParams_.bag.settingsFile.toString()) << std::endl;
-      //*out << cgicc::input().set("type","submit").set("value","Set configuration file") << std::endl ;
-      //*out << cgicc::form() << std::endl ;
+	.set("ENCTYPE","multipart/form-data").set("readonly")
+	.set("value",confParams_.bag.settingsFile.toString()) << std::endl;
       
       *out << cgicc::br() << std::endl;
       *out << cgicc::input().set("type", "submit")
@@ -843,6 +846,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	 << "</td>" << std::endl;
     
     *out << "<td>"  << std::endl;
+
     if (!is_running_) {
       //comand that will take the system to initial and allow to change the hw device
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
@@ -867,28 +871,19 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	 << "</tbody>" << std::endl
 	 << "</table>" << cgicc::br() << std::endl;
     
-    *out << "</div>" << std::endl;
+    *out << "</div>" << std::endl; //close control
     
-    *out << "<div class=\"xdaq-tab\" title=\"Counters\">"  << std::endl;
+    *out << "<div class=\"xdaq-tab\" title=\"Counters\">"  << std::endl;//open countera
     if (is_initialized_)
       showCounterLayout(out);
-    *out << "</div>" << std::endl;
+    *out << "</div>" << std::endl;//close counters
 
-    *out << "<div class=\"xdaq-tab\" title=\"Fast Commands/Trigger Setup\">"  << std::endl;
+    *out << "<div class=\"xdaq-tab\" title=\"Fast Commands/Trigger Setup\">"  << std::endl;//open fast commands
     if (is_initialized_)
       fastCommandLayout(out);
-    *out << "</div>" << std::endl;
+    *out << "</div>" << std::endl; //close fast commands
 
-    //place new div class=xdaq-tab here to hold the histograms
-    /*
-      display a single histogram and have a form that selects which channel you want to display
-      use the file name of the histogram that is saved in readFIFO
-    */
-    *out << "<div class=\"xdaq-tab\" title=\"Channel histograms\">"  << std::endl;
-    
-    *out << "</div>" << std::endl;
-    *out << "</div>" << std::endl;
-    //</div> //close the new div xdaq-tab
+    *out << "</div>" << std::endl;    //</div> //close the new div xdaq-tab
 
     *out << cgicc::br() << cgicc::br() << std::endl;
     
@@ -961,16 +956,12 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	 << "</tr>"    << std::endl
 	 << "</tbody>" << std::endl
 	 << "</table>" << std::endl;
-      //<< "</div>"   << std::endl;
 
     *out << cgicc::script().set("type","text/javascript")
-                           .set("src","http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js")
+      .set("src","http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js")
 	 << cgicc::script() << std::endl;
     *out << cgicc::script().set("type","text/javascript")
-                           .set("src","http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js")
-	 << cgicc::script() << std::endl;
-    *out << cgicc::script().set("type","text/javascript")
-                           .set("src","/gemdaq/gemsupervisor/html/scripts/tbutils/changeImage.js")
+      .set("src","http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js")
 	 << cgicc::script() << std::endl;
   }
   catch (const xgi::exception::Exception& e) {
@@ -1018,32 +1009,16 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
         INFO( "found form element::" << form.str());
         INFO( "has value::" << name->getValue());
 	tmpDeviceName = name->getValue();
+	confParams_.bag.deviceName[i] = tmpDeviceName;
+	INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
       }
-      
-      
-      //std::string tmpDeviceName = cgi["VFATDevice"]->getValue();
-      INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
-      INFO( "Web_setting deviceName to ::" << tmpDeviceName);
-      confParams_.bag.deviceName[i] = tmpDeviceName;
-      INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
       
       int tmpDeviceNum = -1;
       tmpDeviceName.erase(0,4);
       tmpDeviceNum = atoi(tmpDeviceName.c_str());
       
       readout_mask = confParams_.bag.ohGTXLink;
-      /*      if (tmpDeviceNum < 8)
-	readout_mask |= 0x1;
-      else if (tmpDeviceNum < 16)
-	readout_mask |= 0x2;
-      else if (tmpDeviceNum < 24)
-	readout_mask |= 0x4;
-      */
-      INFO( "deviceNum[i]_::"             << confParams_.bag.deviceNum[i].toString());
-      INFO( "setting deviceNum[i]_ to ::" << tmpDeviceNum);
-      confParams_.bag.deviceNum[i] = tmpDeviceNum;
-      INFO( "deviceNum[i]_::"             << confParams_.bag.deviceNum[i].toString());
-      
+
     }//end for
   
     //change the status to initializing and make sure the page displays this information
@@ -1056,7 +1031,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
   }
   
   wl_->submit(initSig_);
-
+  
   redirect(in,out);
 }
 
@@ -1320,40 +1295,28 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   //  int i=0;
   std::string VfatName = confParams_.bag.deviceName[i].toString();
   if (VfatName != "") {
+    
+    readout_mask = confParams_.bag.ohGTXLink;
 
-  readout_mask = confParams_.bag.ohGTXLink;
-  /* if ( i >= 0 ) {
-	if (i < 8)
-        readout_mask |= 0x1; //slot [0-7] maps to 1
-      else if (i < 16)
-        readout_mask |= 0x2; //slot [8-15] maps to 2
-      else if (i < 24)
-        readout_mask |= 0x4; //slot [16-23] maps to 4
-  */  
-      INFO(" webConfigure : DeviceName " << VfatName );
-      INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
-      //}
-
+    INFO(" webConfigure : DeviceName " << VfatName );
+    INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+    
     vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+    
+    tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
+						       confParams_.bag.ohGTXLink.value_,
+						       VfatName.c_str()));
+    
+    
+      tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
+      tmpVFATDevice->setRunMode(0);
 
-      tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
-                                                         confParams_.bag.ohGTXLink.value_,
-                                                         VfatName.c_str()));
-
-
-    tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
-    tmpVFATDevice->setRunMode(0);
-    //      tmpVFATDevice_->readVFAT2Counters();
-    confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
-    INFO(" CHIPID   :: " << confParams_.bag.deviceChipID);      
+      confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
+      INFO(" CHIPID   :: " << confParams_.bag.deviceChipID);      
     // need to put all chips in sleep mode to start off
-    vfatDevice_.push_back(tmpVFATDevice);
+      vfatDevice_.push_back(tmpVFATDevice);
   }//end if VfatName
   }//end for 
-
-
-
-
     
   is_initialized_ = true;
   hw_semaphore_.give();
@@ -1385,14 +1348,7 @@ void gem::supervisor::tbutils::GEMTBUtil::configureAction(toolbox::Event::Refere
 
   hw_semaphore_.give();
 
-
-
-  /*  counter_ = 0;*/
-  
-
-  //is_configured_  = true;
   is_working_     = false;    
-  
 
 }
 
@@ -1401,7 +1357,6 @@ void gem::supervisor::tbutils::GEMTBUtil::startAction(toolbox::Event::Reference 
   throw (toolbox::fsm::exception::Exception) {
   
   is_working_ = true;
-
 
   //start scan routine
   wl_->submit(runSig_);
@@ -1424,9 +1379,15 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
     is_running_ = false;
   }
   
-
+  /*
   INFO("Closling file");
+  scanStream->close();
+  delete scanStream;
+  scanStream = 0;*/
+  wl_->submit(stopSig_);
+  
   sleep(0.001);
+  
   is_working_ = false;
 }
 
@@ -1451,10 +1412,8 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
 
   vfat_ = 0;
   event_ = 0;
-  sumVFAT_ = 0;
-  counter_ = {0,0,0};
 
-  //wl_->submit(haltSig_);
+  wl_->submit(haltSig_);
   
   //sleep(5);
   sleep(0.001);
@@ -1480,13 +1439,6 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
     
   }
   
-  
-  
-  //  if (vfatDevice_)
-  //   delete vfatDevice_;
-  //  vfatDevice_ = 0;
-  
-  
   //sleep(2);
   hw_semaphore_.give();
 
@@ -1498,7 +1450,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   confParams_.bag.triggersSeen = 0;
   confParams_.bag.triggerSource = 0x9;
 
-  //wl_->submit(resetSig_);
+  wl_->submit(resetSig_);
   
   //sleep(5);
   sleep(0.001);
@@ -1544,7 +1496,6 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
       
       if(isDisabled){
         vfatselection.set("type","checkbox").set("name",form.str()).set("disabled","disabled");
-	INFO(" VFATSelected is  " << confParams_.bag.deviceName[i].toString());      
       }else{
         vfatselection.set("type","checkbox").set("name",form.str());
       }
@@ -1557,11 +1508,16 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
 	*out << cgicc::tr() << std::endl //close
 	     << cgicc::tr() << std::endl;//open
 	//  }// end if 
-      }//end else
+	
+     }//end else
+
+
+
     }// end if nChips
     
     *out << cgicc::tr()    << std::endl;
     *out << cgicc::table() << std::endl;
+    
 
   }
 
@@ -1584,20 +1540,21 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
       isDisabled = true;
     
     // cgicc::input OHselection;
-
-    
     *out   << "<table>"     << std::endl
-	   << "<tr>"   << std::endl
+	   << "<tr>"   << std::endl //open
 	   << "<td>" << "OH GTX Link " << "</td>" << std::endl	 
-	   << "</tr>"     << std::endl
-	   << "<tr>" << std::endl
-	   << "<td>" << std::endl;
+	   << "</tr>"     << std::endl //close 
+
+	   << "<tr>" << std::endl //open
+	   << "<td>" << std::endl; //open
     if (isDisabled)
       *out << cgicc::select().set("name","SetOH").set("disabled","disabled") 
 	   << cgicc::option("OH_0").set("value","OH_0")
 	   << cgicc::option("OH_1").set("value","OH_1")
 	   << cgicc::select().set("disabled","disabled") << std::endl
-	   << std::endl;
+	   << "</td>"    << std::endl
+	   << "</tr>"    << std::endl
+	   << "</table>" << std::endl;
     else
       *out << cgicc::select().set("name","SetOH") << std::endl
 	   << cgicc::option("OH_0").set("value","OH_0")
@@ -1606,10 +1563,11 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
 	   << "</td>"    << std::endl
 	   << "</tr>"    << std::endl
 	   << "</table>" << std::endl;
+	
     /*      *out << "<tr><td class=\"title\"> Select Latency Scan: </td>"
 	    << "<td class=\"form\">"*/
     
-}//end try
+  }//end try
 catch (const xgi::exception::Exception& e) {
   INFO("Something went wrong setting the trigger source): " << e.what());
   XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -1621,7 +1579,51 @@ catch (const xgi::exception::Exception& e) {
 
 }// end void selectoptohybrid
 
+//uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
+void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readout_mask,  uint8_t  currentLatency_m, uint8_t VT1, uint8_t VT2)
+{
+  //    int latency_m, VT1_m, VT2_m;
+  uint32_t m_counter[5]; 
+  m_counter = {0,0,0,0,0};// maybe instead reset the counters here in start rather than stop?
+  
+  uint32_t* pDQ =  gemDataParker->selectData(m_counter);
+  if (pDQ) {
+    m_counter[0] = *(pDQ+0);
+    m_counter[1] = *(pDQ+1); // Events counter
+    m_counter[2] = *(pDQ+2); 
+    m_counter[3] = *(pDQ+3);
+    m_counter[4] = *(pDQ+4);
+    m_counter[5] = *(pDQ+5);
+  }
+  
+    
+  gemDataParker->ScanRoutines(currentLatency_m, VT1,VT2);
+  
+    //    gemDataParker.latency_m = currentLatency_m;
+  bool finish = true;
+  uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
+  if(pDupm) {
+    INFO( " Latency = " << (int)currentLatency_m << " VT1 = " << (int)VT1 << " VT2 = " << (int)VT2);
+    }
+  
+      /*  while(gemDataParker->queueDepth() > 0){
+    INFO("----Still reading------- queueDepth "  <<   gemDataParker->queueDepth()  );    
+    finish=false;  
+  }
+  if(finish){
+    INFO( "Event counter: " << m_counter[1] );
+    if(pDupm) {
+    }
+  }
+  */
 
+
+  
+
+  
+  //  }
+
+}
 
 
 
