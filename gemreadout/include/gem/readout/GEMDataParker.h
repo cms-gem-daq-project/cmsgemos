@@ -35,6 +35,7 @@ namespace gem {
     public:
       static const int I2O_READOUT_NOTIFY;
       static const int I2O_READOUT_CONFIRM;
+      uint8_t latency_m, VT1_m, VT2_m;
 
       GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice, 
                             std::string const& outFileName, 
@@ -74,12 +75,13 @@ namespace gem {
                            );
       int queueDepth       () {return dataque.size();}
 
-      //      void ScanRoutines    ( u_int8_t latency_m, u_int8_t VT1_m, u_int8_t VT2_m,  gem::readout::GEMDataAMCformat::GEBData& geb);
-      void ScanRoutines    ( uint8_t const& readout_mask, u_int8_t latency_m, u_int8_t VT1_m, u_int8_t VT2_m);
+      void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
 
       // SOAP interface, updates the header used for calibration runs
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)
         throw (xoap::exception::Exception);
+
+
       
     private:
 
@@ -89,6 +91,7 @@ namespace gem {
       uint16_t bcn, evn, chipid, vfatcrc;
       uint16_t b1010, b1100, b1110;
       uint8_t  flags;
+
       static const int MaxVFATS = 24; // was 32 ???
       static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?
       
@@ -105,6 +108,9 @@ namespace gem {
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
       std::queue<uint32_t> dataque;
+
+
+
       
       /*
        * Counter all in one
@@ -126,6 +132,8 @@ namespace gem {
       int sumVFAT_;
       
       int16_t scanParam;
+
+
     };
   }
 }

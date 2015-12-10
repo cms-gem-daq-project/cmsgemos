@@ -4,6 +4,7 @@
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
 <xc:Context url="http://gem904daq01:4444">
+
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
 	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
@@ -21,9 +22,16 @@
 
     <xc:Application class="gem::supervisor::tbutils::LatencyScan" id="256" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:LatencyScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	  <ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	  <confParams xsi:type="soapenc:Struct">
+	    <slotFileName xsi:type="xsd:string">slot_table_904_2.csv</slotFileName>
+	  </confParams>
       </properties>
-    </xc:Application>
+<!--      
+
+
+-->
+      </xc:Application>
 
     <xc:Application class="gem::hw::vfat::VFAT2Manager" id="255" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
