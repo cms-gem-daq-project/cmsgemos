@@ -61,6 +61,8 @@ namespace gem {
         bool isGEMApplication(const std::string& classname) const;
         bool manageApplication(const std::string& classname) const;
 
+        void updateRunNumber();
+
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
         
         mutable gem::utils::Lock deviceLock_;
