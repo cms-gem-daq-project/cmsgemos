@@ -137,13 +137,67 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
     
   } catch (xcept::Exception& e) {
     XCEPT_RETHROW(gem::utils::exception::SOAPException,
-                  ::toolbox::toString("Command %s failed [%s]",cmd.c_str(),e.what()),e);
+                  toolbox::toString("Command %s failed [%s]",cmd.c_str(),e.what()),e);
   } catch (std::exception& e) {
     XCEPT_RAISE(gem::utils::exception::SOAPException,
-                ::toolbox::toString("Command %s failed [%s]",cmd.c_str(),e.what()));
+                toolbox::toString("Command %s failed [%s]",cmd.c_str(),e.what()));
   } catch (...) {
     XCEPT_RAISE(gem::utils::exception::SOAPException,
-                ::toolbox::toString("Command %s failed",cmd.c_str()));
+                toolbox::toString("Command %s failed",cmd.c_str()));
+  }
+  return true;
+}
+
+bool gem::utils::soap::GEMSOAPToolBox::sendParameter(std::vector<std::string> const& parameter,
+                                                     xdaq::ApplicationContext* appCxt,
+                                                     xdaq::ApplicationDescriptor* srcDsc,
+                                                     xdaq::ApplicationDescriptor* destDsc
+                                                     //log4cplus::Logger* logger
+                                                     )
+  throw (gem::utils::exception::Exception)
+{
+  if (parameter.size() != 3)
+    return false;
+  
+  try {
+    xoap::MessageReference msg = xoap::createMessage();
+    
+    xoap::SOAPEnvelope env       = msg->getSOAPPart().getEnvelope();
+    xoap::SOAPName     soapcmd   = env.createName("ParameterSet","xdaq", XDAQ_NS_URI);
+    xoap::SOAPElement  container = env.getBody().addBodyElement(soapcmd);
+
+    // from hcal supervisor
+    container.addNamespaceDeclaration("xsd","http://www.w3.org/2001/XMLSchema");
+    container.addNamespaceDeclaration("xsi","http://www.w3.org/2001/XMLSchema-instance");
+    container.addNamespaceDeclaration("soapenc","http://schemas.xmlsoap.org/soap/encoding/");
+    xoap::SOAPName    type       = env.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+    std::string       appUrn     = "urn:xdaq-application:"+destDsc->getClassName();
+    xoap::SOAPName    properties = env.createName("Properties","props",appUrn);
+    xoap::SOAPElement property   = container.addChildElement(properties);
+    property.addAttribute(type,"soapenc:Struct");
+    xoap::SOAPName    cfgStyleName = env.createName(parameter.at(0),"props",appUrn);
+    xoap::SOAPElement cs           = property.addChildElement(cfgStyleName);
+    cs.addAttribute(type,parameter.at(2));
+    cs.addTextNode(parameter.at(1));
+    // end from hcal supervisor
+    
+    xoap::MessageReference response = appCxt->postSOAP(msg,*srcDsc,*destDsc);
+    std::string  tool;
+    xoap::dumpTree(response->getSOAPPart().getEnvelope().getDOMNode(),tool);
+    
+    //LOG4CPLUS_INFO(logger, "sendParameter(" + cmd + ") received response: " + tool);
+    // need to catch failures somehow
+    std::cout << "GEMSOAPToolBox::" << appUrn << " ParameterSet received response: " << tool << std::endl;
+    
+  } catch (xcept::Exception& e) {
+    XCEPT_RETHROW(gem::utils::exception::SOAPException,
+                  toolbox::toString("Parameter %s failed [%s]",parameter.at(0).c_str(),e.what()),e);
+  } catch (std::exception& e) {
+    XCEPT_RAISE(gem::utils::exception::SOAPException,
+                toolbox::toString("Parameter %s failed [%s]",parameter.at(0).c_str(),e.what()));
+  } catch (...) {
+    XCEPT_RAISE(gem::utils::exception::SOAPException,
+                toolbox::toString("Parameter %s failed",parameter.at(0).c_str()));
   }
   return true;
 }
@@ -188,21 +242,21 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameter(std::string cons
     xoap::MessageReference response = appCxt->postSOAP(msg,*srcDsc,*destDsc);
     std::string  tool;
     xoap::dumpTree(response->getSOAPPart().getEnvelope().getDOMNode(),tool);
-    
+    // need to catch failures somehow
     //LOG4CPLUS_INFO(logger, "sendParameter(" + cmd + ") received response: " + tool);
     
   } catch (xcept::Exception& e) {
     XCEPT_RETHROW(gem::utils::exception::SOAPException,
-                  ::toolbox::toString("Sending parameter  %s (value %d) failed [%s]",
-                                      cmd.c_str(), parameter, e.what()),e);
+                  toolbox::toString("Sending parameter  %s (value %d) failed [%s]",
+                                    cmd.c_str(), parameter, e.what()),e);
   } catch (std::exception& e) {
     XCEPT_RAISE(gem::utils::exception::SOAPException,
-                ::toolbox::toString("Sending parameter  %s (value %d) failed [%s]",
-                                    cmd.c_str(), parameter, e.what()));
+                toolbox::toString("Sending parameter  %s (value %d) failed [%s]",
+                                  cmd.c_str(), parameter, e.what()));
   } catch (...) {
     XCEPT_RAISE(gem::utils::exception::SOAPException,
-                ::toolbox::toString("Sending parameter  %s (value %d) failed",
-                                    cmd.c_str(), parameter));
+                toolbox::toString("Sending parameter  %s (value %d) failed",
+                                  cmd.c_str(), parameter));
   }
   return true;
 }

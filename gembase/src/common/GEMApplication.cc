@@ -19,7 +19,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   m_gemLogger(this->getApplicationLogger()),
   p_gemWebInterface(NULL),
   p_gemMonitor(     NULL),
-  m_runNumber(-1),
+  m_runNumber(0),
   m_runType("")
 
 {
@@ -88,7 +88,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->fireItemAvailable("monitoring:parameters",    p_monitorInfoSpace);
 
   // all should come from initialize
-  p_appInfoSpaceToolBox->createUInt32("RunNumber",m_runNumber.value_,  utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createUInt64("RunNumber",m_runNumber.value_,  utils::GEMInfoSpaceToolBox::PROCESS);
   p_appInfoSpaceToolBox->createString("RunType",  m_runType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
   p_appInfoSpaceToolBox->createString("CfgType",  m_cfgType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
   //p_appInfoSpaceToolBox->createString("reasonForFailure", &reasonForFailure_,utils::GEMInfoSpaceToolBox::PROCESS);
