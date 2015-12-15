@@ -1,35 +1,47 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
-  <node id="CONTROL"  address="0x70000000"
-  description="DAQ Control"/>
-  <node id="STATUS"  address="0x70000001"
-  description="DAQ status"/>
-  <node id="FLAGS"  address="0x70000002"
-  description="DAQ flags"/>
-  <node id="CORRUPT_CNT"  address="0x70000003"
-  description="DAQ corrupted data counter"/>
-  <node id="EVT_BUILT"  address="0x70000004"
-  description="DAQ number of events built"/>
-  <node id="EVT_SENT"  address="0x70000005"
-  description="DAQ number of events sent"/>
-  <node id="L1AID"  address="0x70000006"
-  description="DAQ L1AID"/>
-  <node id="DEBUG_0"  address="0x7000000a"
-  description="DAQ debug 0"/>
-  <node id="DEBUG_1"  address="0x7000000b"
-  description="DAQ debug 1"/>
-  <node id="DEBUG_2"  address="0x7000000c"
-  description="DAQ debug 2"/>
-  <node id="DEBUG_3"  address="0x7000000d"
-  description="DAQ debug 3"/>
-  <node id="DEBUG_4"  address="0x7000000e"
-  description="DAQ debug 4"/>
-  <node id="DEBUG_5"  address="0x7000000f"
-  description="DAQ debug 5"/>
-  <node id="DEBUG_6"  address="0x70000010"
-  description="DAQ debug 6"/>
-  <node id="DISPER_ERR"  address="0x70000007"
-  description="DAQ disper_err"/>
-  <node id="NOTINTABLE_ERR"  address="0x70000008"
-  description="DAQ NOTINTABLE_err"/>
+  <node id="STATUS"  address="0x0"  permission="r">
+    <node id="OH_VFAT_OOS"    mask="0x00000001"/>
+    <node id="GLIB_OH_OOS"    mask="0x00000002"/>
+    <node id="GLIB_VFAT_OOS"  mask="0x00000004"/>
+    <node id="OH_OOS"         mask="0x00000008"/>
+    
+    <node id="VFAT_TOO_MANY"      mask="0x00000010"/>
+    <node id="VFAT_SMALL_BLOCK"   mask="0x00000020"/>
+    <node id="VFAT_LARGE_BLOCK"   mask="0x00000040"/>
+    <node id="VFAT_NO_MARKER"     mask="0x00000080"/>
+
+    <node id="INPUT_FIFO_HAD_OFLOW"   mask="0x00000100"/>
+    <node id="INPUT_FIFO_HAD_UFLOW"   mask="0x00000200"/>
+    <node id="EVENT_FIFO_HAD_OFLOW"   mask="0x00000400"/>
+    <node id="EVT_SIZE_ERR"           mask="0x00000800"/>
+
+    <node id="INPUT_FIFO_IS_UFLOW"    mask="0x01000000"/>
+    <node id="INPUT_FIFO_IS_FULL"     mask="0x02000000"/>
+    <node id="INPUT_FIFO_IS_AFULL"    mask="0x04000000"/>
+    <node id="INPUT_FIFO_IS_EMPTY"    mask="0x08000000"/>
+
+    <node id="EVENT_FIFO_IS_UFLOW"    mask="0x10000000"/>
+    <node id="EVENT_FIFO_IS_FULL"     mask="0x20000000"/>
+    <node id="EVENT_FIFO_IS_AFULL"    mask="0x40000000"/>
+    <node id="EVENT_FIFO_IS_EMPTY"    mask="0x80000000"/>
+  </node>
+
+  <node id="COUNTERS"  permission="r">
+    <node id="CORRUPT_VFAT_BLK_CNT"  address="0x1"/>
+    <node id="EVN"                   address="0x2"/>
+  </node>
+
+  <node id="LASTBLOCK"  address="0x9" permission="r"  mode="incremental"  size="7"
+        description="contains the last 192+32 bits received from the VFAT and OH, probably better to implement as a block">
+    <!--
+    <node id=""  address="0x0"/>
+    <node id=""  address="0x1"/>
+    <node id=""  address="0x2"/>
+    <node id=""  address="0x3"/>
+    <node id=""  address="0x4"/>
+    <node id=""  address="0x5"/>
+    <node id=""  address="0x6"/>
+    -->
+  </node>
 </node>

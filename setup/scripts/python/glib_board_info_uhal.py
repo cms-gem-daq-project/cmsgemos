@@ -70,29 +70,32 @@ print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
 
-print "-> GLIB L1A ID :0x%08x"%(readRegister(glib,"GLIB.DAQ.L1AID"))
-
 if (options.daq_enable>=0):
         writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
         print "Reset daq_enable: %i"%(options.daq_enable)
 
-print "-> GLIB DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
-print "-> GLIB DAQ status reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
-print "-> GLIB DAQ global flags :0x%08x"%(readRegister(glib,"GLIB.DAQ.FLAGS"))
-print "-> GLIB DAQ corrupted VFAT block counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.CORRUPT_CNT"))
-print "-> GLIB DAQ built events cnt :0x%08x"%(readRegister(glib,"GLIB.DAQ.EVT_BUILT"))
-print "-> GLIB DAQ sent events cnt :0x%08x"%(readRegister(glib,"GLIB.DAQ.EVT_SENT"))
+print "-> DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
+print "-> DAQ status reg  :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
+print "-> DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
+print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
+print "-> DAQ L1A ID          :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
+print "-> DAQ sent events cnt :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.EVT_SENT"))
+print
+print "-> DAQ INPUT_TIMEOUT :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT"))
+print "-> DAQ RUN_TYPE      :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_TYPE"))
+print "-> DAQ RUN_PARAMS    :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_PARAMS"))
+print
+print "-> DAQ GTX0 corrupted VFAT block counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.CORRUPT_VFAT_BLK_CNT"))
+print
+print "-> DAQ GTX0 evn :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.EVN"))
 
-print "-> GLIB DAQ GTX dispersion error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.DISPER_ERR"))
-print "-> GLIB DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.NOTINTABLE_ERR"))
-
-print "-> GLIB DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_0"))
-print "-> GLIB DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_1"))
-print "-> GLIB DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_2"))
-print "-> GLIB DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_3"))
-print "-> GLIB DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_4"))
-print "-> GLIB DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_5"))
-print "-> GLIB DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_6"))
+#print "-> DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_0"))
+#print "-> DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_1"))
+#print "-> DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_2"))
+#print "-> DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_3"))
+#print "-> DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_4"))
+#print "-> DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_5"))
+#print "-> DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_6"))
 	
 print
 print "--=======================================--"
