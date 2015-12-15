@@ -70,8 +70,8 @@
       </node>
     </node><!-- end GLIB_LINKS -->
     
-    <node id="DAQ"
-          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_daq_link_registers.xml"
+    <node id="DAQ"  address="0x70000000"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_daq_registers.xml"
           description="registers related to the control of the GLIB DAQ link"/>
     
     <node id="TEST">
@@ -82,39 +82,5 @@
       <node id="VFATs"  address="0x40010808"
 	    description="are the VFAT2s accessible"/>
     </node> <!-- end TEST registers -->
-    <node id="DAQ">
-      <node id="CONTROL"  address="0x70000000"
-	    description="DAQ Control"/>
-      <node id="STATUS"  address="0x70000001"
-	    description="DAQ status"/>
-      <node id="FLAGS"  address="0x70000002"
-	    description="DAQ flags"/>
-      <node id="CORRUPT_CNT"  address="0x70000003"
-	    description="DAQ corrupted data counter"/>
-      <node id="EVT_BUILT"  address="0x70000004"
-	    description="DAQ number of events built"/>
-      <node id="EVT_SENT"  address="0x70000005"
-	    description="DAQ number of events sent"/>
-      <node id="L1AID"  address="0x70000006"
-	    description="DAQ L1AID"/>
-      <node id="DEBUG_0"  address="0x7000000a"
-	    description="DAQ debug 0"/>
-      <node id="DEBUG_1"  address="0x7000000b"
-	    description="DAQ debug 1"/>
-      <node id="DEBUG_2"  address="0x7000000c"
-	    description="DAQ debug 2"/>
-      <node id="DEBUG_3"  address="0x7000000d"
-	    description="DAQ debug 3"/>
-      <node id="DEBUG_4"  address="0x7000000e"
-	    description="DAQ debug 4"/>
-      <node id="DEBUG_5"  address="0x7000000f"
-	    description="DAQ debug 5"/>
-      <node id="DEBUG_6"  address="0x70000010"
-	    description="DAQ debug 6"/>
-      <node id="DISPER_ERR"  address="0x70000007"
-	    description="DAQ disper_err"/>
-      <node id="NOTINTABLE_ERR"  address="0x70000008"
-	    description="DAQ NOTINTABLE_err"/>
-    </node> <!-- end DAQ registers -->
   </node> <!--end glib_regs-->
 </node> <!--end top-->
