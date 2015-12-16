@@ -706,6 +706,16 @@ namespace gem {
           uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
           uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
 
+          uint32_t getDAQLinkInputTimeout();
+          uint32_t getDAQLinkRunType();
+          uint32_t getDAQLinkRunParameters();
+          uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
+
+          void setDAQLinkInputTimeout(uint32_t const& value);
+          void setDAQLinkRunType(uint32_t const& value);
+          void setDAQLinkRunParameters(uint32_t const& value);
+          void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
+
           std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
           
         protected:

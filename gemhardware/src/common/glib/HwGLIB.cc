@@ -802,3 +802,48 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkLastBlock(uint8_t const& gtx)
   regBase << "DAQ.GTX" << (int)gtx;
   return readReg(getDeviceBaseNode(),regBase.str()+".LASTBLOCK");
 }
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkInputTimeout()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.INPUT_TIMEOUT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkRunParameters()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_PARAMS");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkRunParameter(uint8_t const& parameter)
+{
+  std::stringstream regBase;
+  regBase << "DAQ.EXT_CONTROL.RUN_PARAM" << (int) parameter;
+  return readReg(getDeviceBaseNode(),regBase.str());
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkRunType()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_TYPE");
+}
+
+void gem::hw::glib::HwGLIB::setDAQLinkInputTimeout(uint32_t const& value)
+{
+  return writeReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.INPUT_TIMEOUT",value);
+}
+
+void gem::hw::glib::HwGLIB::setDAQLinkRunParameters(uint32_t const& value)
+{
+  return writeReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_PARAMS",value);
+}
+
+void gem::hw::glib::HwGLIB::setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value)
+{
+  std::stringstream regBase;
+  regBase << "DAQ.EXT_CONTROL.RUN_PARAM" << (int) parameter;
+  return writeReg(getDeviceBaseNode(),regBase.str(),value);
+}
+
+void gem::hw::glib::HwGLIB::setDAQLinkRunType(uint32_t const& value)
+{
+  return writeReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_TYPE",value);
+}
+
