@@ -366,6 +366,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       
       // reset the DAQ
       m_glibs[slot]->resetDAQLink();
+      m_glibs[slot]->setDAQLinkRunType(0x3);
+      m_glibs[slot]->setDAQLinkRunParameters(0xfaac);
       
       //should FIFOs be emptied in configure or at start?
       DEBUG("emptying trigger/tracking data FIFOs");
