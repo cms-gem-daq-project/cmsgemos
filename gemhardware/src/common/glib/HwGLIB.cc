@@ -190,13 +190,14 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
       //need to make sure that this works only for "valid" FW results
       // for the moment we can do a check to see that 2015 appears in the string
       // this no longer will work as desired, how to get whether the GTX is active?
-      if ((this->getFirmwareVer()).rfind("5.") != std::string::npos) {
+      if ((this->getFirmwareVer()).rfind("2.") != std::string::npos ||
+          (this->getFirmwareVer()).rfind("5.") != std::string::npos) {
         b_links[gtx] = true;
         INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       } else {
         b_links[gtx] = false;
-        INFO("gtx" << gtx << " not reachable (unable to find 5 in the firmware string)"
+        INFO("gtx" << gtx << " not reachable (unable to find 2 or 5 in the firmware string)"
              << " user firmware version " << this->getFirmwareVer());
       }
     }
@@ -288,61 +289,57 @@ uint64_t gem::hw::glib::HwGLIB::getMACAddressRaw()
   return ((uint64_t)val1 << 32) + val2;
 }
 
-std::string gem::hw::glib::HwGLIB::getFirmwareDate()
+std::string gem::hw::glib::HwGLIB::getFirmwareDate(bool const& system)
 {
-  // This returns the firmware build date. 
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
   std::stringstream regName;
-  /*
-    uint32_t yy = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.YY");
-    uint32_t mm = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MM");
-    uint32_t dd = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DD");
-    res << "20" << std::setfill('0') << std::setw(2) << yy
-    << "-"      << std::setw(2) << mm
-    << "-"      << std::setw(2) << dd;
-  */
-  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
+  uint32_t fwid;
+
+  if (system)
+    fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
+  else
+    fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
+  
   res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
       << "-"  << std::setw(2) << ((fwid>>5)&0x0f)
       << "-"  << std::setw(2) << ((fwid>>9)&0x7f);
   return res.str();
 }
 
-uint32_t gem::hw::glib::HwGLIB::getFirmwareDateRaw()
+uint32_t gem::hw::glib::HwGLIB::getFirmwareDateRaw(bool const& system)
 {
-  // This returns the firmware build date. 
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
-  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
-  return fwid;
+  if (system)
+    return readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
+  else
+    return readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
 }
 
-std::string gem::hw::glib::HwGLIB::getFirmwareVer()
+std::string gem::hw::glib::HwGLIB::getFirmwareVer(bool const& system)
 {
-  // This returns the firmware version number. 
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
   std::stringstream regName;
-  /*
-    uint32_t versionMajor = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MAJOR");
-    uint32_t versionMinor = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.MINOR");
-    uint32_t versionBuild = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.BUILD");
-    res << versionMajor << "." << versionMinor << "." << versionBuild;
-  */
+  uint32_t fwid;
 
-  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
+  if (system)
+    fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
+  else
+    fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
   res << ((fwid>>12)&0x0f) << "." 
       << ((fwid>>8) &0x0f) << "."
       << ((fwid)    &0xff);
   return res.str();
 }
 
-uint32_t gem::hw::glib::HwGLIB::getFirmwareVerRaw()
+uint32_t gem::hw::glib::HwGLIB::getFirmwareVerRaw(bool const& system)
 {
-  // This returns the firmware version number. 
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
-  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
-  return fwid;
+  if (system)
+    return readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
+  else
+    return readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.ID");
 }
 
 void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& input, uint8_t const& output)

@@ -88,7 +88,9 @@ print
 print "-> DAQ GTX0 corrupted VFAT block counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.CORRUPT_VFAT_BLK_CNT"))
 print
 print "-> DAQ GTX0 evn :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.EVN"))
-
+dbgWords = readBlock(glib,"GLIB.DAQ.GTX0.LASTBLOCK",7)
+for word in dbgWords:
+        print "-> DAQ debug : 0x%08x"%word 
 #print "-> DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_0"))
 #print "-> DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_1"))
 #print "-> DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_2"))
