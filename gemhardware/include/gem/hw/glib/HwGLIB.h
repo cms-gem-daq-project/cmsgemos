@@ -142,27 +142,31 @@ namespace gem {
           
           /**
            * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
            * @returns a string corresponding to firmware version
            **/
-          std::string getFirmwareVer();
+          std::string getFirmwareVer(bool const& system=true);
 
           /**
            * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
            * @returns the firmware version as a 32 bit unsigned
            **/
-          uint32_t getFirmwareVerRaw();
+          uint32_t getFirmwareVerRaw(bool const& system=true);
 
           /**
            * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
            * @returns a string corresponding to the build date
            **/
-          std::string getFirmwareDate();
+          std::string getFirmwareDate(bool const& system=true);
 	  
           /**
            * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
            * @returns the build date as a 32 bit unsigned
            **/
-          uint32_t getFirmwareDateRaw();
+          uint32_t getFirmwareDateRaw(bool const& system=true);
 	  
           //external clocking control functions
           /**
