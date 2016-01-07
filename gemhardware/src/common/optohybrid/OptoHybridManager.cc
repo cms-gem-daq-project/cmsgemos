@@ -266,10 +266,10 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 {
   INFO("gem::hw::optohybrid::OptoHybridManager::initializeAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(1000);
+    usleep(1000); // just for testing the timing of different applications
     INFO("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      usleep(1000);
+      usleep(1000); // just for testing the timing of different applications
       INFO("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -392,9 +392,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   INFO("gem::hw::optohybrid::OptoHybridManager::configureAction");
   //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(1000);
+    usleep(1000); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      usleep(1000);
+      usleep(1000); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
 
@@ -426,22 +426,19 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         }
         */
         
-        std::vector<uint32_t> connectedChipID0 = optohybrid->broadcastRead("ChipID0",info.vfatBroadcastMask);
-        std::vector<uint32_t> connectedChipID1 = optohybrid->broadcastRead("ChipID1",info.vfatBroadcastMask);
-        {
-          auto id0 = connectedChipID0.begin();
-          auto id1 = connectedChipID1.begin();
-          INFO(std::setw(12) << "ChipID 1" << std::setw(12) << "ChipID 0");
-          for (; id0 != connectedChipID0.end(); ++id0, ++id1) {
-            INFO(std::setw(10) << "0x" << std::hex << *id1 << std::dec << 
-                 std::setw(10) << "0x" << std::hex << *id0 << std::dec);
-          }
-        }
+        std::vector<std::pair<uint8_t,uint32_t> > chipIDs = optohybrid->getConnectedVFATs();
+        for (auto chip = chipIDs.begin(); chip != chipIDs.end(); ++chip)
+          if (chip->second)
+            INFO("VFAT found in GEB slot " << std::setw(2) << (int)chip->first << " has ChipID " 
+                 << "0x" << std::hex << std::setw(4) << chip->second << std::dec);
+          else
+            INFO("No VFAT found in GEB slot " << std::setw(2) << (int)chip->first);
+        
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
         //reset counters?
       } else {
-        ERROR("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        ERROR("OptoHybrid connected on link " << (int)link << " to GLIB in slot " << ((int)slot+1) << " is not responding");
         fireEvent("Fail");
         //maybe raise exception so as to not continue with other cards?
       }
@@ -454,31 +451,31 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 void gem::hw::optohybrid::OptoHybridManager::startAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  usleep(1000);
+  usleep(1000); // just for testing the timing of different applications
 }
 
 void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  usleep(1000);
+  usleep(1000); // just for testing the timing of different applications
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  usleep(1000);
+  usleep(1000); // just for testing the timing of different applications
 }
 
 void gem::hw::optohybrid::OptoHybridManager::stopAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  usleep(1000);
+  usleep(1000); // just for testing the timing of different applications
 }
 
 void gem::hw::optohybrid::OptoHybridManager::haltAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  usleep(1000);
+  usleep(1000); // just for testing the timing of different applications
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resetAction()
@@ -487,10 +484,10 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
   //unregister listeners and items in info spaces
   INFO("gem::hw::optohybrid::OptoHybridManager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(1000);
+    usleep(1000); // just for testing the timing of different applications
     INFO("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      usleep(1000);
+      usleep(1000); // just for testing the timing of different applications
       INFO("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       OptoHybridInfo& info = m_optohybridInfo[index].bag;

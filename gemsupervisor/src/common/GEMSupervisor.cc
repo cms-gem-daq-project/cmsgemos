@@ -33,7 +33,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   v_supervisedApps.clear();
   // reset the GEMInfoSpaceToolBox object?
   //where can we get some nice PNG images for our different applications?
-  getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemsupervisor/images/supervisor/GEMSupervisor.png");
+  //getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemsupervisor/images/supervisor/GEMSupervisor.png");
   init();
 }
 

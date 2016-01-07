@@ -112,7 +112,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
     try {
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
       DEBUG("controlPanel:: current state " << state);
-      ////update the page refresh 
+      ////update the page refresh, to be removed in favour of AJAX methods
       if (!b_is_working && !b_is_running) {
       } else if (b_is_working) {
         cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
@@ -126,7 +126,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
            << cgicc::thead() << std::endl
            << cgicc::tr()    << std::endl //open
            << cgicc::th()    << "Control" << cgicc::th() << std::endl
-           << cgicc::th()    << "State" << cgicc::th() << std::endl
+           << cgicc::th()    << "State"   << cgicc::th() << std::endl
            << cgicc::tr()    << std::endl //close
            << cgicc::thead() << std::endl 
       
