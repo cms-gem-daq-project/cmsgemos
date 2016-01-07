@@ -19,7 +19,7 @@ namespace gem {
         {
         public:
           
-          static const unsigned N_GTX = 2; /**maximum number of GTX links on the GLIB*/
+          static const unsigned N_GTX = 2; ///< maximum number of GTX links on the GLIB
 
           /**
            * @struct GLIBIPBusCounters

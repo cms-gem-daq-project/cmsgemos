@@ -354,7 +354,7 @@ void gem::hw::glib::GLIBManager::configureAction()
   INFO("gem::hw::glib::GLIBManager::configureAction");
 
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(100);
+    usleep(100); // just for testing the timing of different applications
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -404,7 +404,7 @@ void gem::hw::glib::GLIBManager::startAction()
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       m_glibs[slot]->enableDAQLink();
-      usleep(100);
+      usleep(100); // just for testing the timing of different applications
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
       fireEvent("Fail");
@@ -418,28 +418,28 @@ void gem::hw::glib::GLIBManager::pauseAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for pausing the GLIB?
-  usleep(100);
+  usleep(100); // just for testing the timing of different applications
 }
 
 void gem::hw::glib::GLIBManager::resumeAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for resuming the GLIB?
-  usleep(100);
+  usleep(100); // just for testing the timing of different applications
 }
 
 void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for stopping the GLIB?
-  usleep(100);
+  usleep(100); // just for testing the timing of different applications
 }
 
 void gem::hw::glib::GLIBManager::haltAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for halting the GLIB?
-  usleep(100);
+  usleep(100); // just for testing the timing of different applications
 }
 
 void gem::hw::glib::GLIBManager::resetAction()
@@ -450,7 +450,7 @@ void gem::hw::glib::GLIBManager::resetAction()
   
   DEBUG("gem::hw::glib::GLIBManager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
-    usleep(100);
+    usleep(100); // just for testing the timing of different applications
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
     

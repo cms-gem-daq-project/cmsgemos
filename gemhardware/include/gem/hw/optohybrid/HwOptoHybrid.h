@@ -7,8 +7,6 @@
 #include "gem/hw/optohybrid/exception/Exception.h"
 //#include "gem/hw/optohybrid/OptoHybridMonitor.h"
 
-#define MAX_VFATS 24
-
 namespace gem {
   namespace hw {
     namespace optohybrid {
@@ -17,7 +15,10 @@ namespace gem {
       class HwOptoHybrid: public gem::hw::GEMHwDevice
         {
         public:
-
+          static const int MAX_VFATS = 24;  ///< maximum number of VFATs that can be connected to an OptoHybrid
+          static const uint32_t ALL_VFATS_BCAST_MASK = 0xff000000; ///< send broadcast I2C requests to all chips
+          static const uint32_t ALL_VFATS_DATA_MASK  = 0xffffffff; ///< mask tracking data packets from all VFATs
+          
           /**
            * @struct OptoHybridWBMasterCounters
            * @brief This struct stores retrieved counters related to the OptoHybrid wishbone transactions
@@ -430,7 +431,7 @@ namespace gem {
            * Set the S-bit source
            * @param uint32_t mask which s-bits to forward (maximum 6)
            **/
-          void setSBitSource(uint32_t const& mask) {
+          void setSBitSource(uint32_t const mask) {
             writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBits",mask); };
 
           /**
@@ -857,7 +858,7 @@ namespace gem {
            *  a 0 means the VFAT will NOT be masked, and it's data packets will go to the GLIB
            *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the GLIB
            */
-          void setVFATMask(uint32_t const& mask) {
+          void setVFATMask(uint32_t const mask) {
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK"),mask); };
           
           /**
@@ -865,7 +866,7 @@ namespace gem {
            * @param std::string name name of the register to broadcast the request to
            * @returns a std::vector of uint32_t words, one response for each VFAT
            */
-          std::vector<uint32_t> broadcastRead(std::string const& name, uint32_t const& mask, bool reset=false);
+          std::vector<uint32_t> broadcastRead(std::string const& name, uint32_t const mask, bool reset=false);
           
           /**
            * Sends a write request to all (un-masked) VFATs on the same register
@@ -873,8 +874,14 @@ namespace gem {
            * @param uint32_t value value to be written to all VFATs receiving the broadcast
            * @returns a std::vector of uint32_t words, one response for each VFAT
            */
-          void broadcastWrite(std::string const& name, uint32_t const& mask, uint32_t const& value,
+          void broadcastWrite(std::string const& name, uint32_t const mask, uint32_t const& value,
                               bool reset=false);
+          
+          /**
+           * Returns the slot number and chip IDs for connected VFATs
+           * @returns a std::vector of pairs of uint8_t and uint32_t words, one response for each VFAT
+           */
+          std::vector<std::pair<uint8_t,uint32_t> > getConnectedVFATs();
           
           /**
            * Get the number of valid/incorrect CRCs performed by the OptoHybrid

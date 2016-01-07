@@ -649,7 +649,7 @@ bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& gtx)
 std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, size_t const& nBlocks)
 {
   if (!linkCheck(gtx, "Tracking data")) {
-    //do we really want to return a huge vector of 0s?
+    //do we really want to return a huge vector of 0s in the case that the link is not up?
     std::vector<uint32_t> data(7*nBlocks,0x0);
     return data;
   } 
