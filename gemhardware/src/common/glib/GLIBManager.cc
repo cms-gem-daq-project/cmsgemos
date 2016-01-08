@@ -462,11 +462,11 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
 
   is_glib->createUInt32("CONTROL",     glib->getDAQLinkControl(),      GEMUpdateType::HW32);
   is_glib->createUInt32("STATUS",      glib->getDAQLinkStatus(),       GEMUpdateType::HW32);
-  is_glib->createUInt32("FLAGS",       glib->getDAQLinkFlags(),        GEMUpdateType::HW32);
-  is_glib->createUInt32("CORRUPT_CNT", glib->getDAQLinkCorruptCount(), GEMUpdateType::HW32);
-  is_glib->createUInt32("EVT_BUILT",   glib->getDAQLinkEventsBuilt(),  GEMUpdateType::HW32);
-  is_glib->createUInt32("EVT_SENT",    glib->getDAQLinkEventsSent(),   GEMUpdateType::HW32);
-  is_glib->createUInt32("L1AID",       glib->getDAQLinkL1AID(),        GEMUpdateType::HW32);
+  //is_glib->createUInt32("FLAGS",       glib->getDAQLinkFlags(),        GEMUpdateType::HW32);
+  //is_glib->createUInt32("CORRUPT_CNT", glib->getDAQLinkCorruptCount(), GEMUpdateType::HW32);
+  //is_glib->createUInt32("EVT_BUILT",   glib->getDAQLinkEventsBuilt(),  GEMUpdateType::HW32);
+  //is_glib->createUInt32("EVT_SENT",    glib->getDAQLinkEventsSent(),   GEMUpdateType::HW32);
+  //is_glib->createUInt32("L1AID",       glib->getDAQLinkL1AID(),        GEMUpdateType::HW32);
 
   is_glib->createUInt64("OptoHybrid_0", 0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
   is_glib->createUInt64("OptoHybrid_1", 0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
