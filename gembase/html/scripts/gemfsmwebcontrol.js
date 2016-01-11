@@ -3,8 +3,15 @@ function fsmdebug( text )
     document.getElementById("fsmdebug").innerHTML = text;
 };
 
-function showTable( jsonurl )
+function staterequest( jsonurl )
 {
+    if (window.jQuery) {  
+        //console.log("jQuery is loaded");
+        // can use jQuery libraries rather than raw javascript
+    } else {
+        //console.log("jQuery is not loaded");
+    }
+    //console.log("staterequest(\"" + jsonurl + "\")");
     // need to update the state in the state table with AJAX
     var xmlhttp;
     if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -13,34 +20,35 @@ function showTable( jsonurl )
         xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
     }
     xmlhttp.onreadystatechange=function()
-    {
-        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-            //console.log("response:"+xmlhttp.responseText);
-            var res = eval( "(" + xmlhttp.responseText + ")" );
-            //console.log("res:"+res);
-            for ( var set in res ) {
-                //console.log("set:"+set);
-                var arr = res[set];
-                //console.log("res[set]:"+res[set]);
-                for( var i=0; i<arr.length; i++ ) {
-                    //console.log("arr[i]:"+arr[i]);
-                    // make the colour red if the state is Error or Failed?
-                    document.getElementById( arr[i].name ).innerHTML = "<h3>" + arr[i].value + "</h3>";
-                }
+        {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                //console.log("response:"+xmlhttp.responseText);
+                var res = eval( "(" + xmlhttp.responseText + ")" );
+                //console.log("res:"+res);
+                //console.log("res.name:"+res.name);
+                //console.log("res.value:"+res.value);
+                
+                //document.getElementById( res.name ).innerHTML = "<h3>" + res.value + "</h3>";
+                document.getElementById( res.name ).innerHTML = res.value;
             }
-        }
-    };
+        };
+    //console.log("jsonurl:"+jsonurl);
     xmlhttp.open("GET", jsonurl, true);
     xmlhttp.send();
+}
 
+function showTable( )
+{
+    //console.log("showTable()");
     // why is this "undefined"?
     //var state = $("h3#fsmState").text;
     // but this one works...
+    document.getElementById("fsmdebug").innerHTML = document.getElementById("fsmdebug").innerHTML;
     var state = document.getElementById("fsmState").innerHTML;
     //console.log("html" + $("h3#fsmState").html);
     //console.log("text" + $("h3#fsmState").text);
     //console.log("innerHTML" + $("h3#fsmState").innerHTML);
-    console.log("building the status table, state is " + state);
+    //console.log("building the status table, state is " + state);
     if (state == "Initial") {
         // show only Initialize button
         //console.log("hiding the conf button");
@@ -92,12 +100,15 @@ function showTable( jsonurl )
 
 function updateStateTable( statejson )
 {
+    //console.log("updateStateTable( \""+statejson+"\" )");
     var interval;
-    interval = setInterval("showTable(" + statejson +")", 1000);
+    interval = setInterval(" staterequest(\"" + statejson +"\" )", 1000);
+    interval = setInterval(" showTable()", 1000);
 }
 
 function gemFSMWebCommand( command )
 {
+    //console.log("gemFSMWebCommand( \""+command+"\" )");
     $("input#fsmcommand").val( command );
     fsmdebug( "setting command to " + command );
     $("form#fsmControl").submit();
