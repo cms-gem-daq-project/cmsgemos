@@ -221,91 +221,12 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
            << "</td>" << std::endl
            << "</tr>" << std::endl;
 
-      /*
-      if (state == "Initial") {
-        //send the initialize command
-        *out << "<tr>" << std::endl << "<td>" << std::endl
-             << "<button onclick=\"gemFSMWebCommand(\'Initialize\')\">Initialize</button>"
-             << cgicc::br() << std::endl
-             << "</td>" << std::endl
-             << "</tr>" << std::endl;
-      } else {
-        if (state == "Halted") {
-          //this will allow the parameters to be set to the chip and scan routine
-          *out << "<tr>" << std::endl << "<td colspan=\"2\">" << std::endl
-               << "<button onclick=\"gemFSMWebCommand(\'Configure\')\">Configure</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Configured") {
-          //this will allow the parameters to be set to the chip and scan routine
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << "<button onclick=\"gemFSMWebCommand(\'Configure\')\">Configure</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl
-               << "<button onclick=\"gemFSMWebCommand(\'Start\')\">Start</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Running") {
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-             << "<button onclick=\"gemFSMWebCommand(\'Stop\')\">Stop</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl
-               << "<button onclick=\"gemFSMWebCommand(\'Pause\')\">Pause</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Paused") {
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << "<button onclick=\"gemFSMWebCommand(\'Stop\')\">Stop</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl
-               << "<button onclick=\"gemFSMWebCommand(\'Resume\')\">Resume</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        }
-        
-        if (state == "Halted" ||
-            state == "Configured" ||
-            state == "Running" ||
-            state == "Paused") {
-          *out << cgicc::comment() << "end the main commands, now putting the halt/reset commands which should be possible all the time"
-               << cgicc::comment() << cgicc::br() << std::endl;
-          *out << "<tr>"    << std::endl
-               << "<td>"    << std::endl;
-          //always should have a halt/reset command?
-          *out << "<button onclick=\"gemFSMWebCommand(\'Halt\')\">Halt</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << "<button onclick=\"gemFSMWebCommand(\'Reset\')\">Reset</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Failed" || state == "Error") {
-          *out << "<button onclick=\"gemFSMWebCommand(\'Reset\')\">Reset</button>"
-               << cgicc::br() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        }
-      }//end check on Initial vs Other
-      */
       *out << "</table>" << std::endl
            << "</br>"  << std::endl
            << "Last command was: "          << std::endl
            << "<div id=\"fsmdebug\"></div>" << std::endl
            << "</td>"  << std::endl
            << "<td>"  << std::endl
-        //<< "<td id=\"fsmState\">"  << std::endl
            << cgicc::h3().set("id","fsmState") 
         //change the colour to red if failed maybe
            << dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState()
@@ -322,10 +243,9 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
 
-    std::string updateLink = "/" + p_gemApp->m_urn + "/jsonStateUpdate";
+    std::string updateLink = "/" + p_gemApp->m_urn + "/stateUpdate";
     *out << cgicc::script().set("type","text/javascript") << std::endl
          << "    updateStateTable( \"" << updateLink << "\" );" << std::endl
-         << "updateStateTable()" << std::endl
          << cgicc::script() << std::endl;
   }//only when the GEMFSM has been created
 }
@@ -361,7 +281,9 @@ void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input * in, xgi::Output 
 {
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " {" << std::endl;
-  // just put in the fsmState as fsmState
+  *out << "   \"name\":\"fsmState\"" << ",\"value\": \"" 
+       << dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState()
+       << "\"" << std::endl;
   *out << " }" << std::endl;
 }
 

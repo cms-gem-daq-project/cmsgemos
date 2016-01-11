@@ -66,6 +66,8 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   xgi::framework::deferredbind(this, this, &GEMFSMApplication::xgiResume,     "Resume"    );
   xgi::framework::deferredbind(this, this, &GEMFSMApplication::xgiHalt,       "Halt"      );
   xgi::framework::deferredbind(this, this, &GEMFSMApplication::xgiReset,      "Reset"     );
+  // bindings for various functionality
+  xgi::bind(this, &GEMFSMApplication::jsonStateUpdate,     "stateUpdate"     );
   DEBUG("GEMFSMApplication::Created xgi bindings");
 
   // These bindings expose the state machine to the outside world. The
@@ -255,6 +257,12 @@ void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out)
   }  
   //p_gemWebInterface->webReset(in,out);
   p_gemWebInterface->webRedirect(in,out);
+}
+
+
+void gem::base::GEMFSMApplication::jsonStateUpdate(xgi::Input* in, xgi::Output* out)
+{
+  p_gemWebInterface->jsonStateUpdate(in,out);
 }
 
 
