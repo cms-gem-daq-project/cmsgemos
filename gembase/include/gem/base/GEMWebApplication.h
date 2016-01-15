@@ -42,6 +42,9 @@ namespace gem {
 
       ~GEMWebApplication();
 
+      static std::string jsonEscape(std::string const& orig);
+      static std::string htmlEscape(std::string const& orig);
+      
     protected:
       //maybe only have the control panel built in the base class?
       //perhaps can extend it in derived classes
@@ -52,6 +55,9 @@ namespace gem {
         throw (xgi::exception::Exception);
 	
       virtual void expertPage(xgi::Input *in, xgi::Output *out)
+        throw (xgi::exception::Exception);
+
+      virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
         throw (xgi::exception::Exception);
 
       virtual void webRedirect(  xgi::Input *in, xgi::Output *out )

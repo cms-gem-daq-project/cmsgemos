@@ -1,4 +1,5 @@
 #include "gem/readout/GEMDataParker.h"
+#include "gem/readout/gemOnlineDQM.h"
 #include "gem/readout/exception/Exception.h"
 #include "gem/hw/glib/HwGLIB.h"
 
@@ -75,7 +76,7 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   event_ = 0;
   rvent_ = 0;
   sumVFAT_ = 0;
-
+  m_gemOnlineDQM = new gem::readout::gemOnlineDQM(slotFileName_);
   slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(slotFileName_));
 }
 
@@ -148,7 +149,7 @@ xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::M
   scanParam = std::stoi(parameterValue);
   DEBUG(toolbox::toString("GEMDataParker::updateScanParameters() received command '%s' with value. %s",
                           commandName.c_str(), parameterValue.c_str()));
-  gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
+  return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
 }
 
 uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& gtx, uint32_t Counter[5])
@@ -343,6 +344,8 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
           TypeDataFlag = "PayLoad";
           if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
                                                                                     gem, geb, vfat);
+          // update online histograms
+          m_gemOnlineDQM->Update(geb);
           geb.vfats.clear();
         }// end of writing event
       }// if slot correct

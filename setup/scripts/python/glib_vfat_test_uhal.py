@@ -2,7 +2,7 @@
 
 import sys, re, time, datetime, os
 
-sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 from registers_uhal import *

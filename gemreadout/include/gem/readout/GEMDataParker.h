@@ -2,6 +2,7 @@
 #define gem_readout_GEMDataParker_h
 
 #include "gem/readout/GEMDataAMCformat.h"
+#include "gem/readout/gemOnlineDQM.h"
 
 #include "toolbox/SyncQueue.h"
 #include "i2o/i2o.h"
@@ -43,7 +44,7 @@ namespace gem {
                             std::string const& outputType,
                             std::string const& slotFileName                            
                             );
-      ~GEMDataParker() {};
+      ~GEMDataParker() {delete m_gemOnlineDQM;};
 
       uint32_t* dumpData   ( uint8_t const& mask );
       uint32_t* selectData ( uint32_t Counter[5]
@@ -104,7 +105,7 @@ namespace gem {
       std::string errFileName_;
       std::string outputType_;
 
-      //queue safety
+      // queue safety
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
       std::queue<uint32_t> dataque;
@@ -112,6 +113,8 @@ namespace gem {
 
 
       
+      // Online histograms
+      gemOnlineDQM* m_gemOnlineDQM;
       /*
        * Counter all in one
        *   [0] VFAT's Blocks Counter

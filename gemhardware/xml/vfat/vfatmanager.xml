@@ -13,6 +13,7 @@
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
+
     <!--
        <xc:Application class="gem::hw::vfat::VFAT2Manager" id="31" instance="3" network="local">
          <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
