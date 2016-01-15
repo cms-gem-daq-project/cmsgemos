@@ -7,7 +7,7 @@
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
-	  <deviceIP xsi:type="xsd:string">192.168.0.170</deviceIP>
+	  <deviceIP xsi:type="xsd:string">192.168.0.171</deviceIP>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">
 <!--
 	    <item xsi:type="xsd:string" soapenc:position="[1]">VFAT1</item>
