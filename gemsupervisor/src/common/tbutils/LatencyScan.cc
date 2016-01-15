@@ -1,4 +1,3 @@
-// the new one
 #include "gem/supervisor/tbutils/LatencyScan.h"
 
 #include "gem/readout/GEMDataAMCformat.h"
@@ -22,7 +21,6 @@
 #include <iomanip>
 #include <ctime>
 #include <queue>
-
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -68,7 +66,6 @@ void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::
   bag->addField("MSPulseLength",   &MSPulseLength );
   bag->addField("nTriggers",    &nTriggers   );
 
-
 }
 
 gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)  throw (xdaq::exception::Exception) :
@@ -106,22 +103,22 @@ gem::supervisor::tbutils::LatencyScan::~LatencyScan()
 }
 bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 {
-  wl_semaphore_.take();
+  wl_semaphore_.take(); // take workloop
   if (!is_running_) {
-    wl_semaphore_.give();
-
-    int islot=0;
-    for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
+    wl_semaphore_.give(); // give work loop if it is not running
+    ++confParams_.bag.triggercount;
+    uint32_t bufferDepth = 0;
+    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    if (bufferDepth>0) {
       wl_->submit(readSig_);
     }
-
     LOG4CPLUS_INFO(getApplicationLogger()," ******IT IS NOT RUNNIG ***** ");
     return false;
   }
+  
+  hw_semaphore_.take();//take hw to set the trigger source, send L1A+Cal pulses,
 
-  hw_semaphore_.take();//take to send a sendL1ACalpulse
-
-  //just to be sure that trigger was selected properly
+  //set trigger source  
   if(confParams_.bag.triggerSource_.value_ == 0x0){
     optohybridDevice_->setTrigSource(0x0);//from AMC13   
   }else if(confParams_.bag.triggerSource_.value_ == 0x1){
@@ -132,10 +129,13 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     optohybridDevice_->setTrigSource(0x3);//from Ext_LEMO   
   }
 
+
+
   //send L1A and Calpulse
   if((unsigned)confParams_.bag.triggerSource_.value_ == (unsigned)0x1){
     optohybridDevice_->setTrigSource(0x1);//from T1   
-    optohybridDevice_->sendL1ACal((uint64_t)(confParams_.bag.nTriggers),15);  //from T1 generator
+    optohybridDevice_->sendL1ACal(1,15);  //from T1 generator
+    INFO("SEND CALPULSE + L1A" <<  optohybridDevice_->getL1ACount(0x1));
     sleep(0.5);
   }
   
@@ -143,82 +143,60 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x1);
   CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x1); 
 
-  hw_semaphore_.give();//end sendL1ACalpulse
+  hw_semaphore_.give();//give hw to set the trigger source, send L1A+Cal pulses,
   
   // if triggersSeen < N triggers
   if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
 
-    hw_semaphore_.take();//glib buffer depth
+    hw_semaphore_.take();//take hw. glib buffer depth
+
+    // Get the size of GLIB data buffer
+    uint32_t bufferDepth = 0;
+    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+
+    hw_semaphore_.give();//give hw. glib buffer depth 
+    wl_semaphore_.give();//give workloop to read
     
-    // GLIB data buffer validation                                             
-    // Get the size of GLIB data buffer       
-    uint32_t bufferDepth;
-    bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
-
-    hw_semaphore_.give();// end glib buffer depth 
-
-    if (bufferDepth < 1) {
-      hw_semaphore_.take();//oh trigger counter update
-
-      //trigger seen and CalCounters  updated
-      confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);// L1A from GLIB
-      CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0); //from GLIB
- 
-      hw_semaphore_.give();//oh trigger counter update
-      wl_semaphore_.give();
-      return true;
-    } 
-    else{ // if buffer depth is higher than 1
-
-      wl_semaphore_.give();
-
-      int islot=0;
-      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
-	wl_->submit(readSig_);
-      }
-	    
-      return true;
-    } // end else buffer < 1
-    //wl_semaphore_.give();
+    if (bufferDepth>0) {
+      ++confParams_.bag.triggercount;
+      wl_->submit(readSig_);
+    }
+    return true;
   }// end triggerSeen < N triggers
   else { 
-    
-    hw_semaphore_.take(); //vfat log 
     //disable triggers
     /*    if(confParams_.bag.triggerSource_.value_ == 0x1){
-      optohybridDevice_->stopT1Generator(true);
-    } else { 
-      optohybridDevice_->setTrigSource(0x1);       
-    }
-    sleep(1);
+	  optohybridDevice_->stopT1Generator(true);
+	  } else { 
+	  optohybridDevice_->setTrigSource(0x1);       
+	  }
+	  sleep(1);
     */
 
-
-    int islot=0;
-    for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
+    hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs 
+    for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
-
-      hw_semaphore_.give(); 
-      wl_semaphore_.give();
-      
-      wl_->submit(readSig_);
-	    
     }// end for  
-    hw_semaphore_.take();// vfat setrun0
-    wl_semaphore_.take();
-	  
-    // flush FIFO, how to disable a specific, misbehaving, chip
-    INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-    
-    DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
-    glibDevice_->flushFIFO(readout_mask);
-    while (glibDevice_->hasTrackingData(readout_mask)) {
-      glibDevice_->flushFIFO(readout_mask);
-      std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
-								   glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
+
+    uint32_t bufferDepth = 0;
+    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+
+    hw_semaphore_.give(); //give hw to set Runmode 0 on VFATs       
+    wl_semaphore_.give(); //give workloop to read
+
+    if (bufferDepth>0) {
+      ++confParams_.bag.triggercount;
+      wl_->submit(readSig_);
     }
-    // once more for luck
-    glibDevice_->flushFIFO(readout_mask);
+    /*      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	    wl_->submit(readSig_);
+	    }// end for*/  
+  
+    hw_semaphore_.take();// take hw to reset counters
+    wl_semaphore_.take();// take workloop after reading
+
+    //FELIPE
+    // flush FIFO, how to disable a specific, misbehaving, chip
   
     //reset counters
     optohybridDevice_->resetL1ACount(0x1);
@@ -227,15 +205,15 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     optohybridDevice_->resetCalPulseCount(0x1);
     optohybridDevice_->sendResync();     
     optohybridDevice_->sendBC0();          
+    
+    hw_semaphore_.give(); // give hw to reset counters
 
-    hw_semaphore_.give(); //end glib flush fifo
-
-    INFO(" Scan point TriggersSeen " << confParams_.bag.triggersSeen );
-
+    INFO(" Scan point TiggersSeen " << confParams_.bag.triggersSeen );
+  
     //if max Latency - current Latency >= stepsize
     if (scanParams_.bag.maxLatency - currentLatency_ >= scanParams_.bag.stepSize) {
 
-      hw_semaphore_.take();// vfat get latency
+      hw_semaphore_.take();// vfat set latency
 
       if ((currentLatency_ + scanParams_.bag.stepSize) < 0xFF) {
 
@@ -248,14 +226,15 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	  (*chip)->setLatency(0xFF);
 	}	 
       }//end else
-
+    
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	currentLatency_ = (*chip)->getLatency();
 	scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
 	scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
 	(*chip)->setRunMode(1);      
       }
-      
+        
+      //set trigger source  
       if(confParams_.bag.triggerSource_.value_ == 0x0){
 	optohybridDevice_->setTrigSource(0x0);//from AMC13   
       }else if(confParams_.bag.triggerSource_.value_ == 0x1){
@@ -266,27 +245,28 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	optohybridDevice_->setTrigSource(0x3);//from Ext_LEMO   
       }
     
-      CalPulseCount_[0] = 0;	    
+      //setting counters  = 0
+      CalPulseCount_[0] = 0;	  
       confParams_.bag.triggersSeen =  0;
       eventsSeen_   = 0;  
       channelSeen_ = 0;
  
-      hw_semaphore_.give(); // end vfat
-      wl_semaphore_.give();	
+      hw_semaphore_.give(); // give hw vfat set latency
+      wl_semaphore_.give(); // end of workloop	
 
       return true;	
-    } // end if maxLat - curreLat > step
+    } // end if maxLat - curreLat >= step
     else {
 
-      wl_semaphore_.give();
+      wl_semaphore_.give();  // end of workloop	
       wl_->submit(stopSig_);
       return false; 
-	    
     }//end else
 	  
+    return true;
   }//end else triggerseen < N triggers
 
-  return false;
+  return true;
 }//end run
 
 
@@ -297,12 +277,6 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
   wl_semaphore_.take();
   hw_semaphore_.take();//glib getFIFO
 
-  // Get the size of GLIB data buffer       
-  uint32_t bufferDepth;
-
-  bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
-  
-  LOG4CPLUS_INFO(getApplicationLogger()," readFIFO bufferDepth " << std::hex << bufferDepth << std::dec );
   LOG4CPLUS_INFO(getApplicationLogger(), " CurLaten " << (int)currentLatency_ 
 		 << " TrigSeen " << confParams_.bag.triggersSeen 
 		 << " CalPulses " << CalPulseCount_[0] 
@@ -453,8 +427,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 	.set("value", "Initialize") << std::endl;
 
       *out << cgicc::form() << std::endl;
- 
-    }
+     }
 
     else if (!is_configured_) {
       //this will allow the parameters to be set to the chip and scan routine and the trigger source
@@ -523,7 +496,6 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 
     *out << "<td>"  << std::endl;
 
-
     if (!is_running_) {
       //comand that will take the system to initial and allow to change the hw device
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
@@ -558,7 +530,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
     *out << "<div class=\"xdaq-tab\" title=\"Fast Commands/Trigger Setup\">"  << std::endl;//open fast commands
     if (is_initialized_)
       fastCommandLayout(out);
-    *out << "</div>" << std::endl;//close fastcommands
+    *out << "</div>" << std::endl; //close fastcommands
 
     *out << "</div>" << std::endl;//close total tabs
 
@@ -619,6 +591,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 	  << cgicc::tr()    << std::endl //close
 	  << cgicc::thead() << std::endl 
 	  << "<tbody>" << std::endl;
+
     *out << "</tbody>" << std::endl
 	 << "</table>" << std::endl
 	 << "</td>"    << std::endl
@@ -626,8 +599,6 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 	 << "</tbody>" << std::endl
 	 << "</table>" << std::endl;
     //<< "</div>"   << std::endl;
-
-
 
     *out << cgicc::script().set("type","text/javascript")
       .set("src","http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js")
@@ -689,22 +660,22 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
     INFO("triggersource output : " << (**new_triggersource).c_str());
     
     if (strcmp((**new_triggersource).c_str(),"Calpulse+L1A") == 0) {
-      confParams_.bag.triggerSource_ = 1;
+      confParams_.bag.triggerSource_ = 0x1;
       optohybridDevice_->setTrigSource(0x1);//from T1   
       INFO("Fake Latency Scan sending Calpulses+L1As. TrigSource : " << confParams_.bag.triggerSource_);    
     }
     if (strcmp((**new_triggersource).c_str(),"Internal loopback of s-bits") == 0) {
-      confParams_.bag.triggerSource_ = 3;
+      confParams_.bag.triggerSource_ = 0x3;
       optohybridDevice_->setTrigSource(0x3);//from sbits   
       INFO("Sending Calpulses and the s-bits come back from the OH. TrigSource : " << confParams_.bag.triggerSource_ );     
     }
     if (strcmp((**new_triggersource).c_str(),"External Trigger from AMC13") == 0) {
-      confParams_.bag.triggerSource_= 0;
+      confParams_.bag.triggerSource_= 0x0;
       optohybridDevice_->setTrigSource(0x0);//from AMC13
       INFO("Real signals and the trigger comes from the AMC13. TrigSource : " << confParams_.bag.triggerSource_ );   
     }
     if (strcmp((**new_triggersource).c_str(),"External Trigger from LEMO") == 0) {
-      confParams_.bag.triggerSource_ = 2;
+      confParams_.bag.triggerSource_ = 0x2;
       optohybridDevice_->setTrigSource(0x2);//from Ext_LEMO   
       INFO("Real signals and the trigger comes from the LEMO Cable. TrigSource : " << confParams_.bag.triggerSource_ );
     }
@@ -747,6 +718,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   counter_ = {0,0,0,0,0};
   eventsSeen_ = 0;
   channelSeen_ = 0;
+  confParams_.bag.triggercount = 0;
 
   hw_semaphore_.take();
   LOG4CPLUS_INFO(getApplicationLogger(), "attempting to configure device");
@@ -805,7 +777,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
     (*chip)->setVThreshold2(scanParams_.bag.deviceVT2);//0
 
     //
-    int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
+    //    int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
 
 
     LOG4CPLUS_INFO(getApplicationLogger(), "setting DAC mode to normal");
@@ -823,9 +795,6 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
     LOG4CPLUS_INFO(getApplicationLogger(), "device configured");
     is_configured_ = true;
-
-
-
   }
 
   //flush fifo
@@ -917,16 +886,15 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   //optohybridDevice_->setVFATClock(1,1,0x0);    
   //optohybridDevice_->setCDCEClock(1,1,0x0); 
 
+  optohybridDevice_->sendResync();     
+  optohybridDevice_->sendBC0();          
+
   //reset counters
   optohybridDevice_->resetL1ACount(0x1);
   optohybridDevice_->resetResyncCount();
   optohybridDevice_->resetBC0Count();
   optohybridDevice_->resetCalPulseCount(0x1);
-  optohybridDevice_->sendResync();     
-  optohybridDevice_->sendBC0();          
 
-  hw_semaphore_.give();//end oh reset counters
-  hw_semaphore_.take();//glib flush fifo
 
   //flush fifo
   INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
@@ -939,22 +907,26 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   }
   // once more for luck
   glibDevice_->flushFIFO(readout_mask);
-  
-  optohybridDevice_->sendResync();      
-  optohybridDevice_->sendBC0();          
 
+
+  //send Resync
+  optohybridDevice_->sendResync();      
+  optohybridDevice_->sendBC0();         
+  optohybridDevice_->sendResync();       
+
+  // set selected VFATs 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(1);
   }
-
 
   hw_semaphore_.give();//end vfat
   
   wl_->submit(runSig_);
   
   /*  scanStream.close();
-  errf.close();
+      errf.close();
   */
+
   is_working_ = false;
 
   wl_semaphore_.give();
@@ -1006,22 +978,6 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
 	 << "<td>" << std::endl; //open
 
     if(isDisabled){
-      /*      *out << triggersourceselection.set("type","radio").set("name","SetTrigSrc").set("id","T1_source").set("value","Calpulse+L1A").set("disabled","disabled") 
-	   << cgicc::label("Calpulse+L1A").set("checked","checked").set("value","Calpulse+L1A").set("disabled","disabled")  << std::endl
-	   << cgicc::br();
-	
-      *out << triggersourceselection.set("type","radio").set("name","SetTrigSrc").set("id","sbits").set("value","Internal loopback of s-bits").set("disabled","disabled") 
-	   << cgicc::label("Internal loopback of s-bits").set("checked","checked").set("value","Internal loopback of s-bits").set("disabled","disabled")  << std::endl
-	   << cgicc::br();
-
-      *out << triggersourceselection.set("type","radio").set("name","SetTrigSrc").set("id","T1_source").set("value","External Trigger from AMC13").set("checked","checked").set("disabled","disabled") 
-	   << cgicc::label("External Trigger from AMC13").set("checked","checked").set("value","External Trigger from AMC13").set("disabled","disabled")  << std::endl
-	   << cgicc::br();
-
-      *out << triggersourceselection.set("type","radio").set("name","SetTrigSrc").set("id","T1_source").set("value","External Trigger from LEMO").set("disabled","disabled") 
-	   << cgicc::label("External Trigger from LEMO").set("value","External Trigger from LEMO").set("disabled","disabled")  << std::endl
-	   << cgicc::br();
-	   *out << cgicc::select().set("disabled","disabled") << std::endl;*/
     }else{
       
       *out << triggersourceselection.set("type","radio").set("name","SetTrigSrc").set("id","T1_source").set("value","Calpulse+L1A")
