@@ -71,6 +71,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   deviceChipID  = 0x0;
 
   triggersSeen = 0;
+  triggercount = 0;
   ADCVoltage = 0;
   ADCurrent = 0;
   ohGTXLink    = 3;
@@ -88,6 +89,8 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   bag->addField("deviceNum",    &deviceNum   );
   bag->addField("deviceChipID", &deviceChipID);
   bag->addField("triggersSeen", &triggersSeen);
+  bag->addField("triggercount", &triggercount);
+
   bag->addField("ADCVoltage",   &ADCVoltage);
   bag->addField("ADCurrent",    &ADCurrent);
   bag->addField("triggerSource",&triggerSource);
@@ -116,6 +119,7 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   is_initialized_ (false),
   is_configured_  (false),
   is_running_     (false)
+
 
 {
   gErrorIgnoreLevel = kWarning;
@@ -274,6 +278,7 @@ bool gem::supervisor::tbutils::GEMTBUtil::initialize(toolbox::task::WorkLoop* wl
 bool gem::supervisor::tbutils::GEMTBUtil::configure(toolbox::task::WorkLoop* wl)
 {
   fireEvent("Configure");
+  m_counter = {0,0,0,0,0};
   return false; //do once?
 }
 
@@ -1011,16 +1016,18 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
 	tmpDeviceName = name->getValue();
 	confParams_.bag.deviceName[i] = tmpDeviceName;
 	INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
+	//	vfatDevice_.push_back(confParams_.bag.deviceName[i].toString());
       }
       
       int tmpDeviceNum = -1;
       tmpDeviceName.erase(0,4);
       tmpDeviceNum = atoi(tmpDeviceName.c_str());
-      
+
       readout_mask = confParams_.bag.ohGTXLink;
 
     }//end for
-  
+    
+
     //change the status to initializing and make sure the page displays this information
   }
   catch (const xgi::exception::Exception & e) {
@@ -1289,38 +1296,83 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, tmpURI.str(),
                                                                                   "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
+  if (glibDevice_->isHwConnected()) {
+    INFO("GLIB device connected");
+    if (optohybridDevice_->isHwConnected()) {
+      INFO("OptoHybrid device connected");
 
+      for(int i=0;i<24;++i){
+	//  int i=0;
+	std::stringstream currentChipID;
+	currentChipID << "VFAT" << i;
+	
+	std::string vfat;
+	vfat=currentChipID.str();
+	currentChipID.str("");
 
-  for(int i=0;i<24;++i){
-  //  int i=0;
-  std::string VfatName = confParams_.bag.deviceName[i].toString();
-  if (VfatName != "") {
-    
-    readout_mask = confParams_.bag.ohGTXLink;
+	vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(vfat, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
-    INFO(" webConfigure : DeviceName " << VfatName );
-    INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
-    
-    vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-    
-    tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
-						       confParams_.bag.ohGTXLink.value_,
-						       VfatName.c_str()));
-    
-    
-      tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
-      tmpVFATDevice->setRunMode(0);
+	if(tmpVFATDevice->isHwConnected()){
+	tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
+							   confParams_.bag.ohGTXLink.value_,
+							   vfat.c_str()));
+	
 
-      confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
-      INFO(" CHIPID   :: " << confParams_.bag.deviceChipID);      
-    // need to put all chips in sleep mode to start off
-      vfatDevice_.push_back(tmpVFATDevice);
-  }//end if VfatName
-  }//end for 
+	  tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
+	  tmpVFATDevice->setRunMode(0);
+	  VFATdeviceConnected.push_back(tmpVFATDevice);
+	  
+	  std::string VfatName = confParams_.bag.deviceName[i].toString();
+	  if (VfatName != "") {
+	    readout_mask = confParams_.bag.ohGTXLink;
+	    
+	    INFO(" webConfigure : DeviceName " << VfatName );
+	    INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+	    
+	    confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
+	    INFO(" CHIPID   :: " << confParams_.bag.deviceChipID);      
+	    // need to put all chips in sleep mode to start off
+	    vfatDevice_.push_back(tmpVFATDevice);
+	  }//end if VfatName
+	}//end for 
+
+	for (auto chip = VFATdeviceConnected.begin(); chip != VFATdeviceConnected.end(); ++chip) {
+	  if ((*chip)->isHwConnected()) {      
+	    (*chip)->setRunMode(0);
+	    int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
+	    INFO( "vfatDevice Conected::" << islot);    
+	  }
+	}// end for  
+	
+	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	  int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
+	  INFO( "vfatDevice selected::" << islot);    
+	}	
+      }// end for  
+      
+      //    }//end if vfat is connected	
+    }//end if OH connected  
+    else{
+      INFO("OptoHybrid device not connected, breaking out");
+      is_configured_  = false;
+      is_working_     = false;    
+      hw_semaphore_.give();
+      return;
+    }
     
+  }// end if glib connected
+  else {
+    INFO("GLIB device not connected, breaking out");
+    is_configured_  = false;
+    is_working_     = false;    
+    hw_semaphore_.give();
+    return;
+  }  
+  
+  
   is_initialized_ = true;
   hw_semaphore_.give();
-    
+      
   //sleep(5);
   is_working_     = false;
     
@@ -1448,6 +1500,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   //  confParams_.bag.deviceName   = "";
   confParams_.bag.deviceChipID = 0x0;
   confParams_.bag.triggersSeen = 0;
+  confParams_.bag.triggercount = 0;
   confParams_.bag.triggerSource = 0x9;
 
   wl_->submit(resetSig_);
@@ -1583,9 +1636,6 @@ catch (const xgi::exception::Exception& e) {
 void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readout_mask,  uint8_t  currentLatency_m, uint8_t VT1, uint8_t VT2)
 {
   //    int latency_m, VT1_m, VT2_m;
-  uint32_t m_counter[5]; 
-  m_counter = {0,0,0,0,0};// maybe instead reset the counters here in start rather than stop?
-  
   uint32_t* pDQ =  gemDataParker->selectData(m_counter);
   if (pDQ) {
     m_counter[0] = *(pDQ+0);
@@ -1595,17 +1645,39 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
     m_counter[4] = *(pDQ+4);
     m_counter[5] = *(pDQ+5);
   }
+
+  for(int j = 0; j < 6; j++){
+    INFO(" GEMTBUtils counter " << m_counter[j] );
+  }
   
-    
-  gemDataParker->ScanRoutines(currentLatency_m, VT1,VT2);
-  
-    //    gemDataParker.latency_m = currentLatency_m;
-  bool finish = true;
-  uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
-  if(pDupm) {
-    INFO( " Latency = " << (int)currentLatency_m << " VT1 = " << (int)VT1 << " VT2 = " << (int)VT2);
+  INFO(" GEMTBUtils ntriggers "     <<   confParams_.bag.triggersSeen );
+  INFO(" GEMTBUtils ntotalcounter " <<   confParams_.bag.triggercount );
+
+  bool finish = true;  
+  INFO(" queueDepth " <<  gemDataParker->queueDepth()  );
+
+  if(is_running_){
+    finish = true;
+  }else if (gemDataParker->queueDepth() > 0){
+    INFO("Data Parker still reading");
+    finish=false;
+  }else if(m_counter[1] != confParams_.bag.triggercount){
+    INFO("nTrigegrs are not equal to number of stored events");
+    finish=false;
+  }
+
+  if(finish){
+    INFO("DUMP DATA");
+    gemDataParker->ScanRoutines(currentLatency_m, VT1,VT2);
+    uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
+    if(pDupm) {
+      INFO( " Latency = " << (int)currentLatency_m << " VT1 = " << (int)VT1 << " VT2 = " << (int)VT2);
     }
-  
+  }
+
+
+
+
       /*  while(gemDataParker->queueDepth() > 0){
     INFO("----Still reading------- queueDepth "  <<   gemDataParker->queueDepth()  );    
     finish=false;  

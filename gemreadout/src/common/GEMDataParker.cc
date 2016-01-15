@@ -536,29 +536,21 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
 
   //this needs to be populated with dummy values so migration can be made simply
   //scanParam;
-
-  INFO(" GEMfillHeaders::GEMDataParker Latency = " << (int)latency_m );
-  INFO(" GEMfillHeaders::GEMDataParker VT1     = " << (int)VT1_m   );    //<< "VT1_hex    " << (std::hex)VT1_m    );
-  INFO(" GEMfillHeaders::GEMDataParker VT2     = " << (int)VT2_m );       //<< "VT2_hex    " << (std::hex)VT2_m    );
-
+  /*
+  INFO(" GEMfillHeaders::GEMDataParker Latency = " << (int)latency_m  << " uint8  " << (uint8_t)latency_m   );
+  INFO(" GEMfillHeaders::GEMDataParker VT1     = " << (int)VT1_m   << " uint8  " << (uint8_t)VT1_m   );
+  INFO(" GEMfillHeaders::GEMDataParker VT2     = " << (int)VT2_m  << (uint8_t)VT1_m   );
 
   INFO(" ::RunType " << std::setfill('0') << std::setw(4) << std::hex << RunType << std::dec );
-  INFO(" ::latency " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)latency_m << std::hex );
-  INFO(" ::VT1     " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)VT1_m << std::hex );
-  INFO(" ::VT2     " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)VT2_m << std::hex );
+  */
+  //  INFO("  runtype | " <<   (((((((RunType << 4) << 4) | latency_m) << 4) | VT1_m) << 4) | VT2_m) );
+  //  INFO("  runtype + " <<   (((((((RunType << 4) << 4) + latency_m) << 4) + VT1_m) << 4) + VT2_m) );
 
-  INFO("  runtype | " <<   (((((((RunType << 4) << 4) | latency_m) << 4) | VT1_m) << 4) | VT2_m) );
-  INFO("  runtype + " <<   (((((((RunType << 4) << 4) + latency_m) << 4) + VT1_m) << 4) + VT2_m) );
-
-
-  geb.runhed  = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
+  //  geb.runhed  = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
   //  geb.runhed  = (((((((RunType << 4) + latency_m) << 8) + VT1_m) << 8) + VT2_m) << 8); suggested by Jared
 
-
-
-
   // last geb header:
-  //  geb.runhed  = (RunType << 60);
+  geb.runhed  = (RunType << 60)+55555;
 }// end GEMfillHeaders
 
 void gem::readout::GEMDataParker::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
@@ -669,6 +661,20 @@ void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_,
   latency_m = latency_;
   VT1_m = VT1_;
   VT2_m = VT2_;
+
+  uint32_t m_counter[5]; 
+  m_counter = {0,0,0,0,0};// maybe instead reset the counters here in start rather than stop?
+  
+  uint32_t* pDQ = selectData(m_counter);
+  if (pDQ) {
+    m_counter[0] = *(pDQ+0);
+    m_counter[1] = *(pDQ+1); // Events counter
+    m_counter[2] = *(pDQ+2); 
+    m_counter[3] = *(pDQ+3);
+    m_counter[4] = *(pDQ+4);
+    m_counter[5] = *(pDQ+5);
+  }
+
   
 // RunType:4, all other depends from RunType
 /*  AMCGEBData  geb;
@@ -685,7 +691,12 @@ uint8_t VT2_bin = BOOST_BINARY( VT2_m ); // :4
     INFO("dumpData"); 
   }
 */  
+
   INFO( " Dataparker scan routines Latency = " << (int)latency_m  << " VT1 = " << (int)VT1_m << " VT2 = " << (int)VT2_m);
+
+      DEBUG(" Latency"
+	    << std::setfill('0') << std::setw(8) << std::hex << (int)latency_m  << std::dec );
+
 INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
   
 

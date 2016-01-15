@@ -7,14 +7,14 @@
 
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.163</ipAddr>
       </properties>
     </xc:Application>
 <!--
 
     <xc:Application class="gem::supervisor::tbutils::ADCScan" id="255" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ADCScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.163</ipAddr>
       </properties>
     </xc:Application>
 
@@ -22,7 +22,7 @@
 
     <xc:Application class="gem::supervisor::tbutils::LatencyScan" id="256" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:LatencyScan" xsi:type="soapenc:Struct">
-	  <ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	  <ipAddr xsi:type="xsd:string">192.168.0.163</ipAddr>
 	  <confParams xsi:type="soapenc:Struct">
 	    <slotFileName xsi:type="xsd:string">slot_table_904_2.csv</slotFileName>
 	  </confParams>
@@ -36,8 +36,8 @@
     <xc:Application class="gem::hw::vfat::VFAT2Manager" id="255" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::vfat::VFAT2Manager"
 		  xsi:type="soapenc:Struct">
-	<device xsi:type="xsd:string">VFAT11</device>
-	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	<device xsi:type="xsd:string">VFAT3</device>
+	<ipAddr xsi:type="xsd:string">192.168.0.163</ipAddr>
 	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
