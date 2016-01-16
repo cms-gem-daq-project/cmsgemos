@@ -65,7 +65,7 @@ print "-> -----------------"
 print
 
 if options.clkSrc in [0,1,2]:
-        setReferenceClock(optohybrid,options.gtx,options.trgSrc)
+        setReferenceClock(optohybrid,options.gtx,options.clkSrc)
 #print "-> OH VFATs accessible: 0x%x"%(readRegister(glib,"VFATs_TEST"))
 if options.trgSrc in [0,1,2,3,4]:
         setTriggerSource(optohybrid,options.gtx,options.trgSrc)
