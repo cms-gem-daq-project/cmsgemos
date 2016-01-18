@@ -188,15 +188,21 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
     tmp_activeLinks.reserve(N_GTX);
     for (unsigned int gtx = 0; gtx < N_GTX; ++gtx) {
       //need to make sure that this works only for "valid" FW results
-      // for the moment we can do a check to see that 2015 appears in the string
+      // for the moment we can do a check to see that 2015/2016 appears in the string
       // this no longer will work as desired, how to get whether the GTX is active?
-      if ((this->getFirmwareVer()).rfind("5.") != std::string::npos) {
+      // need to rethink this for future firmware versions and backwards compatibility
+      // i.e., no longer check GLIB connection per GTX (maybe reserve some link check in the future)
+      if ((this->getFirmwareVer()).rfind("5.")   != std::string::npos || 
+          (this->getFirmwareVer()).rfind(".201") != std::string::npos || 
+          (this->getBoardID()).rfind("GLIB")     != std::string::npos ) {
         b_links[gtx] = true;
         INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       } else {
         b_links[gtx] = false;
-        INFO("gtx" << gtx << " not reachable (unable to find 5 in the firmware string)"
+        INFO("gtx" << gtx << " not reachable (unable to find 5 or 201 in the firmware string, " 
+             << "or 'GLIB' in the board ID)"
+             << " board ID "              << this->getBoardID()
              << " user firmware version " << this->getFirmwareVer());
       }
     }
