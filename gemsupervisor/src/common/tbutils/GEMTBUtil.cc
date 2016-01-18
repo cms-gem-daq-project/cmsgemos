@@ -1351,7 +1351,8 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
       }// end for  
       
       //    }//end if vfat is connected	
-    }//end if OH connected  
+
+   }//end if OH connected  
     else{
       INFO("OptoHybrid device not connected, breaking out");
       is_configured_  = false;
@@ -1359,7 +1360,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
       hw_semaphore_.give();
       return;
     }
-    
+        
   }// end if glib connected
   else {
     INFO("GLIB device not connected, breaking out");
@@ -1368,7 +1369,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
     hw_semaphore_.give();
     return;
   }  
-  
+
   
   is_initialized_ = true;
   hw_semaphore_.give();
@@ -1638,11 +1639,11 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
   //    int latency_m, VT1_m, VT2_m;
   uint32_t* pDQ =  gemDataParker->selectData(m_counter);
   if (pDQ) {
-    m_counter[0] = *(pDQ+0);
+    m_counter[0] = *(pDQ+0); // VFAT blocks dumped to disk
     m_counter[1] = *(pDQ+1); // Events counter
-    m_counter[2] = *(pDQ+2); 
-    m_counter[3] = *(pDQ+3);
-    m_counter[4] = *(pDQ+4);
+    m_counter[2] = *(pDQ+2); // VFATs counter, number of VFATS chips in the last event
+    m_counter[3] = *(pDQ+3); // good VFAT blocks dumped to file  
+    m_counter[4] = *(pDQ+4); // bad VFAT blocks dumped to error file 
     m_counter[5] = *(pDQ+5);
   }
 
