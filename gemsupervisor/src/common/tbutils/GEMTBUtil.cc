@@ -1661,10 +1661,10 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
     finish = true;
   }else if (gemDataParker->queueDepth() > 0){
     INFO("Data Parker still reading");
-    finish=false;
+    finish = false;
   }else if(m_counter[1] != confParams_.bag.triggercount){
     INFO("nTrigegrs are not equal to number of stored events");
-    finish=false;
+    finish = false;
   }
 
   if(finish){
@@ -1674,6 +1674,8 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
     if(pDupm) {
       INFO( " Latency = " << (int)currentLatency_m << " VT1 = " << (int)VT1 << " VT2 = " << (int)VT2);
     }
+  }else{
+    INFO("------NOT DUMP DATA---------");
   }
 
 
