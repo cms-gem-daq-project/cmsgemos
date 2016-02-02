@@ -285,6 +285,12 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
 		 ); 
 
   dumpRoutinesData(readout_mask, (uint8_t)currentLatency_, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2 );
+
+ 
+  //  uint64_t Runtipe =  dumpRoutinesData(readout_mask, (uint8_t)currentLatency_, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2 ).RunType;
+
+
+  // uint64_t gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(readout_mask, (uint8_t)currentLatency_, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2).RunType;
   
   hw_semaphore_.give();
   wl_semaphore_.give();

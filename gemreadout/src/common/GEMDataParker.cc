@@ -53,10 +53,11 @@ const int gem::readout::GEMDataParker::I2O_READOUT_CONFIRM=0x85;
 
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
+					   //					   gem::gemsupervisor::tbutils::GEMTBUtil::ScanRoutines().RunType(),
                                            std::string const& outFileName,
                                            std::string const& errFileName,
                                            std::string const& outputType,
-                                           std::string const& slotFileName="slot_table.csv") 
+                                           std::string const& slotFileName="slot_table_904_2.csv") 
   :
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))),
   m_queueLock(toolbox::BSem::FULL, true)
@@ -76,7 +77,7 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   event_ = 0;
   rvent_ = 0;
   sumVFAT_ = 0;
-  m_gemOnlineDQM = new gem::readout::gemOnlineDQM(slotFileName_);
+  //  m_gemOnlineDQM = new gem::readout::gemOnlineDQM(slotFileName_);
   slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(slotFileName_));
 }
 
@@ -345,7 +346,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
           if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
                                                                                     gem, geb, vfat);
           // update online histograms
-          m_gemOnlineDQM->Update(geb);
+	  //          m_gemOnlineDQM->Update(geb);
           geb.vfats.clear();
         }// end of writing event
       }// if slot correct
@@ -533,8 +534,7 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   MP7BordStat = (0x00000000000000ff & gem.header3);
 
   // RunType:4, all other depends from RunType
-  uint64_t RunType = BOOST_BINARY( 1 ); // :4
-  
+ uint64_t RunType = BOOST_BINARY( 1 ); // :4
   
 
   //this needs to be populated with dummy values so migration can be made simply
@@ -553,7 +553,7 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   //  geb.runhed  = (((((((RunType << 4) + latency_m) << 8) + VT1_m) << 8) + VT2_m) << 8); suggested by Jared
 
   // last geb header:
-  geb.runhed  = (RunType << 60)+55555;
+  geb.runhed  = RunType;
 }// end GEMfillHeaders
 
 void gem::readout::GEMDataParker::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
@@ -665,43 +665,16 @@ void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_,
   VT1_m = VT1_;
   VT2_m = VT2_;
 
-  uint32_t m_counter[5]; 
-  m_counter = {0,0,0,0,0};// maybe instead reset the counters here in start rather than stop?
-  
-  uint32_t* pDQ = selectData(m_counter);
-  if (pDQ) {
-    m_counter[0] = *(pDQ+0);
-    m_counter[1] = *(pDQ+1); // Events counter
-    m_counter[2] = *(pDQ+2); 
-    m_counter[3] = *(pDQ+3);
-    m_counter[4] = *(pDQ+4);
-    m_counter[5] = *(pDQ+5);
-  }
-
-  
-// RunType:4, all other depends from RunType
-/*  AMCGEBData  geb;
-uint64_t RunType = BOOST_BINARY( 1 ); // :4
-uint8_t latency_bin = BOOST_BINARY( latency_m ); // :4
-uint8_t VT1_bin = BOOST_BINARY( VT1_m ); // :4
-uint8_t VT2_bin = BOOST_BINARY( VT2_m ); // :4
-*/
-
-  //  uint32_t* pDupm = dumpData(readout_mask);
-/*  
-  dumpData(readout_mask);
-  if(dumpData(readout_mask)){
-    INFO("dumpData"); 
-  }
-*/  
-
   INFO( " Dataparker scan routines Latency = " << (int)latency_m  << " VT1 = " << (int)VT1_m << " VT2 = " << (int)VT2_m);
 
-      DEBUG(" Latency"
-	    << std::setfill('0') << std::setw(8) << std::hex << (int)latency_m  << std::dec );
 
-INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
-  
+  INFO(" Latency" << std::setfill('0') << std::setw(8) << std::dec << (int)latency_m  << std::dec );
 
+  INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
+
+ uint64_t RunType = BOOST_BINARY( 1 ); // :4
+ 
+ RunType = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
+ 
 }
 

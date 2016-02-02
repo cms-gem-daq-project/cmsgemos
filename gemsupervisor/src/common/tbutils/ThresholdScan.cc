@@ -105,7 +105,6 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   //send triggers
   hw_semaphore_.take(); //take hw to send the trigger 
-
   for (size_t trig = 0; trig < 500; ++trig) optohybridDevice_->sendL1A(0x1);  // Sent from T1 generator
 
   //count triggers
@@ -124,10 +123,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     uint32_t bufferDepth;
     bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
 
-    hw_semaphore_.give(); // give hw to set buffer depth
-    wl_semaphore_.give();//give workloop to read
-    
     if (bufferDepth > 0) {
+      hw_semaphore_.give(); // give hw to set buffer depth
+      wl_semaphore_.give();//give workloop to read
+
       ++confParams_.bag.triggercount;
       wl_->submit(readSig_);
     }  
@@ -136,17 +135,18 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   else {
     
     hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs 
-    for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+ 
+   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
     }// end for  
 
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
 
-    hw_semaphore_.give(); //give hw to set Runmode 0 on VFATs       
-    wl_semaphore_.give(); //give workloop to read
-
     if (bufferDepth>0) {
+      hw_semaphore_.give(); //give hw to set Runmode 0 on VFATs       
+      wl_semaphore_.give(); //give workloop to read
+
       ++confParams_.bag.triggercount;
       wl_->submit(readSig_);
     }
@@ -213,9 +213,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       return true;	
     }//else if VT2-VT1 < maxthreshold 
     else {
-      wl_semaphore_.give(); // end of workloop
+      hw_semaphore_.take(); // take hw to stop workloop
       wl_->submit(stopSig_);      
-      
+      hw_semaphore_.give(); // give hw to stop workloop
+      wl_semaphore_.give(); // end of workloop	      
       return true; 
     }//end else
     
@@ -797,7 +798,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
   
   //set trigger source
-  optohybridDevice_->setTrigSource(0x1);// All trigger sources   
+  optohybridDevice_->setTrigSource(0x1);// trigger sources   
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setVThreshold1(maxThresh_-minThresh_);
