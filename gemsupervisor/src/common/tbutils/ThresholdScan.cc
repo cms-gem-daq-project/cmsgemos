@@ -41,19 +41,19 @@ typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
 
 void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
-  latency      = 12U;
-  minThresh    = -80;
-  maxThresh    = 20;
-  stepSize     = 5U;
+  latency   = 12U;
+  minThresh = -80;
+  maxThresh = 20;
+  stepSize  = 5U;
 
-  deviceVT1    = 0x0;
-  deviceVT2    = 0x0;
+  deviceVT1 = 0x0;
+  deviceVT2 = 0x0;
 
-  bag->addField("minThresh",   &minThresh);
-  bag->addField("maxThresh",   &maxThresh);
-  bag->addField("stepSize",    &stepSize );
-  bag->addField("deviceVT1",   &deviceVT1   );
-  bag->addField("deviceVT2",   &deviceVT2   );
+  bag->addField("minThresh", &minThresh);
+  bag->addField("maxThresh", &maxThresh);
+  bag->addField("stepSize",  &stepSize );
+  bag->addField("deviceVT1", &deviceVT1);
+  bag->addField("deviceVT2", &deviceVT2);
 
 }
 
@@ -93,7 +93,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   wl_semaphore_.take(); //teake workloop
   if (!is_running_) {
     wl_semaphore_.give(); // give work loop if it is not running
-    ++confParams_.bag.triggercount;
+    //++confParams_.bag.triggercount;
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     //    if (bufferDepth>0) {
@@ -127,7 +127,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
     hw_semaphore_.give();
     
-    //    if (bufferDepth > 0) {
+    if (bufferDepth > 0) {
       hw_semaphore_.take(); // take hw to set buffer depth
       
       LOG4CPLUS_INFO(getApplicationLogger()," BEFORE READ" );
@@ -135,14 +135,13 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.give(); // give hw to set buffer depth
       wl_semaphore_.give();//give workloop to read
 
-      ++confParams_.bag.triggercount;
+      //++confParams_.bag.triggercount;
+      confParams_.bag.triggercount = confParams_.bag.triggercount + 500;
       wl_->submit(readSig_);
       
       LOG4CPLUS_INFO(getApplicationLogger()," AFTER READ" );
-
-      
-      //  }  
-    //    return true;
+    }  
+    return true;
   }//end if triggerSeen < nTrigger
   else {
     
@@ -161,7 +160,8 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.give(); //give hw to set Runmode 0 on VFATs       
       wl_semaphore_.give(); //give workloop to read
 
-      ++confParams_.bag.triggercount;
+      //++confParams_.bag.triggercount;
+      confParams_.bag.triggercount = confParams_.bag.triggercount + 500;
       wl_->submit(readSig_);
       // }
 
@@ -770,24 +770,37 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   tm *gmtm = gmtime(&now);
   char* utcTime = asctime(gmtm);
 
-  std::string tmpFileName = "ThresholdScan_";
+  std::string tmpFileName = "ThresholdScan_", tmpType = "", outputType   = "Hex";
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
   tmpFileName.append(".dat");
   std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
   std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
 
+  std::string errFileName = "ERRORS_";
+  errFileName.append(toolbox::toString("LatencyScan_"));
+  errFileName.append(utcTime);
+  errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
+  errFileName.append(".dat");
+  std::replace(errFileName.begin(), errFileName.end(), ' ', '_' );
+  std::replace(errFileName.begin(), errFileName.end(), ':', '-');
+
   confParams_.bag.outFileName = tmpFileName;
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Creating file " << confParams_.bag.outFileName.toString());
 
   std::ofstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
+  std::ofstream errf(errFileName.c_str(), std::ios_base::app | std::ios::binary );
 
   if (scanStream.is_open()){
     LOG4CPLUS_INFO(getApplicationLogger(),"::startAction " 
 		   << "file " << confParams_.bag.outFileName.toString() << " opened");
   }
 
+  tmpFileName = "ThresholdScan_";
+  // Book GEM Data Parker
+  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, outputType,  confParams_.bag.slotFileName.toString()));
+  
   // Setup Scan file, information header
   tmpFileName = "ScanSetup_";
   tmpFileName.append(utcTime);
@@ -807,9 +820,9 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
     scanSetup << "\n The Time & Date : " << utcTime << std::endl;
     scanSetup << " ChipID        0x" << std::hex << confParams_.bag.deviceChipID << std::dec << std::endl;
-    scanSetup << " Latency       " << latency_ << std::endl;
-    scanSetup << " nTriggers     " << nTriggers_  << std::endl;
-    scanSetup << " stepSize      " << stepSize_ << std::endl;
+    scanSetup << " Latency       " << latency_   << std::endl;
+    scanSetup << " nTriggers     " << nTriggers_ << std::endl;
+    scanSetup << " stepSize      " << stepSize_  << std::endl;
     scanSetup << " minThresh     " << minThresh_ << std::endl;
     scanSetup << " maxThresh     " << maxThresh_ << std::endl;
   }

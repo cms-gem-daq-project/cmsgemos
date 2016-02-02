@@ -216,7 +216,11 @@ uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& gtx, uint32_t 
 
 uint32_t* gem::readout::GEMDataParker::selectData(uint32_t Counter[5])
 {
+  for(int j = 0; j < 5; j++) {
+    INFO("GEMDataParker::selectData Counter " << j <<  " "<< Counter[j] );
+  }
   uint32_t *point = &Counter[0]; 
+  DEBUG("GEMDataParker::selectData point  " << std::hex << point );
   uint32_t* pDQ = gem::readout::GEMDataParker::GEMEventMaker(Counter);
   for (unsigned count = 0; count < 5; ++count) Counter[count] = *(pDQ+count);
   return point;
@@ -236,7 +240,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
   uint64_t msVFAT, lsVFAT;
   uint32_t ES;
 
-  DEBUG(" ::GEMEventMaker  " << std::hex << point );
+  DEBUG("GEMDataParker::GEMEventMaker  " << std::hex << point );
   if (dataque.empty()) return point;
   DEBUG(" ::GEMEventMaker dataque.size " << dataque.size() );
 

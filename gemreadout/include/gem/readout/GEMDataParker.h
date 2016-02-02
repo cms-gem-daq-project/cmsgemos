@@ -44,7 +44,7 @@ namespace gem {
                             std::string const& outputType,
                             std::string const& slotFileName                            
                             );
-      ~GEMDataParker() {delete m_gemOnlineDQM;};
+      ~GEMDataParker() {};//delete m_gemOnlineDQM;};
 
       uint32_t* dumpData   ( uint8_t const& mask );
       uint32_t* selectData ( uint32_t Counter[5]
