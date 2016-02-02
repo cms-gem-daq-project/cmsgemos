@@ -236,6 +236,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
   uint64_t msVFAT, lsVFAT;
   uint32_t ES;
 
+  DEBUG(" ::GEMEventMaker  " << std::hex << point );
   if (dataque.empty()) return point;
   DEBUG(" ::GEMEventMaker dataque.size " << dataque.size() );
 
@@ -553,7 +554,8 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   //  geb.runhed  = (((((((RunType << 4) + latency_m) << 8) + VT1_m) << 8) + VT2_m) << 8); suggested by Jared
 
   // last geb header:
-  geb.runhed  = RunType;
+ geb.runhed  = Runtype();
+ INFO("GEMfillHeadres" << geb.runhed);
 }// end GEMfillHeaders
 
 void gem::readout::GEMDataParker::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
@@ -657,8 +659,8 @@ void gem::readout::GEMDataParker::readVFATblock(std::queue<uint32_t>& m_dataque)
 
 
 
-
-void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_, u_int8_t VT2_)
+//void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_, u_int8_t VT2_)
+void gem::readout::GEMDataParker::ScanRoutines(int latency_, int VT1_, int VT2_)
 {
 
   latency_m = latency_;
@@ -668,13 +670,22 @@ void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_,
   INFO( " Dataparker scan routines Latency = " << (int)latency_m  << " VT1 = " << (int)VT1_m << " VT2 = " << (int)VT2_m);
 
 
-  INFO(" Latency" << std::setfill('0') << std::setw(8) << std::dec << (int)latency_m  << std::dec );
+  INFO(" Latency" << std::setfill('0') << std::setw(4) << std::dec << (int)latency_m  << std::dec );
 
   INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
 
- uint64_t RunType = BOOST_BINARY( 1 ); // :4
- 
- RunType = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
- 
+  /*
+  uint64_t RunType = BOOST_BINARY( 1 ); // :4
+  uint64_t lat     = latency_m;
+  uint64_t vt1     = VT1_m;
+  uint64_t vt2     = VT2_m;
+  uint64_t runheader = 0;
+
+  runheader = (((((((RunType << 4)|lat) <<8)|vt1)<<8)|vt2) <<8) ;
+
+  INFO("Runtype" << runheader);
+  */
 }
+
+     
 

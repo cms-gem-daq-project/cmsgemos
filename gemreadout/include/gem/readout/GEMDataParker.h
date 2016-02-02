@@ -75,10 +75,14 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::VFATData& vfat
                            );
       int queueDepth       () {return dataque.size();}
+      
 
+      //      void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
+      void ScanRoutines(int latency_,int VT1_,int VT2_);
+      uint64_t Runtype(){
+	return ((((((00000|latency_m)<<8))|VT1_m)<<8)|VT2_m);
+      }
 
-      void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
-      uint64_t Runtype;
 
       // SOAP interface, updates the header used for calibration runs
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)

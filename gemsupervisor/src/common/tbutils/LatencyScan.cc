@@ -284,7 +284,14 @@ bool gem::supervisor::tbutils::LatencyScan::readFIFO(toolbox::task::WorkLoop* wl
 		 << "channelSeen " << channelSeen_ 
 		 ); 
 
-  dumpRoutinesData(readout_mask, (uint8_t)currentLatency_, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2 );
+  uint8_t latency_m = currentLatency_;
+  uint8_t vt1 = scanParams_.bag.deviceVT1;
+  uint8_t vt2 = scanParams_.bag.deviceVT2;
+  
+  dumpRoutinesData(readout_mask, latency_m, vt1, vt2 );
+
+
+  //  dumpRoutinesData(readout_mask, (uint8_t)currentLatency_, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2 );
 
  
   //  uint64_t Runtipe =  dumpRoutinesData(readout_mask, (uint8_t)currentLatency_, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2 ).RunType;
