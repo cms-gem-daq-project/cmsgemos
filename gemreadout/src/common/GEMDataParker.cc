@@ -1,4 +1,5 @@
 #include "gem/readout/GEMDataParker.h"
+#include "gem/readout/gemOnlineDQM.h"
 #include "gem/readout/exception/Exception.h"
 #include "gem/hw/glib/HwGLIB.h"
 
@@ -52,10 +53,11 @@ const int gem::readout::GEMDataParker::I2O_READOUT_CONFIRM=0x85;
 
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
+					   //					   gem::gemsupervisor::tbutils::GEMTBUtil::ScanRoutines().RunType(),
                                            std::string const& outFileName,
                                            std::string const& errFileName,
                                            std::string const& outputType,
-                                           std::string const& slotFileName="slot_table.csv") 
+                                           std::string const& slotFileName="slot_table_904_2.csv") 
   :
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))),
   m_queueLock(toolbox::BSem::FULL, true)
@@ -75,7 +77,7 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   event_ = 0;
   rvent_ = 0;
   sumVFAT_ = 0;
-
+  //  m_gemOnlineDQM = new gem::readout::gemOnlineDQM(slotFileName_);
   slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(slotFileName_));
 }
 
@@ -148,7 +150,7 @@ xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::M
   scanParam = std::stoi(parameterValue);
   DEBUG(toolbox::toString("GEMDataParker::updateScanParameters() received command '%s' with value. %s",
                           commandName.c_str(), parameterValue.c_str()));
-  gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
+  return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
 }
 
 uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& gtx, uint32_t Counter[5])
@@ -234,6 +236,7 @@ uint32_t* gem::readout::GEMDataParker::GEMEventMaker(uint32_t Counter[5])
   uint64_t msVFAT, lsVFAT;
   uint32_t ES;
 
+  DEBUG(" ::GEMEventMaker  " << std::hex << point );
   if (dataque.empty()) return point;
   DEBUG(" ::GEMEventMaker dataque.size " << dataque.size() );
 
@@ -343,6 +346,8 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
           TypeDataFlag = "PayLoad";
           if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(outFileName_, false, TypeDataFlag,
                                                                                     gem, geb, vfat);
+          // update online histograms
+	  //          m_gemOnlineDQM->Update(geb);
           geb.vfats.clear();
         }// end of writing event
       }// if slot correct
@@ -530,35 +535,27 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   MP7BordStat = (0x00000000000000ff & gem.header3);
 
   // RunType:4, all other depends from RunType
-  uint64_t RunType = BOOST_BINARY( 1 ); // :4
-  
+ uint64_t RunType = BOOST_BINARY( 1 ); // :4
   
 
   //this needs to be populated with dummy values so migration can be made simply
   //scanParam;
-
-  INFO(" GEMfillHeaders::GEMDataParker Latency = " << (int)latency_m );
-  INFO(" GEMfillHeaders::GEMDataParker VT1     = " << (int)VT1_m   );    //<< "VT1_hex    " << (std::hex)VT1_m    );
-  INFO(" GEMfillHeaders::GEMDataParker VT2     = " << (int)VT2_m );       //<< "VT2_hex    " << (std::hex)VT2_m    );
-
+  /*
+  INFO(" GEMfillHeaders::GEMDataParker Latency = " << (int)latency_m  << " uint8  " << (uint8_t)latency_m   );
+  INFO(" GEMfillHeaders::GEMDataParker VT1     = " << (int)VT1_m   << " uint8  " << (uint8_t)VT1_m   );
+  INFO(" GEMfillHeaders::GEMDataParker VT2     = " << (int)VT2_m  << (uint8_t)VT1_m   );
 
   INFO(" ::RunType " << std::setfill('0') << std::setw(4) << std::hex << RunType << std::dec );
-  INFO(" ::latency " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)latency_m << std::hex );
-  INFO(" ::VT1     " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)VT1_m << std::hex );
-  INFO(" ::VT2     " << std::setfill('0') << std::setw(4) << std::hex << (uint8_t)VT2_m << std::hex );
+  */
+  //  INFO("  runtype | " <<   (((((((RunType << 4) << 4) | latency_m) << 4) | VT1_m) << 4) | VT2_m) );
+  //  INFO("  runtype + " <<   (((((((RunType << 4) << 4) + latency_m) << 4) + VT1_m) << 4) + VT2_m) );
 
-  INFO("  runtype | " <<   (((((((RunType << 4) << 4) | latency_m) << 4) | VT1_m) << 4) | VT2_m) );
-  INFO("  runtype + " <<   (((((((RunType << 4) << 4) + latency_m) << 4) + VT1_m) << 4) + VT2_m) );
-
-
-  geb.runhed  = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
+  //  geb.runhed  = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
   //  geb.runhed  = (((((((RunType << 4) + latency_m) << 8) + VT1_m) << 8) + VT2_m) << 8); suggested by Jared
 
-
-
-
   // last geb header:
-  //  geb.runhed  = (RunType << 60);
+ geb.runhed  = Runtype();
+ INFO("GEMfillHeadres" << geb.runhed);
 }// end GEMfillHeaders
 
 void gem::readout::GEMDataParker::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
@@ -662,32 +659,33 @@ void gem::readout::GEMDataParker::readVFATblock(std::queue<uint32_t>& m_dataque)
 
 
 
-
-void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_, u_int8_t VT2_)
+//void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_, u_int8_t VT2_)
+void gem::readout::GEMDataParker::ScanRoutines(int latency_, int VT1_, int VT2_)
 {
 
   latency_m = latency_;
   VT1_m = VT1_;
   VT2_m = VT2_;
-  
-// RunType:4, all other depends from RunType
-/*  AMCGEBData  geb;
-uint64_t RunType = BOOST_BINARY( 1 ); // :4
-uint8_t latency_bin = BOOST_BINARY( latency_m ); // :4
-uint8_t VT1_bin = BOOST_BINARY( VT1_m ); // :4
-uint8_t VT2_bin = BOOST_BINARY( VT2_m ); // :4
-*/
 
-  //  uint32_t* pDupm = dumpData(readout_mask);
-/*  
-  dumpData(readout_mask);
-  if(dumpData(readout_mask)){
-    INFO("dumpData"); 
-  }
-*/  
   INFO( " Dataparker scan routines Latency = " << (int)latency_m  << " VT1 = " << (int)VT1_m << " VT2 = " << (int)VT2_m);
-INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
-  
 
+
+  INFO(" Latency" << std::setfill('0') << std::setw(4) << std::dec << (int)latency_m  << std::dec );
+
+  INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
+
+  /*
+  uint64_t RunType = BOOST_BINARY( 1 ); // :4
+  uint64_t lat     = latency_m;
+  uint64_t vt1     = VT1_m;
+  uint64_t vt2     = VT2_m;
+  uint64_t runheader = 0;
+
+  runheader = (((((((RunType << 4)|lat) <<8)|vt1)<<8)|vt2) <<8) ;
+
+  INFO("Runtype" << runheader);
+  */
 }
+
+     
 

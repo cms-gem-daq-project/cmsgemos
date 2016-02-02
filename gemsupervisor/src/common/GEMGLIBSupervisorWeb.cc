@@ -22,7 +22,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::
 
   outFileName  = "";
   outputType   = "Hex";
-  slotFileName = "slot_table.csv";
+  //  slotFileName = "slot_table.csv";
+  slotFileName = "slot_table_904_2.csv";
   ohGTXLink    = 0;
 
   for (int i = 0; i < 24; ++i) {

@@ -184,6 +184,7 @@ namespace gem {
 	  //link data parker and scan routines
 	  void dumpRoutinesData( uint8_t const& mask, u_int8_t latency, u_int8_t VT1, u_int8_t VT2 );
 
+	  void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
 
 	  class ConfigParams 
 	  {
@@ -204,18 +205,20 @@ namespace gem {
 
 	    xdata::Vector<xdata::String>  deviceName;
 	    xdata::Vector<xdata::Integer> deviceNum;
+
 	    xdata::String        deviceIP;
 	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedInteger64 triggersSeen;
+
+	    xdata::UnsignedInteger32 triggercount;
+	    
 	    xdata::Integer       ADCVoltage;
 	    xdata::Integer       ADCurrent;
 
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
 	    xdata::UnsignedShort triggerSource_;
-
-
 
 	  };
 	  
@@ -258,6 +261,8 @@ namespace gem {
 	  glib_shared_ptr glibDevice_;
 	  optohybrid_shared_ptr optohybridDevice_;
 	  std::vector<vfat_shared_ptr> vfatDevice_;
+	  std::vector<vfat_shared_ptr> VFATdeviceConnected;
+
 	  
 	  std::shared_ptr<gem::readout::GEMDataParker> gemDataParker;
 	  

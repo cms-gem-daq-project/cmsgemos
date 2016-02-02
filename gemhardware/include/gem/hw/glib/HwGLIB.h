@@ -99,10 +99,22 @@ namespace gem {
           std::string getBoardID()  ;
 
           /**
+           * Read the board ID registers
+           * @returns the GLIB board ID as 32 bit unsigned
+           **/
+          uint32_t getBoardIDRaw()  ;
+
+          /**
            * Read the system information register
            * @returns a string corresponding to the system ID
            **/
           std::string getSystemID();
+
+          /**
+           * Read the system information register
+           * @returns a string corresponding to the system ID as 32 bit unsigned
+           **/
+          uint32_t getSystemIDRaw();
 
           /**
            * Read the IP address register
@@ -111,11 +123,23 @@ namespace gem {
           std::string getIPAddress();
 
           /**
+           * Read the IP address register
+           * @returns the IP address of the board as a 32 bit unsigned
+           **/
+          uint32_t getIPAddressRaw();
+
+          /**
            * Read the MAC address register
            * @returns a string corresponding to the MAC address of the board
            **/
           std::string getMACAddress();
 
+          /**
+           * Read the MAC address register
+           * @returns the MAC address of the board as a 64 bit unsigned
+           **/
+          uint64_t getMACAddressRaw();
+          
           /**
            * Read the system firmware register
            * @returns a string corresponding to firmware version
@@ -124,9 +148,21 @@ namespace gem {
 
           /**
            * Read the system firmware register
+           * @returns the firmware version as a 32 bit unsigned
+           **/
+          uint32_t getFirmwareVerRaw();
+
+          /**
+           * Read the system firmware register
            * @returns a string corresponding to the build date
            **/
           std::string getFirmwareDate();
+	  
+          /**
+           * Read the system firmware register
+           * @returns the build date as a 32 bit unsigned
+           **/
+          uint32_t getFirmwareDateRaw();
 	  
           //external clocking control functions
           /**
@@ -651,7 +687,35 @@ namespace gem {
            **/
           void flushFIFO(uint8_t const& gtx);
 
-          
+          // DAQ LINK functionality
+          void enableDAQLink();
+          void resetDAQLink();
+          uint32_t getDAQLinkControl();
+          uint32_t getDAQLinkStatus();
+          //uint32_t getDAQLinkFlags();
+          //uint32_t getDAQLinkCorruptCount();
+          //uint32_t getDAQLinkEventsBuilt();
+          uint32_t getDAQLinkEventsSent();
+          uint32_t getDAQLinkL1AID();
+          //uint32_t getDAQLinkDebug(uint8_t const& mode);
+          uint32_t getDAQLinkDisperErrors();
+          uint32_t getDAQLinkNonidentifiableErrors();
+
+          // GTX specific DAQ link information
+          uint32_t getDAQLinkStatus(   uint8_t const& gtx);
+          uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
+          uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
+
+          uint32_t getDAQLinkInputTimeout();
+          uint32_t getDAQLinkRunType();
+          uint32_t getDAQLinkRunParameters();
+          uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
+
+          void setDAQLinkInputTimeout(uint32_t const& value);
+          void setDAQLinkRunType(uint32_t const& value);
+          void setDAQLinkRunParameters(uint32_t const& value);
+          void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
+
           std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
           
         protected:

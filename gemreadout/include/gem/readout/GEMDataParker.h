@@ -2,6 +2,7 @@
 #define gem_readout_GEMDataParker_h
 
 #include "gem/readout/GEMDataAMCformat.h"
+#include "gem/readout/gemOnlineDQM.h"
 
 #include "toolbox/SyncQueue.h"
 #include "i2o/i2o.h"
@@ -43,7 +44,7 @@ namespace gem {
                             std::string const& outputType,
                             std::string const& slotFileName                            
                             );
-      ~GEMDataParker() {};
+      ~GEMDataParker() {delete m_gemOnlineDQM;};
 
       uint32_t* dumpData   ( uint8_t const& mask );
       uint32_t* selectData ( uint32_t Counter[5]
@@ -74,8 +75,14 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::VFATData& vfat
                            );
       int queueDepth       () {return dataque.size();}
+      
 
-      void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
+      //      void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
+      void ScanRoutines(int latency_,int VT1_,int VT2_);
+      uint64_t Runtype(){
+	return ((((((00000|latency_m)<<8))|VT1_m)<<8)|VT2_m);
+      }
+
 
       // SOAP interface, updates the header used for calibration runs
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)
@@ -92,6 +99,7 @@ namespace gem {
       uint16_t b1010, b1100, b1110;
       uint8_t  flags;
 
+
       static const int MaxVFATS = 24; // was 32 ???
       static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?
       
@@ -104,7 +112,7 @@ namespace gem {
       std::string errFileName_;
       std::string outputType_;
 
-      //queue safety
+      // queue safety
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
       std::queue<uint32_t> dataque;
@@ -112,6 +120,8 @@ namespace gem {
 
 
       
+      // Online histograms
+      gemOnlineDQM* m_gemOnlineDQM;
       /*
        * Counter all in one
        *   [0] VFAT's Blocks Counter
