@@ -76,7 +76,9 @@ namespace gem {
                            );
       int queueDepth       () {return dataque.size();}
 
+
       void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
+      uint64_t Runtype;
 
       // SOAP interface, updates the header used for calibration runs
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)
@@ -92,6 +94,7 @@ namespace gem {
       uint16_t bcn, evn, chipid, vfatcrc;
       uint16_t b1010, b1100, b1110;
       uint8_t  flags;
+
 
       static const int MaxVFATS = 24; // was 32 ???
       static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?

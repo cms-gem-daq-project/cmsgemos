@@ -184,7 +184,7 @@ namespace gem {
 	  //link data parker and scan routines
 	  void dumpRoutinesData( uint8_t const& mask, u_int8_t latency, u_int8_t VT1, u_int8_t VT2 );
 
-
+	  void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
 
 	  class ConfigParams 
 	  {
