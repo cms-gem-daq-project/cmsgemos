@@ -101,17 +101,17 @@ namespace gem {
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
                  << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl
                  << "addressTable:"      << addressTable.toString()      << std::endl
-                 << "controlHubPort:"    << controlHubPort.toString()    << std::endl
-                 << "ipBusPort:"         << ipBusPort.toString()         << std::endl
+                 << "controlHubPort:"    << controlHubPort.value_    << std::endl
+                 << "ipBusPort:"         << ipBusPort.value_         << std::endl
 
                  << "vfatBroadcastList:"   << vfatBroadcastList.toString() << std::endl
-                 << "vfatBroadcastMask:0x" << vfatBroadcastMask.toString() << std::endl
+                 << "vfatBroadcastMask:0x" << std::hex << vfatBroadcastMask.value_ << std::dec << std::endl
 
-                 << "triggerSource:0x" << triggerSource.toString() << std::endl
-                 << "sbitSource:0x"    << sbitSource.toString()    << std::endl
-                 << "refClkSrc:0x"     << refClkSrc.toString()     << std::endl
-                 << "vfatClkSrc:0x"    << vfatClkSrc.toString()    << std::endl
-                 << "cdceClkSrc:0x"    << cdceClkSrc.toString()    << std::endl
+                 << "triggerSource:0x" << std::hex << triggerSource.value_ << std::dec << std::endl
+                 << "sbitSource:0x"    << std::hex << sbitSource.value_    << std::dec << std::endl
+                 << "refClkSrc:0x"     << std::hex << refClkSrc.value_     << std::dec << std::endl
+                 << "vfatClkSrc:0x"    << std::hex << vfatClkSrc.value_    << std::dec << std::endl
+                 << "cdceClkSrc:0x"    << std::hex << cdceClkSrc.value_    << std::dec << std::endl
                  << std::endl;
               return os.str();
             };

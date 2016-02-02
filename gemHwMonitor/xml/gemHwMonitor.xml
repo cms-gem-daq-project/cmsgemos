@@ -3,7 +3,7 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://cms-elli:4004">
+  <xc:Context url="http://cms-elli:2017">
     <xc:Application class="gem::hwMonitor::gemHwMonitorWeb" id="254" instance="0" network="local">
     </xc:Application>
     

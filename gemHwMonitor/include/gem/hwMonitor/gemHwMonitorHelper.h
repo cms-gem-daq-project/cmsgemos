@@ -20,7 +20,7 @@ namespace gem {
         throw (xdaq::exception::Exception)
         {
           std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
-          defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_test_904.xml";
+          defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf_tamu_test.xml";
           this->setXMLconfigFile(defaulXMLcfgFile.c_str());
           ptr_gemSystem_ = gemSystem;
           ptr_gemSystem_->setDeviceStatus(2);
@@ -31,10 +31,35 @@ namespace gem {
           delete gemXMLparser_;
         }
 
+      //Make sure XML filename contains full path (adds BUILD_HOME/gemdaq-testing/gembase/xml/ if not)
+      const std::string fixXMLconfigFile (const char* XMLfilename)
+	throw (xgi::exception::Exception)
+      {
+	std::string file = XMLfilename;
+	std::string temp_filename;
+	//std::cout << "Contains BUILD_HOME?: "<< file.find(std::getenv("BUILD_HOME")) << std::endl;
+
+	if( file.empty() )
+	  return "";
+        if( file.find(std::getenv("BUILD_HOME")) == 0)
+	  {
+	    temp_filename = XMLfilename;
+	  }
+	else
+	  {
+	    temp_filename = std::getenv("BUILD_HOME");
+	    temp_filename += "/gemdaq-testing/gembase/xml/";
+	    temp_filename += XMLfilename;
+	  }
+	return temp_filename;
+      }
+
       void setXMLconfigFile (const char* inputXMLfilename)
         throw (xgi::exception::Exception)
       {
-        xmlConfigFileName_ = inputXMLfilename;
+
+	xmlConfigFileName_ = inputXMLfilename;
+
         if (ptr_gemSystem_) 
           ptr_gemSystem_->setIsConfigured(false);
         else 
@@ -49,7 +74,7 @@ namespace gem {
         throw (xgi::exception::Exception) {}
       const std::string getDBSconfigFile ()
         throw (xgi::exception::Exception) { return "Not implemented yet"; }
-      void configure()
+     void configure()
         throw (xgi::exception::Exception)
       {
         gemXMLparser_ = new gem::utils::gemXMLparser(xmlConfigFileName_);

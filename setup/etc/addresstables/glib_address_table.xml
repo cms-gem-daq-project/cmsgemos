@@ -37,24 +37,6 @@
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_counters.xml"
 	  description="Various counters on the GLIB"/>
     
-    <!--
-    <node id="TRK_DATA"  address="0x40020000"
-	  description="VFAT tracking data registers">
-      
-      <node id="COL0"  address="0x000"
-	    module="file://${GEM_ADDRESS_TABLE_PATH}/vfat_tracking_data.xml"
-	    description="First phi column">
-      </node> <! - - end column 0 block  - ->
-      <node id="COL1"  address="0x100"
-	    module="file://${GEM_ADDRESS_TABLE_PATH}/vfat_tracking_data.xml"
-	    description="First phi column">
-      </node> <! - - end column 0 block  - ->
-      <node id="COL2"  address="0x200"
-	    module="file://${GEM_ADDRESS_TABLE_PATH}/vfat_tracking_data.xml"
-	    description="First phi column">
-      </node> <! - - end column 0 block  - ->
-    </node> <! - - end tracking_data block  - ->
-    -->
     <node id="GLIB_LINKS"  address="0x40040000">
       <node id="LINK0"  address="0x000"
 	    module="file://${GEM_ADDRESS_TABLE_PATH}/glib_optical_links.xml"
@@ -88,6 +70,9 @@
       </node>
     </node><!-- end GLIB_LINKS -->
     
+    <node id="DAQ"  address="0x70000000"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_daq_registers.xml"
+          description="registers related to the control of the GLIB DAQ link"/>
     
     <node id="TEST">
       <node id="GLIB"  address="0x4004010a"
