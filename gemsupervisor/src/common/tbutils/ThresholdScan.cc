@@ -778,7 +778,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
 
   std::string errFileName = "ERRORS_";
-  errFileName.append(toolbox::toString("LatencyScan_"));
+  errFileName.append(tmpFileName);
   errFileName.append(utcTime);
   errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
   errFileName.append(".dat");
