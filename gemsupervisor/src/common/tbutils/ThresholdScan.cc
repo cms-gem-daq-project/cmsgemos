@@ -96,16 +96,17 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     ++confParams_.bag.triggercount;
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
-    if (bufferDepth>0) {
+    //    if (bufferDepth>0) {
       wl_->submit(readSig_);
-    }
+      //  }
     LOG4CPLUS_INFO(getApplicationLogger()," ******IT IS NOT RUNNIG ***** ");
     return false;
   }
 
   //send triggers
   hw_semaphore_.take(); //take hw to send the trigger 
-  for (size_t trig = 0; trig < 500; ++trig) optohybridDevice_->sendL1A(0x1);  // Sent from T1 generator
+  optohybridDevice_->setTrigSource(0x1);// trigger sources   
+  for (size_t trig = 0; trig < 500; ++trig) optohybridDevice_->sendL1A(1);  // Sent from T1 generator
 
   //count triggers
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x1);// Sent from T1 generator
@@ -122,15 +123,26 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     // Get the size of GLIB data buffer       
     uint32_t bufferDepth;
     bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
+    
 
-    if (bufferDepth > 0) {
+    hw_semaphore_.give();
+    
+    //    if (bufferDepth > 0) {
+      hw_semaphore_.take(); // take hw to set buffer depth
+      
+      LOG4CPLUS_INFO(getApplicationLogger()," BEFORE READ" );
+      
       hw_semaphore_.give(); // give hw to set buffer depth
       wl_semaphore_.give();//give workloop to read
 
       ++confParams_.bag.triggercount;
       wl_->submit(readSig_);
-    }  
-    return true;
+      
+      LOG4CPLUS_INFO(getApplicationLogger()," AFTER READ" );
+
+      
+      //  }  
+    //    return true;
   }//end if triggerSeen < nTrigger
   else {
     
@@ -143,13 +155,15 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
 
-    if (bufferDepth>0) {
+    LOG4CPLUS_INFO(getApplicationLogger()," bufferdepth triggerSeen >= Ntrigger " << bufferDepth );
+
+    //    if (bufferDepth>0) {
       hw_semaphore_.give(); //give hw to set Runmode 0 on VFATs       
       wl_semaphore_.give(); //give workloop to read
 
       ++confParams_.bag.triggercount;
       wl_->submit(readSig_);
-    }
+      // }
 
     hw_semaphore_.take();// take hw to reset counters
     wl_semaphore_.take();// take workloop after reading
@@ -183,6 +197,9 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 		     << " abs(VT2-VT1) " 
 		     << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
 
+      hw_semaphore_.give();
+      //how to ensure that the VT1 never goes negative
+      hw_semaphore_.take();
       //if VT1 > stepSize      
       if (scanParams_.bag.deviceVT1 > scanParams_.bag.stepSize) {
 
@@ -220,10 +237,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       return true; 
     }//end else
     
-    return true;
+    //    return true;
   }//end else triggerseen < N triggers
   
-  return true; 
+  return false; 
 }//end run
 
 bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* wl)    
@@ -232,15 +249,20 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   wl_semaphore_.take();
   hw_semaphore_.take();//glib getFIFO
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " CurLaten " << (int)currentLatency_ 
+  LOG4CPLUS_INFO(getApplicationLogger(), " Latency " << (int)latency_ 
 		 << " TrigSeen " << confParams_.bag.triggersSeen 
-		 << " CalPulses " << CalPulseCount_[0] 
-		 << " eventsSeen " << eventsSeen_
-		 << "channelSeen " << channelSeen_ 
+		 << " VT1 " << scanParams_.bag.deviceVT1 
+		 << " VT2 " << scanParams_.bag.deviceVT2
 		 ); 
 
-  dumpRoutinesData(readout_mask, (uint8_t)currentLatency_, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2 );
+  uint8_t latency_m = latency_;
+  uint8_t vt1 = scanParams_.bag.deviceVT1;
+  uint8_t vt2 = scanParams_.bag.deviceVT2;
   
+  dumpRoutinesData(readout_mask, latency_m, vt1, vt2 );
+
+  //  dumpRoutinesData(readout_mask, (uint8_t)scanParams_.bag.latency, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2 );
+
   hw_semaphore_.give();
   wl_semaphore_.give();
 
@@ -714,6 +736,15 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   }
     // once more for luck
   glibDevice_->flushFIFO(readout_mask);
+
+
+    //reset counters
+  optohybridDevice_->resetL1ACount(0x1);
+  optohybridDevice_->resetResyncCount();
+  optohybridDevice_->resetBC0Count();
+  optohybridDevice_->resetCalPulseCount(0x1);
+  optohybridDevice_->sendResync();     
+  optohybridDevice_->sendBC0();          
   
   is_configured_ = true;
   hw_semaphore_.give();

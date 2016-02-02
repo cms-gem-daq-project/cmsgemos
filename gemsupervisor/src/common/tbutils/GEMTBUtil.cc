@@ -1636,7 +1636,14 @@ catch (const xgi::exception::Exception& e) {
 //uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
 void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readout_mask,  uint8_t  currentLatency_m, uint8_t VT1, uint8_t VT2)
 {
+
+  INFO(" GEMTBUtitls INSIDE DUMPROUTINES ");
   //    int latency_m, VT1_m, VT2_m;
+
+  for(int j = 0; j < 6; j++){
+    INFO(" before GEMTBUtils counter " << m_counter[j] );
+  }
+
   uint32_t* pDQ =  gemDataParker->selectData(m_counter);
   if (pDQ) {
     m_counter[0] = *(pDQ+0); // VFAT blocks dumped to disk
@@ -1677,11 +1684,9 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
     INFO("------NOT DUMP DATA---------");
   }
 
-  /*
-  uint64_t RunType = BOOST_BINARY( 1 ); // :4
+  //  uint64_t RunType = BOOST_BINARY( 1 ); // :4
+  //   RunType = (((((((RunType << 4) << 8) | currentLatency_m) << 8) | VT1) << 8) | VT2);
   
-  RunType = (((((((RunType << 4) << 8) | currentLatency_m) << 8) | VT1) << 8) | VT2);
-  */
       /*  while(gemDataParker->queueDepth() > 0){
     INFO("----Still reading------- queueDepth "  <<   gemDataParker->queueDepth()  );    
     finish=false;  
@@ -1700,28 +1705,7 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
   //  }
 
 }
-/*
-void gem::gemsupervisor::tbutils::GEMTBUtil::ScanRoutines(u_int8_t latency_, u_int8_t VT1_, u_int8_t VT2_)
-{
 
-  latency_m = latency_;
-  VT1_m = VT1_;
-  VT2_m = VT2_;
-
-  INFO( " Dataparker scan routines Latency = " << (int)latency_m  << " VT1 = " << (int)VT1_m << " VT2 = " << (int)VT2_m);
-
-
-  INFO(" Latency" << std::setfill('0') << std::setw(8) << std::hex << (int)latency_m  << std::dec );
-
-INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
-
- uint64_t RunType = BOOST_BINARY( 1 ); // :4
- 
- RunType = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
- 
-}
-
-*/
 
 
 
