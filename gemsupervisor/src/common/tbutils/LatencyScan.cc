@@ -51,20 +51,20 @@ void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::
   minLatency    = 13U;
   maxLatency    = 17U;
   stepSize      = 1U;
-  nTriggers = 10;
-  deviceVT1 = 25;
-  deviceVT2 = 0;
+  nTriggers     = 10;
+  deviceVT1     = 25;
+  deviceVT2     = 0;
   MSPulseLength = 3;
-  VCal = 100;
+  VCal          = 100;
     
-  bag->addField("minLatency",  &minLatency);
-  bag->addField("maxLatency",  &maxLatency);
-  bag->addField("stepSize",    &stepSize );
-  bag->addField("VT2",   &deviceVT1 );
-  bag->addField("VT1",   &deviceVT2 );
-  bag->addField("VCal",   &VCal );
-  bag->addField("MSPulseLength",   &MSPulseLength );
-  bag->addField("nTriggers",    &nTriggers   );
+  bag->addField("minLatency",    &minLatency   );
+  bag->addField("maxLatency",    &maxLatency   );
+  bag->addField("stepSize",      &stepSize     );
+  bag->addField("VT2",           &deviceVT1    );
+  bag->addField("VT1",           &deviceVT2    );
+  bag->addField("VCal",          &VCal         );
+  bag->addField("MSPulseLength", &MSPulseLength);
+  bag->addField("nTriggers",     &nTriggers    );
 
 }
 
@@ -106,7 +106,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   wl_semaphore_.take(); // take workloop
   if (!is_running_) {
     wl_semaphore_.give(); // give work loop if it is not running
-    ++confParams_.bag.triggercount;
+    //++confParams_.bag.triggercount;
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     if (bufferDepth>0) {
@@ -846,6 +846,16 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   wl_semaphore_.take();
   is_working_ = true;
 
+  //AppHeader ah;
+
+  threshold_     = scanParams_.bag.deviceVT2 -scanParams_.bag.deviceVT1;
+  VCal           = scanParams_.bag.VCal;
+  MSPulseLength  = scanParams_.bag.MSPulseLength;
+  nTriggers_  = confParams_.bag.nTriggers;
+  stepSize_   = scanParams_.bag.stepSize;
+  minLatency_ = scanParams_.bag.minLatency;
+  maxLatency_ = scanParams_.bag.maxLatency;
+
   time_t now = time(0);
   tm *gmtm = gmtime(&now);
   char* utcTime = asctime(gmtm);
@@ -878,6 +888,35 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
   // Book GEM Data Parker
   gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, outputType,  confParams_.bag.slotFileName.toString()));
+  
+  // Setup Scan file, information header
+  tmpFileName = "ScanSetup_";
+  tmpFileName.append(utcTime);
+  tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
+  tmpFileName.append(".txt");
+  std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
+  std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
+  confParams_.bag.outFileName = tmpFileName;
+
+  LOG4CPLUS_DEBUG(getApplicationLogger(),"::startAction " 
+		  << "Created ScanSetup file " << tmpFileName );
+
+  std::ofstream scanSetup(tmpFileName.c_str(), std::ios::app );
+  if (scanSetup.is_open()){
+    LOG4CPLUS_INFO(getApplicationLogger(),"::startAction " 
+		   << "file " << tmpFileName << " opened and closed");
+
+    scanSetup << "\n The Time & Date : " << utcTime << std::endl;
+    scanSetup << " ChipID        0x" << std::hex    << confParams_.bag.deviceChipID << std::dec << std::endl;
+    scanSetup << " Threshold     " << threshold_    << std::endl;
+    scanSetup << " VCal          " << VCal          << std::endl;
+    scanSetup << " MSPulseLength " << MSPulseLength << std::endl;
+    scanSetup << " nTriggers     " << nTriggers_    << std::endl;
+    scanSetup << " stepSize      " << stepSize_     << std::endl;
+    scanSetup << " minLatency    " << minLatency_   << std::endl;
+    scanSetup << " maxLatency    " << maxLatency_   << std::endl;
+  }
+  scanSetup.close();
   
   //char data[128/8]
   is_running_ = true;
@@ -953,17 +992,17 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
   gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
   {
 
-    confParams_.bag.nTriggers  = 10U;
-    scanParams_.bag.minLatency = 0U;
-    scanParams_.bag.maxLatency = 25U;
-    scanParams_.bag.stepSize   = 1U;
-    scanParams_.bag.deviceVT1  = 25U;
-    scanParams_.bag.deviceVT2  = 0U;
-    scanParams_.bag.VCal = 100;
-    scanParams_.bag.MSPulseLength  = 3;
+    confParams_.bag.nTriggers       = 10U;
+    scanParams_.bag.minLatency      = 0U;
+    scanParams_.bag.maxLatency      = 25U;
+    scanParams_.bag.stepSize        = 1U;
+    scanParams_.bag.deviceVT1       = 25U;
+    scanParams_.bag.deviceVT2       = 0U;
+    scanParams_.bag.VCal            = 100;
+    scanParams_.bag.MSPulseLength   = 3;
     confParams_.bag.triggerSource_  = 8;
-    //    confParams_.bag.deviceName   = "";
-    //    confParams_.bag.deviceChipID = 0x0;
+    // confParams_.bag.deviceName   = "";
+    // confParams_.bag.deviceChipID = 0x0;
 
     is_working_     = false;
   }

@@ -183,7 +183,7 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   fsmP_->addStateTransition('E', 'C', "Stop",       this, &gem::supervisor::tbutils::GEMTBUtil::stopAction);
   fsmP_->addStateTransition('C', 'H', "Halt",       this, &gem::supervisor::tbutils::GEMTBUtil::haltAction);
   fsmP_->addStateTransition('E', 'H', "Halt",       this, &gem::supervisor::tbutils::GEMTBUtil::haltAction);
-  fsmP_->addStateTransition('H', 'H', "Halt",       this, &gem::supervisor::tbutils::GEMTBUtil::haltAction);
+  //fsmP_->addStateTransition('H', 'H', "Halt",       this, &gem::supervisor::tbutils::GEMTBUtil::haltAction);
   fsmP_->addStateTransition('C', 'I', "Reset",      this, &gem::supervisor::tbutils::GEMTBUtil::resetAction);
   fsmP_->addStateTransition('H', 'I', "Reset",      this, &gem::supervisor::tbutils::GEMTBUtil::resetAction);
 
@@ -193,6 +193,7 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   fsmP_->addStateTransition('E', 'E', "Start"    , this, &gem::supervisor::tbutils::GEMTBUtil::noAction);
   fsmP_->addStateTransition('H', 'H', "Stop"     , this, &gem::supervisor::tbutils::GEMTBUtil::noAction);
   fsmP_->addStateTransition('C', 'C', "Stop"     , this, &gem::supervisor::tbutils::GEMTBUtil::noAction);
+  fsmP_->addStateTransition('H', 'H', "Halt"     , this, &gem::supervisor::tbutils::GEMTBUtil::noAction);
 
   fsmP_->setInitialState('I');
   fsmP_->reset();
@@ -791,22 +792,20 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
     
     else if (!is_configured_) {
       //this will allow the parameters to be set to the chip and scan routine
-
+      
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
       
       selectMultipleVFAT(out);
-      scanParameters(out);
+      scanParameters(out);     
       
-
-
       *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80")
-	.set("ENCTYPE","multipart/form-data").set("readonly")
-	.set("value",confParams_.bag.settingsFile.toString()) << std::endl;
+        .set("ENCTYPE","multipart/form-data").set("readonly")
+        .set("value",confParams_.bag.settingsFile.toString()) << std::endl;
       
       *out << cgicc::br() << std::endl;
       *out << cgicc::input().set("type", "submit")
-	.set("name", "command").set("title", "Configure threshold scan.")
-	.set("value", "Configure") << std::endl;
+        .set("name", "command").set("title", "Configure threshold scan.")
+        .set("value", "Configure") << std::endl;
       *out << cgicc::form()        << std::endl;
     }
     
@@ -818,8 +817,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
       scanParameters(out);
       
       *out << cgicc::input().set("type", "submit")
-	.set("name", "command").set("title", "Start threshold scan.")
-	.set("value", "Start") << std::endl;
+        .set("name", "command").set("title", "Start threshold scan.")
+        .set("value", "Start") << std::endl;
       *out << cgicc::form()    << std::endl;
     }
     
@@ -1448,7 +1447,9 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
 void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
 
-  is_working_ = true;
+  is_working_    = true;
+  is_configured_ = false;
+  is_running_    = false;
 
   if (is_running_) {
     hw_semaphore_.take();
@@ -1484,13 +1485,13 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   is_running_     = false;
 
   hw_semaphore_.take();
-  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(0x0);
-    
-    //    if ((*chip)->isHwConnected())
-    //  (*chip)->releaseDevice();
-    
-  }
+  
+  for (int i = 0; i < 24; ++i)
+    confParams_.bag.deviceName[i] = ""; // ensure that the selected chips are reset
+  
+  confParams_.bag.ohGTXLink = 0; // reset this to 0    
   
   //sleep(2);
   hw_semaphore_.give();
@@ -1640,22 +1641,22 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
   INFO(" GEMTBUtitls INSIDE DUMPROUTINES ");
   //    int latency_m, VT1_m, VT2_m;
 
-  for(int j = 0; j < 6; j++){
-    INFO(" before GEMTBUtils counter " << m_counter[j] );
+  for(int j = 0; j < 5; j++) {
+    INFO(" before GEMTBUtils counter " << j <<  " "<< m_counter[j] );
   }
 
-  uint32_t* pDQ =  gemDataParker->selectData(m_counter);
+  uint32_t* pDQ = gemDataParker->selectData(m_counter);
   if (pDQ) {
     m_counter[0] = *(pDQ+0); // VFAT blocks dumped to disk
     m_counter[1] = *(pDQ+1); // Events counter
     m_counter[2] = *(pDQ+2); // VFATs counter, number of VFATS chips in the last event
     m_counter[3] = *(pDQ+3); // good VFAT blocks dumped to file  
     m_counter[4] = *(pDQ+4); // bad VFAT blocks dumped to error file 
-    m_counter[5] = *(pDQ+5);
+    //m_counter[5] = *(pDQ+5); //out of range?
   }
 
-  for(int j = 0; j < 6; j++){
-    INFO(" GEMTBUtils counter " << m_counter[j] );
+  for(int j = 0; j < 5; j++){
+    INFO("GEMTBUtils counter " << j <<  " "<< m_counter[j] );
   }
   
   INFO(" GEMTBUtils ntriggers "     <<   confParams_.bag.triggersSeen );

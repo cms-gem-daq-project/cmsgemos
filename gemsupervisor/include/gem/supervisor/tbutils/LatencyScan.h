@@ -109,7 +109,7 @@ namespace gem {
       //0xdeadbeef
 
       int minLatency_, maxLatency_, threshold_, MSPulseLength, VCal;
-      uint8_t  currentLatency_,a;
+      uint8_t  currentLatency_;
       uint64_t stepSize_,eventsSeen_,channelSeen_;
       uint64_t totaltriggercounter_;
       protected:
