@@ -72,6 +72,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   triggersSeen = 0;
   ADCVoltage = 0;
   ADCurrent = 0;
+  ohGTXLink    = 0;
 
   bag->addField("readoutDelay", &readoutDelay);
   bag->addField("nTriggers",    &nTriggers);
@@ -81,6 +82,8 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
 
   bag->addField("deviceName",   &deviceName );
   bag->addField("deviceIP",     &deviceIP    );
+  bag->addField("ohGTXLink",     &ohGTXLink   );
+
   bag->addField("deviceNum",    &deviceNum   );
   bag->addField("deviceChipID", &deviceChipID);
   bag->addField("triggersSeen", &triggersSeen);
@@ -1027,6 +1030,17 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
     INFO( "debugging form entries");
     std::vector<cgicc::FormEntry>::const_iterator myiter = vfat2FormEntries.begin();
 
+    //OH Devices
+    cgicc::form_iterator oh = cgi.getElement("SetOH");
+    if (strcmp((**oh).c_str(),"OH_0") == 0) {
+      confParams_.bag.ohGTXLink.value_= 0;
+      INFO("OH_0 has been selected " << confParams_.bag.ohGTXLink);
+    }//if OH_0
+    if (strcmp((**oh).c_str(),"OH_1") == 0) {
+      confParams_.bag.ohGTXLink.value_= 1;
+      INFO("OH_1 has been selected " << confParams_.bag.ohGTXLink);
+    }//if OH_1
+
     for(int i = 0; i < 24; ++i) {    
       std::stringstream currentChipID;
       currentChipID << "VFAT" << i;
@@ -1054,13 +1068,14 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
       tmpDeviceName.erase(0,4);
       tmpDeviceNum = atoi(tmpDeviceName.c_str());
       
-      if (tmpDeviceNum < 8)
+      readout_mask = confParams_.bag.ohGTXLink;
+      /*      if (tmpDeviceNum < 8)
 	readout_mask |= 0x1;
       else if (tmpDeviceNum < 16)
 	readout_mask |= 0x2;
       else if (tmpDeviceNum < 24)
 	readout_mask |= 0x4;
-      
+      */
       INFO( "deviceNum[i]_::"             << confParams_.bag.deviceNum[i].toString());
       INFO( "setting deviceNum[i]_ to ::" << tmpDeviceNum);
       confParams_.bag.deviceNum[i] = tmpDeviceNum;
@@ -1329,25 +1344,32 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
-  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
-                      "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  
+  /*    optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
+	"file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));*/
+
+  std::string ohDeviceName = toolbox::toString("HwOptoHybrid%d",confParams_.bag.ohGTXLink.value_);
+  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, tmpURI.str(),
+                                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+
+
 
   for(int i=0;i<24;++i){
   //  int i=0;
   std::string VfatName = confParams_.bag.deviceName[i].toString();
   if (VfatName != "") {
-    if ( i >= 0 ) {
-      if (i < 8)
+
+  readout_mask = confParams_.bag.ohGTXLink;
+  /* if ( i >= 0 ) {
+	if (i < 8)
         readout_mask |= 0x1; //slot [0-7] maps to 1
       else if (i < 16)
         readout_mask |= 0x2; //slot [8-15] maps to 2
       else if (i < 24)
         readout_mask |= 0x4; //slot [16-23] maps to 4
-      
+  */  
       INFO(" webConfigure : DeviceName " << VfatName );
       INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
-    }
+      //}
 
     vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(VfatName, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
@@ -1633,3 +1655,43 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
+
+void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  try {
+    bool isDisabled = false;
+    if (is_running_ || is_configured_ || is_initialized_)
+      isDisabled = true;
+
+    cgicc::input OHselection;
+    if (isDisabled)
+      OHselection.set("disabled","disabled");
+    else
+      *out   << "<table>"     << std::endl
+	     << "<tr>"   << std::endl
+	     << "<td>" << "Select kind of Latency Scan: " << "</td>" << std::endl	 
+	     << "</tr>"     << std::endl
+	     << "<tr>" << std::endl
+	     << "<td>" << std::endl
+	     << cgicc::select().set("name","SetOH") << std::endl
+	     << cgicc::option("OH_0").set("value","OH_0")
+	     << cgicc::option("OH_1").set("value","OH_1")
+	     << cgicc::select()<< std::endl
+	     << "</td>"    << std::endl
+	     << "</tr>"    << std::endl
+	     << "</table>" << std::endl;
+    /*      *out << "<tr><td class=\"title\"> Select Latency Scan: </td>"
+	      << "<td class=\"form\">"*/
+
+}//end try
+catch (const xgi::exception::Exception& e) {
+  INFO("Something went wrong setting the trigger source): " << e.what());
+  XCEPT_RAISE(xgi::exception::Exception, e.what());
+ }
+ catch (const std::exception& e) {
+   INFO("Something went wrong setting the trigger source): " << e.what());
+   XCEPT_RAISE(xgi::exception::Exception, e.what());
+ }
+
+}// end void selectoptohybrid

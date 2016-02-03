@@ -70,6 +70,8 @@ namespace gem {
 	  throw (xgi::exception::Exception);
 	void displayHistograms(xgi::Output* out)
 	  throw (xgi::exception::Exception);
+        void selectTrigSource(xgi::Output* out)
+	    throw (xgi::exception::Exception);
 	    
       class ConfigParams 
       {
