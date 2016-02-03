@@ -154,7 +154,7 @@ def getChipID(device, gtx, chip, debug=False):
     
     return thechipid
 
-def getAllChipIDs(device, gtx, mask=0xf0000000, debug=False):
+def getAllChipIDs(device, gtx, mask=0xff000000, debug=False):
     """Returns a map of slot number to chip ID, for chips enabled in the mask
     Currently does not only return the unmasked values, but all values
     To be fixed in a future version"""
@@ -166,7 +166,7 @@ def getAllChipIDs(device, gtx, mask=0xf0000000, debug=False):
                                     if (((chipID1s[slotID]>>16)&0xffff) == 0x0000) else 0xdead),
                     range(0,24)))
 
-def displayChipInfo(device, gtx, regkeys, mask=0xf0000000, debug=False):
+def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
     """Takes as an argument a map of slot number to chip IDs and prints
     out all the information for the selected chips, would like for 0xdead
     chips to be red, but don't have time to really do this now """
