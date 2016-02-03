@@ -14,7 +14,7 @@
 namespace gem {
   namespace base {
     namespace utils {
-      class gemXMLparcer;
+      class gemXMLparser;
       class gemCrateProperties;
       class gemDeviceProperties;
     }

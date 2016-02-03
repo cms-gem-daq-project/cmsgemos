@@ -84,9 +84,9 @@ void gem::base::GEMWebApplication::webRedirect(xgi::Input *in, xgi::Output *out)
 void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webDefault");
+  DEBUG("webDefault");
   if (p_gemFSMApp)
-    INFO("current state is" << p_gemFSMApp->getCurrentState());
+    DEBUG("current state is" << p_gemFSMApp->getCurrentState());
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
   *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
@@ -107,10 +107,11 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
   DEBUG("controlPanel");
   //*out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
   
+  // maybe the control part should only be displayed if the application is not supervised?
   if (p_gemFSMApp) {
     try {
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
-      INFO("controlPanel:: current state " << state);
+      DEBUG("controlPanel:: current state " << state);
       ////update the page refresh 
       if (!b_is_working && !b_is_running) {
       } else if (b_is_working) {
@@ -256,10 +257,10 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
            << "</tbody>"  << std::endl
            << "</table>"  << std::endl;
     } catch (const xgi::exception::Exception& e) {
-      INFO("Something went wrong displaying web control panel(xgi): " << e.what());
+      ERROR("Something went wrong displaying web control panel(xgi): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     } catch (const std::exception& e) {
-      INFO("Something went wrong displaying web control panel(std): " << e.what());
+      ERROR("Something went wrong displaying web control panel(std): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
   }//only when the GEMFSM has been created
@@ -269,7 +270,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
 void gem::base::GEMWebApplication::monitorPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("monitorPage");
+  DEBUG("monitorPage");
   *out << "monitorPage</br>" << std::endl;
   webRedirect(in,out);
 }
@@ -278,9 +279,31 @@ void gem::base::GEMWebApplication::monitorPage(xgi::Input * in, xgi::Output * ou
 void gem::base::GEMWebApplication::expertPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("expertPage");
+  DEBUG("expertPage");
   *out << "expertPage</br>" << std::endl;
   webRedirect(in,out);
+}
+
+/*To be filled in with the json update code*/
+/*
+void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  DEBUG("jsonUpdate");
+}
+*/
+void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  *out << " { \n";
+  auto monitor = p_gemFSMApp->p_gemMonitor;
+  //if (p_gemMonitor) {
+  if (monitor) {
+    //p_gemMonitor->jsonUpdateItemSets(out);
+    monitor->jsonUpdateItemSets(out);
+  }
+  *out << " } \n";
 }
 
 /** FSM callbacks */
@@ -288,16 +311,16 @@ void gem::base::GEMWebApplication::expertPage(xgi::Input * in, xgi::Output * out
 void gem::base::GEMWebApplication::webInitialize(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webInitialize begin");
+  DEBUG("webInitialize begin");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     // try {
     //   p_gemFSMApp->fireEvent("Initialize");
     // } catch( toolbox::fsm::exception::Exception& e ) {
     //   XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
     //}
   }
-  INFO("webInitialize end");
+  DEBUG("webInitialize end");
   webRedirect(in,out);
 }
 
@@ -305,9 +328,9 @@ void gem::base::GEMWebApplication::webInitialize(xgi::Input * in, xgi::Output * 
 void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webEnable");
+  DEBUG("webEnable");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     //try {
     //  p_gemFSMApp->fireEvent("Enable");
     //} catch( toolbox::fsm::exception::Exception& e ) {
@@ -321,9 +344,9 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webConfigure");
+  DEBUG("webConfigure");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     //try{
     //  p_gemFSMApp->fireEvent("Configure");
     //} catch( toolbox::fsm::exception::Exception& e ) {
@@ -337,9 +360,9 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * o
 void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webStart");
+  DEBUG("webStart");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     //try{
     //  p_gemFSMApp->fireEvent("Start");
     //} catch( toolbox::fsm::exception::Exception& e ) {
@@ -352,9 +375,9 @@ void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webPause");
+  DEBUG("webPause");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     //try{
     //  p_gemFSMApp->fireEvent("Pause");
     //} catch( toolbox::fsm::exception::Exception& e ) {
@@ -368,9 +391,9 @@ void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webResume");
+  DEBUG("webResume");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     //try{
     //  p_gemFSMApp->fireEvent("Resume");
     //} catch( toolbox::fsm::exception::Exception& e ) {
@@ -384,9 +407,9 @@ void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webStop");
+  DEBUG("webStop");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     //try{
     //  p_gemFSMApp->fireEvent("Stop");
     //} catch( toolbox::fsm::exception::Exception& e ) {
@@ -400,9 +423,9 @@ void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webHalt");
+  DEBUG("webHalt");
   if (p_gemFSMApp) {
-    INFO("p_gemFSMApp non-zero");
+    DEBUG("p_gemFSMApp non-zero");
     //try{
     //  p_gemFSMApp->fireEvent("Halt");
     //} catch( toolbox::fsm::exception::Exception& e ) {
@@ -416,7 +439,7 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
 void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("webReset");
+  DEBUG("webReset");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
     //try{
@@ -430,4 +453,46 @@ void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
 
 void gem::base::GEMWebApplication::buildCfgWebpage()
 {
+}
+
+/** some generic static functions for web use, copied from ferol::WebServer */
+std::string gem::base::GEMWebApplication::jsonEscape(std::string const& orig)
+{   
+  std::string::const_iterator it = orig.begin();
+  std::string res;
+  
+  for ( it = orig.begin(); it != orig.end(); it++ ) {
+    if ( ((*it) == '"') || ((*it) == '\\') ) {
+      res.append( 1, '\\' );
+      res.append( 1, *it );
+    } else if(  ((*it) == '\n') ) {
+      res.append("; ");
+    } else if(  ((*it) == '/') ) {
+      res.append("\\/");
+    } else {
+      res.append(1,*it);
+    }
+  }
+  return res;
+}
+
+std::string gem::base::GEMWebApplication::htmlEscape(std::string const& orig)
+{
+  std::string::const_iterator it = orig.begin();
+  std::string res;
+
+  for ( it = orig.begin(); it != orig.end(); it++ ) {
+    if ( (*it) == '"' ) {
+      res.append( "&quot;" );
+    } else {
+      res.append(1,*it);
+    }
+  }
+  
+  size_t pos = 0;
+  while ( (pos = res.find( "<br>", 0 )) != std::string::npos ) {
+    res.replace( pos, 4, "\n" );
+    pos = 0;
+  }
+  return res;
 }

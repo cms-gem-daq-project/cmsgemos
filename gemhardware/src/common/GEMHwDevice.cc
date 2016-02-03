@@ -2,7 +2,7 @@
 
 #include "gem/hw/GEMHwDevice.h"
 #include "toolbox/net/URN.h"
-#include "gem/utils/GEMInfoSpaceToolBox.h"
+#include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionFile) :
@@ -115,12 +115,12 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   setParametersFromInfoSpace();
 
   //time for these to come from a configuration setup
-  std::string const addressTable      = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
-  std::string const controlhubAddress = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
-  std::string const deviceIPAddress   = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
-  std::string const ipBusProtocol     = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
-  uint32_t    const controlhubPort    = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
-  uint32_t    const ipBusPort         = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
+  std::string const addressTable      = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
+  std::string const controlhubAddress = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
+  std::string const deviceIPAddress   = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
+  std::string const ipBusProtocol     = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
+  uint32_t    const controlhubPort    = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
+  uint32_t    const ipBusPort         = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
   
   std::stringstream tmpUri;
   if (controlhubAddress.size() > 0) {
@@ -279,15 +279,15 @@ void gem::hw::GEMHwDevice::setParametersFromInfoSpace()
   INFO("setParametersFromInfoSpace");
   try {
     INFO("trying to get parameters from the hwCfgInfoSpace");
-    setControlHubIPAddress( gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "ControlHubIPAddress"));
-    setIPBusProtocolVersion(gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "IPBusProtocol"));
-    setDeviceIPAddress(     gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "DeviceIPAddress"));
-    setAddressTableFileName(gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "AddressTable"));
+    setControlHubIPAddress( gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "ControlHubIPAddress"));
+    setIPBusProtocolVersion(gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "IPBusProtocol"));
+    setDeviceIPAddress(     gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "DeviceIPAddress"));
+    setAddressTableFileName(gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "AddressTable"));
     
-    setControlHubPort(gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "ControlHubPort"));
-    setIPBusPort(     gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "IPBusPort"));
+    setControlHubPort(gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "ControlHubPort"));
+    setIPBusPort(     gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "IPBusPort"));
     return;
-  } catch (gem::utils::exception::InfoSpaceProblem const& err) {
+  } catch (gem::base::utils::exception::InfoSpaceProblem const& err) {
     ERROR("Could not set the device parameters from the InfoSpace " <<
           "(gem::utils::exception::InfoSpacePRoblem)::"
           << err.what());
@@ -323,12 +323,12 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 //void gem::hw::GEMHwDevice::connectDevice()
 //{
 //  //time for these to come from a configuration setup
-//  std::string const addressTable      = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
-//  std::string const controlhubAddress = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
-//  std::string const deviceIPAddress   = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
-//  std::string const ipBusProtocol     = gem::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
-//  uint32_t    const controlhubPort    = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
-//  uint32_t    const ipBusPort         = gem::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
+//  std::string const addressTable      = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"AddressTable");
+//  std::string const controlhubAddress = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"ControlHubAddress");
+//  std::string const deviceIPAddress   = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"DeviceIPAddress");
+//  std::string const ipBusProtocol     = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace,"IPBusProtocol");
+//  uint32_t    const controlhubPort    = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"ControlHubPort");
+//  uint32_t    const ipBusPort         = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace,"IPBusPort");
 //  
 //  std::stringstream tmpUri;
 //  if (controlhubAddress.size() > 0) {
@@ -441,9 +441,9 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
 {
   if (p_gemHW == NULL) {
-    std::string msg = "Trying to access hardware before connecting.";
+    std::string msg = "Trying to access hardware before connecting!";
     ERROR(msg);
-    //XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
+    XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
   } else {
     uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
     return hw;
@@ -526,6 +526,59 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
         ++retryCount;
         if (retryCount > 4)
           DEBUG("Failed to read register 0x" << std::setfill('0') << std::setw(8)
+                << std::hex << address << std::dec
+                << ", retrying. retryCount("<<retryCount<<")"
+                << std::endl);
+        updateErrorCounters(errCode);
+        continue;
+      } else {
+        ERROR(msg);
+        //XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
+      }
+    } catch (std::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not read register '0x%08x' (std)", address);
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      ERROR(msg);
+      //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+    }
+  }
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read register 0x%08x",
+                                      address);
+  ERROR(msg);
+  //XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
+  return res;
+}
+
+uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& mask)
+{
+  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
+  uhal::HwInterface& hw = getGEMHwInterface();
+
+  unsigned retryCount = 0;
+  uint32_t res;
+  DEBUG("gem::hw::GEMHwDevice::readReg 0x" << std::setfill('0') << std::setw(8)
+        << std::hex << address << std::dec << std::endl);
+  while (retryCount < MAX_IPBUS_RETRIES) {
+    try {
+      uhal::ValWord<uint32_t> val = hw.getClient().read(address,mask);
+      hw.dispatch();
+      res = val.value();
+      DEBUG("Successfully read register 0x" << std::setfill('0') << std::setw(8)
+            << std::hex << address << std::dec << " with mask " 
+            << std::hex << mask << std::dec << " with value " 
+            << std::setfill('0') << std::setw(8) << std::hex << res << std::dec 
+            << " retry count is " << retryCount << ". Should move on to next operation");
+      return res;
+      //break;
+    } catch (uhal::exception::exception const& err) {
+      std::string msgBase = toolbox::toString("Could not read register '0x%08x' (uHAL)", address);
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      if (knownErrorCode(errCode)) {
+        ++retryCount;
+        if (retryCount > 4)
+          DEBUG("Failed to read register 0x" << std::setfill('0') << std::setw(8)
+                << std::hex << address << std::dec << " with mask "
                 << std::hex << address << std::dec
                 << ", retrying. retryCount("<<retryCount<<")"
                 << std::endl);

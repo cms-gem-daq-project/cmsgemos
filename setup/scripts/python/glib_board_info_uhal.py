@@ -3,8 +3,7 @@
 import sys, re
 import time, datetime, os
 
-sys.path.append('/home/mdalchen/gemdev/gem-daq-code/gemdaq-testing/setup/scripts/src')
-#sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 from registers_uhal import *
@@ -36,6 +35,8 @@ parser.add_option("-u", "--user", action="store_true", dest="userOnly",
 		  help="print user information only", metavar="userOnly")
 parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
+parser.add_option("--daq_enable", type="int", dest="daq_enable",
+		  help="enable daq output", metavar="daq_enable", default=-1)
 
 (options, args) = parser.parse_args()
 
@@ -63,6 +64,38 @@ print
 
 if not options.userOnly:
 	getSystemInfo(glib)
+print
+print "--=======================================--"
+print "-> DAQ INFORMATION"
+print "--=======================================--"
+print
+
+if (options.daq_enable>=0):
+        writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
+        print "Reset daq_enable: %i"%(options.daq_enable)
+
+print "-> DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
+print "-> DAQ status reg  :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
+print "-> DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
+print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
+print "-> DAQ L1A ID          :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
+print "-> DAQ sent events cnt :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.EVT_SENT"))
+print
+print "-> DAQ INPUT_TIMEOUT :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT"))
+print "-> DAQ RUN_TYPE      :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_TYPE"))
+print "-> DAQ RUN_PARAMS    :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_PARAMS"))
+print
+print "-> DAQ GTX0 corrupted VFAT block counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.CORRUPT_VFAT_BLK_CNT"))
+print
+print "-> DAQ GTX0 evn :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.EVN"))
+
+#print "-> DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_0"))
+#print "-> DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_1"))
+#print "-> DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_2"))
+#print "-> DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_3"))
+#print "-> DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_4"))
+#print "-> DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_5"))
+#print "-> DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_6"))
 	
 print
 print "--=======================================--"
