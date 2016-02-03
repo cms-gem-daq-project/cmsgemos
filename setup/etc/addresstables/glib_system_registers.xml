@@ -12,9 +12,11 @@
   
   <node id="FIRMWARE"  address="0x2"  permission="r" 
 	description="GLIB firmware date (dd.mm.yy) and version number (x.y.z)">
+    <node id="ID"     mask="0xffff0000"    permission="r"/>
     <node id="MAJOR"  mask="0xf0000000"    permission="r"/>
     <node id="MINOR"  mask="0x0f000000"    permission="r"/>
     <node id="BUILD"  mask="0x00ff0000"    permission="r"/>
+    <node id="DATE"   mask="0x0000ffff"    permission="r"/>
     <node id="YY"     mask="0x0000fe00"    permission="r"/>
     <node id="MM"     mask="0x000001e0"    permission="r"/>
     <node id="DD"     mask="0x0000001f"    permission="r"/>

@@ -825,7 +825,7 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     //stored values, and ensure the web page displays that channel
     LOG4CPLUS_DEBUG(this->getApplicationLogger(),"Get channel button pressed");
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
-    uint8_t chanSettings = vfatDevice->getChannelSettings(chan);
+    // uint8_t chanSettings = vfatDevice->getChannelSettings(chan);
     
     m_vfatParams = vfatDevice->getVFAT2Params();
     m_vfatParams.activeChannel = chan;

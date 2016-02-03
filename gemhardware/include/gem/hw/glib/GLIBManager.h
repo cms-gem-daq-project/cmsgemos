@@ -16,13 +16,16 @@ namespace gem {
 
       class HwGLIB;
       class GLIBManagerWeb;
+      class GLIBMonitor;
 
       typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
-  
+      typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
+
       class GLIBManager : public gem::base::GEMFSMApplication
         {
 	  
           friend class GLIBManagerWeb;
+          //friend class GLIBMonitor;
 
         public:
           XDAQ_INSTANTIATOR();
@@ -56,7 +59,7 @@ namespace gem {
         private:
 	  uint16_t parseAMCEnableList(std::string const&);
 	  bool     isValidSlotNumber( std::string const&);
-
+          void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
           uint16_t m_amcEnableMask;
 
           class GLIBInfo {
@@ -90,13 +93,13 @@ namespace gem {
                  << "slotID:"  << slotID.toString()  << std::endl
                 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
-                 << "deviceIPAddress:"   << deviceIPAddress.toString()     << std::endl
-                 << "ipBusProtocol:"     << ipBusProtocol.toString()       << std::endl
-                 << "addressTable:"      << addressTable.toString()        << std::endl
-                 << "controlHubPort:"    << controlHubPort.toString()      << std::endl
-                 << "ipBusPort:"         << ipBusPort.toString()           << std::endl
-                 << "triggerSource:0x"   << triggerSource.toString()       << std::endl
-                 << "sbitSource:0x"      << sbitSource.toString()          << std::endl
+                 << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
+                 << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl
+                 << "addressTable:"      << addressTable.toString()      << std::endl
+                 << "controlHubPort:"    << controlHubPort.value_        << std::endl
+                 << "ipBusPort:"         << ipBusPort.value_             << std::endl
+                 << "triggerSource:0x"   << std::hex << triggerSource.value_ << std::dec << std::endl
+                 << "sbitSource:0x"      << std::hex << sbitSource.value_    << std::dec << std::endl
                  << std::endl;
               return os.str();
             };
@@ -104,8 +107,10 @@ namespace gem {
           
           mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
 	  
-          std::shared_ptr<HwGLIB> m_glibs[MAX_AMCS_PER_CRATE];
-          xdata::InfoSpace* is_glibs[MAX_AMCS_PER_CRATE];
+          glib_shared_ptr              m_glibs[MAX_AMCS_PER_CRATE];
+          std::shared_ptr<GLIBMonitor> m_glibMonitors[MAX_AMCS_PER_CRATE];
+          //xdata::InfoSpace*            is_glibs[MAX_AMCS_PER_CRATE];
+          is_toolbox_ptr               is_glibs[MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
           xdata::String        m_amcSlots;
           xdata::String        m_connectionFile;
