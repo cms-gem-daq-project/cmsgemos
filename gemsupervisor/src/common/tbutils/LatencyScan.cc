@@ -216,15 +216,19 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.take();// vfat set latency
 
       if ((currentLatency_ + scanParams_.bag.stepSize) < 0xFF) {
-
-	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	  (*chip)->setLatency(currentLatency_ + scanParams_.bag.stepSize);
-	}
+        
+        // do this with an OH broadcast write
+        optohybridDevice_->broadcastWrite("Latency", 0x0, currentLatency_ + scanParams_.bag.stepSize);
+	//for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	//  (*chip)->setLatency(currentLatency_ + scanParams_.bag.stepSize);
+	//}
       } else  { 
 
-	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	  (*chip)->setLatency(0xFF);
-	}	 
+        // do this with an OH broadcast write
+        optohybridDevice_->broadcastWrite("Latency", 0x0, 0xFF);
+	//for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	//  (*chip)->setLatency(0xFF);
+	//}	 
       }//end else
     
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -779,6 +783,12 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
     (*chip)->sendTestPattern( 0x0);
 
     (*chip)->setVCal(scanParams_.bag.VCal);
+    for (int chan = 0; chan < 129; ++chan)
+      if (chan == 0 || chan == 1 || chan == 32)
+        (*chip)->enableCalPulseToChannel(chan, true);
+      else
+        (*chip)->enableCalPulseToChannel(chan, false);
+      
     (*chip)->setIPreampIn(  168);
     (*chip)->setIPreampFeed(150);
     (*chip)->setIPreampOut(  80);
