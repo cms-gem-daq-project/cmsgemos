@@ -112,7 +112,7 @@ if options.debug:
         print controlRegs
         
 if options.biasAll:
-        biasAllVFATs(optohybrid, options.gtx, mask)
+        biasAllVFATs(optohybrid, options.gtx, chipmask)
 
 if options.sleepAll:
         for chip in range(24):
