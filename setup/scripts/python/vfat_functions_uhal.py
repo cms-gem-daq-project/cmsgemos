@@ -109,7 +109,7 @@ def biasVFAT(device, gtx, chip, enable=True, debug=False):
         writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),0x00)
     return
 
-def biasAllVFATs(device, gtx, mask, enable=True, debug=False):
+def biasAllVFATs(device, gtx, mask=0xff000000, enable=True, debug=False):
     if (enable):
         writeAllVFATs(device, gtx, mask, "ContReg0",    0x37)
     else:
@@ -166,7 +166,7 @@ def getAllChipIDs(device, gtx, mask=0xf0000000, debug=False):
                                     if (((chipID1s[slotID]>>16)&0xffff) == 0x0000) else 0xdead),
                     range(0,24)))
 
-def displayChipInfo(device, gtx, regkeys, mask=0xf0000000, debug=False):
+def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
     """Takes as an argument a map of slot number to chip IDs and prints
     out all the information for the selected chips, would like for 0xdead
     chips to be red, but don't have time to really do this now """
