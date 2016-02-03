@@ -109,7 +109,7 @@ def biasVFAT(device, gtx, chip, enable=True, debug=False):
         writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),0x00)
     return
 
-def biasAllVFATs(device, gtx, mask=0xff000000, enable=True, debug=False):
+def biasAllVFATs(device, gtx, mask, enable=True, debug=False):
     if (enable):
         writeAllVFATs(device, gtx, mask, "ContReg0",    0x37)
     else:
@@ -154,7 +154,7 @@ def getChipID(device, gtx, chip, debug=False):
     
     return thechipid
 
-def getAllChipIDs(device, gtx, mask=0xf0000000, debug=False):
+def getAllChipIDs(device, gtx, mask=0xff000000, debug=False):
     """Returns a map of slot number to chip ID, for chips enabled in the mask
     Currently does not only return the unmasked values, but all values
     To be fixed in a future version"""
