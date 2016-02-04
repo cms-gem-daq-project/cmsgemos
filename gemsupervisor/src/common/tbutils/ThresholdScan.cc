@@ -770,6 +770,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   tm *gmtm = gmtime(&now);
   char* utcTime = asctime(gmtm);
 
+  //  std::string tmpFileName = "ThresholdScan_";
   std::string tmpFileName = "ThresholdScan_", tmpType = "", outputType   = "Hex";
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
@@ -797,7 +798,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 		   << "file " << confParams_.bag.outFileName.toString() << " opened");
   }
 
-  tmpFileName = "ThresholdScan_";
+  //  tmpFileName = "ThresholdScan_";
   // Book GEM Data Parker
   gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, outputType,  confParams_.bag.slotFileName.toString()));
   

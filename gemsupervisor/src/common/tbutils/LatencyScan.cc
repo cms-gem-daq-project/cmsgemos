@@ -219,16 +219,9 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
         
         // do this with an OH broadcast write
         optohybridDevice_->broadcastWrite("Latency", 0x0, currentLatency_ + scanParams_.bag.stepSize);
-	//for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	//  (*chip)->setLatency(currentLatency_ + scanParams_.bag.stepSize);
-	//}
       } else  { 
 
-        // do this with an OH broadcast write
         optohybridDevice_->broadcastWrite("Latency", 0x0, 0xFF);
-	//for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	//  (*chip)->setLatency(0xFF);
-	//}	 
       }//end else
     
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
