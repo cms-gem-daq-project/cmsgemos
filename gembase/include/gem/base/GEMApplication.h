@@ -70,7 +70,11 @@ namespace gem {
     class GEMMonitor;
     class GEMFSMApplication;
     class GEMWebApplication;
-    
+
+    namespace utils {
+      class GEMInfoSpaceToolBox;
+    }
+
     class GEMApplication : public xdaq::WebApplication, public xdata::ActionListener
       {
         friend class GEMMonitor;
@@ -103,14 +107,27 @@ namespace gem {
         void xgiDefault(xgi::Input* in, xgi::Output* out);
         void xgiMonitor(xgi::Input* in, xgi::Output* out);
         void xgiExpert( xgi::Input* in, xgi::Output* out);
+        void jsonUpdate(xgi::Input* in, xgi::Output* out);
+
+        // std::shared_ptr<utils::GEMInfoSpaceToolBox> getGEMISToolBox() { return p_infoSpaceToolBox;       };
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppISToolBox() { return p_appInfoSpaceToolBox;     };
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> getMonISToolBox() { return p_monitorInfoSpaceToolBox; };
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> getCfgISToolBox() { return p_configInfoSpaceToolBox;  };
 
       protected:
         log4cplus::Logger m_gemLogger;
+        
+        // std::shared_ptr<utils::GEMInfoSpaceToolBox> p_infoSpaceToolBox;
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appInfoSpaceToolBox;
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_monitorInfoSpaceToolBox;
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_configInfoSpaceToolBox;
 
         xdata::InfoSpace *p_appInfoSpace;       /* generic application parameters */
+        // maybe instead of multiple info spaces, use sets inside the infospace toolbox?
         xdata::InfoSpace *p_monitorInfoSpace;   /* monitoring parameters, stored in the appInfoSpace */
         xdata::InfoSpace *p_configInfoSpace;    /* configuration parameters, stored in the appInfoSpace */
-						    
+
+        // some of these, namely update, move to monitor?
         virtual void importConfigurationParameters();
         virtual void fillConfigurationInfoSpace();
         virtual void updateConfigurationInfoSpace();
@@ -125,6 +142,8 @@ namespace gem {
         GEMWebApplication *p_gemWebInterface; /* */
         GEMMonitor        *p_gemMonitor;      /* */
 
+      public:
+        // should these be protected?
         /**
          * various application properties
          */
@@ -139,7 +158,7 @@ namespace gem {
         uint32_t m_instance;
 
       private:
-        xdata::Integer m_runNumber;
+        xdata::UnsignedInteger32 m_runNumber;
         
         xdata::String  m_runType;
         xdata::String  m_cfgType;

@@ -8,9 +8,9 @@
 
 #include "gem/base/GEMFSMApplication.h"
 #include "gem/base/GEMFSM.h"
+#include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
-#include "gem/utils/GEMInfoSpaceToolBox.h"
 #include "gem/utils/exception/Exception.h"
 
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"
@@ -32,7 +32,7 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
                     p_gemApp->getApplicationDescriptor(),
                     p_gemApp->getApplicationContext())
 {
-  DEBUG("GEMFSM ctor begin");
+  DEBUG("GEMFSM::ctor begin");
   
   // Create the underlying Finite State Machine itself.
   std::stringstream commandLoopName;
@@ -193,11 +193,15 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   // Start out with the FSM in its initial state: Initial.
   p_gemfsm->setInitialState(STATE_INITIAL);
   p_gemfsm->reset();
-
+  
   m_gemFSMState = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
+  DEBUG("GEMFSM::GEMFSM current state is " << m_gemFSMState.toString());
 
-  p_gemApp->getApplicationInfoSpace()->fireItemAvailable("FSMState",        &m_gemFSMState);
-  p_gemApp->getApplicationInfoSpace()->fireItemAvailable("ReasonForFailure",&m_reasonForFailure);
+  p_gemApp->getAppISToolBox()->createString("FSMState",        m_gemFSMState.toString(), utils::GEMInfoSpaceToolBox::PROCESS);
+  p_gemApp->getAppISToolBox()->createString("ReasonForFailure","",                       utils::GEMInfoSpaceToolBox::PROCESS);
+  
+  //p_gemApp->getApplicationInfoSpace()->fireItemAvailable("FSMState",        &m_gemFSMState);
+  //p_gemApp->getApplicationInfoSpace()->fireItemAvailable("ReasonForFailure",&m_reasonForFailure);
   p_gemApp->getApplicationInfoSpace()->fireItemValueRetrieve("FSMState");
   p_gemApp->getApplicationInfoSpace()->fireItemValueRetrieve("ReasonForFailure");
 
@@ -242,7 +246,7 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
   std::string commandName = "undefined";
   try {
     commandName = gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(msg);
-    INFO("GEMFSM received command " << commandName);
+    INFO("GEMFSM::received command " << commandName);
   } catch(xoap::exception::Exception& err) {
     std::string msgBase = toolbox::toString("Unable to extract command from GEMFSM SOAP message");
     ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
@@ -260,8 +264,8 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     return reply;
   }
   
-  DEBUG(toolbox::toString("GEMFSM::changeState() received command '%s'.", commandName.c_str()));
-  
+  DEBUG("GEMFSM::changeState() received command '" <<  commandName.c_str() << "'.");
+
   try {
     toolbox::Event::Reference event(new toolbox::Event(commandName, this));
     INFO("Firing GEMFSM for event " << commandName);
@@ -345,7 +349,7 @@ void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::s
   try {
     m_gemRCMSNotifier.stateChanged(stateName, msg);
   } catch(xcept::Exception& err) {
-    ERROR("Failed to notify RCMS of state change: "
+    ERROR("GEMFSM::Failed to notify RCMS of state change: "
           << xcept::stdformat_exception_history(err));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::RCMSNotificationError, top,
                          "Failed to notify RCMS of state change.", err);
@@ -360,7 +364,7 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   INFO("GEMFSM::stateChanged() begin");
   m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
   //p_appStateInfoSpaceHandler->setFSMState(state_);
-  gem::utils::GEMInfoSpaceToolBox::setString(p_gemApp->getApplicationInfoSpace(),"FSMState",m_gemFSMState.toString());
+  p_gemApp->getAppISToolBox()->setString("FSMState",m_gemFSMState.toString());
   INFO("GEMFSM::stateChanged:Current state is: [" << m_gemFSMState.toString() << "]");
   /* TCDS way
   // Send notification to Run Control
@@ -411,7 +415,7 @@ void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
   std::string message = toolbox::toString("An invalid state transition has been received:"
                                           " requested transition to '%s' from '%s'.",
                                           requestedState.c_str(), initialState.c_str());
-  ERROR(message);
+  ERROR("GEMFSM::" << message);
   gotoFailed(message);
 }
 
@@ -419,7 +423,7 @@ void gem::base::GEMFSM::gotoFailed(std::string const reason)
 {
   INFO("GEMFSM::gotoFailed(std::string)");
   //p_appStateInfoSpaceHandler->setFSMState("Failed", reason);
-  ERROR("Going to 'Failed' state. Reason: '" << reason << "'.");
+  ERROR("GEMFSM::Going to 'Failed' state. Reason: '" << reason << "'.");
   XCEPT_RAISE(toolbox::fsm::exception::Exception, reason);
 }
 
@@ -435,7 +439,7 @@ void gem::base::GEMFSM::gotoFailedAsynchronously(xcept::Exception& err)
   INFO("GEMFSM::gotoFailedAsynchronously(xcept::Exception&)");
   std::string reason = err.message();
   //p_appStateInfoSpaceHandler->setFSMState("Failed", reason);
-  ERROR("Going to 'Failed' state. Reason: " << reason);
+  ERROR("GEMFSM::Going to 'Failed' state. Reason: " << reason);
   try {
     toolbox::Event::Reference event(new toolbox::Event("Fail", this));
     p_gemfsm->fireEvent(event);

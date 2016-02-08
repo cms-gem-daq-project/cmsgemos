@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="STATUS"  address="0x0"  permission="r">
+    <node id="OH_VFAT_OOS"    mask="0x00000001"/>
+    <node id="GLIB_OH_OOS"    mask="0x00000002"/>
+    <node id="GLIB_VFAT_OOS"  mask="0x00000004"/>
+    <node id="OH_OOS"         mask="0x00000008"/>
+    
+    <node id="VFAT_TOO_MANY"      mask="0x00000010"/>
+    <node id="VFAT_SMALL_BLOCK"   mask="0x00000020"/>
+    <node id="VFAT_LARGE_BLOCK"   mask="0x00000040"/>
+    <node id="VFAT_NO_MARKER"     mask="0x00000080"/>
+
+    <node id="INPUT_FIFO_HAD_OFLOW"   mask="0x00000100"/>
+    <node id="INPUT_FIFO_HAD_UFLOW"   mask="0x00000200"/>
+    <node id="EVENT_FIFO_HAD_OFLOW"   mask="0x00000400"/>
+    <node id="EVT_SIZE_ERR"           mask="0x00000800"/>
+
+    <node id="INPUT_FIFO_IS_UFLOW"    mask="0x01000000"/>
+    <node id="INPUT_FIFO_IS_FULL"     mask="0x02000000"/>
+    <node id="INPUT_FIFO_IS_AFULL"    mask="0x04000000"/>
+    <node id="INPUT_FIFO_IS_EMPTY"    mask="0x08000000"/>
+
+    <node id="EVENT_FIFO_IS_UFLOW"    mask="0x10000000"/>
+    <node id="EVENT_FIFO_IS_FULL"     mask="0x20000000"/>
+    <node id="EVENT_FIFO_IS_AFULL"    mask="0x40000000"/>
+    <node id="EVENT_FIFO_IS_EMPTY"    mask="0x80000000"/>
+  </node>
+
+  <node id="COUNTERS"  permission="r">
+    <node id="CORRUPT_VFAT_BLK_CNT"  address="0x1"/>
+    <node id="EVN"                   address="0x2"/>
+  </node>
+
+  <node id="LASTBLOCK"  address="0x9" permission="r"  mode="incremental"  size="7"
+        description="contains the last 192+32 bits received from the VFAT and OH, probably better to implement as a block">
+    <!--
+    <node id=""  address="0x0"/>
+    <node id=""  address="0x1"/>
+    <node id=""  address="0x2"/>
+    <node id=""  address="0x3"/>
+    <node id=""  address="0x4"/>
+    <node id=""  address="0x5"/>
+    <node id=""  address="0x6"/>
+    -->
+  </node>
+</node>

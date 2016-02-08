@@ -1,8 +1,10 @@
 #include "gem/supervisor/GEMSupervisorWeb.h"
 #include "gem/supervisor/GEMSupervisor.h"
+#include "gem/supervisor/GEMSupervisorMonitor.h"
+#include "gem/base/GEMMonitor.h"
 #include "xdata/InfoSpaceFactory.h"
 
-#include "gem/utils/GEMInfoSpaceToolBox.h"
+#include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 #include "gem/supervisor/exception/Exception.h"
 
@@ -13,6 +15,7 @@ gem::supervisor::GEMSupervisorWeb::GEMSupervisorWeb(gem::supervisor::GEMSupervis
   gem::base::GEMWebApplication(gemSupervisorApp)
 {
   level = 5;
+  //p_gemMonitor = dynamic_cast<gem::supervisor::GEMSupervisorMonitor*> gemSupervisorApp->getMonitor();
 }
 
 gem::supervisor::GEMSupervisorWeb::~GEMSupervisorWeb()
@@ -26,13 +29,18 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
 {
   if (p_gemFSMApp)
     DEBUG("current supervisor state is" << dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemFSMApp)->getCurrentState());
+  *out << cgicc::script().set("type","text/javascript")
+    .set("src","/gemdaq/gemsupervisor/html/scripts/gemsupervisor.js")
+       << cgicc::script() << std::endl;
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
   controlPanel(in,out);
   
   *out << cgicc::br();
   
-  displayManagedStateTable(in,out);
+  // do this in an ajax way, so the page reload isn't necessary to get the state table update
+  //displayManagedStateTable(in,out);
+  dynamic_cast<gem::supervisor::GEMSupervisorMonitor*>(p_gemMonitor)->buildStateTable(out);
   *out << "</div>" << std::endl;
 
   *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
@@ -44,6 +52,11 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
   expertPage(in,out);
   *out << "</div>" << std::endl;
   *out << "</div>" << std::endl;
+
+  std::string updateLink = "/" + p_gemApp->m_urn + "/jsonUpdate";
+  *out << "<script type=\"text/javascript\">"            << std::endl
+       << "    startUpdate( \"" << updateLink << "\" );" << std::endl
+       << "</script>" << std::endl;
 }
 
 /*To be filled in with the monitor page code
@@ -170,7 +183,7 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
       
       INFO("trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
       std::string classstate
-        = gem::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()),"FSMState");
+        = gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()),"FSMState");
       *out << classstate;
       INFO("managed class FSM state is " << classstate);
       *out << cgicc::h3() << std::endl
@@ -186,4 +199,22 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
     INFO("Something went wrong displaying managed application state table(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
+}
+
+void gem::supervisor::GEMSupervisorWeb::jsonUpdate(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  this->gem::base::GEMWebApplication::jsonUpdate(in,out);
+  //out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  
+/*
+  *out << " { \n";
+  auto monitor = p_gemFSMApp->p_gemMonitor;
+  //if (p_gemMonitor) {
+  if (monitor) {
+    //p_gemMonitor->jsonUpdateItemSets(out);
+    monitor->jsonUpdateItemSets(out);
+  }
+  *out << " } \n";
+*/
 }

@@ -152,7 +152,7 @@ xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::M
   scanParam = std::stoi(parameterValue);
   DEBUG(toolbox::toString("GEMDataParker::updateScanParameters() received command '%s' with value. %s",
                           commandName.c_str(), parameterValue.c_str()));
-  gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
+  return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
 }
 
 uint32_t* gem::readout::GEMDataParker::getGLIBData(uint8_t const& gtx, uint32_t Counter[5])

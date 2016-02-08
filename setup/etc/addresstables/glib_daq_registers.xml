@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="CONTROL"  address="0x0"  permission="rw"
+        description="DAQ Control">
+    <node id="DAQ_ENABLE"       mask="0x00000001"/>
+    <node id="RESET"            mask="0x00000008"/>
+    <node id="TTS_OVERRIDE"     mask="0x000000f0"/>
+    <node id="INPUT_KILL_MASK"  mask="0xffffff00"/>
+  </node>
+  <node id="STATUS"  address="0x1"  permission="r"
+        description="DAQ global status registers">
+    <node id="DAQ_LINK_RDY"    address="0x0"  mask="0x00000001"/>
+    <node id="DAQ_CLK_LOCKED"  address="0x0"  mask="0x00000002"/>
+    <node id="TTC_RDY"         address="0x0"  mask="0x00000004"/>
+    <node id="DAQ_AFULL"       address="0x0"  mask="0x00000008"/>
+    <node id="TTS_STATE"       address="0x0"  mask="0xf0000000"/>
+  </node>
+  <node id="EXT_STATUS"  address="0x2"  permission="r"
+        description="DAQ global extended status registers">
+    <node id="NOTINTABLE_ERR"  address="0x0"  mask="0x0000ffff"/>
+    <node id="DISPER_ERR"      address="0x1"  mask="0x0000ffff"/>
+    <node id="L1AID"           address="0x2"  mask="0x00ffffff"/>
+    <node id="EVT_SENT"        address="0x3"  mask="0xffffffff"/>
+  </node>
+
+  <node id="EXT_CONTROL"  address="0xe"  permission="rw"
+        description="DAQ global extended configuration registers">
+    <node id="INPUT_TIMEOUT"  address="0x0"  mask="0xffff0000"/>
+    <node id="RUN_TYPE"       address="0x1"  mask="0x0f000000"/>
+    <node id="RUN_PARAMS"     address="0x1"  mask="0x00ffffff"/>
+    <node id="RUN_PARAM1"     address="0x1"  mask="0x00ff0000"/>
+    <node id="RUN_PARAM2"     address="0x1"  mask="0x0000ff00"/>
+    <node id="RUN_PARAM3"     address="0x1"  mask="0x000000ff"/>
+  </node>
+
+  <node id="GTX0"  address="0x10"
+        module="file://${GEM_ADDRESS_TABLE_PATH}/glib_daq_link_registers.xml"
+        description="Link specific registers for GTX0">
+  </node>
+  <node id="GTX1"  address="0x20"
+        module="file://${GEM_ADDRESS_TABLE_PATH}/glib_daq_link_registers.xml"
+        description="Link specific registers for GTX2">
+  </node>
+</node>
