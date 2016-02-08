@@ -56,3 +56,4 @@ echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
 export GEM_ADDRESS_TABLE_PATH=${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables
 export GEM_PYTHON_PATH=${BUILD_HOME}/gemdaq-testing/setup/scripts/python
 export PYTHONPATH=${GEM_PYTHON_PATH}:${PYTHONPATH}
+export PATH=${GEM_PYTHON_PATH}:${PATH}

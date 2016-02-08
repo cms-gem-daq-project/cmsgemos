@@ -2,7 +2,7 @@
 
 import sys, re, time, datetime, os
 
-sys.path.append('/opt/gemdaq/firmware/testing/src')
+sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 from registers_uhal import *
@@ -112,7 +112,7 @@ if options.debug:
         print controlRegs
         
 if options.biasAll:
-        biasAllVFATs(optohybrid, options.gtx, mask)
+        biasAllVFATs(optohybrid, options.gtx, chipmask)
 
 if options.sleepAll:
         for chip in range(24):

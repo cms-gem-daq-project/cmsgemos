@@ -108,6 +108,8 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
     // GEM System Configuration
     //
     ///////////////////////////////////////////////
+
+
     *out << "<div class=\"panel panel-primary\">" << std::endl;
     *out << "<div class=\"panel-heading\">" << std::endl;
     *out << "<h1><div align=\"center\">GEM System Configuration</div></h1>" << std::endl;
@@ -121,23 +123,52 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input * in, xgi::Output 
 
     std::string methodText = toolbox::toString("/%s/setConfFile",
                                                getApplicationDescriptor()->getURN().c_str());
+
+
+
+    // *out << cgicc::form().set("method","POST").set("action",methodText) << std::endl ;
+    // *out << cgicc::input().set("type","text").set("name","xmlFilename")
+    //   .set("size","120").set("ENCTYPE","multipart/form-data")
+    //   .set("value",gemSystemHelper_->getXMLconfigFile())
+    //      << std::endl;
+    // *out << "<button type=\"submit\" class=\"btn btn-primary\">Set configuration file</button>" << std::endl;
+    // *out << cgicc::form() << std::endl ;
+
+    // std::string methodUpload = toolbox::toString("/%s/uploadConfFile",
+    //                                              getApplicationDescriptor()->getURN().c_str());
+    // *out << cgicc::form().set("method","POST").set("enctype","multipart/form-data").set("action",methodUpload)
+    //      << std::endl ;
+    // // *out << cgicc::input().set("type","file").set("name","xmlFilenameUpload").set("size","80") << std::endl;
+    // *out << "<span class=\"btn btn-primary btn-file\">Browse <input type=\"file\" "
+    //      << "name=\"xmlFilenameUpload\"></span>" << std::endl;
+    // *out << "<button type=\"submit\" class=\"btn btn-primary\">Submit - BROKEN</button>" << std::endl;
+    // *out << cgicc::form() << std::endl ;
+
+    // *out << cgicc::br()<< std::endl;
+
+
+
+
+    *out << "<h5><div class=\"alert alert-warning\" align=\"center\" role=\"alert\">Note: Configuration file must be located in ";
+    *out << "BUILD_HOME/gemdaq-testing/gembase/xml/ </div></h5>" << std::endl;
+
+
     *out << cgicc::form().set("method","POST").set("action",methodText) << std::endl ;
-    *out << cgicc::input().set("type","text").set("name","xmlFilename")
-      .set("size","120").set("ENCTYPE","multipart/form-data")
-      .set("value",gemSystemHelper_->getXMLconfigFile())
-         << std::endl;
-    *out << "<button type=\"submit\" class=\"btn btn-primary\">Set configuration file</button>" << std::endl;
+    *out << "<input id=\"Filename\" name=\"xmlFile\" type=\"file\" style=\"display:none\"> " << std::endl;
+    *out << "<div class=\"input-append\">" << std::endl;
+    *out << "<input id=\"xmlFilename\" name=\"xmlFileUpload\" class=\"input-large\" type=\"text\" size=\"120\" " << std::endl;
+    *out << "value=\"" << gemSystemHelper_->getXMLconfigFile() << "\" >" << std::endl;
+    *out << "<a class=\"btn\" onclick=\"$('input[id=Filename]').click();\">Choose XML</a>" << std::endl;
+    *out << "</div>" << std::endl;
+    *out << "<button type=\"submit\" class=\"btn btn-primary\" >Set XML file</button>" << std::endl;
     *out << cgicc::form() << std::endl ;
 
-    std::string methodUpload = toolbox::toString("/%s/uploadConfFile",
-                                                 getApplicationDescriptor()->getURN().c_str());
-    *out << cgicc::form().set("method","POST").set("enctype","multipart/form-data").set("action",methodUpload)
-         << std::endl ;
-    // *out << cgicc::input().set("type","file").set("name","xmlFilenameUpload").set("size","80") << std::endl;
-    *out << "<span class=\"btn btn-primary btn-file\">Browse <input type=\"file\""
-         << "name=\"xmlFilenameUpload\"></span>" << std::endl;
-    *out << "<button type=\"submit\" class=\"btn btn-primary\">Submit</button>" << std::endl;
-    *out << cgicc::form() << std::endl ;
+    *out << "<script type=\"text/javascript\">" << std::endl;
+    *out << "$('input[id=Filename]').change(function() {" << std::endl;
+    *out << "$('#xmlFilename').val($(this).val());" << std::endl;
+    *out << "});" << std::endl;
+    *out << "</script>" << std::endl;
+
 
     *out << cgicc::br()<< std::endl;
 
@@ -235,7 +266,11 @@ void gem::hwMonitor::gemHwMonitorWeb::setConfFile(xgi::Input * in, xgi::Output *
   throw (xgi::exception::Exception)
 {
   cgicc::Cgicc cgi(in);
-  std::string newFile = cgi.getElement("xmlFilename")->getValue();
+  std::string rawFile = cgi("xmlFileUpload");
+  std::string newFile = gemSystemHelper_->fixXMLconfigFile(rawFile.c_str());
+  //std::cout<<"newFile: "<<newFile<<std::endl;
+  
+  // conditional statement would not recognize good xml file
   struct stat buffer;
   if (stat(newFile.c_str(), &buffer) == 0) {
     gemSystemHelper_->setXMLconfigFile(newFile.c_str());
@@ -256,6 +291,10 @@ void gem::hwMonitor::gemHwMonitorWeb::uploadConfFile(xgi::Input * in, xgi::Outpu
     gemSystemHelper_->setXMLconfigFile(newFile.c_str());
     crateCfgAvailable_ = false;
   } else {
+
+    std::cout<<"newFile: "<<newFile<<std::endl;
+
+
     XCEPT_RAISE(xgi::exception::Exception, "File not found");
   }
   this->controlPanel(in,out);
@@ -279,6 +318,7 @@ void gem::hwMonitor::gemHwMonitorWeb::getCratesConfiguration(xgi::Input * in, xg
   throw (xgi::exception::Exception)
 {
   gemSystemHelper_->configure();
+  std::cout << "Configured." << std::endl;
   crateCfgAvailable_ = true;
   nCrates_ = gemHwMonitorSystem_->getNumberOfSubDevices();
   for (int i=0; i<nCrates_; i++) {

@@ -70,6 +70,18 @@ namespace gem {
         
         return (indxslot);
       };
+      uint32_t GEBChipIdFromSlot(int slotindex){
+            return slot[slotindex];
+      };
+      uint32_t GEBNumberOfSlots(){
+        uint32_t count=0;
+        for (int islot = 0; islot < 24; islot++) {
+            if(slot[islot]==0xfff) continue;
+            count++;
+        }
+        return count;
+      };
+
     }; // end class GEMslotContents
   } //end namespace gem::readout
 } //end namespace gem
