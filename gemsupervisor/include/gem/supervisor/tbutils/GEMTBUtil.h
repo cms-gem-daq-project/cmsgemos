@@ -210,6 +210,7 @@ namespace gem {
 	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedInteger64 triggersSeen;
+	    xdata::UnsignedInteger64 triggersSeenGLIB;
 
 	    xdata::UnsignedInteger32 triggercount;
 	    
