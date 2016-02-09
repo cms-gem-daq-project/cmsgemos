@@ -97,6 +97,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     //    if (bufferDepth>0) {
+    //      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       wl_->submit(readSig_);
       //  }
     LOG4CPLUS_INFO(getApplicationLogger()," ******IT IS NOT RUNNIG ***** ");
@@ -105,13 +106,16 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   //send triggers
   hw_semaphore_.take(); //take hw to send the trigger 
-  optohybridDevice_->setTrigSource(0x1);// trigger sources   
-  for (size_t trig = 0; trig < 500; ++trig) optohybridDevice_->sendL1A(1);  // Sent from T1 generator
+  optohybridDevice_->setTrigSource(0x0);// trigger sources   
+  // for (size_t trig = 0; trig < 500; ++trig) 
+  
+  //  optohybridDevice_->sendL1A(1);  // Sent from T1 generator
 
   //count triggers
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x1);// Sent from T1 generator
+  //  confParams_.bag.triggersSeenGLIB =  glibDevice_->getL1ACount();
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen);
+  //  LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen << "triggersSeen GLIB" << confParams_.bag.triggersSeenGLIB);
 
   hw_semaphore_.give(); //give hw to send the trigger 
   
@@ -135,12 +139,18 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.give(); // give hw to set buffer depth
       wl_semaphore_.give();//give workloop to read
 
-      //++confParams_.bag.triggercount;
-      confParams_.bag.triggercount = confParams_.bag.triggercount + 500;
+      ++confParams_.bag.triggercount;
+      //      confParams_.bag.triggercount = confParams_.bag.triggercount + 500;
+      //      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+      LOG4CPLUS_INFO(getApplicationLogger()," READSIGNATURE PER VFAT" );	
       wl_->submit(readSig_);
+      //  }
+      wl_semaphore_.take(); 
       
       LOG4CPLUS_INFO(getApplicationLogger()," AFTER READ" );
     }  
+
+      wl_semaphore_.give();//give workloop to read
     return true;
   }//end if triggerSeen < nTrigger
   else {
@@ -160,10 +170,11 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.give(); //give hw to set Runmode 0 on VFATs       
       wl_semaphore_.give(); //give workloop to read
 
-      //++confParams_.bag.triggercount;
-      confParams_.bag.triggercount = confParams_.bag.triggercount + 500;
+      ++confParams_.bag.triggercount;
+      //      confParams_.bag.triggercount = confParams_.bag.triggercount + 500;
+      //      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       wl_->submit(readSig_);
-      // }
+      //       }
 
     hw_semaphore_.take();// take hw to reset counters
     wl_semaphore_.take();// take workloop after reading
@@ -177,7 +188,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.give();  // give hw to reset counters
 	  
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
-		   << confParams_.bag.triggersSeen );
+		   << confParams_.bag.triggersSeen << "TriggersSeen GLIB " << confParams_.bag.triggersSeenGLIB);
     
     if ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 ) {
       wl_semaphore_.give();
@@ -220,7 +231,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       }	
       
       confParams_.bag.triggersSeen = 0;
-
+      confParams_.bag.triggersSeenGLIB = 0;
       //send Resync
       optohybridDevice_->sendResync();     
       optohybridDevice_->sendBC0();          
@@ -251,6 +262,7 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
 
   LOG4CPLUS_INFO(getApplicationLogger(), " Latency " << (int)latency_ 
 		 << " TrigSeen " << confParams_.bag.triggersSeen 
+		 << "TriggersGLIB " << confParams_.bag.triggersSeenGLIB
 		 << " VT1 " << scanParams_.bag.deviceVT1 
 		 << " VT2 " << scanParams_.bag.deviceVT2
 		 ); 
@@ -780,7 +792,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
   std::string errFileName = "ERRORS_";
   errFileName.append(tmpFileName);
-  errFileName.append(utcTime);
+  //  errFileName.append(utcTime);
   errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
   errFileName.append(".dat");
   std::replace(errFileName.begin(), errFileName.end(), ' ', '_' );

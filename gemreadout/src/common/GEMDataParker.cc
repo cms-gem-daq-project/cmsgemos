@@ -53,7 +53,6 @@ const int gem::readout::GEMDataParker::I2O_READOUT_CONFIRM=0x85;
 
 // Main constructor
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
-					   //					   gem::gemsupervisor::tbutils::GEMTBUtil::ScanRoutines().RunType(),
                                            std::string const& outFileName,
                                            std::string const& errFileName,
                                            std::string const& outputType,
@@ -489,11 +488,6 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
                                                  AMCGEMData& gem, AMCGEBData& geb)
 {
 
-
-
-
-
-
   // GEM, All Chamber Data
   // GEM Event Headers [1]
   uint64_t AmcNo       = BOOST_BINARY( 1 );            // :4 
@@ -537,25 +531,6 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   DAVCount    = (0x000000000000ff00 & gem.header3) >> 11;
   FormatVer   = (0x0000000000000f00 & gem.header3) >> 8;
   MP7BordStat = (0x00000000000000ff & gem.header3);
-
-  // RunType:4, all other depends from RunType
- uint64_t RunType = BOOST_BINARY( 1 ); // :4
-  
-
-  //this needs to be populated with dummy values so migration can be made simply
-  //scanParam;
-  /*
-  INFO(" GEMfillHeaders::GEMDataParker Latency = " << (int)latency_m  << " uint8  " << (uint8_t)latency_m   );
-  INFO(" GEMfillHeaders::GEMDataParker VT1     = " << (int)VT1_m   << " uint8  " << (uint8_t)VT1_m   );
-  INFO(" GEMfillHeaders::GEMDataParker VT2     = " << (int)VT2_m  << (uint8_t)VT1_m   );
-
-  INFO(" ::RunType " << std::setfill('0') << std::setw(4) << std::hex << RunType << std::dec );
-  */
-  //  INFO("  runtype | " <<   (((((((RunType << 4) << 4) | latency_m) << 4) | VT1_m) << 4) | VT2_m) );
-  //  INFO("  runtype + " <<   (((((((RunType << 4) << 4) + latency_m) << 4) + VT1_m) << 4) + VT2_m) );
-
-  //  geb.runhed  = (((((((RunType << 4) << 8) | latency_m) << 8) | VT1_m) << 8) | VT2_m);
-  //  geb.runhed  = (((((((RunType << 4) + latency_m) << 8) + VT1_m) << 8) + VT2_m) << 8); suggested by Jared
 
   // last geb header:
  geb.runhed  = Runtype();

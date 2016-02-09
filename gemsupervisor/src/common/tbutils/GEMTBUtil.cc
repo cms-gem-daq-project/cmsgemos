@@ -71,6 +71,8 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   deviceChipID  = 0x0;
 
   triggersSeen = 0;
+  //  confParams_.bag.triggersSeen = 0;
+  triggersSeenGLIB = 0;
   triggercount = 0;
   ADCVoltage = 0;
   ADCurrent = 0;
@@ -1502,6 +1504,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   //  confParams_.bag.deviceName   = "";
   confParams_.bag.deviceChipID = 0x0;
   confParams_.bag.triggersSeen = 0;
+  confParams_.bag.triggersSeenGLIB = 0;
   confParams_.bag.triggercount = 0;
   confParams_.bag.triggerSource = 0x9;
 
@@ -1634,7 +1637,6 @@ catch (const xgi::exception::Exception& e) {
 
 }// end void selectoptohybrid
 
-//uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
 void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readout_mask,  uint8_t  currentLatency_m, uint8_t VT1, uint8_t VT2)
 {
 
@@ -1656,7 +1658,7 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
   }
 
   for(int j = 0; j < 5; j++){
-    INFO("GEMTBUtils counter " << j <<  " "<< m_counter[j] );
+    INFO("GEMTBUtils counter " << j <<  " " << m_counter[j] );
   }
   
   INFO(" GEMTBUtils ntriggers "     <<   confParams_.bag.triggersSeen );
@@ -1664,7 +1666,7 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
 
   bool finish = true;  
   INFO(" queueDepth " <<  gemDataParker->queueDepth()  );
-
+  /*
   if(is_running_){
     finish = true;
   }else if (gemDataParker->queueDepth() > 0){
@@ -1674,6 +1676,7 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
     INFO("nTrigegrs are not equal to number of stored events");
     finish = false;
   }
+  */
   if(finish){
     INFO("DUMP DATA");
     gemDataParker->ScanRoutines(currentLatency_m, VT1,VT2);
@@ -1684,27 +1687,6 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& readou
   }else{
     INFO("------NOT DUMP DATA---------");
   }
-
-  //  uint64_t RunType = BOOST_BINARY( 1 ); // :4
-  //   RunType = (((((((RunType << 4) << 8) | currentLatency_m) << 8) | VT1) << 8) | VT2);
-  
-      /*  while(gemDataParker->queueDepth() > 0){
-    INFO("----Still reading------- queueDepth "  <<   gemDataParker->queueDepth()  );    
-    finish=false;  
-  }
-  if(finish){
-    INFO( "Event counter: " << m_counter[1] );
-    if(pDupm) {
-    }
-  }
-  */
-
-
-  
-
-  
-  //  }
-
 }
 
 
