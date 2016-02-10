@@ -106,10 +106,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   //send triggers
   hw_semaphore_.take(); //take hw to send the trigger 
-  optohybridDevice_->setTrigSource(0x0);// trigger sources   
+  optohybridDevice_->setTrigSource(0x1);// trigger sources   
   // for (size_t trig = 0; trig < 500; ++trig) 
   
-  //  optohybridDevice_->sendL1A(1);  // Sent from T1 generator
+  optohybridDevice_->sendL1A(1);  // Sent from T1 generator
 
   //count triggers
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x1);// Sent from T1 generator
