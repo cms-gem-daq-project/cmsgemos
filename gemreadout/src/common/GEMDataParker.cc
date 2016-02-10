@@ -62,10 +62,13 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName,
                                            std::string const& errFileName,
                                            std::string const& outputType,
-                                           std::string const& slotFileName="slot_table.csv") 
+                                           std::string const& slotFileName="slot_table.csv",
+                                           GEMRunType  const& runType
+                                           ) 
   :
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))),
-  m_queueLock(toolbox::BSem::FULL, true)
+  m_queueLock(toolbox::BSem::FULL, true),
+  m_runType(runType)
 {
   //  these bindings necessitate that the GEMDataParker inherit from some xdaq application stuff
   //  i2o::bind(this,&GEMDataParker::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);

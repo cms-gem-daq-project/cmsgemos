@@ -31,17 +31,26 @@ namespace gem {
   }
   namespace readout {
 
+    enum GEMRunType {
+      DATA      = 0x0,
+      THRESHOLD = 0x1,
+      LATENCY   = 0x2,
+      SCURVE    = 0x3,
+      HVSCAN    = 0x4
+    };
+    
     class GEMDataParker
     {
     public:
       static const int I2O_READOUT_NOTIFY;
       static const int I2O_READOUT_CONFIRM;
 
-      GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice, 
-                            std::string const& outFileName, 
-                            std::string const& errFileName, 
+      GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice,
+                            std::string const& outFileName,
+                            std::string const& errFileName,
                             std::string const& outputType,
-                            std::string const& slotFileName                            
+                            std::string const& slotFileName,
+                            GEMRunType  const& runType
                             );
       ~GEMDataParker() {delete m_gemOnlineDQM;};
 
@@ -104,6 +113,9 @@ namespace gem {
       // The main data flow
       std::queue<uint32_t> dataque;
       
+      //type of run
+      GEMRunType m_runType;
+
       // Online histograms
       gemOnlineDQM* m_gemOnlineDQM;
       /*
