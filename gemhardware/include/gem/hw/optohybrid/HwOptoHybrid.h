@@ -732,7 +732,7 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void resetT1Count(uint8_t const& signal, uint8_t const& mode) {
+          void resetT1Count(uint8_t const& signal, uint8_t const& mode0x5) {
             std::stringstream t1Signal;
             if (signal == 0x0)
               t1Signal << "L1A";
@@ -786,7 +786,7 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void resetL1ACount(uint8_t const& mode) {
+          void resetL1ACount(uint8_t const& mode=0x5) {
             resetT1Count(0x0,mode);
           };
 	  
@@ -800,7 +800,7 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void resetCalPulseCount(uint8_t const& mode) {
+          void resetCalPulseCount(uint8_t const& mode=0x5) {
             return resetT1Count(0x1, mode); };
           
           /**
@@ -813,7 +813,7 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void resetResyncCount(uint8_t const& mode=0x0) {
+          void resetResyncCount(uint8_t const& mode=0x5) {
             return resetT1Count(0x2, mode); };
 
           /**
@@ -826,7 +826,7 @@ namespace gem {
            * 4 sent along the GEB
            * 5 all
            **/
-          void resetBC0Count(uint8_t const& mode=0x0) {
+          void resetBC0Count(uint8_t const& mode=0x5) {
             return resetT1Count(0x3, mode); };
 
           /**
