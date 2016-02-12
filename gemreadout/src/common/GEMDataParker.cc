@@ -638,8 +638,8 @@ void gem::readout::GEMDataParker::readVFATblock(std::queue<uint32_t>& m_dataque)
 
 
 
-//void gem::readout::GEMDataParker::ScanRoutines(u_int8_t latency_, u_int8_t VT1_, u_int8_t VT2_)
-void gem::readout::GEMDataParker::ScanRoutines(int latency_, int VT1_, int VT2_)
+void gem::readout::GEMDataParker::ScanRoutines(uint8_t latency_, uint8_t VT1_, uint8_t VT2_)
+//void gem::readout::GEMDataParker::ScanRoutines(uint_8 latency_, u8int_t VT1_, u8int_t VT2_)
 {
 
   latency_m = latency_;
@@ -648,22 +648,6 @@ void gem::readout::GEMDataParker::ScanRoutines(int latency_, int VT1_, int VT2_)
 
   INFO( " Dataparker scan routines Latency = " << (int)latency_m  << " VT1 = " << (int)VT1_m << " VT2 = " << (int)VT2_m);
 
-
-  INFO(" Latency" << std::setfill('0') << std::setw(4) << std::dec << (int)latency_m  << std::dec );
-
-  INFO("------------------Scan Routine of Data parker AFTER data parker--------------------");
-
-  /*
-  uint64_t RunType = BOOST_BINARY( 1 ); // :4
-  uint64_t lat     = latency_m;
-  uint64_t vt1     = VT1_m;
-  uint64_t vt2     = VT2_m;
-  uint64_t runheader = 0;
-
-  runheader = (((((((RunType << 4)|lat) <<8)|vt1)<<8)|vt2) <<8) ;
-
-  INFO("Runtype" << runheader);
-  */
 }
 
      

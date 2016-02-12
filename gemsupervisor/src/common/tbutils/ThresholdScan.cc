@@ -180,7 +180,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     wl_semaphore_.take();// take workloop after reading
 
     //reset counters
-    optohybridDevice_->resetL1ACount(0x1);
+    optohybridDevice_->resetL1ACount(0x5);
     optohybridDevice_->resetResyncCount();
     optohybridDevice_->resetBC0Count();
     optohybridDevice_->resetCalPulseCount(0x1);
@@ -751,7 +751,7 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
 
 
     //reset counters
-  optohybridDevice_->resetL1ACount(0x1);
+  optohybridDevice_->resetL1ACount(0x5);
   optohybridDevice_->resetResyncCount();
   optohybridDevice_->resetBC0Count();
   optohybridDevice_->resetCalPulseCount(0x1);
@@ -846,7 +846,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   hw_semaphore_.take();
 
   //reset counters
-  optohybridDevice_->resetL1ACount(0x1);
+  optohybridDevice_->resetL1ACount(0x5);
   optohybridDevice_->resetResyncCount();
   optohybridDevice_->resetBC0Count();
   optohybridDevice_->resetCalPulseCount(0x1);
