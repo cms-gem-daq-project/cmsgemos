@@ -59,18 +59,6 @@
       </properties>
     </xc:Application>
 
-    <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
-      <properties xmlns="urn:xdaq-application:GEMSupervisor"
-		  xsi:type="soapenc:Struct">
-	<!--
-	   <rcmsStateListener xsi:type="soapenc:Struct">
-             <classname xsi:type="xsd:string">RCMSStateListener</classname>
-             <instance xsi:type="xsd:unsignedInt">0</instance>
-           </rcmsStateListener>
-	   -->    
-      </properties>
-    </xc:Application>
-
     <xc:Module>${XDAQ_ROOT}/lib/libxdaq2rc.so</xc:Module>
 
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
