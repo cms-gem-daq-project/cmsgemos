@@ -77,15 +77,16 @@ namespace gem {
       int queueDepth       () {return dataque.size();}
       
 
-      //      void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
-      void ScanRoutines(int latency_,int VT1_,int VT2_);
+      void ScanRoutines(uint8_t latency_,uint8_t VT1_,uint8_t VT2_);
+      //      void ScanRoutines(int latency_,int VT1_,int VT2_);
       uint64_t Runtype(){
 	uint64_t RunType = BOOST_BINARY( 1 ); // :4
-	uint64_t lat =  (0x00ff & latency_m); // :8
-	uint64_t vt1 =  (0x00ff & VT1_m); // :8
-	uint64_t vt2 =  (0x00ff & VT2_m); // :8
+	uint64_t lat =  (0xff & latency_m); // :8
+	uint64_t vt1 =  (0xff & VT1_m); // :8
+	uint64_t vt2 =  (0xff & VT2_m); // :8
+
 	//	return ((((((RunType<<4|lat)<<8))|vt1)<<8)|vt2);
-	return (RunType << 60)|(lat << 44)|(vt1 << 20)|(vt2) ;//||(lat << 32)||(vt1<<16)||(vt2);
+	return (RunType << 24)|(lat << 16)|(vt1 << 8)|(vt2) ;//||(lat << 32)||(vt1<<16)||(vt2);
       }
 
 
