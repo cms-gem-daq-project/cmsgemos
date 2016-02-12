@@ -794,7 +794,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   errFileName.append(tmpFileName);
   //  errFileName.append(utcTime);
   errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
-  errFileName.append(".dat");
+  //  errFileName.append(".dat");
   std::replace(errFileName.begin(), errFileName.end(), ' ', '_' );
   std::replace(errFileName.begin(), errFileName.end(), ':', '-');
 
