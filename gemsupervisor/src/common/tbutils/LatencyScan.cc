@@ -874,7 +874,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   errFileName.append(tmpFileName);
   //  errFileName.append(utcTime);
   errFileName.erase(std::remove(errFileName.begin(), errFileName.end(), '\n'), errFileName.end());
-  errFileName.append(".dat");
+  //  errFileName.append(".dat");
   std::replace(errFileName.begin(), errFileName.end(), ' ', '_' );
   std::replace(errFileName.begin(), errFileName.end(), ':', '-');
 
