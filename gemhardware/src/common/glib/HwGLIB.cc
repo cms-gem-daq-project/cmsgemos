@@ -719,6 +719,7 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 
 void gem::hw::glib::HwGLIB::enableDAQLink()
 {
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_KILL_MASK", 0x3);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAQ_ENABLE", 0x1);
 }
 
@@ -726,6 +727,7 @@ void gem::hw::glib::HwGLIB::resetDAQLink()
 {
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x1);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x0);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAV_TIMEOUT", 0x3d090);
 }
 
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkControl()
@@ -782,6 +784,24 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkDisperErrors()
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkNonidentifiableErrors()
 {
   return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.NOTINTABLE_ERR");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkInputMask()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_KILL_MASK");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkDAVTimeout()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.CONTROL.DAV_TIMEOUT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkDAVTimer(bool const& max)
+{
+  if (max)
+    return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.MAX_DAV_TIMER");
+  else
+    return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.LAST_DAV_TIMER");
 }
 
 // GTX specific DAQ link information
