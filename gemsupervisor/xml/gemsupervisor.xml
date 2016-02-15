@@ -2,22 +2,22 @@
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
-  <xc:Context url="http://gem904daq01:5050">
+  <xc:Context url="http://gem904daq01:4444">
 
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">4,10</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">1,10</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="3"> <!-- position must be slot-1 -->
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="0"> <!-- position must be slot-1 -->
             <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
             <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">4</slot>
+            <slot    xsi:type="xsd:integer">1</slot>
             <present xsi:type="xsd:boolean">true</present>
             
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
-            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.164</DeviceIPAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.161</DeviceIPAddress>
             <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
             <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
             <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
