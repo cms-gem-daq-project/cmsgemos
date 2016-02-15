@@ -701,6 +701,10 @@ namespace gem {
           uint32_t getDAQLinkDisperErrors();
           uint32_t getDAQLinkNonidentifiableErrors();
 
+          uint32_t getDAQLinkInputMask();
+          uint32_t getDAQLinkDAVTimeout();
+          uint32_t getDAQLinkDAVTimer(bool const& );
+
           // GTX specific DAQ link information
           uint32_t getDAQLinkStatus(   uint8_t const& gtx);
           uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
