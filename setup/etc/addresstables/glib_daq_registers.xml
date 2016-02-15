@@ -6,6 +6,7 @@
     <node id="RESET"            mask="0x00000008"/>
     <node id="TTS_OVERRIDE"     mask="0x000000f0"/>
     <node id="INPUT_KILL_MASK"  mask="0xffffff00"/>
+    <node id="DAV_TIMEOUT"      address="0x6"  mask="0x00ffffff"/>
   </node>
   <node id="STATUS"  address="0x1"  permission="r"
         description="DAQ global status registers">
@@ -21,6 +22,8 @@
     <node id="DISPER_ERR"      address="0x1"  mask="0x0000ffff"/>
     <node id="L1AID"           address="0x2"  mask="0x00ffffff"/>
     <node id="EVT_SENT"        address="0x3"  mask="0xffffffff"/>
+    <node id="MAX_DAV_TIMER"   address="0x5"  mask="0x00ffffff"/>
+    <node id="LAST_DAV_TIMER"  address="0x6"  mask="0x00ffffff"/>
   </node>
 
   <node id="EXT_CONTROL"  address="0xe"  permission="rw"

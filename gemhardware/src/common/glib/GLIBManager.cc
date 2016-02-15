@@ -363,6 +363,7 @@ void gem::hw::glib::GLIBManager::configureAction()
     if (m_glibs[slot]->isHwConnected()) {
       DEBUG("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
       m_glibs[slot]->setTrigSource(info.triggerSource.value_);
+      m_glibs[slot]->resetDAQLink();
       
       //should FIFOs be emptied in configure or at start?
       DEBUG("emptying trigger/tracking data FIFOs");
@@ -389,6 +390,18 @@ void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
   //what is required for starting the GLIB?
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
+    usleep(100);
+    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    GLIBInfo& info = m_glibInfo[slot].bag;
+    
+    if (!info.present)
+      continue;
+
+    // reset the hw monitor
+    if (m_glibMonitors[slot])
+      m_glibs[slot]->enableDAQLink();
+  }
   usleep(100);
 }
 
@@ -517,6 +530,10 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   // DAQ link registers
   is_glib->createUInt32("CONTROL",        glib->getDAQLinkControl(),               GEMUpdateType::HW32);
   is_glib->createUInt32("STATUS",         glib->getDAQLinkStatus(),                GEMUpdateType::HW32);
+  is_glib->createUInt32("INPUT_KILL_MASK",glib->getDAQLinkInputMask(),                GEMUpdateType::HW32);
+  is_glib->createUInt32("DAV_TIMEOUT",    glib->getDAQLinkDAVTimeout(),                GEMUpdateType::HW32);
+  is_glib->createUInt32("MAX_DAV_TIMER",  glib->getDAQLinkDAVTimer(0),                GEMUpdateType::HW32);
+  is_glib->createUInt32("LAST_DAV_TIMER", glib->getDAQLinkDAVTimer(1),                GEMUpdateType::HW32);
   is_glib->createUInt32("NOTINTABLE_ERR", glib->getDAQLinkNonidentifiableErrors(), GEMUpdateType::HW32);
   is_glib->createUInt32("DISPER_ERR",     glib->getDAQLinkDisperErrors(),          GEMUpdateType::HW32);
   is_glib->createUInt32("EVT_SENT",       glib->getDAQLinkEventsSent(),            GEMUpdateType::HW32);
@@ -525,6 +542,9 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("GTX0_DAQ_STATUS",               glib->getDAQLinkStatus(0),     GEMUpdateType::HW32);
   is_glib->createUInt32("GTX0_DAQ_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(0,0), GEMUpdateType::HW32);
   is_glib->createUInt32("GTX0_DAQ_EVN",                  glib->getDAQLinkCounters(0,1), GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_DAQ_STATUS",               glib->getDAQLinkStatus(1),     GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_DAQ_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(1,0), GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_DAQ_EVN",                  glib->getDAQLinkCounters(1,1), GEMUpdateType::HW32);
 
   is_glib->createUInt64("OptoHybrid_0", 0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
   is_glib->createUInt64("OptoHybrid_1", 0, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
