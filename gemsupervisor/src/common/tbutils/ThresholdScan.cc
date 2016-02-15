@@ -62,8 +62,8 @@ gem::supervisor::tbutils::ThresholdScan::ThresholdScan(xdaq::ApplicationStub * s
   gem::supervisor::tbutils::GEMTBUtil(s)
 {
 
-  getApplicationInfoSpace()->fireItemAvailable("scanParams", &scanParams_);
-  getApplicationInfoSpace()->fireItemValueRetrieve("scanParams", &scanParams_);
+  getApplicationInfoSpace()->fireItemAvailable("scanParams", &m_scanParams);
+  getApplicationInfoSpace()->fireItemValueRetrieve("scanParams", &m_scanParams);
 
   // HyperDAQ bindings
   xgi::framework::deferredbind(this, this, &gem::supervisor::tbutils::ThresholdScan::webDefault,      "Default"    );
@@ -93,11 +93,11 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   wl_semaphore_.take(); //teake workloop
   if (!is_running_) {
     wl_semaphore_.give(); // give work loop if it is not running
-    //++confParams_.bag.triggercount;
+    //++m_confParams.bag.triggercount;
     uint32_t bufferDepth = 0;
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    bufferDepth = p_glibDevice->getFIFOVFATBlockOccupancy(m_readout_mask);
     //    if (bufferDepth>0) {
-    //      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+    //      for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
       wl_->submit(readSig_);
       //  }
     LOG4CPLUS_INFO(getApplicationLogger()," ******IT IS NOT RUNNIG ***** ");
@@ -106,27 +106,27 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   //send triggers
   hw_semaphore_.take(); //take hw to send the trigger 
-  optohybridDevice_->setTrigSource(0x1);// trigger sources   
+  p_optohybridDevice->setTrigSource(0x1);// trigger sources   
   // for (size_t trig = 0; trig < 500; ++trig) 
   
-  optohybridDevice_->sendL1A(1);  // Sent from T1 generator
+  p_optohybridDevice->sendL1A(1);  // Sent from T1 generator
 
   //count triggers
-  confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x1);// Sent from T1 generator
-  //  confParams_.bag.triggersSeenGLIB =  glibDevice_->getL1ACount();
+  m_confParams.bag.triggersSeen =  p_optohybridDevice->getL1ACount(0x1);// Sent from T1 generator
+  //  m_confParams.bag.triggersSeenGLIB =  p_glibDevice->getL1ACount();
 
-  //  LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen << "triggersSeen GLIB" << confParams_.bag.triggersSeenGLIB);
+  //  LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << m_confParams.bag.triggersSeen << "triggersSeen GLIB" << m_confParams.bag.triggersSeenGLIB);
 
   hw_semaphore_.give(); //give hw to send the trigger 
   
   // if triggersSeen < N triggers
-  if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
+  if ((uint64_t)(m_confParams.bag.triggersSeen) < (uint64_t)(m_confParams.bag.nTriggers)) {
     
     hw_semaphore_.take(); // take hw to set buffer depth
 
     // Get the size of GLIB data buffer       
     uint32_t bufferDepth;
-    bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
+    bufferDepth  = p_glibDevice->getFIFOOccupancy(m_readout_mask); 
     
 
     hw_semaphore_.give();
@@ -139,9 +139,9 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.give(); // give hw to set buffer depth
       wl_semaphore_.give();//give workloop to read
 
-      ++confParams_.bag.triggercount;
-      //      confParams_.bag.triggercount = confParams_.bag.triggercount + 500;
-      //      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+      ++m_confParams.bag.triggercount;
+      //      m_confParams.bag.triggercount = m_confParams.bag.triggercount + 500;
+      //      for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
       LOG4CPLUS_INFO(getApplicationLogger()," READSIGNATURE PER VFAT" );	
       wl_->submit(readSig_);
       //  }
@@ -157,12 +157,12 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     
     hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs 
  
-   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+   for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
       (*chip)->setRunMode(0);
     }// end for  
 
     uint32_t bufferDepth = 0;
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    bufferDepth = p_glibDevice->getFIFOVFATBlockOccupancy(m_readout_mask);
 
     LOG4CPLUS_INFO(getApplicationLogger()," bufferdepth triggerSeen >= Ntrigger " << bufferDepth );
 
@@ -170,9 +170,9 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       hw_semaphore_.give(); //give hw to set Runmode 0 on VFATs       
       wl_semaphore_.give(); //give workloop to read
 
-      ++confParams_.bag.triggercount;
-      //      confParams_.bag.triggercount = confParams_.bag.triggercount + 500;
-      //      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+      ++m_confParams.bag.triggercount;
+      //      m_confParams.bag.triggercount = m_confParams.bag.triggercount + 500;
+      //      for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
       wl_->submit(readSig_);
       //       }
 
@@ -180,61 +180,61 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     wl_semaphore_.take();// take workloop after reading
 
     //reset counters
-    optohybridDevice_->resetL1ACount(0x5);
-    optohybridDevice_->resetResyncCount();
-    optohybridDevice_->resetBC0Count();
-    optohybridDevice_->resetCalPulseCount(0x1);
+    p_optohybridDevice->resetL1ACount(0x5);
+    p_optohybridDevice->resetResyncCount();
+    p_optohybridDevice->resetBC0Count();
+    p_optohybridDevice->resetCalPulseCount(0x1);
 	  
     hw_semaphore_.give();  // give hw to reset counters
 	  
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
-		   << confParams_.bag.triggersSeen << "TriggersSeen GLIB " << confParams_.bag.triggersSeenGLIB);
+		   << m_confParams.bag.triggersSeen << "TriggersSeen GLIB " << m_confParams.bag.triggersSeenGLIB);
     
-    if ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 ) {
+    if ( (unsigned)m_scanParams.bag.deviceVT1 == (unsigned)0x0 ) {
       wl_semaphore_.give();
       wl_->submit(stopSig_);
       return false;
       
     }//end if deviceVT1=0
-    else if ( (scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) <= scanParams_.bag.maxThresh ) {    
+    else if ( (m_scanParams.bag.deviceVT2-m_scanParams.bag.deviceVT1) <= m_scanParams.bag.maxThresh ) {    
       //if VT2 - VT1 <= maxThreshold
       
       hw_semaphore_.take(); // take hw to set threshold values
       
       LOG4CPLUS_INFO(getApplicationLogger()," ABC run: VT1= " 
-		     << scanParams_.bag.deviceVT1 << " VT2-VT1= "
-		     << scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1 
-		     << " bag.maxThresh= " << scanParams_.bag.maxThresh 
+		     << m_scanParams.bag.deviceVT1 << " VT2-VT1= "
+		     << m_scanParams.bag.deviceVT2-m_scanParams.bag.deviceVT1 
+		     << " bag.maxThresh= " << m_scanParams.bag.maxThresh 
 		     << " abs(VT2-VT1) " 
-		     << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
+		     << abs(m_scanParams.bag.deviceVT2-m_scanParams.bag.deviceVT1) );
 
       hw_semaphore_.give();
       //how to ensure that the VT1 never goes negative
       hw_semaphore_.take();
       //if VT1 > stepSize      
-      if (scanParams_.bag.deviceVT1 > scanParams_.bag.stepSize) {
+      if (m_scanParams.bag.deviceVT1 > m_scanParams.bag.stepSize) {
 
-	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	  (*chip)->setVThreshold1(scanParams_.bag.deviceVT1 - scanParams_.bag.stepSize);
+	for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
+	  (*chip)->setVThreshold1(m_scanParams.bag.deviceVT1 - m_scanParams.bag.stepSize);
 	}
       } else { //end if VT1 > stepsize, begin else
 
-	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
 	  (*chip)->setVThreshold1(0);
 	}
       }// end else VT1 <stepsize
       
-      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	scanParams_.bag.deviceVT1    = (*chip)->getVThreshold1();
-	scanParams_.bag.deviceVT2    = (*chip)->getVThreshold2();
+      for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
+	m_scanParams.bag.deviceVT1    = (*chip)->getVThreshold1();
+	m_scanParams.bag.deviceVT2    = (*chip)->getVThreshold2();
 	(*chip)->setRunMode(1);
       }	
       
-      confParams_.bag.triggersSeen = 0;
-      confParams_.bag.triggersSeenGLIB = 0;
+      m_confParams.bag.triggersSeen = 0;
+      m_confParams.bag.triggersSeenGLIB = 0;
       //send Resync
-      optohybridDevice_->sendResync();     
-      optohybridDevice_->sendBC0();          
+      p_optohybridDevice->sendResync();     
+      p_optohybridDevice->sendBC0();          
 
       hw_semaphore_.give(); // give hw to set threshold values
       wl_semaphore_.give(); // emd of workloop	
@@ -260,20 +260,20 @@ bool gem::supervisor::tbutils::ThresholdScan::readFIFO(toolbox::task::WorkLoop* 
   wl_semaphore_.take();
   hw_semaphore_.take();//glib getFIFO
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " Latency " << (int)latency_ 
-		 << " TrigSeen " << confParams_.bag.triggersSeen 
-		 << "TriggersGLIB " << confParams_.bag.triggersSeenGLIB
-		 << " VT1 " << scanParams_.bag.deviceVT1 
-		 << " VT2 " << scanParams_.bag.deviceVT2
+  LOG4CPLUS_INFO(getApplicationLogger(), " Latency " << (int)m_latency 
+		 << " TrigSeen " << m_confParams.bag.triggersSeen 
+		 << "TriggersGLIB " << m_confParams.bag.triggersSeenGLIB
+		 << " VT1 " << m_scanParams.bag.deviceVT1 
+		 << " VT2 " << m_scanParams.bag.deviceVT2
 		 ); 
 
-  uint8_t latency_m = latency_;
-  uint8_t vt1 = scanParams_.bag.deviceVT1;
-  uint8_t vt2 = scanParams_.bag.deviceVT2;
+  uint8_t latency_m = m_latency;
+  uint8_t vt1 = m_scanParams.bag.deviceVT1;
+  uint8_t vt2 = m_scanParams.bag.deviceVT2;
   
-  dumpRoutinesData(readout_mask, latency_m, vt1, vt2 );
+  dumpRoutinesData(m_readout_mask, latency_m, vt1, vt2 );
 
-  //  dumpRoutinesData(readout_mask, (uint8_t)scanParams_.bag.latency, (uint8_t)scanParams_.bag.deviceVT1, (uint8_t)scanParams_.bag.deviceVT2 );
+  //  dumpRoutinesData(m_readout_mask, (uint8_t)m_scanParams.bag.latency, (uint8_t)m_scanParams.bag.deviceVT1, (uint8_t)m_scanParams.bag.deviceVT2 );
 
   hw_semaphore_.give();
   wl_semaphore_.give();
@@ -292,59 +292,59 @@ void gem::supervisor::tbutils::ThresholdScan::scanParameters(xgi::Output *out)
 	 << cgicc::label("Latency").set("for","Latency") << std::endl
 	 << cgicc::input().set("id","Latency").set(is_running_?"readonly":"").set("name","Latency")
       .set("type","number").set("min","0").set("max","255")
-      .set("value",boost::str(boost::format("%d")%static_cast<unsigned>(scanParams_.bag.latency)))
+      .set("value",boost::str(boost::format("%d")%static_cast<unsigned>(m_scanParams.bag.latency)))
 	 << std::endl
 	 << cgicc::br() << std::endl
 
 	 << cgicc::label("MinThreshold").set("for","MinThreshold") << std::endl
 	 << cgicc::input().set("id","MinThreshold").set(is_running_?"readonly":"").set("name","MinThreshold")
       .set("type","number").set("min","-255").set("max","255")
-      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.minThresh)))
+      .set("value",boost::str(boost::format("%d")%(m_scanParams.bag.minThresh)))
 	 << std::endl
 
 	 << cgicc::label("MaxThreshold").set("for","MaxThreshold") << std::endl
 	 << cgicc::input().set("id","MaxThreshold").set(is_running_?"readonly":"").set("name","MaxThreshold")
       .set("type","number").set("min","-255").set("max","255")
-      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.maxThresh)))
+      .set("value",boost::str(boost::format("%d")%(m_scanParams.bag.maxThresh)))
 	 << std::endl
 	 << cgicc::br() << std::endl
 
 	 << cgicc::label("VStep").set("for","VStep") << std::endl
 	 << cgicc::input().set("id","VStep").set(is_running_?"readonly":"").set("name","VStep")
       .set("type","number").set("min","1").set("max","255")
-      .set("value",boost::str(boost::format("%d")%(scanParams_.bag.stepSize)))
+      .set("value",boost::str(boost::format("%d")%(m_scanParams.bag.stepSize)))
 	 << std::endl
 	 << cgicc::br() << std::endl
 
 	 << cgicc::label("VT1").set("for","VT1") << std::endl
 	 << cgicc::input().set("id","VT1").set("name","VT1").set("readonly")
-      .set("value",boost::str(boost::format("%d")%static_cast<unsigned>(scanParams_.bag.deviceVT1)))
+      .set("value",boost::str(boost::format("%d")%static_cast<unsigned>(m_scanParams.bag.deviceVT1)))
 	 << std::endl
 
 	 << cgicc::label("VT2").set("for","VT2") << std::endl
 	 << cgicc::input().set("id","VT2").set("name","VT2").set("readonly")
-      .set("value",boost::str(boost::format("%d")%static_cast<unsigned>(scanParams_.bag.deviceVT2)))
+      .set("value",boost::str(boost::format("%d")%static_cast<unsigned>(m_scanParams.bag.deviceVT2)))
 	 << std::endl
 	 << cgicc::br() << std::endl
 
 	 << cgicc::label("NTrigsStep").set("for","NTrigsStep") << std::endl
 	 << cgicc::input().set("id","NTrigsStep").set(is_running_?"readonly":"").set("name","NTrigsStep")
       .set("type","number").set("min","0")
-      .set("value",boost::str(boost::format("%d")%(confParams_.bag.nTriggers)))
+      .set("value",boost::str(boost::format("%d")%(m_confParams.bag.nTriggers)))
 	 << cgicc::br() << std::endl
 	 << cgicc::label("NTrigsSeen").set("for","NTrigsSeen") << std::endl
 	 << cgicc::input().set("id","NTrigsSeen").set("name","NTrigsSeen")
       .set("type","number").set("min","0").set("readonly")
-      .set("value",boost::str(boost::format("%d")%(confParams_.bag.triggersSeen)))
+      .set("value",boost::str(boost::format("%d")%(m_confParams.bag.triggersSeen)))
 	 << cgicc::br() << std::endl
 	 << cgicc::label("ADCVoltage").set("for","ADCVoltage") << std::endl
 	 << cgicc::input().set("id","ADCVoltage").set("name","ADCVoltage")
       .set("type","number").set("min","0").set("readonly")
-      .set("value",boost::str(boost::format("%d")%(confParams_.bag.ADCVoltage)))
+      .set("value",boost::str(boost::format("%d")%(m_confParams.bag.ADCVoltage)))
 	 << cgicc::label("ADCurrent").set("for","ADCurrent") << std::endl
 	 << cgicc::input().set("id","ADCurrent").set("name","ADCurrent")
       .set("type","number").set("min","0").set("readonly")
-      .set("value",boost::str(boost::format("%d")%(confParams_.bag.ADCurrent)))
+      .set("value",boost::str(boost::format("%d")%(m_confParams.bag.ADCurrent)))
 	 << cgicc::br() << std::endl
 	 << cgicc::span()   << std::endl;
   }
@@ -419,7 +419,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
 
       *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80")
 	.set("ENCTYPE","multipart/form-data").set("readonly")
-	.set("value",confParams_.bag.settingsFile.toString()) << std::endl;
+	.set("value",m_confParams.bag.settingsFile.toString()) << std::endl;
       
       *out << cgicc::br() << std::endl;
       *out << cgicc::input().set("type", "submit")
@@ -606,27 +606,27 @@ void gem::supervisor::tbutils::ThresholdScan::webConfigure(xgi::Input *in, xgi::
     cgicc::Cgicc cgi(in);
     
     //aysen's xml parser
-    confParams_.bag.settingsFile = cgi.getElement("xmlFilename")->getValue();
+    m_confParams.bag.settingsFile = cgi.getElement("xmlFilename")->getValue();
     
     cgicc::const_form_iterator element = cgi.getElement("Latency");
     if (element != cgi.getElements().end())
-      scanParams_.bag.latency   = element->getIntegerValue();
+      m_scanParams.bag.latency   = element->getIntegerValue();
 
     element = cgi.getElement("MinThreshold");
     if (element != cgi.getElements().end())
-      scanParams_.bag.minThresh = element->getIntegerValue();
+      m_scanParams.bag.minThresh = element->getIntegerValue();
     
     element = cgi.getElement("MaxThreshold");
     if (element != cgi.getElements().end())
-      scanParams_.bag.maxThresh = element->getIntegerValue();
+      m_scanParams.bag.maxThresh = element->getIntegerValue();
 
     element = cgi.getElement("VStep");
     if (element != cgi.getElements().end())
-      scanParams_.bag.stepSize  = element->getIntegerValue();
+      m_scanParams.bag.stepSize  = element->getIntegerValue();
         
     element = cgi.getElement("NTrigsStep");
     if (element != cgi.getElements().end())
-      confParams_.bag.nTriggers  = element->getIntegerValue();
+      m_confParams.bag.nTriggers  = element->getIntegerValue();
   }
   catch (const xgi::exception::Exception & e) {
     XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -649,23 +649,23 @@ void gem::supervisor::tbutils::ThresholdScan::webStart(xgi::Input *in, xgi::Outp
     
     cgicc::const_form_iterator element = cgi.getElement("Latency");
     if (element != cgi.getElements().end())
-      scanParams_.bag.latency   = element->getIntegerValue();
+      m_scanParams.bag.latency   = element->getIntegerValue();
 
     element = cgi.getElement("MinThreshold");
     if (element != cgi.getElements().end())
-      scanParams_.bag.minThresh = element->getIntegerValue();
+      m_scanParams.bag.minThresh = element->getIntegerValue();
     
     element = cgi.getElement("MaxThreshold");
     if (element != cgi.getElements().end())
-      scanParams_.bag.maxThresh = element->getIntegerValue();
+      m_scanParams.bag.maxThresh = element->getIntegerValue();
 
     element = cgi.getElement("VStep");
     if (element != cgi.getElements().end())
-      scanParams_.bag.stepSize  = element->getIntegerValue();
+      m_scanParams.bag.stepSize  = element->getIntegerValue();
         
     element = cgi.getElement("NTrigsStep");
     if (element != cgi.getElements().end())
-      confParams_.bag.nTriggers  = element->getIntegerValue();
+      m_confParams.bag.nTriggers  = element->getIntegerValue();
   }
   catch (const xgi::exception::Exception & e) {
     XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -685,17 +685,17 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
 
   is_working_ = true;
 
-  latency_   = scanParams_.bag.latency;
-  nTriggers_ = confParams_.bag.nTriggers;
-  stepSize_  = scanParams_.bag.stepSize;
-  minThresh_ = scanParams_.bag.minThresh;
-  maxThresh_ = scanParams_.bag.maxThresh;
+  m_latency   = m_scanParams.bag.latency;
+  m_nTriggers = m_confParams.bag.nTriggers;
+  m_stepSize  = m_scanParams.bag.stepSize;
+  m_minThresh = m_scanParams.bag.minThresh;
+  m_maxThresh = m_scanParams.bag.maxThresh;
   
   hw_semaphore_.take();
 
   //make sure device is not running
   
-  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+  for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
     (*chip)->setRunMode(0);
 
 
@@ -725,38 +725,38 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
     (*chip)->setIShaperFeed(100);
     (*chip)->setIComp(      120);
 
-    (*chip)->setLatency(latency_);
+    (*chip)->setLatency(m_latency);
     //}
   
-    (*chip)->setVThreshold1(maxThresh_-minThresh_);
-    (*chip)->setVThreshold2(std::max(0,maxThresh_));
-    scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
-    scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
+    (*chip)->setVThreshold1(m_maxThresh-m_minThresh);
+    (*chip)->setVThreshold2(std::max(0,m_maxThresh));
+    m_scanParams.bag.deviceVT1 = (*chip)->getVThreshold1();
+    m_scanParams.bag.deviceVT2 = (*chip)->getVThreshold2();
 
-    scanParams_.bag.latency = (*chip)->getLatency();
+    m_scanParams.bag.latency = (*chip)->getLatency();
 
   }
 
   // flush FIFO, how to disable a specific, misbehaving, chip
-  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
-  glibDevice_->flushFIFO(readout_mask);
-  while (glibDevice_->hasTrackingData(readout_mask)) {
-    glibDevice_->flushFIFO(readout_mask);
-    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
-								 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
+  INFO("Flushing the FIFOs, m_readout_mask 0x" <<std::hex << (int)m_readout_mask << std::dec);
+  DEBUG("Flushing FIFO" << m_readout_mask << " (depth " << p_glibDevice->getFIFOOccupancy(m_readout_mask));
+  p_glibDevice->flushFIFO(m_readout_mask);
+  while (p_glibDevice->hasTrackingData(m_readout_mask)) {
+    p_glibDevice->flushFIFO(m_readout_mask);
+    std::vector<uint32_t> dumping = p_glibDevice->getTrackingData(m_readout_mask,
+								 p_glibDevice->getFIFOVFATBlockOccupancy(m_readout_mask));
   }
     // once more for luck
-  glibDevice_->flushFIFO(readout_mask);
+  p_glibDevice->flushFIFO(m_readout_mask);
 
 
     //reset counters
-  optohybridDevice_->resetL1ACount(0x5);
-  optohybridDevice_->resetResyncCount();
-  optohybridDevice_->resetBC0Count();
-  optohybridDevice_->resetCalPulseCount(0x1);
-  optohybridDevice_->sendResync();     
-  optohybridDevice_->sendBC0();          
+  p_optohybridDevice->resetL1ACount(0x5);
+  p_optohybridDevice->resetResyncCount();
+  p_optohybridDevice->resetBC0Count();
+  p_optohybridDevice->resetCalPulseCount(0x1);
+  p_optohybridDevice->sendResync();     
+  p_optohybridDevice->sendBC0();          
   
   is_configured_ = true;
   hw_semaphore_.give();
@@ -772,11 +772,11 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
   //AppHeader ah;
 
-  latency_   = scanParams_.bag.latency;
-  nTriggers_ = confParams_.bag.nTriggers;
-  stepSize_  = scanParams_.bag.stepSize;
-  minThresh_ = scanParams_.bag.minThresh;
-  maxThresh_ = scanParams_.bag.maxThresh;
+  m_latency   = m_scanParams.bag.latency;
+  m_nTriggers = m_confParams.bag.nTriggers;
+  m_stepSize  = m_scanParams.bag.stepSize;
+  m_minThresh = m_scanParams.bag.minThresh;
+  m_maxThresh = m_scanParams.bag.maxThresh;
 
   time_t now = time(0);
   tm *gmtm = gmtime(&now);
@@ -798,21 +798,21 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   std::replace(errFileName.begin(), errFileName.end(), ' ', '_' );
   std::replace(errFileName.begin(), errFileName.end(), ':', '-');
 
-  confParams_.bag.outFileName = tmpFileName;
+  m_confParams.bag.outFileName = tmpFileName;
 
-  LOG4CPLUS_INFO(getApplicationLogger(),"Creating file " << confParams_.bag.outFileName.toString());
+  LOG4CPLUS_INFO(getApplicationLogger(),"Creating file " << m_confParams.bag.outFileName.toString());
 
   std::ofstream scanStream(tmpFileName.c_str(), std::ios::app | std::ios::binary);
   std::ofstream errf(errFileName.c_str(), std::ios_base::app | std::ios::binary );
 
   if (scanStream.is_open()){
     LOG4CPLUS_INFO(getApplicationLogger(),"::startAction " 
-		   << "file " << confParams_.bag.outFileName.toString() << " opened");
+		   << "file " << m_confParams.bag.outFileName.toString() << " opened");
   }
 
   //  tmpFileName = "ThresholdScan_";
   // Book GEM Data Parker
-  gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_, tmpFileName, errFileName, outputType,  confParams_.bag.slotFileName.toString()));
+  p_gemDataParker = std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*p_glibDevice, tmpFileName, errFileName, outputType,  m_confParams.bag.slotFileName.toString()));
   
   // Setup Scan file, information header
   tmpFileName = "ScanSetup_";
@@ -821,7 +821,7 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   tmpFileName.append(".txt");
   std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
   std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
-  confParams_.bag.outFileName = tmpFileName;
+  m_confParams.bag.outFileName = tmpFileName;
 
   LOG4CPLUS_DEBUG(getApplicationLogger(),"::startAction " 
 		  << "Created ScanSetup file " << tmpFileName );
@@ -832,12 +832,12 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 		   << "file " << tmpFileName << " opened and closed");
 
     scanSetup << "\n The Time & Date : " << utcTime << std::endl;
-    scanSetup << " ChipID        0x" << std::hex << confParams_.bag.deviceChipID << std::dec << std::endl;
-    scanSetup << " Latency       " << latency_   << std::endl;
-    scanSetup << " nTriggers     " << nTriggers_ << std::endl;
-    scanSetup << " stepSize      " << stepSize_  << std::endl;
-    scanSetup << " minThresh     " << minThresh_ << std::endl;
-    scanSetup << " maxThresh     " << maxThresh_ << std::endl;
+    scanSetup << " ChipID        0x" << std::hex << m_confParams.bag.deviceChipID << std::dec << std::endl;
+    scanSetup << " Latency       " << m_latency   << std::endl;
+    scanSetup << " nTriggers     " << m_nTriggers << std::endl;
+    scanSetup << " stepSize      " << m_stepSize  << std::endl;
+    scanSetup << " minThresh     " << m_minThresh << std::endl;
+    scanSetup << " maxThresh     " << m_maxThresh << std::endl;
   }
   scanSetup.close();
   
@@ -846,46 +846,46 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   hw_semaphore_.take();
 
   //reset counters
-  optohybridDevice_->resetL1ACount(0x5);
-  optohybridDevice_->resetResyncCount();
-  optohybridDevice_->resetBC0Count();
-  optohybridDevice_->resetCalPulseCount(0x1);
-  optohybridDevice_->sendResync();      
-  optohybridDevice_->sendBC0();          
+  p_optohybridDevice->resetL1ACount(0x5);
+  p_optohybridDevice->resetResyncCount();
+  p_optohybridDevice->resetBC0Count();
+  p_optohybridDevice->resetCalPulseCount(0x1);
+  p_optohybridDevice->sendResync();      
+  p_optohybridDevice->sendBC0();          
 
   
   //set trigger source
-  optohybridDevice_->setTrigSource(0x1);// trigger sources   
+  p_optohybridDevice->setTrigSource(0x1);// trigger sources   
 
-  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-    (*chip)->setVThreshold1(maxThresh_-minThresh_);
-    (*chip)->setVThreshold2(std::max(0,maxThresh_));
-    scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
-    scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
+  for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
+    (*chip)->setVThreshold1(m_maxThresh-m_minThresh);
+    (*chip)->setVThreshold2(std::max(0,m_maxThresh));
+    m_scanParams.bag.deviceVT1 = (*chip)->getVThreshold1();
+    m_scanParams.bag.deviceVT2 = (*chip)->getVThreshold2();
     
-    scanParams_.bag.latency = (*chip)->getLatency();
+    m_scanParams.bag.latency = (*chip)->getLatency();
   }
 
   //start readout
   scanStream.close();
 
   //flush fifo
-  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
-  glibDevice_->flushFIFO(readout_mask);
-  while (glibDevice_->hasTrackingData(readout_mask)) {
-    glibDevice_->flushFIFO(readout_mask);
-    std::vector<uint32_t> dumping = glibDevice_->getTrackingData(readout_mask,
-                                                                 glibDevice_->getFIFOVFATBlockOccupancy(readout_mask));
+  INFO("Flushing the FIFOs, m_readout_mask 0x" <<std::hex << (int)m_readout_mask << std::dec);
+  DEBUG("Flushing FIFO" << m_readout_mask << " (depth " << p_glibDevice->getFIFOOccupancy(m_readout_mask));
+  p_glibDevice->flushFIFO(m_readout_mask);
+  while (p_glibDevice->hasTrackingData(m_readout_mask)) {
+    p_glibDevice->flushFIFO(m_readout_mask);
+    std::vector<uint32_t> dumping = p_glibDevice->getTrackingData(m_readout_mask,
+                                                                 p_glibDevice->getFIFOVFATBlockOccupancy(m_readout_mask));
   }
   // once more for luck
-  glibDevice_->flushFIFO(readout_mask);
+  p_glibDevice->flushFIFO(m_readout_mask);
 
 
-  optohybridDevice_->sendResync();      
-  optohybridDevice_->sendBC0();          
+  p_optohybridDevice->sendResync();      
+  p_optohybridDevice->sendBC0();          
 
-  for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+  for (auto chip = p_vfatDevice.begin(); chip != p_vfatDevice.end(); ++chip) {
     (*chip)->setRunMode(1);
   }
 
@@ -903,12 +903,12 @@ void gem::supervisor::tbutils::ThresholdScan::resetAction(toolbox::Event::Refere
   is_working_ = true;
   gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
   
-  scanParams_.bag.latency   = 12U;
-  scanParams_.bag.minThresh = -80;
-  scanParams_.bag.maxThresh = 20;
-  scanParams_.bag.stepSize  = 5U;
-  scanParams_.bag.deviceVT1 = 0x0;
-  scanParams_.bag.deviceVT2 = 0x0;
+  m_scanParams.bag.latency   = 12U;
+  m_scanParams.bag.minThresh = -80;
+  m_scanParams.bag.maxThresh = 20;
+  m_scanParams.bag.stepSize  = 5U;
+  m_scanParams.bag.deviceVT1 = 0x0;
+  m_scanParams.bag.deviceVT2 = 0x0;
   
   is_working_     = false;
 }

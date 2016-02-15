@@ -36,7 +36,9 @@ namespace gem {
     public:
       static const int I2O_READOUT_NOTIFY;
       static const int I2O_READOUT_CONFIRM;
-      uint8_t latency_m, VT1_m, VT2_m;
+
+      static const uint32_t kUPDATE;
+      static const uint32_t kUPDATE7;
 
       GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice, 
                             std::string const& outFileName, 
@@ -47,12 +49,12 @@ namespace gem {
       ~GEMDataParker() {};//delete m_gemOnlineDQM;};
 
       uint32_t* dumpData   ( uint8_t const& mask );
-      uint32_t* selectData ( uint32_t Counter[5]
+      uint32_t* selectData ( uint32_t counter[5]
                            );
       uint32_t* getGLIBData( uint8_t const& link,
-                             uint32_t Counter[5]
+                             uint32_t counter[5]
                            );
-      uint32_t* GEMEventMaker( uint32_t Counter[5]
+      uint32_t* GEMEventMaker( uint32_t counter[5]
                              );
       void GEMevSelector   ( const  uint32_t& ES
                            );
@@ -74,37 +76,37 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::GEBData& geb,
                              gem::readout::GEMDataAMCformat::VFATData& vfat
                            );
-      int queueDepth       () {return dataque.size();}
+      int queueDepth       () {return m_dataque.size();}
       
 
-      void ScanRoutines(uint8_t latency_,uint8_t VT1_,uint8_t VT2_);
-      //      void ScanRoutines(int latency_,int VT1_,int VT2_);
-      uint64_t Runtype(){
+      void ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2);
+
+      uint64_t Runtype() {
 	uint64_t RunType = BOOST_BINARY( 1 ); // :4
-	uint64_t lat =  (0xff & latency_m); // :8
-	uint64_t vt1 =  (0xff & VT1_m); // :8
-	uint64_t vt2 =  (0xff & VT2_m); // :8
-
-	//	return ((((((RunType<<4|lat)<<8))|vt1)<<8)|vt2);
-	return (RunType << 24)|(lat << 16)|(vt1 << 8)|(vt2) ;//||(lat << 32)||(vt1<<16)||(vt2);
+	return (RunType << 24)|(m_latency << 16)|(m_VT1 << 8)|(m_VT2);
       }
-
 
       // SOAP interface, updates the header used for calibration runs
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)
         throw (xoap::exception::Exception);
 
-
       
     private:
+      // moved from globals...
+      uint32_t m_ESexp;
+      bool     m_isFirst;
+      //uint64_t m_ZSFlag;
+      uint32_t m_contvfats;
 
-      void readVFATblock(std::queue<uint32_t>& m_dataque);
+      void readVFATblock(std::queue<uint32_t>& dataque);
+
       uint32_t dat10,dat11, dat20,dat21, dat30,dat31, dat40,dat41;
       uint32_t BX;
       uint16_t bcn, evn, chipid, vfatcrc;
       uint16_t b1010, b1100, b1110;
       uint8_t  flags;
 
+      uint8_t m_latency, m_VT1, m_VT2;
 
       static const int MaxVFATS = 24; // was 32 ???
       static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?
@@ -112,42 +114,42 @@ namespace gem {
       std::unique_ptr<GEMslotContents> slotInfo;
       
       log4cplus::Logger m_gemLogger;
-      gem::hw::glib::HwGLIB* glibDevice_;
-      std::string outFileName_;
-      std::string slotFileName_;
-      std::string errFileName_;
-      std::string outputType_;
+      gem::hw::glib::HwGLIB* p_glibDevice;
+      std::string m_outFileName;
+      std::string m_slotFileName;
+      std::string m_errFileName;
+      std::string m_outputType;
 
       // queue safety
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
-      std::queue<uint32_t> dataque;
+      std::queue<uint32_t> m_dataque;
 
 
 
       
       // Online histograms
-      gemOnlineDQM* m_gemOnlineDQM;
+      gemOnlineDQM* p_gemOnlineDQM;
       /*
        * Counter all in one
-       *   [0] VFAT's Blocks Counter
-       *   [1] Events Counter
+       *   [0] VFAT's Blocks counter
+       *   [1] Events counter
        *   [2] VFATs counter per last event
        *   [3] Good Events counter
        *   [4] Bad Events counter
        */
-      uint32_t counter_[5];
+      uint32_t m_counter[5];
 
-      // VFAT's Blocks Counter     
-      uint64_t vfat_;
+      // VFAT's blocks counter     
+      uint64_t m_vfat;
 
-      // Events Counter     
-      uint64_t event_;
+      // Events counter     
+      uint64_t m_event;
          
       // VFATs counter per event
-      int sumVFAT_;
+      int m_sumVFAT;
       
-      int16_t scanParam;
+      int16_t m_scanParam;
 
 
     };

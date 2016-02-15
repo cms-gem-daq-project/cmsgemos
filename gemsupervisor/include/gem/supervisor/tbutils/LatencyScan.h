@@ -90,7 +90,7 @@ namespace gem {
 	xdata::UnsignedShort  minLatency;
 	xdata::UnsignedShort  maxLatency;
 	xdata::UnsignedShort  nTriggers;
-	//	xdata::UnsignedShort  triggerSource_;
+	//xdata::UnsignedShort  triggerSource;
 	    
 	xdata::Integer  threshold;
 	xdata::Integer  deviceVT1;
@@ -100,18 +100,18 @@ namespace gem {
       };
 	  
     private:
-      //ConfigParams confParams_;
-      xdata::Bag<ConfigParams> scanParams_;
+      //ConfigParams m_confParams;
+      xdata::Bag<ConfigParams> m_scanParams;
 
       //ESTAS NO ESTAN EN THRESHOLD.H
     
       //std::fstream* scanStream;
       //0xdeadbeef
 
-      int minLatency_, maxLatency_, threshold_, MSPulseLength, VCal;
-      uint8_t  currentLatency_;
-      uint64_t stepSize_,eventsSeen_,channelSeen_;
-      uint64_t totaltriggercounter_;
+      int m_minLatency, m_maxLatency, m_threshold, m_mspl, m_vCal;
+      // duplicated from GEMTBUtil? uint8_t  m_currentLatency;
+      uint64_t m_stepSize;// duplicated from GEMTBUtil?, m_eventsSeen, m_channelSeen;
+      uint64_t m_totaltriggercounter;
       protected:
 	  
       };
