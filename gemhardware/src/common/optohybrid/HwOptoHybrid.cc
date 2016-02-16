@@ -144,7 +144,7 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection");
 
-    if ((this->getFirmwareDate()).rfind("15") != std::string::npos) {
+    if ((this->getFirmwareDate()).rfind("16") != std::string::npos) {
       b_is_connected = true;
       INFO("OptoHybrid present(0x" << std::hex << this->getFirmware() << std::dec << ")");
       return true;
