@@ -92,10 +92,10 @@ namespace gem {
       private:
 
         //ConfigParams confParams_;
-        xdata::Bag<ConfigParams> scanParams_;
+        xdata::Bag<ConfigParams> m_scanParams;
 
-        int minThresh_, maxThresh_;
-        uint64_t stepSize_, latency_;
+        int m_minThresh, m_maxThresh;
+        uint64_t m_stepSize, m_latency;
 	  
       protected:
 	  
