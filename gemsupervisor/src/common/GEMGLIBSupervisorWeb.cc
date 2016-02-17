@@ -16,6 +16,8 @@
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMGLIBSupervisorWeb)
 
+amc13::Module pMod;// in header raises error "incomplete type"
+
 void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
   latency   = 25U;
@@ -760,11 +762,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   char *atp = getenv("AMC13_ADDRESS_TABLE_PATH");
 
   std::cout << "AMC13 ATP " << atp << std::endl;
-  amc13::Module pMod;// in header raises error "incomplete type"
+  //amc13::Module pMod;// in header raises error "incomplete type"
+  //pMod = std::shared_ptr<amc13::Module>(new amc13::Module());// in header raises error "incomplete type"
+  //pMod = new amc13::Module();// in header raises error "incomplete type"
+  //pMod->Connect( "192.168.1.88", atp); // remove IP address hardcode
   pMod.Connect( "192.168.1.88", atp); // remove IP address hardcode
   std::cout << "Connection established " << atp << std::endl;
 
   amc13_ = pMod.amc13;
+  //amc13_ = std::shared_ptr<amc13::AMC13>(new amc13::AMC13());
+  //amc13_ = pMod->amc13();
   //--- inhibit most noise from uHAL
   uhal::setLogLevelTo(uhal::Error());
 
