@@ -49,6 +49,9 @@ gem::readout::GEMDataParker::GEMDataParker(amc13::AMC13& amc13,
   INFO("Data Parker");
 
   p_amc13   = &amc13;
+
+  uint32_t serno = p_amc13->read( amc13::AMC13Simple::T1, "STATUS.SERIAL_NO");
+  printf("Connected to AMC13 serial number %d\n", serno);
   m_outFileName  = outFileName;
   //m_counter = {0,0,0,0,0};
 }
@@ -56,8 +59,7 @@ gem::readout::GEMDataParker::GEMDataParker(amc13::AMC13& amc13,
 void gem::readout::GEMDataParker::dumpData()
 {
 
-  uint32_t serno = p_amc13->read( amc13::AMC13Simple::T1, "STATUS.SERIAL_NO");
-  printf("Connected to AMC13 serial number %d\n", serno);
+  std::cout << "Dump Data!" << std::endl;
 
   size_t siz;
   int rc;
@@ -68,7 +70,9 @@ void gem::readout::GEMDataParker::dumpData()
   fp = fopen( m_outFileName.c_str(), "w");
   int nwrote = 0;
 
+  std::cout << "File for output open" << std::endl;
   while (1){
+    std::cout << "Get number of events in the buffer" << std::endl;
     int nevt = p_amc13->read( amc13::AMC13Simple::T1, "STATUS.MONITOR_BUFFER.UNREAD_EVENTS");
     printf("Trying to read %d events\n", nevt);
     for( int i=0; i<nevt; i++) {

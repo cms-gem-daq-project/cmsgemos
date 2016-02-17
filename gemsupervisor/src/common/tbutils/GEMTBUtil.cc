@@ -1647,6 +1647,7 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& m_read
     INFO(" before GEMTBUtils counter " << j <<  " "<< m_counter[j] );
   }
 
+  /*
   uint32_t* pDQ = p_gemDataParker->selectData(m_counter);
   if (pDQ) {
     m_counter[0] = *(pDQ+0); // VFAT blocks dumped to disk
@@ -1660,6 +1661,7 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& m_read
   for(int j = 0; j < 5; j++){
     INFO("GEMTBUtils counter " << j <<  " " << m_counter[j] );
   }
+  */
   
   INFO(" GEMTBUtils ntriggers "     <<   m_confParams.bag.triggersSeen );
   INFO(" GEMTBUtils ntotalcounter " <<   m_confParams.bag.triggercount );
@@ -1676,7 +1678,6 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& m_read
     INFO("nTrigegrs are not equal to number of stored events");
     finish = false;
   }
-  */
   if(finish){
     INFO("DUMP DATA");
     p_gemDataParker->ScanRoutines(latency, VT1, VT2);
@@ -1687,6 +1688,8 @@ void gem::supervisor::tbutils::GEMTBUtil::dumpRoutinesData(uint8_t const& m_read
   }else{
     INFO("------NOT DUMP DATA---------");
   }
+
+  */
 }
 
 
