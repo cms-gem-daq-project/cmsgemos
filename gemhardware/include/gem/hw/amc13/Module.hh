@@ -20,6 +20,7 @@ namespace amc13{
     void Connect( const std::string file, const std::string addressTablePath, const std::string prefix = "");
     std::string Show();
     
+    AMC13* getAMC13(){return amc13;}
     AMC13* amc13;
     std::string connectionFile;
     uint32_t serialNo;

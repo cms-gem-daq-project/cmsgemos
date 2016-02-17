@@ -249,8 +249,10 @@ namespace gem {
 
         //supervisor application should not have any hw devices, should only send commands to manager applications
         //temporary fix just to get things working stably, should be using the manager
-        //std::shared_ptr<amc13::AMC13> amc13_;
         amc13::AMC13* amc13_;
+        //amc13::Module* pMod;
+        //std::shared_ptr<amc13::Module> pMod;
+        //std::shared_ptr<amc13::AMC13> amc13_;
         glib_shared_ptr glibDevice_;
         optohybrid_shared_ptr optohybridDevice_;
         std::vector<vfat_shared_ptr> vfatDevice_;
