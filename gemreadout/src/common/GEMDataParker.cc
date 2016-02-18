@@ -41,7 +41,7 @@ const int gem::readout::GEMDataParker::I2O_READOUT_CONFIRM=0x85;
 gem::readout::GEMDataParker::GEMDataParker(amc13::AMC13& amc13,
                                            std::string const& outFileName) :
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))),
-  m_queueLock(toolbox::BSem::FULL, true),
+  m_queueLock(toolbox::BSem::FULL, true)
 
 {
   //  these bindings necessitate that the GEMDataParker inherit from some xdaq application stuff
@@ -76,6 +76,7 @@ void gem::readout::GEMDataParker::dumpData()
     std::cout << "Get number of events in the buffer" << std::endl;
     int nevt = p_amc13->read( amc13::AMC13Simple::T1, "STATUS.MONITOR_BUFFER.UNREAD_EVENTS");
     printf("Trying to read %d events\n", nevt);
+    if (nevt == 0) break;
     for( int i=0; i<nevt; i++) {
       if( (i % 100) == 0)
 	      printf("calling readEvent (%d)...\n", i);
