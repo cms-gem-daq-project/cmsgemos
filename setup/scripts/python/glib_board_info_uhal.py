@@ -37,6 +37,8 @@ parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
 parser.add_option("--daq_enable", type="int", dest="daq_enable",
 		  help="enable daq output", metavar="daq_enable", default=-1)
+parser.add_option("--rd", type="int", dest="reset_daq",
+		  help="reset daq", metavar="reset_daq", default=-1)
 
 (options, args) = parser.parse_args()
 
@@ -71,7 +73,9 @@ print "--=======================================--"
 print
 
 if (options.daq_enable>=0):
-        writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
+        #writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
+        writeRegister(glib, "GLIB.DAQ.CONTROL", 0x8)
+        writeRegister(glib, "GLIB.DAQ.CONTROL", 0x181)
         print "Reset daq_enable: %i"%(options.daq_enable)
 
 print "-> DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
