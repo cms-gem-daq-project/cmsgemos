@@ -14,4 +14,6 @@
 !setup/etc/profile.d/*sh
 !setup/etc/yum.repos.d/*.repo
 !*.rules
-*#*
+# don't ignore CSS/JS etc
+!*.js
+!*.css
