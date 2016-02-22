@@ -188,16 +188,20 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
     tmp_activeLinks.reserve(N_GTX);
     for (unsigned int gtx = 0; gtx < N_GTX; ++gtx) {
       //need to make sure that this works only for "valid" FW results
-      // for the moment we can do a check to see that 2015 appears in the string
+      // for the moment we can do a check to see that 2015/2016 appears in the string
       // this no longer will work as desired, how to get whether the GTX is active?
-      if ((this->getFirmwareVer()).rfind("2.") != std::string::npos ||
-          (this->getFirmwareVer()).rfind("5.") != std::string::npos) {
+      if ((this->getFirmwareVer()).rfind("2.") != std::string::npos || // evka firmware versions
+          (this->getFirmwareVer()).rfind("5.") != std::string::npos || // system firmware version
+          (this->getFirmwareVer()).rfind(".201") != std::string::npos || // date string
+          (this->getBoardID()).rfind("GLIB")     != std::string::npos ) {
         b_links[gtx] = true;
         INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       } else {
         b_links[gtx] = false;
-        INFO("gtx" << gtx << " not reachable (unable to find 2 or 5 in the firmware string)"
+        INFO("gtx" << gtx << " not reachable (unable to find 2 or 5 or 201 in the firmware string, " 
+             << "or 'GLIB' in the board ID)"
+             << " board ID "              << this->getBoardID()
              << " user firmware version " << this->getFirmwareVer());
       }
     }
@@ -710,6 +714,7 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 
 void gem::hw::glib::HwGLIB::enableDAQLink()
 {
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_KILL_MASK", 0x3);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAQ_ENABLE", 0x1);
 }
 
@@ -717,6 +722,7 @@ void gem::hw::glib::HwGLIB::resetDAQLink()
 {
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x1);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x0);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAV_TIMEOUT", 0x3d090);
 }
 
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkControl()
@@ -773,6 +779,24 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkDisperErrors()
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkNonidentifiableErrors()
 {
   return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.NOTINTABLE_ERR");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkInputMask()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_KILL_MASK");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkDAVTimeout()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.CONTROL.DAV_TIMEOUT");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkDAVTimer(bool const& max)
+{
+  if (max)
+    return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.MAX_DAV_TIMER");
+  else
+    return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.LAST_DAV_TIMER");
 }
 
 // GTX specific DAQ link information

@@ -14,7 +14,7 @@ from glib_user_functions_uhal import *
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
-		  help="slot in uTCA crate", metavar="slot", default=15)
+		  help="slot in uTCA crate", metavar="slot", default=10)
 parser.add_option("-g", "--gtx", type="int", dest="gtx",
 		  help="GTX on the GLIB", metavar="gtx", default=0)
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
@@ -37,7 +37,7 @@ if options.enabledChips:
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-uTCAslot = 15
+uTCAslot = 10
 if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot

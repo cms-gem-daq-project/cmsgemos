@@ -51,6 +51,9 @@ namespace gem {
             throw (xdaq::exception::Exception);
 
           ~VFAT2Manager();
+
+	  virtual xoap::MessageReference onMessage(xoap::MessageReference message)
+	    throw (xoap::exception::Exception);
 	  
           void Default(xgi::Input *in, xgi::Output *out )
             throw (xgi::exception::Exception);
