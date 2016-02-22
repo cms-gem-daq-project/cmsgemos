@@ -60,20 +60,10 @@ class VFATdata {
 
 };
 
-class GEMdata
+class GEBdata
 {
   private:
     vector<VFATdata> vfatd;
-
-    //GEM event header
-      uint32_t m_GEMDAV;   //GEM DAV list:24    (8 zeroes):8
-                           //Bitmask indicating which inputs/chambers have data
-      uint64_t m_Bstatus;  // Buffer Status:34  (30 zeroes):30
-                           //Bitmask indicating buffer error in given inputs
-      uint8_t  m_GDcount;  //GEM DAV count:5    000:3
-                           //Number of chamber blocks
-      uint8_t  m_Tstate;   //TTS state:4        0000:4
-                           //Debug: GLIB TTS state at the moment when this event was built
 
     //GEM chamber header
 
@@ -88,8 +78,6 @@ class GEMdata
                            //L1AFIFO near full:1  Event size warn:1  No VFAT marker:1  OOS GLIB VFAT:1       OOS GLIB OH:1        
                            //BX mismatch GLIB VFAT:1                 BX mismatch GLIB OH:1                   
                            //000:3
-	
-
 
     //GEM chamber trailer
 		
@@ -103,32 +91,16 @@ class GEMdata
       uint8_t m_Stuckd;    //Stuck data:1    (7 0's):7
                            //Input status (warning): data in InFIFO or EvtFIFO when L1A FIFO was empty. Only resets with resync or reset
 		
-    //GEM event trailer
-      uint32_t m_ChamT;    //Chamber timeout:24   (8 0's):8
-                           //Bitmask indicating if GLIB did not recieve data from particular input for this L1A in X amount of GTX clock cycles
-      uint8_t  m_OOSG;     //OOS GLIB:1    (7 0's):7
-                           //GLIB is out-of-sync (critical): L1A ID is different for different chambers in this event.
-
   public:
-      GEMdata(){};
-      GEMdata(const uint32_t &GEMDAV_, 
-                const uint64_t &Bstatus_,
-                const uint8_t &GDcount_, 
-                const uint8_t &Tstate_,
-                const uint32_t &ZeroSup_, 
+      GEBdata(){};
+      GEBdata(const uint32_t &ZeroSup_, 
                 const uint8_t &InputID_, 
                 const uint16_t &Vwh_, 
                 const uint16_t &ErrorC_, 
                 const uint16_t &OHCRC_, 
                 const uint16_t &Vwt_,
                 const uint8_t &InFu_,
-                const uint8_t &Stuckd_,
-                const uint32_t &ChamT_,
-                const uint8_t OOSG_) : 
-            m_GEMDAV(GEMDAV_), 
-            m_Bstatus(Bstatus_),
-            m_GDcount(GDcount_),                                 
-            m_Tstate(Tstate_),                             
+                const uint8_t &Stuckd_) : 
             m_ZeroSup(ZerSup_),                                
             m_InputID(InputID_),
             m_Vwh(Vwh_),                                  
@@ -137,15 +109,8 @@ class GEMdata
             m_Vwt(Vwt_),                             
             m_InFu(InFu_),                                   
             m_Stuckd(Stuckd_),         
-            m_ChamT(ChamT_),                                   
-            m_OOSG(OOSG_),{}
-        ~GEMdata(){}
+        ~GEBdata(){}
 
-
-      uint32_t GEMDAV ()  {return m_GEMDAV}
-      uint64_t Bstatus()  {return m_Bstatus}
-      uint8_t  GDcount()  {return m_GDcount}
-      uint8_t  Tstate()   {return m_Tstate}
 
       uint32_t ZeroSup()  {return m_ZeroSup}
       uint8_t  InputID()  {return m_InputID}
@@ -157,8 +122,6 @@ class GEMdata
       uint8_t  InFu()     {return m_InFu}
       uint8_t  Stuckd()   {return m_Stuckd}
 
-      uint32_t ChamT()    {return m_ChamT}
-      uint8_t  OOSG()     {return m_OOSG}    
 
       void v_add(VFATdata v){vfatd.pushback(V);}
 };
@@ -166,7 +129,7 @@ class GEMdata
 class AMCdata
 {
   private:
-    vector<GEMdata> gemd;
+    vector<GEBdata> gebd;
 
     //AMC header #1	
 
@@ -190,6 +153,24 @@ class AMCdata
       uint16_t m_BID          //Board ID:16
                               //This is currently filled with 8bit long GLIB serial number
 
+    //GEM event header
+      uint32_t m_GEMDAV;   //GEM DAV list:24    (8 zeroes):8
+                           //Bitmask indicating which inputs/chambers have data
+      uint64_t m_Bstatus;  // Buffer Status:34  (30 zeroes):30
+                           //Bitmask indicating buffer error in given inputs
+      uint8_t  m_GDcount;  //GEM DAV count:5    000:3
+                           //Number of chamber blocks
+      uint8_t  m_Tstate;   //TTS state:4        0000:4
+                           //Debug: GLIB TTS state at the moment when this event was built
+
+
+    //GEM event trailer
+      uint32_t m_ChamT;    //Chamber timeout:24   (8 0's):8
+                           //Bitmask indicating if GLIB did not recieve data from particular input for this L1A in X amount of GTX clock cycles
+      uint8_t  m_OOSG;     //OOS GLIB:1    (7 0's):7
+                           //GLIB is out-of-sync (critical): L1A ID is different for different chambers in this event.
+
+
     //AMC_trailer
 	
   public:
@@ -205,6 +186,12 @@ class AMCdata
                 const uint8_t &Param3_, 
                 const uint16_t &Onum_, 
                 const uint16_t &BID_,
+                const uint32_t &GEMDAV_, 
+                const uint64_t &Bstatus_,
+                const uint8_t &GDcount_, 
+                const uint8_t &Tstate_,
+                const uint32_t &ChamT_,
+                const uint8_t OOSG_) :
             m_AMCnum(AMCnum_), 
             m_L1A(L1A_),
             m_BX(BX_),                                 
@@ -215,7 +202,13 @@ class AMCdata
             m_Param2(Param2_),                                  
             m_Param3(Param3_),
             m_Onum(Onum_),                                    
-            m_BID(BID_),{}
+            m_BID(BID_),
+            m_GEMDAV(GEMDAV_), 
+            m_Bstatus(Bstatus_),
+            m_GDcount(GDcount_),                                 
+            m_Tstate(Tstate_),                             
+            m_ChamT(ChamT_),                                   
+            m_OOSG(OOSG_){}
         ~AMCdata(){}
 
       uint8_t  AMCnum()  {return m_AMCnum}
@@ -230,6 +223,14 @@ class AMCdata
       uint8_t  Param3()  {return m_Param3}
       uint16_t Onum()    {return m_Onum}
       uint16_t BID()     {return m_BID}
+
+      uint32_t GEMDAV ()  {return m_GEMDAV}
+      uint64_t Bstatus()  {return m_Bstatus}
+      uint8_t  GDcount()  {return m_GDcount}
+      uint8_t  Tstate()   {return m_Tstate}
+
+      uint32_t ChamT()    {return m_ChamT}
+      uint8_t  OOSG()     {return m_OOSG}    
 
       void g_add(GEMdata g){gemd.pushback(g);}
 };
