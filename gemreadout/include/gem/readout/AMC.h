@@ -123,7 +123,7 @@ class GEBdata
       uint8_t  Stuckd()   {return m_Stuckd}
 
 
-      void v_add(VFATdata v){vfatd.pushback(V);}
+      void v_add(VFATdata v){vfatd.push_back(v);}
 };
 
 class AMCdata
@@ -170,8 +170,10 @@ class AMCdata
       uint8_t  m_OOSG;     //OOS GLIB:1    (7 0's):7
                            //GLIB is out-of-sync (critical): L1A ID is different for different chambers in this event.
 
-
     //AMC_trailer
+      uint32_t m_CRC;
+      uint8_t m_L1AT;
+      uint32_t m_DlengthT;
 	
   public:
       AMCdata(){};
@@ -232,6 +234,52 @@ class AMCdata
       uint32_t ChamT()    {return m_ChamT}
       uint8_t  OOSG()     {return m_OOSG}    
 
-      void g_add(GEMdata g){gemd.pushback(g);}
+      uint32_t CRC()    {return m_CRC}
+      uint8_t L1AT()    {return m_L1AT}
+      uint32_t DlengthT()    {return m_DlengthT}
+
+      void g_add(GEMdata g){gemd.push_back(g);}
+};
+
+class AMC13
+{
+  private:
+    // CDF Header
+    uint8_t m_cb5; // control bit, should be 0x5 bits 60-63
+    uint8_t m_Evt_ty;
+    uint32_t m_LV1_id;
+    uint16_t m_BX_id;
+    uint16_t m_Source_id;
+    // AMC headers
+    std::vector<uint32_t> m_AMC_size;
+    std::vector<uint8_t> m_Blk_No;
+    std::vector<uint8_t> m_AMC_No;
+    std::vector<uint16_t> m_BoardID;
+    // AMCs payload
+    std::vector<AMCdata> m_amcs;
+    //AMC13 trailer
+    uint32_t m_CRC;
+    uint8_t m_Blk_NoT;
+    uint8_t m_LV1_idT;
+    uint16_t m_BX_idT;
+    //CDF trailer
+    uint8_t m_cbA; // control bit, should be 0xA bits 60-63
+    uint32_t m_EvtLength;
+    uint16_t m_CRC;
+
+  public:
+
+    AMC13(){}
+    ~AMC13(){}
+
+    void addAMCheader(const uint32_t & AMC_size_, const uint8_t & Blk_No_, const uint8_t & AMC_No_, const uint16_t & BoardID_)
+    {
+      m_AMC_size.push_back(AMC_size_);
+      m_Blk_No.push_back(Blk_No_);
+      m_AMC_No.push_back(AMC_No_);
+      m_BoardID.push_back(BoardID_);
+    }
+    void addAMCpayload(AMCdata a){m_amcs.push_back(a);}
+
 };
 
