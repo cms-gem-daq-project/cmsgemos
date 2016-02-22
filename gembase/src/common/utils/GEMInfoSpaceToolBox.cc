@@ -670,9 +670,9 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
     } else if ( format == "ip" ) {
       result << std::dec << gem::utils::uint32ToDottedQuad(val);
     } else if ( format == "date" ) {
-      result << std::dec << "20" << std::setfill('0') << std::setw(2) << (val&0x1f)
-             << "-"  << std::setw(2) << ((val>>5)&0x0f)
-             << "-"  << std::setw(2) << ((val>>9)&0x7f);
+      result <<         std::setfill('0') << std::setw(2) << (val&0x1f)
+             << "-"  << std::setfill('0') << std::setw(2) << ((val>>5)&0x0f)
+             << "-"  << std::setw(4) << 2000+((val>>9)&0x7f);
     } else if ( format == "id" ) {
       // expects four 8-bit chars
       result << std::dec << gem::utils::uint32ToString(val);
