@@ -77,12 +77,13 @@ function showTable( )
             $("button.hide#resume").hide();
         } else if (state == "Running") {
             // hide stop/resume buttons
-            //console.log("hiding the stop/resume buttons");
-            $("button.hide#stop").hide();
+            //console.log("hiding the start/resume buttons");
+            $("button.hide#start").hide();
             $("button.hide#resume").hide();
         } else if (state == "Paused") {
             // hide pause button
             //console.log("hiding the pause button");
+            $("button.hide#start").hide();
             $("button.hide#pause").hide();
         }
         // haltreset tr
