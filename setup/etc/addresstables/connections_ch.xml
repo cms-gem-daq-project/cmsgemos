@@ -18,8 +18,12 @@
   <connection id="gem.shelf01.amc13.T2" uri="chtcp-2.0://localhost:10203?target=192.168.2.171:50001"
 	      address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
 
-  <!-- GLIB/OptoHybrid connections -->
   <connection id="gem.shelf01.glib01" uri="chtcp-2.0://localhost:10203?target=192.168.0.161:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
+  <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
+  <connection id="gem.shelf01.glib01.optohybrid00" uri="chtcp-2.0://localhost:10203?target=192.168.0.161:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
+  <connection id="gem.shelf01.glib01.optohybrid01" uri="chtcp-2.0://localhost:10203?target=192.168.0.161:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
 
   <connection id="gem.shelf01.glib02" uri="chtcp-2.0://localhost:10203?target=192.168.0.162:50001"
