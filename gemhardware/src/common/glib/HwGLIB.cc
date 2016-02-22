@@ -300,14 +300,15 @@ std::string gem::hw::glib::HwGLIB::getFirmwareDate(bool const& system)
   std::stringstream regName;
   uint32_t fwid;
 
+  // no longer any distinction between system and user
   if (system)
     fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
   else
     fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
   
-  res << "20" << std::setfill('0') << std::setw(2) << (fwid&0x1f)
-      << "-"  << std::setw(2) << ((fwid>>5)&0x0f)
-      << "-"  << std::setw(2) << ((fwid>>9)&0x7f);
+  res <<         std::setfill('0') <<std::setw(2) << (fwid&0x1f)      // day
+      << "-"  << std::setfill('0') <<std::setw(2) << ((fwid>>5)&0x0f) // month
+      << "-"  << std::setw(4) << 2000+((fwid>>9)&0x7f);               // year
   return res.str();
 }
 
