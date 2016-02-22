@@ -75,7 +75,8 @@ print
 if (options.daq_enable>=0):
         #writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
         writeRegister(glib, "GLIB.DAQ.CONTROL", 0x8)
-        writeRegister(glib, "GLIB.DAQ.CONTROL", 0x181)
+        #writeRegister(glib, "GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT", 0x30D40)
+        writeRegister(glib, "GLIB.DAQ.CONTROL", 0x381)
         print "Reset daq_enable: %i"%(options.daq_enable)
 
 print "-> DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
@@ -85,7 +86,7 @@ print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.D
 print "-> DAQ L1A ID          :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
 print "-> DAQ sent events cnt :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.EVT_SENT"))
 print
-print "-> DAQ INPUT_TIMEOUT :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT"))
+print "-> DAQ DAV_TIMEOUT :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL.DAV_TIMEOUT"))
 print "-> DAQ RUN_TYPE      :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_TYPE"))
 print "-> DAQ RUN_PARAMS    :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_PARAMS"))
 print
@@ -93,13 +94,52 @@ print "-> DAQ GTX0 corrupted VFAT block counter :0x%08x"%(readRegister(glib,"GLI
 print
 print "-> DAQ GTX0 evn :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.EVN"))
 
-#print "-> DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_0"))
-#print "-> DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_1"))
-#print "-> DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_2"))
-#print "-> DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_3"))
-#print "-> DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_4"))
-#print "-> DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_5"))
-#print "-> DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_6"))
+print "-> GLIB STATUS 0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.STATUS"))
+print "-> GLIB STATUS 1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.STATUS"))
+
+print "-> GLIB MAX_DAV_TIMER :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.MAX_DAV_TIMER"))
+print "-> GLIB LAST_DAV_TIMER :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.LAST_DAV_TIMER"))
+
+
+print "-> GLIB MAX_DAV_TIMER GTX0:0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.DAV_STATS.MAX_DAV_TIMER"))
+print "-> GLIB LAST_DAV_TIMER GTX0:0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.DAV_STATS.LAST_DAV_TIMER"))
+print "-> GLIB MAX_DAV_TIMER GTX1:0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.DAV_STATS.MAX_DAV_TIMER"))
+print "-> GLIB LAST_DAV_TIMER GTX1:0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.DAV_STATS.LAST_DAV_TIMER"))
+
+print "-> GLIB DAV_TIMEOUT GTX0:0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.DAV_TIMEOUT"))
+print "-> GLIB DAV_TIMEOUT GTX1:0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.DAV_TIMEOUT"))
+
+print "====================================================================================="
+print "DEBUG INFO"
+print "====================================================================================="
+print "GTX0"
+
+print "-> DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.LASTBLOCK.0"))
+print "-> DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.LASTBLOCK.1"))
+print "-> DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.LASTBLOCK.2"))
+print "-> DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.LASTBLOCK.3"))
+print "-> DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.LASTBLOCK.4"))
+print "-> DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.LASTBLOCK.5"))
+print "-> DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.LASTBLOCK.6"))
+	
+print
+print "--=======================================--"
+print "-> BOARD USER INFORMATION"
+print "--=======================================--"
+print
+
+print "====================================================================================="
+print "DEBUG INFO"
+print "====================================================================================="
+print "GTX1"
+
+print "-> DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.0"))
+print "-> DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.1"))
+print "-> DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.2"))
+print "-> DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.3"))
+print "-> DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.4"))
+print "-> DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.5"))
+print "-> DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.6"))
 	
 print
 print "--=======================================--"
