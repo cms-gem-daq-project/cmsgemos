@@ -4,6 +4,18 @@ sys.path.append('${GEM_PYTHON_PATH}')
 import uhal
 from registers_uhal import *
 
+def getFirmwareVersion(device,gtx=0):
+    """
+    Returns the OH firmware date as a map (day, month, year)
+    """
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid"%(gtx)
+    fwver = readRegister(device,"%s.STATUS.FW"%(baseNode))
+    date = {}
+    date["d"] = fwver&0xff
+    date["m"] = (fwver>>8)&0xff
+    date["y"] = (fwver>>16)&0xffff
+    return date
+
 def optohybridCounters(device,gtx=0,doReset=False):
     """
     read the optical link counters, returning a map

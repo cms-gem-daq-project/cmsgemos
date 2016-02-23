@@ -74,20 +74,24 @@ if (options.daq_enable>=0):
         writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
         print "Reset daq_enable: %i"%(options.daq_enable)
 
-print "-> DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
-print "-> DAQ status reg  :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
+print "-> DAQ control reg     : 0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
+print "-> DAQ status reg      : 0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
+print "-> DAQ L1A ID          : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
+print "-> DAQ sent events cnt : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.EVT_SENT"))
+print
+print "-> DAQ INPUT_TIMEOUT   : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT"))
+print "-> DAQ RUN_TYPE        : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_TYPE"))
+print "-> DAQ RUN_PARAMS      : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_PARAMS"))
+print
 print "-> DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
 print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
-print "-> DAQ L1A ID          :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
-print "-> DAQ sent events cnt :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.EVT_SENT"))
 print
-print "-> DAQ INPUT_TIMEOUT :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT"))
-print "-> DAQ RUN_TYPE      :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_TYPE"))
-print "-> DAQ RUN_PARAMS    :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_PARAMS"))
-print
-print "-> DAQ GTX0 corrupted VFAT block counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.CORRUPT_VFAT_BLK_CNT"))
-print
-print "-> DAQ GTX0 evn :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.COUNTERS.EVN"))
+
+NGTX = 2
+for olink in range(NGTX):
+        print "-> DAQ GTX%d corrupted VFAT block counter : 0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.CORRUPT_VFAT_BLK_CNT"%(olink)))
+        print "-> DAQ GTX%d evn                          : 0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.EVN"%(olink)))
+        print
 
 #print "-> DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_0"))
 #print "-> DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_1"))
@@ -107,26 +111,27 @@ if (options.resetCounters):
         glibCounters(glib,options.gtx,True)
 print
 sys.stdout.flush()
-errorCounts = []
-SAMPLE_TIME = 1.
-for trial in range(options.errorRate):
-        errorCounts.append(calculateLinkErrors(True,glib,options.gtx,SAMPLE_TIME))
-sys.stdout.flush()
-
-rates = errorRate(errorCounts,SAMPLE_TIME)
-#counters = optohybridCounters(optohybrid)
-print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
-print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
-print 
-
-sys.stdout.flush()
-print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
-counters = glibCounters(glib,options.gtx)
-print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(
-        "",
-        counters["T1"]["L1A"],
-        counters["T1"]["CalPulse"],
-        counters["T1"]["Resync"],
-        counters["T1"]["BC0"])
+for olink in range(NGTX):
+        print "--=====GTX%d==============================--"%(olink)
+        errorCounts = []
+        SAMPLE_TIME = 1.
+        for trial in range(options.errorRate):
+                errorCounts.append(calculateLinkErrors(True,glib,olink,SAMPLE_TIME))
+        sys.stdout.flush()
+        
+        rates = errorRate(errorCounts,SAMPLE_TIME)
+        print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
+        print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
+        print 
+        
+        sys.stdout.flush()
+        print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
+        counters = glibCounters(glib,olink)
+        print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(
+                "",
+                counters["T1"]["L1A"],
+                counters["T1"]["CalPulse"],
+                counters["T1"]["Resync"],
+                counters["T1"]["BC0"])
 print "--=======================================--"
 sys.stdout.flush()
