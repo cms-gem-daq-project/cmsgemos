@@ -61,10 +61,9 @@ print
 print "-> -----------------"
 print "-> OPTOHYBRID STATUS     "
 print "-> -----------------"
-fwver = getFirmwareVersion(optohybrid,options.gtx)
 
+fwver = getFirmwareVersion(optohybrid,options.gtx)
 date = '%02x/%02x/%04x'%(fwver["d"],fwver["m"],fwver["y"])
-#0date = '/'.join([str(fwver["d"]),str(fwver["m"]),str(fwver["y"])])
 print "-> oh fw date : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
 
 if options.clkSrc in [0,1,2]:
