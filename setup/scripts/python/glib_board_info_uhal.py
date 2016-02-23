@@ -107,26 +107,29 @@ if (options.resetCounters):
         glibCounters(glib,options.gtx,True)
 print
 sys.stdout.flush()
-errorCounts = []
-SAMPLE_TIME = 1.
-for trial in range(options.errorRate):
-        errorCounts.append(calculateLinkErrors(True,glib,options.gtx,SAMPLE_TIME))
-sys.stdout.flush()
-
-rates = errorRate(errorCounts,SAMPLE_TIME)
-#counters = optohybridCounters(optohybrid)
-print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
-print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
-print 
-
-sys.stdout.flush()
-print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
-counters = glibCounters(glib,options.gtx)
-print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(
-        "",
-        counters["T1"]["L1A"],
-        counters["T1"]["CalPulse"],
-        counters["T1"]["Resync"],
-        counters["T1"]["BC0"])
+NGTX = 2
+for olink in range(NGTX):
+        print "--=====GTX%d==============================--"%(olink)
+        errorCounts = []
+        SAMPLE_TIME = 1.
+        for trial in range(options.errorRate):
+                errorCounts.append(calculateLinkErrors(True,glib,olink,SAMPLE_TIME))
+        sys.stdout.flush()
+        
+        rates = errorRate(errorCounts,SAMPLE_TIME)
+        # counters = optohybridCounters(optohybrid)
+        print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
+        print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
+        print 
+        
+        sys.stdout.flush()
+        print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
+        counters = glibCounters(glib,olink)
+        print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(
+                "",
+                counters["T1"]["L1A"],
+                counters["T1"]["CalPulse"],
+                counters["T1"]["Resync"],
+                counters["T1"]["BC0"])
 print "--=======================================--"
 sys.stdout.flush()
