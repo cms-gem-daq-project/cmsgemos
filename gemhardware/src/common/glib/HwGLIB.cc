@@ -298,14 +298,7 @@ std::string gem::hw::glib::HwGLIB::getFirmwareDate(bool const& system)
   //gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
   std::stringstream regName;
-  uint32_t fwid;
-
-  // no longer any distinction between system and user
-  if (system)
-    fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
-  else
-    fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
-  
+  uint32_t fwid = readReg(getDeviceBaseNode(),"SYSTEM.FIRMWARE.DATE");
   res <<         std::setfill('0') <<std::setw(2) << (fwid&0x1f)      // day
       << "-"  << std::setfill('0') <<std::setw(2) << ((fwid>>5)&0x0f) // month
       << "-"  << std::setw(4) << 2000+((fwid>>9)&0x7f);               // year
