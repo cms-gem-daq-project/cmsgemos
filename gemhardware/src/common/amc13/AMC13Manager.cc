@@ -168,6 +168,47 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->AMCInputEnable(m_slotMask);
   usleep(500);
 
+  // Use local TTC signal if config doc says so
+  p_amc13->localTtcSignalEnable(m_enableLocalTTC);
+
+  // Enable Monitor Buffer Backpressure if config doc says so
+  p_amc13->monBufBackPressEnable(m_monBackPressEnable);
+
+  // m_dtc->configurePrescale(1,m_preScaleFactNumOfZeros);
+  p_amc13->configurePrescale(0, m_prescaleFactor);
+
+  // set the FED id
+  p_amc13->setFEDid(m_fedID);
+
+  // reset the T1
+  p_amc13->reset(::amc13::AMC13::T1);
+
+  // reset the T1 counters
+  p_amc13->resetCounters();
+
+  // setup the monitoring helper -> TO BE DEVELOPED!!!
+  /*m_monitoringHelper.setup(p_amc13,m_crateID,m_slotMask);
+  std::vector<hcal::monitor::Monitorable*> mons=m_monitoringHelper.getMonitorables();
+  for (std::vector<hcal::monitor::Monitorable*>::iterator qq=mons.begin(); qq!=mons.end(); qq++)
+  exportMonitorable(*qq);*/
+
+  std::string amc13T1Firmware;
+  std::string amc13T2Firmware;
+
+  //read AMC13 T1 firmware
+  uint32_t tmp_amc13_firmware_read= p_amc13->read(::amc13::AMC13::T1, "STATUS.FIRMWARE_VERS");
+  amc13T1Firmware = ::toolbox::toString("0x%lx", tmp_amc13_firmware_read );
+  //read AMC13 T2 firmware
+  tmp_amc13_firmware_read= p_amc13->read(::amc13::AMC13::T2, "STATUS.FIRMWARE_VERS");
+  amc13T2Firmware = ::toolbox::toString("0x%lx", tmp_amc13_firmware_read );
+
+  //Report AMC13 firmware to RunInfo
+  std::map<std::string,std::string> strValues;
+  std::map<std::string,double> numValues;
+  strValues["AMC13_FIRMWARE_T1"]=amc13T1Firmware;
+  strValues["AMC13_FIRMWARE_T2"]=amc13T2Firmware;
+  //postInfo(false,strValues,numValues); -> TO BE DEVELOPED
+
   //unlock the access
 }
 

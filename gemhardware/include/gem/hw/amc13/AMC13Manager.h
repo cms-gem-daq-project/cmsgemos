@@ -6,6 +6,7 @@
 
 #include "gem/base/GEMFSMApplication.h"
 #include "gem/hw/amc13/exception/Exception.h"
+//#include "gem/hw/amc13/AMC13Monitoring.hh"
 
 namespace amc13 {
   class AMC13;
@@ -86,7 +87,8 @@ namespace gem {
           mutable gem::utils::Lock m_amc13Lock;
 	
           ::amc13::AMC13 *p_amc13;
-	  
+	  //hcal::utca::DTCMonitoring m_monitoringHelper; to be developed!!!
+
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
 
