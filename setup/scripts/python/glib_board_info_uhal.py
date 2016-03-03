@@ -76,7 +76,7 @@ if (options.daq_enable>=0):
         #writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
         writeRegister(glib, "GLIB.DAQ.CONTROL", 0x8)
         #writeRegister(glib, "GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT", 0x30D40)
-        writeRegister(glib, "GLIB.DAQ.CONTROL", 0x381)
+        #writeRegister(glib, "GLIB.DAQ.CONTROL", 0x181)
         print "Reset daq_enable: %i"%(options.daq_enable)
 
 print "-> DAQ control reg :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
@@ -140,7 +140,18 @@ print "-> DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.3"))
 print "-> DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.4"))
 print "-> DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.5"))
 print "-> DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.LASTBLOCK.6"))
+
+print "--=======================================--"
+print "-> SSSSSSSSSSSSSSSSSSSSSSBITSSSSSSSSSSSSSS"
+print "--=======================================--"
 	
+print "-> GTX 0 clusters 01 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0_CLUSTER_01"))
+print "-> GTX 0 clusters 23 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0_CLUSTER_23"))
+print "-> GTX 1 clusters 01 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1_CLUSTER_01"))
+print "-> GTX 1 clusters 23 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1_CLUSTER_23"))
+
+print "-> SBIT_RATE :0x%08x"%(readRegister(glib,"GLIB.DAQ.SBIT_RATE"))
+
 print
 print "--=======================================--"
 print "-> BOARD USER INFORMATION"
