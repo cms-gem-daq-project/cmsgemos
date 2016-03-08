@@ -29,6 +29,7 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("MonitorBackPressure", &monBackPressure);
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
   bag->addField("EnableLocalL1A",      &enableLocalL1A );
+  //bag->addField("PeriodicPeriodLocalL1A", &internalPeriodicPeriod );
 
   bag->addField("PrescaleFactor", &prescaleFactor);
   bag->addField("BCOffset",       &bcOffset      );
@@ -89,6 +90,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
   m_enableLocalL1A     = m_amc13Params.bag.enableLocalL1A.value_;
+  //m_internalPeriodicPeriod = m_amc13Params.bag.internalPeriodicPeriod.value_;
   m_prescaleFactor     = m_amc13Params.bag.prescaleFactor.value_;
   m_bcOffset           = m_amc13Params.bag.bcOffset.value_;
   m_fedID              = m_amc13Params.bag.fedID.value_;
@@ -186,6 +188,11 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   // reset the T1 counters
   p_amc13->resetCounters();
 
+  // Setting L1A if config doc says so
+  // How to configure all parameters for L1A trigger? configureLocalL1A(m_enableLocalL1A,mode,burst,rate,rules) -> refer to http://cactus.web.cern.ch/cactus/nightly/api/html_dev_amc13/d5/df6/classamc13_1_1_a_m_c13.html#a800843bf6119f6aaeb470e406778a9b2
+  //p_amc13->configureLocalL1A(m_enableLocalL1A,0,1,m_internalPeriodicPeriod,0);
+  p_amc13->configureLocalL1A(m_enableLocalL1A,2,1,1000,0);
+
   // setup the monitoring helper -> TO BE DEVELOPED!!!
   /*m_monitoringHelper.setup(p_amc13,m_crateID,m_slotMask);
   std::vector<hcal::monitor::Monitorable*> mons=m_monitoringHelper.getMonitorables();
@@ -226,6 +233,8 @@ void gem::hw::amc13::AMC13Manager::startAction()
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   usleep(500);
+  p_amc13->reset(::amc13::AMC13::T1);
+  p_amc13->startContinuousL1A();
   p_amc13->startRun();
 }
 
@@ -251,6 +260,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   DEBUG("Entering gem::hw::amc13::AMC13Manager::stopAction()");
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
+  p_amc13->stopContinuousL1A();
   usleep(500);
   p_amc13->endRun();
 }
@@ -266,6 +276,9 @@ void gem::hw::amc13::AMC13Manager::resetAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //what is necessary for a reset on the AMC13?
+  DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
+  if (p_amc13!=0) delete p_amc13;
+  p_amc13=0;
   usleep(500);
   //gem::base::GEMFSMApplication::resetAction();
 }

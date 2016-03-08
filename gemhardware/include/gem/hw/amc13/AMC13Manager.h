@@ -71,7 +71,8 @@ namespace gem {
             xdata::Boolean enableFakeData;
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
-            xdata::Boolean enableLocalL1A;
+	    xdata::Boolean enableLocalL1A;
+	    //xdata::UnsignedInteger32 internalPeriodicPeriod;
 
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
@@ -101,7 +102,7 @@ namespace gem {
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate;
           int m_prescaleFactor, m_bcOffset;
-          uint32_t m_fedID, m_sfpMask, m_slotMask;
+          uint32_t m_fedID, m_sfpMask, m_slotMask; //, m_internalPeriodicPeriod;
           uint64_t m_localL1AMask;
 	  
           ////counters
