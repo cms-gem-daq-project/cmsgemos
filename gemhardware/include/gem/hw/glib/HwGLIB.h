@@ -154,7 +154,7 @@ namespace gem {
 
           /**
            * Read the system firmware register
-           * @returns a string corresponding to the build date
+           * @returns a string corresponding to the build date dd-mm-yyyy
            **/
           std::string getFirmwareDate();
 	  

@@ -56,12 +56,12 @@ def getBasicSystemInfo(glib):
     mac_addr = ':'.join([mac[5],mac[4],mac[3],mac[2],mac[1],mac[0]])
 
     #print "-> ip_addr           :", readRegister(glib,"ip_addr")
-    print "-> ip_addr           :%d.%d.%d.%d"%(readRegister(glib,"GLIB.SYSTEM.IP_INFO.B3"),
+    print "-> ip_addr        : %d.%d.%d.%d"%(readRegister(glib,"GLIB.SYSTEM.IP_INFO.B3"),
                                                readRegister(glib,"GLIB.SYSTEM.IP_INFO.B2"),
                                                readRegister(glib,"GLIB.SYSTEM.IP_INFO.B1"),
                                                readRegister(glib,"GLIB.SYSTEM.IP_INFO.B0"))
     
-    print "-> hw_addr           :%02x.%02x.%02x.%02x.%02x.%02x"%(readRegister(glib,"GLIB.SYSTEM.HW_ID.B6"),
+    print "-> hw_addr        : %02x.%02x.%02x.%02x.%02x.%02x"%(readRegister(glib,"GLIB.SYSTEM.HW_ID.B6"),
                                                                  readRegister(glib,"GLIB.SYSTEM.HW_ID.B5"),
                                                                  readRegister(glib,"GLIB.SYSTEM.HW_ID.B4"),
                                                                  readRegister(glib,"GLIB.SYSTEM.HW_ID.B3"),
@@ -69,15 +69,14 @@ def getBasicSystemInfo(glib):
                                                                  readRegister(glib,"GLIB.SYSTEM.HW_ID.B1"))
     amc_slot = readRegister(glib,"GLIB.SYSTEM.STATUS.V6_CPLD") & 0x0f
     
-    print "-> cpld bus state    :", "%02x"%(readRegister(glib,"GLIB.SYSTEM.STATUS.V6_CPLD"))
-    print "-> v6_cpld  0x%x"%readRegister(glib,"GLIB.SYSTEM.STATUS.V6_CPLD")
+    print "-> CPLD bus state : 0x%02x"%(readRegister(glib,"GLIB.SYSTEM.STATUS.V6_CPLD"))
     print
     if ((amc_slot>0) and (amc_slot<13)):
-        print "-> amc slot #        :", amc_slot
+        print "-> amc slot #        : %d"%(amc_slot)
     else:
-        print "-> amc slot #        :",amc_slot,"[not in crate]"
-    print "-> mac address (ipb) :", mac_addr
-    print "-> mac IP source :0x%x"%readRegister(glib,"GLIB.SYSTEM.MAC.IP_SOURCE")
+        print "-> amc slot #        : %d [not in crate]"%(amc_slot)
+    print "-> mac address (ipb) : %s"%(mac_addr)
+    print "-> mac IP source     : 0x%x"%readRegister(glib,"GLIB.SYSTEM.MAC.IP_SOURCE")
     pass
 
 def getExtendedSystemInfo(glib):
@@ -156,6 +155,7 @@ def getSFPMonStatus(glib):
     print
     pass
 
-def getSystemInfo(glib):
+def getSystemInfo(glib, full=False):
     getBasicSystemInfo(glib)
-    getExtendedSystemInfo(glib)
+    if (full):
+        getExtendedSystemInfo(glib)
