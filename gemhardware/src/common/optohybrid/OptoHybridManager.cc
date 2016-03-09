@@ -184,10 +184,11 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
     for (auto board = m_optohybridInfo.begin(); board != m_optohybridInfo.end(); ++board) {
       if (board->bag.present.value_) {
         INFO("Found attribute:" << board->bag.toString());
-        v_vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()));
-        INFO("Parsed AMCEnableList vfatBroadcastMask = " << board->bag.vfatBroadcastList.toString()
-             << " to broadcastMask 0x" << std::hex << v_vfatBroadcastMask.back() << std::dec);
-        board->bag.vfatBroadcastMask = v_vfatBroadcastMask.back();
+        uint32_t tmpBroadcastMask = parseVFATMaskList(board->bag.vfatBroadcastList.toString());
+        INFO("Parsed AMCEnableList vfatBroadcastList = " << board->bag.vfatBroadcastList.toString()
+             << " to broadcastMask 0x" << std::hex << tmpBroadcastMask << std::dec);
+        board->bag.vfatBroadcastMask = tmpBroadcastMask;
+        //board->bag.vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()));
       }
     }
     //p_gemMonitor->startMonitoring();
@@ -412,7 +413,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         INFO("configureAction::setting sbit source to 0x"
              << std::hex << info.sbitSource.value_ << std::dec);
         optohybrid->setSBitSource(info.sbitSource.value_);
-        INFO("setting reference clock source to 0x"
+        INFO("configureAction::setting reference clock source to 0x"
              << std::hex << info.refClkSrc.value_ << std::dec);
         optohybrid->setReferenceClock(info.refClkSrc.value_);
         /*
@@ -425,6 +426,8 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         for (unsigned olink = 0; olink < HwGLIB::N_GTX; ++olink) {
         }
         */
+        
+        optohybrid->getConnectedVFATMask();
         
         std::vector<uint32_t> connectedChipID0 = optohybrid->broadcastRead("ChipID0",info.vfatBroadcastMask);
         std::vector<uint32_t> connectedChipID1 = optohybrid->broadcastRead("ChipID1",info.vfatBroadcastMask);
@@ -441,7 +444,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         //need to reset optical links?
         //reset counters?
       } else {
-        ERROR("OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        ERROR("configureAction::OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
         fireEvent("Fail");
         //maybe raise exception so as to not continue with other cards?
       }
@@ -454,30 +457,35 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 void gem::hw::optohybrid::OptoHybridManager::startAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into run mode?
   usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into sleep mode?
   usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into run mode?
   usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::stopAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into sleep mode?
   usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::haltAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into sleep mode?
   usleep(1000);
 }
 
