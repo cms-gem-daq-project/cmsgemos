@@ -72,7 +72,10 @@ namespace gem {
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
 	    xdata::Boolean enableLocalL1A;
-	    //xdata::UnsignedInteger32 internalPeriodicPeriod;
+	    xdata::UnsignedInteger32 internalPeriodicPeriod;
+	    xdata::Integer l1Amode;
+	    xdata::Integer l1Arules;
+	    xdata::UnsignedInteger32 l1Aburst;
 
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
@@ -100,9 +103,9 @@ namespace gem {
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A;
-          int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate;
+          int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset;
-          uint32_t m_fedID, m_sfpMask, m_slotMask; //, m_internalPeriodicPeriod;
+          uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
           uint64_t m_localL1AMask;
 	  
           ////counters
