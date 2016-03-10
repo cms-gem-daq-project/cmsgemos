@@ -29,7 +29,10 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("MonitorBackPressure", &monBackPressure);
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
   bag->addField("EnableLocalL1A",      &enableLocalL1A );
-  //bag->addField("PeriodicPeriodLocalL1A", &internalPeriodicPeriod );
+  bag->addField("InternalPeriodicPeriod", &internalPeriodicPeriod );
+  bag->addField("L1Amode", &l1Amode );
+  bag->addField("L1Arules", &l1Arules );
+  bag->addField("L1Aburst", &l1Aburst );
 
   bag->addField("PrescaleFactor", &prescaleFactor);
   bag->addField("BCOffset",       &bcOffset      );
@@ -90,7 +93,10 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
   m_enableLocalL1A     = m_amc13Params.bag.enableLocalL1A.value_;
-  //m_internalPeriodicPeriod = m_amc13Params.bag.internalPeriodicPeriod.value_;
+  m_internalPeriodicPeriod = m_amc13Params.bag.internalPeriodicPeriod.value_;
+  m_L1Amode            = m_amc13Params.bag.l1Amode.value_;
+  m_L1Arules           = m_amc13Params.bag.l1Arules.value_;
+  m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
   m_prescaleFactor     = m_amc13Params.bag.prescaleFactor.value_;
   m_bcOffset           = m_amc13Params.bag.bcOffset.value_;
   m_fedID              = m_amc13Params.bag.fedID.value_;
@@ -189,32 +195,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->resetCounters();
 
   // Setting L1A if config doc says so
-  // How to configure all parameters for L1A trigger? configureLocalL1A(m_enableLocalL1A,mode,burst,rate,rules) -> refer to http://cactus.web.cern.ch/cactus/nightly/api/html_dev_amc13/d5/df6/classamc13_1_1_a_m_c13.html#a800843bf6119f6aaeb470e406778a9b2
-  //p_amc13->configureLocalL1A(m_enableLocalL1A,0,1,m_internalPeriodicPeriod,0);
-  p_amc13->configureLocalL1A(m_enableLocalL1A,2,1,1000,0);
-
-  // setup the monitoring helper -> TO BE DEVELOPED!!!
-  /*m_monitoringHelper.setup(p_amc13,m_crateID,m_slotMask);
-  std::vector<hcal::monitor::Monitorable*> mons=m_monitoringHelper.getMonitorables();
-  for (std::vector<hcal::monitor::Monitorable*>::iterator qq=mons.begin(); qq!=mons.end(); qq++)
-  exportMonitorable(*qq);*/
-
-  std::string amc13T1Firmware;
-  std::string amc13T2Firmware;
-
-  //read AMC13 T1 firmware
-  uint32_t tmp_amc13_firmware_read= p_amc13->read(::amc13::AMC13::T1, "STATUS.FIRMWARE_VERS");
-  amc13T1Firmware = ::toolbox::toString("0x%lx", tmp_amc13_firmware_read );
-  //read AMC13 T2 firmware
-  tmp_amc13_firmware_read= p_amc13->read(::amc13::AMC13::T2, "STATUS.FIRMWARE_VERS");
-  amc13T2Firmware = ::toolbox::toString("0x%lx", tmp_amc13_firmware_read );
-
-  //Report AMC13 firmware to RunInfo
-  std::map<std::string,std::string> strValues;
-  std::map<std::string,double> numValues;
-  strValues["AMC13_FIRMWARE_T1"]=amc13T1Firmware;
-  strValues["AMC13_FIRMWARE_T2"]=amc13T2Firmware;
-  //postInfo(false,strValues,numValues); -> TO BE DEVELOPED
+  if (m_enableLocalL1A) p_amc13->configureLocalL1A(m_enableLocalL1A,m_L1Amode,m_L1Aburst,m_internalPeriodicPeriod,m_L1Arules);
 
   //unlock the access
 }
@@ -234,7 +215,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   usleep(500);
   p_amc13->reset(::amc13::AMC13::T1);
-  p_amc13->startContinuousL1A();
+  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
   p_amc13->startRun();
 }
 
@@ -260,7 +241,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   DEBUG("Entering gem::hw::amc13::AMC13Manager::stopAction()");
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  p_amc13->stopContinuousL1A();
+  if (m_enableLocalL1A) p_amc13->stopContinuousL1A();
   usleep(500);
   p_amc13->endRun();
 }
