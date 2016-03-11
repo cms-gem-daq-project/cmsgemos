@@ -412,9 +412,9 @@ bool gem::readout::GEMDataParker::VFATfillData(int const& islot, AMCGEBData&  ge
 {
   // Chamber Header, Zero Suppression flags, Chamber ID
   uint64_t ZSFlag  = 0x0;                    // :24
-  uint64_t ChamID  = 0xdea;                  // :12
-  uint64_t sumVFAT = int(geb.vfats.size());  // :28
-  geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
+  uint64_t ChamID  = 0xffffffffffffffff & (0b00011111);                  // :5
+  uint64_t sumVFAT = int(3*int(geb.vfats.size()));  // :11
+  geb.header  = (ZSFlag << 40)|(ChamID << 35)|(sumVFAT << 23);
   ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
   ChamID =  (0x000000fff0000000 & geb.header) >> 28; 
   sumVFAT=  (0x000000000fffffff & geb.header);    
@@ -454,7 +454,7 @@ void gem::readout::GEMDataParker::writeGEMevent(std::string  outFile, bool const
     GEMDataAMCformat::writeGEBrunhed (outFile, m_event, geb);
   } else {
     GEMDataAMCformat::writeGEBheaderBinary (outFile, m_event, geb);
-    GEMDataAMCformat::writeGEBrunhedBinary (outFile, m_event, geb);
+    //GEMDataAMCformat::writeGEBrunhedBinary (outFile, m_event, geb);
   } // GEMDataAMCformat::printGEBheader (m_event, geb);
   //  GEB PayLoad Data
   int nChip=0;

@@ -60,9 +60,11 @@ namespace gem {
         if ( event<0) return false;
         if (!outf.is_open()) return false;
         uint64_t cdfHeader = 0x5fffffffffffffff;
-        uint64_t amc13Header = 0xff1ffffffffffff0;
+        uint64_t amc13Header1 = 0xff1ffffffffffff0;
+        uint64_t amc13Header2 = 0xffffffffffffffff;
         outf.write( (char*)&cdfHeader, sizeof(cdfHeader));
-        outf.write( (char*)&amc13Header, sizeof(amc13Header));
+        outf.write( (char*)&amc13Header1, sizeof(amc13Header1));
+        outf.write( (char*)&amc13Header2, sizeof(amc13Header2));
         outf.write( (char*)&gem.header1, sizeof(gem.header1));
         outf.close();
         return true;
@@ -302,8 +304,10 @@ namespace gem {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
         if ( event<0) return false;
         if (!outf.is_open()) return false;
+        uint64_t amc13Trailer = 0xbadc0ffeebadcafe;
         uint64_t cdfTrailer = 0xafffffffffffffff;
         outf.write( (char*)&gem.trailer1, sizeof(gem.trailer1));
+        outf.write( (char*)&amc13Trailer, sizeof(amc13Trailer));
         outf.write( (char*)&cdfTrailer, sizeof(cdfTrailer));
         outf.close();
         return true;
@@ -363,7 +367,7 @@ namespace gem {
         outf.write( (char*)&vfat.msData, sizeof(vfat.msData));
         outf.write( (char*)&vfat.lsData, sizeof(vfat.lsData));  
         outf.write( (char*)&vfat.crc,    sizeof(vfat.crc));
-        outf.write( (char*)&vfat.BXfrOH, sizeof(vfat.BXfrOH));
+        //outf.write( (char*)&vfat.BXfrOH, sizeof(vfat.BXfrOH));
         outf.close();
         return true;
       };	  
