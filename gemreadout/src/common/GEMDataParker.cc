@@ -53,7 +53,7 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName,
                                            std::string const& errFileName,
                                            std::string const& outputType,
-                                           std::string const& slotFileName="slot_table_904_2.csv") :
+                                           std::string const& slotFileName="slot_table.csv") :
   m_ESexp(-1),
   m_isFirst(true),
   m_contvfats(0),
@@ -483,7 +483,7 @@ void gem::readout::GEMDataParker::writeGEMevent(std::string  outFile, bool const
   } 
 }
 
-void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t const& BX,
+void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t const& DAVCount_,
                                                  AMCGEMData& gem, AMCGEBData& geb)
 {
 
@@ -519,17 +519,22 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   // GEM Event Headers [3]
   uint64_t DAVList     = BOOST_BINARY( 1 );    // :24
   uint64_t BufStat     = BOOST_BINARY( 1 );    // :24
-  uint64_t DAVCount    = BOOST_BINARY( 1 );    // :5
+  //uint64_t DAVCount    = BOOST_BINARY( 1 );    // :5
+  uint64_t DAVCount    = 0x00000000ffffffff & DAVCount_;
   uint64_t FormatVer   = BOOST_BINARY( 1 );    // :3
   uint64_t MP7BordStat = BOOST_BINARY( 1 );    // :8
 
-  gem.header3 = (BufStat << 40)|(DAVCount << 16)|(DAVCount << 11)|(FormatVer << 8)|(MP7BordStat);
+  gem.header3 = (BufStat << 40)|(DAVList << 16)|(DAVCount << 11)|(FormatVer << 8)|(MP7BordStat);
+  DEBUG("GEM HEADER 3 " << std::hex << gem.header3 << "\n");
 
   DAVList     = (0xffffff0000000000 & gem.header3) >> 40; 
   BufStat     = (0x000000ffffff0000 & gem.header3) >> 16;
-  DAVCount    = (0x000000000000ff00 & gem.header3) >> 11;
+  uint16_t DAVCount_check;
+  DAVCount_check= 0b0000000000011111 & (gem.header3 >> 11);
   FormatVer   = (0x0000000000000f00 & gem.header3) >> 8;
   MP7BordStat = (0x00000000000000ff & gem.header3);
+
+  DEBUG("DAVCount " << std::hex << DAVCount_check << "\n");
 
   // last geb header:
  geb.runhed  = Runtype();
