@@ -442,6 +442,107 @@ namespace gem {
 
 
           /**
+           * @brief the Scan module is very different between V1/1.5 and V2
+           * One must select the mode 
+           * One must select the signal
+          typedef struct ScanSequence {
+            uint64_t l1a_seq;
+            uint64_t cal_seq;
+            uint64_t rsy_seq;
+            uint64_t bc0_seq;
+          } ScanSequence;
+          **/
+          
+          /**
+           * @brief This function controls the firmware module that runs any of the scans
+           * @param uint8_t mode can be any of
+           *  - 0 Threshold scan per VFAT
+           *  - 1 Threshold scan per channel
+           *  - 2 Latency scan per VFAT
+           *  - 3 S-curve scan per channel
+           * @param uint8_t min is the minimum value to start the scan at (depending on the mode selected)
+           *  - 0 VT1
+           *  - 1 VT1
+           *  - 2 Latency
+           *  - 3 VCal
+           * @param uint8_t max is the maximum value to start the scan at (depending on the mode selected)
+           *  - 0 VT1
+           *  - 1 VT1
+           *  - 2 Latency
+           *  - 3 VCal
+           * @param uint8_t step is the size of the step between successive points
+           * @param uint8_t chip is the VFAT to run the scan on
+           * @param uint8_t channel is the channel to run the scan on (for modes 1 and 3 only)
+           * @param bool reset says whether to reset the module or not
+          **/
+          void configureScanGenerator(uint8_t const& mode, uint8_t const& min, uint8_t const& max,
+                                      uint8_t const& step,
+                                      uint8_t const& chip, uint8_t const& channel,
+                                      bool reset) {
+            if (reset)
+              writeReg(getDeviceBaseNode(),"ScanController.THLAT.RESET",0x1);
+            
+            writeReg(getDeviceBaseNode(),"ScanController.THLAT.MODE", mode);
+            writeReg(getDeviceBaseNode(),"ScanController.THLAT.MIN",  min);
+            writeReg(getDeviceBaseNode(),"ScanController.THLAT.MAX",  max);
+            writeReg(getDeviceBaseNode(),"ScanController.THLAT.STEP", step);
+
+            // need also to enable this chip and disable all others, use a broadcast write?
+            writeReg(getDeviceBaseNode(),"ScanController.THLAT.CHIP", chip);
+            if (mode == 0x1 || mode == 0x3) {
+              // protect for non-existent channels?
+              // need also to enable this channel and disable all others
+              writeReg(getDeviceBaseNode(),"ScanController.THLAT.CHAN",channel);
+              if (mode == 0x3) {
+                // need also to enable cal pulse to this channel and disable all others
+              }
+            }
+          };
+          
+          /**
+           * @brief Start the Scan controller (must be configured first or have a configuration already loaded)
+           * @param uint32_t ntrigs number of signals to send before stopping (0 will send continuously)
+           **/
+          void startScanGenerator(uint32_t const& ntrigs) {
+            
+            writeReg(getDeviceBaseNode(),"ScanController.THLAT.NTRIGS"  ,ntrigs  );
+            
+            //don't toggle off if the generator is currently running
+            if (!statusScanGenerator())
+              writeReg(getDeviceBaseNode(),"ScanController.THLAT.START",0x1);
+          };
+          
+          /**
+           * @brief Stop the Scan generator
+           * @param bool reset tells whether to reset the state of the module
+           **/
+          void stopScanGenerator(bool reset) {
+            //don't toggle on if the generator is currently not running
+            //if (statusScanGenerator())
+            //  writeReg(getDeviceBaseNode(),"ScanController.THLAT.TOGGLE",0x1);
+            if (reset)
+              writeReg(getDeviceBaseNode(),"ScanController.THLAT.RESET",0x1);
+          };
+          
+          /**
+           * @brief Status of the Scan generator
+           * @returns uint8_t the status of the Scan generator, telling which mode is running
+           * (0 is nothing running)
+           **/
+          uint8_t statusScanGenerator() {
+            return readReg(getDeviceBaseNode(),"ScanController.THLAT.MONITOR");
+          };
+
+          /**
+           * @brief Get the results of the Scan controller
+           * @returns uint8_t the status of the Scan controller, telling which mode is running
+           * (0 is nothing running)
+           **/
+          uint32_t getScanResults() {
+            return readReg(getDeviceBaseNode(),"ScanController.THLAT.RESULTS");
+          };
+
+          /**
            * @brief the T1 module is very different between V1/1.5 and V2
            * One must select the mode 
            * One must select the signal

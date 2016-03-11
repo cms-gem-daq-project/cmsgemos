@@ -22,7 +22,7 @@
       <properties xmlns="urn:xdaq-application:LatencyScan" xsi:type="soapenc:Struct">
 	  <ipAddr xsi:type="xsd:string">192.168.0.161</ipAddr>
 	  <confParams xsi:type="soapenc:Struct">
-	    <slotFileName xsi:type="xsd:string">slot_table_904_2.csv</slotFileName>
+	    <slotFileName xsi:type="xsd:string">slot_table.csv</slotFileName>
 	  </confParams>
       </properties>
     </xc:Application>

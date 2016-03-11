@@ -17,7 +17,7 @@
                        the broadcast VFAT I2C request module"/>
 
     <!-- BRAND NEW ONLY FOR V2 FIRMWARE -->
-    <node id="CalibrationScans"  address="0x2000000"
+    <node id="ScanController"  address="0x2000000"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_scan_controller.xml"
 	  description="Module to perform threshold and latency scans in the firmware"/>
 
