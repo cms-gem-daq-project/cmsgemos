@@ -509,8 +509,12 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   uint64_t User        = BOOST_BINARY( 1 );    // :32
   uint64_t OrN         = BOOST_BINARY( 1 );    // :16
   uint64_t BoardID     = BOOST_BINARY( 1 );    // :16
+  uint64_t FormatVersion = 0x0;
+  uint64_t runType = 0x1;
+  uint64_t temp = 0x00000000000000ff;
 
-  gem.header2 = (User << 32)|(OrN << 16)|(BoardID);
+  //gem.header2 = (User << 32)|(OrN << 16)|(BoardID);
+  gem.header2 = (FormatVersion << 60) | (runType << 56) | ((temp & m_latency) << 48) | ((temp & m_VT1) << 40) | ((temp & m_VT2) << 32) |(OrN << 16)|(BoardID);
 
   User     =  (0xffffffff00000000 & gem.header2) >> 32; 
   OrN      =  (0x00000000ffff0000 & gem.header2) >> 16;
