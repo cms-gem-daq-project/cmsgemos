@@ -649,14 +649,8 @@ void gem::readout::GEMDataParker::readVFATblock(std::queue<uint32_t>& dataque)
 
 void gem::readout::GEMDataParker::ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2)
 {
-
   m_latency = latency;
   m_VT1 = VT1;
   m_VT2 = VT2;
-
-  INFO( " Dataparker scan routines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
-
+  DEBUG("GEMDataParker::ScanRoutines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
 }
-
-     
-
