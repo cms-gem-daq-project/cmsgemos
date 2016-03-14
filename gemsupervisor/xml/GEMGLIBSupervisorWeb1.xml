@@ -7,9 +7,7 @@
     <xc:Application class="gem::supervisor::GEMGLIBSupervisorWeb" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMGLIBSupervisorWeb" xsi:type="soapenc:Struct">
 	<confParams xsi:type="soapenc:Struct">
-	  <slotFileName xsi:type="xsd:string">slot_table_TAMUv2.csv</slotFileName>
-	  <deviceIP xsi:type="xsd:string">192.168.0.170</deviceIP>
-	  <ohGTXLink xsi:type="xsd:integer">0</ohGTXLink>
+	  <deviceIP xsi:type="xsd:string">192.168.0.175</deviceIP>
 	  <deviceName xsi:type="soapenc:Array" soapenc:arrayType="xsd:ur-type[24]">
 <!--
 	    <item xsi:type="xsd:string" soapenc:position="[1]">VFAT1</item>
@@ -18,11 +16,9 @@
 	    <item xsi:type="xsd:string" soapenc:position="[3]">VFAT3</item>
 	    <item xsi:type="xsd:string" soapenc:position="[4]">VFAT4</item>
 	    <item xsi:type="xsd:string" soapenc:position="[5]">VFAT5</item>
--->
 	    <item xsi:type="xsd:string" soapenc:position="[6]">VFAT6</item>
-<!--
 	    <item xsi:type="xsd:string" soapenc:position="[7]">VFAT7</item>
-      <item xsi:type="xsd:string" soapenc:position="[8]">VFAT8</item>
+            <item xsi:type="xsd:string" soapenc:position="[8]">VFAT8</item>
 	    <item xsi:type="xsd:string" soapenc:position="[9]">VFAT9</item>
 	    <item xsi:type="xsd:string" soapenc:position="[10]">VFAT10</item>
 	    <item xsi:type="xsd:string" soapenc:position="[11]">VFAT11</item>
@@ -37,9 +33,8 @@
 	    <item xsi:type="xsd:string" soapenc:position="[20]">VFAT20</item>
 	    <item xsi:type="xsd:string" soapenc:position="[21]">VFAT21</item>
 	    <item xsi:type="xsd:string" soapenc:position="[22]">VFAT22</item>
-	    <item xsi:type="xsd:string" soapenc:position="[23]">VFAT23</item>
 -->
-
+	    <item xsi:type="xsd:string" soapenc:position="[22]">VFAT22</item>
 	  </deviceName>
 	  <!--deviceNum xsi:type="xsd:string">192.168.0.162</deviceNum-->
 	  <latency xsi:type="xsd:unsignedShort">25</latency>
