@@ -26,32 +26,42 @@ namespace gem {
     class GEMReadoutApplication : public gem::base::GEMFSMApplication
       {
       public:
-        const int I2O_READOUT_NOTIFY=0x84;
-        const int I2O_READOUT_CONFIRM=0x85;
+        static const int I2O_READOUT_NOTIFY;
+        static const int I2O_READOUT_CONFIRM;
 	
-        XDAQ_INSTANTIATOR();
-
+        //XDAQ_INSTANTIATOR();
+        
         GEMReadoutApplication(xdaq::ApplicationStub *stub);
         
         virtual ~GEMReadoutApplication();
 	
-      protected:
-
-        // inspired by HCAL readout application
-        virtual int readout(unsigned int expected, unsigned int* eventNumbers,
-                            std::vector< ::toolbox::mem::Reference* >& data) = 0;
-
         virtual void init();
 
         virtual void actionPerformed(xdata::Event& event);
-
+        
+        /** Recieve a message to update the scan parameters
+         * @param   message
+         * message should contain 
+         *  - the scan type
+         *  - the value(s) to store in the RunParams bits in the data format
+         * @returns xoap::MessageReference
+         xoap::MessageReference updateScanParameters(xoap::MessageReference message) throw (xoap::exception::Exception);
+        */
+        
+      protected:
+        
+        // inspired by HCAL readout application
+        /*
+        virtual int readout(unsigned int expected, unsigned int* eventNumbers,
+                            std::vector< ::toolbox::mem::Reference* >& data) = 0;
+        */
         //state transitions, how many of these are necessary for the readout applications (removed pause/resume)?
-        virtual void initializeAction() throw (gem::hw::glib::exception::Exception);
-        virtual void configureAction()  throw (gem::hw::glib::exception::Exception);
-        virtual void startAction()      throw (gem::hw::glib::exception::Exception);
-        virtual void stopAction()       throw (gem::hw::glib::exception::Exception);
-        virtual void haltAction()       throw (gem::hw::glib::exception::Exception);
-        virtual void resetAction()      throw (gem::hw::glib::exception::Exception);
+        virtual void initializeAction() throw (gem::base::exception::Exception);
+        virtual void configureAction()  throw (gem::base::exception::Exception);
+        virtual void startAction()      throw (gem::base::exception::Exception);
+        virtual void stopAction()       throw (gem::base::exception::Exception);
+        virtual void haltAction()       throw (gem::base::exception::Exception);
+        virtual void resetAction()      throw (gem::base::exception::Exception);
 	
         virtual void failAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception); 
@@ -60,6 +70,7 @@ namespace gem {
           throw (toolbox::fsm::exception::Exception);
         
       private:
+
         class GEMReadoutSettings {
         public:
           GEMReadoutSettings();

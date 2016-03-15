@@ -336,7 +336,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
       // VFATs Pay Load
       geb.vfats.push_back(*iVFAT);
       int islot = slotInfo->GEBslotIndex((uint32_t)(*iVFAT).ChipID);
-      DEBUG(" ::GEMEventMaker slot number " << islot );
+      DEBUG(" ::GEMevSelector slot number " << islot );
  
       if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ) {
         if ( vfats.size() == nChip ) {
