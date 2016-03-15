@@ -3,6 +3,7 @@
 
 #include <gem/base/GEMReadoutApplication.h>
 #include <gem/readout/GEMDataAMCformat.h>
+//#include "gem/readout/GEMDataAMCformat.h"
 
 namespace gem {
   
@@ -37,7 +38,8 @@ namespace gem {
         protected:
           
         private:
-
+          uint32_t m_runType;
+          uint32_t m_runParams;
           
         }; // end class GLIBReadout
     } //end namespace gem::hw::glib

@@ -8,6 +8,8 @@
 
 #include <gem/hw/glib/GLIBReadout.h>
 
+XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBReadout);
+
 gem::hw::glib::GLIBReadout::GLIBReadout(xdaq::ApplicationStub* stub, ) :
   GEMReadoutApplication(stub)
 {
@@ -49,7 +51,7 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::Me
     return reply;
   }
   //this has to be injected into the GEM header
-  m_scanParam = std::stoi(parameterValue);
+  m_runParams = std::stoi(parameterValue);
   DEBUG(toolbox::toString("GLIBReadout::updateScanParameters() received command '%s' with value. %s",
                           commandName.c_str(), parameterValue.c_str()));
   return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");

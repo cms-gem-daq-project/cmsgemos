@@ -9,6 +9,11 @@
 #include "gem/base/GEMReadoutApplication.h"
 #include "gem/base/GEMWebApplication.h"
 
+//XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMSupervisor);
+
+const int gem::base::GEMReadoutApplication::I2O_READOUT_NOTIFY=0x84;
+const int gem::base::GEMReadoutApplication::I2O_READOUT_CONFIRM=0x85;
+
 gem::base::GEMReadoutApplication::GEMReadoutSettings::GEMReadoutSettings() {
   runType        = "";
   fileName       = "";
@@ -26,8 +31,8 @@ void gem::base::GEMReadoutApplication::GEMReadoutSettings::registerFields(xdata:
 gem::base::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub* stub) :
   GEMFSMApplication(stub)
 {
-  i2o::bind(this,&ReadoutApplication::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
-  xoap::bind(this,&ReadoutApplication::getReadoutCredits,"GetReadoutCredits","urn:GEMReadoutApplication-soap:1");
+  //i2o::bind(this,&ReadoutApplication::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
+  //xoap::bind(this,&ReadoutApplication::getReadoutCredits,"GetReadoutCredits","urn:GEMReadoutApplication-soap:1");
   
 }
 
@@ -35,3 +40,81 @@ gem::base::GEMReadoutApplication::~GEMReadoutApplication()
 {
   
 }
+
+void gem::base::GEMReadoutApplication::actionPerformed(xdata::Event& event)
+{
+  if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
+    DEBUG("GEMReadoutApplication::actionPerformed() setDefaultValues" << 
+          "Default configuration values have been loaded from xml profile");
+    importConfigurationParameters();
+    importMonitoringParameters();
+    //p_gemMonitor->startMonitoring();
+  }
+  // update monitoring variables
+  gem::base::GEMApplication::actionPerformed(event);
+  
+}
+
+
+void gem::base::GEMReadoutApplication::initializeAction()
+  throw (gem::base::exception::Exception)
+{
+  DEBUG("gem::base::GEMReadoutApplication::initializeAction begin");
+}
+
+void gem::base::GEMReadoutApplication::configureAction()
+  throw (gem::base::exception::Exception)
+{
+  DEBUG("gem::base::GEMReadoutApplication::configureAction begin");
+}
+
+void gem::base::GEMReadoutApplication::startAction()
+  throw (gem::base::exception::Exception)
+{
+  DEBUG("gem::base::GEMReadoutApplication::startAction begin");
+}
+
+/*
+void gem::base::GEMReadoutApplication::pauseAction()
+  throw (gem::base::exception::Exception)
+{
+  DEBUG("gem::base::GEMReadoutApplication::pauseAction begin");
+}
+
+void gem::base::GEMReadoutApplication::resumeAction()
+  throw (gem::base::exception::Exception)
+{
+  DEBUG("gem::base::GEMReadoutApplication::resumeAction begin");
+}
+*/
+
+void gem::base::GEMReadoutApplication::stopAction()
+  throw (gem::base::exception::Exception)
+{
+  DEBUG("gem::base::GEMReadoutApplication::stopAction begin");
+}
+
+void gem::base::GEMReadoutApplication::haltAction()
+  throw (gem::base::exception::Exception)
+{
+  DEBUG("gem::base::GEMReadoutApplication::haltAction begin");
+}
+
+void gem::base::GEMReadoutApplication::resetAction()
+  throw (gem::base::exception::Exception)
+{
+  DEBUG("gem::base::GEMReadoutApplication::resetAction begin");
+}
+
+void gem::base::GEMReadoutApplication::failAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  // close open file pointers
+}
+
+void gem::base::GEMReadoutApplication::resetAction(toolbox::Event::Reference e)
+  throw (toolbox::fsm::exception::Exception)
+{
+  // close open file pointers
+}
+
