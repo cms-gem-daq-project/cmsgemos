@@ -15,9 +15,10 @@
              which can later be replicated as needed
           -->
         <amc13ConfigParams xsi:type="soapenc:Struct">
-          <ConnectionFile     xsi:type="xsd:string">connectionSN170_ch.xml</ConnectionFile>
-          <AMCInputEnableList xsi:type="xsd:string">2,4,10-12</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">1,3,5-9 </AMCIgnoreTTSList>
+          <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
+          <CardName           xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+          <AMCInputEnableList xsi:type="xsd:string">4-6,8-10</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">1-9,11,12</AMCIgnoreTTSList>
           
           <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">true</EnableFakeData>
