@@ -184,10 +184,11 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
     for (auto board = m_optohybridInfo.begin(); board != m_optohybridInfo.end(); ++board) {
       if (board->bag.present.value_) {
         INFO("OptoHybridManager::Found attribute:" << board->bag.toString());
-        v_vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()));
+        uint32_t tmpBroadcastMask = parseVFATMaskList(board->bag.vfatBroadcastList.toString());
         INFO("OptoHybridManager::Parsed AMCEnableList vfatBroadcastMask = " << board->bag.vfatBroadcastList.toString()
-             << " to broadcastMask 0x" << std::hex << v_vfatBroadcastMask.back() << std::dec);
-        board->bag.vfatBroadcastMask = v_vfatBroadcastMask.back();
+             << " to broadcastMask 0x" << std::hex << tmpBroadcastMask << std::dec);
+        board->bag.vfatBroadcastMask = tmpBroadcastMask;
+        //board->bag.vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()));
       }
     }
     //p_gemMonitor->startMonitoring();
@@ -366,6 +367,8 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         }
         */
         
+        optohybrid->getConnectedVFATMask();
+        
         std::vector<uint32_t> connectedChipID0 = optohybrid->broadcastRead("ChipID0",info.vfatBroadcastMask);
         std::vector<uint32_t> connectedChipID1 = optohybrid->broadcastRead("ChipID1",info.vfatBroadcastMask);
         {
@@ -394,30 +397,35 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 void gem::hw::optohybrid::OptoHybridManager::startAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into run mode?
   usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into sleep mode?
   usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into run mode?
   usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::stopAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into sleep mode?
   usleep(1000);
 }
 
 void gem::hw::optohybrid::OptoHybridManager::haltAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  // put all connected VFATs into sleep mode?
   usleep(1000);
 }
 

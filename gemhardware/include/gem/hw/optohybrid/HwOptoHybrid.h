@@ -974,9 +974,16 @@ namespace gem {
            * @param uint32_t value value to be written to all VFATs receiving the broadcast
            * @returns a std::vector of uint32_t words, one response for each VFAT
            */
-          void broadcastWrite(std::string const& name, uint32_t const& mask, uint32_t const& value,
-                              bool reset=false);
+          void broadcastWrite(std::string const& name, uint32_t const& mask, uint32_t const& value, bool reset=false);
           
+          /**
+           * Uses a broadcast read to determine which slots are occupied and returns the
+           * corresponding broadcast mask
+           * The mask has a 1 for VFATs that will not receive a broadcast request
+           * The mask has a 1 for VFATs whose data will be ignored
+           */
+          uint32_t getConnectedVFATMask();
+
           /**
            * Get the number of valid/incorrect CRCs performed by the OptoHybrid
            * on the received data packets from a given VFAT
