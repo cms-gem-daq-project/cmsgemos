@@ -2,12 +2,12 @@
 
 <connections>
   <!-- AMC13 connections -->
-    <!-- Without any MMC changes, T1 IP address should be one higher in the last octet than the T2                                                                                                                                                                                  
-       This scheme acts as the "backup" plan, using the jumper connections on T2 to assign IP addresses to both tongues                                                                                                                                                           
-       The address is 192.168.z.x                                                                                                                                                                                                                                                 
-       Final Byte for Spartan Chip (T2) = 254 - 2*SN[6:0]                                                                                                                                                                                                                         
-       Final Byte for Virtex/Kintex Chip (T1) = 255 - 2*SN[6:0].                                                                                                                                                                                                                  
-       z is 1 for SN 0-127 and 2 for SN 128-255 and 3 for SN 256-383.                                                                                                                                                                                                             
+    <!-- Without any MMC changes, T1 IP address should be one higher in the last octet than the T2
+       This scheme acts as the "backup" plan, using the jumper connections on T2 to assign IP addresses to both tongues
+       The address is 192.168.z.x
+       Final Byte for Spartan Chip (T2) = 254 - 2*SN[6:0]
+       Final Byte for Virtex/Kintex Chip (T1) = 255 - 2*SN[6:0].
+       z is 1 for SN 0-127 and 2 for SN 128-255 and 3 for SN 256-383.
     -->
   <connection id="gem.amc13-sn7.T1" uri="chtcp-2.0://localhost:10203?target=192.168.1.241:50001"
               address_table="file://AMC13XG_T1.xml" />
