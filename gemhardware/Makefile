@@ -35,19 +35,19 @@ DynamicLibrary=gem_hw
 IncludeDirs =$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(AMC13_STANDALONE_ROOT)/amc13/include
+#IncludeDirs+=$(AMC13_STANDALONE_ROOT)/amc13/include
 IncludeDirs+=$(XDAQ_ROOT)/include
 IncludeDirs+=$(uHALROOT)/include
 
 DependentLibraryDirs =$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
+#DependentLibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 DependentLibraryDirs+=$(XDAQ_ROOT)/lib
 DependentLibraryDirs+=$(uHALROOT)/lib
 
 LibraryDirs =$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
+#LibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 LibraryDirs+=$(XDAQ_ROOT)/lib
 LibraryDirs+=$(uHALROOT)/lib
 
