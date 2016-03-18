@@ -155,7 +155,6 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("DAV_TIMEOUT", "GLIB.DAQ.CONTROL.DAV_TIMEOUT"),
                  GEMUpdateType::HW32, "hex");
-  /*
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("EVT_BUILT", "GLIB.DAQ.EVT_BUILT"),
                  GEMUpdateType::HW32, "hex");

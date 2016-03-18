@@ -325,8 +325,8 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
-                                                       uint32_t const mask,
-                                                       uint32_t const& value,
+                                                       uint32_t    const& mask,
+                                                       uint32_t    const& value,
                                                        bool reset)
 {
   if (reset)
@@ -360,4 +360,33 @@ std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::get
     chipIDs.push_back(std::make_pair(slot,chipID));
   }
   return chipIDs;
+}
+
+
+uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
+{
+  std::vector<uint32_t> allChips = broadcastRead("ChipID0",0xff000000);
+  uint32_t connectedMask = 0x0; // high means don't broadcast
+  uint32_t disabledMask  = 0x0; // high means ignore data
+  DEBUG("Reading ChipID0 from all possible slots");
+  for (auto id = allChips.begin(); id != allChips.end(); ++id) {
+    // 0x00XXYYZZ
+    // XX = status (00000EVR)
+    // YY = chip number
+    // ZZ = register contents
+    DEBUG("result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
+    bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
+    
+    if (v_bit && !e_bit) {
+      uint8_t shift = ((*id)>>8)&0xff;
+      connectedMask |= (0x1 << shift);
+      disabledMask  |= (0x1 << shift);
+    }
+    DEBUG("mask is " << std::hex << connectedMask << std::dec);
+  }
+  
+  connectedMask = ~connectedMask;
+  disabledMask  = ~disabledMask ;
+  DEBUG("final mask is 0x" << std::setw(8) << std::setfill('0') << std::hex << connectedMask << std::dec);
+  return connectedMask;
 }
