@@ -21,6 +21,9 @@
     <xc:Application class="gem::supervisor::tbutils::LatencyScan" id="256" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:LatencyScan" xsi:type="soapenc:Struct">
 	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	  <confParams xsi:type="soapenc:Struct">
+	    <slotFileName xsi:type="xsd:string">slot_table.csv</slotFileName>
+	  </confParams>
       </properties>
     </xc:Application>
 

@@ -369,7 +369,7 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
     }
     else if (is_working_) {
       cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-      head.addHeader("Refresh","60");
+      head.addHeader("Refresh","2");
     }
     else if (is_running_) {
       cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
@@ -783,7 +783,8 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   char* utcTime = asctime(gmtm);
 
   //  std::string tmpFileName = "ThresholdScan_";
-  std::string tmpFileName = "ThresholdScan_", tmpType = "", outputType   = "Hex";
+  //std::string tmpFileName = "ThresholdScan_", tmpType = "", outputType   = "Hex";
+  std::string tmpFileName = "ThresholdScan_", tmpType = "", outputType   = "Bin";
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
   tmpFileName.append(".dat");
