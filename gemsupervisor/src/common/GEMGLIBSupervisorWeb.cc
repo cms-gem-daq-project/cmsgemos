@@ -16,8 +16,6 @@
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMGLIBSupervisorWeb)
 
-amc13::Module pMod;// in header raises error "incomplete type"
-
 void gem::supervisor::GEMGLIBSupervisorWeb::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
   latency   = 25U;
@@ -705,16 +703,13 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 {
   hw_semaphore_.take();
 
-  std::cout << "Try to park data " << std::endl;
-  //uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
-  gemDataParker->dumpData();
-  /*
+  uint32_t* pDupm = gemDataParker->dumpData(readout_mask);
   if (pDupm) {
     // m_counter[0] = *pDupm;     // VFAT Blocks counter
     // m_counter[1] = *(pDupm+1); // Events counter
     // m_counter[2] = *(pDupm+2); // Sum VFAT per last event
   }
-*/
+
   hw_semaphore_.give();
 
   // should possibly return true so the workloop is automatically resubmitted
@@ -725,20 +720,20 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::readAction(toolbox::task::WorkLoop *
 bool gem::supervisor::GEMGLIBSupervisorWeb::selectAction(toolbox::task::WorkLoop *wl)
 {
   // uint32_t  Counter[5] = {0,0,0,0,0};
-  //uint32_t* pDQ =  gemDataParker->selectData(m_counter);
-  //if (pDQ) {
-  //  m_counter[0] = *(pDQ+0);
-  //  m_counter[1] = *(pDQ+1); // Events counter
-  //  m_counter[2] = *(pDQ+2); 
-  //  m_counter[3] = *(pDQ+3);
-  //  m_counter[4] = *(pDQ+4);
-  //  m_counter[5] = *(pDQ+5);
-  //}
+  uint32_t* pDQ =  gemDataParker->selectData(m_counter);
+  if (pDQ) {
+    m_counter[0] = *(pDQ+0);
+    m_counter[1] = *(pDQ+1); // Events counter
+    m_counter[2] = *(pDQ+2); 
+    m_counter[3] = *(pDQ+3);
+    m_counter[4] = *(pDQ+4);
+    m_counter[5] = *(pDQ+5);
+  }
 
   if (is_running_) 
     return true;
-  //else if (gemDataParker->queueDepth() > 0)
-  //  return true;
+  else if (gemDataParker->queueDepth() > 0)
+    return true;
   else 
     return false;
 }
@@ -755,33 +750,6 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-
-
-            
-
-  char *atp = getenv("AMC13_ADDRESS_TABLE_PATH");
-
-  std::cout << "AMC13 ATP " << atp << std::endl;
-  pMod.Connect( "192.168.1.88", atp); // remove IP address hardcode
-  std::cout << "Connection established " << atp << std::endl;
-
-  amc13_ = pMod.amc13;
-  //--- inhibit most noise from uHAL
-  uhal::setLogLevelTo(uhal::Error());
-
-  std::cout << "uHAL log level set to Error"  << std::endl;
-  uint32_t serno = amc13_->read( amc13::AMC13Simple::T1, "STATUS.SERIAL_NO");
-  printf("Connected to AMC13 serial number %d\n", serno);
-
-  // initialize the AMC13
-  std::cout << "initialize AMC13"  << std::endl;
-  amc13_->endRun();		// take out of run mode
-  std::cout << "AMC13 is out of run mode"  << std::endl;
-  amc13_ = pMod.amc13;
-  amc13_->monBufBackPressEnable( true);
-  amc13_->AMCInputEnable( 0x200); // pass the mask properly
-  amc13_->startRun();
-
 
   // assumes only a single glib per optohybrid and hard codes the optohybrid to be on GTX 0
   // better to take this as a configuration parameter, or have the active links in this
@@ -878,8 +846,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
 
   // Book GEM Data Parker
   gemDataParker =
-    std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*amc13_,
-                                                                                 tmpFileName));
+    std::shared_ptr<gem::readout::GEMDataParker>(new gem::readout::GEMDataParker(*glibDevice_,
+                                                                                 tmpFileName,
+                                                                                 errFileName,
+                                                                                 tmpType,
+                                                                                 confParams_.bag.slotFileName.toString()));
   
   // Data Stream close
   outf.close();

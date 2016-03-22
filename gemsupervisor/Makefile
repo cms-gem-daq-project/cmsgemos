@@ -24,7 +24,7 @@ ROOTGLIBS  =$(shell root-config --glibs)
 
 Sources =version.cc
 Sources+=tbutils/VFAT2XMLParser.cc
-#Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc tbutils/ADCScan.cc
+Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc tbutils/ADCScan.cc
 #Sources+=tbutils/GEMTBUtil.cc tbutils/LatencyScan.cc
 Sources+=GEMGLIBSupervisorWeb.cc
 Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc
@@ -74,7 +74,7 @@ UserStaticLinkFlags =
 
 #LDFLAGS=`root-config --libs --glibs`
 DEBUG_LIBS =profiler tcmalloc
-DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_readout cactus_amc13_tools
+DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_readout
 Libraries          = log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
 
 include $(XDAQ_ROOT)/config/Makefile.rules
