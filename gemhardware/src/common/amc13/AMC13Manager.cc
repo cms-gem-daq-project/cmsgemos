@@ -29,6 +29,10 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("MonitorBackPressure", &monBackPressure);
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
   bag->addField("EnableLocalL1A",      &enableLocalL1A );
+  bag->addField("InternalPeriodicPeriod", &internalPeriodicPeriod );
+  bag->addField("L1Amode", &l1Amode );
+  bag->addField("L1Arules", &l1Arules );
+  bag->addField("L1Aburst", &l1Aburst );
 
   bag->addField("PrescaleFactor", &prescaleFactor);
   bag->addField("BCOffset",       &bcOffset      );
@@ -89,6 +93,10 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
   m_enableLocalL1A     = m_amc13Params.bag.enableLocalL1A.value_;
+  m_internalPeriodicPeriod = m_amc13Params.bag.internalPeriodicPeriod.value_;
+  m_L1Amode            = m_amc13Params.bag.l1Amode.value_;
+  m_L1Arules           = m_amc13Params.bag.l1Arules.value_;
+  m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
   m_prescaleFactor     = m_amc13Params.bag.prescaleFactor.value_;
   m_bcOffset           = m_amc13Params.bag.bcOffset.value_;
   m_fedID              = m_amc13Params.bag.fedID.value_;
@@ -168,6 +176,27 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->AMCInputEnable(m_slotMask);
   usleep(500);
 
+  // Use local TTC signal if config doc says so
+  p_amc13->localTtcSignalEnable(m_enableLocalTTC);
+
+  // Enable Monitor Buffer Backpressure if config doc says so
+  p_amc13->monBufBackPressEnable(m_monBackPressEnable);
+
+  // m_dtc->configurePrescale(1,m_preScaleFactNumOfZeros);
+  p_amc13->configurePrescale(0, m_prescaleFactor);
+
+  // set the FED id
+  p_amc13->setFEDid(m_fedID);
+
+  // reset the T1
+  p_amc13->reset(::amc13::AMC13::T1);
+
+  // reset the T1 counters
+  p_amc13->resetCounters();
+
+  // Setting L1A if config doc says so
+  if (m_enableLocalL1A) p_amc13->configureLocalL1A(m_enableLocalL1A,m_L1Amode,m_L1Aburst,m_internalPeriodicPeriod,m_L1Arules);
+
   //unlock the access
 }
 
@@ -185,6 +214,8 @@ void gem::hw::amc13::AMC13Manager::startAction()
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   usleep(500);
+  p_amc13->reset(::amc13::AMC13::T1);
+  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
   p_amc13->startRun();
 }
 
@@ -210,6 +241,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   DEBUG("Entering gem::hw::amc13::AMC13Manager::stopAction()");
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
+  if (m_enableLocalL1A) p_amc13->stopContinuousL1A();
   usleep(500);
   p_amc13->endRun();
 }
@@ -225,6 +257,9 @@ void gem::hw::amc13::AMC13Manager::resetAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //what is necessary for a reset on the AMC13?
+  DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
+  if (p_amc13!=0) delete p_amc13;
+  p_amc13=0;
   usleep(500);
   //gem::base::GEMFSMApplication::resetAction();
 }

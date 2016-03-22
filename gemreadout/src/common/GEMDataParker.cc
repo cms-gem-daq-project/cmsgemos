@@ -1,6 +1,7 @@
 #include "gem/readout/GEMDataParker.h"
-
+#include "gem/readout/gemOnlineDQM.h"
 #include "gem/readout/exception/Exception.h"
+#include "gem/hw/glib/HwGLIB.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 
@@ -30,18 +31,24 @@
 #include "TStopwatch.h"
 
 typedef std::shared_ptr<int*> link_shared_ptr;
+typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
+typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
+typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
+
+//why are these global and not part of the header???
+std::vector<AMCVFATData> vfats;
+std::vector<AMCVFATData> erros;
 
 const uint32_t gem::readout::GEMDataParker::kUPDATE = 5000;
 const uint32_t gem::readout::GEMDataParker::kUPDATE7 = 7;
+
+// I have no idea what this is for
+int rvent_ = 0;
 
 const int gem::readout::GEMDataParker::I2O_READOUT_NOTIFY=0x84;
 const int gem::readout::GEMDataParker::I2O_READOUT_CONFIRM=0x85;
 
 // Main constructor
-//<<<<<<< HEAD
-//gem::readout::GEMDataParker::GEMDataParker(amc13::AMC13& amc13,
-//                                           std::string const& outFileName) :
-//=======
 gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName,
                                            std::string const& errFileName,
@@ -50,66 +57,58 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   m_ESexp(-1),
   m_isFirst(true),
   m_contvfats(0),
-//>>>>>>> origin/release-v2
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))),
   m_queueLock(toolbox::BSem::FULL, true)
-
 {
   //  these bindings necessitate that the GEMDataParker inherit from some xdaq application stuff
   //  i2o::bind(this,&GEMDataParker::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
   //  xoap::bind(this,&GEMDataParker::updateScanParameters,"UpdateScanParameter","urn:GEMDataParker-soap:1");
   INFO("Data Parker");
 
-  p_amc13   = &amc13;
-
-  uint32_t serno = p_amc13->read( amc13::AMC13Simple::T1, "STATUS.SERIAL_NO");
-  printf("Connected to AMC13 serial number %d\n", serno);
+  p_glibDevice   = &glibDevice;
   m_outFileName  = outFileName;
-  //m_counter = {0,0,0,0,0};
+  m_errFileName  = errFileName;
+  m_slotFileName = slotFileName;
+  m_outputType   = outputType;
+  m_counter = {0,0,0,0,0};
+  m_vfat = 0;
+  m_event = 0;
+  rvent_ = 0;
+  m_sumVFAT = 0;
+  //  p_gemOnlineDQM = new gem::readout::gemOnlineDQM(m_slotFileName);
+  slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(m_slotFileName));
 }
 
-void gem::readout::GEMDataParker::dumpData()
+uint32_t* gem::readout::GEMDataParker::dumpData(uint8_t const& readout_mask)
 {
 
-  std::cout << "Dump Data!" << std::endl;
-
-  size_t siz;
-  int rc;
-  uint64_t* pEvt;
-  uint64_t head[2];
-
-  FILE *fp;
-  fp = fopen( m_outFileName.c_str(), "w");
-  int nwrote = 0;
-
-  std::cout << "File for output open" << std::endl;
-  while (1){
-    std::cout << "Get number of events in the buffer" << std::endl;
-    int nevt = p_amc13->read( amc13::AMC13Simple::T1, "STATUS.MONITOR_BUFFER.UNREAD_EVENTS");
-    printf("Trying to read %d events\n", nevt);
-    for( int i=0; i<nevt; i++) {
-      if( (i % 100) == 0)
-	      printf("calling readEvent (%d)...\n", i);
-      pEvt = p_amc13->readEvent( siz, rc);
-
-      if( rc == 0 && siz > 0 && pEvt != NULL) {
-	      head[0] = 0xbadc0ffeebadcafe;
-	      head[1] = siz;
-	      fwrite( head, sizeof(uint64_t), 2, fp);
-	      fwrite( pEvt, sizeof(uint64_t), siz, fp);
-	      ++nwrote;
-      } else {
-	      printf("No more events\n");
-	      break;
-      }
+  INFO("info dump data parker");
+  DEBUG("Reading out dumpData(" << (int)readout_mask << ")");
+  uint32_t *point = &m_counter[0]; 
+  m_contvfats = 0;
+  uint32_t* pDu = gem::readout::GEMDataParker::getGLIBData(readout_mask, m_counter);
+  DEBUG("point 0x" << std::hex << point << " pDu 0x" << pDu << std::dec);
+  if (pDu)
+    for (unsigned count = 0; count < 5; ++count) m_counter[count] = *(pDu+count);
   
-      if( pEvt)
-	      free( pEvt);
-    }
-    //if (nevt == 0) break;
+  /*
+  //if [0-7] in deviceNum
+  if (readout_mask & 0x1) {
+    uint32_t* pDu = gem::readout::GEMDataParker::getGLIBData(0x0, m_counter);
+    for (unsigned count = 0; count < 5; ++count) m_counter[count] = *(pDu+count);
   }
-  fclose( fp);
-
+  //if [8-15] in deviceNum
+  if (readout_mask & 0x2) {
+    uint32_t* pDu = gem::readout::GEMDataParker::getGLIBData(0x1, m_counter);
+    for (unsigned count = 0; count < 5; ++count) m_counter[count] = *(pDu+count);
+  }
+  //if [16-23] in deviceNum
+  if (readout_mask & 0x4) {
+    uint32_t* pDu = gem::readout::GEMDataParker::getGLIBData(0x2, m_counter); 
+    for (unsigned count = 0; count < 5; ++count) m_counter[count] = *(pDu+count);
+  }
+  */
+  return point;
 }
 
 xoap::MessageReference gem::readout::GEMDataParker::updateScanParameters(xoap::MessageReference msg)
@@ -413,9 +412,9 @@ bool gem::readout::GEMDataParker::VFATfillData(int const& islot, AMCGEBData&  ge
 {
   // Chamber Header, Zero Suppression flags, Chamber ID
   uint64_t ZSFlag  = 0x0;                    // :24
-  uint64_t ChamID  = 0xffffffffffffffff & (0b00011111);                  // :5
-  uint64_t sumVFAT = int(3*int(geb.vfats.size()));  // :11
-  geb.header  = (ZSFlag << 40)|(ChamID << 35)|(sumVFAT << 23);
+  uint64_t ChamID  = 0xdea;                  // :12
+  uint64_t sumVFAT = int(geb.vfats.size());  // :28
+  geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
   ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
   ChamID =  (0x000000fff0000000 & geb.header) >> 28; 
   sumVFAT=  (0x000000000fffffff & geb.header);    
@@ -455,7 +454,7 @@ void gem::readout::GEMDataParker::writeGEMevent(std::string  outFile, bool const
     GEMDataAMCformat::writeGEBrunhed (outFile, m_event, geb);
   } else {
     GEMDataAMCformat::writeGEBheaderBinary (outFile, m_event, geb);
-    //GEMDataAMCformat::writeGEBrunhedBinary (outFile, m_event, geb);
+    GEMDataAMCformat::writeGEBrunhedBinary (outFile, m_event, geb);
   } // GEMDataAMCformat::printGEBheader (m_event, geb);
   //  GEB PayLoad Data
   int nChip=0;
@@ -510,12 +509,8 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   uint64_t User        = BOOST_BINARY( 1 );    // :32
   uint64_t OrN         = BOOST_BINARY( 1 );    // :16
   uint64_t BoardID     = BOOST_BINARY( 1 );    // :16
-  uint64_t FormatVersion = 0x0;
-  uint64_t runType = 0x1;
-  uint64_t temp = 0x00000000000000ff;
 
-  //gem.header2 = (User << 32)|(OrN << 16)|(BoardID);
-  gem.header2 = (FormatVersion << 60) | (runType << 56) | ((temp & m_latency) << 48) | ((temp & m_VT1) << 40) | ((temp & m_VT2) << 32) |(OrN << 16)|(BoardID);
+  gem.header2 = (User << 32)|(OrN << 16)|(BoardID);
 
   User     =  (0xffffffff00000000 & gem.header2) >> 32; 
   OrN      =  (0x00000000ffff0000 & gem.header2) >> 16;
@@ -658,3 +653,6 @@ void gem::readout::GEMDataParker::ScanRoutines(uint8_t latency, uint8_t VT1, uin
   INFO( " Dataparker scan routines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
 
 }
+
+     
+
