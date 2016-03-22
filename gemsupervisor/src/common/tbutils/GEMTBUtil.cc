@@ -56,7 +56,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
 
   outFileName  = tmpFileName;
-  slotFileName = "slot_table_904_2.csv";
+  slotFileName = "slot_table.csv";
   //settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
 
   //  deviceIP      = "192.168.0.170";
