@@ -116,7 +116,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
   //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
   std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
-  std::string cardname    = "gem.shelf01.amc13";
+  std::string cardname    = "gem.tamu.amc13";
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
