@@ -55,13 +55,16 @@ namespace gem {
         virtual int readout(unsigned int expected, unsigned int* eventNumbers,
                             std::vector< ::toolbox::mem::Reference* >& data) = 0;
         */
-        //state transitions, how many of these are necessary for the readout applications (removed pause/resume)?
-        virtual void initializeAction() throw (gem::base::exception::Exception);
-        virtual void configureAction()  throw (gem::base::exception::Exception);
-        virtual void startAction()      throw (gem::base::exception::Exception);
-        virtual void stopAction()       throw (gem::base::exception::Exception);
-        virtual void haltAction()       throw (gem::base::exception::Exception);
-        virtual void resetAction()      throw (gem::base::exception::Exception);
+        //state transitions, how many of these are necessary for the readout applications?
+        // use dummy functions on unnecessary ones, as they are pure virtual in GEMFSMApplication
+        virtual void initializeAction() /*throw (gem::base::exception::Exception)*/;
+        virtual void configureAction()  /*throw (gem::base::exception::Exception)*/;
+        virtual void startAction()      /*throw (gem::base::exception::Exception)*/;
+        virtual void pauseAction()      /*throw (gem::base::exception::Exception)*/;
+        virtual void resumeAction()     /*throw (gem::base::exception::Exception)*/;
+        virtual void stopAction()       /*throw (gem::base::exception::Exception)*/;
+        virtual void haltAction()       /*throw (gem::base::exception::Exception)*/;
+        virtual void resetAction()      /*throw (gem::base::exception::Exception)*/;
 	
         virtual void failAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception); 
@@ -69,8 +72,7 @@ namespace gem {
         virtual void resetAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
         
-      private:
-
+        
         class GEMReadoutSettings {
         public:
           GEMReadoutSettings();
@@ -79,8 +81,16 @@ namespace gem {
           //configuration parameters
           xdata::String runType;
           xdata::String fileName;
+          xdata::String outputType;
           xdata::String outputLocation;
         }; 
+        
+        xdata::Bag<GEMReadoutSettings> m_readoutSettings;        
+        xdata::String                  m_connectionFile;
+        xdata::String                  m_deviceName;
+
+      private:
+        
       };
   } // namespace gem::base
 } // namespace gem

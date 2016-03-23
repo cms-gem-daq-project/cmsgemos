@@ -484,5 +484,8 @@ namespace gem {
       };	  
     }; /// end struct GEMDataAMCformat
   } //end namespace gem::readout
+  typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
+  typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
+  typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
 } //end namespace gem
 #endif

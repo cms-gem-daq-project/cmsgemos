@@ -34,7 +34,7 @@ typedef std::shared_ptr<int*> link_shared_ptr;
 typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
 typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
 typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
-
+//
 //why are these global and not part of the header???
 std::vector<AMCVFATData> vfats;
 std::vector<AMCVFATData> erros;
