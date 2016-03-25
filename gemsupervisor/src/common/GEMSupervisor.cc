@@ -227,11 +227,13 @@ void gem::supervisor::GEMSupervisor::resetAction()
 */
 
 void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+  throw (toolbox::fsm::exception::Exception)
+{
+
 }
 
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-}
+  throw (toolbox::fsm::exception::Exception)
+{
 
-//  LocalWords:  oid
+}

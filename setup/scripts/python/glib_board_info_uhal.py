@@ -29,6 +29,8 @@ parser.add_option("-b", "--sbitout", type="int", dest="sbitSrc",
 		  help="use s-bit from VFAT <num>", metavar="sbitSrc")
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
 		  help="print extra debugging information", metavar="debug")
+parser.add_option("-t", "--ttc", action="store_true", dest="gemttc",
+		  help="use gem TTC encoding", metavar="gemttc")
 parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
 		  help="calculate link error rates for N seconds", metavar="errorRate")
 parser.add_option("-u", "--user", action="store_true", dest="userOnly",
@@ -92,12 +94,19 @@ print
 print "-> DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
 print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
 print
+if options.gemttc:
+        writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",0x1)
+print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
+print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
 
 NGTX = 2
 for olink in range(NGTX):
         print "-> DAQ GTX%d corrupted VFAT block counter : 0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.CORRUPT_VFAT_BLK_CNT"%(olink)))
         print "-> DAQ GTX%d evn                          : 0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.EVN"%(olink)))
         print
+        #dbgWords = readBlock(glib,"GLIB.DAQ.GTX%d.LASTBLOCK",olink,7)
+        #for word in dbgWords:
+        #        print "-> DAQ debug : 0x%08x"%(word)
 
 print "-> GLIB STATUS 0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX0.STATUS"))
 print "-> GLIB STATUS 1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.GTX1.STATUS"))
@@ -165,6 +174,8 @@ print
 
 if (options.resetCounters):
         glibCounters(glib,options.gtx,True)
+        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
+        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
 print
 sys.stdout.flush()
 for olink in range(NGTX):
