@@ -2,12 +2,12 @@
 #define gem_hw_glib_HwGLIB_h
 
 #include "gem/hw/GEMHwDevice.h"
-#include "toolbox/SyncQueue.h"
-#include "i2o/i2o.h"
+//#include "toolbox/SyncQueue.h"
+//#include "i2o/i2o.h"
 #include "toolbox/Task.h"
 
 #include "gem/hw/glib/exception/Exception.h"
-//#include "gem/hw/glib/GLIBMonitor.h"
+#include "gem/hw/glib/GLIBSettingsEnums.h"
 
 namespace gem {
   namespace hw {
@@ -719,6 +719,36 @@ namespace gem {
           void setDAQLinkRunType(uint32_t const& value);
           void setDAQLinkRunParameters(uint32_t const& value);
           void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
+
+          /**
+           * @returns TTC encoding in use on the GLIB
+           */
+          GLIBTTCEncoding getTTCEncoding();
+
+          /**
+           * @param select which TTC encoding to use on the GLIB
+           */
+          void setTTCEncoding(GLIBTTCEncoding ttc_enc);
+
+          /**
+           * @returns whether or not L1As are currently inhibited on the GLIB
+           */
+          bool getL1AInhibit();
+
+          /**
+           * @param whether or not to inhibit L1As on the GLIB
+           */
+          void setL1AInhibit(bool inhibit);
+
+          /**
+           * @brief resets the TTC on the GLIB
+           */
+          void resetTTC();
+
+          /**
+           * @returns 32-bit word corresponding to the 8 most recent TTC commands received
+           */
+          uint32_t getTTCSpyBuffer();
 
           std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
           

@@ -57,7 +57,7 @@ namespace gem {
 	  uint32_t parseVFATMaskList(std::string const&);
 	  bool     isValidSlotNumber(std::string const&);
 
-          std::vector<uint32_t> v_vfatBroadcastMask;// one for each optohybrid
+          //std::vector<uint32_t> v_vfatBroadcastMask;// one for each optohybrid
 
           class OptoHybridInfo {
             
