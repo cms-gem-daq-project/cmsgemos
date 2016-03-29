@@ -14,6 +14,15 @@
 #include "amc13/AMC13.hh"
 #include "amc13/Status.hh"
 
+#include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPConstants.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/Method.h"
+#include "xoap/AttachmentPart.h"
+
+
 XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Manager);
 
 void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Info> *bag)
@@ -68,6 +77,14 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   //preInit();
   //DEBUG("done");
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
+
+    xoap::bind(this, &gem::hw::amc13::AMC13Manager::initializeScanRoutines, "InitializeScanRoutines", XDAQ_NS_URI );   
+    /*    xoap::bind(this, &gem::hw::amc13::AMC13Manager::configureScanRoutines, "ConfigureScanRoutines", XDAQ_NS_URI );   
+    xoap::bind(this, &gem::hw::amc13::AMC13Manager::startScanRoutines, "StartScanRoutines", XDAQ_NS_URI );   
+    xoap::bind(this, &gem::hw::amc13::AMC13Manager::pauseScanRoutines, "PauseScanRoutines", XDAQ_NS_URI );   
+    xoap::bind(this, &gem::hw::amc13::AMC13Manager::resumeScanRoutines, "ResumeScanRoutines", XDAQ_NS_URI );   
+    xoap::bind(this, &gem::hw::amc13::AMC13Manager::stopScanRoutines, "StopScanRoutines", XDAQ_NS_URI );   
+    */
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
@@ -215,8 +232,22 @@ void gem::hw::amc13::AMC13Manager::startAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   usleep(500);
   p_amc13->reset(::amc13::AMC13::T1);
-  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
+  INFO("ENABLE LOCAL TRIGGER" << m_enableLocalL1A);
+
+
+  //  p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+  p_amc13->enableLocalL1A(m_enableLocalL1A);
+
+  INFO(p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
+  //  p_amc13->writeMask(::amc13::AMC13::T1, "ACTION.LOCAL_TRIG.CONTINUOUS");
+  //  p_amc13->startContinuousL1A()
+  //  INFO("AFTER" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
+
   p_amc13->startRun();
+  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
+
+  INFO("AFTER start" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
+
 }
 
 void gem::hw::amc13::AMC13Manager::pauseAction()
@@ -225,6 +256,7 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   //what does pause mean here?
   //if local triggers are enabled, do we have a separate trigger application?
   //we can just disable them here maybe?
+  if (m_enableLocalL1A) p_amc13->stopContinuousL1A();
   usleep(500);
 }
 
@@ -232,6 +264,7 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //undo the actions taken in pauseAction
+  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
   usleep(500);
 }
 
@@ -274,3 +307,81 @@ void gem::hw::amc13::AMC13Manager::failAction(toolbox::Event::Reference e)
 void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
 }
+
+
+xoap::MessageReference gem::hw::amc13::AMC13Manager::initializeScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Initializing AMC13---------------");
+  initializeAction();
+  // reply to caller                                                                     
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+xoap::MessageReference gem::hw::amc13::AMC13Manager::configureScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Configuring AMC13---------------");
+  configureAction();
+  // reply to caller                                                                       
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+xoap::MessageReference gem::hw::amc13::AMC13Manager::startScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Starting AMC13---------------");
+  startAction();
+  // reply to caller                                                                       
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+xoap::MessageReference gem::hw::amc13::AMC13Manager::pauseScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Pausing AMC13---------------");
+  pauseAction();
+  // reply to caller                                                                       
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+xoap::MessageReference gem::hw::amc13::AMC13Manager::resumeScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Resumingsing AMC13---------------");
+  resumeAction();
+  // reply to caller                                                                       
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+
+xoap::MessageReference gem::hw::amc13::AMC13Manager::stopScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Stoping AMC13---------------");
+  stopAction();
+  // reply to caller                                                                       
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+
+

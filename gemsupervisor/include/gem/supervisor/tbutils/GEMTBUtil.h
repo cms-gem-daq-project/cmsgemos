@@ -95,19 +95,27 @@ namespace gem {
 	  virtual void fireEvent(const std::string& name);
 	  
 	  // SOAP interface
-	  virtual xoap::MessageReference onInitialize(xoap::MessageReference message)
+	  virtual xoap::MessageReference onInitialize(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onConfigure(xoap::MessageReference message)
+	  virtual xoap::MessageReference onConfigure(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onStart(xoap::MessageReference message)
+	  virtual xoap::MessageReference onStart(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onStop(xoap::MessageReference message)
+	  virtual xoap::MessageReference onStop(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onHalt(xoap::MessageReference message)
+	  virtual xoap::MessageReference onHalt(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onReset(xoap::MessageReference message)
+	  virtual xoap::MessageReference onReset(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
 
+	  //SOAP MEssage AMC13	
+	  void sendInitializeMessageAMC13()
+	    throw (xgi::exception::Exception);
+
+	  //SOAP MEssage GLIB	
+	  void sendInitializeMessageGLIB()
+	    throw (xgi::exception::Exception);
+	
 	  // HyperDAQ interface
 	  virtual void webDefault(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);

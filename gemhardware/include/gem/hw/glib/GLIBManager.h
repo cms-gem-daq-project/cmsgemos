@@ -34,6 +34,17 @@ namespace gem {
 
           virtual ~GLIBManager();
 	  
+	  //SOAP MESSAGE
+	  virtual xoap::MessageReference initializeScanRoutines(xoap::MessageReference msg)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference configureScanRoutines(xoap::MessageReference msg)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference startScanRoutines(xoap::MessageReference msg)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference stopScanRoutines(xoap::MessageReference msg)
+	    throw (xoap::exception::Exception);
+	  
+
         protected:
           virtual void init();
 

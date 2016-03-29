@@ -21,8 +21,24 @@ namespace gem {
           throw (xdaq::exception::Exception);
         ~ThresholdScan();
 
-	//SOAP MEssage	
-	void sendMessage(xgi::Input *in, xgi::Output *out)
+	//SOAP MEssage AMC13	
+	void sendConfigureMessageAMC13()
+	  throw (xgi::exception::Exception);
+	void sendStartMessageAMC13()
+	  throw (xgi::exception::Exception);
+	void sendPauseMessageAMC13()
+	  throw (xgi::exception::Exception);
+	void sendResumeMessageAMC13()
+	  throw (xgi::exception::Exception);
+	void sendStopMessageAMC13()
+	  throw (xgi::exception::Exception);
+
+	//SOAP MEssage GLIB	
+	void sendConfigureMessageGLIB()
+	  throw (xgi::exception::Exception);
+	void sendStartMessageGLIB()
+	  throw (xgi::exception::Exception);
+	void sendStopMessageGLIB()
 	  throw (xgi::exception::Exception);
 
         // HyperDAQ interface
