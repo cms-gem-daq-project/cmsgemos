@@ -12,6 +12,16 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 //#include "gem/hw/glib/exception/Exception.h"
+
+#include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPConstants.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/Method.h"
+#include "xoap/AttachmentPart.h"
+
+
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBManager);
@@ -69,7 +79,12 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_gemWebInterface = new gem::hw::glib::GLIBManagerWeb(this);
   //p_gemMonitor      = new gem::hw::glib::GLIBHwMonitor(this);
   DEBUG("done");
-  
+
+    xoap::bind(this, &gem::hw::glib::GLIBManager::initializeScanRoutines, "InitializeScanRoutines", XDAQ_NS_URI );   
+    xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "ConfigureScanRoutines", XDAQ_NS_URI );   
+    xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "StartScanRoutines", XDAQ_NS_URI );   
+    xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "StopScanRoutines", XDAQ_NS_URI );   
+
   //set up the info hwCfgInfoSpace 
   init();
 
@@ -364,7 +379,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       DEBUG("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
       m_glibs[slot]->setTrigSource(info.triggerSource.value_);
       m_glibs[slot]->resetDAQLink();
-      
+
       //should FIFOs be emptied in configure or at start?
       DEBUG("emptying trigger/tracking data FIFOs");
       for (unsigned link = 0; link < HwGLIB::N_GTX; ++link) {
@@ -389,6 +404,8 @@ void gem::hw::glib::GLIBManager::configureAction()
 void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
+
+  INFO("gem::hw::glib::GLIBManager::startAction begin");
   //what is required for starting the GLIB?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
     usleep(100);
@@ -403,6 +420,7 @@ void gem::hw::glib::GLIBManager::startAction()
       m_glibs[slot]->enableDAQLink();
   }
   usleep(100);
+  INFO("gem::hw::glib::GLIBManager::startAction end");
 }
 
 void gem::hw::glib::GLIBManager::pauseAction()
@@ -422,6 +440,7 @@ void gem::hw::glib::GLIBManager::resumeAction()
 void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  INFO("gem::hw::glib::GLIBManager::stopAction begin");
   //what is required for stopping the GLIB?
   usleep(100);
 }
@@ -558,4 +577,56 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("GTX1_TRG_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
   is_glib->createUInt32("GTX1_TRK_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
   is_glib->createUInt32("GTX1_DATA_Packets", 0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
+}
+
+xoap::MessageReference gem::hw::glib::GLIBManager::initializeScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Initializing GLIB---------------");
+
+  initializeAction();
+
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+xoap::MessageReference gem::hw::glib::GLIBManager::configureScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Configuring GLIB---------------");
+
+  configureAction();
+
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+xoap::MessageReference gem::hw::glib::GLIBManager::startScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Startinging GLIB---------------");
+
+  startAction();
+
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
+}
+
+xoap::MessageReference gem::hw::glib::GLIBManager::stopScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+{
+  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Stoping GLIB---------------");
+
+  stopAction();
+
+  xoap::MessageReference reply         = xoap::createMessage();
+  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
+  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
+  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+  return reply;
 }

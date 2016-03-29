@@ -32,6 +32,15 @@
 
 #include "TStopwatch.h"
 
+#include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPConstants.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/Method.h"
+#include "xoap/AttachmentPart.h"
+
+
 //XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::GEMTBUtil)
 
 void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
@@ -52,7 +61,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
 
   outFileName  = tmpFileName;
-  slotFileName = "slot_table_904_2.csv";
+  //  slotFileName = "slot_table_904_2.csv";
   //settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
 
   //  deviceIP      = "192.168.0.170";
@@ -777,7 +786,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 
       selectMultipleVFAT(out);
       scanParameters(out);
-      
+
       *out << cgicc::input().set("type", "submit")
 	.set("name", "command").set("title", "Initialize hardware acces.")
 	.set("value", "Initialize") << std::endl;
@@ -1277,6 +1286,10 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
   hw_semaphore_.take();
 
+  sendInitializeMessageAMC13();
+
+  sendInitializeMessageGLIB();
+
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
 
@@ -1628,8 +1641,64 @@ catch (const xgi::exception::Exception& e) {
  }
 
 }// end void selectoptohybrid
+/*
+{
+  fireEvent("Initialize");
+  return false; //do once?
+  }*/
 
 
+void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageGLIB()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("InitializeScanRoutines","xdaq", "urn:xdaq-soap:3.0");
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending GLIB initialize message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to GLIB initialize has been sent------------");
+}      
+
+void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("InitializeScanRoutines","xdaq", "urn:xdaq-soap:3.0");
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending AMC13 initialize message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to AMC13 initialize has been sent------------");
+}      
 
 
 

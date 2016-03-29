@@ -6,7 +6,6 @@
 
 #include "gem/base/GEMFSMApplication.h"
 #include "gem/hw/amc13/exception/Exception.h"
-//#include "gem/hw/amc13/AMC13Monitoring.hh"
 
 namespace amc13 {
   class AMC13;
@@ -31,6 +30,21 @@ namespace gem {
 
           virtual ~AMC13Manager();
 	  
+	  //SOAP MESSAGE
+	  virtual xoap::MessageReference initializeScanRoutines(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference configureScanRoutines(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference startScanRoutines(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference pauseScanRoutines(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference resumeScanRoutines(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference stopScanRoutines(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+
+
         protected:
           virtual void init();
 
@@ -90,7 +104,7 @@ namespace gem {
         private:
           mutable gem::utils::Lock m_amc13Lock;
 	
-          ::amc13::AMC13 *p_amc13;
+          ::amc13::AMC13* p_amc13;
 	  //hcal::utca::DTCMonitoring m_monitoringHelper; to be developed!!!
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
