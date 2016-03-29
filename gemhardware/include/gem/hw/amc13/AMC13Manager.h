@@ -31,7 +31,7 @@ namespace gem {
           virtual ~AMC13Manager();
 	  
 	  //SOAP MESSAGE
-	  virtual xoap::MessageReference initializeScanRoutines(xoap::MessageReference mns)
+	  /*	  virtual xoap::MessageReference initializeScanRoutines(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
 	  virtual xoap::MessageReference configureScanRoutines(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
@@ -43,7 +43,7 @@ namespace gem {
 	    throw (xoap::exception::Exception);
 	  virtual xoap::MessageReference stopScanRoutines(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-
+	  */
 
         protected:
           virtual void init();

@@ -30,15 +30,11 @@ namespace gem {
 	  throw (xgi::exception::Exception);
 	void sendResumeMessageAMC13()
 	  throw (xgi::exception::Exception);
-	void sendStopMessageAMC13()
-	  throw (xgi::exception::Exception);
 
 	//SOAP MEssage GLIB	
 	void sendConfigureMessageGLIB()
 	  throw (xgi::exception::Exception);
 	void sendStartMessageGLIB()
-	  throw (xgi::exception::Exception);
-	void sendStopMessageGLIB()
 	  throw (xgi::exception::Exception);
 
         // HyperDAQ interface

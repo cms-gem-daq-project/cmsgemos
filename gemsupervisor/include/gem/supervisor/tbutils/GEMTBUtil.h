@@ -111,9 +111,14 @@ namespace gem {
 	  //SOAP MEssage AMC13	
 	  void sendInitializeMessageAMC13()
 	    throw (xgi::exception::Exception);
+	  void sendStopMessageAMC13()
+	    throw (xgi::exception::Exception);
+	  
 
 	  //SOAP MEssage GLIB	
 	  void sendInitializeMessageGLIB()
+	    throw (xgi::exception::Exception);
+	  void sendStopMessageGLIB()
 	    throw (xgi::exception::Exception);
 	
 	  // HyperDAQ interface
