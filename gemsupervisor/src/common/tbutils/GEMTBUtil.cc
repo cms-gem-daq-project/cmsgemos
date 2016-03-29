@@ -348,6 +348,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStop(xoap::Message
   is_working_ = true;
 
   wl_->submit(stopSig_);
+  sendStopMessageGLIB();    
+  sendStopMessageAMC13();    
 
   return message;
 }
@@ -1445,6 +1447,11 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
   delete scanStream;
   scanStream = 0;*/
   wl_->submit(stopSig_);
+
+  sendStopMessageGLIB(); 
+   
+  sendStopMessageAMC13();    
+
   
   sleep(0.001);
   
@@ -1656,7 +1663,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageGLIB()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("InitializeScanRoutines","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -1667,12 +1674,39 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageGLIB()
     }
   catch (xdaq::exception::Exception& e)
     {
-      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending GLIB initialize message " << e.what());
+      INFO("------------------Fail sending GLIB initialize message " << e.what());
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
     }
   //  this->Default(in,out);
-  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to GLIB initialize has been sent------------");
+  INFO("-----------The message to GLIB initialize has been sent------------");
 }      
+
+void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageGLIB()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("Stop","xdaq", "urn:xdaq-soap:3.0");
+  //  xoap::SOAPName command = envelope.createName("StopScanRoutines","xdaq", "urn:xdaq-soap:3.0");
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      INFO("------------------Fail sending stop message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+  INFO("-----------The message to stop has been sent------------");
+}      
+
 
 void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
   throw (xgi::exception::Exception) {
@@ -1682,7 +1716,8 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("InitializeScanRoutines","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
+  //  xoap::SOAPName command = envelope.createName("InitializeScanRoutines","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -1697,9 +1732,33 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
     }
   //  this->Default(in,out);
-  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to AMC13 initialize has been sent------------");
+  INFO("-----------The message to AMC13 initialize has been sent------------");
 }      
 
+void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageAMC13()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("Stop","xdaq", "urn:xdaq-soap:3.0");
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      INFO("------------------Fail sending AMC13 stop message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+  INFO("-----------The message to stop has been sent------------");
+}      
 
 
 

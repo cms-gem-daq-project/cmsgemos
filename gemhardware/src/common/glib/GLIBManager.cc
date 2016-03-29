@@ -80,11 +80,11 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   //p_gemMonitor      = new gem::hw::glib::GLIBHwMonitor(this);
   DEBUG("done");
 
-    xoap::bind(this, &gem::hw::glib::GLIBManager::initializeScanRoutines, "InitializeScanRoutines", XDAQ_NS_URI );   
+  /*    xoap::bind(this, &gem::hw::glib::GLIBManager::initializeScanRoutines, "InitializeScanRoutines", XDAQ_NS_URI );   
     xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "ConfigureScanRoutines", XDAQ_NS_URI );   
     xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "StartScanRoutines", XDAQ_NS_URI );   
     xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "StopScanRoutines", XDAQ_NS_URI );   
-
+  */
   //set up the info hwCfgInfoSpace 
   init();
 

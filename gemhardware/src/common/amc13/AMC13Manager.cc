@@ -78,13 +78,13 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   //DEBUG("done");
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 
-    xoap::bind(this, &gem::hw::amc13::AMC13Manager::initializeScanRoutines, "InitializeScanRoutines", XDAQ_NS_URI );   
-    /*    xoap::bind(this, &gem::hw::amc13::AMC13Manager::configureScanRoutines, "ConfigureScanRoutines", XDAQ_NS_URI );   
-    xoap::bind(this, &gem::hw::amc13::AMC13Manager::startScanRoutines, "StartScanRoutines", XDAQ_NS_URI );   
-    xoap::bind(this, &gem::hw::amc13::AMC13Manager::pauseScanRoutines, "PauseScanRoutines", XDAQ_NS_URI );   
-    xoap::bind(this, &gem::hw::amc13::AMC13Manager::resumeScanRoutines, "ResumeScanRoutines", XDAQ_NS_URI );   
-    xoap::bind(this, &gem::hw::amc13::AMC13Manager::stopScanRoutines, "StopScanRoutines", XDAQ_NS_URI );   
-    */
+  /*    xoap::bind(this, &gem::hw::amc13::AMC13Manager::initializeScanRoutines, "InitializeScanRoutines", XDAQ_NS_URI );   
+	xoap::bind(this, &gem::hw::amc13::AMC13Manager::configureScanRoutines, "ConfigureScanRoutines", XDAQ_NS_URI );   
+	xoap::bind(this, &gem::hw::amc13::AMC13Manager::startScanRoutines, "StartScanRoutines", XDAQ_NS_URI );   
+	xoap::bind(this, &gem::hw::amc13::AMC13Manager::pauseScanRoutines, "PauseScanRoutines", XDAQ_NS_URI );   
+	xoap::bind(this, &gem::hw::amc13::AMC13Manager::resumeScanRoutines, "ResumeScanRoutines", XDAQ_NS_URI );   
+	xoap::bind(this, &gem::hw::amc13::AMC13Manager::stopScanRoutines, "StopScanRoutines", XDAQ_NS_URI );   
+  */
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
@@ -234,19 +234,21 @@ void gem::hw::amc13::AMC13Manager::startAction()
   p_amc13->reset(::amc13::AMC13::T1);
   INFO("ENABLE LOCAL TRIGGER" << m_enableLocalL1A);
 
+  p_amc13->startRun();
 
-  //  p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+  p_amc13->localTtcSignalEnable(m_enableLocalL1A);
   p_amc13->enableLocalL1A(m_enableLocalL1A);
 
   INFO(p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
-  //  p_amc13->writeMask(::amc13::AMC13::T1, "ACTION.LOCAL_TRIG.CONTINUOUS");
-  //  p_amc13->startContinuousL1A()
-  //  INFO("AFTER" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
+  
+  p_amc13->writeMask(::amc13::AMC13::T1, "ACTION.LOCAL_TRIG.CONTINUOUS");
+  
+  INFO("AFTER write mask" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
 
-  p_amc13->startRun();
-  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
+  p_amc13->startContinuousL1A();
+    //  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
 
-  INFO("AFTER start" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
+  INFO("AFTER startcontinouslia" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
 
 }
 
@@ -308,7 +310,7 @@ void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
 }
 
-
+/*
 xoap::MessageReference gem::hw::amc13::AMC13Manager::initializeScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
 {
 
@@ -382,6 +384,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::stopScanRoutines(xoap::Mess
   xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
   return reply;
 }
-
+*/
 
 
