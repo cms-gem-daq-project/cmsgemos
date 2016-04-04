@@ -24,7 +24,7 @@ namespace gem {
 	//SOAP MEssage AMC13	
 	void sendConfigureMessageAMC13()
 	  throw (xgi::exception::Exception);
-	void sendStartMessageAMC13()
+	bool sendStartMessageAMC13()
 	  throw (xgi::exception::Exception);
 	void sendPauseMessageAMC13()
 	  throw (xgi::exception::Exception);
@@ -34,7 +34,7 @@ namespace gem {
 	//SOAP MEssage GLIB	
 	void sendConfigureMessageGLIB()
 	  throw (xgi::exception::Exception);
-	void sendStartMessageGLIB()
+	bool sendStartMessageGLIB()
 	  throw (xgi::exception::Exception);
 
         // HyperDAQ interface
@@ -84,7 +84,7 @@ namespace gem {
 
         //ConfigParams confParams_;
         xdata::Bag<ConfigParams> scanParams_;
-
+	int totaltriggers;
         int minThresh_, maxThresh_;
         uint64_t stepSize_, latency_;
 	  

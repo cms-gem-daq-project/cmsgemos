@@ -101,28 +101,43 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     return false;
   }
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run before trigger source" << optohybridDevice_->getL1ACount(0x0));
+  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run before start soap message" << optohybridDevice_->getL1ACount(0x0));
 
+  LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter before " << totaltriggers << "triggerseen before " << (int)confParams_.bag.triggersSeen);
 
-  if((int)confParams_.bag.triggercount == 0){
-    sendStartMessageAMC13();
+  if(totaltriggers == 0){
+    LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter" << totaltriggers);
+    if((int)confParams_.bag.triggersSeen == 0){
+      LOG4CPLUS_INFO(getApplicationLogger(), "triggerseen" << (int)confParams_.bag.triggersSeen);
+      if(!sendStartMessageAMC13()){
+	sendStartMessageAMC13();
+      }
+    
+    sleep(1);    
+    }
   }else{
-    sendResumeMessageAMC13();
+    LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter" << totaltriggers);
+    if((int)confParams_.bag.triggersSeen == 0){
+      LOG4CPLUS_INFO(getApplicationLogger(), "triggerseen" << (int)confParams_.bag.triggersSeen);
+      sendResumeMessageAMC13();
+      sleep(1);    
+    }
   }
-  //  if(confParams_.bag.triggersSeen==0)
-
-
-
 
   //send triggers
   hw_semaphore_.take(); //take hw to send the trigger 
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run after trigger source" << optohybridDevice_->getL1ACount(0x0));
+
+  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run after start soap message" << optohybridDevice_->getL1ACount(0x0));
   //count triggers
+
+  LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter after " << totaltriggers);
 
   optohybridDevice_->setTrigSource(0x0);// trigger sources   
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
   
+
+
   LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen);
 
   hw_semaphore_.give(); //give hw to send the trigger 
@@ -133,39 +148,31 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.take(); // take hw to set buffer depth
 
     // Get the size of GLIB data buffer       
-    uint32_t bufferDepth;
+    uint32_t bufferDepth = 0;
     bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
-
-    hw_semaphore_.give();
 
     LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
 
-    if (bufferDepth > 0) {
-      hw_semaphore_.take(); // take hw to set buffer depth
-      LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht > 0" << bufferDepth);    
-      ++confParams_.bag.triggercount;
+    totaltriggers += (int)confParams_.bag.triggersSeen;
+
+    LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter after after " << totaltriggers);
       
-      hw_semaphore_.give(); // give hw to set buffer depth
-      wl_semaphore_.give();//give workloop to read
-    }  
+    hw_semaphore_.give(); // give hw to set buffer depth
+    wl_semaphore_.give();//give workloop to read
     return true;
   }//end if triggerSeen < nTrigger
   else {
     
     hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs 
-    
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
     }// end for  
     
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
-    sleep(0.001);
     
-    if (bufferDepth>0) {
-      ++confParams_.bag.triggercount;
-    }
-    
+    totaltriggers += (int)confParams_.bag.triggersSeen;
+        
     //reset counters
     optohybridDevice_->resetL1ACount(0x5);
     optohybridDevice_->resetResyncCount();
@@ -174,9 +181,11 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     
     hw_semaphore_.give();  // give hw to reset counters
 
-
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
 		   << confParams_.bag.triggersSeen );
+
+    sendPauseMessageAMC13();
+    sleep(1);
     
     if ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 ) {
       wl_semaphore_.give();
@@ -196,9 +205,6 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 		     << " abs(VT2-VT1) " 
 		     << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
 
-      hw_semaphore_.give();
-      //how to ensure that the VT1 never goes negative
-      hw_semaphore_.take();
       //if VT1 > stepSize      
       if (scanParams_.bag.deviceVT1 > scanParams_.bag.stepSize) {
 
@@ -211,14 +217,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	}
       }// end else VT1 <stepsize
 
-      //      sendPauseMessageAMC13();
-      sleep(0.001);
       
       uint32_t bufferDepth = 0;
       bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);    
-      if (bufferDepth>0) {
-	sleep(0.001);
-       }
+      sleep(0.001);
       
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	scanParams_.bag.deviceVT1    = (*chip)->getVThreshold1();
@@ -244,6 +246,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     }//else if VT2-VT1 < maxthreshold 
     else {
       hw_semaphore_.take(); // take hw to stop workloop
+      sendPauseMessageAMC13();
       wl_->submit(stopSig_);  
       hw_semaphore_.give(); // give hw to stop workloop
       wl_semaphore_.give(); // end of workloop	      
@@ -676,6 +679,7 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   hw_semaphore_.take();
 
   confParams_.bag.triggersSeen = 0;
+  totaltriggers = 0;
   confParams_.bag.triggercount = 0;
   
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -754,7 +758,8 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   throw (toolbox::fsm::exception::Exception) {
   
   is_working_ = true;
-
+  sendStartMessageGLIB();
+  
   //AppHeader ah;
   latency_   = scanParams_.bag.latency;
   nTriggers_ = confParams_.bag.nTriggers;
@@ -792,7 +797,6 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   // once more for luck
   glibDevice_->flushFIFO(readout_mask);
 
-
   optohybridDevice_->sendResync();      
   optohybridDevice_->sendBC0();          
 
@@ -806,8 +810,6 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
     (*chip)->setRunMode(1);
   }
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter before reset start " << optohybridDevice_->getL1ACount(0x0));
-
   //reset counters
   optohybridDevice_->resetL1ACount(0x5);
   optohybridDevice_->resetResyncCount();
@@ -817,11 +819,12 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   optohybridDevice_->sendBC0();          
   optohybridDevice_->setTrigSource(0x1);// trigger sources   
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter after reset start " << optohybridDevice_->getL1ACount(0x0));
+
+  wl_->submit(runSig_);
+
+
   hw_semaphore_.give();
   //start scan routine
-  sendStartMessageGLIB();      
-  wl_->submit(runSig_);
   
   is_working_ = false;
 }
@@ -853,8 +856,8 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageGLIB()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
+  //  xoap::SOAPName command = envelope.createName("CallBackConfigure","xdaq", "urn:xdaq-soap:3.0");
   xoap::SOAPName command = envelope.createName("Configure","xdaq", "urn:xdaq-soap:3.0");
-  //  xoap::SOAPName command = envelope.createName("ConfigureScanRoutines","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -873,7 +876,7 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageGLIB()
 }      
 
 
-void gem::supervisor::tbutils::ThresholdScan::sendStartMessageGLIB()
+bool gem::supervisor::tbutils::ThresholdScan::sendStartMessageGLIB()
   throw (xgi::exception::Exception) {
 
   //  this->Default(in,out);
@@ -884,8 +887,8 @@ void gem::supervisor::tbutils::ThresholdScan::sendStartMessageGLIB()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
+  //  xoap::SOAPName command = envelope.createName("CallBackStart","xdaq", "urn:xdaq-soap:3.0");
   xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
-  //  xoap::SOAPName command = envelope.createName("StartScanRoutines","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -893,13 +896,15 @@ void gem::supervisor::tbutils::ThresholdScan::sendStartMessageGLIB()
       xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
       xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
       xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start GLIB has been sent------------");
+      return true;
     }
   catch (xdaq::exception::Exception& e)
     {
       LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending start message " << e.what());
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+      return false;
     }
-
 }      
 
 void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageAMC13()
@@ -910,7 +915,7 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageAMC13()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("Configure","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("CallBackConfigure","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -929,14 +934,15 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageAMC13()
 }      
 
 
-void gem::supervisor::tbutils::ThresholdScan::sendStartMessageAMC13()
+bool gem::supervisor::tbutils::ThresholdScan::sendStartMessageAMC13()
   throw (xgi::exception::Exception) {
   //  is_working_ = true;
   xoap::MessageReference msg = xoap::createMessage();
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("CallBackStart","xdaq", "urn:xdaq-soap:3.0");
+  //  xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -944,14 +950,16 @@ void gem::supervisor::tbutils::ThresholdScan::sendStartMessageAMC13()
       xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
       xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
       xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start the AMC13 has been sent------------");
+      return true;
     }
   catch (xdaq::exception::Exception& e)
     {
       LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending AMC13 start message " << e.what());
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+        return false;
     }
   //  this->Default(in,out);
-  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start has been sent------------");
 }      
 
 void gem::supervisor::tbutils::ThresholdScan::sendPauseMessageAMC13()
@@ -961,7 +969,7 @@ void gem::supervisor::tbutils::ThresholdScan::sendPauseMessageAMC13()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("Pause","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("CallBackPause","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -986,7 +994,7 @@ void gem::supervisor::tbutils::ThresholdScan::sendResumeMessageAMC13()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("Resume","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("CallBackResume","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
