@@ -31,19 +31,19 @@ namespace gem {
           virtual ~AMC13Manager();
 	  
 	  //SOAP MESSAGE
-	  /*	  virtual xoap::MessageReference initializeScanRoutines(xoap::MessageReference mns)
+	  virtual xoap::MessageReference callbackinitialize(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference configureScanRoutines(xoap::MessageReference mns)
+	  virtual xoap::MessageReference callbackconfigure(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference startScanRoutines(xoap::MessageReference mns)
+	  virtual xoap::MessageReference callbackstart(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference pauseScanRoutines(xoap::MessageReference mns)
+	  virtual xoap::MessageReference callbackpause(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference resumeScanRoutines(xoap::MessageReference mns)
+	  virtual xoap::MessageReference callbackresume(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference stopScanRoutines(xoap::MessageReference mns)
+	  virtual xoap::MessageReference callbackstop(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  */
+
 
         protected:
           virtual void init();
@@ -71,6 +71,8 @@ namespace gem {
 	
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
+
+
           
           class AMC13Info 
           {   
@@ -86,6 +88,9 @@ namespace gem {
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
 	    xdata::Boolean enableLocalL1A;
+
+	    xdata::Boolean enableCalpulse;
+
 	    xdata::UnsignedInteger32 internalPeriodicPeriod;
 	    xdata::Integer l1Amode;
 	    xdata::Integer l1Arules;
@@ -117,12 +122,19 @@ namespace gem {
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A;
+
+          bool m_enableCalpulse;
+
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset;
           uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
           uint64_t m_localL1AMask;
 	  
           ////counters
+
+
+	  bool is_running_;
+
 
         protected:
 	  
