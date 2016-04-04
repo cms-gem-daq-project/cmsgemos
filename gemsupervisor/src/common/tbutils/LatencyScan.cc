@@ -808,7 +808,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   tm *gmtm = gmtime(&now);
   char* utcTime = asctime(gmtm);
 
-  std::string tmpFileName = "LatencyScan_", tmpType = "", outputType   = "Hex";
+  std::string tmpFileName = "LatencyScan_", tmpType = "", outputType   = "Bin";
   tmpFileName.append(utcTime);
   tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
   tmpFileName.append(".dat");
