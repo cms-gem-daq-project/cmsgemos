@@ -1663,6 +1663,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageGLIB()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
+  //  xoap::SOAPName command = envelope.createName("CallBackInitialize","xdaq", "urn:xdaq-soap:3.0");
   xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
@@ -1688,8 +1689,8 @@ void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageGLIB()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
+  //  xoap::SOAPName command = envelope.createName("CallBackStop","xdaq", "urn:xdaq-soap:3.0");
   xoap::SOAPName command = envelope.createName("Stop","xdaq", "urn:xdaq-soap:3.0");
-  //  xoap::SOAPName command = envelope.createName("StopScanRoutines","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -1710,14 +1711,13 @@ void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageGLIB()
 
 void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
   throw (xgi::exception::Exception) {
-  //  is_working_ = true;
 
   xoap::MessageReference msg = xoap::createMessage();
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
-  //  xoap::SOAPName command = envelope.createName("InitializeScanRoutines","xdaq", "urn:xdaq-soap:3.0");
+  //xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("CallBackInitialize","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -1742,7 +1742,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageAMC13()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("Stop","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("CallBackStop","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
