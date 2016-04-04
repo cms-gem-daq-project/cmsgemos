@@ -856,9 +856,15 @@ void gem::hw::glib::HwGLIB::setDAQLinkRunParameters(uint32_t const& value)
 
 void gem::hw::glib::HwGLIB::setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value)
 {
+  if (parameter < 1 || parameter > 3) {
+    std::string msg = toolbox::toString("Attempting to set DAQ link run parameter %d: outside expectation (1-%d)",
+                                        (int)parameter,3);
+    ERROR(msg);
+    return;
+  }
   std::stringstream regBase;
   regBase << "DAQ.EXT_CONTROL.RUN_PARAM" << (int) parameter;
-  return writeReg(getDeviceBaseNode(),regBase.str(),value);
+  writeReg(getDeviceBaseNode(),regBase.str(),value);
 }
 
 void gem::hw::glib::HwGLIB::setDAQLinkRunType(uint32_t const& value)

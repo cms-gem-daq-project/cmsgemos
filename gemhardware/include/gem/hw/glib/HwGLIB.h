@@ -710,14 +710,51 @@ namespace gem {
           uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
           uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
 
+          /**
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
           uint32_t getDAQLinkInputTimeout();
+
+          /**
+           * @returns Returns the run type stored in the data stream
+           */
           uint32_t getDAQLinkRunType();
+
+          /**
+           * @returns Special run parameters 1,2,3 as a single 24 bit word
+           */
           uint32_t getDAQLinkRunParameters();
+
+          /**
+           * @returns Special run parameter written into data stream
+           */
           uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
 
+
+          /**
+           * @brief Set DAQ link timeout
+           * @param value is the number of clock cycles to wait after receipt of last L1A and 
+           *        last packet received from the optical link before closing an "event"
+           */
           void setDAQLinkInputTimeout(uint32_t const& value);
+
+          /**
+           * @brief Special run type to be written into data stream
+           * @param value is the run type
+           */
           void setDAQLinkRunType(uint32_t const& value);
+
+          /**
+           * @returns Set special run parameter to be written into data stream
+           * @param value is a 24 bit word to write into the run paramter portion of the GEM header
+           */
           void setDAQLinkRunParameters(uint32_t const& value);
+
+          /**
+           * @returns Special run parameter written into data stream
+           * @param parameter is the number of parameter to be written (1-3)
+           * @param value is the run paramter to write into the specified parameter
+           */
           void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
 
           /**
