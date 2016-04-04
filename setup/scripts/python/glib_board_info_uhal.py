@@ -90,6 +90,8 @@ print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.D
 print
 if options.gemttc:
         writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",0x1)
+else:
+        writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",0x0)
 print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
 print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
 
