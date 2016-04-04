@@ -80,11 +80,11 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   //p_gemMonitor      = new gem::hw::glib::GLIBHwMonitor(this);
   DEBUG("done");
 
-  /*    xoap::bind(this, &gem::hw::glib::GLIBManager::initializeScanRoutines, "InitializeScanRoutines", XDAQ_NS_URI );   
-    xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "ConfigureScanRoutines", XDAQ_NS_URI );   
-    xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "StartScanRoutines", XDAQ_NS_URI );   
-    xoap::bind(this, &gem::hw::glib::GLIBManager::configureScanRoutines, "StopScanRoutines", XDAQ_NS_URI );   
-  */
+  xoap::bind(this, &gem::hw::glib::GLIBManager::callbackinitialize, "CallBackInitialize", XDAQ_NS_URI );   
+  xoap::bind(this, &gem::hw::glib::GLIBManager::callbackconfigure, "CallBackConfigure", XDAQ_NS_URI );   
+  xoap::bind(this, &gem::hw::glib::GLIBManager::callbackstart, "CallBackStart", XDAQ_NS_URI );   
+  xoap::bind(this, &gem::hw::glib::GLIBManager::callbackstop, "CallBackStop", XDAQ_NS_URI );   
+  
   //set up the info hwCfgInfoSpace 
   init();
 
@@ -579,12 +579,11 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("GTX1_DATA_Packets", 0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
 }
 
-xoap::MessageReference gem::hw::glib::GLIBManager::initializeScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+xoap::MessageReference gem::hw::glib::GLIBManager::callbackinitialize(xoap::MessageReference msg) throw (xoap::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Initializing GLIB---------------");
-
-  initializeAction();
-
+  fireEvent("Initialize");
+  
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
   xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
@@ -592,11 +591,10 @@ xoap::MessageReference gem::hw::glib::GLIBManager::initializeScanRoutines(xoap::
   return reply;
 }
 
-xoap::MessageReference gem::hw::glib::GLIBManager::configureScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+xoap::MessageReference gem::hw::glib::GLIBManager::callbackconfigure(xoap::MessageReference msg) throw (xoap::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Configuring GLIB---------------");
-
-  configureAction();
+  fireEvent("Configure");
 
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
@@ -605,11 +603,10 @@ xoap::MessageReference gem::hw::glib::GLIBManager::configureScanRoutines(xoap::M
   return reply;
 }
 
-xoap::MessageReference gem::hw::glib::GLIBManager::startScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+xoap::MessageReference gem::hw::glib::GLIBManager::callbackstart(xoap::MessageReference msg) throw (xoap::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Startinging GLIB---------------");
-
-  startAction();
+  fireEvent("Start");
 
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
@@ -618,11 +615,10 @@ xoap::MessageReference gem::hw::glib::GLIBManager::startScanRoutines(xoap::Messa
   return reply;
 }
 
-xoap::MessageReference gem::hw::glib::GLIBManager::stopScanRoutines(xoap::MessageReference msg) throw (xoap::exception::Exception)
+xoap::MessageReference gem::hw::glib::GLIBManager::callbackstop(xoap::MessageReference msg) throw (xoap::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Stoping GLIB---------------");
-
-  stopAction();
+  fireEvent("Stop");
 
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
