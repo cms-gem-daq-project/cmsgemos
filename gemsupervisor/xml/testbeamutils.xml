@@ -42,7 +42,7 @@
           <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
           <EnableLocalL1A      xsi:type="xsd:boolean">true</EnableLocalL1A>
 
-          <EnableCalPulse      xsi:type="xsd:boolean">true</EnableCalPulse>
+          <EnableCalPulse      xsi:type="xsd:boolean">false</EnableCalPulse>
 
           <InternalPeriodicPeriod      xsi:type="xsd:unsignedInt">8</InternalPeriodicPeriod>
           <L1Aburst            xsi:type="xsd:unsignedInt">1</L1Aburst>
