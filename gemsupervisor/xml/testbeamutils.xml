@@ -58,19 +58,7 @@
           
           <LocalL1AMask xsi:type="xsd:unsignedLong">1</LocalL1AMask>
 
-
-          <!--ConnectionFile     xsi:type="xsd:string">connectionSN168_ch.xml</ConnectionFile>
-          <AMCInputEnableList xsi:type="xsd:string">2,8,8-12</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">1,3,5-9 </AMCIgnoreTTSList>
-          
-          <EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
-          <EnableFakeData      xsi:type="xsd:boolean">true</EnableFakeData>
-          <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
-          <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
-          <EnableLocalL1A      xsi:type="xsd:boolean">true</EnableLocalL1A-->
-                    
         </amc13ConfigParams>
-<!--		<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile> -->
       </properties>
     </xc:Application>
 
@@ -92,9 +80,6 @@
             <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
             <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
             <IPBusPort         xsi:type="xsd:unsignedInt">50001</IPBusPort>
-            
-<!--            <triggerSource xsi:type="xsd:integer">2</triggerSource>
-            <sbitSource    xsi:type="xsd:integer">5</sbitSource>-->
           </GLIBInfo>
 	</AllGLIBsInfo>
       </properties>
