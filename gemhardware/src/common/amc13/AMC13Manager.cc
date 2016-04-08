@@ -151,7 +151,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
   //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
   std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
-  std::string cardname    = "gem.tamu.amc13";
+  std::string cardname    = "gem.shelf01.amc13";
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
@@ -231,12 +231,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   uint16_t prescale =0x1;
   bool repeat = true;
 
-
-
+  if (m_enableCalpulse){
   p_amc13->configureBGOShort( chan, cmd, bx, prescale, repeat);
   p_amc13->getBGOConfig(chan);
-  //  if (m_enableCalpulse) p_amc13->configureBGOShort( chan, cmd, bx, prescale, repeat);
-
+  } 
 
   //unlock the access
 }
@@ -263,19 +261,23 @@ void gem::hw::amc13::AMC13Manager::startAction()
   p_amc13->localTtcSignalEnable(m_enableLocalL1A);
   p_amc13->enableLocalL1A(m_enableLocalL1A);
 
-  //  if (m_enableCalpulse) p_amc13->enableBGO(0);
+  //   p_amc13->enableBGO(0);
 
   /*
   INFO(p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
   p_amc13->writeMask(::amc13::AMC13::T1, "ACTION.LOCAL_TRIG.CONTINUOUS");
   INFO("AFTER write mask" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
   p_amc13->startContinuousL1A();*/
+
+  //  std::string state = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState();
+
   if (m_enableLocalL1A) p_amc13->startContinuousL1A();
 
   int chan = 1;
-  p_amc13->enableBGO(chan);
-  p_amc13->sendBGO();
-  
+  if (m_enableCalpulse){
+    p_amc13->enableBGO(chan);
+    p_amc13->sendBGO();
+  }
 
   INFO("AFTER startcontinousl1a" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
 
