@@ -1732,7 +1732,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
     }
   //  this->Default(in,out);
-  INFO("-----------The message to AMC13 initialize has been sent------------");
+  INFO("-----------The message to AMC13 initialize received------------");
 }      
 
 void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageAMC13()
