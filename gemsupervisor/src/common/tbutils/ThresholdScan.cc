@@ -112,15 +112,12 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       if(!sendStartMessageAMC13()){
 	sendStartMessageAMC13();
       }
-    
-    sleep(1);    
     }
   }else{
     LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter" << totaltriggers);
     if((int)confParams_.bag.triggersSeen == 0){
       LOG4CPLUS_INFO(getApplicationLogger(), "triggerseen" << (int)confParams_.bag.triggersSeen);
       sendResumeMessageAMC13();
-      sleep(1);    
     }
   }
 
@@ -859,7 +856,7 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageGLIB()
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
   //  xoap::SOAPName command = envelope.createName("CallBackConfigure","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPName command = envelope.createName("Configure","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("CallBackConfigure","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -890,7 +887,7 @@ bool gem::supervisor::tbutils::ThresholdScan::sendStartMessageGLIB()
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
   //  xoap::SOAPName command = envelope.createName("CallBackStart","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("CallBackStart","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
