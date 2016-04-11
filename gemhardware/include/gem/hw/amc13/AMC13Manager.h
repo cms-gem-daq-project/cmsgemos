@@ -29,7 +29,7 @@ namespace gem {
           AMC13Manager(xdaq::ApplicationStub * s);
 
           virtual ~AMC13Manager();
-	  
+
 	  //SOAP MESSAGE
 	  virtual xoap::MessageReference callbackinitialize(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
@@ -49,7 +49,7 @@ namespace gem {
           virtual void init();
 
           virtual void actionPerformed(xdata::Event& event);
-          
+
           ::amc13::Status *getHTMLStatus()  const;
           ::amc13::AMC13  *getAMC13Device() const {
             return p_amc13;
@@ -132,12 +132,8 @@ namespace gem {
 	  
           ////counters
 
-
-	  bool is_running_;
-
-
         protected:
-	  
+	  bool is_initialized_, is_configured_, is_running_, is_paused_, is_resumed_;	  
         }; //end class AMC13Manager
 
     }//end namespace gem::hw::amc13

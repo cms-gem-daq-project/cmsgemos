@@ -600,6 +600,14 @@ xoap::MessageReference gem::hw::glib::GLIBManager::callbackconfigure(xoap::Messa
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
   xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
   xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+
+   while( getCurrentState() != "Configured"){
+     sleep(0.001);
+     is_configured_ = false;
+   }
+   is_configured_ = true;
+   
+   LOG4CPLUS_INFO(this->getApplicationLogger(),"New AMC13State " <<  getCurrentState());
   return reply;
 }
 
@@ -612,6 +620,14 @@ xoap::MessageReference gem::hw::glib::GLIBManager::callbackstart(xoap::MessageRe
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
   xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
   xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
+
+   while( getCurrentState() != "Running"){
+     sleep(0.001);
+     is_running_ = false;
+   }
+   is_running_ = true;
+
+   LOG4CPLUS_INFO(this->getApplicationLogger(),"New AMC13State " <<  getCurrentState());
   return reply;
 }
 
