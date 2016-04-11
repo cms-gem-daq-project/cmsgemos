@@ -876,22 +876,22 @@ void gem::hw::glib::HwGLIB::setDAQLinkRunParameter(uint8_t const& parameter, uin
 /////TTC module functions ///////
 uint32_t gem::hw::glib::HwGLIB::getTTCControl()
 {
-  return readReg("TTC.CONTROL");
+  return readReg(getDeviceBaseNode(),"TTC.CONTROL");
 }
 
 gem::GLIBTTCEncoding gem::hw::glib::HwGLIB::getTTCEncoding()
 {
-  return (GLIBTTCEncoding)readReg("TTC.CONTROL.GEMFORMAT");
+  return (GLIBTTCEncoding)readReg(getDeviceBaseNode(),"TTC.CONTROL.GEMFORMAT");
 }
 
 bool gem::hw::glib::HwGLIB::getL1AInhibit()
 {
-  return readReg("TTC.CONTROL.INHIBIT_L1A");
+  return readReg(getDeviceBaseNode(),"TTC.CONTROL.INHIBIT_L1A");
 }
 
 uint32_t gem::hw::glib::HwGLIB::getTTCSpyBuffer()
 {
-  return readReg("TTC.SPY");
+  return readReg(getDeviceBaseNode(),"TTC.SPY");
 }
 
 void gem::hw::glib::HwGLIB::setTTCEncoding(GLIBTTCEncoding ttc_enc)
