@@ -874,6 +874,11 @@ void gem::hw::glib::HwGLIB::setDAQLinkRunParameter(uint8_t const& parameter, uin
 }
 
 /////TTC module functions ///////
+uint32_t gem::hw::glib::HwGLIB::getTTCControl()
+{
+  return readReg("TTC.CONTROL");
+}
+
 gem::GLIBTTCEncoding gem::hw::glib::HwGLIB::getTTCEncoding()
 {
   return (GLIBTTCEncoding)readReg("TTC.CONTROL.GEMFORMAT");

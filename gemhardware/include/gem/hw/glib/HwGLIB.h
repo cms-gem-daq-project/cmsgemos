@@ -839,6 +839,11 @@ namespace gem {
           void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
 
           /**
+           * @returns TTC control register value
+           */
+          uint32_t getTTCControl();
+          
+          /**
            * @returns TTC encoding in use on the GLIB
            */
           GLIBTTCEncoding getTTCEncoding();
