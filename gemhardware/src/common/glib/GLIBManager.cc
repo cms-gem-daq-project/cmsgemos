@@ -530,10 +530,10 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   // DAQ link registers
   is_glib->createUInt32("CONTROL",        glib->getDAQLinkControl(),               GEMUpdateType::HW32);
   is_glib->createUInt32("STATUS",         glib->getDAQLinkStatus(),                GEMUpdateType::HW32);
-  is_glib->createUInt32("INPUT_KILL_MASK",glib->getDAQLinkInputMask(),                GEMUpdateType::HW32);
-  is_glib->createUInt32("DAV_TIMEOUT",    glib->getDAQLinkDAVTimeout(),                GEMUpdateType::HW32);
-  is_glib->createUInt32("MAX_DAV_TIMER",  glib->getDAQLinkDAVTimer(0),                GEMUpdateType::HW32);
-  is_glib->createUInt32("LAST_DAV_TIMER", glib->getDAQLinkDAVTimer(1),                GEMUpdateType::HW32);
+  is_glib->createUInt32("INPUT_KILL_MASK",glib->getDAQLinkInputMask(),             GEMUpdateType::HW32);
+  is_glib->createUInt32("DAV_TIMEOUT",    glib->getDAQLinkDAVTimeout(),            GEMUpdateType::HW32);
+  is_glib->createUInt32("MAX_DAV_TIMER",  glib->getDAQLinkDAVTimer(0),             GEMUpdateType::HW32);
+  is_glib->createUInt32("LAST_DAV_TIMER", glib->getDAQLinkDAVTimer(1),             GEMUpdateType::HW32);
   is_glib->createUInt32("NOTINTABLE_ERR", glib->getDAQLinkNonidentifiableErrors(), GEMUpdateType::HW32);
   is_glib->createUInt32("DISPER_ERR",     glib->getDAQLinkDisperErrors(),          GEMUpdateType::HW32);
   is_glib->createUInt32("EVT_SENT",       glib->getDAQLinkEventsSent(),            GEMUpdateType::HW32);
@@ -558,4 +558,8 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("GTX1_TRG_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
   is_glib->createUInt32("GTX1_TRK_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
   is_glib->createUInt32("GTX1_DATA_Packets", 0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
+
+  // TTC registers
+  is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), GEMUpdateType::HW32);
 }
