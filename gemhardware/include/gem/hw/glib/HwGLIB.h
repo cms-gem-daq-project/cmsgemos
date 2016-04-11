@@ -688,26 +688,107 @@ namespace gem {
           void flushFIFO(uint8_t const& gtx);
 
           // DAQ LINK functionality
-          void enableDAQLink();
-          void resetDAQLink();
+          /**
+           * @brief Set the kill mask and enable the DAQ link
+           * @param killMask 32 bit word for the 24 bit kill mask
+           */
+          void enableDAQLink(uint32_t const& killMask=0x3);
+
+          /**
+           * @brief reset the DAQ link and write the DAV timout
+           * @param davTO value to use for the DAV timeout
+           */
+          void resetDAQLink(uint32_t const& davTO=0x3d090);
+
+          /**
+           * @returns Returns the 32 bit word corresponding to the DAQ link control register
+           */
           uint32_t getDAQLinkControl();
+
+          /**
+           * @returns Returns the 32 bit word corresponding to the DAQ link status register
+           */
           uint32_t getDAQLinkStatus();
-          //uint32_t getDAQLinkFlags();
-          //uint32_t getDAQLinkCorruptCount();
-          //uint32_t getDAQLinkEventsBuilt();
+
+          /**
+           * @returns Returns true if the DAQ link is ready
+           */
+          bool daqLinkReady();
+
+          /**
+           * @returns Returns true if the DAQ link is clock is locked
+           */
+          bool daqClockLocked();
+
+          /**
+           * @returns Returns true if the TTC is ready
+           */
+          bool daqTTCReady();
+
+          /**
+           * @returns Returns true if the event FIFO is almost full (70%)
+           */
+          bool daqAlmostFull();
+
+          /**
+           * @returns Returns the current TTS state asserted by the DAQ link firmware
+           */
+          uint8_t daqTTSState();
+
+          /**
+           * @returns Returns the number of events built and sent on the DAQ link
+           */
           uint32_t getDAQLinkEventsSent();
+
+          /**
+           * @returns Returns the curent L1AID (number of L1As received)
+           */
           uint32_t getDAQLinkL1AID();
-          //uint32_t getDAQLinkDebug(uint8_t const& mode);
+
+          /**
+           * @returns Returns 
+           */
           uint32_t getDAQLinkDisperErrors();
+
+          /**
+           * @returns Returns 
+           */
           uint32_t getDAQLinkNonidentifiableErrors();
 
+          /**
+           * @returns Returns the DAQ link input enable mask
+           */
           uint32_t getDAQLinkInputMask();
+
+          /**
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
           uint32_t getDAQLinkDAVTimeout();
-          uint32_t getDAQLinkDAVTimer(bool const& );
+
+          /**
+           * @param max is a bool specifying whether to query the max timer or the last timer
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
+          uint32_t getDAQLinkDAVTimer(bool const& max);
 
           // GTX specific DAQ link information
+          /**
+           * @param gtx is the input link status to query
+           * @returns Returns the the 32-bit word corresponding DAQ status for the specified link 
+           */
           uint32_t getDAQLinkStatus(   uint8_t const& gtx);
+
+          /**
+           * @param gtx is the input link counter to query
+           * @param mode specifies whether to query the corrupt VFAT count (0x0) or the event number
+           * @returns Returns the link counter for the specified mode
+           */
           uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
+
+          /**
+           * @param gtx is the input link status to query
+           * @returns Returns a block of the last 7 words received from the OH on the link specified
+           */
           uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
 
           /**
