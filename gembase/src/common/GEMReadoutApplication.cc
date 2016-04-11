@@ -94,19 +94,17 @@ void gem::base::GEMReadoutApplication::startAction()
   DEBUG("gem::base::GEMReadoutApplication::startAction begin");
 }
 
-/*
 void gem::base::GEMReadoutApplication::pauseAction()
-  throw (gem::base::exception::Exception)
+  /*throw (gem::base::exception::Exception)*/
 {
   DEBUG("gem::base::GEMReadoutApplication::pauseAction begin");
 }
 
 void gem::base::GEMReadoutApplication::resumeAction()
-  throw (gem::base::exception::Exception)
+  /*throw (gem::base::exception::Exception)*/
 {
   DEBUG("gem::base::GEMReadoutApplication::resumeAction begin");
 }
-*/
 
 void gem::base::GEMReadoutApplication::stopAction()
   /*throw (gem::base::exception::Exception)*/
