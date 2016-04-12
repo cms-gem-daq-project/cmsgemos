@@ -77,6 +77,13 @@ namespace gem {
 	    xdata::Integer l1Arules;
 	    xdata::UnsignedInteger32 l1Aburst;
 
+	    xdata::Boolean enableCalpulse;
+            xdata::Integer bgochannel;
+            xdata::UnsignedInteger32 bgocmd;
+            xdata::UnsignedInteger32 bgobx;
+            xdata::UnsignedInteger32 bgoprescale;
+	    xdata::Boolean bgorepeat;
+
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
 
@@ -102,9 +109,11 @@ namespace gem {
           std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A;
+          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_enableCalpulse, m_bgorepeat;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
-          int m_prescaleFactor, m_bcOffset;
+          int m_prescaleFactor, m_bcOffset, m_bgochannel;
+	  uint8_t m_bgocmd;
+	  uint16_t m_bgobx, m_bgoprescale;
           uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
           uint64_t m_localL1AMask;
 	  
