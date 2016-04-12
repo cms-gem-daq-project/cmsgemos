@@ -58,9 +58,42 @@ namespace gem {
           return v_supervisedApps; };
         
       private:
+        /**
+         * @param classname is the class to check to see whether it is a GEMApplication inherited application
+         * @throws
+         */
         bool isGEMApplication(const std::string& classname) const;
+
+        /**
+         * @param classname, checks whether or not GEMSupervisor should manage (send transitions) to this application
+         * @throws
+         */
         bool manageApplication(const std::string& classname) const;
 
+        /**
+         * @param cfgType tells the application which type of configuration to use, XML or DB
+         * @param ad is the application descriptor to send the SOAP message to
+         * @throws
+         */
+        void sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
+          throw (gem::supervisor::exception::Exception);
+
+        /**
+         * @param runType tells the application which type of run to take
+         * @param ad is the application descriptor to send the SOAP message to
+         * @throws
+         */
+        void sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad)
+          throw (gem::supervisor::exception::Exception);
+        
+        /**
+         * @param runNumber is the run number
+         * @param ad is the application descriptor to send the SOAP message to
+         * @throws
+         */
+        void sendRunNumber(uint32_t const& runNumber, xdaq::ApplicationDescriptor* ad)
+          throw (gem::supervisor::exception::Exception);
+        
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
         
         mutable gem::utils::Lock m_deviceLock;

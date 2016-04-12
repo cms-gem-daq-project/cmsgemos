@@ -157,7 +157,7 @@ namespace gem {
 	
         uint32_t m_instance;
 
-      private:
+      protected:
         xdata::UnsignedInteger32 m_runNumber;
         
         xdata::String  m_runType;
