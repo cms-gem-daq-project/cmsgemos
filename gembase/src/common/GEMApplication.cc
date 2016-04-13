@@ -88,9 +88,9 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->fireItemAvailable("monitoring:parameters",    p_monitorInfoSpace);
 
   // all should come from initialize
-  p_appInfoSpaceToolBox->createUInt32("RunNumber",m_runNumber.value_,  utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createString("RunType",  m_runType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createString("CfgType",  m_cfgType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createInteger64("RunNumber",m_runNumber.value_,  utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString(   "RunType",  m_runType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString(   "CfgType",  m_cfgType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
   //p_appInfoSpaceToolBox->createString("reasonForFailure", &reasonForFailure_,utils::GEMInfoSpaceToolBox::PROCESS);
 
   //is this the correct syntax? what does it really do?
