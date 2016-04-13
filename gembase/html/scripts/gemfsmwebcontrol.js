@@ -48,10 +48,11 @@ function showTable( )
     //console.log("html" + $("h3#fsmState").html);
     //console.log("text" + $("h3#fsmState").text);
     //console.log("innerHTML" + $("h3#fsmState").innerHTML);
-    //console.log("building the status table, state is " + state);
+    console.log("building the status table, state is " + state);
     if (state == "Initial") {
         // show only Initialize button
         //console.log("hiding the conf button");
+        $("button.hide#init").show();
         $("button.hide#conf").hide();
         // hide startstop tr
         //console.log("hiding the startstop tr");
@@ -62,7 +63,9 @@ function showTable( )
     } else {
         // hide Initialize button
         //console.log("hiding the halt button");
+        $("tr.hide#initconf").show();
         $("button.hide#init").hide();
+        $("button.hide#conf").show();
         
         // startstop tr
         if (state == "Halted") {
@@ -71,30 +74,43 @@ function showTable( )
             $("tr.hide#startstop").hide();
         } else if (state == "Configured") {
             // hide stop/pause/resume buttons
-            //console.log("hiding the stop/pause/resume buttons");
-            $("button.hide#stop").hide();
-            $("button.hide#pause").hide();
+            //console.log("hiding the stop/pause/resume buttons"); 
+            $("tr.hide#startstop" ).show();
+            $("button.hide#start" ).show();
+            $("button.hide#stop"  ).hide();
+            $("button.hide#pause" ).hide();
             $("button.hide#resume").hide();
         } else if (state == "Running") {
             // hide stop/resume buttons
             //console.log("hiding the start/resume buttons");
-            $("button.hide#start").hide();
+            $("tr.hide#startstop" ).show();
+            $("button.hide#start" ).hide();
+            $("button.hide#stop"  ).show();
+            $("button.hide#pause" ).show();
             $("button.hide#resume").hide();
         } else if (state == "Paused") {
             // hide pause button
             //console.log("hiding the pause button");
-            $("button.hide#start").hide();
-            $("button.hide#pause").hide();
+            $("tr.hide#startstop" ).show();
+            $("button.hide#start" ).hide();
+            $("button.hide#stop"  ).show();
+            $("button.hide#pause" ).hide();
+            $("button.hide#resume").show();
         }
         // haltreset tr
         if (state == "Halted"  || state == "Configured" ||
             state == "Running" || state == "Paused") {
             //console.log("showing the halt/reset buttons");
             // show halt/reset buttons
+            $("tr.hide#haltreset").show();
+            $("button.hide#halt" ).show();
+            $("button.hide#reset").show();
         } else if (state == "Failed" || state == "Error") {
             // hide halt button
             //console.log("hiding the halt button");
-            $("button.hide#halt").hide();
+            $("tr.hide#haltreset").show();
+            $("button.hide#halt" ).hide();
+            $("button.hide#reset").show();
         }
     }// state not initial
 } // end showTable function
@@ -107,10 +123,19 @@ function updateStateTable( statejson )
     interval = setInterval(" showTable()", 1000);
 }
 
-function gemFSMWebCommand( command )
+function gemFSMWebCommand( command, url )
 {
     //console.log("gemFSMWebCommand( \""+command+"\" )");
-    $("input#fsmcommand").val( command );
+    // $("input#fsmcommand").val( command );
     fsmdebug( "setting command to " + command );
-    $("form#fsmControl").submit();
+    //$("form#fsmControl").submit();
+    var xmlhttp;
+    if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp=new XMLHttpRequest();
+    } else {// code for IE6, IE5
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.open("POST", "/"+url+"/"+command, true);
+    xmlhttp.send();
 };
+

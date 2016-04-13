@@ -110,7 +110,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
     *out << cgicc::script().set("type","text/javascript")
       .set("src","/gemdaq/gembase/html/scripts/gemfsmwebcontrol.js")
          << cgicc::script() << std::endl;
-    
+    /*
     try {
       cgicc::Cgicc cgi(in);
       INFO("GEMWebApplication::processing form: cgi.getElements().size() = " << cgi.getElements().size());
@@ -150,7 +150,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
     } catch (const std::exception& e) {
       ERROR("Something went wrong processing web control panel form(std): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
+    }*/
     try {
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
       INFO("controlPanel:: current state " << state);
@@ -163,9 +163,11 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
         cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
         head.addHeader("Refresh","30");
       }
+      /*
       *out << cgicc::form().set("method","POST").set("id","fsmControl") << std::endl
            << cgicc::input().set("type", "hidden").set("id","fsmcommand").set("name","fsmcommand").set("value","") << std::endl
            << cgicc::form() << std::endl;
+      */
       *out << "<table class=\"xdaq-table\">" << std::endl
            << cgicc::thead() << std::endl
            << cgicc::tr()    << std::endl //open
@@ -188,35 +190,43 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
       // how is the best way to do this?
       *out << "<tr class=\"hide\" id=\"initconf\">" << std::endl
            << "<td>" << std::endl
-           << "<button class=\"hide\" id=\"init\" onclick=\"gemFSMWebCommand(\'Initialize\')\">Initialize</button>"
+           << "<button class=\"hide\" id=\"init\" onclick=\"gemFSMWebCommand(\'Initialize\',\'"
+           << p_gemApp->m_urn << "\')\">Initialize</button>"
            << cgicc::br() << std::endl
            << "</td>" << std::endl
            << "<td>" << std::endl
-           << "<button class=\"hide\" id=\"conf\" onclick=\"gemFSMWebCommand(\'Configure\')\">Configure</button>"
+           << "<button class=\"hide\" id=\"conf\" onclick=\"gemFSMWebCommand(\'Configure\',\'"
+           << p_gemApp->m_urn << "\')\">Configure</button>"
            << cgicc::br() << std::endl
            << "</td>" << std::endl
            << "</tr>" << std::endl;
 
       *out << "<tr class=\"hide\" id=\"startstop\">" << std::endl
            << "<td>" << std::endl
-           << "<button class=\"hide\" id=\"start\" onclick=\"gemFSMWebCommand(\'Start\')\">Start</button>"
-           << "<button class=\"hide\" id=\"stop\" onclick=\"gemFSMWebCommand(\'Stop\')\">Stop</button>"
+           << "<button class=\"hide\" id=\"start\" onclick=\"gemFSMWebCommand(\'Start\',\'"
+           << p_gemApp->m_urn << "\')\">Start</button>"
+           << "<button class=\"hide\" id=\"stop\" onclick=\"gemFSMWebCommand(\'Stop\',\'"
+           << p_gemApp->m_urn << "\')\">Stop</button>"
            << cgicc::br() << std::endl
            << "</td>" << std::endl
            << "<td>" << std::endl
-           << "<button class=\"hide\" id=\"pause\" onclick=\"gemFSMWebCommand(\'Pause\')\">Pause</button>"
-           << "<button class=\"hide\" id=\"resume\" onclick=\"gemFSMWebCommand(\'Resume\')\">Resume</button>"
+           << "<button class=\"hide\" id=\"pause\" onclick=\"gemFSMWebCommand(\'Pause\',\'"
+           << p_gemApp->m_urn << "\')\">Pause</button>"
+           << "<button class=\"hide\" id=\"resume\" onclick=\"gemFSMWebCommand(\'Resume\',\'"
+           << p_gemApp->m_urn << "\')\">Resume</button>"
            << cgicc::br() << std::endl
            << "</td>" << std::endl
            << "</tr>" << std::endl;
 
       *out << "<tr class=\"hide\" id=\"haltreset\">" << std::endl
            << "<td>" << std::endl
-           << "<button class=\"hide\" id=\"halt\" onclick=\"gemFSMWebCommand(\'Halt\')\">Halt</button>"
+           << "<button class=\"hide\" id=\"halt\" onclick=\"gemFSMWebCommand(\'Halt\',\'"
+           << p_gemApp->m_urn << "\')\">Halt</button>"
            << cgicc::br() << std::endl
            << "</td>" << std::endl
            << "<td>" << std::endl
-           << "<button class=\"hide\" id=\"reset\" onclick=\"gemFSMWebCommand(\'Reset\')\">Reset</button>"
+           << "<button class=\"hide\" id=\"reset\" onclick=\"gemFSMWebCommand(\'Reset\',\'"
+           << p_gemApp->m_urn << "\')\">Reset</button>"
            << cgicc::br() << std::endl
            << "</td>" << std::endl
            << "</tr>" << std::endl;
