@@ -20,6 +20,7 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
 {
 
   bag->addField("ConnectionFile", &connectionFile);
+  bag->addField("AMC13cardname", &amc13CardName);
 
   bag->addField("AMCInputEnableList", &amcInputEnableList);
   bag->addField("AMCIgnoreTTSList",   &amcIgnoreTTSList  );
@@ -93,6 +94,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   }
   // update configuration variables
   m_connectionFile     = m_amc13Params.bag.connectionFile.value_;
+  m_cardname           = m_amc13Params.bag.amc13CardName.value_;
   m_amcInputEnableList = m_amc13Params.bag.amcInputEnableList.value_;
   m_amcIgnoreTTSList   = m_amc13Params.bag.amcIgnoreTTSList.value_;
   m_enableDAQLink      = m_amc13Params.bag.enableDAQLink.value_;
@@ -141,7 +143,9 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
   //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
   std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
-  std::string cardname    = "gem.shelf01.amc13";
+  //std::string cardname    = "gem."+m_cardname+".amc13";
+  //std::string cardname    = "gem.shelf01.amc13";
+  std::string cardname    = m_cardname;
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
@@ -213,7 +217,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
   // Setting L1A if config doc says so
   //DEBUG("Looking at L1A history before configure");
-  p_amc13->getL1AHistory(4);
+  //p_amc13->getL1AHistory(4);
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
   if (m_enableLocalL1A) p_amc13->configureLocalL1A(m_enableLocalL1A,m_L1Amode,m_L1Aburst,m_internalPeriodicPeriod,m_L1Arules);
   //DEBUG("Looking at L1A history after configure");
