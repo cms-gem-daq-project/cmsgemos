@@ -20,6 +20,7 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
 {
 
   bag->addField("ConnectionFile", &connectionFile);
+  bag->addField("CardName",       &cardName);
 
   bag->addField("AMCInputEnableList", &amcInputEnableList);
   bag->addField("AMCIgnoreTTSList",   &amcIgnoreTTSList  );
@@ -86,6 +87,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   }
   // update configuration variables
   m_connectionFile     = m_amc13Params.bag.connectionFile.value_;
+  m_cardName           = m_amc13Params.bag.cardName.value_;
   m_amcInputEnableList = m_amc13Params.bag.amcInputEnableList.value_;
   m_amcIgnoreTTSList   = m_amc13Params.bag.amcIgnoreTTSList.value_;
   m_enableDAQLink      = m_amc13Params.bag.enableDAQLink.value_;
@@ -121,12 +123,11 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //hcal has a pre-init, what is the reason to not do everything in initialize?
-  //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
-  //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
-  std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
-  std::string cardname    = "gem.shelf01.amc13";
+  std::string connection = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
+  std::string cardname   = m_cardName;
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
+    DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
     p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
   } catch (uhal::exception::exception & e) {
     ERROR("AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
@@ -159,13 +160,14 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //possibilities are TTC/TCDS mode, DAQ link, local trigger scheme
   //lock the access
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  
+
   //enable daq link (if SFP mask is non-zero
   if (m_enableDAQLink) {
+    DEBUG("Enabling DAQLink with settings: fake data:" << m_enableFakeData
+          << ", sfpMask:" << m_sfpMask);
     p_amc13->fakeDataEnable(m_enableFakeData);
     p_amc13->daqLinkEnable(m_enableDAQLink);
     p_amc13->sfpOutputEnable(m_sfpMask);
-    
   }
   //enable SFP outputs based on mask configuration
   
@@ -174,7 +176,6 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //enable specified AMCs
   m_slotMask = p_amc13->parseInputEnableList(m_amcInputEnableList,true);
   p_amc13->AMCInputEnable(m_slotMask);
-  usleep(500);
 
   // Use local TTC signal if config doc says so
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
@@ -213,6 +214,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   DEBUG("Entering gem::hw::amc13::AMC13Manager::startAction()");
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
+  p_amc13->reset(::amc13::AMC13::T1);
   usleep(500);
   p_amc13->reset(::amc13::AMC13::T1);
   if (m_enableLocalL1A) p_amc13->startContinuousL1A();
