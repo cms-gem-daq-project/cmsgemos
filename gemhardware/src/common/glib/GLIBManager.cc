@@ -65,10 +65,10 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->addItemChangedListener( "ConnectionFile", this);
 
   //initialize the GLIB application objects
-  DEBUG("Connecting to the GLIBManagerWeb interface");
+  DEBUG("GLIBManager::Connecting to the GLIBManagerWeb interface");
   p_gemWebInterface = new gem::hw::glib::GLIBManagerWeb(this);
   //p_gemMonitor      = new gem::hw::glib::GLIBHwMonitor(this);
-  DEBUG("done");
+  DEBUG("GLIBManager::done");
   
   //set up the info hwCfgInfoSpace 
   init();
@@ -86,15 +86,15 @@ uint16_t gem::hw::glib::GLIBManager::parseAMCEnableList(std::string const& enabl
   std::vector<std::string> slots;
 
   boost::split(slots, enableList, boost::is_any_of(", "), boost::token_compress_on);  
-  DEBUG("AMC input enable list is " << enableList);
+  DEBUG("GLIBManager::AMC input enable list is " << enableList);
   for (auto slot = slots.begin(); slot != slots.end(); ++slot) {
-    DEBUG("slot is " << *slot);
+    DEBUG("GLIBManager::slot is " << *slot);
     if (slot->find('-') != std::string::npos) { // found a possible range
-      DEBUG("found a hyphen in " << *slot);
+      DEBUG("GLIBManager::found a hyphen in " << *slot);
       std::vector<std::string> range;
       boost::split(range, *slot, boost::is_any_of("-"), boost::token_compress_on);
       if (range.size() > 2) {
-        WARN("parseAMCEnableList::Found poorly formatted range " << *slot);
+        WARN("GLIBManager::parseAMCEnableList::Found poorly formatted range " << *slot);
         continue;
       }
       if (isValidSlotNumber(range.at(0)) && isValidSlotNumber(range.at(1))) {
@@ -105,11 +105,11 @@ uint16_t gem::hw::glib::GLIBManager::parseAMCEnableList(std::string const& enabl
         ss1 >> max;
         
         if (min == max) {
-          WARN("parseAMCEnableList::Found poorly formatted range " << *slot);
+          WARN("GLIBManager::parseAMCEnableList::Found poorly formatted range " << *slot);
           continue;
         }
         if (min > max) { // elements in the wrong order
-          WARN("parseAMCEnableList::Found poorly formatted range " << *slot);
+          WARN("GLIBManager::parseAMCEnableList::Found poorly formatted range " << *slot);
           continue;
         }
         
@@ -118,14 +118,14 @@ uint16_t gem::hw::glib::GLIBManager::parseAMCEnableList(std::string const& enabl
         } //  end loop over range of list
       } // end check on valid values
     } else { //not a range
-      DEBUG("found no hyphen in " << *slot);
+      DEBUG("GLIBManager::found no hyphen in " << *slot);
       if (slot->length() > 2) {
-        WARN("parseAMCEnableList::Found longer value than expected (1-12) " << *slot);
+        WARN("GLIBManager::parseAMCEnableList::Found longer value than expected (1-12) " << *slot);
         continue;
       }
       
       if (!isValidSlotNumber(*slot)) {
-        WARN("parseAMCEnableList::Found invalid value " << *slot);
+        WARN("GLIBManager::parseAMCEnableList::Found invalid value " << *slot);
         continue;
       }
       std::stringstream ss(*slot);
@@ -134,7 +134,7 @@ uint16_t gem::hw::glib::GLIBManager::parseAMCEnableList(std::string const& enabl
       slotMask |= (0x1 << (slotNum-1));
     } //done processing single values
   } //done looping over extracted values
-  DEBUG("parseAMCEnableList::Parsed enabled list 0x" << std::hex << slotMask << std::dec);
+  DEBUG("GLIBManager::parseAMCEnableList::Parsed enabled list 0x" << std::hex << slotMask << std::dec);
   return slotMask;
 }
 
@@ -144,14 +144,14 @@ bool gem::hw::glib::GLIBManager::isValidSlotNumber(std::string const& s)
     int i_val;
     i_val = std::stoi(s);
     if (!(i_val > 0 && i_val < 13)) {
-      ERROR("isValidSlotNumber::Found value outside expected (1-12) " << i_val);
+      ERROR("GLIBManager::isValidSlotNumber::Found value outside expected (1-12) " << i_val);
       return false;
     }
   } catch (std::invalid_argument const& err) {
-    ERROR("isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
+    ERROR("GLIBManager::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
     return false;
   } catch (std::out_of_range const& err) {
-    ERROR("isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
+    ERROR("GLIBManager::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
     return false;
   }
   
@@ -165,13 +165,13 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
     DEBUG("GLIBManager::actionPerformed() setDefaultValues" << 
           "Default configuration values have been loaded from xml profile");
     m_amcEnableMask = parseAMCEnableList(m_amcSlots.toString());
-    INFO("Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
+    INFO("GLIBManager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
          << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
     
     //how to handle passing in various values nested in a vector in a bag
     for (auto slot = m_glibInfo.begin(); slot != m_glibInfo.end(); ++slot) {
       if (slot->bag.present.value_)
-        INFO("GLIBManager::Found attribute:" << slot->bag.toString());
+        DEBUG("GLIBManager::Found attribute:" << slot->bag.toString());
     }
     //p_gemMonitor->startMonitoring();
   }
@@ -181,73 +181,19 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
 
 void gem::hw::glib::GLIBManager::init()
 {
-  /*
-  INFO("gem::hw::glib::GLIBManager::init begin");
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
-    INFO("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
-    GLIBInfo& info = m_glibInfo[slot].bag;
-    
-    if (!info.present)
-      continue;
-    
-    toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d",
-                                                               info.crateID.value_,
-                                                               info.slotID.value_));
-
-    INFO("creating hwCfgInfoSpace items for GLIB in slot " << (slot+1) << " with URN " << hwCfgURN.toString());
-    if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      INFO("init::infospace " << hwCfgURN.toString() << " already exists, getting");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
-    } else {
-      INFO("init::infospace " << hwCfgURN.toString() << " does not exist, creating");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
-    }
-    
-    INFO("exporting config parameters into infospace");
-    is_glibs[slot]->fireItemAvailable("ControlHubAddress", &info.controlHubAddress);
-    is_glibs[slot]->fireItemAvailable("IPBusProtocol",     &info.ipBusProtocol);
-    is_glibs[slot]->fireItemAvailable("DeviceIPAddress",   &info.deviceIPAddress);
-    is_glibs[slot]->fireItemAvailable("AddressTable",      &info.addressTable);
-    is_glibs[slot]->fireItemAvailable("ControlHubPort",    &info.controlHubPort);
-    is_glibs[slot]->fireItemAvailable("IPBusPort",         &info.ipBusPort);
-    
-    is_glibs[slot]->fireItemValueChanged("ControlHubAddress");
-    is_glibs[slot]->fireItemValueChanged("IPBusProtocol");
-    is_glibs[slot]->fireItemValueChanged("DeviceIPAddress");
-    is_glibs[slot]->fireItemValueChanged("AddressTable");
-    is_glibs[slot]->fireItemValueChanged("ControlHubPort");
-    is_glibs[slot]->fireItemValueChanged("IPBusPort");
-    
-    INFO("InfoSpace found item: ControlHubAddress " << is_glibs[slot]->find("ControlHubAddress"));
-    INFO("InfoSpace found item: IPBusProtocol "     << is_glibs[slot]->find("IPBusProtocol")    );
-    INFO("InfoSpace found item: DeviceIPAddress "   << is_glibs[slot]->find("DeviceIPAddress")  );
-    INFO("InfoSpace found item: AddressTable "      << is_glibs[slot]->find("AddressTable")     );
-    INFO("InfoSpace found item: ControlHubPort "    << is_glibs[slot]->find("ControlHubPort")   );
-    INFO("InfoSpace found item: IPBusPort "         << is_glibs[slot]->find("IPBusPort")        );
-    
-    INFO("info:" << info.toString());
-
-    INFO("InfoSpace item value: ControlHubAddress " << info.controlHubAddress.toString());
-    INFO("InfoSpace item value: IPBusProtocol "     << info.ipBusProtocol.toString()    );
-    INFO("InfoSpace item value: DeviceIPAddress "   << info.deviceIPAddress.toString()  );
-    INFO("InfoSpace item value: AddressTable "      << info.addressTable.toString()     );
-    INFO("InfoSpace item value: ControlHubPort "    << info.controlHubPort.toString()   );
-    INFO("InfoSpace item value: IPBusPort "         << info.ipBusPort.toString()        );
-  }
-  */
 }
 
 //state transitions
 void gem::hw::glib::GLIBManager::initializeAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("gem::hw::glib::GLIBManager::initializeAction begin");
+  DEBUG("GLIBManager::initializeAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
-    INFO("GLIBManager::looping over slots(" << (slot+1) << ") and finding expected cards");
+    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     GLIBInfo& info = m_glibInfo[slot].bag;
     if ((m_amcEnableMask >> (slot)) & 0x1) {
-      INFO("line 204::info:" << info.toString());
-      INFO("expect a card in slot " << (slot+1));
+      DEBUG("GLIBManager::info:" << info.toString());
+      DEBUG("GLIBManager::expect a card in slot " << (slot+1));
       info.slotID  = slot+1;
       info.present = true;
       //actually check presence? this just says that we expect it to be there
@@ -266,8 +212,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (!info.present)
       continue;
     
-    INFO("line 228::info:" << info.toString());
-    INFO("creating pointer to card in slot " << (slot+1));
+    DEBUG("GLIBManager::info:" << info.toString());
+    DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
     
     //create the cfgInfoSpace object (qualified vs non?)
     //toolbox::net::URN hwCfgURN = this->createQualifiedInfoSpace("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d",info.crateID.value_,info.slotID.value_));
@@ -277,18 +223,18 @@ void gem::hw::glib::GLIBManager::initializeAction()
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      INFO("initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
+      DEBUG("GLIBManager::initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
       is_glibs[slot] = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
                                                                                 xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
                                                                                 true));
     } else {
-      INFO("initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
+      DEBUG("GLIBManager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
       // is_glibs[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
       is_glibs[slot] = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
                                                                                 hwCfgURN.toString(),
                                                                                 true));
     }
-    INFO("exporting config parameters into infospace");
+    DEBUG("GLIBManager::exporting config parameters into infospace");
     is_glibs[slot]->createString("ControlHubAddress", info.controlHubAddress.value_, GEMUpdateType::NOUPDATE);
     is_glibs[slot]->createString("IPBusProtocol",     info.ipBusProtocol.value_    , GEMUpdateType::NOUPDATE);
     is_glibs[slot]->createString("DeviceIPAddress",   info.deviceIPAddress.value_  , GEMUpdateType::NOUPDATE);
@@ -296,15 +242,15 @@ void gem::hw::glib::GLIBManager::initializeAction()
     is_glibs[slot]->createUInt32("ControlHubPort",    info.controlHubPort.value_   , GEMUpdateType::NOUPDATE);
     is_glibs[slot]->createUInt32("IPBusPort",         info.ipBusPort.value_        , GEMUpdateType::NOUPDATE);
     
-    INFO("InfoSpace found item: ControlHubAddress " << is_glibs[slot]->getString("ControlHubAddress"));
-    INFO("InfoSpace found item: IPBusProtocol "     << is_glibs[slot]->getString("IPBusProtocol")    );
-    INFO("InfoSpace found item: DeviceIPAddress "   << is_glibs[slot]->getString("DeviceIPAddress")  );
-    INFO("InfoSpace found item: AddressTable "      << is_glibs[slot]->getString("AddressTable")     );
-    INFO("InfoSpace found item: ControlHubPort "    << is_glibs[slot]->getUInt32("ControlHubPort")   );
-    INFO("InfoSpace found item: IPBusPort "         << is_glibs[slot]->getUInt32("IPBusPort")        );
+    DEBUG("GLIBManager::InfoSpace found item: ControlHubAddress " << is_glibs[slot]->getString("ControlHubAddress"));
+    DEBUG("GLIBManager::InfoSpace found item: IPBusProtocol "     << is_glibs[slot]->getString("IPBusProtocol")    );
+    DEBUG("GLIBManager::InfoSpace found item: DeviceIPAddress "   << is_glibs[slot]->getString("DeviceIPAddress")  );
+    DEBUG("GLIBManager::InfoSpace found item: AddressTable "      << is_glibs[slot]->getString("AddressTable")     );
+    DEBUG("GLIBManager::InfoSpace found item: ControlHubPort "    << is_glibs[slot]->getUInt32("ControlHubPort")   );
+    DEBUG("GLIBManager::InfoSpace found item: IPBusPort "         << is_glibs[slot]->getUInt32("IPBusPort")        );
 
     try {
-      INFO("obtaining pointer to HwGLIB");
+      DEBUG("GLIBManager::obtaining pointer to HwGLIB");
       //m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_));
       m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
 
@@ -315,16 +261,16 @@ void gem::hw::glib::GLIBManager::initializeAction()
       m_glibMonitors[slot]->setupHwMonitoring();
       m_glibMonitors[slot]->startMonitoring();
     } catch (gem::hw::glib::exception::Exception const& ex) {
-      ERROR("caught exception " << ex.what());
+      ERROR("GLIBManager::caught exception " << ex.what());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
     } catch (toolbox::net::exception::MalformedURN const& ex) {
-      ERROR("caught exception " << ex.what());
+      ERROR("GLIBManager::caught exception " << ex.what());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
     } catch (std::exception const& ex) {
-      ERROR("caught exception " << ex.what());
+      ERROR("GLIBManager::caught exception " << ex.what());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
     }
-    DEBUG("connected");
+    DEBUG("GLIBManager::connected");
     //set the web view to be empty or grey
     //if (!info.present.value_) continue;
     //p_gemWebInterface->glibInSlot(slot);
@@ -337,21 +283,21 @@ void gem::hw::glib::GLIBManager::initializeAction()
       continue;
     
     if (m_glibs[slot]->isHwConnected()) {
-      DEBUG("connected a card in slot " << (slot+1));
+      DEBUG("GLIBManager::connected a card in slot " << (slot+1));
     } else {
-      ERROR("GLIB in slot " << (slot+1) << " is not connected");
+      ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
       fireEvent("Fail");
       //maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
   }
-  INFO("gem::hw::glib::GLIBManager::initializeAction end");
+  DEBUG("GLIBManager::initializeAction end");
 }
 
 void gem::hw::glib::GLIBManager::configureAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("gem::hw::glib::GLIBManager::configureAction");
+  DEBUG("GLIBManager::configureAction");
 
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(100); // just for testing the timing of different applications
@@ -361,7 +307,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       continue;
     
     if (m_glibs[slot]->isHwConnected()) {
-      DEBUG("setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
+      DEBUG("GLIBManager::setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
       m_glibs[slot]->setTrigSource(info.triggerSource.value_);
       m_glibs[slot]->resetDAQLink();
       
@@ -371,7 +317,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       m_glibs[slot]->setDAQLinkRunParameters(0xfaac);
       
       //should FIFOs be emptied in configure or at start?
-      DEBUG("emptying trigger/tracking data FIFOs");
+      DEBUG("GLIBManager::emptying trigger/tracking data FIFOs");
       for (unsigned link = 0; link < HwGLIB::N_GTX; ++link) {
         //m_glibs[slot]->flushTriggerFIFO(link);
         m_glibs[slot]->flushFIFO(link);
@@ -382,13 +328,13 @@ void gem::hw::glib::GLIBManager::configureAction()
       //setup run mode?
       //setup DAQ mode?
     } else {
-      ERROR("GLIB in slot " << (slot+1) << " is not connected");
+      ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
       fireEvent("Fail");
       //maybe raise exception so as to not continue with other cards?
     }
   }
   
-  INFO("gem::hw::glib::GLIBManager::configureAction end");
+  DEBUG("GLIBManager::configureAction end");
 }
 
 void gem::hw::glib::GLIBManager::startAction()
@@ -458,7 +404,7 @@ void gem::hw::glib::GLIBManager::resetAction()
   //what is required for resetting the GLIB?
   //unregister listeners and items in info spaces
   
-  DEBUG("gem::hw::glib::GLIBManager::resetAction begin");
+  DEBUG("GLIBManager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
     usleep(100); // just for testing the timing of different applications
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -471,13 +417,13 @@ void gem::hw::glib::GLIBManager::resetAction()
     if (m_glibMonitors[slot])
       m_glibMonitors[slot]->reset();
     
-    DEBUG("looking for hwCfgInfoSpace items for GLIB in slot " << (slot+1));
+    DEBUG("GLIBManager::looking for hwCfgInfoSpace items for GLIB in slot " << (slot+1));
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d",
                                                                info.crateID.value_,
                                                                info.slotID.value_));
     
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      DEBUG("revoking config parameters infospace");
+      DEBUG("GLIBManager::revoking config parameters infospace");
       // reset the hw infospace toolbox
       is_glibs[slot]->reset();
       // these should now be gone from the reset call..., holdover from the old way
@@ -499,7 +445,7 @@ void gem::hw::glib::GLIBManager::resetAction()
       if (is_glibs[slot]->getInfoSpace()->hasItem("IPBusPort"))
         is_glibs[slot]->getInfoSpace()->fireItemRevoked("IPBusPort");
     } else {
-      INFO("resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
+      DEBUG("GLIBManager::resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
       continue;
     }
   }

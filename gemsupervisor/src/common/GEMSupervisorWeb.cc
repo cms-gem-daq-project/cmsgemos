@@ -67,8 +67,10 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMSupervisorWeb::Rendering GEMSupervisorWeb monitorPage");
-  DEBUG("GEMSupervisorWeb::current level is " << level);
+  DEBUG("GEMSupervisorWeb::in: " << std::hex << in << " out: " << std::hex << out << std::dec);
+  DEBUG("GEMSupervisorWeb::current level is "      << level);
   if (level != 5) {
+    /*
     try {
       cgicc::Cgicc cgi(in);
       DEBUG("GEMSupervisorWeb::cgi has " << cgi.getElements().size() << " elements, attempting to print their names");
@@ -76,18 +78,19 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
         DEBUG("Found cgi element: " << dbg->getName());
       }
       int radio_i       = cgi["level"]->getIntegerValue();
-      DEBUG("radio button value is " << radio_i);
+      DEBUG("GEMSupervisorWeb::radio button value is " << radio_i);
       level = static_cast<size_t>(radio_i);
-      DEBUG("setting GEMSupervisor display status info to " << level);
+      DEBUG("GEMSupervisorWeb::setting GEMSupervisor display status info to " << level);
     } catch (const xgi::exception::Exception& e) {
       level = 2;
-      WARN("Caught xgi::exception " << e.what());
+      WARN("GEMSupervisorWeb::Caught xgi::exception " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     } catch (const std::exception& e) {
       level = 2;
-      WARN("Caught std::exception " << e.what());
+      WARN("GEMSupervisorWeb::Caught std::exception " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
+    */
   } else  {
     level = 2;
   }
@@ -110,20 +113,20 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
     .set("name","setLevel") << std::endl
 
        << (level == 0 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","0").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","0"))
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","0").set("checked") :
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","0"))
        << "version" << std::endl
        << (level == 1 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","1").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","1"))
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","1").set("checked") :
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","1"))
        << "minimum" << std::endl
        << (level == 2 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","2").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","2"))
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","2").set("checked") :
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","2"))
        << "default" << std::endl
        << (level == 3 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","3").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","3"))
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","3").set("checked") :
+           cgicc::input().set("type","radio").set("id","debuglevel").set("name","level").set("value","3"))
        << "maximum" << std::endl
 
        << cgicc::br()     << std::endl
@@ -198,10 +201,10 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
     *out << "</tbody>"  << std::endl
          << "</table>"  << std::endl;
   } catch (const xgi::exception::Exception& e) {
-    WARN("GEMSupervisorWeb::Something went wrong displaying managed application state table(xgi): " << e.what());
+    ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    WARN("GEMSupervisorWeb::Something went wrong displaying managed application state table(std): " << e.what());
+    ERROR("GEMSupervisorWeb::Something went wrong displaying managed application state table(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
