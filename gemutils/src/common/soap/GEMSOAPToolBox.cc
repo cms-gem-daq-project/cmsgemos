@@ -228,7 +228,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameter(std::string cons
                                                                 xdaq::ApplicationContext* appCxt,
                                                                 xdaq::ApplicationDescriptor* srcDsc,
                                                                 xdaq::ApplicationDescriptor* destDsc
-                                                     )
+                                                                )
   throw (gem::utils::exception::Exception)
 {
   try {
@@ -257,6 +257,55 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameter(std::string cons
     XCEPT_RAISE(gem::utils::exception::SOAPException,
                 toolbox::toString("Sending parameter  %s (value %d) failed",
                                   cmd.c_str(), parameter));
+  }
+  return true;
+}
+
+bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter(std::string const& parName,
+                                                                std::string const& parType,
+                                                                std::string const& parValue,
+                                                                xdaq::ApplicationContext* appCxt,
+                                                                xdaq::ApplicationDescriptor* srcDsc,
+                                                                xdaq::ApplicationDescriptor* destDsc
+                                                                )
+  throw (gem::utils::exception::Exception)
+{
+  try {
+    xoap::MessageReference msg = xoap::createMessage(), answer;
+  
+    xoap::SOAPEnvelope env       = msg->getSOAPPart().getEnvelope();
+    xoap::SOAPName     soapcmd   = env.createName("ParameterSet","xdaq",XDAQ_NS_URI);
+    xoap::SOAPElement  container = env.getBody().addBodyElement(soapcmd);
+    container.addNamespaceDeclaration("xsd","http://www.w3.org/2001/XMLSchema");
+    container.addNamespaceDeclaration("xsi","http://www.w3.org/2001/XMLSchema-instance");
+    container.addNamespaceDeclaration("soapenc","http://schemas.xmlsoap.org/soap/encoding/");
+    xoap::SOAPName tname    = env.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+    std::string    appUrn   = "urn:xdaq-application:"+destDsc->getClassName();
+    xoap::SOAPName pboxname = env.createName("Properties","props",appUrn);
+    xoap::SOAPElement pbox = container.addChildElement(pboxname);
+    pbox.addAttribute(tname,"soapenc:Struct");
+    xoap::SOAPName    soapName = env.createName(parName,"props",appUrn);
+    xoap::SOAPElement cs      = pbox.addChildElement(soapName);
+    cs.addAttribute(tname,parType);
+    cs.addTextNode(parValue);
+    
+    answer = appCxt->postSOAP(msg,*srcDsc,*destDsc);
+  } catch (gem::utils::exception::Exception& e) {
+    std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed [%s] (gem::utils::exception::Exception)",
+                                           parName.c_str(),parType.c_str(),parValue.c_str(),e.what());
+    XCEPT_RETHROW(gem::utils::exception::SOAPException,errMsg,e);
+  } catch (xcept::Exception& e) {
+    std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed [%s] (xcept::Exception)",
+                                           parName.c_str(),parType.c_str(),parValue.c_str(),e.what());
+    XCEPT_RETHROW(gem::utils::exception::SOAPException,errMsg,e);
+  } catch (std::exception& e) {
+    std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed [%s] (std::exception)",
+                                           parName.c_str(),parType.c_str(),parValue.c_str(),e.what());
+    XCEPT_RAISE(gem::utils::exception::SOAPException,errMsg);
+  } catch (...) {
+    std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed (...)",
+                                           parName.c_str(),parType.c_str(),parValue.c_str());
+    XCEPT_RAISE(gem::utils::exception::SOAPException,errMsg);
   }
   return true;
 }
