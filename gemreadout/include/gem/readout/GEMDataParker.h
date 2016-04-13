@@ -124,9 +124,6 @@ namespace gem {
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
       std::queue<uint32_t> m_dataque;
-
-
-
       
       // Online histograms
       gemOnlineDQM* p_gemOnlineDQM;

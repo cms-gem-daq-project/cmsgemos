@@ -58,35 +58,6 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
-bool gem::supervisor::GEMSupervisor::isGEMApplication(const std::string& classname) const
-{
-  if (classname.find("gem") != std::string::npos)
-    return true; // handle all GEM applications
-  /*
-  if (m_otherClassesToSupport.count(classname) != 0)
-    return true; // include from list
-  */
-  return false;
-}
-
-bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classname) const
-{
-  if (classname == "GEMSupervisor")
-    return false; // ignore ourself
-  /*
-  if (m_otherClassesToSupport.count(classname) != 0)
-    return true; // include from list
-  */
-  if (classname.find("gem") != std::string::npos)
-    return true; // handle all GEM applications
-  if (classname.find("PeerTransport") != std::string::npos)
-    return false; // ignore all peer transports
-  /*
-  if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
-    return true;
-  */
-  return false; // assume not ok.
-}
 void gem::supervisor::GEMSupervisor::init()
 {
   v_supervisedApps.clear();
@@ -157,16 +128,25 @@ void gem::supervisor::GEMSupervisor::initializeAction()
 void gem::supervisor::GEMSupervisor::configureAction()
   throw (gem::supervisor::exception::Exception)
 {
-  // load configuration from somewhere: xml or db?
-  // if we are not central, we have to worry about initialization order for triggering purposes
-  std::vector<std::string> runParameter;
-  runParameter.push_back("RunType");
-  runParameter.push_back(m_runType.toString());
-  runParameter.push_back("xsd:string");
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO(std::string("Configuring ")+(*i)->getClassName());
-    gem::utils::soap::GEMSOAPToolBox::sendParameter(runParameter,p_appContext,p_appDescriptor,*i);
-    gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",p_appContext,p_appDescriptor,*i);
+  try {
+    for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+      sendCfgType("testCfgType",(*i));
+      sendRunType("testRunType",(*i));
+      sendRunNumber(10254,(*i));
+      INFO(std::string("Configuring ")+(*i)->getClassName());
+      gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",p_appContext,p_appDescriptor,*i);
+    }
+  } catch (gem::supervisor::exception::Exception& e) {
+    ERROR("GEMSupervisor::configureAction " << e.what());
+    throw e;
+  } catch (xcept::Exception& e) {
+    ERROR("GEMSupervisor::configureAction " << e.what());
+    throw e;
+  } catch (std::exception& e) {
+    ERROR("GEMSupervisor::configureAction " << e.what());
+    throw e;
+  } catch (...) {
+    ERROR("GEMSupervisor::configureAction ");
   }
 }
 
@@ -174,17 +154,26 @@ void gem::supervisor::GEMSupervisor::startAction()
   throw (gem::supervisor::exception::Exception)
 {
   updateRunNumber();
-  std::vector<std::string> runParameter;
-  runParameter.push_back("RunNumber");
-  runParameter.push_back(toolbox::toString("%d",m_runNumber.value_));
-  runParameter.push_back("xsd:unsignedLong");
   
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO(std::string("Starting ")+(*i)->getClassName());
-    gem::utils::soap::GEMSOAPToolBox::sendParameter(runParameter,p_appContext,p_appDescriptor,*i);
-    gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",p_appContext,p_appDescriptor,*i);
+  try {
+    for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+      sendRunNumber(m_runNumber,(*i));
+      INFO(std::string("Starting ")+(*i)->getClassName());
+      gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",p_appContext,p_appDescriptor,*i);
+    }
+  } catch (gem::supervisor::exception::Exception& e) {
+    ERROR("GEMSupervisor::startAction " << e.what());
+    throw e;
+  } catch (xcept::Exception& e) {
+    ERROR("GEMSupervisor::startAction " << e.what());
+    throw e;
+  } catch (std::exception& e) {
+    ERROR("GEMSupervisor::startAction " << e.what());
+    throw e;
+  } catch (...) {
+    ERROR("GEMSupervisor::startAction ");
   }
-}
+  }
 
 void gem::supervisor::GEMSupervisor::pauseAction()
   throw (gem::supervisor::exception::Exception)
@@ -240,17 +229,79 @@ void gem::supervisor::GEMSupervisor::resetAction()
 */
 
 void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+  throw (toolbox::fsm::exception::Exception)
+{
+
 }
 
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+  throw (toolbox::fsm::exception::Exception)
+{
+
 }
 
-//  LocalWords:  oid
+
+bool gem::supervisor::GEMSupervisor::isGEMApplication(const std::string& classname) const
+{
+  if (classname.find("gem") != std::string::npos)
+    return true; // handle all HCAL applications
+  /*
+  if (m_otherClassesToSupport.count(classname) != 0)
+    return true; // include from list
+  */
+  return false;
+}
+
+bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classname) const
+{
+  if (classname == "GEMSupervisor")
+    return false; // ignore ourself
+  /*
+  if (m_otherClassesToSupport.count(classname) != 0)
+    return true; // include from list
+  */
+  if (classname.find("gem") != std::string::npos)
+    return true; // handle all GEM applications
+  if (classname.find("PeerTransport") != std::string::npos)
+    return false; // ignore all peer transports
+  /*
+  if ((classname == "TTCciControl" || classname == "ttc::TTCciControl") && m_handleTTCci.value_)
+    return true;
+  if ((classname == "LTCControl" || classname == "ttc::LTCControl") && m_handleTTCci.value_)
+    return true;
+  if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
+    return true;
+  */
+  return false; // assume not ok.
+}
 
 void gem::supervisor::GEMSupervisor::updateRunNumber()
 {
   // should be able to find the run number from the run number service, or some other source
   m_runNumber = 10472;
+}
+
+void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
+  throw (gem::supervisor::exception::Exception)
+{
+  INFO(std::string("GEMSupervisor::sendCfgType to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("CfgType","xsd:string",m_cfgType.toString(),
+                                                             p_appContext,p_appDescriptor,ad);
+}
+
+void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad)
+  throw (gem::supervisor::exception::Exception)
+{
+  INFO(std::string("GEMSupervisor::sendRunType to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunType","xsd:string",m_runType.toString(),
+                                                             p_appContext,p_appDescriptor,ad);  
+}
+
+void gem::supervisor::GEMSupervisor::sendRunNumber(uint32_t const& runNumber, xdaq::ApplicationDescriptor* ad)
+  throw (gem::supervisor::exception::Exception)
+{
+  INFO(std::string("GEMSupervisor::sendRunType to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber","xsd:unsignedInt",
+                                                             m_runNumber.toString(),
+                                                             p_appContext,p_appDescriptor,ad);
 }

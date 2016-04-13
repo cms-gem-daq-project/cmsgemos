@@ -527,20 +527,20 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   // system registers
   is_glib->createUInt32("BOARD_ID",      glib->getBoardIDRaw(),      GEMUpdateType::NOUPDATE, "docstring", "id");
   is_glib->createUInt32("SYSTEM_ID",     glib->getSystemIDRaw(),     GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_glib->createUInt32("FIRMWARE_ID",   glib->getFirmwareVerRaw(),  GEMUpdateType::NOUPDATE, "docstring", "fwver");
-  is_glib->createUInt32("FIRMWARE_DATE", glib->getFirmwareDateRaw(), GEMUpdateType::NOUPDATE, "docstring", "date");
+  is_glib->createUInt32("FIRMWARE_ID",   glib->getFirmwareVerRaw(),  GEMUpdateType::PROCESS,  "docstring", "fwver");
+  is_glib->createUInt32("FIRMWARE_DATE", glib->getFirmwareDateRaw(), GEMUpdateType::PROCESS,  "docstring", "date");
   is_glib->createUInt32("IP_ADDRESS",    glib->getIPAddressRaw(),    GEMUpdateType::NOUPDATE, "docstring", "ip");
   is_glib->createUInt64("MAC_ADDRESS",   glib->getMACAddressRaw(),   GEMUpdateType::NOUPDATE, "docstring", "mac");
-  is_glib->createUInt32("SFP1_STATUS",   glib->SFPStatus(1),      GEMUpdateType::HW32);
-  is_glib->createUInt32("SFP2_STATUS",   glib->SFPStatus(2),      GEMUpdateType::HW32);
-  is_glib->createUInt32("SFP3_STATUS",   glib->SFPStatus(3),      GEMUpdateType::HW32);
-  is_glib->createUInt32("SFP4_STATUS",   glib->SFPStatus(4),      GEMUpdateType::HW32);
-  is_glib->createUInt32("FMC1_STATUS",   glib->FMCPresence(0),    GEMUpdateType::HW32);
-  is_glib->createUInt32("FMC2_STATUS",   glib->FMCPresence(1),    GEMUpdateType::HW32);
-  is_glib->createUInt32("FPGA_RESET",    glib->FPGAResetStatus(), GEMUpdateType::HW32);
-  is_glib->createUInt32("GBE_INT",       glib->GbEInterrupt(),    GEMUpdateType::HW32);
-  is_glib->createUInt32("V6_CPLD",       glib->V6CPLDStatus(),    GEMUpdateType::HW32);
-  is_glib->createUInt32("CPLD_LOCK",     glib->CDCELockStatus(),  GEMUpdateType::HW32);
+  is_glib->createUInt32("SFP1_STATUS",   glib->SFPStatus(1),         GEMUpdateType::HW32);
+  is_glib->createUInt32("SFP2_STATUS",   glib->SFPStatus(2),         GEMUpdateType::HW32);
+  is_glib->createUInt32("SFP3_STATUS",   glib->SFPStatus(3),         GEMUpdateType::HW32);
+  is_glib->createUInt32("SFP4_STATUS",   glib->SFPStatus(4),         GEMUpdateType::HW32);
+  is_glib->createUInt32("FMC1_STATUS",   glib->FMCPresence(0),       GEMUpdateType::HW32);
+  is_glib->createUInt32("FMC2_STATUS",   glib->FMCPresence(1),       GEMUpdateType::HW32);
+  is_glib->createUInt32("FPGA_RESET",    glib->FPGAResetStatus(),    GEMUpdateType::HW32);
+  is_glib->createUInt32("GBE_INT",       glib->GbEInterrupt(),       GEMUpdateType::HW32);
+  is_glib->createUInt32("V6_CPLD",       glib->V6CPLDStatus(),       GEMUpdateType::HW32);
+  is_glib->createUInt32("CPLD_LOCK",     glib->CDCELockStatus(),     GEMUpdateType::HW32);
 
   // ttc registers
   is_glib->createUInt32("L1A",      glib->getL1ACount(),      GEMUpdateType::HW32);
@@ -581,4 +581,8 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("GTX1_TRG_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
   is_glib->createUInt32("GTX1_TRK_ERR",      0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
   is_glib->createUInt32("GTX1_DATA_Packets", 0, GEMUpdateType::PROCESS, "docstring", "raw/rate");
+
+  // TTC registers
+  is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), GEMUpdateType::HW32);
 }

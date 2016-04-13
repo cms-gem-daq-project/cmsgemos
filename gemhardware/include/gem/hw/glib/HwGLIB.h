@@ -2,12 +2,12 @@
 #define gem_hw_glib_HwGLIB_h
 
 #include "gem/hw/GEMHwDevice.h"
-#include "toolbox/SyncQueue.h"
-#include "i2o/i2o.h"
+//#include "toolbox/SyncQueue.h"
+//#include "i2o/i2o.h"
 #include "toolbox/Task.h"
 
 #include "gem/hw/glib/exception/Exception.h"
-//#include "gem/hw/glib/GLIBMonitor.h"
+#include "gem/hw/glib/GLIBSettingsEnums.h"
 
 namespace gem {
   namespace hw {
@@ -691,37 +691,190 @@ namespace gem {
           void flushFIFO(uint8_t const& gtx);
 
           // DAQ LINK functionality
-          void enableDAQLink();
-          void resetDAQLink();
+          /**
+           * @brief Set the kill mask and enable the DAQ link
+           * @param killMask 32 bit word for the 24 bit kill mask
+           */
+          void enableDAQLink(uint32_t const& killMask=0x3);
+
+          /**
+           * @brief reset the DAQ link and write the DAV timout
+           * @param davTO value to use for the DAV timeout
+           */
+          void resetDAQLink(uint32_t const& davTO=0x3d090);
+
+          /**
+           * @returns Returns the 32 bit word corresponding to the DAQ link control register
+           */
           uint32_t getDAQLinkControl();
+
+          /**
+           * @returns Returns the 32 bit word corresponding to the DAQ link status register
+           */
           uint32_t getDAQLinkStatus();
-          //uint32_t getDAQLinkFlags();
-          //uint32_t getDAQLinkCorruptCount();
-          //uint32_t getDAQLinkEventsBuilt();
+
+          /**
+           * @returns Returns true if the DAQ link is ready
+           */
+          bool daqLinkReady();
+
+          /**
+           * @returns Returns true if the DAQ link is clock is locked
+           */
+          bool daqClockLocked();
+
+          /**
+           * @returns Returns true if the TTC is ready
+           */
+          bool daqTTCReady();
+
+          /**
+           * @returns Returns true if the event FIFO is almost full (70%)
+           */
+          bool daqAlmostFull();
+
+          /**
+           * @returns Returns the current TTS state asserted by the DAQ link firmware
+           */
+          uint8_t daqTTSState();
+
+          /**
+           * @returns Returns the number of events built and sent on the DAQ link
+           */
           uint32_t getDAQLinkEventsSent();
+
+          /**
+           * @returns Returns the curent L1AID (number of L1As received)
+           */
           uint32_t getDAQLinkL1AID();
-          //uint32_t getDAQLinkDebug(uint8_t const& mode);
+
+          /**
+           * @returns Returns 
+           */
           uint32_t getDAQLinkDisperErrors();
+
+          /**
+           * @returns Returns 
+           */
           uint32_t getDAQLinkNonidentifiableErrors();
 
+          /**
+           * @returns Returns the DAQ link input enable mask
+           */
           uint32_t getDAQLinkInputMask();
+
+          /**
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
           uint32_t getDAQLinkDAVTimeout();
-          uint32_t getDAQLinkDAVTimer(bool const& );
+
+          /**
+           * @param max is a bool specifying whether to query the max timer or the last timer
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
+          uint32_t getDAQLinkDAVTimer(bool const& max);
 
           // GTX specific DAQ link information
+          /**
+           * @param gtx is the input link status to query
+           * @returns Returns the the 32-bit word corresponding DAQ status for the specified link 
+           */
           uint32_t getDAQLinkStatus(   uint8_t const& gtx);
+
+          /**
+           * @param gtx is the input link counter to query
+           * @param mode specifies whether to query the corrupt VFAT count (0x0) or the event number
+           * @returns Returns the link counter for the specified mode
+           */
           uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
+
+          /**
+           * @param gtx is the input link status to query
+           * @returns Returns a block of the last 7 words received from the OH on the link specified
+           */
           uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
 
+          /**
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
           uint32_t getDAQLinkInputTimeout();
+
+          /**
+           * @returns Returns the run type stored in the data stream
+           */
           uint32_t getDAQLinkRunType();
+
+          /**
+           * @returns Special run parameters 1,2,3 as a single 24 bit word
+           */
           uint32_t getDAQLinkRunParameters();
+
+          /**
+           * @returns Special run parameter written into data stream
+           */
           uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
 
+
+          /**
+           * @brief Set DAQ link timeout
+           * @param value is the number of clock cycles to wait after receipt of last L1A and 
+           *        last packet received from the optical link before closing an "event"
+           */
           void setDAQLinkInputTimeout(uint32_t const& value);
+
+          /**
+           * @brief Special run type to be written into data stream
+           * @param value is the run type
+           */
           void setDAQLinkRunType(uint32_t const& value);
+
+          /**
+           * @returns Set special run parameter to be written into data stream
+           * @param value is a 24 bit word to write into the run paramter portion of the GEM header
+           */
           void setDAQLinkRunParameters(uint32_t const& value);
+
+          /**
+           * @returns Special run parameter written into data stream
+           * @param parameter is the number of parameter to be written (1-3)
+           * @param value is the run paramter to write into the specified parameter
+           */
           void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
+
+          /**
+           * @returns TTC control register value
+           */
+          uint32_t getTTCControl();
+          
+          /**
+           * @returns TTC encoding in use on the GLIB
+           */
+          GLIBTTCEncoding getTTCEncoding();
+
+          /**
+           * @param select which TTC encoding to use on the GLIB
+           */
+          void setTTCEncoding(GLIBTTCEncoding ttc_enc);
+
+          /**
+           * @returns whether or not L1As are currently inhibited on the GLIB
+           */
+          bool getL1AInhibit();
+
+          /**
+           * @param whether or not to inhibit L1As on the GLIB
+           */
+          void setL1AInhibit(bool inhibit);
+
+          /**
+           * @brief resets the TTC on the GLIB
+           */
+          void resetTTC();
+
+          /**
+           * @returns 32-bit word corresponding to the 8 most recent TTC commands received
+           */
+          uint32_t getTTCSpyBuffer();
 
           std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
           

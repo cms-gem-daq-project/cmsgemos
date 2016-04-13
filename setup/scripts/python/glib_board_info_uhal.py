@@ -29,8 +29,8 @@ parser.add_option("-b", "--sbitout", type="int", dest="sbitSrc",
 		  help="use s-bit from VFAT <num>", metavar="sbitSrc")
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
 		  help="print extra debugging information", metavar="debug")
-parser.add_option("-t", "--ttc", action="store_true", dest="gemttc",
-		  help="use gem TTC encoding", metavar="gemttc")
+parser.add_option("-t", "--ttc", type="int", dest="gemttc", default=2,
+		  help="choose the TTC encoding (gem/csc=0, amc13=1,default=2 meaning no modification)", metavar="gemttc")
 parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
 		  help="calculate link error rates for N seconds", metavar="errorRate")
 parser.add_option("-u", "--user", action="store_true", dest="userOnly",
@@ -88,8 +88,13 @@ print
 print "-> DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
 print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
 print
-if options.gemttc:
-        writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",0x1)
+if options.gemttc in [0,1]:
+        writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
+print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
+print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
+
+if options.gemttc in [0,1]:
+        writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
 print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
 print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
 
@@ -102,14 +107,6 @@ for olink in range(NGTX):
         #for word in dbgWords:
         #        print "-> DAQ debug : 0x%08x"%(word)
 
-#print "-> DAQ debug0 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_0"))
-#print "-> DAQ debug1 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_1"))
-#print "-> DAQ debug2 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_2"))
-#print "-> DAQ debug3 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_3"))
-#print "-> DAQ debug4 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_4"))
-#print "-> DAQ debug5 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_5"))
-#print "-> DAQ debug6 :0x%08x"%(readRegister(glib,"GLIB.DAQ.DEBUG_6"))
-	
 print
 print "--=======================================--"
 print "-> BOARD USER INFORMATION"
