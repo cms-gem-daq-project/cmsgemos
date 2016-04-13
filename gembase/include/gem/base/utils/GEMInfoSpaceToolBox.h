@@ -45,6 +45,8 @@ namespace gem {
                         UINT64,   //!< Combines two 32-bit registers into a 64-bit value
                         BOOL,     //!< boolean type
                         INTEGER,  //!< integer type
+                        INTEGER32,//!< integer32 type
+                        INTEGER64,//!< integer64 type
                         DOUBLE,   //!< double type
                         STRING,   //!< string type
                         INFOSPACE //!< embedded InfoSpace type
@@ -114,30 +116,36 @@ namespace gem {
         ~GEMInfoSpaceToolBox();
 
         //methods copied from tcds info space helper
-        bool createString( std::string const& itemName, std::string const& value,
-                           UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
-        bool createBool(   std::string const& itemName, bool        const& value,
-                           UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
-        bool createDouble( std::string const& itemName, double      const& value,
-                           UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
-        bool createInteger(std::string const& itemName, int         const& value,
-                           UpdateType type=HW32, std::string const& docstring="docstring", std::string const& format="dec");
-        bool createUInt32( std::string const& itemName, uint32_t    const& value,
-                           UpdateType type=HW32, std::string const& docstring="docstring", std::string const& format="hex");
-        bool createUInt64( std::string const& itemName, uint64_t    const& value,
-                           UpdateType type=HW64, std::string const& docstring="docstring", std::string const& format="hex");
+        bool createString(   std::string const& itemName, std::string const& value,
+                             UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
+        bool createBool(     std::string const& itemName, bool        const& value,
+                             UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
+        bool createDouble(   std::string const& itemName, double      const& value,
+                             UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
+        bool createInteger(  std::string const& itemName, int         const& value,
+                             UpdateType type=PROCESS,  std::string const& docstring="docstring", std::string const& format="dec");
+        bool createInteger32(std::string const& itemName, int32_t     const& value,
+                             UpdateType type=PROCESS,  std::string const& docstring="docstring", std::string const& format="dec");
+        bool createInteger64(std::string const& itemName, int64_t     const& value,
+                             UpdateType type=PROCESS,  std::string const& docstring="docstring", std::string const& format="dec");
+        bool createUInt32(   std::string const& itemName, uint32_t    const& value,
+                             UpdateType type=HW32,     std::string const& docstring="docstring", std::string const& format="hex");
+        bool createUInt64(   std::string const& itemName, uint64_t    const& value,
+                             UpdateType type=HW64,     std::string const& docstring="docstring", std::string const& format="hex");
       
         //methods copied from tcds info space helper
         /**
          * Gets the value of the monitored item in the infospace, does not require a toolbox instance
          * @param itemName is the name of the item in the infospace
          */
-        std::string getString( std::string const& itemName);
-        bool        getBool(   std::string const& itemName);
-        double      getDouble( std::string const& itemName);
-        int         getInteger(std::string const& itemName);
-        uint32_t    getUInt32( std::string const& itemName);
-        uint64_t    getUInt64( std::string const& itemName);
+        std::string getString(   std::string const& itemName);
+        bool        getBool(     std::string const& itemName);
+        double      getDouble(   std::string const& itemName);
+        int         getInteger(  std::string const& itemName);
+        int32_t     getInteger32(std::string const& itemName);
+        int64_t     getInteger64(std::string const& itemName);
+        uint32_t    getUInt32(   std::string const& itemName);
+        uint64_t    getUInt64(   std::string const& itemName);
       
         //methods copied from tcds info space helper, static, for access without an instance
         /**
@@ -145,12 +153,14 @@ namespace gem {
          * @param infoSpace is the infospace in which the item is stored
          * @param itemName is the name of the item in the infospace
          */
-        static std::string getString( xdata::InfoSpace* infoSpace, std::string const& itemName);
-        static bool        getBool(   xdata::InfoSpace* infoSpace, std::string const& itemName);
-        static double      getDouble( xdata::InfoSpace* infoSpace, std::string const& itemName);
-        static int         getInteger(xdata::InfoSpace* infoSpace, std::string const& itemName);
-        static uint32_t    getUInt32( xdata::InfoSpace* infoSpace, std::string const& itemName);
-        static uint64_t    getUInt64( xdata::InfoSpace* infoSpace, std::string const& itemName);
+        static std::string getString(   xdata::InfoSpace* infoSpace, std::string const& itemName);
+        static bool        getBool(     xdata::InfoSpace* infoSpace, std::string const& itemName);
+        static double      getDouble(   xdata::InfoSpace* infoSpace, std::string const& itemName);
+        static int         getInteger(  xdata::InfoSpace* infoSpace, std::string const& itemName);
+        static int32_t     getInteger32(xdata::InfoSpace* infoSpace, std::string const& itemName);
+        static int64_t     getInteger64(xdata::InfoSpace* infoSpace, std::string const& itemName);
+        static uint32_t    getUInt32(   xdata::InfoSpace* infoSpace, std::string const& itemName);
+        static uint64_t    getUInt64(   xdata::InfoSpace* infoSpace, std::string const& itemName);
       
         //methods copied from tcds info space helper
 
@@ -159,12 +169,14 @@ namespace gem {
          * @param itemName is the name of the item in the infospace
          * @param value is the value to assign to the item in the infospace
          */
-        bool setString( std::string const& itemName, std::string const& value);
-        bool setBool(   std::string const& itemName, bool        const& value);
-        bool setDouble( std::string const& itemName, double      const& value);
-        bool setInteger(std::string const& itemName, int         const& value);
-        bool setUInt32( std::string const& itemName, uint32_t    const& value);
-        bool setUInt64( std::string const& itemName, uint64_t    const& value);
+        bool setString(   std::string const& itemName, std::string const& value);
+        bool setBool(     std::string const& itemName, bool        const& value);
+        bool setDouble(   std::string const& itemName, double      const& value);
+        bool setInteger(  std::string const& itemName, int         const& value);
+        bool setInteger32(std::string const& itemName, int32_t     const& value);
+        bool setInteger64(std::string const& itemName, int64_t     const& value);
+        bool setUInt32(   std::string const& itemName, uint32_t    const& value);
+        bool setUInt64(   std::string const& itemName, uint64_t    const& value);
 
         xdata::InfoSpace* getInfoSpace()  { return p_infoSpace;         };
         std::string       name()          { return p_infoSpace->name(); };
@@ -201,6 +213,8 @@ namespace gem {
         std::unordered_map<std::string, std::pair<uint64_t,    xdata::UnsignedInteger64* > >  m_uint64Items;
         std::unordered_map<std::string, std::pair<bool,        xdata::Boolean* > >            m_boolItems;
         std::unordered_map<std::string, std::pair<int,         xdata::Integer* > >            m_intItems;
+        std::unordered_map<std::string, std::pair<int32_t,     xdata::Integer32* > >          m_int32Items;
+        std::unordered_map<std::string, std::pair<int64_t,     xdata::Integer64* > >          m_int64Items;
         std::unordered_map<std::string, std::pair<double,      xdata::Double*  > >            m_doubleItems;
         std::unordered_map<std::string, std::pair<std::string, xdata::String*  > >            m_stringItems;
 

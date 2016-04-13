@@ -60,14 +60,14 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   uhal::setLogLevelTo(uhal::Error);
 
   //initialize the AMC13Manager application objects
-  DEBUG("connecting to the AMC13ManagerWeb interface");
+  DEBUG("AMC13Manager::connecting to the AMC13ManagerWeb interface");
   p_gemWebInterface = new gem::hw::amc13::AMC13ManagerWeb(this);
   //p_gemMonitor      = new gem::hw::amc13::AMC13HwMonitor(this);
-  DEBUG("done");
+  DEBUG("AMC13Manager::done");
 
-  //DEBUG("executing preInit for AMC13Manager");
+  //DEBUG("AMC13Manager::executing preInit for AMC13Manager");
   //preInit();
-  //DEBUG("done");
+  //DEBUG("AMC13Manager::done");
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 }
 
@@ -130,17 +130,17 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
     p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
   } catch (uhal::exception::exception & e) {
-    ERROR("AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (std::exception& e) {
-    ERROR("AMC13::AMC13() failed, caught std::exception:" << e.what() );
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception:" << e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (...) {
-    ERROR("AMC13::AMC13() failed, caught ...");
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught ...");
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
   }
 
-  DEBUG("finished with AMC13::AMC13()");
+  DEBUG("AMC13Manager::finished with AMC13::AMC13()");
 
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
@@ -148,8 +148,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     
     p_amc13->enableAllTTC();
   } catch (uhal::exception::exception & e) {
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   } catch (std::exception& e) {
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
 
@@ -211,7 +213,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
 void gem::hw::amc13::AMC13Manager::startAction()
   throw (gem::hw::amc13::exception::Exception)
 {
-  DEBUG("Entering gem::hw::amc13::AMC13Manager::startAction()");
+  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   p_amc13->reset(::amc13::AMC13::T1);
@@ -240,7 +242,7 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
 void gem::hw::amc13::AMC13Manager::stopAction()
   throw (gem::hw::amc13::exception::Exception)
 {
-  DEBUG("Entering gem::hw::amc13::AMC13Manager::stopAction()");
+  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::stopAction()");
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   if (m_enableLocalL1A) p_amc13->stopContinuousL1A();

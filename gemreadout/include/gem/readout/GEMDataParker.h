@@ -31,6 +31,14 @@ namespace gem {
   }
   namespace readout {
 
+    enum GEMRunType {
+      DATA      = 0x0,
+      THRESHOLD = 0x1,
+      LATENCY   = 0x2,
+      SCURVE    = 0x3,
+      HVSCAN    = 0x4
+    };
+    
     class GEMDataParker
     {
     public:
@@ -44,7 +52,8 @@ namespace gem {
                             std::string const& outFileName, 
                             std::string const& errFileName, 
                             std::string const& outputType,
-                            std::string const& slotFileName                            
+                            std::string const& slotFileName="slot_table.csv",
+                            GEMRunType  const& runType=DATA
                             );
       ~GEMDataParker() {};//delete m_gemOnlineDQM;};
 
@@ -125,6 +134,9 @@ namespace gem {
       // The main data flow
       std::queue<uint32_t> m_dataque;
       
+      //type of run
+      GEMRunType m_runType;
+
       // Online histograms
       gemOnlineDQM* p_gemOnlineDQM;
       /*

@@ -325,13 +325,13 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
 
 std::string gem::base::GEMFSM::getCurrentState() const
 {
-  INFO("GEMFSM::getCurrentState()");
+  DEBUG("GEMFSM::getCurrentState()");
   return p_gemfsm->getStateName(p_gemfsm->getCurrentState());
 }
 
 std::string gem::base::GEMFSM::getStateName(toolbox::fsm::State const& state) const
 {
-  INFO("GEMFSM::getStateName()");
+  DEBUG("GEMFSM::getStateName()");
   return p_gemfsm->getStateName(state);
 }
 

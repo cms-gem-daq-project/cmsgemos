@@ -105,14 +105,56 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
   throw (xgi::exception::Exception)
 {
   DEBUG("controlPanel");
-  //*out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
-  
   // maybe the control part should only be displayed if the application is not supervised?
   if (p_gemFSMApp) {
+    *out << cgicc::script().set("type","text/javascript")
+      .set("src","/gemdaq/gembase/html/scripts/gemfsmwebcontrol.js")
+         << cgicc::script() << std::endl;
+    /*
+    try {
+      cgicc::Cgicc cgi(in);
+      INFO("GEMWebApplication::processing form: cgi.getElements().size() = " << cgi.getElements().size());
+      for (auto dbg = cgi.getElements().begin(); dbg != cgi.getElements().end(); ++dbg ) {
+        INFO("Found cgi element: " << dbg->getName());
+      }
+
+      std::string fsmcommand = "";
+      cgicc::form_iterator iter = cgi.getElement("fsmcommand");
+      //cgicc::form_iterator iter = cgi.getElement("fsmControl");
+      if ( iter == cgi.getElements().end() ) {
+        WARN("GEMWebApplication::did not find fsmcommand while processing form");
+      } else {
+        fsmcommand = **iter;
+        INFO("fsmcommand = " << fsmcommand);
+        // perform the action
+        if (fsmcommand == "Initialize")
+          webInitialize(in,out);
+        else if (fsmcommand == "Configure")
+          webConfigure(in,out);
+        else if (fsmcommand == "Start")
+          webStart(in,out);
+        else if (fsmcommand == "Stop")
+          webStop(in,out);
+        else if (fsmcommand == "Pause")
+          webPause(in,out);
+        else if (fsmcommand == "Resume")
+          webResume(in,out);
+        else if (fsmcommand == "Halt")
+          webHalt(in,out);
+        else if (fsmcommand == "Reset")
+          webReset(in,out);
+      }
+    } catch (const xgi::exception::Exception& e) {
+      ERROR("Something went wrong processing web control panel form(xgi): " << e.what());
+      XCEPT_RAISE(xgi::exception::Exception, e.what());
+    } catch (const std::exception& e) {
+      ERROR("Something went wrong processing web control panel form(std): " << e.what());
+      XCEPT_RAISE(xgi::exception::Exception, e.what());
+    }*/
     try {
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
       DEBUG("controlPanel:: current state " << state);
-      ////update the page refresh, to be removed in favour of AJAX methods
+      // update the page refresh, should definitely move this functionality to AJAX/JS
       if (!b_is_working && !b_is_running) {
       } else if (b_is_working) {
         cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
@@ -121,7 +163,11 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
         cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
         head.addHeader("Refresh","30");
       }
-
+      /*
+      *out << cgicc::form().set("method","POST").set("id","fsmControl") << std::endl
+           << cgicc::input().set("type", "hidden").set("id","fsmcommand").set("name","fsmcommand").set("value","") << std::endl
+           << cgicc::form() << std::endl;
+      */
       *out << "<table class=\"xdaq-table\">" << std::endl
            << cgicc::thead() << std::endl
            << cgicc::tr()    << std::endl //open
@@ -135,120 +181,63 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
            << "<td>"    << std::endl;
     
       *out << "<table class=\"xdaq-table\">" << std::endl;
+      // Buttons                 | Initial             | Halted               | Configured           | Running | Paused |
+      // Initialize Configure    | Configure invisible | Initialize invisible | Initialize invisible | All invisible | All invisible |
+      // Start Stop Pause Resume | All invisible | All invisible        | Start visible        | Stop/Pause visible | Stop/Resume visible |
+      // Halt Reset              | All invisible | All visible          | All visible          | All visible          | All visible          |
 
-      if (state == "Initial") {
-        //send the initialize command
-        *out << "<tr>" << std::endl << "<td>"    << std::endl
-             << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Initialize GEM system.")
-          .set("value", "Initialize") << std::endl;
-        *out << cgicc::form() << std::endl
-             << "</td>"       << std::endl
-             << "</tr>"       << std::endl;
-      } else {
-        if (state == "Halted") {
-          //this will allow the parameters to be set to the chip and scan routine
-          *out << "<tr>" << std::endl << "<td colspan=\"2\">"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Configure FSM")
-            .set("value", "Configure") << std::endl;
-          *out << cgicc::form()        << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Configured") {
-          //this will allow the parameters to be set to the chip and scan routine
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Configure FSM")
-            .set("value", "Configure") << std::endl;
-          *out << cgicc::form()        << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Start") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Start FSM")
-            .set("value", "Start") << std::endl;
-          *out << cgicc::form()    << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Running") {
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Stop FSM")
-            .set("value", "Stop") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Pause") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Pause FSM")
-            .set("value", "Pause") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Paused") {
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Stop FSM")
-            .set("value", "Stop") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Resume") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Resume FSM")
-            .set("value", "Resume") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        }
-        
-        if (state == "Halted" ||
-            state == "Configured" ||
-            state == "Running" ||
-            state == "Paused") {
-          *out << cgicc::comment() << "end the main commands, now putting the halt/reset commands which should be possible all the time"
-               << cgicc::comment() << cgicc::br() << std::endl;
-          *out << "<tr>"    << std::endl
-               << "<td>"    << std::endl;
-          //always should have a halt/reset command?
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Halt") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Halt GEM system FSM.")
-            .set("value", "Halt") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Reset GEM FSM.")
-            .set("value", "Reset") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Failed" || state == "Error") {
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Reset GEM FSM.")
-            .set("value", "Reset") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        }
-      }//end check on Initial vs Other
+      // the state may be dynamically changing, so perhaps the whole control panel table should be updated using AJAX
+      // how is the best way to do this?
+      *out << "<tr class=\"hide\" id=\"initconf\">" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"init\" onclick=\"gemFSMWebCommand(\'Initialize\',\'"
+           << p_gemApp->m_urn << "\')\">Initialize</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"conf\" onclick=\"gemFSMWebCommand(\'Configure\',\'"
+           << p_gemApp->m_urn << "\')\">Configure</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "</tr>" << std::endl;
+
+      *out << "<tr class=\"hide\" id=\"startstop\">" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"start\" onclick=\"gemFSMWebCommand(\'Start\',\'"
+           << p_gemApp->m_urn << "\')\">Start</button>"
+           << "<button class=\"hide\" id=\"stop\" onclick=\"gemFSMWebCommand(\'Stop\',\'"
+           << p_gemApp->m_urn << "\')\">Stop</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"pause\" onclick=\"gemFSMWebCommand(\'Pause\',\'"
+           << p_gemApp->m_urn << "\')\">Pause</button>"
+           << "<button class=\"hide\" id=\"resume\" onclick=\"gemFSMWebCommand(\'Resume\',\'"
+           << p_gemApp->m_urn << "\')\">Resume</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "</tr>" << std::endl;
+
+      *out << "<tr class=\"hide\" id=\"haltreset\">" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"halt\" onclick=\"gemFSMWebCommand(\'Halt\',\'"
+           << p_gemApp->m_urn << "\')\">Halt</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"reset\" onclick=\"gemFSMWebCommand(\'Reset\',\'"
+           << p_gemApp->m_urn << "\')\">Reset</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "</tr>" << std::endl;
+
       *out << "</table>" << std::endl
+           << "</br>"  << std::endl
+           << "Last command was: "          << std::endl
+           << "<div id=\"fsmdebug\"></div>" << std::endl
            << "</td>"  << std::endl
            << "<td>"  << std::endl
-           << cgicc::h3() 
+           << cgicc::h3().set("id","fsmState") 
         //change the colour to red if failed maybe
            << dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState()
            << cgicc::h3() << std::endl
@@ -263,6 +252,11 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
       ERROR("Something went wrong displaying web control panel(std): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
+
+    std::string updateLink = "/" + p_gemApp->m_urn + "/stateUpdate";
+    *out << cgicc::script().set("type","text/javascript") << std::endl
+         << "    updateStateTable( \"" << updateLink << "\" );" << std::endl
+         << cgicc::script() << std::endl;
   }//only when the GEMFSM has been created
 }
 
@@ -292,6 +286,17 @@ void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out
   DEBUG("jsonUpdate");
 }
 */
+void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  *out << " {" << std::endl;
+  *out << "   \"name\":\"fsmState\"" << ",\"value\": \"" 
+       << dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState()
+       << "\"" << std::endl;
+  *out << " }" << std::endl;
+}
+
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
@@ -314,14 +319,14 @@ void gem::base::GEMWebApplication::webInitialize(xgi::Input * in, xgi::Output * 
   DEBUG("webInitialize begin");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    // try {
-    //   p_gemFSMApp->fireEvent("Initialize");
-    // } catch( toolbox::fsm::exception::Exception& e ) {
-    //   XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
-    //}
+    try {
+      p_gemFSMApp->fireEvent("Initialize");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
+    }
   }
-  DEBUG("webInitialize end");
-  webRedirect(in,out);
+  //DEBUG("webInitialize end");
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the startup (enable) routine*/
@@ -331,13 +336,13 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
   DEBUG("webEnable");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    //try {
-    //  p_gemFSMApp->fireEvent("Enable");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Enable failed", e );
-    //}
+    try {
+      p_gemFSMApp->fireEvent("Enable");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Enable failed", e );
+    }
   }
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the configure routine*/
@@ -347,13 +352,13 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * o
   DEBUG("webConfigure");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Configure");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
-    //}
+    try{
+      p_gemFSMApp->fireEvent("Configure");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
+    }
   }
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the start routine*/
@@ -363,13 +368,13 @@ void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
   DEBUG("webStart");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Start");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
-    //}
+    try{
+      p_gemFSMApp->fireEvent("Start");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
+    }
   }
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
@@ -378,13 +383,13 @@ void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
   DEBUG("webPause");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Pause");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
-    //}
+    try{
+      p_gemFSMApp->fireEvent("Pause");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
+    }
   }
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the resume routine*/
@@ -394,13 +399,13 @@ void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
   DEBUG("webResume");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Resume");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
-    //}
+    try{
+      p_gemFSMApp->fireEvent("Resume");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
+    }
   }
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the stop routine*/
@@ -410,13 +415,13 @@ void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
   DEBUG("webStop");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Stop");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
-    //}
+    try{
+      p_gemFSMApp->fireEvent("Stop");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
+    }
   }
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the halt routine*/
@@ -426,13 +431,13 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
   DEBUG("webHalt");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Halt");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
-    //}
+    try{
+      p_gemFSMApp->fireEvent("Halt");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
+    }
   }
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the reset routine*/
@@ -442,13 +447,13 @@ void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
   DEBUG("webReset");
   if (p_gemFSMApp) {
     DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Reset");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
-    //}
+    try{
+      p_gemFSMApp->fireEvent("Reset");
+    } catch( toolbox::fsm::exception::Exception& e ) {
+      XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
+    }
   }
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 void gem::base::GEMWebApplication::buildCfgWebpage()
