@@ -276,6 +276,7 @@ void gem::supervisor::GEMSupervisor::sendRunNumber(uint32_t const& runNumber, xd
   throw (gem::supervisor::exception::Exception)
 {
   INFO(std::string("GEMSupervisor::sendRunType to ")+ad->getClassName());
-  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber","xsd:unsignedInt",m_runNumber.toString(),
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber","xsd:unsignedInt",
+                                                             m_runNumber.toString(),
                                                              p_appContext,p_appDescriptor,ad);
 }
