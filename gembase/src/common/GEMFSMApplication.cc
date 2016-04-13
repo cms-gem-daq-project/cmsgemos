@@ -106,7 +106,7 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   workLoopName = tmpLoopName.str();
   DEBUG("GEMFSMApplication::Created workloop name " << workLoopName);
 
-  m_state = m_gemfsm.getCurrentState();
+  updateState();
   
   p_appInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
   //p_appStateInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
@@ -132,7 +132,10 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   p_appInfoSpaceToolBox->createString(     "State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
   p_appStateInfoSpaceToolBox->createString("State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
   //p_appInfoSpace->fireItemAvailable("State",&m_state);
-  p_appInfoSpace->fireItemValueRetrieve("State");
+  p_appInfoSpace->addItemRetrieveListener("State", this);
+  p_appInfoSpace->addItemChangedListener( "State", this);
+
+  p_appInfoSpace->fireItemValueRetrieve(  "State");
   //gemAppStateInfoSpace_.setFSMState(m_gemfsm.getCurrentStateName());
 
   DEBUG("GEMFSMApplication::ctor end");
@@ -307,7 +310,7 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
     XCEPT_RETHROW(toolbox::fsm::exception::Exception,"State Transition Failed","...");
     }*/
   //set a transition message to "Success"
-  //m_state = m_gemfsm.getCurrentState();
+  updateState();
   //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
 }
 
@@ -334,7 +337,7 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
   } catch (toolbox::task::exception::Exception& e) {
     XCEPT_RETHROW(gem::utils::exception::Exception,"Workloop failure",e);
   }
-  //m_state = m_gemfsm.getCurrentState();
+  updateState();
   //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
   DEBUG("GEMFSMApplication::workloopDriver end");
 }
@@ -359,7 +362,7 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
   // really, doe we need this here?
   INFO("GEMFSMApplication::Firing 'IsInitial' into the FSM");
   fireEvent("IsInitial");
-  //m_state = m_gemfsm.getCurrentState();
+  updateState();
   //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
 }
 
@@ -374,7 +377,7 @@ void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine
   throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSMApplication::stateChanged");
-  //m_state = m_gemfsm.getCurrentState();
+  updateState();
   //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
 }
 
@@ -382,7 +385,7 @@ void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference ev
   throw (toolbox::fsm::exception::Exception)
 {
   WARN("GEMFSMApplication::transitionFailed(" <<event->type() << ")");
-  //m_state = m_gemfsm.getCurrentState();
+  updateState();
   //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
 }
 
@@ -396,7 +399,7 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
   } catch (toolbox::fsm::exception::Exception & e) {
     XCEPT_RETHROW(::xoap::exception::Exception, "invalid command", e);
   }
-  //m_state = m_gemfsm.getCurrentState();
+  updateState();
   //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
 }
 
@@ -408,7 +411,7 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
 xoap::MessageReference gem::base::GEMFSMApplication::changeState(xoap::MessageReference msg)
 {
   DEBUG("GEMFSMApplication::changeState");
-  //m_state = m_gemfsm.getCurrentState();
+  updateState();
   //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
   return m_gemfsm.changeState(msg);
 }

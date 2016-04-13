@@ -34,7 +34,7 @@ typedef std::shared_ptr<int*> link_shared_ptr;
 typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
 typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
 typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
-
+//
 //why are these global and not part of the header???
 std::vector<AMCVFATData> vfats;
 std::vector<AMCVFATData> erros;
@@ -338,7 +338,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
       // VFATs Pay Load
       geb.vfats.push_back(*iVFAT);
       int islot = slotInfo->GEBslotIndex((uint32_t)(*iVFAT).ChipID);
-      DEBUG(" ::GEMEventMaker slot number " << islot );
+      DEBUG(" ::GEMevSelector slot number " << islot );
  
       if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ) {
         if ( vfats.size() == nChip ) {
@@ -651,14 +651,8 @@ void gem::readout::GEMDataParker::readVFATblock(std::queue<uint32_t>& dataque)
 
 void gem::readout::GEMDataParker::ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2)
 {
-
   m_latency = latency;
   m_VT1 = VT1;
   m_VT2 = VT2;
-
-  INFO( " Dataparker scan routines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
-
+  DEBUG("GEMDataParker::ScanRoutines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
 }
-
-     
-

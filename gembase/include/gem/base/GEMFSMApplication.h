@@ -174,6 +174,11 @@ namespace gem {
       toolbox::task::WorkLoop *p_wl;
 
     protected:
+      /* updateState
+       * 
+       */
+      void updateState() {m_state = m_gemfsm.getCurrentState();};
+
       std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appStateInfoSpaceToolBox;
 
       xdata::InfoSpace* p_appStateInfoSpace;

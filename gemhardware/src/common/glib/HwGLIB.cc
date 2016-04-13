@@ -710,17 +710,18 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 }
 
 
-void gem::hw::glib::HwGLIB::enableDAQLink()
+/////DAQ link module functions ///////
+void gem::hw::glib::HwGLIB::enableDAQLink(uint32_t const& killMask)
 {
-  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_KILL_MASK", 0x3);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_KILL_MASK", killMask);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAQ_ENABLE", 0x1);
 }
 
-void gem::hw::glib::HwGLIB::resetDAQLink()
+void gem::hw::glib::HwGLIB::resetDAQLink(uint32_t const& davTO)
 {
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x1);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x0);
-  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAV_TIMEOUT", 0x3d090);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAV_TIMEOUT", davTO);
 }
 
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkControl()
@@ -732,22 +733,32 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkStatus()
 {
   return readReg(getDeviceBaseNode(),"DAQ.STATUS");
 }
-/*
-uint32_t gem::hw::glib::HwGLIB::getDAQLinkFlags()
+
+bool gem::hw::glib::HwGLIB::daqLinkReady()
 {
-  return readReg(getDeviceBaseNode(),"DAQ.FLAGS");
+  return readReg(getDeviceBaseNode(),"DAQ.STATUS.DAQ_LINK_RDY");
 }
 
-uint32_t gem::hw::glib::HwGLIB::getDAQLinkCorruptCount()
+bool gem::hw::glib::HwGLIB::daqClockLocked()
 {
-  return readReg(getDeviceBaseNode(),"DAQ.CORRUPT_CNT");
+  return readReg(getDeviceBaseNode(),"DAQ.STATUS.DAQ_CLK_LOCKED");
 }
 
-uint32_t gem::hw::glib::HwGLIB::getDAQLinkEventsBuilt()
+bool gem::hw::glib::HwGLIB::daqTTCReady()
 {
-  return readReg(getDeviceBaseNode(),"DAQ.EVT_BUILT");
+  return readReg(getDeviceBaseNode(),"DAQ.STATUS.TTC_RDY");
 }
-*/
+
+bool gem::hw::glib::HwGLIB::daqAlmostFull()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.STATUS.DAQ_AFULL");
+}
+
+uint8_t gem::hw::glib::HwGLIB::daqTTSState()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.STATUS.TTS_STATE");
+}
+
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkEventsSent()
 {
   return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.EVT_SENT");
@@ -757,18 +768,7 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkL1AID()
 {
   return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.L1AID");
 }
-/*
-uint32_t gem::hw::glib::HwGLIB::getDAQLinkDebug(uint8_t const& mode)
-{
-  if (mode < 0 || mode > 6 ) {
-    ERROR("Invalid DAQ LINK debug register (" << (int)mode << " specified. Expected 0-6");
-    return 0;
-  }
-  std::stringstream regName;
-  regName << "DAQ.DEBUG_" << (int)mode;
-  return readReg(getDeviceBaseNode(),regName.str());
-}
-*/
+
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkDisperErrors()
 {
   return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.DISPER_ERR");
@@ -797,9 +797,10 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkDAVTimer(bool const& max)
     return readReg(getDeviceBaseNode(),"DAQ.EXT_STATUS.LAST_DAV_TIMER");
 }
 
-// GTX specific DAQ link information
+///// GTX specific DAQ link information /////
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkStatus(uint8_t const& gtx)
 {
+  // do link protections here...
   std::stringstream regBase;
   regBase << "DAQ.GTX" << (int)gtx;
   return readReg(getDeviceBaseNode(),regBase.str()+".STATUS");
@@ -827,6 +828,11 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkInputTimeout()
   return readReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.INPUT_TIMEOUT");
 }
 
+uint32_t gem::hw::glib::HwGLIB::getDAQLinkRunType()
+{
+  return readReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_TYPE");
+}
+
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkRunParameters()
 {
   return readReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_PARAMS");
@@ -839,14 +845,14 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkRunParameter(uint8_t const& parameter)
   return readReg(getDeviceBaseNode(),regBase.str());
 }
 
-uint32_t gem::hw::glib::HwGLIB::getDAQLinkRunType()
-{
-  return readReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_TYPE");
-}
-
 void gem::hw::glib::HwGLIB::setDAQLinkInputTimeout(uint32_t const& value)
 {
   return writeReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.INPUT_TIMEOUT",value);
+}
+
+void gem::hw::glib::HwGLIB::setDAQLinkRunType(uint32_t const& value)
+{
+  return writeReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_TYPE",value);
 }
 
 void gem::hw::glib::HwGLIB::setDAQLinkRunParameters(uint32_t const& value)
@@ -856,13 +862,50 @@ void gem::hw::glib::HwGLIB::setDAQLinkRunParameters(uint32_t const& value)
 
 void gem::hw::glib::HwGLIB::setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value)
 {
+  if (parameter < 1 || parameter > 3) {
+    std::string msg = toolbox::toString("Attempting to set DAQ link run parameter %d: outside expectation (1-%d)",
+                                        (int)parameter,3);
+    ERROR(msg);
+    return;
+  }
   std::stringstream regBase;
   regBase << "DAQ.EXT_CONTROL.RUN_PARAM" << (int) parameter;
-  return writeReg(getDeviceBaseNode(),regBase.str(),value);
+  writeReg(getDeviceBaseNode(),regBase.str(),value);
 }
 
-void gem::hw::glib::HwGLIB::setDAQLinkRunType(uint32_t const& value)
+/////TTC module functions ///////
+uint32_t gem::hw::glib::HwGLIB::getTTCControl()
 {
-  return writeReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_TYPE",value);
+  return readReg(getDeviceBaseNode(),"TTC.CONTROL");
+}
+
+gem::GLIBTTCEncoding gem::hw::glib::HwGLIB::getTTCEncoding()
+{
+  return (GLIBTTCEncoding)readReg(getDeviceBaseNode(),"TTC.CONTROL.GEMFORMAT");
+}
+
+bool gem::hw::glib::HwGLIB::getL1AInhibit()
+{
+  return readReg(getDeviceBaseNode(),"TTC.CONTROL.INHIBIT_L1A");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getTTCSpyBuffer()
+{
+  return readReg(getDeviceBaseNode(),"TTC.SPY");
+}
+
+void gem::hw::glib::HwGLIB::setTTCEncoding(GLIBTTCEncoding ttc_enc)
+{
+  return writeReg(getDeviceBaseNode(),"TTC.CONTROL.GEMFORMAT", (uint32_t)ttc_enc);
+}
+
+void gem::hw::glib::HwGLIB::setL1AInhibit(bool inhibit)
+{
+  return writeReg(getDeviceBaseNode(),"TTC.CONTROL.INHIBIT_L1A", (uint32_t)inhibit);
+}
+
+void gem::hw::glib::HwGLIB::resetTTC()
+{
+  return writeReg(getDeviceBaseNode(),"TTC.CONTROL.RESET",0x1);
 }
 
