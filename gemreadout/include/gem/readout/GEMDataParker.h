@@ -133,9 +133,6 @@ namespace gem {
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
       std::queue<uint32_t> m_dataque;
-
-
-
       
       //type of run
       GEMRunType m_runType;

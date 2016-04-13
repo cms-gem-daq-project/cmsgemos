@@ -51,7 +51,7 @@ namespace gem {
 	
         static std::pair<std::string,std::string> extractCommandWithParameter(xoap::MessageReference const& msg);
 	
-        /**
+         /**
          * @param cmd command to send to the application
          * @param parameter parameter to send to the application
          * @param appCxt context in which the source/receiver applications are running
@@ -60,6 +60,24 @@ namespace gem {
          * returns true if successful/completed
          */
         static bool sendCommandWithParameter(std::string const& cmd, int const& parameter,
+                                             xdaq::ApplicationContext* appCxt,
+                                             xdaq::ApplicationDescriptor* srcDsc,
+                                             xdaq::ApplicationDescriptor* destDsc
+                                             )
+          throw (gem::utils::exception::Exception);
+	
+         /**
+         * @param parName Name of the parameter in the destination application info space
+         * @param parType xsd type of the specified parameter
+         * @param parValue parameter value (as string) to send in SOAP message
+         * @param appCxt context in which the source/receiver applications are running
+         * @param srcDsc source application descriptor
+         * @param destDsc destination application descriptor
+         * returns true if successful/completed
+         */
+        static bool sendApplicationParameter(std::string const& parName,
+                                             std::string const& parType,
+                                             std::string const& parValue,
                                              xdaq::ApplicationContext* appCxt,
                                              xdaq::ApplicationDescriptor* srcDsc,
                                              xdaq::ApplicationDescriptor* destDsc
