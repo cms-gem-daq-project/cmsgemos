@@ -40,29 +40,24 @@ function staterequest( jsonurl )
 function showTable( )
 {
     //console.log("showTable()");
-    // why is this "undefined"?
-    //var state = $("h3#fsmState").text;
-    // but this one works...
     document.getElementById("fsmdebug").innerHTML = document.getElementById("fsmdebug").innerHTML;
     var state = document.getElementById("fsmState").innerHTML;
-    //console.log("html" + $("h3#fsmState").html);
-    //console.log("text" + $("h3#fsmState").text);
-    //console.log("innerHTML" + $("h3#fsmState").innerHTML);
-    console.log("building the status table, state is " + state);
-    if (state == "Initial") {
+    //console.log("building the status table, state is " + state);
+    if (state.indexOf("ing") > 0 && state != "Running") {
+        $("tr.hide#initconf" ).hide();
+        $("tr.hide#startstop").hide();
+        $("tr.hide#haltreset").hide();
+    } else if (state == "Initial") {
         // show only Initialize button
-        //console.log("hiding the conf button");
+        $("tr.hide#initconf").show();
         $("button.hide#init").show();
         $("button.hide#conf").hide();
         // hide startstop tr
-        //console.log("hiding the startstop tr");
         $("tr.hide#startstop").hide();
         // hide haltreset tr
-        //console.log("hiding the haltreset tr");
         $("tr.hide#haltreset").hide();
     } else {
         // hide Initialize button
-        //console.log("hiding the halt button");
         $("tr.hide#initconf").show();
         $("button.hide#init").hide();
         $("button.hide#conf").show();
@@ -70,11 +65,9 @@ function showTable( )
         // startstop tr
         if (state == "Halted") {
             // hide startstop tr
-            //console.log("hiding the startstop tr");
             $("tr.hide#startstop").hide();
         } else if (state == "Configured") {
             // hide stop/pause/resume buttons
-            //console.log("hiding the stop/pause/resume buttons"); 
             $("tr.hide#startstop" ).show();
             $("button.hide#start" ).show();
             $("button.hide#stop"  ).hide();
@@ -82,7 +75,6 @@ function showTable( )
             $("button.hide#resume").hide();
         } else if (state == "Running") {
             // hide stop/resume buttons
-            //console.log("hiding the start/resume buttons");
             $("tr.hide#startstop" ).show();
             $("button.hide#start" ).hide();
             $("button.hide#stop"  ).show();
@@ -90,24 +82,22 @@ function showTable( )
             $("button.hide#resume").hide();
         } else if (state == "Paused") {
             // hide pause button
-            //console.log("hiding the pause button");
             $("tr.hide#startstop" ).show();
             $("button.hide#start" ).hide();
             $("button.hide#stop"  ).show();
             $("button.hide#pause" ).hide();
             $("button.hide#resume").show();
         }
+        
         // haltreset tr
         if (state == "Halted"  || state == "Configured" ||
             state == "Running" || state == "Paused") {
-            //console.log("showing the halt/reset buttons");
             // show halt/reset buttons
             $("tr.hide#haltreset").show();
             $("button.hide#halt" ).show();
             $("button.hide#reset").show();
         } else if (state == "Failed" || state == "Error") {
             // hide halt button
-            //console.log("hiding the halt button");
             $("tr.hide#haltreset").show();
             $("button.hide#halt" ).hide();
             $("button.hide#reset").show();
@@ -126,16 +116,23 @@ function updateStateTable( statejson )
 function gemFSMWebCommand( command, url )
 {
     //console.log("gemFSMWebCommand( \""+command+"\" )");
-    // $("input#fsmcommand").val( command );
-    fsmdebug( "setting command to " + command );
-    //$("form#fsmControl").submit();
+    // want to hide the control table when the button is pressed
+    $("tr.hide#initconf" ).hide();
+    $("tr.hide#startstop").hide();
+    $("tr.hide#haltreset").hide();
+    fsmdebug( command );
     var xmlhttp;
     if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
         xmlhttp=new XMLHttpRequest();
     } else {// code for IE6, IE5
         xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
     }
-    xmlhttp.open("POST", "/"+url+"/"+command, true);
+    xmlhttp.open("POST", url+"/"+command, true);
     xmlhttp.send();
+    staterequest( url+"/stateUpdate" );
+    $("tr.hide#initconf" ).hide();
+    $("tr.hide#startstop").hide();
+    $("tr.hide#haltreset").hide();
+    showTable();
 };
 
