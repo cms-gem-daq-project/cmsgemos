@@ -204,7 +204,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //enable specified AMCs
   m_slotMask = p_amc13->parseInputEnableList(m_amcInputEnableList,true);
   p_amc13->AMCInputEnable(m_slotMask);
-  usleep(500);
+  //  usleep(500);
 
   // Use local TTC signal if config doc says so
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
@@ -229,7 +229,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
   
   int chan = 1;
-  uint8_t cmd = 0x13;
+  uint8_t cmd = 0x14;
   uint16_t bx = 0x1;
   uint16_t prescale =0x1;
   bool repeat = true;
@@ -369,52 +369,6 @@ void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
 }
 
 
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackinitialize(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Initializing AMC13---------------");
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"AMC13State before " <<  getCurrentState());
-
-  fireEvent("Initialize");
-
-// reply to caller                                                                     
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-  //  (void) envelope.getBody().addBodyElement ( responseName );
-  
-   std::string state = getCurrentState();
-   is_initialized_=true;
-   INFO("STATE AMC13MAnager 1 SOAP INI: " << state << "  " << is_initialized_);
-
-   LOG4CPLUS_INFO(this->getApplicationLogger(),"New AMC13State " <<  getCurrentState());
-   return reply;
-}
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackconfigure(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Configuring AMC13---------------");
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"AMC13State before " <<  getCurrentState());
-   fireEvent("Configure");
-
-  // reply to caller                                                                    
-   xoap::MessageReference reply         = xoap::createMessage();
-   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-   xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-   xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-  
-   while( getCurrentState() != "Configured"){
-     sleep(0.001);
-     is_configured_ = false;
-   }
-   is_configured_ = true;
-   
-   LOG4CPLUS_INFO(this->getApplicationLogger(),"New AMC13State " <<  getCurrentState());
-   return reply;
-}
-
 xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackstart(xoap::MessageReference msg) throw (xoap::exception::Exception)
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Starting AMC13---------------");
@@ -438,68 +392,3 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackstart(xoap::Message
    return reply;
    
 }
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackpause(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Pausing AMC13---------------");
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"AMC13State before " <<  getCurrentState());
-  fireEvent("Pause");
-
-  // reply to caller                                                                       
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-
-   while( getCurrentState() != "Paused"){
-     sleep(0.001);
-     is_running_ = false;
-   }
-   is_running_ = true;
-
-   LOG4CPLUS_INFO(this->getApplicationLogger(),"New AMC13State " <<  getCurrentState());
-   return reply;
-     
-}
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackresume(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Resumingsing AMC13---------------");
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"AMC13State before " <<  getCurrentState());
-  fireEvent("Resume");
-
-  // reply to caller                                                                       
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
- 
-   while( getCurrentState() != "Running"){
-     sleep(0.001);
-     is_running_ = false;
-   }
-   is_running_ = true;
-
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"New AMC13State " <<  getCurrentState());
-  return reply;
-     
-}
-
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackstop(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Stoping AMC13---------------");
-  fireEvent("Stop");
-
-  // reply to caller                                                                       
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-
-  return reply;
-
-}
-
-
-

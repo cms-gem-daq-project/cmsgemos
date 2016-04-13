@@ -21,6 +21,23 @@ namespace gem {
 	  throw (xdaq::exception::Exception);
 	~LatencyScan();
 
+	//SOAP MEssage AMC13	
+	void sendConfigureMessageAMC13()
+	  throw (xgi::exception::Exception);
+	bool sendStartMessageAMC13()
+	  throw (xgi::exception::Exception);
+	void sendPauseMessageAMC13()
+	  throw (xgi::exception::Exception);
+	void sendResumeMessageAMC13()
+	  throw (xgi::exception::Exception);
+
+	//SOAP MEssage GLIB	
+	void sendConfigureMessageGLIB()
+	  throw (xgi::exception::Exception);
+	bool sendStartMessageGLIB()
+	  throw (xgi::exception::Exception);
+
+
 	// HyperDAQ interface
 	void webDefault(xgi::Input *in, xgi::Output *out)
 	  throw (xgi::exception::Exception);
@@ -75,6 +92,8 @@ namespace gem {
       uint8_t  currentLatency_;
       uint64_t stepSize_,eventsSeen_,channelSeen_;
       uint64_t totaltriggercounter_;
+      int totaltriggers;
+
       protected:
 	  
       };

@@ -1287,9 +1287,8 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
 
   hw_semaphore_.take();
-
+  //----------------AMC13 Initialize
   sendInitializeMessageAMC13();
-
   sendInitializeMessageGLIB();
 
   std::stringstream tmpURI;
@@ -1449,7 +1448,6 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
   wl_->submit(stopSig_);
 
   sendStopMessageGLIB(); 
-   
   sendStopMessageAMC13();    
 
   
@@ -1716,8 +1714,8 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  //xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPName command = envelope.createName("CallBackInitialize","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
+  //  xoap::SOAPName command = envelope.createName("CallBackInitialize","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -1742,7 +1740,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageAMC13()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("CallBackStop","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("Stop","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
