@@ -72,9 +72,6 @@ namespace gem {
   namespace readout {
     struct VFATData;
   }
-  namespace readout {
-    class GEMDataParker;
-  }
 
   typedef std::shared_ptr<hw::vfat::HwVFAT2 > vfat_shared_ptr;
   typedef std::shared_ptr<hw::glib::HwGLIB >  glib_shared_ptr;
@@ -98,19 +95,32 @@ namespace gem {
 	  virtual void fireEvent(const std::string& name);
 	  
 	  // SOAP interface
-	  virtual xoap::MessageReference onInitialize(xoap::MessageReference message)
+	  virtual xoap::MessageReference onInitialize(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onConfigure(xoap::MessageReference message)
+	  virtual xoap::MessageReference onConfigure(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onStart(xoap::MessageReference message)
+	  virtual xoap::MessageReference onStart(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onStop(xoap::MessageReference message)
+	  virtual xoap::MessageReference onStop(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onHalt(xoap::MessageReference message)
+	  virtual xoap::MessageReference onHalt(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference onReset(xoap::MessageReference message)
+	  virtual xoap::MessageReference onReset(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
 
+	  //SOAP MEssage AMC13	
+	  void sendInitializeMessageAMC13()
+	    throw (xgi::exception::Exception);
+	  void sendStopMessageAMC13()
+	    throw (xgi::exception::Exception);
+	  
+
+	  //SOAP MEssage GLIB	
+	  void sendInitializeMessageGLIB()
+	    throw (xgi::exception::Exception);
+	  void sendStopMessageGLIB()
+	    throw (xgi::exception::Exception);
+	
 	  // HyperDAQ interface
 	  virtual void webDefault(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);
@@ -139,7 +149,6 @@ namespace gem {
 	  virtual bool halt(      toolbox::task::WorkLoop* wl);
 	  virtual bool reset(     toolbox::task::WorkLoop* wl);
 	  virtual bool run(       toolbox::task::WorkLoop* wl)=0;
-	  virtual bool readFIFO(  toolbox::task::WorkLoop* wl)=0;
 
 	  // State transitions
 	  virtual void initializeAction(toolbox::Event::Reference e)
@@ -182,9 +191,9 @@ namespace gem {
 	    throw (xgi::exception::Exception);
 
 	  //link data parker and scan routines
-	  void dumpRoutinesData( uint8_t const& mask, uint8_t latency, uint8_t VT1, uint8_t VT2 );
+	  void dumpRoutinesData( uint8_t const& mask, u_int8_t latency, u_int8_t VT1, u_int8_t VT2 );
 
-	  void ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2);
+	  void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
 
 	  class ConfigParams 
 	  {
@@ -210,7 +219,6 @@ namespace gem {
 	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedInteger64 triggersSeen;
-	    xdata::UnsignedInteger64 triggersSeenGLIB;
 
 	    xdata::UnsignedInteger32 triggercount;
 	    
@@ -219,7 +227,7 @@ namespace gem {
 
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
-	    // duplicate? xdata::UnsignedShort triggerSource;
+	    xdata::UnsignedShort triggerSource_;
 
 	  };
 	  
@@ -229,7 +237,7 @@ namespace gem {
 
 	  log4cplus::Logger m_gemLogger;
 
-	  toolbox::fsm::AsynchronousFiniteStateMachine* p_fsm;
+	  toolbox::fsm::AsynchronousFiniteStateMachine* fsmP_;
 
 	  toolbox::task::WorkLoop *wl_;
 	  toolbox::BSem wl_semaphore_;
@@ -242,58 +250,53 @@ namespace gem {
 	  toolbox::task::ActionSignature* haltSig_;
 	  toolbox::task::ActionSignature* resetSig_;
 	  toolbox::task::ActionSignature* runSig_;
-	  toolbox::task::ActionSignature* readSig_;
 
 	  //ConfigParams confParams_;
-	  uint8_t m_readout_mask;
+	  uint8_t readout_mask;
 
 
-	  xdata::Bag<ConfigParams> m_confParams;
-	  xdata::String m_ipAddr;
+	  xdata::Bag<ConfigParams> confParams_;
+	  xdata::String ipAddr_;
 	  
 	  FILE* outputFile;
 	  //std::fstream* scanStream;
 	  //0xdeadbeef
 
-	  uint64_t m_nTriggers;
+	  uint64_t nTriggers_;
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
 
 	  //readout application should be running elsewhere, not tied to supervisor                                                                           
-	  glib_shared_ptr p_glibDevice;
-	  optohybrid_shared_ptr p_optohybridDevice;
-	  std::vector<vfat_shared_ptr> p_vfatDevice;
+	  glib_shared_ptr glibDevice_;
+	  optohybrid_shared_ptr optohybridDevice_;
+	  std::vector<vfat_shared_ptr> vfatDevice_;
 	  std::vector<vfat_shared_ptr> VFATdeviceConnected;
 
-	  
-	  std::shared_ptr<gem::readout::GEMDataParker> p_gemDataParker;
-	  
-	  
 	  // Counter
-
-	  
 	  // VFAT Blocks Counter
-	  int m_vfat;
+	  int vfat_;
 	  
 	  // Events Counter     
-	  int m_event;
+	  int event_;
 	  
 	  // VFATs counter per event
-	  int m_sumVFAT;
+	  int sumVFAT_;
 
 	  // CalPulse counting
-	  uint32_t m_CalPulseCount[3];
+	  uint32_t CalPulseCount_[3];
 	  
-	  //TH1D* m_histolatency;//obsolete?
-	  //TH1F* m_histo;       //obsolete?
-	  //TH1F* m_histos[128]; //obsolete?
-	  //TCanvas* m_outputCanvas;//obsolete?
+	  TH1D* histolatency;
+	  TH1F* histo;
+	  TH1F* histos[128];
+	  TCanvas* outputCanvas;
 
-          // TStopwatch m_timer;//obsolete?
+          TStopwatch timer;
 
-	  //xdata::Bag<ConfigParams> m_scanParams;
-	  uint64_t m_eventsSeen, m_channelSeen;
-	  uint64_t m_triggerSource;
-	  uint8_t  m_currentLatency, m_deviceVT1, m_deviceVT2;
+	  xdata::Bag<ConfigParams> scanParams_;
+	  uint64_t eventsSeen_,channelSeen_;
+	  uint64_t triggerSource_;
+	  uint8_t  currentLatency_,deviceVT1,deviceVT2;
+	  uint32_t counter_[5];
+	  //	  int latency_m, VT1_m, VT2_m;
 	  uint32_t m_counter[5]; 
 
 	protected:
