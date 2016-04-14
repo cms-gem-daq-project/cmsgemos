@@ -50,6 +50,7 @@ namespace gem {
           virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
+	  virtual void sendTriggerBurst() throw (gem::hw::amc13::exception::Exception);
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
 	
           virtual void failAction(toolbox::Event::Reference e)
@@ -77,6 +78,8 @@ namespace gem {
 	    xdata::Integer l1Amode;
 	    xdata::Integer l1Arules;
 	    xdata::UnsignedInteger32 l1Aburst;
+	    xdata::Boolean sendl1ATriburst;
+	    xdata::Boolean startl1ATricont;
 
 	    xdata::Boolean enableCalpulse;
             xdata::Integer bgochannel;
@@ -108,10 +111,9 @@ namespace gem {
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
           std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList, m_cardname;
-	  //std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_enableCalpulse, m_bgorepeat;
+          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont, m_enableCalpulse, m_bgorepeat;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgochannel;
 	  uint8_t m_bgocmd;
