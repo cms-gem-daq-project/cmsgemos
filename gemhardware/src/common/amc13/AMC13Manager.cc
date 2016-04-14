@@ -34,6 +34,8 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("L1Amode", &l1Amode );
   bag->addField("L1Arules", &l1Arules );
   bag->addField("L1Aburst", &l1Aburst );
+  bag->addField("sendL1ATriburst", &sendl1ATriburst );
+  bag->addField("startL1ATricont", &startl1ATricont );
 
   bag->addField("EnableCalPulse",      &enableCalpulse );
   bag->addField("BGOChannel",      &bgochannel );
@@ -106,6 +108,8 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_L1Amode            = m_amc13Params.bag.l1Amode.value_;
   m_L1Arules           = m_amc13Params.bag.l1Arules.value_;
   m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
+  m_sendL1ATriburst    = m_amc13Params.bag.sendl1ATriburst.value_;
+  m_startL1ATricont    = m_amc13Params.bag.startl1ATricont.value_;
 
   m_enableCalpulse     = m_amc13Params.bag.enableCalpulse.value_;
   m_bgochannel         = m_amc13Params.bag.bgochannel.value_;
@@ -143,7 +147,6 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
   //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
   std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
-  //std::string cardname    = "gem."+m_cardname+".amc13";
   //std::string cardname    = "gem.shelf01.amc13";
   std::string cardname    = m_cardname;
   try {
@@ -247,10 +250,10 @@ void gem::hw::amc13::AMC13Manager::startAction()
   usleep(500);
   p_amc13->reset(::amc13::AMC13::T1);
   p_amc13->startRun();
-  if (m_enableLocalL1A) 
+  if (m_enableLocalL1A &&  m_startL1ATricont) 
     {
-      p_amc13->enableLocalL1A(m_enableLocalL1A);
       p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+      p_amc13->enableLocalL1A(m_enableLocalL1A);
       p_amc13->startContinuousL1A();
     }
 
@@ -325,4 +328,16 @@ void gem::hw::amc13::AMC13Manager::failAction(toolbox::Event::Reference e)
 
 void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
+}
+
+void gem::hw::amc13::AMC13Manager::sendTriggerBurst()
+  throw (gem::hw::amc13::exception::Exception)
+{
+  //set to send a burst of trigger
+  if (m_enableLocalL1A &&  m_sendL1ATriburst) 
+    {
+      p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+      p_amc13->enableLocalL1A(m_enableLocalL1A);
+      p_amc13->sendL1ABurst();
+    }
 }
