@@ -336,12 +336,12 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
       // VFATs Pay Load
       geb.vfats.push_back(*iVFAT);
       int islot = slotInfo->GEBslotIndex((uint32_t)(*iVFAT).ChipID);
-      DEBUG(" ::GEMEventMaker slot number " << islot );
+      DEBUG(" ::GEMevSelector slot number " << islot );
  
       if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ) {
         if ( vfats.size() == nChip ) {
  
-          gem::readout::GEMDataParker::GEMfillHeaders(m_event, nChip, gem, geb);
+          gem::readout::GEMDataParker::GEMfillHeaders(m_event, 1, gem, geb);
           gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
           // GEM Event Writing
           DEBUG(" ::GEMEventMaker writing...  geb.vfats.size " << int(geb.vfats.size()) );
@@ -645,14 +645,9 @@ void gem::readout::GEMDataParker::readVFATblock(std::queue<uint32_t>& dataque)
 
 void gem::readout::GEMDataParker::ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2)
 {
-
   m_latency = latency;
   m_VT1 = VT1;
   m_VT2 = VT2;
-
-  INFO( " Dataparker scan routines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
-
+  DEBUG("GEMDataParker::ScanRoutines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
 }
-
-     
 

@@ -63,7 +63,7 @@ namespace gem {
 
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
         
-        mutable gem::utils::Lock deviceLock_;
+        mutable gem::utils::Lock m_deviceLock;
         std::vector<xdaq::ApplicationDescriptor*> v_supervisedApps;
         xdaq::ApplicationDescriptor* readoutApp;
       

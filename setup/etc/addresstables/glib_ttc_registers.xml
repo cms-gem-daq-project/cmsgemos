@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="CONTROL"  address="0x0"
+        description="">
+    <node id="GEMFORMAT"    mask="0x1"         permission="rw"/>
+    <node id="INHIBIT_L1A"  mask="0x2"         permission="rw"/>
+    <node id="RESET"        mask="0x80000000"  permission="rw"/>
+  </node>
+  
+  <node id="SPY"  address="0x7"  permission="r"
+        description=""/>
+</node>

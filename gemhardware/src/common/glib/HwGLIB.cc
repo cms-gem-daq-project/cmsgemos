@@ -866,3 +866,33 @@ void gem::hw::glib::HwGLIB::setDAQLinkRunType(uint32_t const& value)
   return writeReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.RUN_TYPE",value);
 }
 
+gem::GLIBTTCEncoding gem::hw::glib::HwGLIB::getTTCEncoding()
+{
+  return (GLIBTTCEncoding)readReg("TTC.CONTROL.GEMFORMAT");
+}
+
+bool gem::hw::glib::HwGLIB::getL1AInhibit()
+{
+  return readReg("TTC.CONTROL.INHIBIT_L1A");
+}
+
+uint32_t gem::hw::glib::HwGLIB::getTTCSpyBuffer()
+{
+  return readReg("TTC.SPY");
+}
+
+void gem::hw::glib::HwGLIB::setTTCEncoding(GLIBTTCEncoding ttc_enc)
+{
+  return writeReg(getDeviceBaseNode(),"TTC.CONTROL.GEMFORMAT", (uint32_t)ttc_enc);
+}
+
+void gem::hw::glib::HwGLIB::setL1AInhibit(bool inhibit)
+{
+  return writeReg(getDeviceBaseNode(),"TTC.CONTROL.INHIBIT_L1A", (uint32_t)inhibit);
+}
+
+void gem::hw::glib::HwGLIB::resetTTC()
+{
+  return writeReg(getDeviceBaseNode(),"TTC.CONTROL.RESET",0x1);
+}
+

@@ -69,20 +69,27 @@ namespace gem {
           } TriggerMode;
         };
 	
+        struct TTCEncoding { //TTCEncoding settings
+          enum ETTCEncoding { //TTCEncoding settings
+            AMC13  = 0x0, //Use the AMC13 style TTC encoding
+            GEMCSC = 0x1, //Use the CSC/GEM style TTC encoding
+          } TTCEncoding;
+        };
+	
       }; //end class GLIBSettings
       
     }//end namespace gem::hw::glib
     
   }//end namespace gem::hw
   
+  //typedef the struct for access to the members via struct::VALUE
+  typedef gem::hw::glib::GLIBLinkSettings::LinkBitMasks   GLIBLinkBitMasks;
+  typedef gem::hw::glib::GLIBLinkSettings::LinkBitShifts  GLIBLinkBitShifts;
+  
+  //typedef the enum for casting and access
+  typedef gem::hw::glib::GLIBSettings::RunMode::ERunMode          GLIBRunMode;
+  typedef gem::hw::glib::GLIBSettings::TriggerMode::ETriggerMode  GLIBTrigMode;
+  typedef gem::hw::glib::GLIBSettings::TTCEncoding::ETTCEncoding  GLIBTTCEncoding;
 }//end namespace gem
-
-//typedef the struct for access to the members via struct::VALUE
-typedef gem::hw::glib::GLIBLinkSettings::LinkBitMasks   GLIBLinkBitMasks;
-typedef gem::hw::glib::GLIBLinkSettings::LinkBitShifts  GLIBLinkBitShifts;
-
-//typedef the enum for casting and access
-typedef gem::hw::glib::GLIBSettings::RunMode::ERunMode                 GLIBRunMode;
-typedef gem::hw::glib::GLIBSettings::TriggerMode::ETriggerMode         GLIBTrigMode;
 
 #endif
