@@ -26,7 +26,7 @@ Sources+=glib/HwGLIB.cc
 Sources+=optohybrid/HwOptoHybrid.cc
 Sources+=vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc 
 Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc 
-Sources+=glib/GLIBManager.cc glib/GLIBManagerWeb.cc glib/GLIBMonitor.cc
+Sources+=glib/GLIBManager.cc glib/GLIBManagerWeb.cc glib/GLIBMonitor.cc glib/GLIBReadout.cc
 Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc
 #Sources+=GEMController.cc GEMControllerPanelWeb.cc
 
@@ -35,19 +35,17 @@ DynamicLibrary=gem_hw
 IncludeDirs =$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(AMC13_STANDALONE_ROOT)/amc13/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
 IncludeDirs+=$(XDAQ_ROOT)/include
 IncludeDirs+=$(uHALROOT)/include
 
 DependentLibraryDirs =$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 DependentLibraryDirs+=$(XDAQ_ROOT)/lib
 DependentLibraryDirs+=$(uHALROOT)/lib
 
 LibraryDirs =$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 LibraryDirs+=$(XDAQ_ROOT)/lib
 LibraryDirs+=$(uHALROOT)/lib
 

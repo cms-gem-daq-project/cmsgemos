@@ -19,6 +19,7 @@ GEMBASE_VER_PATCH=0
 
 Sources =version.cc
 Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc GEMWebApplication.cc GEMMonitor.cc utils/GEMInfoSpaceToolBox.cc
+Sources+=GEMReadoutApplication.cc
 
 DynamicLibrary=gem_base
 

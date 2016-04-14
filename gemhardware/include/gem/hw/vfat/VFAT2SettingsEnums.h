@@ -249,33 +249,33 @@ namespace gem {
     
   }//end namespace gem::hw
   
+  //typedef the struct for access to the members via struct::VALUE
+  typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitMasks   VFAT2ChannelBitMasks;
+  typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitShifts  VFAT2ChannelBitShifts;
+
+  typedef gem::hw::vfat::VFAT2Settings::ContRegBitMasks   VFAT2ContRegBitMasks;
+  typedef gem::hw::vfat::VFAT2Settings::ContRegBitShifts  VFAT2ContRegBitShifts;
+
+  //typedef the enum for casting and access
+  typedef gem::hw::vfat::VFAT2Settings::RunMode::ERunMode                 VFAT2RunMode;
+  typedef gem::hw::vfat::VFAT2Settings::TriggerMode::ETriggerMode         VFAT2TrigMode;
+  typedef gem::hw::vfat::VFAT2Settings::MSPolarity::EMSPolarity           VFAT2MSPol;
+  typedef gem::hw::vfat::VFAT2Settings::CalPolarity::ECalPolarity         VFAT2CalPol;
+  typedef gem::hw::vfat::VFAT2Settings::CalibrationMode::ECalibrationMode VFAT2CalibMode;
+
+  typedef gem::hw::vfat::VFAT2Settings::DACMode::EDACMode             VFAT2DACMode;
+  typedef gem::hw::vfat::VFAT2Settings::ProbeMode::EProbeMode         VFAT2ProbeMode;
+  typedef gem::hw::vfat::VFAT2Settings::LVDSPowerSave::ELVDSPowerSave VFAT2LVDSMode;
+  typedef gem::hw::vfat::VFAT2Settings::ReHitCT::EReHitCT             VFAT2ReHitCT;
+
+  typedef gem::hw::vfat::VFAT2Settings::HitCountMode::EHitCountMode   VFAT2HitCountMode;
+  typedef gem::hw::vfat::VFAT2Settings::MSPulseLength::EMSPulseLength VFAT2MSPulseLength;
+  typedef gem::hw::vfat::VFAT2Settings::DigInSel::EDigInSel           VFAT2DigInSel;
+
+  typedef gem::hw::vfat::VFAT2Settings::TrimDACRange::ETrimDACRange   VFAT2TrimDACRange;
+  typedef gem::hw::vfat::VFAT2Settings::PbBG::EPbBG                   VFAT2PadBandgap;
+  typedef gem::hw::vfat::VFAT2Settings::DFTestPattern::EDFTestPattern VFAT2DFTestPattern;
+
 }//end namespace gem
-
-//typedef the struct for access to the members via struct::VALUE
-typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitMasks   VFAT2ChannelBitMasks;
-typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitShifts  VFAT2ChannelBitShifts;
-
-typedef gem::hw::vfat::VFAT2Settings::ContRegBitMasks   VFAT2ContRegBitMasks;
-typedef gem::hw::vfat::VFAT2Settings::ContRegBitShifts  VFAT2ContRegBitShifts;
-
-//typedef the enum for casting and access
-typedef gem::hw::vfat::VFAT2Settings::RunMode::ERunMode                 VFAT2RunMode;
-typedef gem::hw::vfat::VFAT2Settings::TriggerMode::ETriggerMode         VFAT2TrigMode;
-typedef gem::hw::vfat::VFAT2Settings::MSPolarity::EMSPolarity           VFAT2MSPol;
-typedef gem::hw::vfat::VFAT2Settings::CalPolarity::ECalPolarity         VFAT2CalPol;
-typedef gem::hw::vfat::VFAT2Settings::CalibrationMode::ECalibrationMode VFAT2CalibMode;
-
-typedef gem::hw::vfat::VFAT2Settings::DACMode::EDACMode             VFAT2DACMode;
-typedef gem::hw::vfat::VFAT2Settings::ProbeMode::EProbeMode         VFAT2ProbeMode;
-typedef gem::hw::vfat::VFAT2Settings::LVDSPowerSave::ELVDSPowerSave VFAT2LVDSMode;
-typedef gem::hw::vfat::VFAT2Settings::ReHitCT::EReHitCT             VFAT2ReHitCT;
-
-typedef gem::hw::vfat::VFAT2Settings::HitCountMode::EHitCountMode   VFAT2HitCountMode;
-typedef gem::hw::vfat::VFAT2Settings::MSPulseLength::EMSPulseLength VFAT2MSPulseLength;
-typedef gem::hw::vfat::VFAT2Settings::DigInSel::EDigInSel           VFAT2DigInSel;
-
-typedef gem::hw::vfat::VFAT2Settings::TrimDACRange::ETrimDACRange   VFAT2TrimDACRange;
-typedef gem::hw::vfat::VFAT2Settings::PbBG::EPbBG                   VFAT2PadBandgap;
-typedef gem::hw::vfat::VFAT2Settings::DFTestPattern::EDFTestPattern VFAT2DFTestPattern;
 
 #endif
