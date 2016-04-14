@@ -74,10 +74,11 @@ print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
 
-if (options.daq_enable>=0):
+if (options.daq_enable==0):
         #writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
         writeRegister(glib, "GLIB.DAQ.CONTROL", 0x8)
         #writeRegister(glib, "GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT", 0x30D40)
+if (options.daq_enable>0):
         writeRegister(glib, "GLIB.DAQ.CONTROL", 0x181)
         print "Reset daq_enable: %i"%(options.daq_enable)
 
