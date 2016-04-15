@@ -6,6 +6,7 @@
 
 #include "gem/base/GEMFSMApplication.h"
 #include "gem/hw/amc13/exception/Exception.h"
+//#include "gem/hw/amc13/AMC13Monitoring.hh"
 
 namespace amc13 {
   class AMC13;
@@ -29,27 +30,12 @@ namespace gem {
           AMC13Manager(xdaq::ApplicationStub * s);
 
           virtual ~AMC13Manager();
-
-	  //SOAP MESSAGE
-	  virtual xoap::MessageReference callbackinitialize(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference callbackconfigure(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference callbackstart(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference callbackpause(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference callbackresume(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference callbackstop(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-
-
+	  
         protected:
           virtual void init();
 
           virtual void actionPerformed(xdata::Event& event);
-
+          
           ::amc13::Status *getHTMLStatus()  const;
           ::amc13::AMC13  *getAMC13Device() const {
             return p_amc13;
@@ -64,6 +50,7 @@ namespace gem {
           virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
+	  virtual void sendTriggerBurst() throw (gem::hw::amc13::exception::Exception);
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
 	
           virtual void failAction(toolbox::Event::Reference e)
@@ -71,8 +58,6 @@ namespace gem {
 	
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
-
-
           
           class AMC13Info 
           {   
@@ -80,6 +65,7 @@ namespace gem {
             void registerFields(xdata::Bag<AMC13Info> *bag);
             
             xdata::String connectionFile;
+	    xdata::String amc13CardName;
             xdata::String amcInputEnableList;
             xdata::String amcIgnoreTTSList;
             
@@ -88,13 +74,19 @@ namespace gem {
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
 	    xdata::Boolean enableLocalL1A;
-
-	    xdata::Boolean enableCalpulse;
-
 	    xdata::UnsignedInteger32 internalPeriodicPeriod;
 	    xdata::Integer l1Amode;
 	    xdata::Integer l1Arules;
 	    xdata::UnsignedInteger32 l1Aburst;
+	    xdata::Boolean sendl1ATriburst;
+	    xdata::Boolean startl1ATricont;
+
+	    xdata::Boolean enableCalpulse;
+            xdata::Integer bgochannel;
+            xdata::UnsignedInteger32 bgocmd;
+            xdata::UnsignedInteger32 bgobx;
+            xdata::UnsignedInteger32 bgoprescale;
+	    xdata::Boolean bgorepeat;
 
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
@@ -109,7 +101,7 @@ namespace gem {
         private:
           mutable gem::utils::Lock m_amc13Lock;
 	
-          ::amc13::AMC13* p_amc13;
+          ::amc13::AMC13 *p_amc13;
 	  //hcal::utca::DTCMonitoring m_monitoringHelper; to be developed!!!
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
@@ -118,22 +110,21 @@ namespace gem {
           xdata::Bag<AMC13Info> m_amc13Params;
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
-          std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
+          std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList, m_cardname;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A;
-
-          bool m_enableCalpulse;
-
+          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont, m_enableCalpulse, m_bgorepeat;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
-          int m_prescaleFactor, m_bcOffset;
+          int m_prescaleFactor, m_bcOffset, m_bgochannel;
+	  uint8_t m_bgocmd;
+	  uint16_t m_bgobx, m_bgoprescale;
           uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
           uint64_t m_localL1AMask;
 	  
           ////counters
 
         protected:
-	  bool is_initialized_, is_configured_, is_running_, is_paused_, is_resumed_;	  
+	  
         }; //end class AMC13Manager
 
     }//end namespace gem::hw::amc13
