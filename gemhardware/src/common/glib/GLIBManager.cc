@@ -453,10 +453,10 @@ void gem::hw::glib::GLIBManager::resetAction()
 }
 
 /*
-void gem::hw::glib::GLIBManager::noAction()
+  void gem::hw::glib::GLIBManager::noAction()
   throw (gem::hw::glib::exception::Exception)
-{
-}
+  {
+  }
 */
 
 void gem::hw::glib::GLIBManager::failAction(toolbox::Event::Reference e)

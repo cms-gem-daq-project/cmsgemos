@@ -205,7 +205,7 @@ void gem::supervisor::GEMSupervisor::stopAction()
 void gem::supervisor::GEMSupervisor::haltAction()
   throw (gem::supervisor::exception::Exception)
 {
-   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
     INFO(std::string("Halting ")+(*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",p_appContext,p_appDescriptor,*i);
   }
