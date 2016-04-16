@@ -113,7 +113,8 @@ namespace gem {
           std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList, m_cardname;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont, m_enableCalpulse, m_bgorepeat;
+          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,
+            m_enableCalpulse, m_bgorepeat, m_bgolong;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgochannel;
 	  uint8_t m_bgocmd;
