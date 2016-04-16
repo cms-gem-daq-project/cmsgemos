@@ -37,9 +37,7 @@ namespace gem {
           virtual void actionPerformed(xdata::Event& event);
           
           ::amc13::Status *getHTMLStatus()  const;
-          ::amc13::AMC13  *getAMC13Device() const {
-            return p_amc13;
-          };
+          ::amc13::AMC13  *getAMC13Device() const { return p_amc13; };
 
           //state transitions
           virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
@@ -82,11 +80,13 @@ namespace gem {
 	    xdata::Boolean startl1ATricont;
 
 	    xdata::Boolean enableCalpulse;
-            xdata::Integer bgochannel;
+            // can configure up to 4 BGO channels
+            xdata::Integer           bgochannel;
             xdata::UnsignedInteger32 bgocmd;
             xdata::UnsignedInteger32 bgobx;
             xdata::UnsignedInteger32 bgoprescale;
-	    xdata::Boolean bgorepeat;
+	    xdata::Boolean           bgorepeat;
+	    xdata::Boolean           bgolong;
 
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
