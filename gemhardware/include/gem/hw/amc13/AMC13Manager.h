@@ -37,9 +37,7 @@ namespace gem {
           virtual void actionPerformed(xdata::Event& event);
           
           ::amc13::Status *getHTMLStatus()  const;
-          ::amc13::AMC13  *getAMC13Device() const {
-            return p_amc13;
-          };
+          ::amc13::AMC13  *getAMC13Device() const { return p_amc13; };
 
           //state transitions
           virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
@@ -50,6 +48,7 @@ namespace gem {
           virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
+	  virtual void sendTriggerBurst() throw (gem::hw::amc13::exception::Exception);
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
 	
           virtual void failAction(toolbox::Event::Reference e)
@@ -64,7 +63,7 @@ namespace gem {
             void registerFields(xdata::Bag<AMC13Info> *bag);
             
             xdata::String connectionFile;
-            xdata::String cardName;
+	    xdata::String amc13CardName;
             xdata::String amcInputEnableList;
             xdata::String amcIgnoreTTSList;
             
@@ -77,6 +76,17 @@ namespace gem {
 	    xdata::Integer l1Amode;
 	    xdata::Integer l1Arules;
 	    xdata::UnsignedInteger32 l1Aburst;
+	    xdata::Boolean sendl1ATriburst;
+	    xdata::Boolean startl1ATricont;
+
+	    xdata::Boolean enableCalpulse;
+            // can configure up to 4 BGO channels
+            xdata::Integer           bgochannel;
+            xdata::UnsignedInteger32 bgocmd;
+            xdata::UnsignedInteger32 bgobx;
+            xdata::UnsignedInteger32 bgoprescale;
+	    xdata::Boolean           bgorepeat;
+	    xdata::Boolean           bgolong;
 
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
@@ -100,12 +110,15 @@ namespace gem {
           xdata::Bag<AMC13Info> m_amc13Params;
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
-          std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
+          std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList, m_cardName;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A;
+          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,
+            m_enableCalpulse, m_bgorepeat, m_bgolong;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
-          int m_prescaleFactor, m_bcOffset;
+          int m_prescaleFactor, m_bcOffset, m_bgochannel;
+	  uint8_t m_bgocmd;
+	  uint16_t m_bgobx, m_bgoprescale;
           uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
           uint64_t m_localL1AMask;
 	  
