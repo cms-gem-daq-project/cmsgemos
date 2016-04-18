@@ -82,6 +82,7 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
       DEBUG("GEMSupervisorMonitor::updating "
             << monitem->first << " with state " << state);
       (monitem->second.infoSpace)->setString(monitem->first,state);
+      DEBUG("GEMSupervisorMonitor::updating done!");
     }
   }
 }
