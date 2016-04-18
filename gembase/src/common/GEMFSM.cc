@@ -30,7 +30,9 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   m_gemLogger(gemAppP->getApplicationLogger()),
   m_gemRCMSNotifier(p_gemApp->getApplicationLogger(),
                     p_gemApp->getApplicationDescriptor(),
-                    p_gemApp->getApplicationContext())
+                    p_gemApp->getApplicationContext()),
+  m_gemFSMState("Undefined"),
+  m_reasonForFailure("")
 {
   DEBUG("GEMFSM::ctor begin");
   
@@ -197,8 +199,10 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   m_gemFSMState = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
   DEBUG("GEMFSM::GEMFSM current state is " << m_gemFSMState.toString());
 
-  p_gemApp->getAppISToolBox()->createString("FSMState",        m_gemFSMState.toString(), utils::GEMInfoSpaceToolBox::PROCESS);
-  p_gemApp->getAppISToolBox()->createString("ReasonForFailure","",                       utils::GEMInfoSpaceToolBox::PROCESS);
+  p_gemApp->getAppISToolBox()->createString("FSMState", m_gemFSMState.toString(), &m_gemFSMState,
+                                            utils::GEMInfoSpaceToolBox::PROCESS);
+  p_gemApp->getAppISToolBox()->createString("ReasonForFailure",m_reasonForFailure.toString(), &m_reasonForFailure,
+                                            utils::GEMInfoSpaceToolBox::PROCESS);
   
   //p_gemApp->getApplicationInfoSpace()->fireItemAvailable("FSMState",        &m_gemFSMState);
   //p_gemApp->getApplicationInfoSpace()->fireItemAvailable("ReasonForFailure",&m_reasonForFailure);
