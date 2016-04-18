@@ -88,9 +88,9 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->fireItemAvailable("monitoring:parameters",    p_monitorInfoSpace);
 
   // all should come from initialize
-  p_appInfoSpaceToolBox->createInteger64("RunNumber",m_runNumber.value_,  utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createString(   "RunType",  m_runType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createString(   "CfgType",  m_cfgType.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createInteger64("RunNumber",m_runNumber.value_,   &m_runNumber, utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString(   "RunType",  m_runType.toString(), &m_runType,   utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString(   "CfgType",  m_cfgType.toString(), &m_cfgType,   utils::GEMInfoSpaceToolBox::PROCESS);
   //p_appInfoSpaceToolBox->createString("reasonForFailure", &reasonForFailure_,utils::GEMInfoSpaceToolBox::PROCESS);
 
   //is this the correct syntax? what does it really do?
@@ -136,18 +136,19 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
   // update monitoring variables
   if (event.type() == "ItemRetrieveEvent" ||
       event.type() == "urn:xdata-event:ItemRetrieveEvent") {
-    DEBUG("GEMApplication::actionPerformed() ItemRetrieveEvent"
+    INFO("GEMApplication::actionPerformed() ItemRetrieveEvent"
           << "");
   } else if (event.type() == "ItemGroupRetrieveEvent" || 
              event.type() == "urn:xdata-event:ItemGroupRetrieveEvent") {
-    DEBUG("GEMApplication::actionPerformed() ItemGroupRetrieveEvent"
+    INFO("GEMApplication::actionPerformed() ItemGroupRetrieveEvent"
           << "");
   }
   //item is changed, update it
   if (event.type()=="ItemChangedEvent" ||
       event.type()=="urn:xdata-event:ItemChangedEvent") {
-    DEBUG("GEMApplication::actionPerformed() ItemChangedEvent"
-          << "");
+    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+         << "m_runNumber:" << m_runNumber
+         << " getInteger64(\"RunNumber\"):" << p_appInfoSpaceToolBox->getInteger64("RunNumber"));
 
     /* from HCAL runInfoServer
        std::list<std::string> names;

@@ -34,4 +34,5 @@
   
   <node id="LASTBLOCK"  address="0x9" permission="r"  mode="incremental"  size="7"
         description="contains the last 192+32 bits received from the VFAT and OH">
+  </node>
 </node>

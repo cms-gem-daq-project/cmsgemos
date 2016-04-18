@@ -129,8 +129,8 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   p_appInfoSpace->fireItemAvailable("application:state", p_appStateInfoSpace );
   //p_appStateInfoSpace->fireItemAvailable("State",&m_state);
 
-  p_appInfoSpaceToolBox->createString(     "State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appStateInfoSpaceToolBox->createString("State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString(     "State", m_state.toString(), &m_state, utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appStateInfoSpaceToolBox->createString("State", m_state.toString(), &m_state, utils::GEMInfoSpaceToolBox::PROCESS);
   //p_appInfoSpace->fireItemAvailable("State",&m_state);
   p_appInfoSpace->addItemRetrieveListener("State", this);
   p_appInfoSpace->addItemChangedListener( "State", this);

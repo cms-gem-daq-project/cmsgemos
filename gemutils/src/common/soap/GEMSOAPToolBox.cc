@@ -132,6 +132,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
     xoap::MessageReference response = appCxt->postSOAP(msg,*srcDsc,*destDsc);
     std::string  tool;
     xoap::dumpTree(response->getSOAPPart().getEnvelope().getDOMNode(),tool);
+    std::cout << "gem::utils::soap::GEMSOAPToolBox::sendCommand"  << tool << std::endl;
     
     //LOG4CPLUS_INFO(logger, "sendCommand(" + cmd + ") received response: " + tool);
     
@@ -184,7 +185,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendParameter(std::vector<std::string> co
     xoap::MessageReference response = appCxt->postSOAP(msg,*srcDsc,*destDsc);
     std::string  tool;
     xoap::dumpTree(response->getSOAPPart().getEnvelope().getDOMNode(),tool);
-    
+    std::cout << "gem::utils::soap::GEMSOAPToolBox::sendParameter"  << tool << std::endl;
     //LOG4CPLUS_INFO(logger, "sendParameter(" + cmd + ") received response: " + tool);
     // need to catch failures somehow
     std::cout << "GEMSOAPToolBox::" << appUrn << " ParameterSet received response: " << tool << std::endl;
