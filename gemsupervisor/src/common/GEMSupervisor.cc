@@ -96,7 +96,8 @@ void gem::supervisor::GEMSupervisor::init()
         managedAppStateName << (*j)->getClassName() << "-lid:" << (*j)->getLocalId();
         std::stringstream managedAppStateURN;
         managedAppStateURN << (*j)->getURN();
-        p_appStateInfoSpaceToolBox->createString(managedAppStateName.str(),managedAppStateURN.str());
+        // have to figure out what we want here, with change to pointers
+        p_appStateInfoSpaceToolBox->createString(managedAppStateName.str(),managedAppStateURN.str(), NULL);
       }
       DEBUG("done");
     } // done iterating over applications in group
@@ -297,11 +298,11 @@ void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xda
                                                              p_appContext,p_appDescriptor,ad);  
 }
 
-void gem::supervisor::GEMSupervisor::sendRunNumber(uint32_t const& runNumber, xdaq::ApplicationDescriptor* ad)
+void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad)
   throw (gem::supervisor::exception::Exception)
 {
-  INFO(std::string("GEMSupervisor::sendRunType to ")+ad->getClassName());
-  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber","xsd:unsignedInt",
+  INFO(std::string("GEMSupervisor::sendRunNumber to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber","xsd:long",
                                                              m_runNumber.toString(),
                                                              p_appContext,p_appDescriptor,ad);
 }

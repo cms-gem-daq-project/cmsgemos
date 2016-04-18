@@ -93,7 +93,7 @@ namespace gem {
          * @param ad is the application descriptor to send the SOAP message to
          * @throws
          */
-        void sendRunNumber(uint32_t const& runNumber, xdaq::ApplicationDescriptor* ad)
+        void sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad)
           throw (gem::supervisor::exception::Exception);
         
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
