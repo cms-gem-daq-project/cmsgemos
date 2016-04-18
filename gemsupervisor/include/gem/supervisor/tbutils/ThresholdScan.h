@@ -26,6 +26,8 @@ namespace gem {
 	  throw (xgi::exception::Exception);
 	bool sendStartMessageAMC13()
 	  throw (xgi::exception::Exception);
+	void sendAMC13trigger()
+	  throw (xgi::exception::Exception);
 
 	//SOAP MEssage GLIB	
 	void sendConfigureMessageGLIB()
