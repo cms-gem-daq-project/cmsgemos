@@ -41,6 +41,8 @@
 
 #include "xoap/domutils.h"
 
+#include "gem/hw/glib/GLIBManager.h"
+
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::ThresholdScan)
 
 void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
@@ -104,6 +106,10 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run before start soap message" << optohybridDevice_->getL1ACount(0x0));
 
+  //gem::hw::amc13::AMC13Manager::sendTriggerBurst();
+  sendAMC13trigger();
+
+
   LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter before " << totaltriggers << "triggerseen before " << (int)confParams_.bag.triggersSeen);
 
   //-------------------AMC13 Starting-------------
@@ -140,7 +146,8 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
 
     LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
-    totaltriggers += (int)confParams_.bag.triggersSeen;
+    ++totaltriggers;
+    //totaltriggers += (int)confParams_.bag.triggersSeen;
 
     LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter after after " << totaltriggers);
       
@@ -158,7 +165,8 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     
-    totaltriggers += (int)confParams_.bag.triggersSeen;
+    ++totaltriggers;
+    //    totaltriggers += (int)confParams_.bag.triggersSeen;
         
     //reset counters
     optohybridDevice_->resetL1ACount(0x5);
@@ -747,6 +755,21 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   is_working_ = true;
   sendStartMessageGLIB();
   sendStartMessageAMC13();
+  //  gem::base::GEMFSMApplication* p_gemFSMApp_glib;
+  //  std::string state =  gem::hw::glib::GLIBManager->getCurrentState();
+  //  dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->getCurrentState();
+  //  std::string state = glibManager_->getCurrentState();  
+  sleep(1);
+
+  //(gem::base::GEMFSMApplication* p_gemFSMApp)->getCurrentState();
+
+  //  std::string state = fsm_.getStateName(fsm_.getCurrentState());
+  //  std::string state =  dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState());
+
+//gem::hw::glib::GLIBManager::getCurrentState();
+//  INFO("GLIB Manager STATE : " << state );
+
+  
   
   //AppHeader ah;
   latency_   = scanParams_.bag.latency;
@@ -902,22 +925,9 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageAMC13()
       LOG4CPLUS_INFO(getApplicationLogger(),"-----------start SOAP message configuring AMC13------ ");
 
 
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  //  xoap::SOAPName command = envelope.createName("CallBackConfigure","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPName command = envelope.createName("Configure","xdaq", "urn:xdaq-soap:3.0");
-  body.addBodyElement(command);
-
-  std::string tool;
-  xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
-  DEBUG("configure message: " << tool);
-
   xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
   xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
   std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
-
 
   xoap::MessageReference msg_2 = xoap::createMessage();
   xoap::SOAPPart soap_2 = msg_2->getSOAPPart();
@@ -927,7 +937,46 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageAMC13()
   xoap::SOAPName parameterset = envelope_2.createName("ParameterSet","xdaq", "urn:xdaq-soap:3.0");
   xoap::SOAPBodyElement container = body_2.addBodyElement(parameterset);
 
-  xoap::SOAPName pboxName = envelope_2.createName("crateID","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName pboxName = envelope_2.createName("properties","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPElement pbox = container.addChildElement(pboxName);
+  xoap::SOAPName tname    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+  pbox.addAttribute(tname,"soapenc:Struct");
+  
+  xoap::SOAPBodyElement container_2 = body_2.addBodyElement(pboxName);
+  xoap::SOAPName amc13config = envelope_2.createName("amc13ConfigParams","xsi", appUrn);
+  xoap::SOAPElement pbox_amc13config = container_2.addChildElement(amc13config);
+  xoap::SOAPName tname_amc13config    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+  pbox_amc13config.addAttribute(tname_amc13config,"soapenc:Struct");
+  //  pbox_amc13config.addAttribute(tname_amc13config,"xsd:unsignedInt");
+  //pbox_amc13config.addTextNode("2");
+
+  xoap::SOAPBodyElement container_3 = body_2.addBodyElement(amc13config);
+  xoap::SOAPName    l1aburst = envelope_2.createName("L1Aburst","xsi",appUrn);
+  xoap::SOAPElement pbox_l1aburst = container_3.addChildElement(l1aburst);
+  xoap::SOAPName tname_l1aburst    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+  pbox_l1aburst.addAttribute(tname_l1aburst,"xsd:unsignedInt");
+  pbox_l1aburst.addTextNode("10");
+
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+
+  xoap::SOAPName command = envelope.createName("Configure","xdaq", "urn:xdaq-soap:3.0");
+  body.addBodyElement(command);
+
+  std::string tool;
+  xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
+  DEBUG("configure message: " << tool);
+
+
+
+
+  /*
+  xoap::SOAPName parameterset = envelope_2.createName("ParameterSet","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPBodyElement container = body_2.addBodyElement(parameterset);
+
+  xoap::SOAPName pboxName = envelope_2.createName("L1Aburst","xdaq", "urn:xdaq-soap:3.0");
   xoap::SOAPElement pbox = container.addChildElement(pboxName);
   xoap::SOAPName tname    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
   pbox.addAttribute(tname,"xsd:unsignedInt");
@@ -935,35 +984,9 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageAMC13()
 
   xoap::dumpTree(msg_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
   DEBUG("parameter message: " << tool);
-
-  /*
-  xoap::SOAPName parameterset = envelope_2.createName("ParameterSet","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPBodyElement container = body_2.addBodyElement(parameterset);
-
-  xoap::SOAPName pboxName = envelope_2.createName("properties","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPElement pbox = container.addChildElement(pboxName);
-  xoap::SOAPName tname    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
-  pbox.addAttribute(tname,"soapenc:Struct");
   */
-
-  /*
-  xoap::SOAPBodyElement container_2 = body_2.addBodyElement(pboxName);
-  xoap::SOAPName amc13config = envelope_2.createName("crateID","xsi", appUrn);
-  xoap::SOAPElement pbox_amc13config = container_2.addChildElement(amc13config);
-  xoap::SOAPName tname_amc13config    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
-  //  pbox_amc13config.addAttribute(tname_amc13config,"soapenc:Struct");
-  pbox_amc13config.addAttribute(tname_amc13config,"xsd:unsignedInt");
-  pbox_amc13config.addTextNode("2");
-
-*/
-  /*
-  xoap::SOAPBodyElement container_3 = body_2.addBodyElement(amc13config);
-  xoap::SOAPName    l1aburst = envelope_2.createName("BGObx","xsi",appUrn);
-  xoap::SOAPElement pbox_l1aburst = container_3.addChildElement(l1aburst);
-  xoap::SOAPName tname_l1aburst    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
-  pbox_l1aburst.addAttribute(tname_l1aburst,"xsd:unsignedInt");
-  pbox_l1aburst.addTextNode("2");
-  */
+  
+ 
 
   /*
   xoap::SOAPName parameterset = envelope_2.createName("L1Aburst","xdaq", "urn:xdaq-soap:3.0");
@@ -1073,15 +1096,19 @@ bool gem::supervisor::tbutils::ThresholdScan::sendStartMessageAMC13()
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
   xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
-  //xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
+  //  xoap::SOAPName command2 = envelope.createName("sendStartMessageAMC13","xdaq", "urn:xdaq-soap:3.0");
+  
   body.addBodyElement(command);
+  //  body.addBodyElement(command2);
 
   try 
     {
       xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
       xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
       xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
       LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start the AMC13 has been sent------------");
+
       return true;
     }
   catch (xdaq::exception::Exception& e)
@@ -1089,6 +1116,34 @@ bool gem::supervisor::tbutils::ThresholdScan::sendStartMessageAMC13()
       LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending AMC13 start message " << e.what());
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
         return false;
+    }
+  //  this->Default(in,out);
+}      
+
+void gem::supervisor::tbutils::ThresholdScan::sendAMC13trigger()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("sendtriggerburst","xdaq", "urn:xdaq-soap:3.0");
+
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start sending burst-----------");
+
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending burst message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
     }
   //  this->Default(in,out);
 }      
