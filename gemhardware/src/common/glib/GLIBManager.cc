@@ -197,25 +197,25 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
 void gem::hw::glib::GLIBManager::init()
 {
   /*
-  INFO("gem::hw::glib::GLIBManager::init begin");
-  for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
+    INFO("gem::hw::glib::GLIBManager::init begin");
+    for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
     INFO("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
     
     if (!info.present)
-      continue;
+    continue;
     
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d",
-                                                               info.crateID.value_,
-                                                               info.slotID.value_));
+    info.crateID.value_,
+    info.slotID.value_));
 
     INFO("creating hwCfgInfoSpace items for GLIB in slot " << (slot+1) << " with URN " << hwCfgURN.toString());
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      INFO("init::infospace " << hwCfgURN.toString() << " already exists, getting");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
+    INFO("init::infospace " << hwCfgURN.toString() << " already exists, getting");
+    is_glibs[slot] = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
     } else {
-      INFO("init::infospace " << hwCfgURN.toString() << " does not exist, creating");
-      is_glibs[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
+    INFO("init::infospace " << hwCfgURN.toString() << " does not exist, creating");
+    is_glibs[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
     }
     
     INFO("exporting config parameters into infospace");
@@ -248,7 +248,7 @@ void gem::hw::glib::GLIBManager::init()
     INFO("InfoSpace item value: AddressTable "      << info.addressTable.toString()     );
     INFO("InfoSpace item value: ControlHubPort "    << info.controlHubPort.toString()   );
     INFO("InfoSpace item value: IPBusPort "         << info.ipBusPort.toString()        );
-  }
+    }
   */
 }
 
@@ -507,10 +507,10 @@ void gem::hw::glib::GLIBManager::resetAction()
 }
 
 /*
-void gem::hw::glib::GLIBManager::noAction()
+  void gem::hw::glib::GLIBManager::noAction()
   throw (gem::hw::glib::exception::Exception)
-{
-}
+  {
+  }
 */
 
 void gem::hw::glib::GLIBManager::failAction(toolbox::Event::Reference e)
