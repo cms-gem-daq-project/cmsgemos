@@ -116,21 +116,22 @@ namespace gem {
         ~GEMInfoSpaceToolBox();
 
         //methods copied from tcds info space helper
-        bool createString(   std::string const& itemName, std::string const& value,
+        // adapted to take pointers that will update in the info space on callback changes (ParameterSet)
+        bool createString(   std::string const& itemName, std::string const& value, xdata::String*            ptr=NULL,
                              UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
-        bool createBool(     std::string const& itemName, bool        const& value,
+        bool createBool(     std::string const& itemName, bool        const& value, xdata::Boolean*           ptr=NULL,
                              UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
-        bool createDouble(   std::string const& itemName, double      const& value,
+        bool createDouble(   std::string const& itemName, double      const& value, xdata::Double*            ptr=NULL,
                              UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
-        bool createInteger(  std::string const& itemName, int         const& value,
+        bool createInteger(  std::string const& itemName, int         const& value, xdata::Integer*           ptr=NULL,
                              UpdateType type=PROCESS,  std::string const& docstring="docstring", std::string const& format="dec");
-        bool createInteger32(std::string const& itemName, int32_t     const& value,
+        bool createInteger32(std::string const& itemName, int32_t     const& value, xdata::Integer32*         ptr=NULL,
                              UpdateType type=PROCESS,  std::string const& docstring="docstring", std::string const& format="dec");
-        bool createInteger64(std::string const& itemName, int64_t     const& value,
+        bool createInteger64(std::string const& itemName, int64_t     const& value, xdata::Integer64*         ptr=NULL,
                              UpdateType type=PROCESS,  std::string const& docstring="docstring", std::string const& format="dec");
-        bool createUInt32(   std::string const& itemName, uint32_t    const& value,
+        bool createUInt32(   std::string const& itemName, uint32_t    const& value, xdata::UnsignedInteger32* ptr=NULL,
                              UpdateType type=HW32,     std::string const& docstring="docstring", std::string const& format="hex");
-        bool createUInt64(   std::string const& itemName, uint64_t    const& value,
+        bool createUInt64(   std::string const& itemName, uint64_t    const& value, xdata::UnsignedInteger64* ptr=NULL,
                              UpdateType type=HW64,     std::string const& docstring="docstring", std::string const& format="hex");
       
         //methods copied from tcds info space helper
