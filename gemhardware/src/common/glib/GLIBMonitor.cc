@@ -323,9 +323,9 @@ void gem::hw::glib::GLIBMonitor::reset()
   //have to get rid of the timer 
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    DEBUG("GLIBMonitor::reset removing " << infoSpace->first << " from m_timer");
+    DEBUG("GLIBMonitor::reset removing " << infoSpace->first << " from p_timer");
     try {
-      m_timer->remove(infoSpace->first);
+      p_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
       ERROR("GLIBMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }

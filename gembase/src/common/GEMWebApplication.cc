@@ -267,7 +267,7 @@ void gem::base::GEMWebApplication::webInitialize(xgi::Input * in, xgi::Output * 
     try {
       p_gemFSMApp->fireEvent("Initialize");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webInitialize failed", e );
     }
   }
   //DEBUG("GEMWebApplication::webInitialize end");
@@ -284,7 +284,7 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
     try {
       p_gemFSMApp->fireEvent("Enable");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Enable failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webEnable failed", e );
     }
   }
   //webRedirect(in,out);
@@ -297,10 +297,10 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * o
   DEBUG("GEMWebApplication::webConfigure");
   if (p_gemFSMApp) {
     DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
-    try{
+    try {
       p_gemFSMApp->fireEvent("Configure");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webConfigure failed", e );
     }
   }
   //webRedirect(in,out);
@@ -313,10 +313,10 @@ void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
   DEBUG("GEMWebApplication::webStart");
   if (p_gemFSMApp) {
     DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
-    try{
+    try {
       p_gemFSMApp->fireEvent("Start");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webStart failed", e );
     }
   }
   //webRedirect(in,out);
@@ -328,10 +328,10 @@ void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
   DEBUG("GEMWebApplication::webPause");
   if (p_gemFSMApp) {
     DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
-    try{
+    try {
       p_gemFSMApp->fireEvent("Pause");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webPause failed", e );
     }
   }
   //webRedirect(in,out);
@@ -344,10 +344,10 @@ void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
   DEBUG("GEMWebApplication::webResume");
   if (p_gemFSMApp) {
     DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
-    try{
+    try {
       p_gemFSMApp->fireEvent("Resume");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webResume failed", e );
     }
   }
   //webRedirect(in,out);
@@ -360,10 +360,10 @@ void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
   DEBUG("GEMWebApplication::webStop");
   if (p_gemFSMApp) {
     DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
-    try{
+    try {
       p_gemFSMApp->fireEvent("Stop");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webStop failed", e );
     }
   }
   //webRedirect(in,out);
@@ -376,10 +376,10 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
   DEBUG("GEMWebApplication::webHalt");
   if (p_gemFSMApp) {
     DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
-    try{
+    try {
       p_gemFSMApp->fireEvent("Halt");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webHalt failed", e );
     }
   }
   //webRedirect(in,out);
@@ -392,10 +392,10 @@ void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
   DEBUG("GEMWebApplication::webReset");
   if (p_gemFSMApp) {
     DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
-    try{
+    try {
       p_gemFSMApp->fireEvent("Reset");
     } catch( toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
+      XCEPT_RETHROW( xgi::exception::Exception, "webReset failed", e );
     }
   }
   //webRedirect(in,out);

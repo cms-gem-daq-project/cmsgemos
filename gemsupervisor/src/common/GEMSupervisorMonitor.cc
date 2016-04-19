@@ -35,7 +35,7 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
     dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemApp)->getSupervisedAppDescriptors();
   for (auto managedApp = managedApps.begin(); managedApp != managedApps.end(); ++managedApp) {
     std::stringstream appNameID;
-    appNameID << (*managedApp)->getClassName() << "-lid:" << (*managedApp)->getLocalId();
+    appNameID << (*managedApp)->getClassName() << ":lid:" << (*managedApp)->getLocalId();
     std::stringstream appURN;
     appURN << (*managedApp)->getURN();
     DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring adding monitored app "

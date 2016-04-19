@@ -162,7 +162,7 @@ namespace gem {
     private:
       GEMFSM m_gemfsm;
       
-      double m_progress; // just to see the progress of the various transitions
+      xdata::Double m_progress; // just to see the progress of the various transitions
       bool b_accept_web_commands; //should we allow state transition commands from the web interface
 
       toolbox::BSem m_wl_semaphore;     //do we need a semaphore for the workloop?
@@ -177,12 +177,14 @@ namespace gem {
       /* updateState
        * 
        */
-      void updateState() {m_state = m_gemfsm.getCurrentState();};
+      void updateState() {m_stateName = m_gemfsm.getCurrentState();};
 
       std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appStateInfoSpaceToolBox;
 
       xdata::InfoSpace* p_appStateInfoSpace;
-      xdata::String  m_state;
+      
+      xdata::String  m_stateName;
+      xdata::String  m_stateMessage;
 
     };
     

@@ -129,13 +129,32 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   p_appInfoSpace->fireItemAvailable("application:state", p_appStateInfoSpace );
   //p_appStateInfoSpace->fireItemAvailable("State",&m_state);
 
-  p_appInfoSpaceToolBox->createString(     "State", m_state.toString(), &m_state, utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appStateInfoSpaceToolBox->createString("State", m_state.toString(), &m_state, utils::GEMInfoSpaceToolBox::PROCESS);
-  //p_appInfoSpace->fireItemAvailable("State",&m_state);
-  p_appInfoSpace->addItemRetrieveListener("State", this);
-  p_appInfoSpace->addItemChangedListener( "State", this);
+  p_appInfoSpaceToolBox->createString("StateName", m_stateName.toString(), &m_stateName,
+                                      utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString("StateMessage", m_stateMessage.toString(), &m_stateMessage,
+                                      utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createDouble("StateProgress", m_progress.value_, &m_progress,
+                                      utils::GEMInfoSpaceToolBox::PROCESS);
 
-  p_appInfoSpace->fireItemValueRetrieve(  "State");
+  p_appStateInfoSpaceToolBox->createString("StateName", m_stateName.toString(), &m_stateName,
+                                           utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appStateInfoSpaceToolBox->createString("StateMessage", m_stateMessage.toString(), &m_stateMessage,
+                                           utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appStateInfoSpaceToolBox->createDouble("StateProgress", m_progress.value_, &m_progress,
+                                           utils::GEMInfoSpaceToolBox::PROCESS);
+  
+  //p_appInfoSpace->fireItemAvailable("StateName",&m_state);
+  p_appInfoSpace->addItemRetrieveListener("StateName",         this);
+  p_appInfoSpace->addItemRetrieveListener("StateMessage",  this);
+  p_appInfoSpace->addItemRetrieveListener("StateProgress", this);
+
+  p_appInfoSpace->addItemChangedListener("StateName",         this);
+  p_appInfoSpace->addItemChangedListener("StateMessage",  this);
+  p_appInfoSpace->addItemChangedListener("StateProgress", this);
+
+  p_appInfoSpace->fireItemValueRetrieve("StateName");
+  p_appInfoSpace->fireItemValueRetrieve("StateMessage");
+  p_appInfoSpace->fireItemValueRetrieve("StateProgress");
   //gemAppStateInfoSpace_.setFSMState(m_gemfsm.getCurrentStateName());
 
   DEBUG("GEMFSMApplication::ctor end");
@@ -311,7 +330,7 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
     }*/
   //set a transition message to "Success"
   updateState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
 void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
@@ -338,7 +357,7 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
     XCEPT_RETHROW(gem::utils::exception::Exception,"Workloop failure",e);
   }
   updateState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
   DEBUG("GEMFSMApplication::workloopDriver end");
 }
 
@@ -363,7 +382,7 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
   INFO("GEMFSMApplication::Firing 'IsInitial' into the FSM");
   fireEvent("IsInitial");
   updateState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
 /*	
@@ -378,7 +397,7 @@ void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine
 {
   INFO("GEMFSMApplication::stateChanged");
   updateState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
 void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference event)
@@ -386,7 +405,7 @@ void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference ev
 {
   WARN("GEMFSMApplication::transitionFailed(" <<event->type() << ")");
   updateState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
 void gem::base::GEMFSMApplication::fireEvent(std::string event)
@@ -400,7 +419,7 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
     XCEPT_RETHROW(::xoap::exception::Exception, "invalid command", e);
   }
   updateState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
  
@@ -412,7 +431,7 @@ xoap::MessageReference gem::base::GEMFSMApplication::changeState(xoap::MessageRe
 {
   DEBUG("GEMFSMApplication::changeState");
   updateState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
   return m_gemfsm.changeState(msg);
 }
 
