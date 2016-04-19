@@ -127,8 +127,6 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_slotMask           = m_amc13Params.bag.slotMask.value_;
   m_localL1AMask       = m_amc13Params.bag.localL1AMask.value_;
 
-  //std::cout << "Local trigger config parameters debug: " << m_enableLocalL1A << " " << m_internalPeriodicPeriod << std::endl;
-  
   gem::base::GEMApplication::actionPerformed(event);
 }
 
