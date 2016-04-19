@@ -14,7 +14,7 @@ namespace gem {
         ~LockGuard();
 
       private:
-        L& lock_;
+        L& m_lock;
 
         // Prevent copying.
         LockGuard(LockGuard const&);
@@ -26,15 +26,15 @@ namespace gem {
 
 template <class L>
 gem::utils::LockGuard<L>::LockGuard(L& lock) :
-lock_(lock)
+m_lock(lock)
 {
-  lock_.lock();
+  m_lock.lock();
 }
 
 template <class L>
 gem::utils::LockGuard<L>::~LockGuard()
 {
-  lock_.unlock();
+  m_lock.unlock();
 }
 
 #endif // _gem_utils_LockGuard_h_

@@ -26,8 +26,8 @@ Sources =version.cc
 Sources+=tbutils/VFAT2XMLParser.cc
 Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc tbutils/ADCScan.cc
 #Sources+=tbutils/GEMTBUtil.cc tbutils/LatencyScan.cc
-Sources+=GEMGLIBSupervisorWeb.cc
-Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc
+#Sources+=GEMGLIBSupervisorWeb.cc
+Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalState.cc
 
 DynamicLibrary=gem_supervisor
 

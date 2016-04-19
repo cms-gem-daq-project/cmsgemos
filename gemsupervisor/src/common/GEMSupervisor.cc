@@ -15,11 +15,12 @@
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMSupervisor);
 
 gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
-  gem::base::GEMFSMApplication(stub)
+  gem::base::GEMFSMApplication(stub),
+  m_globalState(this->getApplicationContext(),this),
+  m_gemRCMSNotifier(this->getApplicationLogger(),
+                    this->getApplicationDescriptor(),
+                    this->getApplicationContext())
 {
-
-  //getApplicationInfoSpace()->fireItemAvailable("crateID", &m_crateID);
-  //getApplicationInfoSpace()->fireItemAvailable("slot",    &m_slot);
 
   //xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
@@ -35,6 +36,18 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   //where can we get some nice PNG images for our different applications?
   //getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemsupervisor/images/supervisor/GEMSupervisor.png");
   init();
+
+  // Find connection to RCMS.
+  /*p_appInfoSpaceToolBox->createString("rcmsStateListener",  m_gemRCMSNotifier.getRcmsStateListenerParameter(), NULL,
+    gem::utils::GEMInfoSpaceToolBox::PROCESS);*/
+  p_appInfoSpace->fireItemAvailable("rcmsStateListener",      
+                                    m_gemRCMSNotifier.getRcmsStateListenerParameter());
+  /*p_appInfoSpaceToolBox->createString(   "RunType",  m_gemRCMSNotifier.getFoundRcmsStateListenerParameter(), NULL,
+    gem::utils::GEMInfoSpaceToolBox::PROCESS);*/
+  p_appInfoSpace->fireItemAvailable("foundRcmsStateListener", 
+                                    m_gemRCMSNotifier.getFoundRcmsStateListenerParameter());
+  m_gemRCMSNotifier.findRcmsStateListener();
+  m_gemRCMSNotifier.subscribeToChangesInRcmsStateListener(p_appInfoSpace); 
 }
 
 gem::supervisor::GEMSupervisor::~GEMSupervisor()
@@ -62,10 +75,12 @@ void gem::supervisor::GEMSupervisor::init()
 {
   v_supervisedApps.clear();
   v_supervisedApps.reserve(0);
+
+  m_globalState.clear();
+  
   DEBUG("init:: looping over " << p_appZone->getGroupNames().size() << " groups");
   std::set<xdaq::ApplicationDescriptor*> used;
   std::set<std::string> groups = p_appZone->getGroupNames();
-  //for (std::set<std::string>::const_iterator i = groups.begin(); i != groups.end(); i++) {
   for (auto i =groups.begin(); i != groups.end(); ++i) {
     DEBUG("init::xDAQ group: " << *i
           << "getApplicationGroup() " << p_appZone->getApplicationGroup(*i)->getName());
@@ -74,7 +89,6 @@ void gem::supervisor::GEMSupervisor::init()
     std::set<xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
     
     DEBUG("init::getApplicationDescriptors() " << allApps.size());
-    //for (std::set<xdaq::ApplicationDescriptor*>::const_iterator j=allApps.begin(); j!=allApps.end(); j++) {
     for (auto j = allApps.begin(); j != allApps.end(); ++j) {
       DEBUG("init::xDAQ application descriptor " << *j
             << " " << (*j)->getClassName()
@@ -90,14 +104,16 @@ void gem::supervisor::GEMSupervisor::init()
       //avoids the problem of picking up all the xDAQ related processes
       //if (isGEMSupervised(*j))
       if (manageApplication((*j)->getClassName())) {
-        INFO("init::pushing " << (*j)->getClassName() << "(" << *j << ") to list of supervised applications");
+        INFO("GEMSupervisor::init::pushing " << (*j)->getClassName() << "(" << *j << ") to list of supervised applications");
         v_supervisedApps.push_back(*j);
         std::stringstream managedAppStateName;
-        managedAppStateName << (*j)->getClassName() << "-lid:" << (*j)->getLocalId();
+        managedAppStateName << (*j)->getClassName() << ":lid:" << (*j)->getLocalId();
         std::stringstream managedAppStateURN;
         managedAppStateURN << (*j)->getURN();
         // have to figure out what we want here, with change to pointers
         p_appStateInfoSpaceToolBox->createString(managedAppStateName.str(),managedAppStateURN.str(), NULL);
+  
+        m_globalState.addApplication(*j);
       }
       DEBUG("done");
     } // done iterating over applications in group
@@ -107,6 +123,17 @@ void gem::supervisor::GEMSupervisor::init()
   
   DEBUG("init::starting the monitoring");
 
+  // borrowed from hcalSupervisor
+  /*
+  if (m_reportStateToRCMS && !m_hasDoneStandardInit) {
+    rcmsStateNotifier_.findRcmsStateListener();
+    std::string classname = rcmsStateNotifier_.getRcmsStateListenerParameter()->bag.classname.value_;
+    int instance          = rcmsStateNotifier_.getRcmsStateListenerParameter()->bag.instance.value_;
+    m_rcmsStateListenerUrl = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(classname,instance)->getContextDescriptor()->getURL();
+    // (example) INFO [] RCMSStateListener found with url: http://cmshcaltb02:16001/rcms
+  }
+  */
+  
   // when to do this, have to make sure that all applications have been loaded...
   //p_gemMonitor->addInfoSpace("AppStateMonitoring", p_appStateInfoSpaceToolBox);
   dynamic_cast<gem::supervisor::GEMSupervisorMonitor*>(p_gemMonitor)->setupAppStateMonitoring();
@@ -136,6 +163,10 @@ void gem::supervisor::GEMSupervisor::configureAction()
       sendRunNumber(10254,(*i));
       INFO(std::string("Configuring ")+(*i)->getClassName());
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",p_appContext,p_appDescriptor,*i);
+      if (((*i)->getClassName()).rfind("AMC13") != std::string::npos) {
+        INFO(std::string("Seinding AMC13 Parameters to ")+(*i)->getClassName());
+        gem::utils::soap::GEMSOAPToolBox::sendAMC13Config(p_appContext, p_appDescriptor, *i);
+      }
     }
   } catch (gem::supervisor::exception::Exception& e) {
     ERROR("GEMSupervisor::configureAction " << e.what());
@@ -149,6 +180,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
   } catch (...) {
     ERROR("GEMSupervisor::configureAction ");
   }
+  m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::startAction()
@@ -174,7 +206,8 @@ void gem::supervisor::GEMSupervisor::startAction()
   } catch (...) {
     ERROR("GEMSupervisor::startAction ");
   }
-  }
+  m_globalState.update();
+}
 
 void gem::supervisor::GEMSupervisor::pauseAction()
   throw (gem::supervisor::exception::Exception)
@@ -183,6 +216,7 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     INFO(std::string("Pausing ")+(*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Pause",p_appContext,p_appDescriptor,*i);
   }
+  m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::resumeAction()
@@ -192,6 +226,7 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     INFO(std::string("Resuming ")+(*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume",p_appContext,p_appDescriptor,*i);
   }
+  m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::stopAction()
@@ -201,6 +236,7 @@ void gem::supervisor::GEMSupervisor::stopAction()
     INFO(std::string("Stopping ")+(*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",p_appContext,p_appDescriptor,*i);
   }
+  m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::haltAction()
@@ -210,6 +246,7 @@ void gem::supervisor::GEMSupervisor::haltAction()
     INFO(std::string("Halting ")+(*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",p_appContext,p_appDescriptor,*i);
   }
+  m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::resetAction()
@@ -220,6 +257,7 @@ void gem::supervisor::GEMSupervisor::resetAction()
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",p_appContext,p_appDescriptor,*i);
   }
   //gem::base::GEMFSMApplication::resetAction();
+  m_globalState.update();
 }
 
 /*
@@ -232,13 +270,13 @@ void gem::supervisor::GEMSupervisor::resetAction()
 void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
-
+  m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception)
 {
-
+  m_globalState.update();
 }
 
 
@@ -274,6 +312,11 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
     return true;
   */
   return false; // assume not ok.
+}
+
+void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after)
+{
+  
 }
 
 void gem::supervisor::GEMSupervisor::updateRunNumber()

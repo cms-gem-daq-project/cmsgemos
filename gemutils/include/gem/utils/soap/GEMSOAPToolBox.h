@@ -5,7 +5,16 @@
 #include <string>
 
 #include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/domutils.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPPart.h"
+#include "xoap/SOAPSerializer.h"
+
 #include "xercesc/util/XercesDefs.hpp"
+
+#include "xdaq/NamespaceURI.h"
 
 #include "xdaq/ApplicationDescriptor.h"
 #include "xdaq/ApplicationContext.h"
@@ -100,6 +109,21 @@ namespace gem {
                                              )
           throw (gem::utils::exception::Exception);
 	
+        /**
+         * @brief Creates a SOAP message requesting informtion about an application FSM state
+         * @param nstag Namespace tag to append to the parameter request
+         * @param appURN URN of the application to send the request to
+         * @param isGEMApp whether to query additional parameters that are only in GEM applications
+         * returns xoap::MessageReference to calling application
+         */
+        static xoap::MessageReference createStateRequestMessage(std::string const& nstag,
+                                                                std::string const& appURN,
+                                                                bool const& isGEMApp);
+        
+        static void sendAMC13Config(xdaq::ApplicationContext* appCxt,
+                                    xdaq::ApplicationDescriptor* src,
+                                    xdaq::ApplicationDescriptor* dest);
+
         //methods copied from emu/soap/toolbox
         /*
           xoap::MessageReference createMessage( const gem::utils::soap::QualifiedName &command, 

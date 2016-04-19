@@ -223,7 +223,7 @@ namespace gem {
         gem::base::GEMApplication* p_gemApp;
         //gem::base::GEMMonitor*     p_gemMonitor;
         //std::shared_ptr<gem::base::GEMApplication> p_gemApp;
-        ////std::shared_ptr<gem::base::GEMMonitor>     p_gemMonitor;
+        //std::shared_ptr<gem::base::GEMMonitor>     p_gemMonitor;
         xdata::InfoSpace* p_infoSpace;
       };
     

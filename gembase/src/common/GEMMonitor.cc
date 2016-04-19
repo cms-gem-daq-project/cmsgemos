@@ -31,10 +31,10 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::Application* 
   try {
     DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
-      m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
+      p_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
-      m_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
-    m_timer->stop();
+      p_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
+    p_timer->stop();
   } catch (toolbox::task::exception::Exception& te) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Cannot run GEMMonitor, timer already created", te);
   }  
@@ -55,10 +55,10 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gem
   try {
     DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
-      m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
+      p_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
-      m_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
-    m_timer->stop();
+      p_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
+    p_timer->stop();
   } catch (toolbox::task::exception::Exception& te) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Cannot run GEMMonitor, timer already created", te);
   }
@@ -81,10 +81,10 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* 
   try {
     DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
-      m_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
+      p_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
-      m_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
-    m_timer->stop();
+      p_timer = toolbox::task::getTimerFactory()->createTimer(m_timerName);
+    p_timer->stop();
   } catch (toolbox::task::exception::Exception& te) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Cannot run GEMMonitor, timer already created", te);
   }
@@ -100,18 +100,18 @@ void gem::base::GEMMonitor::startMonitoring()
   DEBUG("GEMMonitor::startMonitoring");
   
   try {
-    m_timer->stop();
+    p_timer->stop();
   } catch (toolbox::task::exception::NotActive const& ex) {
     WARN("GEMMonitor::startMonitoring could not stop timer " << ex.what());
   }
   
-  m_timer->start();
+  p_timer->start();
   
   DEBUG("GEMMonitor::startMonitoring");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
     toolbox::TimeVal startTime;
     startTime = toolbox::TimeVal::gettimeofday();
-    m_timer->scheduleAtFixedRate(startTime, this, infoSpace->second.second,
+    p_timer->scheduleAtFixedRate(startTime, this, infoSpace->second.second,
                                  infoSpace->second.first->getInfoSpace(),
                                  infoSpace->first);
   }
@@ -122,7 +122,7 @@ void gem::base::GEMMonitor::startMonitoring()
 void gem::base::GEMMonitor::stopMonitoring()
 {
   DEBUG("GEMMonitor::stopMonitoring");
-  m_timer->stop();
+  p_timer->stop();
 }
 
 void gem::base::GEMMonitor::setupMonitoring(bool isFSMApp)
@@ -303,9 +303,9 @@ void gem::base::GEMMonitor::reset()
   //have to get rid of the timer 
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from m_timer");
+    DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from p_timer");
     try {
-      m_timer->remove(infoSpace->first);
+      p_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
       ERROR("GEMMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }

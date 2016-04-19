@@ -26,13 +26,13 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
                           ) :
   //p_appStateInfoSpaceHandler(appStateInfoSpaceHanderP),
   p_gemfsm(0),
+  m_gemFSMState("Undefined"),
+  m_reasonForFailure(""),
   p_gemApp(gemAppP),
-  m_gemLogger(gemAppP->getApplicationLogger()),
+  m_gemLogger(gemAppP->getApplicationLogger())/*,
   m_gemRCMSNotifier(p_gemApp->getApplicationLogger(),
                     p_gemApp->getApplicationDescriptor(),
-                    p_gemApp->getApplicationContext()),
-  m_gemFSMState("Undefined"),
-  m_reasonForFailure("")
+                    p_gemApp->getApplicationContext())*/
 {
   DEBUG("GEMFSM::ctor begin");
   
@@ -234,8 +234,8 @@ void gem::base::GEMFSM::fireEvent(toolbox::Event::Reference const &event)
   INFO("GEMFSM::fireEvent(" << event->type() << ")");
   try {
     p_gemfsm->fireEvent(event);
-  } catch (::toolbox::fsm::exception::Exception & ex) {
-    XCEPT_RETHROW(::xoap::exception::Exception, "invalid command", ex);
+  } catch (toolbox::fsm::exception::Exception & ex) {
+    XCEPT_RETHROW(xoap::exception::Exception, "invalid command", ex);
   }
 };
 	
@@ -339,6 +339,7 @@ std::string gem::base::GEMFSM::getStateName(toolbox::fsm::State const& state) co
   return p_gemfsm->getStateName(state);
 }
 
+/* moved into GEMSupervisor, as only the supervisor global state should be reported to RCMS
 void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::string const msg)
   throw (toolbox::fsm::exception::Exception)
 {
@@ -360,7 +361,7 @@ void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::s
     p_gemApp->notifyQualified("error", top);
   }
 }
-
+*/
 
 void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   throw (toolbox::fsm::exception::Exception)
@@ -368,8 +369,8 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   INFO("GEMFSM::stateChanged() begin");
   m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
   //p_appStateInfoSpaceHandler->setFSMState(state_);
-  p_gemApp->getAppISToolBox()->setString("FSMState",m_gemFSMState.toString());
-  p_gemApp->getAppISToolBox()->setString("State",   m_gemFSMState.toString());
+  p_gemApp->getAppISToolBox()->setString("FSMState",  m_gemFSMState.toString());
+  p_gemApp->getAppISToolBox()->setString("StateName", m_gemFSMState.toString());
   INFO("GEMFSM::stateChanged:Current state is: [" << m_gemFSMState.toString() << "]");
   /* TCDS way
   // Send notification to Run Control

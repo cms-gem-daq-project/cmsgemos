@@ -3,12 +3,15 @@
 
 #include "uhal/uhal.hpp"
 
-#include "gem/base/GEMFSMApplication.h"
-#include "gem/supervisor/GEMSupervisorWeb.h"
-#include "gem/supervisor/exception/Exception.h"
+#include "xdaq2rc/RcmsStateNotifier.h"
 
+#include "gem/base/GEMFSMApplication.h"
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
+
+#include "gem/supervisor/GEMSupervisorWeb.h"
+#include "gem/supervisor/GEMGlobalState.h"
+#include "gem/supervisor/exception/Exception.h"
 
 namespace gem {
   namespace supervisor {
@@ -53,10 +56,11 @@ namespace gem {
       
         virtual void resetAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
-      
+        
         std::vector<xdaq::ApplicationDescriptor*> getSupervisedAppDescriptors() {
           return v_supervisedApps; };
         
+        friend class gem::supervisor::GEMGlobalState;
       private:
         /**
          * @param classname is the class to check to see whether it is a GEMApplication inherited application
@@ -70,6 +74,17 @@ namespace gem {
          */
         bool manageApplication(const std::string& classname) const;
 
+        /**
+         * @brief Sets global supervisor state and optionally sends to RCMS
+         * @param before state before the update
+         * @param after state after the update
+         * @throws
+         */
+        void globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after);
+
+        /**
+         * @brief gets new run number in the case of a run transistion stop/start
+         */
         void updateRunNumber();
 
         /**
@@ -101,7 +116,10 @@ namespace gem {
         mutable gem::utils::Lock m_deviceLock;
         std::vector<xdaq::ApplicationDescriptor*> v_supervisedApps;
         xdaq::ApplicationDescriptor* readoutApp;
-      
+
+        GEMGlobalState m_globalState;
+        
+        xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
       };
   } //end namespace supervisor
 } //end namespace gem
