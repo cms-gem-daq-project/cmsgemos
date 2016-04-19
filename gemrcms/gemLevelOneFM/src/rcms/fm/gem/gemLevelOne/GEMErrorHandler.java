@@ -1,4 +1,4 @@
-package rcms.fm.app.gemLevelOne;
+package rcms.fm.gem.gemLevelOne;
 
 import rcms.fm.fw.EventHandlerException;
 import rcms.fm.fw.user.UserActionException;
@@ -15,30 +15,30 @@ import rcms.util.logger.RCMSLogger;
  */
 public class GEMErrorHandler extends UserErrorHandler {
 	
-	/**
-	 * <code>RCMSLogger</code>: RCMS log4j logger.
-	 */
-	static RCMSLogger logger = new RCMSLogger(GEMEventHandler.class);
+    /**
+     * <code>RCMSLogger</code>: RCMS log4j logger.
+     */
+    static RCMSLogger logger = new RCMSLogger(GEMEventHandler.class);
 
-	public GEMErrorHandler() throws EventHandlerException {
-		// this handler inherits UserErrorHandler
-		// so it is already registered for Error events
+    public GEMErrorHandler() throws EventHandlerException {
+        // this handler inherits UserErrorHandler
+        // so it is already registered for Error events
 			
-		// error handler
-		addAction(State.ANYSTATE,"errorHandler");
+        // error handler
+        addAction(State.ANYSTATE,"errorHandler");
 		
-	}
+    }
 	
-	public void init() throws rcms.fm.fw.EventHandlerException {
+    public void init() throws rcms.fm.fw.EventHandlerException {
 
-	}
+    }
 	
 	
-	public void errorHandler(Object obj) throws UserActionException {
+    public void errorHandler(Object obj) throws UserActionException {
 	
-		System.out.println("errorHandler() Got an event: " + obj.getClass() );
+        System.out.println("errorHandler() Got an event: " + obj.getClass() );
 		
-	}
+    }
 	
 	
 }
