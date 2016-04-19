@@ -30,12 +30,6 @@
     <xc:Application class="gem::hw::amc13::AMC13Manager" id="255" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
         	  xsi:type="soapenc:Struct">
-        <!--
-        <rcmsStateListener xsi:type="soapenc:Struct">
-          <classname xsi:type="xsd:string">RCMSStateListener</classname>
-          <instance xsi:type="xsd:unsignedInt">0</instance>
-        </rcmsStateListener>
-        -->
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	  <AMC13cardname     xsi:type="xsd:string">gem.shelf01.amc13</AMC13cardname>
