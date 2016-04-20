@@ -9,9 +9,6 @@
 #include "gem/supervisor/GEMSupervisorMonitor.h"
 #include "gem/supervisor/GEMSupervisor.h"
 #include "gem/base/GEMFSMApplication.h"
-//#include "xdata/InfoSpaceFactory.h"
-//
-//#include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
