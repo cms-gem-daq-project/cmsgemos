@@ -119,6 +119,8 @@ namespace gem {
 
         GEMGlobalState m_globalState;
         
+        xdata::Boolean             m_reportToRCMS;
+        xdata::String              m_rcmsStateListenerUrl;
         xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
       };
   } //end namespace supervisor

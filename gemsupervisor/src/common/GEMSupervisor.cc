@@ -17,6 +17,7 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMSupervisor);
 gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   m_globalState(this->getApplicationContext(),this),
+  m_reportToRCMS(false),
   m_gemRCMSNotifier(this->getApplicationLogger(),
                     this->getApplicationDescriptor(),
                     this->getApplicationContext())
@@ -38,11 +39,13 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   init();
 
   // Find connection to RCMS.
-  /*p_appInfoSpaceToolBox->createString("rcmsStateListener",  m_gemRCMSNotifier.getRcmsStateListenerParameter(), NULL,
+  /*p_appInfoSpaceToolBox->createBag("rcmsStateListener", m_gemRCMSNotifier.getRcmsStateListenerParameter(),
+    m_gemRCMSNotifier.getRcmsStateListenerParameter(),
     gem::utils::GEMInfoSpaceToolBox::PROCESS);*/
   p_appInfoSpace->fireItemAvailable("rcmsStateListener",      
                                     m_gemRCMSNotifier.getRcmsStateListenerParameter());
-  /*p_appInfoSpaceToolBox->createString(   "RunType",  m_gemRCMSNotifier.getFoundRcmsStateListenerParameter(), NULL,
+  /*p_appInfoSpaceToolBox->createBool( "foundRcmsStateListener", m_gemRCMSNotifier.getFoundRcmsStateListenerParameter()->value_,
+    m_gemRCMSNotifier.getFoundRcmsStateListenerParameter(),
     gem::utils::GEMInfoSpaceToolBox::PROCESS);*/
   p_appInfoSpace->fireItemAvailable("foundRcmsStateListener", 
                                     m_gemRCMSNotifier.getFoundRcmsStateListenerParameter());
@@ -125,10 +128,10 @@ void gem::supervisor::GEMSupervisor::init()
 
   // borrowed from hcalSupervisor
   /*
-  if (m_reportStateToRCMS && !m_hasDoneStandardInit) {
-    rcmsStateNotifier_.findRcmsStateListener();
-    std::string classname = rcmsStateNotifier_.getRcmsStateListenerParameter()->bag.classname.value_;
-    int instance          = rcmsStateNotifier_.getRcmsStateListenerParameter()->bag.instance.value_;
+  if (m_reportToRCMS && !m_hasDoneStandardInit) {
+    m_gemRCMSNotifier.findRcmsStateListener();
+    std::string classname = m_gemRCMSNotifier.getRcmsStateListenerParameter()->bag.classname.value_;
+    int instance          = m_gemRCMSNotifier.getRcmsStateListenerParameter()->bag.instance.value_;
     m_rcmsStateListenerUrl = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(classname,instance)->getContextDescriptor()->getURL();
     // (example) INFO [] RCMSStateListener found with url: http://cmshcaltb02:16001/rcms
   }
@@ -315,8 +318,20 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
 }
 
 void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after)
-{
+{  
+  DEBUG("globalStateChanged(" << before << "," << after << ")");
   
+  // Notify RCMS of a state change.
+  try {
+    if (m_reportToRCMS)
+      m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed");
+  } catch(xcept::Exception& err) {
+    ERROR("GEMSupervisor::globalStateChanged::Failed to notify RCMS of state change: "
+          << xcept::stdformat_exception_history(err));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::RCMSNotificationError, top,
+                         "Failed to notify RCMS of state change.", err);
+    notifyQualified("error", top);
+  }
 }
 
 void gem::supervisor::GEMSupervisor::updateRunNumber()
