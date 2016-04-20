@@ -259,13 +259,18 @@ void gem::hw::glib::GLIBManager::initializeAction()
       DEBUG("GLIBManager::obtaining pointer to HwGLIB");
       //m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_));
       m_glibs[slot] = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
-
-      createGLIBInfoSpaceItems(is_glibs[slot], m_glibs[slot]);
-
-      m_glibMonitors[slot] = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs[slot], this, slot+1));
-      m_glibMonitors[slot]->addInfoSpace("HWMonitoring", is_glibs[slot]);
-      m_glibMonitors[slot]->setupHwMonitoring();
-      m_glibMonitors[slot]->startMonitoring();
+      if (m_glibs[slot]->isHwConnected()) {
+        // maybe better to rais exception here and fail if not connected, as we expected the card to be here?
+        createGLIBInfoSpaceItems(is_glibs[slot], m_glibs[slot]);
+        
+        m_glibMonitors[slot] = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs[slot], this, slot+1));
+        m_glibMonitors[slot]->addInfoSpace("HWMonitoring", is_glibs[slot]);
+        m_glibMonitors[slot]->setupHwMonitoring();
+        m_glibMonitors[slot]->startMonitoring();
+      } else {
+        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << slot);
+        XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+      }
     } catch (gem::hw::glib::exception::Exception const& ex) {
       ERROR("GLIBManager::caught exception " << ex.what());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
