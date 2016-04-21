@@ -72,7 +72,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
     deviceNum.push_back(-1);
   }
 
-  triggerSource = 0x9;
+  //  triggerSource = 0x9;
   deviceChipID  = 0x0;
 
   triggersSeen = 0;
@@ -98,7 +98,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
 
   bag->addField("ADCVoltage",   &ADCVoltage);
   bag->addField("ADCurrent",    &ADCurrent);
-  bag->addField("triggerSource",&triggerSource);
+  //  bag->addField("triggerSource",&triggerSource);
   bag->addField("slotFileName",  &slotFileName);
 
 }
@@ -283,7 +283,6 @@ bool gem::supervisor::tbutils::GEMTBUtil::initialize(toolbox::task::WorkLoop* wl
 bool gem::supervisor::tbutils::GEMTBUtil::configure(toolbox::task::WorkLoop* wl)
 {
   fireEvent("Configure");
-  m_counter = {0,0,0,0,0};
   return false; //do once?
 }
 
@@ -667,6 +666,7 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
 	   << cgicc::table() << std::endl;
 	
       //trigger setup
+      /*
       *out << cgicc::table().set("class","xdaq-table") << std::endl
 	   << cgicc::thead() << std::endl
 	   << cgicc::tr()    << std::endl //open
@@ -708,7 +708,7 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
 	   << cgicc::input().set("class","button").set("type","submit")
 	.set("value","SetTriggerSource").set("name","SendFastCommand")
 	   << cgicc::td() << std::endl;
-      
+      */
       std::string isReadonly = "";
       if (is_running_ || is_configured_)
 	isReadonly = "readonly";
@@ -1236,7 +1236,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
       optohybridDevice_->sendBC0();
       hw_semaphore_.give();
     }
-
+    /*
     else if (strcmp(fastCommand.c_str(),"SetTriggerSource") == 0) {
       INFO("SetTriggerSource button pressed");
       hw_semaphore_.take();
@@ -1260,7 +1260,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
 	}
       }
       hw_semaphore_.give();
-    }
+    }*/
     
     hw_semaphore_.take();
     hw_semaphore_.give();
@@ -1477,9 +1477,6 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
 
   is_configured_ = false;
 
-  vfat_ = 0;
-  event_ = 0;
-
   wl_->submit(haltSig_);
   
   //sleep(5);
@@ -1516,7 +1513,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   confParams_.bag.deviceChipID = 0x0;
   confParams_.bag.triggersSeen = 0;
   confParams_.bag.triggercount = 0;
-  confParams_.bag.triggerSource = 0x9;
+  //  confParams_.bag.triggerSource = 0x9;
 
   wl_->submit(resetSig_);
   
