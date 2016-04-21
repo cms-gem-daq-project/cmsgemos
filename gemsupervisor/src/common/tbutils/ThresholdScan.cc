@@ -41,8 +41,6 @@
 
 #include "xoap/domutils.h"
 
-#include "gem/hw/glib/GLIBManager.h"
-
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::ThresholdScan)
 
 void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
@@ -104,34 +102,16 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     return false;
   }
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run before start soap message" << optohybridDevice_->getL1ACount(0x0));
+  //send triggers
+  hw_semaphore_.take(); //take hw to send the trigger 
 
   //gem::hw::amc13::AMC13Manager::sendTriggerBurst();
   sendAMC13trigger();
 
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter before " << totaltriggers << "triggerseen before " << (int)confParams_.bag.triggersSeen);
-
-  //-------------------AMC13 Starting-------------
-  
-  if(totaltriggers == 0){
-    //send burst triggers
-  }
-  
-  //send triggers
-  hw_semaphore_.take(); //take hw to send the trigger 
-
-
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run after start soap message" << optohybridDevice_->getL1ACount(0x0));
   //count triggers
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter after " << totaltriggers);
-
   optohybridDevice_->setTrigSource(0x0);// trigger sources   
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
   
-
-
   LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen);
 
   hw_semaphore_.give(); //give hw to send the trigger 
@@ -146,11 +126,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
 
     LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
-    ++totaltriggers;
-    //totaltriggers += (int)confParams_.bag.triggersSeen;
 
-    LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter after after " << totaltriggers);
-      
     hw_semaphore_.give(); // give hw to set buffer depth
     wl_semaphore_.give();//give workloop to read
     return true;
@@ -165,9 +141,6 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     uint32_t bufferDepth = 0;
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     
-    ++totaltriggers;
-    //    totaltriggers += (int)confParams_.bag.triggersSeen;
-        
     //reset counters
     optohybridDevice_->resetL1ACount(0x5);
     optohybridDevice_->resetResyncCount();
@@ -178,9 +151,6 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
 		   << confParams_.bag.triggersSeen );
-
-    //paused
-    sleep(0.001);
     
     if ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 ) {
       wl_semaphore_.give();
@@ -193,10 +163,11 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       
       hw_semaphore_.take(); // take hw to set threshold values
       
-      LOG4CPLUS_INFO(getApplicationLogger()," ABC run: VT1= " 
-		     << scanParams_.bag.deviceVT1 << " VT2-VT1= "
-		     << scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1 
-		     << " bag.maxThresh= " << scanParams_.bag.maxThresh 
+      LOG4CPLUS_INFO(getApplicationLogger()," ABC run: Latency= "
+		     << scanParams_.bag.latency << " VT1= "
+		     << scanParams_.bag.deviceVT1 << " VT2= "
+		     << scanParams_.bag.deviceVT2 << 
+		     " bag.maxThresh= " << scanParams_.bag.maxThresh 
 		     << " abs(VT2-VT1) " 
 		     << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
 
@@ -215,7 +186,6 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       
       uint32_t bufferDepth = 0;
       bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);    
-      //      sleep(0.001);
       
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	scanParams_.bag.deviceVT1    = (*chip)->getVThreshold1();
@@ -224,6 +194,8 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
       glibDevice_->setDAQLinkRunParameter(2,scanParams_.bag.deviceVT1);
       glibDevice_->setDAQLinkRunParameter(3,scanParams_.bag.deviceVT2);
+
+      sleep(0.001);
 
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	(*chip)->setRunMode(1);
@@ -995,8 +967,6 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageAMC13()
   throw (xgi::exception::Exception) {
   //  is_working_ = true;
 
-  LOG4CPLUS_INFO(getApplicationLogger(),"-----------start SOAP message configuring AMC13------ ");
-
   xoap::MessageReference msg = xoap::createMessage();
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
@@ -1007,6 +977,7 @@ void gem::supervisor::tbutils::ThresholdScan::sendConfigureMessageAMC13()
   xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
   xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
   std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
+
   try 
     {
       xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
@@ -1038,10 +1009,8 @@ bool gem::supervisor::tbutils::ThresholdScan::sendStartMessageAMC13()
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
   xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
-  //  xoap::SOAPName command2 = envelope.createName("sendStartMessageAMC13","xdaq", "urn:xdaq-soap:3.0");
   
   body.addBodyElement(command);
-  //  body.addBodyElement(command2);
 
   try 
     {
@@ -1059,7 +1028,6 @@ bool gem::supervisor::tbutils::ThresholdScan::sendStartMessageAMC13()
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
         return false;
     }
-  //  this->Default(in,out);
 }      
 
 void gem::supervisor::tbutils::ThresholdScan::sendAMC13trigger()

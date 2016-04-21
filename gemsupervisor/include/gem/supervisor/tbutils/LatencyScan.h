@@ -26,9 +26,9 @@ namespace gem {
 	  throw (xgi::exception::Exception);
 	bool sendStartMessageAMC13()
 	  throw (xgi::exception::Exception);
-	void sendPauseMessageAMC13()
+	void sendAMC13trigger()
 	  throw (xgi::exception::Exception);
-	void sendResumeMessageAMC13()
+	void NTriggersAMC13()
 	  throw (xgi::exception::Exception);
 
 	//SOAP MEssage GLIB	
@@ -90,8 +90,7 @@ namespace gem {
 
       int minLatency_, maxLatency_, threshold_, MSPulseLength, VCal;
       uint8_t  currentLatency_;
-      uint64_t stepSize_,eventsSeen_,channelSeen_;
-      uint64_t totaltriggercounter_;
+      uint64_t stepSize_;
       int totaltriggers;
 
       protected:
