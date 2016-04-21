@@ -876,6 +876,23 @@ namespace gem {
            */
           uint32_t getTTCSpyBuffer();
 
+          ///////////////////////
+          /**
+           * @brief performs a general reset of the GLIB
+           */
+          void generalReset();
+
+          /**
+           * @brief performs a reset of the GLIB counters
+           */
+          void counterReset();
+
+          /**
+           * @brief performs a reset of the GLIB link
+           * @param link is the link to perform the reset on
+           */
+          void linkReset(uint8_t const& link);
+
           std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
           
         protected:

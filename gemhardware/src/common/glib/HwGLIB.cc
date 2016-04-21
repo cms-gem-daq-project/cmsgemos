@@ -905,3 +905,18 @@ void gem::hw::glib::HwGLIB::resetTTC()
   return writeReg(getDeviceBaseNode(),"TTC.CONTROL.RESET",0x1);
 }
 
+void gem::hw::glib::HwGLIB::generalReset()
+{
+  return;
+}
+
+void gem::hw::glib::HwGLIB::counterReset()
+{
+  return;
+}
+
+void gem::hw::glib::HwGLIB::linkReset(uint8_t const& link)
+{
+  return;
+}
+
