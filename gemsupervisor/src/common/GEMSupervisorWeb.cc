@@ -191,7 +191,7 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
       
       DEBUG("GEMSupervisorWeb::trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
       std::string classstate
-        = gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()),"FSMState");
+        = gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()),"StateName");
       *out << classstate;
       DEBUG("GEMSupervisorWeb::managed class FSM state is " << classstate);
       *out << cgicc::h3() << std::endl

@@ -88,10 +88,6 @@ print
 print "-> DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
 print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
 print
-if options.gemttc in [0,1]:
-        writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
-print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
-print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
 
 if options.gemttc in [0,1]:
         writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)

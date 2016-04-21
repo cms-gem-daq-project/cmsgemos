@@ -144,11 +144,11 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
                                            utils::GEMInfoSpaceToolBox::PROCESS);
   
   //p_appInfoSpace->fireItemAvailable("StateName",&m_state);
-  p_appInfoSpace->addItemRetrieveListener("StateName",         this);
+  p_appInfoSpace->addItemRetrieveListener("StateName",     this);
   p_appInfoSpace->addItemRetrieveListener("StateMessage",  this);
   p_appInfoSpace->addItemRetrieveListener("StateProgress", this);
 
-  p_appInfoSpace->addItemChangedListener("StateName",         this);
+  p_appInfoSpace->addItemChangedListener("StateName",     this);
   p_appInfoSpace->addItemChangedListener("StateMessage",  this);
   p_appInfoSpace->addItemChangedListener("StateProgress", this);
 

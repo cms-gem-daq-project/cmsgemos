@@ -153,11 +153,14 @@ namespace gem {
       //is it a problem to make this public?
       /* getCurrentState
        * @returns std::string name of the current state of the GEMFSM object
-       */
-      std::string getCurrentState() const {
+       *
+      virtual std::string getCurrentState() const {
         return m_gemfsm.getCurrentState();
+      };*/
+      virtual std::string getCurrentState() {
+        return m_stateName.toString();
       };
-      std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppStateISToolBox() { return p_appStateInfoSpaceToolBox;     };
+      std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppStateISToolBox() { return p_appStateInfoSpaceToolBox; };
 	
     private:
       GEMFSM m_gemfsm;
@@ -177,7 +180,7 @@ namespace gem {
       /* updateState
        * 
        */
-      void updateState() {m_stateName = m_gemfsm.getCurrentState();};
+      virtual void updateState() { m_stateName = m_gemfsm.getCurrentState(); };
 
       std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appStateInfoSpaceToolBox;
 

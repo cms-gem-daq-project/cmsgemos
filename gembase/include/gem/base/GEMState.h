@@ -25,13 +25,8 @@ namespace gem {
       static const toolbox::fsm::State STATE_RESUMING     = 'r'; ///< Resuming transitional state
       static const toolbox::fsm::State STATE_RESETTING    = 't'; ///< Resetting transitional state
       static const toolbox::fsm::State STATE_FIXING       = 'X'; ///< Fixing transitional state
-      
-      //HCAL states, are they useful for GEM?
-      /*
-        static const toolbox::fsm::State STATE_INIT    ='I'; ///< Initialization state
-        static const toolbox::fsm::State STATE_PREINIT ='N'; ///< Pre-initialized state used by cards which may require two stages of configuration, where the first is fast
-        static const toolbox::fsm::State STATE_WARM    ='W'; ///< WARM Initialization state
-      */
+
+      static const toolbox::fsm::State STATE_NULL         = 0;   ///< Null state      
       //} // namespace gem::base::states
   } // namespace gem::base
 } // namespace gem

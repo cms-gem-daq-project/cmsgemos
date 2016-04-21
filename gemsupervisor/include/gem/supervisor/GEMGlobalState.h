@@ -41,25 +41,27 @@ namespace gem {
      * @brief Computes the global GEM state depending on the state of all managed applications
      *        Idea and major implementation borrowed from hcal StateVector and hcalSupervisor
      *   Rules:
-     *   - if any application is in STATE_RESETTING, global state is STATE_RESETTING
-     *   - else if any application is in STATE_FAILED, global state is STATE_FAILED
+     *   - if      any application is in STATE_RESETTING,    global state is STATE_RESETTING
+     *   - else if any application is in STATE_FAILED,       global state is STATE_FAILED
+     *   - else if any application is in STATE_COLD,         global state is STATE_COLD
+     *   - else if any application is in STATE_UNINIT,       global state is STATE_UNINIT
      *   - else if any application is in STATE_INITIALIZING, global state is STATE_INITIALIZING
-     *   - else if any application is in STATE_CONFIGURING, global state is STATE_CONFIGURING
-     *   - else if any application is in STATE_HALTING, global state is STATE_HALTING
-     *   - else if any application is in STATE_PAUSING, global state is STATE_PAUSING
-     *   - else if any application is in STATE_STOPPING, global state is STATE_STOPPING
-     *   - else if any application is in STATE_STARTING, global state is STATE_STARTING
-     *   - else if any application is in STATE_RESUMING, global state is STATE_RESUMING
-     *   - else if any application is in STATE_INITIAL, global state is STATE_INITIAL
-     *   - else if any application is in STATE_HALTED, global state is STATE_HALTED
-     *   - else if any application is in STATE_CONFIGURED, global state is STATE_CONFIGURED
-     *   - else if any application is in STATE_PAUSED, global state is STATE_PAUSED
-     *   - else if all applications are in STATE_RUNNING, global state is STATE_RUNNING
+     *   - else if any application is in STATE_HALTING,      global state is STATE_HALTING
+     *   - else if any application is in STATE_CONFIGURING,  global state is STATE_CONFIGURING
+     *   - else if any application is in STATE_PAUSING,      global state is STATE_PAUSING
+     *   - else if any application is in STATE_STOPPING,     global state is STATE_STOPPING
+     *   - else if any application is in STATE_STARTING,     global state is STATE_STARTING
+     *   - else if any application is in STATE_RESUMING,     global state is STATE_RESUMING
+     *   - else if any application is in STATE_INITIAL,      global state is STATE_INITIAL
+     *   - else if any application is in STATE_HALTED,       global state is STATE_HALTED
+     *   - else if any application is in STATE_PAUSED,       global state is STATE_PAUSED
+     *   - else if any application is in STATE_CONFIGURED,   global state is STATE_CONFIGURED
+     *   - else if all applications are in STATE_RUNNING,    global state is STATE_RUNNING
      */
     class GEMGlobalState : public toolbox::task::TimerListener
       {
       public:
-        static const toolbox::fsm::State STATE_NULL = 0;
+        //static const toolbox::fsm::State STATE_NULL = 0;
       
         GEMGlobalState(xdaq::ApplicationContext* context, GEMSupervisor* gemSupervisor);
 
@@ -110,6 +112,8 @@ namespace gem {
 
         static std::string getStateName(toolbox::fsm::State state);
 
+        static int getStatePriority(toolbox::fsm::State state);
+
       protected:
         typedef std::map<xdaq::ApplicationDescriptor*,GEMApplicationState> ApplicationMap;
         typedef ApplicationMap::const_iterator app_state_const_iterator;
@@ -138,6 +142,7 @@ namespace gem {
         xdaq::ApplicationContext*    p_appContext;
         xdaq::ApplicationDescriptor* p_srcApp;
 
+        std::string m_globalStateName, m_globalStateMessage;
         toolbox::fsm::State m_globalState, m_forceGlobal;
         log4cplus::Logger m_gemLogger;
         mutable gem::utils::Lock m_mutex;

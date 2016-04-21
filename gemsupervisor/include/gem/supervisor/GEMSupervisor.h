@@ -61,6 +61,13 @@ namespace gem {
           return v_supervisedApps; };
         
         friend class gem::supervisor::GEMGlobalState;
+
+        /* getCurrentState
+         * @returns std::string name of the current global state
+         *
+        virtual std::string getCurrentState() {
+          return m_stateName.toString();
+          };*/
       private:
         /**
          * @param classname is the class to check to see whether it is a GEMApplication inherited application
