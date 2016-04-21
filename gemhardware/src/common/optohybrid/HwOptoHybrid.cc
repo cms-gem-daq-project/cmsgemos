@@ -390,3 +390,19 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
   DEBUG("final mask is 0x" << std::setw(8) << std::setfill('0') << std::hex << connectedMask << std::dec);
   return connectedMask;
 }
+
+void gem::hw::optohybrid::HwOptoHybrid::generalReset()
+{
+  return;
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::counterReset()
+{
+  return;
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::linkReset(uint8_t const& link)
+{
+  return;
+}
+
