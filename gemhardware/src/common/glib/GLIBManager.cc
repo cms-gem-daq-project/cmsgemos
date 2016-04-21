@@ -87,6 +87,7 @@ uint16_t gem::hw::glib::GLIBManager::parseAMCEnableList(std::string const& enabl
 
   boost::split(slots, enableList, boost::is_any_of(", "), boost::token_compress_on);  
   DEBUG("GLIBManager::AMC input enable list is " << enableList);
+  // would be great to multithread this portion
   for (auto slot = slots.begin(); slot != slots.end(); ++slot) {
     DEBUG("GLIBManager::slot is " << *slot);
     if (slot->find('-') != std::string::npos) { // found a possible range

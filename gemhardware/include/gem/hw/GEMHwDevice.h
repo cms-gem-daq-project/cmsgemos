@@ -382,6 +382,22 @@ namespace gem {
 	
       virtual std::string printErrorCounts() const;
 
+      /**
+       * @brief performs a general reset of the GLIB
+       */
+      virtual void generalReset();
+      
+      /**
+       * @brief performs a reset of the GLIB counters
+       */
+      virtual void counterReset();
+      
+      /**
+       * @brief performs a reset of the GLIB link
+       * @param link is the link to perform the reset on
+       */
+      virtual void linkReset(uint8_t const& link);
+      
       /*
       static std::string uint32ToString(uint32_t const val) const {
         std::stringstream res;

@@ -153,16 +153,16 @@ namespace gem {
               return; };
           } OptoHybridT1Counters;
           
-           /**
-            * @struct OptoHybridVFATCRCCounters
-            *  @brief This struct stores retrieved counters related to the OptoHybrid CRC check on 
-            *  the received VFAT data packets
-            *  @var OptoHybridVFATCRCCounters::CRCCounters
-            *  CRCCounters contains the counters for the CRC performed on the
-            *  received VFAT packets from each chip
-            *  - first is the number of Valid CRCs
-            *  - second is the number of Incorrect CRCs
-            **/
+          /**
+           * @struct OptoHybridVFATCRCCounters
+           *  @brief This struct stores retrieved counters related to the OptoHybrid CRC check on 
+           *  the received VFAT data packets
+           *  @var OptoHybridVFATCRCCounters::CRCCounters
+           *  CRCCounters contains the counters for the CRC performed on the
+           *  received VFAT packets from each chip
+           *  - first is the number of Valid CRCs
+           *  - second is the number of Incorrect CRCs
+           **/
           typedef struct OptoHybridVFATCRCCounters {
             std::vector<std::pair<uint32_t,uint32_t> > CRCCounters;
             
@@ -209,7 +209,7 @@ namespace gem {
            **/
 
           uint32_t getFirmware() {
-  std::cout << "oh device base node " << getDeviceBaseNode() << std::endl;
+            std::cout << "oh device base node " << getDeviceBaseNode() << std::endl;
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
             DEBUG("OH has firmware version 0x" 
                   << std::hex << fwver << std::dec << std::endl);
@@ -227,6 +227,26 @@ namespace gem {
           };
 					
         public:
+
+          /////Inherited from GEMHwDevice
+          /**
+           * @brief performs a general reset of the GLIB
+           */
+          virtual void generalReset();
+
+          /**
+           * @brief performs a reset of the GLIB counters
+           */
+          virtual void counterReset();
+
+          /**
+           * @brief performs a reset of the GLIB link
+           * @param link is the link to perform the reset on
+           */
+          virtual void linkReset(uint8_t const& link);
+
+
+          /////Specific to the OptoHybrid board
           /**
            * Read the link status registers, store the information in a struct
            * @retval _status a struct containing the status bits of the optical link
@@ -250,7 +270,7 @@ namespace gem {
           void ResetLinks(uint8_t const& resets) {
             return;
             /*
-            for (auto link = v_activeLinks.begin(); link != v_activeLinks.end(); ++link)
+              for (auto link = v_activeLinks.begin(); link != v_activeLinks.end(); ++link)
               LinkReset(link->first,resets);
             */
           };
@@ -304,11 +324,11 @@ namespace gem {
            * NOT YET AVAILABLE IN V2 FIRMWARE
            **/
           std::pair<bool,bool> StatusVFATClock() {
-           // std::stringstream regName;
-           // regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-           // uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.SOURCE");
-           // uint32_t flb = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.FALLBACK");
-           // //maybe do a check to ensure that the value has been read properly?
+            // std::stringstream regName;
+            // regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+            // uint32_t src = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.SOURCE");
+            // uint32_t flb = readReg(getDeviceBaseNode(),regName.str()+".CLOCKING.VFAT.FALLBACK");
+            // //maybe do a check to ensure that the value has been read properly?
             return std::make_pair(0,0);
           };
 
@@ -446,12 +466,12 @@ namespace gem {
            * @brief the Scan module is very different between V1/1.5 and V2
            * One must select the mode 
            * One must select the signal
-          typedef struct ScanSequence {
-            uint64_t l1a_seq;
-            uint64_t cal_seq;
-            uint64_t rsy_seq;
-            uint64_t bc0_seq;
-          } ScanSequence;
+           typedef struct ScanSequence {
+           uint64_t l1a_seq;
+           uint64_t cal_seq;
+           uint64_t rsy_seq;
+           uint64_t bc0_seq;
+           } ScanSequence;
           **/
           
           /**
@@ -475,7 +495,7 @@ namespace gem {
            * @param uint8_t chip is the VFAT to run the scan on
            * @param uint8_t channel is the channel to run the scan on (for modes 1 and 3 only)
            * @param bool reset says whether to reset the module or not
-          **/
+           **/
           void configureScanGenerator(uint8_t const& mode, uint8_t const& min, uint8_t const& max,
                                       uint8_t const& step,
                                       uint8_t const& chip, uint8_t const& channel,
@@ -547,7 +567,7 @@ namespace gem {
            * @brief the T1 module is very different between V1/1.5 and V2
            * One must select the mode 
            * One must select the signal
-          **/
+           **/
           typedef struct T1Sequence {
             uint64_t l1a_seq;
             uint64_t cal_seq;
@@ -568,7 +588,7 @@ namespace gem {
            *  - 3 BC0
            * @param T1Sequence sequence is a sequence of T1 signals to generate
            * @param bool reset says whether to reset the module or not
-          **/
+           **/
           void configureT1Generator(uint8_t const& mode, uint8_t const& type,
                                     T1Sequence sequence,
                                     bool reset) {
@@ -817,9 +837,9 @@ namespace gem {
           uint32_t getBXCountCount() {
             return 0x0;
             /*
-            std::stringstream regName;
-            regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-            return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.BXCount");
+              std::stringstream regName;
+              regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
+              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.BXCount");
             */
           };
 	  
