@@ -39,6 +39,8 @@
 #include "xoap/Method.h"
 #include "xoap/AttachmentPart.h"
 
+#include "xoap/domutils.h"
+
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::LatencyScan)
 
 //
@@ -84,10 +86,6 @@ gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)  t
   wl_->activate();
 
   currentLatency_ = 0;
-  vfat_ = 0;
-  event_ = 0;
-  eventsSeen_ = 0;
-  channelSeen_=0;
 }
 
 gem::supervisor::tbutils::LatencyScan::~LatencyScan()
@@ -111,6 +109,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   hw_semaphore_.take();//take hw to set the trigger source, send L1A+Cal pulses,
 
   //set trigger source  
+  /*
   if(confParams_.bag.triggerSource_.value_ == 0x0){
     optohybridDevice_->setTrigSource(0x0);//from AMC13   
   }else if(confParams_.bag.triggerSource_.value_ == 0x1){
@@ -119,34 +118,15 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     optohybridDevice_->setTrigSource(0x2);//from sbits   
   }else if(confParams_.bag.triggerSource_.value_ == 0x3){
     optohybridDevice_->setTrigSource(0x3);//from Ext_LEMO   
-  }
+    }*/
 
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run before start soap message" << optohybridDevice_->getL1ACount(0x0) << "Calpulse " << optohybridDevice_->getL1ACount(0x1));
-
-  LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter before " << totaltriggers << "triggerseen before " << (int)confParams_.bag.triggersSeen << " Calpulse  " << optohybridDevice_->getL1ACount(0x1));
-
-  if(totaltriggers == 0){
-    LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter" << totaltriggers);
-    if((int)confParams_.bag.triggersSeen == 0){
-      LOG4CPLUS_INFO(getApplicationLogger(), "triggerseen" << (int)confParams_.bag.triggersSeen);
-      if(!sendStartMessageAMC13()){
-	sendStartMessageAMC13();
-      }
-    }
-  }else{
-    LOG4CPLUS_INFO(getApplicationLogger(), "triggercounter" << totaltriggers);
-    if((int)confParams_.bag.triggersSeen == 0){
-      LOG4CPLUS_INFO(getApplicationLogger(), "triggerseen" << (int)confParams_.bag.triggersSeen);
-      sendResumeMessageAMC13();
-    }
-  }
-
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC Counter begin of run after start soap message" << optohybridDevice_->getL1ACount(0x0) << "Calpulse " << optohybridDevice_->getL1ACount(0x1));
-
+  sendAMC13trigger();
 
   //count triggers and Calpulses coming from TTC
-  confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x1);
-  CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x1); 
+  confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);
+  CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x0); 
+
+  LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 
   hw_semaphore_.give();//give hw to set the trigger source, send L1A+Cal pulses,
   
@@ -194,23 +174,26 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     optohybridDevice_->resetL1ACount(0x5);
     optohybridDevice_->resetResyncCount();
     optohybridDevice_->resetBC0Count();
-    optohybridDevice_->resetCalPulseCount(0x1);
+    optohybridDevice_->resetCalPulseCount(0x0);
     optohybridDevice_->sendResync();     
     optohybridDevice_->sendBC0();          
     
     hw_semaphore_.give(); // give hw to reset counters
 
-    INFO(" Scan point TiggersSeen " << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x1));
+    LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
+		   << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
   
-    if(totaltriggers != 0){
-    sendPauseMessageAMC13();
-    sleep(1);
-    }
-
     //if max Latency - current Latency >= stepsize
     if (scanParams_.bag.maxLatency - currentLatency_ >= scanParams_.bag.stepSize) {
 
       hw_semaphore_.take();// vfat set latency
+
+      LOG4CPLUS_INFO(getApplicationLogger()," ABC run: Latency= "
+		     << (int)currentLatency_ << " VT1= "
+		     << scanParams_.bag.deviceVT1 << " VT2= "
+		     << scanParams_.bag.deviceVT2
+		     << " abs(VT2-VT1) " 
+		     << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
 
       if ((currentLatency_ + scanParams_.bag.stepSize) < 0xFF) {
         optohybridDevice_->broadcastWrite("Latency", 0x0, currentLatency_ + scanParams_.bag.stepSize);
@@ -220,7 +203,6 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       
       uint32_t bufferDepth = 0;
       bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);    
-      sleep(0.001);
       
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	currentLatency_ = (*chip)->getLatency();
@@ -229,13 +211,14 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       }
       
       glibDevice_->setDAQLinkRunParameter(1,currentLatency_);
+      sleep(0.001);
 
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	(*chip)->setRunMode(1);      
       }
         
       //set trigger source  
-      if(confParams_.bag.triggerSource_.value_ == 0x0){
+      /*      if(confParams_.bag.triggerSource_.value_ == 0x0){
 	optohybridDevice_->setTrigSource(0x0);//from AMC13   
       }else if(confParams_.bag.triggerSource_.value_ == 0x1){
 	optohybridDevice_->setTrigSource(0x1);//from T1   
@@ -243,13 +226,11 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	optohybridDevice_->setTrigSource(0x2);//from sbits   
       }else if(confParams_.bag.triggerSource_.value_ == 0x3){
 	optohybridDevice_->setTrigSource(0x3);//from Ext_LEMO   
-      }
+	}*/
     
       //setting counters  = 0
       CalPulseCount_[0] = 0;	  
       confParams_.bag.triggersSeen =  0;
-      eventsSeen_   = 0;  
-      channelSeen_ = 0;
  
       hw_semaphore_.give(); // give hw vfat set latency
       wl_semaphore_.give(); // end of workloop	
@@ -258,7 +239,6 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     } // end if maxLat - curreLat >= step
     else {
       hw_semaphore_.take(); // take hw to stop workloop
-      sendPauseMessageAMC13();
       wl_->submit(stopSig_);  
       hw_semaphore_.give(); // give hw to stop workloop
       wl_semaphore_.give(); // end of workloop	      
@@ -417,7 +397,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 
       selectOptohybridDevice(out);
       selectMultipleVFAT(out);
-      selectTrigSource(out);
+      //      selectTrigSource(out);
       scanParameters(out);
 
       *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80")
@@ -438,7 +418,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 
       selectOptohybridDevice(out);
       selectMultipleVFAT(out);
-      selectTrigSource(out);
+      //      selectTrigSource(out);
       scanParameters(out);
 
       *out << cgicc::input().set("type", "submit")
@@ -452,7 +432,7 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 
       selectOptohybridDevice(out);
       selectMultipleVFAT(out);
-      selectTrigSource(out);
+      //      selectTrigSource(out);
       scanParameters(out);
 
       *out << cgicc::input().set("type", "submit")
@@ -634,7 +614,7 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
     if (element != cgi.getElements().end())
       scanParams_.bag.MSPulseLength  = element->getIntegerValue();
 
-
+    /*
     cgicc::form_iterator new_triggersource = cgi.getElement("SetTrigSrc");
     INFO("triggersource output : " << (**new_triggersource).c_str());
     
@@ -658,7 +638,8 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
       optohybridDevice_->setTrigSource(0x2);//from Ext_LEMO   
       INFO("Real signals and the trigger comes from the LEMO Cable. TrigSource : " << confParams_.bag.triggerSource_ );
     }
-
+   */
+  
   }//end try
   catch (const xgi::exception::Exception & e) {
     XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -688,19 +669,14 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
   is_working_ = true;
 
-  sendConfigureMessageAMC13();
-  sendConfigureMessageGLIB();
-
   stepSize_   = scanParams_.bag.stepSize;
   minLatency_ = scanParams_.bag.minLatency;
   maxLatency_ = scanParams_.bag.maxLatency;
 
-  vfat_ = 0;
-  event_ = 0;
-  sumVFAT_ = 0;
-  counter_ = {0,0,0,0,0};
-  eventsSeen_ = 0;
-  channelSeen_ = 0;
+  NTriggersAMC13();
+  sendConfigureMessageAMC13();
+  sendConfigureMessageGLIB();
+
   confParams_.bag.triggercount = 0;
 
   hw_semaphore_.take();
@@ -708,7 +684,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
 
   //set trigger source
-  INFO("ConfigureAction Trigger Source : " << confParams_.bag.triggerSource_ );   
+  /*  INFO("ConfigureAction Trigger Source : " << confParams_.bag.triggerSource_ );   
   if(confParams_.bag.triggerSource_.value_ == 0x0){
     optohybridDevice_->setTrigSource(0x0);//from AMC13
     INFO("Real signals and the trigger comes from the AMC13. TrigSource : " << confParams_.bag.triggerSource_ );   
@@ -722,6 +698,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
     optohybridDevice_->setTrigSource(0x2);//from Ext_LEMO   
     INFO("Real signals and the trigger comes from the LEMO Cable. TrigSource : " << confParams_.bag.triggerSource_ );
   }
+  */
 
   //make sure device is not running
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -802,7 +779,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
   //reset counters
   optohybridDevice_->resetL1ACount(0x5);
-  optohybridDevice_->resetCalPulseCount(0x1);
+  optohybridDevice_->resetCalPulseCount(0x0);
   optohybridDevice_->resetResyncCount();
   optohybridDevice_->resetBC0Count();
   optohybridDevice_->sendResync();      
@@ -899,7 +876,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();//oh reset counters
 
   //set trigger source
-  INFO("Start Trigger Source : " << confParams_.bag.triggerSource_ );   
+  /*  INFO("Start Trigger Source : " << confParams_.bag.triggerSource_ );   
   if(confParams_.bag.triggerSource_.value_ == 0x0){
     optohybridDevice_->setTrigSource(0x0);//from AMC13
   }else if(confParams_.bag.triggerSource_.value_ == 0x1){
@@ -908,7 +885,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
     optohybridDevice_->setTrigSource(0x3);//from sbits   
   }else if(confParams_.bag.triggerSource_.value_ == 0x2){
     optohybridDevice_->setTrigSource(0x2);//from Ext_LEMO   
-  }
+    }*/
 
   //set clock source
   //optohybridDevice_->setVFATClock(1,1,0x0);    
@@ -921,7 +898,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   optohybridDevice_->resetL1ACount(0x5);
   optohybridDevice_->resetResyncCount();
   optohybridDevice_->resetBC0Count();
-  optohybridDevice_->resetCalPulseCount(0x1);
+  optohybridDevice_->resetCalPulseCount(0x0);
 
 
   //flush fifo
@@ -943,8 +920,8 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
   glibDevice_->setDAQLinkRunType(1);
   glibDevice_->setDAQLinkRunParameter(1,currentLatency_);
-  glibDevice_->setDAQLinkRunParameter(2,scanParams_.bag.deviceVT2);
-  glibDevice_->setDAQLinkRunParameter(3,scanParams_.bag.deviceVT1);
+  glibDevice_->setDAQLinkRunParameter(2,scanParams_.bag.deviceVT1);
+  glibDevice_->setDAQLinkRunParameter(3,scanParams_.bag.deviceVT2);
 
   // set selected VFATs 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -980,7 +957,7 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
     scanParams_.bag.deviceVT2       = 0U;
     scanParams_.bag.VCal            = 100;
     scanParams_.bag.MSPulseLength   = 3;
-    confParams_.bag.triggerSource_  = 8;
+    //    confParams_.bag.triggerSource_  = 8;
     // confParams_.bag.deviceName   = "";
     // confParams_.bag.deviceChipID = 0x0;
 
@@ -988,7 +965,7 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
   }
 }
 
-
+/*
 void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
   throw (xgi::exception::Exception)
 {
@@ -1049,7 +1026,7 @@ void gem::supervisor::tbutils::LatencyScan::selectTrigSource(xgi::Output *out)
   }
   
 }// end void selectTrigSource
-
+*/
 
 void gem::supervisor::tbutils::LatencyScan::sendConfigureMessageGLIB()
   throw (xgi::exception::Exception) {
@@ -1060,7 +1037,7 @@ void gem::supervisor::tbutils::LatencyScan::sendConfigureMessageGLIB()
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
   //  xoap::SOAPName command = envelope.createName("CallBackConfigure","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPName command = envelope.createName("CallBackConfigure","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("Configure","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -1091,7 +1068,7 @@ bool gem::supervisor::tbutils::LatencyScan::sendStartMessageGLIB()
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
   //  xoap::SOAPName command = envelope.createName("CallBackStart","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPName command = envelope.createName("CallBackStart","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -1108,6 +1085,77 @@ bool gem::supervisor::tbutils::LatencyScan::sendStartMessageGLIB()
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
       return false;
     }
+}      
+
+void gem::supervisor::tbutils::LatencyScan::NTriggersAMC13()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------start SOAP message modify paramteres AMC13------ ");
+
+  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+  xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+  std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
+
+  xoap::MessageReference msg_2 = xoap::createMessage();
+  xoap::SOAPPart soap_2 = msg_2->getSOAPPart();
+  xoap::SOAPEnvelope envelope_2 = soap_2.getEnvelope();
+  xoap::SOAPName     parameterset   = envelope_2.createName("ParameterSet","xdaq",XDAQ_NS_URI);
+
+  xoap::SOAPElement  container = envelope_2.getBody().addBodyElement(parameterset);
+  container.addNamespaceDeclaration("xsd","http://www.w3.org/2001/XMLSchema");
+  container.addNamespaceDeclaration("xsi","http://www.w3.org/2001/XMLSchema-instance");
+  //  container.addNamespaceDeclaration("parameterset","http://schemas.xmlsoap.org/soap/encoding/");
+  xoap::SOAPName tname_param    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+  xoap::SOAPName pboxname_param = envelope_2.createName("Properties","props",appUrn);
+  xoap::SOAPElement pbox_param = container.addChildElement(pboxname_param);
+  pbox_param.addAttribute(tname_param,"soapenc:Struct");
+
+  xoap::SOAPName pboxname_amc13config = envelope_2.createName("amc13ConfigParams","props",appUrn);
+  xoap::SOAPElement pbox_amc13config = pbox_param.addChildElement(pboxname_amc13config);
+  pbox_amc13config.addAttribute(tname_param,"soapenc:Struct");
+  
+  xoap::SOAPName    soapName_l1A = envelope_2.createName("L1Aburst","props",appUrn);
+  xoap::SOAPElement cs_l1A      = pbox_amc13config.addChildElement(soapName_l1A);
+  cs_l1A.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1A.addTextNode(confParams_.bag.nTriggers.toString());
+
+  
+  std::string tool;
+  xoap::dumpTree(msg_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
+  DEBUG("msg_2: " << tool);
+  
+  try 
+    {
+      DEBUG("trying to send parameters");
+      xoap::MessageReference reply_2 = getApplicationContext()->postSOAP(msg_2, *o,  *d);
+      std::string tool;
+      xoap::dumpTree(reply_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
+      DEBUG("reply_2: " << tool);
+    }
+  catch (xoap::exception::Exception& e)
+    {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
+      XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
+      XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+    }
+  catch (std::exception& e)
+    {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
+      //XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+    }
+  catch (...)
+    {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message ");
+      XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
+    }
+
+  //  this->Default(in,out);
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to AMC13 configuring parameters has been sent------------");
 }      
 
 void gem::supervisor::tbutils::LatencyScan::sendConfigureMessageAMC13()
@@ -1145,7 +1193,6 @@ bool gem::supervisor::tbutils::LatencyScan::sendStartMessageAMC13()
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
   xoap::SOAPName command = envelope.createName("CallBackStart","xdaq", "urn:xdaq-soap:3.0");
-  //  xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 
@@ -1162,17 +1209,17 @@ bool gem::supervisor::tbutils::LatencyScan::sendStartMessageAMC13()
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
         return false;
     }
-  //  this->Default(in,out);
 }      
 
-void gem::supervisor::tbutils::LatencyScan::sendPauseMessageAMC13()
+void gem::supervisor::tbutils::LatencyScan::sendAMC13trigger()
   throw (xgi::exception::Exception) {
   //  is_working_ = true;
   xoap::MessageReference msg = xoap::createMessage();
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("CallBackPause","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("sendtriggerburst","xdaq", "urn:xdaq-soap:3.0");
+
   body.addBodyElement(command);
 
   try 
@@ -1180,38 +1227,14 @@ void gem::supervisor::tbutils::LatencyScan::sendPauseMessageAMC13()
       xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
       xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
       xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start sending burst-----------");
+
     }
   catch (xdaq::exception::Exception& e)
     {
-      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending AMC13 pause message " << e.what());
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending burst message " << e.what());
       XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
     }
   //  this->Default(in,out);
-  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to pause has been sent------------");
 }      
-
-void gem::supervisor::tbutils::LatencyScan::sendResumeMessageAMC13()
-  throw (xgi::exception::Exception) {
-  //  is_working_ = true;
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("CallBackResume","xdaq", "urn:xdaq-soap:3.0");
-  body.addBodyElement(command);
-
-  try 
-    {
-      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending AMC13 resume message " << e.what());
-      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    }
-  //  this->Default(in,out);
-  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to resume has been sent------------");
-}      
-
