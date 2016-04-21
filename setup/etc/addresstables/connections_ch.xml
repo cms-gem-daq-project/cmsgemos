@@ -55,8 +55,8 @@
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
   <connection id="gem.shelf01.glib04.optohybrid01" uri="chtcp-2.0://localhost:10203?target=192.168.0.164:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
-
-  <connection id="gem.shelf01.glib05" uri="chtcp-2.0://localhost:10205?target=192.168.0.165:50001"
+  <!-- next line-->
+  <connection id="gem.shelf01.glib05" uri="chtcp-2.0://localhost:10203?target=192.168.0.165:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib05.optohybrid00" uri="chtcp-2.0://localhost:10203?target=192.168.0.165:50001"
