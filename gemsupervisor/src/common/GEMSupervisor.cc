@@ -11,6 +11,7 @@
 #include "gem/supervisor/GEMSupervisorMonitor.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
+typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMSupervisor);
 
@@ -41,16 +42,27 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   // Find connection to RCMS.
   /*p_appInfoSpaceToolBox->createBag("rcmsStateListener", m_gemRCMSNotifier.getRcmsStateListenerParameter(),
     m_gemRCMSNotifier.getRcmsStateListenerParameter(),
-    gem::utils::GEMInfoSpaceToolBox::PROCESS);*/
+    GEMUpdateType::PROCESS);*/
   p_appInfoSpace->fireItemAvailable("rcmsStateListener",      
                                     m_gemRCMSNotifier.getRcmsStateListenerParameter());
   /*p_appInfoSpaceToolBox->createBool( "foundRcmsStateListener", m_gemRCMSNotifier.getFoundRcmsStateListenerParameter()->value_,
     m_gemRCMSNotifier.getFoundRcmsStateListenerParameter(),
-    gem::utils::GEMInfoSpaceToolBox::PROCESS);*/
+    GEMUpdateType::PROCESS);*/
   p_appInfoSpace->fireItemAvailable("foundRcmsStateListener", 
                                     m_gemRCMSNotifier.getFoundRcmsStateListenerParameter());
   m_gemRCMSNotifier.findRcmsStateListener();
   m_gemRCMSNotifier.subscribeToChangesInRcmsStateListener(p_appInfoSpace); 
+
+  p_appInfoSpaceToolBox->createString("RCMSStateListenerURL", m_rcmsStateListenerUrl.toString(),
+                                      &m_rcmsStateListenerUrl,
+                                      GEMUpdateType::PROCESS);
+
+  p_appInfoSpace->addItemRetrieveListener("rcmsStateListener",      this);
+  p_appInfoSpace->addItemRetrieveListener("foundRcmsStateListener", this);
+  p_appInfoSpace->addItemRetrieveListener("RCMSStateListenerURL",   this);
+  p_appInfoSpace->addItemChangedListener( "rcmsStateListener",      this);
+  p_appInfoSpace->addItemChangedListener( "foundRcmsStateListener", this);
+  p_appInfoSpace->addItemChangedListener( "RCMSStateListenerURL",   this);
 }
 
 gem::supervisor::GEMSupervisor::~GEMSupervisor()
@@ -127,20 +139,19 @@ void gem::supervisor::GEMSupervisor::init()
   DEBUG("init::starting the monitoring");
 
   // borrowed from hcalSupervisor
-  /*
-  if (m_reportToRCMS && !m_hasDoneStandardInit) {
+  if (m_reportToRCMS /*&& !m_hasDoneStandardInit*/) {
     m_gemRCMSNotifier.findRcmsStateListener();
     std::string classname = m_gemRCMSNotifier.getRcmsStateListenerParameter()->bag.classname.value_;
     int instance          = m_gemRCMSNotifier.getRcmsStateListenerParameter()->bag.instance.value_;
     m_rcmsStateListenerUrl = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(classname,instance)->getContextDescriptor()->getURL();
-    // (example) INFO [] RCMSStateListener found with url: http://cmshcaltb02:16001/rcms
+    INFO("RCMSStateListener found with url: " << m_rcmsStateListenerUrl.toString());
   }
-  */
   
   // when to do this, have to make sure that all applications have been loaded...
   //p_gemMonitor->addInfoSpace("AppStateMonitoring", p_appStateInfoSpaceToolBox);
   dynamic_cast<gem::supervisor::GEMSupervisorMonitor*>(p_gemMonitor)->setupAppStateMonitoring();
   p_gemMonitor->startMonitoring();
+  m_globalState.startTimer();
 };
 
 //state transitions
@@ -319,9 +330,10 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
 
 void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after)
 {  
-  DEBUG("globalStateChanged(" << before << "," << after << ")");
+  DEBUG("GEMSupervisor::globalStateChanged(" << before << "," << after << ")");
   
   // Notify RCMS of a state change.
+  m_stateName = GEMGlobalState::getStateName(after);
   try {
     if (m_reportToRCMS)
       m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed");

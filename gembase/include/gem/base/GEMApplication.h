@@ -2,15 +2,27 @@
 #define gem_base_GEMApplication_h
 
 #include <cstdlib>
-//#include "limits.h"
 #include <limits>
 #include <string>
 #include <memory>
 #include <deque>
 #include <map>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+
+#include "log4cplus/logger.h"
+
+#include "xdaq/NamespaceURI.h"
+#include "xdaq/Application.h"
+#include "xdaq/ApplicationStub.h"
+#include "xdaq/ApplicationGroup.h"
+#include "xdaq/ApplicationContext.h"
+#include "xdaq/ApplicationDescriptorImpl.h"
+#include "xdaq/exception/Exception.h"
 #include "xdaq/WebApplication.h"
-#include "xgi/framework/UIManager.h"
+#include "xdaq/XceptSerializer.h"
 
 #include "xdata/Boolean.h"
 #include "xdata/Integer.h"
@@ -24,36 +36,24 @@
 #include "xdata/Double.h" 
 #include "xdata/Boolean.h"
 #include "xdata/Vector.h"
-#include "xdaq/XceptSerializer.h"
 
 #include "toolbox/string.h"
+#include "toolbox/TimeVal.h"
 
 #include "xgi/Input.h"
 #include "xgi/Method.h"
 #include "xgi/Output.h"
+#include "xgi/framework/UIManager.h"
+
 #include "xoap/Method.h"
 
 #include "xcept/Exception.h"
 #include "xcept/tools.h"
 
-#include "xdaq/NamespaceURI.h"
-#include "xdaq/Application.h"
-#include "xdaq/ApplicationStub.h"
-#include "xdaq/ApplicationGroup.h"
-#include "xdaq/ApplicationContext.h"
-#include "xdaq/ApplicationDescriptorImpl.h"
-#include "xdaq/exception/Exception.h"
-
-#include "toolbox/TimeVal.h"
-
-#include "log4cplus/logger.h"
 #include "gem/utils/GEMLogging.h"
 #include "gem/base/exception/Exception.h"
 #include "gem/base/utils/exception/Exception.h"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+#include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 namespace xdaq {
   class ApplicationStub;

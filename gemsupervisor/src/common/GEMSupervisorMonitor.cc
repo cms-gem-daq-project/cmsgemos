@@ -63,8 +63,8 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
       std::string state;
       try {
         xdata::InfoSpace* is = xdata::getInfoSpaceFactory()->get(monitem->second.regname);
-        DEBUG("infospace: " << is->name() << " has item FSMState " << is->hasItem("FSMState"));
-        state = gem::base::utils::GEMInfoSpaceToolBox::getString(is,"FSMState");
+        DEBUG("infospace: " << is->name() << " has item StateName " << is->hasItem("StateName"));
+        state = gem::base::utils::GEMInfoSpaceToolBox::getString(is,"StateName");
       } catch (xdata::exception::Exception const& err) {
         std::string msg = "Error trying to read from InfoSpace '" + monitem->second.regname + "' state " + state + ".";
         ERROR(msg << " " << err.what());
