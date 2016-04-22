@@ -3,7 +3,7 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://gem904daq01:5002">
+  <xc:Context url="http://gem904daq01:4445">
 
     <xc:Application class="gem::hw::amc13::AMC13Manager" id="259" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
@@ -20,11 +20,14 @@
           <AMCInputEnableList xsi:type="xsd:string">4-6,8-10</AMCInputEnableList>
           <AMCIgnoreTTSList   xsi:type="xsd:string">1-9,11,12</AMCIgnoreTTSList>
           
-          <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
-          <EnableFakeData      xsi:type="xsd:boolean">true</EnableFakeData>
+          <EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
+          <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
-          <EnableLocalTTC      xsi:type="xsd:boolean">false</EnableLocalTTC>
-          <EnableLocalL1A      xsi:type="xsd:boolean">false</EnableLocalL1A>
+          <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
+          <EnableLocalL1A      xsi:type="xsd:boolean">true</EnableLocalL1A>
+
+          <EnableCalPulse      xsi:type="xsd:boolean">true</EnableCalPulse>
+
           <InternalPeriodicPeriod      xsi:type="xsd:unsignedInt">10</InternalPeriodicPeriod>
           <L1Aburst            xsi:type="xsd:unsignedInt">1</L1Aburst>
           <L1Amode             xsi:type="xsd:integer">0</L1Amode>

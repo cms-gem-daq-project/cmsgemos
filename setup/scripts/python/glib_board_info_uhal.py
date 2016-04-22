@@ -39,6 +39,8 @@ parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
 parser.add_option("--daq_enable", type="int", dest="daq_enable",
 		  help="enable daq output", metavar="daq_enable", default=-1)
+parser.add_option("--rd", type="int", dest="reset_daq",
+		  help="reset daq", metavar="reset_daq", default=-1)
 
 (options, args) = parser.parse_args()
 
@@ -73,39 +75,65 @@ print "--=======================================--"
 print
 
 if (options.daq_enable>=0):
-        writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
+        #writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
+        writeRegister(glib, "GLIB.DAQ.CONTROL", 0x8)
+        #writeRegister(glib, "GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT", 0x30D40)
+        #writeRegister(glib, "GLIB.DAQ.CONTROL", 0x181)
         print "Reset daq_enable: %i"%(options.daq_enable)
 
-print "-> DAQ control reg     : 0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
-print "-> DAQ status reg      : 0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
-print "-> DAQ L1A ID          : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
-print "-> DAQ sent events cnt : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.EVT_SENT"))
+print "-> DAQ control reg    :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
+print "-> DAQ status reg     :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
+print "-> DAQ L1A ID         :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
+print "-> DAQ sent events cnt:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.EVT_SENT"))
 print
-print "-> DAQ INPUT_TIMEOUT   : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT"))
-print "-> DAQ RUN_TYPE        : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_TYPE"))
-print "-> DAQ RUN_PARAMS      : 0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_PARAMS"))
+print "-> DAQ DAV_TIMEOUT  :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL.DAV_TIMEOUT"))
+print "-> DAQ INPUT_TIMEOUT:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT"))
+print "-> DAQ RUN_TYPE     :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_TYPE"))
+print "-> DAQ RUN_PARAMS   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_PARAMS"))
 print
-print "-> DAQ GTX NOT_IN_TABLE error counter :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
-print "-> DAQ GTX dispersion error counter   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
+print "-> DAQ GTX NOT_IN_TABLE error counter:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
+print "-> DAQ GTX dispersion error counter  :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
 print
-if options.gemttc in [0,1]:
-        writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
-print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
-print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
-
+print "-> GLIB MAX_DAV_TIMER :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.MAX_DAV_TIMER"))
+print "-> GLIB LAST_DAV_TIMER:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.LAST_DAV_TIMER"))
 if options.gemttc in [0,1]:
         writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
 print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
 print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
 
 NGTX = 2
+print "--=======================================--"
+print "-> DAQ GTX INFO"
+print "--=======================================--"
 for olink in range(NGTX):
-        print "-> DAQ GTX%d corrupted VFAT block counter : 0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.CORRUPT_VFAT_BLK_CNT"%(olink)))
-        print "-> DAQ GTX%d evn                          : 0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.EVN"%(olink)))
+        print "-------------------------================--"
+        print "----------> DAQ GTX%d INFO <---------------"%(olink)
+        print "-------------------------================--"
+        print "---------> DAQ GTX%d status                      :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.STATUS"%(olink)))
+        print "---------> DAQ GTX%d corrupted VFAT block counter:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.CORRUPT_VFAT_BLK_CNT"%(olink)))
+        print "---------> DAQ GTX%d evn                         :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.EVN"%(olink)))
         print
-        #dbgWords = readBlock(glib,"GLIB.DAQ.GTX%d.LASTBLOCK",olink,7)
-        #for word in dbgWords:
-        #        print "-> DAQ debug : 0x%08x"%(word)
+        print "---------> DAQ GTX%d MAX_DAV_TIMER :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.DAV_STATS.MAX_DAV_TIMER" %(olink)))
+        print "---------> DAQ GTX%d LAST_DAV_TIMER:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.DAV_STATS.LAST_DAV_TIMER"%(olink)))
+        print "---------> DAQ GTX%d DAV_TIMEOUT   :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.DAV_TIMEOUT"%(olink)))
+        print "-------------------------================--"
+        print "-------------> DEBUG INFO <----------------"
+        print "-------------------------================--"
+        dbgWords = readBlock(glib,"GLIB.DAQ.GTX%d.LASTBLOCK"%(olink),7)
+        for word in dbgWords:
+                print "-> DAQ GTX%d debug:0x%08x"%(olink,word)
+                
+print
+print "--=======================================--"
+print "-> SSSSSSSSSSSSSSSSSSSSSSBITSSSSSSSSSSSSSS"
+print "--=======================================--"
+print "-> SBIT_RATE:0x%08x"%(readRegister(glib,"GLIB.DAQ.SBIT_RATE"))
+print
+for olink in range(NGTX):
+        print "-> DAQ GTX%d clusters 01:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d_CLUSTER_01"%(olink)))
+        print "-> DAQ GTX%d clusters 23:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d_CLUSTER_23"%(olink)))
+        print
+
 
 print
 print "--=======================================--"
