@@ -55,7 +55,8 @@ namespace gem {
 	
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
-	
+
+	  bool is_initialized_, is_configured_, is_running_, is_paused_, is_resumed_;	  	
         private:
 	  uint16_t parseAMCEnableList(std::string const&);
 	  bool     isValidSlotNumber( std::string const&);
