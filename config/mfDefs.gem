@@ -1,0 +1,24 @@
+GIT_VERSION  := $(shell git describe --abbrev=4 --dirty --always --tags)
+GEMDEVELOPER := $(shell id --user --name)
+
+
+# ROOT Config
+ROOTCFLAGS = $(shell root-config --cflags)
+ROOTLIBS   = $(shell root-config --libs) 
+ROOTGLIBS  = $(shell root-config --glibs) 
+
+# Debugging and profiling flags
+PROFILING_Flags = -pg
+DEBUG_CFlags    = -O0 -g3 -fno-inline
+DEBUG_CCFlags   = ${DEBUG_CFlags}
+DEBUG_LIBS      = profiler tcmalloc
+
+# Modern compiler support, when available
+GCC47Flags = -std=c++11 -std=gnu++11
+GCC48Flags = -std=c++14 -std=gnu++14
+
+# User C and CC flags
+UserCFlags  =-std=c++0x -std=gnu++0x ${DEBUG_CFlags}  -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+UserCCFlags =-std=c++0x -std=gnu++0x ${DEBUG_CCFlags} -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+UserStaticLinkFlags =
+
