@@ -21,7 +21,6 @@ include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
 Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc GEMWebApplication.cc GEMMonitor.cc utils/GEMInfoSpaceToolBox.cc
-Sources+=GEMReadoutApplication.cc
 
 DynamicLibrary=gem_base
 
