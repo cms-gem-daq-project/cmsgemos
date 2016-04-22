@@ -6,11 +6,6 @@ BUILD_HOME:=$(shell pwd)/../..
 include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
-# ROOT Config
-ROOTCFLAGS=$(shell root-config --cflags)
-ROOTLIBS  =$(shell root-config --libs) 
-ROOTGLIBS =$(shell root-config --glibs) 
-
 #Project=gem
 Project=gemdaq-testing
 Package=gemreadout
@@ -21,6 +16,8 @@ PackageName=readout
 GEMREADOUT_VER_MAJOR=0
 GEMREADOUT_VER_MINOR=1
 GEMREADOUT_VER_PATCH=0
+
+include $(BUILD_HOME)/config/mfDefs.gem
 
 Sources =version.cc
 Sources+=GEMDataParker.cc
@@ -45,30 +42,13 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ
 DependentLibraryDirs+=$(uHALROOT)/lib 
 
 LibraryDirs =$(XDAQ_ROOT)/lib 
-#LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
-#LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
-#LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM) 
 LibraryDirs+=$(uHALROOT)/lib 
-#LibraryDirs+=${ROOTLIBS}
-#LibraryDirs+=$(BUILD_HOME)/gembase/lib 
-
-PROFILING_Flags =-pg
-DEBUG_CFlags =-O0 -g3 -fno-inline
-DEBUG_CCFlags =${DEBUG_CFlags}
-GCC47Flags = -std=c++11 -std=gnu++11
-GCC48Flags = -std=c++14 -std=gnu++14
-UserCFlags  =-std=c++0x -std=gnu++0x ${ROOTCFLAGS}  ${DEBUG_CFlags}
-UserCCFlags =-std=c++0x -std=gnu++0x ${ROOTCFLAGS}  ${DEBUG_CCFlags}
-UserDynamicLinkFlags =$(ROOTLIBS)
-UserStaticLinkFlags =
 
 #UserExecutableLinkFlags =-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib 
 #UserExecutableLinkFlags+=-L$(CACTUS_HOME)/lib 
 #UserExecutableLinkFlags+=-lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
-#LDFLAGS=`root-config --libs --glibs`
-DEBUG_LIBS =profiler tcmalloc
 DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_base
 Libraries          = log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
 
@@ -85,3 +65,5 @@ print-env:
 	@echo ROOTCFLAGS    $(ROOTCFLAGS)
 	@echo ROOTLIBS      $(ROOTLIBS)
 	@echo ROOTGLIBS     $(ROOTGLIBS)
+	@echo GIT_VERSION   $(GIT_VERSION)
+	@echo GEMDEVELOPER  $(GEMDEVELOPER)
