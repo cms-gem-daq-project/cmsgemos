@@ -1051,3 +1051,19 @@ void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
   std::vector<uint32_t> zeros(numWords, 0);
   return writeBlock(name, zeros);
 }
+
+void gem::hw::GEMHwDevice::generalReset()
+{
+  return;
+}
+
+void gem::hw::GEMHwDevice::counterReset()
+{
+  return;
+}
+
+void gem::hw::GEMHwDevice::linkReset(uint8_t const& link)
+{
+  return;
+}
+

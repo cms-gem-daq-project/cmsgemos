@@ -6,6 +6,9 @@ include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules
 
+Project=gemdaq-testing
+include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+
 SUBPACKAGES := \
         gemutils \
         gembase \
@@ -65,4 +68,5 @@ print-env:
 	@echo ROOTCFLAGS    $(ROOTCFLAGS)
 	@echo ROOTLIBS      $(ROOTLIBS)
 	@echo ROOTGLIBS     $(ROOTGLIBS)
-
+	@echo GIT_VERSION   $(GIT_VERSION)
+	@echo GEMDEVLOPER   $(GEMDEVLOPER)

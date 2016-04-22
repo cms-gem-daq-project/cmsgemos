@@ -17,6 +17,8 @@ GEMBASE_VER_MAJOR=0
 GEMBASE_VER_MINOR=1
 GEMBASE_VER_PATCH=0
 
+include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+
 Sources =version.cc
 Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc GEMWebApplication.cc GEMMonitor.cc utils/GEMInfoSpaceToolBox.cc
 Sources+=GEMReadoutApplication.cc
@@ -35,17 +37,6 @@ DependentLibraryDirs+=$(uHALROOT)/lib
 LibraryDirs =$(XDAQ_ROOT)/lib
 LibraryDirs+=$(uHALROOT)/lib
 
-PROFILING_Flags =-pg
-DEBUG_CFlags  =-O0 -g3 -fno-inline
-DEBUG_CCFlags =${DEBUG_CFlags}
-GCC47Flags = -std=c++11 -std=gnu++11
-GCC48Flags = -std=c++14 -std=gnu++14
-UserCFlags  =-std=c++0x -std=gnu++0x ${DEBUG_CFlags}
-UserCCFlags =-std=c++0x -std=gnu++0x ${DEBUG_CCFlags}
-DEBUG_LDFlags =${PROFILING_Flags}
-UserDynamicLinkFlags =
-UserStaticLinkFlags =
-
 #UserExecutableLinkFlags =-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib
 #UserExecutableLinkFlags+=-Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib
 #UserExecutableLinkFlags+=-L$(CACTUS_HOME)/lib
@@ -53,13 +44,13 @@ UserStaticLinkFlags =
 #UserExecutableLinkFlags+=-lboost_regex -lboost_system -lcactus_extern_pugixml
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
-DEBUG_LIBS =profiler tcmalloc
 DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal gem_utils
 Libraries          = log4cplus config xcept xerces-c numa toolbox xdaq2rc asyncresolv uuid
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/mfRPM_gem.rules
+
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
@@ -70,3 +61,5 @@ print-env:
 	@echo ROOTCFLAGS    $(ROOTCFLAGS)
 	@echo ROOTLIBS      $(ROOTLIBS)
 	@echo ROOTGLIBS     $(ROOTGLIBS)
+	@echo GIT_VERSION   $(GIT_VERSION)
+	@echo GEMDEVELOPER  $(GEMDEVELOPER)
