@@ -73,7 +73,9 @@ print "--=======================================--"
 print
 
 if (options.daq_enable>=0):
-        writeRegister(glib, "GLIB.DAQ.CONTROL", options.daq_enable)
+        writeRegister(glib, "GLIB.DAQ.CONTROL.DAQ_ENABLE", 0x1)
+        writeRegister(glib, "GLIB.DAQ.CONTROL.TTS_OVERRIDE", 0x8)
+        writeRegister(glib, "GLIB.DAQ.CONTROL.INPUT_KILL_MASK", 0x1)
         print "Reset daq_enable: %i"%(options.daq_enable)
 
 print "-> DAQ control reg     : 0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
