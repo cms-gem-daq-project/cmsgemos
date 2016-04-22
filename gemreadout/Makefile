@@ -17,7 +17,7 @@ GEMREADOUT_VER_MAJOR=0
 GEMREADOUT_VER_MINOR=1
 GEMREADOUT_VER_PATCH=0
 
-include $(BUILD_HOME)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
 Sources+=GEMDataParker.cc
