@@ -2,8 +2,6 @@
 #define gem_supervisor_tbutils_LatencyScan_h
 
 #include "gem/supervisor/tbutils/GEMTBUtil.h"
-#include "TStopwatch.h"
-
 
 namespace gem {
   namespace supervisor {

@@ -21,10 +21,10 @@ include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
 Sources+=tbutils/VFAT2XMLParser.cc
-Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc tbutils/ADCScan.cc
+Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc #tbutils/ADCScan.cc
 #Sources+=tbutils/GEMTBUtil.cc tbutils/LatencyScan.cc
 #Sources+=GEMGLIBSupervisorWeb.cc
-Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalState.cc
+Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc #GEMGlobalState.cc
 
 DynamicLibrary=gem_supervisor
 
@@ -48,6 +48,11 @@ DependentLibraryDirs+=$(uHALROOT)/lib
 LibraryDirs =$(XDAQ_ROOT)/lib
 LibraryDirs+=$(uHALROOT)/lib
 
+## for old tbutils that need to be cleaned
+LibraryDirs+=$(ROOTLIBS) 
+LibraryDirs+=$(ROOTGLIBS) 
+UserCFlags += $(ROOTCFLAGS)
+UserCCFlags+= $(ROOTCFLAGS)
 #UserExecutableLinkFlags =-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib 
 #UserExecutableLinkFlags+=-L$(CACTUS_HOME)/lib 
 #UserExecutableLinkFlags+=-lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system

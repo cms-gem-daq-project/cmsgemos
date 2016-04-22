@@ -43,7 +43,11 @@ DependentLibraryDirs+=$(uHALROOT)/lib
 
 LibraryDirs =$(XDAQ_ROOT)/lib 
 LibraryDirs+=$(uHALROOT)/lib 
+LibraryDirs+=$(ROOTLIBS) 
+LibraryDirs+=$(ROOTGLIBS) 
 
+UserCFlags += $(ROOTCFLAGS)
+UserCCFlags+= $(ROOTCFLAGS)
 #UserExecutableLinkFlags =-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib 
 #UserExecutableLinkFlags+=-L$(CACTUS_HOME)/lib 
 #UserExecutableLinkFlags+=-lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml
