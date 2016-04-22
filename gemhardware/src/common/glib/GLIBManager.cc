@@ -12,6 +12,16 @@
 
 #include "gem/hw/glib/HwGLIB.h"
 //#include "gem/hw/glib/exception/Exception.h"
+
+#include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPConstants.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/Method.h"
+#include "xoap/AttachmentPart.h"
+
+
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBManager);
@@ -309,7 +319,6 @@ void gem::hw::glib::GLIBManager::configureAction()
     if (m_glibs[slot]->isHwConnected()) {
       DEBUG("GLIBManager::setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
       m_glibs[slot]->setTrigSource(info.triggerSource.value_);
-      m_glibs[slot]->resetDAQLink();
       
       // reset the DAQ
       m_glibs[slot]->resetDAQLink();
@@ -340,6 +349,8 @@ void gem::hw::glib::GLIBManager::configureAction()
 void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
+
+  INFO("gem::hw::glib::GLIBManager::startAction begin");
   //what is required for starting the GLIB?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(100);
@@ -368,6 +379,7 @@ void gem::hw::glib::GLIBManager::startAction()
     */
   }
   usleep(100);
+  INFO("gem::hw::glib::GLIBManager::startAction end");
 }
 
 void gem::hw::glib::GLIBManager::pauseAction()
@@ -387,6 +399,7 @@ void gem::hw::glib::GLIBManager::resumeAction()
 void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  INFO("gem::hw::glib::GLIBManager::stopAction begin");
   //what is required for stopping the GLIB?
   usleep(100); // just for testing the timing of different applications
 }
@@ -453,10 +466,10 @@ void gem::hw::glib::GLIBManager::resetAction()
 }
 
 /*
-void gem::hw::glib::GLIBManager::noAction()
+  void gem::hw::glib::GLIBManager::noAction()
   throw (gem::hw::glib::exception::Exception)
-{
-}
+  {
+  }
 */
 
 void gem::hw::glib::GLIBManager::failAction(toolbox::Event::Reference e)

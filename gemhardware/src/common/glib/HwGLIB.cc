@@ -718,6 +718,7 @@ void gem::hw::glib::HwGLIB::resetDAQLink(uint32_t const& davTO)
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x1);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x0);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAV_TIMEOUT", davTO);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.TTS_OVERRIDE", 0x8);/*HACK to be fixed*/
 }
 
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkControl()
