@@ -49,7 +49,7 @@ LibraryDirs+=$(uHALROOT)/lib
 #UserExecutableLinkFlags+=-lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
-DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_base
+DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_base cactus_amc13_tools
 Libraries          = log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
 
 include $(XDAQ_ROOT)/config/Makefile.rules

@@ -21,10 +21,10 @@ include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
 Sources+=tbutils/VFAT2XMLParser.cc
-Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc tbutils/ADCScan.cc
-#Sources+=tbutils/GEMTBUtil.cc tbutils/LatencyScan.cc
-#Sources+=GEMGLIBSupervisorWeb.cc
+Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc 
 Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalState.cc
+#Sources+=tbutils/ADCScan.cc
+#Sources+=GEMGLIBSupervisorWeb.cc
 
 DynamicLibrary=gem_supervisor
 
@@ -53,7 +53,7 @@ LibraryDirs+=$(uHALROOT)/lib
 #UserExecutableLinkFlags+=-lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system
 #UserExecutableLinkFlags+=-lcactus_extern_pugixml -lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
-DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_readout
+DependentLibraries = log4cplus config xcept boost_system cactus_uhal_uhal xerces-c gem_hw gem_utils gem_readout cactus_amc13_tools
 Libraries          = log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
 
 include $(XDAQ_ROOT)/config/Makefile.rules

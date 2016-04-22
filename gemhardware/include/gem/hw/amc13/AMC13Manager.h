@@ -48,7 +48,8 @@ namespace gem {
           virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
-	  virtual void sendTriggerBurst() throw (gem::hw::amc13::exception::Exception);
+	  virtual xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
 	
           virtual void failAction(toolbox::Event::Reference e)
@@ -63,7 +64,7 @@ namespace gem {
             void registerFields(xdata::Bag<AMC13Info> *bag);
             
             xdata::String connectionFile;
-	    xdata::String amc13CardName;
+            xdata::String cardName;
             xdata::String amcInputEnableList;
             xdata::String amcIgnoreTTSList;
             
@@ -110,7 +111,11 @@ namespace gem {
           xdata::Bag<AMC13Info> m_amc13Params;
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
+<<<<<<< HEAD
           std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList, m_cardName;
+=======
+          std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
+>>>>>>> release-v2
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,

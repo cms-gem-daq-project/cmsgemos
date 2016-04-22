@@ -343,7 +343,7 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
       if ( gem::readout::GEMDataParker::VFATfillData( islot, geb) ) {
         if ( vfats.size() == nChip ) {
  
-          gem::readout::GEMDataParker::GEMfillHeaders(m_event, nChip, gem, geb);
+          gem::readout::GEMDataParker::GEMfillHeaders(m_event, 1, gem, geb);
           gem::readout::GEMDataParker::GEMfillTrailers(gem, geb);
           // GEM Event Writing
           DEBUG(" ::GEMEventMaker writing...  geb.vfats.size " << int(geb.vfats.size()) );
