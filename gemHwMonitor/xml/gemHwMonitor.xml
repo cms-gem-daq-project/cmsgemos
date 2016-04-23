@@ -18,9 +18,9 @@
     </xc:Application>
     -->
 
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemHwMonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hwMonitor.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemHwMonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardwareMonitor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
     
   </xc:Context>
 
