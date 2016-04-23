@@ -20,6 +20,10 @@ ifndef PACKAGE_VER_PATCH
 PACKAGE_VER_PATCH=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_PATCH/ {print $$3;}' $(PackagePath)/include/$(Project)/$(ShortPackage)/version.h)
 endif
 
+ifndef PACKAGE_REQUIRED_PACKAGE_LIST
+PACKAGE_REQUIRED_PACKAGE_LIST=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' $(PackagePath)/include/$(Project)/$(ShortPackage)/version.h)
+endif
+
 
 #
 # Extract summary, description and authors

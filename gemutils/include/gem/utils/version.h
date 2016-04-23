@@ -20,7 +20,7 @@ namespace gemutils {
 #define GEMUTILS_FULL_VERSION_LIST  GEMUTILS_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMUTILS_VERSION_MAJOR,GEMUTILS_VERSION_MINOR,GEMUTILS_VERSION_PATCH)
 #endif
     
-  const std::string package = "gem/utils";
+  const std::string package = "gemutils";
   const std::string versions = GEMUTILS_FULL_VERSION_LIST;
   const std::string summary = "Utilities for GEM online software";
   const std::string description = "";

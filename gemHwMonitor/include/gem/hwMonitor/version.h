@@ -20,7 +20,7 @@ namespace gemHwMonitor {
 #define GEMHWMONITOR_FULL_VERSION_LIST GEMHWMONITOR_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMHWMONITOR_VERSION_MAJOR, GEMHWMONITOR_VERSION_MINOR,GEMHWMONITOR_VERSION_PATCH)
 #endif
     
-  const std::string package = "gem/hwMonitor";
+  const std::string package = "gemhwMonitor";
   const std::string versions = GEMHWMONITOR_FULL_VERSION_LIST;
   const std::string summary = "GEM hwMonitor";
   const std::string description = "";

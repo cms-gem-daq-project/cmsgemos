@@ -26,7 +26,7 @@ Sources+=glib/GLIBManager.cc glib/GLIBManagerWeb.cc glib/GLIBMonitor.cc glib/GLI
 Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc
 #Sources+=GEMController.cc GEMControllerPanelWeb.cc
 
-DynamicLibrary=gem_hw
+DynamicLibrary=gemhardware
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
@@ -43,7 +43,7 @@ LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
-DependentLibraries+=gem_utils gem_base
+DependentLibraries+=gemutils gembase
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules

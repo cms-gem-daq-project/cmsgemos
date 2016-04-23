@@ -20,7 +20,7 @@ namespace gemhardware {
 #endif
   
   
-  const std::string package = "gem/hw";
+  const std::string package = "gemhardware";
   const std::string versions = GEMHARDWARE_FULL_VERSION_LIST;
   const std::string summary = "HW interfaces for GEM devices";
   const std::string description = "";

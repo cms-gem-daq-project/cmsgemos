@@ -18,7 +18,7 @@ include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 Sources =version.cc
 Sources+=gemHwMonitorWeb.cc gemHwMonitorBase.cc
 
-DynamicLibrary=gem_hwMonitor
+DynamicLibrary=gemhwMonitor
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
@@ -40,7 +40,7 @@ LibraryDirs+=$(AMC13_STANDALONE_ROOT)/amc13/lib
 LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
-DependentLibraries+=gem_utils gem_base gem_hw
+DependentLibraries+=gemutils gembase gemhardware
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules

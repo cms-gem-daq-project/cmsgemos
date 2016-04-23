@@ -18,7 +18,7 @@ include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 Sources =version.cc
 Sources+=Lock.cc gemXMLparser.cc soap/GEMSOAPToolBox.cc GEMRegisterUtils.cc
 
-DynamicLibrary=gem_utils
+DynamicLibrary=gemutils
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 

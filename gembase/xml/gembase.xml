@@ -23,7 +23,7 @@
     </xc:Application>
 
     <xc:Module>${XDAQ_ROOT}/lib/libxdaq2rc.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
 
   </xc:Context>
 

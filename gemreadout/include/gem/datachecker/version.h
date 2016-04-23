@@ -20,7 +20,7 @@ namespace gemdatachecker {
 #define GEMDATACHECKER_FULL_VERSION_LIST GEMDATACHECKER_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMDATACHECKER_VERSION_MAJOR, GEMDATACHECKER_VERSION_MINOR,GEMDATACHECKER_VERSION_PATCH)
 #endif
     
-  const std::string package = "gem/datachecker";
+  const std::string package = "gemdatachecker";
   const std::string versions = GEMDATACHECKER_FULL_VERSION_LIST;
   const std::string summary = "GEM datachecker";
   const std::string description = "";
