@@ -6,6 +6,9 @@ BUILD_HOME:=$(shell pwd)/../..
 GIT_VERSION  := $(shell git describe --abbrev=4 --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
 
+Project=gemdaq-testing
+ShortProject=gem
+
 # ROOT Config
 ROOTCFLAGS = $(shell root-config --cflags)
 ROOTLIBS   = $(shell root-config --libs)

@@ -4,6 +4,7 @@
 
 #Project=gem
 Project=gemdaq-testing
+ShortProject=gem
 Package=gemhardware
 LongPackage=gemhardware
 ShortPackage=hw
