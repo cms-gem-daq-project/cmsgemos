@@ -46,8 +46,8 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
 DependentLibraries+=gem_utils gem_base
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(XDAQ_ROOT)/config/mfRPM.rules
 
 #test#hwbase:
 #test#	Sources=GEMHwDevice.cc 

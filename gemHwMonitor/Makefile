@@ -43,8 +43,8 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
 DependentLibraries+=gem_utils gem_base gem_hw
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(XDAQ_ROOT)/config/mfRPM.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
