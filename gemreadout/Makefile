@@ -46,8 +46,8 @@ DependentLibraries+=gem_hw gem_utils gem_base
 UserDynamicLinkFlags+=$(ROOTLIBS)
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(XDAQ_ROOT)/config/mfRPM.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
