@@ -4,6 +4,7 @@
 
 #Project=gem
 Project=gemdaq-testing
+ShortProject=gem
 Package=gemsupervisor
 LongPackage=gemsupervisor
 ShortPackage=supervisor

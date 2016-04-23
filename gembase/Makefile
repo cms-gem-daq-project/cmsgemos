@@ -4,6 +4,7 @@
 
 #Project=gem
 Project=gemdaq-testing
+ShortProject=gem
 Package=gembase
 LongPackage=gembase
 ShortPackage=base
