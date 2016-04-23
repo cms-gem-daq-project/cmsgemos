@@ -111,11 +111,7 @@ namespace gem {
           xdata::Bag<AMC13Info> m_amc13Params;
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
-<<<<<<< HEAD
-          std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList, m_cardName;
-=======
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
->>>>>>> release-v2
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,

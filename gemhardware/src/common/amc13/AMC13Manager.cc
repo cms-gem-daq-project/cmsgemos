@@ -146,15 +146,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //hcal has a pre-init, what is the reason to not do everything in initialize?
-<<<<<<< HEAD
   std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
   //std::string cardname    = toolbox::toString("gem.shelf%02d.amc13",m_crateID);
   std::string cardname    = m_cardName;
 
-=======
-  std::string connection = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
-  std::string cardname   = m_cardName;
->>>>>>> release-v2
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     DEBUG("Trying to create connection to " << m_cardName << " in " << connection);

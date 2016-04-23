@@ -5,13 +5,6 @@
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 #include "gem/utils/GEMLogging.h"
 
-#include "TH1.h"
-#include "TFile.h"
-#include "TCanvas.h"
-#include "TROOT.h"
-#include "TString.h"
-#include "TError.h"
-
 #include <algorithm>
 #include <ctime>
 
@@ -29,8 +22,6 @@
 #include <string>
 
 #include "gem/supervisor/tbutils/VFAT2XMLParser.h"
-
-#include "TStopwatch.h"
 
 #include "xoap/MessageReference.h"
 #include "xoap/MessageFactory.h"
@@ -126,8 +117,6 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
 
 
 {
-  gErrorIgnoreLevel = kWarning;
-  
   // Detect when the setting of default parameters has been performed
   this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
 
@@ -1658,6 +1647,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageGLIB()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
+  //  xoap::SOAPName command = envelope.createName("CallBackInitialize","xdaq", "urn:xdaq-soap:3.0");
   xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
@@ -1683,6 +1673,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageGLIB()
   xoap::SOAPPart soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
+  //  xoap::SOAPName command = envelope.createName("CallBackStop","xdaq", "urn:xdaq-soap:3.0");
   xoap::SOAPName command = envelope.createName("Stop","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
@@ -1710,6 +1701,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
   xoap::SOAPBody body = envelope.getBody();
   xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
+  //  xoap::SOAPName command = envelope.createName("CallBackInitialize","xdaq", "urn:xdaq-soap:3.0");
   body.addBodyElement(command);
 
   try 

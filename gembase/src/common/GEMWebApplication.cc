@@ -97,6 +97,10 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
   expertPage(in,out);
   *out << "</div>" << std::endl;
 
+  *out << cgicc::br() << std::endl
+       << "GEM DAQ GIT_VERSION:" << GIT_VERSION
+       << " -- developer:"       << GEMDEVELOPER
+       << cgicc::br() << std::endl;
   *out << "</div>" << std::endl;
 }
 

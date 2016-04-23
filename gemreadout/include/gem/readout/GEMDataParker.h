@@ -1,24 +1,24 @@
 #ifndef gem_readout_GEMDataParker_h
 #define gem_readout_GEMDataParker_h
 
-#include "gem/readout/GEMDataAMCformat.h"
-#include "gem/readout/gemOnlineDQM.h"
+#include <string>
+#include <queue>
 
-#include "toolbox/SyncQueue.h"
 #include "i2o/i2o.h"
 #include "toolbox/Task.h"
 #include "toolbox/mem/Pool.h"
+#include "toolbox/SyncQueue.h"
 
 #include "xoap/MessageReference.h"
 #include "xoap/Method.h"
 
 #include "xdata/String.h"
-#include <string>
-#include <queue>
 
 #include "gem/utils/GEMLogging.h"
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
+
+#include "gem/readout/GEMDataAMCformat.h"
 
 namespace gem {
   namespace hw {
@@ -55,7 +55,7 @@ namespace gem {
                             std::string const& slotFileName="slot_table.csv",
                             GEMRunType  const& runType=DATA
                             );
-      ~GEMDataParker() {};//delete m_gemOnlineDQM;};
+      ~GEMDataParker() {};
 
       uint32_t* dumpData   ( uint8_t const& mask );
       uint32_t* selectData ( uint32_t counter[5]
@@ -89,9 +89,9 @@ namespace gem {
       
 
       void ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2);
-
+      
       uint64_t Runtype() {
-	uint64_t RunType = BOOST_BINARY( 1 ); // :4
+	uint64_t RunType = 1; // :4
 	return (RunType << 24)|(m_latency << 16)|(m_VT1 << 8)|(m_VT2);
       }
 
@@ -137,8 +137,6 @@ namespace gem {
       //type of run
       GEMRunType m_runType;
 
-      // Online histograms
-      gemOnlineDQM* p_gemOnlineDQM;
       /*
        * Counter all in one
        *   [0] VFAT's Blocks counter

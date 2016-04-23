@@ -24,7 +24,9 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
 
 {
   DEBUG("GEMApplication::called gem::base::GEMApplication constructor");
-  
+  INFO("GEMApplication GIT_VERSION:" << GIT_VERSION);
+  INFO("GEMApplication developer:"   << GEMDEVELOPER);
+
   p_gemWebInterface = new GEMWebApplication(this);
 
   try {
