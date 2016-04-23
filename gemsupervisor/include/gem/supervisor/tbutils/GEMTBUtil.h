@@ -35,16 +35,7 @@
 #include "xdata/Integer.h"
 #include "xdata/Vector.h"
 
-#include "TStopwatch.h"
-
 #include "gem/readout/GEMslotContents.h"
-
-class TH1D;
-class TH1F;
-class TFile;
-class TCanvas;
-
-class MyTime;
 
 namespace toolbox {
   namespace fsm {
@@ -266,8 +257,6 @@ namespace gem {
 	  // CalPulse counting
 	  uint32_t CalPulseCount_[3];
 	  
-          TStopwatch timer;
-
 	  xdata::Bag<ConfigParams> scanParams_;
 	  //	  uint64_t triggerSource_;
 	  uint8_t  currentLatency_,deviceVT1,deviceVT2;

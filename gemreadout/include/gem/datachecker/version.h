@@ -5,15 +5,12 @@
 
 #include "config/PackageInfo.h"
 
-//namespace gem {
-//  namespace datachecker {
 namespace gemdatachecker {
 
 #define GEMDATACHECKER_VERSION_MAJOR 0
 #define GEMDATACHECKER_VERSION_MINOR 1
 #define GEMDATACHECKER_VERSION_PATCH 0
-  //#define GEMDATACHECKER_PREVIOUS_VERSIONS
-#undef GEMDATACHECKER_PREVIOUS_VERSIONS
+#define GEMDATACHECKER_PREVIOUS_VERSIONS = "0.0.0"
 
 #define GEMDATACHECKER_VERSION_CODE PACKAGE_VERSION_CODE(GEMDATACHECKER_VERSION_MAJOR,GEMDATACHECKER_VERSION_MINOR, GEMDATACHECKER_VERSION_PATCH)
 
@@ -33,7 +30,6 @@ namespace gemdatachecker {
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);
   std::set<std::string, std::less<std::string> > getPackageDependencies();
-  //  }
 }
 
 #endif // DOXYGEN_IGNORE_THIS

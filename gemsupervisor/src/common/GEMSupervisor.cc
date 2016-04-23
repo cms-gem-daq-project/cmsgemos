@@ -26,8 +26,6 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
 
   //xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
-  INFO("GEMSupervisor GIT_VERSION:" << GIT_VERSION);
-  INFO("GEMSupervisor GIT_VERSION:" << toolbox::toString("%s",GIT_VERSION));
   DEBUG("Creating the GEMSupervisorWeb interface");
   p_gemMonitor      = new gem::supervisor::GEMSupervisorMonitor(this);
   // p_gemMonitor      = new gem::supervisor::GEMSupervisorMonitor(this->getApplicationLogger(),this);

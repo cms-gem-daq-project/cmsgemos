@@ -6,14 +6,6 @@
 
 #include "gem/utils/GEMLogging.h"
 
-#include "TH1D.h"
-#include "TH2.h"
-#include "TFile.h"
-#include "TCanvas.h"
-#include "TROOT.h"
-#include "TString.h"
-#include "TError.h"
-
 #include <algorithm>
 #include <iomanip>
 #include <ctime>
@@ -25,7 +17,6 @@
 
 #include "cgicc/HTTPRedirectHeader.h"
 #include "gem/supervisor/tbutils/VFAT2XMLParser.h"
-#include "TStopwatch.h"
 
 #include <iostream>
 #include "xdata/Vector.h"

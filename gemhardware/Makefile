@@ -1,10 +1,6 @@
 #
 # Makefile for gemhardware package
 #
-BUILD_HOME:=$(shell pwd)/../..
-
-include $(XDAQ_ROOT)/config/mfAutoconf.rules
-include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
 #Project=gem
 Project=gemdaq-testing
@@ -32,44 +28,26 @@ Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc
 
 DynamicLibrary=gem_hw
 
-IncludeDirs =$(BUILD_HOME)/$(Project)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
-IncludeDirs+=$(XDAQ_ROOT)/include
 IncludeDirs+=$(uHALROOT)/include
 
-DependentLibraryDirs =$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(XDAQ_ROOT)/lib
 DependentLibraryDirs+=$(uHALROOT)/lib
 
-LibraryDirs =$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-LibraryDirs+=$(XDAQ_ROOT)/lib
 LibraryDirs+=$(uHALROOT)/lib
 
-#UserExecutableLinkFlags=-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib 
-#UserExecutableLinkFlags+=-L$(CACTUS_HOME)/lib 
-#UserExecutableLinkFlags+=-lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml
-#UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
-
-DependentLibraries =uuid numa boost_system
-DependentLibraries+=log4cplus xerces-c asyncresolv
-DependentLibraries+=xdaq2rc config xcept toolbox
-DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
+DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
 DependentLibraries+=gem_utils gem_base
-
-#what's the difference between these two library lists?
-Libraries =uuid numa boost_system
-Libraries+=log4cplus xerces-c asyncresolv
-Libraries+=xdaq2rc config xcept toolbox
-Libraries+=cactus_uhal_uhal cactus_amc13_amc13
-Libraries+=gem_utils gem_base
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules
-include $(BUILD_HOME)/$(Project)/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
 
 #test#hwbase:
 #test#	Sources=GEMHwDevice.cc 

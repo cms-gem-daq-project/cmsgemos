@@ -1,10 +1,6 @@
 #
 # Makefile for gemutils package
 #
-BUILD_HOME:=$(shell pwd)/../..
-
-include $(XDAQ_ROOT)/config/mfAutoconf.rules
-include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
 #Project=gem
 Project=gemdaq-testing
@@ -24,27 +20,11 @@ Sources+=Lock.cc gemXMLparser.cc soap/GEMSOAPToolBox.cc GEMRegisterUtils.cc
 
 DynamicLibrary=gem_utils
 
-IncludeDirs =$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(XDAQ_ROOT)/include
-IncludeDirs+=$(uHALROOT)/include
-
-DependentLibraryDirs =$(XDAQ_ROOT)/lib
-DependentLibraryDirs+=$(uHALROOT)/lib
-
-LibraryDirs =$(XDAQ_ROOT)/lib
-LibraryDirs+=$(uHALROOT)/lib
-
-#UserExecutableLinkFlags =-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib -Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib
-#UserExecutableLinkFlags+=-L$(CACTUS_HOME)/lib
-#UserExecutableLinkFlags+=-lreadline -lncurses -lpthread -lboost_filesystem -lboost_regex -lboost_system -lcactus_extern_pugixml
-#UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
-
-DependentLibraries = log4cplus config xcept xerces-c boost_system cactus_uhal_uhal
-Libraries          = log4cplus config xcept xerces-c numa toolbox xdaq2rc asyncresolv uuid cactus_uhal_uhal
+IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(XDAQ_ROOT)/config/mfRPM.rules
-include $(BUILD_HOME)/$(Project)/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
