@@ -22,7 +22,7 @@ Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalS
 #Sources+=tbutils/ADCScan.cc
 #Sources+=GEMGLIBSupervisorWeb.cc
 
-DynamicLibrary=gem_supervisor
+DynamicLibrary=gemsupervisor
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
@@ -41,7 +41,7 @@ DependentLibraryDirs+=$(uHALROOT)/lib
 LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
-DependentLibraries+=gem_hw gem_utils gem_readout
+DependentLibraries+=gemhardware gemutils gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules

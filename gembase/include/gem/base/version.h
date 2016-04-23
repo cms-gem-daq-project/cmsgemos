@@ -19,7 +19,7 @@ namespace gembase {
 #define GEMBASE_FULL_VERSION_LIST GEMBASE_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMBASE_VERSION_MAJOR, GEMBASE_VERSION_MINOR,GEMBASE_VERSION_PATCH)
 #endif
   
-  const std::string package = "gem/base";
+  const std::string package = "gembase";
   const std::string versions = GEMBASE_FULL_VERSION_LIST;
   const std::string summary = "Base classes for GEM DAQ applications";
   const std::string description = "";

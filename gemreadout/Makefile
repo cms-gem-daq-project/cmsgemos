@@ -19,7 +19,7 @@ Sources =version.cc
 Sources+=GEMDataParker.cc
 #Sources+=GEMDataChecker.cc
 
-DynamicLibrary=gem_readout
+DynamicLibrary=gemreadout
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
@@ -41,7 +41,7 @@ UserCFlags +=$(ROOTCFLAGS)
 UserCCFlags+=$(ROOTCFLAGS)
 
 DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
-DependentLibraries+=gem_hw gem_utils gem_base
+DependentLibraries+=gemhardware gemutils gembase
 
 UserDynamicLinkFlags+=$(ROOTLIBS)
 

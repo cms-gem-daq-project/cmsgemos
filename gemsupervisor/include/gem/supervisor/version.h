@@ -20,7 +20,7 @@ namespace gemsupervisor {
 #define GEMSUPERVISOR_FULL_VERSION_LIST GEMSUPERVISOR_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMSUPERVISOR_VERSION_MAJOR, GEMSUPERVISOR_VERSION_MINOR,GEMSUPERVISOR_VERSION_PATCH)
 #endif
     
-  const std::string package = "gem/supervisor";
+  const std::string package = "gemsupervisor";
   const std::string versions = GEMSUPERVISOR_FULL_VERSION_LIST;
   const std::string summary = "GEM Supervisor";
   const std::string description = "";

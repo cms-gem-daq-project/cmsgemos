@@ -21,7 +21,7 @@ Sources+=GEMWebApplication.cc GEMMonitor.cc
 Sources+=utils/GEMInfoSpaceToolBox.cc
 Sources+=GEMReadoutApplication.cc
 
-DynamicLibrary=gem_base
+DynamicLibrary=gembase
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
@@ -32,7 +32,7 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PL
 
 #LibraryDirs+=$(uHALROOT)/lib
 
-DependentLibraries+=gem_utils
+DependentLibraries+=gemutils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
