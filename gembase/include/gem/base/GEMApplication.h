@@ -87,6 +87,9 @@ namespace gem {
 
         virtual ~GEMApplication();
 
+        /**
+         * @brief
+         **/
         std::string getFullURL();
 	
         ///**
@@ -104,23 +107,59 @@ namespace gem {
          **/
         virtual void actionPerformed(xdata::Event& event);
 	
+        /**
+         * @brief
+         **/
         void xgiDefault(xgi::Input* in, xgi::Output* out);
+
+        /**
+         * @brief
+         **/
         void xgiMonitor(xgi::Input* in, xgi::Output* out);
+
+        /**
+         * @brief
+         **/
         void xgiExpert( xgi::Input* in, xgi::Output* out);
+
+        /**
+         * @brief
+         **/
         void jsonUpdate(xgi::Input* in, xgi::Output* out);
 
         // std::shared_ptr<utils::GEMInfoSpaceToolBox> getGEMISToolBox() { return p_infoSpaceToolBox;       };
+        /**
+         * @brief
+         **/
         std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppISToolBox() { return p_appInfoSpaceToolBox;     };
+
+        /**
+         * @brief
+         **/
         std::shared_ptr<utils::GEMInfoSpaceToolBox> getMonISToolBox() { return p_monitorInfoSpaceToolBox; };
+
+        /**
+         * @brief
+         **/
         std::shared_ptr<utils::GEMInfoSpaceToolBox> getCfgISToolBox() { return p_configInfoSpaceToolBox;  };
 
       protected:
+        /**
+         * @brief
+         **/
+        virtual GEMWebApplication *getWebApp()  const { return p_gemWebInterface; };
+
+        /**
+         * @brief
+         **/
+        virtual GEMMonitor        *getMonitor() const { return p_gemMonitor;      };
+
         log4cplus::Logger m_gemLogger;
         
         // std::shared_ptr<utils::GEMInfoSpaceToolBox> p_infoSpaceToolBox;
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appInfoSpaceToolBox;
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_monitorInfoSpaceToolBox;
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_configInfoSpaceToolBox;
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appInfoSpaceToolBox;     ///< 
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_monitorInfoSpaceToolBox; ///< 
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_configInfoSpaceToolBox;  ///< 
 
         xdata::InfoSpace *p_appInfoSpace;       /* generic application parameters */
         // maybe instead of multiple info spaces, use sets inside the infospace toolbox?
@@ -135,9 +174,6 @@ namespace gem {
         virtual void importMonitoringParameters();
         virtual void fillMonitoringInfoSpace();
         virtual void updateMonitoringInfoSpace();
-
-        virtual GEMWebApplication *getWebApp()  const { return p_gemWebInterface; };
-        virtual GEMMonitor        *getMonitor() const { return p_gemMonitor;      };
 
         GEMWebApplication *p_gemWebInterface; /* */
         GEMMonitor        *p_gemMonitor;      /* */
