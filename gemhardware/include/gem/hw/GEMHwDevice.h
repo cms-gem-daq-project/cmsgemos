@@ -1,6 +1,8 @@
 #ifndef gem_hw_GEMHwDevice_h
 #define gem_hw_GEMHwDevice_h
 
+#include <iomanip>
+
 //#include "xdata/InfoSpace.h"
 #include "xdata/InfoSpaceFactory.h"
 
@@ -11,22 +13,16 @@
 #include "toolbox/mem/Reference.h"
 #include "toolbox/mem/Pool.h"
 
-#include <iomanip>
-
-#include "gem/hw/exception/Exception.h"
-
 #include "uhal/uhal.hpp"
 #include "uhal/Utilities.hpp"
 
 #include "gem/utils/GEMLogging.h"
 #include "gem/utils/GEMRegisterUtils.h"
 
-/* would like to avoid rewriting this nice functionality,
-   but the code isn't in the main xdaq release.
-   have copied directly into GEM and figure out any compatibility later
-*/
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"
+
+#include "gem/hw/exception/Exception.h"
 
 typedef uhal::exception::exception uhalException;
 
@@ -72,7 +68,7 @@ namespace gem {
        * TRG_Errors is a counter for the number of errors on the trigger data link
        * @var OpticalLinkStatus::Data_Packets
        * Data_Packets is a counter for the number of data packets transferred on the tracking data link
-       **/
+       */
       typedef struct OpticalLinkStatus {
         uint32_t TRK_Errors  ;
         uint32_t TRG_Errors  ;
@@ -96,7 +92,7 @@ namespace gem {
        * Timeout is a counter for the number for the number of timeouts
        * @var DeviceErrors::ControlHubErr
        * ControlHubErr is a counter for the number control hub errors encountered
-       **/
+       */
       typedef struct DeviceErrors {
         int BadHeader    ;
         int ReadError    ;
@@ -113,7 +109,7 @@ namespace gem {
       /**
        * GEMHwDevice constructor 
        * @param deviceName string to put into the logger
-       **/
+       */
       GEMHwDevice(std::string const& deviceName);
 
       GEMHwDevice(std::string const& deviceName,
@@ -127,23 +123,11 @@ namespace gem {
                   uhal::HwInterface& uhalDevice);
 
       virtual ~GEMHwDevice();
-      /*
-      virtual void connectDevice();
-      virtual void releaseDevice();
-      //virtual void initDevice();
-      virtual void configureDevice()=0;
-      virtual void enableDevice();
-      //virtual void disableDevice();
-      //virtual void startDevice();
-      //virtual void stopDevice();
-      //virtual void pauseDevice();
-      //virtual void resumeDevice();
-      //virtual void haltDevice();
-      */
+
       virtual bool isHwConnected() { return p_gemHW != 0; };
 	
       /**
-       *Generic read/write functions or IPBus devices
+       * Generic read/write functions or IPBus devices
        * operation will be the same for the GLIB, MP7, VFAT2/3, 
        * and AMC13 ( we should use the already defined AMC13, rather than write our own,
        * unless there are GEM specific functions we need to implement)
@@ -398,39 +382,6 @@ namespace gem {
        */
       virtual void linkReset(uint8_t const& link);
       
-      /*
-      static std::string uint32ToString(uint32_t const val) const {
-        std::stringstream res;
-        res <<(char)((val & (0xff000000)) / 16777216);
-        res <<(char)((val & (0x00ff0000)) / 65536);
-        res <<(char)((val & (0x0000ff00)) / 256);
-        res <<(char)((val & (0x000000ff)));
-        return res.str(); };
-
-      static std::string uint32ToDottedQuad(uint32_t const val) const {
-        std::stringstream res;
-        res << (uint32_t)((val & (0xff000000)) / 16777216)<< std::dec << ".";
-        res << (uint32_t)((val & (0x00ff0000)) / 65536)   << std::dec << ".";
-        res << (uint32_t)((val & (0x0000ff00)) / 256)     << std::dec << ".";
-        res << (uint32_t)((val & (0x000000ff)))           << std::dec;
-        return res.str(); };
-	
-      static std::string uint32ToGroupedHex(uint32_t const val1, uint32_t const val2) const {
-        std::stringstream res;
-        res << std::setfill('0') << std::setw(2) << std::hex
-            <<(uint32_t)((val1 & (0x0000ff00)) / 256)     << std::dec << ":";
-        res << std::setfill('0') << std::setw(2) << std::hex
-            <<(uint32_t)((val1 & (0x000000ff)))           << std::dec << ":";
-        res << std::setfill('0') << std::setw(2) << std::hex
-            <<(uint32_t)((val2 & (0xff000000)) / 16777216)<< std::dec << ":";
-        res << std::setfill('0') << std::setw(2) << std::hex
-            <<(uint32_t)((val2 & (0x00ff0000)) / 65536)   << std::dec << ":";
-        res << std::setfill('0') << std::setw(2) << std::hex
-            <<(uint32_t)((val2 & (0x0000ff00)) / 256)     << std::dec << ":";
-        res << std::setfill('0') << std::setw(2) << std::hex
-            <<(uint32_t)((val2 & (0x000000ff)))           << std::dec;
-        return res.str(); };
-      */	
       DeviceErrors m_ipBusErrs;
       
       bool b_is_connected;

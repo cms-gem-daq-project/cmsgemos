@@ -15,19 +15,23 @@ ROOTLIBS   = $(shell root-config --libs)
 ROOTGLIBS  = $(shell root-config --glibs)
 
 # Debugging and profiling flags
-PROFILING_Flags = -pg
 DEBUG_CFlags    = -O0 -g3 -fno-inline
 DEBUG_CCFlags   = ${DEBUG_CFlags}
-DEBUG_LIBS      = profiler tcmalloc
+
+PROFILING_Flags   = -pg
+PROFILING_LDFlags = ${PROFILING_Flags}
+PROFILING_LIBS    = profiler tcmalloc
 
 # Modern compiler support, when available
 GCC47Flags = -std=c++11 -std=gnu++11
 GCC48Flags = -std=c++14 -std=gnu++14
+GCC49Flags = -std=c++17 -std=gnu++17
 
 # User C and CC flags
-UserCFlags  =-std=c++0x -std=gnu++0x ${DEBUG_CFlags}  -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
-UserCCFlags =-std=c++0x -std=gnu++0x ${DEBUG_CCFlags} -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
-UserStaticLinkFlags =
+UserCFlags  =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+UserCCFlags =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+UserStaticLinkFlags  =
+UserDynamicLinkFlags =
 
 IncludeDirs+=$(XDAQ_ROOT)/include
 LibraryDirs+=$(XDAQ_ROOT)/lib
