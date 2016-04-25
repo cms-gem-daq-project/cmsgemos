@@ -39,7 +39,7 @@
 #include "xoap/SOAPBody.h"
 #include "xoap/Method.h"
 #include "xoap/AttachmentPart.h"
-
+#include "xoap/domutils.h"
 
 //XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::GEMTBUtil)
 
@@ -1755,6 +1755,232 @@ void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageAMC13()
   INFO("-----------The message to stop has been sent------------");
 }      
 
+
+void gem::supervisor::tbutils::GEMTBUtil::sendConfigureMessageGLIB()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  //  xoap::SOAPName command = envelope.createName("CallBackConfigure","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("Configure","xdaq", "urn:xdaq-soap:3.0");
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending configure message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to configure has been sent------------");
+}      
+
+
+bool gem::supervisor::tbutils::GEMTBUtil::sendStartMessageGLIB()
+  throw (xgi::exception::Exception) {
+
+  //  this->Default(in,out);
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to GLIB start sent------------");
+
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  //  xoap::SOAPName command = envelope.createName("CallBackStart","xdaq", "urn:xdaq-soap:3.0");
+  xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start GLIB has been sent------------");
+      return true;
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending start message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+      return false;
+    }
+}      
+
+void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------start SOAP message modify paramteres AMC13------ ");
+
+  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+  xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+  std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
+
+  xoap::MessageReference msg_2 = xoap::createMessage();
+  xoap::SOAPPart soap_2 = msg_2->getSOAPPart();
+  xoap::SOAPEnvelope envelope_2 = soap_2.getEnvelope();
+  xoap::SOAPName     parameterset   = envelope_2.createName("ParameterSet","xdaq",XDAQ_NS_URI);
+
+  xoap::SOAPElement  container = envelope_2.getBody().addBodyElement(parameterset);
+  container.addNamespaceDeclaration("xsd","http://www.w3.org/2001/XMLSchema");
+  container.addNamespaceDeclaration("xsi","http://www.w3.org/2001/XMLSchema-instance");
+  //  container.addNamespaceDeclaration("parameterset","http://schemas.xmlsoap.org/soap/encoding/");
+  xoap::SOAPName tname_param    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+  xoap::SOAPName pboxname_param = envelope_2.createName("Properties","props",appUrn);
+  xoap::SOAPElement pbox_param = container.addChildElement(pboxname_param);
+  pbox_param.addAttribute(tname_param,"soapenc:Struct");
+
+  xoap::SOAPName pboxname_amc13config = envelope_2.createName("amc13ConfigParams","props",appUrn);
+  xoap::SOAPElement pbox_amc13config = pbox_param.addChildElement(pboxname_amc13config);
+  pbox_amc13config.addAttribute(tname_param,"soapenc:Struct");
+  
+  xoap::SOAPName    soapName_l1A = envelope_2.createName("L1Aburst","props",appUrn);
+  xoap::SOAPElement cs_l1A      = pbox_amc13config.addChildElement(soapName_l1A);
+  cs_l1A.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1A.addTextNode(confParams_.bag.nTriggers.toString());
+
+  
+  std::string tool;
+  xoap::dumpTree(msg_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
+  DEBUG("msg_2: " << tool);
+  
+  try 
+    {
+      DEBUG("trying to send parameters");
+      xoap::MessageReference reply_2 = getApplicationContext()->postSOAP(msg_2, *o,  *d);
+      std::string tool;
+      xoap::dumpTree(reply_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
+      DEBUG("reply_2: " << tool);
+    }
+  catch (xoap::exception::Exception& e)
+    {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
+      XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
+      XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+    }
+  catch (std::exception& e)
+    {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
+      //XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+    }
+  catch (...)
+    {
+      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message ");
+      XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
+    }
+
+  //  this->Default(in,out);
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to AMC13 configuring parameters has been sent------------");
+}      
+
+
+void gem::supervisor::tbutils::GEMTBUtil::sendConfigureMessageAMC13()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("Configure","xdaq", "urn:xdaq-soap:3.0");
+  body.addBodyElement(command);
+
+  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+  xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+  std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
+
+  try 
+    {
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      std::string tool;
+      DEBUG("dumpTree(reply)");
+      xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
+      DEBUG("reply: " << tool);
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending AMC13 configure message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to AMC13 configure has been sent------------");
+
+
+}      
+
+
+
+
+
+bool gem::supervisor::tbutils::GEMTBUtil::sendStartMessageAMC13()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("Start","xdaq", "urn:xdaq-soap:3.0");
+  
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start the AMC13 has been sent------------");
+
+      return true;
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending AMC13 start message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+        return false;
+    }
+}      
+
+void gem::supervisor::tbutils::GEMTBUtil::sendAMC13trigger()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("sendtriggerburst","xdaq", "urn:xdaq-soap:3.0");
+
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start sending burst-----------");
+
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending burst message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+}      
 
 
 
