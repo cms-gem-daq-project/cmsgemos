@@ -457,7 +457,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
   uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
-  uint32_t res;
+  uint32_t res = 0x0;
   DEBUG("GEMHwDevice::gem::hw::GEMHwDevice::readReg " << name << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
     try {
@@ -504,7 +504,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
   uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
-  uint32_t res;
+  uint32_t res = 0x0;
   DEBUG("GEMHwDevice::gem::hw::GEMHwDevice::readReg 0x" << std::setfill('0') << std::setw(8)
         << std::hex << address << std::dec << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -555,7 +555,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& 
   uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
-  uint32_t res;
+  uint32_t res = 0x0;
   DEBUG("GEMHwDevice::gem::hw::GEMHwDevice::readReg 0x" << std::setfill('0') << std::setw(8)
         << std::hex << address << std::dec << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
