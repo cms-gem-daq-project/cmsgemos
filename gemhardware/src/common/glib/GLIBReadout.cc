@@ -42,6 +42,10 @@ gem::hw::glib::GLIBReadout::GLIBReadout(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->fireItemAvailable("QueueDepth", &m_queueDepth);
 }
 
+gem::hw::glib::GLIBReadout::~GLIBReadout()
+{
+  DEBUG("GLIBReadout::destructor called");
+}
 
 void gem::hw::glib::GLIBReadout::actionPerformed(xdata::Event& event)
 {

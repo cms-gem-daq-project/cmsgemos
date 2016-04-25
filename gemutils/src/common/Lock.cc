@@ -2,7 +2,7 @@
 #include "gem/utils/Lock.h"
 
 gem::utils::Lock::Lock(toolbox::BSem::State state, bool recursive) :
-  semaphore_(state, recursive)
+  m_semaphore(state, recursive)
 {
 
 }
@@ -15,11 +15,11 @@ gem::utils::Lock::~Lock()
 void
 gem::utils::Lock::lock()
 {
-  semaphore_.take();
+  m_semaphore.take();
 }
 
 void
 gem::utils::Lock::unlock()
 {
-  semaphore_.give();
+  m_semaphore.give();
 }

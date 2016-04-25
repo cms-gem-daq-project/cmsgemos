@@ -19,7 +19,7 @@ namespace gem {
         {
         public:
           
-          static const unsigned N_GTX = 2; /**maximum number of GTX links on the GLIB*/
+          static const unsigned N_GTX = 2; ///< maximum number of GTX links on the GLIB
 
           /**
            * @struct GLIBIPBusCounters
@@ -61,7 +61,7 @@ namespace gem {
            * Constructors, the preferred constructor is with a connection file and device name
            * as the IP address and address table can be managed there, rather than hard coded
            * Constrution from crateID and slotID uses this constructor as the back end
-           **/
+           */
           HwGLIB();
           HwGLIB(std::string const& glibDevice, std::string const& connectionFile);
           HwGLIB(std::string const& glibDevice, std::string const& connectionURI,
@@ -88,81 +88,84 @@ namespace gem {
           /**
            * Check if one can read/write to the registers on the GLIB
            * @returns true if the GLIB is accessible
-           **/
+           */
           bool isHwConnected();
 
           //system core functionality
           /**
            * Read the board ID registers
            * @returns the GLIB board ID 
-           **/
+           */
           std::string getBoardID()  ;
 
           /**
            * Read the board ID registers
            * @returns the GLIB board ID as 32 bit unsigned
-           **/
+           */
           uint32_t getBoardIDRaw()  ;
 
           /**
            * Read the system information register
            * @returns a string corresponding to the system ID
-           **/
+           */
           std::string getSystemID();
 
           /**
            * Read the system information register
            * @returns a string corresponding to the system ID as 32 bit unsigned
-           **/
+           */
           uint32_t getSystemIDRaw();
 
           /**
            * Read the IP address register
            * @returns a string corresponding to the dotted quad IP address of the board
-           **/
+           */
           std::string getIPAddress();
 
           /**
            * Read the IP address register
            * @returns the IP address of the board as a 32 bit unsigned
-           **/
+           */
           uint32_t getIPAddressRaw();
 
           /**
            * Read the MAC address register
            * @returns a string corresponding to the MAC address of the board
-           **/
+           */
           std::string getMACAddress();
 
           /**
            * Read the MAC address register
            * @returns the MAC address of the board as a 64 bit unsigned
-           **/
+           */
           uint64_t getMACAddressRaw();
           
           /**
            * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
            * @returns a string corresponding to firmware version
-           **/
-          std::string getFirmwareVer();
+           */
+          std::string getFirmwareVer(bool const& system=true);
 
           /**
            * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
            * @returns the firmware version as a 32 bit unsigned
-           **/
-          uint32_t getFirmwareVerRaw();
+           */
+          uint32_t getFirmwareVerRaw(bool const& system=true);
 
           /**
            * Read the system firmware register
            * @returns a string corresponding to the build date dd-mm-yyyy
-           **/
-          std::string getFirmwareDate();
+           */
+          std::string getFirmwareDate(bool const& system=true);
 	  
           /**
            * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
            * @returns the build date as a 32 bit unsigned
-           **/
-          uint32_t getFirmwareDateRaw();
+           */
+          uint32_t getFirmwareDateRaw(bool const& system=true);
 	  
           //external clocking control functions
           /**
@@ -171,12 +174,12 @@ namespace gem {
            * @param reset 1 -> reset, 0 -> normal operation
            * @param enable 0 -> disabled, 1 -> enabled
            * void controlPCIe(uint8_t const& factor);
-           **/
+           */
 	  
           /**
            * select the PCIe clock multiplier
            * @param factor 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
-           **/
+           */
           void PCIeClkFSel(uint8_t const& factor) {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -186,7 +189,7 @@ namespace gem {
           /**
            * get the PCIe clock multiplier
            * @returns the clock multiplier 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
-           **/
+           */
           uint8_t PCIeClkFSel() {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -196,7 +199,7 @@ namespace gem {
           /**
            * send master reset to the PCIe clock
            * @param reset 1 -> reset, 0 -> normal operation
-           **/
+           */
           void PCIeClkMaster(bool reset) {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -206,7 +209,7 @@ namespace gem {
           /**
            * get the PCIe clock reset state
            * @returns the clock reset state 0 -> normal mode, 1 -> reset
-           **/
+           */
           uint8_t PCIeClkMaster() {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -216,7 +219,7 @@ namespace gem {
           /**
            * enable the PCIe clock output
            * @param enable 0 -> disabled, 1 -> enabled
-           **/
+           */
           void PCIeClkOutput(bool enable) {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -226,7 +229,7 @@ namespace gem {
           /**
            * get the PCIe clock output status
            * @returns the clock output status 0 -> disabled, 1 -> enabled
-           **/
+           */
           uint8_t PCIeClkOutput() {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -237,7 +240,7 @@ namespace gem {
           /**
            * enable the CDCE
            * @param powerup 0 -> power down, 1 -> power up
-           **/
+           */
           void CDCEPower(bool powerup) {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -247,7 +250,7 @@ namespace gem {
           /**
            * get the CDCE clock output status
            * @returns the clock output status 0 -> disabled, 1 -> enabled
-           **/
+           */
           uint8_t CDCEPower() {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -257,7 +260,7 @@ namespace gem {
           /**
            * select the CDCE reference clock
            * @param refsrc 0 -> CLK1, 1 -> CLK2
-           **/
+           */
           void CDCEReference(bool refsrc) {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -267,7 +270,7 @@ namespace gem {
           /**
            * get the CDCE reference clock
            * @returns the reference clock status 0 -> CLK1, 1 -> CLK2
-           **/
+           */
           uint8_t CDCEReference() {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -277,7 +280,7 @@ namespace gem {
           /**
            * resync the CDCE requires a transition from 0 to 1
            * @param powerup 0 -> power down, 1 -> power up
-           **/
+           */
           void CDCESync(bool sync) {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -290,7 +293,7 @@ namespace gem {
           /**
            * get the CDCE syncronization status
            * @returns the cdce sync status 0 -> disabled, 1 -> enabled
-           **/
+           */
           uint8_t CDCESync() {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -300,7 +303,7 @@ namespace gem {
           /**
            * choose who controls the CDCE
            * @param source 0 -> system firmware, 1 -> user firmware
-           **/
+           */
           void CDCEControl(bool source) {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -310,7 +313,7 @@ namespace gem {
           /**
            * get the CDCE clock output status
            * @returns the cdce control status 0 -> system firmware, 1 -> user firmware
-           **/
+           */
           uint8_t CDCEControl() {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -321,7 +324,7 @@ namespace gem {
           /**
            * enable TClkB output to the backplane
            * @param enable 0 -> disabled, 1 -> enabled
-           **/
+           */
           void TClkBOutput(bool enable) {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -331,7 +334,7 @@ namespace gem {
           /**
            * get the TClkB output to the backplane status
            * @returns the clock output status 0 -> disabled, 1 -> enabled
-           **/
+           */
           uint8_t TClkBOutput() {
             std::stringstream regName;
             regName << "SYSTEM.CLK_CTRL.";
@@ -368,51 +371,51 @@ namespace gem {
            * XPoint2 output 2 routes to IO_L18_GC_35
            * XPoint2 output 3 routes to MGT113REFCLK1
            * XPoint2 output 4 routes nowhere
-           **/
+           */
           void XPointControl(bool xpoint2, uint8_t const& input, uint8_t const& output);
 	  
           /**
            * get the routing of the XPoint switch
            * @returns the input that is currently routed to a specified output
-           **/
+           */
           uint8_t XPointControl(bool xpoint2, uint8_t const& output);
 	  
           /**
            * get the status of the GLIB SFP
            * @param sfpcage
            * @returns the 3 status bits of the specified SFP
-           **/
+           */
           uint8_t SFPStatus(uint8_t const& sfpcage);
 	  
           /**
            * get the presence of the FMC in slot 1 or 2
            * @param fmc2 true for FMC2 false for FMC1
            * @returns true if an FMC is in the selected slot
-           **/
+           */
           bool FMCPresence(bool fmc2);
 	  
           /**
            * is there a GbE interrupt on the PHY
            * @returns true if there is an interrupt
-           **/
+           */
           bool GbEInterrupt();
 	  
           /**
            * returns the state of the FPGA reset line (driven by the CPLD)
            * @returns true if there is a reset
-           **/
+           */
           bool FPGAResetStatus();
 	  
           /**
            * returns the status of the 6-bit bus between the FPGA and the CPLD
            * @returns 
-           **/
+           */
           uint8_t V6CPLDStatus();
 	  
           /**
            * is the CDCE locked
            * @returns true if the CDCE is locked
-           **/
+           */
           bool CDCELockStatus();
 	  
 	  
@@ -421,14 +424,14 @@ namespace gem {
            * Read the user firmware register using m_controlLink
            * @returns a hex number corresponding to the build date
            * OBSOLETE in V2 firmware
-           **/
+           */
           uint32_t getUserFirmware();
 	  
           /**
            * Read the user firmware register using m_controlLink
            * @returns a std::string corresponding to the build date
            * OBSOLETE in V2 firmware
-           **/
+           */
           std::string getUserFirmwareDate();
 
         private:
@@ -438,7 +441,7 @@ namespace gem {
            * is private to ensure that it is only used internally
            * gtx agnostic versions should be used outside of HwGLIB
            * OBSOLETE in V2 firmware
-           **/
+           */
           uint32_t getUserFirmware(uint8_t const& gtx);
 	  
           /**
@@ -447,7 +450,7 @@ namespace gem {
            * is private to ensure that it is only used internally
            * gtx agnostic versions should be used outside of HwGLIB
            * OBSOLETE in V2 firmware
-           **/
+           */
           std::string getUserFirmwareDate(uint8_t const& gtx);
 	  
           /**
@@ -455,7 +458,7 @@ namespace gem {
            * @param uint8_t gtx GTX gtx to be queried
            * @param std::string opMsg Operation message to append to the log message
            * @returns true if the gtx is in range and active, false otherwise
-           **/
+           */
           bool linkCheck(uint8_t const& gtx, std::string const& opMsg);
 
         public:
@@ -464,7 +467,7 @@ namespace gem {
            * @param uint8_t gtx is the number of the gtx to query
            * @retval _status a struct containing the status bits of the optical link
            * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-1
-           **/
+           */
           GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& gtx);
 	  
           /**
@@ -475,13 +478,13 @@ namespace gem {
            * bit 2 - TRG_ErrCnt         0x2
            * bit 3 - Data_Rec           0x4
            * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-1
-           **/
+           */
           void LinkReset(uint8_t const& gtx, uint8_t const& resets);
 
           /**
            * Reset the all gtx status registers
            * @param uint8_t resets control which bits to reset
-           **/
+           */
           void ResetLinks(uint8_t const& resets) {
             for (auto gtx = v_activeLinks.begin(); gtx != v_activeLinks.end(); ++gtx)
               LinkReset(gtx->first,resets);
@@ -491,7 +494,7 @@ namespace gem {
            * Set the Trigger source
            * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
            * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
-           **/
+           */
           void setTrigSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
             return;
             /*
@@ -517,7 +520,7 @@ namespace gem {
            * Read the Trigger source
            * @retval uint8_t 0 from GLIB, 1 from AMC13, 2 from both
            * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
-           **/
+           */
           uint8_t getTrigSource(uint8_t const& gtx=0x0) {
             return 0;
             /*
@@ -531,7 +534,7 @@ namespace gem {
            * Set the S-bit source
            * @param uint8_t chip
            * OBSOLETE in V2 firmware
-           **/
+           */
           void setSBitSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
             return;
             /*
@@ -545,7 +548,7 @@ namespace gem {
            * Read the S-bit source
            * @retval uint8_t which VFAT chip is sending the S-bits
            * OBSOLETE in V2 firmware
-           **/
+           */
           uint8_t getSBitSource(uint8_t const& gtx=0x0) {
             return 0;
             /*
@@ -567,30 +570,30 @@ namespace gem {
            * bit 5 CounterStrobe
            * bit 6 CounterAck
            * @returns GLIBIPBusCounters struct, with updated values for the ones specified in the mask
-           **/
+           */
           GLIBIPBusCounters getIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
 	  
           /**
            * Get the recorded number of L1A signals received from the TTC decoder
-           **/
+           */
           uint32_t getL1ACount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.L1A"); };
 	  
           /**
            * Get the recorded number of CalPulse signals received from the TTC decoder
-           **/
+           */
           uint32_t getCalPulseCount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse"); };
 	  
           /**
            * Get the recorded number of Resync signals received from the TTC decoder
-           **/
+           */
           uint32_t getResyncCount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.Resync"); };
           
           /**
            * Get the recorded number of BC0 signals
-           **/
+           */
           uint32_t getBC0Count() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.BC0"); };
           
@@ -605,49 +608,49 @@ namespace gem {
            * bit 4 TrackingAck
            * bit 5 CounterStrobe
            * bit 6 CounterAck
-           **/
+           */
           void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
 	  
           /**
            * Reset the recorded number of L1A signals received from the TTC decoder
-           **/
+           */
           void resetL1ACount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.L1A.Reset", 0x1); };
 	  
           /**
            * Reset the recorded number of CalPulse signals received from the TTC decoder
-           **/
+           */
           void resetCalPulseCount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse.Reset", 0x1); };
 	  
           /**
            * Reset the recorded number of Resync signals received from the TTC decoder
-           **/
+           */
           void resetResyncCount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.Resync.Reset", 0x1); };
           
           /**
            * Reset the recorded number of BC0 signals
-           **/
+           */
           void resetBC0Count() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.BC0.Reset", 0x1); };
           
           /**
            * Read the trigger data
            * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
-           **/
+           */
           uint32_t readTriggerFIFO(uint8_t const& gtx);
 
           /**
            * Empty the trigger data FIFO
-           **/
+           */
           void flushTriggerFIFO(uint8_t const& gtx);
 
           /**
            * Read the tracking data FIFO occupancy in terms of raw 32bit words
            * @param uint8_t gtx is the number of the gtx to query
            * @retval uint32_t returns the number of words in the tracking data FIFO
-           **/
+           */
           uint32_t getFIFOOccupancy(uint8_t const& gtx);
 
           /**
@@ -655,7 +658,7 @@ namespace gem {
            * composing a single VFAT block
            * @param uint8_t gtx is the number of the gtx to query
            * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
-           **/
+           */
           uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
 
           /**
@@ -672,7 +675,7 @@ namespace gem {
            * @param uint8_t gtx is the number of the GTX tracking data to read
            * @param size_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
            * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
-          **/
+          */
           std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
           //which of these will be better and do what we want
           uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
@@ -684,42 +687,165 @@ namespace gem {
            * Empty the tracking data FIFO
            * @param uint8_t gtx is the number of the gtx to query
            * 
-           **/
+           */
           void flushFIFO(uint8_t const& gtx);
 
           // DAQ LINK functionality
-          void enableDAQLink();
-          void resetDAQLink();
+          /**
+           * @brief Set the kill mask and enable the DAQ link
+           * @param killMask 32 bit word for the 24 bit kill mask
+           */
+          void enableDAQLink(uint32_t const& killMask=0x3);
+
+          /**
+           * @brief reset the DAQ link and write the DAV timout
+           * @param davTO value to use for the DAV timeout
+           */
+          void resetDAQLink(uint32_t const& davTO=0x3d090);
+
+          /**
+           * @returns Returns the 32 bit word corresponding to the DAQ link control register
+           */
           uint32_t getDAQLinkControl();
+
+          /**
+           * @returns Returns the 32 bit word corresponding to the DAQ link status register
+           */
           uint32_t getDAQLinkStatus();
-          //uint32_t getDAQLinkFlags();
-          //uint32_t getDAQLinkCorruptCount();
-          //uint32_t getDAQLinkEventsBuilt();
+
+          /**
+           * @returns Returns true if the DAQ link is ready
+           */
+          bool daqLinkReady();
+
+          /**
+           * @returns Returns true if the DAQ link is clock is locked
+           */
+          bool daqClockLocked();
+
+          /**
+           * @returns Returns true if the TTC is ready
+           */
+          bool daqTTCReady();
+
+          /**
+           * @returns Returns true if the event FIFO is almost full (70%)
+           */
+          bool daqAlmostFull();
+
+          /**
+           * @returns Returns the current TTS state asserted by the DAQ link firmware
+           */
+          uint8_t daqTTSState();
+
+          /**
+           * @returns Returns the number of events built and sent on the DAQ link
+           */
           uint32_t getDAQLinkEventsSent();
+
+          /**
+           * @returns Returns the curent L1AID (number of L1As received)
+           */
           uint32_t getDAQLinkL1AID();
-          //uint32_t getDAQLinkDebug(uint8_t const& mode);
+
+          /**
+           * @returns Returns 
+           */
           uint32_t getDAQLinkDisperErrors();
+
+          /**
+           * @returns Returns 
+           */
           uint32_t getDAQLinkNonidentifiableErrors();
 
+          /**
+           * @returns Returns the DAQ link input enable mask
+           */
           uint32_t getDAQLinkInputMask();
+
+          /**
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
           uint32_t getDAQLinkDAVTimeout();
-          uint32_t getDAQLinkDAVTimer(bool const& );
+
+          /**
+           * @param max is a bool specifying whether to query the max timer or the last timer
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
+          uint32_t getDAQLinkDAVTimer(bool const& max);
 
           // GTX specific DAQ link information
+          /**
+           * @param gtx is the input link status to query
+           * @returns Returns the the 32-bit word corresponding DAQ status for the specified link 
+           */
           uint32_t getDAQLinkStatus(   uint8_t const& gtx);
+
+          /**
+           * @param gtx is the input link counter to query
+           * @param mode specifies whether to query the corrupt VFAT count (0x0) or the event number
+           * @returns Returns the link counter for the specified mode
+           */
           uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
+
+          /**
+           * @param gtx is the input link status to query
+           * @returns Returns a block of the last 7 words received from the OH on the link specified
+           */
           uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
 
+          /**
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
           uint32_t getDAQLinkInputTimeout();
+
+          /**
+           * @returns Returns the run type stored in the data stream
+           */
           uint32_t getDAQLinkRunType();
+
+          /**
+           * @returns Special run parameters 1,2,3 as a single 24 bit word
+           */
           uint32_t getDAQLinkRunParameters();
+
+          /**
+           * @returns Special run parameter written into data stream
+           */
           uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
 
+
+          /**
+           * @brief Set DAQ link timeout
+           * @param value is the number of clock cycles to wait after receipt of last L1A and 
+           *        last packet received from the optical link before closing an "event"
+           */
           void setDAQLinkInputTimeout(uint32_t const& value);
+
+          /**
+           * @brief Special run type to be written into data stream
+           * @param value is the run type
+           */
           void setDAQLinkRunType(uint32_t const& value);
+
+          /**
+           * @returns Set special run parameter to be written into data stream
+           * @param value is a 24 bit word to write into the run paramter portion of the GEM header
+           */
           void setDAQLinkRunParameters(uint32_t const& value);
+
+          /**
+           * @returns Special run parameter written into data stream
+           * @param parameter is the number of parameter to be written (1-3)
+           * @param value is the run paramter to write into the specified parameter
+           */
           void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
 
+          /**
+           * @returns TTC control register value
+           */
+          uint32_t getTTCControl();
+          
           /**
            * @returns TTC encoding in use on the GLIB
            */
@@ -749,6 +875,23 @@ namespace gem {
            * @returns 32-bit word corresponding to the 8 most recent TTC commands received
            */
           uint32_t getTTCSpyBuffer();
+
+          ///////////////////////
+          /**
+           * @brief performs a general reset of the GLIB
+           */
+          virtual void generalReset();
+
+          /**
+           * @brief performs a reset of the GLIB counters
+           */
+          virtual void counterReset();
+
+          /**
+           * @brief performs a reset of the GLIB link
+           * @param link is the link to perform the reset on
+           */
+          virtual void linkReset(uint8_t const& link);
 
           std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
           

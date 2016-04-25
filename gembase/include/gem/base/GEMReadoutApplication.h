@@ -35,7 +35,7 @@ namespace gem {
         
         virtual ~GEMReadoutApplication();
 	
-        virtual void init();
+        //virtual void init();
 
         virtual void actionPerformed(xdata::Event& event);
         

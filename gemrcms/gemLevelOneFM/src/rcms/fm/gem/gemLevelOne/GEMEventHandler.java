@@ -1,4 +1,4 @@
-package rcms.fm.app.gemLevelOne;
+package rcms.fm.gem.gemLevelOne;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -42,7 +42,7 @@ import rcms.utilities.runinfo.RunNumberData;
 import rcms.utilities.runinfo.RunSequenceNumber;
 import rcms.fm.fw.parameter.Parameter;
 
-import rcms.fm.app.gemLevelOne.util.GEMUtil;
+import rcms.fm.gem.gemLevelOne.util.GEMUtil;
 /**
  * 
  * Main Event Handler class for GEM Level 1 Function Manager.
@@ -147,11 +147,11 @@ public class GEMEventHandler extends UserStateNotificationHandler {
 
 	    // set action
 	    functionManager.getParameterSet().put(new FunctionManagerParameter<StringT>(GEMParameters.ACTION_MSG,
-						  new StringT("Initializing")));
+                                                                                        new StringT("Initializing")));
 
 	    // update state
 	    functionManager.getParameterSet().put(new FunctionManagerParameter<StringT>(GEMParameters.STATE,
-						  new StringT(functionManager.getState().getStateString())));
+                                                                                        new StringT(functionManager.getState().getStateString())));
 
 	    // initialize qualified group
 	    try {
@@ -183,7 +183,7 @@ public class GEMEventHandler extends UserStateNotificationHandler {
 			
 	    functionManager.gemSupervisor = 
 		new XdaqApplicationContainer(functionManager.containerXdaqApplication.getApplicationsOfClass(
-					     "gem::supervisor::Application"));
+                                                                                                             "gem::supervisor::Application"));
 
 	    // go to HALT
 	    functionManager.fireEvent( GEMInputs.SETHALT );

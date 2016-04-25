@@ -148,15 +148,12 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("DISPER_ERR", "GLIB.DAQ.EXT_STATUS.DISPER_ERR"),
                  GEMUpdateType::HW32, "hex");
+  /*
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("INPUT_KILL_MASK", "GLIB.DAQ.CONTROL.INPUT_KILL_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("DAV_TIMEOUT", "GLIB.DAQ.CONTROL.DAV_TIMEOUT"),
-                 GEMUpdateType::HW32, "hex");
-  /*
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("EVT_BUILT", "GLIB.DAQ.EVT_BUILT"),
                  GEMUpdateType::HW32, "hex");
   */
   addMonitorable("DAQ", "HWMonitoring",
@@ -191,6 +188,13 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("GTX1_DAQ_EVN", "GLIB.DAQ.GTX1.COUNTERS.EVN"),
                  GEMUpdateType::HW32, "hex");
 
+  addMonitorableSet("TTC", "HWMonitoring");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("TTC_CONTROL", "GLIB.TTC.CONTROL"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("TTC_SPY", "GLIB.TTC.SPY"),
+                 GEMUpdateType::HW32, "hex");
   updateMonitorables();
 }
 
@@ -203,6 +207,7 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
 {
   // define how to update the desired values
   // get SYSTEM monitorables
+  // can this be split into two loops, one just to do a list read, the second to fill the InfoSpace with the returned values
   DEBUG("GLIBMonitor: Updating monitorables");
   for (auto monlist = m_monitorableSetsMap.begin(); monlist != m_monitorableSetsMap.end(); ++monlist) {
     DEBUG("GLIBMonitor: Updating monitorables in set " << monlist->first);
@@ -288,7 +293,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
            << monitem->first
            << "</td>"   << std::endl;
         
-      DEBUG(monitem->first << " formatted to "
+      DEBUG("GLIBMonitor::" << monitem->first << " formatted to "
             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
       //this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
       *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -318,11 +323,11 @@ void gem::hw::glib::GLIBMonitor::reset()
   //have to get rid of the timer 
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from m_timer");
+    DEBUG("GLIBMonitor::reset removing " << infoSpace->first << " from p_timer");
     try {
-      m_timer->remove(infoSpace->first);
+      p_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
-      ERROR("Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+      ERROR("GLIBMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }
   }
   stopMonitoring();
@@ -330,10 +335,10 @@ void gem::hw::glib::GLIBMonitor::reset()
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
   } catch (toolbox::task::exception::Exception& te) {
-    ERROR("Caught exception while removing timer " << m_timerName << " " << te.what());
+    ERROR("GLIBMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
   }
   
-  DEBUG("GEMMonitor::reset - clearing all maps");
+  DEBUG("GLIBMonitor::reset - clearing all maps");
   m_infoSpaceMap.clear();
   m_infoSpaceMonitorableSetMap.clear();
   m_monitorableSetInfoSpaceMap.clear();

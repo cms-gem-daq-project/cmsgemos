@@ -2,8 +2,6 @@
 #define gem_supervisor_tbutils_LatencyScan_h
 
 #include "gem/supervisor/tbutils/GEMTBUtil.h"
-#include "TStopwatch.h"
-
 
 namespace gem {
   namespace supervisor {
@@ -20,6 +18,23 @@ namespace gem {
 	LatencyScan(xdaq::ApplicationStub * s)
 	  throw (xdaq::exception::Exception);
 	~LatencyScan();
+
+	//SOAP MEssage AMC13	
+	void sendConfigureMessageAMC13()
+	  throw (xgi::exception::Exception);
+	bool sendStartMessageAMC13()
+	  throw (xgi::exception::Exception);
+	void sendAMC13trigger()
+	  throw (xgi::exception::Exception);
+	void NTriggersAMC13()
+	  throw (xgi::exception::Exception);
+
+	//SOAP MEssage GLIB	
+	void sendConfigureMessageGLIB()
+	  throw (xgi::exception::Exception);
+	bool sendStartMessageGLIB()
+	  throw (xgi::exception::Exception);
+
 
 	// HyperDAQ interface
 	void webDefault(xgi::Input *in, xgi::Output *out)
@@ -73,8 +88,9 @@ namespace gem {
 
       int minLatency_, maxLatency_, threshold_, MSPulseLength, VCal;
       uint8_t  currentLatency_;
-      uint64_t stepSize_,eventsSeen_,channelSeen_;
-      uint64_t totaltriggercounter_;
+      uint64_t stepSize_;
+      int totaltriggers;
+
       protected:
 	  
       };

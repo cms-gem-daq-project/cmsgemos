@@ -27,7 +27,7 @@ namespace gem {
           
           GLIBReadout(xdaq::ApplicationStub* s);
           //GLIBReadout(xdaq::ApplicationStub* s, glib_shared_ptr glib);
-
+          
           virtual ~GLIBReadout();
           
           void ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2);

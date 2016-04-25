@@ -1,4 +1,4 @@
-package rcms.fm.app.gemLevelOne.util;
+package rcms.fm.gem.gemLevelOne.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -37,11 +37,11 @@ import rcms.fm.fw.parameter.type.VectorT;
 import rcms.fm.fw.parameter.util.ParameterFactory;
 import rcms.fm.fw.parameter.util.ParameterUtil;
 import rcms.fm.fw.service.parameter.ParameterServiceException;
-import rcms.fm.app.gemLevelOne.GEMFunctionManager;
-import rcms.fm.app.gemLevelOne.GEMParameters;
-import rcms.fm.app.gemLevelOne.GEMStates;
-import rcms.fm.app.gemLevelOne.gui.GuiStatePanel;
-import rcms.fm.app.gemLevelOne.gui.GuiSubdetPanel;
+import rcms.fm.gem.gemLevelOne.GEMFunctionManager;
+import rcms.fm.gem.gemLevelOne.GEMParameters;
+import rcms.fm.gem.gemLevelOne.GEMStates;
+import rcms.fm.gem.gemLevelOne.gui.GuiStatePanel;
+import rcms.fm.gem.gemLevelOne.gui.GuiSubdetPanel;
 import rcms.fm.resource.QualifiedResource;
 import rcms.fm.resource.qualifiedresource.FunctionManager;
 import rcms.fm.resource.qualifiedresource.XdaqExecutive;

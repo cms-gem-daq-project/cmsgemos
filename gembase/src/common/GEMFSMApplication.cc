@@ -66,6 +66,8 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   xgi::framework::deferredbind(this, this, &GEMFSMApplication::xgiResume,     "Resume"    );
   xgi::framework::deferredbind(this, this, &GEMFSMApplication::xgiHalt,       "Halt"      );
   xgi::framework::deferredbind(this, this, &GEMFSMApplication::xgiReset,      "Reset"     );
+  // bindings for various functionality
+  xgi::bind(this, &GEMFSMApplication::jsonStateUpdate,     "stateUpdate"     );
   DEBUG("GEMFSMApplication::Created xgi bindings");
 
   // These bindings expose the state machine to the outside world. The
@@ -104,7 +106,7 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   workLoopName = tmpLoopName.str();
   DEBUG("GEMFSMApplication::Created workloop name " << workLoopName);
 
-  m_state = m_gemfsm.getCurrentState();
+  updateState();
   
   p_appInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
   //p_appStateInfoSpace->addListener(this, "urn:xdaq-event:setDefaultValues");
@@ -127,10 +129,32 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
   p_appInfoSpace->fireItemAvailable("application:state", p_appStateInfoSpace );
   //p_appStateInfoSpace->fireItemAvailable("State",&m_state);
 
-  p_appInfoSpaceToolBox->createString(     "State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appStateInfoSpaceToolBox->createString("State",  m_state.toString(),utils::GEMInfoSpaceToolBox::PROCESS);
-  //p_appInfoSpace->fireItemAvailable("State",&m_state);
-  p_appInfoSpace->fireItemValueRetrieve("State");
+  p_appInfoSpaceToolBox->createString("StateName", m_stateName.toString(), &m_stateName,
+                                      utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createString("StateMessage", m_stateMessage.toString(), &m_stateMessage,
+                                      utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createDouble("StateProgress", m_progress.value_, &m_progress,
+                                      utils::GEMInfoSpaceToolBox::PROCESS);
+
+  p_appStateInfoSpaceToolBox->createString("StateName", m_stateName.toString(), &m_stateName,
+                                           utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appStateInfoSpaceToolBox->createString("StateMessage", m_stateMessage.toString(), &m_stateMessage,
+                                           utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appStateInfoSpaceToolBox->createDouble("StateProgress", m_progress.value_, &m_progress,
+                                           utils::GEMInfoSpaceToolBox::PROCESS);
+  
+  //p_appInfoSpace->fireItemAvailable("StateName",&m_state);
+  p_appInfoSpace->addItemRetrieveListener("StateName",     this);
+  p_appInfoSpace->addItemRetrieveListener("StateMessage",  this);
+  p_appInfoSpace->addItemRetrieveListener("StateProgress", this);
+
+  p_appInfoSpace->addItemChangedListener("StateName",     this);
+  p_appInfoSpace->addItemChangedListener("StateMessage",  this);
+  p_appInfoSpace->addItemChangedListener("StateProgress", this);
+
+  p_appInfoSpace->fireItemValueRetrieve("StateName");
+  p_appInfoSpace->fireItemValueRetrieve("StateMessage");
+  p_appInfoSpace->fireItemValueRetrieve("StateProgress");
   //gemAppStateInfoSpace_.setFSMState(m_gemfsm.getCurrentStateName());
 
   DEBUG("GEMFSMApplication::ctor end");
@@ -155,7 +179,8 @@ void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* ou
     }
   } //is it OK to then call webInitialize?
   DEBUG("GEMFSMApplication::xgiInitialize end");
-  p_gemWebInterface->webInitialize(in,out);
+  //p_gemWebInterface->webInitialize(in,out);
+  //p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiConfigure(xgi::Input* in, xgi::Output* out)
@@ -168,7 +193,8 @@ void gem::base::GEMFSMApplication::xgiConfigure(xgi::Input* in, xgi::Output* out
       XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
     }
   }
-  p_gemWebInterface->webConfigure(in,out);
+  //p_gemWebInterface->webConfigure(in,out);
+  //p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiStart(xgi::Input* in, xgi::Output* out)
@@ -181,7 +207,8 @@ void gem::base::GEMFSMApplication::xgiStart(xgi::Input* in, xgi::Output* out)
       XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
     }
   }
-  p_gemWebInterface->webStart(in,out);
+  //p_gemWebInterface->webStart(in,out);
+  //p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiStop(xgi::Input* in, xgi::Output* out)
@@ -194,7 +221,8 @@ void gem::base::GEMFSMApplication::xgiStop(xgi::Input* in, xgi::Output* out)
       XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
     }
   }
-  p_gemWebInterface->webStop(in,out);
+  //p_gemWebInterface->webStop(in,out);
+  //p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiPause(xgi::Input* in, xgi::Output* out)
@@ -207,7 +235,8 @@ void gem::base::GEMFSMApplication::xgiPause(xgi::Input* in, xgi::Output* out)
       XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
     }
   }
-  p_gemWebInterface->webPause(in,out);
+  //p_gemWebInterface->webPause(in,out);
+  //p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiResume(xgi::Input* in, xgi::Output* out)
@@ -220,7 +249,8 @@ void gem::base::GEMFSMApplication::xgiResume(xgi::Input* in, xgi::Output* out)
       XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
     }
   }
-  p_gemWebInterface->webResume(in,out);
+  //p_gemWebInterface->webResume(in,out);
+  //p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiHalt(xgi::Input* in, xgi::Output* out)
@@ -233,7 +263,8 @@ void gem::base::GEMFSMApplication::xgiHalt(xgi::Input* in, xgi::Output* out)
       XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
     }
   }
-  p_gemWebInterface->webHalt(in,out);
+  //p_gemWebInterface->webHalt(in,out);
+  //p_gemWebInterface->webRedirect(in,out);
 }
 
 void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out)
@@ -246,7 +277,14 @@ void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out)
       XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
     }
   }  
-  p_gemWebInterface->webReset(in,out);
+  //p_gemWebInterface->webReset(in,out);
+  //p_gemWebInterface->webRedirect(in,out);
+}
+
+
+void gem::base::GEMFSMApplication::jsonStateUpdate(xgi::Input* in, xgi::Output* out)
+{
+  p_gemWebInterface->jsonStateUpdate(in,out);
 }
 
 
@@ -291,8 +329,8 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
     XCEPT_RETHROW(toolbox::fsm::exception::Exception,"State Transition Failed","...");
     }*/
   //set a transition message to "Success"
-  //m_state = m_gemfsm.getCurrentState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  updateState();
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
 void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
@@ -318,8 +356,8 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
   } catch (toolbox::task::exception::Exception& e) {
     XCEPT_RETHROW(gem::utils::exception::Exception,"Workloop failure",e);
   }
-  //m_state = m_gemfsm.getCurrentState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  updateState();
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
   DEBUG("GEMFSMApplication::workloopDriver end");
 }
 
@@ -343,8 +381,8 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
   // really, doe we need this here?
   INFO("GEMFSMApplication::Firing 'IsInitial' into the FSM");
   fireEvent("IsInitial");
-  //m_state = m_gemfsm.getCurrentState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  updateState();
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
 /*	
@@ -358,16 +396,16 @@ void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine
   throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSMApplication::stateChanged");
-  //m_state = m_gemfsm.getCurrentState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  updateState();
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
 void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference event)
   throw (toolbox::fsm::exception::Exception)
 {
   WARN("GEMFSMApplication::transitionFailed(" <<event->type() << ")");
-  //m_state = m_gemfsm.getCurrentState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  updateState();
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
 void gem::base::GEMFSMApplication::fireEvent(std::string event)
@@ -380,8 +418,8 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
   } catch (toolbox::fsm::exception::Exception & e) {
     XCEPT_RETHROW(::xoap::exception::Exception, "invalid command", e);
   }
-  //m_state = m_gemfsm.getCurrentState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  updateState();
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
 }
 
  
@@ -392,8 +430,8 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
 xoap::MessageReference gem::base::GEMFSMApplication::changeState(xoap::MessageReference msg)
 {
   DEBUG("GEMFSMApplication::changeState");
-  //m_state = m_gemfsm.getCurrentState();
-  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_state.toString());
+  updateState();
+  //gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace,"State",m_stateName.toString());
   return m_gemfsm.changeState(msg);
 }
 
@@ -419,7 +457,6 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in initialize gem::utils::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -430,13 +467,11 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
     ERROR("GEMFSMApplication::Error in initialize, malformed URN " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
     ERROR("GEMFSMApplication::Error in initialize, std::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -474,7 +509,6 @@ bool gem::base::GEMFSMApplication::configure( toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in configure gem::utils::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -485,13 +519,11 @@ bool gem::base::GEMFSMApplication::configure( toolbox::task::WorkLoop *wl)
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
     ERROR("GEMFSMApplication::Error in configure, malformed URN " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
     ERROR("GEMFSMApplication::Error in configure, std::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -519,7 +551,6 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in start gem::utils::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -530,13 +561,11 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
     ERROR("GEMFSMApplication::Error in start, malformed URN " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
     ERROR("GEMFSMApplication::Error in start, std::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -564,7 +593,6 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in pause gem::utils::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -575,13 +603,11 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
     ERROR("GEMFSMApplication::Error in pause, malformed URN " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
     ERROR("GEMFSMApplication::Error in pause, std::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -609,7 +635,6 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in resume gem::utils::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -620,13 +645,11 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
     ERROR("GEMFSMApplication::Error in resume, malformed URN " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
     ERROR("GEMFSMApplication::Error in resume, std::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -654,7 +677,6 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in stop gem::utils::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -665,13 +687,11 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
     ERROR("GEMFSMApplication::Error in stop, malformed URN " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
     ERROR("GEMFSMApplication::Error in stop, std::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -699,7 +719,6 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in halt gem::utils::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -710,13 +729,11 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
     ERROR("GEMFSMApplication::Error in halt, malformed URN " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
     ERROR("GEMFSMApplication::Error in halt, std::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -767,7 +784,6 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in reset gem::utils::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -778,13 +794,11 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
     ERROR("GEMFSMApplication::Error in reset, malformed URN " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
     ERROR("GEMFSMApplication::Error in reset, std::exception " << ex.what());
-    toolbox::Event::Reference e(new toolbox::Event("Fail",this));
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;

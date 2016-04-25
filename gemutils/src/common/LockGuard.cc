@@ -3,13 +3,13 @@
 
 template <class L>
 gem::utils::LockGuard::LockGuard(L& lock) :
-  lock_(lock)
+  m_lock(lock)
 {
-  lock_.lock();
+  m_lock.lock();
 }
 
 template <class L>
 gem::utils::LockGuard::~LockGuard()
 {
-  lock_.unlock();
+  m_lock.unlock();
 }

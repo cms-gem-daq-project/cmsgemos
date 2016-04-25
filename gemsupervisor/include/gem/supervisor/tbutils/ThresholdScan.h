@@ -3,8 +3,6 @@
 
 #include "gem/supervisor/tbutils/GEMTBUtil.h"
 
-#include "TStopwatch.h"
-
 namespace gem {
   namespace supervisor {
     namespace tbutils {
@@ -26,9 +24,9 @@ namespace gem {
 	  throw (xgi::exception::Exception);
 	bool sendStartMessageAMC13()
 	  throw (xgi::exception::Exception);
-	void sendPauseMessageAMC13()
+	void sendAMC13trigger()
 	  throw (xgi::exception::Exception);
-	void sendResumeMessageAMC13()
+	void NTriggersAMC13()
 	  throw (xgi::exception::Exception);
 
 	//SOAP MEssage GLIB	
@@ -36,6 +34,8 @@ namespace gem {
 	  throw (xgi::exception::Exception);
 	bool sendStartMessageGLIB()
 	  throw (xgi::exception::Exception);
+
+
 
         // HyperDAQ interface
         void webDefault(xgi::Input *in, xgi::Output *out)
