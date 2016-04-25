@@ -51,7 +51,9 @@ gem::base::utils::GEMInfoSpaceToolBox::~GEMInfoSpaceToolBox()
 }
 
 //how to template this?
-bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& itemName, std::string const& value, UpdateType type, std::string const& docstring, std::string const& format)
+// taking pointer arguments
+bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& itemName, std::string const& value, xdata::String* ptr,
+                                                         UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -61,18 +63,22 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& item
       ERROR("GEMInfoSpaceToolBox::" << err);
       return false;
     }
-
+    
+    //std::shared_ptr<xdata::String> tmpptr(ptr);
+    xdata::String* tmpptr(ptr);
     GEMInfoSpaceItem* item = new GEMInfoSpaceItem(STRING, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
-    
-    xdata::String *ptr = new xdata::String(value);
-    m_stringItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
+    if (!ptr)
+      //tmpptr.reset(new xdata::String(value));
+      tmpptr = new xdata::String(value);
+    //m_stringItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
+    m_stringItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
     
     p_infoSpace->lock();
-    p_infoSpace->fireItemAvailable(itemName, ptr);
+    //p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
+    p_infoSpace->fireItemAvailable(itemName, tmpptr);
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created string " << itemName << " in infoSpace " << p_infoSpace->name());
-    p_infoSpace->unlock();
     return true;
   } catch (xdata::exception::Exception const& err) {
     std::string msg = "Error trying to create InfoSpace String item '" + itemName + "'.";
@@ -92,7 +98,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemName, bool const& value, UpdateType type, std::string const& docstring, std::string const& format)
+bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemName, bool const& value, xdata::Boolean* ptr,
+                                                       UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -103,17 +110,22 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemNa
       return false;
     }
 
+    //std::shared_ptr<xdata::Boolean> tmpptr(ptr);
+    xdata::Boolean* tmpptr(ptr);
     GEMInfoSpaceItem* item = new GEMInfoSpaceItem(BOOL, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
-    xdata::Boolean *ptr = new xdata::Boolean(value);
-    m_boolItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
-    
+    if (!ptr)
+      //tmpptr.reset(new xdata::Boolean(value));
+      tmpptr = new xdata::Boolean(value);
+    //m_boolItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
+    m_boolItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+
     p_infoSpace->lock();
-    p_infoSpace->fireItemAvailable(itemName, ptr);
+    //p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
+    p_infoSpace->fireItemAvailable(itemName, tmpptr);
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created bool " << itemName << " in infoSpace " << p_infoSpace->name());
-    p_infoSpace->unlock();
     return true;
   } catch (xdata::exception::Exception const& err) {
     std::string msg = "Error trying to create InfoSpace Boolean item '" + itemName + "'.";
@@ -133,7 +145,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemNa
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& itemName, double const& value, UpdateType type, std::string const& docstring, std::string const& format)
+bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& itemName, double const& value, xdata::Double* ptr,
+                                                         UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -144,17 +157,22 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& item
       return false;
     }
 
+    //std::shared_ptr<xdata::Double> tmpptr(ptr);
+    xdata::Double* tmpptr(ptr);
     GEMInfoSpaceItem* item = new GEMInfoSpaceItem(DOUBLE, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
-    xdata::Double *ptr = new xdata::Double(value);
-    m_doubleItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
-    
+    if (!ptr)
+      //tmpptr.reset(new xdata::Double(value));
+      tmpptr = new xdata::Double(value);
+    //m_doubleItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
+    m_doubleItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+
     p_infoSpace->lock();
-    p_infoSpace->fireItemAvailable(itemName, ptr);
+    //p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
+    p_infoSpace->fireItemAvailable(itemName, tmpptr);
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created double " << itemName << " in infoSpace " << p_infoSpace->name());
-    p_infoSpace->unlock();
     return true;
   } catch (xdata::exception::Exception const& err) {
     std::string msg = "Error trying to create InfoSpace Double item '" + itemName + "'.";
@@ -174,7 +192,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& itemName, int const& value, UpdateType type, std::string const& docstring, std::string const& format)
+bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& itemName, int const& value, xdata::Integer* ptr,
+                                                          UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -184,18 +203,23 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& ite
       ERROR("GEMInfoSpaceToolBox::" << err);
       return false;
     }
-
+    
+    //std::shared_ptr<xdata::Integer> tmpptr(ptr);
+    xdata::Integer* tmpptr(ptr);
     GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
-
-    xdata::Integer *ptr = new xdata::Integer(value);
-    m_intItems.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
+    
+    if (!ptr)
+      //tmpptr.reset(new xdata::Integer(value));
+      tmpptr = new xdata::Integer(value);
+    //m_intItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
+    m_intItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
     
     p_infoSpace->lock();
-    p_infoSpace->fireItemAvailable(itemName, ptr);
+    //p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
+    p_infoSpace->fireItemAvailable(itemName, tmpptr);
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created int " << itemName << " in infoSpace " << p_infoSpace->name());
-    p_infoSpace->unlock();
     return true;
   } catch (xdata::exception::Exception const& err) {
     std::string msg = "Error trying to create InfoSpace Integer item '" + itemName + "'.";
@@ -215,7 +239,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& ite
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& itemName, uint32_t const& value, UpdateType type, std::string const& docstring, std::string const& format)
+bool gem::base::utils::GEMInfoSpaceToolBox::createInteger32(std::string const& itemName, int32_t const& value, xdata::Integer32* ptr,
+                                                            UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -226,17 +251,116 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& item
       return false;
     }
 
+    //std::shared_ptr<xdata::Integer32> tmpptr(ptr);
+    xdata::Integer32* tmpptr(ptr);
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER32, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item));
+
+    if (!ptr)
+      //tmpptr.reset(new xdata::Integer32(value));
+      tmpptr = new xdata::Integer32(value);
+    //m_int32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
+    m_int32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+
+    p_infoSpace->lock();
+    //p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
+    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->unlock();
+    DEBUG("GEMInfoSpaceToolBox::Created int32_t " << itemName << " in infoSpace " << p_infoSpace->name());
+    return true;
+  } catch (xdata::exception::Exception const& err) {
+    std::string msg = "Error trying to create InfoSpace Integer32 item '" + itemName + "'.";
+    ERROR("GEMInfoSpaceToolBox::" << msg << " " << err.what());
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return false;
+  } catch (std::exception const& err) {
+    std::string msg = "Error trying to create InfoSpace Integer32 item '" + itemName + "'.";
+    ERROR("GEMInfoSpaceToolBox::" << msg << " " << err.what());
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return false;
+  } catch (...) {
+    std::string msg = "Error trying to create InfoSpace Integer32 item '" + itemName + "'.";
+    ERROR("GEMInfoSpaceToolBox::" << msg);
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return false;
+  } 
+}
+
+bool gem::base::utils::GEMInfoSpaceToolBox::createInteger64(std::string const& itemName, int64_t const& value, xdata::Integer64* ptr,
+                                                            UpdateType type, std::string const& docstring, std::string const& format)
+{
+  try {
+    if (p_infoSpace->hasItem(itemName)) {
+      std::string err = "An element with the name '" + itemName + "' exists already in this infospace.";
+      XCEPT_DECLARE(gem::base::utils::exception::InfoSpaceProblem, top, err);
+      p_gemApp->notifyQualified("fatal", top);
+      ERROR("GEMInfoSpaceToolBox::" << err);
+      return false;
+    }
+
+    //std::shared_ptr<xdata::Integer64> tmpptr(ptr);
+    xdata::Integer64* tmpptr(ptr);
+    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER64, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item));
+
+    if (!ptr)
+      //tmpptr.reset(new xdata::Integer64(value));
+      tmpptr = new xdata::Integer64(value);
+    //m_int64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
+    m_int64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+
+    p_infoSpace->lock();
+    //p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
+    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->unlock();
+    DEBUG("GEMInfoSpaceToolBox::Created int64_t " << itemName << " in infoSpace " << p_infoSpace->name());
+    return true;
+  } catch (xdata::exception::Exception const& err) {
+    std::string msg = "Error trying to create InfoSpace Integer64 item '" + itemName + "'.";
+    ERROR("GEMInfoSpaceToolBox::" << msg << " " << err.what());
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return false;
+  } catch (std::exception const& err) {
+    std::string msg = "Error trying to create InfoSpace Integer64 item '" + itemName + "'.";
+    ERROR("GEMInfoSpaceToolBox::" << msg << " " << err.what());
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return false;
+  } catch (...) {
+    std::string msg = "Error trying to create InfoSpace Integer64 item '" + itemName + "'.";
+    ERROR("GEMInfoSpaceToolBox::" << msg);
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return false;
+  } 
+}
+
+bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& itemName, uint32_t const& value, xdata::UnsignedInteger32* ptr,
+                                                         UpdateType type, std::string const& docstring, std::string const& format)
+{
+  try {
+    if (p_infoSpace->hasItem(itemName)) {
+      std::string err = "An element with the name '" + itemName + "' exists already in this infospace.";
+      XCEPT_DECLARE(gem::base::utils::exception::InfoSpaceProblem, top, err);
+      p_gemApp->notifyQualified("fatal", top);
+      ERROR("GEMInfoSpaceToolBox::" << err);
+      return false;
+    }
+
+    //std::shared_ptr<xdata::UnsignedInteger32> tmpptr(ptr);
+    xdata::UnsignedInteger32* tmpptr(ptr);
     GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT32, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
-    xdata::UnsignedInteger32 *ptr = new xdata::UnsignedInteger32(value);
-    m_uint32Items.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
-    
+    if (!ptr)
+      //tmpptr.reset(new xdata::UnsignedInteger32(value));
+      tmpptr = new xdata::UnsignedInteger32(value);
+    //m_uint32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
+    m_uint32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+
     p_infoSpace->lock();
-    p_infoSpace->fireItemAvailable(itemName, ptr);
+    //p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
+    p_infoSpace->fireItemAvailable(itemName, tmpptr);
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created uint32_t " << itemName << " in infoSpace " << p_infoSpace->name());
-    p_infoSpace->unlock();
     return true;
   } catch (xdata::exception::Exception const& err) {
     std::string msg = "Error trying to create InfoSpace UnsignedInteger32 item '" + itemName + "'.";
@@ -256,7 +380,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& item
   } 
 }
 
-bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& itemName, uint64_t const& value, UpdateType type, std::string const& docstring, std::string const& format)
+bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& itemName, uint64_t const& value, xdata::UnsignedInteger64* ptr,
+                                                         UpdateType type, std::string const& docstring, std::string const& format)
 {
   try {
     if (p_infoSpace->hasItem(itemName)) {
@@ -267,17 +392,22 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& item
       return false;
     }
 
+    //std::shared_ptr<xdata::UnsignedInteger64> tmpptr(ptr);
+    xdata::UnsignedInteger64* tmpptr(ptr);
     GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT64, type, itemName, docstring, format);
     m_itemMap.insert(std::make_pair(itemName, item));
 
-    xdata::UnsignedInteger64 *ptr = new xdata::UnsignedInteger64(value);
-    m_uint64Items.insert(std::make_pair(itemName, std::make_pair(value, ptr)));
-    
+    if (!ptr)
+      //tmpptr.reset(new xdata::UnsignedInteger64(value));
+      tmpptr = new xdata::UnsignedInteger64(value);
+    //m_uint64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
+    m_uint64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+
     p_infoSpace->lock();
-    p_infoSpace->fireItemAvailable(itemName, ptr);
+    //p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
+    p_infoSpace->fireItemAvailable(itemName, tmpptr);
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created uint64_t " << itemName << " in infoSpace " << p_infoSpace->name());
-    p_infoSpace->unlock();
     return true;
   } catch (xdata::exception::Exception const& err) {
     std::string msg = "Error trying to create InfoSpace UnsignedInteger64 item '" + itemName + "'.";
@@ -366,6 +496,40 @@ int gem::base::utils::GEMInfoSpaceToolBox::getInteger(std::string const& itemNam
   } 
 }
 
+int32_t gem::base::utils::GEMInfoSpaceToolBox::getInteger32(std::string const& itemName)
+{
+  try {
+    p_infoSpace->lock();
+    xdata::Serializable* s = p_infoSpace->find(itemName);
+    p_infoSpace->fireItemValueRetrieve(itemName);
+    xdata::Integer32* res = dynamic_cast<xdata::Integer32*>(s);
+    p_infoSpace->unlock();
+    DEBUG("GEMInfoSpaceToolBox::found integer32 " << res->value_);
+    return res->value_;
+  } catch (...) {
+    std::string msg = "Trying to read a non-existent InfoSpace Integer32 item '" + itemName + "'.";
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return 0;
+  } 
+}
+
+int64_t gem::base::utils::GEMInfoSpaceToolBox::getInteger64(std::string const& itemName)
+{
+  try {
+    p_infoSpace->lock();
+    xdata::Serializable* s = p_infoSpace->find(itemName);
+    p_infoSpace->fireItemValueRetrieve(itemName);
+    xdata::Integer64* res = dynamic_cast<xdata::Integer64*>(s);
+    p_infoSpace->unlock();
+    DEBUG("GEMInfoSpaceToolBox::found integer64 " << res->value_);
+    return res->value_;
+  } catch (...) {
+    std::string msg = "Trying to read a non-existent InfoSpace Integer64 item '" + itemName + "'.";
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return 0;
+  } 
+}
+
 uint32_t gem::base::utils::GEMInfoSpaceToolBox::getUInt32(std::string const& itemName)
 {
   try {
@@ -407,6 +571,8 @@ bool gem::base::utils::GEMInfoSpaceToolBox::setString(std::string const& itemNam
     xdata::Serializable* s = p_infoSpace->find(itemName);
     p_infoSpace->fireItemValueRetrieve(itemName);
     xdata::String* res = dynamic_cast<xdata::String*>(s);
+    DEBUG("GEMInfoSpaceToolBox::find string \"" << itemName << "\" s=" << std::hex << s << std::dec
+          << ", res=" << std::hex << res << std::dec);
     *res = value;
     p_infoSpace->fireItemValueChanged(itemName);
     p_infoSpace->unlock();
@@ -474,6 +640,46 @@ bool gem::base::utils::GEMInfoSpaceToolBox::setInteger(std::string const& itemNa
     return true;
   } catch (...) {
     std::string msg = "Trying to set a non-existent InfoSpace Integer item '" + itemName + "'.";
+    ERROR("GEMInfoSpaceToolBox::" << msg);
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return false;
+  } 
+}
+
+bool gem::base::utils::GEMInfoSpaceToolBox::setInteger32(std::string const& itemName, int32_t const& value)
+{
+  try {
+    p_infoSpace->lock();
+    xdata::Serializable* s = p_infoSpace->find(itemName);
+    p_infoSpace->fireItemValueRetrieve(itemName);
+    xdata::Integer32* res = dynamic_cast<xdata::Integer32*>(s);
+    *res = value;
+    p_infoSpace->fireItemValueChanged(itemName);
+    p_infoSpace->unlock();
+    DEBUG("GEMInfoSpaceToolBox::set value to integer32 " << res->value_);
+    return true;
+  } catch (...) {
+    std::string msg = "Trying to set a non-existent InfoSpace Integer32 item '" + itemName + "'.";
+    ERROR("GEMInfoSpaceToolBox::" << msg);
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return false;
+  } 
+}
+
+bool gem::base::utils::GEMInfoSpaceToolBox::setInteger64(std::string const& itemName, int64_t const& value)
+{
+  try {
+    p_infoSpace->lock();
+    xdata::Serializable* s = p_infoSpace->find(itemName);
+    p_infoSpace->fireItemValueRetrieve(itemName);
+    xdata::Integer64* res = dynamic_cast<xdata::Integer64*>(s);
+    *res = value;
+    p_infoSpace->fireItemValueChanged(itemName);
+    p_infoSpace->unlock();
+    DEBUG("GEMInfoSpaceToolBox::set value to integer64 " << res->value_);
+    return true;
+  } catch (...) {
+    std::string msg = "Trying to set a non-existent InfoSpace Integer64 item '" + itemName + "'.";
     ERROR("GEMInfoSpaceToolBox::" << msg);
     XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
     return false;
@@ -601,6 +807,46 @@ int gem::base::utils::GEMInfoSpaceToolBox::getInteger(xdata::InfoSpace* infoSpac
   } 
 }
 
+int32_t gem::base::utils::GEMInfoSpaceToolBox::getInteger32(xdata::InfoSpace* infoSpace, std::string const& itemName)
+{
+  try {
+    infoSpace->lock();
+    xdata::Serializable* s = infoSpace->find(itemName);
+    infoSpace->fireItemValueRetrieve(itemName);
+    xdata::Integer32* res = dynamic_cast<xdata::Integer32*>(s);
+    infoSpace->unlock();
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_DEBUG(gemLogger,"GEMInfoSpaceToolBox::found integer32 " << res->value_);
+    return res->value_;
+  } catch (...) {
+    std::string msg = "Trying to read a non-existent InfoSpace Integer32 item '" + itemName + "'.";
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_ERROR(gemLogger,"GEMInfoSpaceToolBox::" << msg);
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return 0;
+  } 
+}
+
+int64_t gem::base::utils::GEMInfoSpaceToolBox::getInteger64(xdata::InfoSpace* infoSpace, std::string const& itemName)
+{
+  try {
+    infoSpace->lock();
+    xdata::Serializable* s = infoSpace->find(itemName);
+    infoSpace->fireItemValueRetrieve(itemName);
+    xdata::Integer64* res = dynamic_cast<xdata::Integer64*>(s);
+    infoSpace->unlock();
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_DEBUG(gemLogger,"GEMInfoSpaceToolBox::found integer64 " << res->value_);
+    return res->value_;
+  } catch (...) {
+    std::string msg = "Trying to read a non-existent InfoSpace Integer64 item '" + itemName + "'.";
+    log4cplus::Logger gemLogger(log4cplus::Logger::getInstance(infoSpace->name()));
+    LOG4CPLUS_ERROR(gemLogger,"GEMInfoSpaceToolBox::" << msg);
+    XCEPT_RAISE(gem::base::utils::exception::InfoSpaceProblem, msg);
+    return 0;
+  } 
+}
+
 uint32_t gem::base::utils::GEMInfoSpaceToolBox::getUInt32(xdata::InfoSpace* infoSpace, std::string const& itemName)
 {
   try {
@@ -655,7 +901,34 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
   DEBUG(itemName << " found in infospace " << std::hex << isItem << std::dec);
   ItemType type = isItem->m_itype;
   
-  if ( type == UINT32 ) {   
+  if ( type == INTEGER ) {   
+    int val = this->getInteger(itemName);
+    DEBUG(itemName << " has value " << val << std::dec);
+    if ( format == "dec" ) {
+      result << std::dec << val;
+    } else {
+      WARN("Invalid format specified for INTEGER type item " << itemName << " formating as simple \"dec\"");
+      result << std::dec << val;
+    }
+  } else if ( type == INTEGER32 ) {   
+    int32_t val = this->getInteger32(itemName);
+    DEBUG(itemName << " has value " << val << std::dec);
+    if ( format == "dec" ) {
+      result << std::dec << val;
+    } else {
+      WARN("Invalid format specified for INTEGER32 type item " << itemName << " formating as simple \"dec\"");
+      result << std::dec << val;
+    }
+  } else if ( type == INTEGER64 ) {   
+    int64_t val = this->getInteger64(itemName);
+    DEBUG(itemName << " has value " << val << std::dec);
+    if ( format == "dec" ) {
+      result << std::dec << val;
+    } else {
+      WARN("Invalid format specified for INTEGER64 type item " << itemName << " formating as simple \"dec\"");
+      result << std::dec << val;
+    }
+  } else if ( type == UINT32 ) {   
     uint32_t val = this->getUInt32(itemName);
     DEBUG(itemName << " has value " << std::hex << val << std::dec);
     if ( format == "" || format == "hex" ) {
@@ -750,6 +1023,8 @@ void gem::base::utils::GEMInfoSpaceToolBox::reset()
   m_uint64Items.clear();
   m_boolItems.clear();
   m_intItems.clear();
+  m_int32Items.clear();
+  m_int64Items.clear();
   m_doubleItems.clear();
   m_stringItems.clear();
 

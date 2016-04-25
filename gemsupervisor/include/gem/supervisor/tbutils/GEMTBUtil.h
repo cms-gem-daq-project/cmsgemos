@@ -35,16 +35,7 @@
 #include "xdata/Integer.h"
 #include "xdata/Vector.h"
 
-#include "TStopwatch.h"
-
 #include "gem/readout/GEMslotContents.h"
-
-class TH1D;
-class TH1F;
-class TFile;
-class TCanvas;
-
-class MyTime;
 
 namespace toolbox {
   namespace fsm {
@@ -190,11 +181,6 @@ namespace gem {
 	  virtual void selectOptohybridDevice(xgi::Output* out)
 	    throw (xgi::exception::Exception);
 
-	  //link data parker and scan routines
-	  void dumpRoutinesData( uint8_t const& mask, u_int8_t latency, u_int8_t VT1, u_int8_t VT2 );
-
-	  void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
-
 	  class ConfigParams 
 	  {
 	  public:
@@ -216,7 +202,7 @@ namespace gem {
 	    xdata::Vector<xdata::Integer> deviceNum;
 
 	    xdata::String        deviceIP;
-	    xdata::UnsignedShort triggerSource;
+	    //	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedInteger64 triggersSeen;
 
@@ -227,7 +213,7 @@ namespace gem {
 
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
-	    xdata::UnsignedShort triggerSource_;
+	    //	    xdata::UnsignedShort triggerSource_;
 
 	  };
 	  
@@ -254,13 +240,10 @@ namespace gem {
 	  //ConfigParams confParams_;
 	  uint8_t readout_mask;
 
-
 	  xdata::Bag<ConfigParams> confParams_;
 	  xdata::String ipAddr_;
 	  
 	  FILE* outputFile;
-	  //std::fstream* scanStream;
-	  //0xdeadbeef
 
 	  uint64_t nTriggers_;
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
@@ -271,33 +254,12 @@ namespace gem {
 	  std::vector<vfat_shared_ptr> vfatDevice_;
 	  std::vector<vfat_shared_ptr> VFATdeviceConnected;
 
-	  // Counter
-	  // VFAT Blocks Counter
-	  int vfat_;
-	  
-	  // Events Counter     
-	  int event_;
-	  
-	  // VFATs counter per event
-	  int sumVFAT_;
-
 	  // CalPulse counting
 	  uint32_t CalPulseCount_[3];
 	  
-	  TH1D* histolatency;
-	  TH1F* histo;
-	  TH1F* histos[128];
-	  TCanvas* outputCanvas;
-
-          TStopwatch timer;
-
 	  xdata::Bag<ConfigParams> scanParams_;
-	  uint64_t eventsSeen_,channelSeen_;
-	  uint64_t triggerSource_;
+	  //	  uint64_t triggerSource_;
 	  uint8_t  currentLatency_,deviceVT1,deviceVT2;
-	  uint32_t counter_[5];
-	  //	  int latency_m, VT1_m, VT2_m;
-	  uint32_t m_counter[5]; 
 
 	protected:
 
