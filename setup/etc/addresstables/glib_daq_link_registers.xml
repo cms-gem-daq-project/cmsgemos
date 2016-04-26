@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
+  <node id="CONTROL"  address="0x0"  permission="rw">
+    <node id="DAV_TIMEOUT"           address="0x3"  mask="0x00ffffff"/>
+  </node>
+  
   <node id="STATUS"  address="0x0"  permission="r">
     <node id="OH_VFAT_OOS"    mask="0x00000001"/>
     <node id="GLIB_OH_OOS"    mask="0x00000002"/>
@@ -30,8 +34,10 @@
   <node id="COUNTERS"  permission="r">
     <node id="CORRUPT_VFAT_BLK_CNT"  address="0x1"/>
     <node id="EVN"                   address="0x2"/>
+    <node id="MAX_DAV_TIMER"         address="0x7"  mask="0x00ffffff"/>
+    <node id="LAST_DAV_TIMER"        address="0x8"  mask="0x00ffffff"/>
   </node>
-  
+
   <node id="LASTBLOCK"  address="0x9" permission="r"  mode="incremental"  size="7"
         description="contains the last 192+32 bits received from the VFAT and OH">
   </node>

@@ -6,13 +6,15 @@
  * date: 
  */
 
+#include "amc13/AMC13.hh"
+#include "amc13/Status.hh"
+
 #include "gem/hw/amc13/AMC13ManagerWeb.h"
 #include "gem/hw/amc13/AMC13Manager.h"
 
 //#include "gem/hw/amc13/exception/Exception.h"
-
-#include "amc13/AMC13.hh"
-#include "amc13/Status.hh"
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Manager);
 
@@ -351,15 +353,47 @@ void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
 //void gem::hw::amc13::AMC13Manager::sendTriggerBurst()
 //  throw (gem::hw::amc13::exception::Exception)
 
-xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::MessageReference msg) throw (xoap::exception::Exception)
+xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
 {
   //set to send a burst of trigger
   INFO("Entering gem::hw::amc13::AMC13Manager::sendTriggerBurst()");
-  if (m_enableLocalL1A &&  m_sendL1ATriburst) 
-    {
+  if (msg.isNull()) {
+    XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
+  }
+  
+  std::string commandName = "undefined";
+  try {
+    if (m_enableLocalL1A &&  m_sendL1ATriburst) {
       p_amc13->localTtcSignalEnable(m_enableLocalL1A);
       p_amc13->enableLocalL1A(m_enableLocalL1A);
       p_amc13->sendL1ABurst();
     }
-
+  } catch(xoap::exception::Exception& err) {
+    std::string msgBase     = toolbox::toString("Unable to extract command from SOAP message");
+    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
+    std::string faultCode   = "Client";
+    std::string detail      = toolbox::toString("%s: %s.",
+                                                msgBase.c_str(),
+                                                err.message().c_str());
+    std::string faultActor = this->getFullURL();
+    xoap::MessageReference reply =
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
+    return reply;
+  }
+  try {
+    INFO("AMC13Manager::sendTriggerBurst command " << commandName << " succeeded ");
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
+  } catch(xcept::Exception& err) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                         top, toolbox::toString("%s.",msgBase.c_str()), err);
+    this->notifyQualified("error", top);
+    
+    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+  }  
+  XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }

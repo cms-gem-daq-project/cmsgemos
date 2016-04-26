@@ -20,7 +20,6 @@ Sources =version.cc
 Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc
 Sources+=GEMWebApplication.cc GEMMonitor.cc
 Sources+=utils/GEMInfoSpaceToolBox.cc
-Sources+=GEMReadoutApplication.cc
 
 DynamicLibrary=gembase
 

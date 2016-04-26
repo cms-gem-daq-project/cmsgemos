@@ -6,13 +6,6 @@
  * date: 
  */
 
-#include "gem/base/GEMFSMApplication.h"
-#include "gem/base/GEMFSM.h"
-#include "gem/base/utils/GEMInfoSpaceToolBox.h"
-
-#include "gem/utils/soap/GEMSOAPToolBox.h"
-#include "gem/utils/exception/Exception.h"
-
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"
 #include "toolbox/fsm/InvalidInputEvent.h"
 #include "toolbox/string.h"
@@ -20,6 +13,13 @@
 #include "xercesc/dom/DOMNodeList.hpp"
 #include "xercesc/util/XercesDefs.hpp"
 #include "xcept/tools.h"
+
+#include "gem/base/GEMFSMApplication.h"
+#include "gem/base/GEMFSM.h"
+#include "gem/base/utils/GEMInfoSpaceToolBox.h"
+
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
 
 gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP) :
   p_gemfsm(0),

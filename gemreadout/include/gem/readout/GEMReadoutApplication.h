@@ -1,33 +1,47 @@
-#ifndef gem_base_GEMReadoutApplication_h
-#define gem_base_GEMReadoutApplication_h
+#ifndef gem_readout_GEMReadoutApplication_h
+#define gem_readout_GEMReadoutApplication_h
 
-#include "gem/base/GEMApplication.h"
-#include "gem/base/GEMFSMApplication.h"
+#include <string>
+#include <queue>
 
-#include <toolbox/SyncQueue.h>
 #include <i2o/i2o.h>
+
 #include <toolbox/Task.h>
 #include <toolbox/mem/Pool.h>
+#include <toolbox/SyncQueue.h>
 
 #include <xoap/MessageReference.h>
 #include <xoap/Method.h>
 
 #include <xdata/String.h>
-#include <string>
-#include <queue>
+
+#include <gem/base/GEMFSMApplication.h>
 
 #include <gem/utils/GEMLogging.h>
 #include <gem/utils/Lock.h>
 #include <gem/utils/LockGuard.h>
 
 namespace gem {
-  namespace base {
+  namespace readout {
     
+    class GEMReadoutTask;
+    class GEMReadoutApplication;
+        
     class GEMReadoutApplication : public gem::base::GEMFSMApplication
       {
       public:
         static const int I2O_READOUT_NOTIFY;
         static const int I2O_READOUT_CONFIRM;
+
+        struct ReadoutCommands {
+          enum EReadoutCommands {
+            CMD_STOP   = 1,
+            CMD_START  = 2,
+            CMD_PAUSE  = 3,
+            CMD_RESUME = 4,
+            CMD_EXIT   = 5
+          } ReadoutCommands;
+        };
 	
         //XDAQ_INSTANTIATOR();
         
@@ -47,6 +61,8 @@ namespace gem {
          * @returns xoap::MessageReference
          xoap::MessageReference updateScanParameters(xoap::MessageReference message) throw (xoap::exception::Exception);
         */
+        
+        int readoutTask();
         
       protected:
         
@@ -72,7 +88,12 @@ namespace gem {
         virtual void resetAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
         
+        virtual int readout(unsigned int expected, unsigned int* eventNumbers, std::vector< ::toolbox::mem::Reference* >& data) = 0;
         
+        std::string m_outFileName;
+        std::shared_ptr<toolbox::Task> m_task;
+        toolbox::SyncQueue<int>        m_cmdQueue;
+                
         class GEMReadoutSettings {
         public:
           GEMReadoutSettings();
@@ -88,11 +109,30 @@ namespace gem {
         xdata::Bag<GEMReadoutSettings> m_readoutSettings;        
         xdata::String                  m_connectionFile;
         xdata::String                  m_deviceName;
+        
+        xdata::Integer64 m_eventsReadout;
+        xdata::Double    m_usecPerEvent;
+
+        double m_usecUsed;
 
       private:
         
       };
-  } // namespace gem::base
+    
+    class GEMReadoutTask : public toolbox::Task {
+    public:
+    GEMReadoutTask(GEMReadoutApplication* app) : toolbox::Task("GEMReadoutTask")
+        {
+          //p_readoutApp = std::make_shared<GEMReadoutApplication>(app);
+          p_readoutApp = app;
+        }
+      virtual int svc() { return p_readoutApp->readoutTask(); }
+    private:
+      //std::shared_ptr<GEMReadoutApplication> p_readoutApp;
+      GEMReadoutApplication* p_readoutApp;
+    };
+    
+  } // namespace gem::readout
 } // namespace gem
 
 #endif

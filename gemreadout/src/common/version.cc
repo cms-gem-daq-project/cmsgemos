@@ -3,7 +3,7 @@
 #include "xdaq/version.h"
 #include "gem/base/version.h"
 #include "gem/utils/version.h"
-#include "gem/hw/version.h"
+//#include "gem/hw/version.h"
 #include "gem/readout/version.h"
 
 GETPACKAGEINFO(gemreadout);
@@ -14,7 +14,7 @@ void gemreadout::checkPackageDependencies() throw (config::PackageInfo::VersionE
   CHECKDEPENDENCY(xoap);
   CHECKDEPENDENCY(gembase);
   CHECKDEPENDENCY(gemutils);
-  CHECKDEPENDENCY(gemhardware);
+  //CHECKDEPENDENCY(gemhardware);
 }
 
 std::set<std::string,std::less<std::string> > gemreadout::getPackageDependencies() {
@@ -24,6 +24,6 @@ std::set<std::string,std::less<std::string> > gemreadout::getPackageDependencies
   ADDDEPENDENCY(deps,xdaq);
   ADDDEPENDENCY(deps,gembase);
   ADDDEPENDENCY(deps,gemutils);
-  ADDDEPENDENCY(deps,gemhardware);
+  //ADDDEPENDENCY(deps,gemhardware);
   return deps;
 }

@@ -26,6 +26,9 @@ void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input * in, xgi::Output * ou
   *out << cgicc::script().set("type","text/javascript")
     .set("src","/gemdaq/gemhardware/html/scripts/glib/glib.js")
        << cgicc::script() << std::endl;
+  
+  GEMWebApplication::webDefault(in,out);
+  /*
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "<div class=\"xdaq-tab\" title=\"GLIBManager Control Panel\" >"  << std::endl;
   controlPanel(in,out);
@@ -46,10 +49,12 @@ void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input * in, xgi::Output * ou
   *out << "</div>" << std::endl;
 
   *out << "</div>" << std::endl;
+
   std::string updateLink = "/" + p_gemApp->m_urn + "/jsonUpdate";
   *out << "<script type=\"text/javascript\">"            << std::endl
        << "    startUpdate( \"" << updateLink << "\" );" << std::endl
        << "</script>" << std::endl;
+  */
 }
 
 /*To be filled in with the monitor page code*/
