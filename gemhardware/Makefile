@@ -22,7 +22,7 @@ Sources+=vfat/HwVFAT2.cc
 Sources+=glib/HwGLIB.cc
 Sources+=optohybrid/HwOptoHybrid.cc
 Sources+=vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc 
-Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc 
+Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc amc13/AMC13Readout.cc
 Sources+=glib/GLIBManager.cc glib/GLIBManagerWeb.cc glib/GLIBMonitor.cc #glib/GLIBReadout.cc
 Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc
 #Sources+=GEMController.cc GEMControllerPanelWeb.cc
@@ -37,14 +37,16 @@ IncludeDirs+=$(uHALROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
 
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
-DependentLibraries+=gemutils gembase
+DependentLibraries+=gemutils gembase gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules

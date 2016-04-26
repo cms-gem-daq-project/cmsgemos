@@ -89,6 +89,12 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
     DEBUG("GEMWebApplication::current state is" << p_gemFSMApp->getCurrentState());
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
+  if (p_gemFSMApp) {
+    *out << "<div class=\"xdaq-tab\" title=\"GLIBManager Control Panel\" >"  << std::endl;
+    controlPanel(in,out);
+    *out << "</div>" << std::endl;
+  }
+  
   *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
   monitorPage(in,out);
   *out << "</div>" << std::endl;
@@ -97,12 +103,27 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
   expertPage(in,out);
   *out << "</div>" << std::endl;
 
-  *out << cgicc::br() << std::endl
-       << "GEM DAQ GIT_VERSION:" << GIT_VERSION
-       << " -- developer:"       << GEMDEVELOPER
-       << cgicc::br() << std::endl;
   *out << "</div>" << std::endl;
+
+  webFooterGEM(in, out);
+
+  std::string updateLink = "/" + p_gemApp->m_urn + "/jsonUpdate";
+  *out << "<script type=\"text/javascript\">"            << std::endl
+       << "    startUpdate( \"" << updateLink << "\" );" << std::endl
+       << "</script>" << std::endl;
 }
+
+void gem::base::GEMWebApplication::webFooterGEM(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  *out << "<div id=\"xdaq-footer\">" << std::endl;
+  //*out << cgicc::br() << std::endl
+  * out << "GEM DAQ GIT_VERSION:" << GIT_VERSION
+        << " -- developer:"       << GEMDEVELOPER;
+  //<< cgicc::br() << std::endl;
+  *out << std::endl << "</div>" << std::endl;
+}
+
 
 /*To be filled in with the control page code (only for FSM derived classes?*/
 void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * out)

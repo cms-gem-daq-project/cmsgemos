@@ -78,15 +78,15 @@ $(SUBPACKAGES.CLEAN):
 
 gemHwMonitor: gemutils gembase gemhardware 
 
-gemhardware: gemutils gembase
+gemhardware: gemutils gembase gemreadout
 
 gembase: gemutils
 
-gemsupervisor: gemhardware gembase gemreadout
+gemsupervisor: gemutils gembase gemhardware gemreadout
 
 gemutils: 
 
-gemreadout: gemhardware gemutils gembase
+gemreadout: gemutils gembase
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

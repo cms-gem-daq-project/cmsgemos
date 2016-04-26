@@ -1,46 +1,52 @@
-#ifndef gem_hw_glib_AMC13Readout_h
-#define gem_hw_glib_AMC13Readout_h
+#ifndef gem_hw_amc13_AMC13Readout_h
+#define gem_hw_amc13_AMC13Readout_h
 
-#include <gem/base/GEMReadoutApplication.h>
+#include <gem/readout/GEMReadoutApplication.h>
 #include <gem/hw/amc13/exception/Exception.h>
+
+namespace amc13 {
+  class AMC13;
+}
 
 namespace gem {
   namespace hw {
     namespace amc13 {
-      class HwAMC13;
-
-      typedef std::shared_ptr<HwAMC13>  amc13_shared_ptr;
-
-      class AMC13Readout: public gem::base::GEMReadoutApplication
-      {
+      
+      typedef std::shared_ptr< ::amc13::AMC13>  amc13_shared_ptr;
+      
+      class AMC13Readout: public gem::readout::GEMReadoutApplication
+        {
         public:
           XDAQ_INSTANTIATOR();
-
-          static const uint32_t kUPDATE;
-          static const uint32_t kUPDATE7;
-
+          
           AMC13Readout(xdaq::ApplicationStub* s);
+          
           virtual ~AMC13Readout();
+          
         protected:
           virtual void actionPerformed(xdata::Event& event);
 	  
           //state transitions
-          virtual void initializeAction() throw (gem::hw::glib::exception::Exception);
-          virtual void configureAction()  throw (gem::hw::glib::exception::Exception);
-          virtual void startAction()      throw (gem::hw::glib::exception::Exception);
-          virtual void pauseAction()      throw (gem::hw::glib::exception::Exception);
-          virtual void resumeAction()     throw (gem::hw::glib::exception::Exception);
-          virtual void stopAction()       throw (gem::hw::glib::exception::Exception);
-          virtual void haltAction()       throw (gem::hw::glib::exception::Exception);
-          virtual void resetAction()      throw (gem::hw::glib::exception::Exception);
-          void dumpData();
+          virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
+          virtual void configureAction()  throw (gem::hw::amc13::exception::Exception);
+          virtual void startAction()      throw (gem::hw::amc13::exception::Exception);
+          virtual void pauseAction()      throw (gem::hw::amc13::exception::Exception);
+          virtual void resumeAction()     throw (gem::hw::amc13::exception::Exception);
+          virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
+          virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
+          virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
+
+          virtual int readout(unsigned int expected, unsigned int* eventNumbers, std::vector< ::toolbox::mem::Reference* >& data);
+          
+          int dumpData();
 
         private:
-          uint32_t m_runType;
-          uint32_t m_runParams;
           amc13_shared_ptr p_amc13;
-          std::string m_outFileName;
+          xdata::String  m_connectionFile, m_cardName;
+          xdata::Integer m_crateID, m_slot;
       };
     }
   }
 }
+
+#endif

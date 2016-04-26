@@ -112,9 +112,9 @@ for olink in range(NGTX):
         print "---------> DAQ GTX%d corrupted VFAT block counter:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.CORRUPT_VFAT_BLK_CNT"%(olink)))
         print "---------> DAQ GTX%d evn                         :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.EVN"%(olink)))
         print
-        print "---------> DAQ GTX%d MAX_DAV_TIMER :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.DAV_STATS.MAX_DAV_TIMER" %(olink)))
-        print "---------> DAQ GTX%d LAST_DAV_TIMER:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.DAV_STATS.LAST_DAV_TIMER"%(olink)))
-        print "---------> DAQ GTX%d DAV_TIMEOUT   :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.DAV_TIMEOUT"%(olink)))
+        print "---------> DAQ GTX%d MAX_DAV_TIMER :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.MAX_DAV_TIMER" %(olink)))
+        print "---------> DAQ GTX%d LAST_DAV_TIMER:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.LAST_DAV_TIMER"%(olink)))
+        print "---------> DAQ GTX%d DAV_TIMEOUT   :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink)))
         print "-------------------------================--"
         print "-------------> DEBUG INFO <----------------"
         print "-------------------------================--"
