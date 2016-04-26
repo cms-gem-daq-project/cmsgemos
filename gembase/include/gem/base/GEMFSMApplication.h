@@ -1,10 +1,10 @@
 #ifndef gem_base_GEMFSMApplication_h
 #define gem_base_GEMFSMApplication_h
 
+#include "toolbox/task/exception/Exception.h"
+
 #include "gem/base/GEMApplication.h"
 #include "gem/base/GEMFSM.h"
-
-#include "toolbox/task/exception/Exception.h"
 
 #include "gem/utils/Lock.h"
 #include "gem/utils/LockGuard.h"

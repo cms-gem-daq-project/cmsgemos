@@ -57,7 +57,7 @@ namespace gem {
 
       static bool writeGEMhd1Binary(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
-        if ( event<0) return false;
+        if (event < 0) return false;
         if (!outf.is_open()) return false;
         uint64_t cdfHeader = 0x5fffffffffffffff;
         uint64_t amc13Header1 = 0xff1ffffffffffff0;

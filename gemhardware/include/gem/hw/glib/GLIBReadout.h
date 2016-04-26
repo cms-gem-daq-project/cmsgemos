@@ -1,12 +1,11 @@
 #ifndef gem_hw_glib_GLIBReadout_h
 #define gem_hw_glib_GLIBReadout_h
 
-#include <gem/base/GEMReadoutApplication.h>
+#include <gem/readout/GEMReadoutApplication.h>
 #include <gem/readout/GEMDataAMCformat.h>
 #include <gem/hw/glib/exception/Exception.h>
 
-namespace gem {
-  
+namespace gem {  
   namespace readout {
     struct GEMDataAMCformat;
   }
@@ -17,7 +16,7 @@ namespace gem {
 
       typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
 
-      class GLIBReadout: public gem::base::GEMReadoutApplication
+      class GLIBReadout: public gem::readout::GEMReadoutApplication
         {
         public:
           XDAQ_INSTANTIATOR();
@@ -57,7 +56,9 @@ namespace gem {
           virtual void stopAction()       throw (gem::hw::glib::exception::Exception);
           virtual void haltAction()       throw (gem::hw::glib::exception::Exception);
           virtual void resetAction()      throw (gem::hw::glib::exception::Exception);
-
+          
+          virtual int readout(unsigned int expected, unsigned int* eventNumbers, std::vector< ::toolbox::mem::Reference* >& data);
+          
           uint32_t* dumpData( uint8_t const& mask );
 
           uint32_t* selectData(uint32_t counter[5]);
