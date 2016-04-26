@@ -5,11 +5,12 @@
  * author: J. Sturdy
  * date: 
  */
+#include "toolbox/mem/Pool.h"
+#include "toolbox/mem/MemoryPoolFactory.h"
+#include "toolbox/mem/CommittedHeapAllocator.h"
 
 #include "gem/readout/GEMReadoutApplication.h"
 //#include "gem/base/GEMWebApplication.h"
-
-//XDAQ_INSTANTIATOR_IMPL(gem::readout::GEMReadoutApplication);
 
 const int gem::readout::GEMReadoutApplication::I2O_READOUT_NOTIFY=0x84;
 const int gem::readout::GEMReadoutApplication::I2O_READOUT_CONFIRM=0x85;
@@ -45,13 +46,17 @@ void gem::readout::GEMReadoutApplication::GEMReadoutSettings::registerFields(xda
 }
 
 
-gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub* stub) :
+gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub* stub)
+  throw (xdaq::exception::Exception) :
   gem::base::GEMFSMApplication(stub),
   m_outFileName(""),
+  m_connectionFile("ConnectionFile"),
+  m_deviceName("ReadoutDevice"),
   m_eventsReadout(0),
   m_usecPerEvent(0.0),
   m_usecUsed(0.0)
 {
+  DEBUG("GEMReadoutApplication ctor begin");
   //i2o::bind(this,&ReadoutApplication::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
   //xoap::bind(this,&ReadoutApplication::getReadoutCredits,"GetReadoutCredits","urn:GEMReadoutApplication-soap:1");
   p_appInfoSpace->fireItemAvailable("ReadoutSettings",&m_readoutSettings);
@@ -65,6 +70,7 @@ gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub
   p_appInfoSpace->addItemRetrieveListener("ConnectionFile",  this);
   p_appInfoSpace->addItemRetrieveListener("EventsReadout",   this);
   p_appInfoSpace->addItemRetrieveListener("uSecPerEvent",    this);
+  
   p_appInfoSpace->addItemChangedListener( "ReadoutSettings", this);
   p_appInfoSpace->addItemChangedListener( "DeviceName",      this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile",  this);
@@ -79,6 +85,12 @@ gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub
   //
   ////set up the info hwCfgInfoSpace 
   //init();
+  DEBUG("GEMReadoutApplication::GEMReadoutApplication() "      << std::endl
+        << " m_deviceName:"     << m_deviceName.toString()     << std::endl
+        << " m_connectionFile:" << m_connectionFile.toString() << std::endl
+        << " m_eventsReadout:"  << m_eventsReadout.toString()  << std::endl
+        );
+  DEBUG("GEMReadoutApplication ctor end");
 }
 
 gem::readout::GEMReadoutApplication::~GEMReadoutApplication()
@@ -96,8 +108,13 @@ void gem::readout::GEMReadoutApplication::actionPerformed(xdata::Event& event)
     //p_gemMonitor->startMonitoring();
   }
   // update monitoring variables
-  gem::base::GEMApplication::actionPerformed(event);
-  
+  DEBUG("GEMReadoutApplication::actionPerformed() " << event.type() << std::endl
+        << " m_connectionFile:" << m_connectionFile.toString()      << std::endl
+        << " m_deviceName:"     << m_deviceName.toString()          << std::endl
+        << " m_eventsReadout:"  << m_eventsReadout.toString()       << std::endl
+        );
+  // update monitoring variables
+  gem::base::GEMFSMApplication::actionPerformed(event);  
 }
 
 
@@ -111,7 +128,22 @@ void gem::readout::GEMReadoutApplication::initializeAction()
   } else {
     m_cmdQueue.push(ReadoutCommands::CMD_STOP);
   }
-  
+
+  /*
+  // create a pool
+  if (!m_pool) {
+    char poolname[128];
+    snprintf(poolname,128,"GEMReadoutPool-%s-%d",getApplicationDescriptor()->getClassName().c_str(),(int)getApplicationDescriptor()->getInstance());
+    try {
+      // 4k events at the average size
+      toolbox::mem::CommittedHeapAllocator* alloc = new toolbox::mem::CommittedHeapAllocator(4096*4096);
+      toolbox::net::URN urn("toolbox-mem-pool",poolname);
+      m_pool = toolbox::mem::getMemoryPoolFactory()->createPool(urn,alloc);
+    } catch (xcept::Exception& e) {
+      XCEPT_RETHROW(gem::base::exception::Exception,"Unable to create readout memory pool",e);
+    }
+  }
+  */
   m_eventsReadout.value_ = 0;
   m_usecPerEvent.value_  = 0;
   m_usecUsed = 0;
@@ -204,14 +236,14 @@ int gem::readout::GEMReadoutApplication::readoutTask()
   bool isRunning(false), isDone(false);
   int nevtsRead(0);
   // may at some point want to actually pass the memory
-  std::vector< ::toolbox::mem::Reference* > data;
+  std::vector<toolbox::mem::Reference* > data;
   
   while (!isDone) {
     if (!isRunning || m_cmdQueue.size() > 0) {
       int cmd = m_cmdQueue.pop();
       switch(cmd) {
       case(ReadoutCommands::CMD_PAUSE) :
-        isRunning = true;
+        isRunning = false;
         break;
       case(ReadoutCommands::CMD_STOP) :
         isRunning = false;
@@ -233,22 +265,27 @@ int gem::readout::GEMReadoutApplication::readoutTask()
       struct timeval start,stop;
       
       gettimeofday(&start,0);
-      nevtsRead=0;
+      nevtsRead = 0;
       try {
         nevtsRead = readout(0,0,data);
       } catch (gem::base::exception::Exception& e) {
         ERROR(xcept::stdformat_exception_history(e));
       }
       
-      for (int i=0; i<nevtsRead; i++)
+      DEBUG("GEMReadoutApplication::readoutTask read " << nevtsRead << " events");
+      /*
+      for (int i = 0; i < nevtsRead; i++) {
+        DEBUG("GEMReadoutApplication::readoutTask releaseing data[" << i << "]");
         data[i]->release();
-      
-      if (nevtsRead>0) {
+      }
+      */
+      if (nevtsRead > 0) {
+        DEBUG("GEMReadoutApplication::readoutTask read " << nevtsRead << " events");
         gettimeofday(&stop,0);
         m_eventsReadout.value_ = m_eventsReadout.value_ + nevtsRead;
         double deltaU=(stop.tv_sec-start.tv_sec)*1e6+(stop.tv_usec-start.tv_usec);
-        m_usecUsed+=deltaU;
-        m_usecPerEvent.value_=m_usecUsed/(m_eventsReadout.value_);
+        m_usecUsed += deltaU;
+        m_usecPerEvent.value_ = m_usecUsed/(m_eventsReadout.value_);
       }
     }
   }

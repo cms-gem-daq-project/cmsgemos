@@ -27,7 +27,8 @@ namespace gem {
         public:
           XDAQ_INSTANTIATOR();
 	  
-          AMC13Manager(xdaq::ApplicationStub * s);
+          AMC13Manager(xdaq::ApplicationStub * s)
+            throw (xdaq::exception::Exception);
 
           virtual ~AMC13Manager();
 	  

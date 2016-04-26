@@ -19,7 +19,8 @@ namespace gem {
         public:
           XDAQ_INSTANTIATOR();
           
-          AMC13Readout(xdaq::ApplicationStub* s);
+          AMC13Readout(xdaq::ApplicationStub* s)
+            throw (xdaq::exception::Exception);
           
           virtual ~AMC13Readout();
           
@@ -42,7 +43,7 @@ namespace gem {
 
         private:
           amc13_shared_ptr p_amc13;
-          xdata::String  m_connectionFile, m_cardName;
+          xdata::String  m_cardName;
           xdata::Integer m_crateID, m_slot;
       };
     }

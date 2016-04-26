@@ -57,7 +57,8 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("LocalL1AMask", &localL1AMask);
 }
 
-gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
+gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
+  throw (xdaq::exception::Exception) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
   p_amc13(NULL)

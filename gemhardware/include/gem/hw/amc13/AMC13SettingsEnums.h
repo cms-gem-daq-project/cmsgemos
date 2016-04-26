@@ -26,11 +26,8 @@ namespace gem {
             HardReset = 0x16, //HardReset
           } BGOCmd;
         };
-
       }; //end class AMC13Settings
-      
     }//end namespace gem::hw::amc13
-    
   }//end namespace gem::hw
   
   //typedef the enum for casting and access

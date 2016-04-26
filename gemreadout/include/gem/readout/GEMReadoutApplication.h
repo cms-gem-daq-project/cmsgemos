@@ -13,8 +13,6 @@
 #include <xoap/MessageReference.h>
 #include <xoap/Method.h>
 
-#include <xdata/String.h>
-
 #include <gem/base/GEMFSMApplication.h>
 
 #include <gem/utils/GEMLogging.h>
@@ -25,7 +23,6 @@ namespace gem {
   namespace readout {
     
     class GEMReadoutTask;
-    class GEMReadoutApplication;
         
     class GEMReadoutApplication : public gem::base::GEMFSMApplication
       {
@@ -43,9 +40,8 @@ namespace gem {
           } ReadoutCommands;
         };
 	
-        //XDAQ_INSTANTIATOR();
-        
-        GEMReadoutApplication(xdaq::ApplicationStub *stub);
+        GEMReadoutApplication(xdaq::ApplicationStub *stub)
+          throw (xdaq::exception::Exception);
         
         virtual ~GEMReadoutApplication();
 	
@@ -92,6 +88,7 @@ namespace gem {
         
         std::string m_outFileName;
         std::shared_ptr<toolbox::Task> m_task;
+        toolbox::mem::Pool*            m_pool;
         toolbox::SyncQueue<int>        m_cmdQueue;
                 
         class GEMReadoutSettings {
