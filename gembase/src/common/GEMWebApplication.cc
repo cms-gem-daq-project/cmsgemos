@@ -90,7 +90,11 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
   if (p_gemFSMApp) {
-    *out << "<div class=\"xdaq-tab\" title=\"GLIBManager Control Panel\" >"  << std::endl;
+    std::string classname = p_gemFSMApp->getApplicationDescriptor()->getClassName();
+    classname = classname.erase(0,classname.rfind(":")+1);
+    *out << "<div class=\"xdaq-tab\" title=\""
+         << classname
+         << " Control Panel\" >"  << std::endl;
     controlPanel(in,out);
     *out << "</div>" << std::endl;
   }
