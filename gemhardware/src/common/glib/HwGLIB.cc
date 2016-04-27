@@ -707,18 +707,26 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 
 
 /////DAQ link module functions ///////
-void gem::hw::glib::HwGLIB::enableDAQLink(uint32_t const& killMask)
+void gem::hw::glib::HwGLIB::enableDAQLink(uint32_t const& enableMask)
 {
-  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_KILL_MASK", killMask);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_ENABLE_MASK", enableMask);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAQ_ENABLE", 0x1);
+}
+
+void gem::hw::glib::HwGLIB::disableDAQLink()
+{
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAQ_ENABLE",        0x0);
 }
 
 void gem::hw::glib::HwGLIB::resetDAQLink(uint32_t const& davTO)
 {
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x1);
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.RESET", 0x0);
+  disableDAQLink();
   writeReg(getDeviceBaseNode(),"DAQ.CONTROL.DAV_TIMEOUT", davTO);
-  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.TTS_OVERRIDE", 0x8);/*HACK to be fixed*/
+  //setDAQLinkInputTimeout(davTO);
+  writeReg(getDeviceBaseNode(),"DAQ.CONTROL.TTS_OVERRIDE", 0x8);/*HACK to be fixed?*/
 }
 
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkControl()
@@ -778,7 +786,7 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkNonidentifiableErrors()
 
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkInputMask()
 {
-  return readReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_KILL_MASK");
+  return readReg(getDeviceBaseNode(),"DAQ.CONTROL.INPUT_ENABLE_MASK");
 }
 
 uint32_t gem::hw::glib::HwGLIB::getDAQLinkDAVTimeout()

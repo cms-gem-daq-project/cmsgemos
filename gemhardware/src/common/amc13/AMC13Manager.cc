@@ -241,12 +241,11 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   //DEBUG("Looking at L1A history after configure");
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
 
-  if (m_enableCalpulse){
-  p_amc13->configureBGOShort( m_bgochannel, m_bgocmd, m_bgobx, m_bgoprescale, m_bgorepeat);
-  p_amc13->getBGOConfig(m_bgochannel);
+  if (m_enableCalpulse) {
+    p_amc13->configureBGOShort(m_bgochannel, m_bgocmd, m_bgobx, m_bgoprescale, m_bgorepeat);
+    p_amc13->getBGOConfig(m_bgochannel);
   }
-
-
+  
   //set the settings from the config options
   usleep(500); // just for testing the timing of different applications
 }
@@ -262,17 +261,16 @@ void gem::hw::amc13::AMC13Manager::startAction()
 
   p_amc13->reset(::amc13::AMC13::T1);
   p_amc13->startRun();
-
+  
   if (m_enableLocalL1A && m_startL1ATricont) {
-      p_amc13->localTtcSignalEnable(m_enableLocalL1A);
-      p_amc13->enableLocalL1A(m_enableLocalL1A);
-      p_amc13->startContinuousL1A();
-    }
+    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+    p_amc13->enableLocalL1A(m_enableLocalL1A);
+    p_amc13->startContinuousL1A();
+  }
   if (m_enableCalpulse) {
     p_amc13->enableBGO(m_bgochannel);
     p_amc13->sendBGO();
   }
-
 }
 
 void gem::hw::amc13::AMC13Manager::pauseAction()

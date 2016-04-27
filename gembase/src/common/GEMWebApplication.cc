@@ -85,6 +85,10 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webDefault");
+  *out << cgicc::script().set("type","text/javascript")
+    .set("src","/gemdaq/gembase/html/scripts/gemwebapp.js")
+       << cgicc::script() << std::endl;
+
   if (p_gemFSMApp)
     DEBUG("GEMWebApplication::current state is" << p_gemFSMApp->getCurrentState());
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
@@ -100,15 +104,17 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
   }
   
   *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
-  monitorPage(in,out);
+  this->monitorPage(in,out);
   *out << "</div>" << std::endl;
 
   *out << "<div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
-  expertPage(in,out);
+  this->expertPage(in,out);
   *out << "</div>" << std::endl;
 
+  *out << " <div class=\"gem-push\"></div>" << std::endl;
+  
   *out << "</div>" << std::endl;
-
+  
   webFooterGEM(in, out);
 
   std::string updateLink = "/" + p_gemApp->m_urn + "/jsonUpdate";
@@ -120,7 +126,7 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
 void gem::base::GEMWebApplication::webFooterGEM(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  *out << "<div id=\"xdaq-footer\">" << std::endl;
+  *out << "<div class=\"gem-footer\" id=\"xdaq-footer\">" << std::endl;
   //*out << cgicc::br() << std::endl
   * out << "GEM DAQ GIT_VERSION:" << GIT_VERSION
         << " -- developer:"       << GEMDEVELOPER;

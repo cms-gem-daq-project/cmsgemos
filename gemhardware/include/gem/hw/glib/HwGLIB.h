@@ -692,10 +692,15 @@ namespace gem {
 
           // DAQ LINK functionality
           /**
-           * @brief Set the kill mask and enable the DAQ link
-           * @param killMask 32 bit word for the 24 bit kill mask
+           * @brief Set the enable mask and enable the DAQ link
+           * @param enableMask 32 bit word for the 24 bit enable mask
            */
-          void enableDAQLink(uint32_t const& killMask=0x3);
+          void enableDAQLink(uint32_t const& enableMask=0x1);
+
+          /**
+           * @brief Set the DAQ link off and disable all inputs
+           */
+          void disableDAQLink();
 
           /**
            * @brief reset the DAQ link and write the DAV timout

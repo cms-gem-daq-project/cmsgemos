@@ -70,6 +70,12 @@ void gem::hw::glib::GLIBManagerWeb::monitorPage(xgi::Input * in, xgi::Output * o
    */
   buildCardSummaryTable(in,out);
   *out << "</div>" << std::endl;
+  
+  std::string cardURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/cardPage";
+  *out << "<div class=\"xdaq-tab\" title=\"Card page\"/>"  << std::endl;
+  cardPage(in,out);
+  *out << "</div>" << std::endl;
+  
   *out << "</div>" << std::endl;
 }
 
