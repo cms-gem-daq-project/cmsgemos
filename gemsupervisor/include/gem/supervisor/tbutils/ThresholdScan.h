@@ -29,6 +29,13 @@ namespace gem {
         void webStart(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
+
+	  void sendAMC13trigger()
+	    throw (xgi::exception::Exception);
+	  void NTriggersAMC13()
+	    throw (xgi::exception::Exception);
+
+
         //workloop functions
         bool run(       toolbox::task::WorkLoop* wl);
 
