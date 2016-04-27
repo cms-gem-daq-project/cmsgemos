@@ -334,6 +334,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       m_glibs[slot]->setTrigSource(info.triggerSource.value_);
       
       // reset the DAQ
+      m_glibs[slot]->setL1AInhibit(0x1);
       m_glibs[slot]->resetDAQLink();
       m_glibs[slot]->setDAQLinkRunType(0x3);
       m_glibs[slot]->setDAQLinkRunParameters(0xfaac);
@@ -377,6 +378,7 @@ void gem::hw::glib::GLIBManager::startAction()
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       m_glibs[slot]->enableDAQLink();
+      m_glibs[slot]->setL1AInhibit(0x0);
       usleep(100); // just for testing the timing of different applications
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
@@ -523,7 +525,7 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   // DAQ link registers
   is_glib->createUInt32("CONTROL",        glib->getDAQLinkControl(),               NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("STATUS",         glib->getDAQLinkStatus(),                NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("INPUT_KILL_MASK",glib->getDAQLinkInputMask(),             NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("INPUT_ENABLE_MASK",glib->getDAQLinkInputMask(),             NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("DAV_TIMEOUT",    glib->getDAQLinkDAVTimeout(),            NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("MAX_DAV_TIMER",  glib->getDAQLinkDAVTimer(0),             NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("LAST_DAV_TIMER", glib->getDAQLinkDAVTimer(1),             NULL, GEMUpdateType::HW32);

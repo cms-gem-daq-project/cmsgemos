@@ -2,12 +2,12 @@
 <node id="top">
   <node id="CONTROL"  address="0x0"  permission="rw"
         description="DAQ Control">
-    <node id="DAQ_ENABLE"       mask="0x00000001"/>
-    <node id="DAQ_LINK_RESET"   mask="0x00000004"/>
-    <node id="RESET"            mask="0x00000008"/>
-    <node id="TTS_OVERRIDE"     mask="0x000000f0"/>
-    <node id="INPUT_KILL_MASK"  mask="0xffffff00"/>
-    <node id="DAV_TIMEOUT"      address="0x6"  mask="0x00ffffff"/>
+    <node id="DAQ_ENABLE"         mask="0x00000001"/>
+    <node id="DAQ_LINK_RESET"     mask="0x00000004"/>
+    <node id="RESET"              mask="0x00000008"/>
+    <node id="TTS_OVERRIDE"       mask="0x000000f0"/>
+    <node id="INPUT_ENABLE_MASK"  mask="0xffffff00"/>
+    <node id="DAV_TIMEOUT"        address="0x6"  mask="0x00ffffff"/>
   </node>
   <node id="STATUS"  address="0x1"  permission="r"
         description="DAQ global status registers">
