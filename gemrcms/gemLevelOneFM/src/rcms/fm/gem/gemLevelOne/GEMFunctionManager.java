@@ -1,9 +1,9 @@
-package rcms.fm.app.gemLevelOne;
+package rcms.fm.gem.gemLevelOne;
 
 import java.util.List;
 import java.util.ArrayList;
 
-import rcms.fm.app.gemLevelOne.util.GEMUtil;
+import rcms.fm.gem.gemLevelOne.util.GEMUtil;
 import rcms.fm.fw.parameter.CommandParameter;
 import rcms.fm.fw.parameter.ParameterSet;
 import rcms.fm.fw.user.UserActionException;

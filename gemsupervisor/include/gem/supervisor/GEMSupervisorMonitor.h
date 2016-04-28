@@ -26,6 +26,7 @@ namespace gem {
         
         virtual void updateMonitorables();
         void setupAppStateMonitoring();
+        void updateApplicationStates();
         void buildStateTable(xgi::Output* out);
 
       private:

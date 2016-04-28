@@ -18,7 +18,7 @@ namespace gem {
       void unlock();
 
     private:
-      toolbox::BSem semaphore_;
+      toolbox::BSem m_semaphore;
 
       // Prevent copying.
       Lock(Lock const&);

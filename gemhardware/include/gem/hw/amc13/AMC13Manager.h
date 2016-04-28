@@ -27,7 +27,8 @@ namespace gem {
         public:
           XDAQ_INSTANTIATOR();
 	  
-          AMC13Manager(xdaq::ApplicationStub * s);
+          AMC13Manager(xdaq::ApplicationStub * s)
+            throw (xdaq::exception::Exception);
 
           virtual ~AMC13Manager();
 	  
@@ -64,7 +65,7 @@ namespace gem {
             void registerFields(xdata::Bag<AMC13Info> *bag);
             
             xdata::String connectionFile;
-	    xdata::String amc13CardName;
+            xdata::String cardName;
             xdata::String amcInputEnableList;
             xdata::String amcIgnoreTTSList;
             
@@ -111,7 +112,7 @@ namespace gem {
           xdata::Bag<AMC13Info> m_amc13Params;
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
-          std::string m_connectionFile, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList, m_cardname;
+          std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,

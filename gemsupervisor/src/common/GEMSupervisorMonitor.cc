@@ -9,9 +9,6 @@
 #include "gem/supervisor/GEMSupervisorMonitor.h"
 #include "gem/supervisor/GEMSupervisor.h"
 #include "gem/base/GEMFSMApplication.h"
-//#include "xdata/InfoSpaceFactory.h"
-//
-//#include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
@@ -35,7 +32,7 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
     dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemApp)->getSupervisedAppDescriptors();
   for (auto managedApp = managedApps.begin(); managedApp != managedApps.end(); ++managedApp) {
     std::stringstream appNameID;
-    appNameID << (*managedApp)->getClassName() << "-lid:" << (*managedApp)->getLocalId();
+    appNameID << (*managedApp)->getClassName() << ":lid:" << (*managedApp)->getLocalId();
     std::stringstream appURN;
     appURN << (*managedApp)->getURN();
     DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring adding monitored app "
@@ -48,7 +45,11 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
 
 void gem::supervisor::GEMSupervisorMonitor::updateMonitorables()
 {
+  updateApplicationStates();
+}
 
+void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
+{
   DEBUG("GEMSupervisorMonitor: Updating AppStates monitorables");
   auto monlist = m_monitorableSetsMap.find("AppStates");
   if (monlist == m_monitorableSetsMap.end()) {
@@ -62,8 +63,8 @@ void gem::supervisor::GEMSupervisorMonitor::updateMonitorables()
       std::string state;
       try {
         xdata::InfoSpace* is = xdata::getInfoSpaceFactory()->get(monitem->second.regname);
-        DEBUG("infospace: " << is->name() << " has item FSMState " << is->hasItem("FSMState"));
-        state = gem::base::utils::GEMInfoSpaceToolBox::getString(is,"FSMState");
+        DEBUG("infospace: " << is->name() << " has item StateName " << is->hasItem("StateName"));
+        state = gem::base::utils::GEMInfoSpaceToolBox::getString(is,"StateName");
       } catch (xdata::exception::Exception const& err) {
         std::string msg = "Error trying to read from InfoSpace '" + monitem->second.regname + "' state " + state + ".";
         ERROR(msg << " " << err.what());
@@ -78,6 +79,7 @@ void gem::supervisor::GEMSupervisorMonitor::updateMonitorables()
       DEBUG("GEMSupervisorMonitor::updating "
             << monitem->first << " with state " << state);
       (monitem->second.infoSpace)->setString(monitem->first,state);
+      DEBUG("GEMSupervisorMonitor::updating done!");
     }
   }
 }

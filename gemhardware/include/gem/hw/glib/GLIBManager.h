@@ -34,17 +34,6 @@ namespace gem {
 
           virtual ~GLIBManager();
 	  
-	  //SOAP MESSAGE
-	  virtual xoap::MessageReference callbackinitialize(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference callbackconfigure(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference callbackstart(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference callbackstop(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-	  
-
         protected:
           virtual void init();
 
