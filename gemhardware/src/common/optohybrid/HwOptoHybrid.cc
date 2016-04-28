@@ -309,8 +309,8 @@ void gem::hw::optohybrid::HwOptoHybrid::resetVFATCRCCounters()
 }
 
 std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::string const& name,
-                                                                       uint32_t const mask,
-                                                                       bool reset)
+                                                                       uint32_t    const& mask,
+                                                                       bool               reset)
 {
   if (reset)
     writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
@@ -325,8 +325,8 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
-                                                       uint32_t    const& mask,
                                                        uint32_t    const& value,
+                                                       uint32_t    const& mask,
                                                        bool reset)
 {
   if (reset)
@@ -391,6 +391,29 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
   return connectedMask;
 }
 
+
+void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults(uint8_t  const& vt1,
+                                                           uint8_t  const& vt2,
+                                                           uint8_t  const& latency,
+                                                           uint32_t const& broadcastMask)
+{
+  broadcastWrite("ContReg0",   0x36, broadcastMask);
+  broadcastWrite("ContReg1",   0x00, broadcastMask);
+  broadcastWrite("ContReg2",   0x30, broadcastMask);
+  broadcastWrite("ContReg3",   0x00, broadcastMask);
+  broadcastWrite("IPreampIn",   168, broadcastMask);
+  broadcastWrite("IPreampFeed", 150, broadcastMask);
+  broadcastWrite("IPreampOut",   80, broadcastMask);
+  broadcastWrite("IShaper",     150, broadcastMask);
+  broadcastWrite("IShaperFeed", 100, broadcastMask);
+  broadcastWrite("IComp",       120, broadcastMask);
+
+  broadcastWrite("VThreshold1", vt1,     broadcastMask);
+  broadcastWrite("VThreshold2", vt2,     broadcastMask);
+  broadcastWrite("Latency",     latency, broadcastMask);
+}
+
+
 void gem::hw::optohybrid::HwOptoHybrid::generalReset()
 {
   return;
@@ -398,6 +421,10 @@ void gem::hw::optohybrid::HwOptoHybrid::generalReset()
 
 void gem::hw::optohybrid::HwOptoHybrid::counterReset()
 {
+  resetT1Counters();
+  resetVFATCRCCounters();
+  resetWBSlaveCounters();
+  resetWBMasterCounters();
   return;
 }
 

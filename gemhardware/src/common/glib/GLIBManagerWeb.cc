@@ -153,15 +153,20 @@ void gem::hw::glib::GLIBManagerWeb::cardPage(xgi::Input * in, xgi::Output * out)
 void gem::hw::glib::GLIBManagerWeb::jsonUpdate(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
+  DEBUG("GLIBManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  *out << " { \n";
+  *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
+    *out << "\"glib" << std::setw(2) << std::setfill('0') << (i+1) << "\"  : { " << std::endl;
     auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
     if (card) {
-      *out << "\"glib" << std::setw(2) << std::setfill('0') << (i+1) << "\"  : { \n";
       card->jsonUpdateItemSets(out);
-      *out << " }, \n";
     }
+    // can't have a trailing comma for the last entry...
+    if (i == (gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE-1))
+      *out << " }" << std::endl;
+    else
+      *out << " }," << std::endl;
   }
-  *out << " } \n";
+  *out << " } " << std::endl;
 }

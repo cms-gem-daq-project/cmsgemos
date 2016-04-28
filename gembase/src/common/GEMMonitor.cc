@@ -262,40 +262,53 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
 
 void gem::base::GEMMonitor::jsonUpdateItemSet(std::string const& setname, std::ostream *out)
 {
-  if (m_monitorableSetsMap.find(setname) == m_monitorableSetsMap.end()) {
-    WARN("GEMMonitor::Monitorable set " << setname << " not found, not exporting as JSON");
-    return;
-  }
-    
-  if (m_monitorableSetsMap.find(setname)->second.empty()) {
-    WARN("GEMMonitor::Monitorable set " << setname << " is empty, not exporting as JSON");
-    return;
-  }
-  DEBUG("GEMMonitor::Found monitorable set " << setname << " while updating for JSON export");
-  *out << "\"" << setname << "\" : [ \n";
   std::list< std::vector<std::string> > items = getFormattedItemSet(setname);
   std::list< std::vector<std::string> >::const_iterator it;
-
-  for ( it = items.begin(); it != items.end(); it++ ) {
+  
+  std::list< std::vector<std::string> >::const_iterator end = items.end();
+  for ( it = items.begin(); it != items.end(); ++it ) {
     std::string val = gem::base::GEMWebApplication::jsonEscape( (*it)[1] );
     *out << "{ \"name\":\"" << getInfoSpace(setname)->name() << "-" << (*it)[0]
-         << "\",\"value\":\"" << val << "\" },\n";
+         << "\",\"value\":\"" << val;
+    // can't have a trailing comma for the last entry...
+    if (std::distance(it,end) == 1) {
+      *out << "\" }" << std::endl;
+    } else {
+      *out << "\" }," << std::endl;
+    }
   }
-  *out << " ],\n";
-  // can't have a trailing comma for the last entry...
 }
 
 void gem::base::GEMMonitor::jsonUpdateItemSets(xgi::Output *out)
 {
-  for (auto iset = m_monitorableSetsMap.begin(); iset != m_monitorableSetsMap.end(); ++iset)
+  auto end = m_monitorableSetsMap.end();
+  for (auto iset = m_monitorableSetsMap.begin(); iset != m_monitorableSetsMap.end(); ++iset) {
+    if (m_monitorableSetsMap.find(iset->first) == m_monitorableSetsMap.end()) {
+      WARN("GEMMonitor::Monitorable set " << iset->first << " not found, not exporting as JSON");
+      return;
+    }
+    
+    if (m_monitorableSetsMap.find(iset->first)->second.empty()) {
+      WARN("GEMMonitor::Monitorable set " << iset->first << " is empty, not exporting as JSON");
+      return;
+    }
+    DEBUG("GEMMonitor::Found monitorable set " << iset->first << " while updating for JSON export");
+    *out << "\"" << iset->first << "\" : [ " << std::endl;
     jsonUpdateItemSet(iset->first,out);
+    // can't have a trailing comma for the last entry...
+    if (std::distance(iset,end) == 1) {
+      *out << " ]" << std::endl;
+    } else {
+      *out << " ]," << std::endl;
+    }
+  }
 }
 
 void gem::base::GEMMonitor::jsonUpdateInfoSpaces(xgi::Output *out)
 {
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  *out << " { \n";
-  *out << " } \n";
+  *out << " { " << std::endl;
+  *out << " } " << std::endl;
 }
 
 void gem::base::GEMMonitor::reset()

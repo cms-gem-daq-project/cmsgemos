@@ -6,8 +6,8 @@ function sendrequest( jsonurl )
             .done(function(data) {
                     updateGLIBMonitorables( data );
                 })
-            .fail(function(data) {
-                    console.log("Error parsing " + data + " of type: " + data.exampleType);
+            .fail(function(data, textStatus, error) {
+                    console.error("sendrequest: getJSON failed, status: " + textStatus + ", error: "+error);
                 });
     } else {
         var xmlhttp;
@@ -36,7 +36,7 @@ function updateGLIBMonitorables( glibjson )
         var monitorset = glibjson[glib];
         for ( var monitem in monitorset ) {
             var arr = monitorset[monitem];
-            for( var i=0; i<arr.length; i++ ) {
+            for( var i = 0; i < arr.length; ++i ) {
                 document.getElementById( arr[i].name ).innerHTML = arr[i].value;
             }
         }

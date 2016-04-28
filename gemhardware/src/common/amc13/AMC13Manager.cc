@@ -237,7 +237,12 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
-  if (m_enableLocalL1A) p_amc13->configureLocalL1A(m_enableLocalL1A,m_L1Amode,m_L1Aburst,m_internalPeriodicPeriod,m_L1Arules);
+  INFO("AMC13 Configured L1ABurst BEFORE = " << m_L1Aburst);
+  m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
+  INFO("AMC13 Configured L1ABurst AFTER = " << m_L1Aburst);
+
+  if (m_enableLocalL1A)
+    p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   //DEBUG("Looking at L1A history after configure");
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
 
@@ -245,7 +250,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
     p_amc13->configureBGOShort(m_bgochannel, m_bgocmd, m_bgobx, m_bgoprescale, m_bgorepeat);
     p_amc13->getBGOConfig(m_bgochannel);
   }
-  
+  INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
   //set the settings from the config options
   usleep(500); // just for testing the timing of different applications
 }
@@ -260,8 +265,10 @@ void gem::hw::amc13::AMC13Manager::startAction()
   usleep(500);
 
   p_amc13->reset(::amc13::AMC13::T1);
+
   p_amc13->startRun();
-  
+  INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
+
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->localTtcSignalEnable(m_enableLocalL1A);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
@@ -364,8 +371,8 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
   std::string commandName = "undefined";
   try {
     if (m_enableLocalL1A &&  m_sendL1ATriburst) {
-      p_amc13->localTtcSignalEnable(m_enableLocalL1A);
-      p_amc13->enableLocalL1A(m_enableLocalL1A);
+      //p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+      //p_amc13->enableLocalL1A(m_enableLocalL1A);
       p_amc13->sendL1ABurst();
     }
   } catch(xoap::exception::Exception& err) {

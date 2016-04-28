@@ -10,8 +10,8 @@ function staterequest( jsonurl )
             .done(function(data) {
                     updateStateMonitorables( data );
                 })
-            .fail(function(data) {
-                    console.log("Error parsing " + data + " of type: " + data.exampleType);
+            .fail(function(data, textStatus, error) {
+                    console.error("staterequest: getJSON failed, status: " + textStatus + ", error: "+error);
                 });
     } else {
         var xmlhttp;
