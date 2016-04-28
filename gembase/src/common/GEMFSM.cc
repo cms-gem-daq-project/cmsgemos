@@ -6,13 +6,6 @@
  * date: 
  */
 
-#include "gem/base/GEMFSMApplication.h"
-#include "gem/base/GEMFSM.h"
-#include "gem/base/utils/GEMInfoSpaceToolBox.h"
-
-#include "gem/utils/soap/GEMSOAPToolBox.h"
-#include "gem/utils/exception/Exception.h"
-
 #include "toolbox/fsm/AsynchronousFiniteStateMachine.h"
 #include "toolbox/fsm/InvalidInputEvent.h"
 #include "toolbox/string.h"
@@ -21,16 +14,19 @@
 #include "xercesc/util/XercesDefs.hpp"
 #include "xcept/tools.h"
 
-gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
-                          //,gem::base::utils::ApplicationStateInfoSpaceHandler* const appStateInfoSpaceHanderP
-                          ) :
-  //p_appStateInfoSpaceHandler(appStateInfoSpaceHanderP),
+#include "gem/base/GEMFSMApplication.h"
+#include "gem/base/GEMFSM.h"
+#include "gem/base/utils/GEMInfoSpaceToolBox.h"
+
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
+
+gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP) :
   p_gemfsm(0),
+  m_gemFSMState("Undefined"),
+  m_reasonForFailure(""),
   p_gemApp(gemAppP),
-  m_gemLogger(gemAppP->getApplicationLogger()),
-  m_gemRCMSNotifier(p_gemApp->getApplicationLogger(),
-                    p_gemApp->getApplicationDescriptor(),
-                    p_gemApp->getApplicationContext())
+  m_gemLogger(gemAppP->getApplicationLogger())
 {
   DEBUG("GEMFSM::ctor begin");
   
@@ -46,15 +42,15 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
 
   // A map to look up the names of the 'intermediate' state transitions.
   //TCDS does things this way, is it the right way for GEMs?
-  lookupMap_["Initializing"] = "Halted"     ;// Halted
-  lookupMap_["Configuring"]  = "Configured" ;// Configured
-  lookupMap_["Halting"]      = "Halted"     ;// Halted
-  lookupMap_["Starting"]     = "Running"    ;// Running
-  lookupMap_["Pausing"]      = "Paused"     ;// Paused
-  lookupMap_["Resuming"]     = "Running"    ;// Running
-  lookupMap_["Stopping"]     = "Configured" ;// Configured
-  lookupMap_["Resetting"]    = "Initial"    ;// Resetting
-  lookupMap_["Reset"]        = "Initial"    ;// Resetting
+  m_lookupMap["Initializing"] = "Halted"     ;// Halted
+  m_lookupMap["Configuring"]  = "Configured" ;// Configured
+  m_lookupMap["Halting"]      = "Halted"     ;// Halted
+  m_lookupMap["Starting"]     = "Running"    ;// Running
+  m_lookupMap["Pausing"]      = "Paused"     ;// Paused
+  m_lookupMap["Resuming"]     = "Running"    ;// Running
+  m_lookupMap["Stopping"]     = "Configured" ;// Configured
+  m_lookupMap["Resetting"]    = "Initial"    ;// Resetting
+  m_lookupMap["Reset"]        = "Initial"    ;// Resetting
 
   // Define all states and transitions.
   /* intermediate states (states entered when a transition is requested*/
@@ -197,23 +193,13 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP
   m_gemFSMState = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
   DEBUG("GEMFSM::GEMFSM current state is " << m_gemFSMState.toString());
 
-  p_gemApp->getAppISToolBox()->createString("FSMState",        m_gemFSMState.toString(), utils::GEMInfoSpaceToolBox::PROCESS);
-  p_gemApp->getAppISToolBox()->createString("ReasonForFailure","",                       utils::GEMInfoSpaceToolBox::PROCESS);
+  p_gemApp->getAppISToolBox()->createString("FSMState", m_gemFSMState.toString(), &m_gemFSMState,
+                                            utils::GEMInfoSpaceToolBox::PROCESS);
+  p_gemApp->getAppISToolBox()->createString("ReasonForFailure",m_reasonForFailure.toString(), &m_reasonForFailure,
+                                            utils::GEMInfoSpaceToolBox::PROCESS);
   
-  //p_gemApp->getApplicationInfoSpace()->fireItemAvailable("FSMState",        &m_gemFSMState);
-  //p_gemApp->getApplicationInfoSpace()->fireItemAvailable("ReasonForFailure",&m_reasonForFailure);
   p_gemApp->getApplicationInfoSpace()->fireItemValueRetrieve("FSMState");
   p_gemApp->getApplicationInfoSpace()->fireItemValueRetrieve("ReasonForFailure");
-
-  // // Find connection to RCMS.
-  //   p_gemApp->getApplicationInfoSpace()->fireItemAvailable("rcmsStateListener",      
-  // 							 m_gemRCMSNotifier.getRcmsStateListenerParameter());
-  //   p_gemApp->getApplicationInfoSpace()->fireItemAvailable("foundRcmsStateListener", 
-  // 							 m_gemRCMSNotifier.getFoundRcmsStateListenerParameter());
-
-  //   m_gemRCMSNotifier.findRcmsStateListener();
-
-  //   m_gemRCMSNotifier.subscribeToChangesInRcmsStateListener(p_gemApp->getApplicationInfoSpace()); 
 }
 
 
@@ -230,8 +216,8 @@ void gem::base::GEMFSM::fireEvent(toolbox::Event::Reference const &event)
   INFO("GEMFSM::fireEvent(" << event->type() << ")");
   try {
     p_gemfsm->fireEvent(event);
-  } catch (::toolbox::fsm::exception::Exception & ex) {
-    XCEPT_RETHROW(::xoap::exception::Exception, "invalid command", ex);
+  } catch (toolbox::fsm::exception::Exception & ex) {
+    XCEPT_RETHROW(xoap::exception::Exception, "invalid command", ex);
   }
 };
 	
@@ -281,32 +267,21 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
     std::string faultString = toolbox::toString("%s failed", commandName.c_str());
     std::string faultCode   = "Server";
     std::string detail      = toolbox::toString("%s: %s.", msgBase.c_str(), err.message().c_str());
-    std::string faultActor = p_gemApp->getFullURL();
+    std::string faultActor  = p_gemApp->getFullURL();
 
-    //should we go to failed here?
     gotoFailedAsynchronously(err);
-    /*xoap::MessageReference reply =
-      gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
-      return reply;*/
     return gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
   }
   
-  ////best way?  tcds had questions about this part
-  //std::string newStateName = commandName + "Triggered";
-
   //the HCAL way
   std::string newStateName = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
   // Once we get here, the state transition has been triggered. Notify
   // the requestor of the new state.
   try {
     INFO("changeState::sending command " << commandName << " newStateName " << newStateName);
-    /*xoap::MessageReference reply = 
-      gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, newStateName);
-      return reply;*/
     return
       gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, 
                                                          p_gemfsm->getStateName(p_gemfsm->getCurrentState()));
-    //newStateName);
   } catch(xcept::Exception& err) {
     std::string msgBase = toolbox::toString("Failed to create GEMFSM SOAP reply for command '%s'",
                                             commandName.c_str());
@@ -325,16 +300,17 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
 
 std::string gem::base::GEMFSM::getCurrentState() const
 {
-  INFO("GEMFSM::getCurrentState()");
+  DEBUG("GEMFSM::getCurrentState()");
   return p_gemfsm->getStateName(p_gemfsm->getCurrentState());
 }
 
 std::string gem::base::GEMFSM::getStateName(toolbox::fsm::State const& state) const
 {
-  INFO("GEMFSM::getStateName()");
+  DEBUG("GEMFSM::getStateName()");
   return p_gemfsm->getStateName(state);
 }
 
+/* moved into GEMSupervisor, as only the supervisor global state should be reported to RCMS
 void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::string const msg)
   throw (toolbox::fsm::exception::Exception)
 {
@@ -356,48 +332,17 @@ void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::s
     p_gemApp->notifyQualified("error", top);
   }
 }
-
+*/
 
 void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   throw (toolbox::fsm::exception::Exception)
 {
-  INFO("GEMFSM::stateChanged() begin");
+  DEBUG("GEMFSM::stateChanged() begin");
   m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
-  //p_appStateInfoSpaceHandler->setFSMState(state_);
-  p_gemApp->getAppISToolBox()->setString("FSMState",m_gemFSMState.toString());
+  p_gemApp->getAppISToolBox()->setString("FSMState",  m_gemFSMState.toString());
+  p_gemApp->getAppISToolBox()->setString("StateName", m_gemFSMState.toString());
   INFO("GEMFSM::stateChanged:Current state is: [" << m_gemFSMState.toString() << "]");
-  /* TCDS way
-  // Send notification to Run Control
-  notifyRCMS(fsm, "Normal state change.");
-
-  std::map<std::string, std::string>::const_iterator iter = lookupMap_.find(state_);
-  if (iter != lookupMap_.end()) {
-    std::string commandName = iter->second;
-    INFO("GEMFSM::stateChanged:DEBUG JGH '" << state_
-          << "' is an intermediate state --> forwarding to '"
-          << commandName << "'");
-    
-    try {
-      toolbox::Event::Reference event(new toolbox::Event(commandName, this));
-      p_gemfsm->fireEvent(event);
-    } catch(toolbox::fsm::exception::Exception& err) {
-      std::string msgBase =
-        toolbox::toString("Problem executing the GEMFSM '%s' command",
-                          commandName.c_str());
-      ERROR(toolbox::toString("%s: %s.",
-                              msgBase.c_str(),
-                              xcept::stdformat_exception(err).c_str()));
-      XCEPT_DECLARE_NESTED(gem::base::utils::exception::TransitionProblem, top,
-                           toolbox::toString("%s.", msgBase.c_str()), err);
-      p_gemApp->notifyQualified("error", top);
-    }
-  }
-  else {
-    INFO("GEMFSM::stateChanged:DEBUG JGH '" << state_ << "' is not an intermediate state");
-    }
-  */
-  INFO("GEMFSM::stateChanged:stateChanged() end");
-
+  DEBUG("GEMFSM::stateChanged:stateChanged() end");
 }
 
 
@@ -421,22 +366,21 @@ void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
 
 void gem::base::GEMFSM::gotoFailed(std::string const reason)
 {
-  INFO("GEMFSM::gotoFailed(std::string)");
-  //p_appStateInfoSpaceHandler->setFSMState("Failed", reason);
+  DEBUG("GEMFSM::gotoFailed(std::string)");
   ERROR("GEMFSM::Going to 'Failed' state. Reason: '" << reason << "'.");
   XCEPT_RAISE(toolbox::fsm::exception::Exception, reason);
 }
 
 void gem::base::GEMFSM::gotoFailed(xcept::Exception& err)
 {
-  INFO("GEMFSM::gotoFailed(xcept::Exception&)");
+  DEBUG("GEMFSM::gotoFailed(xcept::Exception&)");
   std::string reason = err.message();
   gotoFailed(reason);
 }
 
 void gem::base::GEMFSM::gotoFailedAsynchronously(xcept::Exception& err)
 {
-  INFO("GEMFSM::gotoFailedAsynchronously(xcept::Exception&)");
+  DEBUG("GEMFSM::gotoFailedAsynchronously(xcept::Exception&)");
   std::string reason = err.message();
   //p_appStateInfoSpaceHandler->setFSMState("Failed", reason);
   ERROR("GEMFSM::Going to 'Failed' state. Reason: " << reason);

@@ -17,7 +17,8 @@ GEMREADOUT_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
-Sources+=GEMDataParker.cc
+#Sources+=GEMDataParker.cc
+Sources+=GEMReadoutApplication.cc
 #Sources+=GEMDataChecker.cc
 
 DynamicLibrary=gemreadout
@@ -25,25 +26,25 @@ DynamicLibrary=gemreadout
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
-IncludeDirs+=$(BUILD_HOME)/gem-light-dqm/dqm-root/include
-IncludeDirs+=$(uHALROOT)/include
+#IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
+#IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(ROOTDIR)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(uHALROOT)/lib
+#DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+#DependentLibraryDirs+=$(uHALROOT)/lib
 
-LibraryDirs+=$(uHALROOT)/lib
+#LibraryDirs+=$(uHALROOT)/lib
 LibraryDirs+=$(ROOTLIBS)
 LibraryDirs+=$(ROOTGLIBS)
 
 UserCFlags +=$(ROOTCFLAGS)
 UserCCFlags+=$(ROOTCFLAGS)
 
-DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
-DependentLibraries+=gemhardware gemutils gembase
+#DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
+DependentLibraries+=gemutils gembase
+#DependentLibraries+=gemhardware
 
 UserDynamicLinkFlags+=$(ROOTLIBS)
 

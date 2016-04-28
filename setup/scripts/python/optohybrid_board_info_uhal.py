@@ -133,7 +133,8 @@ for gtx in range(2):
         print "       %8s  %7s  %10s"%("0x%x"%(fifoInfo["isEMPTY"]),
                                        "0x%x"%(fifoInfo["isFULL"]),
                                        "0x%x"%(fifoInfo["Occupancy"]))
-	
+
+	getConnectedVFATsMask(glib,gtx,True)
 
 print
 print "--=======================================--"

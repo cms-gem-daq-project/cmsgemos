@@ -9,6 +9,12 @@
        Final Byte for Virtex/Kintex Chip (T1) = 255 - 2*SN[6:0].
        z is 1 for SN 0-127 and 2 for SN 128-255 and 3 for SN 256-383.
     -->
+  <connection id="gem.tamu.amc13.T1" uri="chtcp-2.0://localhost:10203?target=192.168.1.89:50001"
+	      address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
+
+  <connection id="gem.tamu.amc13.T2" uri="chtcp-2.0://localhost:10203?target=192.168.1.88:50001"
+	      address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
+
   <connection id="gem.amc13-sn7.T1" uri="chtcp-2.0://localhost:10203?target=192.168.1.241:50001"
               address_table="file://AMC13XG_T1.xml" />
   <connection id="gem.amc13-sn7.T2" uri="chtcp-2.0://localhost:10203?target=192.168.1.240:50001"
@@ -55,7 +61,7 @@
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
   <connection id="gem.shelf01.glib04.optohybrid01" uri="chtcp-2.0://localhost:10203?target=192.168.0.164:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
-  <!-- next line-->
+
   <connection id="gem.shelf01.glib05" uri="chtcp-2.0://localhost:10203?target=192.168.0.165:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->

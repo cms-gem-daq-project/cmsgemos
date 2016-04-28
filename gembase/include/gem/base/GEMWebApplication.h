@@ -57,6 +57,9 @@ namespace gem {
       virtual void expertPage(xgi::Input *in, xgi::Output *out)
         throw (xgi::exception::Exception);
 
+      virtual void jsonStateUpdate(xgi::Input *in, xgi::Output *out)
+        throw (xgi::exception::Exception);
+
       virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
         throw (xgi::exception::Exception);
 
@@ -66,6 +69,8 @@ namespace gem {
       virtual void webDefault(  xgi::Input *in, xgi::Output *out )
         throw (xgi::exception::Exception);
 
+      void webFooterGEM(  xgi::Input *in, xgi::Output *out )
+        throw (xgi::exception::Exception);
       // fsm specific functions, only called when the constructing app is derived from a
       // GEMFSMApplication
       void webInitialize(xgi::Input *in, xgi::Output *out )

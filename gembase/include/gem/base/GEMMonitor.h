@@ -198,7 +198,7 @@ namespace gem {
         // std::shared_ptr<GEMFSM>         p_gemFSM;
         
         log4cplus::Logger m_gemLogger;
-        toolbox::task::Timer* m_timer;   // timer for general info space updates
+        toolbox::task::Timer* p_timer;   // timer for general info space updates
         std::string m_timerName;
         toolbox::task::Timer* m_hwtimer; // time for hw updates
         std::string m_hwTimerName;
