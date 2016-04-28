@@ -155,13 +155,14 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
 		   << confParams_.bag.triggersSeen );
 
+    uint32_t bufferDepth = 0;
+    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+
     hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs 
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
     }// end for  
     
-    uint32_t bufferDepth = 0;
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     
     //reset counters
     optohybridDevice_->resetL1ACount(0x0);
@@ -733,7 +734,7 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   glibDevice_->setDAQLinkRunParameter(3,scanParams_.bag.deviceVT2);
 
   //reset counters
-  optohybridDevice_->resetL1ACount(0x5);
+  optohybridDevice_->resetL1ACount(0x0);
   optohybridDevice_->resetResyncCount();
   optohybridDevice_->resetBC0Count();
   optohybridDevice_->resetCalPulseCount(0x1);
