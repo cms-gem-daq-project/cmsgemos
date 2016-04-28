@@ -69,10 +69,10 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* 
 {
   p_gemApp = static_cast<gem::base::GEMApplication*>(gemFSMApp);
   // maybe it's really better to use the listener functionality... which we can put into the actionPerformed callback!
-  addInfoSpace("Application",        gemFSMApp->getAppISToolBox(), toolbox::TimeInterval(3,0)); // update on state changes
-  addInfoSpace("Configuration",      gemFSMApp->getCfgISToolBox(), toolbox::TimeInterval(60,0)); // update on changes to parameters
-  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox(), toolbox::TimeInterval(7,0)); // update with interval
-  addInfoSpace("AppStateMonitoring", gemFSMApp->getAppStateISToolBox(), toolbox::TimeInterval(5,0)); // update with interval for state changes
+  addInfoSpace("Application",        gemFSMApp->getAppISToolBox(),      toolbox::TimeInterval(2.5,0)); // update on state changes
+  addInfoSpace("Configuration",      gemFSMApp->getCfgISToolBox(),      toolbox::TimeInterval(30,0));  // update on changes to parameters
+  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox(),      toolbox::TimeInterval(7,0));   // update with interval
+  addInfoSpace("AppStateMonitoring", gemFSMApp->getAppStateISToolBox(), toolbox::TimeInterval(2.5,0)); // update with interval for state changes
   
   std::stringstream timerName;
   timerName << gemFSMApp->m_urn << ":MonitoringTimer" << index;
