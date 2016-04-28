@@ -35,33 +35,6 @@ void gem::supervisor::GEMSupervisorWeb::webDefault(xgi::Input * in, xgi::Output 
        << cgicc::script() << std::endl;
 
   GEMWebApplication::webDefault(in,out);
-  /*
-  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-  *out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
-  controlPanel(in,out);
-  
-  *out << cgicc::br();
-  
-  // do this in an ajax way, so the page reload isn't necessary to get the state table update
-  //displayManagedStateTable(in,out);
-  dynamic_cast<gem::supervisor::GEMSupervisorMonitor*>(p_gemMonitor)->buildStateTable(out);
-  *out << "</div>" << std::endl;
-
-  *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
-  monitorPage(in,out);
-  *out << "</div>" << std::endl;
-
-  std::string expURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/expertPage";
-  *out << "<div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
-  expertPage(in,out);
-  *out << "</div>" << std::endl;
-  *out << "</div>" << std::endl;
-  
-  std::string updateLink = "/" + p_gemApp->m_urn + "/jsonUpdate";
-  *out << "<script type=\"text/javascript\">"          << std::endl
-       << "    startUpdate(\"" << updateLink << "\");" << std::endl
-       << "</script>" << std::endl;
-  */
 }
 
 void gem::supervisor::GEMSupervisorWeb::controlPanel(xgi::Input * in, xgi::Output * out)
