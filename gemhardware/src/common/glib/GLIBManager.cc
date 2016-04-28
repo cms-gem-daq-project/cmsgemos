@@ -333,6 +333,9 @@ void gem::hw::glib::GLIBManager::configureAction()
       DEBUG("GLIBManager::setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
       m_glibs[slot]->setTrigSource(info.triggerSource.value_);
       
+      m_glibs[slot]->resetL1ACount();
+      m_glibs[slot]->resetCalPulseCount();
+
       // reset the DAQ
       m_glibs[slot]->setL1AInhibit(0x1);
       m_glibs[slot]->resetDAQLink();
