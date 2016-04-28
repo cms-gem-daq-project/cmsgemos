@@ -246,7 +246,7 @@ void gem::base::GEMWebApplication::monitorPage(xgi::Input * in, xgi::Output * ou
 {
   DEBUG("GEMWebApplication::monitorPage");
   *out << "monitorPage</br>" << std::endl;
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the expert page code*/
@@ -255,7 +255,7 @@ void gem::base::GEMWebApplication::expertPage(xgi::Input * in, xgi::Output * out
 {
   DEBUG("GEMWebApplication::expertPage");
   *out << "expertPage</br>" << std::endl;
-  webRedirect(in,out);
+  //webRedirect(in,out);
 }
 
 /*To be filled in with the json update code*/
@@ -269,6 +269,7 @@ void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out
 void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
+  DEBUG("GEMWebApplication::jsonStateUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " {" << std::endl;
   *out << "   \"name\":\"fsmState\"" << ",\"value\": \"" 
@@ -280,15 +281,16 @@ void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input * in, xgi::Output 
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
+  DEBUG("GEMWebApplication::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  *out << " { \n";
+  *out << " { " << std::endl;
   auto monitor = p_gemFSMApp->p_gemMonitor;
   //if (p_gemMonitor) {
   if (monitor) {
     //p_gemMonitor->jsonUpdateItemSets(out);
     monitor->jsonUpdateItemSets(out);
   }
-  *out << " } \n";
+  *out << " } " << std::endl;
 }
 
 /** FSM callbacks */
