@@ -107,7 +107,7 @@ function updateStateTable( statejson )
 {
     var interval;
     interval = setInterval(" staterequest(\"" + statejson +"\" )", 1000);
-    interval = setInterval(" showTable()", 1000);
+    interval = setInterval(" showTable()", 500);
 }
 
 function gemFSMWebCommand( command, url )
