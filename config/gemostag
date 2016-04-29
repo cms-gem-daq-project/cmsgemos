@@ -1,0 +1,148 @@
+#!/usr/bin/env perl
+
+#use strict;
+use warnings;
+use autodie;
+use Cwd;
+use Git::Wrapper;
+use Getopt::Lucid qw/:all/;
+ 
+# USAGE: gemostag [-t TAG] [-p PACKAGE] [-m MSG] [NAME]
+#     NAME     -- a github user name (or defaults to 'cms-gem-daq-project')
+#     PACKAGE  -- package to create the tag for, e.g., 'hardware' for gemhardware
+#     TAG      -- tag to create based on the specified package, e.g., 0.1.1, will create tag gemhardware-0.1.1
+#     MSG      -- tag message
+# copied from cmshcos and http://www.dagolden.com/index.php/998/how-to-script-git-with-perl-and-gitwrapper/
+@specs = (
+    Param('--tagname|t')->anycase(),
+    Param('--package|p')->anycase(),
+    Param('--message|m')->anycase(),
+    );
+
+my $opts = Getopt::Lucid->getopt(\@specs);
+$opts->validate( {'requires' => ['tagname']} );
+$opts->validate( {'requires' => ['package']} );
+$opts->validate( {'requires' => ['message']} );
+
+# Get a wrapper for the current directory
+my $git = Git::Wrapper->new(".");
+my $pwd = cwd();
+
+$wd=$pwd;
+$gemosbase="gemdaq-testing";
+# Check that this is a valid directory
+if (!($wd=~/${gemosbase}/)) {
+    print "${wd}\n";
+    print "You must run tag script in the base directory of the \ncmsgemos repository', i.e., ${gemosbase}\n";
+    print "Guru meditation: '$wd'\n";
+    exit(1);
+}
+
+$packname=$opts->get_package;
+$packname_lc=$packname;
+$packname_lc=~tr/A-Z/a-z/;
+print "packname = ${packname}\n";
+print "packname_lc = ${packname_lc}\n";
+
+# Make sure the changes are committed
+open(GIT,"git status gem${packname}|");
+@lines=<GIT>;
+close(GIT);
+if ($#lines>=0) {
+    print "WARNING -- GIT status reports:\n";
+    print @lines;
+    print "\nAre all your changes committed? [y/n] ";
+    $resp=<>;
+    if (!($resp=~/[yY]/)) {
+	exit(1);
+    }
+}
+
+# Extract the tag name
+$tag=extract_tag($packname);
+
+# Check that this tag doesn't exist already
+@alltags=$git->tag("-l");
+print "current tags\n";
+foreach (@alltags) {
+    if (/${tag}/) {
+        print "tag ${tag} already exists\n";
+        exit(1);
+    }
+    print ;
+    print "\n";
+}
+
+print "The tag '$tag' is being created for gem${packname}.\n";
+exit(0);
+    
+# if this one of the "special" packages, make sure the sub-tags match
+print "$packname\n";
+#gembase
+#gemcalibration
+#gemhardware
+#gemHwMonitor
+#gemrcms
+#gemreadout
+#gemsupervisor
+#gemutils
+
+# need to understand dependencies
+if ($packname eq "db") {    
+    print "REMINDER! Implementation changes may require updating tags for package!\n";
+} elsif ($packname eq "HwMonitor") {
+    print "REMINDER! Implementation changes may require updating tags for package!\n";
+} elsif ($packname eq "calibration") {
+    print "REMINDER! Implementation changes may require updating tags for package!\n";
+} elsif ($packname eq "supervisor") {
+    print "REMINDER! Implementation changes may require updating tags for package!\n";
+} elsif ($packname eq "hardware") {
+    print "REMINDER! Implementation changes may require updating tags for package!\n";
+} elsif ($packname eq "readout") {
+    print "REMINDER! Implementation changes may require updating tags for package!\n";
+} elsif ($packname eq "utils") {
+    print "REMINDER! Implementation changes may require updating tags for package!\n";
+} elsif ($packname eq "base") {
+    print "REMINDER! Implementation changes may require updating tags for ALL packages!\n";
+}
+
+# Ok, ready to rumble
+$git->tag("${tag}");
+
+sub extract_tag() {
+    my ($subpackage)=@_;
+    $file=glob("gem${subpackage}/include/gem/*/version.h");
+    open(CFG,$file);
+    while (<CFG>) {
+	if (/VERSION_MAJOR\s+([0-9]+)/) {
+	    $major=$1;
+	}
+	if (/VERSION_MINOR\s+([0-9]+)/) {
+	    $minor=$1;
+	}
+	if (/VERSION_PATCH\s+([0-9]+)/) {
+	    $patch=$1;
+	}
+    }
+    close(CFG);
+    my $rel="gem${subpackage}-${major}.${minor}.${patch}";
+    return $rel;
+}
+
+sub relabelsub() {
+    my ($subpack)=@_;
+    open(SUBPACK,$subpack);
+    @lines=<SUBPACK>;
+    close(SUBPACK);
+    open(SUBPACK,">$subpack");
+    foreach (@lines) {
+	if (/#define ([A-Z]+)_VERSION_MAJOR/) {
+	    print SUBPACK "#define $1_VERSION_MAJOR ${major}\n";
+	} elsif (/#define ([A-Z]+)_VERSION_MINOR/) {
+	    print SUBPACK "#define $1_VERSION_MINOR ${minor}\n";
+	} elsif (/#define ([A-Z]+)_VERSION_PATCH/) {
+	    print SUBPACK "#define $1_VERSION_PATCH ${patch}\n";
+	} else { print SUBPACK $_; }
+    }
+    close(SUBPACK);
+}
