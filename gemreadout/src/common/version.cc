@@ -1,6 +1,6 @@
 #include "toolbox/version.h"
-#include "xoap/version.h"
 #include "xdaq/version.h"
+#include "xoap/version.h"
 #include "gem/base/version.h"
 #include "gem/utils/version.h"
 #include "gem/readout/version.h"
@@ -17,9 +17,9 @@ void gemreadout::checkPackageDependencies()
   CHECKDEPENDENCY(gemutils);
 }
 
-std::set<std::string,std::less<std::string> > gemreadout::getPackageDependencies()
+std::set<std::string, std::less<std::string> > gemreadout::getPackageDependencies()
 {
-  std::set<std::string,std::less<std::string> > deps;
+  std::set<std::string, std::less<std::string> > deps;
   ADDDEPENDENCY(deps, toolbox);
   ADDDEPENDENCY(deps, xoap);
   ADDDEPENDENCY(deps, xdaq);
