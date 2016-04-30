@@ -1,7 +1,7 @@
 // copied from tcds/utils/include/tcds/utils/LockGuard.h
 // would like to just include their library, but it's not in our xdaq release
-#ifndef gem_utils_LockGuard_h
-#define gem_utils_LockGuard_h
+#ifndef GEM_UTILS_LOCKGUARD_H
+#define GEM_UTILS_LOCKGUARD_H
 
 namespace gem {
   namespace utils {
@@ -21,8 +21,8 @@ namespace gem {
         LockGuard& operator=(LockGuard const&);
       };
 
-  } // namespace utils
-} // namespace gem
+  }  // namespace utils
+}  // namespace gem
 
 template <class L>
 gem::utils::LockGuard<L>::LockGuard(L& lock) :
@@ -37,4 +37,4 @@ gem::utils::LockGuard<L>::~LockGuard()
   m_lock.unlock();
 }
 
-#endif // _gem_utils_LockGuard_h_
+#endif  // GEM_UTILS_LOCKGUARD_H
