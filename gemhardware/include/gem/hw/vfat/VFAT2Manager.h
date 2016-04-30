@@ -3,22 +3,21 @@
 
 #include <string>
 
-#include "xdaq/WebApplication.h"
-
-#include "xdata/String.h"
-#include "xdata/UnsignedLong.h"
-#include "xdata/UnsignedInteger32.h"
-
-//#include "uhal/uhal.hpp"
-
-#include "xgi/framework/Method.h"
-#include "cgicc/HTMLClasses.h"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 
-#include "gem/hw/vfat/VFAT2Settings.h"
+#include <cgicc/HTMLClasses.h>
+
+#include <xdata/String.h>
+#include <xdata/UnsignedLong.h>
+#include <xdata/UnsignedInteger32.h>
+
+#include <xdaq/WebApplication.h>
+
+#include <xgi/framework/Method.h>
+
+#include <gem/hw/vfat/VFAT2Settings.h>
 
 //typedef uhal::exception::exception uhalException;
 
@@ -82,17 +81,17 @@ namespace gem {
 	  
           void actionPerformed(xdata::Event& event);
 
-          vfat_shared_ptr vfatDevice;
+          vfat_shared_ptr p_vfatDevice;
 
           void readVFAT2Registers(VFAT2ControlParams& params);
           //void readVFAT2Registers();
 	  
-          std::map<std::string,uint32_t>    vfatFullRegs_;
-          std::map<std::string,uint8_t>     vfatRegs_;
-          VFAT2ControlParams m_vfatParams;
+          std::map<std::string,uint32_t> m_vfatFullRegs;
+          std::map<std::string,uint8_t>  m_vfatRegs;
+          VFAT2ControlParams             m_vfatParams;
 
         private:
-          std::vector<std::string>          nodes_;
+          std::vector<std::string> m_nodes;
           ////counters
           //uint16_t vfat_chipid_;
           //uint8_t  vfat_upsetcounter_;
@@ -107,12 +106,12 @@ namespace gem {
            * the string is the name in the connection file, while the uint16_t is the chipID, though
            * it need only be a uint12_t
            **/
-          std::map<std::string, uint16_t> systemMap;
+          std::map<std::string, uint16_t> m_systemMap;
 	  
           //xdata::UnsignedLong myParameter_;
-          xdata::String device_;
-          xdata::String ipAddr_;
-          xdata::String settingsFile_;
+          xdata::String m_device;
+          xdata::String m_ipAddr;
+          xdata::String m_settingsFile;
 	  
           class VFAT2ControlPanelWeb {
           public:
