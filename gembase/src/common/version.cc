@@ -18,11 +18,11 @@ void gembase::checkPackageDependencies() throw (config::PackageInfo::VersionExce
 
 std::set<std::string, std::less<std::string> > gembase::getPackageDependencies()
 {
-  std::set<std::string, std::less<std::string> > dependencies;
-  ADDDEPENDENCY(dependencies,toolbox);
-  ADDDEPENDENCY(dependencies,xcept);
-  ADDDEPENDENCY(dependencies,xdaq);
-  ADDDEPENDENCY(dependencies,xoap);
-  ADDDEPENDENCY(dependencies,gemutils);
-  return dependencies;
+  std::set<std::string, std::less<std::string> > deps;
+  ADDDEPENDENCY(deps,toolbox);
+  ADDDEPENDENCY(deps,xcept);
+  ADDDEPENDENCY(deps,xdaq);
+  ADDDEPENDENCY(deps,xoap);
+  ADDDEPENDENCY(deps,gemutils);
+  return deps;
 }

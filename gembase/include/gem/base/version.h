@@ -1,5 +1,5 @@
-#ifndef gem_base_version_h
-#define gem_base_version_h
+#ifndef GEM_BASE_VERSION_H
+#define GEM_BASE_VERSION_H
 
 #ifndef DOXYGEN_IGNORE_THIS
 
@@ -33,4 +33,4 @@ namespace gembase {
 
 #endif // DOXYGEN_IGNORE_THIS
 
-#endif // gem_base_version_h
+#endif // GEM_BASE_VERSION_H

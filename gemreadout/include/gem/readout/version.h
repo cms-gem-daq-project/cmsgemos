@@ -1,5 +1,5 @@
-#ifndef gem_readout_version_h
-#define gem_readout_version_h
+#ifndef GEM_READOUT_VERSION_H
+#define GEM_READOUT_VERSION_H
 
 #ifndef DOXYGEN_IGNORE_THIS
 
@@ -34,4 +34,4 @@ namespace gemreadout {
 
 #endif // DOXYGEN_IGNORE_THIS
 
-#endif // gem_readout_version_h
+#endif // GEM_READOUT_VERSION_H

@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_version_h
-#define gem_supervisor_version_h
+#ifndef GEM_SUPERVISOR_VERSION_H
+#define GEM_SUPERVISOR_VERSION_H
 
 #ifndef DOXYGEN_IGNORE_THIS
 
@@ -34,4 +34,4 @@ namespace gemsupervisor {
 
 #endif // DOXYGEN_IGNORE_THIS
 
-#endif // gem_supervisor_version_h
+#endif // GEM_SUPERVISOR_VERSION_H

@@ -1,5 +1,5 @@
-#ifndef gem_hw_version_h
-#define gem_hw_version_h
+#ifndef GEM_HW_VERSION_H
+#define GEM_HW_VERSION_H
 
 #ifndef DOXYGEN_IGNORE_THIS
 
@@ -19,7 +19,6 @@ namespace gemhardware {
 #define GEMHARDWARE_FULL_VERSION_LIST  GEMHARDWARE_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMHARDWARE_VERSION_MAJOR,GEMHARDWARE_VERSION_MINOR,GEMHARDWARE_VERSION_PATCH)
 #endif
   
-  
   const std::string package = "gemhardware";
   const std::string versions = GEMHARDWARE_FULL_VERSION_LIST;
   const std::string summary = "HW interfaces for GEM devices";
@@ -34,4 +33,4 @@ namespace gemhardware {
 
 #endif // DOXYGEN_IGNORE_THIS
 
-#endif // gem_hw_version_h
+#endif // GEM_HW_VERSION_H
