@@ -21,7 +21,7 @@
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
-gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::Application* xdaqApp, int const& index) : 
+gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::Application* xdaqApp, int const& index) :
   m_gemLogger(logger)
 {
   std::stringstream timerName;
@@ -37,17 +37,21 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::Application* 
     p_timer->stop();
   } catch (toolbox::task::exception::Exception& te) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Cannot run GEMMonitor, timer already created", te);
-  }  
+  }
 }
 
-gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gemApp, int const& index) : 
+gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gemApp, int const& index) :
   m_gemLogger(logger)
 {
   p_gemApp = gemApp;
-  addInfoSpace("Application",  gemApp->getAppISToolBox(), toolbox::TimeInterval(3,0)); // update on state changes
-  addInfoSpace("Configuration",gemApp->getCfgISToolBox(), toolbox::TimeInterval(60,0)); // update on changes to parameters
-  addInfoSpace("Monitoring",   gemApp->getMonISToolBox(), toolbox::TimeInterval(7,0)); // update with interval try {
 
+  // update on state changes
+  addInfoSpace("Application",   gemApp->getAppISToolBox(), toolbox::TimeInterval(3,  0));
+  // update on changes to parameters
+  addInfoSpace("Configuration", gemApp->getCfgISToolBox(), toolbox::TimeInterval(60, 0));
+  // update with interval
+  addInfoSpace("Monitoring",    gemApp->getMonISToolBox(), toolbox::TimeInterval(7,  0));
+  
   std::stringstream timerName;
   timerName << gemApp->m_urn << ":MonitoringTimer" << index;
   m_timerName = timerName.str();
@@ -64,15 +68,19 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gem
   }
 }
 
-gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* gemFSMApp, int const& index) : 
+gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* gemFSMApp, int const& index) :
   m_gemLogger(logger)
 {
   p_gemApp = static_cast<gem::base::GEMApplication*>(gemFSMApp);
   // maybe it's really better to use the listener functionality... which we can put into the actionPerformed callback!
-  addInfoSpace("Application",        gemFSMApp->getAppISToolBox(),      toolbox::TimeInterval(2.5,0)); // update on state changes
-  addInfoSpace("Configuration",      gemFSMApp->getCfgISToolBox(),      toolbox::TimeInterval(30,0));  // update on changes to parameters
-  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox(),      toolbox::TimeInterval(7,0));   // update with interval
-  addInfoSpace("AppStateMonitoring", gemFSMApp->getAppStateISToolBox(), toolbox::TimeInterval(2.5,0)); // update with interval for state changes
+  // update on state changes
+  addInfoSpace("Application",        gemFSMApp->getAppISToolBox(),      toolbox::TimeInterval(2.5, 0));
+  // update on changes to parameters
+  addInfoSpace("Configuration",      gemFSMApp->getCfgISToolBox(),      toolbox::TimeInterval(30,  0));
+  // update with interval
+  addInfoSpace("Monitoring",         gemFSMApp->getMonISToolBox(),      toolbox::TimeInterval(7,   0));
+  // update with interval for state changes
+  addInfoSpace("AppStateMonitoring", gemFSMApp->getAppStateISToolBox(), toolbox::TimeInterval(2.5, 0));
   
   std::stringstream timerName;
   timerName << gemFSMApp->m_urn << ":MonitoringTimer" << index;
@@ -92,7 +100,6 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* 
 
 gem::base::GEMMonitor::~GEMMonitor()
 {
-  
 }
 
 void gem::base::GEMMonitor::startMonitoring()
@@ -155,21 +162,17 @@ void gem::base::GEMMonitor::addInfoSpace(std::string const& name,
                                          toolbox::TimeInterval const& interval)
 {
   // should we key by name or infoSpace->name(), such that the infoSpace could be retrieved from the infoSpaceFactory
-  //std::unordered_map<std::string, gem::base::utils::GEMInfoSpaceToolBox*>::const_iterator it = m_infoSpaceMap.find(infoSpace->name());
   std::unordered_map<std::string,
     std::pair<std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>,
     toolbox::TimeInterval> >::const_iterator it = m_infoSpaceMap.find(name);
   if (it != m_infoSpaceMap.end()) {
-    // WARN( "GEMMonitor::addInfoSpace infospace " << infoSpace->name() << " already exists in monitor!" );
-    WARN( "GEMMonitor::addInfoSpace infospace " << name << " already exists in monitor!" );
+    WARN("GEMMonitor::addInfoSpace infospace " << name << " already exists in monitor!");
     return;
   }
-  //DEBUG( "GEMMonitor::addInfoSpace adding infospace " << infoSpace->name() );
-  //m_infoSpaceMap.insert(std::make_pair<std::string, gem::base::utils::GEMInfoSpaceToolBox*>(infoSpace->name(),infoSpace));
-  DEBUG( "GEMMonitor::addInfoSpace adding infospace " << name );
+  DEBUG("GEMMonitor::addInfoSpace adding infospace " << name);
   m_infoSpaceMap.insert(std::make_pair(name, std::make_pair(infoSpace, interval)));
   std::list<std::string> emptyList;
-  m_infoSpaceMonitorableSetMap.insert(std::make_pair(name,emptyList));
+  m_infoSpaceMonitorableSetMap.insert(std::make_pair(name, emptyList));
 }
 
 void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::string const& infoSpaceName)
@@ -178,7 +181,7 @@ void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::s
     std::list<std::pair<std::string, GEMMonitorable> > >::const_iterator it;
   it = m_monitorableSetsMap.find(setname);
   if (it != m_monitorableSetsMap.end()) {
-    WARN( "GEMMonitor::addMonitorableSet monitorable set " << setname << " already exists in monitor!" );
+    WARN("GEMMonitor::addMonitorableSet monitorable set " << setname << " already exists in monitor!");
     return;
   }
   std::list<std::pair<std::string, GEMMonitorable> > emptySet;
@@ -187,7 +190,7 @@ void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::s
   
   m_infoSpaceMonitorableSetMap.find(infoSpaceName)->second.push_back(setname);
   
-  m_monitorableSetInfoSpaceMap.insert(std::make_pair(setname,infoSpaceName));
+  m_monitorableSetInfoSpaceMap.insert(std::make_pair(setname, infoSpaceName));
 }
 
 void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
@@ -197,10 +200,10 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
                                            std::string const& format)
 {
   if (m_infoSpaceMap.find(infoSpaceName) == m_infoSpaceMap.end()) {
-    ERROR( "GEMMonitor::addMonitorable infoSpace " << infoSpaceName << " does not exist in monitor!" );
+    ERROR("GEMMonitor::addMonitorable infoSpace " << infoSpaceName << " does not exist in monitor!");
     return;
   } else if (m_monitorableSetsMap.find(setname) == m_monitorableSetsMap.end()) {
-    ERROR( "GEMMonitor::addMonitorable monitorable set " << setname << " does not exist in monitor!" );
+    ERROR("GEMMonitor::addMonitorable monitorable set " << setname << " does not exist in monitor!");
     return;
   }
   
@@ -212,8 +215,8 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
     GEMMonitorable monitem = {monpair.first, monpair.second, infoSpace, type, format};
     (*it).second.push_back(std::make_pair(monpair.first, monitem));
   } else {
-    ERROR( "GEMMonitor::addMonitorablemonitorable " << monpair.first << " does not exist in infospace "
-           << infoSpaceName << "!" );
+    ERROR("GEMMonitor::addMonitorablemonitorable " << monpair.first << " does not exist in infospace "
+           << infoSpaceName << "!");
     return;
   }
   
@@ -243,7 +246,7 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
     auto gemItem = item->second;
     std::vector<std::string> itl;
     auto gemIS = gemItem.infoSpace;
-    std::string val = gemIS->getFormattedItem(gemItem.name,gemItem.format);
+    std::string val = gemIS->getFormattedItem(gemItem.name, gemItem.format);
     std::string doc = gemIS->getItemDocstring(gemItem.name);
     itl.push_back(gemItem.name);
     itl.push_back(val);
@@ -254,8 +257,7 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
           << " name: "    << itl.at(0)
           << " val: "     << itl.at(1)
           << " doc: "     << itl.at(2)
-          << " regname: " << itl.at(3)
-          );
+          << " regname: " << itl.at(3));
   }
   return result;
 }
@@ -271,8 +273,8 @@ void gem::base::GEMMonitor::jsonUpdateItemSet(std::string const& setname, std::o
     *out << "{ \"name\":\"" << getInfoSpace(setname)->name() << "-" << (*it)[0]
          << "\",\"value\":\"" << val;
     // can't have a trailing comma for the last entry...
-    if (std::distance(it,end) == 1) {
-      *out << "\" }" << std::endl;
+    if (std::distance(it, end) == 1) {
+      *out << "\" }"  << std::endl;
     } else {
       *out << "\" }," << std::endl;
     }
@@ -294,10 +296,10 @@ void gem::base::GEMMonitor::jsonUpdateItemSets(xgi::Output *out)
     }
     DEBUG("GEMMonitor::Found monitorable set " << iset->first << " while updating for JSON export");
     *out << "\"" << iset->first << "\" : [ " << std::endl;
-    jsonUpdateItemSet(iset->first,out);
+    jsonUpdateItemSet(iset->first, out);
     // can't have a trailing comma for the last entry...
-    if (std::distance(iset,end) == 1) {
-      *out << " ]" << std::endl;
+    if (std::distance(iset, end) == 1) {
+      *out << " ]"  << std::endl;
     } else {
       *out << " ]," << std::endl;
     }
@@ -313,7 +315,7 @@ void gem::base::GEMMonitor::jsonUpdateInfoSpaces(xgi::Output *out)
 
 void gem::base::GEMMonitor::reset()
 {
-  //have to get rid of the timer 
+  // have to get rid of the timer
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
     DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from p_timer");
