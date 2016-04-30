@@ -1,5 +1,5 @@
-#ifndef gem_utils_XMLConfigParser_h
-#define gem_utils_XMLConfigParser_h
+#ifndef GEM_UTILS_XMLCONFIGPARSER_H
+#define GEM_UTILS_XMLCONFIGPARSER_H
 
 namespace gem {
   namespace utils{
@@ -12,9 +12,9 @@ namespace gem {
       
     protected:
       
-    }; //class XMLConfigParser
+    };  //class XMLConfigParser
     
-  } //namespace gem::utils
-} // namespace gem
+  }  //namespace gem::utils
+}  // namespace gem
 
-#endif
+#endif  // GEM_UTILS_XMLCONFIGPARSER_H

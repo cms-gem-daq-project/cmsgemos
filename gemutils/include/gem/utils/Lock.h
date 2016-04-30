@@ -1,9 +1,9 @@
+#ifndef GEM_UTILS_LOCK_H
+#define GEM_UTILS_LOCK_H
 // copied from tcds/utils/include/tcds/utils/Lock.h
 // would like to just include their library, but it's not in our xdaq release
-#ifndef gem_utils_Lock_h
-#define gem_utils_Lock_h
 
-#include "toolbox/BSem.h"
+#include <toolbox/BSem.h>
 
 namespace gem {
   namespace utils {
@@ -25,7 +25,7 @@ namespace gem {
       Lock& operator=(Lock const&);
     };
 
-  } // namespace utils
-} // namespace gem
+  }  // namespace utils
+}  // namespace gem
 
-#endif // _gem_utils_Lock_h_
+#endif  // GEM_UTILS_LOCK_H
