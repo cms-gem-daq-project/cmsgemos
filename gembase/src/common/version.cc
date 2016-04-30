@@ -1,13 +1,14 @@
 #include "toolbox/version.h"
-#include "xoap/version.h"
 #include "xcept/version.h"
 #include "xdaq/version.h"
+#include "xoap/version.h"
 #include "gem/base/version.h"
 #include "gem/utils/version.h"
 
-GETPACKAGEINFO(gembase)
+GETPACKAGEINFO(gembase);
 
-void gembase::checkPackageDependencies() throw (config::PackageInfo::VersionException)
+void gembase::checkPackageDependencies()
+  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xcept);

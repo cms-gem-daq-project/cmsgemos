@@ -13,11 +13,11 @@
 #include "gem/hw/vfat/VFAT2Manager.h"
 #include "gem/hw/vfat/HwVFAT2.h"
 
-XDAQ_INSTANTIATOR_IMPL(gem::hw::vfat::VFAT2Manager)
+XDAQ_INSTANTIATOR_IMPL(gem::hw::vfat::VFAT2Manager);
 
 gem::hw::vfat::VFAT2Manager::VFAT2Manager(xdaq::ApplicationStub* s)
-throw (xdaq::exception::Exception) :
-xdaq::WebApplication(s)
+  throw (xdaq::exception::Exception) :
+  xdaq::WebApplication(s)
 {
   xgi::framework::deferredbind(this, this, &VFAT2Manager::Default,       "Default"     );
   xgi::framework::deferredbind(this, this, &VFAT2Manager::RegisterView,  "RegisterView");
@@ -71,7 +71,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << m_ipAddr.toString() << ":50001";
   p_vfatDevice = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(m_device.toString(), tmpURI.str(),
-							  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+                                                            "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
   // p_vfatDevice->connectDevice();
 
   setLogLevelTo(uhal::Error());
@@ -855,7 +855,7 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
                     << std::endl);
   } else if (strcmp(controlOption.c_str(), "Set All Channels") == 0) {
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "Set all channels button pressed");
-    //apply provided settings to all channels (2-128 or 1-128?)
+    // apply provided settings to all channels (2-128 or 1-128?)
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
     int min_chan = 2;
     bool setMasked(false), setCalPulse(false);

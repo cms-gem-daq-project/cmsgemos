@@ -12,20 +12,20 @@ namespace gemutils {
 #define GEMUTILS_VERSION_PATCH 0
 #define GEMUTILS_PREVIOUS_VERSIONS "0.0.0"
 
-#define GEMUTILS_VERSION_CODE PACKAGE_VERSION_CODE(GEMUTILS_VERSION_MAJOR,GEMUTILS_VERSION_MINOR,GEMUTILS_VERSION_PATCH)
+#define GEMUTILS_VERSION_CODE PACKAGE_VERSION_CODE(GEMUTILS_VERSION_MAJOR, GEMUTILS_VERSION_MINOR, GEMUTILS_VERSION_PATCH)
 
 #ifndef GEMUTILS_PREVIOUS_VERSIONS
-#define GEMUTILS_FULL_VERSION_LIST  PACKAGE_VERSION_STRING(GEMUTILS_VERSION_MAJOR,GEMUTILS_VERSION_MINOR,GEMUTILS_VERSION_PATCH)
+#define GEMUTILS_FULL_VERSION_LIST  PACKAGE_VERSION_STRING(GEMUTILS_VERSION_MAJOR, GEMUTILS_VERSION_MINOR, GEMUTILS_VERSION_PATCH)
 #else
-#define GEMUTILS_FULL_VERSION_LIST  GEMUTILS_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMUTILS_VERSION_MAJOR,GEMUTILS_VERSION_MINOR,GEMUTILS_VERSION_PATCH)
+#define GEMUTILS_FULL_VERSION_LIST  GEMUTILS_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMUTILS_VERSION_MAJOR, GEMUTILS_VERSION_MINOR, GEMUTILS_VERSION_PATCH)
 #endif
     
-  const std::string package = "gemutils";
-  const std::string versions = GEMUTILS_FULL_VERSION_LIST;
-  const std::string summary = "Utilities for GEM online software";
+  const std::string package     = "gemutils";
+  const std::string versions    = GEMUTILS_FULL_VERSION_LIST;
+  const std::string summary     = "Utilities for GEM online software";
   const std::string description = "";
-  const std::string authors = "GEM Online Systems Group";
-  const std::string link = "";
+  const std::string authors     = "GEM Online Systems Group";
+  const std::string link        = "";
     
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);

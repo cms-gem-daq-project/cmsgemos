@@ -1,6 +1,6 @@
 #include "toolbox/version.h"
-#include "xoap/version.h"
 #include "xdaq/version.h"
+#include "xoap/version.h"
 #include "gem/base/version.h"
 #include "gem/utils/version.h"
 #include "gem/hw/version.h"
@@ -19,9 +19,9 @@ void gemHwMonitor::checkPackageDependencies()
   CHECKDEPENDENCY(gemhardware);
 }
 
-std::set<std::string,std::less<std::string> > gemHwMonitor::getPackageDependencies()
+std::set<std::string, std::less<std::string> > gemHwMonitor::getPackageDependencies()
 {
-  std::set<std::string,std::less<std::string> > deps;
+  std::set<std::string, std::less<std::string> > deps;
   ADDDEPENDENCY(deps, toolbox);
   ADDDEPENDENCY(deps, xoap);
   ADDDEPENDENCY(deps, xdaq);

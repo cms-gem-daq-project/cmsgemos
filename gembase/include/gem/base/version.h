@@ -12,19 +12,19 @@ namespace gembase {
 #define GEMBASE_VERSION_PATCH 0
 #define GEMBASE_PREVIOUS_VERSIONS "0.0.0"
 
-#define GEMBASE_VERSION_CODE PACKAGE_VERSION_CODE(GEMBASE_VERSION_MAJOR,GEMBASE_VERSION_MINOR, GEMBASE_VERSION_PATCH)
+#define GEMBASE_VERSION_CODE PACKAGE_VERSION_CODE(GEMBASE_VERSION_MAJOR, GEMBASE_VERSION_MINOR, GEMBASE_VERSION_PATCH)
 #ifndef GEMBASE_PREVIOUS_VERSIONS
-#define GEMBASE_FULL_VERSION_LIST PACKAGE_VERSION_STRING(GEMBASE_VERSION_MAJOR,GEMBASE_VERSION_MINOR, GEMBASE_VERSION_PATCH)
+#define GEMBASE_FULL_VERSION_LIST PACKAGE_VERSION_STRING(GEMBASE_VERSION_MAJOR, GEMBASE_VERSION_MINOR, GEMBASE_VERSION_PATCH)
 #else
-#define GEMBASE_FULL_VERSION_LIST GEMBASE_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMBASE_VERSION_MAJOR, GEMBASE_VERSION_MINOR,GEMBASE_VERSION_PATCH)
+#define GEMBASE_FULL_VERSION_LIST GEMBASE_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMBASE_VERSION_MAJOR, GEMBASE_VERSION_MINOR, GEMBASE_VERSION_PATCH)
 #endif
   
-  const std::string package = "gembase";
-  const std::string versions = GEMBASE_FULL_VERSION_LIST;
-  const std::string summary = "Base classes for GEM DAQ applications";
+  const std::string package     = "gembase";
+  const std::string versions    = GEMBASE_FULL_VERSION_LIST;
+  const std::string summary     = "Base classes for GEM DAQ applications";
   const std::string description = "";
-  const std::string authors = "GEM Online Systems Group";
-  const std::string link = "";
+  const std::string authors     = "GEM Online Systems Group";
+  const std::string link        = "";
 
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);

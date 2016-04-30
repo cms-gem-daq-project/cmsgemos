@@ -1,6 +1,6 @@
 #include "toolbox/version.h"
-#include "xoap/version.h"
 #include "xdaq/version.h"
+#include "xoap/version.h"
 #include "gem/utils/version.h"
 
 GETPACKAGEINFO(gemutils);
@@ -13,9 +13,9 @@ void gemutils::checkPackageDependencies()
   CHECKDEPENDENCY(xoap);
 }
 
-std::set<std::string,std::less<std::string> > gemutils::getPackageDependencies()
+std::set<std::string, std::less<std::string> > gemutils::getPackageDependencies()
 {
-  std::set<std::string,std::less<std::string> > deps;
+  std::set<std::string, std::less<std::string> > deps;
   ADDDEPENDENCY(deps, toolbox);
   ADDDEPENDENCY(deps, xoap);
   ADDDEPENDENCY(deps, xdaq);
