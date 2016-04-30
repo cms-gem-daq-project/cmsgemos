@@ -1,5 +1,5 @@
-#ifndef gem_datachecker_version_h
-#define gem_datachecker_version_h
+#ifndef GEM_DATACHECKER_VERSION_H
+#define GEM_DATACHECKER_VERSION_H
 
 #ifndef DOXYGEN_IGNORE_THIS
 
@@ -34,4 +34,4 @@ namespace gemdatachecker {
 
 #endif // DOXYGEN_IGNORE_THIS
 
-#endif // gem_datachecker_version_h
+#endif // GEM_DATACHECKER_VERSION_H

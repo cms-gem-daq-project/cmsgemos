@@ -8,7 +8,9 @@
 
 GETPACKAGEINFO(gemHwMonitor);
 
-void gemHwMonitor::checkPackageDependencies() throw (config::PackageInfo::VersionException) {
+void gemHwMonitor::checkPackageDependencies()
+  throw (config::PackageInfo::VersionException)
+{
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xdaq);
   CHECKDEPENDENCY(xoap);
@@ -17,13 +19,14 @@ void gemHwMonitor::checkPackageDependencies() throw (config::PackageInfo::Versio
   CHECKDEPENDENCY(gemhardware);
 }
 
-std::set<std::string,std::less<std::string> > gemHwMonitor::getPackageDependencies() {
+std::set<std::string,std::less<std::string> > gemHwMonitor::getPackageDependencies()
+{
   std::set<std::string,std::less<std::string> > deps;
-  ADDDEPENDENCY(deps,toolbox);
-  ADDDEPENDENCY(deps,xoap);
-  ADDDEPENDENCY(deps,xdaq);
-  ADDDEPENDENCY(deps,gembase);
-  ADDDEPENDENCY(deps,gemutils);
-  ADDDEPENDENCY(deps,gemhardware);
+  ADDDEPENDENCY(deps, toolbox);
+  ADDDEPENDENCY(deps, xoap);
+  ADDDEPENDENCY(deps, xdaq);
+  ADDDEPENDENCY(deps, gembase);
+  ADDDEPENDENCY(deps, gemutils);
+  ADDDEPENDENCY(deps, gemhardware);
   return deps;
 }

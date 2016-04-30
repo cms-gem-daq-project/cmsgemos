@@ -1,5 +1,5 @@
-#ifndef gem_utils_version_h
-#define gem_utils_version_h
+#ifndef GEM_UTILS_VERSION_H
+#define GEM_UTILS_VERSION_H
 
 #ifndef DOXYGEN_IGNORE_THIS
 
@@ -34,4 +34,4 @@ namespace gemutils {
 
 #endif // DOXYGEN_IGNORE_THIS
 
-#endif // gem_utils_version_h
+#endif // GEM_UTILS_VERSION_H

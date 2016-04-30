@@ -1,5 +1,5 @@
-#ifndef gem_hwMonitor_version_h
-#define gem_hwMonitor_version_h
+#ifndef GEM_HWMONITOR_VERSION_H
+#define GEM_HWMONITOR_VERSION_H
 
 #ifndef DOXYGEN_IGNORE_THIS
 
@@ -34,4 +34,4 @@ namespace gemHwMonitor {
 
 #endif // DOXYGEN_IGNORE_THIS
 
-#endif // gem_hwMonitor_version_h
+#endif // GEM_HWMONITOR_VERSION_H
