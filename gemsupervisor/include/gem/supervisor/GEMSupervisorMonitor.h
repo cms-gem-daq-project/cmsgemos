@@ -1,7 +1,7 @@
-/** @file GEMSupervisorMonitor.h */ 
+#ifndef GEM_SUPERVISOR_GEMSUPERVISORMONITOR_H
+#define GEM_SUPERVISOR_GEMSUPERVISORMONITOR_H
 
-#ifndef gem_supervisor_GEMSupervisorMonitor_h
-#define gem_supervisor_GEMSupervisorMonitor_h
+/** @file GEMSupervisorMonitor.h */
 
 
 #include "gem/base/GEMMonitor.h"
@@ -11,7 +11,7 @@ namespace gem {
   namespace supervisor {
 
     class GEMSupervisor;
-      
+
     class GEMSupervisorMonitor : public gem::base::GEMMonitor
       {
       public:
@@ -21,19 +21,18 @@ namespace gem {
          * @param gemSupervisor the supervisor application to be monitored
          */
         GEMSupervisorMonitor(GEMSupervisor* gemSupervisor);
-        
+
         virtual ~GEMSupervisorMonitor();
-        
+
         virtual void updateMonitorables();
         void setupAppStateMonitoring();
         void updateApplicationStates();
         void buildStateTable(xgi::Output* out);
 
       private:
-          
-      }; // end class GEMSupervisorMonitor
-            
-  }// end namespace gem::supervisor
-}// end namespace gem
+      };  // class GEMSupervisorMonitor
 
-#endif
+  }  // namespace gem::supervisor
+}  // namespace gem
+
+#endif  // GEM_SUPERVISOR_GEMSUPERVISORMONITOR_H
