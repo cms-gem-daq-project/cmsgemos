@@ -1,5 +1,5 @@
-#ifndef gem_readout_GEMDataParker_h
-#define gem_readout_GEMDataParker_h
+#ifndef GEM_READOUT_GEMDATAPARKER_H
+#define GEM_READOUT_GEMDATAPARKER_H
 
 #include <string>
 #include <queue>
@@ -24,7 +24,7 @@ namespace gem {
   namespace hw {
     namespace glib {
       class HwGLIB;
-    }   
+    }
   }
   namespace readout {
     struct GEMDataAMCformat;
@@ -38,7 +38,7 @@ namespace gem {
       SCURVE    = 0x3,
       HVSCAN    = 0x4
     };
-    
+
     class GEMDataParker
     {
     public:
@@ -48,9 +48,9 @@ namespace gem {
       static const uint32_t kUPDATE;
       static const uint32_t kUPDATE7;
 
-      GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice, 
-                            std::string const& outFileName, 
-                            std::string const& errFileName, 
+      GEMDataParker        (gem::hw::glib::HwGLIB& glibDevice,
+                            std::string const& outFileName,
+                            std::string const& errFileName,
                             std::string const& outputType,
                             std::string const& slotFileName="slot_table.csv",
                             GEMRunType  const& runType=DATA
@@ -70,7 +70,7 @@ namespace gem {
       void GEMfillHeaders  ( uint32_t const& BC,
                              uint32_t const& BX,
                              gem::readout::GEMDataAMCformat::GEMData& gem,
-                             gem::readout::GEMDataAMCformat::GEBData& geb 
+                             gem::readout::GEMDataAMCformat::GEBData& geb
                            );
       bool VFATfillData    ( int const& islot,
                              gem::readout::GEMDataAMCformat::GEBData& geb
@@ -86,10 +86,10 @@ namespace gem {
                              gem::readout::GEMDataAMCformat::VFATData& vfat
                            );
       int queueDepth       () {return m_dataque.size();}
-      
+
 
       void ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2);
-      
+
       uint64_t Runtype() {
 	uint64_t RunType = 1; // :4
 	return (RunType << 24)|(m_latency << 16)|(m_VT1 << 8)|(m_VT2);
@@ -99,7 +99,7 @@ namespace gem {
       xoap::MessageReference updateScanParameters(xoap::MessageReference message)
         throw (xoap::exception::Exception);
 
-      
+
     private:
       // moved from globals...
       uint32_t m_ESexp;
@@ -119,9 +119,9 @@ namespace gem {
 
       static const int MaxVFATS = 24; // was 32 ???
       static const int MaxERRS  = 4095; // should this also be 24? Or we can accomodate full GLIB FIFO of bad blocks belonging to the same event?
-      
+
       std::unique_ptr<GEMslotContents> slotInfo;
-      
+
       log4cplus::Logger m_gemLogger;
       gem::hw::glib::HwGLIB* p_glibDevice;
       std::string m_outFileName;
@@ -133,7 +133,7 @@ namespace gem {
       mutable gem::utils::Lock m_queueLock;
       // The main data flow
       std::queue<uint32_t> m_dataque;
-      
+
       //type of run
       GEMRunType m_runType;
 
@@ -147,19 +147,20 @@ namespace gem {
        */
       uint32_t m_counter[5];
 
-      // VFAT's blocks counter     
+      // VFAT's blocks counter
       uint64_t m_vfat;
 
-      // Events counter     
+      // Events counter
       uint64_t m_event;
-         
+
       // VFATs counter per event
       int m_sumVFAT;
-      
+
       int16_t m_scanParam;
 
 
     };
-  }
-}
-#endif
+  }  // namespace gem::readout
+}  // namespace gem
+
+#endif  // GEM_READOUT_GEMDATAPARKER_H
