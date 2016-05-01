@@ -1,6 +1,8 @@
 #ifndef GEM_HWMONITOR_GEMHWMONITORWEB_H
 #define GEM_HWMONITOR_GEMHWMONITORWEB_H
 
+#include <string>
+#include <vector>
 #include <sys/stat.h>
 
 #include "cgicc/HTMLClasses.h"
@@ -21,7 +23,7 @@
 #include "gem/hw/vfat/VFAT2Strings2Enums.h"
 
 namespace cgicc {
-  BOOLEAN_ELEMENT(section,"section");
+  BOOLEAN_ELEMENT(section, "section");
 }
 namespace gem {
   namespace hw {
@@ -137,7 +139,7 @@ namespace gem {
           throw (xgi::exception::Exception);
         void printVFAThwParameters(const char* key, const char* value1, uint8_t value2, xgi::Output* out)
           throw (xgi::exception::Exception);
-      };// end class gemHwMonitorWeb
+      };  // class gemHwMonitorWeb
   }  // namespace gem::hwMonitor
 }  // namespace gem
 
