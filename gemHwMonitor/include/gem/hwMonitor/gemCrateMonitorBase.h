@@ -41,7 +41,7 @@ namespace gem {
     protected:
     private:
       gem::utils::gemCrateProperties* p_crateRef;
-    }; 
+    };
   }  // namespace gem::hwMonitor
 }  // namespace gem
 #endif  // GEM_HWMONITOR_GEMCRATEMONITORBASE_H
