@@ -1,5 +1,5 @@
-#ifndef gem_hw_glib_HwGLIB_h
-#define gem_hw_glib_HwGLIB_h
+#ifndef GEM_HW_GLIB_HWGLIB_H
+#define GEM_HW_GLIB_HWGLIB_H
 
 #include "gem/hw/GEMHwDevice.h"
 //#include "toolbox/SyncQueue.h"
@@ -12,13 +12,13 @@
 namespace gem {
   namespace hw {
     namespace glib {
-      
+
       //class GLIBMonitor;
-      
+
       class HwGLIB: public gem::hw::GEMHwDevice
         {
         public:
-          
+
           static const unsigned N_GTX = 2; ///< maximum number of GTX links on the GLIB
 
           /**
@@ -38,14 +38,14 @@ namespace gem {
            * CounterAck is a counter for the number of errors on the trigger data link
            */
           typedef struct GLIBIPBusCounters {
-            uint32_t OptoHybridStrobe; 
+            uint32_t OptoHybridStrobe;
             uint32_t OptoHybridAck   ;
             uint32_t TrackingStrobe  ;
             uint32_t TrackingAck     ;
             uint32_t CounterStrobe   ;
             uint32_t CounterAck      ;
-            
-          GLIBIPBusCounters() : 
+
+          GLIBIPBusCounters() :
             OptoHybridStrobe(0),OptoHybridAck(0),
               TrackingStrobe(0),TrackingAck(0),
               CounterStrobe(0),CounterAck(0) {};
@@ -55,8 +55,8 @@ namespace gem {
               CounterStrobe=0;    CounterAck=0;
               return; };
           } GLIBIPBusCounters;
-          
-          
+
+
           /**
            * Constructors, the preferred constructor is with a connection file and device name
            * as the IP address and address table can be managed there, rather than hard coded
@@ -68,7 +68,7 @@ namespace gem {
                  std::string const& addressTable);
           HwGLIB(std::string const& glibDevice, uhal::HwInterface& uhalDevice);
           HwGLIB(int const& crate, int const& slot);
-	
+
           virtual ~HwGLIB();
 
           //virtual void connectDevice();
@@ -94,7 +94,7 @@ namespace gem {
           //system core functionality
           /**
            * Read the board ID registers
-           * @returns the GLIB board ID 
+           * @returns the GLIB board ID
            */
           std::string getBoardID()  ;
 
@@ -139,7 +139,7 @@ namespace gem {
            * @returns the MAC address of the board as a 64 bit unsigned
            */
           uint64_t getMACAddressRaw();
-          
+
           /**
            * Read the system firmware register
            * @param system determines whether to read the system or user firmware register
@@ -159,14 +159,14 @@ namespace gem {
            * @returns a string corresponding to the build date dd-mm-yyyy
            */
           std::string getFirmwareDate(bool const& system=true);
-	  
+
           /**
            * Read the system firmware register
            * @param system determines whether to read the system or user firmware register
            * @returns the build date as a 32 bit unsigned
            */
           uint32_t getFirmwareDateRaw(bool const& system=true);
-	  
+
           //external clocking control functions
           /**
            * control the PCIe clock
@@ -175,7 +175,7 @@ namespace gem {
            * @param enable 0 -> disabled, 1 -> enabled
            * void controlPCIe(uint8_t const& factor);
            */
-	  
+
           /**
            * select the PCIe clock multiplier
            * @param factor 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
@@ -185,7 +185,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_FSEL",(uint32_t)factor);
           };
-	  
+
           /**
            * get the PCIe clock multiplier
            * @returns the clock multiplier 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
@@ -195,7 +195,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_FSEL");
           };
-	  
+
           /**
            * send master reset to the PCIe clock
            * @param reset 1 -> reset, 0 -> normal operation
@@ -205,7 +205,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_MR",(uint32_t)reset);
           };
-	  
+
           /**
            * get the PCIe clock reset state
            * @returns the clock reset state 0 -> normal mode, 1 -> reset
@@ -215,7 +215,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_MR");
           };
-	  
+
           /**
            * enable the PCIe clock output
            * @param enable 0 -> disabled, 1 -> enabled
@@ -225,7 +225,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_OE",(uint32_t)enable);
           };
-	  
+
           /**
            * get the PCIe clock output status
            * @returns the clock output status 0 -> disabled, 1 -> enabled
@@ -246,7 +246,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             writeReg(getDeviceBaseNode(),regName.str()+"CDCE_POWERUP",(uint32_t)powerup);
           };
-	  
+
           /**
            * get the CDCE clock output status
            * @returns the clock output status 0 -> disabled, 1 -> enabled
@@ -266,7 +266,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             writeReg(getDeviceBaseNode(),regName.str()+"CDCE_REFSEL",(uint32_t)refsrc);
           };
-	  
+
           /**
            * get the CDCE reference clock
            * @returns the reference clock status 0 -> CLK1, 1 -> CLK2
@@ -289,7 +289,7 @@ namespace gem {
               writeReg(getDeviceBaseNode(),regName.str()+"CDCE_SYNC",0x1);
             }
           };
-	  
+
           /**
            * get the CDCE syncronization status
            * @returns the cdce sync status 0 -> disabled, 1 -> enabled
@@ -309,7 +309,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             writeReg(getDeviceBaseNode(),regName.str()+"CDCE_CTRLSEL",(uint32_t)source);
           };
-	  
+
           /**
            * get the CDCE clock output status
            * @returns the cdce control status 0 -> system firmware, 1 -> user firmware
@@ -330,7 +330,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             writeReg(getDeviceBaseNode(),regName.str()+"TCLKB_DR_EN",(uint32_t)enable);
           };
-	  
+
           /**
            * get the TClkB output to the backplane status
            * @returns the clock output status 0 -> disabled, 1 -> enabled
@@ -340,7 +340,7 @@ namespace gem {
             regName << "SYSTEM.CLK_CTRL.";
             return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"TCLKB_DR_EN");
           };
-	  
+
           /**
            * control the xpoint switch
            * @param xpoint2 0 -> xpoint1, 1 -> xpoint2
@@ -373,52 +373,52 @@ namespace gem {
            * XPoint2 output 4 routes nowhere
            */
           void XPointControl(bool xpoint2, uint8_t const& input, uint8_t const& output);
-	  
+
           /**
            * get the routing of the XPoint switch
            * @returns the input that is currently routed to a specified output
            */
           uint8_t XPointControl(bool xpoint2, uint8_t const& output);
-	  
+
           /**
            * get the status of the GLIB SFP
            * @param sfpcage
            * @returns the 3 status bits of the specified SFP
            */
           uint8_t SFPStatus(uint8_t const& sfpcage);
-	  
+
           /**
            * get the presence of the FMC in slot 1 or 2
            * @param fmc2 true for FMC2 false for FMC1
            * @returns true if an FMC is in the selected slot
            */
           bool FMCPresence(bool fmc2);
-	  
+
           /**
            * is there a GbE interrupt on the PHY
            * @returns true if there is an interrupt
            */
           bool GbEInterrupt();
-	  
+
           /**
            * returns the state of the FPGA reset line (driven by the CPLD)
            * @returns true if there is a reset
            */
           bool FPGAResetStatus();
-	  
+
           /**
            * returns the status of the 6-bit bus between the FPGA and the CPLD
-           * @returns 
+           * @returns
            */
           uint8_t V6CPLDStatus();
-	  
+
           /**
            * is the CDCE locked
            * @returns true if the CDCE is locked
            */
           bool CDCELockStatus();
-	  
-	  
+
+
           //user core functionality
           /**
            * Read the user firmware register using m_controlLink
@@ -426,7 +426,7 @@ namespace gem {
            * OBSOLETE in V2 firmware
            */
           uint32_t getUserFirmware();
-	  
+
           /**
            * Read the user firmware register using m_controlLink
            * @returns a std::string corresponding to the build date
@@ -443,7 +443,7 @@ namespace gem {
            * OBSOLETE in V2 firmware
            */
           uint32_t getUserFirmware(uint8_t const& gtx);
-	  
+
           /**
            * Read the user firmware register for a given gtx
            * @returns a string corresponding to the build date
@@ -452,7 +452,7 @@ namespace gem {
            * OBSOLETE in V2 firmware
            */
           std::string getUserFirmwareDate(uint8_t const& gtx);
-	  
+
           /**
            * Check if the gtx requested is known to be operational
            * @param uint8_t gtx GTX gtx to be queried
@@ -469,7 +469,7 @@ namespace gem {
            * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-1
            */
           GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& gtx);
-	  
+
           /**
            * Reset the gtx status registers
            * @param uint8_t gtx is the number of the gtx to query
@@ -489,7 +489,7 @@ namespace gem {
             for (auto gtx = v_activeLinks.begin(); gtx != v_activeLinks.end(); ++gtx)
               LinkReset(gtx->first,resets);
           };
-	  
+
           /**
            * Set the Trigger source
            * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
@@ -572,31 +572,31 @@ namespace gem {
            * @returns GLIBIPBusCounters struct, with updated values for the ones specified in the mask
            */
           GLIBIPBusCounters getIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
-	  
+
           /**
            * Get the recorded number of L1A signals received from the TTC decoder
            */
           uint32_t getL1ACount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.L1A"); };
-	  
+
           /**
            * Get the recorded number of CalPulse signals received from the TTC decoder
            */
           uint32_t getCalPulseCount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse"); };
-	  
+
           /**
            * Get the recorded number of Resync signals received from the TTC decoder
            */
           uint32_t getResyncCount() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.Resync"); };
-          
+
           /**
            * Get the recorded number of BC0 signals
            */
           uint32_t getBC0Count() {
             return readReg(getDeviceBaseNode(),"COUNTERS.T1.BC0"); };
-          
+
           ///Counter resets
           /**
            * Get the recorded number of IPBus signals sent/received by the GLIB
@@ -610,31 +610,31 @@ namespace gem {
            * bit 6 CounterAck
            */
           void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
-	  
+
           /**
            * Reset the recorded number of L1A signals received from the TTC decoder
            */
           void resetL1ACount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.L1A.Reset", 0x1); };
-	  
+
           /**
            * Reset the recorded number of CalPulse signals received from the TTC decoder
            */
           void resetCalPulseCount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse.Reset", 0x1); };
-	  
+
           /**
            * Reset the recorded number of Resync signals received from the TTC decoder
            */
           void resetResyncCount() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.Resync.Reset", 0x1); };
-          
+
           /**
            * Reset the recorded number of BC0 signals
            */
           void resetBC0Count() {
             return writeReg(getDeviceBaseNode(),"COUNTERS.T1.BC0.Reset", 0x1); };
-          
+
           /**
            * Read the trigger data
            * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
@@ -682,11 +682,11 @@ namespace gem {
           //which of these will be better and do what we want
           uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
                                    size_t const& nBlocks=1);
-          
+
           /**
            * Empty the tracking data FIFO
            * @param uint8_t gtx is the number of the gtx to query
-           * 
+           *
            */
           void flushFIFO(uint8_t const& gtx);
 
@@ -754,12 +754,12 @@ namespace gem {
           uint32_t getDAQLinkL1AID();
 
           /**
-           * @returns Returns 
+           * @returns Returns
            */
           uint32_t getDAQLinkDisperErrors();
 
           /**
-           * @returns Returns 
+           * @returns Returns
            */
           uint32_t getDAQLinkNonidentifiableErrors();
 
@@ -782,7 +782,7 @@ namespace gem {
           // GTX specific DAQ link information
           /**
            * @param gtx is the input link status to query
-           * @returns Returns the the 32-bit word corresponding DAQ status for the specified link 
+           * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
            */
           uint32_t getDAQLinkStatus(   uint8_t const& gtx);
 
@@ -822,7 +822,7 @@ namespace gem {
 
           /**
            * @brief Set DAQ link timeout
-           * @param value is the number of clock cycles to wait after receipt of last L1A and 
+           * @param value is the number of clock cycles to wait after receipt of last L1A and
            *        last packet received from the optical link before closing an "event"
            */
           void setDAQLinkInputTimeout(uint32_t const& value);
@@ -850,7 +850,7 @@ namespace gem {
            * @returns TTC control register value
            */
           uint32_t getTTCControl();
-          
+
           /**
            * @returns TTC encoding in use on the GLIB
            */
@@ -899,20 +899,21 @@ namespace gem {
           virtual void linkReset(uint8_t const& link);
 
           std::vector<GLIBIPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
-          
+
         protected:
           //GLIBMonitor *monGLIB_;
-	
+
           bool b_links[N_GTX];
-          
+
           std::vector<linkStatus> v_activeLinks;
 
         private:
           uint8_t m_controlLink;
           int m_crate, m_slot;
-	
-        }; //end class HwGLIB
-    } //end namespace gem::hw::glib
-  } //end namespace gem::hw
-} //end namespace gem
-#endif
+
+        };  // class HwGLIB
+    }  // namespace gem::hw::glib
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_GLIB_HWGLIB_H

@@ -1,5 +1,5 @@
-#ifndef gem_hw_glib_GLIBManagerWeb_h
-#define gem_hw_glib_GLIBManagerWeb_h
+#ifndef GEM_HW_GLIB_GLIBMANAGERWEB_H
+#define GEM_HW_GLIB_GLIBMANAGERWEB_H
 
 #include <memory>
 
@@ -8,7 +8,7 @@
 namespace gem {
   namespace hw {
     namespace glib {
-      
+
       class GLIBManager;
 
       class GLIBManagerWeb : public gem::base::GEMWebApplication
@@ -18,7 +18,7 @@ namespace gem {
 
         public:
           GLIBManagerWeb(GLIBManager *glibApp);
-	  
+
           virtual ~GLIBManagerWeb();
 
         protected:
@@ -28,28 +28,28 @@ namespace gem {
 
           virtual void monitorPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
-          
+
           virtual void expertPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
-          
+
           virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
-          
+
           void buildCardSummaryTable(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
-          
+
           void cardPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
-          
+
         private:
           size_t activeCard;
-	  
+
           //GLIBManagerWeb(GLIBManagerWeb const&);
-	  
+
         };
 
-    } // namespace gem::glib
-  } // namespace gem::hw
-} // namespace gem
+    }  // namespace gem::glib
+  }  // namespace gem::hw
+}  // namespace gem
 
-#endif
+#endif  // GEM_HW_GLIB_GLIBMANAGERWEB_H
