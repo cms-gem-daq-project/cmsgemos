@@ -1,14 +1,18 @@
+#ifndef GEM_HW_AMC13_MODULE_H
+#define GEM_HW_AMC13_MODULE_H
 //
 // class to keep track of AMC13 modules for command-line tool
 // (possibly useful for other purposes)
 //
  
+#include <stdint.h>
+
 #include <map>
 #include <string>
 #include <vector>
-#include "amc13/AMC13.hh"
 #include <fstream>
-#include <stdint.h>
+
+#include "amc13/AMC13.hh"
 
 namespace amc13{
   
@@ -40,3 +44,4 @@ namespace amc13{
   };
 }
 
+#endif  // GEM_HW_AMC13_MODULE_H

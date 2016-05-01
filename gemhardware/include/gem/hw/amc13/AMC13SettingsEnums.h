@@ -1,5 +1,5 @@
-#ifndef gem_hw_amc13_AMC13SettingsEnums_h
-#define gem_hw_amc13_AMC13SettingsEnums_h
+#ifndef GEM_HW_AMC13_AMC13SETTINGSENUMS_H
+#define GEM_HW_AMC13_AMC13SETTINGSENUMS_H
 
 namespace gem {
   namespace hw {
@@ -26,13 +26,13 @@ namespace gem {
             HardReset = 0x16, //HardReset
           } BGOCmd;
         };
-      }; //end class AMC13Settings
-    }//end namespace gem::hw::amc13
-  }//end namespace gem::hw
+      };  // class AMC13Settings
+    }  // namespace gem::hw::amc13
+  }  // namespace gem::hw
   
   //typedef the enum for casting and access
   typedef gem::hw::amc13::AMC13Settings::BGOCmd::EBGOCmd             AMC13BGOCmd;
   typedef gem::hw::amc13::AMC13Settings::CSCGEMBGOCmd::CSCGEMEBGOCmd GEMBGOCmd;
-}//end namespace gem
+}  // namespace gem
 
-#endif
+#endif  // GEM_HW_AMC13_AMC13SETTINGSENUMS_H

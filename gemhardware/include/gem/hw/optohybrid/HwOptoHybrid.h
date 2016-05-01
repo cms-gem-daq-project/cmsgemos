@@ -1,5 +1,5 @@
-#ifndef gem_hw_optohybrid_HwOPTOHYBRID_h
-#define gem_hw_optohybrid_HwOPTOHYBRID_h
+#ifndef GEM_HW_OPTOHYBRID_HWOPTOHYBRID_H
+#define GEM_HW_OPTOHYBRID_HWOPTOHYBRID_H
 
 #include "gem/hw/GEMHwDevice.h"
 #include "gem/hw/glib/HwGLIB.h"
@@ -10,7 +10,7 @@
 namespace gem {
   namespace hw {
     namespace optohybrid {
-         
+
       static const int MAX_VFATS = 24;  ///< maximum number of VFATs that can be connected to an OptoHybrid
       static const uint32_t ALL_VFATS_BCAST_MASK = 0xff000000; ///< send broadcast I2C requests to all chips
       static const uint32_t ALL_VFATS_DATA_MASK  = 0xffffffff; ///< mask tracking data packets from all VFATs
@@ -36,12 +36,12 @@ namespace gem {
            * and acknowldege(second) requests on the DAC module
            */
           typedef struct OptoHybridWBMasterCounters {
-            std::pair<uint32_t,uint32_t> GTX   ; 
-            std::pair<uint32_t,uint32_t> ExtI2C; 
-            std::pair<uint32_t,uint32_t> Scan  ; 
-            std::pair<uint32_t,uint32_t> DAC   ; 
-            
-          OptoHybridWBMasterCounters() : 
+            std::pair<uint32_t,uint32_t> GTX   ;
+            std::pair<uint32_t,uint32_t> ExtI2C;
+            std::pair<uint32_t,uint32_t> Scan  ;
+            std::pair<uint32_t,uint32_t> DAC   ;
+
+          OptoHybridWBMasterCounters() :
             GTX(std::make_pair(0,0)),
               ExtI2C(std::make_pair(0,0)),
               Scan(std::make_pair(0,0)),
@@ -54,7 +54,7 @@ namespace gem {
               DAC=std::make_pair(0,0);
               return; };
           } OptoHybridWBMasterCounters;
-          
+
           /**
            * @struct OptoHybridWBSlaveCounters
            * @brief This struct stores retrieved counters related to the OptoHybrid wishbone transactions
@@ -87,17 +87,17 @@ namespace gem {
            * and acknowldege(second) requests on the System module
            */
           typedef struct OptoHybridWBSlaveCounters {
-            std::vector<std::pair<uint32_t,uint32_t> > I2C; 
-            std::pair<uint32_t,uint32_t> ExtI2C; 
-            std::pair<uint32_t,uint32_t> Scan  ; 
-            std::pair<uint32_t,uint32_t> T1    ; 
-            std::pair<uint32_t,uint32_t> DAC   ; 
-            std::pair<uint32_t,uint32_t> ADC   ; 
-            std::pair<uint32_t,uint32_t> Clocking; 
-            std::pair<uint32_t,uint32_t> Counters; 
-            std::pair<uint32_t,uint32_t> System  ; 
-            
-          OptoHybridWBSlaveCounters() : 
+            std::vector<std::pair<uint32_t,uint32_t> > I2C;
+            std::pair<uint32_t,uint32_t> ExtI2C;
+            std::pair<uint32_t,uint32_t> Scan  ;
+            std::pair<uint32_t,uint32_t> T1    ;
+            std::pair<uint32_t,uint32_t> DAC   ;
+            std::pair<uint32_t,uint32_t> ADC   ;
+            std::pair<uint32_t,uint32_t> Clocking;
+            std::pair<uint32_t,uint32_t> Counters;
+            std::pair<uint32_t,uint32_t> System  ;
+
+          OptoHybridWBSlaveCounters() :
             I2C(6, std::make_pair(0,0)),
               ExtI2C(std::make_pair(0,0)),
               Scan(std::make_pair(0,0)),
@@ -120,7 +120,7 @@ namespace gem {
               System=std::make_pair(0,0);
               return; };
           } OptoHybridWBSlaveCounters;
-          
+
           /**
            * @struct OptoHybridT1Counters
            * @brief This struct stores retrieved counters related to the OptoHybrid T1 signals
@@ -136,13 +136,13 @@ namespace gem {
            * Sent contains the counters for T1 signals sent by the OptoHybrid to the GEB
            */
           typedef struct OptoHybridT1Counters {
-            std::vector<uint32_t> AMC13   ; 
+            std::vector<uint32_t> AMC13   ;
             std::vector<uint32_t> Firmware;
             std::vector<uint32_t> External;
             std::vector<uint32_t> Loopback;
             std::vector<uint32_t> Sent    ;
-            
-          OptoHybridT1Counters() : 
+
+          OptoHybridT1Counters() :
             AMC13(4, 0),Firmware(4, 0),External(4, 0),Loopback(4, 0),Sent(4, 0) {};
             void reset() {
               std::fill(AMC13.begin(),    AMC13.end(),    0);
@@ -152,10 +152,10 @@ namespace gem {
               std::fill(Sent.begin(),     Sent.end(),     0);
               return; };
           } OptoHybridT1Counters;
-          
+
           /**
            * @struct OptoHybridVFATCRCCounters
-           *  @brief This struct stores retrieved counters related to the OptoHybrid CRC check on 
+           *  @brief This struct stores retrieved counters related to the OptoHybrid CRC check on
            *  the received VFAT data packets
            *  @var OptoHybridVFATCRCCounters::CRCCounters
            *  CRCCounters contains the counters for the CRC performed on the
@@ -165,14 +165,14 @@ namespace gem {
            */
           typedef struct OptoHybridVFATCRCCounters {
             std::vector<std::pair<uint32_t,uint32_t> > CRCCounters;
-            
-          OptoHybridVFATCRCCounters() : 
+
+          OptoHybridVFATCRCCounters() :
             CRCCounters(24, std::make_pair(0,0)) {};
             void reset() {
               std::fill(CRCCounters.begin(), CRCCounters.end(), std::make_pair(0,0));
               return; };
           } OptoHybridVFATCRCCounters;
-          
+
           HwOptoHybrid();
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionFile);
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI,
@@ -181,7 +181,7 @@ namespace gem {
           HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
 
           virtual ~HwOptoHybrid();
-          
+
           //updating interfaces////virtual void connectDevice();
           //updating interfaces////virtual void releaseDevice();
           //updating interfaces////virtual void initDevice();
@@ -199,7 +199,7 @@ namespace gem {
           virtual bool isHwConnected();
 
           /** Read the board ID registers
-           * @returns the OptoHybrid board ID 
+           * @returns the OptoHybrid board ID
            */
           //std::string getBoardID()   const;
 
@@ -211,11 +211,11 @@ namespace gem {
           uint32_t getFirmware() {
             std::cout << "oh device base node " << getDeviceBaseNode() << std::endl;
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
-            DEBUG("OH has firmware version 0x" 
+            DEBUG("OH has firmware version 0x"
                   << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
-	    
+
           /**
            * Read the firmware register
            * @returns a string corresponding to the build date
@@ -225,7 +225,7 @@ namespace gem {
             retval << "0x" << std::hex << getFirmware() << std::dec << std::endl;
             return retval.str();
           };
-					
+
         public:
 
           /////Inherited from GEMHwDevice
@@ -274,7 +274,7 @@ namespace gem {
               LinkReset(link->first,resets);
             */
           };
-	  
+
           /**
            * Read the trigger data
            * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
@@ -283,7 +283,7 @@ namespace gem {
 
           //Clocking
           /**
-           * Setup the OptoHybrid clock 
+           * Setup the OptoHybrid clock
            * @param uint8_t source
            * 0x0 on board oscillator
            * 0x1 GTX recovered clock
@@ -294,7 +294,7 @@ namespace gem {
           };
 
           /**
-           * Setup the VFAT clock 
+           * Setup the VFAT clock
            * @returns uint32_t clock source
            * 0x0 on board oscillator
            * 0x1 GTX recovered clock
@@ -305,7 +305,7 @@ namespace gem {
           };
 
           /**
-           * Setup the VFAT clock 
+           * Setup the VFAT clock
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
            * NOT YET AVAILABLE IN V2 FIRMWARE
@@ -333,7 +333,7 @@ namespace gem {
           };
 
           /**
-           * Setup the CDCE clock 
+           * Setup the CDCE clock
            * @param bool source true uses the external clock, false uses the onboard clock
            * @param bool fallback uses the external clock, false uses the onboard clock
            * NOT YET AVAILABLE IN V2 FIRMWARE
@@ -344,7 +344,7 @@ namespace gem {
             //writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.SOURCE"  ,(uint32_t)source  );
             //writeReg(getDeviceBaseNode(),regName.str()+".CLOCKING.CDCE.FALLBACK",(uint32_t)fallback);
           };
-      
+
           /**
            * CDCE clock status
            * @param bool source true uses the external clock, false uses the onboard clock
@@ -367,7 +367,7 @@ namespace gem {
           //
           //
           ///** Set the VFAT onboard clock fallback
-          // * Allows the clock to fall back to 
+          // * Allows the clock to fall back to
           // * @param bool true allows the optohybrid to switch back to the onboard clock
           // * if it fails to lock
           // */
@@ -443,7 +443,7 @@ namespace gem {
            * 3 Internal loopback of s-bits
            * 4 from all
            */
-          uint8_t getTrigSource() { 
+          uint8_t getTrigSource() {
             return readReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE"); };
 
 
@@ -464,7 +464,7 @@ namespace gem {
 
           /**
            * @brief the Scan module is very different between V1/1.5 and V2
-           * One must select the mode 
+           * One must select the mode
            * One must select the signal
            typedef struct ScanSequence {
            uint64_t l1a_seq;
@@ -473,7 +473,7 @@ namespace gem {
            uint64_t bc0_seq;
            } ScanSequence;
           */
-          
+
           /**
            * @brief This function controls the firmware module that runs any of the scans
            * @param uint8_t mode can be any of
@@ -502,7 +502,7 @@ namespace gem {
                                       bool reset) {
             if (reset)
               writeReg(getDeviceBaseNode(),"ScanController.THLAT.RESET",0x1);
-            
+
             writeReg(getDeviceBaseNode(),"ScanController.THLAT.MODE", mode);
             writeReg(getDeviceBaseNode(),"ScanController.THLAT.MIN",  min);
             writeReg(getDeviceBaseNode(),"ScanController.THLAT.MAX",  max);
@@ -519,20 +519,20 @@ namespace gem {
               }
             }
           };
-          
+
           /**
            * @brief Start the Scan controller (must be configured first or have a configuration already loaded)
            * @param uint32_t ntrigs number of signals to send before stopping (0 will send continuously)
            */
           void startScanGenerator(uint32_t const& ntrigs) {
-            
+
             writeReg(getDeviceBaseNode(),"ScanController.THLAT.NTRIGS"  ,ntrigs  );
-            
+
             //don't toggle off if the generator is currently running
             if (!statusScanGenerator())
               writeReg(getDeviceBaseNode(),"ScanController.THLAT.START",0x1);
           };
-          
+
           /**
            * @brief Stop the Scan generator
            * @param bool reset tells whether to reset the state of the module
@@ -544,7 +544,7 @@ namespace gem {
             if (reset)
               writeReg(getDeviceBaseNode(),"ScanController.THLAT.RESET",0x1);
           };
-          
+
           /**
            * @brief Status of the Scan generator
            * @returns uint8_t the status of the Scan generator, telling which mode is running
@@ -565,7 +565,7 @@ namespace gem {
 
           /**
            * @brief the T1 module is very different between V1/1.5 and V2
-           * One must select the mode 
+           * One must select the mode
            * One must select the signal
            */
           typedef struct T1Sequence {
@@ -574,7 +574,7 @@ namespace gem {
             uint64_t rsy_seq;
             uint64_t bc0_seq;
           } T1Sequence;
-          
+
           /**
            * @brief the T1 module is very different between V1/1.5 and V2
            * @param uint8_t mode can be any of
@@ -609,7 +609,7 @@ namespace gem {
               writeReg(getDeviceBaseNode(),"T1Controller.Sequence.BC0.LSB",     sequence.bc0_seq&0xffffffff);
             }
           };
-          
+
           /**
            * @brief Start the T1 generator (must be configured first or have a configuration already loaded)
            * @param uint32_t ntrigs number of signals to send before stopping (0 will send continuously)
@@ -618,16 +618,16 @@ namespace gem {
            */
           void startT1Generator(uint32_t const& ntrigs, uint32_t const& rate, uint32_t const& delay) {
             uint32_t interval = 1/(rate*0.000000025);
-            
+
             writeReg(getDeviceBaseNode(),"T1Controller.NUMBER"  ,ntrigs  );
             writeReg(getDeviceBaseNode(),"T1Controller.INTERVAL",interval);
             writeReg(getDeviceBaseNode(),"T1Controller.DELAY"   ,delay   );
-            
+
             //don't toggle off if the generator is currently running
             if (!statusT1Generator())
               writeReg(getDeviceBaseNode(),"T1Controller.TOGGLE",0x1);
           };
-          
+
           /**
            * @brief Stop the T1 generator
            * @param bool reset tells whether to reset the state of the module
@@ -639,7 +639,7 @@ namespace gem {
             if (reset)
               writeReg(getDeviceBaseNode(),"T1Controller.RESET",0x1);
           };
-          
+
           /**
            * @brief Status of the T1 generator
            * @returns uint8_t the status of the T1 generator, telling which mode is running
@@ -670,7 +670,7 @@ namespace gem {
             configureT1Generator(0x0, 0x1, sequence, true);
             startT1Generator(npulse, rate, 0);
           };
-          
+
           /**
            * Send a CalPulse followed by an L1A
            * @param uint32_t npulse, how many pairs to send
@@ -731,16 +731,16 @@ namespace gem {
           OptoHybridT1Counters getT1Counters() { return m_t1Counters; };
           void updateT1Counters();
           void resetT1Counters();
-	  
+
           /**
-           * Get the recorded number of valid/incorrect CRCs performed by the OptoHybrid 
+           * Get the recorded number of valid/incorrect CRCs performed by the OptoHybrid
            *  on the data packets received from the VFATs
            * @returns OptoHybridT1Counters struct, with updated values
            */
           OptoHybridVFATCRCCounters getVFATCRCCounters() { return m_vfatCRCCounters; };
           void updateVFATCRCCounters();
           void resetVFATCRCCounters();
-	  
+
           /**
            * Get the recorded number of T1 signals
            * @param signal specifies which T1 signal counter to read
@@ -765,7 +765,7 @@ namespace gem {
               t1Signal << "Resync";
             if (signal == 0x3)
               t1Signal << "BC0";
-            
+
             switch(mode) {
             case 0:
               return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s",     (t1Signal.str()).c_str()));
@@ -781,7 +781,7 @@ namespace gem {
               return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
             }
           };
-	  
+
           /**
            * Get the recorded number of L1A signals
            * @param mode specifies which L1A counter to read
@@ -793,7 +793,7 @@ namespace gem {
            */
           uint32_t getL1ACount(uint8_t const& mode) {
             return getT1Count(0x0, mode); };
-	  
+
           /**
            * Get the recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to read
@@ -805,7 +805,7 @@ namespace gem {
            */
           uint32_t getCalPulseCount(uint8_t const& mode) {
             return getT1Count(0x1, mode); };
-	  
+
           /**
            * Get the recorded number of Resync signals
            * @param mode specifies which L1A counter to read
@@ -829,7 +829,7 @@ namespace gem {
            */
           uint32_t getBC0Count(uint8_t const& mode=0x0) {
             return getT1Count(0x3, mode); };
-          
+
           /**
            * Get the recorded number of BXCount signals
            * OBSOLETE in V2 firmware
@@ -842,7 +842,7 @@ namespace gem {
               return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.BXCount");
             */
           };
-	  
+
           ///Resets
           /**
            * Get the recorded number of T1 signals
@@ -864,7 +864,7 @@ namespace gem {
               t1Signal << "Resync";
             if (signal == 0x3)
               t1Signal << "BC0";
-            
+
             switch(mode) {
             case 0:
               writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
@@ -897,7 +897,7 @@ namespace gem {
               return;
             }
           };
-	  
+
           /**
            * Reset recorded number of L1A signals
            * @param mode specifies which L1A counter to reset
@@ -911,7 +911,7 @@ namespace gem {
           void resetL1ACount(uint8_t const& mode=0x5) {
             resetT1Count(0x0,mode);
           };
-	  
+
           /**
            * Reset recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to reset
@@ -924,7 +924,7 @@ namespace gem {
            */
           void resetCalPulseCount(uint8_t const& mode=0x5) {
             return resetT1Count(0x1, mode); };
-          
+
           /**
            * Reset recorded number of Resync signals
            * @param mode specifies which CalPulse counter to reset
@@ -960,19 +960,19 @@ namespace gem {
           //pertaining to VFATs
           /**
            * Returns VFATs to the 0 run mode
-           * 
+           *
            */
           void resetVFATs() {
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.RESET"),0x1); };
-          
+
           /**
            * Returns the VFAT tracking data mask that the OptoHybrid uses to determine which data
            * packets to send to the GLIB
-           * 
+           *
            */
           uint32_t getVFATMask() {
             return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK")); };
-          
+
           /**
            * Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
            *  packets to send to the GLIB
@@ -981,7 +981,7 @@ namespace gem {
            */
           void setVFATMask(uint32_t const mask) {
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK"),mask); };
-          
+
           /**
            * Sends a read request to all (un-masked) VFATs on the same register
            * @param std::string name name of the register to broadcast the request to
@@ -992,7 +992,7 @@ namespace gem {
           std::vector<uint32_t> broadcastRead(std::string const& name,
                                               uint32_t    const& mask=ALL_VFATS_BCAST_MASK,
                                               bool               reset=false);
-          
+
           /**
            * Sends a write request to all (un-masked) VFATs on the same register
            * @param std::string name name of the register to broadcast the request to
@@ -1005,13 +1005,13 @@ namespace gem {
                               uint32_t    const& mask=ALL_VFATS_BCAST_MASK,
                               bool               reset=false);
 
-          
+
           /**
            * Returns the slot number and chip IDs for connected VFATs
            * @returns a std::vector of pairs of uint8_t and uint32_t words, one response for each VFAT
            */
           std::vector<std::pair<uint8_t,uint32_t> > getConnectedVFATs();
-          
+
           /**
            * Uses a broadcast read to determine which slots are occupied and returns the
            * corresponding broadcast mask
@@ -1035,7 +1035,7 @@ namespace gem {
                                          toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d",chip));
             return std::make_pair<uint32_t, uint32_t>(valid,incorrect);
           };
-	  
+
 
           /**
            * Reset the number of valid/incorrect CRCs performed by the OptoHybrid
@@ -1052,7 +1052,7 @@ namespace gem {
                      toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d.Reset",chip),0x1);
             return;
           };
-	  
+
           /**
            * Sends a write request for all setup registers on each VFAT specified by the mask
            * @param uint8_t vthreshold1 value to write
@@ -1081,15 +1081,16 @@ namespace gem {
           //OptoHybridMonitor *monOptoHybrid_;
 
           bool b_links[3];
-	    
+
           std::vector<linkStatus> v_activeLinks;
 
         private:
           uint8_t m_controlLink;
           int m_slot;
-	  
-        }; //end class HwOptoHybrid
-    } //end namespace gem::hw::glib
-  } //end namespace gem::hw
-} //end namespace gem
-#endif
+
+        };  // class HwOptoHybrid
+    }  // namespace gem::hw::glib
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_OPTOHYBRID_HWOPTOHYBRID_H

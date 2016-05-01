@@ -1,5 +1,5 @@
-#ifndef gem_hw_vfat_HwAMC13_h
-#define gem_hw_vfat_HwAMC13_h
+#ifndef GEM_HW_AMC13_HWAMC13_H
+#define GEM_HW_AMC13_HWAMC13_H
 
 #include "xdaq/Application.h"
 
@@ -36,7 +36,7 @@ namespace gem {
         {
         public:
           //XDAQ_INSTANTIATOR();
-	
+
           HwAMC13(xdaq::Application * amc13App,
                   std::string const& vfatDevice="CMS_hybrid_J8");
           // access by serial number?
@@ -47,18 +47,17 @@ namespace gem {
           //uhal::ConnectionManager *manageAMC13Connection;
           //log4cplus::Logger logAMC13_;
           //uhal::HwInterface *hwAMC13_;
-	  
+
           gem::hw::amc13::AMC13ControlParams amc13Params_;
-	  
+
           //uhal::HwInterface& getVFA2Hw() const;
-	  
+
           //AMC13Monitor *monAMC13_;
 
-        }; //end class HwAMC13
-      
-    } //end namespace gem::hw::amc13
-    
-  } //end namespace gem::hw
-  
-} //end namespace gem
-#endif
+        };  // class HwAMC13
+
+    }  // namespace gem::hw::amc13
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_AMC13_HWAMC13_H

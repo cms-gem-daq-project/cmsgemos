@@ -1,5 +1,5 @@
-#ifndef gem_hw_vfat_HwVFAT2_h
-#define gem_hw_vfat_HwVFAT2_h
+#ifndef GEM_HW_VFAT_HWVFAT2_H
+#define GEM_HW_VFAT_HWVFAT2_H
 
 #include "gem/hw/GEMHwDevice.h"
 
@@ -27,12 +27,12 @@ namespace gem {
       //class VFAT2ChannelData;
       //class VFAT2ChannelSettings;
       //class VFAT2Settings;
-      
+
       class HwVFAT2: public gem::hw::GEMHwDevice
         {
         public:
           static const unsigned N_VFAT2_CHANNELS = 128;
-          
+
           typedef struct TransactionErrors {
             int Error     ;
             int Invalid   ;
@@ -49,7 +49,7 @@ namespace gem {
           HwVFAT2(std::string const& vfatDevice="VFAT13");
 
           virtual ~HwVFAT2();
-	  
+
           /**
            * @brief  Print the error counts for the device (calls also the GEMHwDevice method
            * @returns string of error counts
@@ -58,11 +58,11 @@ namespace gem {
 
           /**
            * @brief  Load some default values into the VFAT registers
-           * 
+           *
            */
           void loadDefaults();
 	  void printDefaults(std::ofstream& SetupFile);
-          
+
           /**
            * @brief  bool isHwConnected()
            * Checks to see if the VFAT device is connected
@@ -79,7 +79,7 @@ namespace gem {
            * @returns 8-bit register from the VFAT chip
            */
           uint8_t  readVFATReg( std::string const& regName, bool debug);
-          
+
           /**
            * @brief  uint8_t  readVFATReg( std::string const& regName)
            * Reads a register on the VFAT2 chip, returns the 8-bit value of the register
@@ -123,13 +123,13 @@ namespace gem {
 
           /**
            * @brief  writeVFATReg( vfat_reg_pair_list const& regList)
-           * Writes to a list of VFAT2 registers from a list of pairs of register name and value 
+           * Writes to a list of VFAT2 registers from a list of pairs of register name and value
            * done with a single dispatch call
            * @param regList is the list of pairs of register names and values to write
            */
           void     writeVFATRegs(vfat_reg_pair_list const& regList) {
             register_pair_list fullRegList;
-            for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+            for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
               fullRegList.push_back(std::make_pair(getDeviceBaseNode()+"."+curReg->first,static_cast<uint32_t>(curReg->second)));
             writeRegs(fullRegList);
           };
@@ -142,13 +142,13 @@ namespace gem {
            */
           void     writeValueToVFATRegs(std::vector<std::string> const& regList, uint8_t const& regValue) {
             std::vector<std::string > fullRegList;
-            for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+            for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
               fullRegList.push_back(getDeviceBaseNode()+"."+*curReg);
             writeValueToRegs(regList,static_cast<uint32_t>(regValue)); };
-	  
+
           //control functions
           //void reset();
-	  
+
           //get read only registers
           /**
            * @brief  getChipID()
@@ -169,24 +169,24 @@ namespace gem {
            * @returns value in the upset counter on the VFAT
            */
           uint8_t  getUpsetCount() { return readVFATReg("UpsetReg");    };
-	  
+
           //Set control register settings
           void setAllSettings(const gem::hw::vfat::VFAT2ControlParams &params);
-	  
+
           //Control register settings
           /// might be good to overload them to act on local variables
           /// and do a single IPBus transaction...
-	  
+
           void setRunMode(VFAT2RunMode mode) {
             uint8_t settings = readVFATReg("ContReg0");
             writeVFATReg("ContReg0",
                          (settings&~VFAT2ContRegBitMasks::RUNMODE)|
                          (mode<<VFAT2ContRegBitShifts::RUNMODE)); };
-	  
+
           void setRunMode(VFAT2RunMode mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::RUNMODE)|
               (mode<<VFAT2ContRegBitShifts::RUNMODE); };
-	  
+
           void setRunMode(uint8_t mode) {
             setRunMode(static_cast<VFAT2RunMode>(mode)); };
           void setRunMode(uint8_t mode, uint8_t&  settings) {
@@ -216,7 +216,7 @@ namespace gem {
           void setCalibrationMode(VFAT2CalibMode mode, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::CALMODE)|
               (mode<<VFAT2ContRegBitShifts::CALMODE); };
-	  
+
           void setCalibrationMode(uint8_t mode) {
             setCalibrationMode(static_cast<VFAT2CalibMode>(mode)); };
           void setCalibrationMode(uint8_t mode, uint8_t& settings) {
@@ -227,11 +227,11 @@ namespace gem {
             writeVFATReg("ContReg0",
                          (settings&~VFAT2ContRegBitMasks::MSPOL)|
                          (polarity<<VFAT2ContRegBitShifts::MSPOL)); };
-	  
+
           void setMSPolarity(VFAT2MSPol polarity, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::MSPOL)|
               (polarity<<VFAT2ContRegBitShifts::MSPOL); };
-	  
+
           void setMSPolarity(uint8_t mode) {
             setMSPolarity(static_cast<VFAT2MSPol>(mode)); };
           void setMSPolarity(uint8_t mode, uint8_t& settings) {
@@ -242,7 +242,7 @@ namespace gem {
             writeVFATReg("ContReg0",
                          (settings&~VFAT2ContRegBitMasks::CALPOL)|
                          (polarity<<VFAT2ContRegBitShifts::CALPOL)); };
-	  
+
           void setCalPolarity(VFAT2CalPol polarity, uint8_t& settings) {
             settings = (settings&~VFAT2ContRegBitMasks::CALPOL)|
               (polarity<<VFAT2ContRegBitShifts::CALPOL); };
@@ -442,7 +442,7 @@ namespace gem {
            * should be private
            */
           void getAllSettings();
-	  
+
           //Get control register settings
           //CR0:<7:0::calMode<7:5>,calPol<4>.msPol<3>,trigMode<2:1>,runMode<0>>
           uint8_t getCR0()     {
@@ -517,10 +517,10 @@ namespace gem {
             return (getCR3()&(VFAT2ContRegBitMasks::DFTESTMODE))>>VFAT2ContRegBitShifts::DFTESTMODE; };
           uint8_t getTestPatternMode(uint8_t regVal) {
             return (regVal&(VFAT2ContRegBitMasks::DFTESTMODE))>>VFAT2ContRegBitShifts::DFTESTMODE; };
-	  
+
           //////////////////////////////
           /**
-           * @brief  Get <chip setting> 
+           * @brief  Get <chip setting>
            * @returns uint8_t value of the register
            */
           uint8_t getLatency()     { return readVFATReg("Latency");     };
@@ -592,21 +592,22 @@ namespace gem {
 
           gem::hw::vfat::VFAT2ControlParams getVFAT2Params() {
             return m_vfatParams; };
-	  
+
           void setActiveChannelWeb(uint8_t chan) {
             m_vfatParams.activeChannel = chan; };
 
         protected:
-	  
+
           TransactionErrors m_vfatErrors;
           gem::hw::vfat::VFAT2ControlParams m_vfatParams;
-	  
+
           //VFATMonitor *monVFAT_;
-	
+
         private:
 
-        }; //end class HwVFAT2
-    } //end namespace gem::hw::vfat
-  } //end namespace gem::hw
-} //end namespace gem
-#endif
+        };  // class HwVFAT2
+    }  // namespace gem::hw::vfat
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_VFAT_HWVFAT2_H

@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_GEMGLIBSupervisorWeb_h
-#define gem_supervisor_GEMGLIBSupervisorWeb_h
+#ifndef GEM_SUPERVISOR_GEMGLIBSUPERVISORWEB_H
+#define GEM_SUPERVISOR_GEMGLIBSUPERVISORWEB_H
 
 #include "xdaq/Application.h"
 #include "xdaq/WebApplication.h"
@@ -190,13 +190,13 @@ namespace gem {
          */
         void noAction(toolbox::Event::Reference e);
 
-	
+
         /**
          *    Callback for action performed
          */
         virtual void actionPerformed(xdata::Event& event);
-        class ConfigParams 
-        {   
+        class ConfigParams
+        {
         public:
           void registerFields(xdata::Bag<ConfigParams> *bag);
 
@@ -220,9 +220,9 @@ namespace gem {
       private:
 
         std::unique_ptr<gem::readout::GEMslotContents> slotInfo;
-        
+
         log4cplus::Logger m_gemLogger;
-	
+
         toolbox::task::WorkLoopFactory* wlf_;
         toolbox::task::WorkLoop *wl_;
 
@@ -265,7 +265,7 @@ namespace gem {
         // VFAT Blocks Counter
         int vfat_;
 
-        // Events Counter     
+        // Events Counter
         int event_;
 
         // VFATs counter per event
@@ -288,6 +288,7 @@ namespace gem {
         void stateChanged(toolbox::fsm::FiniteStateMachine &fsm);
         void transitionFailed(toolbox::Event::Reference event);
       };
-  }
-}
-#endif
+  }  // namespace gem::supervisor
+}  // namespace gem
+
+#endif  // GEM_SUPERVISOR_GEMGLIBSUPERVISORWEB_H

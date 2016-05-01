@@ -1,5 +1,5 @@
-#ifndef gemOnlineDQM_H
-#define gemOnlineDQM_H
+#ifndef GEM_READOUT_GEMONLINEDQM_H
+#define GEM_READOUT_GEMONLINEDQM_H
 
 #define NVFAT 24
 #define DEBUG_ 0
@@ -212,7 +212,7 @@ namespace gem {
           c->Print(prefix+hiBeamProfile->GetTitle()+".png","png");
         }
     };
-  }
-}
+  }  // namespace gem::readout
+}  // namespace gem
 
-#endif
+#endif  // GEM_READOUT_GEMONLINEDQM_H
