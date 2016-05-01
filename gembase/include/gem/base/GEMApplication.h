@@ -1,5 +1,5 @@
-#ifndef gem_base_GEMApplication_h
-#define gem_base_GEMApplication_h
+#ifndef GEM_BASE_GEMAPPLICATION_H
+#define GEM_BASE_GEMAPPLICATION_H
 
 #include <cstdlib>
 #include <limits>
@@ -8,9 +8,9 @@
 #include <deque>
 #include <map>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+#include "boost/algorithm/string.hpp"
+#include "boost/lexical_cast.hpp"
+#include "boost/format.hpp"
 
 #include "log4cplus/logger.h"
 
@@ -32,9 +32,8 @@
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/UnsignedInteger64.h"
 #include "xdata/String.h"
-#include "xdata/Float.h" 
-#include "xdata/Double.h" 
-#include "xdata/Boolean.h"
+#include "xdata/Float.h"
+#include "xdata/Double.h"
 #include "xdata/Vector.h"
 
 #include "toolbox/string.h"
@@ -66,7 +65,7 @@ namespace xgi {
 
 namespace gem {
   namespace base {
-    
+
     class GEMMonitor;
     class GEMFSMApplication;
     class GEMWebApplication;
@@ -91,22 +90,22 @@ namespace gem {
          * @brief
          **/
         std::string getFullURL();
-	
+
         ///**
         // * The init method is pure virtual in the base class, to ensure
         // * that it is fully implemented in every derived application,
         // * with a specific implementation
         // */
         //virtual void init() = 0;
-	
+
         /**
          * The actionPerformed method will have a default implementation here
-         * and can be further specified in derived applications, that will 
+         * and can be further specified in derived applications, that will
          * subsequently call gem::base::GEMApplication::actionPerformed(event)
          * to replicate the default behaviour
          **/
         virtual void actionPerformed(xdata::Event& event);
-	
+
         /**
          * @brief
          **/
@@ -127,11 +126,11 @@ namespace gem {
          **/
         void jsonUpdate(xgi::Input* in, xgi::Output* out);
 
-        // std::shared_ptr<utils::GEMInfoSpaceToolBox> getGEMISToolBox() { return p_infoSpaceToolBox;       };
+        // std::shared_ptr<utils::GEMInfoSpaceToolBox> getGEMISToolBox() { return p_infoSpaceToolBox; };
         /**
          * @brief
          **/
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppISToolBox() { return p_appInfoSpaceToolBox;     };
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> getAppISToolBox() { return p_appInfoSpaceToolBox; };
 
         /**
          * @brief
@@ -141,7 +140,7 @@ namespace gem {
         /**
          * @brief
          **/
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> getCfgISToolBox() { return p_configInfoSpaceToolBox;  };
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> getCfgISToolBox() { return p_configInfoSpaceToolBox; };
 
       protected:
         /**
@@ -152,14 +151,14 @@ namespace gem {
         /**
          * @brief
          **/
-        virtual GEMMonitor        *getMonitor() const { return p_gemMonitor;      };
+        virtual GEMMonitor        *getMonitor() const { return p_gemMonitor; };
 
         log4cplus::Logger m_gemLogger;
-        
+
         // std::shared_ptr<utils::GEMInfoSpaceToolBox> p_infoSpaceToolBox;
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appInfoSpaceToolBox;     ///< 
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_monitorInfoSpaceToolBox; ///< 
-        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_configInfoSpaceToolBox;  ///< 
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_appInfoSpaceToolBox;      ///<
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_monitorInfoSpaceToolBox;  ///<
+        std::shared_ptr<utils::GEMInfoSpaceToolBox> p_configInfoSpaceToolBox;   ///<
 
         xdata::InfoSpace *p_appInfoSpace;       /* generic application parameters */
         // maybe instead of multiple info spaces, use sets inside the infospace toolbox?
@@ -175,8 +174,8 @@ namespace gem {
         virtual void fillMonitoringInfoSpace();
         virtual void updateMonitoringInfoSpace();
 
-        GEMWebApplication *p_gemWebInterface; /* */
-        GEMMonitor        *p_gemMonitor;      /* */
+        GEMWebApplication *p_gemWebInterface;  /* */
+        GEMMonitor        *p_gemMonitor;       /* */
 
       public:
         // should these be protected?
@@ -190,20 +189,16 @@ namespace gem {
 
         std::string m_xmlClass;
         std::string m_urn;
-	
+
         uint32_t m_instance;
 
       protected:
         xdata::Integer64 m_runNumber;
-        
+
         xdata::String  m_runType;
         xdata::String  m_cfgType;
-                
-        //xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
-
       };
-    
-  } // namespace gem::base
-} // namespace gem
+  }  // namespace gem::base
+}  // namespace gem
 
-#endif
+#endif  // GEM_BASE_GEMAPPLICATION_H

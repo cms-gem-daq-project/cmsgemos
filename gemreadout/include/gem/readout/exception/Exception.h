@@ -1,5 +1,5 @@
-#ifndef gem_readout_exception_Exception_h
-#define gem_readout_exception_Exception_h
+#ifndef GEM_READOUT_EXCEPTION_EXCEPTION_H
+#define GEM_READOUT_EXCEPTION_EXCEPTION_H
 
 #include <string>
 
@@ -31,11 +31,11 @@
  EXCEPTION VAR( #EXCEPTION, MSG, __FILE__, __LINE__, __FUNCTION__, PREVIOUS)
 ***/
 
-#define GEM_READOUT_DEFINE_EXCEPTION(EXCEPTION_NAME)                      \
+#define GEM_READOUT_DEFINE_EXCEPTION(EXCEPTION_NAME)                    \
   namespace gem {                                                       \
-    namespace readout {                                                   \
+    namespace readout {                                                 \
       namespace exception {                                             \
-        class EXCEPTION_NAME : virtual public xcept::Exception		\
+        class EXCEPTION_NAME : virtual public xcept::Exception          \
           {                                                             \
           public :                                                      \
           EXCEPTION_NAME(std::string name,                              \
@@ -54,9 +54,9 @@
             xcept::Exception(name, message, module, line, function, err) \
               {};                                                       \
           };                                                            \
-      }                                                                 \
-    }                                                                   \
-  } 
+      }  /* namespace gem::readout::exception */                        \
+    }    /* namespace gem::readout            */                        \
+  }      /* namespace gem                     */
 
 // The gem::readout exceptions.
 GEM_READOUT_DEFINE_EXCEPTION(Exception)
@@ -80,4 +80,4 @@ GEM_READOUT_DEFINE_EXCEPTION(ValueError)
 #define GEM_READOUT_DEFINE_ALARM(ALARM_NAME) GEM_READOUT_DEFINE_EXCEPTION(ALARM_NAME)
 GEM_READOUT_DEFINE_ALARM(MonitoringFailureAlarm)
 
-#endif // gem_readout_exception_Exception_h
+#endif  // GEM_READOUT_EXCEPTION_EXCEPTION_H

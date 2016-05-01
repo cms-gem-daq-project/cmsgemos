@@ -1,5 +1,5 @@
-#ifndef gem_base_GEMFSM_h
-#define gem_base_GEMFSM_h
+#ifndef GEM_BASE_GEMFSM_H
+#define GEM_BASE_GEMFSM_H
 
 #include <map>
 #include <string>
@@ -9,7 +9,6 @@
 #include "toolbox/Event.h"
 #include "toolbox/fsm/FiniteStateMachine.h"
 #include "toolbox/lang/Class.h"
-#include "xcept/Exception.h"
 #include "xcept/Exception.h"
 #include "xoap/MessageReference.h"
 
@@ -28,26 +27,26 @@ namespace gem {
 
     class GEMWebApplication;
     class GEMFSMApplication;
-    
+
     class GEMFSM : virtual public toolbox::lang::Class
       {
         friend class GEMFSMApplication;
       public:
-        
+
         GEMFSM(GEMFSMApplication* const gemAppP);
 
         virtual ~GEMFSM();
-	
+
         /**
          * @brief
          */
         void fireEvent(::toolbox::Event::Reference const &event);
-	
+
         /**
          * @brief
          */
         xoap::MessageReference changeState(xoap::MessageReference msg);
-	
+
         /**
          * @brief
          */
@@ -57,7 +56,7 @@ namespace gem {
          * @brief
          */
         std::string getStateName(toolbox::fsm::State const& state) const;
-	
+
         /**
          * @brief
          */
@@ -84,12 +83,12 @@ namespace gem {
         //void stateChangedWithNotification(toolbox::fsm::FiniteStateMachine& fsm);
 
         //void stateChangedToFailedWithNotification(toolbox::fsm::FiniteStateMachine& fsm);
-	
+
         /**
          * @brief
          */
         void invalidAction(toolbox::Event::Reference event);
-	
+
       private:
         toolbox::fsm::AsynchronousFiniteStateMachine* p_gemfsm;
         xdata::InfoSpace *p_appInfoSpace;
@@ -102,8 +101,7 @@ namespace gem {
         log4cplus::Logger m_gemLogger;
         std::map<std::string, std::string> m_lookupMap;
       };
-    
-  } // namespace gem::base
-} // namespace gem
+  }  // namespace gem::base
+}  // namespace gem
 
-#endif
+#endif  // GEM_BASE_GEMFSM_H

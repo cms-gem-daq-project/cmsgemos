@@ -1,10 +1,11 @@
-#ifndef gem_base_utils_GEMInfoSpaceToolBox_h
-#define gem_base_utils_GEMInfoSpaceToolBox_h
+#ifndef GEM_BASE_UTILS_GEMINFOSPACETOOLBOX_H
+#define GEM_BASE_UTILS_GEMINFOSPACETOOLBOX_H
 
-//using the infospace toolbox defined in the TCDS code base
-#include <string>
+// using the infospace toolbox defined in the TCDS code base
 #include <memory>
+#include <string>
 #include <unordered_map>
+#include <utility>
 
 #include "xdata/InfoSpace.h"
 #include "xdata/InfoSpaceFactory.h"
@@ -18,19 +19,19 @@
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/UnsignedInteger64.h"
 #include "xdata/String.h"
-#include "xdata/Float.h" 
-#include "xdata/Double.h" 
+#include "xdata/Float.h"
+#include "xdata/Double.h"
 #include "xdata/Serializable.h"
 
 #include "gem/base/utils/exception/Exception.h"
 #include "gem/utils/GEMLogging.h"
 
 namespace gem {
-  
+
   namespace base {
     class GEMApplication;
-    //class GEMMonitor;
-    
+    // class GEMMonitor;
+
     namespace utils {
       class GEMInfoSpaceToolBox
       {
@@ -38,20 +39,20 @@ namespace gem {
         /**
          * ItemType controls the type of item to store in the info space
          */
-        enum ItemType { UINT8,    //!< Used for VFAT registers, 8-bits only
-                        UINT16,   //!< Used for certain VFAT registers, 16-bits only, e.g., ChipID
-                        UINT24,   //!< Used for certain VFAT registers, 24-bits only, e.g., HitCount
-                        UINT32,   //!< Generic 32-bit hardware register
-                        UINT64,   //!< Combines two 32-bit registers into a 64-bit value
-                        BOOL,     //!< boolean type
-                        INTEGER,  //!< integer type
-                        INTEGER32,//!< integer32 type
-                        INTEGER64,//!< integer64 type
-                        DOUBLE,   //!< double type
-                        STRING,   //!< string type
-                        INFOSPACE //!< embedded InfoSpace type
+        enum ItemType { UINT8,      //!< Used for VFAT registers, 8-bits only
+                        UINT16,     //!< Used for certain VFAT registers, 16-bits only, e.g., ChipID
+                        UINT24,     //!< Used for certain VFAT registers, 24-bits only, e.g., HitCount
+                        UINT32,     //!< Generic 32-bit hardware register
+                        UINT64,     //!< Combines two 32-bit registers into a 64-bit value
+                        BOOL,       //!< boolean type
+                        INTEGER,    //!< integer type
+                        INTEGER32,  //!< integer32 type
+                        INTEGER64,  //!< integer64 type
+                        DOUBLE,     //!< double type
+                        STRING,     //!< string type
+                        INFOSPACE   //!< embedded InfoSpace type
         };
-      
+
         /**
          * UpdateType controls the type of update to perform on the value stored in the info space
          */
@@ -65,7 +66,7 @@ namespace gem {
                           TRACKER,  //!< Copied from Ferol, not sure of the use case
                           NOUPDATE  //!< Value is not to be updated
         };
-      
+
         class GEMInfoSpaceItem
         {
           /**
@@ -79,16 +80,16 @@ namespace gem {
             m_format(format),
             m_docstring(docstring)
             {};
-          
+
           ~GEMInfoSpaceItem() {};
-          
+
           ItemType    m_itype;
           UpdateType  m_utype;
           std::string m_name;
           std::string m_format;
           std::string m_docstring;
         };
-      
+
         /**
          * Constructor from GEMApplication pointer, existing InfoSpace pointer, and GEMMonitor pointer
          * @param gemApp the pointer to the calling application
@@ -98,9 +99,9 @@ namespace gem {
          */
         GEMInfoSpaceToolBox(gem::base::GEMApplication* gemApp,
                             xdata::InfoSpace*          infoSpace,
-                            //gem::base::GEMMonitor*     gemMonitor,
+                            // gem::base::GEMMonitor*     gemMonitor,
                             bool                       autoPush);
-      
+
         /**
          * Constructor from GEMApplication pointer, name of InfoSpace to be created, and GEMMonitor pointer
          * @param gemApp the pointer to the calling application
@@ -110,12 +111,12 @@ namespace gem {
          */
         GEMInfoSpaceToolBox(gem::base::GEMApplication* gemApp,
                             std::string const&         infoSpaceName,
-                            //gem::base::GEMMonitor*     gemMonitor,
+                            // gem::base::GEMMonitor*     gemMonitor,
                             bool                       autoPush);
 
         ~GEMInfoSpaceToolBox();
 
-        //methods copied from tcds info space helper
+        // methods copied from tcds info space helper
         // adapted to take pointers that will update in the info space on callback changes (ParameterSet)
         bool createString(   std::string const& itemName, std::string const& value, xdata::String*            ptr=NULL,
                              UpdateType type=NOUPDATE, std::string const& docstring="docstring", std::string const& format="");
@@ -133,8 +134,8 @@ namespace gem {
                              UpdateType type=HW32,     std::string const& docstring="docstring", std::string const& format="hex");
         bool createUInt64(   std::string const& itemName, uint64_t    const& value, xdata::UnsignedInteger64* ptr=NULL,
                              UpdateType type=HW64,     std::string const& docstring="docstring", std::string const& format="hex");
-      
-        //methods copied from tcds info space helper
+
+        // methods copied from tcds info space helper
         /**
          * Gets the value of the monitored item in the infospace, does not require a toolbox instance
          * @param itemName is the name of the item in the infospace
@@ -147,8 +148,8 @@ namespace gem {
         int64_t     getInteger64(std::string const& itemName);
         uint32_t    getUInt32(   std::string const& itemName);
         uint64_t    getUInt64(   std::string const& itemName);
-      
-        //methods copied from tcds info space helper, static, for access without an instance
+
+        // methods copied from tcds info space helper, static, for access without an instance
         /**
          * Gets the value of the monitored item in the infospace, does not require a toolbox instance
          * @param infoSpace is the infospace in which the item is stored
@@ -162,8 +163,8 @@ namespace gem {
         static int64_t     getInteger64(xdata::InfoSpace* infoSpace, std::string const& itemName);
         static uint32_t    getUInt32(   xdata::InfoSpace* infoSpace, std::string const& itemName);
         static uint64_t    getUInt64(   xdata::InfoSpace* infoSpace, std::string const& itemName);
-      
-        //methods copied from tcds info space helper
+
+        // methods copied from tcds info space helper
 
         /**
          * Sets the value of the monitored item in the infospace
@@ -190,20 +191,20 @@ namespace gem {
          * @returns the item from the infospace according to the type and format specified
          */
         std::string getFormattedItem(std::string const& itemName, std::string const& format);
-        
+
         /**
          * Print the docstring associated with the infospace item
          * @param itemName is the name of the item in the info space
          * @returns the docstring associated with the info space item
          */
         std::string getItemDocstring(std::string const& itemName);
-        
+
         /**
          * Takes care of cleaning up the infospace after a reset
          * should empty all lists and maps of known items
          */
         void reset();
-        
+
       private:
         log4cplus::Logger m_gemLogger;
 
@@ -221,14 +222,14 @@ namespace gem {
 
       protected:
         gem::base::GEMApplication* p_gemApp;
-        //gem::base::GEMMonitor*     p_gemMonitor;
-        //std::shared_ptr<gem::base::GEMApplication> p_gemApp;
-        //std::shared_ptr<gem::base::GEMMonitor>     p_gemMonitor;
+        // gem::base::GEMMonitor*     p_gemMonitor;
+        // std::shared_ptr<gem::base::GEMApplication> p_gemApp;
+        // std::shared_ptr<gem::base::GEMMonitor>     p_gemMonitor;
         xdata::InfoSpace* p_infoSpace;
       };
-    
-    }//end namespace gem::base::utils
-  }//end namespace gem::base
-}//end namespace gem
 
-#endif 
+    }  // namespace gem::base::utils
+  }  // namespace gem::base
+}  // namespace gem
+
+#endif  // GEM_BASE_UTILS_GEMINFOSPACETOOLBOX_H
