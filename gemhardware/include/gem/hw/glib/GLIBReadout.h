@@ -1,9 +1,9 @@
-#ifndef gem_hw_glib_GLIBReadout_h
-#define gem_hw_glib_GLIBReadout_h
+#ifndef GEM_HW_GLIB_GLIBREADOUT_H
+#define GEM_HW_GLIB_GLIBREADOUT_H
 
-#include <gem/readout/GEMReadoutApplication.h>
-#include <gem/readout/GEMDataAMCformat.h>
-#include <gem/hw/glib/exception/Exception.h>
+#include "gem/readout/GEMReadoutApplication.h"
+#include "gem/readout/GEMDataAMCformat.h"
+#include "gem/hw/glib/exception/Exception.h"
 
 namespace gem {  
   namespace readout {
@@ -153,8 +153,9 @@ namespace gem {
           int m_sumVFAT;
       
           int16_t m_scanParam;
-        }; // end class GLIBReadout
-    } //end namespace gem::hw::glib
-  } //end namespace gem::hw
-} //end namespace gem
-#endif
+        };  // class GLIBReadout
+    }  // namespace gem::hw::glib
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_GLIB_GLIBREADOUT_H

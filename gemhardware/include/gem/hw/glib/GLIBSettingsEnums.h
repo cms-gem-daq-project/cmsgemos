@@ -1,5 +1,5 @@
-#ifndef gem_hw_glib_GLIBSettingsEnums_h
-#define gem_hw_glib_GLIBSettingsEnums_h
+#ifndef GEM_HW_GLIB_GLIBSETTINGSENUMS_H
+#define GEM_HW_GLIB_GLIBSETTINGSENUMS_H
 
 namespace gem {
   namespace hw {
@@ -76,11 +76,9 @@ namespace gem {
           } TTCEncoding;
         };
 	
-      }; //end class GLIBSettings
-      
-    }//end namespace gem::hw::glib
-    
-  }//end namespace gem::hw
+      };  // class GLIBSettings
+    }  // namespace gem::hw::glib
+  }  // namespace gem::hw
   
   //typedef the struct for access to the members via struct::VALUE
   typedef gem::hw::glib::GLIBLinkSettings::LinkBitMasks   GLIBLinkBitMasks;
@@ -90,6 +88,6 @@ namespace gem {
   typedef gem::hw::glib::GLIBSettings::RunMode::ERunMode          GLIBRunMode;
   typedef gem::hw::glib::GLIBSettings::TriggerMode::ETriggerMode  GLIBTrigMode;
   typedef gem::hw::glib::GLIBSettings::TTCEncoding::ETTCEncoding  GLIBTTCEncoding;
-}//end namespace gem
+}  // namespace gem
 
-#endif
+#endif  // GEM_HW_GLIB_GLIBSETTINGSENUMS_H

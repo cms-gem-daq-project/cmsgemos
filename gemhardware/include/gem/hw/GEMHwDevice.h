@@ -1,5 +1,5 @@
-#ifndef gem_hw_GEMHwDevice_h
-#define gem_hw_GEMHwDevice_h
+#ifndef GEM_HW_GEMHWDEVICE_H
+#define GEM_HW_GEMHWDEVICE_H
 
 #include <iomanip>
 
@@ -48,7 +48,7 @@ namespace uhal {
 
 namespace gem {
   namespace hw {
-    
+
     class GEMHwDevice
     {
 
@@ -73,14 +73,14 @@ namespace gem {
         uint32_t TRK_Errors  ;
         uint32_t TRG_Errors  ;
         uint32_t Data_Packets;
-        
-      OpticalLinkStatus() : 
+
+      OpticalLinkStatus() :
         TRK_Errors(0),TRG_Errors(0),Data_Packets(0) {};
         void reset() {
           TRK_Errors=0; TRG_Errors=0;Data_Packets=0;
           return; };
       } OpticalLinkStatus;
-	
+
       /**
        * @struct DeviceErrors
        * @brief This structure stores retrieved counters related to the IPBus transaction errors
@@ -102,12 +102,12 @@ namespace gem {
       DeviceErrors() : BadHeader(0),ReadError(0),Timeout(0),ControlHubErr(0) {};
         void reset() { BadHeader=0; ReadError=0; Timeout=0; ControlHubErr=0; return; };
       } DeviceErrors;
-	
+
       typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
       //typedef std::vector<linkStatus>                linkStatus;
 
       /**
-       * GEMHwDevice constructor 
+       * GEMHwDevice constructor
        * @param deviceName string to put into the logger
        */
       GEMHwDevice(std::string const& deviceName);
@@ -125,32 +125,32 @@ namespace gem {
       virtual ~GEMHwDevice();
 
       virtual bool isHwConnected() { return p_gemHW != 0; };
-	
+
       /**
        * Generic read/write functions or IPBus devices
-       * operation will be the same for the GLIB, MP7, VFAT2/3, 
+       * operation will be the same for the GLIB, MP7, VFAT2/3,
        * and AMC13 ( we should use the already defined AMC13, rather than write our own,
        * unless there are GEM specific functions we need to implement)
        */
 
       /**
        * readReg(std::string const& regName)
-       * @param regName name of the register to read 
+       * @param regName name of the register to read
        * @retval returns the 32 bit unsigned value in the register
        */
       uint32_t readReg( std::string const& regName);
 
       /**
        * readReg(uint32_t const& regAddr)
-       * @param regAddr address of the register to read 
+       * @param regAddr address of the register to read
        * @retval returns the 32 bit unsigned value in the register
        */
       uint32_t readReg( uint32_t const& regAddr);
 
       /**
        * readReg(uint32_t const& regAddr)
-       * @param regAddr address of the register to read 
-       * @param regMask mask of the register to read 
+       * @param regAddr address of the register to read
+       * @param regMask mask of the register to read
        * @retval returns the 32 bit unsigned value in the register
        */
       uint32_t readReg( uint32_t const& regAddr, uint32_t const& regMask);
@@ -198,14 +198,14 @@ namespace gem {
 
       /**
        * writeReg(std::string const& regName, uint32_t const val)
-       * @param regName name of the register to read 
+       * @param regName name of the register to read
        * @param val value to write to the register
        */
       void     writeReg( std::string const& regName, uint32_t const val);
 
       /**
        * writeReg(uint32_t const& regAddr, uint32_t const val)
-       * @param regAddr address of the register to read 
+       * @param regAddr address of the register to read
        * @param val value to write to the register
        */
       void     writeReg( uint32_t const& regAddr, uint32_t const val);
@@ -213,7 +213,7 @@ namespace gem {
       /**
        * writeReg(std::string const& regPrefux, std::string const& regName, uint32_t const val)
        * @param regPrefix prefix in the address table to the register
-       * @param regName name of the register to write to 
+       * @param regName name of the register to write to
        * @param val value to write to the register
        */
       void     writeReg( const std::string &regPrefix,
@@ -237,7 +237,7 @@ namespace gem {
        * @param regValue uint32_t value to write to the list of registers
        */
       void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue);
-	
+
       /**
        * zeroReg(std::string const& regName)
        * write zero to a single register
@@ -289,7 +289,7 @@ namespace gem {
        * @param regName block or memory to zero
        */
       void zeroBlock( std::string const& regName);
-      
+
       /**
        * readFIFO(std::string const& regName)
        * read from a FIFO
@@ -297,7 +297,7 @@ namespace gem {
        */
       std::vector<uint32_t> readFIFO( std::string const& regName);
       //size_t readFIFO( std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
-      
+
       /**
        * readFIFO(std::string const& regName, size_t const nWords)
        * read from a FIFO
@@ -307,7 +307,7 @@ namespace gem {
        */
       std::vector<uint32_t> readFIFO( std::string const& regName,
                                       size_t      const& nWords);
-      
+
       /**
        * writeFIFO(std::string const& regName, std::vector<uint32_t> const values)
        * write to a FIFO
@@ -316,7 +316,7 @@ namespace gem {
        */
       void writeFIFO(std::string           const& regName,
                      std::vector<uint32_t> const values);
-      
+
       /**
        * zeroFIFO( std::string const& regName)
        * reset a FIFO
@@ -359,31 +359,31 @@ namespace gem {
         m_controlHubPort = port; };
       void setIPBusPort(uint32_t const& port) {
         m_ipBusPort = port; };
-	
+
       uhal::HwInterface& getGEMHwInterface() const;
-	
+
       void updateErrorCounters(std::string const& errCode);
-	
+
       virtual std::string printErrorCounts() const;
 
       /**
        * @brief performs a general reset of the GLIB
        */
       virtual void generalReset();
-      
+
       /**
        * @brief performs a reset of the GLIB counters
        */
       virtual void counterReset();
-      
+
       /**
        * @brief performs a reset of the GLIB link
        * @param link is the link to perform the reset on
        */
       virtual void linkReset(uint8_t const& link);
-      
+
       DeviceErrors m_ipBusErrs;
-      
+
       bool b_is_connected;
 
       xdata::InfoSpace* getHwInfoSpace() { return p_hwCfgInfoSpace; };
@@ -395,12 +395,12 @@ namespace gem {
       xdata::InfoSpace *p_hwCfgInfoSpace;       /* Infospace for configuration values */
 
       log4cplus::Logger m_gemLogger;
-		
+
       mutable gem::utils::Lock m_hwLock;
-      
+
       void setParametersFromInfoSpace();
       void setup(std::string const& deviceName);
-      
+
     private:
       std::string m_controlHubIPAddress;
       std::string m_addressTable;
@@ -412,7 +412,7 @@ namespace gem {
 
       uint32_t m_controlHubPort;
       uint32_t m_ipBusPort;
-      
+
       //infospace im(ex)portables
       xdata::String xs_controlHubIPAddress;
       xdata::String xs_deviceIPAddress;
@@ -423,9 +423,10 @@ namespace gem {
       xdata::UnsignedInteger32 xs_ipBusPort;
 
       bool knownErrorCode(std::string const& errCode) const;
-	
-      //std::string registerToChar(uint32_t value) const;	
-    }; //end class GEMHwDevice
-  } //end namespace gem::hw
-} //end namespace gem
-#endif
+
+      //std::string registerToChar(uint32_t value) const;
+    };  // class GEMHwDevice
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_GEMHWDEVICE_H

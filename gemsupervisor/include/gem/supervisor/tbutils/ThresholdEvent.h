@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_tbutils_ThresholdEvent_h
-#define gem_supervisor_tbutils_ThresholdEvent_h
+#ifndef GEM_SUPERVISOR_TBUTILS_THRESHOLDEVENT_H
+#define GEM_SUPERVISOR_TBUTILS_THRESHOLDEVENT_H
 
 #include <iostream>
 #include <fstream>
@@ -16,24 +16,24 @@ namespace gem {
         uint64_t msData;  // ch65to128
         double    delVT;  // deviceVT2-deviceVT1, Threshold Scan needs
       };
-    
+
       struct VFATEvent {
-        uint16_t BC;      // 1010:4, BC:12 
+        uint16_t BC;      // 1010:4, BC:12
         uint16_t EC;      // 1100:4, EC:8, Flags:4
         uint32_t bxExp;   // :28
         uint16_t bxNum;   // :6, Sbit:6
         uint16_t ChipID;  // 1110, :12
         ChannelData data;
         uint16_t crc;     // :16
-      };    
-    
+      };
+
       struct GEMEvent {
         uint32_t header1;
         std::vector<VFATEvent> vfats;
         uint32_t trailer1;
       };
 
-      struct AppHeader {  
+      struct AppHeader {
         int minTh;
         int maxTh;
         int stepSize;
@@ -48,7 +48,7 @@ namespace gem {
         outf << ch.delVT << std::endl;
         outf.close();
         return(true);
-      };	  
+      };
 
       bool keepEvent(std::string file, int event, const VFATEvent& ev, const ChannelData& ch){
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -63,7 +63,7 @@ namespace gem {
         outf << std::hex << ev.crc << std::dec << std::endl;
         outf.close();
         return(true);
-      };	  
+      };
 
       bool keepAppHeader(std::string file, const AppHeader& ah){
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -73,9 +73,10 @@ namespace gem {
         outf << ah.stepSize << std::endl;
         outf.close();
         return(true);
-      };	  
+      };
 
-    } //end namespace gem::supervisor::tbutils
-  } //end namespace gem::supervisor
-} //end namespace gem
-#endif
+    }  // namespace gem::supervisor::tbutils
+  }  // namespace gem::supervisor
+}  // namespace gem
+
+#endif  // GEM_SUPERVISOR_TBUTILS_THRESHOLDEVENT_H

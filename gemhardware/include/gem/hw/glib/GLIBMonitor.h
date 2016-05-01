@@ -1,7 +1,7 @@
+#ifndef GEM_HW_GLIB_GLIBMONITOR_H
+#define GEM_HW_GLIB_GLIBMONITOR_H
 /** @file GLIBMonitor.h */ 
 
-#ifndef gem_hw_glib_GLIBMonitor_h
-#define gem_hw_glib_GLIBMonitor_h
 
 #include "gem/base/GEMMonitor.h"
 #include "gem/hw/glib/exception/Exception.h"
@@ -54,10 +54,10 @@ namespace gem {
         //  "V6_CPLD"
         //  "CPLD_LOCK"
           
-      }; // end class GLIBMonitor
+      };  // class GLIBMonitor
             
-    }// end namespace gem::hw::glib
-  }// end namespace gem::hw
-}// end namespace gem
+    }  // namespace gem::hw::glib
+  }  // namespace gem::hw
+}  // namespace gem
 
-#endif
+#endif  // GEM_HW_GLIB_GLIBMONITOR_H

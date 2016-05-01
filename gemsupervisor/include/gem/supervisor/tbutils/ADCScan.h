@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_tbutils_ADCScan_h
-#define gem_supervisor_tbutils_ADCScan_h
+#ifndef GEM_SUPERVISOR_TBUTILS_ADCSCAN_H
+#define GEM_SUPERVISOR_TBUTILS_ADCSCAN_H
 
 #include <map>
 #include <string>
@@ -208,7 +208,8 @@ namespace gem {
 	  
         };
 
-    } //end namespace gem::supervisor::tbutils
-  } //end namespace gem::supervisor
-} //end namespace gem
-#endif
+    }  // namespace gem::supervisor::tbutils
+  }  // namespace gem::supervisor
+}  // namespace gem
+
+#endif  // GEM_SUPERVISOR_TBUTILS_ADCSCAN_H
