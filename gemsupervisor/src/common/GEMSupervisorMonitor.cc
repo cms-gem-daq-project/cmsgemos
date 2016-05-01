@@ -3,7 +3,7 @@
  * description: Monitor application for GEMSupervisor application
  *              structure borrowed from TCDS core, with nods to HCAL and EMU code
  * author: J. Sturdy
- * date: 
+ * date:
  */
 
 #include "gem/supervisor/GEMSupervisorMonitor.h"
@@ -15,11 +15,12 @@ typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 gem::supervisor::GEMSupervisorMonitor::GEMSupervisorMonitor(GEMSupervisor* gemSupervisor) :
   GEMMonitor(gemSupervisor->getApplicationLogger(), static_cast<gem::base::GEMFSMApplication*>(gemSupervisor), 0)
 {
+  // default constructor
 }
 
 gem::supervisor::GEMSupervisorMonitor::~GEMSupervisorMonitor()
 {
-
+  // default destructor
 }
 
 void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
@@ -27,7 +28,7 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
   DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring");
   // create the values to be monitored in the info space
   addMonitorableSet("AppStates", "AppStateMonitoring");
-  // loop over all supervised applications and 
+  // loop over all supervised applications and
   std::vector<xdaq::ApplicationDescriptor*> managedApps =
     dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemApp)->getSupervisedAppDescriptors();
   for (auto managedApp = managedApps.begin(); managedApp != managedApps.end(); ++managedApp) {
@@ -64,7 +65,7 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
       try {
         xdata::InfoSpace* is = xdata::getInfoSpaceFactory()->get(monitem->second.regname);
         DEBUG("infospace: " << is->name() << " has item StateName " << is->hasItem("StateName"));
-        state = gem::base::utils::GEMInfoSpaceToolBox::getString(is,"StateName");
+        state = gem::base::utils::GEMInfoSpaceToolBox::getString(is, "StateName");
       } catch (xdata::exception::Exception const& err) {
         std::string msg = "Error trying to read from InfoSpace '" + monitem->second.regname + "' state " + state + ".";
         ERROR(msg << " " << err.what());
@@ -78,7 +79,7 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
       }
       DEBUG("GEMSupervisorMonitor::updating "
             << monitem->first << " with state " << state);
-      (monitem->second.infoSpace)->setString(monitem->first,state);
+      (monitem->second.infoSpace)->setString(monitem->first, state);
       DEBUG("GEMSupervisorMonitor::updating done!");
     }
   }
@@ -89,30 +90,30 @@ void gem::supervisor::GEMSupervisorMonitor::buildStateTable(xgi::Output* out)
   DEBUG("GEMSupervisorMonitor::buildStateTable");
   *out << "<table class=\"xdaq-table\">" << std::endl
        << cgicc::thead() << std::endl
-       << cgicc::tr()    << std::endl //open
+       << cgicc::tr()    << std::endl  // open
        << cgicc::th()    << "Application Class (local ID)" << cgicc::th() << std::endl
        << cgicc::th()    << "State" << cgicc::th() << std::endl
-       << cgicc::tr()    << std::endl //close
-       << cgicc::thead() << std::endl 
-    
+       << cgicc::tr()    << std::endl  // close
+       << cgicc::thead() << std::endl
+
        << "<tbody>" << std::endl;
-  
+
   for (auto monitem = m_monitorableSetsMap.find("AppStates")->second.begin();
        monitem != m_monitorableSetsMap.find("AppStates")->second.end(); ++monitem) {
     DEBUG("GEMSupervisorMonitor::buildStateTable " << monitem->first);
     *out << "<tr>"    << std::endl;
-    
+
     *out << "<td>"    << std::endl
          << cgicc::h3()
          << monitem->first
          << cgicc::h3()
          << "</td>"   << std::endl;
-    
+
     DEBUG(monitem->first << " formatted to "
-          << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+          << (monitem->second.infoSpace)->getFormattedItem(monitem->first, monitem->second.format));
     *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
          << cgicc::h3()
-         << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+         << (monitem->second.infoSpace)->getFormattedItem(monitem->first, monitem->second.format)
          << cgicc::h3()
          << "</td>"   << std::endl;
     *out << "</tr>"   << std::endl;
