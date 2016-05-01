@@ -44,4 +44,5 @@ namespace gem {
     };
   }  // namespace gem::hwMonitor
 }  // namespace gem
+
 #endif  // GEM_HWMONITOR_GEMCRATEMONITORBASE_H
