@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <xcept/Exception.h>
+#include "xcept/Exception.h"
 
 /***
  // Macros defined in xdaq code that are useful to remember
@@ -54,9 +54,9 @@
             xcept::Exception(name, message, module, line, function, err) \
               {};                                                       \
           };                                                            \
-      }                                                                 \
-    }                                                                   \
-  }
+      }  /* namespace gem::utils::exception */                          \
+    }  /* namespace gem::utils            */                            \
+  }  /* namespace gem                   */
 
 // The gem::utils exceptions.
 GEM_UTILS_DEFINE_EXCEPTION(Exception)
