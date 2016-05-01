@@ -9,7 +9,11 @@
 #include "toolbox/Event.h"
 #include "toolbox/fsm/FiniteStateMachine.h"
 #include "toolbox/lang/Class.h"
+
 #include "xcept/Exception.h"
+
+#include "xdata/String.h"
+
 #include "xoap/MessageReference.h"
 
 #include "gem/base/GEMState.h"
