@@ -1,13 +1,13 @@
-#ifndef gem_readout_GEMDataAMCformat_h
-#define gem_readout_GEMDataAMCformat_h
-
-#include "gem/readout/GEMslotContents.h"
+#ifndef GEM_READOUT_GEMDATAAMCFORMAT_H
+#define GEM_READOUT_GEMDATAAMCFORMAT_H
 
 #include <iostream>
 #include <iomanip> 
 #include <fstream>
 #include <string>
 #include <vector>
+
+#include "gem/readout/GEMslotContents.h"
 
 namespace gem {
   namespace readout {
@@ -494,10 +494,11 @@ namespace gem {
         outf.close();
         return true;
       };	  
-    }; /// end struct GEMDataAMCformat
-  } //end namespace gem::readout
+    };  // struct GEMDataAMCformat
+  }  // namespace gem::readout
   typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
   typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
   typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
-} //end namespace gem
-#endif
+}  // namespace gem
+
+#endif  // GEM_READOUT_GEMDATAAMCFORMAT_H
