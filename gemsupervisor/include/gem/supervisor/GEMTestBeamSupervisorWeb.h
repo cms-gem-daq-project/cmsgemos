@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_GEMTestBeamSupervisorWeb_h
-#define gem_supervisor_GEMTestBeamSupervisorWeb_h
+#ifndef GEM_SUPERVISOR_GEMTESTBEAMSUPERVISORWEB_H
+#define GEM_SUPERVISOR_GEMTESTBEAMSUPERVISORWEB_H
 
 #include "xdaq/Application.h"
 #include "xdaq/WebApplication.h"
@@ -18,15 +18,15 @@ typedef uhal::exception::exception uhalException;
 
 namespace gem {
   namespace supervisor {
-  
+
     class GEMTestBeamSupervisorWeb: public xdaq::WebApplication, public xdata::ActionListener
       {
       public:
         XDAQ_INSTANTIATOR();
-      
+
         GEMTestBeamSupervisorWeb(xdaq::ApplicationStub * s)
           throw (xdaq::exception::Exception);
-      
+
         void Default(xgi::Input * in, xgi::Output * out )
           throw (xgi::exception::Exception);
         void controlPanel(xgi::Input * in, xgi::Output * out )
@@ -41,7 +41,7 @@ namespace gem {
           throw (xgi::exception::Exception);
         void daqWeb(xgi::Input * in, xgi::Output * out )
           throw (xgi::exception::Exception);
-	
+
         void setParameter(xgi::Input * in, xgi::Output * out)
           throw (xgi::exception::Exception);
         void writeVFATRegs(xgi::Input * in, xgi::Output * out)
@@ -59,7 +59,7 @@ namespace gem {
         void actionPerformed(xdata::Event& event);
 
         std::vector<std::string>                 vfatNodes;
-	
+
       protected:
 
         std::map<std::string,xdata::UnsignedInteger32> xreg_map;
@@ -142,12 +142,13 @@ namespace gem {
 
         uhal::ValWord< uint32_t > r_sram1;
         uhal::ValWord< uint32_t > r_sram2;
-        uhal::ValWord< uint32_t > r_icap;                 
+        uhal::ValWord< uint32_t > r_icap;
 
         std::vector<uhal::ValWord< uint32_t> > r_users;
         std::map<std::string,uhal::ValWord< uint32_t> > r_vfats;
-	
+
       };
-  }
-}
-#endif
+  }  // namespace gem::supervisor
+}  // namespace gem
+
+#endif  // GEM_SUPERVISOR_GEMTESTBEAMSUPERVISORWEB_H

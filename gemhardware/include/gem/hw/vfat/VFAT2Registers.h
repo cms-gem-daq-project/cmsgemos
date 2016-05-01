@@ -1,5 +1,5 @@
-#ifndef gem_hw_vfat_VFAT2Registers_h
-#define gem_hw_vfat_VFAT2Registers_h
+#ifndef GEM_HW_VFAT_VFAT2REGISTERS_H
+#define GEM_HW_VFAT_VFAT2REGISTERS_H
 
 namespace gem {
   namespace hw {
@@ -37,17 +37,17 @@ namespace gem {
           POSITIVE = 0x0, //positive I/P signal (default)
           NEGATIVE = 0x1  //negative I/P signal
         }
-	
+
         enum CalPolarity { //Calibration pulse polarity, to match with the polarity of the input signal
           POSITIVE = 0x0,  //positive I/P signal (default)
           NEGATIVE = 0x1   //negative I/P signal
         }
-	
+
         enum LVDSPowerSave { //Enables power saving for unused LVDA sector drivers
           ENABLEALL = 0x0,   //Enable all sector LVDS drivers (default)
           POWERSAVE = 0x1    //Enable only sector LVDS drivers needed (save power)
         }
-	
+
         enum DACMode {     //Controls DAC selecton for DCU monitoring
           NORMAL    = 0x0, //DACo-V "low",          DACo-I "Hi Z", normal running (default)
           IPREIN    = 0x1, //IPreampIn to DACo-I,   DACo-V "low"
@@ -96,38 +96,35 @@ namespace gem {
           CLOCK7 = 0x6,      //pulse length is 7 clock period
           CLOCK8 = 0x7,      //pulse length is 8 clock period
         }
-	
+
         enum ReHitCT {  //The cycle time (or number of bits) for the Hit counter
           CYCLE0 = 0x0, //
           CYCLE1 = 0x1, //
           CYCLE2 = 0x2, //
           CYCLE3 = 0x3  //
         }
-	
+
         enum DigInSel {  //Selects the input via the digital input pads (bypass of the analog frontend)
           ANALOG  = 0x0, //default is analog pads
           DIGITAL = 0x1  //bypass the analog pads
         }
-	
+
         enum TrimDACRange { //Adjusts the range of the TrimDACs
           DEFAULT = 0x0,    //default value is 0
         }
-	
+
         enum PbBG {          //Enables pad access to the bandgap output
           UNCONNECTED = 0x0, //default is disconnected
           CONNECTED   = 0x1  //pad connected
         }
-	
+
         enum DFTestPattern { //Predefined data packet is sent to the DataOut without need for an input signal or trigger
           IDLE = 0x0,        //Normal mode, sit idle
           SEND = 0x1         //Send the packet
         }
-      }; //end class VFAT2Registers
+      };  // class VFAT2Registers
+    }  // namespace gem::hw::vfat
+  }  // namespace gem::hw
+}  // namespace gem
 
-    }//end namespace gem::hw::vfat
-
-  }//end namespace gem::hw
-
-}//end namespace gem
-
-#endif
+#endif  // GEM_HW_VFAT_VFAT2REGISTERS_H

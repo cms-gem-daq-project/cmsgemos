@@ -1,5 +1,5 @@
-#ifndef gem_hw_vfat_VFAT2Settings_h
-#define gem_hw_vfat_VFAT2Settings_h
+#ifndef GEM_HW_VFAT_VFAT2SETTINGS_H
+#define GEM_HW_VFAT_VFAT2SETTINGS_H
 
 #include "gem/hw/vfat/VFAT2SettingsEnums.h"
 #include "gem/hw/vfat/VFAT2Enums2Strings.h"
@@ -18,9 +18,9 @@ namespace gem {
         bool    mask;
         bool    calPulse;
         bool    calPulse0;
-	
+
       } VFAT2ChannelParams;
-      
+
       inline std::ostream& operator<<(std::ostream& os, const VFAT2ChannelParams& chanParams)
       {
         // write obj to stream
@@ -32,7 +32,7 @@ namespace gem {
            << std::endl;
         return os;
       };
-      
+
       //class VFAT2Settings;
 
       typedef struct {
@@ -42,7 +42,7 @@ namespace gem {
           VFAT2Settings::MSPolarity::EMSPolarity           msPol;
           VFAT2Settings::CalPolarity::ECalPolarity         calPol;
           VFAT2Settings::CalibrationMode::ECalibrationMode calibMode;
-	
+
           VFAT2Settings::DACMode::EDACMode             dacMode;
           VFAT2Settings::ProbeMode::EProbeMode         probeMode;
           VFAT2Settings::LVDSPowerSave::ELVDSPowerSave lvdsMode;
@@ -61,7 +61,7 @@ namespace gem {
         VFAT2MSPol     msPol;
         VFAT2CalPol    calPol;
         VFAT2CalibMode calibMode;
-	
+
         VFAT2DACMode   dacMode;
         VFAT2ProbeMode probeMode;
         VFAT2LVDSMode  lvdsMode;
@@ -74,13 +74,13 @@ namespace gem {
         VFAT2TrimDACRange  trimDACRange;
         VFAT2PadBandgap    padBandGap;
         VFAT2DFTestPattern sendTestPattern;
-	
+
         //any reason not to include these too???
         uint8_t control0;
         uint8_t control1;
         uint8_t control2;
         uint8_t control3;
-	
+
         uint8_t latency;
 
         uint8_t iPreampIn;
@@ -94,12 +94,12 @@ namespace gem {
         uint8_t vThresh1;
         uint8_t vThresh2;
         uint8_t calPhase;
-	
+
         //counters
         uint16_t chipID;
         uint8_t  upsetCounter;
         uint32_t hitCounter;
-	
+
         gem::hw::vfat::VFAT2ChannelParams channels[128];
         uint8_t activeChannel;
 
@@ -124,7 +124,7 @@ namespace gem {
         os <<RunModeToString.at(controlParams.runMode)
            <<(unsigned)(controlParams.runMode)
            <<">"<< std::endl;
-	
+
         os << "CR1::0x"<<std::hex<<(unsigned)controlParams.control1<<std::dec<<"<";
         os <<ReHitCTToString.at(controlParams.reHitCT)
            <<(unsigned)(controlParams.reHitCT)
@@ -138,7 +138,7 @@ namespace gem {
         os <<DACModeToString.at(controlParams.dacMode)
            <<(unsigned)(controlParams.dacMode)
            <<">"<< std::endl;
-	  
+
         os << "CR2::0x"<<std::hex<<(unsigned)controlParams.control2<<std::dec<<"<";
         os <<DigInSelToString.at(controlParams.digInSel)
            <<(unsigned)(controlParams.digInSel)
@@ -149,7 +149,7 @@ namespace gem {
         os <<HitCountModeToString.at(controlParams.hitCountMode)
            <<(unsigned)(controlParams.hitCountMode)
            <<">"<< std::endl;
-	  
+
         os << "CR3::0x"<<std::hex<<(unsigned)controlParams.control3<<std::dec<<"<";
         os <<DFTestPatternToString.at(controlParams.sendTestPattern)
            <<(unsigned)(controlParams.sendTestPattern)
@@ -160,40 +160,40 @@ namespace gem {
         os <<TrimDACRangeToString.at(controlParams.trimDACRange)
            <<(unsigned)(controlParams.trimDACRange)
            <<">"<< std::endl;
-	
+
         os << "Latency::0x"<<std::hex<<(unsigned)controlParams.latency<<std::dec<<std::endl;
-	
+
         os << "IPreampIn::0x"<<std::hex<<(unsigned)controlParams.iPreampIn<<std::dec<<std::endl;
         os << "IPreampFeed::0x"<<std::hex<<(unsigned)controlParams.iPreampFeed<<std::dec<<std::endl;
         os << "IPreampOut::0x"<<std::hex<<(unsigned)controlParams.iPreampOut<<std::dec<<std::endl;
-	
+
         os << "IShaper::0x"<<std::hex<<(unsigned)controlParams.iShaper<<std::dec<<std::endl;
         os << "IShaperFeed::0x"<<std::hex<<(unsigned)controlParams.iShaperFeed<<std::dec<<std::endl;
-	
+
         os << "IComp::0x"<<std::hex<<(unsigned)controlParams.iComp<<std::dec<<std::endl;
-	
+
         os << "VCal::0x"<<std::hex<<(unsigned)controlParams.vCal<<std::dec<<std::endl;
-	
+
         os << "VThreshold1::0x"<<std::hex<<(unsigned)controlParams.vThresh1<<std::dec<<std::endl;
         os << "VThreshold2::0x"<<std::hex<<(unsigned)controlParams.vThresh2<<std::dec<<std::endl;
-	
+
         os << "CalPhase::0x"<<std::hex<<(unsigned)controlParams.calPhase<<std::dec<<std::endl;
-	
+
         os << "ChipID::0x"<<std::hex<<(unsigned)controlParams.chipID<<std::dec<<std::endl;
         os << "UpsetCounter::0x"<<std::hex<<(unsigned)controlParams.upsetCounter<<std::dec<<std::endl;
         os << "HitCounter::0x"<<std::hex<<(unsigned)controlParams.hitCounter<<std::dec<<std::endl;
-	
+
         for (uint8_t chan = 1; chan < 129; ++chan)
           os << "Channel" << (unsigned)chan << "::" << controlParams.channels[chan-1];
-	  
+
         os << "active display channel: "<<(unsigned)controlParams.activeChannel<<std::endl;;
-	
+
         return os;
       };
 
       class VFAT2Setttings
       {
-	
+
       public:
         void registerFields(xdata::Bag<VFAT2Settings> *vfatbag);
         void readSettingsFromXML(std::string const& xmlSettings);
@@ -219,13 +219,11 @@ namespace gem {
         xdata::UnsignedShort calPhase_;
 
         xdata::Vector<xdata::UnsignedShort> channelParams_;
-	
-      };
-      
-    }//end namespace gem::hw::vfat
-    
-  }//end namespace gem::hw
-  
-}//end namespace gem
 
-#endif
+      };
+
+    }  // namespace gem::hw::vfat
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_VFAT_VFAT2SETTINGS_H

@@ -1,5 +1,5 @@
-#ifndef gem_hw_amc13_AMC13Manager_h
-#define gem_hw_amc13_AMC13Manager_h
+#ifndef GEM_HW_AMC13_AMC13MANAGER_H
+#define GEM_HW_AMC13_AMC13MANAGER_H
 
 //copying general structure of the HCAL DTCManager (HCAL name for AMC13)
 #include "uhal/uhal.hpp"
@@ -128,10 +128,10 @@ namespace gem {
 
         protected:
 	  
-        }; //end class AMC13Manager
+        };  // class AMC13Manager
 
-    }//end namespace gem::hw::amc13
-  }//end namespace gem::hw
-}//end namespace gem
+    }  // namespace gem::hw::amc13
+  }  // namespace gem::hw
+}  // namespace gem
 
-#endif
+#endif  // GEM_HW_AMC13_AMC13MANAGER_H

@@ -1,5 +1,5 @@
-#ifndef gem_hw_vfat_VFAT2Manager_h
-#define gem_hw_vfat_VFAT2Manager_h
+#ifndef GEM_HW_VFAT_VFAT2MANAGER_H
+#define GEM_HW_VFAT_VFAT2MANAGER_H
 
 #include <string>
 
@@ -32,20 +32,20 @@ namespace gem {
     class GEMFSMApplication;
     class GEMWebApplication;
   }
-  
+
   namespace hw {
     namespace vfat {
       class HwVFAT2;
-      
+
       typedef std::shared_ptr<HwVFAT2>  vfat_shared_ptr;
 
       //class VFAT2Manager: public gem::base::GEMWebApplication, public gem::base::GEMFSMApplication
       class VFAT2Manager: public xdaq::WebApplication, public xdata::ActionListener
         {
-	  
+
         public:
           XDAQ_INSTANTIATOR();
-	  
+
           VFAT2Manager(xdaq::ApplicationStub * s)
             throw (xdaq::exception::Exception);
 
@@ -53,7 +53,7 @@ namespace gem {
 
 	  virtual xoap::MessageReference onMessage(xoap::MessageReference message)
 	    throw (xoap::exception::Exception);
-	  
+
           void Default(xgi::Input *in, xgi::Output *out )
             throw (xgi::exception::Exception);
           void RegisterView(xgi::Input *in, xgi::Output *out )
@@ -66,26 +66,26 @@ namespace gem {
             throw (xgi::exception::Exception);
           void controlVFAT2(xgi::Input * in, xgi::Output * out)
             throw (xgi::exception::Exception);
-	  
+
           void getCheckedRegisters(cgicc::Cgicc cgi, std::vector<std::pair<std::string,uint8_t> > &regValsToSet)
             throw (xgi::exception::Exception);
           void performAction(cgicc::Cgicc cgi, std::vector<std::pair<std::string,uint8_t> > regValsToSet)
             throw (xgi::exception::Exception);
-	  
+
           //void readCounters(  xgi::Input *in)
           //  throw (xgi::exception::Exception);
           //void readRegisters (xgi::Input *in)
           //  throw (xgi::exception::Exception);
           //void writeRegisters(xgi::Input *in)
           //  throw (xgi::exception::Exception);
-	  
+
           void actionPerformed(xdata::Event& event);
 
           vfat_shared_ptr p_vfatDevice;
 
           void readVFAT2Registers(VFAT2ControlParams& params);
           //void readVFAT2Registers();
-	  
+
           std::map<std::string,uint32_t> m_vfatFullRegs;
           std::map<std::string,uint8_t>  m_vfatRegs;
           VFAT2ControlParams             m_vfatParams;
@@ -107,16 +107,16 @@ namespace gem {
            * it need only be a uint12_t
            **/
           std::map<std::string, uint16_t> m_systemMap;
-	  
+
           //xdata::UnsignedLong myParameter_;
           xdata::String m_device;
           xdata::String m_ipAddr;
           xdata::String m_settingsFile;
-	  
+
           class VFAT2ControlPanelWeb {
           public:
             static void createHeader(xgi::Output *out );
-	      
+
             static void createVFATInfoLayout(       xgi::Output *out,
                                                     const VFAT2ControlParams params);
             static void createControlRegisterLayout(xgi::Output *out,
@@ -129,19 +129,16 @@ namespace gem {
                                                     const VFAT2ControlParams params);
             static void createCommandLayout(        xgi::Output *out,
                                                     const VFAT2ControlParams params);
-	      
+
             static void getCurrentParametersAsXML();
             static void saveCurrentParametersAsXML();
             static void setParametersByXML();
-	      
-	      
-          };//end class VFAT2ControlPanelWeb
-        }; //end class VFAT2Manager
 
-    }//end namespace gem::hw::vfat
-    
-  }//end namespace gem::hw
-  
-}//end namespace gem
 
-#endif
+          };  // class VFAT2ControlPanelWeb
+        };  // class VFAT2Manager
+    }  // namespace gem::hw::vfat
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_VFAT_VFAT2MANAGER_H

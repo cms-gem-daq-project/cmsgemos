@@ -1,5 +1,5 @@
-#ifndef gem_hw_optohybrid_OptoHybridSettingsEnums_h
-#define gem_hw_optohybrid_OptoHybridSettingsEnums_h
+#ifndef GEM_HW_OPTOHYBRID_OPTOHYBRIDSETTINGSENUMS_H
+#define GEM_HW_OPTOHYBRID_OPTOHYBRIDSETTINGSENUMS_H
 
 namespace gem {
   namespace hw {
@@ -70,7 +70,7 @@ namespace gem {
             ALL      = 0x4, //Use all sources of triggers
           } TriggerMode;
         };
-	
+
         struct L1ACountMode { //L1A mode count settings
           enum EL1ACountMode { //L1A mode count settings
             EXTERNAL = 0x0, //Count the triggers coming from the LEMO connector
@@ -79,7 +79,7 @@ namespace gem {
             TOTAL    = 0x3, //Count triggers from all sources
           } L1ACountMode;
         };
-	
+
         struct CalPulseCountMode { //CalPulse mode settings
           enum ECalPulseCountMode { //CalPulse mode settings
             EXTERNAL = 0x0, //Take the triggers coming from the GLIB
@@ -88,21 +88,19 @@ namespace gem {
             TOTAL    = 0x3, //Use all sources of triggers
           } CalPulseCountMode;
         };
-	
-      }; //end class OptoHybridSettings
-      
-    }//end namespace gem::hw::optohybrid
-    
-  }//end namespace gem::hw
-  
-}//end namespace gem
 
-//typedef the struct for access to the members via struct::VALUE
-typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitMasks   OptoHybridLinkBitMasks;
-typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitShifts  OptoHybridLinkBitShifts;
+      };  // class OptoHybridSettings
+    }  // namespace gem::hw::optohybrid
+  }  // namespace gem::hw
 
-//typedef the enum for casting and access
-typedef gem::hw::optohybrid::OptoHybridSettings::RunMode::ERunMode                 OptoHybridRunMode;
-typedef gem::hw::optohybrid::OptoHybridSettings::TriggerMode::ETriggerMode         OptoHybridTrigMode;
+  //typedef the struct for access to the members via struct::VALUE
+  typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitMasks   OptoHybridLinkBitMasks;
+  typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitShifts  OptoHybridLinkBitShifts;
 
-#endif
+  //typedef the enum for casting and access
+  typedef gem::hw::optohybrid::OptoHybridSettings::RunMode::ERunMode         OptoHybridRunMode;
+  typedef gem::hw::optohybrid::OptoHybridSettings::TriggerMode::ETriggerMode OptoHybridTrigMode;
+
+}  // namespace gem
+
+#endif  // GEM_HW_OPTOHYBRID_OPTOHYBRIDSETTINGSENUMS_H
