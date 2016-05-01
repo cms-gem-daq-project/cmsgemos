@@ -1,5 +1,8 @@
-#ifndef gem_supervisor_GEMSupervisor_h
-#define gem_supervisor_GEMSupervisor_h
+#ifndef GEM_SUPERVISOR_GEMSUPERVISOR_H
+#define GEM_SUPERVISOR_GEMSUPERVISOR_H
+
+#include <string>
+#include <vector>
 
 #include "uhal/uhal.hpp"
 
@@ -15,13 +18,12 @@
 
 namespace gem {
   namespace supervisor {
-    
+
     class GEMSupervisorWeb;
     class GEMSupervisorMonitor;
-    
+
     class GEMSupervisor : public gem::base::GEMFSMApplication
       {
-
         friend class GEMSupervisorWeb;
         friend class GEMSupervisorMonitor;
 
@@ -31,7 +33,7 @@ namespace gem {
         GEMSupervisor(xdaq::ApplicationStub* s);
 
         virtual ~GEMSupervisor();
-      
+
         virtual void init();
 
         virtual void actionPerformed(xdata::Event& event);
@@ -40,7 +42,7 @@ namespace gem {
         /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */
         /* virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl); */
 
-        //state transitions
+        // state transitions
         virtual void initializeAction() throw (gem::supervisor::exception::Exception);
         virtual void configureAction()  throw (gem::supervisor::exception::Exception);
         virtual void startAction()      throw (gem::supervisor::exception::Exception);
@@ -49,17 +51,17 @@ namespace gem {
         virtual void stopAction()       throw (gem::supervisor::exception::Exception);
         virtual void haltAction()       throw (gem::supervisor::exception::Exception);
         virtual void resetAction()      throw (gem::supervisor::exception::Exception);
-        //virtual void noAction()         throw (gem::supervisor::exception::Exception); 
-      
+        // virtual void noAction()         throw (gem::supervisor::exception::Exception);
+
         virtual void failAction(toolbox::Event::Reference e)
-          throw (toolbox::fsm::exception::Exception); 
-      
+          throw (toolbox::fsm::exception::Exception);
+
         virtual void resetAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
-        
+
         std::vector<xdaq::ApplicationDescriptor*> getSupervisedAppDescriptors() {
           return v_supervisedApps; };
-        
+
         friend class gem::supervisor::GEMGlobalState;
 
         /* getCurrentState
@@ -109,7 +111,7 @@ namespace gem {
          */
         void sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad)
           throw (gem::supervisor::exception::Exception);
-        
+
         /**
          * @param runNumber is the run number
          * @param ad is the application descriptor to send the SOAP message to
@@ -117,19 +119,20 @@ namespace gem {
          */
         void sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad)
           throw (gem::supervisor::exception::Exception);
-        
+
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
-        
+
         mutable gem::utils::Lock m_deviceLock;
         std::vector<xdaq::ApplicationDescriptor*> v_supervisedApps;
         xdaq::ApplicationDescriptor* readoutApp;
 
         GEMGlobalState m_globalState;
-        
+
         xdata::Boolean             m_reportToRCMS;
         xdata::String              m_rcmsStateListenerUrl;
         xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
       };
-  } //end namespace supervisor
-} //end namespace gem
-#endif
+  }  // namespace gem::supervisor
+}  // namespace gem
+
+#endif  // GEM_SUPERVISOR_GEMSUPERVISOR_H

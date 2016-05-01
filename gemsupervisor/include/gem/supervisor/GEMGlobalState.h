@@ -1,6 +1,7 @@
-#ifndef gem_supervisor_GEMGlobalState_h
-#define gem_supervisor_GEMGlobalState_h
+#ifndef GEM_SUPERVISOR_GEMGLOBALSTATE_H
+#define GEM_SUPERVISOR_GEMGLOBALSTATE_H
 
+#include <map>
 #include <string>
 #include <memory>
 
@@ -22,7 +23,7 @@ namespace gem {
 
     class GEMSupervisor;
     class GEMGlobalState;
-    
+
     struct GEMApplicationState {
       GEMApplicationState();
       toolbox::fsm::State state;
@@ -30,7 +31,7 @@ namespace gem {
       double progressWeight;
       std::string stateMessage;
       bool isGEMNative;
-      
+
     private:
       friend class GEMGlobalState;
       xoap::MessageReference updateMsg;
@@ -61,8 +62,8 @@ namespace gem {
     class GEMGlobalState : public toolbox::task::TimerListener
       {
       public:
-        //static const toolbox::fsm::State STATE_NULL = 0;
-      
+        // static const toolbox::fsm::State STATE_NULL = 0;
+
         GEMGlobalState(xdaq::ApplicationContext* context, GEMSupervisor* gemSupervisor);
 
         virtual ~GEMGlobalState();
@@ -103,7 +104,7 @@ namespace gem {
          * @returns a list of the failed applications
          */
         std::string getFailedApplicationList() const;
-      
+
         /**
          * Inherited from TimerListener, must be implemented
          * @param event
@@ -115,12 +116,12 @@ namespace gem {
         static int getStatePriority(toolbox::fsm::State state);
 
       protected:
-        typedef std::map<xdaq::ApplicationDescriptor*,GEMApplicationState> ApplicationMap;
+        typedef std::map<xdaq::ApplicationDescriptor*, GEMApplicationState> ApplicationMap;
         typedef ApplicationMap::const_iterator app_state_const_iterator;
-        
+
         app_state_const_iterator begin() const { return m_states.begin(); }
         app_state_const_iterator end()   const { return m_states.end();   }
-      
+
       private:
         /**
          * @brief updates the stored application state
@@ -132,9 +133,9 @@ namespace gem {
          * @brief updates the global state based on the individual states of the managed applications
          */
         void calculateGlobals();
-      
-        //std::shared_ptr<toolbox::task::Timer> p_timer;
-        //std::shared_ptr<GEMSupervisor>        p_gemSupervisor;
+
+        // std::shared_ptr<toolbox::task::Timer> p_timer;
+        // std::shared_ptr<GEMSupervisor>        p_gemSupervisor;
         toolbox::task::Timer* p_timer;
         GEMSupervisor*        p_gemSupervisor;
 
@@ -147,6 +148,7 @@ namespace gem {
         log4cplus::Logger m_gemLogger;
         mutable gem::utils::Lock m_mutex;
       };
-  } //end namespace supervisor
-} //end namespace gem
-#endif
+  }  // namespace supervisor
+}  // namespace gem
+
+#endif  // GEM_SUPERVISOR_GEMGLOBALSTATE_H
