@@ -101,11 +101,6 @@ if options.gemttc in [0,1]:
 print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
 print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
 
-if options.gemttc in [0,1]:
-        writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
-print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
-print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
-
 NGTX = 2
 print "--=======================================--"
 print "-> DAQ GTX INFO"
