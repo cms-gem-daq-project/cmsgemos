@@ -370,4 +370,5 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
       p_amc13->sendL1ABurst();
     }
 
+  return msg;
 }
