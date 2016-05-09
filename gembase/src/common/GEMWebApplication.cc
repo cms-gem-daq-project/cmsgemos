@@ -96,20 +96,23 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
   if (p_gemFSMApp) {
     std::string classname = p_gemFSMApp->getApplicationDescriptor()->getClassName();
     classname = classname.erase(0, classname.rfind(":")+1);
-    *out << "<div class=\"xdaq-tab\" title=\""
+    *out << "  <div class=\"xdaq-tab\" title=\""
          << classname
          << " Control Panel\" >"  << std::endl;
     controlPanel(in, out);
-    *out << "</div>" << std::endl;
+    *out << "  </div>" << std::endl;
   }
 
-  *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
+  *out << "  <div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
   this->monitorPage(in, out);
-  *out << "</div>" << std::endl;
+  *out << "  </div>" << std::endl;
 
-  *out << "<div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
+  *out << "  <div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
   this->expertPage(in, out);
-  *out << "</div>" << std::endl;
+  *out << "  </div>" << std::endl;
+  
+  // add possibility for the derived class to put another tab here?
+  this->applicationPage(in, out);
 
   *out << " <div class=\"gem-push\"></div>" << std::endl;
 
@@ -256,6 +259,14 @@ void gem::base::GEMWebApplication::expertPage(xgi::Input * in, xgi::Output * out
   *out << "expertPage</br>" << std::endl;
 }
 
+/*To be filled in with the application page code
+void gem::base::GEMWebApplication::applicationPage(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  DEBUG("GEMWebApplication::applicationPage");
+  *out << "applicationPage</br>" << std::endl;
+}
+*/
 /*To be filled in with the json update code*/
 /*
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
