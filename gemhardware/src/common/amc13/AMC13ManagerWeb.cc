@@ -159,3 +159,9 @@ void gem::hw::amc13::AMC13ManagerWeb::expertPage(xgi::Input * in, xgi::Output * 
        << cgicc::section()  << std::endl;
 }
 
+void gem::hw::amc13::AMC13ManagerWeb::applicationPage(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  DEBUG("AMC13ManagerWeb::applicationPage");
+  *out << "applicationPage</br>" << std::endl;
+}

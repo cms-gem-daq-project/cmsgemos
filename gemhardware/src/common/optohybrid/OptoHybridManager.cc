@@ -6,11 +6,13 @@
  * date: 
  */
 
-#include "gem/hw/optohybrid/OptoHybridManagerWeb.h"
 #include "gem/hw/optohybrid/OptoHybridManager.h"
 
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
-//#include "gem/hw/optohybrid/exception/Exception.h"
+#include "gem/hw/optohybrid/OptoHybridMonitor.h"
+#include "gem/hw/optohybrid/OptoHybridManagerWeb.h"
+
+#include "gem/hw/optohybrid/exception/Exception.h"
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
 

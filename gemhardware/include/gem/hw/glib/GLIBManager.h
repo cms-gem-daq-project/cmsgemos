@@ -57,6 +57,16 @@ namespace gem {
             throw (toolbox::fsm::exception::Exception);
 
 	  bool is_initialized_, is_configured_, is_running_, is_paused_, is_resumed_;
+
+        protected:
+          /**
+           */
+          std::vector<uint32_t> dumpGLIBFIFO(int const& glib);
+          
+          /**
+           */
+          void dumpGLIBFIFO(xgi::Input* in, xgi::Output* out);
+
         private:
 	  uint16_t parseAMCEnableList(std::string const&);
 	  bool     isValidSlotNumber( std::string const&);
@@ -83,7 +93,6 @@ namespace gem {
             xdata::UnsignedInteger32 ipBusPort;
 
             //registers to set
-            xdata::Integer triggerSource;
             xdata::Integer sbitSource;
 
             inline std::string toString() {
@@ -99,7 +108,6 @@ namespace gem {
                  << "addressTable:"      << addressTable.toString()      << std::endl
                  << "controlHubPort:"    << controlHubPort.value_        << std::endl
                  << "ipBusPort:"         << ipBusPort.value_             << std::endl
-                 << "triggerSource:0x"   << std::hex << triggerSource.value_ << std::dec << std::endl
                  << "sbitSource:0x"      << std::hex << sbitSource.value_    << std::dec << std::endl
                  << std::endl;
               return os.str();
