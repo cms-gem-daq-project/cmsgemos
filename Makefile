@@ -18,6 +18,8 @@ default: all
 
 all: $(SUBPACKAGES)
 
+release: all doc
+
 gcc47: UserCFlags+=${GCC47Flags}
 gcc47: UserCCFlags+=${GCC47Flags}
 gcc47: $(SUBPACKAGES)
@@ -51,6 +53,14 @@ dbgprofile: UserCCFlags+=${DEBUG_CCFlags} ${PROFILING_Flags}
 dbgprofile: UserDynamicLinkFlags+=${PROFILING_LDFlags}
 dbgprofile: DependentLibraries+=${PROFILING_LIBS}
 dbgprofile: $(SUBPACKAGES)
+
+doc:  $(SUBPACKAGES)
+	@echo "Generating doxygen"
+	@rm -fr ./doc/html 2> /dev/null
+	@doxygen -s ./doc/cmsgemos.cfg  > /dev/null 2>&1
+	#@git add -f ./doc/html  > /dev/null 2>&1
+	#@git commit -m "generating doxygen" ./doc/html  > /dev/null 2>&1
+	#@git tag ./doc/html  > /dev/null 2>&1
 
 install: $(LIBDIR) $(SUBPACKAGES) $(SUBPACKAGES.INSTALL)
 

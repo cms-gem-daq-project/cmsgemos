@@ -6,19 +6,12 @@
  * date: 
  */
 
-#include "xoap/MessageReference.h"
-#include "xoap/MessageFactory.h"
-#include "xoap/SOAPEnvelope.h"
-#include "xoap/SOAPConstants.h"
-#include "xoap/SOAPBody.h"
-#include "xoap/Method.h"
-#include "xoap/AttachmentPart.h"
-
 #include "gem/hw/glib/GLIBManager.h"
+
+#include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/glib/GLIBMonitor.h"
 #include "gem/hw/glib/GLIBManagerWeb.h"
 
-#include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/glib/exception/Exception.h"
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
@@ -37,7 +30,6 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   controlHubPort    = 0;
   ipBusPort         = 0;
   
-  triggerSource = 0;
   sbitSource    = 0;
 }
 
@@ -54,7 +46,6 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
   bag->addField("ControlHubPort",    &controlHubPort);
   bag->addField("IPBusPort",         &ipBusPort);
             
-  bag->addField("triggerSource", &triggerSource);
   bag->addField("sbitSource",    &sbitSource);
 }
 
@@ -75,6 +66,8 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->addItemChangedListener( "AMCSlots",       this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile", this);
 
+  xgi::bind(this, &GLIBManager::dumpGLIBFIFO, "dumpGLIBFIFO");
+
   // initialize the GLIB application objects
   DEBUG("GLIBManager::Connecting to the GLIBManagerWeb interface");
   p_gemWebInterface = new gem::hw::glib::GLIBManagerWeb(this);
@@ -90,6 +83,40 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
 gem::hw::glib::GLIBManager::~GLIBManager()
 {
   // memory management, maybe not necessary here?
+}
+
+std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
+{
+  std::vector<uint32_t> dump;
+  if (glib < 0 || glib > 11) {
+    WARN("GLIBManager::dumpGLIBFIFO Specified invalid GLIB card " << glib+1);
+    return dump;
+  } else if (!m_glibs[glib]) {
+    WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib+1
+         << " is not connected");
+    return dump;
+  //} else if (!(m_glibs[glib]->hasTrackingData(0))) {
+  //  WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib
+  //       << " has no tracking data in the FIFO");
+  //  return dump;
+  }
+  
+  try {
+    INFO("GLIBManager::dumpGLIBFIFO Dumping FIFO for specified GLIB card " << glib+1);
+    return m_glibs[glib]->getTrackingData(0, 24);
+  } catch (gem::hw::glib::exception::Exception const& ex) {
+    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+          << " FIFO, caught exception " << ex.what());
+    return dump;
+  } catch (std::exception const& ex) {
+    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+          << " FIFO,  caught exception " << ex.what());
+    return dump;
+  } catch (...) {
+    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+          << " FIFO");
+    return dump;
+  }
 }
 
 uint16_t gem::hw::glib::GLIBManager::parseAMCEnableList(std::string const& enableList)
@@ -335,9 +362,6 @@ void gem::hw::glib::GLIBManager::configureAction()
       continue;
     
     if (m_glibs[slot]->isHwConnected()) {
-      DEBUG("GLIBManager::setting trigger source to 0x" << std::hex << info.triggerSource.value_ << std::dec);
-      m_glibs[slot]->setTrigSource(info.triggerSource.value_);
-      
       m_glibs[slot]->resetL1ACount();
       m_glibs[slot]->resetCalPulseCount();
 
@@ -349,9 +373,9 @@ void gem::hw::glib::GLIBManager::configureAction()
       
       // should FIFOs be emptied in configure or at start?
       DEBUG("GLIBManager::emptying trigger/tracking data FIFOs");
-      for (unsigned link = 0; link < HwGLIB::N_GTX; ++link) {
-        // m_glibs[slot]->flushTriggerFIFO(link);
-        m_glibs[slot]->flushFIFO(link);
+      for (unsigned gtx = 0; gtx < HwGLIB::N_GTX; ++gtx) {
+        // m_glibs[slot]->flushTriggerFIFO(gtx);
+        m_glibs[slot]->flushFIFO(gtx);
       }
       // what else is required for configuring the GLIB?
       // need to reset optical links?
@@ -595,4 +619,9 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   // TTC registers
   is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);
+}
+
+void gem::hw::glib::GLIBManager::dumpGLIBFIFO(xgi::Input* in, xgi::Output* out)
+{
+  dynamic_cast<GLIBManagerWeb*>(p_gemWebInterface)->dumpGLIBFIFO(in, out);
 }
