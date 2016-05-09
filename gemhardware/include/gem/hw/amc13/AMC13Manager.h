@@ -59,10 +59,28 @@ namespace gem {
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
           
+	  class BGOInfo
+	  {
+	  public:	    
+
+	    void registerFields(xdata::Bag<BGOInfo> *bag);
+
+	    //xdata::Boolean enableCalpulse;
+	    // can configure up to 4 BGO channels
+	    xdata::Integer           bgochannel;
+	    xdata::UnsignedInteger32 bgocmd;
+	    xdata::UnsignedInteger32 bgobx;
+	    xdata::UnsignedInteger32 bgoprescale;
+	    xdata::Boolean           bgorepeat;
+	    xdata::Boolean           bgolong;
+	  };
+
           class AMC13Info 
           {   
           public:
-            void registerFields(xdata::Bag<AMC13Info> *bag);
+
+            //void registerFields(xdata::Bag<AMC13Info> *bag, xdata::Bag<BGOInfo> *bgobag);
+	    void registerFields(xdata::Bag<AMC13Info> *bag);
             
             xdata::String connectionFile;
             xdata::String cardName;
@@ -81,14 +99,7 @@ namespace gem {
 	    xdata::Boolean sendl1ATriburst;
 	    xdata::Boolean startl1ATricont;
 
-	    xdata::Boolean enableCalpulse;
-            // can configure up to 4 BGO channels
-            xdata::Integer           bgochannel;
-            xdata::UnsignedInteger32 bgocmd;
-            xdata::UnsignedInteger32 bgobx;
-            xdata::UnsignedInteger32 bgoprescale;
-	    xdata::Boolean           bgorepeat;
-	    xdata::Boolean           bgolong;
+	    //xdata::Bag<BGOInfo> m_bgoParams;
 
             xdata::Integer prescaleFactor;
             xdata::Integer bcOffset;
@@ -110,13 +121,14 @@ namespace gem {
           xdata::Integer m_crateID, m_slot;
 
           xdata::Bag<AMC13Info> m_amc13Params;
+	  xdata::Bag<BGOInfo> m_bgoParams;
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,
-            m_enableCalpulse, m_bgorepeat, m_bgolong;
+	    m_bgorepeat, m_bgolong; //m_enableCalpulse,
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgochannel;
 	  uint8_t m_bgocmd;

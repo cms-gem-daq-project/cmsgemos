@@ -18,6 +18,17 @@
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Manager);
 
+void gem::hw::amc13::AMC13Manager::BGOInfo::registerFields(xdata::Bag<BGOInfo> *bgobag)
+{
+  //bag->addField("EnableCalPulse", &enableCalpulse);
+  bgobag->addField("BGOChannel",     &bgochannel    );
+  bgobag->addField("BGOcmd",         &bgocmd        );
+  bgobag->addField("BGObx",          &bgobx         );
+  bgobag->addField("BGOprescale",    &bgoprescale   );
+  bgobag->addField("BGOrepeat",      &bgorepeat     );
+  bgobag->addField("BGOlong",        &bgolong       );
+}
+
 void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Info> *bag)
 {
 
@@ -39,13 +50,6 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("sendL1ATriburst",        &sendl1ATriburst );
   bag->addField("startL1ATricont",        &startl1ATricont );
 
-  bag->addField("EnableCalPulse", &enableCalpulse);
-  bag->addField("BGOChannel",     &bgochannel    );
-  bag->addField("BGOcmd",         &bgocmd        );
-  bag->addField("BGObx",          &bgobx         );
-  bag->addField("BGOprescale",    &bgoprescale   );
-  bag->addField("BGOrepeat",      &bgorepeat     );
-  bag->addField("BGOlong",        &bgolong       );
 
   bag->addField("PrescaleFactor", &prescaleFactor);
   bag->addField("BCOffset",       &bcOffset      );
@@ -69,6 +73,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   p_appInfoSpace->fireItemAvailable("crateID",          &m_crateID    );
   p_appInfoSpace->fireItemAvailable("slot",             &m_slot       );
   p_appInfoSpace->fireItemAvailable("amc13ConfigParams",&m_amc13Params);
+  p_appInfoSpace->fireItemAvailable("bgoConfigParams",&m_bgoParams);
 
   uhal::setLogLevelTo(uhal::Error);
 
@@ -117,13 +122,13 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_sendL1ATriburst    = m_amc13Params.bag.sendl1ATriburst.value_;
   m_startL1ATricont    = m_amc13Params.bag.startl1ATricont.value_;
 
-  m_enableCalpulse     = m_amc13Params.bag.enableCalpulse.value_;
-  m_bgochannel         = m_amc13Params.bag.bgochannel.value_;
-  m_bgocmd             = m_amc13Params.bag.bgocmd.value_;
-  m_bgobx              = m_amc13Params.bag.bgobx.value_;
-  m_bgoprescale        = m_amc13Params.bag.bgoprescale.value_;
-  m_bgorepeat          = m_amc13Params.bag.bgorepeat.value_;
-  m_bgolong            = m_amc13Params.bag.bgolong.value_;
+  //m_enableCalpulse     = m_amc13Params.bag.enableCalpulse.value_;
+  m_bgochannel         = m_bgoParams.bag.bgochannel.value_;
+  m_bgocmd             = m_bgoParams.bag.bgocmd.value_;
+  m_bgobx              = m_bgoParams.bag.bgobx.value_;
+  m_bgoprescale        = m_bgoParams.bag.bgoprescale.value_;
+  m_bgorepeat          = m_bgoParams.bag.bgorepeat.value_;
+  m_bgolong            = m_bgoParams.bag.bgolong.value_;
 
   m_prescaleFactor     = m_amc13Params.bag.prescaleFactor.value_;
   m_bcOffset           = m_amc13Params.bag.bcOffset.value_;
@@ -246,7 +251,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   //DEBUG("Looking at L1A history after configure");
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
 
-  if (m_enableCalpulse) {
+  if (m_enableLocalTTC) {
     p_amc13->configureBGOShort(m_bgochannel, m_bgocmd, m_bgobx, m_bgoprescale, m_bgorepeat);
     p_amc13->getBGOConfig(m_bgochannel);
   }
@@ -274,7 +279,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     p_amc13->startContinuousL1A();
   }
-  if (m_enableCalpulse) {
+  if (m_enableLocalTTC) {
     p_amc13->enableBGO(m_bgochannel);
     p_amc13->sendBGO();
   }
@@ -289,7 +294,7 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   if (m_enableLocalL1A)
     p_amc13->stopContinuousL1A();
 
-  if (m_enableCalpulse)
+  if (m_enableLocalTTC)
     p_amc13->disableBGO(m_bgochannel);
 
   usleep(500);
@@ -302,7 +307,7 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   if (m_enableLocalL1A)
     p_amc13->startContinuousL1A();
 
-  if (m_enableCalpulse) {
+  if (m_enableLocalTTC) {
     p_amc13->enableBGO(m_bgochannel);
     p_amc13->sendBGO();
   }
@@ -320,7 +325,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   if (m_enableLocalL1A)
     p_amc13->stopContinuousL1A();
 
-  if (m_enableCalpulse)
+  if (m_enableLocalTTC)
     p_amc13->disableBGO(m_bgochannel);
 
   usleep(500);
