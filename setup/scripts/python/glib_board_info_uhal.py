@@ -96,7 +96,7 @@ if (options.daq_enable>=0):
         for olink in range(NGTX):
                 # in 160MHz clock cycles, so multiply by 4 to get in terms of BX
                 # 0xc35 -> 781 BX
-                writeRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink),0xc35)
+                writeRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink),0x30D4)
         print "Reset daq_enable: %i"%(options.daq_enable)
         if (options.reset_daq>=0):
                 writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x1)
@@ -161,6 +161,12 @@ for olink in range(NGTX):
         dbgWords = readBlock(glib,"GLIB.DAQ.GTX%d.LASTBLOCK"%(olink),7)
         for word in dbgWords:
                 print "-> DAQ GTX%d debug:0x%08x"%(olink,word)
+
+        data = readFIFODepth(glib,olink)
+        if options.debug and not data["isEMPTY"]:
+                dbgWords = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(olink),24*7,True)
+                for word in dbgWords:
+                        print "-> GLIB GTX%d FIFO:0x%08x"%(olink,word)
                 
 print
 print "--=======================================--"

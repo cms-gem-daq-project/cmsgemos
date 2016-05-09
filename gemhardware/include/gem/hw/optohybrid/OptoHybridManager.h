@@ -16,6 +16,7 @@ namespace gem {
 
       class HwOptoHybrid;
       class OptoHybridManagerWeb;
+      class OptoHybridMonitor;
 
       typedef std::shared_ptr<HwOptoHybrid> optohybrid_shared_ptr;
 
@@ -120,6 +121,7 @@ namespace gem {
           mutable gem::utils::Lock m_deviceLock;//[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
 
           optohybrid_shared_ptr m_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
+          std::shared_ptr<OptoHybridMonitor> m_optohybridMonitors[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
           xdata::InfoSpace*     is_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;
           xdata::String        m_connectionFile;
