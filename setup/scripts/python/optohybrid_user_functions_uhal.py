@@ -16,6 +16,24 @@ def getFirmwareVersion(device,gtx=0):
     date["y"] = (fwver>>16)&0xffff
     return date
 
+def getConnectedVFATsMask(device,gtx=0,debug=False):
+    """
+    Returns the broadcast I2C mask corresponding to the connected VFATs
+    """
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
+    writeRegister(device,"%s.Mask"%(baseNode), 0x0)
+    vfatVal  = readRegister(device,"%s.Request.ChipID0"%(baseNode))
+    if (debug):
+        print "vfatVal = 0x%08x"%(vfatVal)
+    vfatVals = readBlock(device,"%s.Results"%(baseNode),24)
+    bmask = 0x0
+    if (debug and vfatVals):
+        for i,val in enumerate(vfatVals):
+            print "%d: value = 0x%08x"%(i,vfatVal)
+    
+    return bmask
+
 def optohybridCounters(device,gtx=0,doReset=False):
     """
     read the optical link counters, returning a map

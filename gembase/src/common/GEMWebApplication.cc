@@ -1,22 +1,22 @@
 // GEMWebApplication.cc
 
 #include "gem/base/GEMWebApplication.h"
-#include "gem/base/GEMFSMApplication.h"
-#include "gem/base/GEMApplication.h"
-#include "gem/base/GEMMonitor.h"
-#include "gem/base/GEMFSM.h"
 
-#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "xcept/tools.h"
 
 #include "xgi/framework/UIManager.h"
 #include "xgi/Input.h"
 #include "xgi/Method.h"
 #include "xgi/Output.h"
 
-#include "xcept/tools.h"
+#include "gem/base/GEMFSM.h"
+#include "gem/base/GEMMonitor.h"
+#include "gem/base/GEMApplication.h"
+#include "gem/base/GEMFSMApplication.h"
 
+#include "gem/utils/soap/GEMSOAPToolBox.h"
 
-//gem::base::GEMWebApplication::GEMWebApplication(xdaq::Application *gemApp, bool hasFSM)
+// gem::base::GEMWebApplication::GEMWebApplication(xdaq::Application *gemApp, bool hasFSM)
 gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication* gemFSMApp)
   throw (xdaq::exception::Exception) :
   m_gemLogger(gemFSMApp->getApplicationLogger()),
@@ -29,7 +29,7 @@ gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication* ge
   b_is_running    (false),
   b_is_paused     (false)
 {
-  
+  // default constructor
 }
 
 gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMApplication* gemApp)
@@ -44,7 +44,7 @@ gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMApplication* gemAp
   b_is_running    (false),
   b_is_paused     (false)
 {
-  
+  // default constructor
 }
 
 gem::base::GEMWebApplication::~GEMWebApplication()
@@ -56,7 +56,7 @@ gem::base::GEMWebApplication::~GEMWebApplication()
     delete p_gemFSMApp;
     if (p_gemApp!=NULL)
     delete p_gemApp;
-    
+
     p_gemMonitor = NULL;
     p_gemFSMApp  = NULL;
     p_gemApp     = NULL;
@@ -67,189 +67,163 @@ void gem::base::GEMWebApplication::webRedirect(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   // std::string url = in->getenv("PATH_TRANSLATED");
-  
+
   // cgicc::HTTPResponseHeader &header = out->getHTTPResponseHeader();
-  
+
   // header.getStatusCode(303);
   // header.getReasonPhrase("See Other");
   // header.addHeader("Location",
-  // 		   url.substr(0, url.find("/" + in->getenv("PATH_INFO"))));
-  //change the status to halting and make sure the page displays this information
+  //                  url.substr(0, url.find("/" + in->getenv("PATH_INFO"))));
+  // change the status to halting and make sure the page displays this information
   std::string redURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Default";
-  *out << "<meta http-equiv=\"refresh\" content=\"0;" << redURL << "\">" << std::endl;  
-  //this->webDefault(in,out);
+  *out << "<meta http-equiv=\"refresh\" content=\"0;" << redURL << "\">" << std::endl;
+  // this->webDefault(in, out);
 }
 
 /*To be filled in with the monitor page code*/
 void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webDefault");
+  DEBUG("GEMWebApplication::webDefault");
+  *out << cgicc::script().set("type", "text/javascript")
+    .set("src", "/gemdaq/gembase/html/scripts/gemwebapp.js")
+       << cgicc::script() << std::endl;
+
   if (p_gemFSMApp)
-    DEBUG("current state is" << p_gemFSMApp->getCurrentState());
+    DEBUG("GEMWebApplication::current state is" << p_gemFSMApp->getCurrentState());
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
+  if (p_gemFSMApp) {
+    std::string classname = p_gemFSMApp->getApplicationDescriptor()->getClassName();
+    classname = classname.erase(0, classname.rfind(":")+1);
+    *out << "<div class=\"xdaq-tab\" title=\""
+         << classname
+         << " Control Panel\" >"  << std::endl;
+    controlPanel(in, out);
+    *out << "</div>" << std::endl;
+  }
+
   *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
-  monitorPage(in,out);
+  this->monitorPage(in, out);
   *out << "</div>" << std::endl;
 
   *out << "<div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
-  expertPage(in,out);
+  this->expertPage(in, out);
   *out << "</div>" << std::endl;
 
+  *out << " <div class=\"gem-push\"></div>" << std::endl;
+
   *out << "</div>" << std::endl;
+
+  webFooterGEM(in, out);
+
+  std::string updateLink = "/" + p_gemApp->m_urn + "/jsonUpdate";
+  *out << "<script type=\"text/javascript\">"            << std::endl
+       << "    startUpdate( \"" << updateLink << "\" );" << std::endl
+       << "</script>" << std::endl;
 }
+
+void gem::base::GEMWebApplication::webFooterGEM(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  *out << "<div class=\"gem-footer\" id=\"xdaq-footer\">" << std::endl;
+  // *out << cgicc::br() << std::endl
+  * out << "GEM DAQ GIT_VERSION:" << GIT_VERSION
+        << " -- developer:"       << GEMDEVELOPER;
+  // << cgicc::br() << std::endl;
+  *out << std::endl << "</div>" << std::endl;
+}
+
 
 /*To be filled in with the control page code (only for FSM derived classes?*/
 void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("controlPanel");
-  //*out << "<div class=\"xdaq-tab\" title=\"GEM Supervisor Control Panel\" >"  << std::endl;
-  
+  DEBUG("GEMWebApplication::controlPanel");
   // maybe the control part should only be displayed if the application is not supervised?
   if (p_gemFSMApp) {
+    *out << cgicc::script().set("type", "text/javascript")
+      .set("src", "/gemdaq/gembase/html/scripts/gemfsmwebcontrol.js")
+         << cgicc::script() << std::endl;
+
+    std::string updateLink = "/" + p_gemApp->m_urn + "/stateUpdate";
+    *out << cgicc::script().set("type", "text/javascript") << std::endl
+         << "    updateStateTable( \"" << updateLink << "\" );" << std::endl
+         << cgicc::script() << std::endl;
+
     try {
       std::string state = dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState();
-      DEBUG("controlPanel:: current state " << state);
-      ////update the page refresh 
-      if (!b_is_working && !b_is_running) {
-      } else if (b_is_working) {
-        cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-        head.addHeader("Refresh","2");
-      } else if (b_is_running) {
-        cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
-        head.addHeader("Refresh","30");
-      }
+      DEBUG("GEMWebApplication::controlPanel:: current state " << state);
 
       *out << "<table class=\"xdaq-table\">" << std::endl
            << cgicc::thead() << std::endl
-           << cgicc::tr()    << std::endl //open
+           << cgicc::tr()    << std::endl  // open
            << cgicc::th()    << "Control" << cgicc::th() << std::endl
-           << cgicc::th()    << "State" << cgicc::th() << std::endl
-           << cgicc::tr()    << std::endl //close
-           << cgicc::thead() << std::endl 
-      
+           << cgicc::th()    << "State"   << cgicc::th() << std::endl
+           << cgicc::tr()    << std::endl  // close
+           << cgicc::thead() << std::endl
+
            << "<tbody>" << std::endl
            << "<tr>"    << std::endl
            << "<td>"    << std::endl;
-    
-      *out << "<table class=\"xdaq-table\">" << std::endl;
 
-      if (state == "Initial") {
-        //send the initialize command
-        *out << "<tr>" << std::endl << "<td>"    << std::endl
-             << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
-        *out << cgicc::input().set("type", "submit")
-          .set("name", "command").set("title", "Initialize GEM system.")
-          .set("value", "Initialize") << std::endl;
-        *out << cgicc::form() << std::endl
-             << "</td>"       << std::endl
-             << "</tr>"       << std::endl;
-      } else {
-        if (state == "Halted") {
-          //this will allow the parameters to be set to the chip and scan routine
-          *out << "<tr>" << std::endl << "<td colspan=\"2\">"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Configure FSM")
-            .set("value", "Configure") << std::endl;
-          *out << cgicc::form()        << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Configured") {
-          //this will allow the parameters to be set to the chip and scan routine
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Configure FSM")
-            .set("value", "Configure") << std::endl;
-          *out << cgicc::form()        << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Start") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Start FSM")
-            .set("value", "Start") << std::endl;
-          *out << cgicc::form()    << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Running") {
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Stop FSM")
-            .set("value", "Stop") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Pause") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Pause FSM")
-            .set("value", "Pause") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Paused") {
-          *out << "<tr>" << std::endl << "<td>"    << std::endl
-               << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Stop FSM")
-            .set("value", "Stop") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Resume") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Resume FSM")
-            .set("value", "Resume") << std::endl;
-          *out << cgicc::form()   << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        }
-        
-        if (state == "Halted" ||
-            state == "Configured" ||
-            state == "Running" ||
-            state == "Paused") {
-          *out << cgicc::comment() << "end the main commands, now putting the halt/reset commands which should be possible all the time"
-               << cgicc::comment() << cgicc::br() << std::endl;
-          *out << "<tr>"    << std::endl
-               << "<td>"    << std::endl;
-          //always should have a halt/reset command?
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Halt") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Halt GEM system FSM.")
-            .set("value", "Halt") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl;
-          
-          *out << "<td>"  << std::endl;
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Reset GEM FSM.")
-            .set("value", "Reset") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        } else if (state == "Failed" || state == "Error") {
-          *out << cgicc::form().set("method","POST").set("action", "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/Reset") << std::endl;
-          *out << cgicc::input().set("type", "submit")
-            .set("name", "command").set("title", "Reset GEM FSM.")
-            .set("value", "Reset") << std::endl;
-          *out << cgicc::form() << std::endl
-               << "</td>" << std::endl
-               << "</tr>" << std::endl;
-        }
-      }//end check on Initial vs Other
+      *out << "<table class=\"xdaq-table\">" << std::endl;
+      // Buttons                 | Initial             | Halted               | Configured           | Running | Paused |
+      // Initialize Configure    | Configure invisible | Initialize invisible | Initialize invisible | All invisible | All invisible |
+      // Start Stop Pause Resume | All invisible | All invisible        | Start visible        | Stop/Pause visible | Stop/Resume visible |
+      // Halt Reset              | All invisible | All visible          | All visible          | All visible          | All visible          |
+
+      *out << "<tr class=\"hide\" id=\"initconf\">" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"init\" onclick=\"gemFSMWebCommand(\'Initialize\',\'/"
+           << p_gemApp->m_urn << "\')\">Initialize</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"conf\" onclick=\"gemFSMWebCommand(\'Configure\',\'/"
+           << p_gemApp->m_urn << "\')\">Configure</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "</tr>" << std::endl;
+
+      *out << "<tr class=\"hide\" id=\"startstop\">" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"start\" onclick=\"gemFSMWebCommand(\'Start\',\'/"
+           << p_gemApp->m_urn << "\')\">Start</button>"
+           << "<button class=\"hide\" id=\"stop\" onclick=\"gemFSMWebCommand(\'Stop\',\'/"
+           << p_gemApp->m_urn << "\')\">Stop</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"pause\" onclick=\"gemFSMWebCommand(\'Pause\',\'/"
+           << p_gemApp->m_urn << "\')\">Pause</button>"
+           << "<button class=\"hide\" id=\"resume\" onclick=\"gemFSMWebCommand(\'Resume\',\'/"
+           << p_gemApp->m_urn << "\')\">Resume</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "</tr>" << std::endl;
+
+      *out << "<tr class=\"hide\" id=\"haltreset\">" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"halt\" onclick=\"gemFSMWebCommand(\'Halt\',\'/"
+           << p_gemApp->m_urn << "\')\">Halt</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "<td>" << std::endl
+           << "<button class=\"hide\" id=\"reset\" onclick=\"gemFSMWebCommand(\'Reset\',\'/"
+           << p_gemApp->m_urn << "\')\">Reset</button>"
+           << cgicc::br() << std::endl
+           << "</td>" << std::endl
+           << "</tr>" << std::endl;
+
       *out << "</table>" << std::endl
+           << "</br>"  << std::endl
+           << "Last command was: "          << std::endl
+           << "<div id=\"fsmdebug\"></div>" << std::endl
            << "</td>"  << std::endl
            << "<td>"  << std::endl
-           << cgicc::h3() 
-        //change the colour to red if failed maybe
+           << cgicc::h3().set("id", "fsmState")
+        // change the colour to red if failed maybe
            << dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState()
            << cgicc::h3() << std::endl
            << "</td>"     << std::endl
@@ -257,31 +231,29 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
            << "</tbody>"  << std::endl
            << "</table>"  << std::endl;
     } catch (const xgi::exception::Exception& e) {
-      ERROR("Something went wrong displaying web control panel(xgi): " << e.what());
+      ERROR("GEMWebApplication::Something went wrong displaying web control panel(xgi): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     } catch (const std::exception& e) {
-      ERROR("Something went wrong displaying web control panel(std): " << e.what());
+      ERROR("GEMWebApplication::Something went wrong displaying web control panel(std): " << e.what());
       XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
-  }//only when the GEMFSM has been created
+  }  // only when the GEMFSM has been created
 }
 
 /*To be filled in with the monitor page code*/
 void gem::base::GEMWebApplication::monitorPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("monitorPage");
+  DEBUG("GEMWebApplication::monitorPage");
   *out << "monitorPage</br>" << std::endl;
-  webRedirect(in,out);
 }
 
 /*To be filled in with the expert page code*/
 void gem::base::GEMWebApplication::expertPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("expertPage");
+  DEBUG("GEMWebApplication::expertPage");
   *out << "expertPage</br>" << std::endl;
-  webRedirect(in,out);
 }
 
 /*To be filled in with the json update code*/
@@ -289,21 +261,34 @@ void gem::base::GEMWebApplication::expertPage(xgi::Input * in, xgi::Output * out
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("jsonUpdate");
+  DEBUG("GEMWebApplication::jsonUpdate");
 }
 */
+void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  DEBUG("GEMWebApplication::jsonStateUpdate");
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  *out << " {" << std::endl;
+  *out << "   \"name\":\"fsmState\"" << ",\"value\": \""
+       << dynamic_cast<gem::base::GEMFSMApplication*>(p_gemFSMApp)->getCurrentState()
+       << "\"" << std::endl;
+  *out << " }" << std::endl;
+}
+
 void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
+  DEBUG("GEMWebApplication::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
-  *out << " { \n";
+  *out << " { " << std::endl;
   auto monitor = p_gemFSMApp->p_gemMonitor;
-  //if (p_gemMonitor) {
+  // if (p_gemMonitor) {
   if (monitor) {
-    //p_gemMonitor->jsonUpdateItemSets(out);
+    // p_gemMonitor->jsonUpdateItemSets(out);
     monitor->jsonUpdateItemSets(out);
   }
-  *out << " } \n";
+  *out << " } " << std::endl;
 }
 
 /** FSM callbacks */
@@ -311,144 +296,135 @@ void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out
 void gem::base::GEMWebApplication::webInitialize(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webInitialize begin");
+  DEBUG("GEMWebApplication::webInitialize begin");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    // try {
-    //   p_gemFSMApp->fireEvent("Initialize");
-    // } catch( toolbox::fsm::exception::Exception& e ) {
-    //   XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Initialize");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webInitialize failed", e);
+    }
   }
-  DEBUG("webInitialize end");
-  webRedirect(in,out);
+  // DEBUG("GEMWebApplication::webInitialize end");
 }
 
 /*To be filled in with the startup (enable) routine*/
 void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webEnable");
+  DEBUG("GEMWebApplication::webEnable");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    //try {
-    //  p_gemFSMApp->fireEvent("Enable");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Enable failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Enable");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webEnable failed", e);
+    }
   }
-  webRedirect(in,out);
 }
 
 /*To be filled in with the configure routine*/
 void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webConfigure");
+  DEBUG("GEMWebApplication::webConfigure");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Configure");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Configure");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webConfigure failed", e);
+    }
   }
-  webRedirect(in,out);
 }
 
 /*To be filled in with the start routine*/
 void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webStart");
+  DEBUG("GEMWebApplication::webStart");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Start");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Start");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webStart failed", e);
+    }
   }
-  webRedirect(in,out);
 }
 
 void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webPause");
+  DEBUG("GEMWebApplication::webPause");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Pause");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Pause");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webPause failed", e);
+    }
   }
-  webRedirect(in,out);
 }
 
 /*To be filled in with the resume routine*/
 void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webResume");
+  DEBUG("GEMWebApplication::webResume");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Resume");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Resume");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webResume failed", e);
+    }
   }
-  webRedirect(in,out);
 }
 
 /*To be filled in with the stop routine*/
 void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webStop");
+  DEBUG("GEMWebApplication::webStop");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Stop");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Stop");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webStop failed", e);
+    }
   }
-  webRedirect(in,out);
 }
 
 /*To be filled in with the halt routine*/
 void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webHalt");
+  DEBUG("GEMWebApplication::webHalt");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Halt");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Halt");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webHalt failed", e);
+    }
   }
-  webRedirect(in,out);
 }
 
 /*To be filled in with the reset routine*/
 void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("webReset");
+  DEBUG("GEMWebApplication::webReset");
   if (p_gemFSMApp) {
-    DEBUG("p_gemFSMApp non-zero");
-    //try{
-    //  p_gemFSMApp->fireEvent("Reset");
-    //} catch( toolbox::fsm::exception::Exception& e ) {
-    //  XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
-    //}
+    DEBUG("GEMWebApplication::p_gemFSMApp non-zero");
+    try {
+      p_gemFSMApp->fireEvent("Reset");
+    } catch( toolbox::fsm::exception::Exception& e) {
+      XCEPT_RETHROW(xgi::exception::Exception, "webReset failed", e);
+    }
   }
-  webRedirect(in,out);
 }
 
 void gem::base::GEMWebApplication::buildCfgWebpage()
@@ -457,20 +433,20 @@ void gem::base::GEMWebApplication::buildCfgWebpage()
 
 /** some generic static functions for web use, copied from ferol::WebServer */
 std::string gem::base::GEMWebApplication::jsonEscape(std::string const& orig)
-{   
+{
   std::string::const_iterator it = orig.begin();
   std::string res;
-  
-  for ( it = orig.begin(); it != orig.end(); it++ ) {
-    if ( ((*it) == '"') || ((*it) == '\\') ) {
-      res.append( 1, '\\' );
-      res.append( 1, *it );
-    } else if(  ((*it) == '\n') ) {
+
+  for (it = orig.begin(); it != orig.end(); ++it) {
+    if (((*it) == '"') || ((*it) == '\\')) {
+      res.append(1, '\\');
+      res.append(1, *it);
+    } else if (((*it) == '\n')) {
       res.append("; ");
-    } else if(  ((*it) == '/') ) {
+    } else if (((*it) == '/')) {
       res.append("\\/");
     } else {
-      res.append(1,*it);
+      res.append(1, *it);
     }
   }
   return res;
@@ -481,17 +457,17 @@ std::string gem::base::GEMWebApplication::htmlEscape(std::string const& orig)
   std::string::const_iterator it = orig.begin();
   std::string res;
 
-  for ( it = orig.begin(); it != orig.end(); it++ ) {
-    if ( (*it) == '"' ) {
-      res.append( "&quot;" );
+  for (it = orig.begin(); it != orig.end(); ++it) {
+    if ((*it) == '"') {
+      res.append("&quot;");
     } else {
-      res.append(1,*it);
+      res.append(1, *it);
     }
   }
-  
+
   size_t pos = 0;
-  while ( (pos = res.find( "<br>", 0 )) != std::string::npos ) {
-    res.replace( pos, 4, "\n" );
+  while ((pos = res.find("<br>", 0)) != std::string::npos) {
+    res.replace(pos, 4, "\n");
     pos = 0;
   }
   return res;

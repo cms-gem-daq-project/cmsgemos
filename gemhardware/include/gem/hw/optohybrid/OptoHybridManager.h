@@ -1,7 +1,7 @@
-/** @file OptoHybridManager.h */ 
+#ifndef GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGER_H
+#define GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGER_H
+/** @file OptoHybridManager.h */
 
-#ifndef gem_hw_optohybrid_OptoHybridManager_h
-#define gem_hw_optohybrid_OptoHybridManager_h
 
 //#include "uhal/uhal.hpp"
 
@@ -18,24 +18,24 @@ namespace gem {
       class OptoHybridManagerWeb;
 
       typedef std::shared_ptr<HwOptoHybrid> optohybrid_shared_ptr;
-      
+
       class OptoHybridManager : public gem::base::GEMFSMApplication
         {
-	  
+
           friend class OptoHybridManagerWeb;
 
         public:
           XDAQ_INSTANTIATOR();
-	  
+
           OptoHybridManager(xdaq::ApplicationStub * s);
 
           virtual ~OptoHybridManager();
-	  
+
         protected:
           virtual void init();
 
           virtual void actionPerformed(xdata::Event& event);
-	  
+
           //state transitions
           virtual void initializeAction() throw (gem::hw::optohybrid::exception::Exception);
           virtual void configureAction()  throw (gem::hw::optohybrid::exception::Exception);
@@ -45,22 +45,22 @@ namespace gem {
           virtual void stopAction()       throw (gem::hw::optohybrid::exception::Exception);
           virtual void haltAction()       throw (gem::hw::optohybrid::exception::Exception);
           virtual void resetAction()      throw (gem::hw::optohybrid::exception::Exception);
-          //virtual void noAction()         throw (gem::hw::optohybrid::exception::Exception); 
-	
+          //virtual void noAction()         throw (gem::hw::optohybrid::exception::Exception);
+
           virtual void failAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception); 
-	
+            throw (toolbox::fsm::exception::Exception);
+
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
-	
+
         private:
 	  uint32_t parseVFATMaskList(std::string const&);
 	  bool     isValidSlotNumber(std::string const&);
 
-          std::vector<uint32_t> v_vfatBroadcastMask;// one for each optohybrid
+          //std::vector<uint32_t> v_vfatBroadcastMask;// one for each optohybrid
 
           class OptoHybridInfo {
-            
+
           public:
             OptoHybridInfo();
             void registerFields(xdata::Bag<OptoHybridManager::OptoHybridInfo>* bag);
@@ -75,20 +75,20 @@ namespace gem {
             xdata::String deviceIPAddress;
             xdata::String ipBusProtocol;
             xdata::String addressTable;
-            
+
             xdata::UnsignedInteger32 controlHubPort;
             xdata::UnsignedInteger32 ipBusPort;
 
             xdata::String            vfatBroadcastList;
             xdata::UnsignedInteger32 vfatBroadcastMask;
-            
+
             //registers to set
             xdata::Integer triggerSource;
             xdata::Integer sbitSource;
             xdata::Integer refClkSrc;
             xdata::Integer vfatClkSrc;
             xdata::Integer cdceClkSrc;
-            
+
             inline std::string toString() {
               // write obj to stream
               std::stringstream os;
@@ -96,7 +96,7 @@ namespace gem {
                  << "crateID:" << crateID.toString() << std::endl
                  << "slotID:"  << slotID.toString()  << std::endl
                  << "linkID:"  << linkID.toString()  << std::endl
-                
+
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
                  << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl
@@ -116,17 +116,17 @@ namespace gem {
               return os.str();
             };
           };
-          
+
           mutable gem::utils::Lock m_deviceLock;//[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
-	  
+
           optohybrid_shared_ptr m_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
           xdata::InfoSpace*     is_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
           xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;
           xdata::String        m_connectionFile;
-        }; //end class OptoHybridManager
-      
-    }//end namespace gem::hw::optohybrid
-  }//end namespace gem::hw
-}//end namespace gem
+        };  // class OptoHybridManager
 
-#endif
+    }  // namespace gem::hw::optohybrid
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGER_H

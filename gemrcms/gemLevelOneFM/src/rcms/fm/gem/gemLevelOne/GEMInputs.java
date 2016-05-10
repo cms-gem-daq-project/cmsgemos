@@ -1,4 +1,4 @@
-package rcms.fm.app.gemLevelOne;
+package rcms.fm.gem.gemLevelOne;
 
 import rcms.statemachine.definition.Input;
 

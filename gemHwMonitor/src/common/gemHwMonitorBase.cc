@@ -3,8 +3,8 @@
 template <class T> const std::string gem::hwMonitor::gemHwMonitorBase<T>::getDeviceId ()
   throw (xgi::exception::Exception)
 {
-  if (isConfigured_) {
-    return gemDevice_->getDeviceId();
+  if (m_isConfigured) {
+    return p_gemDevice->getDeviceId();
   } else {
     return "Device is not configured";
   }
@@ -13,20 +13,20 @@ template <class T> const std::string gem::hwMonitor::gemHwMonitorBase<T>::getDev
 template <class T> void gem::hwMonitor::gemHwMonitorBase<T>::setDeviceConfiguration(T& device)
   throw (xgi::exception::Exception)
 {
-  gemDevice_ = &device;
-  isConfigured_ = true;
+  p_gemDevice = &device;
+  m_isConfigured = true;
 }
 
 template <class T> int gem::hwMonitor::gemHwMonitorBase<T>::getNumberOfSubDevices()
   throw (xgi::exception::Exception)
 {
-  return gemDevice_->getSubDevicesIds().size();
+  return p_gemDevice->getSubDevicesIds().size();
 }
 
 // [GCC bug] Bugreport https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56480
 namespace gem {
   namespace hwMonitor {
-    template <> 
+    template <>
     int gem::hwMonitor::gemHwMonitorBase<gem::utils::gemVFATProperties>::getNumberOfSubDevices()
       throw (xgi::exception::Exception)
     {
@@ -38,13 +38,13 @@ namespace gem {
 template <class T> const std::string gem::hwMonitor::gemHwMonitorBase<T>::getCurrentSubDeviceId(unsigned int subDeviceNumber)
   throw (xgi::exception::Exception)
 {
-  return gemDevice_->getSubDevicesRefs().at(subDeviceNumber)->getDeviceId();
+  return p_gemDevice->getSubDevicesRefs().at(subDeviceNumber)->getDeviceId();
 }
 
 // [GCC bug] Bugreport https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56480
 namespace gem {
   namespace hwMonitor {
-    template <> 
+    template <>
     const std::string gemHwMonitorBase<gem::utils::gemVFATProperties>::getCurrentSubDeviceId(unsigned int subDeviceNumber)
       throw (xgi::exception::Exception)
     {
@@ -52,8 +52,8 @@ namespace gem {
     }
   }
 }
-template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemSystemProperties>; 
-template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemCrateProperties>; 
-template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemGLIBProperties>; 
-template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemOHProperties>; 
-template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemVFATProperties>; 
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemSystemProperties>;
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemCrateProperties>;
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemGLIBProperties>;
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemOHProperties>;
+template class gem::hwMonitor::gemHwMonitorBase<gem::utils::gemVFATProperties>;

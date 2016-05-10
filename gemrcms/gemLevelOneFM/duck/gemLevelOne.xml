@@ -5,6 +5,6 @@
 		   port="10000"
 		   qualifiedResourceType="rcms.fm.resource.qualifiedresource.FunctionManager"
 		   sourceURL="http://localhost:10000/functionmanagers/GEMLevelOneFM.jar"
-		   className="rcms.fm.app.gemLevelOne.GEMLevelOneFM">
+		   className="rcms.fm.gem.gemLevelOne.GEMLevelOneFM">
   </FunctionManager>
 </Configuration>

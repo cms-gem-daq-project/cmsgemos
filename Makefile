@@ -1,10 +1,6 @@
 #
 # Global Makefile for GEM
 #
-include $(XDAQ_ROOT)/config/mfAutoconf.rules
-include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 SUBPACKAGES := \
         gemutils \
@@ -15,10 +11,46 @@ SUBPACKAGES := \
         gemHwMonitor \
 
 SUBPACKAGES.INSTALL := $(patsubst %,%.install, ${SUBPACKAGES})
-SUBPACKAGES.RPM := $(patsubst %,%.rpm, ${SUBPACKAGES})
-SUBPACKAGES.CLEAN := $(patsubst %,%.clean, ${SUBPACKAGES})
+SUBPACKAGES.RPM     := $(patsubst %,%.rpm, ${SUBPACKAGES})
+SUBPACKAGES.CLEAN   := $(patsubst %,%.clean, ${SUBPACKAGES})
+
+default: all
 
 all: $(SUBPACKAGES)
+
+gcc47: UserCFlags+=${GCC47Flags}
+gcc47: UserCCFlags+=${GCC47Flags}
+gcc47: $(SUBPACKAGES)
+
+gcc48: UserCFlags+=${GCC47Flags}
+gcc48: UserCFlags+=${GCC48Flags}
+gcc48: UserCCFlags+=${GCC47Flags}
+gcc48: UserCCFlags+=${GCC48Flags}
+gcc48: $(SUBPACKAGES)
+
+gcc49: UserCFlags+=${GCC47Flags}
+gcc49: UserCFlags+=${GCC48Flags}
+gcc49: UserCFlags+=${GCC49Flags}
+gcc49: UserCCFlags+=${GCC47Flags}
+gcc49: UserCCFlags+=${GCC48Flags}
+gcc49: UserCCFlags+=${GCC49Flags}
+gcc49: $(SUBPACKAGES)
+
+debug: UserCFlags+=${DEBUG_CFlags}
+debug: UserCCFlags+=${DEBUG_CCFlags}
+debug: $(SUBPACKAGES)
+
+profile: UserCFlags+=${PROFILING_Flags}
+profile: UserCCFlags+=${PROFILING_Flags}
+profile: UserDynamicLinkFlags+=${PROFILING_LDFlags}
+profile: DependentLibraries+=${PROFILING_LIBS}
+profile: $(SUBPACKAGES)
+
+dbgprofile: UserCFlags+=${DEBUG_CFlags} ${PROFILING_Flags}
+dbgprofile: UserCCFlags+=${DEBUG_CCFlags} ${PROFILING_Flags}
+dbgprofile: UserDynamicLinkFlags+=${PROFILING_LDFlags}
+dbgprofile: DependentLibraries+=${PROFILING_LIBS}
+dbgprofile: $(SUBPACKAGES)
 
 install: $(LIBDIR) $(SUBPACKAGES) $(SUBPACKAGES.INSTALL)
 
@@ -46,15 +78,15 @@ $(SUBPACKAGES.CLEAN):
 
 gemHwMonitor: gemutils gembase gemhardware 
 
-gemhardware: gemutils gembase
+gemhardware: gemutils gembase gemreadout
 
 gembase: gemutils
 
-gemsupervisor: gemhardware gembase gemreadout
+gemsupervisor: gemutils gembase gemhardware gemreadout
 
 gemutils: 
 
-gemreadout: gemhardware gemutils gembase
+gemreadout: gemutils gembase
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
@@ -65,4 +97,5 @@ print-env:
 	@echo ROOTCFLAGS    $(ROOTCFLAGS)
 	@echo ROOTLIBS      $(ROOTLIBS)
 	@echo ROOTGLIBS     $(ROOTGLIBS)
-
+	@echo GIT_VERSION   $(GIT_VERSION)
+	@echo GEMDEVLOPER   $(GEMDEVLOPER)
