@@ -1,5 +1,5 @@
-#ifndef gem_base_GEMFSM_h
-#define gem_base_GEMFSM_h
+#ifndef GEM_BASE_GEMFSM_H
+#define GEM_BASE_GEMFSM_H
 
 #include <map>
 #include <string>
@@ -9,10 +9,14 @@
 #include "toolbox/Event.h"
 #include "toolbox/fsm/FiniteStateMachine.h"
 #include "toolbox/lang/Class.h"
+
 #include "xcept/Exception.h"
-#include "xdaq2rc/RcmsStateNotifier.h"
+
+#include "xdata/String.h"
+
 #include "xoap/MessageReference.h"
-#include "xcept/Exception.h"
+
+#include "gem/base/GEMState.h"
 
 //Basic implementation copied from TCDS code
 
@@ -27,65 +31,68 @@ namespace gem {
 
     class GEMWebApplication;
     class GEMFSMApplication;
-    
-    static const toolbox::fsm::State STATE_INITIAL     = 'I'; ///< Initial state
-    static const toolbox::fsm::State STATE_HALTED      = 'H'; ///< Halted state
-    static const toolbox::fsm::State STATE_CONFIGURED  = 'C'; ///< Configured state
-    static const toolbox::fsm::State STATE_RUNNING     = 'E'; ///< Running (enabled, active) state
-    static const toolbox::fsm::State STATE_PAUSED      = 'P'; ///< Paused state
-    static const toolbox::fsm::State STATE_FAILED      = 'F'; ///< Failed state
-    
-    //transitional states, TCDS way seems more elegant than HCAL, but both use a similar idea
-    static const toolbox::fsm::State STATE_INITIALIZING = 'i'; ///< Initializing transitional state
-    static const toolbox::fsm::State STATE_CONFIGURING  = 'c'; ///< Configuring transitional state
-    static const toolbox::fsm::State STATE_HALTING      = 'h'; ///< Halting transitional state
-    static const toolbox::fsm::State STATE_PAUSING      = 'p'; ///< Pausing transitional state
-    static const toolbox::fsm::State STATE_STOPPING     = 's'; ///< Stopping transitional state
-    static const toolbox::fsm::State STATE_STARTING     = 'e'; ///< Starting transitional state
-    static const toolbox::fsm::State STATE_RESUMING     = 'r'; ///< Resuming transitional state
-    static const toolbox::fsm::State STATE_RESETTING    = 't'; ///< Resetting transitional state
-    static const toolbox::fsm::State STATE_FIXING       = 'X'; ///< Fixing transitional state
-        
+
     class GEMFSM : virtual public toolbox::lang::Class
       {
         friend class GEMFSMApplication;
       public:
-        //HCAL states, are they useful for GEM?
-        /*
-          static const toolbox::fsm::State STATE_UNINIT  ='U'; ///< Uninitialized state (power on, reset, and recovery state)
-          static const toolbox::fsm::State STATE_COLD    ='C'; ///< Cold initialization state (firmware reload)
-          static const toolbox::fsm::State STATE_INIT    ='I'; ///< Initialization state
-          static const toolbox::fsm::State STATE_PREINIT ='N'; ///< Pre-initialized state used by cards which may require two stages of configuration, where the first is fast
-          static const toolbox::fsm::State STATE_WARM    ='W'; ///< WARM Initialization state
-        */
-        
-        GEMFSM(GEMFSMApplication* const gemAppP);//,
-        //gem::base::utils::ApplicationStateInfoSpaceHandler* const infoSpaceHandlerP);
+
+        GEMFSM(GEMFSMApplication* const gemAppP);
+
         virtual ~GEMFSM();
-	
+
+        /**
+         * @brief
+         */
         void fireEvent(::toolbox::Event::Reference const &event);
-	
+
+        /**
+         * @brief
+         */
         xoap::MessageReference changeState(xoap::MessageReference msg);
-	
+
+        /**
+         * @brief
+         */
         std::string getCurrentState() const;
+
+        /**
+         * @brief
+         */
         std::string getStateName(toolbox::fsm::State const& state) const;
-	
-        /*may not need (all of) these, no need to just blindly copy TCDS :-)*/
-        //void configureAndEnable();
+
+        /**
+         * @brief
+         */
         void gotoFailed(std::string const reason="No further information available");
+
+        /**
+         * @brief
+         */
         void gotoFailed(xcept::Exception& err);
+
+        /**
+         * @brief
+         */
         void gotoFailedAsynchronously(xcept::Exception& err);
 
       protected:
-        void notifyRCMS(toolbox::fsm::FiniteStateMachine& fsm, std::string const msg)
-          throw(toolbox::fsm::exception::Exception);
+
+        /**
+         * @brief
+         */
         void stateChanged(toolbox::fsm::FiniteStateMachine& fsm)
           throw(toolbox::fsm::exception::Exception);
+
         //void stateChangedWithNotification(toolbox::fsm::FiniteStateMachine& fsm);
+
         //void stateChangedToFailedWithNotification(toolbox::fsm::FiniteStateMachine& fsm);
-	
+
+        /**
+         * @brief
+         */
         void invalidAction(toolbox::Event::Reference event);
-	
+
       private:
         toolbox::fsm::AsynchronousFiniteStateMachine* p_gemfsm;
         xdata::InfoSpace *p_appInfoSpace;
@@ -96,11 +103,9 @@ namespace gem {
 
         GEMFSMApplication* p_gemApp;
         log4cplus::Logger m_gemLogger;
-        std::map<std::string, std::string> lookupMap_;
-        xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
+        std::map<std::string, std::string> m_lookupMap;
       };
-    
-  } // namespace gem::base
-} // namespace gem
+  }  // namespace gem::base
+}  // namespace gem
 
-#endif
+#endif  // GEM_BASE_GEMFSM_H

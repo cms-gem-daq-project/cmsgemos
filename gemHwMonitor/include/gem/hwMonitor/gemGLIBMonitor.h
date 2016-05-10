@@ -1,9 +1,9 @@
-#ifndef gem_hwMonitor_gemGLIBMonitor_h
-#define gem_hwMonitor_gemGLIBMonitor_h
+#ifndef GEM_HWMONITOR_GEMGLIBMONITOR_H
+#define GEM_HWMONITOR_GEMGLIBMONITOR_H
 
 #include "gemHwMonitorBase.h"
 
-namespace gem { 
+namespace gem {
   namespace base {
     namespace utils {
       class gemXMLparser;
@@ -24,10 +24,11 @@ namespace gem {
         throw (xgi::exception::Exception);
       void getGLIBRef()
         throw (xgi::exception::Exception);
-                
+
     private:
-      gem::utils::gemGLIBProperties glibRef_;
-    }
-  }
-}
-#endif
+      gem::utils::gemGLIBProperties m_glibRef;
+    };
+  }  // namespace gem::hwMonitor
+}  // namespace gem
+
+#endif  // GEM_HWMONITOR_GEMGLIBMONITOR_H

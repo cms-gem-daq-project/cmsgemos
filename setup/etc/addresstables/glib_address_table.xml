@@ -73,6 +73,15 @@
     <node id="DAQ"  address="0x70000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_daq_registers.xml"
           description="registers related to the control of the GLIB DAQ link"/>
+
+    <!--node id="TRIGGER"  address="0x78000000"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_trigger_registers.xml"
+          description="registers related to the control of the GLIB trigger link"/-->
+
+    <node id="TTC"  address="0x7c000000"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_ttc_registers.xml"
+          description="registers related to the control of the GLIB TTC link"/>
+
     
     <node id="TEST">
       <node id="GLIB"  address="0x4004010a"

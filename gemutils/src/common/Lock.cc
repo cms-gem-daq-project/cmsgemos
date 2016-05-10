@@ -1,10 +1,11 @@
 // copied from tcds/utils/src/common/Lock.cc
-#include "gem/utils/Lock.h"
+
+#include <gem/utils/Lock.h>
 
 gem::utils::Lock::Lock(toolbox::BSem::State state, bool recursive) :
-  semaphore_(state, recursive)
+  m_semaphore(state, recursive)
 {
-
+  // default constructor
 }
 
 gem::utils::Lock::~Lock()
@@ -12,14 +13,12 @@ gem::utils::Lock::~Lock()
   unlock();
 }
 
-void
-gem::utils::Lock::lock()
+void gem::utils::Lock::lock()
 {
-  semaphore_.take();
+  m_semaphore.take();
 }
 
-void
-gem::utils::Lock::unlock()
+void gem::utils::Lock::unlock()
 {
-  semaphore_.give();
+  m_semaphore.give();
 }

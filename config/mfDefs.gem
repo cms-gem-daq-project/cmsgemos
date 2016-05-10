@@ -1,0 +1,54 @@
+include $(XDAQ_ROOT)/config/mfAutoconf.rules
+include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
+
+BUILD_HOME:=$(shell pwd)/../..
+
+GIT_VERSION  := $(shell git describe --abbrev=4 --dirty --always --tags)
+GEMDEVELOPER := $(shell id --user --name)
+
+Project=gemdaq-testing
+ShortProject=gem
+
+# ROOT Config
+ROOTCFLAGS = $(shell root-config --cflags)
+ROOTLIBS   = $(shell root-config --libs)
+ROOTGLIBS  = $(shell root-config --glibs)
+
+# Debugging and profiling flags
+DEBUG_CFlags    = -O0 -g3 -fno-inline
+DEBUG_CCFlags   = ${DEBUG_CFlags}
+
+PROFILING_Flags   = -pg
+PROFILING_LDFlags = ${PROFILING_Flags}
+PROFILING_LIBS    = profiler tcmalloc
+
+# Modern compiler support, when available
+GCC47Flags = -std=c++11 -std=gnu++11
+GCC48Flags = -std=c++14 -std=gnu++14
+GCC49Flags = -std=c++17 -std=gnu++17
+
+# User C and CC flags
+UserCFlags  =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+UserCCFlags =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+UserStaticLinkFlags  =
+UserDynamicLinkFlags =
+
+IncludeDirs+=$(XDAQ_ROOT)/include
+LibraryDirs+=$(XDAQ_ROOT)/lib
+DependentLibraryDirs+=$(XDAQ_ROOT)/lib
+
+DependentLibraries+=asyncresolv boost_system config log4cplus
+DependentLibraries+=numa toolbox uuid xcept xdaq2rc xerces-c
+
+#Libraries+= log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
+
+#UserExecutableLinkFlags+=-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib
+#UserExecutableLinkFlags+=-Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib
+#UserExecutableLinkFlags+=-L$(CACTUS_HOME)/lib
+#UserExecutableLinkFlags+=-lreadline -lncurses -lpthread -lboost_filesystem
+#UserExecutableLinkFlags+=-lboost_regex -lboost_system -lcactus_extern_pugixml
+#UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
+
+#include $(XDAQ_ROOT)/config/Makefile.rules
+#include $(XDAQ_ROOT)/config/mfRPM.rules
+#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules

@@ -1,13 +1,14 @@
 #include "toolbox/version.h"
-#include "xoap/version.h"
 #include "xcept/version.h"
 #include "xdaq/version.h"
+#include "xoap/version.h"
 #include "gem/base/version.h"
 #include "gem/utils/version.h"
 
-GETPACKAGEINFO(gembase)
+GETPACKAGEINFO(gembase);
 
-void gembase::checkPackageDependencies() throw (config::PackageInfo::VersionException)
+void gembase::checkPackageDependencies()
+  throw (config::PackageInfo::VersionException)
 {
   CHECKDEPENDENCY(toolbox);
   CHECKDEPENDENCY(xcept);
@@ -18,11 +19,11 @@ void gembase::checkPackageDependencies() throw (config::PackageInfo::VersionExce
 
 std::set<std::string, std::less<std::string> > gembase::getPackageDependencies()
 {
-  std::set<std::string, std::less<std::string> > dependencies;
-  ADDDEPENDENCY(dependencies,toolbox);
-  ADDDEPENDENCY(dependencies,xcept);
-  ADDDEPENDENCY(dependencies,xdaq);
-  ADDDEPENDENCY(dependencies,xoap);
-  ADDDEPENDENCY(dependencies,gemutils);
-  return dependencies;
+  std::set<std::string, std::less<std::string> > deps;
+  ADDDEPENDENCY(deps,toolbox);
+  ADDDEPENDENCY(deps,xcept);
+  ADDDEPENDENCY(deps,xdaq);
+  ADDDEPENDENCY(deps,xoap);
+  ADDDEPENDENCY(deps,gemutils);
+  return deps;
 }

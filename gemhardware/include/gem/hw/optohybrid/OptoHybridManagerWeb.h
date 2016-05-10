@@ -1,5 +1,5 @@
-#ifndef gem_hw_optohybrid_OptoHybridManagerWeb_h
-#define gem_hw_optohybrid_OptoHybridManagerWeb_h
+#ifndef GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGERWEB_H
+#define GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGERWEB_H
 
 #include <memory>
 
@@ -8,7 +8,7 @@
 namespace gem {
   namespace hw {
     namespace optohybrid {
-      
+
       class OptoHybridManager;
 
       class OptoHybridManagerWeb : public gem::base::GEMWebApplication
@@ -18,7 +18,7 @@ namespace gem {
 
         public:
           OptoHybridManagerWeb(OptoHybridManager *optohybridApp);
-	  
+
           virtual ~OptoHybridManagerWeb();
 
         protected:
@@ -28,22 +28,22 @@ namespace gem {
 
           virtual void monitorPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
-          
+
           virtual void expertPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
-          
+
           void cardPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
-          
+
         private:
           size_t activeCard;
-	  
+
           //OptoHybridManagerWeb(OptoHybridManagerWeb const&);
-	  
+
         };
 
-    } // namespace gem::optohybrid
-  } // namespace gem::hw
-} // namespace gem
+    }  // namespace gem::optohybrid
+  }  // namespace gem::hw
+}  // namespace gem
 
-#endif
+#endif  // GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGERWEB_H

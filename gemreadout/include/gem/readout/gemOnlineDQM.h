@@ -1,8 +1,9 @@
-#ifndef gemOnlineDQM_H
-#define gemOnlineDQM_H
+#ifndef GEM_READOUT_GEMONLINEDQM_H
+#define GEM_READOUT_GEMONLINEDQM_H
+
 #define NVFAT 24
 #define DEBUG_ 0
-#include <iomanip> 
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -65,7 +66,7 @@ namespace gem {
             this->print();
           }
         }
-        
+
       private:
         std::map<int,int> strip_maps[NVFAT];
         std::map<int, GEMStripCollection> allstrips;
@@ -78,8 +79,8 @@ namespace gem {
 //=================================================================================================================
         void init(std::string slotFile_){
           slot_file = slotFile_;
-          std::string type[NVFAT] = {"Slot0" , "Slot1" , "Slot2" , "Slot3" , "Slot4" , "Slot5" , "Slot6" , "Slot7", 
-                                     "Slot8" , "Slot9" , "Slot10", "Slot11", "Slot12", "Slot13", "Slot14", "Slot15", 
+          std::string type[NVFAT] = {"Slot0" , "Slot1" , "Slot2" , "Slot3" , "Slot4" , "Slot5" , "Slot6" , "Slot7",
+                                     "Slot8" , "Slot9" , "Slot10", "Slot11", "Slot12", "Slot13", "Slot14", "Slot15",
                                      "Slot16", "Slot17", "Slot18", "Slot19", "Slot20", "Slot21", "Slot22", "Slot23"};
           char name[128], title[500];
           hiVFATsn       = new TH1F("VFATsn", "VFAT slot number", 24,  0., 24. );
@@ -92,7 +93,7 @@ namespace gem {
             hiStripsFired[i] = new TH1F(name, title, 20, 0., 20.);
             std::string path;
             path = std::getenv("BUILD_HOME");
-            if (DEBUG_) std::cout << "[gemOnlineDQM]: path to maps : " << path << std::endl; 
+            if (DEBUG_) std::cout << "[gemOnlineDQM]: path to maps : " << path << std::endl;
             if (i < 2) {
               path += "/gem-light-dqm/dqm-root/data/v2b_schema_chips0-1.csv";
             } else if (i < 16) {
@@ -112,10 +113,10 @@ namespace gem {
             GEMClusterContainer cls = clizer.doAction(ieta->second);
             ncl+=cls.size();
             for (GEMClusterContainer::iterator icl=cls.begin();icl!=cls.end();icl++){
-              hiClusterSize->Fill(icl->clusterSize());	  
+              hiClusterSize->Fill(icl->clusterSize());
             }
           }
-          hiClusterMult->Fill(ncl);	  
+          hiClusterMult->Fill(ncl);
           allstrips.clear();
         }
         int sn(const gem::readout::GEMDataAMCformat::VFATData& vfat){
@@ -169,26 +170,26 @@ namespace gem {
           if(!icsvfile_.is_open()) {
             std::cout << "\nThe file: " << icsvfile_ << " is missing.\n" << std::endl;
             return;
-          }  
+          }
           for (int il = 0; il < 128; il++) {
             std::string line;
             std::getline(icsvfile_, line);
-            if (DEBUG_) std::cout << "[gemOnlineDQM]: Read line : " << line << std::endl; 
+            if (DEBUG_) std::cout << "[gemOnlineDQM]: Read line : " << line << std::endl;
             std::istringstream iss(line);
             std::pair<int,int> map_;
             std::string val;
             std::getline(iss,val,',');
-            if (DEBUG_) std::cout << "[gemOnlineDQM]: First val : " << val << std::endl; 
+            if (DEBUG_) std::cout << "[gemOnlineDQM]: First val : " << val << std::endl;
             std::stringstream convertor(val);
             convertor >> std::dec >> map_.second;
-            if (DEBUG_) std::cout << "[gemOnlineDQM]: First val recorded : " << map_.second << std::endl; 
+            if (DEBUG_) std::cout << "[gemOnlineDQM]: First val recorded : " << map_.second << std::endl;
             std::getline(iss,val,',');
-            if (DEBUG_) std::cout << "[gemOnlineDQM]: Second val : " << val << std::endl; 
+            if (DEBUG_) std::cout << "[gemOnlineDQM]: Second val : " << val << std::endl;
             convertor.str("");
             convertor.clear();
             convertor << val;
             convertor >> std::dec >> map_.first;
-            if (DEBUG_) std::cout << "[gemOnlineDQM]: Second val recorded : " << map_.first << std::endl; 
+            if (DEBUG_) std::cout << "[gemOnlineDQM]: Second val recorded : " << map_.first << std::endl;
             strip_maps[slot_].insert(map_);
           }
         }
@@ -211,6 +212,7 @@ namespace gem {
           c->Print(prefix+hiBeamProfile->GetTitle()+".png","png");
         }
     };
-  }
-}
-#endif
+  }  // namespace gem::readout
+}  // namespace gem
+
+#endif  // GEM_READOUT_GEMONLINEDQM_H

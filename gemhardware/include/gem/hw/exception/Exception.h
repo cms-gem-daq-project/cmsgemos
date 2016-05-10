@@ -1,16 +1,41 @@
-#ifndef gem_hw_exception_Exception_h
-#define gem_hw_exception_Exception_h
+#ifndef GEM_HW_EXCEPTION_EXCEPTION_H
+#define GEM_HW_EXCEPTION_EXCEPTION_H
 
 #include <string>
 
-//#include "gem/base/exception/Exception.h"
 #include "xcept/Exception.h"
+
+/***
+ // Macros defined in xdaq code that are useful to remember
+ //! Macro to throw an excpetion with line number and function name
+ #define XCEPT_RAISE( EXCEPTION, MSG ) \
+ throw EXCEPTION( #EXCEPTION, MSG, __FILE__, __LINE__, __FUNCTION__)
+
+ #define XCEPT_RETHROW( EXCEPTION, MSG, PREVIOUS ) \
+ throw EXCEPTION( #EXCEPTION, MSG, __FILE__, __LINE__, __FUNCTION__, PREVIOUS)
+
+ #define XCEPT_ASSERT(COND, EXCEPTION, MSG) \
+ if (!(COND)) \
+ {\
+ XCEPT_RAISE(EXCEPTION, MSG);\
+ }
+
+ // Create a new exception and use
+ // it as a variable called VAR
+ #define XCEPT_DECLARE( EXCEPTION, VAR, MSG )				\
+ EXCEPTION VAR( #EXCEPTION, MSG, __FILE__, __LINE__, __FUNCTION__)
+
+ // Create a new exception from a previous one and use
+ // it as a variable called VAR
+ #define XCEPT_DECLARE_NESTED( EXCEPTION, VAR, MSG, PREVIOUS )		\
+ EXCEPTION VAR( #EXCEPTION, MSG, __FILE__, __LINE__, __FUNCTION__, PREVIOUS)
+***/
 
 #define GEM_HW_DEFINE_EXCEPTION(EXCEPTION_NAME)                         \
   namespace gem {                                                       \
     namespace hw {                                                      \
       namespace exception {                                             \
-        class EXCEPTION_NAME : virtual public xcept::Exception		\
+        class EXCEPTION_NAME : virtual public xcept::Exception          \
           {                                                             \
           public :                                                      \
           EXCEPTION_NAME() :                                            \
@@ -32,9 +57,9 @@
             xcept::Exception(name, message, module, line, function, err) \
               {};                                                       \
           };                                                            \
-      }                                                                 \
-    }                                                                   \
-  } 
+      }  /* namespace gem::hw::exception */                             \
+    }  /* namespace gem::hw            */                             \
+  }  /* namespace gem                */
 
 // The gem::hw exceptions.
 GEM_HW_DEFINE_EXCEPTION(Exception)
@@ -57,4 +82,4 @@ GEM_HW_DEFINE_EXCEPTION(ValueError)
 
 GEM_HW_DEFINE_ALARM(MonitoringFailureAlarm)
 
-#endif // gem_hw_exception_Exception_h
+#endif  // GEM_HW_EXCEPTION_EXCEPTION_H

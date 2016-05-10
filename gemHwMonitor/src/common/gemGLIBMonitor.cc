@@ -3,7 +3,7 @@
 gem::hwMonitor::gemGLIBMonitorBase::gemGLIBMonitorBase(gem::base::utils::gemGLIBProperties& glibRef)
   throw (xgi::exception::Exception)
 {
-  glibRef_ = glibRef;
+  m_glibRef = glibRef;
 }
 
 gem::hwMonitor::gemGLIBMonitorBase::~gemGLIBMonitorBase()
@@ -14,8 +14,8 @@ gem::hwMonitor::gemGLIBMonitorBase::~gemGLIBMonitorBase()
 void gem::hwMonitor::gemGLIBMonitorBase::setGLIBRef()
   throw (xgi::exception::Exception)
 {
-  glibRefs_ = 
-    }
+  glibRefs_ = ;
+}
 
 gem::hwMonitor::gemGLIBMonitorBase::getGLIBRef()
 throw (xgi::exception::Exception)
