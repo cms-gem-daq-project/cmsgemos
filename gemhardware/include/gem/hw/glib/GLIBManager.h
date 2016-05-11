@@ -96,7 +96,6 @@ namespace gem {
             xdata::Integer sbitSource;
 
             inline std::string toString() {
-              // write obj to stream
               std::stringstream os;
               os << "present:" << present.toString() << std::endl
                  << "crateID:" << crateID.toString() << std::endl
@@ -114,15 +113,15 @@ namespace gem {
             };
           };
 
-          mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
+          mutable gem::utils::Lock m_deviceLock;  // [MAX_AMCS_PER_CRATE];
 
-          glib_shared_ptr              m_glibs[MAX_AMCS_PER_CRATE];
-          std::shared_ptr<GLIBMonitor> m_glibMonitors[MAX_AMCS_PER_CRATE];
-          //xdata::InfoSpace*            is_glibs[MAX_AMCS_PER_CRATE];
-          is_toolbox_ptr               is_glibs[MAX_AMCS_PER_CRATE];
-          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
-          xdata::String        m_amcSlots;
-          xdata::String        m_connectionFile;
+          std::array<glib_shared_ptr, MAX_AMCS_PER_CRATE>              m_glibs;
+          std::array<std::shared_ptr<GLIBMonitor>, MAX_AMCS_PER_CRATE> m_glibMonitors;
+          std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE>               is_glibs;
+
+          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
+          xdata::String                        m_amcSlots;
+          xdata::String                        m_connectionFile;
         };  // class GLIBManager
 
     }  // namespace gem::hw::glib
