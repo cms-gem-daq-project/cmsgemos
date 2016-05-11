@@ -1,5 +1,5 @@
-#ifndef gem_hw_vfat_VFAT2SettingsEnums_h
-#define gem_hw_vfat_VFAT2SettingsEnums_h
+#ifndef GEM_HW_VFAT_VFAT2SETTINGSENUMS_H
+#define GEM_HW_VFAT_VFAT2SETTINGSENUMS_H
 
 namespace gem {
   namespace hw {
@@ -243,11 +243,9 @@ namespace gem {
             SEND = 0x1          //Send the packet
           } DFTestPattern;
         };
-      }; //end class VFAT2Settings
-      
-    }//end namespace gem::hw::vfat
-    
-  }//end namespace gem::hw
+      };  // class VFAT2Settings
+    }  // namespace gem::hw::vfat
+  }  // namespace gem::hw
   
   //typedef the struct for access to the members via struct::VALUE
   typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitMasks   VFAT2ChannelBitMasks;
@@ -276,6 +274,6 @@ namespace gem {
   typedef gem::hw::vfat::VFAT2Settings::PbBG::EPbBG                   VFAT2PadBandgap;
   typedef gem::hw::vfat::VFAT2Settings::DFTestPattern::EDFTestPattern VFAT2DFTestPattern;
 
-}//end namespace gem
+}  // namespace gem
 
-#endif
+#endif  // GEM_HW_VFAT_VFAT2SETTINGSENUMS_H

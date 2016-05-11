@@ -1,5 +1,5 @@
-#ifndef gem_readout_GEMslotContents_h
-#define gem_readout_GEMslotContents_h
+#ifndef GEM_READOUT_GEMSLOTCONTENTS_H
+#define GEM_READOUT_GEMSLOTCONTENTS_H
 
 #include <iostream>
 #include <fstream>
@@ -11,7 +11,7 @@ namespace gem {
 
     class GEMslotContents {
       //struct is a class with all members public by default
-    public:     
+    public:
       GEMslotContents(const std::string& slotFile) {
         slotFile_ = slotFile;
         getSlotCfg();
@@ -34,13 +34,13 @@ namespace gem {
         path +="/gemdaq-testing/gemreadout/data/";
         path += slotFile_;
         ifile.open(path);
-        
+
         if(!ifile.is_open()) {
           std::cout << "[GEMslotContents]: The file: " << ifile << " is missing.\n" << std::endl;
           isFileRead = false;
           return;
-        };        
-        
+        };
+
         for (int row = 0; row < 3; row++) {
           std::string line;
           std::getline(ifile, line);
@@ -67,7 +67,7 @@ namespace gem {
         for (int islot = 0; islot < 24; islot++) {
           if ( (GEBChipID & 0x0fff ) == slot[islot] ) indxslot = islot;
         }//end for slot
-        
+
         return (indxslot);
       };
       uint32_t GEBChipIdFromSlot(int slotindex){
@@ -82,7 +82,8 @@ namespace gem {
         return count;
       };
 
-    }; // end class GEMslotContents
-  } //end namespace gem::readout
-} //end namespace gem
-#endif
+    };  // class GEMslotContents
+  }  // namespace gem::readout
+}  // namespace gem
+
+#endif  // GEM_READOUT_GEMSLOTCONTENTS_H

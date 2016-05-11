@@ -1,6 +1,5 @@
-#ifndef gem_supervisor_tbutils_GEMTBUtil_h
-#define gem_supervisor_tbutils_GEMTBUtil_h
-
+#ifndef GEM_SUPERVISOR_TBUTILS_GEMTBUTIL_H
+#define GEM_SUPERVISOR_TBUTILS_GEMTBUTIL_H
 
 #include <map>
 #include <string>
@@ -35,16 +34,7 @@
 #include "xdata/Integer.h"
 #include "xdata/Vector.h"
 
-#include "TStopwatch.h"
-
 #include "gem/readout/GEMslotContents.h"
-
-class TH1D;
-class TH1F;
-class TFile;
-class TCanvas;
-
-class MyTime;
 
 namespace toolbox {
   namespace fsm {
@@ -79,10 +69,10 @@ namespace gem {
 
   namespace supervisor {
     namespace tbutils {
-      
+
       class GEMTBUtil : public xdaq::WebApplication, public xdata::ActionListener
 	{
-	  
+
 	public:
 	  XDAQ_INSTANTIATOR();
 	  GEMTBUtil(xdaq::ApplicationStub * s)
@@ -93,7 +83,7 @@ namespace gem {
 	  virtual void stateChanged(toolbox::fsm::FiniteStateMachine& fsm);
 	  virtual void transitionFailed(toolbox::Event::Reference event);
 	  virtual void fireEvent(const std::string& name);
-	  
+
 	  // SOAP interface
 	  virtual xoap::MessageReference onInitialize(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
@@ -108,19 +98,19 @@ namespace gem {
 	  virtual xoap::MessageReference onReset(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
 
-	  //SOAP MEssage AMC13	
+	  //SOAP MEssage AMC13
 	  void sendInitializeMessageAMC13()
 	    throw (xgi::exception::Exception);
 	  void sendStopMessageAMC13()
 	    throw (xgi::exception::Exception);
-	  
 
-	  //SOAP MEssage GLIB	
+
+	  //SOAP MEssage GLIB
 	  void sendInitializeMessageGLIB()
 	    throw (xgi::exception::Exception);
 	  void sendStopMessageGLIB()
 	    throw (xgi::exception::Exception);
-	
+
 	  // HyperDAQ interface
 	  virtual void webDefault(xgi::Input *in, xgi::Output *out)
 	    throw (xgi::exception::Exception);
@@ -165,7 +155,7 @@ namespace gem {
 	    throw (toolbox::fsm::exception::Exception);
 	  virtual void noAction(toolbox::Event::Reference e)
 	    throw (toolbox::fsm::exception::Exception);
-	  
+
 	  //web display helpers
 	  //	  virtual void selectVFAT(xgi::Output* out)
 	  //  throw (xgi::exception::Exception);
@@ -182,27 +172,22 @@ namespace gem {
 	  virtual void showBufferLayout(xgi::Output* out)
 	    throw (xgi::exception::Exception);
 	  virtual void redirect(xgi::Input* in, xgi::Output* out);
-	  
+
 	  //action performed callback
 	  virtual void actionPerformed(xdata::Event& event);
 
-	  //select OH 
+	  //select OH
 	  virtual void selectOptohybridDevice(xgi::Output* out)
 	    throw (xgi::exception::Exception);
 
-	  //link data parker and scan routines
-	  void dumpRoutinesData( uint8_t const& mask, u_int8_t latency, u_int8_t VT1, u_int8_t VT2 );
-
-	  void ScanRoutines(u_int8_t latency_,u_int8_t VT1_,u_int8_t VT2_);
-
-	  class ConfigParams 
+	  class ConfigParams
 	  {
 	  public:
 	    //void getFromFile(const std::string& fileName);
 	    virtual void registerFields(xdata::Bag<ConfigParams> *bag);
 
 	    xdata::Integer         ohGTXLink;
-	    
+
 	    xdata::UnsignedInteger readoutDelay;
 
 	    xdata::UnsignedInteger nTriggers;
@@ -216,21 +201,21 @@ namespace gem {
 	    xdata::Vector<xdata::Integer> deviceNum;
 
 	    xdata::String        deviceIP;
-	    xdata::UnsignedShort triggerSource;
+	    //	    xdata::UnsignedShort triggerSource;
 	    xdata::UnsignedShort deviceChipID;
 	    xdata::UnsignedInteger64 triggersSeen;
 
 	    xdata::UnsignedInteger32 triggercount;
-	    
+
 	    xdata::Integer       ADCVoltage;
 	    xdata::Integer       ADCurrent;
 
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
-	    xdata::UnsignedShort triggerSource_;
+	    //	    xdata::UnsignedShort triggerSource_;
 
 	  };
-	  
+
 	protected:
 
 	  std::unique_ptr<gem::readout::GEMslotContents> slotInfo;
@@ -242,7 +227,7 @@ namespace gem {
 	  toolbox::task::WorkLoop *wl_;
 	  toolbox::BSem wl_semaphore_;
 	  toolbox::BSem hw_semaphore_;
-	  
+
 	  toolbox::task::ActionSignature* initSig_;
 	  toolbox::task::ActionSignature* confSig_;
 	  toolbox::task::ActionSignature* startSig_;
@@ -254,56 +239,33 @@ namespace gem {
 	  //ConfigParams confParams_;
 	  uint8_t readout_mask;
 
-
 	  xdata::Bag<ConfigParams> confParams_;
 	  xdata::String ipAddr_;
-	  
+
 	  FILE* outputFile;
-	  //std::fstream* scanStream;
-	  //0xdeadbeef
 
 	  uint64_t nTriggers_;
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
 
-	  //readout application should be running elsewhere, not tied to supervisor                                                                           
+	  //readout application should be running elsewhere, not tied to supervisor
 	  glib_shared_ptr glibDevice_;
 	  optohybrid_shared_ptr optohybridDevice_;
 	  std::vector<vfat_shared_ptr> vfatDevice_;
 	  std::vector<vfat_shared_ptr> VFATdeviceConnected;
 
-	  // Counter
-	  // VFAT Blocks Counter
-	  int vfat_;
-	  
-	  // Events Counter     
-	  int event_;
-	  
-	  // VFATs counter per event
-	  int sumVFAT_;
-
 	  // CalPulse counting
 	  uint32_t CalPulseCount_[3];
-	  
-	  TH1D* histolatency;
-	  TH1F* histo;
-	  TH1F* histos[128];
-	  TCanvas* outputCanvas;
-
-          TStopwatch timer;
 
 	  xdata::Bag<ConfigParams> scanParams_;
-	  uint64_t eventsSeen_,channelSeen_;
-	  uint64_t triggerSource_;
+	  //	  uint64_t triggerSource_;
 	  uint8_t  currentLatency_,deviceVT1,deviceVT2;
-	  uint32_t counter_[5];
-	  //	  int latency_m, VT1_m, VT2_m;
-	  uint32_t m_counter[5]; 
 
 	protected:
 
 	};
 
-    } //end namespace gem::supervisor::tbutils
-  } //end namespace gem::supervisor
-} //end namespace gem
-#endif
+    }  // namespace gem::supervisor::tbutils
+  }  // namespace gem::supervisor
+}  // namespace gem
+
+#endif  // GEM_SUPERVISOR_TBUTILS_GEMTBUTIL_H

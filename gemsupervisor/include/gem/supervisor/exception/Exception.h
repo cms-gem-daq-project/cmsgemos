@@ -1,5 +1,5 @@
-#ifndef gem_supervisor_exception_Exception_h
-#define gem_supervisor_exception_Exception_h
+#ifndef GEM_SUPERVISOR_EXCEPTION_EXCEPTION_H
+#define GEM_SUPERVISOR_EXCEPTION_EXCEPTION_H
 
 #include <string>
 
@@ -35,7 +35,7 @@
   namespace gem {                                                       \
     namespace supervisor {                                              \
       namespace exception {                                             \
-        class EXCEPTION_NAME : virtual public xcept::Exception		\
+        class EXCEPTION_NAME : virtual public xcept::Exception          \
           {                                                             \
           public :                                                      \
           EXCEPTION_NAME(std::string name,                              \
@@ -54,9 +54,9 @@
             xcept::Exception(name, message, module, line, function, err) \
               {};                                                       \
           };                                                            \
-      }                                                                 \
-    }                                                                   \
-  } 
+      }  /* namespace gem::supervisor::exception */                     \
+    }    /* namespace gem::supervisor            */                     \
+  }      /* namespace gem                        */
 
 // The gem::supervisor exceptions.
 GEM_SUPERVISOR_DEFINE_EXCEPTION(Exception)
@@ -80,4 +80,4 @@ GEM_SUPERVISOR_DEFINE_EXCEPTION(ValueError)
 #define GEM_SUPERVISOR_DEFINE_ALARM(ALARM_NAME) GEM_SUPERVISOR_DEFINE_EXCEPTION(ALARM_NAME)
 GEM_SUPERVISOR_DEFINE_ALARM(MonitoringFailureAlarm)
 
-#endif // gem_supervisor_exception_Exception_h
+#endif  // GEM_SUPERVISOR_EXCEPTION_EXCEPTION_H

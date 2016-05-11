@@ -1,4 +1,4 @@
-package rcms.fm.app.gemLevelOne;
+package rcms.fm.gem.gemLevelOne;
 
 import rcms.fm.fw.parameter.FunctionManagerParameter;
 import rcms.fm.fw.parameter.ParameterSet;

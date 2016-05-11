@@ -1,5 +1,5 @@
-#ifndef gem_datachecker_GEMDataChecker_h
-#define gem_datachecker_GEMDataChecker_h
+#ifndef GEM_DATACHECKER_GEMDATACHECKER_H
+#define GEM_DATACHECKER_GEMDATACHECKER_H
 
 //#include "gem/utils/GEMLogging.h"
 #include <stdint.h>
@@ -30,17 +30,17 @@ namespace gem {
           }
           return(crc_fin);
         }
-      
+
       private:
 
         uint16_t crc_calc(uint16_t crc_in, uint16_t dato)
         {
           uint16_t v = 0x0001;
-          uint16_t mask = 0x0001;    
+          uint16_t mask = 0x0001;
           bool d=0;
           uint16_t crc_temp = crc_in;
           unsigned char datalen = 16;
-           
+
           for (int i=0; i<datalen; i++){
             if (dato & v) d = 1;
             else d = 0;
@@ -49,8 +49,9 @@ namespace gem {
             v<<=1;
           }
           return(crc_temp);
-        } 
+        }
       };
-   }
-}
-#endif
+   }  // namespace gem::datachecker
+}  // namespace gem
+
+#endif  // GEM_DATACHECKER_GEMDATACHECKER_H

@@ -1,6 +1,6 @@
-package rcms.fm.app.gemLevelOne.gui;
+package rcms.fm.gem.gemLevelOne.gui;
 
-import rcms.fm.app.gemLevelOne.GEMFunctionManager;
+import rcms.fm.gem.gemLevelOne.GEMFunctionManager;
 
 public class GuiStatePanel {
     

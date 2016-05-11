@@ -1,12 +1,11 @@
-#ifndef gem_hw_glib_GLIBReadout_h
-#define gem_hw_glib_GLIBReadout_h
+#ifndef GEM_HW_GLIB_GLIBREADOUT_H
+#define GEM_HW_GLIB_GLIBREADOUT_H
 
-#include <gem/base/GEMReadoutApplication.h>
-#include <gem/readout/GEMDataAMCformat.h>
-#include <gem/hw/glib/exception/Exception.h>
+#include "gem/readout/GEMReadoutApplication.h"
+#include "gem/readout/GEMDataAMCformat.h"
+#include "gem/hw/glib/exception/Exception.h"
 
-namespace gem {
-  
+namespace gem {  
   namespace readout {
     struct GEMDataAMCformat;
   }
@@ -17,7 +16,7 @@ namespace gem {
 
       typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
 
-      class GLIBReadout: public gem::base::GEMReadoutApplication
+      class GLIBReadout: public gem::readout::GEMReadoutApplication
         {
         public:
           XDAQ_INSTANTIATOR();
@@ -27,7 +26,7 @@ namespace gem {
           
           GLIBReadout(xdaq::ApplicationStub* s);
           //GLIBReadout(xdaq::ApplicationStub* s, glib_shared_ptr glib);
-
+          
           virtual ~GLIBReadout();
           
           void ScanRoutines(uint8_t latency, uint8_t VT1, uint8_t VT2);
@@ -57,7 +56,9 @@ namespace gem {
           virtual void stopAction()       throw (gem::hw::glib::exception::Exception);
           virtual void haltAction()       throw (gem::hw::glib::exception::Exception);
           virtual void resetAction()      throw (gem::hw::glib::exception::Exception);
-
+          
+          virtual int readout(unsigned int expected, unsigned int* eventNumbers, std::vector< ::toolbox::mem::Reference* >& data);
+          
           uint32_t* dumpData( uint8_t const& mask );
 
           uint32_t* selectData(uint32_t counter[5]);
@@ -152,8 +153,9 @@ namespace gem {
           int m_sumVFAT;
       
           int16_t m_scanParam;
-        }; // end class GLIBReadout
-    } //end namespace gem::hw::glib
-  } //end namespace gem::hw
-} //end namespace gem
-#endif
+        };  // class GLIBReadout
+    }  // namespace gem::hw::glib
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_GLIB_GLIBREADOUT_H
