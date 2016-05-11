@@ -1,5 +1,5 @@
-#ifndef gem_hwMonitor_gemCrateMonitorBase_h
-#define gem_hwMonitor_gemCrateMonitorBase_h
+#ifndef GEM_HWMONITOR_GEMCRATEMONITORBASE_H
+#define GEM_HWMONITOR_GEMCRATEMONITORBASE_H
 
 #include <string>
 #include <vector>
@@ -25,7 +25,7 @@ namespace gem {
     public:
       gemCrateMonitorBase(const gem::utils::gemCrateProperties & crateRef)
         throw (xdaq::exception::Exception);
-	
+
       ~gemCrateMonitorBase() {}
       /*
        *   Get system configuration
@@ -37,11 +37,12 @@ namespace gem {
        virtual void boardUtils ()
        throw (xgi::exception::Exception);
       */
-	 
+
     protected:
     private:
-      gem::utils::gemCrateProperties* crateRef_;
-    }; // end namespace hwMon
-  }
-} // end namespace gem
-#endif
+      gem::utils::gemCrateProperties* p_crateRef;
+    };
+  }  // namespace gem::hwMonitor
+}  // namespace gem
+
+#endif  // GEM_HWMONITOR_GEMCRATEMONITORBASE_H

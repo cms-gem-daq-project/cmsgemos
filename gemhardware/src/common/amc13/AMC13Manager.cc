@@ -6,22 +6,15 @@
  * date: 
  */
 
+#include "amc13/AMC13.hh"
+#include "amc13/Status.hh"
+
 #include "gem/hw/amc13/AMC13ManagerWeb.h"
 #include "gem/hw/amc13/AMC13Manager.h"
 
 //#include "gem/hw/amc13/exception/Exception.h"
-
-#include "amc13/AMC13.hh"
-#include "amc13/Status.hh"
-
-#include "xoap/MessageReference.h"
-#include "xoap/MessageFactory.h"
-#include "xoap/SOAPEnvelope.h"
-#include "xoap/SOAPConstants.h"
-#include "xoap/SOAPBody.h"
-#include "xoap/Method.h"
-#include "xoap/AttachmentPart.h"
-
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::amc13::AMC13Manager);
 
@@ -39,13 +32,20 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("MonitorBackPressure", &monBackPressure);
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
   bag->addField("EnableLocalL1A",      &enableLocalL1A );
-
-  bag->addField("EnableCalPulse",      &enableCalpulse );
-
   bag->addField("InternalPeriodicPeriod", &internalPeriodicPeriod );
-  bag->addField("L1Amode", &l1Amode );
-  bag->addField("L1Arules", &l1Arules );
-  bag->addField("L1Aburst", &l1Aburst );
+  bag->addField("L1Amode",                &l1Amode  );
+  bag->addField("L1Arules",               &l1Arules );
+  bag->addField("L1Aburst",               &l1Aburst );
+  bag->addField("sendL1ATriburst",        &sendl1ATriburst );
+  bag->addField("startL1ATricont",        &startl1ATricont );
+
+  bag->addField("EnableCalPulse", &enableCalpulse);
+  bag->addField("BGOChannel",     &bgochannel    );
+  bag->addField("BGOcmd",         &bgocmd        );
+  bag->addField("BGObx",          &bgobx         );
+  bag->addField("BGOprescale",    &bgoprescale   );
+  bag->addField("BGOrepeat",      &bgorepeat     );
+  bag->addField("BGOlong",        &bgolong       );
 
   bag->addField("PrescaleFactor", &prescaleFactor);
   bag->addField("BCOffset",       &bcOffset      );
@@ -57,17 +57,14 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("LocalL1AMask", &localL1AMask);
 }
 
-gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
+gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
+  throw (xdaq::exception::Exception) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
-  p_amc13(NULL),
-  is_running_     (false)
+  p_amc13(NULL)
 {
   m_crateID = -1;
   m_slot    = 13;
-
-
-
   
   p_appInfoSpace->fireItemAvailable("crateID",          &m_crateID    );
   p_appInfoSpace->fireItemAvailable("slot",             &m_slot       );
@@ -76,23 +73,17 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub) :
   uhal::setLogLevelTo(uhal::Error);
 
   //initialize the AMC13Manager application objects
-  DEBUG("connecting to the AMC13ManagerWeb interface");
+  DEBUG("AMC13Manager::connecting to the AMC13ManagerWeb interface");
   p_gemWebInterface = new gem::hw::amc13::AMC13ManagerWeb(this);
   //p_gemMonitor      = new gem::hw::amc13::AMC13HwMonitor(this);
-  DEBUG("done");
+  DEBUG("AMC13Manager::done");
 
-  //DEBUG("executing preInit for AMC13Manager");
+  //DEBUG("AMC13Manager::executing preInit for AMC13Manager");
   //preInit();
-  //DEBUG("done");
+  //DEBUG("AMC13Manager::done");
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::callbackinitialize, "CallBackInitialize", XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::callbackconfigure, "CallBackConfigure", XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::callbackstart, "CallBackStart", XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::callbackpause, "CallBackPause", XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::callbackresume, "CallBackResume", XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::callbackstop, "CallBackStop", XDAQ_NS_URI );   
-  
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::sendTriggerBurst,"sendtriggerburst", XDAQ_NS_URI );   
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
@@ -119,20 +110,28 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
   m_enableLocalL1A     = m_amc13Params.bag.enableLocalL1A.value_;
-
-  m_enableCalpulse     = m_amc13Params.bag.enableCalpulse.value_;
-
   m_internalPeriodicPeriod = m_amc13Params.bag.internalPeriodicPeriod.value_;
   m_L1Amode            = m_amc13Params.bag.l1Amode.value_;
   m_L1Arules           = m_amc13Params.bag.l1Arules.value_;
   m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
+  m_sendL1ATriburst    = m_amc13Params.bag.sendl1ATriburst.value_;
+  m_startL1ATricont    = m_amc13Params.bag.startl1ATricont.value_;
+
+  m_enableCalpulse     = m_amc13Params.bag.enableCalpulse.value_;
+  m_bgochannel         = m_amc13Params.bag.bgochannel.value_;
+  m_bgocmd             = m_amc13Params.bag.bgocmd.value_;
+  m_bgobx              = m_amc13Params.bag.bgobx.value_;
+  m_bgoprescale        = m_amc13Params.bag.bgoprescale.value_;
+  m_bgorepeat          = m_amc13Params.bag.bgorepeat.value_;
+  m_bgolong            = m_amc13Params.bag.bgolong.value_;
+
   m_prescaleFactor     = m_amc13Params.bag.prescaleFactor.value_;
   m_bcOffset           = m_amc13Params.bag.bcOffset.value_;
   m_fedID              = m_amc13Params.bag.fedID.value_;
   m_sfpMask            = m_amc13Params.bag.sfpMask.value_;
   m_slotMask           = m_amc13Params.bag.slotMask.value_;
   m_localL1AMask       = m_amc13Params.bag.localL1AMask.value_;
-  
+
   gem::base::GEMApplication::actionPerformed(event);
 }
 
@@ -150,27 +149,26 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //hcal has a pre-init, what is the reason to not do everything in initialize?
-  //std::string addressBase = "${AMC13_ADDRESS_TABLE_PATH}/";
-  //std::string connection  = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/amc13/"+m_connectionFile;
   std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
-  std::string cardname    = "gem.tamu.amc13";
-  //std::string cardname    = "gem.shelf01.amc13";
+  //std::string cardname    = toolbox::toString("gem.shelf%02d.amc13",m_crateID);
+  std::string cardname    = m_cardName;
+
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
     p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
   } catch (uhal::exception::exception & e) {
-    ERROR("AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (std::exception& e) {
-    ERROR("AMC13::AMC13() failed, caught std::exception:" << e.what() );
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception:" << e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (...) {
-    ERROR("AMC13::AMC13() failed, caught ...");
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught ...");
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
   }
 
-  DEBUG("finished with AMC13::AMC13()");
+  DEBUG("AMC13Manager::finished with AMC13::AMC13()");
 
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
@@ -178,13 +176,16 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     
     p_amc13->enableAllTTC();
   } catch (uhal::exception::exception & e) {
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   } catch (std::exception& e) {
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
 
   //equivalent to hcal init part
-  if (p_amc13==0) return;
+  if (p_amc13==0)
+    return;
   
   //have to set up the initialization of the AMC13 for the desired running situation
   //possibilities are TTC/TCDS mode, DAQ link, local trigger scheme
@@ -226,19 +227,9 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->resetCounters();
 
   // Setting L1A if config doc says so
-  if (m_enableLocalL1A) p_amc13->configureLocalL1A(m_enableLocalL1A,m_L1Amode,m_L1Aburst,m_internalPeriodicPeriod,m_L1Arules);
-
-  
-  int chan = 1;
-  uint8_t cmd = 0x13;
-  uint16_t bx = 0x1;
-  uint16_t prescale =0x1;
-  bool repeat = true;
-
-  if (m_enableCalpulse){
-  p_amc13->configureBGOShort( chan, cmd, bx, prescale, repeat);
-  p_amc13->getBGOConfig(chan);
-  } 
+  //DEBUG("Looking at L1A history before configure");
+  //p_amc13->getL1AHistory(4);
+  //std::cout << p_amc13->getL1AHistory(4) << std::endl;
 
   //unlock the access
 }
@@ -246,45 +237,47 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
+  INFO("AMC13 Configured L1ABurst BEFORE = " << m_L1Aburst);
+  m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
+  INFO("AMC13 Configured L1ABurst AFTER = " << m_L1Aburst);
+
+  if (m_enableLocalL1A)
+    p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+  //DEBUG("Looking at L1A history after configure");
+  //std::cout << p_amc13->getL1AHistory(4) << std::endl;
+
+  if (m_enableCalpulse) {
+    p_amc13->configureBGOShort(m_bgochannel, m_bgocmd, m_bgobx, m_bgoprescale, m_bgorepeat);
+    p_amc13->getBGOConfig(m_bgochannel);
+  }
+  INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
   //set the settings from the config options
-  usleep(500);
+  usleep(500); // just for testing the timing of different applications
 }
 
 void gem::hw::amc13::AMC13Manager::startAction()
   throw (gem::hw::amc13::exception::Exception)
 {
-  DEBUG("Entering gem::hw::amc13::AMC13Manager::startAction()");
+  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  //  usleep(500);
   p_amc13->reset(::amc13::AMC13::T1);
-  INFO("ENABLE LOCAL TRIGGER" << m_enableLocalL1A);
+  usleep(500);
+
+  p_amc13->reset(::amc13::AMC13::T1);
 
   p_amc13->startRun();
+  INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
 
-  p_amc13->localTtcSignalEnable(m_enableLocalL1A);
-  p_amc13->enableLocalL1A(m_enableLocalL1A);
-
-  //   p_amc13->enableBGO(0);
-
-  /*
-  INFO(p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
-  p_amc13->writeMask(::amc13::AMC13::T1, "ACTION.LOCAL_TRIG.CONTINUOUS");
-  INFO("AFTER write mask" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
-  p_amc13->startContinuousL1A();*/
-
-  //  std::string state = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState();
-
-  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
-
-  int chan = 1;
-  if (m_enableCalpulse){
-    p_amc13->enableBGO(chan);
+  if (m_enableLocalL1A && m_startL1ATricont) {
+    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+    p_amc13->enableLocalL1A(m_enableLocalL1A);
+    p_amc13->startContinuousL1A();
+  }
+  if (m_enableCalpulse) {
+    p_amc13->enableBGO(m_bgochannel);
     p_amc13->sendBGO();
   }
-
-  INFO("AFTER startcontinousl1a" << p_amc13->read(::amc13::AMC13::T1, "STATUS.LOCAL_TRIG.CONTINUOUS_ON"));
-
 }
 
 void gem::hw::amc13::AMC13Manager::pauseAction()
@@ -293,26 +286,42 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   //what does pause mean here?
   //if local triggers are enabled, do we have a separate trigger application?
   //we can just disable them here maybe?
-  if (m_enableLocalL1A) p_amc13->stopContinuousL1A();
-  //  usleep(500);
+  if (m_enableLocalL1A)
+    p_amc13->stopContinuousL1A();
+
+  if (m_enableCalpulse)
+    p_amc13->disableBGO(m_bgochannel);
+
+  usleep(500);
 }
 
 void gem::hw::amc13::AMC13Manager::resumeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //undo the actions taken in pauseAction
-  if (m_enableLocalL1A) p_amc13->startContinuousL1A();
-  //  usleep(500);
+  if (m_enableLocalL1A)
+    p_amc13->startContinuousL1A();
+
+  if (m_enableCalpulse) {
+    p_amc13->enableBGO(m_bgochannel);
+    p_amc13->sendBGO();
+  }
+
+  usleep(500);
 }
 
 void gem::hw::amc13::AMC13Manager::stopAction()
   throw (gem::hw::amc13::exception::Exception)
 {
-  DEBUG("Entering gem::hw::amc13::AMC13Manager::stopAction()");
+  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::stopAction()");
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  if (m_enableLocalL1A) p_amc13->stopContinuousL1A();
-  if (m_enableCalpulse) p_amc13->disableBGO(1);
+
+  if (m_enableLocalL1A)
+    p_amc13->stopContinuousL1A();
+
+  if (m_enableCalpulse)
+    p_amc13->disableBGO(m_bgochannel);
 
   usleep(500);
   p_amc13->endRun();
@@ -322,7 +331,7 @@ void gem::hw::amc13::AMC13Manager::haltAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //what is necessary for a halt on the AMC13?
-  usleep(500);
+  usleep(500); // just for testing the timing of different applications
 }
 
 void gem::hw::amc13::AMC13Manager::resetAction()
@@ -331,7 +340,7 @@ void gem::hw::amc13::AMC13Manager::resetAction()
   //what is necessary for a reset on the AMC13?
   DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
   if (p_amc13!=0) delete p_amc13;
-  p_amc13=0;
+  p_amc13 = 0;
   usleep(500);
   //gem::base::GEMFSMApplication::resetAction();
 }
@@ -347,99 +356,50 @@ void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
 }
 
+//void gem::hw::amc13::AMC13Manager::sendTriggerBurst()
+//  throw (gem::hw::amc13::exception::Exception)
 
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackinitialize(xoap::MessageReference msg) throw (xoap::exception::Exception)
+xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
 {
-
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Initializing AMC13---------------");
-   fireEvent("Initialize");
-
-// reply to caller                                                                     
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-   xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-   return reply;
-}
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackconfigure(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Configuring AMC13---------------");
-   fireEvent("Configure");
-
-  // reply to caller                                                                       
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-  return reply;
-}
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackstart(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Starting AMC13---------------");
-  fireEvent("Start");
-
-  // reply to caller                                                                       
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-  usleep(300);  
-  //  while(gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)){
-  /*  while(gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)){
- 
-
-   sleep(0.001);
-    is_running_ = false;
-
+  //set to send a burst of trigger
+  INFO("Entering gem::hw::amc13::AMC13Manager::sendTriggerBurst()");
+  if (msg.isNull()) {
+    XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
   }
-  */
+  
+  std::string commandName = "undefined";
+  try {
+    if (m_enableLocalL1A &&  m_sendL1ATriburst) {
+      //p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+      //p_amc13->enableLocalL1A(m_enableLocalL1A);
+      p_amc13->sendL1ABurst();
+    }
+  } catch(xoap::exception::Exception& err) {
+    std::string msgBase     = toolbox::toString("Unable to extract command from SOAP message");
+    std::string faultString = toolbox::toString("%s failed", commandName.c_str());
+    std::string faultCode   = "Client";
+    std::string detail      = toolbox::toString("%s: %s.",
+                                                msgBase.c_str(),
+                                                err.message().c_str());
+    std::string faultActor = this->getFullURL();
+    xoap::MessageReference reply =
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(faultString, faultCode, detail, faultActor);
     return reply;
+  }
+  try {
+    INFO("AMC13Manager::sendTriggerBurst command " << commandName << " succeeded ");
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
+  } catch(xcept::Exception& err) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                         top, toolbox::toString("%s.",msgBase.c_str()), err);
+    this->notifyQualified("error", top);
+    
+    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+  }  
+  XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackpause(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Pausing AMC13---------------");
-  fireEvent("Pause");
-
-  // reply to caller                                                                       
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-  return reply;
-}
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackresume(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Resumingsing AMC13---------------");
-  fireEvent("Resume");
-
-  // reply to caller                                                                       
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-  return reply;
-}
-
-
-xoap::MessageReference gem::hw::amc13::AMC13Manager::callbackstop(xoap::MessageReference msg) throw (xoap::exception::Exception)
-{
-  LOG4CPLUS_INFO(this->getApplicationLogger(),"SOAP Message Received--Stoping AMC13---------------");
-  fireEvent("Stop");
-
-  // reply to caller                                                                       
-  xoap::MessageReference reply         = xoap::createMessage();
-  xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPName         responseName  = envelope.createName( "onMessageResponse", "xdaq", XDAQ_NS_URI);
-  xoap::SOAPBodyElement  e             = envelope.getBody().addBodyElement ( responseName );
-
-  return reply;
-
-}
-
-
-

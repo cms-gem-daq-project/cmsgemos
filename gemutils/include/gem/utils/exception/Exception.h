@@ -1,5 +1,5 @@
-#ifndef gem_utils_exception_Exception_h
-#define gem_utils_exception_Exception_h
+#ifndef GEM_UTILS_EXCEPTION_EXCEPTION_H
+#define GEM_UTILS_EXCEPTION_EXCEPTION_H
 
 #include <string>
 
@@ -24,7 +24,7 @@
  // it as a variable called VAR
  #define XCEPT_DECLARE( EXCEPTION, VAR, MSG )				\
  EXCEPTION VAR( #EXCEPTION, MSG, __FILE__, __LINE__, __FUNCTION__)
- 
+
  // Create a new exception from a previous one and use
  // it as a variable called VAR
  #define XCEPT_DECLARE_NESTED( EXCEPTION, VAR, MSG, PREVIOUS )		\
@@ -35,7 +35,7 @@
   namespace gem {                                                       \
     namespace utils {                                                   \
       namespace exception {                                             \
-        class EXCEPTION_NAME : virtual public xcept::Exception		\
+        class EXCEPTION_NAME : virtual public xcept::Exception          \
           {                                                             \
           public :                                                      \
           EXCEPTION_NAME(std::string name,                              \
@@ -54,9 +54,9 @@
             xcept::Exception(name, message, module, line, function, err) \
               {};                                                       \
           };                                                            \
-      }                                                                 \
-    }                                                                   \
-  } 
+      }  /* namespace gem::utils::exception */                          \
+    }  /* namespace gem::utils            */                            \
+  }  /* namespace gem                   */
 
 // The gem::utils exceptions.
 GEM_UTILS_DEFINE_EXCEPTION(Exception)
@@ -78,4 +78,4 @@ GEM_UTILS_DEFINE_EXCEPTION(ValueError)
 #define GEM_UTILS_DEFINE_ALARM(ALARM_NAME) GEM_UTILS_DEFINE_EXCEPTION(ALARM_NAME)
 GEM_UTILS_DEFINE_ALARM(MonitoringFailureAlarm)
 
-#endif // gem_utils_exception_Exception_h
+#endif  // GEM_UTILS_EXCEPTION_EXCEPTION_H

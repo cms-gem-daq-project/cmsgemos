@@ -1,4 +1,6 @@
 #include <iomanip>
+#include <algorithm>
+#include <functional>
 
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
@@ -307,8 +309,8 @@ void gem::hw::optohybrid::HwOptoHybrid::resetVFATCRCCounters()
 }
 
 std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::string const& name,
-                                                                       uint32_t const& mask,
-                                                                       bool reset)
+                                                                       uint32_t    const& mask,
+                                                                       bool               reset)
 {
   if (reset)
     writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
@@ -323,15 +325,41 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
-                                                       uint32_t const& mask,
-                                                       uint32_t const& value,
+                                                       uint32_t    const& value,
+                                                       uint32_t    const& mask,
                                                        bool reset)
 {
   if (reset)
     writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()),value);
-  //return readBlock(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Results"),24);
+}
+
+
+std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATs()
+{
+  std::vector<uint32_t> chips0 = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK,false);
+  std::vector<uint32_t> chips1 = broadcastRead("ChipID1",ALL_VFATS_BCAST_MASK,false);
+  DEBUG("chips0 size:" << chips0.size() <<  ", chips1 size:" << chips1.size());
+  
+  std::vector<std::pair<uint8_t, uint32_t> > chipIDs;
+  std::vector<std::pair<uint32_t,uint32_t> > chipPairs;
+  chipPairs.reserve(chips0.size());
+  
+  std::transform(chips1.begin(), chips1.end(), chips0.begin(),
+                 std::back_inserter(chipPairs),
+                 std::make_pair<uint32_t,uint32_t>);
+  
+  for (auto chip = chipPairs.begin(); chip != chipPairs.end(); ++chip) {
+    uint8_t slot = ((chip->first)>>8)&0xff;
+    uint32_t chipID = (((chip->first)&0xff)<<8)+((chip->second)&0xff);
+    DEBUG("GEB slot: " << (int)slot
+          << ", chipID1: 0x" << std::hex << chip->first   << std::dec
+          << ", chipID2: 0x" << std::hex << chip->second  << std::dec
+          << ", chipID: 0x"  << std::hex << chipID        << std::dec);
+    chipIDs.push_back(std::make_pair(slot,chipID));
+  }
+  return chipIDs;
 }
 
 
@@ -362,3 +390,46 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
   DEBUG("final mask is 0x" << std::setw(8) << std::setfill('0') << std::hex << connectedMask << std::dec);
   return connectedMask;
 }
+
+
+void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults(uint8_t  const& vt1,
+                                                           uint8_t  const& vt2,
+                                                           uint8_t  const& latency,
+                                                           uint32_t const& broadcastMask)
+{
+  broadcastWrite("ContReg0",   0x36, broadcastMask);
+  broadcastWrite("ContReg1",   0x00, broadcastMask);
+  broadcastWrite("ContReg2",   0x30, broadcastMask);
+  broadcastWrite("ContReg3",   0x00, broadcastMask);
+  broadcastWrite("IPreampIn",   168, broadcastMask);
+  broadcastWrite("IPreampFeed", 150, broadcastMask);
+  broadcastWrite("IPreampOut",   80, broadcastMask);
+  broadcastWrite("IShaper",     150, broadcastMask);
+  broadcastWrite("IShaperFeed", 100, broadcastMask);
+  broadcastWrite("IComp",       120, broadcastMask);
+
+  broadcastWrite("VThreshold1", vt1,     broadcastMask);
+  broadcastWrite("VThreshold2", vt2,     broadcastMask);
+  broadcastWrite("Latency",     latency, broadcastMask);
+}
+
+
+void gem::hw::optohybrid::HwOptoHybrid::generalReset()
+{
+  return;
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::counterReset()
+{
+  resetT1Counters();
+  resetVFATCRCCounters();
+  resetWBSlaveCounters();
+  resetWBMasterCounters();
+  return;
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::linkReset(uint8_t const& link)
+{
+  return;
+}
+

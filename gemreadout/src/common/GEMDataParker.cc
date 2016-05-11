@@ -1,34 +1,33 @@
-#include "gem/readout/GEMDataParker.h"
-#include "gem/readout/gemOnlineDQM.h"
-#include "gem/readout/exception/Exception.h"
-#include "gem/hw/glib/HwGLIB.h"
-
-#include "gem/utils/soap/GEMSOAPToolBox.h"
-
-#include "toolbox/mem/MemoryPoolFactory.h"
-#include "toolbox/mem/CommittedHeapAllocator.h"
-#include "i2o/Method.h"
-#include "i2o/utils/AddressMap.h"
-
-#include "toolbox/string.h"
-#include "xercesc/dom/DOMNode.hpp"
-#include "xercesc/dom/DOMNodeList.hpp"
-#include "xercesc/util/XercesDefs.hpp"
-#include "xcept/tools.h"
-
-#include <boost/utility/binary.hpp>
 #include <bitset>
-
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <cstdlib>
 #include <vector>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+#include <boost/utility/binary.hpp>
+
+#include "i2o/Method.h"
+#include "i2o/utils/AddressMap.h"
+
+#include "toolbox/mem/MemoryPoolFactory.h"
+#include "toolbox/mem/CommittedHeapAllocator.h"
+#include "toolbox/string.h"
+
+#include "xcept/tools.h"
+
+#include "xercesc/dom/DOMNode.hpp"
+#include "xercesc/dom/DOMNodeList.hpp"
+#include "xercesc/util/XercesDefs.hpp"
 
 #include "TStopwatch.h"
+#include "gem/readout/GEMDataParker.h"
+#include "gem/readout/exception/Exception.h"
+#include "gem/hw/glib/HwGLIB.h"
+
+#include "gem/utils/soap/GEMSOAPToolBox.h"
 
 typedef std::shared_ptr<int*> link_shared_ptr;
 typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
@@ -53,12 +52,14 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
                                            std::string const& outFileName,
                                            std::string const& errFileName,
                                            std::string const& outputType,
-                                           std::string const& slotFileName="slot_table.csv") :
+                                           std::string const& slotFileName,
+                                           GEMRunType  const& runType) :
   m_ESexp(-1),
   m_isFirst(true),
   m_contvfats(0),
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:readout:GEMDataParker"))),
-  m_queueLock(toolbox::BSem::FULL, true)
+  m_queueLock(toolbox::BSem::FULL, true),
+  m_runType(runType)
 {
   //  these bindings necessitate that the GEMDataParker inherit from some xdaq application stuff
   //  i2o::bind(this,&GEMDataParker::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
@@ -75,7 +76,6 @@ gem::readout::GEMDataParker::GEMDataParker(gem::hw::glib::HwGLIB& glibDevice,
   m_event = 0;
   rvent_ = 0;
   m_sumVFAT = 0;
-  //  p_gemOnlineDQM = new gem::readout::gemOnlineDQM(m_slotFileName);
   slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(m_slotFileName));
 }
 
@@ -348,8 +348,6 @@ void gem::readout::GEMDataParker::GEMevSelector(const  uint32_t& ES)
           TypeDataFlag = "PayLoad";
           if(int(geb.vfats.size()) != 0) gem::readout::GEMDataParker::writeGEMevent(m_outFileName, false, TypeDataFlag,
                                                                                     gem, geb, vfat);
-          // update online histograms
-	  //          p_gemOnlineDQM->Update(geb);
           geb.vfats.clear();
         }// end of writing event
       }// if slot correct

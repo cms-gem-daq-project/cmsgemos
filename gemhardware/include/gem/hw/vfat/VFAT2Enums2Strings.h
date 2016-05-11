@@ -1,5 +1,5 @@
-#ifndef gem_hw_vfat_VFAT2Enums2Strings_h
-#define gem_hw_vfat_VFAT2Enums2Strings_h
+#ifndef GEM_HW_VFAT_VFAT2ENUMS2STRINGS_H
+#define GEM_HW_VFAT_VFAT2ENUMS2STRINGS_H
 
 #include "gem/hw/vfat/VFAT2SettingsEnums.h"
 #include <boost/assign/list_of.hpp>
@@ -193,10 +193,8 @@ namespace gem {
         (VFAT2Settings::DFTestPattern::IDLE , "OFF" ) //IDLE
         (VFAT2Settings::DFTestPattern::SEND , "ON"  );//SEND
       
-    }//end namespace gem::hw::vfat
-    
-  }//end namespace gem::hw
-  
-}//end namespace gem
+    }  // namespace gem::hw::vfat
+  }  // namespace gem::hw
+}  // namespace gem
 
-#endif
+#endif  // GEM_HW_VFAT_VFAT2ENUMS2STRINGS_H
