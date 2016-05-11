@@ -226,7 +226,8 @@ for i in presentVFAT2sSingle:
 
     writeRegister(glib, "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d.ContReg0"%(options.gtx,i), 0x37)
     writeRegister(glib, "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT.MASK"%(options.gtx), (0xffffffff&(~(0x1<<i))))
-    writeRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.FLUSH"%(options.gtx), 0x1)
+    if (readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.DEPTH"%(options.gtx)) > 0):
+        writeRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.FLUSH"%(options.gtx), 0x1)
 
     nPackets = 0
     timeOut = 0
@@ -238,7 +239,6 @@ for i in presentVFAT2sSingle:
         timeOut += 1
         if (timeOut == 10 * TK_RD_TEST): break
         
-    print "Tracking FIFO depth = %d"%(readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.DEPTH"%(options.gtx)))
     while (readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.ISEMPTY"%(options.gtx)) != 1) :
         packets = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(options.gtx), 7)
         ec = int((0x00000ff0 & packets[0]) >> 4)
@@ -271,14 +271,14 @@ if (testG):
     writeAllVFATs(glib, options.gtx, baseMask, "ContReg0", 0x37)
 
     mask = 0
-    for i in presentVFAT2sSingle: mask |= (0x1 << i)
-    print "mask before = 0x%08x"%(readRegister(glib, "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT.MASK"%(options.gtx)))
-    writeRegister(glib, "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT.MASK"%(options.gtx), ~mask)
-    print "mask after = 0x%08x"%(readRegister(glib, "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT.MASK"%(options.gtx)))
+    for i in presentVFAT2sSingle:
+        mask |= (0x1 << i)
+    writeRegister(glib, "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT.MASK"%(options.gtx), 0xffffff&(~mask))
 
     sendResync(glib, options.gtx)
 
-    writeRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.FLUSH"%(options.gtx), 0x1)
+    if (readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.DEPTH"%(options.gtx)) > 0):
+        writeRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.FLUSH"%(options.gtx), 0x1)
 
     sendL1A(glib, options.gtx, 300, TK_RD_TEST)
 
@@ -290,7 +290,6 @@ if (testG):
         timeOut += 1
         if (timeOut == 20 * TK_RD_TEST): break
 
-    print "Tracking FIFO depth = %d"%(readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.DEPTH"%(options.gtx)))
     while (readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.ISEMPTY"%(options.gtx)) != 1) :
         packets = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(options.gtx), 7)
         ec = int((0x00000ff0 & packets[0]) >> 4)
@@ -307,7 +306,8 @@ if (testG):
             for j in range(0, len(presentVFAT2sSingle) - 1):
                 if (ecs[i * len(presentVFAT2sSingle) + j + 1] != ecs[i * len(presentVFAT2sSingle) + j]): followingECS = False
             if (ecs[(i + 1) * len(presentVFAT2sSingle)] - ecs[i * len(presentVFAT2sSingle)] != 1): followingECS = False
-        if (followingECS): print Passed
+        if (followingECS):
+            print Passed
         else:
             print Failed
             testH = False
@@ -320,7 +320,6 @@ else:
 
 print
 
-exit(0)
 ####################################################
 
 txtTitle("I. Testing the tracking data readout rate")
@@ -345,7 +344,8 @@ previous = 0
 for i in values:
     isFull = False
 
-    writeRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.FLUSH"%(options.gtx), 0x1)
+    if (readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.DEPTH"%(options.gtx)) > 0):
+        writeRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.FLUSH"%(options.gtx), 0x1)
 
     sendL1A(glib, options.gtx, 40000000 / i, 0)
 
@@ -353,7 +353,7 @@ for i in values:
         for j in range(0, 1000):
             depth = readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.DEPTH"%(options.gtx))
             if (depth > 0):
-                data = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(options.gtx), depth)
+                data = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(options.gtx), int(depth))
                 for d in data: f.write(str(d))
             if (readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.ISFULL"%(options.gtx)) == 1):
                 isFull = True
@@ -361,7 +361,7 @@ for i in values:
     else:
         for j in range(0, 1000):
             depth = readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.DEPTH"%(options.gtx))
-            data = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(options.gtx), depth)
+            data = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(options.gtx), int(depth))
             if (readRegister(glib, "GLIB.TRK_DATA.OptoHybrid_%d.ISFULL"%(options.gtx)) == 1):
                 isFull = True
                 break
@@ -381,7 +381,7 @@ writeVFAT(glib, options.gtx, presentVFAT2sSingle[0], "ContReg0", 0x0)
 
 testI = True
 
-writeRegister(glib, "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT.MASK"%(options.gtx), 0)
+writeRegister(glib, "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT.MASK"%(options.gtx), baseMask)
 
 print
 
