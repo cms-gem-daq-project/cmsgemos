@@ -77,11 +77,13 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::cardPage(xgi::Input* in, xgi::Ou
   // fill this page with the card views for the OptoHybridManager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    auto card = dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->m_optohybridMonitors[i];
-    if (card) {
-      *out << "<div class=\"xdaq-tab\" title=\"" << card->getDeviceID() << "\" >"  << std::endl;
-      card->buildMonitorPage(out);
-      *out << "</div>" << std::endl;
+    for (unsigned int j = 0; j < gem::base::GEMFSMApplication::MAX_OPTOHYBRIDS_PER_AMC; ++j) {
+      auto card = dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->m_optohybridMonitors.at(i).at(j);
+      if (card) {
+        *out << "<div class=\"xdaq-tab\" title=\"" << card->getDeviceID() << "\" >"  << std::endl;
+        card->buildMonitorPage(out);
+        *out << "</div>" << std::endl;
+      }
     }
   }
   *out << "</div>" << std::endl;

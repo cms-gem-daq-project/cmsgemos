@@ -19,6 +19,7 @@ namespace gem {
       class OptoHybridMonitor;
 
       typedef std::shared_ptr<HwOptoHybrid> optohybrid_shared_ptr;
+      typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
 
       class OptoHybridManager : public gem::base::GEMFSMApplication
         {
@@ -58,7 +59,7 @@ namespace gem {
 	  uint32_t parseVFATMaskList(std::string const&);
 	  bool     isValidSlotNumber(std::string const&);
 
-          //std::vector<uint32_t> v_vfatBroadcastMask;// one for each optohybrid
+          void     createOptoHybridInfoSpaceItems(is_toolbox_ptr is_optohybrid, optohybrid_shared_ptr optohybrid);
 
           class OptoHybridInfo {
 
@@ -119,12 +120,22 @@ namespace gem {
           };
 
           mutable gem::utils::Lock m_deviceLock;//[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
-
-          optohybrid_shared_ptr m_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
-          std::shared_ptr<OptoHybridMonitor> m_optohybridMonitors[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
-          xdata::InfoSpace*     is_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
+          
+          // Matrix<optohybrid_shared_ptr, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
+          std::array<std::array<optohybrid_shared_ptr, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
+            m_optohybrids;
+          
+          std::array<std::array<std::shared_ptr<OptoHybridMonitor>, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
+            m_optohybridMonitors;
+          
+          std::array<std::array<is_toolbox_ptr, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
+            is_optohybrids;
+          
           xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;
           xdata::String        m_connectionFile;
+          std::array<std::array<uint32_t, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE> m_broadcastList;
+          std::array<std::array<std::vector<std::pair<uint8_t, uint32_t> >, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
+            m_vfatMapping;
         };  // class OptoHybridManager
 
     }  // namespace gem::hw::optohybrid
