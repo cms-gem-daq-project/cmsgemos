@@ -44,5 +44,8 @@
     <node id="STATUS"  address="0xc000000"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_status_registers.xml"
 	  description="Status registers of the OptoHybrid"/>
+
+    <node id="SBITS_MASK"  address="0x8" permission="rw"
+          description="Sets the S-bit mask (24 bits)"/>
   </node> <!-- end optohybrid block -->
 </node> <!-- end top block -->
