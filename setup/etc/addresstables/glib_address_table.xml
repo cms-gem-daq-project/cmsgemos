@@ -82,7 +82,10 @@
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_ttc_registers.xml"
           description="registers related to the control of the GLIB TTC link"/>
 
-    
+    <node id="IPBus_System_Control"  address="0x7e000000"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/glib_ipbus_system_control.xml"
+          description="registers for GLIB RX and TX polarity control"/>
+
     <node id="TEST">
       <node id="GLIB"  address="0x4004010a"
 	    description="is the GLIB accessible"/>
