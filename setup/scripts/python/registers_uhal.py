@@ -48,7 +48,7 @@ def readRegister(device, register, debug=False):
 	return 0x0
 	# return 0x0
 
-def readBlock(device,register, nwords, debug=False):
+def readBlock(device, register, nwords, debug=False):
 	"""
 	read block 'register' from uhal device 'device'
 	returns 'nwords' values in the register
