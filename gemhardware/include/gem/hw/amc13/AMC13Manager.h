@@ -66,7 +66,6 @@ namespace gem {
 
 	    void registerFields(xdata::Bag<BGOInfo> *bag);
 
-	    // can configure up to 4 BGO channels
 	    xdata::Integer           channel;
 	    xdata::UnsignedInteger32 cmd;
 	    xdata::UnsignedInteger32 bx;
@@ -98,6 +97,7 @@ namespace gem {
 	    xdata::Boolean sendl1ATriburst;
 	    xdata::Boolean startl1ATricont;
 
+	    // can configure up to 4 BGO channels
             xdata::Vector<xdata::Bag<BGOInfo> > bgoConfig;
 
             xdata::Integer prescaleFactor;
@@ -114,7 +114,6 @@ namespace gem {
           mutable gem::utils::Lock m_amc13Lock;
 
           ::amc13::AMC13 *p_amc13;
-	  //hcal::utca::DTCMonitoring m_monitoringHelper; to be developed!!!
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
@@ -127,7 +126,7 @@ namespace gem {
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,
-	    m_bgoRepeat, m_bgoIsLong; //m_enableCalpulse,
+	    m_bgoRepeat, m_bgoIsLong;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
 	  uint8_t m_bgoCMD;
