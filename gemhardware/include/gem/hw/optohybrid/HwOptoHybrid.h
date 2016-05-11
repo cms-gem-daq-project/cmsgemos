@@ -1015,8 +1015,9 @@ namespace gem {
           /**
            * Uses a broadcast read to determine which slots are occupied and returns the
            * corresponding broadcast mask
+           * @returns uint32_t 24 bit mask
            * The mask has a 1 for VFATs that will not receive a broadcast request
-           * The mask has a 1 for VFATs whose data will be ignored
+           * The mask has a 1 for VFATs whose tracking data will be ignored
            */
           uint32_t getConnectedVFATMask();
 
