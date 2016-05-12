@@ -38,6 +38,28 @@ void gem::hw::amc13::AMC13Manager::BGOInfo::registerFields(xdata::Bag<BGOInfo> *
   bgobag->addField("BGOlong",        &isLong  );
 }
 
+gem::hw::amc13::AMC13Manager::L1AInfo::L1AInfo()
+{
+  enableLocalL1A         = false;  // want this to somehow automatically get the position in the struct
+  internalPeriodicPeriod = 1;
+  l1Amode                = 0;
+  l1Arules               = 0;
+  l1Aburst               = 1;
+  sendl1ATriburst        = false;
+  sendl1ATriburst        = false;
+}
+
+void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *l1Abag)
+{
+  l1Abag->addField("EnableLocalL1A",      &enableLocalL1A );
+  l1Abag->addField("InternalPeriodicPeriod", &internalPeriodicPeriod );
+  l1Abag->addField("L1Amode",                &l1Amode  );
+  l1Abag->addField("L1Arules",               &l1Arules );
+  l1Abag->addField("L1Aburst",               &l1Aburst );
+  l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );
+  l1Abag->addField("startL1ATricont",        &startl1ATricont );
+}
+
 void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Info> *bag)
 {
 
@@ -51,6 +73,7 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("EnableFakeData",      &enableFakeData );
   bag->addField("MonitorBackPressure", &monBackPressure);
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
+  /*
   bag->addField("EnableLocalL1A",      &enableLocalL1A );
   bag->addField("InternalPeriodicPeriod", &internalPeriodicPeriod );
   bag->addField("L1Amode",                &l1Amode  );
@@ -58,7 +81,8 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("L1Aburst",               &l1Aburst );
   bag->addField("sendL1ATriburst",        &sendl1ATriburst );
   bag->addField("startL1ATricont",        &startl1ATricont );
-
+  */
+  bag->addField("L1AConfig",      &l1AConfig     );
 
   bag->addField("PrescaleFactor", &prescaleFactor);
   bag->addField("BCOffset",       &bcOffset      );
@@ -68,7 +92,7 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("SFPMask",  &sfpMask );
   bag->addField("SlotMask", &slotMask);
 
-  bag->addField("LocalL1AMask", &localL1AMask);
+  //bag->addField("LocalL1AMask", &localL1AMask);
 }
 
 gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
@@ -77,6 +101,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   m_amc13Lock(toolbox::BSem::FULL, true),
   p_amc13(NULL)
 {
+  m_l1AConfig.setSize(1);
   m_bgoConfig.setSize(4);
 
   m_crateID = -1;
@@ -125,13 +150,14 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_enableFakeData     = m_amc13Params.bag.enableFakeData.value_;
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
-  m_enableLocalL1A     = m_amc13Params.bag.enableLocalL1A.value_;
-  m_internalPeriodicPeriod = m_amc13Params.bag.internalPeriodicPeriod.value_;
-  m_L1Amode            = m_amc13Params.bag.l1Amode.value_;
-  m_L1Arules           = m_amc13Params.bag.l1Arules.value_;
-  m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
-  m_sendL1ATriburst    = m_amc13Params.bag.sendl1ATriburst.value_;
-  m_startL1ATricont    = m_amc13Params.bag.startl1ATricont.value_;
+
+  m_enableLocalL1A     = m_l1AConfig.at(0).bag.enableLocalL1A.value_;
+  m_internalPeriodicPeriod = m_l1AConfig.at(0).bag.internalPeriodicPeriod.value_;
+  m_L1Amode            = m_l1AConfig.at(0).bag.l1Amode.value_;
+  m_L1Arules           = m_l1AConfig.at(0).bag.l1Arules.value_;
+  m_L1Aburst           = m_l1AConfig.at(0).bag.l1Aburst.value_;
+  m_sendL1ATriburst    = m_l1AConfig.at(0).bag.sendl1ATriburst.value_;
+  m_startL1ATricont    = m_l1AConfig.at(0).bag.startl1ATricont.value_;
 
   DEBUG("AMC13Manager::actionPerformed BGO channels "
         << m_amc13Params.bag.bgoConfig.size());
@@ -154,7 +180,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_fedID              = m_amc13Params.bag.fedID.value_;
   m_sfpMask            = m_amc13Params.bag.sfpMask.value_;
   m_slotMask           = m_amc13Params.bag.slotMask.value_;
-  m_localL1AMask       = m_amc13Params.bag.localL1AMask.value_;
+  //m_localL1AMask       = m_amc13Params.bag.localL1AMask.value_;
 
   gem::base::GEMApplication::actionPerformed(event);
 }
@@ -266,7 +292,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   INFO("AMC13 Configured L1ABurst BEFORE = " << m_L1Aburst);
-  m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
+  m_L1Aburst           = m_l1AConfig.at(0).bag.l1Aburst.value_;
   INFO("AMC13 Configured L1ABurst AFTER = " << m_L1Aburst);
 
   if (m_enableLocalL1A)

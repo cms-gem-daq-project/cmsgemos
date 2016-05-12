@@ -75,6 +75,23 @@ namespace gem {
 	    xdata::Boolean           isLong;
 	  };
 
+	  class L1AInfo
+	  {
+	  public:
+            L1AInfo();
+
+	    void registerFields(xdata::Bag<L1AInfo> *bag);
+
+	    xdata::Boolean           enableLocalL1A;
+	    xdata::UnsignedInteger32 internalPeriodicPeriod;
+	    xdata::Integer           l1Amode;
+	    xdata::Integer           l1Arules;
+	    xdata::UnsignedInteger32 l1Aburst;
+	    xdata::Boolean           sendl1ATriburst;
+	    xdata::Boolean           startl1ATricont;
+
+	  };
+
           class AMC13Info
           {
           public:
@@ -90,13 +107,17 @@ namespace gem {
             xdata::Boolean enableFakeData;
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
-	    xdata::Boolean enableLocalL1A;
+
+	    /*	    xdata::Boolean enableLocalL1A;
 	    xdata::UnsignedInteger32 internalPeriodicPeriod;
 	    xdata::Integer l1Amode;
 	    xdata::Integer l1Arules;
 	    xdata::UnsignedInteger32 l1Aburst;
 	    xdata::Boolean sendl1ATriburst;
 	    xdata::Boolean startl1ATricont;
+	    */
+	    
+	    xdata::Vector<xdata::Bag<L1AInfo> > l1AConfig;
 
             xdata::Vector<xdata::Bag<BGOInfo> > bgoConfig;
 
@@ -107,7 +128,7 @@ namespace gem {
             xdata::UnsignedInteger32 sfpMask;
             xdata::UnsignedInteger32 slotMask;
 
-            xdata::UnsignedInteger64 localL1AMask;
+            //xdata::UnsignedInteger64 localL1AMask;
           };
 
         private:
@@ -121,6 +142,7 @@ namespace gem {
 
           xdata::Bag<AMC13Info>               m_amc13Params;
           xdata::Vector<xdata::Bag<BGOInfo> > m_bgoConfig;
+	  xdata::Vector<xdata::Bag<L1AInfo> > m_l1AConfig;
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
@@ -133,7 +155,7 @@ namespace gem {
 	  uint8_t m_bgoCMD;
 	  uint16_t m_bgoBX, m_bgoPrescale;
           uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
-          uint64_t m_localL1AMask;
+          //uint64_t m_localL1AMask;
 
           ////counters
 
