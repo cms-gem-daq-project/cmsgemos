@@ -128,13 +128,13 @@ print
 
 print
 print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
-for gtx in range(2):
-        fifoInfo = readFIFODepth(glib,gtx)
-        print "       %8s  %7s  %10s"%("0x%x"%(fifoInfo["isEMPTY"]),
-                                       "0x%x"%(fifoInfo["isFULL"]),
-                                       "0x%x"%(fifoInfo["Occupancy"]))
+fifoInfo = readFIFODepth(glib,options.gtx)
+print "       %8s  %7s  %10s"%("0x%x"%(fifoInfo["isEMPTY"]),
+                               "0x%x"%(fifoInfo["isFULL"]),
+                               "0x%x"%(fifoInfo["Occupancy"]))
 
-	getConnectedVFATsMask(glib,gtx,options.debug)
+print
+print "Connected VFATs mask: 0x%08x"%(getConnectedVFATsMask(glib,options.gtx,options.debug))
 
 print
 print "--=======================================--"
