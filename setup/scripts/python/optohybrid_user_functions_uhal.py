@@ -244,6 +244,7 @@ def setReferenceClock(device,gtx,source,debug=False):
     """
     Set the reference clock source on the OptoHybrid
     OH:   0=onboard,     1=GTX recovered,  2=external clock
+    V2A only
     """
     writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
@@ -254,14 +255,43 @@ def getClockingInfo(device,gtx,debug=False):
     """
     clocking = {}
 
+    # v2b only
+    clocking["qplllock"]        = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.QPLL_LOCK" %(gtx))
+    clocking["qpllfpgaplllock"] = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.QPLL_FPGA_PLL_LOCK"%(gtx))
+    
+    #v2a only
     clocking["fpgaplllock"] = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.FPGA_PLL_LOCK"%(gtx))
     clocking["extplllock"]  = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.EXT_PLL_LOCK" %(gtx))
     clocking["cdcelock"]    = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.CDCE_LOCK"    %(gtx))
     clocking["gtxreclock"]  = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.GTX_LOCK" %(gtx))
     clocking["refclock"]    = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx))
-    #clocking["vfatsrc"]     = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CLOCKING.VFAT.SOURCE"  %(gtx))
-    #clocking["cdcesrc"]     = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CLOCKING.CDCE.SOURCE"  %(gtx))
-    #clocking["vfatbkp"]     = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CLOCKING.VFAT.FALLBACK"%(gtx))
-    #clocking["cdcebkp"]     = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CLOCKING.CDCE.FALLBACK"%(gtx))
 
     return clocking
+
+def getVFATsBitMask(device,gtx=0,debug=False):
+    """
+    Returns the VFAT s-bit mask
+    """
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL"%(gtx)
+    return readRegister(device,"%s.SBIT_MASK"%(baseNode))
+
+def setVFATsBitMask(device,gtx=0,mask=0x000000,debug=False):
+    """
+    Set the VFAT s-bit mask
+    """
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL"%(gtx)
+    return writeRegister(device,"%s.SBIT_MASK"%(baseNode),mask)
+
+def calculateLockErrors(device,gtx,register,sampleTime):
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS"%(gtx)
+    errorCounts = {}
+
+    #for link in ("QPLL_LOCK","QPLL_FPGA_PLL_LOCK"):
+    writeRegister(device,"%s.%s_LOCK.Reset"%(baseNode,register),0x1)
+    first = readRegister(device,"%s.%s_LOCK"%(baseNode,register))
+    time.sleep(sampleTime)
+    second = readRegister(device,"%s.%s_LOCK"%(baseNode,register))
+    errorCounts = [first,second]
+    return errorCounts
+
+
