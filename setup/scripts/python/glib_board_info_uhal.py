@@ -47,6 +47,8 @@ parser.add_option("--l1a_block", action="store_true", dest="l1a_block",
 		  help="Inhibit the L1As at the TTC backplane link", metavar="l1a_block")
 parser.add_option("--short", action="store_true", dest="short",
 		  help="Skip extended information", metavar="short")
+parser.add_option("--vtrx", action="store_true", dest="vtrx",
+		  help="Flip polarity for VTRx (only for SFP0 now)", metavar="vtrx")
 
 (options, args) = parser.parse_args()
 
@@ -75,6 +77,11 @@ print "  Opening GLIB with IP", ipaddr
 print "--=======================================--"
 print
 
+#if options.vtrx :
+#        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x0)
+#else:
+#        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x1)
+                
 if not options.userOnly:
 	getSystemInfo(glib)
 print
@@ -126,6 +133,9 @@ if options.gemttc in [0,1]:
         writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
 print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
 print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
+print
+print "-> RX Link Control :0x%08x"%(readRegister(glib,"GLIB.LINK_CONTROL.RX_Polarity"))
+print "-> TX Link Control :0x%08x"%(readRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity"))
 
 print
 print "--=======================================--"
