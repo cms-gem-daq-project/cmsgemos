@@ -32,7 +32,7 @@
 
   <!-- register only in V2B -->
   <node id="SBIT_MASK"  address="0x4"  mask="0x00ffffff"  permission="rw"
-	description="Mask to block individual VFATs from sending s-bits data">
+	description="Mask to block individual VFATs from sending s-bits data"/>
   
   <node id="OUTPUT"  address="0x5"  permission="rw"
 	description="Control on the OptoHybrid related to the SBits sent out">
