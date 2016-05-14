@@ -12,6 +12,28 @@ def rateConverter(rate):
 
     return rate,modifier
 
+def getErrorRate(errorCounts,sampleTime):
+    """
+    Calculates the error rate provided in a list of pairs of measurements, taken with delay sampleTime
+    errorCounts = [pair1, pair2, ...]
+    pair1 = [first, second]
+    returns a pair which is the rate (averaged over the number of trials) and the modifier string (k, M, G)
+    """
+    rates = {}
+    modifier = {}
+    rate = 0
+    lastCount = 0
+    for trial in errorCounts:
+        tmprate = ((trial[1]-trial[0])/(1.0*sampleTime))
+        rate = rate + tmprate
+        lastCount = trial[1]
+        
+    rate = rate / len(errorCounts)
+    (rate,modifier) = rateConverter(rate)
+    return [lastCount,rate,modifier]
+    
+    return rates
+
 def errorRate(errorCounts,sampleTime):
     """
     Calculates the error rate provided in a list of pairs of measurements, taken with delay sampleTime
