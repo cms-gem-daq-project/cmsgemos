@@ -74,7 +74,6 @@ void gem::hw::ctp7::CTP7Readout::initializeAction()
     XCEPT_RAISE(gem::hw::ctp7::exception::Exception, "initializeAction failed");
   }
   DEBUG("CTP7Readout::initializeAction connected");
-
 }
 
 
