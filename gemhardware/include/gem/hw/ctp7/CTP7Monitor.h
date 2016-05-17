@@ -55,7 +55,6 @@ namespace gem {
         //  "CPLD_LOCK"
 
       };  // class CTP7Monitor
-
     }  // namespace gem::hw::ctp7
   }  // namespace gem::hw
 }  // namespace gem
