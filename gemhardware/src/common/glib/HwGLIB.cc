@@ -5,7 +5,7 @@
 gem::hw::glib::HwGLIB::HwGLIB() :
   gem::hw::GEMHwDevice::GEMHwDevice("HwGLIB"),
   // monGLIB_(0),
-  m_controlLink(-1),
+  // m_controlLink(-1),
   m_crate(-1),
   m_slot(-1)
 {
@@ -28,7 +28,7 @@ gem::hw::glib::HwGLIB::HwGLIB() :
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
                               std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(glibDevice, connectionFile),
-  m_controlLink(-1),
+  // m_controlLink(-1),
   m_crate(-1),
   m_slot(-1)
 {
@@ -46,7 +46,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
                               std::string const& connectionURI,
                               std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(glibDevice, connectionURI, addressTable),
-  m_controlLink(-1),
+  // m_controlLink(-1),
   m_crate(-1),
   m_slot(-1)
 
@@ -65,7 +65,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
                               uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(glibDevice,uhalDevice),
-  m_controlLink(-1),
+  // m_controlLink(-1),
   m_crate(-1),
   m_slot(-1)
 
@@ -83,7 +83,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
   gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("gem.shelf%02d.glib%02d",crate,slot)),
   // monGLIB_(0),
-  m_controlLink(-1),
+  // m_controlLink(-1),
   m_crate(crate),
   m_slot(slot)
 {
@@ -130,15 +130,11 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
     std::vector<linkStatus> tmp_activeLinks;
     tmp_activeLinks.reserve(N_GTX);
     for (unsigned int gtx = 0; gtx < N_GTX; ++gtx) {
-      // need to make sure that this works only for "valid" FW results
-      // for the moment we can do a check to see that 2015/2016 appears in the string
       // this no longer will work as desired, how to get whether the GTX is active?
-      if ((this->getFirmwareVer()).rfind("2.") != std::string::npos ||  // evka firmware versions
-          (this->getFirmwareVer()).rfind("5.") != std::string::npos ||  // system firmware version
-          (this->getFirmwareVer()).rfind(".201") != std::string::npos ||  // date string
-          (this->getBoardID()).rfind("GLIB")     != std::string::npos ) {
+      if ((this->getBoardID()).rfind("GLIB") != std::string::npos ) {
+        // somehow need to actually check that the specified link is present
         b_links[gtx] = true;
-        INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
+        DEBUG("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       } else {
         b_links[gtx] = false;
@@ -151,19 +147,18 @@ bool gem::hw::glib::HwGLIB::isHwConnected()
     v_activeLinks = tmp_activeLinks;
     if (!v_activeLinks.empty()) {
       b_is_connected = true;
-      m_controlLink = (v_activeLinks.begin())->first;
-      INFO("connected - control gtx" << (int)m_controlLink);
+      // m_controlLink = (v_activeLinks.begin())->first;
+      // INFO("connected - control gtx" << (int)m_controlLink);
       INFO("checked gtxs: HwGLIB connection good");
       return true;
     } else {
       b_is_connected = false;
-      INFO("not connected - control gtx" << (int)m_controlLink);
+      // INFO("not connected - control gtx" << (int)m_controlLink);
       return false;
     }
-  } else if (m_controlLink < 0)
+  } else {
     return false;
-  else
-    return false;
+  }
 }
 
 std::string gem::hw::glib::HwGLIB::getBoardID()
@@ -428,25 +423,11 @@ uint32_t gem::hw::glib::HwGLIB::getUserFirmware()
   return readReg(getDeviceBaseNode(), "SYSTEM.FIRMWARE");
 }
 
-uint32_t gem::hw::glib::HwGLIB::getUserFirmware(uint8_t const& gtx)
-{
-  // This returns the firmware register (V2 removed the user firmware specific).
-  return readReg(getDeviceBaseNode(), "SYSTEM.FIRMWARE");
-}
-
 std::string gem::hw::glib::HwGLIB::getUserFirmwareDate()
 {
   // This returns the user firmware build date.
   std::stringstream res;
-  res << "0x"<< std::hex << getUserFirmware(m_controlLink) << std::dec;
-  return res.str();
-}
-
-std::string gem::hw::glib::HwGLIB::getUserFirmwareDate(uint8_t const& gtx)
-{
-  // This returns the user firmware build date.
-  std::stringstream res;
-  res << "0x"<< std::hex << getUserFirmware(gtx) << std::dec;
+  res << "0x"<< std::hex << getUserFirmware() << std::dec;
   return res.str();
 }
 
@@ -519,17 +500,17 @@ void gem::hw::glib::HwGLIB::resetIPBusCounters(uint8_t const& gtx, uint8_t const
 {
   if (linkCheck(gtx, "Reset IPBus counters")) {
     if (resets&0x01)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d.Reset",gtx),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d.Reset",gtx), 0x1);
     if (resets&0x02)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d.Reset",gtx),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.OptoHybrid_%d.Reset",   gtx), 0x1);
     if (resets&0x04)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.TRK_%d.Reset",gtx),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.TRK_%d.Reset",       gtx), 0x1);
     if (resets&0x08)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.TRK_%d.Reset",gtx),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.TRK_%d.Reset",          gtx), 0x1);
     if (resets&0x10)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.Counters.Reset"),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.Counters.Reset"),          0x1);
     if (resets&0x20)
-      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.Counters.Reset"),0x1);
+      writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Ack.Counters.Reset"),             0x1);
   }
 }
 
@@ -861,15 +842,45 @@ void gem::hw::glib::HwGLIB::resetTTC()
 
 void gem::hw::glib::HwGLIB::generalReset()
 {
+  // reset all counters
+  counterReset();
+
+  for (unsigned gtx = 0; gtx < N_GTX; ++gtx)
+    linkReset(gtx);
+
+  // other resets
+  
   return;
 }
 
 void gem::hw::glib::HwGLIB::counterReset()
 {
+  // reset all counters
+  resetT1Counters();
+
+  for (unsigned gtx = 0; gtx < N_GTX; ++gtx)
+    resetIPBusCounters(gtx, 0xff);
+  
+  resetLinkCounters();
+  
   return;
 }
 
-void gem::hw::glib::HwGLIB::linkReset(uint8_t const& link)
+void gem::hw::glib::HwGLIB::resetT1Counters()
+{
+  writeReg(getDeviceBaseNode(), "T1.L1A.RESET",      0x1);
+  writeReg(getDeviceBaseNode(), "T1.CalPulse.RESET", 0x1);
+  writeReg(getDeviceBaseNode(), "T1.Resync.RESET",   0x1);
+  writeReg(getDeviceBaseNode(), "T1.BC0.RESET",      0x1);
+  return;
+}
+
+void gem::hw::glib::HwGLIB::resetLinkCounters()
+{
+  return;
+}
+
+void gem::hw::glib::HwGLIB::linkReset(uint8_t const& gtx)
 {
   return;
 }
