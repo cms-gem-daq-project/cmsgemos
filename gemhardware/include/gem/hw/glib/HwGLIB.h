@@ -1,10 +1,9 @@
 #ifndef GEM_HW_GLIB_HWGLIB_H
 #define GEM_HW_GLIB_HWGLIB_H
 
+//nclude "toolbox/Task.h"
+
 #include "gem/hw/GEMHwDevice.h"
-//#include "toolbox/SyncQueue.h"
-//#include "i2o/i2o.h"
-#include "toolbox/Task.h"
 
 #include "gem/hw/glib/exception/Exception.h"
 #include "gem/hw/glib/GLIBSettingsEnums.h"
@@ -407,38 +406,20 @@ namespace gem {
 
           //user core functionality
           /**
-           * Read the user firmware register using m_controlLink
+           * Read the user firmware register
            * @returns a hex number corresponding to the build date
            * OBSOLETE in V2 firmware
            */
           uint32_t getUserFirmware();
 
           /**
-           * Read the user firmware register using m_controlLink
+           * Read the user firmware register
            * @returns a std::string corresponding to the build date
            * OBSOLETE in V2 firmware
            */
           std::string getUserFirmwareDate();
 
         private:
-          /**
-           * Read the user firmware register for a given gtx
-           * @returns a hex number corresponding to the build date
-           * is private to ensure that it is only used internally
-           * gtx agnostic versions should be used outside of HwGLIB
-           * OBSOLETE in V2 firmware
-           */
-          uint32_t getUserFirmware(uint8_t const& gtx);
-
-          /**
-           * Read the user firmware register for a given gtx
-           * @returns a string corresponding to the build date
-           * is private to ensure that it is only used internally
-           * gtx agnostic versions should be used outside of HwGLIB
-           * OBSOLETE in V2 firmware
-           */
-          std::string getUserFirmwareDate(uint8_t const& gtx);
-
           /**
            * Check if the gtx requested is known to be operational
            * @param uint8_t gtx GTX gtx to be queried
@@ -452,7 +433,7 @@ namespace gem {
            * Read the gtx status registers, store the information in a struct
            * @param uint8_t gtx is the number of the gtx to query
            * @retval _status a struct containing the status bits of the optical link
-           * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-1
+           * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-N_GTX
            */
           GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& gtx);
 
@@ -463,7 +444,7 @@ namespace gem {
            * bit 1 - TRK_ErrCnt         0x1
            * bit 2 - TRG_ErrCnt         0x2
            * bit 3 - Data_Rec           0x4
-           * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-1
+           * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-N_GTX
            */
           void LinkReset(uint8_t const& gtx, uint8_t const& resets);
 
@@ -556,12 +537,12 @@ namespace gem {
            * Get the recorded number of IPBus signals sent/received by the GLIB
            * @param uint8_t gtx which GTX
            * @param uint8_t mode which counter
-           * bit 1 OptoHybridStrobe
-           * bit 2 OptoHybridAck
-           * bit 3 TrackingStrobe
-           * bit 4 TrackingAck
-           * bit 5 CounterStrobe
-           * bit 6 CounterAck
+           * bit 0 OptoHybridStrobe
+           * bit 1 OptoHybridAck
+           * bit 2 TrackingStrobe
+           * bit 3 TrackingAck
+           * bit 4 CounterStrobe
+           * bit 5 CounterAck
            */
           void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
 
@@ -843,7 +824,9 @@ namespace gem {
            */
           uint32_t getTTCSpyBuffer();
 
-          ///////////////////////
+          /**************************/
+          /** DAQ link information **/
+          /**************************/
           /**
            * @brief performs a general reset of the GLIB
            */
@@ -853,6 +836,16 @@ namespace gem {
            * @brief performs a reset of the GLIB counters
            */
           virtual void counterReset();
+
+          /**
+           * @brief performs a reset of the GLIB T1 counters
+           */
+          void resetT1Counters();
+
+          /**
+           * @brief performs a reset of the GLIB GTX link counters
+           */
+          void resetLinkCounters();
 
           /**
            * @brief performs a reset of the GLIB link
@@ -870,7 +863,7 @@ namespace gem {
           std::vector<linkStatus> v_activeLinks;
 
         private:
-          uint8_t m_controlLink;
+          // uint8_t m_controlLink;
           int m_crate, m_slot;
 
         };  // class HwGLIB
