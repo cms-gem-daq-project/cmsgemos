@@ -1,7 +1,7 @@
-#ifndef GEM_HW_CTP7_CTP7MONITOR_H
-#define GEM_HW_CTP7_CTP7MONITOR_H
 /** @file CTP7Monitor.h */
 
+#ifndef GEM_HW_CTP7_CTP7MONITOR_H
+#define GEM_HW_CTP7_CTP7MONITOR_H
 
 #include "gem/base/GEMMonitor.h"
 #include "gem/hw/ctp7/exception/Exception.h"
