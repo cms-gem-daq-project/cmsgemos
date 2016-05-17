@@ -139,10 +139,6 @@ uint32_t* gem::hw::ctp7::CTP7Readout::dumpData(uint8_t const& readout_mask)
   DEBUG("point 0x" << std::hex << point << " pDu 0x" << pDu << std::dec);
   if (pDu)
     for (unsigned count = 0; count < 5; ++count) m_counter[count] = *(pDu+count);
-<<<<<<< HEAD
-=======
-
->>>>>>> cleaning up whitespace
   return point;
 }
 
