@@ -75,7 +75,6 @@ namespace gem {
             GEMCSC = 0x1, //Use the CSC/GEM style TTC encoding
           } TTCEncoding;
         };
-
       };  // class CTP7Settings
     }  // namespace gem::hw::ctp7
   }  // namespace gem::hw
