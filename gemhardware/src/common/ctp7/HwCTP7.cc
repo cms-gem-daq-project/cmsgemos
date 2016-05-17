@@ -850,7 +850,6 @@ void gem::hw::ctp7::HwCTP7::generalReset()
     linkReset(gtx);
 
   // other resets
-
   return;
 }
 

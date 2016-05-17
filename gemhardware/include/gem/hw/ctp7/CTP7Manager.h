@@ -1,7 +1,7 @@
-#ifndef GEM_HW_CTP7_CTP7MANAGER_H
-#define GEM_HW_CTP7_CTP7MANAGER_H
 /** @file CTP7Manager.h */
 
+#ifndef GEM_HW_CTP7_CTP7MANAGER_H
+#define GEM_HW_CTP7_CTP7MANAGER_H
 
 //#include "uhal/uhal.hpp"
 
