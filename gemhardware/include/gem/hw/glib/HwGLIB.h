@@ -71,20 +71,6 @@ namespace gem {
 
           virtual ~HwGLIB();
 
-          //virtual void connectDevice();
-          //virtual void releaseDevice();
-          //virtual void initDevice();
-          //virtual void enableDevice();
-          //virtual void configureDevice();
-          //virtual void configureDevice(std::string const& xmlSettings);
-          //virtual void configureDevice(std::string const& dbConnectionString);
-          //virtual void disableDevice();
-          //virtual void pauseDevice();
-          //virtual void startDevice();
-          //virtual void stopDevice();
-          //virtual void resumeDevice();
-          //virtual void haltDevice();
-
           /**
            * Check if one can read/write to the registers on the GLIB
            * @returns true if the GLIB is accessible
@@ -497,23 +483,6 @@ namespace gem {
            */
           void setTrigSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
             return;
-            /*
-            std::stringstream regName;
-            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
-            switch (mode) {
-            case(0):
-              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
-              return;
-            case(1):
-              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
-              return;
-            case(2):
-              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
-              return;
-            default:
-              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",0x2);
-              return;
-              }*/
           };
 
           /**
@@ -523,11 +492,6 @@ namespace gem {
            */
           uint8_t getTrigSource(uint8_t const& gtx=0x0) {
             return 0;
-            /*
-            std::stringstream regName;
-            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
-            return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE");
-            */
           };
 
           /**
@@ -537,11 +501,6 @@ namespace gem {
            */
           void setSBitSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
             return;
-            /*
-            std::stringstream regName;
-            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
-            writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits",mode);
-            */
           };
 
           /**
@@ -551,11 +510,6 @@ namespace gem {
            */
           uint8_t getSBitSource(uint8_t const& gtx=0x0) {
             return 0;
-            /*
-            std::stringstream regName;
-            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
-            return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits");
-            */
           };
 
           ///Counters
@@ -690,7 +644,9 @@ namespace gem {
            */
           void flushFIFO(uint8_t const& gtx);
 
-          // DAQ LINK functionality
+          /**************************/
+          /** DAQ link information **/
+          /**************************/
           /**
            * @brief Set the enable mask and enable the DAQ link
            * @param enableMask 32 bit word for the 24 bit enable mask
@@ -779,7 +735,9 @@ namespace gem {
            */
           uint32_t getDAQLinkDAVTimer(bool const& max);
 
-          // GTX specific DAQ link information
+          /***************************************/
+          /** GTX specific DAQ link information **/
+          /***************************************/
           /**
            * @param gtx is the input link status to query
            * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
@@ -846,6 +804,10 @@ namespace gem {
            */
           void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
 
+
+          /**************************/
+          /** TTC link information **/
+          /**************************/
           /**
            * @returns TTC control register value
            */
