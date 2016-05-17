@@ -315,7 +315,6 @@ void gem::hw::ctp7::CTP7Monitor::buildMonitorPage(xgi::Output* out)
          << "</div>"    << std::endl;
   }
   *out << "</div>"  << std::endl;
-
 }
 
 void gem::hw::ctp7::CTP7Monitor::reset()
