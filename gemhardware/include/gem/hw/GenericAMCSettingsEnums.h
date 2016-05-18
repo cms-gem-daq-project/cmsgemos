@@ -61,7 +61,6 @@ namespace gem {
           LINK_SYNC_WORD
         } OHLinkCount;
       };
-
     };  // class AMCSettings
   }  // namespace gem::hw
 
