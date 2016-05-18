@@ -1,8 +1,11 @@
-/*General structure taken blatantly from tcds::utils::HwDeviceTCA as we're using the same card*/
+/**
+ *   General structure taken blatantly from tcds::utils::HwDeviceTCA as we're using the same card
+ */
+
+#include "gem/hw/GEMHwDevice.h"
 
 #include "toolbox/net/URN.h"
 
-#include "gem/hw/GEMHwDevice.h"
 #include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
@@ -99,7 +102,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
   m_hwLock(toolbox::BSem::FULL, true),
   m_controlHubIPAddress("localhost"),
-  m_addressTable("allregsnonfram.xml"),
+  m_addressTable("glib_address_table.xml"),
   m_ipBusProtocol("2.0"),
   m_deviceIPAddress("192.168.0.115"),
   m_controlHubPort(10203),
