@@ -320,6 +320,7 @@ void gem::hw::HwGenericAMC::flushTriggerFIFO(uint8_t const& gtx)
   // V2 firmware hasn't got trigger fifo yet
   return;
 }
+
 /** obsolete in generic AMC firmware **
 uint32_t gem::hw::HwGenericAMC::getFIFOOccupancy(uint8_t const& gtx)
 {
