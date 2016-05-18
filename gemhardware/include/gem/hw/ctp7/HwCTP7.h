@@ -1,8 +1,6 @@
 #ifndef GEM_HW_CTP7_HWCTP7_H
 #define GEM_HW_CTP7_HWCTP7_H
 
-//nclude "toolbox/Task.h"
-
 #include "gem/hw/GEMHwDevice.h"
 
 #include "gem/hw/ctp7/exception/Exception.h"
@@ -14,7 +12,7 @@ namespace gem {
 
       //class CTP7Monitor;
 
-      class HwCTP7: public gem::hw::GEMHwDevice
+      class HwCTP7 : public gem::hw::HwGenericAMC
         {
         public:
 
