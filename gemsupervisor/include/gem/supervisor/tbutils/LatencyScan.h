@@ -31,6 +31,10 @@ namespace gem {
 	  throw (xgi::exception::Exception);
 	void AMC13TriggerSetup()
 	  throw (xgi::exception::Exception);
+	void startAMC13trigger()
+	  throw (xgi::exception::Exception);
+	void stopAMC13trigger()
+	  throw (xgi::exception::Exception);
 
 
 	//workloop functions

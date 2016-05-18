@@ -101,28 +101,16 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
   uint32_t bufferDepth = 0;
   bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
-  LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht BEFORE" << bufferDepth);    
+  LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
 
-  confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-  LOG4CPLUS_INFO(getApplicationLogger()," ABC TriggersSeen BEFORE point TriggersSeen " 
-		 << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
-  
   if(scanpoint_){
-    sendAMC13trigger();      
+    startAMC13trigger();
   }
 
   //count triggers and Calpulses coming from TTC
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);
   CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x0); 
 
-  
-  /*  confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-  while((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
-    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    LOG4CPLUS_INFO(getApplicationLogger(), " WhileLoop TriggersSeen " << confParams_.bag.triggersSeen);
-    sleep(0.00001);
-  }
-  */
   LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 
   hw_semaphore_.give();//give hw to set the trigger source, send L1A+Cal pulses,
@@ -145,7 +133,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   }// end triggerSeen < N triggers
   else { 
 
-    hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs 
+    stopAMC13trigger();
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
@@ -191,6 +179,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       } else  { 
 	optohybridDevice_->broadcastWrite("Latency",0xFF,0x0,false);
       }//end else
+
+      sleep(0.001);
       
       uint32_t bufferDepth = 0;
       bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);    
@@ -201,8 +191,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
       }
 
-      sleep(0.0001);
-
+      glibDevice_->setDAQLinkRunParameter(1,currentLatency_);
+      
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	(*chip)->setRunMode(1);      
       }
@@ -928,3 +918,60 @@ void gem::supervisor::tbutils::LatencyScan::sendAMC13trigger()
   //  this->Default(in,out);
 }      
 
+void gem::supervisor::tbutils::LatencyScan::startAMC13trigger()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("startlocall1a","xdaq", "urn:xdaq-soap:3.0");
+
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start sending triggers continuosly-----------");
+
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail start sending triggers continuosly " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+}      
+
+
+
+void gem::supervisor::tbutils::LatencyScan::stopAMC13trigger()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("stoplocall1a","xdaq", "urn:xdaq-soap:3.0");
+
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to stop sending continous triggers-----------");
+
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail stoping continous trigger message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+}      

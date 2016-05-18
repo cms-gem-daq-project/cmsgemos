@@ -99,33 +99,21 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 // Get the size of GLIB data buffer       
   uint32_t bufferDepth = 0;
   bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
-  LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht BEFORE" << bufferDepth);    
+  LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
   
-  confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-  LOG4CPLUS_INFO(getApplicationLogger()," ABC TriggersSeen BEFORE point TriggersSeen " 
-		 << confParams_.bag.triggersSeen);
-
   LOG4CPLUS_INFO(getApplicationLogger(),"scan point " << scanpoint_ );  
   if(scanpoint_){
-  //  sendAMC13trigger();      
-  startAMC13trigger();
+    startAMC13trigger();
   }
   //count triggers
   optohybridDevice_->setTrigSource(0x0);// trigger sources   
+  
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
   LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen);
     
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-  /*
-  while((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
-    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    LOG4CPLUS_INFO(getApplicationLogger(), " WhileLoop TriggersSeen " << confParams_.bag.triggersSeen);
-    sleep(0.00001);
-  }
-  */
-
     
-    hw_semaphore_.give(); //give hw to send the trigger 
+  hw_semaphore_.give(); //give hw to send the trigger 
   
     // if triggersSeen < N triggers
     
@@ -204,7 +192,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	  (*chip)->setVThreshold1(0);
 	}
 
-      sleep(0.0001);
+      sleep(0.001);
 
       }// end else VT1 <stepsize
 
