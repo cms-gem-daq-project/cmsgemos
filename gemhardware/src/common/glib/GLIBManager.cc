@@ -301,6 +301,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
       // m_glibs.at(slot) = glib_shared_ptr(new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_));
       m_glibs.at(slot) = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
       if (m_glibs.at(slot)->isHwConnected()) {
+        DEBUG("GLIBManager::Creating InfoSpace items for GLIB device " << deviceName);
         // maybe better to rais exception here and fail if not connected, as we expected the card to be here?
         createGLIBInfoSpaceItems(is_glibs.at(slot), m_glibs.at(slot));
         
