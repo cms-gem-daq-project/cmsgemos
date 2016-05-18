@@ -17,7 +17,7 @@ GEMHARDWARE_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
-Sources+=GEMHwDevice.cc utils/GEMCrateUtils.cc
+Sources+=GEMHwDevice.cc HwGenericAMC.cc utils/GEMCrateUtils.cc
 Sources+=vfat/HwVFAT2.cc
 Sources+=glib/HwGLIB.cc
 Sources+=optohybrid/HwOptoHybrid.cc
