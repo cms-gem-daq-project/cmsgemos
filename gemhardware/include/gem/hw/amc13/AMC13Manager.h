@@ -52,6 +52,11 @@ namespace gem {
 
 	  virtual xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference startLocalL1A(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+	  virtual xoap::MessageReference stopLocalL1A(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
 	
           virtual void failAction(toolbox::Event::Reference e)
