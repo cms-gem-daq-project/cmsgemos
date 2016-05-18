@@ -334,4 +334,3 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 {
   return;
 }
-
