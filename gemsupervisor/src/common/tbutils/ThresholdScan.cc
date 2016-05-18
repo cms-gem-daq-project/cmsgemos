@@ -101,27 +101,29 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
   LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht BEFORE" << bufferDepth);    
   
+  confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+  LOG4CPLUS_INFO(getApplicationLogger()," ABC TriggersSeen BEFORE point TriggersSeen " 
+		 << confParams_.bag.triggersSeen);
 
-    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    LOG4CPLUS_INFO(getApplicationLogger()," ABC TriggersSeen BEFORE point TriggersSeen " 
-		   << confParams_.bag.triggersSeen);
-
-    sendAMC13trigger();      
-
-    //count triggers
-    optohybridDevice_->setTrigSource(0x0);// trigger sources   
-    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    /*
-    LOG4CPLUS_INFO(getApplicationLogger(), " BEFORE WhileLoop TriggersSeen " << confParams_.bag.triggersSeen);
-    */
-    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    while((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
-      confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-      LOG4CPLUS_INFO(getApplicationLogger(), " WhileLoop TriggersSeen " << confParams_.bag.triggersSeen);
-      sleep(0.00001);
-      }
+  LOG4CPLUS_INFO(getApplicationLogger(),"scan point " << scanpoint_ );  
+  if(scanpoint_){
+  //  sendAMC13trigger();      
+  startAMC13trigger();
+  }
+  //count triggers
+  optohybridDevice_->setTrigSource(0x0);// trigger sources   
+  confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+  LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen);
     
-    LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen);
+  confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+  /*
+  while((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
+    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+    LOG4CPLUS_INFO(getApplicationLogger(), " WhileLoop TriggersSeen " << confParams_.bag.triggersSeen);
+    sleep(0.00001);
+  }
+  */
+
     
     hw_semaphore_.give(); //give hw to send the trigger 
   
@@ -136,12 +138,15 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
     LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
     
+    scanpoint_=false;
 
     hw_semaphore_.give(); // give hw to set buffer depth
     wl_semaphore_.give();//give workloop to read
     return true;
   }//end if triggerSeen < nTrigger
   else {
+  
+    stopAMC13trigger();
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
@@ -155,6 +160,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       (*chip)->setRunMode(0);
     }// end for  
     
+    scanpoint_=true;
     
     //reset counters
     optohybridDevice_->resetL1ACount(0x0);
@@ -198,7 +204,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	  (*chip)->setVThreshold1(0);
 	}
 
-      sleep(0.001);
+      sleep(0.0001);
 
       }// end else VT1 <stepsize
 
@@ -218,6 +224,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	(*chip)->setRunMode(1);
       }
 
+      scanpoint_=true;
       //send Resync
       optohybridDevice_->resetL1ACount(0x0);
       confParams_.bag.triggersSeen = 0;
@@ -658,7 +665,7 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   minThresh_ = scanParams_.bag.minThresh;
   maxThresh_ = scanParams_.bag.maxThresh;
 
-  NTriggersAMC13();
+  AMC13TriggerSetup();
   sendConfigureMessageAMC13();
   sendConfigureMessageGLIB();
   
@@ -806,10 +813,13 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   optohybridDevice_->sendResync();      
   optohybridDevice_->sendBC0();          
 
+  scanpoint_=true;
+
   wl_->submit(runSig_);
 
   hw_semaphore_.give();
   //start scan routine
+
   
   is_working_ = false;
 }
@@ -834,7 +844,7 @@ void gem::supervisor::tbutils::ThresholdScan::resetAction(toolbox::Event::Refere
 //void gem::supervisor::tbutils::ThresholdScan::sendMessage(xgi::Input *in, xgi::Output *out)
 
 
-void gem::supervisor::tbutils::ThresholdScan::NTriggersAMC13()
+void gem::supervisor::tbutils::ThresholdScan::AMC13TriggerSetup()
   throw (xgi::exception::Exception) {
   //  is_working_ = true;
 
@@ -861,13 +871,25 @@ void gem::supervisor::tbutils::ThresholdScan::NTriggersAMC13()
   xoap::SOAPName pboxname_amc13config = envelope_2.createName("amc13ConfigParams","props",appUrn);
   xoap::SOAPElement pbox_amc13config = pbox_param.addChildElement(pboxname_amc13config);
   pbox_amc13config.addAttribute(tname_param,"soapenc:Struct");
-  
-  xoap::SOAPName    soapName_l1A = envelope_2.createName("L1Aburst","props",appUrn);
-  xoap::SOAPElement cs_l1A      = pbox_amc13config.addChildElement(soapName_l1A);
-  cs_l1A.addAttribute(tname_param,"xsd:unsignedInt");
-  cs_l1A.addTextNode(confParams_.bag.nTriggers.toString());
+  /*  
+  xoap::SOAPName    soapName_l1Amode = envelope_2.createName("L1Amode","props",appUrn);
+  xoap::SOAPElement cs_l1Amode      = pbox_amc13config.addChildElement(soapName_l1Amode);
+  cs_l1Amode.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1Amode.addTextNode("1"); // periodic triggers every n BX
 
-  
+  xoap::SOAPName    soapName_l1Aperiod = envelope_2.createName("InternalPeriodicPeriod","props",appUrn);
+  xoap::SOAPElement cs_l1Aperiod      = pbox_amc13config.addChildElement(soapName_l1Aperiod);
+  cs_l1Aperiod.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1Aperiod.addTextNode("400"); // periodic triggers every 400 BX
+  */
+
+  xoap::SOAPName    soapName_l1Anumber = envelope_2.createName("L1Aburst","props",appUrn);
+  xoap::SOAPElement cs_l1Anumber      = pbox_amc13config.addChildElement(soapName_l1Anumber);
+  cs_l1Anumber.addAttribute(tname_param,"xsd:unsignedInt");
+  //  cs_l1Anumber.addTextNode(confParams_.bag.nTriggers.toString());//number of triggers sent per burst
+  cs_l1Anumber.addTextNode("1");//number of triggers sent per burst
+
+
   std::string tool;
   xoap::dumpTree(msg_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
   DEBUG("msg_2: " << tool);
@@ -935,6 +957,60 @@ void gem::supervisor::tbutils::ThresholdScan::sendAMC13trigger()
 
 
 
+void gem::supervisor::tbutils::ThresholdScan::startAMC13trigger()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("startlocall1a","xdaq", "urn:xdaq-soap:3.0");
+
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start sending triggers continuosly-----------");
+
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail start sending triggers continuosly " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+}      
 
 
 
+void gem::supervisor::tbutils::ThresholdScan::stopAMC13trigger()
+  throw (xgi::exception::Exception) {
+  //  is_working_ = true;
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPPart soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPBody body = envelope.getBody();
+  xoap::SOAPName command = envelope.createName("stoplocall1a","xdaq", "urn:xdaq-soap:3.0");
+
+  body.addBodyElement(command);
+
+  try 
+    {
+      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+      
+      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to stop sending continous triggers-----------");
+
+    }
+  catch (xdaq::exception::Exception& e)
+    {
+      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail stoping continous trigger message " << e.what());
+      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
+    }
+  //  this->Default(in,out);
+}      

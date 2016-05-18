@@ -29,10 +29,13 @@ namespace gem {
 
 	void sendAMC13trigger()
 	  throw (xgi::exception::Exception);
-	void NTriggersAMC13()
+	void AMC13TriggerSetup()
 	    throw (xgi::exception::Exception);
-
-
+	void startAMC13trigger()
+	  throw (xgi::exception::Exception);
+	void stopAMC13trigger()
+	  throw (xgi::exception::Exception);
+	
         //workloop functions
         bool run(       toolbox::task::WorkLoop* wl);
 
@@ -75,6 +78,7 @@ namespace gem {
 	int totaltriggers;
         int minThresh_, maxThresh_;
         uint64_t stepSize_, latency_;
+	bool scanpoint_;
 
       protected:
 

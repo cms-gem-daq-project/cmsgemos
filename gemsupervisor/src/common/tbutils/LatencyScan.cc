@@ -107,20 +107,22 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   LOG4CPLUS_INFO(getApplicationLogger()," ABC TriggersSeen BEFORE point TriggersSeen " 
 		 << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
   
-  sendAMC13trigger();      
+  if(scanpoint_){
+    sendAMC13trigger();      
+  }
 
   //count triggers and Calpulses coming from TTC
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);
   CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x0); 
 
   
-  confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+  /*  confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
   while((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
     LOG4CPLUS_INFO(getApplicationLogger(), " WhileLoop TriggersSeen " << confParams_.bag.triggersSeen);
     sleep(0.00001);
   }
-  
+  */
   LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 
   hw_semaphore_.give();//give hw to set the trigger source, send L1A+Cal pulses,
@@ -135,25 +137,29 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
 
+    scanpoint_=false;
+
     hw_semaphore_.give();//give hw. glib buffer depth 
     wl_semaphore_.give();//give workloop to read
     return true;
   }// end triggerSeen < N triggers
   else { 
 
-    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    LOG4CPLUS_INFO(getApplicationLogger()," ABC TriggersSeen BEFORE point TriggersSeen " 
-		   << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
-    
-
     hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs 
+
+    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+    LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
+		   << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
+
+    uint32_t bufferDepth = 0;
+    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+ 
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
     }// end for  
 
-    uint32_t bufferDepth = 0;
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
-  
+     scanpoint_=true;
+
     //reset counters
     optohybridDevice_->resetL1ACount(0x0);
     /*    optohybridDevice_->resetResyncCount();
@@ -164,6 +170,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     */
     hw_semaphore_.give(); // give hw to reset counters
 
+    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
 		   << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 		 
@@ -180,10 +187,9 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 		     << abs(scanParams_.bag.deviceVT2-scanParams_.bag.deviceVT1) );
 
       if ((currentLatency_ + scanParams_.bag.stepSize) < 0xFF) {
-	optohybridDevice_->broadcastWrite("Latency", 0x0, currentLatency_ + scanParams_.bag.stepSize);
-	sleep(0.001);
+	optohybridDevice_->broadcastWrite("Latency",currentLatency_ + scanParams_.bag.stepSize,0x0,false);
       } else  { 
-	optohybridDevice_->broadcastWrite("Latency", 0x0, 0xFF);
+	optohybridDevice_->broadcastWrite("Latency",0xFF,0x0,false);
       }//end else
       
       uint32_t bufferDepth = 0;
@@ -194,9 +200,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
 	scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
       }
-      
-      glibDevice_->setDAQLinkRunParameter(1,currentLatency_);
 
+      sleep(0.0001);
 
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	(*chip)->setRunMode(1);      
@@ -206,7 +211,6 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       optohybridDevice_->resetL1ACount(0x0);
       confParams_.bag.triggersSeen = 0;
       CalPulseCount_[0] = 0;	  
-      confParams_.bag.triggersSeen =  0;
  
       hw_semaphore_.give(); // give hw vfat set latency
       wl_semaphore_.give(); // end of workloop	
@@ -619,7 +623,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   minLatency_ = scanParams_.bag.minLatency;
   maxLatency_ = scanParams_.bag.maxLatency;
 
-  NTriggersAMC13();
+  AMC13TriggerSetup();
   sendConfigureMessageAMC13();
   sendConfigureMessageGLIB();
 
@@ -779,7 +783,9 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   optohybridDevice_->resetCalPulseCount(0x0);
   optohybridDevice_->sendResync();     
   optohybridDevice_->sendBC0();          
-  
+
+  scanpoint_=true;  
+
   wl_->submit(runSig_);
   
   hw_semaphore_.give();//end vfat
@@ -807,7 +813,7 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
   }
 }
 
-void gem::supervisor::tbutils::LatencyScan::NTriggersAMC13()
+void gem::supervisor::tbutils::LatencyScan::AMC13TriggerSetup()
   throw (xgi::exception::Exception) {
   //  is_working_ = true;
 
@@ -835,12 +841,28 @@ void gem::supervisor::tbutils::LatencyScan::NTriggersAMC13()
   xoap::SOAPElement pbox_amc13config = pbox_param.addChildElement(pboxname_amc13config);
   pbox_amc13config.addAttribute(tname_param,"soapenc:Struct");
   
-  xoap::SOAPName    soapName_l1A = envelope_2.createName("L1Aburst","props",appUrn);
-  xoap::SOAPElement cs_l1A      = pbox_amc13config.addChildElement(soapName_l1A);
-  cs_l1A.addAttribute(tname_param,"xsd:unsignedInt");
-  cs_l1A.addTextNode(confParams_.bag.nTriggers.toString());
+  xoap::SOAPName    soapName_l1Amode = envelope_2.createName("L1Amode","props",appUrn);
+  xoap::SOAPElement cs_l1Amode      = pbox_amc13config.addChildElement(soapName_l1Amode);
+  cs_l1Amode.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1Amode.addTextNode("0"); // a trigger every n orbits at 500 BX
 
-  
+  xoap::SOAPName    soapName_l1Aperiod = envelope_2.createName("InternalPeriodicPeriod","props",appUrn);
+  xoap::SOAPElement cs_l1Aperiod      = pbox_amc13config.addChildElement(soapName_l1Aperiod);
+  cs_l1Aperiod.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1Aperiod.addTextNode("0"); // a trigger every 1 orbits at 500 BX
+
+  xoap::SOAPName    soapName_l1Anumber = envelope_2.createName("L1Aburst","props",appUrn);
+  xoap::SOAPElement cs_l1Anumber      = pbox_amc13config.addChildElement(soapName_l1Anumber);
+  cs_l1Anumber.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1Anumber.addTextNode(confParams_.bag.nTriggers.toString());//number of triggers sent per burst
+ 
+  //CALPULSE ON
+  xoap::SOAPName    soapName_calpulse = envelope_2.createName("EnableCalPulse","props",appUrn);
+  xoap::SOAPElement cs_calpulse      = pbox_amc13config.addChildElement(soapName_calpulse);
+  cs_calpulse.addAttribute(tname_param,"xsd:booolean");
+  cs_calpulse.addTextNode("true"); // periodic triggers every 400 BX
+
+ 
   std::string tool;
   xoap::dumpTree(msg_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
   DEBUG("msg_2: " << tool);
