@@ -84,6 +84,8 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::sendTriggerBurst,"sendtriggerburst", XDAQ_NS_URI );   
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::startLocalL1A,"startlocall1a", XDAQ_NS_URI );   
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::stopLocalL1A,"stiolocall1a", XDAQ_NS_URI );   
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
@@ -209,6 +211,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->AMCInputEnable(m_slotMask);
 
   // Use local TTC signal if config doc says so
+  
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
 
   // Enable Monitor Buffer Backpressure if config doc says so
@@ -237,9 +240,6 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
-  INFO("AMC13 Configured L1ABurst BEFORE = " << m_L1Aburst);
-  m_L1Aburst           = m_amc13Params.bag.l1Aburst.value_;
-  INFO("AMC13 Configured L1ABurst AFTER = " << m_L1Aburst);
 
   if (m_enableLocalL1A) p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
 
@@ -247,6 +247,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
 
   if (m_enableCalpulse) {
+    //    p_amc13->setOrbitGap(0,0); 
     p_amc13->configureBGOShort(m_bgochannel, m_bgocmd, m_bgobx, m_bgoprescale, m_bgorepeat);
     p_amc13->getBGOConfig(m_bgochannel);
   }
@@ -272,9 +273,9 @@ void gem::hw::amc13::AMC13Manager::startAction()
 
   INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
 
-
+  
   if (m_enableLocalL1A && m_startL1ATricont) {
-    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+    //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     p_amc13->startContinuousL1A();
   }
@@ -376,7 +377,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
   std::string commandName = "undefined";
   try {
     if (m_enableLocalL1A &&  m_sendL1ATriburst) {
-      //p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+      //      p_amc13->localTtcgSignalEnable(m_enableLocalL1A);
       //p_amc13->enableLocalL1A(m_enableLocalL1A);
       p_amc13->sendL1ABurst();
     }
@@ -408,3 +409,64 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
   }  
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
+
+
+xoap::MessageReference gem::hw::amc13::AMC13Manager::startLocalL1A(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
+  //gem::base::GEMFSMApplication::disable();
+
+  std::string commandName = "undefined";
+
+  if (m_enableLocalL1A && m_startL1ATricont) {
+    p_amc13->startContinuousL1A();
+  }
+
+  try {
+    INFO("AMC13Manager::startLocalL1A command " << commandName << " succeeded ");
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
+  } catch(xcept::Exception& err) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                         top, toolbox::toString("%s.",msgBase.c_str()), err);
+    this->notifyQualified("error", top);
+    
+    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+  }  
+  XCEPT_RAISE(xoap::exception::Exception,"command not found");
+
+}
+
+xoap::MessageReference gem::hw::amc13::AMC13Manager::stopLocalL1A(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
+  //gem::base::GEMFSMApplication::disable();
+  std::string commandName = "undefined";
+
+  if (m_enableLocalL1A && m_startL1ATricont) {
+    p_amc13->stopContinuousL1A();
+  }
+
+  try {
+    INFO("AMC13Manager::stopLoacalL1A " << commandName << " succeeded ");
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
+  } catch(xcept::Exception& err) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                         top, toolbox::toString("%s.",msgBase.c_str()), err);
+    this->notifyQualified("error", top);
+    
+    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+  }  
+  XCEPT_RAISE(xoap::exception::Exception,"command not found");
+
+}
+
