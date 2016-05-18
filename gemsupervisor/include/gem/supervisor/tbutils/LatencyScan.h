@@ -29,7 +29,7 @@ namespace gem {
 
 	void sendAMC13trigger()
 	  throw (xgi::exception::Exception);
-	void NTriggersAMC13()
+	void AMC13TriggerSetup()
 	  throw (xgi::exception::Exception);
 
 
@@ -79,6 +79,7 @@ namespace gem {
       uint8_t  currentLatency_;
       uint64_t stepSize_;
       int totaltriggers;
+      bool scanpoint_;
 
       protected:
 
