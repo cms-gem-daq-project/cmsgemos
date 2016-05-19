@@ -14,6 +14,8 @@
 
 #include "gem/hw/glib/exception/Exception.h"
 
+#include "gem/hw/utils/GEMCrateUtils.h"
+
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBManager);
@@ -95,10 +97,10 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
     WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib+1
          << " is not connected");
     return dump;
-  //} else if (!(m_glibs.at(glib)->hasTrackingData(0))) {
-  //  WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib
-  //       << " has no tracking data in the FIFO");
-  //  return dump;
+    //} else if (!(m_glibs.at(glib)->hasTrackingData(0))) {
+    //  WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib
+    //       << " has no tracking data in the FIFO");
+    //  return dump;
   }
   
   try {
@@ -119,6 +121,7 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
   }
 }
 
+/*
 uint16_t gem::hw::glib::GLIBManager::parseAMCEnableList(std::string const& enableList)
 {
   uint16_t slotMask = 0x0;
@@ -197,6 +200,7 @@ bool gem::hw::glib::GLIBManager::isValidSlotNumber(std::string const& s)
   // if you get here, should be possible to parse as an integer in the range [1,12]  
   return true;
 }
+*/
 
 // This is the callback used for handling xdata:Event objects
 void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
@@ -204,14 +208,17 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
     DEBUG("GLIBManager::actionPerformed() setDefaultValues" << 
           "Default configuration values have been loaded from xml profile");
-    m_amcEnableMask = parseAMCEnableList(m_amcSlots.toString());
+    m_amcEnableMask = gem::hw::utils::parseAMCEnableList(m_amcSlots.toString());
     INFO("GLIBManager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
          << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
     
     // how to handle passing in various values nested in a vector in a bag
     for (auto slot = m_glibInfo.begin(); slot != m_glibInfo.end(); ++slot) {
-      if (slot->bag.present.value_)
+      // if (slot->bag.present.value_)
+      if (slot->bag.crateID.value_ > -1) {
+        slot->bag.present = true;
         DEBUG("GLIBManager::Found attribute:" << slot->bag.toString());
+      }
     }
     // p_gemMonitor->startMonitoring();
   }
@@ -219,7 +226,7 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
-void gem::hw::glib::GLIBManager::init()
+  void gem::hw::glib::GLIBManager::init()
 {
   // anything needed here?
 }
@@ -235,7 +242,15 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if ((m_amcEnableMask >> (slot)) & 0x1) {
       DEBUG("GLIBManager::info:" << info.toString());
       DEBUG("GLIBManager::expect a card in slot " << (slot+1));
+      DEBUG("GLIBManager::bag"
+            << "crate " << info.crateID.value_
+            << " slot " << info.slotID.value_);
+      // this maybe shouldn't be done?
       info.slotID  = slot+1;
+      DEBUG("GLIBManager::bag"
+            << "crate " << info.crateID.value_
+            << " slot " << info.slotID.value_);
+      // this maybe shouldn't be done?
       info.present = true;
       // actually check presence? this just says that we expect it to be there
       // check if there is a GLIB in the specified slot, if not, do not initialize
