@@ -94,7 +94,17 @@ if (options.l1a_block):
 else:
         writeRegister(glib, "GLIB.TTC.CONTROL.INHIBIT_L1A", 0x0)
 
+if (options.resetCounters):
+        glibCounters(glib,options.gtx,True)
+        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
+        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
+
 if (options.daq_enable>=0):
+        print "Reset daq_enable: %i"%(options.daq_enable)
+        if (options.reset_daq>=0):
+                writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x1)
+                writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x0)
+
         writeRegister(glib, "GLIB.DAQ.CONTROL.DAQ_ENABLE",        0x1)
         writeRegister(glib, "GLIB.DAQ.CONTROL.TTS_OVERRIDE",      0x8)
         writeRegister(glib, "GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x1)
@@ -104,15 +114,7 @@ if (options.daq_enable>=0):
                 # in 160MHz clock cycles, so multiply by 4 to get in terms of BX
                 # 0xc35 -> 781 BX
                 writeRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink),0x30D4)
-        print "Reset daq_enable: %i"%(options.daq_enable)
-        if (options.reset_daq>=0):
-                writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x1)
-                writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x0)
 
-if (options.resetCounters):
-        glibCounters(glib,options.gtx,True)
-        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
-        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
 print
 print "-> DAQ control reg    :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
 print "-> DAQ status reg     :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
@@ -129,6 +131,8 @@ print "-> DAQ GTX dispersion error counter  :0x%08x"%(readRegister(glib,"GLIB.DA
 print
 print "-> GLIB MAX_DAV_TIMER :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.MAX_DAV_TIMER"))
 print "-> GLIB LAST_DAV_TIMER:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.LAST_DAV_TIMER"))
+
+print
 if options.gemttc in [0,1]:
         writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
 print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
