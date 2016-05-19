@@ -2,8 +2,7 @@
 #define GEM_HW_GLIB_GLIBMANAGER_H
 /** @file GLIBManager.h */
 
-
-//#include "uhal/uhal.hpp"
+#include <array>
 
 #include "gem/base/GEMFSMApplication.h"
 //#include "gem/hw/glib/GLIBSettings.h"
@@ -68,8 +67,8 @@ namespace gem {
           void dumpGLIBFIFO(xgi::Input* in, xgi::Output* out);
 
         private:
-	  uint16_t parseAMCEnableList(std::string const&);
-	  bool     isValidSlotNumber( std::string const&);
+	  //uint16_t parseAMCEnableList(std::string const&);
+	  //bool     isValidSlotNumber( std::string const&);
           void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
           uint16_t m_amcEnableMask;
 

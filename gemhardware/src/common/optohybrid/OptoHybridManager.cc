@@ -14,6 +14,8 @@
 
 #include "gem/hw/optohybrid/exception/Exception.h"
 
+#include "gem/hw/utils/GEMCrateUtils.h"
+
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
@@ -30,12 +32,18 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   addressTable        = "";
   controlHubPort      = 0;
   ipBusPort           = 0;
+
+  vfatBroadcastList = "0-23";
+  vfatBroadcastMask = 0xff000000;
   
+  vfatSBitList = "0-23";
+  vfatSBitMask = 0xff000000;
+
   triggerSource = 0;
   sbitSource    = 0;
   refClkSrc     = 0;
-  vfatClkSrc    = 0;
-  cdceClkSrc    = 0;
+  //vfatClkSrc    = 0;
+  //cdceClkSrc    = 0;
 }
 
 void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo>* bag) {
@@ -53,12 +61,15 @@ void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdat
 
   bag->addField("VFATBroadcastList", &vfatBroadcastList);
   bag->addField("VFATBroadcastMask", &vfatBroadcastMask);
-            
+  
+  bag->addField("VFATSBitList", &vfatSBitList);
+  bag->addField("VFATSBitMask", &vfatSBitMask);
+
   bag->addField("triggerSource", &triggerSource);
   bag->addField("sbitSource",    &sbitSource);
   bag->addField("refClkSrc",     &refClkSrc);
-  bag->addField("vfatClkSrc",    &vfatClkSrc);
-  bag->addField("cdceClkSrc",    &cdceClkSrc);
+  //bag->addField("vfatClkSrc",    &vfatClkSrc);
+  //bag->addField("cdceClkSrc",    &cdceClkSrc);
 }
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub* stub) :
@@ -93,6 +104,7 @@ gem::hw::optohybrid::OptoHybridManager::~OptoHybridManager() {
   //memory management, maybe not necessary here?
 }
 
+/*
 uint32_t gem::hw::optohybrid::OptoHybridManager::parseVFATMaskList(std::string const& enableList)
 {
   //nothing masked, return the negation of the mask that includes the enable list
@@ -179,6 +191,7 @@ bool gem::hw::optohybrid::OptoHybridManager::isValidSlotNumber(std::string const
   
   return true; //if you get here, should be possible to parse as an integer in the range [1,12]
 }
+*/
 
 // This is the callback used for handling xdata:Event objects
 void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event)
@@ -189,13 +202,20 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
     
     //how to handle passing in various values nested in a vector in a bag
     for (auto board = m_optohybridInfo.begin(); board != m_optohybridInfo.end(); ++board) {
-      if (board->bag.present.value_) {
+      // if (board->bag.present.value_) {
+      if (board->bag.crateID.value_ > -1) {
+        board->bag.present = true;
         INFO("OptoHybridManager::Found attribute:" << board->bag.toString());
-        uint32_t tmpBroadcastMask = parseVFATMaskList(board->bag.vfatBroadcastList.toString());
-        INFO("OptoHybridManager::Parsed AMCEnableList vfatBroadcastMask = " << board->bag.vfatBroadcastList.toString()
+        uint32_t tmpBroadcastMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatBroadcastList.toString());
+        INFO("OptoHybridManager::Parsed vfatBroadcastList = " << board->bag.vfatBroadcastList.toString()
              << " to broadcastMask 0x" << std::hex << tmpBroadcastMask << std::dec);
         board->bag.vfatBroadcastMask = tmpBroadcastMask;
         //board->bag.vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()));
+        
+        uint32_t tmpSBitMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatSBitList.toString());
+        INFO("OptoHybridManager::Parsed vfatSBitList = " << board->bag.vfatSBitList.toString()
+             << " to sbitMask 0x" << std::hex << tmpSBitMask << std::dec);
+        board->bag.vfatSBitMask = tmpSBitMask;
       }
     }
     //p_gemMonitor->startMonitoring();
@@ -220,7 +240,12 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       usleep(1000);
       DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
+      DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
+      DEBUG("OptoHybridManager::bag"
+            << "crate " << info.crateID.value_
+            << " slot " << info.slotID.value_
+            << " link " << info.linkID.value_);
 
       if (!info.present)
         continue;
@@ -297,20 +322,27 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "initializeAction failed");
       }
       DEBUG("OptoHybridManager::connected");
-      //set the web view to be empty or grey
-      //if (!info.present.value_) continue;
-      //p_gemWebInterface->optohybridInSlot(slot);
+      // set the web view to be empty or grey
+      // if (!info.present.value_) continue;
+      // p_gemWebInterface->optohybridInSlot(slot);
 
       DEBUG("OptoHybridManager::grabbing pointer to hardware device");
-      //optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
+      // optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
 
       if (m_optohybrids.at(slot).at(link)->isHwConnected()) {
-        DEBUG("OptoHybridManager::OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1));
         // get connecte VFATs
-        // m_vfatMapping.at(index) = m_optohybrids.at(slot).at(link)->getConnectedVFATs();
-        // m_broadcastList.at(index) = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
-        m_vfatMapping.at(slot).at(link) = m_optohybrids.at(slot).at(link)->getConnectedVFATs();
+        m_vfatMapping.at(slot).at(link)   = m_optohybrids.at(slot).at(link)->getConnectedVFATs();
+        m_trackingMask.at(slot).at(link)  = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
         m_broadcastList.at(slot).at(link) = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
+        m_sbitMask.at(slot).at(link)      = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
+        DEBUG("OptoHybridManager::OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << std::endl
+              << "Tracking mask: 0x" << std::hex << std::setw(8) << std::setfill('0') << m_trackingMask.at(slot).at(link)
+              << std::dec << std::endl
+              << "Broadcst mask: 0x" << std::hex << std::setw(8) << std::setfill('0') << m_broadcastList.at(slot).at(link)
+              << std::dec << std::endl
+              << "    SBit mask: 0x" << std::hex << std::setw(8) << std::setfill('0') << m_sbitMask.at(slot).at(link)
+              << std::dec << std::endl
+              );
         // turn off any that are excluded by the additional mask?
       } else {
         ERROR("OptoHybridManager::OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
@@ -333,6 +365,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       usleep(1000); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
+      DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
 
       DEBUG("OptoHybridManager::configureAction::info is: " << info.toString());
@@ -435,6 +468,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
       usleep(1000);
       DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
+      DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
       
       if (!info.present)
