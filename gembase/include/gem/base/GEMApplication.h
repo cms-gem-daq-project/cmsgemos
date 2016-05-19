@@ -8,10 +8,6 @@
 #include <deque>
 #include <map>
 
-#include "boost/algorithm/string.hpp"
-#include "boost/lexical_cast.hpp"
-#include "boost/format.hpp"
-
 #include "log4cplus/logger.h"
 
 #include "xdaq/NamespaceURI.h"
