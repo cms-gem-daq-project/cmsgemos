@@ -930,6 +930,8 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
     DEBUG(itemName << " has value " << std::hex << val << std::dec);
     if ( format == "" || format == "hex" ) {
       result << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
+    } else if ( format == "bit" ) {
+      result << "0x" << std::hex << val;
     } else if ( format == "dec" ) {
       result << std::dec << val;
     } else if ( format == "hex/dec" ) {
