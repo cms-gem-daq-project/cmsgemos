@@ -283,22 +283,25 @@ void gem::base::GEMMonitor::jsonUpdateItemSets(xgi::Output *out)
 {
   auto end = m_monitorableSetsMap.end();
   for (auto iset = m_monitorableSetsMap.begin(); iset != m_monitorableSetsMap.end(); ++iset) {
+    *out << "\"" << iset->first << "\" : [ " << std::endl;
+
     if (m_monitorableSetsMap.find(iset->first) == m_monitorableSetsMap.end()) {
       WARN("GEMMonitor::Monitorable set " << iset->first << " not found, not exporting as JSON");
-      return;
-    }
-
-    if (m_monitorableSetsMap.find(iset->first)->second.empty()) {
+      // return;  // should have been continue?
+    } else if (m_monitorableSetsMap.find(iset->first)->second.empty()) {
       WARN("GEMMonitor::Monitorable set " << iset->first << " is empty, not exporting as JSON");
-      return;
+      // return;  // should have been continue?
+    } else {
+      DEBUG("GEMMonitor::Found monitorable set " << iset->first << " while updating for JSON export");
+      
+      jsonUpdateItemSet(iset->first, out);
     }
-    DEBUG("GEMMonitor::Found monitorable set " << iset->first << " while updating for JSON export");
-    *out << "\"" << iset->first << "\" : [ " << std::endl;
-    jsonUpdateItemSet(iset->first, out);
     // can't have a trailing comma for the last entry...
     if (std::distance(iset, end) == 1) {
+      DEBUG("GEMMonitor::Found last monitorable set " << iset->first << ", no trailing comma (])");
       *out << " ]"  << std::endl;
     } else {
+      DEBUG("GEMMonitor::Found monitorable set " << iset->first << ", trailing comma (],)");
       *out << " ]," << std::endl;
     }
   }

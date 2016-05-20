@@ -1,8 +1,6 @@
 #ifndef GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGERWEB_H
 #define GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGERWEB_H
 
-#include <memory>
-
 #include "gem/base/GEMWebApplication.h"
 
 namespace gem {
@@ -33,6 +31,9 @@ namespace gem {
             throw (xgi::exception::Exception);
 
           virtual void applicationPage(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
           void boardPage(xgi::Input *in, xgi::Output *out)

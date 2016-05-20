@@ -2,6 +2,8 @@
 
 #include "gem/hw/glib/GLIBManagerWeb.h"
 
+#include <memory>
+
 #include "xcept/tools.h"
 
 #include "gem/hw/glib/GLIBManager.h"
@@ -85,7 +87,7 @@ void gem::hw::glib::GLIBManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::O
        << cgicc::th() << "Register" << cgicc::th() << std::endl;
   // loop over all managed GLIBs and put GLIBXX as the header
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors.at(i);
     if (card) {
       *out << cgicc::th() << card->getDeviceID() << cgicc::th() << std::endl;
     }
@@ -103,7 +105,7 @@ void gem::hw::glib::GLIBManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::O
 
   // loop over GLIBs to be monitored
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors.at(i);
     if (card) {
       std::stringstream tdid;
       tdid << card->getDeviceID();
@@ -126,7 +128,7 @@ void gem::hw::glib::GLIBManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
   // fill this page with the card views for the GLIBManager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors.at(i);
     if (card) {
       *out << "<div class=\"xdaq-tab\" title=\"" << card->getDeviceID() << "\" >"  << std::endl;
       card->buildMonitorPage(out);
@@ -199,7 +201,7 @@ void gem::hw::glib::GLIBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
     *out << "\"glib" << std::setw(2) << std::setfill('0') << (i+1) << "\"  : { " << std::endl;
-    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors.at(i);
     if (card) {
       card->jsonUpdateItemSets(out);
     }
