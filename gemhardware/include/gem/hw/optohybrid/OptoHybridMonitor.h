@@ -37,24 +37,29 @@ namespace gem {
         void buildMonitorPage(xgi::Output* out);
 
         /**
-         * @brief special layout for monitor items in WishboneCounters monitor set
+         * @brief special layout for monitor items in 'Wishbone Counters' monitor set
          */
         void buildWishboneCounterTable(xgi::Output* out);
 
         /**
-         * @brief special layout for monitor items in VFATCRC monitor set
+         * @brief special layout for monitor items in 'VFAT CRCs' monitor set
          */
         void buildVFATCRCCounterTable(xgi::Output* out);
 
         /**
-         * @brief special layout for monitor items in T1Counters monitor set
+         * @brief special layout for monitor items in 'T1 Counters' monitor set
          */
         void buildT1CounterTable(xgi::Output* out);
 
         /**
-         * @brief special layout for monitor items in OtherCounters monitor set
+         * @brief special layout for monitor items in 'Other Counters' monitor set
          */
         void buildOtherCounterTable(xgi::Output* out);
+
+        /**
+         * @brief special layout for monitor items in 'Firmware Scan Controller' monitor set
+         */
+        void buildFirmwareScanTable(xgi::Output* out);
 
         std::string getDeviceID() { return p_optohybrid->getDeviceID(); }
         
