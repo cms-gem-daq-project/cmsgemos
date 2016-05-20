@@ -241,8 +241,6 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         
         m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
         m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
-        // put these in a separate infospace? or in the main HWMonitoring
-        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("FirmwareScanController", is_optohybrids.at(slot).at(link));
         m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
         m_optohybridMonitors.at(slot).at(link)->startMonitoring();
 
@@ -445,11 +443,11 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
 {
   // system registers  
   is_optohybrid->createUInt32("VFAT_Mask",    optohybrid->getVFATMask(),        NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("TrgSource",    optohybrid->getTrigSource(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("TrgSource",    optohybrid->getTrigSource(),      NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("SBitLoopback", optohybrid->getFirmware(),        NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("Ref_clk",      optohybrid->getReferenceClock(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("Ref_clk",      optohybrid->getReferenceClock(),  NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("SBit_Mask",    optohybrid->getSBitMask(),        NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("SBitsOut",     optohybrid->getSBitSource(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("SBitsOut",     optohybrid->getSBitSource(),      NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("TrgThrottle",  optohybrid->getFirmware(),        NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("ZS",           optohybrid->getFirmware(),        NULL, GEMUpdateType::HW32);
 
@@ -501,4 +499,14 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
   is_optohybrid->createUInt32("DataPackets",        optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("QPLL_LOCK",          optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("QPLL_FPGA_PLL_LOCK", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+
+  /** Firmware based scan routines **/
+  std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
+                                                              std::make_pair("DAC","DAC")}};
+  std::array<std::string, 9> scanregs = {{"START","MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
+  for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
+    for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
+      is_optohybrid->createUInt32(scan->first+"Scan", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+    }
+  }
 }
