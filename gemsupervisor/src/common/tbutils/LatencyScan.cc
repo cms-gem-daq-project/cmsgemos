@@ -77,6 +77,8 @@ gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)  t
   wl_->activate();
 
   currentLatency_ = 0;
+
+  startAMC13trigger();
 }
 
 gem::supervisor::tbutils::LatencyScan::~LatencyScan()
@@ -104,7 +106,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
 
   if(scanpoint_){
-    startAMC13trigger();
+    stopAMC13trigger(); //disable AMC13 trigger in order to receive CSC trigger
+    //    startAMC13trigger();
   }
 
   //count triggers and Calpulses coming from TTC
@@ -133,7 +136,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   }// end triggerSeen < N triggers
   else { 
 
-    stopAMC13trigger();
+    startAMC13trigger();  //enable AMC13 trigger in order to stop CSC trigger
+    //    stopAMC13trigger();
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
@@ -209,6 +213,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     } // end if maxLat - curreLat >= step
     else {
       hw_semaphore_.take(); // take hw to stop workloop
+      startAMC13trigger();
       wl_->submit(stopSig_);  
       hw_semaphore_.give(); // give hw to stop workloop
       wl_semaphore_.give(); // end of workloop	      
@@ -649,7 +654,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
     (*chip)->setVCal(scanParams_.bag.VCal);
     for (int chan = 0; chan < 129; ++chan)
-      if (chan == 0 || chan == 1 || chan == 32)
+      if (chan == 10 || chan == 60 || chan == 100)
         (*chip)->enableCalPulseToChannel(chan, true);
       else
         (*chip)->enableCalPulseToChannel(chan, false);
@@ -725,6 +730,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
   sendStartMessageGLIB();
   sendStartMessageAMC13();
+  startAMC13trigger();
   sleep(1);
 
   //AppHeader ah;
