@@ -2,6 +2,8 @@
 
 #include "gem/hw/optohybrid/OptoHybridManagerWeb.h"
 
+#include <memory>
+
 #include "xcept/tools.h"
 
 #include "gem/hw/optohybrid/OptoHybridManager.h"
@@ -25,6 +27,10 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::webDefault(xgi::Input * in, xgi:
 {
   if (p_gemFSMApp)
     DEBUG("current state is" << dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->getCurrentState());
+  *out << cgicc::style().set("type", "text/css")
+    .set("src", "/gemdaq/gemhardware/html/css/optohybrid/optohybrid.css")
+       << cgicc::style() << std::endl;
+
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemhardware/html/scripts/optohybrid/optohybrid.js")
        << cgicc::script() << std::endl;
@@ -82,5 +88,31 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::boardPage(xgi::Input* in, xgi::O
     }
   }
   *out << "</div>" << std::endl;
+}
+
+void gem::hw::optohybrid::OptoHybridManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+  DEBUG("OptoHybridManagerWeb::jsonUpdate");
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  *out << " { " << std::endl;
+  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
+    for (unsigned int j = 0; j < gem::base::GEMFSMApplication::MAX_OPTOHYBRIDS_PER_AMC; ++j) {
+      *out << "\"amcslot"   << std::setw(2) << std::setfill('0') << (i+1)
+           << ".optohybrid" << std::setw(2) << std::setfill('0') << (j)
+           << "\"  : { "    << std::endl;
+      auto card = dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->m_optohybridMonitors.at(i).at(j);
+      if (card) {
+        card->jsonUpdateItemSets(out);
+      }
+      // can't have a trailing comma for the last entry...
+      if (i == (gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE-1) &&
+          j == (gem::base::GEMFSMApplication::MAX_OPTOHYBRIDS_PER_AMC-1))
+        *out << " }" << std::endl;
+      else
+        *out << " }," << std::endl;
+    }
+  }
+  *out << " } " << std::endl;
 }
 

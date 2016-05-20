@@ -1,8 +1,6 @@
 #ifndef GEM_HW_GLIB_GLIBMANAGERWEB_H
 #define GEM_HW_GLIB_GLIBMANAGERWEB_H
 
-#include <memory>
-
 #include "gem/base/GEMWebApplication.h"
 
 namespace gem {

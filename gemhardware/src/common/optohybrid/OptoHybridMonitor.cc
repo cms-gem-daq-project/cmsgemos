@@ -87,82 +87,82 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  std::make_pair("QPLL_FPGA_PLL_IS_LOCKED","STATUS.QPLL_FPGA_PLL_LOCK"),
                  GEMUpdateType::HW32, "hex");
   
-  addMonitorableSet("WishboneCounters", "HWMonitoring");
+  addMonitorableSet("Wishbone Counters", "HWMonitoring");
   std::array<std::string, 4> wbMasters = {{"GTX","ExtI2C","Scan","DAC"}};
   for (auto master = wbMasters.begin(); master != wbMasters.end(); ++master) {
-    addMonitorable("WishboneCounters", "HWMonitoring",
-                   std::make_pair("Master"+(*master)+"Strobe",   "COUNTERS.WB.MASTER.Strobe."+(*master)),
+    addMonitorable("Wishbone Counters", "HWMonitoring",
+                   std::make_pair("Master:"+(*master)+"Strobe",   "COUNTERS.WB.MASTER.Strobe."+(*master)),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable("WishboneCounters", "HWMonitoring",
-                   std::make_pair("Master"+(*master)+"Ack",      "COUNTERS.WB.MASTER.Ack."+(*master)),
+    addMonitorable("Wishbone Counters", "HWMonitoring",
+                   std::make_pair("Master:"+(*master)+"Ack",      "COUNTERS.WB.MASTER.Ack."+(*master)),
                    GEMUpdateType::HW32, "hex");
   }
   
   for (int i2c = 0; i2c < 6; ++i2c) {
     std::stringstream ss;
     ss << "I2C" << i2c;
-    addMonitorable("WishboneCounters", "HWMonitoring",
-                   std::make_pair("Slave"+ss.str()+"Strobe",   "COUNTERS.WB.SLAVE.Strobe."+ss.str()),
+    addMonitorable("Wishbone Counters", "HWMonitoring",
+                   std::make_pair("Slave:"+ss.str()+"Strobe",   "COUNTERS.WB.SLAVE.Strobe."+ss.str()),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable("WishboneCounters", "HWMonitoring",
-                   std::make_pair("Slave"+ss.str()+"Ack",      "COUNTERS.WB.SLAVE.Ack."+ss.str()),
+    addMonitorable("Wishbone Counters", "HWMonitoring",
+                   std::make_pair("Slave:"+ss.str()+"Ack",      "COUNTERS.WB.SLAVE.Ack."+ss.str()),
                    GEMUpdateType::HW32, "hex");
   }
 
   std::array<std::string, 8> wbSlaves = {{"ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"}};
   for (auto slave = wbSlaves.begin(); slave != wbSlaves.end(); ++slave) {
-    addMonitorable("WishboneCounters", "HWMonitoring",
-                   std::make_pair("Slave"+(*slave)+"Strobe",   "COUNTERS.WB.SLAVE.Strobe."+(*slave)),
+    addMonitorable("Wishbone Counters", "HWMonitoring",
+                   std::make_pair("Slave:"+(*slave)+"Strobe",   "COUNTERS.WB.SLAVE.Strobe."+(*slave)),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable("WishboneCounters", "HWMonitoring",
-                   std::make_pair("Slave"+(*slave)+"Ack",      "COUNTERS.WB.SLAVE.Ack."+(*slave)),
+    addMonitorable("Wishbone Counters", "HWMonitoring",
+                   std::make_pair("Slave:"+(*slave)+"Ack",      "COUNTERS.WB.SLAVE.Ack."+(*slave)),
                    GEMUpdateType::HW32, "hex");
   }
 
-  addMonitorableSet("VFATCRC", "HWMonitoring");
+  addMonitorableSet("VFAT CRCs", "HWMonitoring");
   for (int vfat = 0; vfat < 24; ++vfat) {
     std::stringstream ss;
     ss << "VFAT" << vfat;
-    addMonitorable("VFATCRC", "HWMonitoring",
+    addMonitorable("VFAT CRCs", "HWMonitoring",
                    std::make_pair(ss.str()+"_Valid",  "COUNTERS.CRC.VALID."+ss.str()),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable("VFATCRC", "HWMonitoring",
+    addMonitorable("VFAT CRCs", "HWMonitoring",
                    std::make_pair(ss.str()+"_Incorrect","COUNTERS.CRC.INCORRECT."+ss.str()),
                    GEMUpdateType::HW32, "hex");
   }
   
-  addMonitorableSet("T1Counters", "HWMonitoring");
+  addMonitorableSet("T1 Counters", "HWMonitoring");
   std::array<std::string, 5> t1sources = {{"TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT"}};
   for (auto t1src = t1sources.begin(); t1src != t1sources.end(); ++t1src) {
-    addMonitorable("T1Counters", "HWMonitoring",
+    addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"L1A",     "COUNTERS.T1."+(*t1src)+".L1A"),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable("T1Counters", "HWMonitoring",
+    addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"CalPulse","COUNTERS.T1."+(*t1src)+".CalPulse"),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable("T1Counters", "HWMonitoring",
+    addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"Resync",  "COUNTERS.T1."+(*t1src)+".Resync"),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable("T1Counters", "HWMonitoring",
+    addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"BC0",     "COUNTERS.T1."+(*t1src)+".BC0"),
                    GEMUpdateType::HW32, "hex");
   }
 
-  addMonitorableSet("OtherCounters", "HWMonitoring");
-  addMonitorable("OtherCounters", "HWMonitoring",
+  addMonitorableSet("Other Counters", "HWMonitoring");
+  addMonitorable("Other Counters", "HWMonitoring",
                  std::make_pair("TrackingLinkErrors","COUNTERS.GTX.TRK_ERR"),
                  GEMUpdateType::PROCESS, "raw/rate");
-  addMonitorable("OtherCounters", "HWMonitoring",
+  addMonitorable("Other Counters", "HWMonitoring",
                  std::make_pair("TriggerLinkErrors", "COUNTERS.GTX.TRG_ERR"),
                  GEMUpdateType::PROCESS, "raw/rate");
-  addMonitorable("OtherCounters", "HWMonitoring",
+  addMonitorable("Other Counters", "HWMonitoring",
                  std::make_pair("DataPackets",       "COUNTERS.GTX.DATA_Packets"),
                  GEMUpdateType::PROCESS, "raw/rate");
   
-  addMonitorable("OtherCounters", "HWMonitoring",
+  addMonitorable("Other Counters", "HWMonitoring",
                  std::make_pair("QPLL_LOCK",         "COUNTERS.QPLL_LOCK"),
                  GEMUpdateType::PROCESS, "raw/rate");
-  addMonitorable("OtherCounters", "HWMonitoring",
+  addMonitorable("Other Counters", "HWMonitoring",
                  std::make_pair("QPLL_FPGA_PLL_LOCK","COUNTERS.QPLL_FPGA_PLL_LOCK"),
                  GEMUpdateType::PROCESS, "raw/rate");
   
@@ -284,19 +284,19 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
          << cgicc::thead() << std::endl
          << cgicc::tr()    << std::endl //open
          << cgicc::th()    << "Register name"    << cgicc::th() << std::endl;
-    if ((*monset).rfind("WishboneCounters") != std::string::npos) {
+    if ((*monset).rfind("Wishbone Counters") != std::string::npos) {
       *out << cgicc::th() << "Strobes" << cgicc::th() << std::endl
            << cgicc::th() << "Acks"    << cgicc::th() << std::endl;
-    } else if ((*monset).rfind("VFATCRC") != std::string::npos) {
+    } else if ((*monset).rfind("VFAT CRCs") != std::string::npos) {
       *out << cgicc::th() << "Valid"   << cgicc::th() << std::endl
            << cgicc::th() << "Incorrect" << cgicc::th() << std::endl;
-    } else if ((*monset).rfind("T1Counters") != std::string::npos) {
+    } else if ((*monset).rfind("T1 Counters") != std::string::npos) {
       *out << cgicc::th() << "TTC"      << cgicc::th() << std::endl
            << cgicc::th() << "Internal" << cgicc::th() << std::endl
            << cgicc::th() << "External" << cgicc::th() << std::endl
            << cgicc::th() << "Loopback" << cgicc::th() << std::endl
            << cgicc::th() << "Sent"     << cgicc::th() << std::endl;
-    } else if ((*monset).rfind("OtherCounters") != std::string::npos) {
+    } else if ((*monset).rfind("Other Counters") != std::string::npos) {
       *out << cgicc::th() << "Count" << cgicc::th() << std::endl
            << cgicc::th() << "Rate"  << cgicc::th() << std::endl;
     } else {
@@ -308,13 +308,13 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
          << cgicc::thead() << std::endl 
          << "<tbody>" << std::endl;
     
-    if ((*monset).rfind("WishboneCounters") != std::string::npos) {
+    if ((*monset).rfind("Wishbone Counters") != std::string::npos) {
       buildWishboneCounterTable(out);
-    } else if ((*monset).rfind("VFATCRC") != std::string::npos) {
+    } else if ((*monset).rfind("VFAT CRCs") != std::string::npos) {
       buildVFATCRCCounterTable(out);
-    } else if ((*monset).rfind("T1Counters") != std::string::npos) {
+    } else if ((*monset).rfind("T1 Counters") != std::string::npos) {
       buildT1CounterTable(out);
-    } else if ((*monset).rfind("OtherCounters") != std::string::npos) {
+    } else if ((*monset).rfind("Other Counters") != std::string::npos) {
       buildOtherCounterTable(out);
     } else {
       for (auto monitem = m_monitorableSetsMap.find(*monset)->second.begin();
@@ -361,20 +361,12 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
   
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
-  /*
-  if (monsets.find("WishboneCounters") == monsets.end()) {
-    WARN("Unable to find item set WishboneCounters in monitor");
+  if (std::find(monsets.begin(),monsets.end(),"Wishbone Counters") == monsets.end()) {
+    WARN("Unable to find item set 'Wishbone Counters' in monitor");
     return;
   }
   
-  auto monset  = monsets.find("WishboneCounters");
-
-  if (m_monitorableSetsMap.find(*monset) == m_monitorableSetsMap.end()) {
-    WARN("Unable to find item set " << *monset << " in monitor");
-    return;
-  }
-  
-  auto monitems  = m_monitorableSetsMap.find(*monset);
+  auto monset  = m_monitorableSetsMap.find("Wishbone Counters")->second;
 
   std::array<std::string, 2> strbacks = {{"Strobe","Ack"}};
 
@@ -384,17 +376,22 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
     *out << "<tr>"    << std::endl;
     
     *out << "<td>"    << std::endl
-         << (*wbMaster)
+         << "Master:" << (*wbMaster)
          << "</td>"   << std::endl;
     
     for (auto strback = strbacks.begin(); strback != strbacks.end(); ++strback) {
-      auto monitem = monitems.find((*wbMaster)+(*strback));
-      DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-            << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
-      
-      *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-           << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
-           << "</td>"   << std::endl;
+      for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
+        if ((monpair->first).rfind("Master:"+(*wbMaster)+(*strback)) == std::string::npos)
+          continue;
+        
+        auto monitem = monpair;
+        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+        
+        *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
+             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+             << "</td>"   << std::endl;
+      }
     }
     *out << "<td>"    << std::endl
          << "COUNTERS.WB.MASTER.<strb/ack>."+(*wbMaster)
@@ -415,18 +412,22 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
     *out << "<tr>"    << std::endl;
     
     *out << "<td>"    << std::endl
-         << (*wbSlave)
+         << "Slave:" << (*wbSlave)
          << "</td>"   << std::endl;
     
     for (auto strback = strbacks.begin(); strback != strbacks.end(); ++strback) {
-      auto monitem = monitems.find((*wbSlave)+(*strback));
-      DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-            << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
-      
-      //this will be repeated for every OptoHybridMonitor in the OptoHybridManager..., need a better unique ID
-      *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-           << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
-           << "</td>"   << std::endl;
+      for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
+        if ((monpair->first).rfind("Slave:"+(*wbSlave)+(*strback)) == std::string::npos)
+          continue;
+        
+        auto monitem = monpair;
+        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+        
+        *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
+             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+             << "</td>"   << std::endl;
+      }
     }
     *out << "<td>"    << std::endl
          << "COUNTERS.WB.SLAVE.&lt;strb/ack&gt;."+(*wbSlave)
@@ -438,7 +439,6 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
     
     *out << "</tr>"   << std::endl;
   }
-  */
 }
 
 
@@ -452,13 +452,13 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildVFATCRCCounterTable(xgi::Outpu
   
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
-  if (std::find(monsets.begin(),monsets.end(),"VFATCRC") == monsets.end()) {
-    WARN("Unable to find item set VFATCRC in list of HWMonitoring monitor sets");
+  if (std::find(monsets.begin(),monsets.end(),"VFAT CRCs") == monsets.end()) {
+    WARN("Unable to find item set 'VFAT CRCs' in list of HWMonitoring monitor sets");
     return;
   }
 
-  // get the list of pairs of monitorables in the VFATCRC monset
-  auto monset = m_monitorableSetsMap.find("VFATCRC")->second;
+  // get the list of pairs of monitorables in the VFAT CRCs monset
+  auto monset = m_monitorableSetsMap.find("VFAT CRCs")->second;
 
   std::array<std::string, 2> crcs = {{"Valid","Incorrect"}};
 
@@ -476,17 +476,11 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildVFATCRCCounterTable(xgi::Outpu
       // loop over all items in the list and find the right key?
       // auto monitem = std::find(monset.begin(), monset.end(), ss.str()+"_"+(*crc));
       // if (monitem == monset.end()) {
+      // poor man's find operation on a list<string,GEMMonitorable>
       for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
-        if ((monpair->first).rfind(ss.str()+"_"+(*crc)) == std::string::npos) {
-          WARN("Unable to find item " << ss.str() << "_" << *crc << " in list of monitorables");
-          /*
-          *out << "<td>"  << std::endl
-               << "not found"
-               << "</td>" << std::endl;
-          */
+        if ((monpair->first).rfind(ss.str()+"_"+(*crc)) == std::string::npos)
           continue;
-        }
-
+        
         auto monitem = monpair;
         
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
@@ -501,8 +495,12 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildVFATCRCCounterTable(xgi::Outpu
          << "COUNTERS.CRC.&lt;flag&gt;."+ss.str()
          << "</td>"   << std::endl;
     
-    *out << "<td>"    << std::endl
-         << "description"
+    *out << "<td onMouseOver=\"expandedDescription('Number of data packets received from GEB slot "
+         << vfat
+         << " with Valid/Invalid CRC')\" id=\"description\">"
+         << std::endl
+         << "Slot " << vfat << " Valid/Invalid CRC"
+         << std::endl
          << "</td>"   << std::endl;
     
     *out << "</tr>"   << std::endl;
@@ -520,13 +518,13 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
   
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
-  if (std::find(monsets.begin(),monsets.end(),"T1Counters") == monsets.end()) {
-    WARN("Unable to find item set T1Counters in list of HWMonitoring monitor sets");
+  if (std::find(monsets.begin(),monsets.end(),"T1 Counters") == monsets.end()) {
+    WARN("Unable to find item set 'T1 Counters' in list of HWMonitoring monitor sets");
     return;
   }
 
-  // get the list of pairs of monitorables in the T1Counters monset
-  auto monset = m_monitorableSetsMap.find("T1Counters")->second;
+  // get the list of pairs of monitorables in the T1 Counters monset
+  auto monset = m_monitorableSetsMap.find("T1 Counters")->second;
 
   std::array<std::string, 5> t1sources = {{"TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT"}};
   std::array<std::string, 4> t1signals = {{"L1A","CalPulse","Resync","BC0"}};
@@ -568,7 +566,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
          << "</td>"   << std::endl;
     
     *out << "<td>"    << std::endl
-         << "description"
+         << "Number of " << *t1signal << " signals received"
          << "</td>"   << std::endl;
     
     *out << "</tr>"   << std::endl;
@@ -578,7 +576,6 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
 
 void gem::hw::optohybrid::OptoHybridMonitor::buildOtherCounterTable(xgi::Output* out)
 {
-  /*
   DEBUG("OptoHybridMonitor::buildOtherCounterTable");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
     WARN("Unable to find item set HWMonitoring in monitor");
@@ -587,51 +584,44 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildOtherCounterTable(xgi::Output*
   
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
-  if (monsets.find("OtherCounters") == monsets.end()) {
-    WARN("Unable to find item set OtherCounters in monitor");
+  if (std::find(monsets.begin(),monsets.end(),"Other Counters") == monsets.end()) {
+    WARN("Unable to find item set 'Other Counters' in list of HWMonitoring monitor sets");
     return;
   }
 
-  auto monset  = monsets.find("OtherCounters");
-
-  std::array<std::string, 5> t1sources = {{"TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT"}};
-  std::array<std::string, 4> t1signals = {{"L1A","CalPulse","Resync","BC0"}};
-
-  if (m_monitorableSetsMap.find(*monset) == m_monitorableSetsMap.end()) {
-    WARN("Unable to find item set " << *monset << " in monitor");
-    return;
-  }
+  // get the list of pairs of monitorables in the Other Counters monset
+  auto monset = m_monitorableSetsMap.find("Other Counters")->second;
   
-  auto monitems  = m_monitorableSetsMap.find(*monset);
-
-  for (auto t1signal = t1signals.begin(); t1signal != t1signals.end(); ++t1signal) {
+  for (auto monitem = monset.begin(); monitem != monset.end(); ++monitem) {
     *out << "<tr>"    << std::endl;
     
     *out << "<td>"    << std::endl
-         << (*t1signal)
+         << monitem->first
          << "</td>"   << std::endl;
     
-    for (auto t1source = t1sources.begin(); t1source != t1sources.end(); ++t1source) {
-      auto monitem = monitems.find((*t1sources)+(*t1signal));
-      DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-            << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
-      
-      //this will be repeated for every OptoHybridMonitor in the OptoHybridManager..., need a better unique ID
-      *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-           << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
-           << "</td>"   << std::endl;
-    }
+    DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
+          << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+    
+    // count
+    *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
+         << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+         << "</td>"   << std::endl;
+
+    // rate
+    *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
+         << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+         << "</td>"   << std::endl;
+
     *out << "<td>"    << std::endl
-         << "COUNTERS.T1.<source>."+(*t1signal)
+         << monitem->second.regname
          << "</td>"   << std::endl;
-    
+
     *out << "<td>"    << std::endl
          << "description"
          << "</td>"   << std::endl;
-    
+      
     *out << "</tr>"   << std::endl;
   }
-  */
 }
 
 
