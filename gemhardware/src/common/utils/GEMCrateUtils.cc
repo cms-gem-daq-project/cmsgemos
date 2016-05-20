@@ -2,6 +2,8 @@
  *
  */
 
+#include <bitset>
+
 #include "gem/hw/utils/GEMCrateUtils.h"
 
 #include "boost/algorithm/string.hpp"
@@ -13,11 +15,11 @@
 uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMCrateUtilsLogger"));
-  
+
   uint16_t slotMask = 0x0;
   std::vector<std::string> slots;
 
-  boost::split(slots, enableList, boost::is_any_of(", "), boost::token_compress_on);  
+  boost::split(slots, enableList, boost::is_any_of(", "), boost::token_compress_on);
   DEBUG("GEMCrateUtils::parseAMCEnableList::AMC input enable list is " << enableList);
   // would be great to multithread this portion
   for (auto slot = slots.begin(); slot != slots.end(); ++slot) {
@@ -36,7 +38,7 @@ uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList)
         int min, max;
         ss0 >> min;
         ss1 >> max;
-        
+
         if (min == max) {
           WARN("GEMCrateUtils::parseAMCEnableList::Found poorly formatted range " << *slot);
           continue;
@@ -45,7 +47,7 @@ uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList)
           WARN("GEMCrateUtils::parseAMCEnableList::Found poorly formatted range " << *slot);
           continue;
         }
-        
+
         for (int islot = min; islot <= max; ++islot) {
           slotMask |= (0x1 << (islot-1));
         }  //  end loop over range of list
@@ -56,7 +58,7 @@ uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList)
         WARN("GEMCrateUtils::parseAMCEnableList::Found longer value than expected (1-12) " << *slot);
         continue;
       }
-      
+
       if (!isValidSlotNumber(HWType::uTCA, *slot)) {
         WARN("GEMCrateUtils::parseAMCEnableList::Found invalid value " << *slot);
         continue;
@@ -75,18 +77,16 @@ uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList)
 uint32_t gem::hw::utils::parseVFATMaskList(std::string const& enableList)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMCrateUtilsLogger"));
-  
-  //nothing masked, return the negation of the mask that includes the enable list
+
+  // nothing masked, return the negation of the mask that includes the enable list
   uint32_t broadcastMask = 0x00000000;
-  //everything masked, return the mask that doesn't include the enable list
-  //uint32_t broadcastMask = 0xffffffff;
   std::vector<std::string> slots;
 
-  boost::split(slots, enableList, boost::is_any_of(", "), boost::token_compress_on);  
+  boost::split(slots, enableList, boost::is_any_of(", "), boost::token_compress_on);
   DEBUG("GEMCrateUtils::parseVFATMaskList::VFAT broadcast enable list is " << enableList);
   for (auto slot = slots.begin(); slot != slots.end(); ++slot) {
     DEBUG("GEMCrateUtils::parseVFATMaskList::slot is " << *slot);
-    if (slot->find('-') != std::string::npos) { // found a possible range
+    if (slot->find('-') != std::string::npos) {  // found a possible range
       DEBUG("GEMCrateUtils::parseVFATMaskList::found a hyphen in " << *slot);
       std::vector<std::string> range;
       boost::split(range, *slot, boost::is_any_of("-"), boost::token_compress_on);
@@ -100,28 +100,27 @@ uint32_t gem::hw::utils::parseVFATMaskList(std::string const& enableList)
         int min, max;
         ss0 >> min;
         ss1 >> max;
-        
+
         if (min == max) {
           WARN("GEMCrateUtils::parseVFATMaskList::Found poorly formatted range " << *slot);
           continue;
         }
-        if (min > max) { // elements in the wrong order
+        if (min > max) {  // elements in the wrong order
           WARN("GEMCrateUtils::parseVFATMaskList::Found poorly formatted range " << *slot);
           continue;
         }
-        
+
         for (int islot = min; islot <= max; ++islot) {
           broadcastMask |= (0x1 << (islot));
-          //broadcastMask ^= (0x1 << (islot));
-        } //  end loop over range of list
-      } // end check on valid values
-    } else { //not a range
+        }  //  end loop over range of list
+      }  // end check on valid values
+    } else {  //not a range
       DEBUG("GEMCrateUtils::parseVFATMaskList::found no hyphen in " << *slot);
       if (slot->length() > 2) {
         WARN("GEMCrateUtils::parseVFATMaskList::Found longer value than expected (0-23) " << *slot);
         continue;
       }
-      
+
       if (!isValidSlotNumber(HWType::GEB, *slot)) {
         WARN("GEMCrateUtils::parseVFATMaskList::Found invalid value " << *slot);
         continue;
@@ -130,14 +129,13 @@ uint32_t gem::hw::utils::parseVFATMaskList(std::string const& enableList)
       int slotNum = -1;
       ss >> slotNum;
       broadcastMask |= (0x1 << (slotNum));
-      //broadcastMask ^= (0x1 << (slotNum));
-    } //done processing single values
-  } //done looping over extracted values
+    }  //done processing single values
+  }  //done looping over extracted values
 
   DEBUG("GEMCrateUtils::parseVFATMaskList::Parsed enabled list 0x" << std::hex << broadcastMask << std::dec
-        //<< " bits set " << std::bitset<32>(broadcastMask).count()
+        << " bits set " << std::bitset<32>(broadcastMask).count()
         << " inverted: 0x" << std::hex << ~broadcastMask << std::dec
-        //<< " bits set " << std::bitset<32>(~broadcastMask).count()
+        << " bits set " << std::bitset<32>(~broadcastMask).count()
         );
   return ~broadcastMask;
 }
@@ -145,7 +143,7 @@ uint32_t gem::hw::utils::parseVFATMaskList(std::string const& enableList)
 bool gem::hw::utils::isValidSlotNumber(HWType const& type, std::string const& s)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMCrateUtilsLogger"));
-  
+
   try {
     int i_val;
 
@@ -175,6 +173,6 @@ bool gem::hw::utils::isValidSlotNumber(HWType const& type, std::string const& s)
     ERROR("GEMCrateUtils::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
     return false;
   }
-  // if you get here, should be possible to parse as an integer in the range [1,12]  
+  // if you get here, should be possible to parse as an integer in the range [rangeMin, rangeMax]
   return true;
 }

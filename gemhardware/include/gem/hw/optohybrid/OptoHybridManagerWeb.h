@@ -35,11 +35,11 @@ namespace gem {
           virtual void applicationPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
-          void cardPage(xgi::Input *in, xgi::Output *out)
+          void boardPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
         private:
-          size_t activeCard;
+          size_t activeBoard;
 
           //OptoHybridManagerWeb(OptoHybridManagerWeb const&);
 

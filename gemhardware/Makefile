@@ -24,7 +24,7 @@ Sources+=optohybrid/HwOptoHybrid.cc
 Sources+=vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc
 Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc amc13/AMC13Readout.cc
 Sources+=glib/GLIBManager.cc glib/GLIBManagerWeb.cc glib/GLIBMonitor.cc #glib/GLIBReadout.cc
-Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc
+Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc optohybrid/OptoHybridMonitor.cc
 #Sources+=GEMController.cc GEMControllerPanelWeb.cc
 
 DynamicLibrary=gemhardware

@@ -16,8 +16,6 @@
 
 #include "gem/hw/utils/GEMCrateUtils.h"
 
-typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
-
 XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBManager);
 
 gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
