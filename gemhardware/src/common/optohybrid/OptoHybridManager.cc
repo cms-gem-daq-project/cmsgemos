@@ -501,12 +501,14 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
   is_optohybrid->createUInt32("QPLL_FPGA_PLL_LOCK", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
 
   /** Firmware based scan routines **/
-  std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
-                                                              std::make_pair("DAC","DAC")}};
+  std::array<std::string, 2> scans = {{"Threshold/Latency","DAC"}};
   std::array<std::string, 9> scanregs = {{"START","MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
     for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
-      is_optohybrid->createUInt32(scan->first+"Scan", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+      if ((*scan) == "DAC" && (*scanreg) == "CHAN")
+        continue;
+
+      is_optohybrid->createUInt32((*scan)+(*scanreg), optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
     }
   }
 }
