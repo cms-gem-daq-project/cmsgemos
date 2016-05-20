@@ -105,12 +105,14 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
   LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
 
+  optohybridDevice_->setTrigSource(0x0);// trigger sources   
+  //count triggers and Calpulses coming from TTC
+
   if(scanpoint_){
     stopAMC13trigger(); //disable AMC13 trigger in order to receive CSC trigger
     //    startAMC13trigger();
   }
 
-  //count triggers and Calpulses coming from TTC
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);
   CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x0); 
 

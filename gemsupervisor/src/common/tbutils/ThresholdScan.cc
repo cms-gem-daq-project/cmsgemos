@@ -102,12 +102,13 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
   
   LOG4CPLUS_INFO(getApplicationLogger(),"scan point " << scanpoint_ );  
+
+  optohybridDevice_->setTrigSource(0x0);// trigger sources   
+  
   if(scanpoint_){
     startAMC13trigger();
   }
   //count triggers
-  optohybridDevice_->setTrigSource(0x0);// trigger sources   
-  
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
   LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen);
     
