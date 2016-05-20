@@ -262,14 +262,6 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
                                                                                                     hwCfgURN.toString(),
                                                                                                     true));
         
-        createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), m_optohybrids.at(slot).at(link));
-        
-        m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
-        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
-        // put these in a separate infospace? or in the main HWMonitoring
-        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("FirmwareScanController", is_optohybrids.at(slot).at(link));
-        m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
-        m_optohybridMonitors.at(slot).at(link)->startMonitoring();
       } else {
         DEBUG("OptoHybridManager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
         is_optohybrids.at(slot).at(link) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
@@ -333,6 +325,16 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         m_trackingMask.at(slot).at(link)  = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
         m_broadcastList.at(slot).at(link) = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
         m_sbitMask.at(slot).at(link)      = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
+
+        createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), m_optohybrids.at(slot).at(link));
+        
+        m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
+        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
+        // put these in a separate infospace? or in the main HWMonitoring
+        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("FirmwareScanController", is_optohybrids.at(slot).at(link));
+        m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
+        m_optohybridMonitors.at(slot).at(link)->startMonitoring();
+
         DEBUG("OptoHybridManager::OptoHybrid connected on link " << link << " to GLIB in slot " << (slot+1) << std::endl
               << "Tracking mask: 0x" << std::hex << std::setw(8) << std::setfill('0') << m_trackingMask.at(slot).at(link)
               << std::dec << std::endl
