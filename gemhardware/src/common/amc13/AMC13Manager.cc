@@ -277,7 +277,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   if (m_enableLocalL1A && m_startL1ATricont) {
     //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
-    p_amc13->startContinuousL1A();
+    //    p_amc13->startContinuousL1A();
   }
   if (m_enableCalpulse) {
     p_amc13->enableBGO(m_bgochannel);
