@@ -12,15 +12,16 @@ namespace gem {
     namespace utils {
 
       enum HWType {
-        uTCA = 13,
-        GEB  = 24
+        uTCA = 0x0,
+        GEB  = 0x1
       };
-      
+
       uint16_t parseAMCEnableList(std::string const&);
 
       uint32_t parseVFATMaskList(std::string const&);
-      
-      bool     isValidSlotNumber(HWType const& type, std::string const&);
+
+      bool     isValidSlotNumber(HWType const&, std::string const&);
+
     }  // namespace gem::hw::utils
   }  // namespace gem::hw
 }  // namespace gem

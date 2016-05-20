@@ -1,12 +1,13 @@
 // OptoHybridManagerWeb.cc
 
 #include "gem/hw/optohybrid/OptoHybridManagerWeb.h"
+
+#include "xcept/tools.h"
+
 #include "gem/hw/optohybrid/OptoHybridManager.h"
 #include "gem/hw/optohybrid/OptoHybridMonitor.h"
 
 #include "gem/hw/optohybrid/exception/Exception.h"
-
-#include "xcept/tools.h"
 
 gem::hw::optohybrid::OptoHybridManagerWeb::OptoHybridManagerWeb(gem::hw::optohybrid::OptoHybridManager* optohybridApp) :
   gem::base::GEMWebApplication(optohybridApp)
@@ -24,37 +25,30 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::webDefault(xgi::Input * in, xgi:
 {
   if (p_gemFSMApp)
     DEBUG("current state is" << dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->getCurrentState());
-  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-  *out << "<div class=\"xdaq-tab\" title=\"OptoHybridManager Control Panel\" >"  << std::endl;
-  controlPanel(in,out);
-  *out << "</div>" << std::endl;
+  *out << cgicc::script().set("type", "text/javascript")
+    .set("src", "/gemdaq/gemhardware/html/scripts/optohybrid/optohybrid.js")
+       << cgicc::script() << std::endl;
 
-  *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
-  monitorPage(in,out);
-  *out << "</div>" << std::endl;
-
-  std::string expURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/expertPage";
-  *out << "<div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
-  expertPage(in,out);
-  *out << "</div>" << std::endl;
-  *out << "</div>" << std::endl;
+  GEMWebApplication::webDefault(in, out);
 }
 
 /*To be filled in with the monitor page code*/
 void gem::hw::optohybrid::OptoHybridManagerWeb::monitorPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("monitorPage");
+  INFO("OptoHybridManagerWeb::monitorPage");
   //fill this page with the generic views for the OptoHybridManager
   //different tabs for certain functions
+  *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "monitorPage</br>" << std::endl;
+  *out << "    </div>" << std::endl;
 }
 
 /*To be filled in with the expert page code*/
 void gem::hw::optohybrid::OptoHybridManagerWeb::expertPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("expertPage");
+  INFO("OptoHybridManagerWeb::expertPage");
   //fill this page with the expert views for the OptoHybridManager
   *out << "expertPage</br>" << std::endl;
 }
@@ -63,17 +57,18 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::expertPage(xgi::Input * in, xgi:
 void gem::hw::optohybrid::OptoHybridManagerWeb::applicationPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  std::string cardURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/cardPage";
-  *out << "  <div class=\"xdaq-tab\" title=\"Card page\"/>"  << std::endl;
-  cardPage(in, out);
+  INFO("OptoHybridManagerWeb::applicationPage");
+  std::string cardURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/boardPage";
+  *out << "  <div class=\"xdaq-tab\" title=\"Board page\"/>"  << std::endl;
+  boardPage(in, out);
   *out << "  </div>" << std::endl;
 }
 
 /*To be filled in with the card page code*/
-void gem::hw::optohybrid::OptoHybridManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
+void gem::hw::optohybrid::OptoHybridManagerWeb::boardPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  INFO("cardPage");
+  INFO("OptoHybridManagerWeb::boardPage");
   // fill this page with the card views for the OptoHybridManager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {

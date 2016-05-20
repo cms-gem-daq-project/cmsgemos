@@ -39,4 +39,11 @@
     <node id="SBits"  address="0x0"  permission="rw"
           description="Select the SBit sources to send out (30 bits, maximum 6 may be set high)"/>
   </node>
+
+  <node id="THROTTLE"  address="0x6"  mask="0xffffffff"  permission="rw"
+	description="Throttle the triggers sent to the GEB "/>
+  
+  <node id="ZS"  address="0x7"  mask="0x00000001"  permission="rw"
+	description="Enable/disable zero-suppression"/>
+  
 </node> <!-- end top block -->

@@ -1,8 +1,9 @@
 // GLIBManagerWeb.cc
 
+#include "gem/hw/glib/GLIBManagerWeb.h"
+
 #include "xcept/tools.h"
 
-#include "gem/hw/glib/GLIBManagerWeb.h"
 #include "gem/hw/glib/GLIBManager.h"
 #include "gem/hw/glib/GLIBMonitor.h"
 

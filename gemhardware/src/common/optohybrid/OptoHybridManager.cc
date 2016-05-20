@@ -16,8 +16,6 @@
 
 #include "gem/hw/utils/GEMCrateUtils.h"
 
-typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
-
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
@@ -264,14 +262,14 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
                                                                                                     hwCfgURN.toString(),
                                                                                                     true));
         
-        /*
         createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), m_optohybrids.at(slot).at(link));
         
-        m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, slot+1));
+        m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
         m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
+        // put these in a separate infospace? or in the main HWMonitoring
+        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("FirmwareScanController", is_optohybrids.at(slot).at(link));
         m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
         m_optohybridMonitors.at(slot).at(link)->startMonitoring();
-        */
       } else {
         DEBUG("OptoHybridManager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
         is_optohybrids.at(slot).at(link) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
@@ -532,10 +530,62 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction(toolbox::Event::Referen
 void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_toolbox_ptr is_optohybrid,
                                                                             optohybrid_shared_ptr optohybrid)
 {
-  // system registers
-  // is_optohybrid->createUInt32("BOARD_ID",      optohybrid->getBoardIDRaw(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  // is_optohybrid->createUInt32("SYSTEM_ID",     optohybrid->getSystemIDRaw(),     NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_optohybrid->createUInt32("FIRMWARE_ID",   optohybrid->getFirmware(),        NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
-  // is_optohybrid->createUInt32("FIRMWARE_DATE", optohybrid->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
+  // system registers  
+  is_optohybrid->createUInt32("VFAT_Mask",    optohybrid->getVFATMask(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("TrgSource",    optohybrid->getTrigSource(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("SBitLoopback", optohybrid->getFirmware(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("Ref_clk",      optohybrid->getReferenceClock(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("SBit_Mask",    optohybrid->getSBitMask(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("SBitsOut",     optohybrid->getSBitSource(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("TrgThrottle",  optohybrid->getFirmware(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("ZS",           optohybrid->getFirmware(),        NULL, GEMUpdateType::HW32);
 
+  is_optohybrid->createUInt32("FIRMWARE_ID", optohybrid->getFirmware(),
+                              NULL, GEMUpdateType::PROCESS, "docstring", "fwver");
+  is_optohybrid->createUInt32("FPGA_PLL_IS_LOCKED",      optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("EXT_PLL_IS_LOCKED",       optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("CDCE_IS_LOCKED",          optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("GTX_IS_LOCKED",           optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("QPLL_IS_LOCKED",          optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("QPLL_FPGA_PLL_IS_LOCKED", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+
+  std::array<std::string, 4> wbMasters = {{"GTX","ExtI2C","Scan","DAC"}};
+  for (auto master = wbMasters.begin(); master != wbMasters.end(); ++master) {
+    is_optohybrid->createUInt32((*master)+"Strobe", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32((*master)+"Ack",    optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  }
+  
+  for (int i2c = 0; i2c < 6; ++i2c) {
+    std::stringstream ss;
+    ss << "I2C" << i2c;
+    is_optohybrid->createUInt32(ss.str()+"Strobe", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32(ss.str()+"Ack",    optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  }
+
+  std::array<std::string, 8> wbSlaves = {{"ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"}};
+  for (auto slave = wbSlaves.begin(); slave != wbSlaves.end(); ++slave) {
+    is_optohybrid->createUInt32((*slave)+"Strobe", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32((*slave)+"Ack",    optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  }
+
+  for (int vfat = 0; vfat < 24; ++vfat) {
+    std::stringstream ss;
+    ss << "VFAT" << vfat;
+    is_optohybrid->createUInt32(ss.str()+"_Incorrect", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32(ss.str()+"_Valid",     optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  }
+  
+  std::array<std::string, 5> t1sources = {{"TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT"}};
+  for (auto t1src = t1sources.begin(); t1src != t1sources.end(); ++t1src) {
+    is_optohybrid->createUInt32((*t1src)+"L1A",      optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32((*t1src)+"CalPulse", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32((*t1src)+"Resync",   optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+    is_optohybrid->createUInt32((*t1src)+"BC0",      optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  }
+
+  is_optohybrid->createUInt32("TrackingLinkErrors", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("TriggerLinkErrors",  optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("DataPackets",        optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("QPLL_LOCK",          optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("QPLL_FPGA_PLL_LOCK", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
 }
