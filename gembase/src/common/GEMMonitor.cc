@@ -19,8 +19,6 @@
 
 #include "xdata/InfoSpace.h"
 
-typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
-
 gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::Application* xdaqApp, int const& index) :
   m_gemLogger(logger)
 {
@@ -215,7 +213,7 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
     GEMMonitorable monitem = {monpair.first, monpair.second, infoSpace, type, format};
     (*it).second.push_back(std::make_pair(monpair.first, monitem));
   } else {
-    ERROR("GEMMonitor::addMonitorablemonitorable " << monpair.first << " does not exist in infospace "
+    ERROR("GEMMonitor::addMonitorable monitorable " << monpair.first << " does not exist in infospace "
            << infoSpaceName << "!");
     return;
   }

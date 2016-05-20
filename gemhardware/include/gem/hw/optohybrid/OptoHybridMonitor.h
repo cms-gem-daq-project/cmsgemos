@@ -1,7 +1,7 @@
-#ifndef GEM_HW_OPTOHYBRID_OPTOHYBRIDMONITOR_H
-#define GEM_HW_OPTOHYBRID_OPTOHYBRIDMONITOR_H
 /** @file OptoHybridMonitor.h */ 
 
+#ifndef GEM_HW_OPTOHYBRID_OPTOHYBRIDMONITOR_H
+#define GEM_HW_OPTOHYBRID_OPTOHYBRIDMONITOR_H
 
 #include "gem/base/GEMMonitor.h"
 #include "gem/hw/optohybrid/exception/Exception.h"
@@ -30,7 +30,32 @@ namespace gem {
         virtual void updateMonitorables();
         virtual void reset();
         void setupHwMonitoring();
+
+        /**
+         * @brief display the monitor items
+         */
         void buildMonitorPage(xgi::Output* out);
+
+        /**
+         * @brief special layout for monitor items in WishboneCounters monitor set
+         */
+        void buildWishboneCounterTable(xgi::Output* out);
+
+        /**
+         * @brief special layout for monitor items in VFATCRC monitor set
+         */
+        void buildVFATCRCCounterTable(xgi::Output* out);
+
+        /**
+         * @brief special layout for monitor items in T1Counters monitor set
+         */
+        void buildT1CounterTable(xgi::Output* out);
+
+        /**
+         * @brief special layout for monitor items in OtherCounters monitor set
+         */
+        void buildOtherCounterTable(xgi::Output* out);
+
         std::string getDeviceID() { return p_optohybrid->getDeviceID(); }
         
       private:
