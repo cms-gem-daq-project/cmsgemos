@@ -190,10 +190,13 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                                                               std::make_pair("DAC","DAC")}};
   std::array<std::string, 9> scanregs = {{"START","MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
-    addMonitorableSet(scan->first+"Scan", "HWMonitoring");
+    // addMonitorableSet(scan->first+"Scan", "HWMonitoring");
     for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
-      addMonitorable(scan->first+"Scan", "HWMonitoring",
-                     std::make_pair((*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
+      if (scan->first == "DAC" && (*scanreg) == "CHAN")
+        continue;
+
+      addMonitorable("Firmware Scan Controller", "HWMonitoring",
+                     std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
                      GEMUpdateType::HW32, "hex");
     }
   }
@@ -280,33 +283,35 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (auto monset = monsets.begin(); monset != monsets.end(); ++monset) {
     *out << "<div class=\"xdaq-tab\" title=\""  << *monset << "\" >"  << std::endl;
-    *out << "<table class=\"xdaq-table\" id=\"" << *monset << "_table\">" << std::endl
-         << cgicc::thead() << std::endl
-         << cgicc::tr()    << std::endl //open
-         << cgicc::th()    << "Register name"    << cgicc::th() << std::endl;
-    if ((*monset).rfind("Wishbone Counters") != std::string::npos) {
-      *out << cgicc::th() << "Strobes" << cgicc::th() << std::endl
-           << cgicc::th() << "Acks"    << cgicc::th() << std::endl;
-    } else if ((*monset).rfind("VFAT CRCs") != std::string::npos) {
-      *out << cgicc::th() << "Valid"   << cgicc::th() << std::endl
-           << cgicc::th() << "Incorrect" << cgicc::th() << std::endl;
-    } else if ((*monset).rfind("T1 Counters") != std::string::npos) {
-      *out << cgicc::th() << "TTC"      << cgicc::th() << std::endl
-           << cgicc::th() << "Internal" << cgicc::th() << std::endl
-           << cgicc::th() << "External" << cgicc::th() << std::endl
-           << cgicc::th() << "Loopback" << cgicc::th() << std::endl
-           << cgicc::th() << "Sent"     << cgicc::th() << std::endl;
-    } else if ((*monset).rfind("Other Counters") != std::string::npos) {
-      *out << cgicc::th() << "Count" << cgicc::th() << std::endl
-           << cgicc::th() << "Rate"  << cgicc::th() << std::endl;
-    } else {
-      *out << cgicc::th() << "Value"            << cgicc::th() << std::endl;
+    if ((*monset).rfind("Firmware Scan Controller") == std::string::npos) {
+      *out << "<table class=\"xdaq-table\" id=\"" << *monset << "_table\">" << std::endl
+           << cgicc::thead() << std::endl
+           << cgicc::tr()    << std::endl //open
+           << cgicc::th()    << "Register name"    << cgicc::th() << std::endl;
+      if ((*monset).rfind("Wishbone Counters") != std::string::npos) {
+        *out << cgicc::th() << "Strobes" << cgicc::th() << std::endl
+             << cgicc::th() << "Acks"    << cgicc::th() << std::endl;
+      } else if ((*monset).rfind("VFAT CRCs") != std::string::npos) {
+        *out << cgicc::th() << "Valid"   << cgicc::th() << std::endl
+             << cgicc::th() << "Incorrect" << cgicc::th() << std::endl;
+      } else if ((*monset).rfind("T1 Counters") != std::string::npos) {
+        *out << cgicc::th() << "TTC"      << cgicc::th() << std::endl
+             << cgicc::th() << "Internal" << cgicc::th() << std::endl
+             << cgicc::th() << "External" << cgicc::th() << std::endl
+             << cgicc::th() << "Loopback" << cgicc::th() << std::endl
+             << cgicc::th() << "Sent"     << cgicc::th() << std::endl;
+      } else if ((*monset).rfind("Other Counters") != std::string::npos) {
+        *out << cgicc::th() << "Count" << cgicc::th() << std::endl
+             << cgicc::th() << "Rate"  << cgicc::th() << std::endl;
+      } else {
+        *out << cgicc::th() << "Value"            << cgicc::th() << std::endl;
+      }
+      *out << cgicc::th()    << "Register address" << cgicc::th() << std::endl
+           << cgicc::th()    << "Description"      << cgicc::th() << std::endl
+           << cgicc::tr()    << std::endl //close
+           << cgicc::thead() << std::endl
+           << "<tbody>" << std::endl;
     }
-    *out << cgicc::th()    << "Register address" << cgicc::th() << std::endl
-         << cgicc::th()    << "Description"      << cgicc::th() << std::endl
-         << cgicc::tr()    << std::endl //close
-         << cgicc::thead() << std::endl
-         << "<tbody>" << std::endl;
 
     if ((*monset).rfind("Wishbone Counters") != std::string::npos) {
       buildWishboneCounterTable(out);
@@ -316,20 +321,24 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
       buildT1CounterTable(out);
     } else if ((*monset).rfind("Other Counters") != std::string::npos) {
       buildOtherCounterTable(out);
+    } else if ((*monset).rfind("Firmware Scan Controller") != std::string::npos) {
+      buildFirmwareScanTable(out);
     } else {
       for (auto monitem = m_monitorableSetsMap.find(*monset)->second.begin();
            monitem != m_monitorableSetsMap.find(*monset)->second.end(); ++monitem) {
         *out << "<tr>"    << std::endl;
+
+        std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
 
         *out << "<td>"    << std::endl
              << monitem->first
              << "</td>"   << std::endl;
 
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+              << formatted);
         //this will be repeated for every OptoHybridMonitor in the OptoHybridManager..., need a better unique ID
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+             << formatted
              << "</td>"   << std::endl;
 
         *out << "<td>"    << std::endl
@@ -343,9 +352,13 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
         *out << "</tr>"   << std::endl;
       }
     }  // end normal register view class
-    *out << "</tbody>"  << std::endl
-         << "</table>"  << std::endl
-         << "</div>"    << std::endl;
+
+    if ((*monset).rfind("Firmware Scan Controller") == std::string::npos) {
+      *out << "</tbody>"  << std::endl
+           << "</table>"  << std::endl;
+    }
+
+    *out   << "</div>"    << std::endl;
   }
   *out << "</div>"  << std::endl;
 
@@ -385,11 +398,14 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
           continue;
 
         auto monitem = monpair;
+
+        std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
+
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+              << formatted);
 
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+             << formatted
              << "</td>"   << std::endl;
       }
     }
@@ -421,11 +437,14 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildWishboneCounterTable(xgi::Outp
           continue;
 
         auto monitem = monpair;
+
+        std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
+
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+              << formatted);
 
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+             << formatted
              << "</td>"   << std::endl;
       }
     }
@@ -483,11 +502,13 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildVFATCRCCounterTable(xgi::Outpu
 
         auto monitem = monpair;
 
+        std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
+
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+              << formatted);
 
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+             << formatted
              << "</td>"   << std::endl;
       }
     }
@@ -542,22 +563,18 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
       // if (monitem == monset.end()) {
       for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
         if ((monpair->first).rfind(keyname) == std::string::npos) {
-          WARN("Unable to find item " << *t1source << *t1signal << " in list of monitorables");
-          /*
-          *out << "<td>"  << std::endl
-               << "not found"
-               << "</td>" << std::endl;
-          */
           continue;
         }
 
         auto monitem = monpair;
 
+        std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
+
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+              << formatted);
 
         *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+             << formatted
              << "</td>"   << std::endl;
       }
     }
@@ -595,21 +612,23 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildOtherCounterTable(xgi::Output*
   for (auto monitem = monset.begin(); monitem != monset.end(); ++monitem) {
     *out << "<tr>"    << std::endl;
 
+    std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
+
     *out << "<td>"    << std::endl
          << monitem->first
          << "</td>"   << std::endl;
 
     DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to "
-          << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+          << formatted);
 
     // count
     *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-         << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+         << formatted
          << "</td>"   << std::endl;
 
     // rate
     *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-         << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+         << formatted
          << "</td>"   << std::endl;
 
     *out << "<td>"    << std::endl
@@ -624,6 +643,84 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildOtherCounterTable(xgi::Output*
   }
 }
 
+void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output* out)
+{
+  DEBUG("OptoHybridMonitor::buildFirmwareScanTable");
+  if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
+    WARN("Unable to find item set HWMonitoring in monitor");
+    return;
+  }
+
+  auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
+
+  if (std::find(monsets.begin(),monsets.end(),"Firmware Scan Controller") == monsets.end()) {
+    WARN("Unable to find item set 'Firmware Scan Controller' in list of HWMonitoring monitor sets");
+    return;
+  }
+
+  // get the list of pairs of monitorables in the Firmware Scan Controller monset
+  auto monset = m_monitorableSetsMap.find("Firmware Scan Controller")->second;
+
+  std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
+                                                              std::make_pair("DAC","DAC")}};
+  std::array<std::string, 9> scanregs = {{"START","MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
+
+  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
+
+  for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
+    *out << "<div class=\"xdaq-tab\" title=\""  << scan->first << "\" >" << std::endl;
+
+    *out << "<table class=\"xdaq-table\" id=\"" << scan->first << "_table\">" << std::endl
+         << cgicc::thead() << std::endl
+         << cgicc::tr()    << std::endl //open
+         << cgicc::th()    << "Register name"    << cgicc::th() << std::endl
+         << cgicc::th()    << "Value"            << cgicc::th() << std::endl
+         << cgicc::th()    << "Register address" << cgicc::th() << std::endl
+         << cgicc::th()    << "Description"      << cgicc::th() << std::endl
+         << cgicc::tr()    << std::endl //close
+         << cgicc::thead() << std::endl
+         << "<tbody>" << std::endl;
+
+    // for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
+
+    for (auto monitem = monset.begin(); monitem != monset.end(); ++monitem) {
+      if (scan->first == "DAC" && (monitem->first).rfind("CHAN") != std::string::npos)
+        continue;
+
+      if ((monitem->first).rfind(scan->first) != std::string::npos) {
+        *out << "<tr>"    << std::endl;
+
+        std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
+
+        *out << "<td>"    << std::endl
+             << (monitem->first).erase(0,scan->first.length())
+             << "</td>"   << std::endl;
+
+        DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to " << formatted);
+
+        // count
+        *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
+             << formatted
+             << "</td>"   << std::endl;
+
+        *out << "<td>"    << std::endl
+             << monitem->second.regname
+             << "</td>"   << std::endl;
+
+        *out << "<td>"    << std::endl
+             << "description"
+             << "</td>"   << std::endl;
+
+        *out << "</tr>"   << std::endl;
+      }  // found a valid item
+    }  // should have found all items in the list
+    *out << "</tbody>"  << std::endl
+         << "</table>"  << std::endl;
+    //}  //
+    *out << "</div>"   << std::endl;
+  }  // done looping over types of firmware scans
+  *out << "</div>"   << std::endl;
+}
 
 void gem::hw::optohybrid::OptoHybridMonitor::reset()
 {
