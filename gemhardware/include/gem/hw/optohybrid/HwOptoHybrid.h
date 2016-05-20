@@ -195,10 +195,8 @@ namespace gem {
            */
 
           uint32_t getFirmware() {
-            std::cout << "oh device base node " << getDeviceBaseNode() << std::endl;
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
-            DEBUG("OH has firmware version 0x"
-                  << std::hex << fwver << std::dec << std::endl);
+            TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 
