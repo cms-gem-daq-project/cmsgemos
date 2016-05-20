@@ -419,10 +419,14 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::startLocalL1A(xoap::Message
 
   std::string commandName = "undefined";
 
+  //disable localL1A generator in order to enable the CSC triggers
+  p_amc13->enableLocalL1A(true);
+
+  /*
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->startContinuousL1A();
   }
-
+  */
   try {
     INFO("AMC13Manager::startLocalL1A command " << commandName << " succeeded ");
     return
@@ -448,10 +452,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::stopLocalL1A(xoap::MessageR
   //gem::base::GEMFSMApplication::disable();
   std::string commandName = "undefined";
 
+  //disable localL1A generator in order to enable the CSC triggers
+  p_amc13->enableLocalL1A(false);
+  /*
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->stopContinuousL1A();
   }
-
+  */
   try {
     INFO("AMC13Manager::stopLoacalL1A " << commandName << " succeeded ");
     return
