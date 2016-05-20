@@ -564,7 +564,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
       }
     }
     *out << "<td>"    << std::endl
-         << "COUNTERS.T1.&lt;<source&gt;."+(*t1signal)
+         << "COUNTERS.T1.&lt;source&gt;."+(*t1signal)
          << "</td>"   << std::endl;
     
     *out << "<td>"    << std::endl
