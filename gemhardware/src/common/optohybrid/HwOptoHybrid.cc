@@ -1,3 +1,4 @@
+#include <bitset>
 #include <iomanip>
 #include <algorithm>
 #include <functional>
