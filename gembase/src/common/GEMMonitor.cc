@@ -286,11 +286,9 @@ void gem::base::GEMMonitor::jsonUpdateItemSets(xgi::Output *out)
     *out << "\"" << iset->first << "\" : [ " << std::endl;
 
     if (m_monitorableSetsMap.find(iset->first) == m_monitorableSetsMap.end()) {
-      WARN("GEMMonitor::Monitorable set " << iset->first << " not found, not exporting as JSON");
-      // return;  // should have been continue?
+      DEBUG("GEMMonitor::Monitorable set " << iset->first << " not found, not exporting as JSON");
     } else if (m_monitorableSetsMap.find(iset->first)->second.empty()) {
-      WARN("GEMMonitor::Monitorable set " << iset->first << " is empty, not exporting as JSON");
-      // return;  // should have been continue?
+      DEBUG("GEMMonitor::Monitorable set " << iset->first << " is empty, not exporting as JSON");
     } else {
       DEBUG("GEMMonitor::Found monitorable set " << iset->first << " while updating for JSON export");
       
