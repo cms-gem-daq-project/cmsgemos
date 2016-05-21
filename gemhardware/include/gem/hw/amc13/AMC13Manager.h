@@ -50,11 +50,11 @@ namespace gem {
           virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
 
-	  virtual xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns)
+          xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference startLocalL1A(xoap::MessageReference mns)
+          xoap::MessageReference enableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  virtual xoap::MessageReference stopLocalL1A(xoap::MessageReference mns)
+          xoap::MessageReference disableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
 
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 

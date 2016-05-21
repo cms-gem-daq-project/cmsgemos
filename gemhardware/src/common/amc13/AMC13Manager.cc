@@ -84,8 +84,8 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::sendTriggerBurst,"sendtriggerburst", XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::startLocalL1A,"startlocall1a", XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::stopLocalL1A,"stiolocall1a", XDAQ_NS_URI );   
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::enableTriggers,  "enableTriggers",   XDAQ_NS_URI );   
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::disableTriggers, "disableTriggers",  XDAQ_NS_URI );   
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
@@ -241,7 +241,8 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
 
-  if (m_enableLocalL1A) p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+  if (m_enableLocalL1A)
+    p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
 
   //DEBUG("Looking at L1A history after configure");
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
@@ -279,7 +280,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     //    p_amc13->startContinuousL1A();
   }
-  if (m_enableCalpulse) {
+  if (m_enableLocalTTC && m_enableCalpulse) {
     p_amc13->enableBGO(m_bgochannel);
     p_amc13->sendBGO();
   }
@@ -411,7 +412,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
 }
 
 
-xoap::MessageReference gem::hw::amc13::AMC13Manager::startLocalL1A(xoap::MessageReference msg)
+xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
   DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
@@ -419,8 +420,11 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::startLocalL1A(xoap::Message
 
   std::string commandName = "undefined";
 
-  //disable localL1A generator in order to enable the CSC triggers
-  p_amc13->enableLocalL1A(true);
+  if (m_enableLocalL1A)
+    p_amc13->enableLocalL1A(true);
+  else
+    //disable localL1A generator in order to enable the CSC triggers
+    p_amc13->enableLocalL1A(false);
 
   /*
   if (m_enableLocalL1A && m_startL1ATricont) {
@@ -428,7 +432,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::startLocalL1A(xoap::Message
   }
   */
   try {
-    INFO("AMC13Manager::startLocalL1A command " << commandName << " succeeded ");
+    INFO("AMC13Manager::enableTriggers command " << commandName << " succeeded ");
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& err) {
@@ -445,15 +449,19 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::startLocalL1A(xoap::Message
 
 }
 
-xoap::MessageReference gem::hw::amc13::AMC13Manager::stopLocalL1A(xoap::MessageReference msg)
+xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
   DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
   //gem::base::GEMFSMApplication::disable();
   std::string commandName = "undefined";
 
-  //disable localL1A generator in order to enable the CSC triggers
-  p_amc13->enableLocalL1A(false);
+  if (m_enableLocalL1A)
+    p_amc13->enableLocalL1A(false);
+  else
+    //disable localL1A generator in order to enable the CSC triggers
+    p_amc13->enableLocalL1A(true);
+
   /*
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->stopContinuousL1A();
