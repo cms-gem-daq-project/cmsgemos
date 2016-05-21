@@ -79,6 +79,11 @@ gem::supervisor::tbutils::ThresholdScan::~ThresholdScan()
   wl_->cancel();
   wl_ = 0;
 
+  confParams_.bag.useLocalTriggers   = true;
+  confParams_.bag.localTriggerMode   = 1; // per bx triggers
+  confParams_.bag.localTriggerPeriod = 400;
+  
+  disableTriggers();
 }
 
 // State transitions
@@ -105,8 +110,8 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
   optohybridDevice_->setTrigSource(0x0);// trigger sources   
   
-  if(scanpoint_){
-    startAMC13trigger();
+  if (scanpoint_){
+    enableTriggers();
   }
   //count triggers
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
@@ -135,7 +140,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   }//end if triggerSeen < nTrigger
   else {
   
-    stopAMC13trigger();
+    disableTriggers();
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
     LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
@@ -227,6 +232,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     }//else if VT2-VT1 < maxthreshold 
     else {
       hw_semaphore_.take(); // take hw to stop workloop
+      disableTriggers();
       wl_->submit(stopSig_);  
       hw_semaphore_.give(); // give hw to stop workloop
       wl_semaphore_.give(); // end of workloop	      
@@ -829,177 +835,3 @@ void gem::supervisor::tbutils::ThresholdScan::resetAction(toolbox::Event::Refere
   
   is_working_     = false;
 }
-
-//void gem::supervisor::tbutils::ThresholdScan::sendMessage(xgi::Input *in, xgi::Output *out)
-
-
-void gem::supervisor::tbutils::ThresholdScan::AMC13TriggerSetup()
-  throw (xgi::exception::Exception) {
-  //  is_working_ = true;
-
-  LOG4CPLUS_INFO(getApplicationLogger(),"-----------start SOAP message modify paramteres AMC13------ ");
-
-  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-  xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-  std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
-
-  xoap::MessageReference msg_2 = xoap::createMessage();
-  xoap::SOAPPart soap_2 = msg_2->getSOAPPart();
-  xoap::SOAPEnvelope envelope_2 = soap_2.getEnvelope();
-  xoap::SOAPName     parameterset   = envelope_2.createName("ParameterSet","xdaq",XDAQ_NS_URI);
-
-  xoap::SOAPElement  container = envelope_2.getBody().addBodyElement(parameterset);
-  container.addNamespaceDeclaration("xsd","http://www.w3.org/2001/XMLSchema");
-  container.addNamespaceDeclaration("xsi","http://www.w3.org/2001/XMLSchema-instance");
-  //  container.addNamespaceDeclaration("parameterset","http://schemas.xmlsoap.org/soap/encoding/");
-  xoap::SOAPName tname_param    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
-  xoap::SOAPName pboxname_param = envelope_2.createName("Properties","props",appUrn);
-  xoap::SOAPElement pbox_param = container.addChildElement(pboxname_param);
-  pbox_param.addAttribute(tname_param,"soapenc:Struct");
-
-  xoap::SOAPName pboxname_amc13config = envelope_2.createName("amc13ConfigParams","props",appUrn);
-  xoap::SOAPElement pbox_amc13config = pbox_param.addChildElement(pboxname_amc13config);
-  pbox_amc13config.addAttribute(tname_param,"soapenc:Struct");
-  /*  
-  xoap::SOAPName    soapName_l1Amode = envelope_2.createName("L1Amode","props",appUrn);
-  xoap::SOAPElement cs_l1Amode      = pbox_amc13config.addChildElement(soapName_l1Amode);
-  cs_l1Amode.addAttribute(tname_param,"xsd:unsignedInt");
-  cs_l1Amode.addTextNode("1"); // periodic triggers every n BX
-
-  xoap::SOAPName    soapName_l1Aperiod = envelope_2.createName("InternalPeriodicPeriod","props",appUrn);
-  xoap::SOAPElement cs_l1Aperiod      = pbox_amc13config.addChildElement(soapName_l1Aperiod);
-  cs_l1Aperiod.addAttribute(tname_param,"xsd:unsignedInt");
-  cs_l1Aperiod.addTextNode("400"); // periodic triggers every 400 BX
-  */
-
-  xoap::SOAPName    soapName_l1Anumber = envelope_2.createName("L1Aburst","props",appUrn);
-  xoap::SOAPElement cs_l1Anumber      = pbox_amc13config.addChildElement(soapName_l1Anumber);
-  cs_l1Anumber.addAttribute(tname_param,"xsd:unsignedInt");
-  //  cs_l1Anumber.addTextNode(confParams_.bag.nTriggers.toString());//number of triggers sent per burst
-  cs_l1Anumber.addTextNode("1");//number of triggers sent per burst
-
-
-  std::string tool;
-  xoap::dumpTree(msg_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
-  DEBUG("msg_2: " << tool);
-  
-  try 
-    {
-      DEBUG("trying to send parameters");
-      xoap::MessageReference reply_2 = getApplicationContext()->postSOAP(msg_2, *o,  *d);
-      std::string tool;
-      xoap::dumpTree(reply_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
-      DEBUG("reply_2: " << tool);
-    }
-  catch (xoap::exception::Exception& e)
-    {
-      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
-      XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
-      XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
-    }
-  catch (std::exception& e)
-    {
-      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message " << e.what());
-      //XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
-    }
-  catch (...)
-    {
-      LOG4CPLUS_ERROR(getApplicationLogger(),"------------------Fail  AMC13 configuring parameters message ");
-      XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
-    }
-
-  //  this->Default(in,out);
-  LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to AMC13 configuring parameters has been sent------------");
-}      
-
-void gem::supervisor::tbutils::ThresholdScan::sendAMC13trigger()
-  throw (xgi::exception::Exception) {
-  //  is_working_ = true;
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("sendtriggerburst","xdaq", "urn:xdaq-soap:3.0");
-
-  body.addBodyElement(command);
-
-  try 
-    {
-      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-      
-      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start sending burst-----------");
-
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending burst message " << e.what());
-      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    }
-  //  this->Default(in,out);
-}      
-
-
-
-void gem::supervisor::tbutils::ThresholdScan::startAMC13trigger()
-  throw (xgi::exception::Exception) {
-  //  is_working_ = true;
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("startlocall1a","xdaq", "urn:xdaq-soap:3.0");
-
-  body.addBodyElement(command);
-
-  try 
-    {
-      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-      
-      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to start sending triggers continuosly-----------");
-
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail start sending triggers continuosly " << e.what());
-      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    }
-  //  this->Default(in,out);
-}      
-
-
-
-void gem::supervisor::tbutils::ThresholdScan::stopAMC13trigger()
-  throw (xgi::exception::Exception) {
-  //  is_working_ = true;
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("stoplocall1a","xdaq", "urn:xdaq-soap:3.0");
-
-  body.addBodyElement(command);
-
-  try 
-    {
-      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-      
-      LOG4CPLUS_INFO(getApplicationLogger(),"-----------The message to stop sending continous triggers-----------");
-
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail stoping continous trigger message " << e.what());
-      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    }
-  //  this->Default(in,out);
-}      
