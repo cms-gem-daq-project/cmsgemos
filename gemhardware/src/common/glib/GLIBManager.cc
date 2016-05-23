@@ -33,12 +33,12 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   present  = false;
   crateID  = -1;
   slotID   = -1;
-  cardName = "";
+  cardName = "N/A";
 
-  controlHubAddress = "";
-  deviceIPAddress   = "";
-  ipBusProtocol     = "";
-  addressTable      = "";
+  controlHubAddress = "N/A";
+  deviceIPAddress   = "N/A";
+  ipBusProtocol     = "N/A";
+  addressTable      = "N/A";
   controlHubPort    = 0;
   ipBusPort         = 0;
 
