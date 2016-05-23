@@ -5,6 +5,7 @@
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/soap/GEMSOAPToolBox.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -97,9 +98,9 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 {
   wl_semaphore_.take(); // take workloop
   if (!is_running_) {
-    uint32_t bufferDepth = 0;
+    //uint32_t bufferDepth = 0;
     hw_semaphore_.take();
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     hw_semaphore_.give();
     INFO(" ******IT IS NOT RUNNIG ***** ");
     wl_semaphore_.give(); // give work loop if it is not running
@@ -108,15 +109,16 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
   hw_semaphore_.take();//take hw to set the trigger source, send L1A+Cal pulses,
 
-  uint32_t bufferDepth = 0;
-  bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask);
-  INFO( " Bufferdepth " << bufferDepth);
+  //uint32_t bufferDepth = 0;
+  //bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask);
+  //INFO( " Bufferdepth " << bufferDepth);
 
   optohybridDevice_->setTrigSource(0x0);// trigger sources
   //count triggers and Calpulses coming from TTC
 
-  if (scanpoint_){
+  if (scanpoint_) {
     enableTriggers();
+    glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x0);
   }
 
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);
@@ -132,9 +134,9 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.take();//take hw. glib buffer depth
 
     // Get the size of GLIB data buffer
-    uint32_t bufferDepth = 0;
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
-    INFO( " Bufferdepth " << bufferDepth);
+    //uint32_t bufferDepth = 0;
+    //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    //INFO( " Bufferdepth " << bufferDepth);
 
     scanpoint_=false;
 
@@ -143,19 +145,26 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     return true;
   }// end triggerSeen < N triggers
   else {
-
     disableTriggers();
+    glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
 
-    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    INFO(" ABC Scan point TriggersSeen "
-         << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
-
-    uint32_t bufferDepth = 0;
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    int counter = 3;
+    while (counter > 0) {
+      confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+      INFO(" ABC Scan point TriggersSeen "
+           << confParams_.bag.triggersSeen
+           << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0)
+           << " counter = " << counter);
+      sleep(1);
+      --counter;
+    }
+    //uint32_t bufferDepth = 0;
+    //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
 
     // have to be sure that no more triggers are coming here!!!
     sleep(0.005);
     // and if no more triggers are coming, then this step *should* be unnecessary
+    // also better to do a broadcast write
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
     }// end for
@@ -197,8 +206,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
       sleep(0.001);
 
-      uint32_t bufferDepth = 0;
-      bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+      //uint32_t bufferDepth = 0;
+      //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
 
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	currentLatency_ = (*chip)->getLatency();
@@ -224,7 +233,9 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     } // end if maxLat - curreLat >= step
     else {
       hw_semaphore_.take(); // take hw to stop workloop
+      scanpoint_=false; //
       disableTriggers();
+      glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
       wl_->submit(stopSig_);
       hw_semaphore_.give(); // give hw to stop workloop
       wl_semaphore_.give(); // end of workloop
@@ -625,10 +636,21 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   minLatency_ = scanParams_.bag.minLatency;
   maxLatency_ = scanParams_.bag.maxLatency;
 
-  AMC13TriggerSetup();
-  sendConfigureMessageAMC13();
-  sendConfigureMessageGLIB();
+  //sendConfigureMessageAMC13();
+  //sendConfigureMessageGLIB();
 
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+
+  AMC13TriggerSetup();
+  
   confParams_.bag.triggercount = 0;
 
   hw_semaphore_.take();
@@ -734,11 +756,22 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   //  wl_semaphore_.take();
   is_working_ = true;
 
-  sendStartMessageGLIB();
-  sleep(0.05);
-  sendStartMessageAMC13();
-  sleep(0.5);
-  enableTriggers();
+  //sendStartMessageGLIB();
+  //sleep(0.05);
+  //sendStartMessageAMC13();
+  //sleep(0.5);
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+
+
+  // enableTriggers();
   sleep(1);
 
   //AppHeader ah;

@@ -4,6 +4,7 @@
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/soap/GEMSOAPToolBox.h"
 
 #include <algorithm>
 #include <ctime>
@@ -308,9 +309,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStop(xoap::Message
   is_working_ = true;
 
   wl_->submit(stopSig_);
-  sendStopMessageGLIB();
-  sendStopMessageAMC13();
-
+  //sendStopMessageGLIB();
+  //sendStopMessageAMC13();
   return message;
 }
 
@@ -1139,7 +1139,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     else if (strcmp(fastCommand.c_str(),"Send L1A+CalPulse") == 0) {
       INFO("Send L1A+CalPulse button pressed");
       cgicc::const_form_iterator element = cgi.getElement("CalPulseDelay");
-      uint8_t delay;
+      uint8_t delay = 4;
       if (element != cgi.getElements().end())
 	delay = element->getIntegerValue();
       hw_semaphore_.take();
@@ -1224,9 +1224,20 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
   hw_semaphore_.take();
   //----------------AMC13 Initialize
-  sendInitializeMessageAMC13();
-  sendInitializeMessageGLIB();
+  //sendInitializeMessageAMC13();
+  //sendInitializeMessageGLIB();
 
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+
+  
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
 
@@ -1242,6 +1253,8 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
   if (glibDevice_->isHwConnected()) {
     INFO("GLIB device connected");
+    glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
+    disableTriggers();
     if (optohybridDevice_->isHwConnected()) {
       INFO("OptoHybrid device connected");
 
@@ -1270,8 +1283,8 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 	  if (VfatName != "") {
 	    readout_mask = confParams_.bag.ohGTXLink;
 
-	    INFO(" webConfigure : DeviceName " << VfatName );
-	    INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+	    INFO(" webInitialize : DeviceName " << VfatName );
+	    INFO(" webInitialize : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
 
 	    confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
 	    INFO(" CHIPID   :: " << confParams_.bag.deviceChipID);
@@ -1340,7 +1353,6 @@ void gem::supervisor::tbutils::GEMTBUtil::configureAction(toolbox::Event::Refere
   }
   INFO(ss.str());
 
-
   hw_semaphore_.give();
 
   is_working_     = false;
@@ -1364,6 +1376,10 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
   throw (toolbox::fsm::exception::Exception) {
 
   is_working_ = true;
+
+  glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
+  disableTriggers();
+
   if (is_running_) {
     hw_semaphore_.take();
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -1376,8 +1392,17 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
 
   wl_->submit(stopSig_);
 
-  sendStopMessageGLIB();
-  sendStopMessageAMC13();
+  //sendStopMessageGLIB();
+  //sendStopMessageAMC13();
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
 
 
   sleep(0.001);
@@ -1406,6 +1431,17 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
 
   is_configured_ = false;
 
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+
+  
   wl_->submit(haltSig_);
 
   //sleep(5);
@@ -1423,6 +1459,17 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   is_configured_  = false;
   is_running_     = false;
 
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+
+  
   hw_semaphore_.take();
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(0x0);
@@ -1818,8 +1865,13 @@ bool gem::supervisor::tbutils::GEMTBUtil::sendStartMessageAMC13()
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::enableTriggers()
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
   //  is_working_ = true;
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("enableTriggers",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  /*
   xoap::MessageReference  msg = xoap::createMessage();
   xoap::SOAPPart         soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
@@ -1838,13 +1890,17 @@ void gem::supervisor::tbutils::GEMTBUtil::enableTriggers()
     ERROR("------------------Fail start sending triggers continuosly " << e.what());
     XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
   }
-}      
-
-
+  */
+}
 
 void gem::supervisor::tbutils::GEMTBUtil::disableTriggers()
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
   //  is_working_ = true;
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("disableTriggers",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  /*
   xoap::MessageReference  msg = xoap::createMessage();
   xoap::SOAPPart         soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
@@ -1863,12 +1919,17 @@ void gem::supervisor::tbutils::GEMTBUtil::disableTriggers()
     ERROR("------------------Fail stoping continous trigger message " << e.what());
     XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
   }
-}      
+  */
+}
 
 void gem::supervisor::tbutils::GEMTBUtil::sendTriggers()
   throw (xgi::exception::Exception)
 {
   //  is_working_ = true;
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("sendtriggerburst",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  /*
   xoap::MessageReference  msg = xoap::createMessage();
   xoap::SOAPPart         soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
@@ -1888,6 +1949,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendTriggers()
     ERROR("------------------Fail sending burst message " << e.what());
     XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
   }
+  */
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
@@ -1925,23 +1987,23 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
 
   xoap::SOAPName    soapName_l1Amode = envelope_2.createName("L1Amode","props",appUrn);
   xoap::SOAPElement cs_l1Amode      = pbox_amc13config.addChildElement(soapName_l1Amode);
-  cs_l1Amode.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1Amode.addAttribute(tname_param,"xsd:integer");
   cs_l1Amode.addTextNode(confParams_.bag.localTriggerPeriod.toString());
-
-  xoap::SOAPName    soapName_l1Aperiod = envelope_2.createName("InternalPeriodicPeriod","props",appUrn);
-  xoap::SOAPElement cs_l1Aperiod      = pbox_amc13config.addChildElement(soapName_l1Aperiod);
-  cs_l1Aperiod.addAttribute(tname_param,"xsd:unsignedInt");
-  cs_l1Aperiod.addTextNode(confParams_.bag.localTriggerPeriod.toString());
 
   xoap::SOAPName    soapName_l1Anumber = envelope_2.createName("L1Aburst","props",appUrn);
   xoap::SOAPElement cs_l1Anumber      = pbox_amc13config.addChildElement(soapName_l1Anumber);
   cs_l1Anumber.addAttribute(tname_param,"xsd:unsignedInt");
   cs_l1Anumber.addTextNode(confParams_.bag.nTriggers.toString());
 
+  xoap::SOAPName    soapName_l1Aperiod = envelope_2.createName("InternalPeriodicPeriod","props",appUrn);
+  xoap::SOAPElement cs_l1Aperiod      = pbox_amc13config.addChildElement(soapName_l1Aperiod);
+  cs_l1Aperiod.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1Aperiod.addTextNode(confParams_.bag.localTriggerPeriod.toString());
+
   //CALPULSE ON
   xoap::SOAPName    soapName_calpulse = envelope_2.createName("EnableCalPulse","props",appUrn);
   xoap::SOAPElement cs_calpulse      = pbox_amc13config.addChildElement(soapName_calpulse);
-  cs_calpulse.addAttribute(tname_param,"xsd:booolean");
+  cs_calpulse.addAttribute(tname_param,"xsd:boolean");
   cs_calpulse.addTextNode("true");
 
   std::string tool;

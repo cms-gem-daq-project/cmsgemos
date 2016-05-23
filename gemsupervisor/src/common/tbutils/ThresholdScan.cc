@@ -5,6 +5,7 @@
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/soap/GEMSOAPToolBox.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -49,14 +50,12 @@ void gem::supervisor::tbutils::ThresholdScan::ConfigParams::registerFields(xdata
   bag->addField("stepSize",  &stepSize );
   bag->addField("deviceVT1", &deviceVT1);
   bag->addField("deviceVT2", &deviceVT2);
-
 }
 
 
 gem::supervisor::tbutils::ThresholdScan::ThresholdScan(xdaq::ApplicationStub * s) throw (xdaq::exception::Exception) :
   gem::supervisor::tbutils::GEMTBUtil(s)
 {
-
   getApplicationInfoSpace()->fireItemAvailable("scanParams", &scanParams_);
   getApplicationInfoSpace()->fireItemValueRetrieve("scanParams", &scanParams_);
 
@@ -70,6 +69,11 @@ gem::supervisor::tbutils::ThresholdScan::ThresholdScan(xdaq::ApplicationStub * s
   wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:ThresholdScan","waiting");
   wl_->activate();
 
+  confParams_.bag.useLocalTriggers   = true;
+  confParams_.bag.localTriggerMode   = 1; // per bx triggers
+  confParams_.bag.localTriggerPeriod = 400;
+  
+  disableTriggers();
 }
 
 gem::supervisor::tbutils::ThresholdScan::~ThresholdScan()
@@ -78,12 +82,6 @@ gem::supervisor::tbutils::ThresholdScan::~ThresholdScan()
   //should we check to see if it's running and try to stop?
   wl_->cancel();
   wl_ = 0;
-
-  confParams_.bag.useLocalTriggers   = true;
-  confParams_.bag.localTriggerMode   = 1; // per bx triggers
-  confParams_.bag.localTriggerPeriod = 400;
-  
-  disableTriggers();
 }
 
 // State transitions
@@ -92,9 +90,9 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   wl_semaphore_.take(); //teake workloop
   if (!is_running_) {
     wl_semaphore_.give(); // give work loop if it is not running
-    uint32_t bufferDepth = 0;
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
-    LOG4CPLUS_INFO(getApplicationLogger()," ******IT IS NOT RUNNIG ***** ");
+    //uint32_t bufferDepth = 0;
+    //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    INFO(" ******IT IS NOT RUNNIG ***** ");
     return false;
   }
 
@@ -102,20 +100,21 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   hw_semaphore_.take(); //take hw to send the trigger 
 
 // Get the size of GLIB data buffer       
-  uint32_t bufferDepth = 0;
-  bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
-  LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
+  //uint32_t bufferDepth = 0;
+  //bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
+  //INFO( " Bufferdepht " << bufferDepth);    
   
-  LOG4CPLUS_INFO(getApplicationLogger(),"scan point " << scanpoint_ );  
+  INFO("scan point " << scanpoint_ );  
 
   optohybridDevice_->setTrigSource(0x0);// trigger sources   
   
   if (scanpoint_){
     enableTriggers();
+    glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x0);
   }
   //count triggers
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-  LOG4CPLUS_INFO(getApplicationLogger(), " ABC TriggersSeen " << confParams_.bag.triggersSeen);
+  INFO( " ABC TriggersSeen " << confParams_.bag.triggersSeen);
     
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
     
@@ -128,9 +127,9 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.take(); // take hw to set buffer depth
     
     // Get the size of GLIB data buffer       
-    uint32_t bufferDepth = 0;
-    bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
-    LOG4CPLUS_INFO(getApplicationLogger(), " Bufferdepht " << bufferDepth);    
+    //uint32_t bufferDepth = 0;
+    //bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask); 
+    //INFO( " Bufferdepht " << bufferDepth);    
     
     scanpoint_=false;
 
@@ -139,15 +138,15 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     return true;
   }//end if triggerSeen < nTrigger
   else {
-  
     disableTriggers();
+    glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
+    INFO(" ABC Scan point TriggersSeen " 
 		   << confParams_.bag.triggersSeen );
 
-    uint32_t bufferDepth = 0;
-    bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    //uint32_t bufferDepth = 0;
+    //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
 
     hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs 
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -165,7 +164,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.give();  // give hw to reset counters
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    LOG4CPLUS_INFO(getApplicationLogger()," ABC Scan point TriggersSeen " 
+    INFO(" ABC Scan point TriggersSeen " 
 		   << confParams_.bag.triggersSeen );
     
     if ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 ) {
@@ -179,7 +178,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       
       hw_semaphore_.take(); // take hw to set threshold values
       
-      LOG4CPLUS_INFO(getApplicationLogger()," ABC run: Latency= "
+      INFO(" ABC run: Latency= "
 		     << scanParams_.bag.latency << " VT1= "
 		     << scanParams_.bag.deviceVT1 << " VT2= "
 		     << scanParams_.bag.deviceVT2 << 
@@ -203,8 +202,8 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       }// end else VT1 <stepsize
 
       
-      uint32_t bufferDepth = 0;
-      bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);    
+      //uint32_t bufferDepth = 0;
+      //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);    
       
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
 	scanParams_.bag.deviceVT1    = (*chip)->getVThreshold1();
@@ -233,6 +232,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     else {
       hw_semaphore_.take(); // take hw to stop workloop
       disableTriggers();
+      glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
       wl_->submit(stopSig_);  
       hw_semaphore_.give(); // give hw to stop workloop
       wl_semaphore_.give(); // end of workloop	      
@@ -311,13 +311,11 @@ void gem::supervisor::tbutils::ThresholdScan::scanParameters(xgi::Output *out)
       .set("value",boost::str(boost::format("%d")%(confParams_.bag.ADCurrent)))
 	 << cgicc::br() << std::endl
 	 << cgicc::span()   << std::endl;
-  }
-  catch (const xgi::exception::Exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying VFATS(xgi): " << e.what());
+  } catch (const xgi::exception::Exception& e) {
+    ERROR("Something went wrong displaying VFATS(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying VFATS(std): " << e.what());
+  } catch (const std::exception& e) {
+    ERROR("Something went wrong displaying VFATS(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -326,7 +324,7 @@ void gem::supervisor::tbutils::ThresholdScan::scanParameters(xgi::Output *out)
 void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  //LOG4CPLUS_INFO(this->getApplicationLogger(),"gem::supervisor::tbutils::ThresholdScan::webDefaul");
+  //INFO("gem::supervisor::tbutils::ThresholdScan::webDefaul");
   try {
     ////update the page refresh 
     if (!is_working_ && !is_running_) {
@@ -551,13 +549,11 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
       .set("src","http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js")
 	 << cgicc::script() << std::endl;
 
-  }// end try
-  catch (const xgi::exception::Exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying ThresholdScan control panel(xgi): " << e.what());
+  } catch (const xgi::exception::Exception& e) {
+    ERROR("Something went wrong displaying ThresholdScan control panel(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception& e) {
-    LOG4CPLUS_INFO(this->getApplicationLogger(),"Something went wrong displaying ThresholdScan control panel(std): " << e.what());
+  } catch (const std::exception& e) {
+    ERROR("Something went wrong displaying ThresholdScan control panel(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -594,11 +590,11 @@ void gem::supervisor::tbutils::ThresholdScan::webConfigure(xgi::Input *in, xgi::
     element = cgi.getElement("NTrigsStep");
     if (element != cgi.getElements().end())
       confParams_.bag.nTriggers  = element->getIntegerValue();
-  }
-  catch (const xgi::exception::Exception & e) {
+  } catch (const xgi::exception::Exception & e) {
+    ERROR("Something went wrong (xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception & e) {
+  } catch (const std::exception & e) {
+    ERROR("Something went wrong (std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
   
@@ -633,11 +629,11 @@ void gem::supervisor::tbutils::ThresholdScan::webStart(xgi::Input *in, xgi::Outp
     element = cgi.getElement("NTrigsStep");
     if (element != cgi.getElements().end())
       confParams_.bag.nTriggers  = element->getIntegerValue();
-  }
-  catch (const xgi::exception::Exception & e) {
+  } catch (const xgi::exception::Exception & e) {
+    ERROR("Something went wrong (xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception & e) {
+  } catch (const std::exception & e) {
+    ERROR("Something went wrong (std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
   
@@ -660,9 +656,20 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   minThresh_ = scanParams_.bag.minThresh;
   maxThresh_ = scanParams_.bag.maxThresh;
 
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+
   AMC13TriggerSetup();
-  sendConfigureMessageAMC13();
-  sendConfigureMessageGLIB();
+  
+  //sendConfigureMessageAMC13();
+  //sendConfigureMessageGLIB();
   
   hw_semaphore_.take();
 
@@ -674,7 +681,7 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
     (*chip)->setRunMode(0);
 
 
-    LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
+    INFO("loading default settings");
     //default settings for the frontend
     (*chip)->setTriggerMode(    0x3); //set to S1 to S8
     (*chip)->setCalibrationMode(0x0); //set to normal
@@ -746,8 +753,18 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   throw (toolbox::fsm::exception::Exception) {
   
   is_working_ = true;
-  sendStartMessageGLIB();
-  sendStartMessageAMC13();
+  //sendStartMessageGLIB();
+  //sendStartMessageAMC13();
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+
   sleep(1);
   
   //AppHeader ah;
@@ -821,10 +838,10 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
 
 
 void gem::supervisor::tbutils::ThresholdScan::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
-  is_working_ = true;
+  throw (toolbox::fsm::exception::Exception)
+{
   gem::supervisor::tbutils::GEMTBUtil::resetAction(e);
+  is_working_ = true;
   
   scanParams_.bag.latency   = 12U;
   scanParams_.bag.minThresh = -80;

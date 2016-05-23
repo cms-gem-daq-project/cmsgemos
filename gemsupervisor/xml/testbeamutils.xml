@@ -91,6 +91,23 @@
       </properties>
     </xc:Application>
     
+    <xc:Application class="gem::hw::amc13::AMC13Readout" id="260" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Readout"
+		  xsi:type="soapenc:Struct">
+        <ConnectionFile  xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
+        <DeviceName      xsi:type="xsd:string">AMC13</DeviceName>
+        <CardName        xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+        <crateID         xsi:type="xsd:integer">1</crateID>
+        <slot            xsi:type="xsd:integer">13</slot>
+        <ReadoutSettings xsi:type="soapenc:Struct">
+          <runType        xsi:type="xsd:string">Scan</runType>
+          <fileName       xsi:type="xsd:string">test</fileName>
+          <outputType     xsi:type="xsd:string">BIN</outputType>
+          <outputLocation xsi:type="xsd:string">/tmp/</outputLocation>
+        </ReadoutSettings>
+      </properties>
+    </xc:Application>
+
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemsupervisor.so</xc:Module>
