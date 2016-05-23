@@ -23,6 +23,7 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   present = false;
   crateID = -1;
   slotID  = -1;
+  cardName  = "";
   controlHubAddress = "";
   deviceIPAddress   = "";
   ipBusProtocol     = "";
@@ -38,6 +39,7 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
   bag->addField("crateID", &crateID);
   bag->addField("slot",    &slotID);
   bag->addField("present", &present);
+  bag->addField("CardName", &cardName);
 
   bag->addField("ControlHubAddress", &controlHubAddress);
   bag->addField("DeviceIPAddress",   &deviceIPAddress);
@@ -189,11 +191,13 @@ void gem::hw::glib::GLIBManager::initializeAction()
     DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
     
     // create the cfgInfoSpace object (qualified vs non?)
-    std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d",
-                                               info.crateID.value_,
-                                               info.slotID.value_);
+    std::string deviceName = info.cardName.toString();
+    if (deviceName.empty())
+      deviceName = toolbox::toString("gem.shelf%02d.glib%02d",
+                                     info.crateID.value_,
+                                     info.slotID.value_);
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
-
+    
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
       DEBUG("GLIBManager::initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
       is_glibs.at(slot) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
