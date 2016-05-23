@@ -375,7 +375,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
     XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
   }
   
-  std::string commandName = "undefined";
+  std::string commandName = "sendTriggerBurst";
   try {
     if (m_enableLocalL1A &&  m_sendL1ATriburst) {
       //      p_amc13->localTtcgSignalEnable(m_enableLocalL1A);
@@ -415,11 +415,19 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
 xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
-  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
+  DEBUG("AMC13Manager::enableTriggers");
   //gem::base::GEMFSMApplication::disable();
 
-  std::string commandName = "undefined";
+  std::string commandName = "enableTriggers";
 
+  if (!p_amc13) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s', AMC13 not yet connected",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s", msgBase.c_str()));
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
+  }
+  
   if (m_enableLocalL1A)
     p_amc13->enableLocalL1A(true);
   else
@@ -446,16 +454,23 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
     XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
   }  
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
-
 }
 
 xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
-  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
+  DEBUG("AMC13Manager::disableTriggers");
   //gem::base::GEMFSMApplication::disable();
-  std::string commandName = "undefined";
+  std::string commandName = "disableTriggers";
 
+  if (!p_amc13) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s', AMC13 not yet connected",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s", msgBase.c_str()));
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
+  }
+  
   if (m_enableLocalL1A)
     p_amc13->enableLocalL1A(false);
   else
@@ -468,7 +483,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
   }
   */
   try {
-    INFO("AMC13Manager::stopLoacalL1A " << commandName << " succeeded ");
+    INFO("AMC13Manager::disableTriggers " << commandName << " succeeded ");
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& err) {
@@ -482,6 +497,5 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
     XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
   }  
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
-
 }
 
