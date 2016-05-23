@@ -1316,6 +1316,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
    }//end if OH connected
     else {
       DEBUG("OptoHybrid device not connected, breaking out");
+
       is_configured_  = false;
       is_working_     = false;
       hw_semaphore_.give();
