@@ -1665,63 +1665,6 @@ void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
   INFO("-----------The message to AMC13 configuring parameters has been sent------------");
 }
 
-
-void gem::supervisor::tbutils::GEMTBUtil::sendConfigureMessageAMC13()
-  throw (xgi::exception::Exception)
-{
-  //  is_working_ = true;
-
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("Configure","xdaq", XDAQ_NS_URI);
-  body.addBodyElement(command);
-
-  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-  xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-  std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
-
-  try {
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    std::string tool;
-    DEBUG("dumpTree(reply)");
-    xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
-    DEBUG("reply: " << tool);
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending AMC13 configure message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  INFO("-----------The message to AMC13 configure has been sent------------");
-}
-
-bool gem::supervisor::tbutils::GEMTBUtil::sendStartMessageAMC13()
-  throw (xgi::exception::Exception)
-{
-  //  is_working_ = true;
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("Start","xdaq", XDAQ_NS_URI);
-
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    
-    INFO("-----------The message to start the AMC13 has been sent------------");
-    
-    return true;
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending AMC13 start message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    return false;
-  }
-}
-
 void gem::supervisor::tbutils::GEMTBUtil::enableTriggers()
   throw (xgi::exception::Exception)
 {
