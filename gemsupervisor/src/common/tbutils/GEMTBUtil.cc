@@ -309,8 +309,6 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStop(xoap::Message
   is_working_ = true;
 
   wl_->submit(stopSig_);
-  //sendStopMessageGLIB();
-  //sendStopMessageAMC13();
   return message;
 }
 
@@ -1225,9 +1223,6 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
 
   hw_semaphore_.take();
-  //----------------AMC13 Initialize
-  //sendInitializeMessageAMC13();
-  //sendInitializeMessageGLIB();
 
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
@@ -1396,8 +1391,6 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
 
   wl_->submit(stopSig_);
 
-  //sendStopMessageGLIB();
-  //sendStopMessageAMC13();
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
@@ -1611,145 +1604,6 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
   }
   
 }// end void selectoptohybrid
-
-void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageGLIB()
-  throw (xgi::exception::Exception)
-{
-  //  is_working_ = true;
-
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("Initialize","xdaq", XDAQ_NS_URI);
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending GLIB initialize message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  INFO("-----------The message to GLIB initialize has been sent------------");
-}
-
-void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageGLIB()
-  throw (xgi::exception::Exception)
-{
-  //  is_working_ = true;
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("Stop","xdaq", XDAQ_NS_URI);
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending stop message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  INFO("-----------The message to stop has been sent------------");
-}
-
-
-void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
-  throw (xgi::exception::Exception)
-{
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("Initialize","xdaq", XDAQ_NS_URI);
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending AMC13 initialize message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  INFO("-----------The message to AMC13 initialize received------------");
-}
-
-void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageAMC13()
-  throw (xgi::exception::Exception)
-{
-  //  is_working_ = true;
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("Stop","xdaq", XDAQ_NS_URI);
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending AMC13 stop message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  INFO("-----------The message to stop has been sent------------");
-}
-
-
-void gem::supervisor::tbutils::GEMTBUtil::sendConfigureMessageGLIB()
-  throw (xgi::exception::Exception)
-{
-  //  is_working_ = true;
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("Configure","xdaq", XDAQ_NS_URI);
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending configure message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  INFO("-----------The message to configure has been sent------------");
-}
-
-
-bool gem::supervisor::tbutils::GEMTBUtil::sendStartMessageGLIB()
-  throw (xgi::exception::Exception)
-{
-  INFO("-----------The message to GLIB start sent------------");
-
-  //  is_working_ = true;
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("Start","xdaq", XDAQ_NS_URI);
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    INFO("-----------The message to start GLIB has been sent------------");
-    return true;
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending start message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    return false;
-  }
-}
 
 void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
   throw (xgi::exception::Exception)

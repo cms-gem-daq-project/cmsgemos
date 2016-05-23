@@ -98,16 +98,6 @@ namespace gem {
 	  virtual xoap::MessageReference onReset(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
 
-	  // SOAP Message AMC13
-	  void sendInitializeMessageAMC13()
-	    throw (xgi::exception::Exception);
-	  void sendConfigureMessageAMC13()
-	    throw (xgi::exception::Exception);
-	  bool sendStartMessageAMC13()
-	    throw (xgi::exception::Exception);
-	  void sendStopMessageAMC13()
-	    throw (xgi::exception::Exception);
-
           // SOAP messages for trigger setup
 	  void NTriggersAMC13()
 	    throw (xgi::exception::Exception);
@@ -119,16 +109,6 @@ namespace gem {
             throw (xgi::exception::Exception);
           void disableTriggers()
             throw (xgi::exception::Exception);
-
-	  // SOAP Message GLIB
-	  void sendInitializeMessageGLIB()
-	    throw (xgi::exception::Exception);
-	  void sendConfigureMessageGLIB()
-	    throw (xgi::exception::Exception);
-	  bool sendStartMessageGLIB()
-	    throw (xgi::exception::Exception);
-	  void sendStopMessageGLIB()
-	    throw (xgi::exception::Exception);
 
 	  // HyperDAQ interface
 	  virtual void webDefault(xgi::Input *in, xgi::Output *out)
