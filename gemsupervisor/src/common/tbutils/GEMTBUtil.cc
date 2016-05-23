@@ -947,6 +947,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
       INFO("OH_1 has been selected " << confParams_.bag.ohGTXLink);
     }//if OH_1
 
+    m_vfatMask = 0x0;
     for(int i = 0; i < 24; ++i) {
       std::stringstream currentChipID;
       currentChipID << "VFAT" << i;
@@ -964,6 +965,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
 	confParams_.bag.deviceName[i] = tmpDeviceName;
 	INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
 	//	vfatDevice_.push_back(confParams_.bag.deviceName[i].toString());
+        m_vfatMask |= (0x1<<i);
       }
 
       int tmpDeviceNum = -1;
@@ -974,7 +976,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
 
     }//end for
 
-
+    m_vfatMask = ~m_vfatMask;
     //change the status to initializing and make sure the page displays this information
   } catch (const xgi::exception::Exception & e) {
     ERROR("Something went wrong: " << e.what());
@@ -1258,6 +1260,8 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
     if (optohybridDevice_->isHwConnected()) {
       INFO("OptoHybrid device connected");
 
+      optohybridDevice_->setVFATMask(m_vfatMask);
+      
       for(int i=0;i<24;++i){
 	//  int i=0;
 	std::stringstream currentChipID;

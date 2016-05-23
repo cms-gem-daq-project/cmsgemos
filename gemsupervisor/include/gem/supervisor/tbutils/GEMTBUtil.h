@@ -254,6 +254,8 @@ namespace gem {
 	  //ConfigParams confParams_;
 	  uint8_t readout_mask;
 
+          uint32_t m_vfatMask;  // mask for tracking data blocking and broadcast I2C commands
+
 	  xdata::Bag<ConfigParams> confParams_;
 	  xdata::String ipAddr_;
 
