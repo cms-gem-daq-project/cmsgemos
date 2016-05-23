@@ -28,6 +28,10 @@
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 1 connected to GLIB"/>
 
+    <node id="OptoHybrid_2"  address="0x40200000"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
+          description="Addresses for OptoHybrid 2 connected to GLIB"/>
+
     <!-- registers for the VFAT tracking data 0x50Y00000 for OptoHybrid Y -->
     <node id="TRK_DATA"  address="0x50000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_data.xml"
