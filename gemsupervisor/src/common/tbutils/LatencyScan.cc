@@ -636,9 +636,6 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   minLatency_ = scanParams_.bag.minLatency;
   maxLatency_ = scanParams_.bag.maxLatency;
 
-  //sendConfigureMessageAMC13();
-  //sendConfigureMessageGLIB();
-
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
@@ -756,10 +753,6 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   //  wl_semaphore_.take();
   is_working_ = true;
 
-  //sendStartMessageGLIB();
-  //sleep(0.05);
-  //sendStartMessageAMC13();
-  //sleep(0.5);
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));

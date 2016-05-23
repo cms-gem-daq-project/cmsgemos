@@ -668,9 +668,6 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
 
   AMC13TriggerSetup();
   
-  //sendConfigureMessageAMC13();
-  //sendConfigureMessageGLIB();
-  
   hw_semaphore_.take();
 
   confParams_.bag.triggersSeen = 0;
@@ -753,8 +750,6 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   throw (toolbox::fsm::exception::Exception) {
   
   is_working_ = true;
-  //sendStartMessageGLIB();
-  //sendStartMessageAMC13();
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
