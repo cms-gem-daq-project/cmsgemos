@@ -270,10 +270,10 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        if (retryCount > 4)
-          WARN("GEMHwDevice::Failed to read register " << name <<
-               ", retrying. retryCount("<<retryCount<<")"
-               << std::endl);
+        if (retryCount > (MAX_IPBUS_RETRIES-1))
+          DEBUG("GEMHwDevice::Failed to read register " << name <<
+                ". retryCount("<<retryCount<<")"
+                << std::endl);
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -318,11 +318,11 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        if (retryCount > 4)
-          WARN("GEMHwDevice::Failed to read register 0x" << std::setfill('0') << std::setw(8)
-               << std::hex << address << std::dec
-               << ", retrying. retryCount("<<retryCount<<")"
-               << std::endl);
+        if (retryCount > (MAX_IPBUS_RETRIES-1))
+          DEBUG("GEMHwDevice::Failed to read register 0x" << std::setfill('0') << std::setw(8)
+                << std::hex << address << std::dec
+                << ". retryCount("<<retryCount<<")"
+                << std::endl);
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -369,12 +369,12 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& 
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        if (retryCount > 4)
-          WARN("GEMHwDevice::Failed to read register 0x" << std::setfill('0') << std::setw(8)
-               << std::hex << address << std::dec << " with mask "
-               << std::hex << address << std::dec
-               << ", retrying. retryCount("<<retryCount<<")"
-               << std::endl);
+        if (retryCount > (MAX_IPBUS_RETRIES-1))
+          DEBUG("GEMHwDevice::Failed to read register 0x" << std::setfill('0') << std::setw(8)
+                << std::hex << address << std::dec << " with mask "
+                << std::hex << address << std::dec
+                << ". retryCount("<<retryCount<<")"
+                << std::endl);
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -554,9 +554,9 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        if (retryCount > 4)
-          WARN("GEMHwDevice::Failed to write value 0x" << std::hex<< val << std::dec << " to register " << name <<
-               ", retrying. retryCount("<<retryCount<<")"
+        if (retryCount > (MAX_IPBUS_RETRIES-1))
+          DEBUG("GEMHwDevice::Failed to write value 0x" << std::hex<< val << std::dec << " to register " << name <<
+                ". retryCount("<<retryCount<<")"
                 << std::endl);
         updateErrorCounters(errCode);
         continue;
@@ -589,10 +589,10 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        if (retryCount > 4)
-          WARN("GEMHwDevice::Failed to write value 0x" << std::hex<< val << std::dec << " to register 0x"
+        if (retryCount > (MAX_IPBUS_RETRIES-1))
+          DEBUG("GEMHwDevice::Failed to write value 0x" << std::hex<< val << std::dec << " to register 0x"
                 << std::setfill('0') << std::setw(8) << std::hex << address << std::dec
-                << ", retrying. retryCount("<<retryCount<<")"
+                << ". retryCount("<<retryCount<<")"
                 << std::endl);
         updateErrorCounters(errCode);
         continue;
@@ -701,11 +701,11 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        if (retryCount > 4)
-          WARN("GEMHwDevice::Failed to read block " << name << " with " << numWords << " words" <<
-               ", retrying. retryCount("<<retryCount<<")" << std::endl
-               << "error was " << errCode
-               << std::endl);
+        if (retryCount > (MAX_IPBUS_RETRIES-1))
+          DEBUG("GEMHwDevice::Failed to read block " << name << " with " << numWords << " words" <<
+                ". retryCount("<<retryCount<<")" << std::endl
+                << "error was " << errCode
+                << std::endl);
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -758,10 +758,10 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
         ++retryCount;
-        if (retryCount > 4)
-          WARN("GEMHwDevice::Failed to write block " << name <<
-               ", retrying. retryCount("<<retryCount<<")"
-               << std::endl);
+        if (retryCount > (MAX_IPBUS_RETRIES-1))
+          DEBUG("GEMHwDevice::Failed to write block " << name <<
+                ". retryCount("<<retryCount<<")"
+                << std::endl);
         updateErrorCounters(errCode);
         continue;
       } else {
