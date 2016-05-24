@@ -82,6 +82,7 @@ namespace gem {
             xdata::Boolean present;
             xdata::Integer crateID;
             xdata::Integer slotID;
+            xdata::String  cardName;
 
             //configuration parameters
             xdata::String controlHubAddress;
@@ -97,9 +98,10 @@ namespace gem {
 
             inline std::string toString() {
               std::stringstream os;
-              os << "present:" << present.toString() << std::endl
-                 << "crateID:" << crateID.toString() << std::endl
-                 << "slotID:"  << slotID.toString()  << std::endl
+              os << "present:"  << present.toString()  << std::endl
+                 << "crateID:"  << crateID.toString()  << std::endl
+                 << "slotID:"   << slotID.toString()   << std::endl
+                 << "cardName:" << cardName.toString() << std::endl
 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
