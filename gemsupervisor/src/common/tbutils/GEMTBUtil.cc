@@ -1244,22 +1244,19 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
 
+  // this all needs to be removed and be made generic
   std::stringstream tmpURI;
-  //tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
-  tmpURI << "ipbustcp-2.0://192.168.2.42:60002";
+  tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
+  //tmpURI << "ipbustcp-2.0://192.168.2.42:60002";
 
-  //glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
-  glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("gem.shelf01.ctp7-02",
-                                                          "connections_ch.xml"));
-  //"file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-
-  /*    optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
-	"file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));*/
+  glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
+                                                          "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+  //glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("gem.shelf01.ctp7-02", "connections_ch.xml"));
 
   std::string ohDeviceName = toolbox::toString("gem.shelf01.ctp7-02.optohybrid%02d",confParams_.bag.ohGTXLink.value_);
-  //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, tmpURI.str(),
-  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName,
-                                                                                  "connections_ch.xml"));
+  optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, tmpURI.str(),
+                                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+  //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, "connections_ch.xml"));
 
   if (glibDevice_->isHwConnected()) {
     DEBUG("GLIB device connected");
