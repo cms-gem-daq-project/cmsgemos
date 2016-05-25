@@ -71,6 +71,7 @@ namespace gem {
             xdata::Integer crateID;
             xdata::Integer slotID;
             xdata::Integer linkID;
+            xdata::String  cardName;
 
             // configuration parameters
             xdata::String controlHubAddress;
@@ -83,6 +84,7 @@ namespace gem {
 
             xdata::String            vfatBroadcastList;
             xdata::UnsignedInteger32 vfatBroadcastMask;
+
             xdata::String            vfatSBitList;
             xdata::UnsignedInteger32 vfatSBitMask;
 
@@ -100,6 +102,7 @@ namespace gem {
                  << "crateID:" << crateID.toString() << std::endl
                  << "slotID:"  << slotID.toString()  << std::endl
                  << "linkID:"  << linkID.toString()  << std::endl
+                 << "cardName:" << cardName.toString() << std::endl
 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
@@ -125,17 +128,17 @@ namespace gem {
           };
 
           mutable gem::utils::Lock m_deviceLock;  // [MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
-          
+
           // Matrix<optohybrid_shared_ptr, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
           std::array<std::array<optohybrid_shared_ptr, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
             m_optohybrids;
-          
+
           std::array<std::array<std::shared_ptr<OptoHybridMonitor>, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
             m_optohybridMonitors;
-          
+
           std::array<std::array<is_toolbox_ptr, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
             is_optohybrids;
-          
+
           xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;
           xdata::String        m_connectionFile;
 
