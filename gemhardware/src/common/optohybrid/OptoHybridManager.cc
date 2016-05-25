@@ -29,24 +29,24 @@
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
-  present = false;
-  crateID = -1;
-  slotID  = -1;
-  linkID  = -1;
-  //  m_RunType = (0x0);
-
-  controlHubAddress = "N/A";
-  deviceIPAddress   = "N/A";
-  ipBusProtocol     = "N/A";
-  addressTable      = "N/A";
-  controlHubPort    = 0;
-  ipBusPort         = 0;
+  present  = false;
+  crateID  = -1;
+  slotID   = -1;
+  linkID   = -1;
+  cardName = "";
 
   vfatBroadcastList = "0-23";
   vfatBroadcastMask = 0xff000000;
 
   vfatSBitList = "0-23";
   vfatSBitMask = 0xff000000;
+
+  controlHubAddress = "";
+  deviceIPAddress   = "";
+  ipBusProtocol     = "";
+  addressTable      = "";
+  controlHubPort    = 0;
+  ipBusPort         = 0;
 
   triggerSource = 0;
   //sbitSource    = 0;
@@ -57,10 +57,11 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
 }
 
 void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo>* bag) {
-  bag->addField("crateID",       &crateID);
-  bag->addField("slot",          &slotID);
-  bag->addField("link",          &linkID);
-  bag->addField("present",       &present);
+  bag->addField("crateID",  &crateID);
+  bag->addField("slot",     &slotID);
+  bag->addField("link",     &linkID);
+  bag->addField("present",  &present);
+  bag->addField("CardName", &cardName);
 
   bag->addField("ControlHubAddress", &controlHubAddress);
   bag->addField("DeviceIPAddress",   &deviceIPAddress);
@@ -230,13 +231,14 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       if (!info.present)
         continue;
 
-      DEBUG("OptoHybridManager::initializeAction: info is: " << info.toString());
-      DEBUG("OptoHybridManager::initializeAction creating pointer to board connected on link "
-            << link << " to GLIB in slot " << (slot+1));
-      std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
-                                                 info.crateID.value_,
-                                                 info.slotID.value_,
-                                                 info.linkID.value_);
+      DEBUG("OptoHybridManager::line 118: info is: " << info.toString());
+      DEBUG("OptoHybridManager::creating pointer to board connected on link " << link << " to GLIB in slot " << (slot+1));
+      std::string deviceName = info.cardName.toString();
+      if (deviceName.empty())
+        deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+                                       info.crateID.value_,
+                                       info.slotID.value_,
+                                       info.linkID.value_);
       toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
       if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
@@ -523,7 +525,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         optohybrid->counterReset();
         // // reset VFAT counters
         // optohybrid->resetVFATCRCCount();
-        
+
         std::vector<uint32_t> res = optohybrid->broadcastRead("ContReg0",vfatMask);
         INFO("ContReg0: vfatMask = " << std::hex << std::setw(8) << std::setfill('0') << vfatMask);
         for (auto r = res.begin(); r != res.end(); ++r)

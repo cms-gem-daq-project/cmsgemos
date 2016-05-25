@@ -41,7 +41,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   // create the values to be monitored in the info space
   addMonitorableSet("Status and Control", "HWMonitoring");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("VFAT_Mask",   "CONTROL.VFAT.TRK_MASK"),
+                 std::make_pair("VFAT_Mask",   "CONTROL.VFAT.MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("TrgSource",   "CONTROL.TRIGGER.SOURCE"),
