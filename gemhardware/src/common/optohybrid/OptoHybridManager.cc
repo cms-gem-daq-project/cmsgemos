@@ -104,96 +104,6 @@ gem::hw::optohybrid::OptoHybridManager::~OptoHybridManager() {
   //memory management, maybe not necessary here?
 }
 
-<<<<<<< HEAD
-=======
-uint32_t gem::hw::optohybrid::OptoHybridManager::parseVFATMaskList(std::string const& enableList)
-{
-  //nothing masked, return the negation of the mask that includes the enable list
-  uint32_t broadcastMask = 0x00000000;
-  //everything masked, return the mask that doesn't include the enable list
-  //uint32_t broadcastMask = 0xffffffff;
-  std::vector<std::string> slots;
-
-  boost::split(slots, enableList, boost::is_any_of(", "), boost::token_compress_on);
-  DEBUG("OptoHybridManager::VFAT broadcast enable list is " << enableList);
-  for (auto slot = slots.begin(); slot != slots.end(); ++slot) {
-    DEBUG("OptoHybridManager::slot is " << *slot);
-    if (slot->find('-') != std::string::npos) { // found a possible range
-      DEBUG("OptoHybridManager::found a hyphen in " << *slot);
-      std::vector<std::string> range;
-      boost::split(range, *slot, boost::is_any_of("-"), boost::token_compress_on);
-      if (range.size() > 2) {
-        WARN("OptoHybridManager::parseVFATMaskList::Found poorly formatted range " << *slot);
-        continue;
-      }
-      if (isValidSlotNumber(range.at(0)) && isValidSlotNumber(range.at(1))) {
-        std::stringstream ss0(range.at(0));
-        std::stringstream ss1(range.at(1));
-        int min, max;
-        ss0 >> min;
-        ss1 >> max;
-
-        if (min == max) {
-          WARN("OptoHybridManager::parseVFATMaskList::Found poorly formatted range " << *slot);
-          continue;
-        }
-        if (min > max) { // elements in the wrong order
-          WARN("OptoHybridManager::parseVFATMaskList::Found poorly formatted range " << *slot);
-          continue;
-        }
-
-        for (int islot = min; islot <= max; ++islot) {
-          broadcastMask |= (0x1 << (islot));
-          //broadcastMask ^= (0x1 << (islot));
-        } //  end loop over range of list
-      } // end check on valid values
-    } else { //not a range
-      DEBUG("OptoHybridManager::found no hyphen in " << *slot);
-      if (slot->length() > 2) {
-        WARN("OptoHybridManager::parseVFATMaskList::Found longer value than expected (0-23) " << *slot);
-        continue;
-      }
-
-      if (!isValidSlotNumber(*slot)) {
-        WARN("OptoHybridManager::parseVFATMaskList::Found invalid value " << *slot);
-        continue;
-      }
-      std::stringstream ss(*slot);
-      int slotNum = -1;
-      ss >> slotNum;
-      broadcastMask |= (0x1 << (slotNum));
-      //broadcastMask ^= (0x1 << (slotNum));
-    } //done processing single values
-  } //done looping over extracted values
-  DEBUG("OptoHybridManager::parseVFATMaskList::Parsed enabled list 0x" << std::hex << broadcastMask << std::dec
-        //<< " bits set " << std::bitset<32>(broadcastMask).count()
-        << " inverted: 0x" << std::hex << ~broadcastMask << std::dec
-        //<< " bits set " << std::bitset<32>(~broadcastMask).count()
-        );
-  return ~broadcastMask;
-}
-
-bool gem::hw::optohybrid::OptoHybridManager::isValidSlotNumber(std::string const& s)
-{
-  try {
-    int i_val;
-    i_val = std::stoi(s);
-    if (!(i_val >= 0 && i_val < 24)) {
-      ERROR("OptoHybridManager::isValidSlotNumber::Found value outside expected (0-23) " << i_val);
-      return false;
-    }
-  } catch (std::invalid_argument const& err) {
-    ERROR("OptoHybridManager::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
-    return false;
-  } catch (std::out_of_range const& err) {
-    ERROR("OptoHybridManager::isValidSlotNumber::Unable to convert to integer type " << s << std::endl << err.what());
-    return false;
-  }
-
-  return true; //if you get here, should be possible to parse as an integer in the range [1,12]
-}
-
->>>>>>> cleaning up whitespace
 // This is the callback used for handling xdata:Event objects
 void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event)
 {
@@ -266,18 +176,6 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         is_optohybrids.at(slot).at(link) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
                                                                                                     hwCfgURN.toString(),
                                                                                                     true));
-
-<<<<<<< HEAD
-=======
-        /*
-        createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), m_optohybrids.at(slot).at(link));
-
-        m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, slot+1));
-        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
-        m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
-        m_optohybridMonitors.at(slot).at(link)->startMonitoring();
-        */
->>>>>>> cleaning up whitespace
       } else {
         DEBUG("OptoHybridManager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
         is_optohybrids.at(slot).at(link) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
@@ -417,14 +315,10 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
           else
             INFO("No VFAT found in GEB slot " << std::setw(2) << (int)chip->first);
 
-<<<<<<< HEAD
         uint32_t vfatMask = optohybrid->getConnectedVFATMask();
 
         //optohybrid->broadcastWrite("Latency",     ~vfatMask, 157);
         //optohybrid->broadcastWrite("VThreshold1", ~vfatMask, 50);
-=======
-        optohybrid->getConnectedVFATMask();
->>>>>>> cleaning up whitespace
 
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?

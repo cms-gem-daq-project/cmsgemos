@@ -296,3 +296,42 @@ bool gem::hw::glib::HwGLIB::CDCELockStatus()
   regName << "GLIB_SYSTEM.SYSTEM.STATUS.CDCE_LOCK";
   return static_cast<bool>(readReg(getDeviceBaseNode(),regName.str()));
 }
+
+/** only for compatibility with some functions, will be removed **/
+uint32_t gem::hw::glib::HwGLIB::getFIFOOccupancy(uint8_t const& gtx)
+{
+  return 0x0;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getFIFOVFATBlockOccupancy(uint8_t const& gtx)
+{
+  return 0x0;
+}
+
+bool gem::hw::glib::HwGLIB::hasTrackingData(uint8_t const& gtx)
+{
+  return false;
+}
+
+std::vector<uint32_t> gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, size_t const& nBlocks)
+{
+  std::vector<uint32_t> res;
+  return res;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks)
+{
+  return 0x0;
+}
+
+uint32_t gem::hw::glib::HwGLIB::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
+                                                size_t const& nBlocks)
+{
+  return 0x0;
+}
+
+void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
+{
+  return;
+}
+
