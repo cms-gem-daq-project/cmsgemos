@@ -37,6 +37,31 @@ namespace gem {
         } TTCEncoding;
       };
 
+      struct TTCCommand {  ///< TTCCommand settings
+        enum ETTCCommand {  ///< TTCCommand settings
+          TTC_L1A,
+          TTC_BC0,
+          TTC_EC0,
+          TTC_RESYNC,
+          TTC_OC0,
+          TTC_HARD_RESET,
+          TTC_CALPULSE,
+          TTC_START,
+          TTC_STOP,
+          TTC_TEST_SYNC ,
+        } TTCCommand;
+      };
+      
+      struct OHLinkCount {  ///< OHLinkCount settings
+        enum EOHLinkCount {  ///< OHLinkCount settings
+          LINK_NOT_VALID,
+          LINK_MISSED_COMMA,
+          LINK_OVERFLOW,
+          LINK_UNDERFLOW,
+          LINK_SYNC_WORD
+        } OHLinkCount;
+      };
+
     };  // class AMCSettings
   }  // namespace gem::hw
 
@@ -45,7 +70,9 @@ namespace gem {
   typedef gem::hw::AMCLinkSettings::LinkBitShifts  AMCLinkBitShifts;
 
   //typedef the enum for casting and access
-  typedef gem::hw::AMCSettings::TTCEncoding::ETTCEncoding  AMCTTCEncoding;
+  typedef gem::hw::AMCSettings::TTCEncoding::ETTCEncoding AMCTTCEncoding;
+  typedef gem::hw::AMCSettings::TTCCommand::ETTCCommand   AMCTTCCommand;
+  typedef gem::hw::AMCSettings::OHLinkCount::EOHLinkCount AMCOHLinkCount;
 }  // namespace gem
 
 #endif  // GEM_HW_AMCSETTINGSENUMS_H

@@ -19,10 +19,17 @@
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
-  present = false;
-  crateID = -1;
-  slotID  = -1;
-  linkID  = -1;
+  present  = false;
+  crateID  = -1;
+  slotID   = -1;
+  linkID   = -1;
+  cardName = "";
+
+  vfatBroadcastList = "0-23";
+  vfatBroadcastMask = 0xff000000;
+
+  vfatSBitList = "0-23";
+  vfatSBitMask = 0xff000000;
 
   controlHubAddress = "";
   deviceIPAddress     = "";
@@ -45,10 +52,11 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
 }
 
 void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo>* bag) {
-  bag->addField("crateID",       &crateID);
-  bag->addField("slot",          &slotID);
-  bag->addField("link",          &linkID);
-  bag->addField("present",       &present);
+  bag->addField("crateID",  &crateID);
+  bag->addField("slot",     &slotID);
+  bag->addField("link",     &linkID);
+  bag->addField("present",  &present);
+  bag->addField("CardName", &cardName);
 
   bag->addField("ControlHubAddress", &controlHubAddress);
   bag->addField("DeviceIPAddress",   &deviceIPAddress);
@@ -456,11 +464,11 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   DEBUG("OptoHybridManager::stopAction");
-  //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?                                                                                                                                                                             
+  //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(1000); // just for testing the timing of different applications                                                                                                                                                                                                        
+    usleep(1000); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      usleep(1000); // just for testing the timing of different applications                                                                                                                                                                                                      
+      usleep(1000); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -472,17 +480,17 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
       optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
 
       if (optohybrid->isHwConnected()) {
-        // put all connected VFATs into sleep mode?                                                                                                                                                                                                                               
+        // put all connected VFATs into sleep mode?
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         optohybrid->broadcastWrite("ContReg0", 0x36, vfatMask);
-        // what resets to do                                                                                                                                                                                                                                                      
+        // what resets to do
       } else {
         ERROR("stopAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
               << " is not responding");
-        //fireEvent("Fail");                                                                                                                                                                                                                                                      
+        //fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "stopAction failed");
-        //maybe raise exception so as to not continue with other cards?                                                                                                                                                                                                           
-      } 
+        //maybe raise exception so as to not continue with other cards?
+      }
     }
   }
 
