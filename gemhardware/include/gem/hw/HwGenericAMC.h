@@ -72,6 +72,9 @@ namespace gem {
          */
         virtual bool isHwConnected();
 
+        /**************************/
+        /** DAQ link information **/
+        /**************************/
         /**
          * Read the board ID registers
          * @returns the GLIB board ID
@@ -225,25 +228,25 @@ namespace gem {
          * Get the recorded number of L1A signals received from the TTC decoder
          */
         virtual uint32_t getL1ACount() {
-          return readReg(getDeviceBaseNode(),"COUNTERS.T1.L1A"); }
+          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.L1A"); }
 
         /**
          * Get the recorded number of CalPulse signals received from the TTC decoder
          */
         virtual uint32_t getCalPulseCount() {
-          return readReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse"); }
+          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.CALPULSE"); }
 
         /**
          * Get the recorded number of Resync signals received from the TTC decoder
          */
         virtual uint32_t getResyncCount() {
-          return readReg(getDeviceBaseNode(),"COUNTERS.T1.Resync"); }
+          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.RESYNC"); }
 
         /**
          * Get the recorded number of BC0 signals
          */
         virtual uint32_t getBC0Count() {
-          return readReg(getDeviceBaseNode(),"COUNTERS.T1.BC0"); }
+          return readReg(getDeviceBaseNode(),"TTC.CMD_COUNTERS.BC0"); }
 
         ///Counter resets
         /**
@@ -263,25 +266,25 @@ namespace gem {
          * Reset the recorded number of L1A signals received from the TTC decoder
          */
         virtual void resetL1ACount() {
-          return writeReg(getDeviceBaseNode(),"COUNTERS.T1.L1A.Reset", 0x1); }
+          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of CalPulse signals received from the TTC decoder
          */
         virtual void resetCalPulseCount() {
-          return writeReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse.Reset", 0x1); }
+          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of Resync signals received from the TTC decoder
          */
         virtual void resetResyncCount() {
-          return writeReg(getDeviceBaseNode(),"COUNTERS.T1.Resync.Reset", 0x1); }
+          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Reset the recorded number of BC0 signals
          */
         virtual void resetBC0Count() {
-          return writeReg(getDeviceBaseNode(),"COUNTERS.T1.BC0.Reset", 0x1); }
+          return writeReg(getDeviceBaseNode(),"TTC.CTRL.CNT_RESET", 0x1); }
 
         /**
          * Read the trigger data
@@ -294,49 +297,50 @@ namespace gem {
          */
         virtual void flushTriggerFIFO(uint8_t const& gtx);
 
-        /**
-         * Read the tracking data FIFO occupancy in terms of raw 32bit words
-         * @param uint8_t gtx is the number of the gtx to query
-         * @retval uint32_t returns the number of words in the tracking data FIFO
-         */
-        virtual uint32_t getFIFOOccupancy(uint8_t const& gtx);
-
-        /**
-         * Read the tracking data FIFO occupancy in terms of the number of 7x32bit words
-         * composing a single VFAT block
-         * @param uint8_t gtx is the number of the gtx to query
-         * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
-         */
-        virtual uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
-
-        /**
-         * see if there is tracking data available
-         * @param uint8_t gtx is the number of the column of the tracking data to read
-         * @retval bool returns true if there is tracking data in the FIFO
-         TRK_DATA.COLX.DATA_RDY
-        */
-        virtual bool hasTrackingData(uint8_t const& gtx);
-
-        /**
-         * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
-         * and need to pack all events together
-         * @param uint8_t gtx is the number of the GTX tracking data to read
-         * @param size_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
-         * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
-         */
-        std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
-        //which of these will be better and do what we want
-        virtual uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
-        //which of these will be better and do what we want
-        virtual uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-                                 size_t const& nBlocks=1);
-
-        /**
-         * Empty the tracking data FIFO
-         * @param uint8_t gtx is the number of the gtx to query
-         *
-         */
-        virtual void flushFIFO(uint8_t const& gtx);
+        ///** obsolete in generic AMC firmware **/
+        ///**
+        // * Read the tracking data FIFO occupancy in terms of raw 32bit words
+        // * @param uint8_t gtx is the number of the gtx to query
+        // * @retval uint32_t returns the number of words in the tracking data FIFO
+        // */
+        //virtual uint32_t getFIFOOccupancy(uint8_t const& gtx);
+        //
+        ///**
+        // * Read the tracking data FIFO occupancy in terms of the number of 7x32bit words
+        // * composing a single VFAT block
+        // * @param uint8_t gtx is the number of the gtx to query
+        // * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
+        // */
+        //virtual uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
+        //
+        ///**
+        // * see if there is tracking data available
+        // * @param uint8_t gtx is the number of the column of the tracking data to read
+        // * @retval bool returns true if there is tracking data in the FIFO
+        // TRK_DATA.COLX.DATA_RDY
+        //*/
+        //virtual bool hasTrackingData(uint8_t const& gtx);
+        //
+        ///**
+        // * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
+        // * and need to pack all events together
+        // * @param uint8_t gtx is the number of the GTX tracking data to read
+        // * @param size_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
+        // * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
+        // */
+        //std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
+        ////which of these will be better and do what we want
+        //virtual uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
+        ////which of these will be better and do what we want
+        //virtual uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
+        //                         size_t const& nBlocks=1);
+        //
+        ///**
+        // * Empty the tracking data FIFO
+        // * @param uint8_t gtx is the number of the gtx to query
+        // *
+        // */
+        //virtual void flushFIFO(uint8_t const& gtx);
 
         /**************************/
         /** DAQ link information **/
@@ -500,46 +504,170 @@ namespace gem {
 
 
         /**************************/
-        /** TTC link information **/
+        /** TTC module information **/
         /**************************/
+
+        /*** CTRL submodule ***/
         /**
-         * @returns TTC control register value
+         * @brief Reset the TTC module
          */
-        virtual uint32_t getTTCControl();
+        virtual void ttcReset();
 
         /**
-         * @returns TTC encoding in use on the GenericAMC
+         * @brief Reset the MMCM of the TTC module
          */
-        virtual AMCTTCEncoding getTTCEncoding();
+        virtual void ttcMMCMReset();
 
         /**
-         * @param select which TTC encoding to use on the GenericAMC
+         * @brief Shift the phase of the MMCM of the TTC module
          */
-        virtual void setTTCEncoding(AMCTTCEncoding ttc_enc);
+        virtual void ttcMMCMPhaseShift();
 
         /**
-         * @returns whether or not L1As are currently inhibited on the GenericAMC
+         * @brief Reset the counters of the TTC module
          */
-        virtual bool getL1AInhibit();
+        virtual void ttcCounterReset();
 
         /**
-         * @param whether or not to inhibit L1As on the GenericAMC
+         * @returns whether or not L1As are currently enabled on the GenericAMC
          */
-        virtual void setL1AInhibit(bool inhibit);
+        virtual bool getL1AEnable();
 
         /**
-         * @brief resets the TTC on the GenericAMC
+         * @param whether or not to enable L1As on the GenericAMC
          */
-        virtual void resetTTC();
+        virtual void setL1AEnable(bool enable=true);
+
+        /*** CONFIG submodule ***/
+        /**
+         * @param AMCTTCCommand to retrieve the current configuration of
+         * @returns TTC configuration register values
+         */
+        virtual uint32_t getTTCConfig(AMCTTCCommand const& cmd);
+
+        /**
+         * @param AMCTTCCommand to set the current configuration of
+         */
+        virtual void setTTCConfig(AMCTTCCommand const& cmd, uint8_t const& value);
+
+        /*** STATUS submodule ***/
+        /**
+         * @brief Returns the first status register of the TTC module
+         */
+        virtual uint32_t getTTCStatus();
+
+        /**
+         * @brief Returns the error count of the TTC module
+         * @param specify whether single or double error count
+         */
+        virtual uint32_t getTTCErrorCount(bool const& single=true);
+
+        /*** CMD_COUNTERS submodule ***/
+        /**
+         * @returns Returns the counter for the specified TTC command
+         */
+        virtual uint32_t getTTCCounter(AMCTTCCommand const& cmd);
+
+        /**
+         * @returns Returns the L1A ID received by the TTC module
+         */
+        virtual uint32_t getL1AID();
 
         /**
          * @returns 32-bit word corresponding to the 8 most recent TTC commands received
          */
         virtual uint32_t getTTCSpyBuffer();
 
-        /**************************/
-        /** DAQ link information **/
-        /**************************/
+        /********************************/
+        /** TRIGGER module information **/
+        /********************************/
+
+        /*** CTRL submodule ***/
+        /**
+         * @brief Reset the TRIGGER module
+         */
+        virtual void triggerReset();
+
+        /**
+         * @brief Reset the counters of the TRIGGER module
+         */
+        virtual void triggerCounterReset();
+
+        /**
+         * @brief Reset the counters of the TRIGGER module
+         * @returns the mask for which OHs will have their sbits blocked
+         */
+        virtual uint32_t getOptoHybridKillMask();
+        
+        /**
+         * @brief Reset the counters of the TRIGGER module
+         * @param mask of which OptoHybrids will have their sbits blocked
+         */
+        virtual void setOptoHybridKillMask(uint32_t const& mask);
+
+        /*** STATUS submodule ***/
+        /**
+         * @brief Returns the first status register of the TRIGGER module
+         */
+        virtual uint32_t getORTriggerRate();
+
+        /**
+         * @brief Returns the error count of the TRIGGER module
+         * @param specify whether single or double error count
+         */
+        virtual uint32_t getORTriggerCount();
+
+        /*** OH{IDXX} submodule ***/
+        /**
+         * @brief Returns the first status register of the TRIGGER module
+         * @param OptoHybrid to obtain the rate for
+         * @returns Rate of the triggers seen
+         */
+        virtual uint32_t getOptoHybridTriggerRate(uint8_t const& oh);
+
+        /**
+         * @brief Returns the error count of the TRIGGER module
+         * @param OptoHybrid to obtain the count for
+         * @returns Count of the triggers seen
+         */
+        virtual uint32_t getOptoHybridTriggerCount(uint8_t const& oh);
+
+        /**
+         * @brief Returns the rate of seen sbit clusters of a given size from a specific OptoHybrid
+         * @param OptoHybrid to obtain the rate for
+         * @param Cluster size to return the rate for
+         * @returns Rate of the sbits for a specified cluster size
+         */
+        virtual uint32_t getOptoHybridClusterRate(uint8_t const& oh, uint8_t const& cs);
+
+        /**
+         * @brief Returns the count of seen sbit clusters of a given size from a specific OptoHybrid
+         * @param OptoHybrid to obtain the count for
+         * @param Cluster size to return the count for
+         * @returns Count of the sbits for a specified cluster size
+         */
+        virtual uint32_t getOptoHybridClusterCount(uint8_t const& oh, uint8_t const& cs);
+
+        /**
+         * @brief Returns the last cluster of seen sbit clusters of a given size from a specific OptoHybrid
+         * @param OptoHybrid to obtain the last cluster for
+         * @param Cluster size to return the last cluster for
+         * @returns Last cluster of specified size
+         */
+        virtual uint32_t getOptoHybridDebugLastCluster(uint8_t const& oh, uint8_t const& cs);
+
+        /**
+         * @brief Returns the count of seen sbit clusters of a given size from a specific OptoHybrid
+         * @param OptoHybrid to obtain the count for
+         * @param Link size to return the count for
+         * @param Which counter to query
+         * @returns Count of the sbits for a specified cluster size
+         */
+        virtual uint32_t getOptoHybridTriggerLinkCount(uint8_t const& oh, uint8_t const& link, AMCOHLinkCount const& count);
+
+        /****************************/
+        /** DAQ moudle information **/
+        /****************************/
         /**
          * @brief performs a general reset of the GenericAMC
          */
@@ -580,12 +708,12 @@ namespace gem {
          * @param boardID is the expected board ID
          */
         void setExpectedBoardID(std::string const& boardID) { m_boardID = boardID; }
-        
+
         std::string m_boardID;  ///< expected boardID in the firmware
 
         int m_crate;  ///< Crate number the AMC is housed in
         int m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
-        
+
       private:
 
       };  // class HwGenericAMC
