@@ -34,6 +34,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   slotID  = -1;
   linkID  = -1;
   //  m_RunType = (0x0);
+  cardName = "";
 
   controlHubAddress = "N/A";
   deviceIPAddress   = "N/A";
@@ -57,10 +58,11 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
 }
 
 void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo>* bag) {
-  bag->addField("crateID",       &crateID);
-  bag->addField("slot",          &slotID);
-  bag->addField("link",          &linkID);
-  bag->addField("present",       &present);
+  bag->addField("crateID",  &crateID);
+  bag->addField("slot",     &slotID);
+  bag->addField("link",     &linkID);
+  bag->addField("present",  &present);
+  bag->addField("CardName", &cardName);
 
   bag->addField("ControlHubAddress", &controlHubAddress);
   bag->addField("DeviceIPAddress",   &deviceIPAddress);
@@ -233,10 +235,12 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       DEBUG("OptoHybridManager::initializeAction: info is: " << info.toString());
       DEBUG("OptoHybridManager::initializeAction creating pointer to board connected on link "
             << link << " to GLIB in slot " << (slot+1));
-      std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
-                                                 info.crateID.value_,
-                                                 info.slotID.value_,
-                                                 info.linkID.value_);
+      std::string deviceName = info.cardName.toString();
+      if (deviceName.empty())
+        deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+                                       info.crateID.value_,
+                                       info.slotID.value_,
+                                       info.linkID.value_);
       toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
       if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
