@@ -72,7 +72,7 @@ print "-> oh fw date : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
 print
 print "Connected VFATs mask: 0x%08x"%(getConnectedVFATsMask(glib,options.gtx,options.debug))
 print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(glib,options.gtx,options.debug))
-setVFATsBitMask(glib,options.gtx,0x7fffff,options.debug)
+setVFATsBitMask(glib,options.gtx,0x000000,options.debug)
 print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(glib,options.gtx,options.debug))
 print
 
