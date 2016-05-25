@@ -19,17 +19,24 @@ typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
-  present = false;
-  crateID = -1;
-  slotID  = -1;
-  linkID  = -1;
+  present  = false;
+  crateID  = -1;
+  slotID   = -1;
+  linkID   = -1;
+  cardName = "";
 
+  vfatBroadcastList = "0-23";
+  vfatBroadcastMask = 0xff000000;
+
+  vfatSBitList = "0-23";
+  vfatSBitMask = 0xff000000;
+  
   controlHubAddress = "";
-  deviceIPAddress     = "";
-  ipBusProtocol       = "";
-  addressTable        = "";
-  controlHubPort      = 0;
-  ipBusPort           = 0;
+  deviceIPAddress   = "";
+  ipBusProtocol     = "";
+  addressTable      = "";
+  controlHubPort    = 0;
+  ipBusPort         = 0;
   
   triggerSource = 0;
   sbitSource    = 0;
@@ -39,10 +46,11 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
 }
 
 void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo>* bag) {
-  bag->addField("crateID",       &crateID);
-  bag->addField("slot",          &slotID);
-  bag->addField("link",          &linkID);
-  bag->addField("present",       &present);
+  bag->addField("crateID",  &crateID);
+  bag->addField("slot",     &slotID);
+  bag->addField("link",     &linkID);
+  bag->addField("present",  &present);
+  bag->addField("CardName", &cardName);
 
   bag->addField("ControlHubAddress", &controlHubAddress);
   bag->addField("DeviceIPAddress",   &deviceIPAddress);
@@ -53,6 +61,9 @@ void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdat
 
   bag->addField("VFATBroadcastList", &vfatBroadcastList);
   bag->addField("VFATBroadcastMask", &vfatBroadcastMask);
+
+  bag->addField("VFATSBitList", &vfatSBitList);
+  bag->addField("VFATSBitMask", &vfatSBitMask);
             
   bag->addField("triggerSource", &triggerSource);
   bag->addField("sbitSource",    &sbitSource);
@@ -227,12 +238,14 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 
       DEBUG("OptoHybridManager::line 118: info is: " << info.toString());
       DEBUG("OptoHybridManager::creating pointer to board connected on link " << link << " to GLIB in slot " << (slot+1));
-      std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
-                                                 info.crateID.value_,
-                                                 info.slotID.value_,
-                                                 info.linkID.value_);
+      std::string deviceName = info.cardName.toString();
+      if (deviceName.empty())
+        deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+                                       info.crateID.value_,
+                                       info.slotID.value_,
+                                       info.linkID.value_);
       toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
-
+      
       if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
         DEBUG("OptoHybridManager::initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
         is_optohybrids.at(slot).at(link) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,

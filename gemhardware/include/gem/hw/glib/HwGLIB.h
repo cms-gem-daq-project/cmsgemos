@@ -336,6 +336,51 @@ namespace gem {
            */
           bool CDCELockStatus();
 
+          /** Legacy GLIB firmware functionality **/
+          /**
+           * Read the tracking data FIFO occupancy in terms of raw 32bit words
+           * @param uint8_t gtx is the number of the gtx to query
+           * @retval uint32_t returns the number of words in the tracking data FIFO
+           */
+          uint32_t getFIFOOccupancy(uint8_t const& gtx);
+
+          /**
+           * Read the tracking data FIFO occupancy in terms of the number of 7x32bit words
+           * composing a single VFAT block
+           * @param uint8_t gtx is the number of the gtx to query
+           * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
+           */
+          uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
+
+          /**
+           * see if there is tracking data available
+           * @param uint8_t gtx is the number of the column of the tracking data to read
+           * @retval bool returns true if there is tracking data in the FIFO
+           TRK_DATA.COLX.DATA_RDY
+          */
+          bool hasTrackingData(uint8_t const& gtx);
+
+          /**
+           * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
+           * and need to pack all events together
+           * @param uint8_t gtx is the number of the GTX tracking data to read
+           * @param size_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
+           * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
+          */
+          std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
+          //which of these will be better and do what we want
+          uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
+          //which of these will be better and do what we want
+          uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
+                                   size_t const& nBlocks=1);
+
+          /**
+           * Empty the tracking data FIFO
+           * @param uint8_t gtx is the number of the gtx to query
+           *
+           */
+          void flushFIFO(uint8_t const& gtx);
+
         protected:
           //GLIBMonitor *monGLIB_;
 
