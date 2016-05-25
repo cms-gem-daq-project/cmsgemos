@@ -157,10 +157,10 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("MAX_DAV_TIMER", "DAQ.EXT_STATUS.MAX_DAV_TIMER"),
                  GEMUpdateType::HW32, "hex");
+
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("LAST_DAV_TIMER", "DAQ.EXT_STATUS.LAST_DAV_TIMER"),
                  GEMUpdateType::HW32, "hex");
-
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("RUN_TYPE", "DAQ.EXT_CONTROL.RUN_TYPE"),
                  GEMUpdateType::HW32, "hex");
