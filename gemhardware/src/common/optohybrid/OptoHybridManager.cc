@@ -32,17 +32,11 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   vfatSBitMask = 0xff000000;
 
   controlHubAddress = "";
-  deviceIPAddress     = "";
-  ipBusProtocol       = "";
-  addressTable        = "";
-  controlHubPort      = 0;
-  ipBusPort           = 0;
-
-  vfatBroadcastList = "0-23";
-  vfatBroadcastMask = 0xff000000;
-
-  vfatSBitList = "0-23";
-  vfatSBitMask = 0xff000000;
+  deviceIPAddress   = "";
+  ipBusProtocol     = "";
+  addressTable      = "";
+  controlHubPort    = 0;
+  ipBusPort         = 0;
 
   triggerSource = 0;
   sbitSource    = 0;
