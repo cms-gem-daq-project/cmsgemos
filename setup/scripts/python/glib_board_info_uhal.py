@@ -41,6 +41,8 @@ parser.add_option("--daq_enable", type="int", dest="daq_enable",
 		  help="enable daq output", metavar="daq_enable", default=-1)
 parser.add_option("--rd", type="int", dest="reset_daq",
 		  help="reset daq", metavar="reset_daq", default=-1)
+parser.add_option("--ftx0", action="store_true", dest="flipPolarityTX0",
+		  help="flip polarity TX 0", metavar="flipPolarityTX0")
 
 (options, args) = parser.parse_args()
 
@@ -51,10 +53,12 @@ if options.slot:
 	uTCAslot = 160+options.slot
 print options.slot, uTCAslot
 ipaddr = '192.168.0.%d'%(uTCAslot)
+#ipaddr = '192.168.250.53'
 if options.testbeam:
         ipaddr        = '137.138.115.185'
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
+#uri = "ipbustcp-2.0://eagle45:60002"
 glib  = uhal.getDevice( "glib" , uri, address_table )
 
 ########################################
@@ -67,6 +71,7 @@ print "--=======================================--"
 print
 
 if not options.userOnly:
+  #pass
 	getSystemInfo(glib)
 print
 print "--=======================================--"
@@ -146,6 +151,15 @@ if (options.resetCounters):
         writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
         writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
 print
+
+if (options.flipPolarityTX0):
+        tx0polarity = readRegister(glib,"GLIB.IPBus_System_Control.TX_polarity")
+        if tx0polarity == 0x0:
+          print "TX0 polarity %s" %(tx0polarity)
+          writeRegister(glib,"GLIB.IPBus_System_Control.TX_polarity",0x1)
+        else:
+          print "TX0 polarity %s" %(tx0polarity)
+          writeRegister(glib,"GLIB.IPBus_System_Control.TX_polarity",0x0)
 sys.stdout.flush()
 for olink in range(NGTX):
         print "--=====GTX%d==============================--"%(olink)
@@ -170,4 +184,5 @@ for olink in range(NGTX):
                 counters["T1"]["Resync"],
                 counters["T1"]["BC0"])
 print "--=======================================--"
+print "-> VCAL %x"%(readRegister(glib,"GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS.VFAT6.VCal"))
 sys.stdout.flush()
