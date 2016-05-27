@@ -136,7 +136,6 @@ namespace gem {
 
       //type of run
       GEMRunType m_runType;
-
       /*
        * Counter all in one
        *   [0] VFAT's Blocks counter
