@@ -1801,6 +1801,11 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
   cs_l1Aperiod.addAttribute(tname_param,"xsd:unsignedInt");
   cs_l1Aperiod.addTextNode(confParams_.bag.localTriggerPeriod.toString());
 
+  xoap::SOAPName    soapName_enableTrigCont = envelope_2.createName("startL1ATricont","props",appUrn);
+  xoap::SOAPElement cs_enableTrigCont       = pbox_amc13config.addChildElement(soapName_enableTrigCont);
+  cs_enableTrigCont.addAttribute(tname_param,"xsd:boolean");
+  cs_enableTrigCont.addTextNode(confParams_.bag.EnableTrigCont.toString());
+
   //CALPULSE ON
   xoap::SOAPName    soapName_calpulse = envelope_2.createName("EnableCalPulse","props",appUrn);
   xoap::SOAPElement cs_calpulse      = pbox_amc13config.addChildElement(soapName_calpulse);

@@ -79,11 +79,18 @@ gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)  t
   currentLatency_ = 0;
 
   scanpoint_ = true; // never initialized
-  
+  /*
   confParams_.bag.useLocalTriggers   = false;
   confParams_.bag.localTriggerMode   = 0;
   confParams_.bag.localTriggerPeriod = 1;
-  
+  */
+
+  confParams_.bag.useLocalTriggers   = false;
+  confParams_.bag.localTriggerMode   = 0; // per orbit 
+  confParams_.bag.EnableTrigCont     = false;
+  confParams_.bag.localTriggerPeriod = 1;
+
+
   disableTriggers();
 }
 
@@ -204,7 +211,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	optohybridDevice_->broadcastWrite("Latency",0xFF,0x0,false);
       }//end else
 
-      sleep(0.001);
+      sleep(0.01);
 
       //uint32_t bufferDepth = 0;
       //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
@@ -214,7 +221,15 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
 	scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
       }
-
+      while(!(glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+				 toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
+						   confParams_.bag.ohGTXLink.value_))))
+	DEBUG("waiting for FIFO is empty: "
+	      << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+				       toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
+							 confParams_.bag.ohGTXLink.value_))
+	      );
+				 
       glibDevice_->setDAQLinkRunParameter(1,currentLatency_);
 
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -602,6 +617,15 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
     element = cgi.getElement("MSPulseLength");
     if (element != cgi.getElements().end())
       scanParams_.bag.MSPulseLength  = element->getIntegerValue();
+
+    element = cgi.getElement("VT1");
+    if (element != cgi.getElements().end())
+      scanParams_.bag.deviceVT1  = element->getIntegerValue();
+
+    element = cgi.getElement("VT2");
+    if (element != cgi.getElements().end())
+      scanParams_.bag.deviceVT2  = element->getIntegerValue();
+
 
   } catch (const xgi::exception::Exception & e) {
     ERROR("Something went wrong: " << e.what());

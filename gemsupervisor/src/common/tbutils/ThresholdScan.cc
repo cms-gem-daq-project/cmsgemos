@@ -68,11 +68,16 @@ gem::supervisor::tbutils::ThresholdScan::ThresholdScan(xdaq::ApplicationStub * s
   // Initiate and activate main workloop  
   wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:ThresholdScan","waiting");
   wl_->activate();
-
+  /*
   confParams_.bag.useLocalTriggers   = true;
   confParams_.bag.localTriggerMode   = 1; // per bx triggers
   confParams_.bag.localTriggerPeriod = 400;
-  
+  */  
+  confParams_.bag.useLocalTriggers   = true;
+  confParams_.bag.localTriggerMode   = 2; // per bx triggers
+  confParams_.bag.EnableTrigCont     = true;
+  confParams_.bag.localTriggerPeriod = 1000;
+
   disableTriggers();
 }
 
@@ -197,7 +202,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	  (*chip)->setVThreshold1(0);
 	}
 
-      sleep(0.001);
+      sleep(0.01);
 
       }// end else VT1 <stepsize
 
@@ -209,6 +214,17 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	scanParams_.bag.deviceVT1    = (*chip)->getVThreshold1();
 	scanParams_.bag.deviceVT2    = (*chip)->getVThreshold2();
       }	
+
+
+      while(!(glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+				 toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
+						   confParams_.bag.ohGTXLink.value_))))
+	DEBUG("waiting for FIFO is empty: "
+	      << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+				       toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
+							 confParams_.bag.ohGTXLink.value_))
+	      );
+
 
       glibDevice_->setDAQLinkRunParameter(2,scanParams_.bag.deviceVT1);
       glibDevice_->setDAQLinkRunParameter(3,scanParams_.bag.deviceVT2);

@@ -207,7 +207,8 @@ namespace gem {
             xdata::Boolean       useLocalTriggers;
             xdata::Integer       localTriggerMode;
             xdata::Integer       localTriggerPeriod;
-            
+	    xdata::Boolean       EnableTrigCont;            
+
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
 	    //	    xdata::UnsignedShort triggerSource_;
