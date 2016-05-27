@@ -428,17 +428,18 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
   
-  if (m_enableLocalL1A)
-    p_amc13->enableLocalL1A(true);
-  else
-    //disable localL1A generator in order to enable the CSC triggers
-    p_amc13->enableLocalL1A(false);
-
-  /*
+  if(!m_startL1ATricont){
+    if (m_enableLocalL1A)
+      p_amc13->enableLocalL1A(true);
+    else
+      //disable localL1A generator in order to enable the CSC triggers
+      p_amc13->enableLocalL1A(false);
+  }
+  
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->startContinuousL1A();
   }
-  */
+  
   try {
     INFO("AMC13Manager::enableTriggers command " << commandName << " succeeded ");
     return
@@ -471,17 +472,18 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
   
-  if (m_enableLocalL1A)
+  if(!m_startL1ATricont){
+    if (m_enableLocalL1A)
     p_amc13->enableLocalL1A(false);
-  else
-    //disable localL1A generator in order to enable the CSC triggers
-    p_amc13->enableLocalL1A(true);
-
-  /*
+    else
+      //disable localL1A generator in order to enable the CSC triggers
+      p_amc13->enableLocalL1A(true);
+  }
+  
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->stopContinuousL1A();
   }
-  */
+  
   try {
     INFO("AMC13Manager::disableTriggers " << commandName << " succeeded ");
     return
