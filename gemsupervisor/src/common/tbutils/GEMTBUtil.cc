@@ -75,7 +75,7 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
 
 }
 
-gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
+gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub *s)
   throw (xdaq::exception::Exception) :
   xdaq::WebApplication(s),
   m_gemLogger(this->getApplicationLogger()),
@@ -95,8 +95,6 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   is_initialized_ (false),
   is_configured_  (false),
   is_running_     (false)
-
-
 {
   // Detect when the setting of default parameters has been performed
   this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
@@ -132,10 +130,10 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   resetSig_ = toolbox::task::bind(this, &GEMTBUtil::reset,      "reset"     );
 
   std::string className = getApplicationDescriptor()->getClassName();
-  INFO("className " << className);
+  DEBUG("className " << className);
   className =
     className.substr(className.rfind("gem::supervisor::"),std::string::npos);
-  INFO("className " << className);
+  DEBUG("className " << className);
 
   fsmP_ = new
     toolbox::fsm::AsynchronousFiniteStateMachine("GEMTButilFSM:" + className);
@@ -195,7 +193,7 @@ void gem::supervisor::tbutils::GEMTBUtil::actionPerformed(xdata::Event& event)
     std::stringstream ss;
     ss << "ipAddr_=[" << ipAddr_.toString() << "]" << std::endl;
 
-    LOG4CPLUS_DEBUG(this->getApplicationLogger(), ss.str());
+    DEBUG(ss.str());
     confParams_.bag.deviceIP = ipAddr_;
   }
 }
@@ -210,10 +208,10 @@ void gem::supervisor::tbutils::GEMTBUtil::stateChanged(toolbox::fsm::FiniteState
 {
   //keep_refresh_ = false;
 
-  INFO("Current state is: [" << fsm.getStateName (fsm.getCurrentState()) << "]");
+  DEBUG("Current state is: [" << fsm.getStateName (fsm.getCurrentState()) << "]");
   std::string state_=fsm.getStateName (fsm.getCurrentState());
 
-  INFO( "StateChanged: " << (std::string)state_);
+  DEBUG( "StateChanged: " << (std::string)state_);
 
 }
 
@@ -275,7 +273,8 @@ bool gem::supervisor::tbutils::GEMTBUtil::reset(toolbox::task::WorkLoop* wl)
 
 // SOAP interface (defined in the base class, not in the derived class)
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onInitialize(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(initSig_);
@@ -285,7 +284,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onInitialize(xoap::M
 
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onConfigure(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(confSig_);
@@ -295,7 +295,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onConfigure(xoap::Me
 
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStart(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(startSig_);
@@ -305,7 +306,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStart(xoap::Messag
 
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStop(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(stopSig_);
@@ -314,7 +316,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStop(xoap::Message
 
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onHalt(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(haltSig_);
@@ -323,7 +326,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onHalt(xoap::Message
 }
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onReset(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(resetSig_);
@@ -926,24 +930,23 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 
 
 void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
-
+  throw (xgi::exception::Exception)
+{
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> vfat2FormEntries = cgi.getElements();
-    INFO( "debugging form entries");
+    TRACE( "debugging form entries");
     std::vector<cgicc::FormEntry>::const_iterator myiter = vfat2FormEntries.begin();
 
     //OH Devices
     cgicc::form_iterator oh = cgi.getElement("SetOH");
     if (strcmp((**oh).c_str(),"OH_0") == 0) {
       confParams_.bag.ohGTXLink.value_= 0;
-      INFO("OH_0 has been selected " << confParams_.bag.ohGTXLink);
-    }//if OH_0
-    if (strcmp((**oh).c_str(),"OH_1") == 0) {
+      DEBUG("OH_0 has been selected " << confParams_.bag.ohGTXLink);
+    } else if (strcmp((**oh).c_str(),"OH_1") == 0) {
       confParams_.bag.ohGTXLink.value_= 1;
-      INFO("OH_1 has been selected " << confParams_.bag.ohGTXLink);
-    }//if OH_1
+      DEBUG("OH_1 has been selected " << confParams_.bag.ohGTXLink);
+    }
 
     m_vfatMask = 0x0;
     for(int i = 0; i < 24; ++i) {
@@ -954,15 +957,13 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
       form << "VFATDevice" << i;
 
       std::string tmpDeviceName = confParams_.bag.deviceName[i].toString();
-      //      std::string tmpDeviceName = "";
       cgicc::const_form_iterator name = cgi.getElement(form.str());
       if (name != cgi.getElements().end()) {
-        INFO( "found form element::" << form.str());
-        INFO( "has value::" << name->getValue());
+        DEBUG( "found form element::" << form.str());
+        DEBUG( "has value::" << name->getValue());
 	tmpDeviceName = name->getValue();
 	confParams_.bag.deviceName[i] = tmpDeviceName;
-	INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
-	//	vfatDevice_.push_back(confParams_.bag.deviceName[i].toString());
+	DEBUG( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
         m_vfatMask |= (0x1<<i);
       }
 
@@ -991,7 +992,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
 
 
 void gem::supervisor::tbutils::GEMTBUtil::webConfigure(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
 
   wl_->submit(confSig_);
 
@@ -1000,7 +1002,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webConfigure(xgi::Input *in, xgi::Outp
 
 
 void gem::supervisor::tbutils::GEMTBUtil::webStart(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
 
   wl_->submit(startSig_);
 
@@ -1009,7 +1012,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webStart(xgi::Input *in, xgi::Output *
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webStop(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
   wl_->submit(stopSig_);
 
   redirect(in,out);
@@ -1018,7 +1022,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webStop(xgi::Input *in, xgi::Output *o
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webHalt(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
   wl_->submit(haltSig_);
 
   redirect(in,out);
@@ -1027,7 +1032,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webHalt(xgi::Input *in, xgi::Output *o
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webReset(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
   wl_->submit(resetSig_);
 
   redirect(in,out);
@@ -1036,16 +1042,16 @@ void gem::supervisor::tbutils::GEMTBUtil::webReset(xgi::Input *in, xgi::Output *
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webResetCounters(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
-
+  throw (xgi::exception::Exception)
+{
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> resetCounters = cgi.getElements();
-    INFO( "resetting counters entries");
+    DEBUG( "resetting counters entries");
 
     hw_semaphore_.take();
 
-    INFO("GEMTBUtil::webResetCounters Reseting counters");
+    DEBUG("GEMTBUtil::webResetCounters Reseting counters");
 
     if (cgi.queryCheckbox("RstL1ATTC") )
       optohybridDevice_->resetL1ACount(0x0);
@@ -1099,17 +1105,17 @@ void gem::supervisor::tbutils::GEMTBUtil::webResetCounters(xgi::Input *in, xgi::
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
-
+  throw (xgi::exception::Exception)
+{
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> resetCounters = cgi.getElements();
-    INFO( "resetting counters entries");
+    DEBUG( "resetting counters entries");
 
     std::string fastCommand = cgi["SendFastCommand"]->getValue();
 
     if (strcmp(fastCommand.c_str(),"FlushFIFO") == 0) {
-      INFO("FlushFIFO button pressed");
+      DEBUG("FlushFIFO button pressed");
       hw_semaphore_.take();
       for (int i = 0; i < 2; ++i){
 	glibDevice_->flushFIFO(i);
@@ -1118,7 +1124,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }
 
     if (strcmp(fastCommand.c_str(),"SendTestPackets") == 0) {
-      INFO("SendTestPackets button pressed");
+      DEBUG("SendTestPackets button pressed");
       hw_semaphore_.take();
       if (!is_running_) {
 	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip){
@@ -1137,7 +1143,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }
 
     else if (strcmp(fastCommand.c_str(),"Send L1A+CalPulse") == 0) {
-      INFO("Send L1A+CalPulse button pressed");
+      DEBUG("Send L1A+CalPulse button pressed");
       cgicc::const_form_iterator element = cgi.getElement("CalPulseDelay");
       uint8_t delay = 4;
       if (element != cgi.getElements().end())
@@ -1150,35 +1156,35 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }
 
     else if (strcmp(fastCommand.c_str(),"Send L1A") == 0) {
-      INFO("Send L1A button pressed");
+      DEBUG("Send L1A button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendL1A(10,1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send CalPulse") == 0) {
-      INFO("Send CalPulse button pressed");
+      DEBUG("Send CalPulse button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendCalPulse(0x1,1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send Resync") == 0) {
-      INFO("Send Resync button pressed");
+      DEBUG("Send Resync button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendResync();
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send BC0") == 0) {
-      INFO("Send BC0 button pressed");
+      DEBUG("Send BC0 button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendBC0();
       hw_semaphore_.give();
     }
     /*
     else if (strcmp(fastCommand.c_str(),"SetTriggerSource") == 0) {
-      INFO("SetTriggerSource button pressed");
+      DEBUG("SetTriggerSource button pressed");
       hw_semaphore_.take();
       cgicc::form_iterator fi = cgi.getElement("trgSrc");
       if( !fi->isEmpty() && fi != (*cgi).end()) {
@@ -1217,8 +1223,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
 // State transitions
 //is initialize different than halt? they come from different positions but put the software/hardware in the same state 'halted'
 void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
 
@@ -1234,7 +1240,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
-  
+
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
 
@@ -1249,14 +1255,14 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
                                                                                   "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
   if (glibDevice_->isHwConnected()) {
-    INFO("GLIB device connected");
+    DEBUG("GLIB device connected");
     glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
     disableTriggers();
     if (optohybridDevice_->isHwConnected()) {
-      INFO("OptoHybrid device connected");
+      DEBUG("OptoHybrid device connected");
 
       optohybridDevice_->setVFATMask(m_vfatMask);
-      
+
       for(int i=0;i<24;++i){
 	//  int i=0;
 	std::stringstream currentChipID;
@@ -1266,13 +1272,13 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 	vfat=currentChipID.str();
 	currentChipID.str("");
 
-	vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(vfat, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+	vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(vfat, tmpURI.str(),
+                                                                 "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
-	if(tmpVFATDevice->isHwConnected()){
-	tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
-							   confParams_.bag.ohGTXLink.value_,
-							   vfat.c_str()));
-
+	if (tmpVFATDevice->isHwConnected()) {
+          tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
+                                                             confParams_.bag.ohGTXLink.value_,
+                                                             vfat.c_str()));
 
 	  tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
 	  tmpVFATDevice->setRunMode(0);
@@ -1282,11 +1288,11 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 	  if (VfatName != "") {
 	    readout_mask = confParams_.bag.ohGTXLink;
 
-	    INFO(" webInitialize : DeviceName " << VfatName );
-	    INFO(" webInitialize : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+	    DEBUG(" webInitialize : DeviceName " << VfatName );
+	    DEBUG(" webInitialize : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
 
 	    confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
-	    INFO(" CHIPID   :: " << confParams_.bag.deviceChipID);
+	    DEBUG(" CHIPID   :: " << confParams_.bag.deviceChipID);
 	    // need to put all chips in sleep mode to start off
 	    vfatDevice_.push_back(tmpVFATDevice);
 	  }//end if VfatName
@@ -1295,20 +1301,17 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 	for (auto chip = VFATdeviceConnected.begin(); chip != VFATdeviceConnected.end(); ++chip) {
 	  if ((*chip)->isHwConnected()) {
 	    (*chip)->setRunMode(0);
-	    INFO( "vfatDevice Conected::" << (*chip)->getSlot());
+	    DEBUG( "vfatDevice Conected::" << (*chip)->getSlot());
 	  }
 	}// end for
 
 	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	  INFO( "vfatDevice selected::" << (*chip)->getSlot());
+	  DEBUG( "vfatDevice selected::" << (*chip)->getSlot());
 	}
       }// end for
-
-      //    }//end if vfat is connected
-
    }//end if OH connected
-    else{
-      INFO("OptoHybrid device not connected, breaking out");
+    else {
+      DEBUG("OptoHybrid device not connected, breaking out");
       is_configured_  = false;
       is_working_     = false;
       hw_semaphore_.give();
@@ -1317,26 +1320,23 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
   }// end if glib connected
   else {
-    INFO("GLIB device not connected, breaking out");
+    DEBUG("GLIB device not connected, breaking out");
     is_configured_  = false;
     is_working_     = false;
     hw_semaphore_.give();
     return;
   }
 
-
   is_initialized_ = true;
   hw_semaphore_.give();
 
   //sleep(5);
   is_working_     = false;
-
 }
 
-
 void gem::supervisor::tbutils::GEMTBUtil::configureAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
 
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
@@ -1350,7 +1350,7 @@ void gem::supervisor::tbutils::GEMTBUtil::configureAction(toolbox::Event::Refere
        chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
     ss << "Device name: " << chip->toString() << std::endl;
   }
-  INFO(ss.str());
+  DEBUG(ss.str());
 
   hw_semaphore_.give();
 
@@ -1360,8 +1360,8 @@ void gem::supervisor::tbutils::GEMTBUtil::configureAction(toolbox::Event::Refere
 
 
 void gem::supervisor::tbutils::GEMTBUtil::startAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
 
   //start scan routine
@@ -1372,8 +1372,8 @@ void gem::supervisor::tbutils::GEMTBUtil::startAction(toolbox::Event::Reference 
 
 
 void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
 
   glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
@@ -1409,8 +1409,8 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
 
 
 void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_    = true;
   is_configured_ = false;
   is_running_    = false;
@@ -1438,7 +1438,7 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
-  
+
   wl_->submit(haltSig_);
 
   //sleep(5);
@@ -1448,8 +1448,8 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
 
 
 void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
 
   is_initialized_ = false;
@@ -1466,7 +1466,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
-  
+
   hw_semaphore_.take();
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(0x0);
@@ -1497,8 +1497,8 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
 
 
 void gem::supervisor::tbutils::GEMTBUtil::noAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = false;
   //hw_semaphore_.take();
   ////vfatDevice_->setRunMode(0);
@@ -1512,25 +1512,25 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
     bool isDisabled = false;
     if (is_running_ || is_configured_ || is_initialized_)
       isDisabled = true;
-    
+
     const int nChips = 24;
     *out << cgicc::table();
     *out << cgicc::tr();
-    
-    
+
+
     for (int i = 0; i < nChips; ++i) {
       std::stringstream currentChipID;
       currentChipID << "VFAT" << i;
-      
+
       std::stringstream form;
       form << "VFATDevice" << i;
-      
+
       std::string label = "primary";
       cgicc::input vfatselection;
       *out << cgicc::td() << std::endl;
-      
+
       *out << "<span class=\"label label-primary\">" << currentChipID.str() << "</span>" << std::endl;
-      
+
       if (isDisabled) {
         vfatselection.set("type","checkbox").set("name",form.str()).set("disabled","disabled");
       } else {
@@ -1539,13 +1539,13 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
       *out << ((confParams_.bag.deviceName[i].toString().compare(currentChipID.str())) == 0 ?
 	       vfatselection.set("checked","checked").set("multiple","multiple") :
 	       vfatselection.set("value",currentChipID.str())) << std::endl;
-      
+
       *out << cgicc::td() << std::endl;
       if( i == 7 || i == 15) {
 	*out << cgicc::tr() << std::endl  // close
 	     << cgicc::tr() << std::endl; // open
       } // end if
-        
+
     }// end for nChips
 
     *out << cgicc::tr()    << std::endl;
@@ -1566,7 +1566,7 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
     bool isDisabled = false;
     if (is_running_ || is_configured_ || is_initialized_)
       isDisabled = true;
-    
+
     // cgicc::input OHselection;
     *out   << "<table>"     << std::endl
 	   << "<tr>"   << std::endl //open
@@ -1594,7 +1594,7 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
 
     /*      *out << "<tr><td class=\"title\"> Select Latency Scan: </td>"
 	    << "<td class=\"form\">"*/
-    
+
   } catch (const xgi::exception::Exception& e) {
     ERROR("Something went wrong setting the trigger source): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -1602,53 +1602,50 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
     ERROR("Something went wrong setting the trigger source): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
-  
 }// end void selectoptohybrid
 
 void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
   throw (xgi::exception::Exception)
 {
-  //  is_working_ = true;
+  DEBUG("-----------start SOAP message modify paramteres AMC13------ ");
 
-  INFO("-----------start SOAP message modify paramteres AMC13------ ");
-
-  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
-  xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
+  xdaq::ApplicationDescriptor *d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
+  xdaq::ApplicationDescriptor *o = this->getApplicationDescriptor();
   std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
 
-  xoap::MessageReference  msg_2 = xoap::createMessage();
-  xoap::SOAPPart         soap_2 = msg_2->getSOAPPart();
-  xoap::SOAPEnvelope envelope_2 = soap_2.getEnvelope();
-  xoap::SOAPName   parameterset = envelope_2.createName("ParameterSet","xdaq",XDAQ_NS_URI);
-  xoap::SOAPElement   container = envelope_2.getBody().addBodyElement(parameterset);
+  xoap::MessageReference  msg = xoap::createMessage();
+  xoap::SOAPPart         soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPName   parameterset = envelope.createName("ParameterSet","xdaq",XDAQ_NS_URI);
+  xoap::SOAPElement   container = envelope.getBody().addBodyElement(parameterset);
   container.addNamespaceDeclaration("xsd","http://www.w3.org/2001/XMLSchema");
   container.addNamespaceDeclaration("xsi","http://www.w3.org/2001/XMLSchema-instance");
   //  container.addNamespaceDeclaration("parameterset","http://schemas.xmlsoap.org/soap/encoding/");
-  xoap::SOAPName    tname_param = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
-  xoap::SOAPName pboxname_param = envelope_2.createName("Properties","props",appUrn);
+  xoap::SOAPName    tname_param = envelope.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+  xoap::SOAPName pboxname_param = envelope.createName("Properties","props",appUrn);
   xoap::SOAPElement  pbox_param = container.addChildElement(pboxname_param);
   pbox_param.addAttribute(tname_param,"soapenc:Struct");
 
-  xoap::SOAPName pboxname_amc13config = envelope_2.createName("amc13ConfigParams","props",appUrn);
+  xoap::SOAPName pboxname_amc13config = envelope.createName("amc13ConfigParams","props",appUrn);
   xoap::SOAPElement  pbox_amc13config = pbox_param.addChildElement(pboxname_amc13config);
   pbox_amc13config.addAttribute(tname_param,"soapenc:Struct");
 
-  xoap::SOAPName soapName_l1A = envelope_2.createName("L1Aburst","props",appUrn);
+  xoap::SOAPName soapName_l1A = envelope.createName("L1Aburst","props",appUrn);
   xoap::SOAPElement    cs_l1A = pbox_amc13config.addChildElement(soapName_l1A);
   cs_l1A.addAttribute(tname_param,"xsd:unsignedInt");
   cs_l1A.addTextNode(confParams_.bag.nTriggers.toString());
 
 
   std::string tool;
-  xoap::dumpTree(msg_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
-  DEBUG("msg_2: " << tool);
+  xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
+  DEBUG("msg: " << tool);
 
   try {
     DEBUG("trying to send parameters");
-    xoap::MessageReference reply_2 = getApplicationContext()->postSOAP(msg_2, *o,  *d);
+    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
     std::string tool;
-    xoap::dumpTree(reply_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
-    DEBUG("reply_2: " << tool);
+    xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
+    DEBUG("reply: " << tool);
   } catch (xoap::exception::Exception& e) {
     ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
     XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
@@ -1662,7 +1659,7 @@ void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
     ERROR("------------------Fail  AMC13 configuring parameters message ");
     XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
   }
-  INFO("-----------The message to AMC13 configuring parameters has been sent------------");
+  DEBUG("-----------The message to AMC13 configuring parameters has been sent------------");
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::enableTriggers()
@@ -1693,74 +1690,115 @@ void gem::supervisor::tbutils::GEMTBUtil::sendTriggers()
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
-  throw (xgi::exception::Exception) {
-  //  is_working_ = true;
+  throw (xgi::exception::Exception)
+{
+  DEBUG("-----------start SOAP message modify paramteres AMC13------ ");
 
-  INFO("-----------start SOAP message modify paramteres AMC13------ ");
+  xdaq::ApplicationDescriptor *d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
+  xdaq::ApplicationDescriptor *o = this->getApplicationDescriptor();
+  std::string             appUrn = "urn:xdaq-application:"+d->getClassName();
 
-  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
-  xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-  std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
+  xoap::MessageReference  msg = xoap::createMessage();
+  xoap::SOAPPart         soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
 
-  xoap::MessageReference  msg_2 = xoap::createMessage();
-  xoap::SOAPPart         soap_2 = msg_2->getSOAPPart();
-  xoap::SOAPEnvelope envelope_2 = soap_2.getEnvelope();
-  xoap::SOAPName   parameterset = envelope_2.createName("ParameterSet","xdaq",XDAQ_NS_URI);
+  // create the ParameterSet message part
+  xoap::SOAPName   parameterset = envelope.createName("ParameterSet","xdaq",XDAQ_NS_URI);
+  xoap::SOAPElement   container = envelope.getBody().addBodyElement(parameterset);
+  container.addNamespaceDeclaration("xsd",    "http://www.w3.org/2001/XMLSchema");
+  container.addNamespaceDeclaration("xsi",    "http://www.w3.org/2001/XMLSchema-instance");
+  container.addNamespaceDeclaration("soapenc","http://schemas.xmlsoap.org/soap/encoding/");
 
-  xoap::SOAPElement  container = envelope_2.getBody().addBodyElement(parameterset);
-  container.addNamespaceDeclaration("xsd","http://www.w3.org/2001/XMLSchema");
-  container.addNamespaceDeclaration("xsi","http://www.w3.org/2001/XMLSchema-instance");
-  //  container.addNamespaceDeclaration("parameterset","http://schemas.xmlsoap.org/soap/encoding/");
-  xoap::SOAPName tname_param    = envelope_2.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
-  xoap::SOAPName pboxname_param = envelope_2.createName("Properties","props",appUrn);
-  xoap::SOAPElement pbox_param = container.addChildElement(pboxname_param);
-  pbox_param.addAttribute(tname_param,"soapenc:Struct");
+  // Create the Properties element
+  xoap::SOAPName      xsi_type = envelope.createName("type",     "xsi",    "http://www.w3.org/2001/XMLSchema-instance");
+  xoap::SOAPName   soapenc_arr = envelope.createName("arrayType","soapenc","http://schemas.xmlsoap.org/soap/encoding/");
+  xoap::SOAPName   soapenc_pos = envelope.createName("position", "soapenc","http://schemas.xmlsoap.org/soap/encoding/");
+  xoap::SOAPName     pbox_name = envelope.createName("Properties","props", appUrn);
+  xoap::SOAPElement pbox_param = container.addChildElement(pbox_name);
+  pbox_param.addAttribute(xsi_type,"soapenc:Struct");
 
-  xoap::SOAPName pboxname_amc13config = envelope_2.createName("amc13ConfigParams","props",appUrn);
-  xoap::SOAPElement pbox_amc13config = pbox_param.addChildElement(pboxname_amc13config);
-  pbox_amc13config.addAttribute(tname_param,"soapenc:Struct");
+  // Create the amc13ConfigParams element
+  xoap::SOAPName    amc13config_name  = envelope.createName("amc13ConfigParams","props",appUrn);
+  xoap::SOAPElement amc13config_param = pbox_param.addChildElement(amc13config_name);
+  amc13config_param.addAttribute(xsi_type,"soapenc:Struct");
 
-  xoap::SOAPName soapName_uselocall1A = envelope_2.createName("EnableLocalL1A","props",appUrn);
-  xoap::SOAPElement    cs_uselocall1A = pbox_amc13config.addChildElement(soapName_uselocall1A);
-  cs_uselocall1A.addAttribute(tname_param,"xsd:boolean");
-  cs_uselocall1A.addTextNode(confParams_.bag.useLocalTriggers.toString());
+  // Create the LocalTriggerConfig element
+  xoap::SOAPName     tc_name = envelope.createName("LocalTriggerConfig","props",appUrn);
+  xoap::SOAPElement tc_param = amc13config_param.addChildElement(tc_name);
+  tc_param.addAttribute(xsi_type,"soapenc:Struct");
 
-  xoap::SOAPName    soapName_l1Amode = envelope_2.createName("L1Amode","props",appUrn);
-  xoap::SOAPElement cs_l1Amode      = pbox_amc13config.addChildElement(soapName_l1Amode);
-  cs_l1Amode.addAttribute(tname_param,"xsd:integer");
-  cs_l1Amode.addTextNode(confParams_.bag.localTriggerPeriod.toString());
+  xoap::SOAPName  uselocall1A_name = envelope.createName("EnableLocalL1A","props",appUrn);
+  xoap::SOAPElement tc_uselocall1A = tc_param.addChildElement(uselocall1A_name);
+  tc_uselocall1A.addAttribute(xsi_type,"xsd:boolean");
+  tc_uselocall1A.addTextNode(confParams_.bag.useLocalTriggers.toString());
 
-  xoap::SOAPName    soapName_l1Anumber = envelope_2.createName("L1Aburst","props",appUrn);
-  xoap::SOAPElement cs_l1Anumber      = pbox_amc13config.addChildElement(soapName_l1Anumber);
-  cs_l1Anumber.addAttribute(tname_param,"xsd:unsignedInt");
-  cs_l1Anumber.addTextNode(confParams_.bag.nTriggers.toString());
+  xoap::SOAPName  l1Amode_name = envelope.createName("L1Amode","props",appUrn);
+  xoap::SOAPElement tc_l1Amode = tc_param.addChildElement(l1Amode_name);
+  tc_l1Amode.addAttribute(xsi_type,"xsd:integer");
+  tc_l1Amode.addTextNode(confParams_.bag.localTriggerPeriod.toString());
 
-  xoap::SOAPName    soapName_l1Aperiod = envelope_2.createName("InternalPeriodicPeriod","props",appUrn);
-  xoap::SOAPElement cs_l1Aperiod      = pbox_amc13config.addChildElement(soapName_l1Aperiod);
-  cs_l1Aperiod.addAttribute(tname_param,"xsd:unsignedInt");
-  cs_l1Aperiod.addTextNode(confParams_.bag.localTriggerPeriod.toString());
+  xoap::SOAPName  l1Anumber_name = envelope.createName("L1Aburst","props",appUrn);
+  xoap::SOAPElement tc_l1Anumber = tc_param.addChildElement(l1Anumber_name);
+  tc_l1Anumber.addAttribute(xsi_type,"xsd:unsignedInt");
+  tc_l1Anumber.addTextNode(confParams_.bag.nTriggers.toString());
 
-  xoap::SOAPName    soapName_enableTrigCont = envelope_2.createName("startL1ATricont","props",appUrn);
-  xoap::SOAPElement cs_enableTrigCont       = pbox_amc13config.addChildElement(soapName_enableTrigCont);
-  cs_enableTrigCont.addAttribute(tname_param,"xsd:boolean");
-  cs_enableTrigCont.addTextNode(confParams_.bag.EnableTrigCont.toString());
+  xoap::SOAPName  l1Aperiod_name = envelope.createName("InternalPeriodicPeriod","props",appUrn);
+  xoap::SOAPElement tc_l1Aperiod = tc_param.addChildElement(l1Aperiod_name);
+  tc_l1Aperiod.addAttribute(xsi_type,"xsd:unsignedInt");
+  tc_l1Aperiod.addTextNode(confParams_.bag.localTriggerPeriod.toString());
 
-  //CALPULSE ON
-  xoap::SOAPName    soapName_calpulse = envelope_2.createName("EnableCalPulse","props",appUrn);
-  xoap::SOAPElement cs_calpulse      = pbox_amc13config.addChildElement(soapName_calpulse);
-  cs_calpulse.addAttribute(tname_param,"xsd:boolean");
-  cs_calpulse.addTextNode("true");
+  xoap::SOAPName  enableTrigCont_name = envelope.createName("startL1ATricont","props",appUrn);
+  xoap::SOAPElement tc_enableTrigCont = tc_param.addChildElement(enableTrigCont_name);
+  tc_enableTrigCont.addAttribute(xsi_type,"xsd:boolean");
+  tc_enableTrigCont.addTextNode(confParams_.bag.EnableTrigCont.toString());
+
+  // Create the BGOConfig element
+  xoap::SOAPName     bgoarray_name = envelope.createName("BGOConfig","props", appUrn);
+  xoap::SOAPElement bgoarray_param = amc13config_param.addChildElement(bgoarray_name);
+  bgoarray_param.addAttribute(xsi_type,   "soapenc:Array");
+  bgoarray_param.addAttribute(soapenc_arr,"xsd:ur-type[4]");
+  
+  // Create the BGOInfo element
+  xoap::SOAPName     bc_name = envelope.createName("BGOInfo","props", appUrn);
+  xoap::SOAPElement bc_param = bgoarray_param.addChildElement(bc_name);
+  bc_param.addAttribute(xsi_type,"soapenc:Struct");
+  bc_param.addAttribute(soapenc_pos,"0");
+
+  xoap::SOAPName  bgoChan_name = envelope.createName("BGOChannel","props",appUrn);
+  xoap::SOAPElement bc_bgoChan = bc_param.addChildElement(bgoChan_name);
+  bc_bgoChan.addAttribute(xsi_type,"xsd:integer");
+  bc_bgoChan.addTextNode("0");
+  
+  xoap::SOAPName  bgoCmd_name = envelope.createName("BGOcmd","props",appUrn);
+  xoap::SOAPElement bc_bgoCmd = bc_param.addChildElement(bgoCmd_name);
+  bc_bgoCmd.addAttribute(xsi_type,"xsd:unsignedInt");
+  bc_bgoCmd.addTextNode("20");
+
+  xoap::SOAPName  bgoBX_name = envelope.createName("BGObx","props",appUrn);
+  xoap::SOAPElement bc_bgoBX = bc_param.addChildElement(bgoBX_name);
+  bc_bgoBX.addAttribute(xsi_type,"xsd:unsignedInt");
+  bc_bgoBX.addTextNode("1");
+
+  xoap::SOAPName  bgoRepeat_name = envelope.createName("BGOrepeat","props",appUrn);
+  xoap::SOAPElement bc_bgoRepeat = bc_param.addChildElement(bgoRepeat_name);
+  bc_bgoRepeat.addAttribute(xsi_type,"xsd:boolean");
+  bc_bgoRepeat.addTextNode("true");
+
+  xoap::SOAPName  bgoPrescale_name = envelope.createName("BGOprescale","props",appUrn);
+  xoap::SOAPElement bc_bgoPrescale = bc_param.addChildElement(bgoPrescale_name);
+  bc_bgoPrescale.addAttribute(xsi_type,"xsd:unsignedInt");
+  bc_bgoPrescale.addTextNode("1");
 
   std::string tool;
-  xoap::dumpTree(msg_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
-  DEBUG("msg_2: " << tool);
+  xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
+  DEBUG("msg: " << tool);
 
   try {
     DEBUG("trying to send parameters");
-    xoap::MessageReference reply_2 = getApplicationContext()->postSOAP(msg_2, *o,  *d);
+    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
     std::string tool;
-    xoap::dumpTree(reply_2->getSOAPPart().getEnvelope().getDOMNode(),tool);
-    DEBUG("reply_2: " << tool);
+    xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
+    DEBUG("reply: " << tool);
   } catch (xoap::exception::Exception& e) {
     ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
     XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
@@ -1774,5 +1812,5 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
     ERROR("------------------Fail  AMC13 configuring parameters message ");
     XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
   }
-  INFO("-----------The message to AMC13 configuring parameters has been sent------------");
+  DEBUG("-----------The message to AMC13 configuring parameters has been sent------------");
 }
