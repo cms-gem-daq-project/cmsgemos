@@ -1226,13 +1226,13 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
   
   std::stringstream tmpURI;
@@ -1393,13 +1393,13 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
 
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
 
   sleep(0.001);
@@ -1430,13 +1430,13 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
 
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
   
   wl_->submit(haltSig_);
@@ -1458,13 +1458,13 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
 
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
   
   hw_semaphore_.take();
@@ -1612,7 +1612,7 @@ void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
 
   INFO("-----------start SOAP message modify paramteres AMC13------ ");
 
-  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
   xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
   std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
 
@@ -1671,27 +1671,7 @@ void gem::supervisor::tbutils::GEMTBUtil::enableTriggers()
   //  is_working_ = true;
   gem::utils::soap::GEMSOAPToolBox::sendCommand("enableTriggers",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
-  /*
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("enableTriggers","xdaq", XDAQ_NS_URI);
-
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    
-    INFO("-----------The message to start sending triggers continuosly-----------");
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail start sending triggers continuosly " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  */
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::disableTriggers()
@@ -1700,27 +1680,7 @@ void gem::supervisor::tbutils::GEMTBUtil::disableTriggers()
   //  is_working_ = true;
   gem::utils::soap::GEMSOAPToolBox::sendCommand("disableTriggers",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
-  /*
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("disableTriggers","xdaq", XDAQ_NS_URI);
-
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    
-    INFO("-----------The message to stop sending continous triggers-----------");
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail stoping continous trigger message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  */
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::sendTriggers()
@@ -1729,28 +1689,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendTriggers()
   //  is_working_ = true;
   gem::utils::soap::GEMSOAPToolBox::sendCommand("sendtriggerburst",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
-  /*
-  xoap::MessageReference  msg = xoap::createMessage();
-  xoap::SOAPPart         soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody         body = envelope.getBody();
-  xoap::SOAPName      command = envelope.createName("sendtriggerburst","xdaq", XDAQ_NS_URI);
-
-  body.addBodyElement(command);
-
-  try {
-    xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-    xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    
-    INFO("-----------The message to start sending burst-----------");
-    
-  } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail sending burst message " << e.what());
-    XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-  }
-  */
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
@@ -1759,7 +1698,7 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
 
   INFO("-----------start SOAP message modify paramteres AMC13------ ");
 
-  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
+  xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
   xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
   std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
 

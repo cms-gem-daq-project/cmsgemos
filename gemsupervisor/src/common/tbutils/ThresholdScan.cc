@@ -674,10 +674,10 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
 
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
@@ -768,10 +768,10 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   is_working_ = true;
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4));
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));
