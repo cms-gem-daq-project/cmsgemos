@@ -86,7 +86,7 @@ gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)  t
   */
 
   confParams_.bag.useLocalTriggers   = false;
-  confParams_.bag.localTriggerMode   = 0; // per orbit 
+  confParams_.bag.localTriggerMode   = 0; // per orbit
   confParams_.bag.EnableTrigCont     = false;
   confParams_.bag.localTriggerPeriod = 1;
 
@@ -109,16 +109,12 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.take();
     //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     hw_semaphore_.give();
-    INFO(" ******IT IS NOT RUNNIG ***** ");
+    TRACE(" ******IT IS NOT RUNNIG ***** ");
     wl_semaphore_.give(); // give work loop if it is not running
     return false;
   }
 
   hw_semaphore_.take();//take hw to set the trigger source, send L1A+Cal pulses,
-
-  //uint32_t bufferDepth = 0;
-  //bufferDepth  = glibDevice_->getFIFOOccupancy(readout_mask);
-  //INFO( " Bufferdepth " << bufferDepth);
 
   optohybridDevice_->setTrigSource(0x0);// trigger sources
   //count triggers and Calpulses coming from TTC
@@ -131,19 +127,13 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);
   CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x0);
 
-  INFO( " ABC TriggersSeen " << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
+  TRACE("ABC TriggersSeen " << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 
   hw_semaphore_.give();//give hw to set the trigger source, send L1A+Cal pulses,
 
   // if triggersSeen < N triggers
   if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
-
     hw_semaphore_.take();//take hw. glib buffer depth
-
-    // Get the size of GLIB data buffer
-    //uint32_t bufferDepth = 0;
-    //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
-    //INFO( " Bufferdepth " << bufferDepth);
 
     scanpoint_=false;
 
@@ -158,7 +148,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     int counter = 3;
     while (counter > 0) {
       confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-      INFO(" ABC Scan point TriggersSeen "
+      TRACE(" ABC Scan point TriggersSeen "
            << confParams_.bag.triggersSeen
            << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0)
            << " counter = " << counter);
@@ -175,7 +165,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
     }// end for
-    
+
     scanpoint_=true;
 
     //reset counters
@@ -186,9 +176,9 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	  optohybridDevice_->sendResync();
 	  optohybridDevice_->sendBC0();
     */
-    
+
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    INFO(" ABC Scan point TriggersSeen "
+    TRACE("ABC Scan point TriggersSeen "
          << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 
     hw_semaphore_.give(); // give hw to reset counters
@@ -198,7 +188,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
       hw_semaphore_.take();// vfat set latency
 
-      INFO(" ABC run: Latency= "
+      TRACE("ABC run: Latency= "
            << (int)currentLatency_ << " VT1= "
            << scanParams_.bag.deviceVT1 << " VT2= "
            << scanParams_.bag.deviceVT2
@@ -221,15 +211,15 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
 	scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
       }
-      while(!(glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
-				 toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
-						   confParams_.bag.ohGTXLink.value_))))
-	DEBUG("waiting for FIFO is empty: "
+      while (!(glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+                                    toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
+                                                      confParams_.bag.ohGTXLink.value_))))
+	TRACE("waiting for FIFO is empty: "
 	      << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
-				       toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
-							 confParams_.bag.ohGTXLink.value_))
+                                      toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
+                                                        confParams_.bag.ohGTXLink.value_))
 	      );
-				 
+
       glibDevice_->setDAQLinkRunParameter(1,currentLatency_);
 
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -671,11 +661,11 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
   AMC13TriggerSetup();
-  
+
   confParams_.bag.triggercount = 0;
 
   hw_semaphore_.take();
-  INFO( "attempting to configure device");
+  DEBUG( "attempting to configure device");
 
   //make sure device is not running
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -684,7 +674,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
     (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
     (*chip)->setRunMode(0);
 
-    INFO("loading default settings");
+    TRACE("loading default settings");
     //default settings for the frontend
     (*chip)->setTriggerMode(    0x3); //set to S1 to S8
     (*chip)->setCalibrationMode(0x0); //set to normal
@@ -714,35 +704,31 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
     (*chip)->setIPreampOut(  80);
     (*chip)->setIShaper(    150);
     (*chip)->setIShaperFeed(100);
-    (*chip)->setIComp(       75);//120
+    (*chip)->setIComp(       75);
 
-    (*chip)->setVThreshold1(scanParams_.bag.deviceVT1);//50
-    (*chip)->setVThreshold2(scanParams_.bag.deviceVT2);//0
+    (*chip)->setVThreshold1(scanParams_.bag.deviceVT1);
+    (*chip)->setVThreshold2(scanParams_.bag.deviceVT2);
 
-    //
-    //    int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
-
-
-    INFO( "setting DAC mode to normal");
+    TRACE( "setting DAC mode to normal");
     (*chip)->setDACMode(gem::hw::vfat::StringToDACMode.at("OFF"));
 
-    INFO( "setting starting latency value");
+    TRACE( "setting starting latency value");
     (*chip)->setLatency(    scanParams_.bag.minLatency);
 
-    INFO( "reading back current latency value");
+    TRACE( "reading back current latency value");
     currentLatency_ = (*chip)->getLatency();
 
-    INFO( "Threshold " << scanParams_.bag.deviceVT1);
+    TRACE( "Threshold " << scanParams_.bag.deviceVT1);
 
-    INFO( "VCal " << scanParams_.bag.VCal);
+    TRACE( "VCal " << scanParams_.bag.VCal);
 
-    INFO( "device configured");
+    TRACE( "device configured");
     is_configured_ = true;
   }
 
   //flush fifo
-  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  TRACE("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  TRACE("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);
@@ -765,7 +751,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
   hw_semaphore_.give();
 
-  INFO( "configure routine completed");
+  DEBUG( "configure routine completed");
 
   is_working_    = false;
 }
@@ -805,8 +791,8 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();//oh reset counters
 
   //flush fifo
-  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  TRACE("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  TRACE("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);
@@ -861,6 +847,6 @@ void gem::supervisor::tbutils::LatencyScan::resetAction(toolbox::Event::Referenc
   scanParams_.bag.deviceVT2       = 0U;
   scanParams_.bag.VCal            = 100;
   scanParams_.bag.MSPulseLength   = 3;
-  
+
   is_working_     = false;
 }
