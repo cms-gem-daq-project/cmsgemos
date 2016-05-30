@@ -17,8 +17,6 @@ use Getopt::Lucid qw/:all/;
     );
 
 my $opts=Getopt::Lucid->getopt(\@specs);
-$opts->validate( {'requires' => ['package']} );
-$opts->validate( {'requires' => ['message']} );
 
 if ($opts->get_help) {
     print "USAGE: gemostag [-t TAG] [-p PACKAGE] [-m MSG] [-r RELTYPE] [NAME]\n";
@@ -35,6 +33,10 @@ if ($opts->get_help) {
     print "                                            and create the tag based on this new version file\n";
     exit(0);
 }
+
+# Now ensure required arguments are specified
+$opts->validate( {'requires' => ['package']} );
+$opts->validate( {'requires' => ['message']} );
 
 # Get a wrapper for the current directory
 my $git=Git::Wrapper->new(".");
