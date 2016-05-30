@@ -6,12 +6,14 @@
 #include "log4cplus/loggingmacros.h"
 
 namespace gem {
+#define TRACE(MSG) LOG4CPLUS_TRACE(m_gemLogger, MSG)
 #define DEBUG(MSG) LOG4CPLUS_DEBUG(m_gemLogger, MSG)
 #define INFO( MSG) LOG4CPLUS_INFO( m_gemLogger, MSG)
 #define WARN( MSG) LOG4CPLUS_WARN( m_gemLogger, MSG)
 #define ERROR(MSG) LOG4CPLUS_ERROR(m_gemLogger, MSG)
 #define FATAL(MSG) LOG4CPLUS_FATAL(m_gemLogger, MSG)
   
+#define TRACE_LOGGER(LOGGER, MSG) LOG4CPLUS_TRACE(LOGGER, MSG)
 #define DEBUG_LOGGER(LOGGER, MSG) LOG4CPLUS_DEBUG(LOGGER, MSG)
 #define INFO_LOGGER( LOGGER, MSG) LOG4CPLUS_INFO( LOGGER, MSG)
 #define WARN_LOGGER( LOGGER, MSG) LOG4CPLUS_WARN( LOGGER, MSG)

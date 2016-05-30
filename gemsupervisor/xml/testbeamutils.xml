@@ -3,85 +3,91 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-<xc:Context url="http://gem904daq01:5555">
+<xc:Context url="http://gem904daq01:5044">
 
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.165</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
       </properties>
     </xc:Application>
 <!--
     <xc:Application class="gem::supervisor::tbutils::ADCScan" id="255" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ADCScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.168</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
       </properties>
     </xc:Application>
 -->
 
     <xc:Application class="gem::supervisor::tbutils::LatencyScan" id="256" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:LatencyScan" xsi:type="soapenc:Struct">
-	  <ipAddr xsi:type="xsd:string">192.168.0.165</ipAddr>
+	  <ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
 	  <confParams xsi:type="soapenc:Struct">
-	    <slotFileName xsi:type="xsd:string">slot_table_904_2.csv</slotFileName>
+	    <slotFileName xsi:type="xsd:string">slot_table.csv</slotFileName>
 	  </confParams>
       </properties>
     </xc:Application>
 
-    <xc:Application class="gem::hw::amc13::AMC13Manager" id="255" instance="3" network="local">
+    <xc:Application class="gem::hw::amc13::AMC13Manager" id="255" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
         	  xsi:type="soapenc:Struct">
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
-	  <AMC13cardname     xsi:type="xsd:string">gem.shelf01.amc13</AMC13cardname>
-          <AMCInputEnableList xsi:type="xsd:string">5</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">0-15 </AMCIgnoreTTSList>
+	  <CardName     xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+          <AMCInputEnableList xsi:type="xsd:string">10</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">1-9,11-15 </AMCIgnoreTTSList>
           
           <EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
-          <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
-          <EnableLocalL1A      xsi:type="xsd:boolean">true</EnableLocalL1A>
-          <InternalPeriodicPeriod      xsi:type="xsd:unsignedInt">10</InternalPeriodicPeriod>
-          <L1Aburst            xsi:type="xsd:unsignedInt">100</L1Aburst>
-          <L1Amode             xsi:type="xsd:integer">0</L1Amode>
-          <L1Arules            xsi:type="xsd:integer">0</L1Arules>
-	  <sendL1ATriburst     xsi:type="xsd:boolean">true</sendL1ATriburst>
-	  <startL1ATricont     xsi:type="xsd:boolean">false</startL1ATricont>
-
-	  <EnableCalPulse      xsi:type="xsd:boolean">true</EnableCalPulse>
-	  <BGOChannel xsi:type="xsd:integer">1</BGOChannel>
-	  <BGOcmd    xsi:type="xsd:unsignedInt">0x14</BGOcmd>
-	  <BGObx    xsi:type="xsd:unsignedInt">0x1</BGObx>
-	  <BGOprescale    xsi:type="xsd:unsignedInt">0x1</BGOprescale>
-	  <BGOrepeat xsi:type="xsd:boolean">true</BGOrepeat>
+          <EnableLocalTTC      xsi:type="xsd:boolean">false</EnableLocalTTC>
           
-          <PrescaleFactor xsi:type="xsd:integer">1</PrescaleFactor>
+          <LocalTriggerConfig xsi:type="soapenc:Struct">
+            <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
+            <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">1000</InternalPeriodicPeriod>
+            <L1Aburst               xsi:type="xsd:unsignedInt">1</L1Aburst>
+            <L1Amode                xsi:type="xsd:integer">2</L1Amode>
+            <L1Arules               xsi:type="xsd:integer">0</L1Arules>
+	    <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
+	    <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont>
+          </LocalTriggerConfig>
+          
+          <BGOConfig xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[4]">
+            <BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">
+	      <BGOChannel  xsi:type="xsd:integer">0</BGOChannel>
+	      <BGOcmd      xsi:type="xsd:unsignedInt">0x14</BGOcmd>
+	      <BGObx       xsi:type="xsd:unsignedInt">0x1</BGObx>
+	      <BGOprescale xsi:type="xsd:unsignedInt">0x1</BGOprescale>
+	      <BGOrepeat   xsi:type="xsd:boolean">true</BGOrepeat>
+            </BGOInfo>
+          </BGOConfig>
+          
+          <PrescaleFactor xsi:type="xsd:integer">0</PrescaleFactor>
           <BCOffset       xsi:type="xsd:integer">1</BCOffset>
           
           <FEDID    xsi:type="xsd:unsignedInt">1</FEDID>
           <SFPMask  xsi:type="xsd:unsignedInt">1</SFPMask>
           <SlotMask xsi:type="xsd:unsignedInt">1</SlotMask>
           
-          <LocalL1AMask xsi:type="xsd:unsignedLong">1</LocalL1AMask>
+          <!--LocalL1AMask xsi:type="xsd:unsignedLong">1</LocalL1AMask-->
         </amc13ConfigParams>
       </properties>
     </xc:Application>
 
 
-    <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="4" network="local">
+    <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">5</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">10</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="4"> <!-- position must be slot-1 -->
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="9"> <!-- position must be slot-1 -->
             <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
             <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">5</slot>
+            <slot    xsi:type="xsd:integer">10</slot>
             <present xsi:type="xsd:boolean">true</present>
             
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
-            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.165</DeviceIPAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.170</DeviceIPAddress>
             <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
             <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
             <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
@@ -91,11 +97,29 @@
       </properties>
     </xc:Application>
     
+    <xc:Application class="gem::hw::amc13::AMC13Readout" id="260" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Readout"
+		  xsi:type="soapenc:Struct">
+        <ConnectionFile  xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
+        <DeviceName      xsi:type="xsd:string">AMC13</DeviceName>
+        <CardName        xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+        <crateID         xsi:type="xsd:integer">1</crateID>
+        <slot            xsi:type="xsd:integer">13</slot>
+        <ReadoutSettings xsi:type="soapenc:Struct">
+          <runType        xsi:type="xsd:string">Scan</runType>
+          <fileName       xsi:type="xsd:string">test</fileName>
+          <outputType     xsi:type="xsd:string">BIN</outputType>
+          <outputLocation xsi:type="xsd:string">/tmp/</outputLocation>
+        </ReadoutSettings>
+      </properties>
+    </xc:Application>
+
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemsupervisor.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
     <xc:Module>${BUILD_HOME}/gemdaq-testing/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemreadout.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemsupervisor.so</xc:Module>
+
 
   </xc:Context>
 </xc:Partition>

@@ -284,6 +284,9 @@ void gem::hw::glib::GLIBManager::initializeAction()
         ERROR("GLIBManager:: unable to communicate with GLIB in slot " << slot);
         XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       }
+    } catch (uhalException const& ex) {
+      ERROR("GLIBManager::caught uHAL exception " << ex.what());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
     } catch (gem::hw::glib::exception::Exception const& ex) {
       ERROR("GLIBManager::caught exception " << ex.what());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
@@ -420,7 +423,20 @@ void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
   INFO("gem::hw::glib::GLIBManager::stopAction begin");
-  // what is required for stopping the GLIB?
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(500);
+    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    GLIBInfo& info = m_glibInfo[slot].bag;
+
+    if (!info.present)
+      continue;
+    
+    if (m_glibs[slot]->isHwConnected()) {
+      // what is required for stopping the GLIB?
+      // FIXME temporarily inhibit triggers at the GLIB
+      m_glibs[slot]->setL1AInhibit(0x1);
+    }
+  }
   usleep(10000);  // just for testing the timing of different applications
 }
 
@@ -538,13 +554,28 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("DISPER_ERR",        glib->getDAQLinkDisperErrors(),          NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("EVT_SENT",          glib->getDAQLinkEventsSent(),            NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("L1AID",             glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("INPUT_TIMEOUT",     glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("RUN_TYPE",          glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("RUN_PARAMS",        glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("SBIT_RATE",         glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
 
-  is_glib->createUInt32("GTX0_DAQ_STATUS",               glib->getDAQLinkStatus(0),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_DAQ_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(0, 0), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_DAQ_EVN",                  glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_DAQ_STATUS",               glib->getDAQLinkStatus(1),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_DAQ_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(1, 0), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_DAQ_EVN",                  glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX0_STATUS",               glib->getDAQLinkStatus(0),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX0_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(0, 0), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX0_EVN",                  glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX0_DAV_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX0_MAX_DAV_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX0_LAST_DAV_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX0_CLUSTER_01",           glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX0_CLUSTER_23",           glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
+
+  is_glib->createUInt32("GTX1_STATUS",               glib->getDAQLinkStatus(1),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(1, 0), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_EVN",                  glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_DAV_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_MAX_DAV_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_LAST_DAV_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_CLUSTER_01",           glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTX1_CLUSTER_23",           glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
 
   // request counters
   is_glib->createUInt64("OptoHybrid_0", 0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");

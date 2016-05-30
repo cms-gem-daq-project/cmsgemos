@@ -4,6 +4,7 @@
 #include "gem/hw/glib/HwGLIB.h"
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/soap/GEMSOAPToolBox.h"
 
 #include <algorithm>
 #include <ctime>
@@ -13,9 +14,6 @@
 #include <ctime>
 #include <sstream>
 #include <cstdlib>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
 
 #include "cgicc/HTTPRedirectHeader.h"
 #include "xdata/Vector.h"
@@ -30,34 +28,15 @@
 #include "xoap/SOAPBody.h"
 #include "xoap/Method.h"
 #include "xoap/AttachmentPart.h"
-
+#include "xoap/domutils.h"
 
 //XDAQ_INSTANTIATOR_IMPL(gem::supervisor::tbutils::GEMTBUtil)
 
 void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Bag<ConfigParams> *bag)
 {
-  readoutDelay = 1U; //readout delay in milleseconds/microseconds?
-
   nTriggers = 1000U;
 
-  time_t now  = time(0);
-  tm    *gmtm = gmtime(&now);
-  char* utcTime = asctime(gmtm);
-  std::string tmpFileName = "GEMTBUtil_";
-  tmpFileName.append(utcTime);
-  tmpFileName.erase(std::remove(tmpFileName.begin(), tmpFileName.end(), '\n'), tmpFileName.end());
-  tmpFileName.append(".dat");
-  std::replace(tmpFileName.begin(), tmpFileName.end(), ' ', '_' );
-  std::replace(tmpFileName.begin(), tmpFileName.end(), ':', '-');
-  //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
-
-  outFileName  = tmpFileName;
-  //  slotFileName = "slot_table_904_2.csv";
-  //settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
-
-  //  deviceIP      = "192.168.0.170";
-
-  //stablish the number of VFATs and the entry is 
+  //stablish the number of VFATs and the entry is
   for (int i = 0; i < 24; ++i) {
     deviceName.push_back("");
     deviceNum.push_back(-1);
@@ -72,15 +51,13 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   ADCurrent = 0;
   ohGTXLink    = 3;
 
-  bag->addField("readoutDelay", &readoutDelay);
   bag->addField("nTriggers",    &nTriggers);
 
-  bag->addField("outFileName",  &outFileName );
   bag->addField("settingsFile", &settingsFile);
 
-  bag->addField("deviceName",   &deviceName );
-  bag->addField("deviceIP",     &deviceIP    );
-  bag->addField("ohGTXLink",     &ohGTXLink   );
+  bag->addField("deviceName",   &deviceName);
+  bag->addField("deviceIP",     &deviceIP  );
+  bag->addField("ohGTXLink",    &ohGTXLink );
 
   bag->addField("deviceNum",    &deviceNum   );
   bag->addField("deviceChipID", &deviceChipID);
@@ -89,12 +66,16 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
 
   bag->addField("ADCVoltage",   &ADCVoltage);
   bag->addField("ADCurrent",    &ADCurrent);
-  //  bag->addField("triggerSource",&triggerSource);
+
+  bag->addField("UseLocalTriggers",    &useLocalTriggers);
+  bag->addField("LocalTriggerMode",    &localTriggerMode);
+  bag->addField("LocalTriggerPeriod",  &localTriggerPeriod);
+//  bag->addField("triggerSource",&triggerSource);
   bag->addField("slotFileName",  &slotFileName);
 
 }
 
-gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
+gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub *s)
   throw (xdaq::exception::Exception) :
   xdaq::WebApplication(s),
   m_gemLogger(this->getApplicationLogger()),
@@ -114,8 +95,6 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   is_initialized_ (false),
   is_configured_  (false),
   is_running_     (false)
-
-
 {
   // Detect when the setting of default parameters has been performed
   this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
@@ -135,14 +114,14 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   xgi::framework::deferredbind(this, this, &gem::supervisor::tbutils::GEMTBUtil::webReset,        "Reset"      );
   xgi::framework::deferredbind(this, this, &gem::supervisor::tbutils::GEMTBUtil::webResetCounters,"ResetCounters");
   xgi::framework::deferredbind(this, this, &gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands,"FastCommands");
-  
+
   xoap::bind(this, &gem::supervisor::tbutils::GEMTBUtil::onInitialize,  "Initialize",  XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::GEMTBUtil::onConfigure,   "Configure",   XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::GEMTBUtil::onStart,       "Start",       XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::GEMTBUtil::onStop,        "Stop",        XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::GEMTBUtil::onHalt,        "Halt",        XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::GEMTBUtil::onReset,       "Reset",       XDAQ_NS_URI);
-  
+
   initSig_  = toolbox::task::bind(this, &GEMTBUtil::initialize, "initialize");
   confSig_  = toolbox::task::bind(this, &GEMTBUtil::configure,  "configure" );
   startSig_ = toolbox::task::bind(this, &GEMTBUtil::start,      "start"     );
@@ -151,24 +130,24 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
   resetSig_ = toolbox::task::bind(this, &GEMTBUtil::reset,      "reset"     );
 
   std::string className = getApplicationDescriptor()->getClassName();
-  INFO("className " << className);
+  DEBUG("className " << className);
   className =
     className.substr(className.rfind("gem::supervisor::"),std::string::npos);
-  INFO("className " << className);
+  DEBUG("className " << className);
 
   fsmP_ = new
     toolbox::fsm::AsynchronousFiniteStateMachine("GEMTButilFSM:" + className);
 
-  
+
   fsmP_->addState('I', "Initial",     this, &gem::supervisor::tbutils::GEMTBUtil::stateChanged);
   fsmP_->addState('H', "Halted",      this, &gem::supervisor::tbutils::GEMTBUtil::stateChanged);
   fsmP_->addState('C', "Configured",  this, &gem::supervisor::tbutils::GEMTBUtil::stateChanged);
   fsmP_->addState('E', "Running",     this, &gem::supervisor::tbutils::GEMTBUtil::stateChanged);
-  
+
   fsmP_->setStateName('F', "Error");
   fsmP_->setFailedStateTransitionAction(this,  &gem::supervisor::tbutils::GEMTBUtil::transitionFailed);
   fsmP_->setFailedStateTransitionChanged(this, &gem::supervisor::tbutils::GEMTBUtil::stateChanged);
-  
+
   fsmP_->addStateTransition('I', 'H', "Initialize", this, &gem::supervisor::tbutils::GEMTBUtil::initializeAction);
   fsmP_->addStateTransition('H', 'C', "Configure",  this, &gem::supervisor::tbutils::GEMTBUtil::configureAction);
   fsmP_->addStateTransition('C', 'C', "Configure",  this, &gem::supervisor::tbutils::GEMTBUtil::configureAction);
@@ -195,17 +174,14 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub * s)
     wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:GEMTBUtil","waiting");
     wl_->activate();
   */
-  
+
 }
 
 gem::supervisor::tbutils::GEMTBUtil::~GEMTBUtil()
-  
 {
-
   if (fsmP_)
     delete fsmP_;
   fsmP_ = 0;
-  
 }
 
 
@@ -216,37 +192,34 @@ void gem::supervisor::tbutils::GEMTBUtil::actionPerformed(xdata::Event& event)
   if (event.type() == "urn:xdaq-event:setDefaultValues") {
     std::stringstream ss;
     ss << "ipAddr_=[" << ipAddr_.toString() << "]" << std::endl;
-    ss << "slotFileName=["  << confParams_.bag.slotFileName.toString()  << "]" << std::endl;
 
-    slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(confParams_.bag.slotFileName.toString()));
-    
-    LOG4CPLUS_DEBUG(this->getApplicationLogger(), ss.str());
+    DEBUG(ss.str());
     confParams_.bag.deviceIP = ipAddr_;
   }
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::fireEvent(const std::string& name)
 {
-  toolbox::Event::Reference event((new toolbox::Event(name, this)));  
+  toolbox::Event::Reference event((new toolbox::Event(name, this)));
   fsmP_->fireEvent(event);
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
 {
   //keep_refresh_ = false;
-  
-  INFO("Current state is: [" << fsm.getStateName (fsm.getCurrentState()) << "]");
+
+  DEBUG("Current state is: [" << fsm.getStateName (fsm.getCurrentState()) << "]");
   std::string state_=fsm.getStateName (fsm.getCurrentState());
-  
-  INFO( "StateChanged: " << (std::string)state_);
-  
+
+  DEBUG( "StateChanged: " << (std::string)state_);
+
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::transitionFailed(toolbox::Event::Reference event)
 {
   //keep_refresh_ = false;
   toolbox::fsm::FailedEvent &failed = dynamic_cast<toolbox::fsm::FailedEvent&>(*event);
-  
+
   std::stringstream reason;
   reason << "<![CDATA["
          << std::endl
@@ -256,11 +229,9 @@ void gem::supervisor::tbutils::GEMTBUtil::transitionFailed(toolbox::Event::Refer
          << ". Exception: " << xcept::stdformat_exception_history( failed.getException() )
          << std::endl
          << "]]>";
-  
+
   ERROR(reason.str());
 }
-
-
 
 //Actions (defined in the base class, not in the derived class)
 bool gem::supervisor::tbutils::GEMTBUtil::initialize(toolbox::task::WorkLoop* wl)
@@ -302,7 +273,8 @@ bool gem::supervisor::tbutils::GEMTBUtil::reset(toolbox::task::WorkLoop* wl)
 
 // SOAP interface (defined in the base class, not in the derived class)
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onInitialize(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(initSig_);
@@ -312,7 +284,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onInitialize(xoap::M
 
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onConfigure(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(confSig_);
@@ -322,7 +295,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onConfigure(xoap::Me
 
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStart(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(startSig_);
@@ -332,19 +306,18 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStart(xoap::Messag
 
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onStop(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(stopSig_);
-  sendStopMessageGLIB();    
-  sendStopMessageAMC13();    
-
   return message;
 }
 
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onHalt(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(haltSig_);
@@ -353,7 +326,8 @@ xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onHalt(xoap::Message
 }
 
 xoap::MessageReference gem::supervisor::tbutils::GEMTBUtil::onReset(xoap::MessageReference message)
-  throw (xoap::exception::Exception) {
+  throw (xoap::exception::Exception)
+{
   is_working_ = true;
 
   wl_->submit(resetSig_);
@@ -367,10 +341,11 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
   try {
     if (is_initialized_) {
 
-      *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/ResetCounters") << std::endl;
-      
+      *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/ResetCounters")
+           << std::endl;
+
       hw_semaphore_.take();
-      
+
       *out << "<table class=\"xdaq-table\">" << std::endl
 	//<< cgicc::caption("Counters")     << std::endl
 	   << cgicc::thead() << std::endl
@@ -379,7 +354,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::th()    << "CalPulse" << cgicc::th() << std::endl
 	   << cgicc::th()    << "Other"    << cgicc::th() << std::endl
 	   << cgicc::tr()    << std::endl //close
-	   << cgicc::thead() << std::endl 
+	   << cgicc::thead() << std::endl
 
 	   << cgicc::tbody() << std::endl;
 
@@ -393,7 +368,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << cgicc::th()    << "Reset"  << cgicc::th() << std::endl
 	   << "</tr>" << std::endl //close
 	   << cgicc::thead() << std::endl //close
-      
+
 	   << "<tbody>" << std::endl
 	   << "<tr>" << std::endl
 	   << cgicc::td()    << "TTC_on_GLIB"    << cgicc::td() << std::endl
@@ -507,7 +482,7 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	   << "</tbody>"  << std::endl
 	   << "</table>"  << std::endl
 	   << "</td>"     << std::endl;
-    
+
       *out << "<td>" << std::endl
 	   << "<table class=\"xdaq-table\">" << std::endl
 	   << cgicc::thead() << std::endl
@@ -556,19 +531,15 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 	.set("value", "ResetCounters") << std::endl;
 
       *out << cgicc::form() << std::endl;
-      
+
     }
-  }
-  catch (const xgi::exception::Exception& e) {
-    INFO("Something went wrong displaying showCounterLayout(xgi): " << e.what());
+  } catch (const xgi::exception::Exception& e) {
+    ERROR("Something went wrong displaying showCounterLayout(xgi): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  } catch (const std::exception& e) {
+    ERROR("Something went wrong displaying showCounterLayout(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
-  catch (const std::exception& e) {
-    INFO("Something went wrong displaying showCounterLayout(std): " << e.what());
-    XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  hw_semaphore_.take();
-  hw_semaphore_.give();
 } //end showCounterLayout
 
 
@@ -577,34 +548,28 @@ void gem::supervisor::tbutils::GEMTBUtil::showBufferLayout(xgi::Output *out)
 {
   try {
     if (is_initialized_) {
-      *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/FastCommands") << std::endl;
-      hw_semaphore_.take();
-      hw_semaphore_.give();
+      *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/FastCommands")
+           << std::endl;
 
       *out << cgicc::br() << std::endl;
       *out << cgicc::input().set("class","button").set("type","submit")
 	.set("value","FlushFIFO").set("name","SendFastCommand")
-	   << std::endl; 
+	   << std::endl;
 
       *out << cgicc::input().set("class","button").set("type","submit")
 	.set("value","SendTestPackets").set("name","SendFastCommand")
-	   << std::endl; 
-     
+	   << std::endl;
+
       *out << cgicc::form() << std::endl
 	   << cgicc::br()   << std::endl;
     }
-  }
-  
-  catch (const xgi::exception::Exception& e) {
-    INFO("Something went wrong displaying showBufferLayout(xgi): " << e.what());
+  } catch (const xgi::exception::Exception& e) {
+    ERROR("Something went wrong displaying showBufferLayout(xgi): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  } catch (const std::exception& e) {
+    ERROR("Something went wrong displaying showBufferLayout(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
-  catch (const std::exception& e) {
-    INFO("Something went wrong displaying showBufferLayout(std): " << e.what());
-    XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  hw_semaphore_.take();
-  hw_semaphore_.give();
 } //end showBufferLayout
 
 
@@ -614,8 +579,9 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
   try {
     if (is_initialized_) {
 
-      *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/FastCommands") << std::endl;
-      
+      *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/FastCommands")
+           << std::endl;
+
       *out << cgicc::table().set("class","xdaq-table") << std::endl
 	   << cgicc::thead() << std::endl
 	   << cgicc::tr()    << std::endl //open
@@ -625,10 +591,10 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
 	   << cgicc::th()    << "BC0"          << cgicc::th() << std::endl
 	   << cgicc::th()    << "L1A+CalPulse" << cgicc::th() << std::endl
 	   << cgicc::tr()    << std::endl //close
-	   << cgicc::thead() << std::endl 
+	   << cgicc::thead() << std::endl
 
 	   << cgicc::tbody() << std::endl;
-      
+
       *out << cgicc::tr()  << std::endl;
       *out << cgicc::td()  << cgicc::input().set("class","button").set("type","submit")
 	.set("value","Send L1A").set("name","SendFastCommand")
@@ -653,7 +619,7 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
       *out << cgicc::tr()    << std::endl
 	   << cgicc::tbody() << std::endl
 	   << cgicc::table() << std::endl;
-	
+
       //trigger setup
       /*
       *out << cgicc::table().set("class","xdaq-table") << std::endl
@@ -662,10 +628,10 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
 	   << cgicc::th()    << "Trigger Source Select" << cgicc::th() << std::endl
 	   << cgicc::th()    << "SBit to TDC Select"    << cgicc::th() << std::endl
 	   << cgicc::tr()    << std::endl //close
-	   << cgicc::thead() << std::endl 
+	   << cgicc::thead() << std::endl
 
 	   << cgicc::tbody() << std::endl;
-      
+
       *out << cgicc::tr() << std::endl;
       *out << cgicc::td() << std::endl
 	   << cgicc::input().set("type","radio").set("name","trgSrc")
@@ -701,7 +667,7 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
       std::string isReadonly = "";
       if (is_running_ || is_configured_)
 	isReadonly = "readonly";
-      
+
       *out << cgicc::td() << std::endl
 	   << cgicc::label("SBitSelect").set("for","SBitSelect") << std::endl
 	   << cgicc::input().set("class","vfatBiasInput").set("id","SBitSelect" ).set("name","SBitSelect")
@@ -717,23 +683,19 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
 	   << cgicc::table() << std::endl
 	   << cgicc::form()  << std::endl;
     }
-  }
-  catch (const xgi::exception::Exception& e) {
-    INFO("Something went wrong displaying fastCommandLayout(xgi): " << e.what());
+  } catch (const xgi::exception::Exception& e) {
+    ERROR("Something went wrong displaying fastCommandLayout(xgi): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  } catch (const std::exception& e) {
+    ERROR("Something went wrong displaying fastCommandLayout(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
-  catch (const std::exception& e) {
-    INFO("Something went wrong displaying fastCommandLayout(std): " << e.what());
-    XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  hw_semaphore_.take();
-  hw_semaphore_.give();
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::redirect(xgi::Input *in, xgi::Output* out) {
   //change the status to halting and make sure the page displays this information
   std::string redURL = "/" + getApplicationDescriptor()->getURN() + "/Default";
-  *out << "<meta http-equiv=\"refresh\" content=\"0;" << redURL << "\">" << std::endl;  
+  *out << "<meta http-equiv=\"refresh\" content=\"0;" << redURL << "\">" << std::endl;
   this->webDefault(in,out);
 }
 
@@ -742,7 +704,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
   throw (xgi::exception::Exception)
 {
   try {
-    ////update the page refresh 
+    ////update the page refresh
     if (!is_working_ && !is_running_) {
     }
     else if (is_working_) {
@@ -753,7 +715,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
       cgicc::HTTPResponseHeader &head = out->getHTTPResponseHeader();
       head.addHeader("Refresh","30");
     }
-    
+
     //generate the control buttons and display the ones that can be touched depending on the run mode
     *out << "<div class=\"xdaq-tab-wrapper\">"            << std::endl;
     *out << "<div class=\"xdaq-tab\" title=\"Control\">"  << std::endl;
@@ -765,12 +727,12 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	 << cgicc::th()    << "Control" << cgicc::th() << std::endl
 	 << cgicc::th()    << "Buffer"  << cgicc::th() << std::endl
 	 << cgicc::tr()    << std::endl //close
-	 << cgicc::thead() << std::endl 
-      
+	 << cgicc::thead() << std::endl
+
 	 << "<tbody>" << std::endl
 	 << "<tr>"    << std::endl
 	 << "<td>"    << std::endl;
-    
+
     if (!is_initialized_) {
       //have a menu for selecting the VFAT
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
@@ -784,66 +746,66 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 
       *out << cgicc::form() << std::endl;
     }
-    
+
     else if (!is_configured_) {
       //this will allow the parameters to be set to the chip and scan routine
-      
+
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-      
+
       selectMultipleVFAT(out);
-      scanParameters(out);     
-      
+      scanParameters(out);
+
       *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80")
         .set("ENCTYPE","multipart/form-data").set("readonly")
         .set("value",confParams_.bag.settingsFile.toString()) << std::endl;
-      
+
       *out << cgicc::br() << std::endl;
       *out << cgicc::input().set("type", "submit")
         .set("name", "command").set("title", "Configure threshold scan.")
         .set("value", "Configure") << std::endl;
       *out << cgicc::form()        << std::endl;
     }
-    
+
     else if (!is_running_) {
       //hardware is initialized and configured, we can start the run
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Start") << std::endl;
-      
+
       selectMultipleVFAT(out);
       scanParameters(out);
-      
+
       *out << cgicc::input().set("type", "submit")
         .set("name", "command").set("title", "Start threshold scan.")
         .set("value", "Start") << std::endl;
       *out << cgicc::form()    << std::endl;
     }
-    
+
     else if (is_running_) {
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
-      
+
       selectMultipleVFAT(out);
       scanParameters(out);
-      
+
       *out << cgicc::input().set("type", "submit")
 	.set("name", "command").set("title", "Stop threshold scan.")
 	.set("value", "Stop") << std::endl;
       *out << cgicc::form()   << std::endl;
     }
-    
+
     *out << cgicc::comment() << "end the main commands, now putting the halt/reset commands" << cgicc::comment() << cgicc::br() << std::endl;
     *out << cgicc::span()  << std::endl
 	 << "<table>" << std::endl
 	 << "<tr>"    << std::endl
 	 << "<td>"    << std::endl;
-      
+
     //always should have a halt command
     *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Halt") << std::endl;
-    
+
     *out << cgicc::input().set("type", "submit")
       .set("name", "command").set("title", "Halt threshold scan.")
       .set("value", "Halt") << std::endl;
     *out << cgicc::form() << std::endl
 	 << "</td>" << std::endl;
-    
+
     *out << "<td>"  << std::endl;
 
     if (!is_running_) {
@@ -869,9 +831,9 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	 << "</tr>"    << std::endl
 	 << "</tbody>" << std::endl
 	 << "</table>" << cgicc::br() << std::endl;
-    
+
     *out << "</div>" << std::endl; //close control
-    
+
     *out << "<div class=\"xdaq-tab\" title=\"Counters\">"  << std::endl;//open countera
     if (is_initialized_)
       showCounterLayout(out);
@@ -885,7 +847,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
     *out << "</div>" << std::endl;    //</div> //close the new div xdaq-tab
 
     *out << cgicc::br() << cgicc::br() << std::endl;
-    
+
     //*out << "<div class=\"xdaq-tab\" title=\"Status\">"  << std::endl
     //*out << cgicc::div().set("class","xdaq-tab").set("title","Status")   << std::endl
     *out << "<table class=\"xdaq-table\">" << std::endl
@@ -894,8 +856,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	 << cgicc::th()    << "Program" << cgicc::th() << std::endl
 	 << cgicc::th()    << "System"  << cgicc::th() << std::endl
 	 << cgicc::tr()    << std::endl //close
-	 << cgicc::thead() << std::endl 
-      
+	 << cgicc::thead() << std::endl
+
 	 << "<tbody>" << std::endl
 	 << "<tr>"    << std::endl
 	 << "<td>"    << std::endl;
@@ -906,8 +868,8 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	 << cgicc::th()    << "Status" << cgicc::th() << std::endl
 	 << cgicc::th()    << "Value"  << cgicc::th() << std::endl
 	 << cgicc::tr()    << std::endl //close
-	 << cgicc::thead() << std::endl 
-      
+	 << cgicc::thead() << std::endl
+
 	 << "<tbody>" << std::endl
 
 	 << "<tr>" << std::endl
@@ -933,7 +895,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	 << "</tbody>" << std::endl
 	 << "</table>" << cgicc::br() << std::endl
 	 << "</td>"    << std::endl;
-    
+
     *out  << "<td>"     << std::endl
 	  << "<table class=\"xdaq-table\">" << std::endl
 	  << cgicc::thead() << std::endl
@@ -941,14 +903,9 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
 	  << cgicc::th()    << "Device"     << cgicc::th() << std::endl
 	  << cgicc::th()    << "Connected"  << cgicc::th() << std::endl
 	  << cgicc::tr()    << std::endl //close
-	  << cgicc::thead() << std::endl 
+	  << cgicc::thead() << std::endl
 	  << "<tbody>" << std::endl;
-    
-    if (is_initialized_) {
-      hw_semaphore_.take();
-      hw_semaphore_.give();
-    }
-    
+
     *out << "</tbody>" << std::endl
 	 << "</table>" << std::endl
 	 << "</td>"    << std::endl
@@ -962,57 +919,54 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
     *out << cgicc::script().set("type","text/javascript")
       .set("src","http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js")
 	 << cgicc::script() << std::endl;
-  }
-  catch (const xgi::exception::Exception& e) {
-    INFO("Something went wrong displaying GEMTBUtil control panel(xgi): " << e.what());
+  } catch (const xgi::exception::Exception& e) {
+    ERROR("Something went wrong displaying GEMTBUtil control panel(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception& e) {
-    INFO("Something went wrong displaying GEMTBUtil control panel(std): " << e.what());
+  } catch (const std::exception& e) {
+    ERROR("Something went wrong displaying GEMTBUtil control panel(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
 
 
 void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
-  
+  throw (xgi::exception::Exception)
+{
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> vfat2FormEntries = cgi.getElements();
-    INFO( "debugging form entries");
+    TRACE( "debugging form entries");
     std::vector<cgicc::FormEntry>::const_iterator myiter = vfat2FormEntries.begin();
 
     //OH Devices
     cgicc::form_iterator oh = cgi.getElement("SetOH");
     if (strcmp((**oh).c_str(),"OH_0") == 0) {
       confParams_.bag.ohGTXLink.value_= 0;
-      INFO("OH_0 has been selected " << confParams_.bag.ohGTXLink);
-    }//if OH_0
-    if (strcmp((**oh).c_str(),"OH_1") == 0) {
+      DEBUG("OH_0 has been selected " << confParams_.bag.ohGTXLink);
+    } else if (strcmp((**oh).c_str(),"OH_1") == 0) {
       confParams_.bag.ohGTXLink.value_= 1;
-      INFO("OH_1 has been selected " << confParams_.bag.ohGTXLink);
-    }//if OH_1
+      DEBUG("OH_1 has been selected " << confParams_.bag.ohGTXLink);
+    }
 
-    for(int i = 0; i < 24; ++i) {    
+    m_vfatMask = 0x0;
+    for(int i = 0; i < 24; ++i) {
       std::stringstream currentChipID;
       currentChipID << "VFAT" << i;
 
       std::stringstream form;
       form << "VFATDevice" << i;
-      
+
       std::string tmpDeviceName = confParams_.bag.deviceName[i].toString();
-      //      std::string tmpDeviceName = "";
       cgicc::const_form_iterator name = cgi.getElement(form.str());
       if (name != cgi.getElements().end()) {
-        INFO( "found form element::" << form.str());
-        INFO( "has value::" << name->getValue());
+        DEBUG( "found form element::" << form.str());
+        DEBUG( "has value::" << name->getValue());
 	tmpDeviceName = name->getValue();
 	confParams_.bag.deviceName[i] = tmpDeviceName;
-	INFO( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
-	//	vfatDevice_.push_back(confParams_.bag.deviceName[i].toString());
+	DEBUG( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
+        m_vfatMask |= (0x1<<i);
       }
-      
+
       int tmpDeviceNum = -1;
       tmpDeviceName.erase(0,4);
       tmpDeviceNum = atoi(tmpDeviceName.c_str());
@@ -1020,145 +974,148 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
       readout_mask = confParams_.bag.ohGTXLink;
 
     }//end for
-    
 
+    m_vfatMask = ~m_vfatMask;
     //change the status to initializing and make sure the page displays this information
-  }
-  catch (const xgi::exception::Exception & e) {
+  } catch (const xgi::exception::Exception & e) {
+    ERROR("Something went wrong: " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  } catch (const std::exception & e) {
+    ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
-  catch (const std::exception & e) {
-    XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  
+
   wl_->submit(initSig_);
-  
+
   redirect(in,out);
 }
 
 
 void gem::supervisor::tbutils::GEMTBUtil::webConfigure(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
 
   wl_->submit(confSig_);
-  
+
   redirect(in,out);
 }
 
 
 void gem::supervisor::tbutils::GEMTBUtil::webStart(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
 
   wl_->submit(startSig_);
-  
+
   redirect(in,out);
 }
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webStop(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
   wl_->submit(stopSig_);
-  
+
   redirect(in,out);
 }
 
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webHalt(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
   wl_->submit(haltSig_);
-  
+
   redirect(in,out);
 }
 
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webReset(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
+  throw (xgi::exception::Exception)
+{
   wl_->submit(resetSig_);
-  
+
   redirect(in,out);
 }
 
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webResetCounters(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
-  
+  throw (xgi::exception::Exception)
+{
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> resetCounters = cgi.getElements();
-    INFO( "resetting counters entries");
-    
+    DEBUG( "resetting counters entries");
+
     hw_semaphore_.take();
-    
-    INFO("GEMTBUtil::webResetCounters Reseting counters");
-      
+
+    DEBUG("GEMTBUtil::webResetCounters Reseting counters");
+
     if (cgi.queryCheckbox("RstL1ATTC") )
       optohybridDevice_->resetL1ACount(0x0);
-    
-    if (cgi.queryCheckbox("RstL1AT1") ) 
+
+    if (cgi.queryCheckbox("RstL1AT1") )
       optohybridDevice_->resetL1ACount(0x1);
-    
-    if (cgi.queryCheckbox("RstL1AExt") ) 
+
+    if (cgi.queryCheckbox("RstL1AExt") )
       optohybridDevice_->resetL1ACount(0x2);
 
-    if (cgi.queryCheckbox("RstL1Asbits") ) 
+    if (cgi.queryCheckbox("RstL1Asbits") )
       optohybridDevice_->resetL1ACount(0x3);
 
-    if (cgi.queryCheckbox("RstL1AGEB") ) 
+    if (cgi.queryCheckbox("RstL1AGEB") )
       optohybridDevice_->resetL1ACount(0x4);
 
-    if (cgi.queryCheckbox("RstCalPulseTTC") ) 
+    if (cgi.queryCheckbox("RstCalPulseTTC") )
       optohybridDevice_->resetCalPulseCount(0x0);
 
-    if (cgi.queryCheckbox("RstCalPulseT1") ) 
+    if (cgi.queryCheckbox("RstCalPulseT1") )
       optohybridDevice_->resetCalPulseCount(0x1);
-    
-    if (cgi.queryCheckbox("RstCalPulseExt") ) 
+
+    if (cgi.queryCheckbox("RstCalPulseExt") )
       optohybridDevice_->resetCalPulseCount(0x2);
-    
-    if (cgi.queryCheckbox("RstCalPulseSbit") ) 
+
+    if (cgi.queryCheckbox("RstCalPulseSbit") )
       optohybridDevice_->resetCalPulseCount(0x3);
 
-    if (cgi.queryCheckbox("RstCalPulseGEB") ) 
+    if (cgi.queryCheckbox("RstCalPulseGEB") )
       optohybridDevice_->resetCalPulseCount(0x4);
-    
-    if (cgi.queryCheckbox("RstResync") ) 
+
+    if (cgi.queryCheckbox("RstResync") )
       optohybridDevice_->resetResyncCount();
-    
-    if (cgi.queryCheckbox("RstBC0") ) 
+
+    if (cgi.queryCheckbox("RstBC0") )
       optohybridDevice_->resetBC0Count();
 
     hw_semaphore_.give();
 
-  }
-  catch (const xgi::exception::Exception & e) {
+  } catch (const xgi::exception::Exception & e) {
+    ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception & e) {
+  } catch (const std::exception & e) {
+    ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 
-  hw_semaphore_.take();
-  hw_semaphore_.give();
   redirect(in,out);
 }
 
 
 //no need to redefine in the derived class
 void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xgi::Output *out)
-  throw (xgi::exception::Exception) {
-  
+  throw (xgi::exception::Exception)
+{
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> resetCounters = cgi.getElements();
-    INFO( "resetting counters entries");
-    
+    DEBUG( "resetting counters entries");
+
     std::string fastCommand = cgi["SendFastCommand"]->getValue();
-    
+
     if (strcmp(fastCommand.c_str(),"FlushFIFO") == 0) {
-      INFO("FlushFIFO button pressed");
+      DEBUG("FlushFIFO button pressed");
       hw_semaphore_.take();
       for (int i = 0; i < 2; ++i){
 	glibDevice_->flushFIFO(i);
@@ -1167,7 +1124,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }
 
     if (strcmp(fastCommand.c_str(),"SendTestPackets") == 0) {
-      INFO("SendTestPackets button pressed");
+      DEBUG("SendTestPackets button pressed");
       hw_semaphore_.take();
       if (!is_running_) {
 	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip){
@@ -1182,13 +1139,13 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
 	}
       }
       hw_semaphore_.give();
-      
+
     }
 
     else if (strcmp(fastCommand.c_str(),"Send L1A+CalPulse") == 0) {
-      INFO("Send L1A+CalPulse button pressed");
+      DEBUG("Send L1A+CalPulse button pressed");
       cgicc::const_form_iterator element = cgi.getElement("CalPulseDelay");
-      uint8_t delay;
+      uint8_t delay = 4;
       if (element != cgi.getElements().end())
 	delay = element->getIntegerValue();
       hw_semaphore_.take();
@@ -1199,41 +1156,41 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }
 
     else if (strcmp(fastCommand.c_str(),"Send L1A") == 0) {
-      INFO("Send L1A button pressed");
+      DEBUG("Send L1A button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendL1A(10,1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send CalPulse") == 0) {
-      INFO("Send CalPulse button pressed");
+      DEBUG("Send CalPulse button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendCalPulse(0x1,1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send Resync") == 0) {
-      INFO("Send Resync button pressed");
+      DEBUG("Send Resync button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendResync();
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send BC0") == 0) {
-      INFO("Send BC0 button pressed");
+      DEBUG("Send BC0 button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendBC0();
       hw_semaphore_.give();
     }
     /*
     else if (strcmp(fastCommand.c_str(),"SetTriggerSource") == 0) {
-      INFO("SetTriggerSource button pressed");
+      DEBUG("SetTriggerSource button pressed");
       hw_semaphore_.take();
       cgicc::form_iterator fi = cgi.getElement("trgSrc");
-      if( !fi->isEmpty() && fi != (*cgi).end()) {  
+      if( !fi->isEmpty() && fi != (*cgi).end()) {
 	if (strcmp((**fi).c_str(),"TTC_GLIB_trsSrc") == 0) {
 	  confParams_.bag.triggerSource = 0x0;
-	  optohybridDevice_->setTrigSource(0x0); 
+	  optohybridDevice_->setTrigSource(0x0);
 	}
 	else if (strcmp((**fi).c_str(),"T1_trgSrc") == 0) {
 	  confParams_.bag.triggerSource = 0x1;
@@ -1250,19 +1207,15 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
       }
       hw_semaphore_.give();
     }*/
-    
-    hw_semaphore_.take();
-    hw_semaphore_.give();
-  }
-  catch (const xgi::exception::Exception & e) {
+
+  } catch (const xgi::exception::Exception & e) {
+    ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception & e) {
+  } catch (const std::exception & e) {
+    ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 
-  hw_semaphore_.take();
-  hw_semaphore_.give();
   redirect(in,out);
 }
 
@@ -1270,15 +1223,23 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
 // State transitions
 //is initialize different than halt? they come from different positions but put the software/hardware in the same state 'halted'
 void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
 
   hw_semaphore_.take();
-  //----------------AMC13 Initialize
-  sendInitializeMessageAMC13();
-  sendInitializeMessageGLIB();
+
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
+
 
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
@@ -1294,92 +1255,88 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
                                                                                   "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
   if (glibDevice_->isHwConnected()) {
-    INFO("GLIB device connected");
+    DEBUG("GLIB device connected");
+    glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
+    disableTriggers();
     if (optohybridDevice_->isHwConnected()) {
-      INFO("OptoHybrid device connected");
+      DEBUG("OptoHybrid device connected");
+
+      optohybridDevice_->setVFATMask(m_vfatMask);
 
       for(int i=0;i<24;++i){
 	//  int i=0;
 	std::stringstream currentChipID;
 	currentChipID << "VFAT" << i;
-	
+
 	std::string vfat;
 	vfat=currentChipID.str();
 	currentChipID.str("");
 
-	vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(vfat, tmpURI.str(), "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+	vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(vfat, tmpURI.str(),
+                                                                 "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
 
-	if(tmpVFATDevice->isHwConnected()){
-	tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
-							   confParams_.bag.ohGTXLink.value_,
-							   vfat.c_str()));
-	
+	if (tmpVFATDevice->isHwConnected()) {
+          tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
+                                                             confParams_.bag.ohGTXLink.value_,
+                                                             vfat.c_str()));
 
 	  tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
 	  tmpVFATDevice->setRunMode(0);
 	  VFATdeviceConnected.push_back(tmpVFATDevice);
-	  
+
 	  std::string VfatName = confParams_.bag.deviceName[i].toString();
 	  if (VfatName != "") {
 	    readout_mask = confParams_.bag.ohGTXLink;
-	    
-	    INFO(" webConfigure : DeviceName " << VfatName );
-	    INFO(" webConfigure : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
-	    
+
+	    DEBUG(" webInitialize : DeviceName " << VfatName );
+	    DEBUG(" webInitialize : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+
 	    confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
-	    INFO(" CHIPID   :: " << confParams_.bag.deviceChipID);      
+	    DEBUG(" CHIPID   :: " << confParams_.bag.deviceChipID);
 	    // need to put all chips in sleep mode to start off
 	    vfatDevice_.push_back(tmpVFATDevice);
 	  }//end if VfatName
-	}//end for 
+	}//end for
 
 	for (auto chip = VFATdeviceConnected.begin(); chip != VFATdeviceConnected.end(); ++chip) {
-	  if ((*chip)->isHwConnected()) {      
+	  if ((*chip)->isHwConnected()) {
 	    (*chip)->setRunMode(0);
-	    int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
-	    INFO( "vfatDevice Conected::" << islot);    
+	    DEBUG( "vfatDevice Conected::" << (*chip)->getSlot());
 	  }
-	}// end for  
-	
-	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	  int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
-	  INFO( "vfatDevice selected::" << islot);    
-	}	
-      }// end for  
-      
-      //    }//end if vfat is connected	
+	}// end for
 
-   }//end if OH connected  
-    else{
-      INFO("OptoHybrid device not connected, breaking out");
+	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
+	  DEBUG( "vfatDevice selected::" << (*chip)->getSlot());
+	}
+      }// end for
+   }//end if OH connected
+    else {
+      DEBUG("OptoHybrid device not connected, breaking out");
       is_configured_  = false;
-      is_working_     = false;    
+      is_working_     = false;
       hw_semaphore_.give();
       return;
     }
-        
+
   }// end if glib connected
   else {
-    INFO("GLIB device not connected, breaking out");
+    DEBUG("GLIB device not connected, breaking out");
     is_configured_  = false;
-    is_working_     = false;    
+    is_working_     = false;
     hw_semaphore_.give();
     return;
-  }  
+  }
 
-  
   is_initialized_ = true;
   hw_semaphore_.give();
-      
+
   //sleep(5);
   is_working_     = false;
-    
 }
 
-
 void gem::supervisor::tbutils::GEMTBUtil::configureAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
 
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
@@ -1393,62 +1350,67 @@ void gem::supervisor::tbutils::GEMTBUtil::configureAction(toolbox::Event::Refere
        chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
     ss << "Device name: " << chip->toString() << std::endl;
   }
-  INFO(ss.str());
-
+  DEBUG(ss.str());
 
   hw_semaphore_.give();
 
-  is_working_     = false;    
+  is_working_     = false;
 
 }
 
 
 void gem::supervisor::tbutils::GEMTBUtil::startAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-  
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
 
   //start scan routine
   wl_->submit(runSig_);
-  
+
   is_working_ = false;
 }
 
 
 void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
+
+  glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
+  disableTriggers();
+
   if (is_running_) {
     hw_semaphore_.take();
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
     }
-    
+
     hw_semaphore_.give();
     is_running_ = false;
   }
-  
-  /*
-  INFO("Closling file");
-  scanStream->close();
-  delete scanStream;
-  scanStream = 0;*/
+
   wl_->submit(stopSig_);
 
-  sendStopMessageGLIB(); 
-  sendStopMessageAMC13();    
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
-  
+
   sleep(0.001);
-  
+
   is_working_ = false;
 }
 
 
 void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_    = true;
   is_configured_ = false;
   is_running_    = false;
@@ -1456,18 +1418,29 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
   if (is_running_) {
     hw_semaphore_.take();
     /*int islot=0;
-	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
-	(*chip)->setRunMode(0x0);
-	}
-*/
+      for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip, ++islot) {
+      (*chip)->setRunMode(0x0);
+      }
+    */
     hw_semaphore_.give();
   }
   is_running_ = false;
 
   is_configured_ = false;
 
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
+
+
   wl_->submit(haltSig_);
-  
+
   //sleep(5);
   sleep(0.001);
   is_working_    = false;
@@ -1475,23 +1448,34 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
 
 
 void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = true;
 
   is_initialized_ = false;
   is_configured_  = false;
   is_running_     = false;
 
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
+
+
   hw_semaphore_.take();
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(0x0);
-  
+
   for (int i = 0; i < 24; ++i)
     confParams_.bag.deviceName[i] = ""; // ensure that the selected chips are reset
-  
-  confParams_.bag.ohGTXLink = 0; // reset this to 0    
-  
+
+  confParams_.bag.ohGTXLink = 0; // reset this to 0
+
   //sleep(2);
   hw_semaphore_.give();
 
@@ -1505,7 +1489,7 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   //  confParams_.bag.triggerSource = 0x9;
 
   wl_->submit(resetSig_);
-  
+
   //sleep(5);
   sleep(0.001);
   is_working_     = false;
@@ -1513,8 +1497,8 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
 
 
 void gem::supervisor::tbutils::GEMTBUtil::noAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
-
+  throw (toolbox::fsm::exception::Exception)
+{
   is_working_ = false;
   //hw_semaphore_.take();
   ////vfatDevice_->setRunMode(0);
@@ -1528,59 +1512,49 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
     bool isDisabled = false;
     if (is_running_ || is_configured_ || is_initialized_)
       isDisabled = true;
-    
+
     const int nChips = 24;
     *out << cgicc::table();
     *out << cgicc::tr();
-    
-    
-    for(int i = 0; i < nChips; ++i) {
+
+
+    for (int i = 0; i < nChips; ++i) {
       std::stringstream currentChipID;
       currentChipID << "VFAT" << i;
 
       std::stringstream form;
       form << "VFATDevice" << i;
-      
+
       std::string label = "primary";
       cgicc::input vfatselection;
       *out << cgicc::td() << std::endl;
-      
+
       *out << "<span class=\"label label-primary\">" << currentChipID.str() << "</span>" << std::endl;
 
-      
-      if(isDisabled){
+      if (isDisabled) {
         vfatselection.set("type","checkbox").set("name",form.str()).set("disabled","disabled");
-      }else{
+      } else {
         vfatselection.set("type","checkbox").set("name",form.str());
       }
       *out << ((confParams_.bag.deviceName[i].toString().compare(currentChipID.str())) == 0 ?
 	       vfatselection.set("checked","checked").set("multiple","multiple") :
 	       vfatselection.set("value",currentChipID.str())) << std::endl;
-      
+
       *out << cgicc::td() << std::endl;
       if( i == 7 || i == 15) {
-	*out << cgicc::tr() << std::endl //close
-	     << cgicc::tr() << std::endl;//open
-	//  }// end if 
-	
-     }//end else
+	*out << cgicc::tr() << std::endl  // close
+	     << cgicc::tr() << std::endl; // open
+      } // end if
 
+    }// end for nChips
 
-
-    }// end if nChips
-    
     *out << cgicc::tr()    << std::endl;
     *out << cgicc::table() << std::endl;
-    
-
-  }
-
-  catch (const xgi::exception::Exception& e) {
-    INFO("Something went wrong displaying VFATS(xgi): " << e.what());
+  } catch (const xgi::exception::Exception& e) {
+    ERROR("Something went wrong displaying VFATS(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }
-  catch (const std::exception& e) {
-    INFO("Something went wrong displaying VFATS(std): " << e.what());
+  } catch (const std::exception& e) {
+    ERROR("Something went wrong displaying VFATS(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -1592,17 +1566,17 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
     bool isDisabled = false;
     if (is_running_ || is_configured_ || is_initialized_)
       isDisabled = true;
-    
+
     // cgicc::input OHselection;
     *out   << "<table>"     << std::endl
 	   << "<tr>"   << std::endl //open
-	   << "<td>" << "OH GTX Link " << "</td>" << std::endl	 
-	   << "</tr>"     << std::endl //close 
+	   << "<td>" << "OH GTX Link " << "</td>" << std::endl
+	   << "</tr>"     << std::endl //close
 
 	   << "<tr>" << std::endl //open
 	   << "<td>" << std::endl; //open
     if (isDisabled)
-      *out << cgicc::select().set("name","SetOH").set("disabled","disabled") 
+      *out << cgicc::select().set("name","SetOH").set("disabled","disabled")
 	   << cgicc::option("OH_0").set("value","OH_0")
 	   << cgicc::option("OH_1").set("value","OH_1")
 	   << cgicc::select().set("disabled","disabled") << std::endl
@@ -1617,139 +1591,226 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
 	   << "</td>"    << std::endl
 	   << "</tr>"    << std::endl
 	   << "</table>" << std::endl;
-	
+
     /*      *out << "<tr><td class=\"title\"> Select Latency Scan: </td>"
 	    << "<td class=\"form\">"*/
-    
-  }//end try
-catch (const xgi::exception::Exception& e) {
-  INFO("Something went wrong setting the trigger source): " << e.what());
-  XCEPT_RAISE(xgi::exception::Exception, e.what());
- }
- catch (const std::exception& e) {
-   INFO("Something went wrong setting the trigger source): " << e.what());
-   XCEPT_RAISE(xgi::exception::Exception, e.what());
- }
 
+  } catch (const xgi::exception::Exception& e) {
+    ERROR("Something went wrong setting the trigger source): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  } catch (const std::exception& e) {
+    ERROR("Something went wrong setting the trigger source): " << e.what());
+    XCEPT_RAISE(xgi::exception::Exception, e.what());
+  }
 }// end void selectoptohybrid
-/*
+
+void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
+  throw (xgi::exception::Exception)
 {
-  fireEvent("Initialize");
-  return false; //do once?
-  }*/
+  DEBUG("-----------start SOAP message modify paramteres AMC13------ ");
+
+  xdaq::ApplicationDescriptor *d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
+  xdaq::ApplicationDescriptor *o = this->getApplicationDescriptor();
+  std::string    appUrn   = "urn:xdaq-application:"+d->getClassName();
+
+  xoap::MessageReference  msg = xoap::createMessage();
+  xoap::SOAPPart         soap = msg->getSOAPPart();
+  xoap::SOAPEnvelope envelope = soap.getEnvelope();
+  xoap::SOAPName   parameterset = envelope.createName("ParameterSet","xdaq",XDAQ_NS_URI);
+  xoap::SOAPElement   container = envelope.getBody().addBodyElement(parameterset);
+  container.addNamespaceDeclaration("xsd","http://www.w3.org/2001/XMLSchema");
+  container.addNamespaceDeclaration("xsi","http://www.w3.org/2001/XMLSchema-instance");
+  //  container.addNamespaceDeclaration("parameterset","http://schemas.xmlsoap.org/soap/encoding/");
+  xoap::SOAPName    tname_param = envelope.createName("type","xsi","http://www.w3.org/2001/XMLSchema-instance");
+  xoap::SOAPName pboxname_param = envelope.createName("Properties","props",appUrn);
+  xoap::SOAPElement  pbox_param = container.addChildElement(pboxname_param);
+  pbox_param.addAttribute(tname_param,"soapenc:Struct");
+
+  xoap::SOAPName pboxname_amc13config = envelope.createName("amc13ConfigParams","props",appUrn);
+  xoap::SOAPElement  pbox_amc13config = pbox_param.addChildElement(pboxname_amc13config);
+  pbox_amc13config.addAttribute(tname_param,"soapenc:Struct");
+
+  xoap::SOAPName soapName_l1A = envelope.createName("L1Aburst","props",appUrn);
+  xoap::SOAPElement    cs_l1A = pbox_amc13config.addChildElement(soapName_l1A);
+  cs_l1A.addAttribute(tname_param,"xsd:unsignedInt");
+  cs_l1A.addTextNode(confParams_.bag.nTriggers.toString());
 
 
-void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageGLIB()
-  throw (xgi::exception::Exception) {
+  std::string tool;
+  xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
+  DEBUG("msg: " << tool);
+
+  try {
+    DEBUG("trying to send parameters");
+    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+    std::string tool;
+    xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
+    DEBUG("reply: " << tool);
+  } catch (xoap::exception::Exception& e) {
+    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+  } catch (xdaq::exception::Exception& e) {
+    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+  } catch (std::exception& e) {
+    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    //XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+  } catch (...) {
+    ERROR("------------------Fail  AMC13 configuring parameters message ");
+    XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
+  }
+  DEBUG("-----------The message to AMC13 configuring parameters has been sent------------");
+}
+
+void gem::supervisor::tbutils::GEMTBUtil::enableTriggers()
+  throw (xgi::exception::Exception)
+{
   //  is_working_ = true;
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("enableTriggers",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
+}
 
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  //  xoap::SOAPName command = envelope.createName("CallBackInitialize","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
-  body.addBodyElement(command);
-
-  try 
-    {
-      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
-      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      INFO("------------------Fail sending GLIB initialize message " << e.what());
-      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    }
-  //  this->Default(in,out);
-  INFO("-----------The message to GLIB initialize has been sent------------");
-}      
-
-void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageGLIB()
-  throw (xgi::exception::Exception) {
+void gem::supervisor::tbutils::GEMTBUtil::disableTriggers()
+  throw (xgi::exception::Exception)
+{
   //  is_working_ = true;
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  //  xoap::SOAPName command = envelope.createName("CallBackStop","xdaq", "urn:xdaq-soap:3.0");
-  xoap::SOAPName command = envelope.createName("Stop","xdaq", "urn:xdaq-soap:3.0");
-  body.addBodyElement(command);
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("disableTriggers",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
+}
 
-  try 
-    {
-      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 4);
-      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      INFO("------------------Fail sending stop message " << e.what());
-      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    }
-  //  this->Default(in,out);
-  INFO("-----------The message to stop has been sent------------");
-}      
-
-
-void gem::supervisor::tbutils::GEMTBUtil::sendInitializeMessageAMC13()
-  throw (xgi::exception::Exception) {
-
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
-  xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("Initialize","xdaq", "urn:xdaq-soap:3.0");
-  //  xoap::SOAPName command = envelope.createName("CallBackInitialize","xdaq", "urn:xdaq-soap:3.0");
-  body.addBodyElement(command);
-
-  try 
-    {
-      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      LOG4CPLUS_INFO(getApplicationLogger(),"------------------Fail sending AMC13 initialize message " << e.what());
-      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    }
-  //  this->Default(in,out);
-  INFO("-----------The message to AMC13 initialize received------------");
-}      
-
-void gem::supervisor::tbutils::GEMTBUtil::sendStopMessageAMC13()
-  throw (xgi::exception::Exception) {
+void gem::supervisor::tbutils::GEMTBUtil::sendTriggers()
+  throw (xgi::exception::Exception)
+{
   //  is_working_ = true;
-  xoap::MessageReference msg = xoap::createMessage();
-  xoap::SOAPPart soap = msg->getSOAPPart();
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("sendtriggerburst",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0));  // this should not be hard coded
+}
+
+void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
+  throw (xgi::exception::Exception)
+{
+  DEBUG("-----------start SOAP message modify paramteres AMC13------ ");
+
+  xdaq::ApplicationDescriptor *d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
+  xdaq::ApplicationDescriptor *o = this->getApplicationDescriptor();
+  std::string             appUrn = "urn:xdaq-application:"+d->getClassName();
+
+  xoap::MessageReference  msg = xoap::createMessage();
+  xoap::SOAPPart         soap = msg->getSOAPPart();
   xoap::SOAPEnvelope envelope = soap.getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName command = envelope.createName("Stop","xdaq", "urn:xdaq-soap:3.0");
-  body.addBodyElement(command);
 
-  try 
-    {
-      xdaq::ApplicationDescriptor * d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 3);
-      xdaq::ApplicationDescriptor * o = this->getApplicationDescriptor();
-      xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
-    }
-  catch (xdaq::exception::Exception& e)
-    {
-      INFO("------------------Fail sending AMC13 stop message " << e.what());
-      XCEPT_RETHROW (xgi::exception::Exception, "Cannot send message", e);
-    }
-  //  this->Default(in,out);
-  INFO("-----------The message to stop has been sent------------");
-}      
+  // create the ParameterSet message part
+  xoap::SOAPName   parameterset = envelope.createName("ParameterSet","xdaq",XDAQ_NS_URI);
+  xoap::SOAPElement   container = envelope.getBody().addBodyElement(parameterset);
+  container.addNamespaceDeclaration("xsd",    "http://www.w3.org/2001/XMLSchema");
+  container.addNamespaceDeclaration("xsi",    "http://www.w3.org/2001/XMLSchema-instance");
+  container.addNamespaceDeclaration("soapenc","http://schemas.xmlsoap.org/soap/encoding/");
 
+  // Create the Properties element
+  xoap::SOAPName      xsi_type = envelope.createName("type",     "xsi",    "http://www.w3.org/2001/XMLSchema-instance");
+  xoap::SOAPName   soapenc_arr = envelope.createName("arrayType","soapenc","http://schemas.xmlsoap.org/soap/encoding/");
+  xoap::SOAPName   soapenc_pos = envelope.createName("position", "soapenc","http://schemas.xmlsoap.org/soap/encoding/");
+  xoap::SOAPName     pbox_name = envelope.createName("Properties","props", appUrn);
+  xoap::SOAPElement pbox_param = container.addChildElement(pbox_name);
+  pbox_param.addAttribute(xsi_type,"soapenc:Struct");
 
+  // Create the amc13ConfigParams element
+  xoap::SOAPName    amc13config_name  = envelope.createName("amc13ConfigParams","props",appUrn);
+  xoap::SOAPElement amc13config_param = pbox_param.addChildElement(amc13config_name);
+  amc13config_param.addAttribute(xsi_type,"soapenc:Struct");
 
+  // Create the LocalTriggerConfig element
+  xoap::SOAPName     tc_name = envelope.createName("LocalTriggerConfig","props",appUrn);
+  xoap::SOAPElement tc_param = amc13config_param.addChildElement(tc_name);
+  tc_param.addAttribute(xsi_type,"soapenc:Struct");
 
+  xoap::SOAPName  uselocall1A_name = envelope.createName("EnableLocalL1A","props",appUrn);
+  xoap::SOAPElement tc_uselocall1A = tc_param.addChildElement(uselocall1A_name);
+  tc_uselocall1A.addAttribute(xsi_type,"xsd:boolean");
+  tc_uselocall1A.addTextNode(confParams_.bag.useLocalTriggers.toString());
 
+  xoap::SOAPName  l1Amode_name = envelope.createName("L1Amode","props",appUrn);
+  xoap::SOAPElement tc_l1Amode = tc_param.addChildElement(l1Amode_name);
+  tc_l1Amode.addAttribute(xsi_type,"xsd:integer");
+  tc_l1Amode.addTextNode(confParams_.bag.localTriggerPeriod.toString());
 
+  xoap::SOAPName  l1Anumber_name = envelope.createName("L1Aburst","props",appUrn);
+  xoap::SOAPElement tc_l1Anumber = tc_param.addChildElement(l1Anumber_name);
+  tc_l1Anumber.addAttribute(xsi_type,"xsd:unsignedInt");
+  tc_l1Anumber.addTextNode(confParams_.bag.nTriggers.toString());
 
+  xoap::SOAPName  l1Aperiod_name = envelope.createName("InternalPeriodicPeriod","props",appUrn);
+  xoap::SOAPElement tc_l1Aperiod = tc_param.addChildElement(l1Aperiod_name);
+  tc_l1Aperiod.addAttribute(xsi_type,"xsd:unsignedInt");
+  tc_l1Aperiod.addTextNode(confParams_.bag.localTriggerPeriod.toString());
 
+  xoap::SOAPName  enableTrigCont_name = envelope.createName("startL1ATricont","props",appUrn);
+  xoap::SOAPElement tc_enableTrigCont = tc_param.addChildElement(enableTrigCont_name);
+  tc_enableTrigCont.addAttribute(xsi_type,"xsd:boolean");
+  tc_enableTrigCont.addTextNode(confParams_.bag.EnableTrigCont.toString());
 
+  // Create the BGOConfig element
+  xoap::SOAPName     bgoarray_name = envelope.createName("BGOConfig","props", appUrn);
+  xoap::SOAPElement bgoarray_param = amc13config_param.addChildElement(bgoarray_name);
+  bgoarray_param.addAttribute(xsi_type,   "soapenc:Array");
+  bgoarray_param.addAttribute(soapenc_arr,"xsd:ur-type[4]");
+  
+  // Create the BGOInfo element
+  xoap::SOAPName     bc_name = envelope.createName("BGOInfo","props", appUrn);
+  xoap::SOAPElement bc_param = bgoarray_param.addChildElement(bc_name);
+  bc_param.addAttribute(xsi_type,"soapenc:Struct");
+  bc_param.addAttribute(soapenc_pos,"0");
 
+  xoap::SOAPName  bgoChan_name = envelope.createName("BGOChannel","props",appUrn);
+  xoap::SOAPElement bc_bgoChan = bc_param.addChildElement(bgoChan_name);
+  bc_bgoChan.addAttribute(xsi_type,"xsd:integer");
+  bc_bgoChan.addTextNode("0");
+  
+  xoap::SOAPName  bgoCmd_name = envelope.createName("BGOcmd","props",appUrn);
+  xoap::SOAPElement bc_bgoCmd = bc_param.addChildElement(bgoCmd_name);
+  bc_bgoCmd.addAttribute(xsi_type,"xsd:unsignedInt");
+  bc_bgoCmd.addTextNode("20");
+
+  xoap::SOAPName  bgoBX_name = envelope.createName("BGObx","props",appUrn);
+  xoap::SOAPElement bc_bgoBX = bc_param.addChildElement(bgoBX_name);
+  bc_bgoBX.addAttribute(xsi_type,"xsd:unsignedInt");
+  bc_bgoBX.addTextNode("1");
+
+  xoap::SOAPName  bgoRepeat_name = envelope.createName("BGOrepeat","props",appUrn);
+  xoap::SOAPElement bc_bgoRepeat = bc_param.addChildElement(bgoRepeat_name);
+  bc_bgoRepeat.addAttribute(xsi_type,"xsd:boolean");
+  bc_bgoRepeat.addTextNode("true");
+
+  xoap::SOAPName  bgoPrescale_name = envelope.createName("BGOprescale","props",appUrn);
+  xoap::SOAPElement bc_bgoPrescale = bc_param.addChildElement(bgoPrescale_name);
+  bc_bgoPrescale.addAttribute(xsi_type,"xsd:unsignedInt");
+  bc_bgoPrescale.addTextNode("1");
+
+  std::string tool;
+  xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
+  DEBUG("msg: " << tool);
+
+  try {
+    DEBUG("trying to send parameters");
+    xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
+    std::string tool;
+    xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
+    DEBUG("reply: " << tool);
+  } catch (xoap::exception::Exception& e) {
+    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+  } catch (xdaq::exception::Exception& e) {
+    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+  } catch (std::exception& e) {
+    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    //XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
+  } catch (...) {
+    ERROR("------------------Fail  AMC13 configuring parameters message ");
+    XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
+  }
+  DEBUG("-----------The message to AMC13 configuring parameters has been sent------------");
+}
