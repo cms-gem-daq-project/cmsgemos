@@ -2,34 +2,41 @@
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 std::string const& connectionFile) :
-  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionFile)
+  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionFile),
+  m_slot(-1)
 {
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 std::string const& connectionURI,
                                 std::string const& addressTable) :
-  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionURI, addressTable)
+  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionURI, addressTable),
+  m_slot(-1)
 {
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 uhal::HwInterface& uhalDevice) :
-  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, uhalDevice)
+  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, uhalDevice),
+  m_slot(-1)
 {
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
-  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice)
+  gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice),
+  m_slot(-1)
   // monVFAT2_(0)
 {
   // this->gem::hw::GEMHwDevice::GEMHwDevice();
@@ -54,6 +61,8 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
   // set run bit
   
   // hardware is running
+  m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
+
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
