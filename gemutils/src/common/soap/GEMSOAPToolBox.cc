@@ -121,12 +121,15 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
   } catch (xcept::Exception& e) {
     XCEPT_RETHROW(gem::utils::exception::SOAPException,
                   toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what()), e);
+    return false;
   } catch (std::exception& e) {
     XCEPT_RAISE(gem::utils::exception::SOAPException,
                 toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what()));
+    return false;
   } catch (...) {
     XCEPT_RAISE(gem::utils::exception::SOAPException,
                 toolbox::toString("Command %s failed", cmd.c_str()));
+    return false;
   }
   return true;
 }
