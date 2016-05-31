@@ -107,10 +107,15 @@
                   fw_signal="ttc_cmds_cnt_arr(9)"/>
         </node>
 
-        <node id="L1A_ID" address="0x13" mask="0x00ffffff" permission="r" description="L1A ID (increments with every L1A and resets with EC0), used by DAQ to tag event numbers"
+        <node id="L1A_ID" address="0x13" mask="0x00ffffff" permission="r"
+              description="L1A ID (increments with every L1A and resets with EC0), used by DAQ to tag event numbers"
               fw_signal="l1id_cnt"/>
 
-        <node id="TTC_SPY_BUFFER" address="0x14" mask="0xffffffff" permission="r" description="TTC Spy buffer -- this is filled with TTC commands (from LSB to MSB) and freezes until the user reads it out, once read out it resets and fills up again with new TTC commands received from that point on"
+        <node id="L1A_RATE" address="0x14" mask="0xffffffff" permission="r"
+              description="L1A rate in Hz"
+              fw_signal="l1a_rate"/>
+
+        <node id="TTC_SPY_BUFFER" address="0x15" mask="0xffffffff" permission="r" description="TTC Spy buffer -- this is filled with TTC commands (from LSB to MSB) and freezes until the user reads it out, once read out it resets and fills up again with new TTC commands received from that point on"
               fw_signal="ttc_spy_buffer" fw_read_pulse_signal="ttc_spy_reset" fw_read_pulse_length="1"/>
     </node>
     <!--end TTC module -->
@@ -229,6 +234,13 @@
           fw_slave_bus_signal="ipb_miso_o"
           fw_reg_addr_msb="16"
           fw_reg_addr_lsb="0">
+
+        <node id="CTRL" address="0x100">
+            <node id="CNT_RESET" address="0x0" mask="0x40000000" permission="w"
+                  description="GEM system counters reset"
+                  fw_signal="reset_cnt" fw_is_write_pulse="true" fw_write_pulse_length="1"
+                  sw_ctrl_configure_set="0x1" sw_ctrl_start_set="0x1"/>
+        </node>
           
         <node id="TK_LINK_RX_POLARITY" address="0x0" mask="0x00ffffff" permission="rw"
               description="RX polarity of the track/control links (bit 0 corresponds to link 0)"
@@ -253,6 +265,19 @@
                   description="Firmware release date (read as hex)"
                   fw_signal="firmware_date"/>
         </node>      
+
+        <node id="GBT" address="0x100">
+            <node id="TX_SYNC_PATTERN" address="0x0" mask="0x0000ffff" permission="rw"
+                  description="GBT TX sync pattern (sent continuously after reset until a valid RX sync pattern is received for a certain number of clocks)"
+                  fw_signal="gbt_tx_sync_pattern" fw_default="0x76BC"/>
+            <node id="RX_SYNC_PATTERN" address="0x1" mask="0xffffffff" permission="rw"
+                  description="GBT RX sync pattern (TX sync pattern is sent continuously after reset until a valid RX sync pattern is received for a certain number of clocks)"
+                  fw_signal="gbt_rx_sync_pattern" fw_default="0x76BC76BC"/>
+            <node id="RX_SYNC_COUNT_REQUIRED" address="0x2" mask="0x000000ff" permission="rw"
+                  description="GBT RX sync pattern has to be received for this number of clock cycles to consider the link synchronized"
+                  fw_signal="gbt_rx_sync_count_req" fw_default="0x7f"/>
+        </node>
+
 
         <node id="LEGACY_SYSTEM" address="0x10000"
               description="Legacy system registers (taken from GLIB system core). These should be removed once the software is made compatible with the new system registers.">
@@ -430,6 +455,31 @@
                                data for the last event (mostly for debugging). Units = clock
                                cycles @ DAQ clock frequency (currently using 40.08MHz TTC clock)"
                   fw_signal="std_logic_vector(last_dav_timer)"/>
+            <node id="L1A_FIFO_DATA_CNT"  address="0x7"  mask="0x00001fff" permission="r"
+                  description="Current number of words in the L1A FIFO (current depth is 8192)"
+                  fw_signal="l1afifo_data_cnt"/>
+            <node id="DAQ_FIFO_DATA_CNT"  address="0x7"  mask="0x1fff0000" permission="r"
+                  description="Current number of words in the DAQ output FIFO (current depth is 8192)"
+                  fw_signal="daqfifo_data_cnt"/>
+            <node id="L1A_FIFO_NEAR_FULL_CNT"  address="0x8"  mask="0x0000ffff" permission="r"
+                  description="Number of clocks L1A FIFO was near-full (asserted at 75%, deasserted at 50%)"
+                  fw_signal="l1afifo_near_full_cnt"
+                  sw_monitor_warn_min_threshold="100"/>
+            <node id="DAQ_FIFO_NEAR_FULL_CNT"  address="0x8"  mask="0xffff0000" permission="r"
+                  description="Number of clocks DAQ output FIFO was near-full (asserted at 75%, deasserted at 50%)"
+                  fw_signal="daqfifo_near_full_cnt"
+                  sw_monitor_warn_min_threshold="100"/>
+            <node id="DAQ_ALMOST_FULL_CNT"  address="0x9"  mask="0x0000ffff" permission="r"
+                  description="Number of clocks DAQLink has asserted almost-full flag"
+                  fw_signal="daqlink_afull_cnt"/>
+            <node id="TTS_WARN_CNT"  address="0x9"  mask="0xffff0000" permission="r"
+                  description="Number of clocks we reported TTS WARNING state"
+                  fw_signal="tts_warning_cnt"
+                  sw_monitor_warn_min_threshold="100"/>
+            <node id="DAQ_WORD_RATE"  address="0xa"  mask="0xffffffff" permission="r"
+                  description="Rate of 64bit words being sent out to the DAQLink in Hz (multiply by 64 to get bitrate)"
+                  fw_signal="daq_word_rate"
+                  sw_monitor_warn_min_threshold="40000"/> <!-- currently running DAQ at 50MHz, which is 3.2Gbs, so warning at 2.5Gbs (could increase to 80MHz to get 5Gbs) -->
         </node>
 
         <node id="EXT_CONTROL"  address="0xe" description="DAQ global extended configuration registers">
@@ -456,42 +506,42 @@
             </node>
 
             <node id="STATUS"  address="0x0">
-                <node id="VFAT_MIXED_EC"    mask="0x00000002" permission="r"
+                <node id="VFAT_MIXED_EC"    mask="0x00000002" permission="r" address="0x0"
                       description="There was at least one event with mixed VFAT Event IDs"
                       fw_signal="input_status_arr(${OH_IDX}).err_mixed_vfat_ec"/>
-                <node id="VFAT_MIXED_BC"  mask="0x00000004" permission="r"
+                <node id="VFAT_MIXED_BC"  mask="0x00000004" permission="r" address="0x0"
                       description="There was at least one event with mixed VFAT BX IDs"
                       fw_signal="input_status_arr(${OH_IDX}).err_mixed_vfat_bc"/>
-                <node id="OH_MIXED_BC"         mask="0x00000008" permission="r"
+                <node id="OH_MIXED_BC"         mask="0x00000008" permission="r" address="0x0"
                       description="There was at least one event with mixed OH BX IDs (OH BX
                                    ID is reported for every VFAT block, but not sent to
                                    AMC13)."
                       fw_signal="input_status_arr(${OH_IDX}).err_mixed_oh_bc"/>
 
-                <node id="VFAT_TOO_MANY"      mask="0x00000010" permission="r"
+                <node id="VFAT_TOO_MANY"      mask="0x00000010" permission="r" address="0x0"
                       description="Corruption: more than 24 VFATs in event"
                       fw_signal="input_status_arr(${OH_IDX}).err_event_bigger_than_24"/>
-                <node id="VFAT_SMALL_BLOCK"   mask="0x00000020" permission="r"
+                <node id="VFAT_SMALL_BLOCK"   mask="0x00000020" permission="r" address="0x0"
                       description="Corruption: VFAT block smaller than 192bits"
                       fw_signal="input_status_arr(${OH_IDX}).err_vfat_block_too_small"/>
-                <node id="VFAT_LARGE_BLOCK"   mask="0x00000040" permission="r"
+                <node id="VFAT_LARGE_BLOCK"   mask="0x00000040" permission="r" address="0x0"
                       description="Corruption: VFAT block bigger than 192bits"
                       fw_signal="input_status_arr(${OH_IDX}).err_vfat_block_too_big"/>
-                <node id="VFAT_NO_MARKER"     mask="0x00000080" permission="r"
+                <node id="VFAT_NO_MARKER"     mask="0x00000080" permission="r" address="0x0"
                       description="Corruption: VFAT marker not detected.
                                    There was at least one VFAT block not conforming to the
                                    pattern of Axxx Cxxx Exxx... (see VFAT data format)
                                    Note that this data will still be included in the current event
                                    and sent to AMC13, but it will not be considered in
-                                   end­of­event detection"
+                                   end-of-event detection"
                       fw_signal="input_status_arr(${OH_IDX}).err_corrupted_vfat_data"/>
-                <node id="INPUT_FIFO_HAD_OFLOW"   mask="0x00000100" permission="r"
+                <node id="INPUT_FIFO_HAD_OFLOW"   mask="0x00000100" permission="r" address="0x0"
                       description="Critical: Input FIFO overflow occurred.
                                    This bit is latched if Input FIFO was ever full when receiving
-                                   new data – this means data was lost.
+                                   new data - this means data was lost.
                                    TTS ERROR is asserted when this bit is 1"
                       fw_signal="input_status_arr(${OH_IDX}).err_infifo_full"/>
-                <node id="INPUT_FIFO_HAD_UFLOW"   mask="0x00000200" permission="r"
+                <node id="INPUT_FIFO_HAD_UFLOW"   mask="0x00000200" permission="r" address="0x0"
                       description="Critical: Input FIFO underflow occurred.
                                    This bit is latched if Input FIFO underflow was ever
                                    detected. This means that Event FIFO indicated that there
@@ -499,49 +549,49 @@
                                    might happen due to overflow or some other malfunction.
                                    TTS ERROR is asserted when this bit is 1"
                       fw_signal="input_status_arr(${OH_IDX}).err_infifo_underflow"/>
-                <node id="EVENT_FIFO_HAD_OFLOW"   mask="0x00000400" permission="r"
+                <node id="EVENT_FIFO_HAD_OFLOW"   mask="0x00000400" permission="r" address="0x0"
                       description="Critical: Event FIFO overflow occurred.
                                    This bit is latched if Event FIFO was ever full when trying to
                                    build a new event. This means data was lost.
-                                   It’s not likely that this will ever be asserted because Input
+                                   It's not likely that this will ever be asserted because Input
                                    FIFO should overflow first.
                                    TTS ERROR is asserted when this bit is 1"
                       fw_signal="input_status_arr(${OH_IDX}).err_evtfifo_full"/>
-                <node id="EVT_SIZE_ERR"           mask="0x00000800" permission="r"
+                <node id="EVT_SIZE_ERR"           mask="0x00000800" permission="r" address="0x0"
                       description="Critical: Event size overflow occurred.
                                    This bit is latched if there was an event containing more
                                    than 4096 VFAT blocks. Input FIFO and Event FIFO will be
-                                   out­of­sync. This might happen if end­of­event is not
+                                   out-of-sync. This might happen if end-of-event is not
                                    detected properly or for whatever reason GLIB is receiving
                                    a stream of VFAT blocks indicating that they belong to the
                                    same event (EC/BC is the same)
                                    TTS ERROR is asserted when this bit is 1"
                       fw_signal="input_status_arr(${OH_IDX}).err_event_too_big"/>
-                <node id="TTS_STATE"           mask="0x0000f000" permission="r"
+                <node id="TTS_STATE"           mask="0x0000f000" permission="r" address="0x0"
                       description="Input TTS state (gets integrated into global TTS state later)"
                       fw_signal="input_status_arr(${OH_IDX}).tts_state"/>
-                <node id="INPUT_FIFO_IS_UFLOW"    mask="0x01000000" permission="r"
+                <node id="INPUT_FIFO_IS_UFLOW"    mask="0x01000000" permission="r" address="0x0"
                       description="Current status: Input FIFO is in underflow"
                       fw_signal="input_status_arr(${OH_IDX}).infifo_underflow"/>
-                <node id="INPUT_FIFO_IS_FULL"     mask="0x02000000" permission="r"
+                <node id="INPUT_FIFO_IS_FULL"     mask="0x02000000" permission="r" address="0x0"
                       description="Current status: Input FIFO is full"
                       fw_signal="input_status_arr(${OH_IDX}).infifo_full"/>
-                <node id="INPUT_FIFO_IS_AFULL"    mask="0x04000000" permission="r"
-                      description="Current status: Input FIFO is near­full (asserted at 75% and deasserted at 50%)"
+                <node id="INPUT_FIFO_IS_AFULL"    mask="0x04000000" permission="r" address="0x0"
+                      description="Current status: Input FIFO is near-full (asserted at 75% and deasserted at 50%)"
                       fw_signal="input_status_arr(${OH_IDX}).infifo_near_full"/>
-                <node id="INPUT_FIFO_IS_EMPTY"    mask="0x08000000" permission="r"
+                <node id="INPUT_FIFO_IS_EMPTY"    mask="0x08000000" permission="r" address="0x0"
                       description="Current status: Input FIFO is empty"
                       fw_signal="input_status_arr(${OH_IDX}).infifo_empty"/>
-                <node id="EVENT_FIFO_IS_UFLOW"    mask="0x10000000" permission="r"
+                <node id="EVENT_FIFO_IS_UFLOW"    mask="0x10000000" permission="r" address="0x0"
                       description="Current status: Event FIFO is in underflow"
                       fw_signal="input_status_arr(${OH_IDX}).evtfifo_underflow"/>
-                <node id="EVENT_FIFO_IS_FULL"     mask="0x20000000" permission="r"
+                <node id="EVENT_FIFO_IS_FULL"     mask="0x20000000" permission="r" address="0x0"
                       description="Current status: Event FIFO is full"
                       fw_signal="input_status_arr(${OH_IDX}).evtfifo_full"/>
-                <node id="EVENT_FIFO_IS_AFULL"    mask="0x40000000" permission="r"
-                      description="Current status: Event FIFO is near­full (asserted at 75% and deasserted at 50%)"
+                <node id="EVENT_FIFO_IS_AFULL"    mask="0x40000000" permission="r" address="0x0"
+                      description="Current status: Event FIFO is near-full (asserted at 75% and deasserted at 50%)"
                       fw_signal="input_status_arr(${OH_IDX}).evtfifo_near_full"/>
-                <node id="EVENT_FIFO_IS_EMPTY"    mask="0x80000000" permission="r"
+                <node id="EVENT_FIFO_IS_EMPTY"    mask="0x80000000" permission="r" address="0x0"
                       description="Current status: Event FIFO is empty"
                       fw_signal="input_status_arr(${OH_IDX}).evtfifo_empty"/>
             </node>
@@ -565,6 +615,27 @@
                                    addition, event sending could stop due to DAQ FIFO being
                                    almost full or DAQLink not being ready."
                       fw_signal="input_status_arr(${OH_IDX}).eb_event_num"/>
+                <node id="INPUT_FIFO_DATA_CNT"  address="0x4"  mask="0x00000fff" permission="r"
+                      description="Current number of words in the Input FIFO (current depth is 4096)"
+                      fw_signal="chamber_infifos(${OH_IDX}).data_cnt"/>
+                <node id="EVT_FIFO_DATA_CNT"  address="0x4"  mask="0x0fff0000" permission="r"
+                      description="Current number of words in the Event FIFO (current depth is 4096)"
+                      fw_signal="chamber_evtfifos(${OH_IDX}).data_cnt"/>                      
+                <node id="INPUT_FIFO_NEAR_FULL_CNT"  address="0x5"  mask="0x0000ffff" permission="r"
+                      description="Number of times Input FIFO was near-full (asserted at 75%, deasserted at 50%)"
+                      fw_signal="input_status_arr(${OH_IDX}).infifo_near_full_cnt"
+                      sw_monitor_warn_min_threshold="100"/>
+                <node id="EVT_FIFO_NEAR_FULL_CNT"  address="0x5"  mask="0xffff0000" permission="r"
+                      description="Number of times Event FIFO was near-full (asserted at 75%, deasserted at 50%)"
+                      fw_signal="input_status_arr(${OH_IDX}).evtfifo_near_full_cnt"
+                      sw_monitor_warn_min_threshold="100"/>
+                <node id="VFAT_BLOCK_RATE"  address="0x6"  mask="0x00007fff" permission="r"
+                      description="Rate of VFAT blocks (192bit words) being written to Input FIFO in Hz (multiply by 192 to get bitrate)"
+                      fw_signal="input_status_arr(${OH_IDX}).infifo_wr_rate"
+                      sw_monitor_warn_min_threshold="13000"/>
+                <node id="EVT_RATE"  address="0x6"  mask="0xffff8000" permission="r"
+                      description="Rate of events being written to Event FIFO in Hz"
+                      fw_signal="input_status_arr(${OH_IDX}).evtfifo_wr_rate"/>                      
                 <node id="MAX_EOE_TIMER"         address="0x7" mask="0x00ffffff" permission="r"
                       description="Units = clock cycles @ 160MHz. 
                                    This indicates the maximum amount of time that event
