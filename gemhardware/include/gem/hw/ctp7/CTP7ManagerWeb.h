@@ -1,5 +1,5 @@
-#ifndef GEM_HW_GLIB_GLIBMANAGERWEB_H
-#define GEM_HW_GLIB_GLIBMANAGERWEB_H
+#ifndef GEM_HW_CTP7_CTP7MANAGERWEB_H
+#define GEM_HW_CTP7_CTP7MANAGERWEB_H
 
 #include <memory>
 
@@ -7,19 +7,19 @@
 
 namespace gem {
   namespace hw {
-    namespace glib {
+    namespace ctp7 {
 
-      class GLIBManager;
+      class CTP7Manager;
 
-      class GLIBManagerWeb : public gem::base::GEMWebApplication
+      class CTP7ManagerWeb : public gem::base::GEMWebApplication
         {
-          //friend class GLIBMonitor;
-          friend class GLIBManager;
+          //friend class CTP7Monitor;
+          friend class CTP7Manager;
 
         public:
-          GLIBManagerWeb(GLIBManager *glibApp);
+          CTP7ManagerWeb(CTP7Manager *ctp7App);
 
-          virtual ~GLIBManagerWeb();
+          virtual ~CTP7ManagerWeb();
 
         protected:
 
@@ -50,18 +50,18 @@ namespace gem {
           void fifoDumpPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
-          void dumpGLIBFIFO(xgi::Input *in, xgi::Output *out)
+          void dumpCTP7FIFO(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
         private:
           size_t activeCard;
 
-          //GLIBManagerWeb(GLIBManagerWeb const&);
+          //CTP7ManagerWeb(CTP7ManagerWeb const&);
 
         };
 
-    }  // namespace gem::glib
+    }  // namespace gem::ctp7
   }  // namespace gem::hw
 }  // namespace gem
 
-#endif  // GEM_HW_GLIB_GLIBMANAGERWEB_H
+#endif  // GEM_HW_CTP7_CTP7MANAGERWEB_H

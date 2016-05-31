@@ -1,0 +1,872 @@
+#ifndef GEM_HW_CTP7_HWCTP7_H
+#define GEM_HW_CTP7_HWCTP7_H
+
+#include "gem/hw/GEMHwDevice.h"
+
+#include "gem/hw/ctp7/exception/Exception.h"
+#include "gem/hw/ctp7/CTP7SettingsEnums.h"
+
+namespace gem {
+  namespace hw {
+    namespace ctp7 {
+
+      //class CTP7Monitor;
+
+      class HwCTP7 : public gem::hw::HwGenericAMC
+        {
+        public:
+
+          static const unsigned N_GTX = 2; ///< maximum number of GTX links on the CTP7
+
+          /**
+           * @struct CTP7IPBusCounters
+           * @brief This structure stores retrieved counters related to the CTP7 IPBus transactions
+           * @var CTP7IPBusCounters::OptoHybridStrobe
+           * OptoHybridStrobe is a counter for the number of errors on the tracking data link
+           * @var CTP7IPBusCounters::OptoHybridAck
+           * OptoHybridAck is a counter for the number of errors on the trigger data link
+           * @var CTP7IPBusCounters::TrackingStrobe
+           * TrackingStrobe is a counter for the number of errors on the tracking data link
+           * @var CTP7IPBusCounters::TrackingAck
+           * TrackingAck is a counter for the number of errors on the trigger data link
+           * @var CTP7IPBusCounters::CounterStrobe
+           * CounterStrobe is a counter for the number of errors on the tracking data link
+           * @var CTP7IPBusCounters::CounterAck
+           * CounterAck is a counter for the number of errors on the trigger data link
+           */
+          typedef struct CTP7IPBusCounters {
+            uint32_t OptoHybridStrobe;
+            uint32_t OptoHybridAck   ;
+            uint32_t TrackingStrobe  ;
+            uint32_t TrackingAck     ;
+            uint32_t CounterStrobe   ;
+            uint32_t CounterAck      ;
+
+          CTP7IPBusCounters() :
+            OptoHybridStrobe(0),OptoHybridAck(0),
+              TrackingStrobe(0),TrackingAck(0),
+              CounterStrobe(0),CounterAck(0) {};
+            void reset() {
+              OptoHybridStrobe=0; OptoHybridAck=0;
+              TrackingStrobe=0;   TrackingAck=0;
+              CounterStrobe=0;    CounterAck=0;
+              return; };
+          } CTP7IPBusCounters;
+
+
+          /**
+           * Constructors, the preferred constructor is with a connection file and device name
+           * as the IP address and address table can be managed there, rather than hard coded
+           * Constrution from crateID and slotID uses this constructor as the back end
+           */
+          HwCTP7();
+          HwCTP7(std::string const& ctp7Device, std::string const& connectionFile);
+          HwCTP7(std::string const& ctp7Device, std::string const& connectionURI,
+                 std::string const& addressTable);
+          HwCTP7(std::string const& ctp7Device, uhal::HwInterface& uhalDevice);
+          HwCTP7(int const& crate, int const& slot);
+
+          virtual ~HwCTP7();
+
+          /**
+           * Check if one can read/write to the registers on the CTP7
+           * @returns true if the CTP7 is accessible
+           */
+          bool isHwConnected();
+
+          //system core functionality
+          /**
+           * Read the board ID registers
+           * @returns the CTP7 board ID
+           */
+          std::string getBoardID()  ;
+
+          /**
+           * Read the board ID registers
+           * @returns the CTP7 board ID as 32 bit unsigned
+           */
+          uint32_t getBoardIDRaw()  ;
+
+          /**
+           * Read the system information register
+           * @returns a string corresponding to the system ID
+           */
+          std::string getSystemID();
+
+          /**
+           * Read the system information register
+           * @returns a string corresponding to the system ID as 32 bit unsigned
+           */
+          uint32_t getSystemIDRaw();
+
+          /**
+           * Read the IP address register
+           * @returns a string corresponding to the dotted quad IP address of the board
+           */
+          std::string getIPAddress();
+
+          /**
+           * Read the IP address register
+           * @returns the IP address of the board as a 32 bit unsigned
+           */
+          uint32_t getIPAddressRaw();
+
+          /**
+           * Read the MAC address register
+           * @returns a string corresponding to the MAC address of the board
+           */
+          std::string getMACAddress();
+
+          /**
+           * Read the MAC address register
+           * @returns the MAC address of the board as a 64 bit unsigned
+           */
+          uint64_t getMACAddressRaw();
+
+          /**
+           * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
+           * @returns a string corresponding to firmware version
+           */
+          std::string getFirmwareVer(bool const& system=true);
+
+          /**
+           * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
+           * @returns the firmware version as a 32 bit unsigned
+           */
+          uint32_t getFirmwareVerRaw(bool const& system=true);
+
+          /**
+           * Read the system firmware register
+           * @returns a string corresponding to the build date dd-mm-yyyy
+           */
+          std::string getFirmwareDate(bool const& system=true);
+
+          /**
+           * Read the system firmware register
+           * @param system determines whether to read the system or user firmware register
+           * @returns the build date as a 32 bit unsigned
+           */
+          uint32_t getFirmwareDateRaw(bool const& system=true);
+
+          //external clocking control functions
+          /**
+           * control the PCIe clock
+           * @param factor 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
+           * @param reset 1 -> reset, 0 -> normal operation
+           * @param enable 0 -> disabled, 1 -> enabled
+           * void controlPCIe(uint8_t const& factor);
+           */
+
+          /**
+           * select the PCIe clock multiplier
+           * @param factor 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
+           */
+          void PCIeClkFSel(uint8_t const& factor) {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_FSEL",(uint32_t)factor);
+          };
+
+          /**
+           * get the PCIe clock multiplier
+           * @returns the clock multiplier 0 -> OUT = 2.5xIN, 1 -> OUT = 1.25xIN
+           */
+          uint8_t PCIeClkFSel() {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_FSEL");
+          };
+
+          /**
+           * send master reset to the PCIe clock
+           * @param reset 1 -> reset, 0 -> normal operation
+           */
+          void PCIeClkMaster(bool reset) {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_MR",(uint32_t)reset);
+          };
+
+          /**
+           * get the PCIe clock reset state
+           * @returns the clock reset state 0 -> normal mode, 1 -> reset
+           */
+          uint8_t PCIeClkMaster() {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_MR");
+          };
+
+          /**
+           * enable the PCIe clock output
+           * @param enable 0 -> disabled, 1 -> enabled
+           */
+          void PCIeClkOutput(bool enable) {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            writeReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_OE",(uint32_t)enable);
+          };
+
+          /**
+           * get the PCIe clock output status
+           * @returns the clock output status 0 -> disabled, 1 -> enabled
+           */
+          uint8_t PCIeClkOutput() {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"PCIE_CLK_OE");
+          };
+
+
+          /**
+           * enable the CDCE
+           * @param powerup 0 -> power down, 1 -> power up
+           */
+          void CDCEPower(bool powerup) {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            writeReg(getDeviceBaseNode(),regName.str()+"CDCE_POWERUP",(uint32_t)powerup);
+          };
+
+          /**
+           * get the CDCE clock output status
+           * @returns the clock output status 0 -> disabled, 1 -> enabled
+           */
+          uint8_t CDCEPower() {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"CDCE_POWERUP");
+          };
+
+          /**
+           * select the CDCE reference clock
+           * @param refsrc 0 -> CLK1, 1 -> CLK2
+           */
+          void CDCEReference(bool refsrc) {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            writeReg(getDeviceBaseNode(),regName.str()+"CDCE_REFSEL",(uint32_t)refsrc);
+          };
+
+          /**
+           * get the CDCE reference clock
+           * @returns the reference clock status 0 -> CLK1, 1 -> CLK2
+           */
+          uint8_t CDCEReference() {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"CDCE_REFSEL");
+          };
+
+          /**
+           * resync the CDCE requires a transition from 0 to 1
+           * @param powerup 0 -> power down, 1 -> power up
+           */
+          void CDCESync(bool sync) {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            if (sync) {
+              writeReg(getDeviceBaseNode(),regName.str()+"CDCE_SYNC",0x0);
+              writeReg(getDeviceBaseNode(),regName.str()+"CDCE_SYNC",0x1);
+            }
+          };
+
+          /**
+           * get the CDCE syncronization status
+           * @returns the cdce sync status 0 -> disabled, 1 -> enabled
+           */
+          uint8_t CDCESync() {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"CDCE_SYNC");
+          };
+
+          /**
+           * choose who controls the CDCE
+           * @param source 0 -> system firmware, 1 -> user firmware
+           */
+          void CDCEControl(bool source) {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            writeReg(getDeviceBaseNode(),regName.str()+"CDCE_CTRLSEL",(uint32_t)source);
+          };
+
+          /**
+           * get the CDCE clock output status
+           * @returns the cdce control status 0 -> system firmware, 1 -> user firmware
+           */
+          uint8_t CDCEControl() {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"CDCE_CTRLSEL");
+          };
+
+
+          /**
+           * enable TClkB output to the backplane
+           * @param enable 0 -> disabled, 1 -> enabled
+           */
+          void TClkBOutput(bool enable) {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            writeReg(getDeviceBaseNode(),regName.str()+"TCLKB_DR_EN",(uint32_t)enable);
+          };
+
+          /**
+           * get the TClkB output to the backplane status
+           * @returns the clock output status 0 -> disabled, 1 -> enabled
+           */
+          uint8_t TClkBOutput() {
+            std::stringstream regName;
+            regName << "SYSTEM.CLK_CTRL.";
+            return (uint8_t)readReg(getDeviceBaseNode(),regName.str()+"TCLKB_DR_EN");
+          };
+
+          /**
+           * control the xpoint switch
+           * @param xpoint2 0 -> xpoint1, 1 -> xpoint2
+           * @param input selects the XPoint switch clock input to route
+           * @param output selects the XPoint switch clock output to route
+           * \brief Fucntion to control the routing of the two XPoint switches
+           *
+           * XPoint1 inputs 1-4 can be routed to outputs 1-4
+           * XPoint1 input 1 carries XPoint2 output 1
+           * XPoint1 input 2 carries SMA_CLK or the onboard 40MhZ oscillator
+           * XPoint1 input 3 carries TCLKA
+           * XPoint1 input 4 carries FCLKA
+           *
+           * XPoint1 output 1 routes to IO_L0_GC_34
+           * XPoint1 output 2 routes to TP
+           * XPoint1 output 3 routes to IO_L1_GC_34
+           * XPoint1 output 4 routes to CDCE PRI_CLK
+           *
+           * XPoint2 can only have output 1 controlled (routing options are inputs 1-3 to output 1
+           *
+           * XPoint2 inputs 1-4 can be routed to outputs 1-4
+           * XPoint2 input 1 carries FMC1_CLK0_M2C
+           * XPoint2 input 2 carries FMC2_CLK0_M2C
+           * XPoint2 input 3 carries TCLKC
+           * XPoint2 input 4 carries nothing
+           *
+           * XPoint2 output 1 routes to XPoint1 input 1
+           * XPoint2 output 2 routes to IO_L18_GC_35
+           * XPoint2 output 3 routes to MGT113REFCLK1
+           * XPoint2 output 4 routes nowhere
+           */
+          void XPointControl(bool xpoint2, uint8_t const& input, uint8_t const& output);
+
+          /**
+           * get the routing of the XPoint switch
+           * @returns the input that is currently routed to a specified output
+           */
+          uint8_t XPointControl(bool xpoint2, uint8_t const& output);
+
+          /**
+           * get the status of the CTP7 SFP
+           * @param sfpcage
+           * @returns the 3 status bits of the specified SFP
+           */
+          uint8_t SFPStatus(uint8_t const& sfpcage);
+
+          /**
+           * get the presence of the FMC in slot 1 or 2
+           * @param fmc2 true for FMC2 false for FMC1
+           * @returns true if an FMC is in the selected slot
+           */
+          bool FMCPresence(bool fmc2);
+
+          /**
+           * is there a GbE interrupt on the PHY
+           * @returns true if there is an interrupt
+           */
+          bool GbEInterrupt();
+
+          /**
+           * returns the state of the FPGA reset line (driven by the CPLD)
+           * @returns true if there is a reset
+           */
+          bool FPGAResetStatus();
+
+          /**
+           * returns the status of the 6-bit bus between the FPGA and the CPLD
+           * @returns
+           */
+          uint8_t V6CPLDStatus();
+
+          /**
+           * is the CDCE locked
+           * @returns true if the CDCE is locked
+           */
+          bool CDCELockStatus();
+
+
+          //user core functionality
+          /**
+           * Read the user firmware register
+           * @returns a hex number corresponding to the build date
+           * OBSOLETE in V2 firmware
+           */
+          uint32_t getUserFirmware();
+
+          /**
+           * Read the user firmware register
+           * @returns a std::string corresponding to the build date
+           * OBSOLETE in V2 firmware
+           */
+          std::string getUserFirmwareDate();
+
+        private:
+          /**
+           * Check if the gtx requested is known to be operational
+           * @param uint8_t gtx GTX gtx to be queried
+           * @param std::string opMsg Operation message to append to the log message
+           * @returns true if the gtx is in range and active, false otherwise
+           */
+          bool linkCheck(uint8_t const& gtx, std::string const& opMsg);
+
+        public:
+          /**
+           * Read the gtx status registers, store the information in a struct
+           * @param uint8_t gtx is the number of the gtx to query
+           * @retval _status a struct containing the status bits of the optical link
+           * @throws gem::hw::ctp7::exception::InvalidLink if the gtx number is outside of 0-N_GTX
+           */
+          GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& gtx);
+
+          /**
+           * Reset the gtx status registers
+           * @param uint8_t gtx is the number of the gtx to query
+           * @param uint8_t resets control which bits to reset
+           * bit 1 - TRK_ErrCnt         0x1
+           * bit 2 - TRG_ErrCnt         0x2
+           * bit 3 - Data_Rec           0x4
+           * @throws gem::hw::ctp7::exception::InvalidLink if the gtx number is outside of 0-N_GTX
+           */
+          void LinkReset(uint8_t const& gtx, uint8_t const& resets);
+
+          /**
+           * Reset the all gtx status registers
+           * @param uint8_t resets control which bits to reset
+           */
+          void ResetLinks(uint8_t const& resets) {
+            for (auto gtx = v_activeLinks.begin(); gtx != v_activeLinks.end(); ++gtx)
+              LinkReset(gtx->first,resets);
+          };
+
+          /**
+           * Set the Trigger source
+           * @param uint8_t mode 0 from software, 1 from TTC decoder (AMC13), 2 from both
+           * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
+           */
+          void setTrigSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
+            return;
+          };
+
+          /**
+           * Read the Trigger source
+           * @retval uint8_t 0 from CTP7, 1 from AMC13, 2 from both
+           * OBSOLETE in V2 firmware, taken care of in the OptoHybrid
+           */
+          uint8_t getTrigSource(uint8_t const& gtx=0x0) {
+            return 0;
+          };
+
+          /**
+           * Set the S-bit source
+           * @param uint8_t chip
+           * OBSOLETE in V2 firmware
+           */
+          void setSBitSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
+            return;
+          };
+
+          /**
+           * Read the S-bit source
+           * @retval uint8_t which VFAT chip is sending the S-bits
+           * OBSOLETE in V2 firmware
+           */
+          uint8_t getSBitSource(uint8_t const& gtx=0x0) {
+            return 0;
+          };
+
+          ///Counters
+          /**
+           * Get the recorded number of IPBus signals sent/received by the CTP7
+           * @param uint8_t gtx which GTX
+           * @param uint8_t mode which counter
+           * bit 1 OptoHybridStrobe
+           * bit 2 OptoHybridAck
+           * bit 3 TrackingStrobe
+           * bit 4 TrackingAck
+           * bit 5 CounterStrobe
+           * bit 6 CounterAck
+           * @returns CTP7IPBusCounters struct, with updated values for the ones specified in the mask
+           */
+          CTP7IPBusCounters getIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
+
+          /**
+           * Get the recorded number of L1A signals received from the TTC decoder
+           */
+          uint32_t getL1ACount() {
+            return readReg(getDeviceBaseNode(),"COUNTERS.T1.L1A"); };
+
+          /**
+           * Get the recorded number of CalPulse signals received from the TTC decoder
+           */
+          uint32_t getCalPulseCount() {
+            return readReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse"); };
+
+          /**
+           * Get the recorded number of Resync signals received from the TTC decoder
+           */
+          uint32_t getResyncCount() {
+            return readReg(getDeviceBaseNode(),"COUNTERS.T1.Resync"); };
+
+          /**
+           * Get the recorded number of BC0 signals
+           */
+          uint32_t getBC0Count() {
+            return readReg(getDeviceBaseNode(),"COUNTERS.T1.BC0"); };
+
+          ///Counter resets
+          /**
+           * Get the recorded number of IPBus signals sent/received by the CTP7
+           * @param uint8_t gtx which GTX
+           * @param uint8_t mode which counter
+           * bit 0 OptoHybridStrobe
+           * bit 1 OptoHybridAck
+           * bit 2 TrackingStrobe
+           * bit 3 TrackingAck
+           * bit 4 CounterStrobe
+           * bit 5 CounterAck
+           */
+          void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
+
+          /**
+           * Reset the recorded number of L1A signals received from the TTC decoder
+           */
+          void resetL1ACount() {
+            return writeReg(getDeviceBaseNode(),"COUNTERS.T1.L1A.Reset", 0x1); };
+
+          /**
+           * Reset the recorded number of CalPulse signals received from the TTC decoder
+           */
+          void resetCalPulseCount() {
+            return writeReg(getDeviceBaseNode(),"COUNTERS.T1.CalPulse.Reset", 0x1); };
+
+          /**
+           * Reset the recorded number of Resync signals received from the TTC decoder
+           */
+          void resetResyncCount() {
+            return writeReg(getDeviceBaseNode(),"COUNTERS.T1.Resync.Reset", 0x1); };
+
+          /**
+           * Reset the recorded number of BC0 signals
+           */
+          void resetBC0Count() {
+            return writeReg(getDeviceBaseNode(),"COUNTERS.T1.BC0.Reset", 0x1); };
+
+          /**
+           * Read the trigger data
+           * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
+           */
+          uint32_t readTriggerFIFO(uint8_t const& gtx);
+
+          /**
+           * Empty the trigger data FIFO
+           */
+          void flushTriggerFIFO(uint8_t const& gtx);
+
+          /**
+           * Read the tracking data FIFO occupancy in terms of raw 32bit words
+           * @param uint8_t gtx is the number of the gtx to query
+           * @retval uint32_t returns the number of words in the tracking data FIFO
+           */
+          uint32_t getFIFOOccupancy(uint8_t const& gtx);
+
+          /**
+           * Read the tracking data FIFO occupancy in terms of the number of 7x32bit words
+           * composing a single VFAT block
+           * @param uint8_t gtx is the number of the gtx to query
+           * @retval uint32_t returns the number of VFAT blocks in the tracking data FIFO
+           */
+          uint32_t getFIFOVFATBlockOccupancy(uint8_t const& gtx);
+
+          /**
+           * see if there is tracking data available
+           * @param uint8_t gtx is the number of the column of the tracking data to read
+           * @retval bool returns true if there is tracking data in the FIFO
+           TRK_DATA.COLX.DATA_RDY
+          */
+          bool hasTrackingData(uint8_t const& gtx);
+
+          /**
+           * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
+           * and need to pack all events together
+           * @param uint8_t gtx is the number of the GTX tracking data to read
+           * @param size_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
+           * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
+          */
+          std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
+          //which of these will be better and do what we want
+          uint32_t getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks=1);
+          //which of these will be better and do what we want
+          uint32_t getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
+                                   size_t const& nBlocks=1);
+
+          /**
+           * Empty the tracking data FIFO
+           * @param uint8_t gtx is the number of the gtx to query
+           *
+           */
+          void flushFIFO(uint8_t const& gtx);
+
+          /**************************/
+          /** DAQ link information **/
+          /**************************/
+          /**
+           * @brief Set the enable mask and enable the DAQ link
+           * @param enableMask 32 bit word for the 24 bit enable mask
+           */
+          void enableDAQLink(uint32_t const& enableMask=0x1);
+
+          /**
+           * @brief Set the DAQ link off and disable all inputs
+           */
+          void disableDAQLink();
+
+          /**
+           * @brief reset the DAQ link and write the DAV timout
+           * @param davTO value to use for the DAV timeout
+           */
+          void resetDAQLink(uint32_t const& davTO=0x3d090);
+
+          /**
+           * @returns Returns the 32 bit word corresponding to the DAQ link control register
+           */
+          uint32_t getDAQLinkControl();
+
+          /**
+           * @returns Returns the 32 bit word corresponding to the DAQ link status register
+           */
+          uint32_t getDAQLinkStatus();
+
+          /**
+           * @returns Returns true if the DAQ link is ready
+           */
+          bool daqLinkReady();
+
+          /**
+           * @returns Returns true if the DAQ link is clock is locked
+           */
+          bool daqClockLocked();
+
+          /**
+           * @returns Returns true if the TTC is ready
+           */
+          bool daqTTCReady();
+
+          /**
+           * @returns Returns true if the event FIFO is almost full (70%)
+           */
+          bool daqAlmostFull();
+
+          /**
+           * @returns Returns the current TTS state asserted by the DAQ link firmware
+           */
+          uint8_t daqTTSState();
+
+          /**
+           * @returns Returns the number of events built and sent on the DAQ link
+           */
+          uint32_t getDAQLinkEventsSent();
+
+          /**
+           * @returns Returns the curent L1AID (number of L1As received)
+           */
+          uint32_t getDAQLinkL1AID();
+
+          /**
+           * @returns Returns
+           */
+          uint32_t getDAQLinkDisperErrors();
+
+          /**
+           * @returns Returns
+           */
+          uint32_t getDAQLinkNonidentifiableErrors();
+
+          /**
+           * @returns Returns the DAQ link input enable mask
+           */
+          uint32_t getDAQLinkInputMask();
+
+          /**
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
+          uint32_t getDAQLinkDAVTimeout();
+
+          /**
+           * @param max is a bool specifying whether to query the max timer or the last timer
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
+          uint32_t getDAQLinkDAVTimer(bool const& max);
+
+          /***************************************/
+          /** GTX specific DAQ link information **/
+          /***************************************/
+          /**
+           * @param gtx is the input link status to query
+           * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
+           */
+          uint32_t getDAQLinkStatus(   uint8_t const& gtx);
+
+          /**
+           * @param gtx is the input link counter to query
+           * @param mode specifies whether to query the corrupt VFAT count (0x0) or the event number
+           * @returns Returns the link counter for the specified mode
+           */
+          uint32_t getDAQLinkCounters( uint8_t const& gtx, uint8_t const& mode);
+
+          /**
+           * @param gtx is the input link status to query
+           * @returns Returns a block of the last 7 words received from the OH on the link specified
+           */
+          uint32_t getDAQLinkLastBlock(uint8_t const& gtx);
+
+          /**
+           * @returns Returns the timeout before the event builder firmware will close the event and send the data
+           */
+          uint32_t getDAQLinkInputTimeout();
+
+          /**
+           * @returns Returns the run type stored in the data stream
+           */
+          uint32_t getDAQLinkRunType();
+
+          /**
+           * @returns Special run parameters 1,2,3 as a single 24 bit word
+           */
+          uint32_t getDAQLinkRunParameters();
+
+          /**
+           * @returns Special run parameter written into data stream
+           */
+          uint32_t getDAQLinkRunParameter(uint8_t const& parameter);
+
+
+          /**
+           * @brief Set DAQ link timeout
+           * @param value is the number of clock cycles to wait after receipt of last L1A and
+           *        last packet received from the optical link before closing an "event"
+           */
+          void setDAQLinkInputTimeout(uint32_t const& value);
+
+          /**
+           * @brief Special run type to be written into data stream
+           * @param value is the run type
+           */
+          void setDAQLinkRunType(uint32_t const& value);
+
+          /**
+           * @returns Set special run parameter to be written into data stream
+           * @param value is a 24 bit word to write into the run paramter portion of the GEM header
+           */
+          void setDAQLinkRunParameters(uint32_t const& value);
+
+          /**
+           * @returns Special run parameter written into data stream
+           * @param parameter is the number of parameter to be written (1-3)
+           * @param value is the run paramter to write into the specified parameter
+           */
+          void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
+
+
+          /**************************/
+          /** TTC link information **/
+          /**************************/
+          /**
+           * @returns TTC control register value
+           */
+          uint32_t getTTCControl();
+
+          /**
+           * @returns TTC encoding in use on the CTP7
+           */
+          CTP7TTCEncoding getTTCEncoding();
+
+          /**
+           * @param select which TTC encoding to use on the CTP7
+           */
+          void setTTCEncoding(CTP7TTCEncoding ttc_enc);
+
+          /**
+           * @returns whether or not L1As are currently inhibited on the CTP7
+           */
+          bool getL1AInhibit();
+
+          /**
+           * @param whether or not to inhibit L1As on the CTP7
+           */
+          void setL1AInhibit(bool inhibit);
+
+          /**
+           * @brief resets the TTC on the CTP7
+           */
+          void resetTTC();
+
+          /**
+           * @returns 32-bit word corresponding to the 8 most recent TTC commands received
+           */
+          uint32_t getTTCSpyBuffer();
+
+          /**************************/
+          /** DAQ link information **/
+          /**************************/
+          /**
+           * @brief performs a general reset of the CTP7
+           */
+          virtual void generalReset();
+
+          /**
+           * @brief performs a reset of the CTP7 counters
+           */
+          virtual void counterReset();
+
+          /**
+           * @brief performs a reset of the CTP7 T1 counters
+           */
+          void resetT1Counters();
+
+          /**
+           * @brief performs a reset of the CTP7 GTX link counters
+           */
+          void resetLinkCounters();
+
+          /**
+           * @brief performs a reset of the CTP7 link
+           * @param link is the link to perform the reset on
+           */
+          virtual void linkReset(uint8_t const& link);
+
+          std::vector<CTP7IPBusCounters> m_ipBusCounters; /** for each gtx, IPBus counters */
+
+        protected:
+          //CTP7Monitor *monCTP7_;
+
+          bool b_links[N_GTX];
+
+          std::vector<linkStatus> v_activeLinks;
+
+        private:
+          // uint8_t m_controlLink;
+          int m_crate, m_slot;
+
+        };  // class HwCTP7
+    }  // namespace gem::hw::ctp7
+  }  // namespace gem::hw
+}  // namespace gem
+
+#endif  // GEM_HW_CTP7_HWCTP7_H

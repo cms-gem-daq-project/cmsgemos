@@ -80,12 +80,29 @@
 	<AMCSlots       xsi:type="xsd:string">10</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
+          <!--
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!- - position must be slot-1 - ->
+            <!- -GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"- ->
+            <crateID xsi:type="xsd:integer">1</crateID>
+            <slot    xsi:type="xsd:integer">2</slot>
+            <present xsi:type="xsd:boolean">true</present>
+            
+	    <CardName          xsi:type="xsd:string">gem.shelf01.ctp7-02</CardName>
+            <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.2.42</DeviceIPAddress>
+            <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
+            <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
+            <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
+            <IPBusPort         xsi:type="xsd:unsignedInt">50001</IPBusPort>
+          </GLIBInfo>
+          -->
           <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="9"> <!-- position must be slot-1 -->
             <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
             <crateID xsi:type="xsd:integer">1</crateID>
             <slot    xsi:type="xsd:integer">10</slot>
             <present xsi:type="xsd:boolean">true</present>
             
+	    <CardName          xsi:type="xsd:string"></CardName>
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
             <DeviceIPAddress   xsi:type="xsd:string">192.168.0.170</DeviceIPAddress>
             <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>

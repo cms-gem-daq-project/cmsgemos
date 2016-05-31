@@ -776,6 +776,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
   // enableTriggers();
   sleep(1);
+  glibDevice_->enableDAQLink(0x1<<(confParams_.bag.ohGTXLink.value_));
 
   //AppHeader ah;
   threshold_     = scanParams_.bag.deviceVT2 -scanParams_.bag.deviceVT1;

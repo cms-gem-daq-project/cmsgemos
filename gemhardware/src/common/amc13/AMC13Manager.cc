@@ -325,19 +325,15 @@ void gem::hw::amc13::AMC13Manager::startAction()
   p_amc13->reset(::amc13::AMC13::T1);
   usleep(500);
 
-  p_amc13->reset(::amc13::AMC13::T1);
-
   p_amc13->startRun();
   INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
-
-  INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
-
   
   if (m_enableLocalL1A && m_startL1ATricont) {
     //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     //    p_amc13->startContinuousL1A();
   }
+
   if (m_enableLocalTTC) {
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
       if (bchan->bag.channel.value_ > -1)

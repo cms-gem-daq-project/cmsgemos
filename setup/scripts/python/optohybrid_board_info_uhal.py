@@ -9,7 +9,7 @@ import uhal
 from registers_uhal import *
 from glib_user_functions_uhal import *
 from optohybrid_user_functions_uhal import *
-from rate_calculator import errorRate
+from rate_calculator import getErrorRate,errorRate
 
 from optparse import OptionParser
 
@@ -34,6 +34,8 @@ parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
 		  help="calculate link error rates for N seconds", metavar="errorRate")
 parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
+parser.add_option("--v2b", action="store_true", dest="v2b",
+		  help="Specific functionality only in v2b", metavar="v2b")
 
 (options, args) = parser.parse_args()
 
@@ -54,6 +56,8 @@ optohybrid    = uhal.getDevice( "optohybrid" , uri, address_table )
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
 glib          = uhal.getDevice( "glib"       , uri, address_table )
 
+SAMPLE_TIME = 1.
+
 ########################################
 # IP address
 ########################################
@@ -65,6 +69,13 @@ print "-> -----------------"
 fwver = getFirmwareVersion(optohybrid,options.gtx)
 date = '%02x/%02x/%04x'%(fwver["d"],fwver["m"],fwver["y"])
 print "-> oh fw date : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
+print
+print "Connected VFATs mask: 0x%08x"%(getConnectedVFATsMask(glib,options.gtx,options.debug))
+print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(glib,options.gtx,options.debug))
+setVFATsBitMask(glib,options.gtx,0x7fffff,options.debug)
+print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(glib,options.gtx,options.debug))
+print
+
 
 if options.clkSrc in [0,1,2]:
         setReferenceClock(optohybrid,options.gtx,options.clkSrc)
@@ -82,15 +93,41 @@ if options.sbitSrc in [1,2,3,4,5,6]:
 clocking = getClockingInfo(optohybrid,options.gtx)
 #OH:  TrgSrc  SBitSrc  FPGA PLL    EXT PLL    CDCE     GTX  RefCLKSrc
 #->:     0x0      0x0       0x0       0x0      0x1     0x1        0x1
-print "OH:  %6s  %7s  %8s  %7s  %6s  %6s  %9s"%("TrgSrc","SBitSrc","FPGA PLL","EXT PLL","CDCE","GTX","RefCLKSrc")
-print "->:     0x%x      0x%x       0x%x      0x%x     0x%x     0x%x        0x%x"%(
-        readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
-        readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.OUTPUT.SBits"%(options.gtx)),
-        clocking["fpgaplllock"],
-        clocking["extplllock"],
-        clocking["cdcelock"],
-        clocking["gtxreclock"],
-        clocking["refclock"])
+if options.v2b:
+        print "Sources:  %6s  %7s"%("TrgSrc","SBitSrc")
+        print "             0x%x      0x%x"%(
+                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
+                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.OUTPUT.SBits"%(options.gtx)))
+
+        print "Lock status:  %10s  %13s"%("QPLL","QPLL FPGA PLL")
+        print "                     0x%x            0x%x"%(
+                clocking["qplllock"],
+                clocking["qpllfpgaplllock"])
+        errorCounts = {}
+        errorCounts["QPLL"] = []
+        errorCounts["FPGA"] = []
+        for trial in range(options.errorRate):
+                errorCounts["QPLL"].append(calculateLockErrors(optohybrid,options.gtx,"QPLL",SAMPLE_TIME))
+                errorCounts["FPGA"].append(calculateLockErrors(optohybrid,options.gtx,"QPLL_FPGA_PLL",SAMPLE_TIME))
+        
+        qrates = getErrorRate(errorCounts["QPLL"],SAMPLE_TIME)
+        frates = getErrorRate(errorCounts["FPGA"],SAMPLE_TIME)
+        print "Unlock count: 0x%08x     0x%08x"%(qrates[0],frates[0])
+        0x00000107
+        print "Unlock rate:%10sHz   %10sHz"%("%2.2f%s"%(qrates[1],qrates[2]),"%2.2f%s"%(frates[1],frates[2]))
+else:
+        print "Sources:  %6s  %7s  %9s"%("TrgSrc","SBitSrc","RefCLKSrc")
+        print "             0x%x      0x%x        0x%x"%(
+                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
+                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.OUTPUT.SBits"%(options.gtx)),
+                clocking["refclock"])
+
+        print "Lock status:  %8s  %7s  %4s  %3s"%("FPGA PLL","EXT PLL","CDCE","GTX")
+        print "                   0x%x      0x%x   0x%x  0x%x"%(
+                clocking["fpgaplllock"],
+                clocking["extplllock"],
+                clocking["cdcelock"],
+                clocking["gtxreclock"])
 	
 print 
 #print "-> OH Clocking (src, bkp):     VFAT         CDCE"
@@ -115,7 +152,6 @@ print
 print "--=======================================--"
 print "-> OH: %10s  %12s"%("ErrCnt","(rate)")
 errorCounts = []
-SAMPLE_TIME = 1.
 for trial in range(options.errorRate):
         errorCounts.append(calculateLinkErrors(False,optohybrid,options.gtx,SAMPLE_TIME))
 sys.stdout.flush()
@@ -124,17 +160,13 @@ rates = errorRate(errorCounts,SAMPLE_TIME)
 #counters = optohybridCounters(optohybrid,options.gtx)
 print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
 print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
-print 
 
 print
 print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
-for gtx in range(2):
-        fifoInfo = readFIFODepth(glib,gtx)
-        print "       %8s  %7s  %10s"%("0x%x"%(fifoInfo["isEMPTY"]),
-                                       "0x%x"%(fifoInfo["isFULL"]),
-                                       "0x%x"%(fifoInfo["Occupancy"]))
-
-	getConnectedVFATsMask(glib,gtx,True)
+fifoInfo = readFIFODepth(glib,options.gtx)
+print "       %8s  %7s  %10s"%("0x%x"%(fifoInfo["isEMPTY"]),
+                               "0x%x"%(fifoInfo["isFULL"]),
+                               "0x%x"%(fifoInfo["Occupancy"]))
 
 print
 print "--=======================================--"

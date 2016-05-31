@@ -942,11 +942,14 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
     cgicc::form_iterator oh = cgi.getElement("SetOH");
     if (strcmp((**oh).c_str(),"OH_0") == 0) {
       confParams_.bag.ohGTXLink.value_= 0;
-      DEBUG("OH_0 has been selected " << confParams_.bag.ohGTXLink);
+      INFO("OH_0 has been selected " << confParams_.bag.ohGTXLink);
     } else if (strcmp((**oh).c_str(),"OH_1") == 0) {
       confParams_.bag.ohGTXLink.value_= 1;
-      DEBUG("OH_1 has been selected " << confParams_.bag.ohGTXLink);
-    }
+      INFO("OH_1 has been selected " << confParams_.bag.ohGTXLink);
+    } else if (strcmp((**oh).c_str(),"OH_2") == 0) {
+      confParams_.bag.ohGTXLink.value_= 2;
+      INFO("OH_2 has been selected " << confParams_.bag.ohGTXLink);
+    }//if OH_1
 
     m_vfatMask = 0x0;
     for(int i = 0; i < 24; ++i) {
@@ -1241,18 +1244,19 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
 
+  // this all needs to be removed and be made generic
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
+  //tmpURI << "ipbustcp-2.0://192.168.2.42:60002";
 
   glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("HwGLIB", tmpURI.str(),
                                                           "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+  //glibDevice_ = glib_shared_ptr(new gem::hw::glib::HwGLIB("gem.shelf01.ctp7-02", "connections_ch.xml"));
 
-  /*    optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
-	"file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));*/
-
-  std::string ohDeviceName = toolbox::toString("HwOptoHybrid%d",confParams_.bag.ohGTXLink.value_);
+  std::string ohDeviceName = toolbox::toString("gem.shelf01.ctp7-02.optohybrid%02d",confParams_.bag.ohGTXLink.value_);
   optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, tmpURI.str(),
                                                                                   "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
+  //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, "connections_ch.xml"));
 
   if (glibDevice_->isHwConnected()) {
     DEBUG("GLIB device connected");
@@ -1274,7 +1278,6 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
 	vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(vfat, tmpURI.str(),
                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-
 	if (tmpVFATDevice->isHwConnected()) {
           tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
                                                              confParams_.bag.ohGTXLink.value_,
@@ -1579,6 +1582,7 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
       *out << cgicc::select().set("name","SetOH").set("disabled","disabled")
 	   << cgicc::option("OH_0").set("value","OH_0")
 	   << cgicc::option("OH_1").set("value","OH_1")
+	   << cgicc::option("OH_2").set("value","OH_2")
 	   << cgicc::select().set("disabled","disabled") << std::endl
 	   << "</td>"    << std::endl
 	   << "</tr>"    << std::endl
@@ -1587,6 +1591,7 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
       *out << cgicc::select().set("name","SetOH") << std::endl
 	   << cgicc::option("OH_0").set("value","OH_0")
 	   << cgicc::option("OH_1").set("value","OH_1")
+	   << cgicc::option("OH_2").set("value","OH_2")
 	   << cgicc::select()<< std::endl
 	   << "</td>"    << std::endl
 	   << "</tr>"    << std::endl

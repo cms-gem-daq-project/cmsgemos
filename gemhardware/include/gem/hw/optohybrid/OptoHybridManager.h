@@ -16,8 +16,10 @@ namespace gem {
 
       class HwOptoHybrid;
       class OptoHybridManagerWeb;
+      class OptoHybridMonitor;
 
       typedef std::shared_ptr<HwOptoHybrid> optohybrid_shared_ptr;
+      typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
 
       class OptoHybridManager : public gem::base::GEMFSMApplication
         {
@@ -57,7 +59,7 @@ namespace gem {
 	  uint32_t parseVFATMaskList(std::string const&);
 	  bool     isValidSlotNumber(std::string const&);
 
-          //std::vector<uint32_t> v_vfatBroadcastMask;// one for each optohybrid
+          void     createOptoHybridInfoSpaceItems(is_toolbox_ptr is_optohybrid, optohybrid_shared_ptr optohybrid);
 
           class OptoHybridInfo {
 
@@ -69,6 +71,7 @@ namespace gem {
             xdata::Integer crateID;
             xdata::Integer slotID;
             xdata::Integer linkID;
+            xdata::String  cardName;
 
             //configuration parameters
             xdata::String controlHubAddress;
@@ -81,6 +84,9 @@ namespace gem {
 
             xdata::String            vfatBroadcastList;
             xdata::UnsignedInteger32 vfatBroadcastMask;
+            
+            xdata::String            vfatSBitList;
+            xdata::UnsignedInteger32 vfatSBitMask;
 
             //registers to set
             xdata::Integer triggerSource;
@@ -96,6 +102,7 @@ namespace gem {
                  << "crateID:" << crateID.toString() << std::endl
                  << "slotID:"  << slotID.toString()  << std::endl
                  << "linkID:"  << linkID.toString()  << std::endl
+                 << "cardName:" << cardName.toString() << std::endl
 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
@@ -106,6 +113,8 @@ namespace gem {
 
                  << "vfatBroadcastList:"   << vfatBroadcastList.toString() << std::endl
                  << "vfatBroadcastMask:0x" << std::hex << vfatBroadcastMask.value_ << std::dec << std::endl
+                 << "vfatSBitList:"        << vfatSBitList.toString() << std::endl
+                 << "vfatSBitMask:0x"      << std::hex << vfatSBitMask.value_ << std::dec << std::endl
 
                  << "triggerSource:0x" << std::hex << triggerSource.value_ << std::dec << std::endl
                  << "sbitSource:0x"    << std::hex << sbitSource.value_    << std::dec << std::endl
@@ -118,11 +127,22 @@ namespace gem {
           };
 
           mutable gem::utils::Lock m_deviceLock;//[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
-
-          optohybrid_shared_ptr m_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
-          xdata::InfoSpace*     is_optohybrids[MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
+          
+          // Matrix<optohybrid_shared_ptr, MAX_OPTOHYBRIDS_PER_AMC, MAX_AMCS_PER_CRATE>
+          std::array<std::array<optohybrid_shared_ptr, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
+            m_optohybrids;
+          
+          std::array<std::array<std::shared_ptr<OptoHybridMonitor>, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
+            m_optohybridMonitors;
+          
+          std::array<std::array<is_toolbox_ptr, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
+            is_optohybrids;
+          
           xdata::Vector<xdata::Bag<OptoHybridInfo> > m_optohybridInfo;
           xdata::String        m_connectionFile;
+          std::array<std::array<uint32_t, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE> m_broadcastList;
+          std::array<std::array<std::vector<std::pair<uint8_t, uint32_t> >, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
+            m_vfatMapping;
         };  // class OptoHybridManager
 
     }  // namespace gem::hw::optohybrid

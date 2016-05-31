@@ -1,38 +1,38 @@
-#ifndef GEM_HW_GLIB_GLIBMANAGER_H
-#define GEM_HW_GLIB_GLIBMANAGER_H
-/** @file GLIBManager.h */
+#ifndef GEM_HW_CTP7_CTP7MANAGER_H
+#define GEM_HW_CTP7_CTP7MANAGER_H
+/** @file CTP7Manager.h */
 
 
 //#include "uhal/uhal.hpp"
 
 #include "gem/base/GEMFSMApplication.h"
-//#include "gem/hw/glib/GLIBSettings.h"
+//#include "gem/hw/ctp7/CTP7Settings.h"
 
-#include "gem/hw/glib/exception/Exception.h"
+#include "gem/hw/ctp7/exception/Exception.h"
 
 namespace gem {
   namespace hw {
-    namespace glib {
+    namespace ctp7 {
 
-      class HwGLIB;
-      class GLIBManagerWeb;
-      class GLIBMonitor;
+      class HwCTP7;
+      class CTP7ManagerWeb;
+      class CTP7Monitor;
 
-      typedef std::shared_ptr<HwGLIB>  glib_shared_ptr;
+      typedef std::shared_ptr<HwCTP7>  ctp7_shared_ptr;
       typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
 
-      class GLIBManager : public gem::base::GEMFSMApplication
+      class CTP7Manager : public gem::base::GEMFSMApplication
         {
 
-          friend class GLIBManagerWeb;
-          //friend class GLIBMonitor;
+          friend class CTP7ManagerWeb;
+          //friend class CTP7Monitor;
 
         public:
           XDAQ_INSTANTIATOR();
 
-          GLIBManager(xdaq::ApplicationStub* s);
+          CTP7Manager(xdaq::ApplicationStub* s);
 
-          virtual ~GLIBManager();
+          virtual ~CTP7Manager();
 
         protected:
           virtual void init();
@@ -40,15 +40,15 @@ namespace gem {
           virtual void actionPerformed(xdata::Event& event);
 
           //state transitions
-          virtual void initializeAction() throw (gem::hw::glib::exception::Exception);
-          virtual void configureAction()  throw (gem::hw::glib::exception::Exception);
-          virtual void startAction()      throw (gem::hw::glib::exception::Exception);
-          virtual void pauseAction()      throw (gem::hw::glib::exception::Exception);
-          virtual void resumeAction()     throw (gem::hw::glib::exception::Exception);
-          virtual void stopAction()       throw (gem::hw::glib::exception::Exception);
-          virtual void haltAction()       throw (gem::hw::glib::exception::Exception);
-          virtual void resetAction()      throw (gem::hw::glib::exception::Exception);
-          //virtual void noAction()         throw (gem::hw::glib::exception::Exception);
+          virtual void initializeAction() throw (gem::hw::ctp7::exception::Exception);
+          virtual void configureAction()  throw (gem::hw::ctp7::exception::Exception);
+          virtual void startAction()      throw (gem::hw::ctp7::exception::Exception);
+          virtual void pauseAction()      throw (gem::hw::ctp7::exception::Exception);
+          virtual void resumeAction()     throw (gem::hw::ctp7::exception::Exception);
+          virtual void stopAction()       throw (gem::hw::ctp7::exception::Exception);
+          virtual void haltAction()       throw (gem::hw::ctp7::exception::Exception);
+          virtual void resetAction()      throw (gem::hw::ctp7::exception::Exception);
+          //virtual void noAction()         throw (gem::hw::ctp7::exception::Exception);
 
           virtual void failAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
@@ -61,28 +61,27 @@ namespace gem {
         protected:
           /**
            */
-          std::vector<uint32_t> dumpGLIBFIFO(int const& glib);
+          std::vector<uint32_t> dumpCTP7FIFO(int const& ctp7);
           
           /**
            */
-          void dumpGLIBFIFO(xgi::Input* in, xgi::Output* out);
+          void dumpCTP7FIFO(xgi::Input* in, xgi::Output* out);
 
         private:
 	  uint16_t parseAMCEnableList(std::string const&);
 	  bool     isValidSlotNumber( std::string const&);
-          void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
+          void     createCTP7InfoSpaceItems(is_toolbox_ptr is_ctp7, ctp7_shared_ptr ctp7);
           uint16_t m_amcEnableMask;
 
-          class GLIBInfo {
+          class CTP7Info {
 
           public:
-            GLIBInfo();
-            void registerFields(xdata::Bag<GLIBManager::GLIBInfo>* bag);
+            CTP7Info();
+            void registerFields(xdata::Bag<CTP7Manager::CTP7Info>* bag);
             //monitoring information
             xdata::Boolean present;
             xdata::Integer crateID;
             xdata::Integer slotID;
-            xdata::String  cardName;
 
             //configuration parameters
             xdata::String controlHubAddress;
@@ -98,10 +97,9 @@ namespace gem {
 
             inline std::string toString() {
               std::stringstream os;
-              os << "present:"  << present.toString()  << std::endl
-                 << "crateID:"  << crateID.toString()  << std::endl
-                 << "slotID:"   << slotID.toString()   << std::endl
-                 << "cardName:" << cardName.toString() << std::endl
+              os << "present:" << present.toString() << std::endl
+                 << "crateID:" << crateID.toString() << std::endl
+                 << "slotID:"  << slotID.toString()  << std::endl
 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
@@ -117,17 +115,17 @@ namespace gem {
 
           mutable gem::utils::Lock m_deviceLock;  // [MAX_AMCS_PER_CRATE];
 
-          std::array<glib_shared_ptr, MAX_AMCS_PER_CRATE>              m_glibs;
-          std::array<std::shared_ptr<GLIBMonitor>, MAX_AMCS_PER_CRATE> m_glibMonitors;
-          std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE>               is_glibs;
+          std::array<ctp7_shared_ptr, MAX_AMCS_PER_CRATE>              m_ctp7s;
+          std::array<std::shared_ptr<CTP7Monitor>, MAX_AMCS_PER_CRATE> m_ctp7Monitors;
+          std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE>               is_ctp7s;
 
-          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
+          xdata::Vector<xdata::Bag<CTP7Info> > m_ctp7Info;  // [MAX_AMCS_PER_CRATE];
           xdata::String                        m_amcSlots;
           xdata::String                        m_connectionFile;
-        };  // class GLIBManager
+        };  // class CTP7Manager
 
-    }  // namespace gem::hw::glib
+    }  // namespace gem::hw::ctp7
   }  // namespace gem::hw
 }  // namespace gem
 
-#endif  // GEM_HW_GLIB_GLIBMANAGER_H
+#endif  // GEM_HW_CTP7_CTP7MANAGER_H

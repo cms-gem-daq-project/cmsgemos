@@ -47,6 +47,8 @@ parser.add_option("--l1a_block", action="store_true", dest="l1a_block",
 		  help="Inhibit the L1As at the TTC backplane link", metavar="l1a_block")
 parser.add_option("--short", action="store_true", dest="short",
 		  help="Skip extended information", metavar="short")
+parser.add_option("--vtrx", action="store_true", dest="vtrx",
+		  help="Flip polarity for VTRx (only for SFP0 now)", metavar="vtrx")
 
 (options, args) = parser.parse_args()
 
@@ -75,6 +77,11 @@ print "  Opening GLIB with IP", ipaddr
 print "--=======================================--"
 print
 
+#if options.vtrx :
+#        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x0)
+#else:
+#        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x1)
+                
 if not options.userOnly:
 	getSystemInfo(glib)
 print
@@ -96,7 +103,7 @@ if (options.daq_enable>=0):
         for olink in range(NGTX):
                 # in 160MHz clock cycles, so multiply by 4 to get in terms of BX
                 # 0xc35 -> 781 BX
-                writeRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink),0xc35)
+                writeRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink),0x30D4)
         print "Reset daq_enable: %i"%(options.daq_enable)
         if (options.reset_daq>=0):
                 writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x1)
@@ -126,6 +133,9 @@ if options.gemttc in [0,1]:
         writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
 print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
 print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
+print
+print "-> RX Link Control :0x%08x"%(readRegister(glib,"GLIB.LINK_CONTROL.RX_Polarity"))
+print "-> TX Link Control :0x%08x"%(readRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity"))
 
 print
 print "--=======================================--"
@@ -161,6 +171,12 @@ for olink in range(NGTX):
         dbgWords = readBlock(glib,"GLIB.DAQ.GTX%d.LASTBLOCK"%(olink),7)
         for word in dbgWords:
                 print "-> DAQ GTX%d debug:0x%08x"%(olink,word)
+
+        data = readFIFODepth(glib,olink)
+        if options.debug and not data["isEMPTY"]:
+                dbgWords = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(olink),24*7,True)
+                for word in dbgWords:
+                        print "-> GLIB GTX%d FIFO:0x%08x"%(olink,word)
                 
 print
 print "--=======================================--"

@@ -14,7 +14,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   setAddressTableFileName("glib_address_table.xml");
   //need to know which device this is 0 or 1?
   //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
-  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid");
+  setDeviceBaseNode("GEM_AMC.OH.OH0");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
   //set up which links are active, so that the control can be done without specifying a link
   INFO("HwOptoHybrid ctor done " << isHwConnected());
@@ -28,7 +28,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   m_controlLink(-1)  
 {
   std::stringstream basenode;
-  basenode << "GLIB.OptoHybrid_" << *optohybridDevice.rbegin() << ".OptoHybrid";
+  basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
   INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
@@ -43,7 +43,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
 {
   setAddressTableFileName("glib_address_table.xml");
   std::stringstream basenode;
-  basenode << "GLIB.OptoHybrid_" << *optohybridDevice.rbegin() << ".OptoHybrid";
+  basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
   INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
@@ -56,7 +56,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   m_controlLink(-1)  
 {
   std::stringstream basenode;
-  basenode << "GLIB.OptoHybrid_" << *optohybridDevice.rbegin() << ".OptoHybrid";
+  basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
   INFO("HwOptoHybrid ctor done " << isHwConnected());
 }

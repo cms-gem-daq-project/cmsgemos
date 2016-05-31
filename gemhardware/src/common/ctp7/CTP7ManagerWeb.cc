@@ -1,46 +1,46 @@
-// GLIBManagerWeb.cc
+// CTP7ManagerWeb.cc
 
 #include "xcept/tools.h"
 
-#include "gem/hw/glib/GLIBManagerWeb.h"
-#include "gem/hw/glib/GLIBManager.h"
-#include "gem/hw/glib/GLIBMonitor.h"
+#include "gem/hw/ctp7/CTP7ManagerWeb.h"
+#include "gem/hw/ctp7/CTP7Manager.h"
+#include "gem/hw/ctp7/CTP7Monitor.h"
 
-#include "gem/hw/glib/exception/Exception.h"
+#include "gem/hw/ctp7/exception/Exception.h"
 
-gem::hw::glib::GLIBManagerWeb::GLIBManagerWeb(gem::hw::glib::GLIBManager* glibApp) :
-  gem::base::GEMWebApplication(glibApp)
+gem::hw::ctp7::CTP7ManagerWeb::CTP7ManagerWeb(gem::hw::ctp7::CTP7Manager* ctp7App) :
+  gem::base::GEMWebApplication(ctp7App)
 {
   // default constructor
 }
 
-gem::hw::glib::GLIBManagerWeb::~GLIBManagerWeb()
+gem::hw::ctp7::CTP7ManagerWeb::~CTP7ManagerWeb()
 {
   // default destructor
 }
 
-void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::webDefault(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    DEBUG("current state is" << dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->getCurrentState());
+    DEBUG("current state is" << dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->getCurrentState());
   *out << cgicc::script().set("type", "text/javascript")
-    .set("src", "/gemdaq/gemhardware/html/scripts/glib/glib.js")
+    .set("src", "/gemdaq/gemhardware/html/scripts/ctp7/ctp7.js")
        << cgicc::script() << std::endl;
 
   GEMWebApplication::webDefault(in, out);
 }
 
 /*To be filled in with the monitor page code*/
-void gem::hw::glib::GLIBManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::monitorPage");
+  DEBUG("CTP7ManagerWeb::monitorPage");
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "      <div class=\"xdaq-tab\" title=\"DAQ Link Monitoring\" >"  << std::endl;
-  // all monitored GLIBs in one page, or separate tabs?
-  /* let's have a summary of major parameters for all managed GLIBs on this page,
-     then have the card tab have the full information for every GLIB
+  // all monitored CTP7s in one page, or separate tabs?
+  /* let's have a summary of major parameters for all managed CTP7s on this page,
+     then have the card tab have the full information for every CTP7
    */
   buildCardSummaryTable(in, out);
   *out << "      </div>" << std::endl;
@@ -49,11 +49,11 @@ void gem::hw::glib::GLIBManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out
 }
 
 /*To be filled in with the expert page code*/
-void gem::hw::glib::GLIBManagerWeb::expertPage(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::expertPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::expertPage");
-  // fill this page with the expert views for the GLIBManager
+  DEBUG("CTP7ManagerWeb::expertPage");
+  // fill this page with the expert views for the CTP7Manager
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "      <div class=\"xdaq-tab\" title=\"Register dump page\"/>"  << std::endl;
   registerDumpPage(in, out);
@@ -65,7 +65,7 @@ void gem::hw::glib::GLIBManagerWeb::expertPage(xgi::Input* in, xgi::Output* out)
 }
 
 /*To be filled in with the application page code*/
-void gem::hw::glib::GLIBManagerWeb::applicationPage(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::applicationPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
   std::string cardURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/cardPage";
@@ -75,16 +75,16 @@ void gem::hw::glib::GLIBManagerWeb::applicationPage(xgi::Input* in, xgi::Output*
 }
 
 /*To be filled in with the card page code*/
-void gem::hw::glib::GLIBManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
   *out << "      <table class=\"xdaq-table\">" << std::endl
        << cgicc::thead() << std::endl
        << cgicc::tr()    << std::endl // open
        << cgicc::th() << "Register" << cgicc::th() << std::endl;
-  // loop over all managed GLIBs and put GLIBXX as the header
+  // loop over all managed CTP7s and put CTP7XX as the header
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    auto card = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->m_ctp7Monitors[i];
     if (card) {
       *out << cgicc::th() << card->getDeviceID() << cgicc::th() << std::endl;
     }
@@ -100,9 +100,9 @@ void gem::hw::glib::GLIBManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::O
     //<< registerName   << std::endl
        << "            </td>"        << std::endl;
 
-  // loop over GLIBs to be monitored
+  // loop over CTP7s to be monitored
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    auto card = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->m_ctp7Monitors[i];
     if (card) {
       std::stringstream tdid;
       tdid << card->getDeviceID();
@@ -118,14 +118,14 @@ void gem::hw::glib::GLIBManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::O
 }
 
 /*To be filled in with the card page code*/
-void gem::hw::glib::GLIBManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::cardPage");
-  // fill this page with the card views for the GLIBManager
+  DEBUG("CTP7ManagerWeb::cardPage");
+  // fill this page with the card views for the CTP7Manager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    auto card = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->m_ctp7Monitors[i];
     if (card) {
       *out << "<div class=\"xdaq-tab\" title=\"" << card->getDeviceID() << "\" >"  << std::endl;
       card->buildMonitorPage(out);
@@ -136,29 +136,29 @@ void gem::hw::glib::GLIBManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
 }
 
 /*To be filled in with the card page code*/
-void gem::hw::glib::GLIBManagerWeb::registerDumpPage(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::registerDumpPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::registerDumpPage");
-  // dump registers for a given GLIB and display
+  DEBUG("CTP7ManagerWeb::registerDumpPage");
+  // dump registers for a given CTP7 and display
 }
 
 /*To be filled in with the card page code*/
-void gem::hw::glib::GLIBManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::fifoDumpPage");
+  DEBUG("CTP7ManagerWeb::fifoDumpPage");
   // dump tracking fifo for given number of blocks
   //*out << cgicc::form() << std::endl;//.set("method","POST").set("action",);
   // input vs. button?
   // *out << cgicc::input().set("type","submit")       << std::endl;
-  *out << cgicc::table().set("id","glibfifodumtable") << std::endl
+  *out << cgicc::table().set("id","ctp7fifodumtable") << std::endl
        << cgicc::tr() << std::endl;
 
   *out << cgicc::td() << std::endl
-       << cgicc::label("GLIB").set("for","glibID") << std::endl
+       << cgicc::label("CTP7").set("for","ctp7ID") << std::endl
        << cgicc::input().set("type","number").set("min","1").set("max","12").set("required value","1")
-    .set("id","glibID").set("name","glibID")
+    .set("id","ctp7ID").set("name","ctp7ID")
        << std::endl
        << cgicc::td() << std::endl;
 
@@ -171,9 +171,9 @@ void gem::hw::glib::GLIBManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* ou
 
   *out << cgicc::td() << std::endl
        << cgicc::button().set("type","submit")
-    .set("id","dumpglibtrack")
-    .set("onclick","dumpGLIBTrackingData(\'dumpGLIBFIFO\',\'/" + p_gemApp->m_urn + "\')")
-       << std::endl << "Dump GLIB Tracking Data" << std::endl
+    .set("id","dumpctp7track")
+    .set("onclick","dumpCTP7TrackingData(\'dumpCTP7FIFO\',\'/" + p_gemApp->m_urn + "\')")
+       << std::endl << "Dump CTP7 Tracking Data" << std::endl
        << cgicc::button() << std::endl
        << cgicc::td()     << std::endl;
 
@@ -183,22 +183,22 @@ void gem::hw::glib::GLIBManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* ou
 
   *out << cgicc::textarea().set("cols","75").set("rows","50")
     .set("class","registerdumpbox").set("readonly")
-    .set("name","glibtrackingdata").set("id","glibtrackingdata")
+    .set("name","ctp7trackingdata").set("id","ctp7trackingdata")
        << std::endl;
   *out << cgicc::textarea() << std::endl;
   //*out << cgicc::form()     << std::endl;
   *out << cgicc::br()       << std::endl;
 }
 
-void gem::hw::glib::GLIBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::jsonUpdate");
+  DEBUG("CTP7ManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    *out << "\"glib" << std::setw(2) << std::setfill('0') << (i+1) << "\"  : { " << std::endl;
-    auto card = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->m_glibMonitors[i];
+    *out << "\"ctp7" << std::setw(2) << std::setfill('0') << (i+1) << "\"  : { " << std::endl;
+    auto card = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->m_ctp7Monitors[i];
     if (card) {
       card->jsonUpdateItemSets(out);
     }
@@ -211,16 +211,16 @@ void gem::hw::glib::GLIBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   *out << " } " << std::endl;
 }
 
-void gem::hw::glib::GLIBManagerWeb::dumpGLIBFIFO(xgi::Input* in, xgi::Output* out)
+void gem::hw::ctp7::CTP7ManagerWeb::dumpCTP7FIFO(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::dumpGLIBFIFO");
+  DEBUG("CTP7ManagerWeb::dumpCTP7FIFO");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    std::vector<uint32_t> dump = dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->dumpGLIBFIFO(i);
-    *out << "\"glib" << std::setw(2) << std::setfill('0') << (i+1) << "FIFO\" : {" << std::endl;
-    *out << "\"name\" : \"glibFIFODump\"," << std::endl
+    std::vector<uint32_t> dump = dynamic_cast<gem::hw::ctp7::CTP7Manager*>(p_gemFSMApp)->dumpCTP7FIFO(i);
+    *out << "\"ctp7" << std::setw(2) << std::setfill('0') << (i+1) << "FIFO\" : {" << std::endl;
+    *out << "\"name\" : \"ctp7FIFODump\"," << std::endl
          << "\"value\" : [ " << std::endl << "\"";
     for (auto word = dump.begin(); word != dump.end(); ++word) {
       *out << "0x" << std::hex << std::setw(8) << std::setfill('0') << *word << std::dec;
