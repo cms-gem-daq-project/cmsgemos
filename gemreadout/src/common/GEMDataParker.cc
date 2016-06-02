@@ -33,7 +33,7 @@ typedef std::shared_ptr<int*> link_shared_ptr;
 typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;
 typedef gem::readout::GEMDataAMCformat::GEBData  AMCGEBData;
 typedef gem::readout::GEMDataAMCformat::VFATData AMCVFATData;
-
+//
 //why are these global and not part of the header???
 std::vector<AMCVFATData> vfats;
 std::vector<AMCVFATData> erros;
@@ -410,9 +410,9 @@ bool gem::readout::GEMDataParker::VFATfillData(int const& islot, AMCGEBData&  ge
 {
   // Chamber Header, Zero Suppression flags, Chamber ID
   uint64_t ZSFlag  = 0x0;                    // :24
-  uint64_t ChamID  = 0xdea;                  // :12
-  uint64_t sumVFAT = int(geb.vfats.size());  // :28
-  geb.header  = (ZSFlag << 40)|(ChamID << 28)|(sumVFAT);
+  uint64_t ChamID  = 0xffffffffffffffff & (0b00011111);                  // :5
+  uint64_t sumVFAT = int(3*int(geb.vfats.size()));  // :11
+  geb.header  = (ZSFlag << 40)|(ChamID << 35)|(sumVFAT << 23);
   ZSFlag =  (0xffffff0000000000 & geb.header) >> 40; 
   ChamID =  (0x000000fff0000000 & geb.header) >> 28; 
   sumVFAT=  (0x000000000fffffff & geb.header);    
@@ -452,7 +452,7 @@ void gem::readout::GEMDataParker::writeGEMevent(std::string  outFile, bool const
     GEMDataAMCformat::writeGEBrunhed (outFile, m_event, geb);
   } else {
     GEMDataAMCformat::writeGEBheaderBinary (outFile, m_event, geb);
-    GEMDataAMCformat::writeGEBrunhedBinary (outFile, m_event, geb);
+    //GEMDataAMCformat::writeGEBrunhedBinary (outFile, m_event, geb);
   } // GEMDataAMCformat::printGEBheader (m_event, geb);
   //  GEB PayLoad Data
   int nChip=0;
@@ -507,8 +507,12 @@ void gem::readout::GEMDataParker::GEMfillHeaders(uint32_t const& event, uint32_t
   uint64_t User        = BOOST_BINARY( 1 );    // :32
   uint64_t OrN         = BOOST_BINARY( 1 );    // :16
   uint64_t BoardID     = BOOST_BINARY( 1 );    // :16
+  uint64_t FormatVersion = 0x0;
+  uint64_t runType = 0x1;
+  uint64_t temp = 0x00000000000000ff;
 
-  gem.header2 = (User << 32)|(OrN << 16)|(BoardID);
+  //gem.header2 = (User << 32)|(OrN << 16)|(BoardID);
+  gem.header2 = (FormatVersion << 60) | (runType << 56) | ((temp & m_latency) << 48) | ((temp & m_VT1) << 40) | ((temp & m_VT2) << 32) |(OrN << 16)|(BoardID);
 
   User     =  (0xffffffff00000000 & gem.header2) >> 32; 
   OrN      =  (0x00000000ffff0000 & gem.header2) >> 16;
@@ -648,4 +652,3 @@ void gem::readout::GEMDataParker::ScanRoutines(uint8_t latency, uint8_t VT1, uin
   m_VT2 = VT2;
   DEBUG("GEMDataParker::ScanRoutines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
 }
-
