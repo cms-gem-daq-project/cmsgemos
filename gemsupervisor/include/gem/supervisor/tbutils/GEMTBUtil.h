@@ -98,18 +98,17 @@ namespace gem {
 	  virtual xoap::MessageReference onReset(xoap::MessageReference msg)
 	    throw (xoap::exception::Exception);
 
-	  //SOAP MEssage AMC13
-	  void sendInitializeMessageAMC13()
+          // SOAP messages for trigger setup
+	  void NTriggersAMC13()
 	    throw (xgi::exception::Exception);
-	  void sendStopMessageAMC13()
-	    throw (xgi::exception::Exception);
-
-
-	  //SOAP MEssage GLIB
-	  void sendInitializeMessageGLIB()
-	    throw (xgi::exception::Exception);
-	  void sendStopMessageGLIB()
-	    throw (xgi::exception::Exception);
+          void AMC13TriggerSetup()
+            throw (xgi::exception::Exception);
+          void sendTriggers()
+            throw (xgi::exception::Exception);
+          void enableTriggers()
+            throw (xgi::exception::Exception);
+          void disableTriggers()
+            throw (xgi::exception::Exception);
 
 	  // HyperDAQ interface
 	  virtual void webDefault(xgi::Input *in, xgi::Output *out)
@@ -188,14 +187,9 @@ namespace gem {
 
 	    xdata::Integer         ohGTXLink;
 
-	    xdata::UnsignedInteger readoutDelay;
-
 	    xdata::UnsignedInteger nTriggers;
-
-	    xdata::String        outFileName;
-	    xdata::String        slotFileName;
-
-	    xdata::String        settingsFile;
+	    xdata::String          slotFileName;
+	    xdata::String          settingsFile;
 
 	    xdata::Vector<xdata::String>  deviceName;
 	    xdata::Vector<xdata::Integer> deviceNum;
@@ -210,6 +204,11 @@ namespace gem {
 	    xdata::Integer       ADCVoltage;
 	    xdata::Integer       ADCurrent;
 
+            xdata::Boolean       useLocalTriggers;
+            xdata::Integer       localTriggerMode;
+            xdata::Integer       localTriggerPeriod;
+	    xdata::Boolean       EnableTrigCont;            
+
 	    xdata::UnsignedShort deviceVT1;
 	    xdata::UnsignedShort deviceVT2;
 	    //	    xdata::UnsignedShort triggerSource_;
@@ -217,9 +216,6 @@ namespace gem {
 	  };
 
 	protected:
-
-	  std::unique_ptr<gem::readout::GEMslotContents> slotInfo;
-
 	  log4cplus::Logger m_gemLogger;
 
 	  toolbox::fsm::AsynchronousFiniteStateMachine* fsmP_;
@@ -239,15 +235,14 @@ namespace gem {
 	  //ConfigParams confParams_;
 	  uint8_t readout_mask;
 
+          uint32_t m_vfatMask;  // mask for tracking data blocking and broadcast I2C commands
+
 	  xdata::Bag<ConfigParams> confParams_;
 	  xdata::String ipAddr_;
-
-	  FILE* outputFile;
 
 	  uint64_t nTriggers_;
 	  bool is_working_, is_initialized_, is_configured_, is_running_;
 
-	  //readout application should be running elsewhere, not tied to supervisor
 	  glib_shared_ptr glibDevice_;
 	  optohybrid_shared_ptr optohybridDevice_;
 	  std::vector<vfat_shared_ptr> vfatDevice_;

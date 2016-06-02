@@ -17,8 +17,6 @@ use Getopt::Lucid qw/:all/;
     );
 
 my $opts=Getopt::Lucid->getopt(\@specs);
-$opts->validate( {'requires' => ['package']} );
-$opts->validate( {'requires' => ['message']} );
 
 if ($opts->get_help) {
     print "USAGE: gemostag [-t TAG] [-p PACKAGE] [-m MSG] [-r RELTYPE] [NAME]\n";
@@ -36,6 +34,10 @@ if ($opts->get_help) {
     exit(0);
 }
 
+# Now ensure required arguments are specified
+$opts->validate( {'requires' => ['package']} );
+$opts->validate( {'requires' => ['message']} );
+
 # Get a wrapper for the current directory
 my $git=Git::Wrapper->new(".");
 my $pwd=cwd();
@@ -50,12 +52,25 @@ if (!($wd=~/${gemosbase}/)) {
     exit(1);
 }
 
+@gemospackages = ('all', 'base', 'hardware', 'calibration', 'HwMonitor', 'rcms', 'readout', 'supervisor', 'utils');
 $packname=$opts->get_package;
 print "packname=${packname}\n";
+if ( !(grep( $packname, @gemospackages ) ) ) {
+#if ( !($packname ~~ @gemospackages ) ) {
+    print "packname=${packname} is not a valid option\n";
+    print "Please choose one of:\n";
+    print join("\n",@gemospackages),"\n";
+    exit(1);
+}
 
-# Make sure the changes are committed, can do better with this
-print "git status gem${packname}\n";
-$gitstatus=$git->status;
+# Make sure the changes are committed, can do better with this, with per subdirectory tweaks
+if ($packname eq "all" ) {
+    print "git status\n";
+    $gitstatus=$git->status;
+} else {
+    print "git status gem${packname}\n";
+    $gitstatus=$git->status("gem${packname}");
+}
 $isdirty=$gitstatus->is_dirty;
 if ($isdirty) {
     print "Your git working area is dirty\n";
@@ -72,6 +87,12 @@ if ($isdirty) {
         }
     }
     print "\nAre all the changes you wish to tag committed? [y/n] ";
+    $resp=<>;
+    if (!($resp=~/[yY]/)) {
+        exit(1);
+    }
+} else {
+    print "\Your working area is clean, do you wish to continue? [y/n] ";
     $resp=<>;
     if (!($resp=~/[yY]/)) {
         exit(1);
@@ -104,7 +125,11 @@ foreach (@alltags) {
     print "\n";
 }
 
-print "The tag '$uptag' is being created for gem${packname}.\n";
+if ($packname eq "all" ) {
+    print "The tag '$uptag' is being created.\n";
+} else {
+    print "The tag '$uptag' is being created for gem${packname}.\n";
+}
 exit(0);
     
 # if this one of the "special" packages, make sure the sub-tags match
