@@ -364,18 +364,12 @@ namespace gem {
         uint64_t w1;
         uint64_t w2;
         uint64_t w3;
-<<<<<<< HEAD
-        w1 = 0xffffffffffffffff & ((vfat.BC << 48) | (vfat.EC << 32) | (vfat.ChipID << 16) | (vfat.msData >> 48));
-        w2 = 0xffffffffffffffff & ((vfat.msData << 16) | (vfat.lsData >> 48));
-        w3 = 0xffffffffffffffff & ((vfat.lsData << 16) | vfat.crc);
-=======
         uint64_t bc = vfat.BC;
         uint64_t ec = vfat.EC;
         uint64_t ci = vfat.ChipID;
         w1 = 0xffffffffffffffff & ((bc <<48) | (ec << 32) | (ci << 16) | (vfat.msData >> 48));
         w2 = 0xffffffffffffffff & ((vfat.msData <<16) | (vfat.lsData >> 48));
         w3 = 0xffffffffffffffff & ((vfat.lsData <<16) | (vfat.crc ));
->>>>>>> robert/dqm
         outf.write( (char*)&w1,     sizeof(w1));
         outf.write( (char*)&w2,     sizeof(w2));
         outf.write( (char*)&w3,     sizeof(w3));
