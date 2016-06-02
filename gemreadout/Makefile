@@ -18,7 +18,7 @@ include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
 #Sources+=GEMDataParker.cc
-Sources+=GEMReadoutApplication.cc
+Sources+=GEMReadoutApplication.cc GEMReadoutWebApplication.cc
 #Sources+=GEMDataChecker.cc
 
 DynamicLibrary=gemreadout
