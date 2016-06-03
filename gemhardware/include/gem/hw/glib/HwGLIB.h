@@ -764,7 +764,7 @@ namespace gem {
            * @param value is the number of clock cycles to wait after receipt of last L1A and
            *        last packet received from the optical link before closing an "event"
            */
-          void setDAQLinkInputTimeout(uint32_t const& value);
+          void setDAQLinkInputTimeout(uint32_t const& value=0x30d4);
 
           /**
            * @brief Special run type to be written into data stream
