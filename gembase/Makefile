@@ -3,7 +3,7 @@
 #
 
 #Project=gem
-Project=gemdaq-testing
+Project=cmsgemos
 ShortProject=gem
 Package=gembase
 LongPackage=gembase

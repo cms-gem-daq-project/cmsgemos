@@ -1,4 +1,4 @@
-#export BUILD_HOME=<your path>/gem-daq-code
+#export BUILD_HOME=<your path>/cmsgemos/../
 if [[ -n "$BUILD_HOME" ]]; then
     echo BUILD_HOME $BUILD_HOME
 else
@@ -21,7 +21,7 @@ else
     export XDAQ_OS
 fi
 
-## The plateform is not set. Let's guess it
+## The platform is not set. Let's guess it
 if [[ -n "$XDAQ_PLATFORM" ]]; then
     echo XDAQ_PLATFORM $XDAQ_PLATFORM
 else
@@ -45,15 +45,15 @@ else
     export XDAQ_PLATFORM
 fi
 
-project=gemdaq-testing
-export LD_LIBRARY_PATH=$BUILD_HOME/$project/gembase/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$BUILD_HOME/$project/gemutils/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$BUILD_HOME/$project/gemreadout/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$BUILD_HOME/$project/gemhardware/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$BUILD_HOME/$project/gemsupervisor/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$BUILD_HOME/$project/gemHwMonitor/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
+Project=cmsgemos
+export LD_LIBRARY_PATH=$BUILD_HOME/$Project/gembase/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$BUILD_HOME/$Project/gemutils/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$BUILD_HOME/$Project/gemreadout/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$BUILD_HOME/$Project/gemhardware/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$BUILD_HOME/$Project/gemsupervisor/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$BUILD_HOME/$Project/gemHwMonitor/lib/$XDAQ_OS/$XDAQ_PLATFORM:$LD_LIBRARY_PATH
 echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
-export GEM_ADDRESS_TABLE_PATH=${BUILD_HOME}/gemdaq-testing/setup/etc/addresstables
-export GEM_PYTHON_PATH=${BUILD_HOME}/gemdaq-testing/setup/scripts/python
+export GEM_ADDRESS_TABLE_PATH=${BUILD_HOME}/$Project/setup/etc/addresstables
+export GEM_PYTHON_PATH=${BUILD_HOME}/$Project/setup/scripts/python
 export PYTHONPATH=${GEM_PYTHON_PATH}:${PYTHONPATH}
 export PATH=${GEM_PYTHON_PATH}:${PATH}
