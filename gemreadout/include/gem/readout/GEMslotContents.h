@@ -31,7 +31,8 @@ namespace gem {
       void getSlotCfg() {
         std::ifstream ifile;
         std::string path = std::getenv("BUILD_HOME");
-        path +="/gemdaq-testing/gemreadout/data/";
+        path += "/"+std::getenv("GEM_OS_PROJECT");
+        path +="/gemreadout/data/";
         path += slotFile_;
         ifile.open(path);
 

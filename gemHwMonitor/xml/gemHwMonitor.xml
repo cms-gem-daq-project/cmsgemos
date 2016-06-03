@@ -13,14 +13,14 @@
 		  xsi:type="soapenc:Struct">
         <device xsi:type="xsd:string">VFAT9</device>
         <ipAddr xsi:type="xsd:string">192.168.0.164</ipAddr>
-        <settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
+        <settingsFile xsi:type="xsd:string">${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
     -->
 
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemHwMonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardwareMonitor.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemHwMonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardwareMonitor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
     
   </xc:Context>
 
