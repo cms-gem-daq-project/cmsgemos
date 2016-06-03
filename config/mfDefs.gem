@@ -6,7 +6,7 @@ BUILD_HOME:=$(shell pwd)/../..
 GIT_VERSION  := $(shell git describe --abbrev=4 --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
 
-Project=gemdaq-testing
+Project=cmsgemos
 ShortProject=gem
 
 # ROOT Config
