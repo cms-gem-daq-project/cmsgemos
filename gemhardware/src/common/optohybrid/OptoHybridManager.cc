@@ -229,9 +229,8 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 
       DEBUG("OptoHybridManager::grabbing pointer to hardware device");
       // optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
-
       if (m_optohybrids.at(slot).at(link)->isHwConnected()) {
-        // get connecte VFATs
+        // get connected VFATs
         m_vfatMapping.at(slot).at(link)   = m_optohybrids.at(slot).at(link)->getConnectedVFATs();
         m_trackingMask.at(slot).at(link)  = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
         m_broadcastList.at(slot).at(link) = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
