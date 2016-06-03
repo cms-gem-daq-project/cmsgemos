@@ -20,7 +20,8 @@ namespace gem {
         throw (xdaq::exception::Exception)
         {
           std::string defaulXMLcfgFile = std::getenv("BUILD_HOME");
-          defaulXMLcfgFile +="/gemdaq-testing/gembase/xml/gem_conf_tamu_test.xml";
+          defaulXMLcfgFile +="/"+std::getenv("GEM_OS_PROJECT");
+          defaulXMLcfgFile +="/gembase/xml/gem_conf_tamu_test.xml";
           this->setXMLconfigFile(defaulXMLcfgFile.c_str());
           p_gemSystem = gemSystem;
           p_gemSystem->setDeviceStatus(2);
@@ -31,13 +32,14 @@ namespace gem {
           delete p_gemXMLparser;
         }
 
-      // Make sure XML filename contains full path (adds BUILD_HOME/gemdaq-testing/gembase/xml/ if not)
+      // Make sure XML filename contains full path (adds $BUILD_HOME/$GEM_OS_PROJECT/gembase/xml/ if not)
       const std::string fixXMLconfigFile (const char* XMLfilename)
         throw (xgi::exception::Exception)
       {
         std::string file = XMLfilename;
         std::string temp_filename;
         // std::cout << "Contains BUILD_HOME?: "<< file.find(std::getenv("BUILD_HOME")) << std::endl;
+        // std::cout << "Contains GEM_OS_PROJECT?: "<< file.find(std::getenv("GEM_OS_PROJECT")) << std::endl;
 
         if (file.empty())
           return "";
@@ -45,7 +47,8 @@ namespace gem {
           temp_filename = XMLfilename;
         } else {
           temp_filename = std::getenv("BUILD_HOME");
-          temp_filename += "/gemdaq-testing/gembase/xml/";
+          temp_filename +="/"+std::getenv("GEM_OS_PROJECT");
+          temp_filename += "/gembase/xml/";
           temp_filename += XMLfilename;
         }
         return temp_filename;
