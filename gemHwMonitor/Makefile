@@ -3,7 +3,7 @@
 #
 
 #Project=gem
-Project=gemdaq-testing
+Project=cmsgemos
 ShortProject=gem
 Package=gemHwMonitor
 LongPackage=gemHwMonitor
@@ -11,7 +11,7 @@ ShortPackage=hwMonitor
 PackageName=hwMonitor
 
 GEMHWMONITOR_VER_MAJOR=0
-GEMHWMONITOR_VER_MINOR=1
+GEMHWMONITOR_VER_MINOR=2
 GEMHWMONITOR_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
