@@ -835,7 +835,7 @@ void gem::hw::vfat::GEMController::GEMControllerPanelWeb::createCommandLayout(xg
     *out << cgicc::fieldset().set("class","xmlSettingsUpload") << std::endl
         << cgicc::legend("XML Settings Export/Upload")        << std::endl
         << cgicc::label("File :").set("for","xmlFileName")    << std::endl
-        << cgicc::input().set("type","text").set("id","xmlFileName").set("name","xmlFileName").set("value","/home/aysen/gem-daq-code/gemdaq-testing/gemhardware/xml/vfatcontroller.xml")
+        << cgicc::input().set("type","text").set("id","xmlFileName").set("name","xmlFileName").set("value","${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/xml/vfatcontroller.xml")
         << std::endl
         << cgicc::br() << std::endl
         << cgicc::input().set("class","vfatButtonInput")//.set("style","width:auto")
