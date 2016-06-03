@@ -11,7 +11,7 @@ ShortPackage=hw
 PackageName=hw
 
 GEMHARDWARE_VER_MAJOR=0
-GEMHARDWARE_VER_MINOR=1
+GEMHARDWARE_VER_MINOR=2
 GEMHARDWARE_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
