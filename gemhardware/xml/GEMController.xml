@@ -9,11 +9,11 @@
     <properties xmlns="urn:xdaq-application:gem::hw::vfat::GEMController"
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT9</device>
-	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/gem_conf.xml</settingsFile>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/xml/gem_conf.xml</settingsFile>
       </properties>
     </xc:Application>
 
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
 
   </xc:Context>
 

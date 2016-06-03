@@ -3,7 +3,7 @@
 #
 
 #Project=gem
-Project=gemdaq-testing
+Project=cmsgemos
 ShortProject=gem
 Package=gembase
 LongPackage=gembase
@@ -11,7 +11,7 @@ ShortPackage=base
 PackageName=base
 
 GEMBASE_VER_MAJOR=0
-GEMBASE_VER_MINOR=1
+GEMBASE_VER_MINOR=2
 GEMBASE_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
