@@ -3,7 +3,7 @@
 #
 
 #Project=gem
-Project=gemdaq-testing
+Project=cmsgemos
 ShortProject=gem
 Package=gemsupervisor
 LongPackage=gemsupervisor
@@ -30,7 +30,7 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
-IncludeDirs+=$(BUILD_HOME)/gem-light-dqm/dqm-root/include
+#IncludeDirs+=$(BUILD_HOME)/gem-light-dqm/dqm-root/include
 IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(ROOTDIR)/include 
 
