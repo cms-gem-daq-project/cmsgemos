@@ -3,7 +3,7 @@
 #
 
 #Project=gem
-Project=gemdaq-testing
+Project=cmsgemos
 ShortProject=gem
 Package=gemsupervisor
 LongPackage=gemsupervisor
@@ -11,7 +11,7 @@ ShortPackage=supervisor
 PackageName=supervisor
 
 GEMSUPERVISOR_VER_MAJOR=0
-GEMSUPERVISOR_VER_MINOR=1
+GEMSUPERVISOR_VER_MINOR=2
 GEMSUPERVISOR_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
@@ -30,7 +30,6 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
-IncludeDirs+=$(BUILD_HOME)/gem-light-dqm/dqm-root/include
 IncludeDirs+=$(uHALROOT)/include
 IncludeDirs+=$(ROOTDIR)/include 
 

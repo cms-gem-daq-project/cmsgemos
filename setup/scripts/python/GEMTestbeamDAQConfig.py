@@ -63,9 +63,9 @@ class GEMTestbeamDAQConfig:
       </properties>
     </xc:Application>
 
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_readout.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_readout.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
 
   </xc:Context>
         """ % {'xdaqHost':xdaqHost,'xdaqPort':xdaqPort,'chipLines':chipLines
@@ -85,14 +85,14 @@ class GEMTestbeamDAQConfig:
 		  xsi:type="soapenc:Struct">
 	<device xsi:type="xsd:string">VFAT0</device>
 	<ipAddr xsi:type="xsd:string">%(glibIP)s</ipAddr>
-	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
+	<settingsFile xsi:type="xsd:string">${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/xml/vfat/vfat_settings.xml</settingsFile>
       </properties>
     </xc:Application>
 
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_utils.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_utils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
 
   </xc:Context>
         """ % {'xdaqHost':xdaqHost,'xdaqPort':xdaqPort,'glibIP':glibIP}
@@ -128,11 +128,11 @@ class GEMTestbeamDAQConfig:
       </properties>
     </xc:Application>
 
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_utils.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_readout.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_utils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_readout.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
 
   </xc:Context>
         """%{'xdaqHost':xdaqHost,'xdaqPort':xdaqPort, 'glibIP':glibIP}
@@ -150,9 +150,9 @@ class GEMTestbeamDAQConfig:
     <xc:Application class="gem::hwMonitor::gemHwMonitorWeb" id="254" instance="0" network="local">
     </xc:Application>
     
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemHwMonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hwMonitor.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
-    <xc:Module>${BUILD_HOME}/gemdaq-testing/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemHwMonitor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hwMonitor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_base.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_hw.so</xc:Module>
     
   </xc:Context>
         """ % {'xdaqHost':xdaqHost,'xdaqPort':xdaqPort,'runNumber':runNumber}
