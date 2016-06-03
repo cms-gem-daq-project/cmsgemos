@@ -773,9 +773,10 @@ uint32_t gem::hw::glib::HwGLIB::getDAQLinkRunParameter(uint8_t const& parameter)
   return readReg(getDeviceBaseNode(),regBase.str());
 }
 
-void gem::hw::glib::HwGLIB::setDAQLinkInputTimeout(uint32_t const& value=0x30d4)
+void gem::hw::glib::HwGLIB::setDAQLinkInputTimeout(uint32_t const& value)
 {
-  // set each link input timeout to 0x30d4 (160MHz clock cycles, 0xc35 40MHz clock cycles)                                               for (unsigned li = 0; li < N_GTX; ++li) {
+  // set each link input timeout to 0x30d4 (160MHz clock cycles, 0xc35 40MHz clock cycles)
+  for (unsigned li = 0; li < N_GTX; ++li) {
     writeReg(getDeviceBaseNode(), toolbox::toString("DAQ.GTX%d.CONTROL.DAV_TIMEOUT", li), value);
   }
   // return writeReg(getDeviceBaseNode(),"DAQ.EXT_CONTROL.INPUT_TIMEOUT",value);
