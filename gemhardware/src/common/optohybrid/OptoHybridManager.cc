@@ -313,7 +313,10 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
           else
             INFO("No VFAT found in GEB slot " << std::setw(2) << (int)chip->first);
         
-        optohybrid->getConnectedVFATMask();
+        uint32_t vfatMask = optohybrid->getConnectedVFATMask();
+
+        //optohybrid->broadcastWrite("Latency",     ~vfatMask, 157);
+        //optohybrid->broadcastWrite("VThreshold1", ~vfatMask, 50);
         
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
