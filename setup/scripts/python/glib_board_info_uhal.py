@@ -5,10 +5,12 @@ import time, datetime, os
 
 sys.path.append('${GEM_PYTHON_PATH}')
 
+NGTX = 2
+
 import uhal
 from registers_uhal import *
 from glib_system_info_uhal import *
-from rate_calculator import errorRate
+from rate_calculator import rateConverter,errorRate
 from glib_user_functions_uhal import *
 
 #from glib_clock_src import *
@@ -41,6 +43,10 @@ parser.add_option("--daq_enable", type="int", dest="daq_enable",
 		  help="enable daq output", metavar="daq_enable", default=-1)
 parser.add_option("--rd", type="int", dest="reset_daq",
 		  help="reset daq", metavar="reset_daq", default=-1)
+parser.add_option("--l1a_block", action="store_true", dest="l1a_block",
+		  help="Inhibit the L1As at the TTC backplane link", metavar="l1a_block")
+parser.add_option("--short", action="store_true", dest="short",
+		  help="Skip extended information", metavar="short")
 
 (options, args) = parser.parse_args()
 
@@ -49,7 +55,10 @@ uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 uTCAslot = 170
 if options.slot:
 	uTCAslot = 160+options.slot
-print options.slot, uTCAslot
+
+if options.debug:
+        print options.slot, uTCAslot
+
 ipaddr = '192.168.0.%d'%(uTCAslot)
 if options.testbeam:
         ipaddr        = '137.138.115.185'
@@ -73,14 +82,31 @@ print "--=======================================--"
 print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
+if (options.l1a_block):
+        writeRegister(glib, "GLIB.TTC.CONTROL.INHIBIT_L1A", 0x1)
+else:
+        writeRegister(glib, "GLIB.TTC.CONTROL.INHIBIT_L1A", 0x0)
 
 if (options.daq_enable>=0):
-        writeRegister(glib, "GLIB.DAQ.CONTROL.DAQ_ENABLE", 0x1)
-        writeRegister(glib, "GLIB.DAQ.CONTROL.TTS_OVERRIDE", 0x8)
-        writeRegister(glib, "GLIB.DAQ.CONTROL.INPUT_KILL_MASK", 0x1)
-        writeRegister(glib, "GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT", 0x30D40)
+        writeRegister(glib, "GLIB.DAQ.CONTROL.DAQ_ENABLE",        0x1)
+        writeRegister(glib, "GLIB.DAQ.CONTROL.TTS_OVERRIDE",      0x8)
+        writeRegister(glib, "GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x1)
+        writeRegister(glib, "GLIB.DAQ.CONTROL.DAV_TIMEOUT",       0x30D40)
+        writeRegister(glib, "GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT", 0x30D4)
+        for olink in range(NGTX):
+                # in 160MHz clock cycles, so multiply by 4 to get in terms of BX
+                # 0xc35 -> 781 BX
+                writeRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink),0xc35)
         print "Reset daq_enable: %i"%(options.daq_enable)
+        if (options.reset_daq>=0):
+                writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x1)
+                writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x0)
 
+if (options.resetCounters):
+        glibCounters(glib,options.gtx,True)
+        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
+        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
+print
 print "-> DAQ control reg    :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
 print "-> DAQ status reg     :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
 print "-> DAQ L1A ID         :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
@@ -101,7 +127,20 @@ if options.gemttc in [0,1]:
 print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
 print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
 
-NGTX = 2
+print
+print "--=======================================--"
+print "-> SSSSSSSSSSSSSSSSSSSSSSBITSSSSSSSSSSSSSS"
+print "--=======================================--"
+print "-> SBIT_RATE:%d %sHz"%(rateConverter(int(readRegister(glib,"GLIB.DAQ.SBIT_RATE"))/4))
+print
+for olink in range(NGTX):
+        print "-> DAQ GTX%d clusters 01:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d_CLUSTER_01"%(olink)))
+        print "-> DAQ GTX%d clusters 23:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d_CLUSTER_23"%(olink)))
+        print
+
+if options.short:
+        exit(0)
+
 print "--=======================================--"
 print "-> DAQ GTX INFO"
 print "--=======================================--"
@@ -125,27 +164,10 @@ for olink in range(NGTX):
                 
 print
 print "--=======================================--"
-print "-> SSSSSSSSSSSSSSSSSSSSSSBITSSSSSSSSSSSSSS"
-print "--=======================================--"
-print "-> SBIT_RATE:0x%08x"%(readRegister(glib,"GLIB.DAQ.SBIT_RATE"))
-print
-for olink in range(NGTX):
-        print "-> DAQ GTX%d clusters 01:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d_CLUSTER_01"%(olink)))
-        print "-> DAQ GTX%d clusters 23:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d_CLUSTER_23"%(olink)))
-        print
-
-
-print
-print "--=======================================--"
 print "-> BOARD USER INFORMATION"
 print "--=======================================--"
 print
 
-if (options.resetCounters):
-        glibCounters(glib,options.gtx,True)
-        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
-        writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
-print
 sys.stdout.flush()
 for olink in range(NGTX):
         print "--=====GTX%d==============================--"%(olink)
