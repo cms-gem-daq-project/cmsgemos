@@ -1,3 +1,16 @@
+def rateConverter(rate):
+    modifier = ""
+    if rate > 1000000000:
+        modifier = "G"
+        rate = rate/1000000000.
+    elif rate > 1000000:
+        modifier = "M"
+        rate = rate/1000000.
+    elif rate > 1000:
+        modifier = "k"
+        rate = rate/1000.
+
+    return rate,modifier
 
 def errorRate(errorCounts,sampleTime):
     """
@@ -16,17 +29,8 @@ def errorRate(errorCounts,sampleTime):
             rate = rate + tmprate
             lastCount = trial[link][1]
             
-        modifier = ""
         rate = rate / len(errorCounts)
-        if rate > 1000000000:
-            modifier = "G"
-            rate = rate/1000000000.
-        elif rate > 1000000:
-            modifier = "M"
-            rate = rate/1000000.
-        elif rate > 1000:
-            modifier = "k"
-            rate = rate/1000.
+        (rate,modifier) = rateConverter(rate)
         rates[link] = [lastCount,rate,modifier]
         
     return rates
