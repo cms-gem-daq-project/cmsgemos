@@ -40,7 +40,7 @@ void gem::supervisor::tbutils::ADCScan::ConfigParams::registerFields(xdata::Bag<
   //std::replace(tmpFileName.begin(), tmpFileName.end(), '\n', '_');
 
   outFileName  = tmpFileName;
-  settingsFile = "${BUILD_HOME}/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml";
+  settingsFile = "${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/xml/vfat/vfat_settings.xml";
 
   dacToScan = "IComp";
 
