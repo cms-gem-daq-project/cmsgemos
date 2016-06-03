@@ -43,7 +43,7 @@ my $git=Git::Wrapper->new(".");
 my $pwd=cwd();
 
 $wd=$pwd;
-$gemosbase="gemdaq-testing";
+$gemosbase="cmsgemos";
 # Check that this is a valid directory
 if (!($wd=~/${gemosbase}/)) {
     print "${wd}\n";

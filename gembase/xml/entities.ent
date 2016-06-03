@@ -20,7 +20,7 @@
 <!ENTITY VFAT_00 SYSTEM "gem_test_904_V0.xml">
 <!ENTITY VFAT_00 PUBLIC "vfat0" "gem_test_904_V0.xml">
       This one doesn't work!!
-<!ENTITY VFAT_00 SYSTEM "${BUILD_HOME}/gemdaq-testing/gembase/xml/gem_test_904_V0.xml">
+<!ENTITY VFAT_00 SYSTEM "${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/xml/gem_test_904_V0.xml">
 -->
 <!ENTITY VFAT_00 SYSTEM "gem_test_904_V0.xml">
 <!ENTITY VFAT_01 SYSTEM "gem_test_904_V0.xml">

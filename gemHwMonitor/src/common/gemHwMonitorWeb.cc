@@ -152,7 +152,7 @@ void gem::hwMonitor::gemHwMonitorWeb::controlPanel(xgi::Input* in, xgi::Output* 
 
 
     *out << "<h5><div class=\"alert alert-warning\" align=\"center\" role=\"alert\">Note: Configuration file must be located in ";
-    *out << "BUILD_HOME/gemdaq-testing/gembase/xml/ </div></h5>" << std::endl;
+    *out << "${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/xml/ </div></h5>" << std::endl;
 
 
     *out << cgicc::form().set("method", "POST").set("action", methodText) << std::endl ;
