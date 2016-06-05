@@ -57,8 +57,8 @@ namespace gem {
           xoap::MessageReference disableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
 
-          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
-	
+          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception);
+
           virtual void failAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
 

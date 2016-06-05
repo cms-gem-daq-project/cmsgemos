@@ -3,7 +3,7 @@
  * description: Monitor application for CTP7 cards
  *              structure borrowed from TCDS core, with nods to HCAL and EMU code
  * author: J. Sturdy
- * date: 
+ * date:
  */
 
 #include "gem/hw/ctp7/HwCTP7.h"
@@ -82,7 +82,7 @@ void gem::hw::ctp7::CTP7Monitor::setupHwMonitoring()
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("CPLD_LOCK", "CTP7.SYSTEM.STATUS.CDCE_LOCK"),
                  GEMUpdateType::HW32, "hex");
-  
+
 
   addMonitorableSet("IPBus", "HWMonitoring");
   addMonitorable("IPBus", "HWMonitoring",
@@ -266,9 +266,9 @@ void gem::hw::ctp7::CTP7Monitor::buildMonitorPage(xgi::Output* out)
     WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
-  
+
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
-  
+
   // loop over the list of monitor sets and grab the monitorables from each one
   // create a div tab for each set, and a table for each set of values
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
@@ -282,17 +282,17 @@ void gem::hw::ctp7::CTP7Monitor::buildMonitorPage(xgi::Output* out)
          << cgicc::th()    << "Register address" << cgicc::th() << std::endl
          << cgicc::th()    << "Description"      << cgicc::th() << std::endl
          << cgicc::tr()    << std::endl //close
-         << cgicc::thead() << std::endl 
+         << cgicc::thead() << std::endl
          << "<tbody>" << std::endl;
-    
+
     for (auto monitem = m_monitorableSetsMap.find(*monset)->second.begin();
          monitem != m_monitorableSetsMap.find(*monset)->second.end(); ++monitem) {
       *out << "<tr>"    << std::endl;
-      
+
       *out << "<td>"    << std::endl
            << monitem->first
            << "</td>"   << std::endl;
-        
+
       DEBUG("CTP7Monitor::" << monitem->first << " formatted to "
             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
       //this will be repeated for every CTP7Monitor in the CTP7Manager..., need a better unique ID
@@ -315,12 +315,12 @@ void gem::hw::ctp7::CTP7Monitor::buildMonitorPage(xgi::Output* out)
          << "</div>"    << std::endl;
   }
   *out << "</div>"  << std::endl;
-  
+
 }
 
 void gem::hw::ctp7::CTP7Monitor::reset()
 {
-  //have to get rid of the timer 
+  //have to get rid of the timer
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
     DEBUG("CTP7Monitor::reset removing " << infoSpace->first << " from p_timer");
@@ -337,7 +337,7 @@ void gem::hw::ctp7::CTP7Monitor::reset()
   } catch (toolbox::task::exception::Exception& te) {
     ERROR("CTP7Monitor::Caught exception while removing timer " << m_timerName << " " << te.what());
   }
-  
+
   DEBUG("CTP7Monitor::reset - clearing all maps");
   m_infoSpaceMap.clear();
   m_infoSpaceMonitorableSetMap.clear();

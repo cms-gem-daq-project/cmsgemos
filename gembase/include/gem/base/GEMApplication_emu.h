@@ -45,19 +45,19 @@ namespace cgicc {
 
 namespace gem {
   namespace base {
-    
+
     class GEMApplication : public xdaq::Application, public xdata::ActionListener
       {
       public:
         XDAQ_INSTANTIATOR();
-	
+
         GEMApplication(xdaq::ApplicationStub *stub)
           throw (xdaq::exception::Exception);
-	
+
         toolbox::fsm::FiniteStateMachine* getFSM(){ return &fsm_; }
-	
+
         //virtual void actionPerformed(xdata::Event&);
-	
+
       protected:
         // SOAP interface
         xoap::MessageReference onEnable(     xoap::MessageReference message)
@@ -97,7 +97,7 @@ namespace gem {
 
         //bool calibrationAction(toolbox::task::WorkLoop *wl);
         //bool calibrationSequencer(toolbox::task::WorkLoop *wl);
-	
+
         //state transitions
         void enableAction(   toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
@@ -113,7 +113,7 @@ namespace gem {
           throw (toolbox::fsm::exception::Exception);
         void haltAction(     toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
-        void noAction(       toolbox::Event::Reference e) 
+        void noAction(       toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
 
         void resetAction()//toolbox::Event::Reference e)
@@ -126,7 +126,7 @@ namespace gem {
 
         void fireEvent(std::string event)
           throw (toolbox::fsm::exception::Exception);
-	
+
 
       private:
         toolbox::fsm::FiniteStateMachine fsm_;
@@ -137,7 +137,7 @@ namespace gem {
         /**** application properties ****/
         i2o::utils::AddressMap *i2oAddressMap_;
         toolbox::mem::MemoryPoolFactory *poolFactory_;
-	
+
         xdata::InfoSpace *appInfoSpace_;
         xdaq::ApplicationDescriptor* appDescriptor_;
         xdaq::ApplicationContext *appContext_;
@@ -145,8 +145,8 @@ namespace gem {
         std::string xmlClass_;
         unsigned long instance_;
         std::string urn_;
-	
-	
+
+
         log4cplus::Logger logger_;
 
         xdata::String          run_type_;
@@ -166,7 +166,7 @@ namespace gem {
         toolbox::task::ActionSignature *stop_signature_,   *halt_signature_;
 
       };
-    
+
   } // namespace gem::base
 } // namespace gem
 

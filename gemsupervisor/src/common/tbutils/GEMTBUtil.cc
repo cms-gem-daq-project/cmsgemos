@@ -1762,7 +1762,7 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
   xoap::SOAPElement bgoarray_param = amc13config_param.addChildElement(bgoarray_name);
   bgoarray_param.addAttribute(xsi_type,   "soapenc:Array");
   bgoarray_param.addAttribute(soapenc_arr,"xsd:ur-type[4]");
-  
+
   // Create the BGOInfo element
   xoap::SOAPName     bc_name = envelope.createName("BGOInfo","props", appUrn);
   xoap::SOAPElement bc_param = bgoarray_param.addChildElement(bc_name);
@@ -1773,7 +1773,7 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
   xoap::SOAPElement bc_bgoChan = bc_param.addChildElement(bgoChan_name);
   bc_bgoChan.addAttribute(xsi_type,"xsd:integer");
   bc_bgoChan.addTextNode("0");
-  
+
   xoap::SOAPName  bgoCmd_name = envelope.createName("BGOcmd","props",appUrn);
   xoap::SOAPElement bc_bgoCmd = bc_param.addChildElement(bgoCmd_name);
   bc_bgoCmd.addAttribute(xsi_type,"xsd:unsignedInt");

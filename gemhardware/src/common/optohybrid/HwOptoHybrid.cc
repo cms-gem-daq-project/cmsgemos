@@ -8,7 +8,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
   //monOptoHybrid_(0)
   b_links({false,false,false}),
-  m_controlLink(-1)  
+  m_controlLink(-1)
 {
   setDeviceID("OptoHybridHw");
   setAddressTableFileName("glib_address_table.xml");
@@ -25,7 +25,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionFile),
   //monOptoHybrid_(0)
   b_links({false,false,false}),
-  m_controlLink(-1)  
+  m_controlLink(-1)
 {
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
@@ -39,7 +39,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionURI, addressTable),
   //monOptoHybrid_(0)
   b_links({false,false,false}),
-  m_controlLink(-1)  
+  m_controlLink(-1)
 {
   setAddressTableFileName("glib_address_table.xml");
   std::stringstream basenode;
@@ -53,7 +53,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice,uhalDevice),
   //monOptoHybrid_(0)
   b_links({false,false,false}),
-  m_controlLink(-1)  
+  m_controlLink(-1)
 {
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
@@ -138,7 +138,7 @@ gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 //}
 //
 
-bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected() 
+bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
 {
   if ( b_is_connected ) {
     DEBUG("HwOptoHybrid connection good");
@@ -167,7 +167,7 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
 gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkStatus()
 {
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
-  
+
   linkStatus.TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRK_ERR"));
   linkStatus.TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRG_ERR"));
   linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.DATA_Packets"));
@@ -316,7 +316,7 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
     writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
   uint32_t tmp = readReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()));
-  
+
   std::stringstream regName;
   regName << getDeviceBaseNode() << ".GEB.Broadcast.Results";
   std::vector<uint32_t> results;
@@ -341,15 +341,15 @@ std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::get
   std::vector<uint32_t> chips0 = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK,false);
   std::vector<uint32_t> chips1 = broadcastRead("ChipID1",ALL_VFATS_BCAST_MASK,false);
   DEBUG("chips0 size:" << chips0.size() <<  ", chips1 size:" << chips1.size());
-  
+
   std::vector<std::pair<uint8_t, uint32_t> > chipIDs;
   std::vector<std::pair<uint32_t,uint32_t> > chipPairs;
   chipPairs.reserve(chips0.size());
-  
+
   std::transform(chips1.begin(), chips1.end(), chips0.begin(),
                  std::back_inserter(chipPairs),
                  std::make_pair<uint32_t,uint32_t>);
-  
+
   for (auto chip = chipPairs.begin(); chip != chipPairs.end(); ++chip) {
     uint8_t slot = ((chip->first)>>8)&0xff;
     uint32_t chipID = (((chip->first)&0xff)<<8)+((chip->second)&0xff);
@@ -376,7 +376,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
     // ZZ = register contents
     DEBUG("result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
     bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
-    
+
     if (v_bit && !e_bit) {
       uint8_t shift = ((*id)>>8)&0xff;
       connectedMask |= (0x1 << shift);
@@ -384,7 +384,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
     }
     DEBUG("mask is " << std::hex << connectedMask << std::dec);
   }
-  
+
   connectedMask = ~connectedMask;
   disabledMask  = ~disabledMask ;
   DEBUG("final mask is 0x" << std::setw(8) << std::setfill('0') << std::hex << connectedMask << std::dec);

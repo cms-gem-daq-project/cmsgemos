@@ -707,7 +707,7 @@ uint32_t gem::hw::HwGenericAMC::getOptoHybridKillMask()
 {
   return readReg(getDeviceBaseNode(), "TRIGGER.CTRL.OH_KILL_MASK");
 }
-        
+
 void gem::hw::HwGenericAMC::setOptoHybridKillMask(uint32_t const& mask)
 {
   writeReg(getDeviceBaseNode(), "TRIGGER.CTRL.OH_KILL_MASK", mask);

@@ -11,7 +11,7 @@
 gem::hw::optohybrid::OptoHybridManagerWeb::OptoHybridManagerWeb(gem::hw::optohybrid::OptoHybridManager* optohybridApp) :
   gem::base::GEMWebApplication(optohybridApp)
 {
-  
+
 }
 
 gem::hw::optohybrid::OptoHybridManagerWeb::~OptoHybridManagerWeb()

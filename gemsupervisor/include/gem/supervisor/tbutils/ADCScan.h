@@ -49,7 +49,7 @@ namespace cgicc {
 }
 
 namespace gem {
-  
+
   namespace hw {
     namespace vfat {
       class HwVFAT2;
@@ -57,13 +57,13 @@ namespace gem {
   }
 
   typedef std::shared_ptr<hw::vfat::HwVFAT2 > vfat_shared_ptr;
-  
+
   namespace supervisor {
     namespace tbutils {
 
       class ADCScan : public xdaq::WebApplication, public xdata::ActionListener
         {
-	  
+
         public:
           XDAQ_INSTANTIATOR();
           ADCScan(xdaq::ApplicationStub * s)
@@ -74,7 +74,7 @@ namespace gem {
           void stateChanged(toolbox::fsm::FiniteStateMachine& fsm);
           void transitionFailed(toolbox::Event::Reference event);
           void fireEvent(const std::string& name);
-	  
+
           // SOAP interface
           xoap::MessageReference onInitialize(xoap::MessageReference message)
             throw (xoap::exception::Exception);
@@ -130,8 +130,8 @@ namespace gem {
             throw (toolbox::fsm::exception::Exception);
           void noAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
-	  
-	  
+
+
           //web display helpers
           void selectVFAT(xgi::Output* out)
             throw (xgi::exception::Exception);
@@ -140,11 +140,11 @@ namespace gem {
           void displayHistograms(xgi::Output* out)
             throw (xgi::exception::Exception);
           void redirect(xgi::Input* in, xgi::Output* out);
-	  
+
           //action performed callback
           void actionPerformed(xdata::Event& event);
 
-          class ConfigParams 
+          class ConfigParams
           {
           public:
             //void getFromFile(const std::string& fileName);
@@ -153,7 +153,7 @@ namespace gem {
             xdata::UnsignedShort  stepSize;
             xdata::UnsignedShort  minDACValue;
             xdata::UnsignedShort  maxDACValue;
-	    
+
             xdata::String        outFileName;
             xdata::String        settingsFile;
 
@@ -173,7 +173,7 @@ namespace gem {
           toolbox::BSem wl_semaphore_;
 
           toolbox::BSem hw_semaphore_;
-	  
+
           toolbox::task::ActionSignature* initSig_;
           toolbox::task::ActionSignature* confSig_;
           toolbox::task::ActionSignature* startSig_;
@@ -185,7 +185,7 @@ namespace gem {
           //ConfigParams confParams_;
           xdata::Bag<ConfigParams> confParams_;
           xdata::String ipAddr_;
-	  
+
           FILE* outputFile;
           //std::fstream* scanStream;
           //0xdeadbeef
@@ -196,16 +196,16 @@ namespace gem {
           uint64_t stepSize_, samplesTaken_;
           bool is_working_, is_initialized_, is_configured_, is_running_;
 	  vfat_shared_ptr vfatDevice_;
-	  
+
           //dac register mapping
           //dacMap[regName] = <ADC to read, DAC Mode>
           std::map<std::string,std::pair<std::string, std::string> > dacMap;
-	  
+
           TH2F* histo;
           TCanvas* outputCanvas;
         protected:
-	  
-	  
+
+
         };
 
     }  // namespace gem::supervisor::tbutils

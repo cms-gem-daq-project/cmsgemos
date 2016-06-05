@@ -24,7 +24,7 @@
  // it as a variable called VAR
  #define XCEPT_DECLARE( EXCEPTION, VAR, MSG )				\
  EXCEPTION VAR( #EXCEPTION, MSG, __FILE__, __LINE__, __FUNCTION__)
- 
+
  // Create a new exception from a previous one and use
  // it as a variable called VAR
  #define XCEPT_DECLARE_NESTED( EXCEPTION, VAR, MSG, PREVIOUS )		\

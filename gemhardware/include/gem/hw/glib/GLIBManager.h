@@ -62,7 +62,7 @@ namespace gem {
           /**
            */
           std::vector<uint32_t> dumpGLIBFIFO(int const& glib);
-          
+
           /**
            */
           void dumpGLIBFIFO(xgi::Input* in, xgi::Output* out);
