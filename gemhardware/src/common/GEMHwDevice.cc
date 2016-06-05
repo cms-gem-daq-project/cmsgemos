@@ -260,6 +260,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
     try {
       uhal::ValWord<uint32_t> val = hw.getNode(name).read();
       hw.dispatch();
+      res = val.value();
       TRACE("GEMHwDevice::Successfully read register " << name.c_str() << " with value 0x"
             << std::setfill('0') << std::setw(8) << std::hex << res << std::dec
             << " retry count is " << retryCount << ". Should move on to next operation");

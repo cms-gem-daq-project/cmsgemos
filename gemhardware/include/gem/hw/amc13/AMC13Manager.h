@@ -90,7 +90,7 @@ namespace gem {
           // virtual void noAction();
 
           virtual void failAction(toolbox::Event::Reference e);
-          
+
           virtual void resetAction(toolbox::Event::Reference e);
 
 	  class BGOInfo

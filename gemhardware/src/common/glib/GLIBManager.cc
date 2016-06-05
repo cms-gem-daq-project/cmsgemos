@@ -339,7 +339,6 @@ void gem::hw::glib::GLIBManager::configureAction()
       // reset the DAQ
       m_glibs.at(slot)->setL1AEnable(0x0);
       m_glibs.at(slot)->resetDAQLink();
-      m_glibs.at(slot)->setL1AInhibit(0x1);
 
       if (m_scanType.value_ == 2) {
 	//uint32_t ilatency = m_scanMin.value_;

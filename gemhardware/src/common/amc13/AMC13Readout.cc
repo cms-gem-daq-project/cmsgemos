@@ -225,7 +225,6 @@ int gem::hw::amc13::AMC13Readout::dumpData()
       chunkfilename << m_outFileName.substr(0,m_outFileName.length()-4)
                     << "_chunk_" << cnt << ".dat";
       std::ofstream outf(chunkfilename.str().c_str(),std::ios_base::app | std::ios::binary);
-      // std::ofstream outf((m_outFileName.substr(0,m_outFileName.length()-4)+"_chunk_"+std::to_string(static_cast <long long> (cnt))+".dat").c_str(), std::ios_base::app | std::ios::binary );
 
       for (int i = 0; i < nevt; i++) {
         if ( (i % 100) == 0)
