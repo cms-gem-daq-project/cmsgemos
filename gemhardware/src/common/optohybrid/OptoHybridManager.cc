@@ -319,7 +319,6 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 
         //optohybrid->broadcastWrite("Latency",     ~vfatMask, 157);
         //optohybrid->broadcastWrite("VThreshold1", ~vfatMask, 50);
-
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
         //reset counters?
