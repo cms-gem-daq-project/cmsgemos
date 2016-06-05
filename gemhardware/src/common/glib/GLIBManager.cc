@@ -233,20 +233,14 @@ void gem::hw::glib::GLIBManager::initializeAction()
     is_glibs.at(slot)->createUInt32("ControlHubPort",    info.controlHubPort.value_   , &(info.controlHubPort),
                                     GEMUpdateType::NOUPDATE);
     is_glibs.at(slot)->createUInt32("IPBusPort",         info.ipBusPort.value_        , &(info.ipBusPort),
-                                    GEMUpdateType::NOUPDATE);
+                                 GEMUpdateType::NOUPDATE);
 
-    DEBUG("GLIBManager::InfoSpace found item: ControlHubAddress "
-          << is_glibs.at(slot)->getString("ControlHubAddress"));
-    DEBUG("GLIBManager::InfoSpace found item: IPBusProtocol "
-          << is_glibs.at(slot)->getString("IPBusProtocol")    );
-    DEBUG("GLIBManager::InfoSpace found item: DeviceIPAddress "
-          << is_glibs.at(slot)->getString("DeviceIPAddress")  );
-    DEBUG("GLIBManager::InfoSpace found item: AddressTable "
-          << is_glibs.at(slot)->getString("AddressTable")     );
-    DEBUG("GLIBManager::InfoSpace found item: ControlHubPort "
-          << is_glibs.at(slot)->getUInt32("ControlHubPort")   );
-    DEBUG("GLIBManager::InfoSpace found item: IPBusPort "
-          << is_glibs.at(slot)->getUInt32("IPBusPort")        );
+    DEBUG("GLIBManager::InfoSpace found item: ControlHubAddress " << is_glibs.at(slot)->getString("ControlHubAddress"));
+    DEBUG("GLIBManager::InfoSpace found item: IPBusProtocol "     << is_glibs.at(slot)->getString("IPBusProtocol")    );
+    DEBUG("GLIBManager::InfoSpace found item: DeviceIPAddress "   << is_glibs.at(slot)->getString("DeviceIPAddress")  );
+    DEBUG("GLIBManager::InfoSpace found item: AddressTable "      << is_glibs.at(slot)->getString("AddressTable")     );
+    DEBUG("GLIBManager::InfoSpace found item: ControlHubPort "    << is_glibs.at(slot)->getUInt32("ControlHubPort")   );
+    DEBUG("GLIBManager::InfoSpace found item: IPBusPort "         << is_glibs.at(slot)->getUInt32("IPBusPort")        );
 
     try {
       DEBUG("GLIBManager::obtaining pointer to HwGLIB");

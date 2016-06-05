@@ -598,7 +598,7 @@ namespace gem {
          * @returns the mask for which OHs will have their sbits blocked
          */
         virtual uint32_t getOptoHybridKillMask();
-        
+
         /**
          * @brief Reset the counters of the TRIGGER module
          * @param mask of which OptoHybrids will have their sbits blocked
