@@ -30,7 +30,7 @@ namespace gem {
       void addDeviceProperty(const std::string& first, const std::string& second) {
         m_deviceProperties.insert(std::pair<std::string, std::string>(first,second));
       }
-      
+
     private:
       std::string m_deviceId;
       std::vector <std::string> m_subDevicesIds;

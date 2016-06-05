@@ -50,19 +50,19 @@ namespace gem {
       class CfgDocument;
       class Record;
     }
-    
+
     class GEMApplication : public xdaq::Application, public xdata::ActionListener
       {
       public:
         XDAQ_INSTANTIATOR();
-	
+
         GEMApplication(xdaq::ApplicationStub *stub)
           throw (xdaq::exception::Exception);
-	
+
         toolbox::fsm::FiniteStateMachine* getFSM(){ return &fsm_; }
-	
+
         virtual void actionPerformed(xdata::Event&);
-	
+
       protected:
         // FSM SOAP interface
         xoap::MessageReference fsmCallback(     xoap::MessageReference message)
@@ -82,13 +82,13 @@ namespace gem {
         bool steerAsyncSuspend(toolbox::task::WorkLoop* loop);
         bool steerAsyncResume(toolbox::task::WorkLoop* loop);
         bool steerFix(toolbox::task::WorkLoop* loop);
-	
+
         /// allow to update the progress of initialization as it goes forward (0->1)
         void updateProgress(float fractionalProgress);
 
         ///// Access the internal WebImageManager //may not need this, but if so, implement it for gem
         //hcal::toolbox::WebImageManager& getImageManager() { return m_imageManager; }
-	
+
         /// Web callback for "default" action
         void xgiMenu(xgi::Input*, xgi::Output*) throw (xgi::exception::Exception);
         /// Web callback for looking at the application
@@ -97,30 +97,30 @@ namespace gem {
         void xgiCfg(xgi::Input*, xgi::Output*) throw (xgi::exception::Exception);
         /// Web callback for providing images and other data from the cache of "web data"
         void xgiData(xgi::Input*, xgi::Output*) throw (xgi::exception::Exception);
-	
+
         /// allows value of the quantity to be updated
         virtual void actionPerformed(xdata::Event& e);
 
       protected:
         typedef enum CfgStyleType { cfg_NONE, cfg_XML, cfg_DOC } CfgStyle;
-	
+
         GEMApplication(xdaq::ApplicationStub * s);
-    
+
         /// set the configuration style of this application
         void setConfigurationStyle(CfgStyle style);
-    
+
         /// get the configuration document
         gem::base::cfg::CfgDocument* getConfigurationDoc();
         /// release the configuration document
         void releaseConfigurationDoc(hcal::cfg::CfgDocument*);
-    
+
         /// menu method  (default implemenation provides access to the peek and poke calls)
         virtual void webMenu(xgi::Input*, xgi::Output*) throw (gem::base::exception::Exception);
         /// peek method (default implementation shows the contents of the expert monitorable tree)
         virtual void webPeek(xgi::Input*, xgi::Output*) throw (gem::base::exception::Exception);
-        /// poke method 
+        /// poke method
         virtual void webCfg(xgi::Input*, xgi::Output*) throw (gem::base::exception::Exception);
-    
+
         /// actions to perform to go from Ready to Active
         virtual void enable() throw (gem::base::exception::Exception);
         /// actions to perform to go from Active to Paused
@@ -128,14 +128,14 @@ namespace gem {
         /// actions to perform to go from Paused to Active
         virtual void resume() throw (gem::base::exception::Exception);
         /// actions to perform to go from Paused or Active to Ready
-        virtual void disable() throw (gem::base::exception::Exception);  
+        virtual void disable() throw (gem::base::exception::Exception);
         /// actions to perform in the state COLD.  Automatic transition to INIT after successful completion [Asynchronous]
         virtual void coldInit() throw (gem::base::exception::Exception);
         /// actions to perform in the state INIT.  Automatic transition to READY after successful completion [Asynchronous]
         virtual void init() throw (gem::base::exception::Exception);
         /// actions to perform in the state WARM INIT.  Automatic transition to READY after successful completion [Asynchronous]
         virtual void warmInit() throw (gem::base::exception::Exception);
-        /// actions to perform to go from Uninit to PREINIT 
+        /// actions to perform to go from Uninit to PREINIT
         virtual void preInit() throw (gem::base::exception::Exception);
         /// actions to perform to go from Ready or Failed to Uninit
         virtual void reset() throw (gem::base::exception::Exception);
@@ -147,14 +147,14 @@ namespace gem {
         /// actions to perform to go from Paused to Active
         virtual void resumeAsync() throw (gem::base::exception::Exception);
         /// actions to perform to go from Paused or Active to Ready
-        virtual void disableAsync() throw (gem::base::exception::Exception);  
+        virtual void disableAsync() throw (gem::base::exception::Exception);
         /// actions to perform to go from Ready or Failed to Uninit
         virtual void resetAsync() throw (gem::base::exception::Exception);
         /// actions to perform during fixing (async)
         virtual void fix() throw (gem::base::exception::Exception);
-    
+
         void fsmCommand(const std::string& command) throw (gem::base::exception::Exception);
-    
+
         /// access the configuration database (sets a lock, must release)
         ConfigurationDatabase* getCfgDatabase(const char* accessor=0) throw (gem::base::exception::ConfigurationDatabaseException);
         /// release the lock on the configuration database
@@ -167,7 +167,7 @@ namespace gem {
         void changeState(toolbox::fsm::State newState);
         /// send event dependent or run dependent information to the relevant registry
         void postInfo(bool eventDependent, const std::map<std::string, std::string>& strValues, const std::map<std::string, double>& numValues);
-    
+
         /// get name for state
         std::string getStateName(toolbox::fsm::State st);
 
@@ -178,12 +178,12 @@ namespace gem {
 
         /// access the CGI renderer to change settings
         inline gem::base::toolbox::CGIRenderer& getRenderer() { return m_renderer; }
-    
+
         /// create the URL to access the WebData of the given name
         std::string getLinkForCGIData(const std::string& name);
         /// create the URL to access the Peek item of the given name
         std::string getLinkForPeek(const std::string& itemName);
-    
+
         /// make quantity available to monitoring system
         void exportMonitorable(gem::base::monitor::Monitorable* m);
 
@@ -235,11 +235,11 @@ namespace gem {
         std::string m_endOfFixCommand; // needed to return to proper state after fix
         std::string m_workLoopName;
         //added for Monitoring
-        xdata::InfoSpace* m_monitorInfospace; 
+        xdata::InfoSpace* m_monitorInfospace;
         std::map<std::string,gem::base::monitor::Monitorable*> m_monitorables;
-    
+
       };
-    
+
   } // namespace gem::base
 } // namespace gem
 

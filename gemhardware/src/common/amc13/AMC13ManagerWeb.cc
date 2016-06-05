@@ -73,15 +73,15 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
       WARN("AMC13ManagerWeb::Caught unknown exception");
       //XCEPT_RAISE(xgi::exception::Exception, e.what());
     }
-  else 
+  else
     level = 2;
-  
+
   DEBUG("AMC13ManagerWeb::current level is "      << level);
 
   //form and control to set the display level of information
   std::string method = toolbox::toString("/%s/monitorView",p_gemFSMApp->getApplicationDescriptor()->getURN().c_str());
   *out << cgicc::form().set("method","POST").set("action",method) << std::endl;
-  
+
   *out << cgicc::section().set("style","display:inline-block;float:left") << std::endl
        << cgicc::fieldset().set("style","display:block;padding:5px;margin:5px;list-style-type:none;margin-bottom:5px;line-height:18px;padding:2px 5px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;border:medium outset #CCC;")
        << std::endl
@@ -118,7 +118,7 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
        << cgicc::br()     << std::endl
        << cgicc::div()    << std::endl
        << cgicc::span().set("style","display:block;float:left") << std::endl;
-  
+
   try {
     if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
       ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus();

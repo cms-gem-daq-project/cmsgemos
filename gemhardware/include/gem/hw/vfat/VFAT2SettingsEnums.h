@@ -36,18 +36,18 @@ namespace gem {
             MSPOL         = 0x10,
             CALPOL        = 0x20,
             CALMODE       = 0xc0,
-	    
+
             //Control Register 1
             DACMODE       = 0x0f,
             PROBEMODE     = 0x10,
             LVDSMODE      = 0x20,
             REHITCT       = 0xc0,
-	    
+
             //Control Register 2
             HITCOUNTMODE  = 0x0f,
             MSPULSELENGTH = 0x70,
             DIGINSEL      = 0x80,
-	    
+
             //Control Register 3
             TRIMDACRANGE  = 0x07,
             PADBANDGAP    = 0x08,
@@ -64,18 +64,18 @@ namespace gem {
             MSPOL         = 4,
             CALPOL        = 5,
             CALMODE       = 6,
-	    
+
             //Control Register 1
             DACMODE       = 0,
             PROBEMODE     = 4,
             LVDSMODE      = 5,
             REHITCT       = 6,
-	    
+
             //Control Register 2
             HITCOUNTMODE  = 0,
             MSPULSELENGTH = 4,
             DIGINSEL      = 7,
-	    
+
             //Control Register 3
             TRIMDACRANGE  = 0,
             PADBANDGAP    = 3,
@@ -104,7 +104,7 @@ namespace gem {
             SPARE2    = 0x7  //GEM mode (S1 to S8 as defined in the HitCountMode)
           } TriggerMode;
         };
-	
+
         struct MSPolarity { //Monostable input polarity, tells the monostable polarity of the input signal
           enum EMSPolarity { //Monostable input polarity, tells the monostable polarity of the input signal
             POSITIVE = 0x0, //positive I/P signal (default)
@@ -118,7 +118,7 @@ namespace gem {
             NEGATIVE = 0x1   //negative I/P signal
           } CalPolarity;
         };
-	
+
         struct CalibrationMode { //Calibration settings
           enum ECalibrationMode { //Calibration settings
             NORMAL   = 0x0,      //Normal running (default)
@@ -128,7 +128,7 @@ namespace gem {
             EXTERNAL = 0x3       //CalOut = External calibration pulse (not possible to connect to DACoV)
           } CalibrationMode;
         };
-	
+
         /***Control register 1***/
         struct DACMode {     //Controls DAC selecton for DCU monitoring
           enum EDACMode {     //Controls DAC selecton for DCU monitoring
@@ -173,7 +173,7 @@ namespace gem {
             CYCLE3 = 0x3  //
           } ReHitCT;
         };
-	
+
         /***Control register 2***/
         struct HitCountMode {  //Defines the input for the hit counter
           enum EHitCountMode {  //Defines the input for the hit counter
@@ -195,7 +195,7 @@ namespace gem {
             REDUNDANT6  = 0xf  //HitCounter counts S8
           } HitCountMode;
         };
-	
+
         struct MSPulseLength { //Defines the length of the monostable pulse
           enum EMSPulseLength { //Defines the length of the monostable pulse
             CLOCK1 = 0x0,      //pulse length is 1 clock period (default)
@@ -230,14 +230,14 @@ namespace gem {
           } TrimDACRange;
         };
 
-        struct PbBG {          
+        struct PbBG {
           enum EPbBG {         //Enables pad access to the bandgap output
             UNCONNECTED = 0x0, //default is disconnected
             CONNECTED   = 0x1  //pad connected
           } PbBG;
         };
 
-        struct DFTestPattern { 
+        struct DFTestPattern {
           enum EDFTestPattern { //Predefined data packet is sent to the DataOut without need for an input signal or trigger
             IDLE = 0x0,         //Normal mode, sit idle
             SEND = 0x1          //Send the packet
@@ -246,7 +246,7 @@ namespace gem {
       };  // class VFAT2Settings
     }  // namespace gem::hw::vfat
   }  // namespace gem::hw
-  
+
   //typedef the struct for access to the members via struct::VALUE
   typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitMasks   VFAT2ChannelBitMasks;
   typedef gem::hw::vfat::VFAT2ChannelSettings::ChannelBitShifts  VFAT2ChannelBitShifts;

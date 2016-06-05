@@ -2,7 +2,7 @@
 #define GEM_READOUT_GEMDATAAMCFORMAT_H
 
 #include <iostream>
-#include <iomanip> 
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -14,32 +14,32 @@ namespace gem {
 
     struct GEMDataAMCformat {
       struct VFATData {
-        uint16_t BC;          // 1010:4,   BC:12 
+        uint16_t BC;          // 1010:4,   BC:12
         uint16_t EC;          // 1100:4,   EC:8,      Flags:4
         uint16_t ChipID;      // 1110,     ChipID:12
         uint64_t lsData;      // channels from 1to64
         uint64_t msData;      // channels from 65to128
-        uint32_t BXfrOH;      // :32       BX from OH  
+        uint32_t BXfrOH;      // :32       BX from OH
         uint16_t crc;         // :16       CRC
-      };    
-    
+      };
+
       struct GEBData {
         uint64_t header;      // ZSFlag:24 ChamID:12
         uint64_t runhed;      // RunType:4 VT1:8 VT2:8 minTH:8 maxTH:8 Step:8 - Threshold Scan Header
         // RunType:4                                    - Latency Scan Header
-        // RunType:4                                    - Cosmic Run Header 
+        // RunType:4                                    - Cosmic Run Header
         // RunType:4                                    - Data Takiing
         std::vector<VFATData> vfats;
         uint64_t trailer;     // OHcrc: 16 OHwCount:16  ChamStatus:16
       };
 
       struct GEMData {
-        uint64_t header1;    // AmcNo:4      0000:4     LV1ID:24   BXID:12     DataLgth:20 
+        uint64_t header1;    // AmcNo:4      0000:4     LV1ID:24   BXID:12     DataLgth:20
         uint64_t header2;    // User:32      OrN:16     BoardID:16
-        uint64_t header3;    // DAVList:24   BufStat:24 DAVCount:5 FormatVer:3 MP7BordStat:8 
+        uint64_t header3;    // DAVList:24   BufStat:24 DAVCount:5 FormatVer:3 MP7BordStat:8
         std::vector<GEBData> gebs; // we have only one at 2015-Sep
-        uint64_t trailer2;   // EventStat:32 GEBerrFlag:24  
-        uint64_t trailer1;   // crc:32       LV1IDT:8   0000:4     DataLgth:20 
+        uint64_t trailer2;   // EventStat:32 GEBerrFlag:24
+        uint64_t trailer1;   // crc:32       LV1IDT:8   0000:4     DataLgth:20
       };
 
       /*
@@ -53,7 +53,7 @@ namespace gem {
         outf << std::hex << std::setw(16) << std::setfill('0') << gem.header1 << std::dec << std::endl;
         outf.close();
         return true;
-      };	  
+      };
 
       static bool writeGEMhd1Binary(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
@@ -75,13 +75,13 @@ namespace gem {
         inpf.seekg (0, inpf.cur);
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool readGEMhd1(std::ifstream& inpf, GEMData& gem) {
         inpf >> std::hex >> gem.header1;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool writeGEMhd2(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -90,7 +90,7 @@ namespace gem {
         outf << std::hex << std::setw(16) << std::setfill('0') << gem.header2 << std::dec << std::endl;
         outf.close();
         return true;
-      };	  
+      };
 
       static bool writeGEMhd2Binary(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
@@ -112,7 +112,7 @@ namespace gem {
         inpf >> std::hex >> gem.header2;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool writeGEMhd3(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -121,7 +121,7 @@ namespace gem {
         outf << std::hex << std::setw(16) << std::setfill('0') << gem.header3 << std::dec << std::endl;
         outf.close();
         return true;
-      };	  
+      };
 
       static bool writeGEMhd3Binary(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
@@ -143,7 +143,7 @@ namespace gem {
         inpf >> std::hex >> gem.header3;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       /*
        * GEB Data (One GEB board, 24 VFATs)
@@ -156,7 +156,7 @@ namespace gem {
         outf << std::hex << std::setw(16) << std::setfill('0') << geb.header << std::dec << std::endl;
         outf.close();
         return true;
-      };	  
+      };
 
       static bool writeGEBheaderBinary(std::string file, int event, const GEBData& geb) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
@@ -166,7 +166,7 @@ namespace gem {
         outf.close();
         return true;
       };
-	  
+
       static bool readGEBheaderBinary(std::ifstream& inpf, const GEBData& geb) {
         inpf.read( (char*)&geb.header, sizeof(geb.header));
         inpf.seekg (0, inpf.cur);
@@ -178,15 +178,15 @@ namespace gem {
         inpf >> std::hex >> geb.header;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool printGEBheader(int event, const GEBData& geb) {
         if ( event<0) return false;
         std::cout << "Received tracking data word: event " << event << std::endl;
-        std::cout << " 0x" << std::setw(8) << std::hex << geb.header << " ChamID " << ((0x000000fff0000000 & geb.header) >> 28) 
+        std::cout << " 0x" << std::setw(8) << std::hex << geb.header << " ChamID " << ((0x000000fff0000000 & geb.header) >> 28)
                   << std::dec << " sumVFAT " << (0x000000000fffffff & geb.header) << std::endl;
         return true;
-      };	  
+      };
 
       static bool writeGEBrunhed(std::string file, int event, const GEBData& geb) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -195,7 +195,7 @@ namespace gem {
         outf << std::hex << std::setw(16) << std::setfill('0') << geb.runhed << std::dec << std::endl;
         outf.close();
         return true;
-      };	  
+      };
 
       static bool writeGEBrunhedBinary(std::string file, int event, const GEBData& geb) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
@@ -205,7 +205,7 @@ namespace gem {
         outf.close();
         return true;
       };
-	  
+
       static bool readGEBrunhedBinary(std::ifstream& inpf, const GEBData& geb) {
         inpf.read( (char*)&geb.runhed, sizeof(geb.runhed));
         inpf.seekg (0, inpf.cur);
@@ -217,7 +217,7 @@ namespace gem {
         inpf >> std::hex >> geb.runhed;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool writeGEBtrailer(std::string file, int event, const GEBData& geb) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -226,7 +226,7 @@ namespace gem {
         outf << std::hex << std::setw(16) << std::setfill('0') << geb.trailer << std::dec << std::endl;
         outf.close();
         return true;
-      };	  
+      };
 
       static bool writeGEBtrailerBinary(std::string file, int event, const GEBData& geb) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
@@ -236,7 +236,7 @@ namespace gem {
         outf.close();
         return true;
       };
-	  
+
       static bool readGEBtrailerBinary(std::ifstream& inpf, const GEBData& geb) {
         inpf.read( (char*)&geb.trailer, sizeof(geb.trailer));
         inpf.seekg (0, inpf.cur);
@@ -248,17 +248,17 @@ namespace gem {
         inpf >> std::hex >> geb.trailer;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool printGEBtrailer(int event, const GEBData& geb) {
         if ( event<0) return false;
-        uint64_t OHcrc      = (0xffff000000000000 & geb.trailer) >> 48; 
-        uint64_t OHwCount   = (0x0000ffff00000000 & geb.trailer) >> 32; 
+        uint64_t OHcrc      = (0xffff000000000000 & geb.trailer) >> 48;
+        uint64_t OHwCount   = (0x0000ffff00000000 & geb.trailer) >> 32;
         uint64_t ChamStatus = (0x00000000ffff0000 & geb.trailer) >> 16;
-        std::cout << "GEM Camber Treiler: OHcrc " << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec 
+        std::cout << "GEM Camber Treiler: OHcrc " << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec
                   << std::endl;
         return true;
-      };	  
+      };
 
       static bool writeGEMtr2(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -267,7 +267,7 @@ namespace gem {
         outf << std::hex << std::setw(16) << std::setfill('0') << gem.trailer2 << std::dec << std::endl;
         outf.close();
         return true;
-      };	  
+      };
 
       static bool writeGEMtr2Binary(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
@@ -289,7 +289,7 @@ namespace gem {
         inpf >> std::hex >> gem.trailer2;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool writeGEMtr1(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -298,7 +298,7 @@ namespace gem {
         outf << std::hex << std::setw(16) << std::setfill('0') << gem.trailer1 << std::dec << std::endl;
         outf.close();
         return true;
-      };	  
+      };
 
       static bool writeGEMtr1Binary(std::string file, int event, const GEMData& gem) {
         std::ofstream outf(file.c_str(), std::ios_base::app | std::ios::binary );
@@ -324,7 +324,7 @@ namespace gem {
         inpf >> std::hex >> gem.trailer1;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool writeVFATdata(std::string file, int event, const VFATData& vfat) {
         std::ofstream outf(file.c_str(), std::ios_base::app );
@@ -342,7 +342,7 @@ namespace gem {
         //writeZEROline(file);
         outf.close();
         return true;
-      };	  
+      };
 
       static bool printVFATdata(int event, const VFATData& vfat) {
         if ( event<0) return false;
@@ -377,12 +377,12 @@ namespace gem {
         //outf.write( (char*)&vfat.EC,     sizeof(vfat.EC));
         //outf.write( (char*)&vfat.ChipID, sizeof(vfat.ChipID));
         //outf.write( (char*)&vfat.msData, sizeof(vfat.msData));
-        //outf.write( (char*)&vfat.lsData, sizeof(vfat.lsData));  
+        //outf.write( (char*)&vfat.lsData, sizeof(vfat.lsData));
         //outf.write( (char*)&vfat.crc,    sizeof(vfat.crc));
         //outf.write( (char*)&vfat.BXfrOH, sizeof(vfat.BXfrOH));
         outf.close();
         return true;
-      };	  
+      };
 
       static bool readVFATdataBinary(std::ifstream& inpf, int event, VFATData& vfat) {
         if (event<0) return false;
@@ -396,7 +396,7 @@ namespace gem {
         inpf.seekg (0, inpf.cur);
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       static bool readVFATdata(std::ifstream& inpf, int event, VFATData& vfat) {
         if (event<0) return false;
@@ -411,10 +411,10 @@ namespace gem {
         vfat.lsData = ((((uint64_t)lsTmpUp<<16)+lsTmpMid)<<32)+lsTmpLow;
         if(inpf.eof()) return false;
         return true;
-      };	  
+      };
 
       //
-      // Useful printouts 
+      // Useful printouts
       //
       static void show4bits(uint8_t x) {
         int i;
@@ -461,20 +461,20 @@ namespace gem {
         std::cout << "\nReceived VFAT data : " << event << std::endl;
 
         uint8_t   b1010 = (0xf000 & vfat.BC) >> 12;
-        show4bits(b1010); std::cout << " BC     0x" << std::hex << (0x0fff & vfat.BC) 
+        show4bits(b1010); std::cout << " BC     0x" << std::hex << (0x0fff & vfat.BC)
                                     << std::setfill('0') << std::setw(8) << "    BX 0x" << vfat.BXfrOH << std::dec << std::endl;
 
         uint8_t   b1100 = (0xf000 & vfat.EC) >> 12;
         uint16_t   EC   = (0x0ff0 & vfat.EC) >> 4;
         uint8_t   Flag  = (0x000f & vfat.EC);
-        show4bits(b1100); std::cout << " EC     0x" << std::hex << EC << std::dec << std::endl; 
+        show4bits(b1100); std::cout << " EC     0x" << std::hex << EC << std::dec << std::endl;
         show4bits(Flag);  std::cout << " Flags " << std::endl;
 
         uint8_t   b1110 = (0xf000 & vfat.ChipID) >> 12;
         uint16_t ChipID = (0x0fff & vfat.ChipID);
         show4bits(b1110); std::cout << " ChipID 0x" << std::hex << ChipID << std::dec << " " << std::endl;
 
-        /* 
+        /*
         std::cout << "     bxNum  0x" << std::hex << ((0xff00 & vfat.bxNum) >> 8) << " SBit " << (0x00ff & vfat.bxNum) << std::endl;
         */
 
@@ -493,7 +493,7 @@ namespace gem {
         outf << "\n" << std::endl;
         outf.close();
         return true;
-      };	  
+      };
     };  // struct GEMDataAMCformat
   }  // namespace gem::readout
   typedef gem::readout::GEMDataAMCformat::GEMData  AMCGEMData;

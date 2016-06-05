@@ -51,7 +51,7 @@ gem::hw::amc13::AMC13Readout::~AMC13Readout()
 void gem::hw::amc13::AMC13Readout::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("AMC13Readout::actionPerformed() setDefaultValues" << 
+    DEBUG("AMC13Readout::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
   }
 
@@ -92,7 +92,7 @@ void gem::hw::amc13::AMC13Readout::initializeAction()
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
   }
   DEBUG("AMC13Readout::initializeAction connected");
-  
+
   gem::readout::GEMReadoutApplication::initializeAction();
 }
 
@@ -177,7 +177,7 @@ int gem::hw::amc13::AMC13Readout::dumpData()
       if ( (i % 100) == 0)
         DEBUG("calling readEvent " << std::dec << i << "..." << std::endl);
       pEvt = p_amc13->readEvent(siz, rc);
-      
+
       if (rc == 0 && siz > 0 && pEvt != NULL) {
         //fwrite(pEvt, sizeof(uint64_t), siz, fp);
         outf.write((char*)pEvt, siz*sizeof(uint64_t));

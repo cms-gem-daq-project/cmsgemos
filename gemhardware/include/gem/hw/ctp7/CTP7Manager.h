@@ -62,7 +62,7 @@ namespace gem {
           /**
            */
           std::vector<uint32_t> dumpCTP7FIFO(int const& ctp7);
-          
+
           /**
            */
           void dumpCTP7FIFO(xgi::Input* in, xgi::Output* out);

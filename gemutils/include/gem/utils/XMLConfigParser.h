@@ -3,17 +3,17 @@
 
 namespace gem {
   namespace utils{
-    
-    class XMLConfigParser 
+
+    class XMLConfigParser
     {
     public:
-      
+
     private:
-      
+
     protected:
-      
+
     };  //class XMLConfigParser
-    
+
   }  //namespace gem::utils
 }  // namespace gem
 

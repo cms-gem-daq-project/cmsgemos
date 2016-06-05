@@ -110,7 +110,7 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
   *out << "  <div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
   this->expertPage(in, out);
   *out << "  </div>" << std::endl;
-  
+
   // add possibility for the derived class to put another tab here?
   this->applicationPage(in, out);
 

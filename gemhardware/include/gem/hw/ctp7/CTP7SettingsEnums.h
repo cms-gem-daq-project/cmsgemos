@@ -68,22 +68,22 @@ namespace gem {
             BOTH = 0x2, //Use all sources of triggers
           } TriggerMode;
         };
-	
+
         struct TTCEncoding { //TTCEncoding settings
           enum ETTCEncoding { //TTCEncoding settings
             AMC13  = 0x0, //Use the AMC13 style TTC encoding
             GEMCSC = 0x1, //Use the CSC/GEM style TTC encoding
           } TTCEncoding;
         };
-	
+
       };  // class CTP7Settings
     }  // namespace gem::hw::ctp7
   }  // namespace gem::hw
-  
+
   //typedef the struct for access to the members via struct::VALUE
   typedef gem::hw::ctp7::CTP7LinkSettings::LinkBitMasks   CTP7LinkBitMasks;
   typedef gem::hw::ctp7::CTP7LinkSettings::LinkBitShifts  CTP7LinkBitShifts;
-  
+
   //typedef the enum for casting and access
   typedef gem::hw::ctp7::CTP7Settings::RunMode::ERunMode          CTP7RunMode;
   typedef gem::hw::ctp7::CTP7Settings::TriggerMode::ETriggerMode  CTP7TrigMode;

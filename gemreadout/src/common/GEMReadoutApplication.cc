@@ -3,7 +3,7 @@
  * description: Generic GEM application to handle readout
  *              structure borrowed from HCAL
  * author: J. Sturdy
- * date: 
+ * date:
  */
 #include "toolbox/mem/Pool.h"
 #include "toolbox/mem/MemoryPoolFactory.h"
@@ -70,7 +70,7 @@ gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub
   p_appInfoSpace->addItemRetrieveListener("ConnectionFile",  this);
   p_appInfoSpace->addItemRetrieveListener("EventsReadout",   this);
   p_appInfoSpace->addItemRetrieveListener("uSecPerEvent",    this);
-  
+
   p_appInfoSpace->addItemChangedListener( "ReadoutSettings", this);
   p_appInfoSpace->addItemChangedListener( "DeviceName",      this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile",  this);
@@ -79,7 +79,7 @@ gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub
 
   p_gemWebInterface = new gem::readout::GEMReadoutWebApplication(this);
 
-  ////set up the info hwCfgInfoSpace 
+  ////set up the info hwCfgInfoSpace
   //init();
   DEBUG("GEMReadoutApplication::GEMReadoutApplication() "      << std::endl
         << " m_deviceName:"     << m_deviceName.toString()     << std::endl
@@ -91,13 +91,13 @@ gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub
 
 gem::readout::GEMReadoutApplication::~GEMReadoutApplication()
 {
-  
+
 }
 
 void gem::readout::GEMReadoutApplication::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("GEMReadoutApplication::actionPerformed() setDefaultValues" << 
+    DEBUG("GEMReadoutApplication::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     importConfigurationParameters();
     importMonitoringParameters();
@@ -110,7 +110,7 @@ void gem::readout::GEMReadoutApplication::actionPerformed(xdata::Event& event)
         << " m_eventsReadout:"  << m_eventsReadout.toString()       << std::endl
         );
   // update monitoring variables
-  gem::base::GEMFSMApplication::actionPerformed(event);  
+  gem::base::GEMFSMApplication::actionPerformed(event);
 }
 
 
@@ -156,7 +156,7 @@ void gem::readout::GEMReadoutApplication::startAction()
 {
   DEBUG("gem::readout::GEMReadoutApplication::startAction begin");
   // build output filename
-  
+
   // Times for output files
   time_t now  = time(0);
   tm    *gmtm = gmtime(&now);
@@ -167,14 +167,14 @@ void gem::readout::GEMReadoutApplication::startAction()
   date_and_time.erase(std::remove(date_and_time.begin(), date_and_time.end(), '\n'), date_and_time.end());
   std::replace(date_and_time.begin(), date_and_time.end(), ' ', '_' );
   std::replace(date_and_time.begin(), date_and_time.end(), ':', '-');
-  
+
   m_readoutSettings.bag.fileName = toolbox::toString("%s/%s_%s_%s.dat",
                                                      m_readoutSettings.bag.outputLocation.toString().c_str(),
                                                      m_readoutSettings.bag.runType.toString().c_str(),
                                                      m_runNumber.toString().c_str(),
                                                      date_and_time.c_str()
                                                      );
-  
+
   m_outFileName  = m_readoutSettings.bag.fileName.toString();
 
   m_cmdQueue.push(ReadoutCommands::CMD_START);
@@ -205,7 +205,7 @@ void gem::readout::GEMReadoutApplication::haltAction()
   /*throw (gem::readout::exception::Exception)*/
 {
   DEBUG("gem::readout::GEMReadoutApplication::haltAction begin");
-  if (m_task) 
+  if (m_task)
     m_cmdQueue.push(ReadoutCommands::CMD_STOP);
 }
 
@@ -233,7 +233,7 @@ int gem::readout::GEMReadoutApplication::readoutTask()
   int nevtsRead(0);
   // may at some point want to actually pass the memory
   std::vector<toolbox::mem::Reference* > data;
-  
+
   while (!isDone) {
     if (!isRunning || m_cmdQueue.size() > 0) {
       int cmd = m_cmdQueue.pop();
@@ -259,7 +259,7 @@ int gem::readout::GEMReadoutApplication::readoutTask()
     if (isRunning) {
       data.clear();
       struct timeval start,stop;
-      
+
       gettimeofday(&start,0);
       nevtsRead = 0;
       try {
@@ -267,7 +267,7 @@ int gem::readout::GEMReadoutApplication::readoutTask()
       } catch (gem::base::exception::Exception& e) {
         ERROR(xcept::stdformat_exception_history(e));
       }
-      
+
       DEBUG("GEMReadoutApplication::readoutTask read " << nevtsRead << " events");
       /*
       for (int i = 0; i < nevtsRead; i++) {
