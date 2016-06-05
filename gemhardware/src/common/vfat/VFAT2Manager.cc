@@ -23,7 +23,7 @@ gem::hw::vfat::VFAT2Manager::VFAT2Manager(xdaq::ApplicationStub* s)
   xgi::framework::deferredbind(this, this, &VFAT2Manager::RegisterView,  "RegisterView");
   xgi::framework::deferredbind(this, this, &VFAT2Manager::ControlPanel,  "ControlPanel");
   xgi::framework::deferredbind(this, this, &VFAT2Manager::ExpertView,    "ExpertView"  );
-  xgi::framework::deferredbind(this, this, &VFAT2Manager::Peek,          "Peek"        ); 
+  xgi::framework::deferredbind(this, this, &VFAT2Manager::Peek,          "Peek"        );
   xgi::framework::deferredbind(this, this, &VFAT2Manager::controlVFAT2,  "controlVFAT2");
 
   m_device = "VFAT13";
@@ -41,9 +41,9 @@ gem::hw::vfat::VFAT2Manager::VFAT2Manager(xdaq::ApplicationStub* s)
   getApplicationInfoSpace()->fireItemValueRetrieve("ipAddr", &m_ipAddr);
   getApplicationInfoSpace()->fireItemValueRetrieve("settingsFile", &m_settingsFile);
 
-  //                                                                                   
-  // Bind SOAP callback                                                                  
-  //                                                                                    
+  //
+  // Bind SOAP callback
+  //
   xoap::bind(this, &gem::hw::vfat::VFAT2Manager::onMessage, "onMessage", XDAQ_NS_URI);
 }
 
@@ -85,7 +85,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
   // readVFAT2Registers();
   m_vfatParams = p_vfatDevice->getVFAT2Params();
   LOG4CPLUS_DEBUG(this->getApplicationLogger(), "VFAT2Manager::VFAT2Manager::6 m_device = " << m_device.toString() << std::endl);
-  
+
   try {
     if (p_vfatDevice->isHwConnected()) {
       LOG4CPLUS_DEBUG(this->getApplicationLogger(), "VFAT2 device is connected, continuing to read registers");
@@ -112,7 +112,7 @@ void gem::hw::vfat::VFAT2Manager::actionPerformed(xdata::Event& event)
 void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2ControlParams& params)
 {
   boost::format vfatregform("VFATS.%1%.%2%");
-  
+
   // try the hardware connection
   try {
     if (p_vfatDevice->isHwConnected()) {
@@ -128,7 +128,7 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), e.what());
     return;
   }
-  
+
   try {
     uhal::HwInterface hw = p_vfatDevice->getVFAT2HwInterface();
     std::string deviceBaseNode = p_vfatDevice->getDeviceBaseNode();
@@ -142,27 +142,27 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
                               m_nodes.end(),
                               deviceBaseNode),
                   m_nodes.end());
-    
+
     std::vector<std::string>::iterator cleannode  = m_nodes.begin();
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "before removal::getNodes(): " << std::endl
                     << "m_nodes.size() = " << m_nodes.size() << std::endl);
     std::copy(m_nodes.begin(), m_nodes.end(), std::ostream_iterator<std::string>(std::cout, ", "));
-    
+
     for (; cleannode != m_nodes.end(); ++cleannode) {
       cleannode->erase(cleannode->find(deviceBaseNode+"."),
                        std::string(deviceBaseNode+".").length());
     }
-    
+
     std::vector<std::string>::const_iterator node = m_nodes.begin();
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "after removal::getNodes(): " << std::endl
                     << "m_nodes.size() = " << m_nodes.size() << std::endl);
     std::copy(m_nodes.begin(), m_nodes.end(), std::ostream_iterator<std::string>(std::cout, ", "));
-    
+
     node = m_nodes.begin();
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "attempting to read the vfat registers");
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "start reading::getNodes(): " << std::endl
                     << "m_nodes.size() = " << m_nodes.size() << std::endl);
-    
+
     for (; node != m_nodes.end(); ++node) {
       LOG4CPLUS_DEBUG(this->getApplicationLogger(), "reading::getNodes(): " << std::endl
                       << "m_nodes.size() = " << m_nodes.size() << std::endl);
@@ -174,67 +174,67 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
     }
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "done reading::getNodes(): " << std::endl
                     << "m_nodes.size() = " << m_nodes.size() << std::endl);
-        
+
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers() --> read in current parameters");
     // std::string key = boost::str(vfatregform % m_device.toString() % "Latency");
     // key = "Latency";
     params.latency = static_cast<unsigned>(m_vfatRegs["Latency"]);
-    
+
     params.iPreampIn   = static_cast<unsigned>(m_vfatRegs["IPreampIn"]);
     params.iPreampFeed = static_cast<unsigned>(m_vfatRegs["IPreampFeed"]);
     params.iPreampOut  = static_cast<unsigned>(m_vfatRegs["IPreampOut"]);
     params.iShaper     = static_cast<unsigned>(m_vfatRegs["IShaper"]);
     params.iShaperFeed = static_cast<unsigned>(m_vfatRegs["IShaperFeed"]);
     params.iComp       = static_cast<unsigned>(m_vfatRegs["IComp"]);
-    
+
     params.vCal     = static_cast<unsigned>(m_vfatRegs["VCal"]);
     params.vThresh1 = static_cast<unsigned>(m_vfatRegs["VThreshold1"]);
     params.vThresh2 = static_cast<unsigned>(m_vfatRegs["VThreshold2"]);
     params.calPhase = static_cast<unsigned>(m_vfatRegs["CalPhase"]);
-    
+
     // counters
-    
+
     // uint16_t myChipID;
     // myChipID = (m_vfatRegs["ChipID1"]<<8)|m_vfatRegs["ChipID0"];
     params.chipID = (m_vfatRegs["ChipID1"] << 8)|m_vfatRegs["ChipID0"];
     std::cout << "ChipID0 = 0x" << std::hex << static_cast<unsigned>(m_vfatRegs["ChipID0"]) << std::dec << std::endl;
     std::cout << "ChipID1 = 0x" << std::hex << static_cast<unsigned>(m_vfatRegs["ChipID1"]) << std::dec << std::endl;
     std::cout << "ChipID = 0x" << std::hex << params.chipID << std::dec << std::endl;
-    
+
     // uint8_t myUpset;
     params.upsetCounter = static_cast<unsigned>(m_vfatRegs["UpsetReg"]);
-    
+
     // uint32_t myCounter;
     params.hitCounter = (m_vfatRegs["HitCount2"] << 16)|
       (m_vfatRegs["HitCount1"] << 8)|
       m_vfatRegs["HitCount0"];
-    
-    // uint8_t control0, control1, control2, control3;    
+
+    // uint8_t control0, control1, control2, control3;
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers() --> read in control registers");
     params.control0 = static_cast<unsigned>(m_vfatRegs["ContReg0"]);
     params.control1 = static_cast<unsigned>(m_vfatRegs["ContReg1"]);
     params.control2 = static_cast<unsigned>(m_vfatRegs["ContReg2"]);
     params.control3 = static_cast<unsigned>(m_vfatRegs["ContReg3"]);
-    
+
     params.runMode   = (VFAT2RunMode  )((params.control0&VFAT2ContRegBitMasks::RUNMODE ) >> VFAT2ContRegBitShifts::RUNMODE );
     params.trigMode  = (VFAT2TrigMode )((params.control0&VFAT2ContRegBitMasks::TRIGMODE) >> VFAT2ContRegBitShifts::TRIGMODE);
     params.msPol     = (VFAT2MSPol    )((params.control0&VFAT2ContRegBitMasks::MSPOL   ) >> VFAT2ContRegBitShifts::MSPOL   );
     params.calPol    = (VFAT2CalPol   )((params.control0&VFAT2ContRegBitMasks::CALPOL  ) >> VFAT2ContRegBitShifts::CALPOL  );
     params.calibMode = (VFAT2CalibMode)((params.control0&VFAT2ContRegBitMasks::CALMODE ) >> VFAT2ContRegBitShifts::CALMODE );
-    
+
     params.dacMode   = (VFAT2DACMode  )((params.control1&VFAT2ContRegBitMasks::DACMODE  ) >> VFAT2ContRegBitShifts::DACMODE  );
     params.probeMode = (VFAT2ProbeMode)((params.control1&VFAT2ContRegBitMasks::PROBEMODE) >> VFAT2ContRegBitShifts::PROBEMODE);
     params.lvdsMode  = (VFAT2LVDSMode )((params.control1&VFAT2ContRegBitMasks::LVDSMODE ) >> VFAT2ContRegBitShifts::LVDSMODE );
     params.reHitCT   = (VFAT2ReHitCT  )((params.control1&VFAT2ContRegBitMasks::REHITCT  ) >> VFAT2ContRegBitShifts::REHITCT  );
-    
+
     params.hitCountMode = (VFAT2HitCountMode )((params.control2&VFAT2ContRegBitMasks::HITCOUNTMODE ) >> VFAT2ContRegBitShifts::HITCOUNTMODE );
     params.msPulseLen   = (VFAT2MSPulseLength)((params.control2&VFAT2ContRegBitMasks::MSPULSELENGTH) >> VFAT2ContRegBitShifts::MSPULSELENGTH);
     params.digInSel     = (VFAT2DigInSel     )((params.control2&VFAT2ContRegBitMasks::DIGINSEL     ) >> VFAT2ContRegBitShifts::DIGINSEL     );
-    
+
     params.trimDACRange    = (VFAT2TrimDACRange )((params.control3&VFAT2ContRegBitMasks::TRIMDACRANGE) >> VFAT2ContRegBitShifts::TRIMDACRANGE);
     params.padBandGap      = (VFAT2PadBandgap   )((params.control3&VFAT2ContRegBitMasks::PADBANDGAP  ) >> VFAT2ContRegBitShifts::PADBANDGAP  );
     params.sendTestPattern = (VFAT2DFTestPattern)((params.control3&VFAT2ContRegBitMasks::DFTESTMODE  ) >> VFAT2ContRegBitShifts::DFTESTMODE  );
-    
+
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers() --> read in current parameters");
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers()::Control Register 0");
     LOG4CPLUS_DEBUG(getApplicationLogger(), boost::str(boost::format("0x%02x <%s:%s:%s:%s:%s>")
@@ -244,7 +244,7 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
                                                        % gem::hw::vfat::MSPolarityToString.at(     params.msPol    )
                                                        % gem::hw::vfat::CalPolarityToString.at(    params.calPol   )
                                                        % gem::hw::vfat::CalibrationModeToString.at(params.calibMode)));
-    
+
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers()::Control Register 1");
     LOG4CPLUS_DEBUG(getApplicationLogger(), boost::str(boost::format("0x%02x <%s:%s:%s:%s>")
                                                        % static_cast<unsigned>(params.control1)
@@ -252,14 +252,14 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
                                                        % gem::hw::vfat::ProbeModeToString.at(    params.probeMode )
                                                        % gem::hw::vfat::LVDSPowerSaveToString.at(params.lvdsMode  )
                                                        % gem::hw::vfat::ReHitCTToString.at(      params.reHitCT   )));
-    
+
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers()::Control Register 2");
     LOG4CPLUS_DEBUG(getApplicationLogger(), boost::str(boost::format("0x%02x <%s:%s:%s>")
                                                        %static_cast<unsigned>(params.control2)
                                                        % gem::hw::vfat::HitCountModeToString.at( params.hitCountMode)
                                                        % gem::hw::vfat::MSPulseLengthToString.at(params.msPulseLen  )
                                                        % gem::hw::vfat::DigInSelToString.at(     params.digInSel    )));
-    
+
     LOG4CPLUS_DEBUG(getApplicationLogger(), "VFAT2Manager::readVFAT2Registers()::Control Register 3");
     LOG4CPLUS_DEBUG(getApplicationLogger(), boost::str(boost::format("0x%02x <%s:%s:%s>")
                                                        % static_cast<unsigned>(params.control3)
@@ -308,7 +308,7 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input* in, xgi::Output* out 
          << "    <link rel=\"stylesheet\" href=\"/gemdaq/gemhardware/html/css/vfat/vfatchannelregister.css\"/>"  << std::endl
          << "    <link rel=\"stylesheet\" href=\"/gemdaq/gemhardware/html/css/vfat/vfatcommands.css\"/>"         << std::endl;
 
-    
+
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "building the control panel m_vfatParams:" << m_vfatParams);
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "p_vfatDevice->getVFAT2Params():" << p_vfatDevice->getVFAT2Params());
     std::string method = toolbox::toString("/%s/controlVFAT2", getApplicationDescriptor()->getURN().c_str());
@@ -360,16 +360,16 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input* in, xgi::Output* out 
 
     *out << cgicc::comment() << "ending the Global settings fieldset" << cgicc::comment() << std::endl
          << "        </fieldset>" << std::endl;
-    
+
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "building the ChannelRegisterLayout");
     gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLayout(out, m_vfatParams);
     *out << cgicc::comment() << "ending the vfatSettings section" << cgicc::comment() << std::endl
          << "      </section>" << std::endl
-    
+
          << cgicc::comment() << "ending the left side section" << cgicc::comment() << std::endl
       // << "    </section>" << std::endl;
          << cgicc::section()  << std::endl;
-    
+
 
     /*
       cgicc::section *rightSide = new cgicc::section();
@@ -377,7 +377,7 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input* in, xgi::Output* out 
     */
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "building the CommandLayout");
     gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(out, m_vfatParams);
-    
+
     *out << cgicc::section() << std::endl
          // << "Errors     :: " << (p_vfatDevice->vfatErrors_).Error        << cgicc::br() << std::endl
          // << "Invalid    :: " << (p_vfatDevice->vfatErrors_).Invalid      << cgicc::br() << std::endl
@@ -387,7 +387,7 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input* in, xgi::Output* out 
          << "Timeouts   :: " << (p_vfatDevice->m_ipBusErrs).Timeout       << cgicc::br() << std::endl
          << "CH errors  :: " << (p_vfatDevice->m_ipBusErrs).ControlHubErr << cgicc::br() << std::endl
          << cgicc::section() << std::endl;
-    
+
     *out << cgicc::form() << cgicc::br() << std::endl;
     *out << cgicc::script().set("type", "text/javascript")
       .set("src", "http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js")
@@ -415,8 +415,8 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input* in, xgi::Output* out 
     << "          alert(\"JQuery is working! :D\");" << std::endl
     << "        });"   << std::endl
     << "    </script>" << std::endl;
-    *out << std::endl; 
-    *out << std::endl; 
+    *out << std::endl;
+    *out << std::endl;
     *out << "    <script type=\"text/javascript\">" << std::endl
     << "    $(document).ready( function () {"  << std::endl
     << "    	var registerSetBoxes = [$(\"#CR0Set\"),$(\"#CR1Set\"),$(\"#CR2Set\"),$(\"#CR3Set\"), "       << std::endl
@@ -443,12 +443,12 @@ void gem::hw::vfat::VFAT2Manager::ControlPanel(xgi::Input* in, xgi::Output* out 
     << "    	    });"    << std::endl
     << "        });"           << std::endl
     << "    </script>"         << std::endl;
-    *out << std::endl; 
+    *out << std::endl;
     */
     // *out << "  </body>" << std::endl;
-    // *out << "</html>" << std::endl;    
+    // *out << "</html>" << std::endl;
   }
-  
+
   catch (const xgi::exception::Exception& e) {
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "Something went wrong displaying ControlPanel xgi: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
@@ -469,13 +469,13 @@ void gem::hw::vfat::VFAT2Manager::RegisterView(xgi::Input* in, xgi::Output* out 
   throw (xgi::exception::Exception)
 {
   // std::string method = toolbox::toString("/%s/writeUserRegs",getApplicationDescriptor()->getURN().c_str());
-  
+
   // try the cgicc display
   try {
     *out << "<div class=\"xdaq-tab-wrapper\">"                      << std::endl;
-    
+
     *out << "  <div class=\"xdaq-tab\" title=\"VFAT2 Registers\" >" << std::endl;
-    
+
     *out << cgicc::fieldset().set("style", "font-size: 10pt; font-family: arial;") << std::endl;
     // *out << cgicc::legend(        "Read/Write VFAT user registers"              ) << cgicc::p() << std::endl;
     // *out << cgicc::form().set(    "method", "GET").set("action", method)           << "<br />" << std::endl;
@@ -490,10 +490,10 @@ void gem::hw::vfat::VFAT2Manager::RegisterView(xgi::Input* in, xgi::Output* out 
     *out << "        </tr>"  << std::endl;
     *out << "      </thead>" << std::endl;
     *out << "      <br />"    << std::endl;
-    
+
     // set up the rest by way of a loop
     *out << "      <tbody>"             << std::endl;
-    
+
     std::vector<std::string>::const_iterator node  = m_nodes.begin();
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "m_nodes.size() = " << m_nodes.size());
     for (; node != m_nodes.end(); ++node) {
@@ -512,8 +512,8 @@ void gem::hw::vfat::VFAT2Manager::RegisterView(xgi::Input* in, xgi::Output* out 
       //      << "        </td>" << std::endl;
       *out << "      </tr>" << std::endl;
     }
-    
-    
+
+
     *out << "      <br />"    << std::endl;
     *out << "      </tbody>" << std::endl;
     *out << "    </table>"   << std::endl;
@@ -550,7 +550,7 @@ void gem::hw::vfat::VFAT2Manager::controlVFAT2(xgi::Input* in, xgi::Output* out)
     // read a list of the checked checkboxes
     std::vector<std::pair<std::string, uint8_t> > regValsToSet;
     getCheckedRegisters(cgi, regValsToSet);
-    
+
     //now process the form based on the button clicked
     performAction(cgi, regValsToSet);
     this->Default(in, out);
@@ -566,30 +566,30 @@ void gem::hw::vfat::VFAT2Manager::getCheckedRegisters(cgicc::Cgicc cgi, std::vec
 {
   /****
    ***get a list of the following registers to set***
-   
+
    *Address table register - checkbox name - corresponding form inputs to grab
 
    ContReg0 - CR0Set - CalMode:CalPolarity:MSPolarity:TriggerMode:RunMode
    ContReg1 - CR1Set - ReHitCT:LVDSPowerSave:ProbeMode:DACMode
    ContReg2 - CR2Set - DigInSel:MSPulseLength:HitCountMode
    ContReg3 - CR3Set - DFTest:PbBG:TrimDACRange
-   
-   IPreampIn   - SetIPreampIn    - IPreampIn   
-   IPreampFeed - SetIPreampFeed  - IPreampFeed 
-   IPreampOut  - SetIPreampOut   - IPreampOut  
-   IShaper     - SetIShaper      - IShaper     
-   IShpaerFeed - SetIShpaerFeed  - IShpaerFeed 
-   IComp       - SetIComp        - IComp       
 
-   Latency     - SetLatency      - Latency     
-   VCal        - SetVCal         - VCal        
-   VThreshold1 - SetVThreshold1  - VThreshold1 
-   VThreshold2 - SetVThreshold2  - VThreshold2 
-   
+   IPreampIn   - SetIPreampIn    - IPreampIn
+   IPreampFeed - SetIPreampFeed  - IPreampFeed
+   IPreampOut  - SetIPreampOut   - IPreampOut
+   IShaper     - SetIShaper      - IShaper
+   IShpaerFeed - SetIShpaerFeed  - IShpaerFeed
+   IComp       - SetIComp        - IComp
+
+   Latency     - SetLatency      - Latency
+   VCal        - SetVCal         - VCal
+   VThreshold1 - SetVThreshold1  - VThreshold1
+   VThreshold2 - SetVThreshold2  - VThreshold2
+
    CalPhase - SetCalPhase - CalPhase
 
    //if all selected, pass the params struct to the setter?
-   
+
    ***Readonly***
    ChipID0
    ChipID1
@@ -719,7 +719,7 @@ void gem::hw::vfat::VFAT2Manager::getCheckedRegisters(cgicc::Cgicc cgi, std::vec
   catch (const std::exception & e)
     {
       XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }  
+    }
   LOG4CPLUS_DEBUG(this->getApplicationLogger(), "getCheckedRegisters::list obtained");
   // return regValsToSet;
 }
@@ -797,9 +797,9 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
       p_vfatDevice->maskChannel(1);
     else
       p_vfatDevice->maskChannel(1, false);
-    if (cgi.queryCheckbox("SetCh1TrimDAC")) 
+    if (cgi.queryCheckbox("SetCh1TrimDAC"))
       p_vfatDevice->setChannelTrimDAC(1, cgi["Ch1TrimDAC"]->getIntegerValue());
-    
+
     p_vfatDevice->readVFAT2Channel(1);
     m_vfatParams = p_vfatDevice->getVFAT2Params();
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "set channel 0/1 - 0x"
@@ -810,12 +810,12 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
                     << std::hex << static_cast<unsigned>(m_vfatParams.channels[0].trimDAC       ) << std::dec << ">"
                     << std::endl);
   } else if (strcmp(controlOption.c_str(), "Get This Channel") == 0) {
-    // shouldn't need to query the device here, just read the properties from the 
+    // shouldn't need to query the device here, just read the properties from the
     // stored values, and ensure the web page displays that channel
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "Get channel button pressed");
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
     // uint8_t chanSettings = p_vfatDevice->getChannelSettings(chan);
-    
+
     m_vfatParams = p_vfatDevice->getVFAT2Params();
     m_vfatParams.activeChannel = chan;
     // p_vfatDevice->setActiveChannelWeb(chan);
@@ -835,10 +835,10 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
       p_vfatDevice->maskChannel(chan);
     else
       p_vfatDevice->maskChannel(chan, false);
-    if (cgi.queryCheckbox("SetTrimDAC")) 
+    if (cgi.queryCheckbox("SetTrimDAC"))
       // p_vfatDevice->getVFAT2Params().channels[chan-1].trimDAC = cgi["TrimDAC"]->getIntegerValue();
       p_vfatDevice->setChannelTrimDAC(chan, cgi["TrimDAC"]->getIntegerValue());
-    
+
     // p_vfatDevice->getVFAT2Params().activeChannel = chan;
     // p_vfatDevice->readVFAT2Channel(p_vfatDevice->getVFAT2Params(), chan);
     p_vfatDevice->readVFAT2Channel(chan);
@@ -899,17 +899,17 @@ void gem::hw::vfat::VFAT2Manager::performAction(cgicc::Cgicc cgi, std::vector<st
     m_vfatParams = p_vfatDevice->getVFAT2Params();
   } else if (strcmp(controlOption.c_str(), "Write VFAT") == 0) {
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "Write VFAT button pressed with following registers");
-    
+
     std::vector<std::pair<std::string, uint8_t> >::const_iterator curReg = regValsToSet.begin();
     for (; curReg != regValsToSet.end(); ++curReg) {
       std::string msg =
         toolbox::toString("%s - 0x%02x", (curReg->first).c_str(), static_cast<unsigned>(curReg->second));
       LOG4CPLUS_DEBUG(this->getApplicationLogger(), msg);
     }
-    
+
     // do a single transaction
     // p_vfatDevice->writeVFATRegs(regValsToSet);
-    
+
     curReg = regValsToSet.begin();
     for (; curReg != regValsToSet.end(); ++curReg)
       p_vfatDevice->writeVFATReg(curReg->first, curReg->second);
@@ -926,7 +926,7 @@ xoap::MessageReference gem::hw::vfat::VFAT2Manager::onMessage(xoap::MessageRefer
 {
   LOG4CPLUS_INFO(this->getApplicationLogger(), "-------------------SOAP Message Received-----------------");
 
-  // reply to caller                                                                       
+  // reply to caller
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
   xoap::SOAPName         responseName  = envelope.createName("onMessageResponse", "xdaq", XDAQ_NS_URI);

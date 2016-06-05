@@ -51,7 +51,7 @@ namespace gem {
           TTC_TEST_SYNC ,
         } TTCCommand;
       };
-      
+
       struct OHLinkCount {  ///< OHLinkCount settings
         enum EOHLinkCount {  ///< OHLinkCount settings
           LINK_NOT_VALID,

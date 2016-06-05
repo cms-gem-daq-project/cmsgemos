@@ -188,6 +188,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (!info.present)
       continue;
 
+    DEBUG("GLIBManager::info:" << info.toString());
     DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
 
     // create the cfgInfoSpace object (qualified vs non?)
@@ -197,7 +198,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
                                      info.crateID.value_,
                                      info.slotID.value_);
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
-    
+
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
       DEBUG("GLIBManager::initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
       is_glibs.at(slot) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,

@@ -850,7 +850,7 @@ void gem::hw::ctp7::HwCTP7::generalReset()
     linkReset(gtx);
 
   // other resets
-  
+
   return;
 }
 
@@ -861,9 +861,9 @@ void gem::hw::ctp7::HwCTP7::counterReset()
 
   for (unsigned gtx = 0; gtx < N_GTX; ++gtx)
     resetIPBusCounters(gtx, 0xff);
-  
+
   resetLinkCounters();
-  
+
   return;
 }
 
