@@ -324,10 +324,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   // }
 
   // Use local TTC signal if config doc says so
-<<<<<<< HEAD
-=======
 
->>>>>>> cleaning up whitespace
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
 
   // Use local trigger generator if config doc says so
@@ -411,16 +408,6 @@ void gem::hw::amc13::AMC13Manager::startAction()
   m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
 
   p_amc13->startRun();
-<<<<<<< HEAD
-=======
-  INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
-
-  if (m_enableLocalL1A && m_startL1ATricont) {
-    //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
-    p_amc13->enableLocalL1A(m_enableLocalL1A);
-    //    p_amc13->startContinuousL1A();
-  }
->>>>>>> cleaning up whitespace
 
   if (m_enableLocalTTC) {
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
@@ -694,7 +681,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
 
-<<<<<<< HEAD
   if (!m_startL1ATricont) { // need to remove
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     if (m_enableLEMO)
@@ -702,17 +688,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
   }
 
   if (m_enableLocalL1A && m_startL1ATricont) { // need to remove
-=======
-  if(!m_startL1ATricont){
-    if (m_enableLocalL1A)
-      p_amc13->enableLocalL1A(true);
-    else
-      //disable localL1A generator in order to enable the CSC triggers
-      p_amc13->enableLocalL1A(false);
-  }
-
-  if (m_enableLocalL1A && m_startL1ATricont) {
->>>>>>> cleaning up whitespace
     p_amc13->startContinuousL1A();
   }
 
@@ -747,7 +722,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
 
-<<<<<<< HEAD
   if (!m_startL1ATricont) { // need to remove
     p_amc13->enableLocalL1A(!m_enableLocalL1A);
     if (m_enableLEMO)
@@ -755,17 +729,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
   }
 
   if (m_enableLocalL1A && m_startL1ATricont) { // need to remove
-=======
-  if(!m_startL1ATricont){
-    if (m_enableLocalL1A)
-    p_amc13->enableLocalL1A(false);
-    else
-      //disable localL1A generator in order to enable the CSC triggers
-      p_amc13->enableLocalL1A(true);
-  }
-
-  if (m_enableLocalL1A && m_startL1ATricont) {
->>>>>>> cleaning up whitespace
     p_amc13->stopContinuousL1A();
   }
 

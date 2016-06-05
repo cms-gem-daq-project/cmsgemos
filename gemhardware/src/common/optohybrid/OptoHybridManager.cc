@@ -471,6 +471,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
             INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
           }
         }
+
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
         //reset counters?
