@@ -138,7 +138,7 @@ if options.testi2c > -1:
                 pass
         pass
 print "Trying to do a block read on all VFATs chipID0"
-chipids = getAllChipIDs(glib, options.gtx, chipmask)
+chipids = getAllChipIDs(glib, options.gtx, chipmask,options.debug)
 print chipids
 
 if options.debug:
