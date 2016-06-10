@@ -6,7 +6,7 @@ BUILD_HOME:=$(shell pwd)/../..
 GIT_VERSION  := $(shell git describe --abbrev=4 --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
 
-Project=gemdaq-testing
+Project=cmsgemos
 ShortProject=gem
 
 # ROOT Config
@@ -37,10 +37,12 @@ IncludeDirs+=$(XDAQ_ROOT)/include
 LibraryDirs+=$(XDAQ_ROOT)/lib
 DependentLibraryDirs+=$(XDAQ_ROOT)/lib
 
-DependentLibraries+=asyncresolv boost_system config log4cplus
+#DependentLibraries+=asyncresolv boost_system config log4cplus
+DependentLibraries+=boost_system config log4cplus
 DependentLibraries+=numa toolbox uuid xcept xdaq2rc xerces-c
 
 #Libraries+= log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
+#Libraries+= log4cplus config xcept xerces-c numa toolbox uuid
 
 #UserExecutableLinkFlags+=-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib
 #UserExecutableLinkFlags+=-Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib
