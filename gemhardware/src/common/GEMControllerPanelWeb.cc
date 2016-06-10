@@ -144,7 +144,7 @@ void gem::hw::vfat::GEMController::GEMControllerPanelWeb::createCounterLayout(xg
         .set("value","Read counters").set("name","VFAT2ControlOption")
         << std::endl
         << cgicc::comment() << "ending the Counters fieldset" <<cgicc::comment() << std::endl
-        << "          </fieldset>" << std::endl;  
+        << "          </fieldset>" << std::endl;
 }
 
 //building the control register view
@@ -560,7 +560,7 @@ void gem::hw::vfat::GEMController::GEMControllerPanelWeb::createControlRegisterL
         << cgicc::comment() << "ending the CR #3 section" <<cgicc::comment() << std::endl
         << "            </section>"                                     << std::endl
         << cgicc::comment() << "ending the Control registers fieldset" << cgicc::comment() << std::endl
-        << "          </fieldset>"                                      << std::endl;  
+        << "          </fieldset>"                                      << std::endl;
 }
 
 //building the settings view

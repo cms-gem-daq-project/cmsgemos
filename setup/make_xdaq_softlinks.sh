@@ -14,10 +14,10 @@ unlink ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html
 unlink ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemcalibration/html
 unlink ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemHwMonitor/html
 
-ln -s ${BUILD_HOME}/gemdaq-testing/gembase/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gembase/html
-ln -s ${BUILD_HOME}/gemdaq-testing/gemutils/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemutils/html
-ln -s ${BUILD_HOME}/gemdaq-testing/gemhardware/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemhardware/html
-ln -s ${BUILD_HOME}/gemdaq-testing/gemreadout/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemreadout/html
-ln -s ${BUILD_HOME}/gemdaq-testing/gemsupervisor/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html
-ln -s ${BUILD_HOME}/gemdaq-testing/gemcalibration/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemcalibration/html
-ln -s ${BUILD_HOME}/gemdaq-testing/gemHwMonitor/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemHwMonitor/html
+ln -s ${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gembase/html
+ln -s ${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemutils/html
+ln -s ${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemhardware/html
+ln -s ${BUILD_HOME}/${GEM_OS_PROJECT}/gemreadout/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemreadout/html
+ln -s ${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemsupervisor/html
+ln -s ${BUILD_HOME}/${GEM_OS_PROJECT}/gemcalibration/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemcalibration/html
+ln -s ${BUILD_HOME}/${GEM_OS_PROJECT}/gemHwMonitor/html ${XDAQ_DOCUMENT_ROOT}/gemdaq/gemHwMonitor/html
