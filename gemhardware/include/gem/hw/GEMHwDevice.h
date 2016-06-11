@@ -1,3 +1,5 @@
+/** @file GEMHwDevice.h */
+
 #ifndef GEM_HW_GEMHWDEVICE_H
 #define GEM_HW_GEMHWDEVICE_H
 

@@ -1,3 +1,5 @@
+/** @file VFAT2Settings.h */
+
 #ifndef GEM_HW_VFAT_VFAT2SETTINGS_H
 #define GEM_HW_VFAT_VFAT2SETTINGS_H
 

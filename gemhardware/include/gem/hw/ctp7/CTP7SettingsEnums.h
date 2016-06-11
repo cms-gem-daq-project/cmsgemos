@@ -1,3 +1,5 @@
+/** @file CTP7SettingsEnums.h */
+
 #ifndef GEM_HW_CTP7_CTP7SETTINGSENUMS_H
 #define GEM_HW_CTP7_CTP7SETTINGSENUMS_H
 

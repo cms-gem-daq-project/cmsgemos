@@ -1,3 +1,5 @@
+/** @file HwVFAT2.h */
+
 #ifndef GEM_HW_VFAT_HWVFAT2_H
 #define GEM_HW_VFAT_HWVFAT2_H
 
