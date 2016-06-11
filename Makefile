@@ -10,9 +10,14 @@ SUBPACKAGES := \
         gemsupervisor \
         gemHwMonitor \
 
-SUBPACKAGES.INSTALL := $(patsubst %,%.install, ${SUBPACKAGES})
-SUBPACKAGES.RPM     := $(patsubst %,%.rpm, ${SUBPACKAGES})
-SUBPACKAGES.CLEAN   := $(patsubst %,%.clean, ${SUBPACKAGES})
+SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})
+SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
+SUBPACKAGES.CLEANRPM := $(patsubst %,%.cleanrpm, ${SUBPACKAGES})
+SUBPACKAGES.CLEAN    := $(patsubst %,%.clean,    ${SUBPACKAGES})
+
+#OS:=linux
+#ARCH:=x86_64
+#LIBDIR:=lib/$(OS)/$(ARCH)
 
 default: all
 
@@ -58,6 +63,7 @@ doc:  $(SUBPACKAGES)
 	@echo "Generating doxygen"
 	@rm -fr ./doc/html 2> /dev/null
 	@doxygen -s ./doc/cmsgemos.cfg  > /dev/null 2>&1
+	#@git checkout gh-pages  > /dev/null 2>&1
 	#@git add -f ./doc/html  > /dev/null 2>&1
 	#@git commit -m "generating doxygen" ./doc/html  > /dev/null 2>&1
 	#@git tag ./doc/html  > /dev/null 2>&1
@@ -65,6 +71,8 @@ doc:  $(SUBPACKAGES)
 install: $(LIBDIR) $(SUBPACKAGES) $(SUBPACKAGES.INSTALL)
 
 rpm: $(SUBPACKAGES) $(SUBPACKAGES.RPM)
+
+cleanrpm: $(SUBPACKAGES.CLEANRPM)
 
 clean: $(SUBPACKAGES.CLEAN)
 
@@ -76,6 +84,9 @@ $(SUBPACKAGES):
 
 $(SUBPACKAGES.RPM):
 	$(MAKE) -C $(patsubst %.rpm,%, $@) rpm
+
+$(SUBPACKAGES.CLEANRPM):
+	$(MAKE) -C $(patsubst %.cleanrpm,%, $@) cleanrpm
 
 $(SUBPACKAGES.INSTALL):
 	-find  $(patsubst %.install,%, $@)/lib -name *.so -print -exec cp {} ${LIBDIR} \;
