@@ -1,3 +1,5 @@
+/** @file HwGLIB.h */
+
 #ifndef GEM_HW_GLIB_HWGLIB_H
 #define GEM_HW_GLIB_HWGLIB_H
 

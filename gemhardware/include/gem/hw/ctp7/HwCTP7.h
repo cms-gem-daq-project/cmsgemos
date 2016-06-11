@@ -1,3 +1,5 @@
+/** @file HwCTP7.h */
+
 #ifndef GEM_HW_CTP7_HWCTP7_H
 #define GEM_HW_CTP7_HWCTP7_H
 
