@@ -1,3 +1,4 @@
+#include <bitset>
 #include <iomanip>
 #include <algorithm>
 #include <functional>
@@ -340,7 +341,7 @@ std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::get
 {
   std::vector<uint32_t> chips0 = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK,false);
   std::vector<uint32_t> chips1 = broadcastRead("ChipID1",ALL_VFATS_BCAST_MASK,false);
-  DEBUG("chips0 size:" << chips0.size() <<  ", chips1 size:" << chips1.size());
+  DEBUG("HwOptoHybrid::getConnectedVFATs chips0 size:" << chips0.size() <<  ", chips1 size:" << chips1.size());
   
   std::vector<std::pair<uint8_t, uint32_t> > chipIDs;
   std::vector<std::pair<uint32_t,uint32_t> > chipPairs;
@@ -353,7 +354,7 @@ std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::get
   for (auto chip = chipPairs.begin(); chip != chipPairs.end(); ++chip) {
     uint8_t slot = ((chip->first)>>8)&0xff;
     uint32_t chipID = (((chip->first)&0xff)<<8)+((chip->second)&0xff);
-    DEBUG("GEB slot: " << (int)slot
+    DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << (int)slot
           << ", chipID1: 0x" << std::hex << chip->first   << std::dec
           << ", chipID2: 0x" << std::hex << chip->second  << std::dec
           << ", chipID: 0x"  << std::hex << chipID        << std::dec);

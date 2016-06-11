@@ -24,8 +24,9 @@ DynamicLibrary=gemutils
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
 include $(XDAQ_ROOT)/config/Makefile.rules
+#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

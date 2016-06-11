@@ -18,13 +18,13 @@ namespace gembase {
 #else
 #define GEMBASE_FULL_VERSION_LIST GEMBASE_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMBASE_VERSION_MAJOR, GEMBASE_VERSION_MINOR, GEMBASE_VERSION_PATCH)
 #endif
-  
+
   const std::string package     = "gembase";
   const std::string versions    = GEMBASE_FULL_VERSION_LIST;
   const std::string summary     = "Base classes for GEM DAQ applications";
   const std::string description = "";
   const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "";
+  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
 
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);
