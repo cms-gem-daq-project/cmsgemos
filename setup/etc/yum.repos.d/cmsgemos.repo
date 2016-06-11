@@ -1,0 +1,47 @@
+[cmsgemos-base]
+name=CMS GEM Online Software Project Repository - Base
+baseurl=file:///data/bigdisk/GEMDAQ_Documentation/TriDAS/cmsgemos/repo/release/alpha/slc6x/x86_64/base/RPMS
+enabled=1
+gpgcheck=0
+
+[cmsgemos-updates]
+name=CMS GEM Online Software Project Repository - Updates
+baseurl=file:///data/bigdisk/GEMDAQ_Documentation/TriDAS/cmsgemos/repo/release/alpha/slc6x/x86_64/updates/RPMS
+enabled=1
+gpgcheck=0
+
+[cmsgemos-extras]
+name=CMS GEM Online Software Project Repository - Extras
+baseurl=file:///data/bigdisk/GEMDAQ_Documentation/TriDAS/cmsgemos/repo/release/alpha/slc6x/x86_64/extras/RPMS
+enabled=0
+gpgcheck=0
+
+[cmsgemos-testing]
+name=CMS GEM Online Software Project Repository - Testing
+baseurl=file:///data/bigdisk/GEMDAQ_Documentation/TriDAS/cmsgemos/repo/release/alpha/slc6x/x86_64/testing/RPMS
+enabled=0
+gpgcheck=0
+
+[cmsgemos-base-sources]
+name=CMS GEM Online Software Project Repository - Base Sources
+baseurl=file:///data/bigdisk/GEMDAQ_Documentation/TriDAS/cmsgemos/repo/release/alpha/slc6x/x86_64/base/SRPMS
+enabled=0
+gpgcheck=0
+
+[cmsgemos-updates-sources]
+name=CMS GEM Online Software Project Repository - Updates Sources
+baseurl=file:///data/bigdisk/GEMDAQ_Documentation/TriDAS/cmsgemos/repo/release/alpha/slc6x/x86_64/updates/SRPMS
+enabled=0
+gpgcheck=0
+
+[cmsgemos-extras-sources]
+name=CMS GEM Online Software Project Repository - Extras Sources
+baseurl=file:///data/bigdisk/GEMDAQ_Documentation/TriDAS/cmsgemos/repo/release/alpha/slc6x/x86_64/extras/SRPMS
+enabled=0
+gpgcheck=0
+
+[cmsgemos-testing-sources]
+name=CMS GEM Online Software Project Repository - Testing Sources
+baseurl=file:///data/bigdisk/GEMDAQ_Documentation/TriDAS/cmsgemos/repo/release/alpha/slc6x/x86_64/testing/SRPMS
+enabled=0
+gpgcheck=0
