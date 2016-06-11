@@ -1,3 +1,5 @@
+/** @file GEMDataAMCformat.h */
+
 #ifndef GEM_READOUT_GEMDATAAMCFORMAT_H
 #define GEM_READOUT_GEMDATAAMCFORMAT_H
 

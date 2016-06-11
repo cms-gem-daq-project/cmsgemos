@@ -1,7 +1,7 @@
-#ifndef GEM_HW_GLIB_GLIBMONITOR_H
-#define GEM_HW_GLIB_GLIBMONITOR_H
 /** @file GLIBMonitor.h */
 
+#ifndef GEM_HW_GLIB_GLIBMONITOR_H
+#define GEM_HW_GLIB_GLIBMONITOR_H
 
 #include "gem/base/GEMMonitor.h"
 #include "gem/hw/glib/exception/Exception.h"

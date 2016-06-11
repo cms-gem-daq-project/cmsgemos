@@ -1,3 +1,5 @@
+/** @file GEMRegisterUtils.h */
+
 #ifndef GEM_UTILS_GEMREGISTERUTILS_H
 #define GEM_UTILS_GEMREGISTERUTILS_H
 

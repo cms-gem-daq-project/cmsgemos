@@ -1,3 +1,5 @@
+/** @file Exception.h */
+
 #ifndef GEM_READOUT_EXCEPTION_EXCEPTION_H
 #define GEM_READOUT_EXCEPTION_EXCEPTION_H
 

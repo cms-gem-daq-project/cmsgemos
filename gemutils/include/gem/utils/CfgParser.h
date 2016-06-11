@@ -1,3 +1,5 @@
+/** @file CfgParser.h */
+
 #ifndef GEM_UTILS_CFGPARSER
 #define GEM_UTILS_CFGPARSER
 

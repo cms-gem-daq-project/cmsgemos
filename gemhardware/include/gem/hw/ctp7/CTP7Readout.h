@@ -1,3 +1,5 @@
+/** @file CTP7Readout.h */
+
 #ifndef GEM_HW_CTP7_CTP7READOUT_H
 #define GEM_HW_CTP7_CTP7READOUT_H
 

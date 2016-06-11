@@ -1,3 +1,5 @@
+/** @file ADCScan.h */
+
 #ifndef GEM_SUPERVISOR_TBUTILS_ADCSCAN_H
 #define GEM_SUPERVISOR_TBUTILS_ADCSCAN_H
 

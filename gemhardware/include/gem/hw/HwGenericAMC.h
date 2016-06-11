@@ -1,3 +1,5 @@
+/** @file HwGenericAMC.h */
+
 #ifndef GEM_HW_HWGENERICAMC_H
 #define GEM_HW_HWGENERICAMC_H
 

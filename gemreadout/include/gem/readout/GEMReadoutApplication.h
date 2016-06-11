@@ -1,3 +1,5 @@
+/** @file GEMReadoutApplication.h */
+
 #ifndef GEM_READOUT_GEMREADOUTAPPLICATION_H
 #define GEM_READOUT_GEMREADOUTAPPLICATION_H
 

@@ -1,3 +1,5 @@
+/** @file AMC13SettingsEnums.h */
+
 #ifndef GEM_HW_AMC13_AMC13SETTINGSENUMS_H
 #define GEM_HW_AMC13_AMC13SETTINGSENUMS_H
 

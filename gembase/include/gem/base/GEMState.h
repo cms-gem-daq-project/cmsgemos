@@ -1,3 +1,5 @@
+/** @file GEMState.h */
+
 #ifndef GEM_BASE_GEMSTATES_H
 #define GEM_BASE_GEMSTATES_H
 

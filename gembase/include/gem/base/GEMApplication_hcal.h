@@ -1,3 +1,5 @@
+/** @file GEMApplication_hcal.h */
+
 #ifndef gem_base_GEMApplication_H
 #define gem_base_GEMApplication_H
 

@@ -1,3 +1,5 @@
+/** @file GEMLogging.h */
+
 #ifndef GEM_UTILS_GEMLOGGING_H
 #define GEM_UTILS_GEMLOGGING_H
 

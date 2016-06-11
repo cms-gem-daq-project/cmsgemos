@@ -1,3 +1,5 @@
+/** @file AMC13Readout.h */
+
 #ifndef GEM_HW_AMC13_AMC13READOUT_H
 #define GEM_HW_AMC13_AMC13READOUT_H
 

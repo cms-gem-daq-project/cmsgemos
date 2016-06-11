@@ -1,8 +1,10 @@
-#ifndef GEM_UTILS_GEMCOMPLEXDEVICEPROPERTIES_H
-#define GEM_UTILS_GEMCOMPLEXDEVICEPROPERTIES_H
+/** @file gemComplexDeviceProperties.h */
 /*
  * This class provides base interface for the device properties.
  */
+
+#ifndef GEM_UTILS_GEMCOMPLEXDEVICEPROPERTIES_H
+#define GEM_UTILS_GEMCOMPLEXDEVICEPROPERTIES_H
 
 #include <algorithm>
 #include <cstdlib>

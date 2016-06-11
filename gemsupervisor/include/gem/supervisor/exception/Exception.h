@@ -1,3 +1,5 @@
+/** @file Exception.h */
+
 #ifndef GEM_SUPERVISOR_EXCEPTION_EXCEPTION_H
 #define GEM_SUPERVISOR_EXCEPTION_EXCEPTION_H
 

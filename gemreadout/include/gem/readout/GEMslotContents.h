@@ -1,3 +1,5 @@
+/** @file GEMslotContents.h */
+
 #ifndef GEM_READOUT_GEMSLOTCONTENTS_H
 #define GEM_READOUT_GEMSLOTCONTENTS_H
 

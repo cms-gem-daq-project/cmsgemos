@@ -1,3 +1,5 @@
+/** @file GEMApplication_emu.h */
+
 #ifndef gem_base_GEMApplication_H
 #define gem_base_GEMApplication_H
 

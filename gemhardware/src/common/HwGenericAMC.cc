@@ -1,6 +1,6 @@
-#include <iomanip>
-
 #include "gem/hw/HwGenericAMC.h"
+
+#include <iomanip>
 
 gem::hw::HwGenericAMC::HwGenericAMC() :
   gem::hw::GEMHwDevice::GEMHwDevice("HwGenericAMC"),
