@@ -188,7 +188,7 @@ namespace gem {
         // map between monitorable set and infospace name to which the set belongs
         std::unordered_map<std::string, std::string> m_monitorableSetInfoSpaceMap;
 
-        // map between monitorable set name, and the monitorables in each set
+        // map between monitorable set name, and the list of monitorables in each set
         std::unordered_map<std::string,
           std::list<std::pair<std::string, GEMMonitorable> > > m_monitorableSetsMap;
 
