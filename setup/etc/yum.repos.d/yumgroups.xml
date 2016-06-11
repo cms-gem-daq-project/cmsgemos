@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<comps>
+  <group>
+    <id>cmsgemos-daq</id>
+    <name>cmsgemos-daq</name>
+    <default>true</default>
+    <description>CMS GEM DAQ software packages</description>
+    <uservisible>true</uservisible>
+    <grouplist></grouplist>
+    <packagelist>
+      <packagereq type="mandatory">cmsgemos-base</packagereq>
+      <packagereq type="mandatory">cmsgemos-hw</packagereq>
+      <packagereq type="mandatory">cmsgemos-hwMonitor</packagereq>
+      <packagereq type="mandatory">cmsgemos-readout</packagereq>
+      <packagereq type="mandatory">cmsgemos-supervisor</packagereq>
+      <packagereq type="mandatory">cmsgemos-utils</packagereq>
+    </packagelist>
+  </group>
+
+  <group>
+    <id>cmsgemos-daq-devel</id>
+    <name>cmsgemos-daq-devel</name>
+    <default>true</default>
+    <description>CMS GEM DAQ software packages headers</description>
+    <uservisible>true</uservisible>
+    <grouplist></grouplist>
+    <packagelist>
+      <packagereq type="mandatory">cmsgemos-base-devel</packagereq>
+      <packagereq type="mandatory">cmsgemos-hw-devel</packagereq>
+      <packagereq type="mandatory">cmsgemos-hwMonitor-devel</packagereq>
+      <packagereq type="mandatory">cmsgemos-readout-devel</packagereq>
+      <packagereq type="mandatory">cmsgemos-supervisor-devel</packagereq>
+      <packagereq type="mandatory">cmsgemos-utils-devel</packagereq>
+    </packagelist>
+  </group>
+
+  <group>
+    <id>cmsgemos-daq-debug</id>
+    <name>cmsgemos-daq-debug</name>
+    <default>true</default>
+    <description>CMS GEM DAQ software packages debuginfo</description>
+    <uservisible>true</uservisible>
+    <grouplist></grouplist>
+    <packagelist>
+      <packagereq type="mandatory">cmsgemos-base-debug</packagereq>
+      <packagereq type="mandatory">cmsgemos-hw-debug</packagereq>
+      <packagereq type="mandatory">cmsgemos-hwMonitor-debug</packagereq>
+      <packagereq type="mandatory">cmsgemos-readout-debug</packagereq>
+      <packagereq type="mandatory">cmsgemos-supervisor-debug</packagereq>
+      <packagereq type="mandatory">cmsgemos-utils-debug</packagereq>
+    </packagelist>
+  </group>
+</comps>
+
