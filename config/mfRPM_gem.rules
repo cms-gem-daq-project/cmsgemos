@@ -116,9 +116,9 @@ makerpm:
 	tar -P -X $(XDAQ_ROOT)/config/src.exclude -zcf  $(PackagePath)/rpm/RPMBUILD/SOURCES/$(PackageName)-$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)-$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER).tgz $(PackagePath)
 	rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" $(PackagePath)/rpm/$(LongPackage).spec
 	find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
-	
+
 .PHONY: spec_update
-spec_update: 
+spec_update:
 	echo "Executing GEM specific spec_update"
 	mkdir -p $(PackagePath)/rpm
 	if [ -e $(PackagePath)/spec.template ]; then \
@@ -148,13 +148,13 @@ spec_update:
 .PHONY: _cleanrpmall
 _cleanrpmall:
 	-rm -rf $(PackagePath)/rpm
-	
-	
+
+
 .PHONY: _installrpmall
 _installrpmall:
 	mkdir -p $(INSTALL_PREFIX)/rpm
 	cp $(PackagePath)/rpm/*.rpm $(INSTALL_PREFIX)/rpm
- 
+
 
 .PHONY: _changelogall
 _changelogall:
