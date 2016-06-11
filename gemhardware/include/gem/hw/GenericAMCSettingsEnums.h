@@ -1,3 +1,5 @@
+/** @file GenericAMCSettingsEnums.h */
+
 #ifndef GEM_HW_AMCSETTINGSENUMS_H
 #define GEM_HW_AMCSETTINGSENUMS_H
 

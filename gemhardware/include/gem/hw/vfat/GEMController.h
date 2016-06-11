@@ -1,3 +1,5 @@
+/** @file GEMController.h */
+
 #ifndef GEM_HW_VFAT_GEMCONTROLLER_H
 #define GEM_HW_VFAT_GEMCONTROLLER_H
 

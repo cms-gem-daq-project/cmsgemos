@@ -1,3 +1,5 @@
+/** @file gemHwMonitorBase.h */
+
 #ifndef GEM_HWMONITOR_GEMHWMONITORBASE_H
 #define GEM_HWMONITOR_GEMHWMONITORBASE_H
 

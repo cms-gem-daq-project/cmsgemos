@@ -1,3 +1,5 @@
+/** @file HwOptoHybrid.h */
+
 #ifndef GEM_HW_OPTOHYBRID_HWOPTOHYBRID_H
 #define GEM_HW_OPTOHYBRID_HWOPTOHYBRID_H
 
