@@ -1,6 +1,7 @@
+/** @file GLIBManager.h */
+
 #ifndef GEM_HW_GLIB_GLIBMANAGER_H
 #define GEM_HW_GLIB_GLIBMANAGER_H
-/** @file GLIBManager.h */
 
 #include <array>
 
