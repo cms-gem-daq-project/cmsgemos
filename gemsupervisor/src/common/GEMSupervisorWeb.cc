@@ -59,27 +59,6 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
   DEBUG("GEMSupervisorWeb::in: " << std::hex << in << " out: " << std::hex << out << std::dec);
   DEBUG("GEMSupervisorWeb::current level is "      << level);
   if (level != 5) {
-    /*
-    try {
-      cgicc::Cgicc cgi(in);
-      DEBUG("GEMSupervisorWeb::cgi has " << cgi.getElements().size() << " elements, attempting to print their names");
-      for (auto dbg = cgi.getElements().begin(); dbg != cgi.getElements().end(); ++dbg) {
-        DEBUG("Found cgi element: " << dbg->getName());
-      }
-      int radio_i       = cgi["level"]->getIntegerValue();
-      DEBUG("GEMSupervisorWeb::radio button value is " << radio_i);
-      level = static_cast<size_t>(radio_i);
-      DEBUG("GEMSupervisorWeb::setting GEMSupervisor display status info to " << level);
-    } catch (const xgi::exception::Exception& e) {
-      level = 2;
-      WARN("GEMSupervisorWeb::Caught xgi::exception " << e.what());
-      XCEPT_RAISE(xgi::exception::Exception, e.what());
-    } catch (const std::exception& e) {
-      level = 2;
-      WARN("GEMSupervisorWeb::Caught std::exception " << e.what());
-      XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
-    */
   } else  {
     level = 2;
   }
@@ -91,43 +70,14 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
        << std::endl
        << cgicc::legend("GEMSupervisor")   << std::endl
        << cgicc::br()                      << std::endl
-       << cgicc::div().set("align", "left") << std::endl;
-
-  /*
-  // form and control to set the display level of information
-  std::string method = toolbox::toString("/%s/Default",p_gemFSMApp->getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method", "POST").set("action",method) << std::endl
-       << cgicc::input().set("style", "display:inline-block;margin-right:25px;margin-left:25px;float:center;-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;border:medium outset #CCC;")
-    .set("type", "submit")
-    .set("value", "Set level")
-    .set("name", "setLevel") << std::endl
-
-       << (level == 0 ?
-           cgicc::input().set("type", "radio").set("id", "debuglevel").set("name", "level").set("value", "0").set("checked") :
-           cgicc::input().set("type", "radio").set("id", "debuglevel").set("name", "level").set("value", "0"))
-       << "version" << std::endl
-       << (level == 1 ?
-           cgicc::input().set("type", "radio").set("id", "debuglevel").set("name", "level").set("value", "1").set("checked") :
-           cgicc::input().set("type", "radio").set("id", "debuglevel").set("name", "level").set("value", "1"))
-       << "minimum" << std::endl
-       << (level == 2 ?
-           cgicc::input().set("type", "radio").set("id", "debuglevel").set("name", "level").set("value", "2").set("checked") :
-           cgicc::input().set("type", "radio").set("id", "debuglevel").set("name", "level").set("value", "2"))
-       << "default" << std::endl
-       << (level == 3 ?
-           cgicc::input().set("type", "radio").set("id", "debuglevel").set("name", "level").set("value", "3").set("checked") :
-           cgicc::input().set("type", "radio").set("id", "debuglevel").set("name", "level").set("value", "3"))
-       << "maximum" << std::endl
-
+       << cgicc::div().set("align", "left") << std::endl
        << cgicc::br()     << std::endl
        << cgicc::div()    << std::endl
        << cgicc::span().set("style", "display:block;float:left") << std::endl;
-
+  
   *out << cgicc::span()     << std::endl
        << cgicc::fieldset() << std::endl
-       << cgicc::section()  << std::endl
-       << cgicc::form()     << std::endl;
-  */
+       << cgicc::section()  << std::endl;
 }
 
 /*To be filled in with the expert page code*/
@@ -144,6 +94,13 @@ void gem::supervisor::GEMSupervisorWeb::expertPage(xgi::Input * in, xgi::Output 
        << cgicc::span()     << std::endl
        << cgicc::fieldset() << std::endl
        << cgicc::section()  << std::endl;
+}
+
+void gem::supervisor::GEMSupervisorWeb::applicationPage(xgi::Input * in, xgi::Output * out)
+  throw (xgi::exception::Exception)
+{
+  DEBUG("GEMSupervisorWeb::applicationPage");
+  *out << "applicationPage</br>" << std::endl;
 }
 
 void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in, xgi::Output * out)

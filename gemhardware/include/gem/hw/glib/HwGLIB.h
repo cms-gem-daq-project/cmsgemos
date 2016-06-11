@@ -1,10 +1,9 @@
 #ifndef GEM_HW_GLIB_HWGLIB_H
 #define GEM_HW_GLIB_HWGLIB_H
 
+//nclude "toolbox/Task.h"
+
 #include "gem/hw/GEMHwDevice.h"
-//#include "toolbox/SyncQueue.h"
-//#include "i2o/i2o.h"
-#include "toolbox/Task.h"
 
 #include "gem/hw/glib/exception/Exception.h"
 #include "gem/hw/glib/GLIBSettingsEnums.h"
@@ -70,20 +69,6 @@ namespace gem {
           HwGLIB(int const& crate, int const& slot);
 
           virtual ~HwGLIB();
-
-          //virtual void connectDevice();
-          //virtual void releaseDevice();
-          //virtual void initDevice();
-          //virtual void enableDevice();
-          //virtual void configureDevice();
-          //virtual void configureDevice(std::string const& xmlSettings);
-          //virtual void configureDevice(std::string const& dbConnectionString);
-          //virtual void disableDevice();
-          //virtual void pauseDevice();
-          //virtual void startDevice();
-          //virtual void stopDevice();
-          //virtual void resumeDevice();
-          //virtual void haltDevice();
 
           /**
            * Check if one can read/write to the registers on the GLIB
@@ -421,38 +406,20 @@ namespace gem {
 
           //user core functionality
           /**
-           * Read the user firmware register using m_controlLink
+           * Read the user firmware register
            * @returns a hex number corresponding to the build date
            * OBSOLETE in V2 firmware
            */
           uint32_t getUserFirmware();
 
           /**
-           * Read the user firmware register using m_controlLink
+           * Read the user firmware register
            * @returns a std::string corresponding to the build date
            * OBSOLETE in V2 firmware
            */
           std::string getUserFirmwareDate();
 
         private:
-          /**
-           * Read the user firmware register for a given gtx
-           * @returns a hex number corresponding to the build date
-           * is private to ensure that it is only used internally
-           * gtx agnostic versions should be used outside of HwGLIB
-           * OBSOLETE in V2 firmware
-           */
-          uint32_t getUserFirmware(uint8_t const& gtx);
-
-          /**
-           * Read the user firmware register for a given gtx
-           * @returns a string corresponding to the build date
-           * is private to ensure that it is only used internally
-           * gtx agnostic versions should be used outside of HwGLIB
-           * OBSOLETE in V2 firmware
-           */
-          std::string getUserFirmwareDate(uint8_t const& gtx);
-
           /**
            * Check if the gtx requested is known to be operational
            * @param uint8_t gtx GTX gtx to be queried
@@ -466,7 +433,7 @@ namespace gem {
            * Read the gtx status registers, store the information in a struct
            * @param uint8_t gtx is the number of the gtx to query
            * @retval _status a struct containing the status bits of the optical link
-           * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-1
+           * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-N_GTX
            */
           GEMHwDevice::OpticalLinkStatus LinkStatus(uint8_t const& gtx);
 
@@ -477,7 +444,7 @@ namespace gem {
            * bit 1 - TRK_ErrCnt         0x1
            * bit 2 - TRG_ErrCnt         0x2
            * bit 3 - Data_Rec           0x4
-           * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-1
+           * @throws gem::hw::glib::exception::InvalidLink if the gtx number is outside of 0-N_GTX
            */
           void LinkReset(uint8_t const& gtx, uint8_t const& resets);
 
@@ -497,23 +464,6 @@ namespace gem {
            */
           void setTrigSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
             return;
-            /*
-            std::stringstream regName;
-            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
-            switch (mode) {
-            case(0):
-              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
-              return;
-            case(1):
-              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
-              return;
-            case(2):
-              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",mode);
-              return;
-            default:
-              writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE",0x2);
-              return;
-              }*/
           };
 
           /**
@@ -523,11 +473,6 @@ namespace gem {
            */
           uint8_t getTrigSource(uint8_t const& gtx=0x0) {
             return 0;
-            /*
-            std::stringstream regName;
-            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
-            return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.SOURCE");
-            */
           };
 
           /**
@@ -537,11 +482,6 @@ namespace gem {
            */
           void setSBitSource(uint8_t const& mode, uint8_t const& gtx=0x0) {
             return;
-            /*
-            std::stringstream regName;
-            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
-            writeReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits",mode);
-            */
           };
 
           /**
@@ -551,11 +491,6 @@ namespace gem {
            */
           uint8_t getSBitSource(uint8_t const& gtx=0x0) {
             return 0;
-            /*
-            std::stringstream regName;
-            regName << "GLIB_LINKS.LINK" << (int)m_controlLink;
-            return readReg(getDeviceBaseNode(),regName.str()+".TRIGGER.TDC_SBits");
-            */
           };
 
           ///Counters
@@ -602,12 +537,12 @@ namespace gem {
            * Get the recorded number of IPBus signals sent/received by the GLIB
            * @param uint8_t gtx which GTX
            * @param uint8_t mode which counter
-           * bit 1 OptoHybridStrobe
-           * bit 2 OptoHybridAck
-           * bit 3 TrackingStrobe
-           * bit 4 TrackingAck
-           * bit 5 CounterStrobe
-           * bit 6 CounterAck
+           * bit 0 OptoHybridStrobe
+           * bit 1 OptoHybridAck
+           * bit 2 TrackingStrobe
+           * bit 3 TrackingAck
+           * bit 4 CounterStrobe
+           * bit 5 CounterAck
            */
           void resetIPBusCounters(uint8_t const& gtx, uint8_t const& mode);
 
@@ -690,7 +625,9 @@ namespace gem {
            */
           void flushFIFO(uint8_t const& gtx);
 
-          // DAQ LINK functionality
+          /**************************/
+          /** DAQ link information **/
+          /**************************/
           /**
            * @brief Set the enable mask and enable the DAQ link
            * @param enableMask 32 bit word for the 24 bit enable mask
@@ -779,7 +716,9 @@ namespace gem {
            */
           uint32_t getDAQLinkDAVTimer(bool const& max);
 
-          // GTX specific DAQ link information
+          /***************************************/
+          /** GTX specific DAQ link information **/
+          /***************************************/
           /**
            * @param gtx is the input link status to query
            * @returns Returns the the 32-bit word corresponding DAQ status for the specified link
@@ -825,7 +764,7 @@ namespace gem {
            * @param value is the number of clock cycles to wait after receipt of last L1A and
            *        last packet received from the optical link before closing an "event"
            */
-          void setDAQLinkInputTimeout(uint32_t const& value);
+          void setDAQLinkInputTimeout(uint32_t const& value=0x30d4);
 
           /**
            * @brief Special run type to be written into data stream
@@ -846,6 +785,10 @@ namespace gem {
            */
           void setDAQLinkRunParameter(uint8_t const& parameter, uint8_t const& value);
 
+
+          /**************************/
+          /** TTC link information **/
+          /**************************/
           /**
            * @returns TTC control register value
            */
@@ -881,7 +824,9 @@ namespace gem {
            */
           uint32_t getTTCSpyBuffer();
 
-          ///////////////////////
+          /**************************/
+          /** DAQ link information **/
+          /**************************/
           /**
            * @brief performs a general reset of the GLIB
            */
@@ -891,6 +836,16 @@ namespace gem {
            * @brief performs a reset of the GLIB counters
            */
           virtual void counterReset();
+
+          /**
+           * @brief performs a reset of the GLIB T1 counters
+           */
+          void resetT1Counters();
+
+          /**
+           * @brief performs a reset of the GLIB GTX link counters
+           */
+          void resetLinkCounters();
 
           /**
            * @brief performs a reset of the GLIB link
@@ -908,7 +863,7 @@ namespace gem {
           std::vector<linkStatus> v_activeLinks;
 
         private:
-          uint8_t m_controlLink;
+          // uint8_t m_controlLink;
           int m_crate, m_slot;
 
         };  // class HwGLIB

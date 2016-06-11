@@ -12,7 +12,7 @@
         <DEPTH>0</DEPTH><!--Number of events in the FIFO-->
         <TDC_SBits>0</TDC_SBits> <!-- Selects which VFAT2 sends SBits. Currently 0-5, should be 0-23-->
         <OH OHId="OH1" xmlns:xi="http://www.w3.org/2001/XInclude">
-            <xi:include href="/home/mdalchen/gemdev/gem-daq-code/gemdaq-testing/gembase/xml/gem_tamu_OH.xml" parse="text"/>
+            <xi:include href="/home/mdalchen/gemdev/gem-daq-code/${GEM_OS_PROJECT}/gembase/xml/gem_tamu_OH.xml" parse="text"/>
         </OH>
 	</GLIB>
 </uTCACrate>
