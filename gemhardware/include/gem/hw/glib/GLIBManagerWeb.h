@@ -1,8 +1,6 @@
 #ifndef GEM_HW_GLIB_GLIBMANAGERWEB_H
 #define GEM_HW_GLIB_GLIBMANAGERWEB_H
 
-#include <memory>
-
 #include "gem/base/GEMWebApplication.h"
 
 namespace gem {
@@ -14,7 +12,7 @@ namespace gem {
       class GLIBManagerWeb : public gem::base::GEMWebApplication
         {
           //friend class GLIBMonitor;
-          //friend class GLIBManager;
+          friend class GLIBManager;
 
         public:
           GLIBManagerWeb(GLIBManager *glibApp);
@@ -32,6 +30,9 @@ namespace gem {
           virtual void expertPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
+          virtual void applicationPage(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
           virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
@@ -39,6 +40,15 @@ namespace gem {
             throw (xgi::exception::Exception);
 
           void cardPage(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          void registerDumpPage(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          void fifoDumpPage(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          void dumpGLIBFIFO(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
         private:

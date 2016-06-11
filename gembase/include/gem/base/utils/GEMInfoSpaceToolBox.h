@@ -230,6 +230,8 @@ namespace gem {
 
     }  // namespace gem::base::utils
   }  // namespace gem::base
+
+  typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 }  // namespace gem
 
 #endif  // GEM_BASE_UTILS_GEMINFOSPACETOOLBOX_H

@@ -19,10 +19,10 @@ namespace gem {
       gemHwMonitorHelper(gemHwMonitorSystem* gemSystem)
         throw (xdaq::exception::Exception)
         {
-          std::string build_home     = std::getenv("BUILD_HOME");
-          std::string gem_os_project = std::getenv("GEM_OS_PROJECT");
-          std::string defaulXMLcfgFile =build_home + "/" + gem_os_project;
-          defaulXMLcfgFile +="/gembase/xml/gem_conf_tamu_test.xml";
+          std::string build_home       = std::getenv("BUILD_HOME");
+          std::string gem_os_project   = std::getenv("GEM_OS_PROJECT");
+          std::string defaulXMLcfgFile = build_home + "/" + gem_os_project;
+          defaulXMLcfgFile += "/gembase/xml/gem_conf_tamu_test.xml";
           this->setXMLconfigFile(defaulXMLcfgFile.c_str());
           p_gemSystem = gemSystem;
           p_gemSystem->setDeviceStatus(2);
@@ -49,7 +49,7 @@ namespace gem {
         } else {
           std::string build_home     = std::getenv("BUILD_HOME");
           std::string gem_os_project = std::getenv("GEM_OS_PROJECT");
-          std::string temp_filename =build_home + "/" + gem_os_project;
+          std::string temp_filename  = build_home + "/" + gem_os_project;
           temp_filename += "/gembase/xml/";
           temp_filename += XMLfilename;
         }

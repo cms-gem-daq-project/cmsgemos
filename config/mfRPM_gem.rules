@@ -1,7 +1,19 @@
-# copied from mfRPM_hcal.rules to use their directory manipulation
+## redefined from /opt/xdaq/config/mfRPM.rules
+
+rpm: $(PackageListLoop)
+
+installrpm: $(PackageListLoop)
+
+cleanrpm: $(PackageListLoop)
+
+changelog: $(PackageListLoop)
+
+INSTALL_PATH = /opt/cmsgemos
+XDAQ_PATH = /opt/xdaq
 PackagePath  = $(BUILD_HOME)/$(Project)/$(LongPackage)
 PWD          = $(shell pwd)
 
+# copied from mfRPM_hcal.rules to use their directory manipulation
 ifdef Package
 
 ifndef PackageName
@@ -25,6 +37,38 @@ PACKAGE_REQUIRED_PACKAGE_LIST=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPac
 endif
 
 
+ifndef PACKAGE_RELEASE
+include  $(XDAQ_ROOT)/config/mfRPM.release
+endif
+
+ifndef BUILD_VERSION
+BUILD_VERSION=1
+endif
+
+ifndef BUILD_COMPILER
+BUILD_COMPILER :=$(CC)$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
+endif
+
+ifndef BUILD_DISTRIBUTION
+BUILD_DISTRIBUTION := $(shell $(XDAQ_ROOT)/config/checkos.sh)
+endif
+
+VER_EXISTS=no
+ifneq ($(PACKAGE_VER_MAJOR),)
+ifneq ($(PACKAGE_VER_MINOR),)
+ifneq ($(PACKAGE_VER_PATCH),)
+VER_EXISTS=yes
+endif
+endif
+endif
+
+
+REQUIRES_LIST=0
+ifneq ($(PACKAGE_REQUIRED_PACKAGE_LIST),)
+REQUIRES_LIST=1
+endif
+
+
 #
 # Extract summary, description and authors
 #
@@ -36,13 +80,84 @@ ifndef Summary
 Summary = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /summary[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
-ifndef Authors
+#ifndef Authors
+# Authors defined in mfDefs.linux as $(shell id -un)
 Authors = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /authors[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
-endif
+#endif
 
 ifndef Link
 Link = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /link[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
+
+.PHONY: _rpmall
+
+ifeq ($(VER_EXISTS),no)
+_rpmall: fail
+fail:
+	$(error Error could not find a valid version.h in package '$(Package)')
+else
+_rpmall: spec_update makerpm
 endif
+
+
+# if for package makefile only if endif
+#else
+#_rpmall:
+#	@echo "*** "$(Package) I am in the elese
+endif
+
+# 	rpmbuild  -bb -bl --target $(XDAQ_PLATFORM) --define  "_topdir $(PackagePath)/rpm/RPMBUILD"  $(PackagePath)/rpm/$(LongPackage).spec
+
+
+.PHONY: makerpm
+makerpm:
+	mkdir -p $(PackagePath)/rpm/RPMBUILD/{RPMS/{$(XDAQ_PLATFORM)},SPECS,BUILD,SOURCES,SRPMS}
+	tar -P -X $(XDAQ_ROOT)/config/src.exclude -zcf  $(PackagePath)/rpm/RPMBUILD/SOURCES/$(PackageName)-$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)-$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER).tgz $(PackagePath)
+	rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" $(PackagePath)/rpm/$(LongPackage).spec
+	find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
+
+.PHONY: spec_update
+spec_update:
+	echo "Executing GEM specific spec_update"
+	mkdir -p $(PackagePath)/rpm
+	if [ -e $(PackagePath)/spec.template ]; then \
+		cp $(PackagePath)/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
+	else \
+		cp $(XDAQ_ROOT)/config/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
+	fi
+	perl -p -i -e 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__xdaqprefix__#$(XDAQ_ROOT)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__package__#$(Package)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__packagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__packagename__#$(PackageName)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__longpackage__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__longpackagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__longpackagename__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__os__#$(XDAQ_OS)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__platform__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__project__#$(Project)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__author__#$(Authors)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__summary__#$(Summary)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__description__#$(Description)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__url__#$(Link)#' $(PackagePath)/rpm/$(LongPackage).spec
+	perl -p -i -e 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).spec
+
+.PHONY: _cleanrpmall
+_cleanrpmall:
+	-rm -rf $(PackagePath)/rpm
+
+
+.PHONY: _installrpmall
+_installrpmall:
+	mkdir -p $(INSTALL_PREFIX)/rpm
+	cp $(PackagePath)/rpm/*.rpm $(INSTALL_PREFIX)/rpm
+
+
+.PHONY: _changelogall
+_changelogall:
+	cd $(PackagePath);\
+	git log --full-diff --decorate=full < ChangeLog
 
