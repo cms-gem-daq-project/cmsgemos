@@ -10,7 +10,7 @@
 #include "toolbox/mem/CommittedHeapAllocator.h"
 
 #include "gem/readout/GEMReadoutApplication.h"
-//#include "gem/base/GEMWebApplication.h"
+#include "gem/readout/GEMReadoutWebApplication.h"
 
 const int gem::readout::GEMReadoutApplication::I2O_READOUT_NOTIFY=0x84;
 const int gem::readout::GEMReadoutApplication::I2O_READOUT_CONFIRM=0x85;
@@ -77,12 +77,8 @@ gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub
   p_appInfoSpace->addItemChangedListener( "EventsReadout",   this);
   p_appInfoSpace->addItemChangedListener( "uSecPerEvent",    this);
 
-  ////initialize the GLIB application objects
-  //DEBUG("Connecting to the GLIBReadoutWeb interface");
-  //p_gemWebInterface = new gem::hw::glib::GLIBManagerWeb(this);
-  ////p_gemMonitor      = new gem::hw::glib::GLIBHwMonitor(this);
-  //DEBUG("done");
-  //
+  p_gemWebInterface = new gem::readout::GEMReadoutWebApplication(this);
+
   ////set up the info hwCfgInfoSpace 
   //init();
   DEBUG("GEMReadoutApplication::GEMReadoutApplication() "      << std::endl

@@ -49,4 +49,7 @@
 
   <connection id="gem.shelf.glib" uri="chtcp-2.0://localhost:10203?target=192.168.0.175:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
+
+  <connection id="gem.shelf.ctp7" uri="chtcp-2.0://localhost:10203?target=192.168.0.175:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
 </connections>

@@ -182,20 +182,6 @@ namespace gem {
 
           virtual ~HwOptoHybrid();
 
-          //updating interfaces////virtual void connectDevice();
-          //updating interfaces////virtual void releaseDevice();
-          //updating interfaces////virtual void initDevice();
-          //updating interfaces////virtual void enableDevice();
-          //updating interfaces//virtual void configureDevice();
-          //updating interfaces//virtual void configureDevice(std::string const& xmlSettings);
-          //updating interfaces////virtual void configureDevice(std::string const& dbConnectionString);
-          //updating interfaces////virtual void disableDevice();
-          //updating interfaces////virtual void pauseDevice();
-          //updating interfaces////virtual void startDevice();
-          //updating interfaces////virtual void stopDevice();
-          //updating interfaces////virtual void resumeDevice();
-          //updating interfaces////virtual void haltDevice();
-
           virtual bool isHwConnected();
 
           /** Read the board ID registers
@@ -209,10 +195,8 @@ namespace gem {
            */
 
           uint32_t getFirmware() {
-            std::cout << "oh device base node " << getDeviceBaseNode() << std::endl;
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
-            DEBUG("OH has firmware version 0x"
-                  << std::hex << fwver << std::dec << std::endl);
+            TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 
@@ -460,6 +444,20 @@ namespace gem {
            */
           uint32_t getSBitSource() {
             return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBits"); };
+
+          /**
+           * Set the S-bit mask
+           * @param uint32_t mask s-bits coming from specific GEB slots
+           */
+          void setSBitMask(uint32_t const mask) {
+            writeReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK",mask); };
+
+          /**
+           * Read the S-bit mask
+           * @retval uint32_t which slots s-bits are processed
+           */
+          uint32_t getSBitMask() {
+            return readReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK"); };
 
 
           /**
@@ -1015,8 +1013,9 @@ namespace gem {
           /**
            * Uses a broadcast read to determine which slots are occupied and returns the
            * corresponding broadcast mask
+           * @returns uint32_t 24 bit mask
            * The mask has a 1 for VFATs that will not receive a broadcast request
-           * The mask has a 1 for VFATs whose data will be ignored
+           * The mask has a 1 for VFATs whose tracking data will be ignored
            */
           uint32_t getConnectedVFATMask();
 

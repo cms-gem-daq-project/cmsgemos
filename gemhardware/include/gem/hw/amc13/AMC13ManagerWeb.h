@@ -33,6 +33,9 @@ namespace gem {
           virtual void expertPage(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
 
+          virtual void applicationPage(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
         private:
           size_t level;
           //AMC13Manager *amc13ManagerP_;

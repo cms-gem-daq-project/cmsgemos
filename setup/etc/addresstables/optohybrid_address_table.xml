@@ -3,13 +3,14 @@
   <node id="OptoHybrid"
 	description="Optohybrid registers, divided into global and local (per optical link)">
 
+    <!--
     <node id="OptoHybrid_LINKS"  address="0x30000"
 	  description="Optohybrid registers">
       <node id="LINK0"  address="0x000"
 	    module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_optical_links.xml"
 	    description="optical link status counters and resets"/>
-    </node> <!-- end OptoHybrid links block-->
-    
+    </node> <! - - end OptoHybrid links block - ->
+    -->
     <node id="GEB"  address="0x0000000"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/geb_vfat_address_table.xml"
 	  description="complete GEB address table, including:
@@ -44,5 +45,8 @@
     <node id="STATUS"  address="0xc000000"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_status_registers.xml"
 	  description="Status registers of the OptoHybrid"/>
+
+    <node id="SBITS_MASK"  address="0x8" permission="rw"
+          description="Sets the S-bit mask (24 bits)"/>
   </node> <!-- end optohybrid block -->
 </node> <!-- end top block -->

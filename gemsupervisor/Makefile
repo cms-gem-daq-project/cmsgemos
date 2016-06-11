@@ -44,8 +44,9 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
 DependentLibraries+=gemhardware gemutils gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
+#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
