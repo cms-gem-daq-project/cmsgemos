@@ -299,7 +299,7 @@ void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
 bool gem::supervisor::GEMSupervisor::isGEMApplication(const std::string& classname) const
 {
   if (classname.find("gem") != std::string::npos)
-    return true;  // handle all HCAL applications
+    return true;  // handle all GEM applications
   /*
   if (m_otherClassesToSupport.count(classname) != 0)
     return true;  // include from list
@@ -351,7 +351,24 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
 void gem::supervisor::GEMSupervisor::updateRunNumber()
 {
   // should be able to find the run number from the run number service, or some other source
+  // get the last entry
+  // query parameter
+  /*
+  std::string sqlString = ""
+    + "SELECT DISTINCT runnumbertbl.runnumber, runnumbertbl.username, runnumbertbl.bookingtime, runsession_parameter.session_id "
+    + "FROM runnumbertbl "
+    + "LEFT JOIN runsession_parameter ON (runsession_parameter.runnumber = runnumbertbl.runnumber) "
+    + whereSessionId
+    + whereUserName
+    + whereSequenceName
+    + "ORDER BY runnumbertbl.runnumber DESC "
+    + limit;
+  */
   m_runNumber = 10472;
+
+  // book the next run number
+  std::string sqlInsert = "INSERT INTO runnumbertbl (USERNAME,SEQUENCENAME,SEQUENCENUMBER) VALUES (?,?,?)";
+  
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)

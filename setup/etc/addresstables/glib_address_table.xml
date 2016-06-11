@@ -5,25 +5,25 @@
     <node id="SYSTEM"  address="0x00000000"  description="GLIB system registers"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/glib_system_registers.xml">
     </node> <!--end system registers -->
-    
+
     <node id="SRAM1"  address="0x02000000"  mask="0xffffffff"  permission="rw"
 	  description="SRAM1 memory space "/>
-    
+
     <node id="SRAM2"  address="0x04000000"  mask="0xffffffff"  permission="rw"
 	  description="SRAM2 memory space"/>
-    
+
     <node id="ICAP"  address="0x00000200"  mode="non-incremental"  permission="rw"
 	  description="ICAP memory space (seems to not work at the moment)"/>
-    
+
     <node id="FLASH"  address="0x08000000"  description="FLASH memory banks"
 	  module="file://${GEM_ADDRESS_TABLE_PATH}/glib_flash_bank_registers.xml"/>
-    
+
     <!-- USER firmware functionality -->
     <!-- registers for the OptoHybrids 0x40Y00000 for OptoHybrid Y -->
     <node id="OptoHybrid_0"  address="0x40000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 0 connected to GLIB"/>
-    
+
     <node id="OptoHybrid_1"  address="0x40100000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_address_table.xml"
           description="Addresses for OptoHybrid 1 connected to GLIB"/>
@@ -32,34 +32,35 @@
     <node id="TRK_DATA"  address="0x50000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/tracking_data.xml"
 	  description="VFAT tracking data FIFO, must do a FIFO read, one FIFO per OptoHybrid"/>
-    
+
     <node id="COUNTERS"  address="0x60000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_counters.xml"
 	  description="Various counters on the GLIB"/>
-    
+
+    <!--
     <node id="GLIB_LINKS"  address="0x40040000">
       <node id="LINK0"  address="0x000"
 	    module="file://${GEM_ADDRESS_TABLE_PATH}/glib_optical_links.xml"
 	    description="optical link status counters and resets"/>
-      
+
       <node id="LINK1"  address="0x100"
 	    module="file://${GEM_ADDRESS_TABLE_PATH}/glib_optical_links.xml"
 	    description="optical link status counters and resets"/>
-      
+
       <node id="LINK2"  address="0x200"
 	    module="file://${GEM_ADDRESS_TABLE_PATH}/glib_optical_links.xml"
 	    description="optical link status counters and resets"/>
-      
+
       <node id="TRG_DATA"
 	    description="registers for the trigger data sent from the OH to the GLIB">
 	<node id="DATA"  address="0x10000"  mask="0xffffffff"  permission="r"
 	      description="VFAT trigger data register
 			   Read: 28 MSB are the BX counter, 6 LSB, one fbit per VFAT2 (logical OR of all S-bits)
 			   Write: empty the buffer"/>
-  	<!--
+  	<! - -
 	<node id="FIFO_FLUSH"  address="0x180"  mask="0xffffffff"  permission="w"
 	      description="empty the trigger data FIFO"/>
-	-->
+	- - >
       </node>
 
       <node id="TRIGGER">
@@ -68,11 +69,12 @@
 	<node id="TDC_SBits"  address="0x181"  mask="0xffffffff"  permission="rw"
 	      description="select which VFAT will send SBits to send to the TDC (0-5)"/>
       </node>
-    </node><!-- end GLIB_LINKS -->
-    
-    <node id="DAQ"  address="0x70000000"
+    </node><! - - end GLIB_LINKS - - >
+    -->
+    <node id="DAQ" address="0x70000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_daq_registers.xml"
-          description="registers related to the control of the GLIB DAQ link"/>
+          description="registers related to the control of the GLIB
+          DAQ link"/>
 
     <!--node id="TRIGGER"  address="0x78000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_trigger_registers.xml"
@@ -85,6 +87,23 @@
     <node id="IPBus_System_Control"  address="0x7e000000"
           module="file://${GEM_ADDRESS_TABLE_PATH}/glib_ipbus_system_control.xml"
           description="registers for GLIB RX and TX polarity control"/>
+
+    <node id="LINK_CONTROL" address="0x7e000000"
+          description="registers related to the control of the GLIB
+          SFP links">
+      <node id="RX_Polarity" address="0x0"  permission="rw">
+        <node id="SFP0" address="0x0"  mask="0x00000001"  permission="rw"/>
+        <node id="SFP1" address="0x0"  mask="0x00000002"  permission="rw"/>
+        <node id="SFP2" address="0x0"  mask="0x00000004"  permission="rw"/>
+        <node id="SFP3" address="0x0"  mask="0x00000008"  permission="rw"/>
+      </node>
+      <node id="TX_Polarity" address="0x1"  permission="rw">
+        <node id="SFP0" address="0x0"  mask="0x00000001"  permission="rw"/>
+        <node id="SFP1" address="0x0"  mask="0x00000002"  permission="rw"/>
+        <node id="SFP2" address="0x0"  mask="0x00000004"  permission="rw"/>
+        <node id="SFP3" address="0x0"  mask="0x00000008"  permission="rw"/>
+      </node>
+    </node>
 
     <node id="TEST">
       <node id="GLIB"  address="0x4004010a"
