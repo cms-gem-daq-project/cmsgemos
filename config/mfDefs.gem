@@ -23,13 +23,20 @@ PROFILING_LDFlags = ${PROFILING_Flags}
 PROFILING_LIBS    = profiler tcmalloc
 
 # Modern compiler support, when available
+GCC44Flags = -std=c++0x -std=gnu++0x
 GCC47Flags = -std=c++11 -std=gnu++11
 GCC48Flags = -std=c++14 -std=gnu++14
 GCC49Flags = -std=c++17 -std=gnu++17
 
 # User C and CC flags
-UserCFlags  =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
-UserCCFlags =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+UserCFlags  =-DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+#UserCFlags+=${GCC44Flags}
+#UserCFlags+=${GCC47Flags}
+UserCFlags+=${GCC48Flags}
+#UserCFlags+=${GCC49Flags}
+UserCCFlags =${UserCFlags}
+#UserCCFlags =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+
 UserStaticLinkFlags  =
 UserDynamicLinkFlags =
 
@@ -51,3 +58,15 @@ DependentLibraries+=numa toolbox uuid xcept xdaq2rc xerces-c
 
 #include $(XDAQ_ROOT)/config/Makefile.rules
 #include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+
+# Choose the version of GCC that we want to use
+#GCC_VERSION = 4.8.5
+#CC     = gcc-${GCC_VERSION}
+#CPP    = g++-${GCC_VERSION}
+#CXX    = g++-${GCC_VERSION}
+#LD     = g++-${GCC_VERSION}
+#AR     = ar-${GCC_VERSION}
+#NM     = nm-${GCC_VERSION}
+#RANLIB = ranlib-${GCC_VERSION}
+GCCVERSION = $(shell $(CXX) --version | awk '/gcc /{print $0;exit 0;}')
+
