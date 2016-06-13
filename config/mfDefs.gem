@@ -85,4 +85,3 @@ GCCVERSION = $(shell $(CXX) --version | awk '/gcc /{print $0;exit 0;}')
 #NM     = llvm-nm
 #RANLIB = llvm-ranlib
 CLANGVERSION = $(shell $(CXX) --version | awk '/clang /{print $0;exit 0;}')
-
