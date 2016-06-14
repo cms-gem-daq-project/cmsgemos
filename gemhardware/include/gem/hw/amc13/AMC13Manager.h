@@ -69,6 +69,12 @@ namespace gem {
           void updateStatus(xgi::Input *in, xgi::Output * out)
             throw (xgi::exception::Exception);
 
+          void setDisplayLevel(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          void updateStatus(xgi::Input *in, xgi::Output * out)
+            throw (xgi::exception::Exception);
+
           //state transitions
           virtual void initializeAction() ; // throw (gem::hw::amc13::exception::Exception);
           virtual void configureAction()  ; // throw (gem::hw::amc13::exception::Exception);
