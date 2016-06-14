@@ -369,6 +369,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     + "ORDER BY runnumbertbl.runnumber DESC "
     + limit;
   */
+
   /*ldqm_db example
     | id  | Name                             | Type  | Number | Date       | Period | Station | Status | State_id |
     +-----+----------------------------------+-------+--------+------------+--------+---------+--------+----------+
@@ -376,7 +377,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
   */
   
   if (p_gemDBHelper->connect("ldqm_db")) {
-    // get the latest run number
+    // get these from or send them to the readout application
     std::string    setup = "teststand";
     std::string   period = "2016T";
     std::string location = "CERN904";
