@@ -17,7 +17,7 @@
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 
 // gem::base::GEMWebApplication::GEMWebApplication(xdaq::Application *gemApp, bool hasFSM)
-gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication* gemFSMApp)
+gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication *gemFSMApp)
   throw (xdaq::exception::Exception) :
   m_gemLogger(gemFSMApp->getApplicationLogger()),
   p_gemMonitor(gemFSMApp->getMonitor()),
@@ -32,7 +32,7 @@ gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMFSMApplication* ge
   // default constructor
 }
 
-gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMApplication* gemApp)
+gem::base::GEMWebApplication::GEMWebApplication(gem::base::GEMApplication *gemApp)
   throw (xdaq::exception::Exception) :
   m_gemLogger(gemApp->getApplicationLogger()),
   p_gemMonitor(gemApp->getMonitor()),
@@ -81,7 +81,7 @@ void gem::base::GEMWebApplication::webRedirect(xgi::Input *in, xgi::Output *out)
 }
 
 /*To be filled in with the monitor page code*/
-void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webDefault(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webDefault");
@@ -103,11 +103,11 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
     *out << "  </div>" << std::endl;
   }
 
-  *out << "  <div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
+  *out << "  <div class=\"xdaq-tab\" title=\"Monitoring page\">"  << std::endl;
   this->monitorPage(in, out);
   *out << "  </div>" << std::endl;
 
-  *out << "  <div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
+  *out << "  <div class=\"xdaq-tab\" title=\"Expert page\">"  << std::endl;
   this->expertPage(in, out);
   *out << "  </div>" << std::endl;
 
@@ -126,12 +126,12 @@ void gem::base::GEMWebApplication::webDefault(xgi::Input * in, xgi::Output * out
        << "</script>" << std::endl;
 }
 
-void gem::base::GEMWebApplication::webFooterGEM(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webFooterGEM(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   *out << "<div class=\"gem-footer\" id=\"xdaq-footer\">" << std::endl;
   // *out << cgicc::br() << std::endl
-  * out << "GEM DAQ GIT_VERSION:" << GIT_VERSION
+  *out << "GEM DAQ GIT_VERSION:" << GIT_VERSION
         << " -- developer:"       << GEMDEVELOPER;
   // << cgicc::br() << std::endl;
   *out << std::endl << "</div>" << std::endl;
@@ -139,7 +139,7 @@ void gem::base::GEMWebApplication::webFooterGEM(xgi::Input * in, xgi::Output * o
 
 
 /*To be filled in with the control page code (only for FSM derived classes?*/
-void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::controlPanel(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::controlPanel");
@@ -220,7 +220,7 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
            << "</tr>" << std::endl;
 
       *out << "</table>" << std::endl
-           << "</br>"  << std::endl
+           << "<br />"   << std::endl
            << "Last command was: "          << std::endl
            << "<div id=\"fsmdebug\"></div>" << std::endl
            << "</td>"  << std::endl
@@ -244,38 +244,41 @@ void gem::base::GEMWebApplication::controlPanel(xgi::Input * in, xgi::Output * o
 }
 
 /*To be filled in with the monitor page code*/
-void gem::base::GEMWebApplication::monitorPage(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::monitorPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::monitorPage");
-  *out << "monitorPage</br>" << std::endl;
+  *out << "monitorPage" << std::endl
+       << cgicc::br()   << std::endl;
 }
 
 /*To be filled in with the expert page code*/
-void gem::base::GEMWebApplication::expertPage(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::expertPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::expertPage");
-  *out << "expertPage</br>" << std::endl;
+  *out << "expertPage" << std::endl
+       << cgicc::br()  << std::endl;
 }
 
 /*To be filled in with the application page code
-void gem::base::GEMWebApplication::applicationPage(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::applicationPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::applicationPage");
-  *out << "applicationPage</br>" << std::endl;
+  *out << "applicationPage" << std::endl
+       << cgicc::br()       << std::endl;
 }
 */
 /*To be filled in with the json update code*/
 /*
-void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::jsonUpdate(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::jsonUpdate");
 }
 */
-void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::jsonStateUpdate");
@@ -287,7 +290,7 @@ void gem::base::GEMWebApplication::jsonStateUpdate(xgi::Input * in, xgi::Output 
   *out << " }" << std::endl;
 }
 
-void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::jsonUpdate(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::jsonUpdate");
@@ -302,9 +305,9 @@ void gem::base::GEMWebApplication::jsonUpdate(xgi::Input * in, xgi::Output * out
   *out << " } " << std::endl;
 }
 
-/** FSM callbacks */
+/* *FSM callbacks */
 /*To be filled in with the startup (enable) routine*/
-void gem::base::GEMWebApplication::webInitialize(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webInitialize(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webInitialize begin");
@@ -320,7 +323,7 @@ void gem::base::GEMWebApplication::webInitialize(xgi::Input * in, xgi::Output * 
 }
 
 /*To be filled in with the startup (enable) routine*/
-void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webEnable(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webEnable");
@@ -335,7 +338,7 @@ void gem::base::GEMWebApplication::webEnable(xgi::Input * in, xgi::Output * out)
 }
 
 /*To be filled in with the configure routine*/
-void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webConfigure(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webConfigure");
@@ -350,7 +353,7 @@ void gem::base::GEMWebApplication::webConfigure(xgi::Input * in, xgi::Output * o
 }
 
 /*To be filled in with the start routine*/
-void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webStart(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webStart");
@@ -364,7 +367,7 @@ void gem::base::GEMWebApplication::webStart(xgi::Input * in, xgi::Output * out)
   }
 }
 
-void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webPause(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webPause");
@@ -379,7 +382,7 @@ void gem::base::GEMWebApplication::webPause(xgi::Input * in, xgi::Output * out)
 }
 
 /*To be filled in with the resume routine*/
-void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webResume(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webResume");
@@ -394,7 +397,7 @@ void gem::base::GEMWebApplication::webResume(xgi::Input * in, xgi::Output * out)
 }
 
 /*To be filled in with the stop routine*/
-void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webStop(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webStop");
@@ -409,7 +412,7 @@ void gem::base::GEMWebApplication::webStop(xgi::Input * in, xgi::Output * out)
 }
 
 /*To be filled in with the halt routine*/
-void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webHalt(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webHalt");
@@ -424,7 +427,7 @@ void gem::base::GEMWebApplication::webHalt(xgi::Input * in, xgi::Output * out)
 }
 
 /*To be filled in with the reset routine*/
-void gem::base::GEMWebApplication::webReset(xgi::Input * in, xgi::Output * out)
+void gem::base::GEMWebApplication::webReset(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("GEMWebApplication::webReset");
@@ -442,7 +445,7 @@ void gem::base::GEMWebApplication::buildCfgWebpage()
 {
 }
 
-/** some generic static functions for web use, copied from ferol::WebServer */
+/* *some generic static functions for web use, copied from ferol::WebServer */
 std::string gem::base::GEMWebApplication::jsonEscape(std::string const& orig)
 {
   std::string::const_iterator it = orig.begin();
