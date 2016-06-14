@@ -2,7 +2,7 @@
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
-  <xc:Context url="http://gem904daq01:4444">
+  <xc:Context url="http://gem904daq01:${CHANGEME}">
 
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
@@ -134,7 +134,7 @@
         <DeviceName      xsi:type="xsd:string">AMC13</DeviceName>
         <CardName        xsi:type="xsd:string">gem.shelf01.amc13</CardName>
         <crateID         xsi:type="xsd:integer">1</crateID>
-        <slot            xsi:type="xsd:integer">10</slot>
+        <slot            xsi:type="xsd:integer">13</slot>
         <ReadoutSettings xsi:type="soapenc:Struct">
           <runType        xsi:type="xsd:string">teststand</runType>
           <fileName       xsi:type="xsd:string">test</fileName>
