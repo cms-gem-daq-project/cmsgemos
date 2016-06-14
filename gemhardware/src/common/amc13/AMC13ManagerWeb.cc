@@ -12,7 +12,7 @@
 gem::hw::amc13::AMC13ManagerWeb::AMC13ManagerWeb(gem::hw::amc13::AMC13Manager *amc13App) :
   gem::base::GEMWebApplication(amc13App)
 {
-  level = 0;
+  level = 2;
 }
 
 gem::hw::amc13::AMC13ManagerWeb::~AMC13ManagerWeb()
@@ -54,7 +54,7 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *o
     .set("id","amc13statusform")
     .set("action",method)
        << std::endl;
-  
+
   *out << (level == 0 ?
            cgicc::input().set("type","radio").set("id","level0")
            .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","0").set("checked") :
