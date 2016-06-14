@@ -1,0 +1,86 @@
+#include <gem/utils/db/GEMDatabaseUtils.h>
+
+#include <gem/utils/GEMLogging.h>
+
+#include "gem/utils/exception/Exception.h"
+
+gem::utils::db::GEMDatabaseUtils::GEMDatabaseUtils(std::string const& host, int const& port,
+                                                   std::string const& user, std::string const& password) :
+  m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GEMDatabaseUtilsLogger"))),
+  p_db(0),
+  m_host(host),
+  m_user(user),
+  m_password(password),
+  m_port(port)
+{
+  //p_db = std::make_shared<MYSQL>(mysql_init(0));
+  //m_gemLogger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GEMDatabaseUtilsLogger"));
+  //connect(std::string const& database);
+}
+
+gem::utils::db::GEMDatabaseUtils::~GEMDatabaseUtils()
+{
+  disconnect();
+}
+
+bool gem::utils::db::GEMDatabaseUtils::connect(std::string const& database)
+{
+  //p_db = std::make_shared<MYSQL>(mysql_init(0));
+  p_db = mysql_init(0);
+
+  if (mysql_real_connect(p_db,m_host.c_str(),m_user.c_str(),m_password.c_str(),database.c_str(),m_port,0,CLIENT_COMPRESS) == 0) {
+    std::string message("Error connecting to database '");
+    message += database;
+    message += "' : ";
+    message += mysql_error(p_db);
+    p_db = 0;
+    ERROR(message);
+    //XCEPT_RAISE(gem::exception::ConfigurationDatabaseException,message);
+    return false;
+  }
+  return true;
+}
+
+void gem::utils::db::GEMDatabaseUtils::disconnect()
+{
+  if (!p_db)
+    return;
+  mysql_close(p_db);
+  p_db = 0;
+}
+
+void gem::utils::db::GEMDatabaseUtils::command(const std::string& command)
+{
+  int rv = mysql_query(p_db,command.c_str());
+  if (rv)
+    ERROR("MySQL comand error: " << std::string(mysql_error(p_db)));
+  else
+    INFO("MySQL command success: " << command);
+  MYSQL_RES* res = mysql_use_result(p_db);
+  mysql_free_result(res);
+}
+
+unsigned int gem::utils::db::GEMDatabaseUtils::query(const std::string& query)
+{
+  int rv = mysql_query(p_db,query.c_str());
+  if (rv)
+    ERROR("MySQL query error: " << std::string(mysql_error(p_db)));
+  else
+    INFO("MySQL query success: " << query);
+  MYSQL_RES* res = mysql_use_result(p_db);
+  MYSQL_ROW  row = mysql_fetch_row(res);
+  if (row == 0) {
+    std::string errMsg = "Query result " + query + " empty";
+    ERROR("GEMDatabaseUtils::query " << errMsg);
+    XCEPT_RAISE(gem::utils::exception::DBEmptyQueryResult, errMsg);
+  }
+  unsigned int retval = strtoul(row[0],0,0);
+  mysql_free_result(res);
+
+  return retval;
+}
+
+//gem::utils::db::GEMDatabaseUtils::insert()
+//{
+//
+//}
