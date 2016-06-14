@@ -8,10 +8,13 @@
 
 #include "gem/supervisor/GEMSupervisor.h"
 
+#include <iomanip>
+
 #include "gem/supervisor/GEMSupervisorWeb.h"
 #include "gem/supervisor/GEMSupervisorMonitor.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
@@ -34,6 +37,8 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   p_gemWebInterface = new gem::supervisor::GEMSupervisorWeb(this);
   DEBUG("done");
   //p_gemMonitor      = new gem generic system monitor
+
+  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>("localhost",3306,"gemdaq","gemdaq");
 
   v_supervisedApps.clear();
   // reset the GEMInfoSpaceToolBox object?
@@ -364,10 +369,76 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     + "ORDER BY runnumbertbl.runnumber DESC "
     + limit;
   */
-  m_runNumber = 10472;
+  /*ldqm_db example
+    | id  | Name                             | Type  | Number | Date       | Period | Station | Status | State_id |
+    +-----+----------------------------------+-------+--------+------------+--------+---------+--------+----------+
+    |   4 | run000001_bench_TAMU_2015-12-15  | bench | 000001 | 2015-12-16 | 2015T  | TAMU    |      1 |     NULL |
+  */
+  
+  if (p_gemDBHelper->connect("ldqm_db")) {
+    // get the latest run number
+    std::string    setup = "teststand";
+    std::string   period = "2016T";
+    std::string location = "CERN904";
+  
+    std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
+    lastRunNumberQuery += location;
+    lastRunNumberQuery += "' ORDER BY id DESC LIMIT 1;";
+    INFO("GEMSupervisor::updateRunNumber, current run number is: " << m_runNumber.toString());
+    try {
+      m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
+    } catch (gem::utils::exception::DBEmptyQueryResult& e) {
+      WARN("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
+      // m_runNumber.value_ = 0;
+    } catch (xcept::Exception& e) {
+      ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());      
+    } catch (std::exception& e) {
+      ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+    }
 
-  // book the next run number
-  std::string sqlInsert = "INSERT INTO runnumbertbl (USERNAME,SEQUENCENAME,SEQUENCENUMBER) VALUES (?,?,?)";
+    INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
+    //parse and increment by 1, if it is a new station, start at 1
+    m_runNumber.value_ += 1;
+    INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
+
+    // create file name
+    // Times for output files
+    time_t now  = time(0);
+    tm    *gmtm = gmtime(&now);
+
+    std::stringstream date;
+    date << (gmtm->tm_year)+1900 << "-"
+         << std::setw(2) << std::setfill('0') << (gmtm->tm_mon)+1 << "-"
+         << std::setw(2) << std::setfill('0') << (gmtm->tm_mday);
+    std::string filename = toolbox::toString("run%06d_%s_%s_%s",
+                                             m_runNumber.value_,
+                                             setup.c_str(),
+                                             location.c_str(),
+                                             date.str().c_str());
+
+    //insert updated value into database
+    std::string sqlInsert = "INSERT INTO ldqm_db_run (NAME,TYPE,NUMBER,DATE,PERIOD,STATION)";
+    sqlInsert += toolbox::toString(" VALUES('%s','%s','%06d','%s','%s','%s');",
+                                   filename.c_str(),
+                                   setup.c_str(),
+                                   m_runNumber.value_,
+                                   date.str().c_str(),
+                                   period.c_str(),
+                                   location.c_str());
+    try {
+      p_gemDBHelper->command(sqlInsert);
+    } catch (gem::utils::exception::Exception& e) {
+      WARN("GEMSupervisor::updateRunNumber caught gem::utils::exception::Exception " << e.what());
+    } catch (xcept::Exception& e) {
+      ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());      
+    } catch (std::exception& e) {
+      ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+    }
+
+    p_gemDBHelper->disconnect();
+  } else {
+    WARN("GEMSupervisor::updateRunNumber unable to connect to database");
+  }
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
