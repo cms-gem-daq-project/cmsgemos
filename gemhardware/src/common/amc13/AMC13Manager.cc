@@ -102,6 +102,9 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   p_appInfoSpace->fireItemAvailable("slot",             &m_slot       );
   p_appInfoSpace->fireItemAvailable("amc13ConfigParams",&m_amc13Params);
 
+  xgi::bind(this, &AMC13Manager::setDisplayLevel, "setDisplayLevel");
+  xgi::bind(this, &AMC13Manager::updateStatus,    "updateStatus"   );
+
   uhal::setLogLevelTo(uhal::Error);
 
   //initialize the AMC13Manager application objects
@@ -115,9 +118,9 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   //DEBUG("AMC13Manager::done");
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::sendTriggerBurst,"sendtriggerburst", XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::enableTriggers,  "enableTriggers",   XDAQ_NS_URI );   
-  xoap::bind(this, &gem::hw::amc13::AMC13Manager::disableTriggers, "disableTriggers",  XDAQ_NS_URI );   
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::sendTriggerBurst,"sendtriggerburst", XDAQ_NS_URI );
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::enableTriggers,  "enableTriggers",   XDAQ_NS_URI );
+  xoap::bind(this, &gem::hw::amc13::AMC13Manager::disableTriggers, "disableTriggers",  XDAQ_NS_URI );
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
@@ -187,6 +190,18 @@ void gem::hw::amc13::AMC13Manager::init()
   return p_amc13->getStatus();
 }
 
+void gem::hw::amc13::AMC13Manager::setDisplayLevel(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->setDisplayLevel(in);
+}
+
+void gem::hw::amc13::AMC13Manager::updateStatus(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->updateStatus(out);
+}
+
 //state transitions
 void gem::hw::amc13::AMC13Manager::initializeAction()
   throw (gem::hw::amc13::exception::Exception)
@@ -252,7 +267,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->AMCInputEnable(m_slotMask);
 
   // Use local TTC signal if config doc says so
-  
+
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
 
   // need to ensure that all BGO channels are disabled
@@ -332,7 +347,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
 
   INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
 
-  
+
   if (m_enableLocalL1A && m_startL1ATricont) {
     //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
@@ -445,7 +460,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
   if (msg.isNull()) {
     XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
   }
-  
+
   std::string commandName = "sendTriggerBurst";
 
   try {
@@ -499,7 +514,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
-  
+
   if(!m_startL1ATricont){
     if (m_enableLocalL1A)
       p_amc13->enableLocalL1A(true);
@@ -507,11 +522,11 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
       //disable localL1A generator in order to enable the CSC triggers
       p_amc13->enableLocalL1A(false);
   }
-  
+
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->startContinuousL1A();
   }
-  
+
   try {
     INFO("AMC13Manager::enableTriggers command " << commandName << " succeeded ");
     return
@@ -523,9 +538,9 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
                          top, toolbox::toString("%s.",msgBase.c_str()), err);
     this->notifyQualified("error", top);
-    
+
     XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
-  }  
+  }
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
 
@@ -543,7 +558,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
-  
+
   if(!m_startL1ATricont){
     if (m_enableLocalL1A)
     p_amc13->enableLocalL1A(false);
@@ -551,11 +566,11 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
       //disable localL1A generator in order to enable the CSC triggers
       p_amc13->enableLocalL1A(true);
   }
-  
+
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->stopContinuousL1A();
   }
-  
+
   try {
     INFO("AMC13Manager::disableTriggers " << commandName << " succeeded ");
     return
@@ -567,9 +582,9 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
                          top, toolbox::toString("%s.",msgBase.c_str()), err);
     this->notifyQualified("error", top);
-    
+
     XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
-  }  
+  }
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
 

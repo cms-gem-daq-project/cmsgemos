@@ -15,7 +15,7 @@ namespace gem {
       class AMC13ManagerWeb : public gem::base::GEMWebApplication
         {
           //friend class AMC13Monitor;
-          //friend class AMC13Manager;
+          friend class AMC13Manager;
 
         public:
           AMC13ManagerWeb(AMC13Manager *amc13App);
@@ -34,6 +34,15 @@ namespace gem {
             throw (xgi::exception::Exception);
 
           virtual void applicationPage(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          void setDisplayLevel(xgi::Input *in)
+            throw (xgi::exception::Exception);
+
+          void updateStatus(xgi::Output *out)
             throw (xgi::exception::Exception);
 
         private:
