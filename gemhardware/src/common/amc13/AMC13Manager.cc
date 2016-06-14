@@ -102,6 +102,9 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   p_appInfoSpace->fireItemAvailable("slot",             &m_slot       );
   p_appInfoSpace->fireItemAvailable("amc13ConfigParams",&m_amc13Params);
 
+  xgi::bind(this, &AMC13Manager::setDisplayLevel, "setDisplayLevel");
+  xgi::bind(this, &AMC13Manager::updateStatus,    "updateStatus"   );
+
   uhal::setLogLevelTo(uhal::Error);
 
   //initialize the AMC13Manager application objects
@@ -185,6 +188,18 @@ void gem::hw::amc13::AMC13Manager::init()
 ::amc13::Status* gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   return p_amc13->getStatus();
+}
+
+void gem::hw::amc13::AMC13Manager::setDisplayLevel(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->setDisplayLevel(in);
+}
+
+void gem::hw::amc13::AMC13Manager::updateStatus(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->updateStatus(out);
 }
 
 //state transitions
