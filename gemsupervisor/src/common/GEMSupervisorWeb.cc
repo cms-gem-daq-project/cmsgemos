@@ -74,7 +74,7 @@ void gem::supervisor::GEMSupervisorWeb::monitorPage(xgi::Input * in, xgi::Output
        << cgicc::br()     << std::endl
        << cgicc::div()    << std::endl
        << cgicc::span().set("style", "display:block;float:left") << std::endl;
-  
+
   *out << cgicc::span()     << std::endl
        << cgicc::fieldset() << std::endl
        << cgicc::section()  << std::endl;
