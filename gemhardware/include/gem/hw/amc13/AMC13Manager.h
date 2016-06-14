@@ -40,6 +40,12 @@ namespace gem {
           ::amc13::Status *getHTMLStatus()  const;
           ::amc13::AMC13  *getAMC13Device() const { return p_amc13; };
 
+          void setDisplayLevel(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          void updateStatus(xgi::Input *in, xgi::Output * out)
+            throw (xgi::exception::Exception);
+
           //state transitions
           virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
           virtual void configureAction()  throw (gem::hw::amc13::exception::Exception);
@@ -57,8 +63,8 @@ namespace gem {
           xoap::MessageReference disableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
 
-          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
-	
+          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception);
+
           virtual void failAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
 
