@@ -47,6 +47,8 @@ namespace gem {
           amc13_shared_ptr p_amc13;
           xdata::String  m_cardName;
           xdata::Integer m_crateID, m_slot;
+          int cnt;
+          int nwrote_global;
       };
     }  // namespace gem::hw::amc13
   }  // namespace gem::hw
