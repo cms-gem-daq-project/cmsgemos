@@ -246,6 +246,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         is_optohybrids.at(slot).at(link) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
                                                                                                     hwCfgURN.toString(),
                                                                                                     true));
+
       } else {
         DEBUG("OptoHybridManager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
         is_optohybrids.at(slot).at(link) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
