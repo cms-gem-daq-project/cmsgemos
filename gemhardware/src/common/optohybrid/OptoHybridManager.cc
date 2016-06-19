@@ -40,7 +40,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
 
   triggerSource = 0;
   sbitSource    = 0;
-  refClkSrc     = 0;
+  refClkSrc     = 1;
   //vfatClkSrc    = 0;
   //cdceClkSrc    = 0;
 }
@@ -70,6 +70,38 @@ void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdat
   bag->addField("refClkSrc",     &refClkSrc);
   //bag->addField("vfatClkSrc",    &vfatClkSrc);
   //bag->addField("cdceClkSrc",    &cdceClkSrc);
+
+  bag->addField("CommonVFATSettings",  &commonVFATSettings);
+}
+
+gem::hw::optohybrid::OptoHybridManager::CommonVFATSettings::CommonVFATSettings() {
+  ContReg0    = 0x37;
+  ContReg2    = 0x30;
+  IPreampIn   =  168;
+  IPreampFeed =   80;
+  IPreampOut  =  150;
+  IShaper     =  150;
+  IShaperFeed =  100;
+  IComp       =   75;
+  Latency     =  157;
+  VThreshold1 =   50;
+  VThreshold2 =    0;
+}
+
+void gem::hw::optohybrid::OptoHybridManager::CommonVFATSettings::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::CommonVFATSettings>* bag) {
+  bag->addField("ContReg0",          &ContReg0   );
+  bag->addField("ContReg1",          &ContReg1   );
+  bag->addField("ContReg2",          &ContReg2   );
+  bag->addField("ContReg3",          &ContReg3   );
+  bag->addField("IPreampIn",         &IPreampIn  );
+  bag->addField("IPreampFeed",       &IPreampFeed);
+  bag->addField("IPreampOut",        &IPreampOut );
+  bag->addField("IShaper",           &IShaper    );
+  bag->addField("IShaperFeed",       &IShaperFeed);
+  bag->addField("IComp",             &IComp      );
+  bag->addField("Latency",           &Latency    );
+  bag->addField("VThreshold1",       &VThreshold1);
+  bag->addField("VThreshold2",       &VThreshold2);
 }
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub* stub) :
@@ -315,12 +347,26 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
                  << "0x" << std::hex << std::setw(4) << chip->second << std::dec);
           else
             INFO("No VFAT found in GEB slot " << std::setw(2) << (int)chip->first);
+        
+        uint32_t vfatMask = m_broadcastList.at(slot).at(link);
+        INFO("Setting VFAT parameters with broadcast write using mask " << std::hex << vfatMask << std::dec);
+        optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_,
+                                       info.commonVFATSettings.bag.VThreshold2.value_,
+                                       info.commonVFATSettings.bag.Latency.value_,
+                                       vfatMask);
 
-        uint32_t vfatMask = optohybrid->getConnectedVFATMask();
+        std::array<std::string, 11> setupregs = {{"ContReg0", "ContReg2", "IPreampIn", "IPreampFeed", "IPreampOut",
+                                                  "IShaper", "IShaperFeed", "IComp", "Latency",
+                                                  "VThreshold1", "VThreshold2"}};
 
-        //optohybrid->broadcastWrite("Latency",     ~vfatMask, 157);
-        //optohybrid->broadcastWrite("VThreshold1", ~vfatMask, 50);
-
+        INFO("Reading back values after setting defaults:");
+        for (auto reg = setupregs.begin(); reg != setupregs.end(); ++reg) {
+          std::vector<uint32_t> res = optohybrid->broadcastRead(*reg,vfatMask);
+          INFO(*reg);
+          for (auto r = res.begin(); r != res.end(); ++r) {
+            INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
+          }
+        }
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
         //reset counters?
@@ -339,8 +385,37 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 void gem::hw::optohybrid::OptoHybridManager::startAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  // put all connected VFATs into run mode?
-  usleep(1000);
+  DEBUG("OptoHybridManager::startAction");
+  //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(1000); // just for testing the timing of different applications
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+      usleep(1000); // just for testing the timing of different applications
+      unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
+      DEBUG("OptoHybridManager::index = " << index);
+      OptoHybridInfo& info = m_optohybridInfo[index].bag;
+
+      if (!info.present)
+        continue;
+      
+      DEBUG("OptoHybridManager::startAction::grabbing pointer to hardware device");
+      optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
+      
+      if (optohybrid->isHwConnected()) {
+        // turn on all VFATs? or should they always be on?
+        //optohybrid->broadcastWrite("ContReg1",     ~vfatMask, 0x36);
+
+        // what resets to do
+      } else {
+        ERROR("startAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
+              << " is not responding");
+        fireEvent("Fail");
+        //maybe raise exception so as to not continue with other cards?
+      }
+    }
+  }
+  
+  DEBUG("OptoHybridManager::startAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::pauseAction()
@@ -454,6 +529,7 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
   is_optohybrid->createUInt32("Ref_clk",      optohybrid->getReferenceClock(),  NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("SBit_Mask",    optohybrid->getSBitMask(),        NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("SBitsOut",     optohybrid->getSBitSource(),      NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("SBitOutMode",  optohybrid->getSBitMode(),        NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("TrgThrottle",  optohybrid->getFirmware(),        NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("ZS",           optohybrid->getFirmware(),        NULL, GEMUpdateType::HW32);
 

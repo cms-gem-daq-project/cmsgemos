@@ -55,14 +55,52 @@ namespace gem {
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
 
-        private:
-	  // uint32_t parseVFATMaskList(std::string const&);
-	  //bool     isValidSlotNumber(std::string const&);
+        protected:
+          class CommonVFATSettings
+          {
+          public:
+            CommonVFATSettings();
+            void registerFields(xdata::Bag<OptoHybridManager::CommonVFATSettings>* bag);
 
-          void     createOptoHybridInfoSpaceItems(is_toolbox_ptr is_optohybrid, optohybrid_shared_ptr optohybrid);
+            // configuration parameters
+            xdata::UnsignedShort ContReg0   ;
+            xdata::UnsignedShort ContReg1   ;
+            xdata::UnsignedShort ContReg2   ;
+            xdata::UnsignedShort ContReg3   ;
+            xdata::UnsignedShort IPreampIn  ;
+            xdata::UnsignedShort IPreampFeed;
+            xdata::UnsignedShort IPreampOut ;
+            xdata::UnsignedShort IShaper    ;
+            xdata::UnsignedShort IShaperFeed;
+            xdata::UnsignedShort IComp      ;
+            xdata::UnsignedShort Latency    ;
+            xdata::UnsignedShort VThreshold1;
+            xdata::UnsignedShort VThreshold2;
 
-          class OptoHybridInfo {
 
+            inline std::string toString() {
+              // write obj to stream
+              std::stringstream os;
+              os << "ContReg0   :" << ContReg0.toString()    << std::endl
+                 << "ContReg1   :" << ContReg1.toString()    << std::endl
+                 << "ContReg2   :" << ContReg2.toString()    << std::endl
+                 << "ContReg3   :" << ContReg3.toString()    << std::endl
+                 << "IPreampIn  :" << IPreampIn.toString()   << std::endl
+                 << "IPreampFeed:" << IPreampFeed.toString() << std::endl
+                 << "IPreampOut :" << IPreampOut.toString()  << std::endl
+                 << "IShaper    :" << IShaper.toString()     << std::endl
+                 << "IShaperFeed:" << IShaperFeed.toString() << std::endl
+                 << "IComp      :" << IComp.toString()       << std::endl
+                 << "Latency    :" << Latency.toString()     << std::endl
+                 << "VThreshold1:" << VThreshold1.toString() << std::endl
+                 << "VThreshold2:" << VThreshold2.toString() << std::endl
+                 << std::endl;
+              return os.str();
+            };
+          };
+
+          class OptoHybridInfo
+          {
           public:
             OptoHybridInfo();
             void registerFields(xdata::Bag<OptoHybridManager::OptoHybridInfo>* bag);
@@ -95,6 +133,8 @@ namespace gem {
             // xdata::Integer vfatClkSrc;
             // xdata::Integer cdceClkSrc;
 
+            xdata::Bag<CommonVFATSettings> commonVFATSettings;
+            
             inline std::string toString() {
               // write obj to stream
               std::stringstream os;
@@ -126,6 +166,12 @@ namespace gem {
               return os.str();
             };
           };
+
+        private:
+	  // uint32_t parseVFATMaskList(std::string const&);
+	  //bool     isValidSlotNumber(std::string const&);
+
+          void     createOptoHybridInfoSpaceItems(is_toolbox_ptr is_optohybrid, optohybrid_shared_ptr optohybrid);
 
           mutable gem::utils::Lock m_deviceLock;  // [MAX_OPTOHYBRIDS_PER_AMC*MAX_AMCS_PER_CRATE];
 
