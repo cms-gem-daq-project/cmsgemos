@@ -291,7 +291,7 @@ void gem::base::GEMMonitor::jsonUpdateItemSets(xgi::Output *out)
       DEBUG("GEMMonitor::Monitorable set " << iset->first << " is empty, not exporting as JSON");
     } else {
       DEBUG("GEMMonitor::Found monitorable set " << iset->first << " while updating for JSON export");
-      
+
       jsonUpdateItemSet(iset->first, out);
     }
     // can't have a trailing comma for the last entry...
