@@ -137,19 +137,19 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
   // update monitoring variables
   if (event.type() == "ItemRetrieveEvent" ||
       event.type() == "urn:xdata-event:ItemRetrieveEvent") {
-    INFO("GEMApplication::actionPerformed() ItemRetrieveEvent"
+    DEBUG("GEMApplication::actionPerformed() ItemRetrieveEvent"
           << "");
   } else if (event.type() == "ItemGroupRetrieveEvent" ||
              event.type() == "urn:xdata-event:ItemGroupRetrieveEvent") {
-    INFO("GEMApplication::actionPerformed() ItemGroupRetrieveEvent"
+    DEBUG("GEMApplication::actionPerformed() ItemGroupRetrieveEvent"
           << "");
   }
   // item is changed, update it
   if (event.type() == "ItemChangedEvent" ||
       event.type() == "urn:xdata-event:ItemChangedEvent") {
-    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
-         << "m_runNumber:" << m_runNumber
-         << " getInteger64(\"RunNumber\"):" << p_appInfoSpaceToolBox->getInteger64("RunNumber"));
+    DEBUG("GEMApplication::actionPerformed() ItemChangedEvent"
+          << "m_runNumber:" << m_runNumber
+          << " getInteger64(\"RunNumber\"):" << p_appInfoSpaceToolBox->getInteger64("RunNumber"));
 
     /* from HCAL runInfoServer
        std::list<std::string> names;

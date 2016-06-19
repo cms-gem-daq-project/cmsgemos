@@ -26,6 +26,7 @@
 #include "xdata/Integer.h"
 #include "xdata/Integer32.h"
 #include "xdata/Integer64.h"
+#include "xdata/UnsignedShort.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/UnsignedInteger64.h"
