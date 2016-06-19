@@ -56,7 +56,7 @@
                        2: OUT[0-5] correspond to I2C sectors (automatically selected)
                        3: OUT[0-5] are constant 0"/>
   </node>
-
+  
   <node id="THROTTLE"  address="0x6"  mask="0xffffffff"  permission="rw"
 	description="Throttle the triggers sent to the GEB "/>
 
