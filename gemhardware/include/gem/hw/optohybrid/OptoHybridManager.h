@@ -77,7 +77,6 @@ namespace gem {
             xdata::UnsignedShort VThreshold1;
             xdata::UnsignedShort VThreshold2;
 
-
             inline std::string toString() {
               // write obj to stream
               std::stringstream os;
