@@ -616,7 +616,9 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
          << " ISFULL  0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")  << std::dec
          << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
          << " Depth   0x" << std::hex << getFIFOOccupancy(gtx) << std::dec);
-    writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
+
+    if (!readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY"))
+      writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
     INFO("Tracking FIFO" << (int)gtx << ":"
          << " ISFULL  0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")  << std::dec
          << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
@@ -850,7 +852,7 @@ void gem::hw::glib::HwGLIB::generalReset()
     linkReset(gtx);
 
   // other resets
-  
+
   return;
 }
 
@@ -861,9 +863,9 @@ void gem::hw::glib::HwGLIB::counterReset()
 
   for (unsigned gtx = 0; gtx < N_GTX; ++gtx)
     resetIPBusCounters(gtx, 0xff);
-  
+
   resetLinkCounters();
-  
+
   return;
 }
 
