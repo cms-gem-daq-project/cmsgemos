@@ -60,7 +60,7 @@ namespace gem {
          so it helps to retry a few times in the case of a failure
          that is recognized
       */
-      static const unsigned MAX_IPBUS_RETRIES = 3;
+      static const unsigned MAX_IPBUS_RETRIES = 5;
 
       /**
        * @struct OpticalLinkStatus
