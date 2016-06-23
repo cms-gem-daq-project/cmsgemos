@@ -172,6 +172,7 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     INFO(std::string("Initializing ")+(*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *i);
   }
+  m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::configureAction()
