@@ -195,7 +195,11 @@ int gem::hw::amc13::AMC13Readout::dumpData()
           free(pEvt);
       }
       outf.close();
-      if (nwrote_global/10000 > cnt) cnt++;
+      m_duration = ( std::clock() - m_start ) / (double) CLOCKS_PER_SEC;
+      if ((nwrote_global/1000 > cnt) || ((cnt > 0) && (m_duration > 10))) {
+        cnt++;
+        m_start = std::clock();
+      }
     }
     if (nevt == 0) {
       DEBUG("Monitor buffer empty" << std::endl);
