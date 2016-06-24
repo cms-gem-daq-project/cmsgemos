@@ -30,9 +30,9 @@ GCC49Flags = -std=c++17 -std=gnu++17
 
 # User C and CC flags
 UserCFlags  =-DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
-#UserCFlags+=${GCC44Flags}
+UserCFlags+=${GCC44Flags}
 #UserCFlags+=${GCC47Flags}
-UserCFlags+=${GCC48Flags}
+#UserCFlags+=${GCC48Flags}
 #UserCFlags+=${GCC49Flags}
 UserCCFlags =${UserCFlags}
 #UserCCFlags =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
