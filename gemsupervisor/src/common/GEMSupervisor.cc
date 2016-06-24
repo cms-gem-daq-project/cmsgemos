@@ -368,7 +368,6 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
 
   // book the next run number
   std::string sqlInsert = "INSERT INTO runnumbertbl (USERNAME,SEQUENCENAME,SEQUENCENUMBER) VALUES (?,?,?)";
-  
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)

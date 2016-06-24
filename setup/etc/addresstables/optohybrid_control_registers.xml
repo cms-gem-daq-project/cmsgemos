@@ -6,7 +6,11 @@
           description="Masks individual VFATs from sending tracking data packets"/>
     <node id="RESET"  address="0x3"  mask="0x1"  permission="w"
           description="Returns to a 0 state"/>
+    <!-- register only in V2B -->
+    <node id="SBIT_MASK"  address="0x4"  mask="0x00ffffff"  permission="rw"
+	  description="Mask to block individual VFATs from sending s-bits data"/>
   </node>
+
   <node id="TRIGGER" address="0x1" permission="rw"
         description="Trigger options for the OptoHybrid">
     <node id="SOURCE"  address="0x0"  mask="0x7"  permission="rw"
@@ -30,10 +34,6 @@
                        2: external clock"/>
   </node>
 
-  <!-- register only in V2B -->
-  <node id="SBIT_MASK"  address="0x4"  mask="0x00ffffff"  permission="rw"
-	description="Mask to block individual VFATs from sending s-bits data"/>
-  
   <node id="OUTPUT"  address="0x5"  permission="rw"
 	description="Control on the OptoHybrid related to the SBits sent out">
     <node id="SBits"  address="0x0"  permission="rw"

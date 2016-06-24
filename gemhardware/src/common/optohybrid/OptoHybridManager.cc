@@ -506,7 +506,7 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
 
   /** Firmware based scan routines **/
   std::array<std::string, 2> scans = {{"Threshold/Latency","DAC"}};
-  std::array<std::string, 9> scanregs = {{"START","MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
+  std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
     for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
       if ((*scan) == "DAC" && (*scanreg) == "CHAN")

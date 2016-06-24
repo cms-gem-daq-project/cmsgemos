@@ -452,14 +452,14 @@ namespace gem {
            * @param uint32_t mask s-bits coming from specific GEB slots
            */
           void setSBitMask(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK",mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK",mask); };
 
           /**
            * Read the S-bit mask
            * @retval uint32_t which slots s-bits are processed
            */
           uint32_t getSBitMask() {
-            return readReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK"); };
 
 
           /**
