@@ -91,6 +91,17 @@ if not options.userOnly:
 	getSystemInfo(glib)
 print
 print "--=======================================--"
+print "-> TEST INFORMATION"
+print "--=======================================--"
+print
+print "0x%x"%(readRegister(glib,"GLIB.TEST.RXPOLARITY"))
+print "0x%x"%(readRegister(glib,"GLIB.TEST.TXPOLARITY"))
+print "0x%x"%(readRegister(glib,"GLIB.TEST.BOARD_ID"))
+print "0x%x"%(readRegister(glib,"GLIB.TEST.DAQ"))
+print "0x%x"%(readRegister(glib,"GLIB.TEST.OPTOHYBRID"))
+print "0x%x"%(readRegister(glib,"GLIB.TEST.TTC"))
+print
+print "--=======================================--"
 print "-> DAQ INFORMATION"
 print "--=======================================--"
 print

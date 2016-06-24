@@ -253,7 +253,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
         m_glibMonitors.at(slot)->setupHwMonitoring();
         m_glibMonitors.at(slot)->startMonitoring();
       } else {
-        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << slot);
+        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << (slot+1));
         XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       }
     } catch (uhalException const& ex) {
@@ -313,7 +313,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       // reset the DAQ
       m_glibs.at(slot)->setL1AEnable(0x0);
       m_glibs.at(slot)->resetDAQLink();
-      m_glibs.at(slot)->setDAQLinkRunType(0x3);
+      m_glibs.at(slot)->setDAQLinkRunType(0x0);
       m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
 
       // should FIFOs be emptied in configure or at start?

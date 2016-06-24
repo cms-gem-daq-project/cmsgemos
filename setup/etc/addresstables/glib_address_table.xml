@@ -110,12 +110,18 @@
     </node>
 
     <node id="TEST">
-      <node id="GLIB"  address="0x4004010a"
+      <node id="RXPOLARITY"  address="0x00900000"
 	    description="is the GLIB accessible"/>
-      <node id="OptoHybrid"  address="0x40030100"
-	    description="is the OH accessible"/>
-      <node id="VFATs"  address="0x40010808"
-	    description="are the VFAT2s accessible"/>
+      <node id="TXPOLARITY"  address="0x00900001"
+	    description="is the GLIB accessible"/>
+      <node id="BOARD_ID"  address="0x00900002"
+	    description="is the GLIB accessible"/>
+      <node id="DAQ"  address="0x00000000"
+	    description="is the GLIB accessible"/>
+      <node id="TTC"  address="0x00300001"
+	    description="is the GLIB accessible"/>
+      <node id="OPTOHYBRID"  address="0x00600100"
+	    description="is the GLIB accessible"/>
     </node> <!-- end TEST registers -->
   </node> <!--end glib_regs-->
 </node> <!--end top-->
