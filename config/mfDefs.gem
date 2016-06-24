@@ -41,6 +41,7 @@ UserStaticLinkFlags  =
 UserDynamicLinkFlags =
 
 IncludeDirs+=$(XDAQ_ROOT)/include
+IncludeDirs+=/usr/local/include/python2.7
 LibraryDirs+=$(XDAQ_ROOT)/lib
 DependentLibraryDirs+=$(XDAQ_ROOT)/lib
 
