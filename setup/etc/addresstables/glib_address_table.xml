@@ -75,20 +75,18 @@
       </node>
     </node>
 
-    <node id="TEST"  address="0x40000000">
+    <node id="TEST">
       <node id="RXPOLARITY"  address="0x00900000"
 	    description="is the GLIB accessible"/>
       <node id="TXPOLARITY"  address="0x00900001"
 	    description="is the GLIB accessible"/>
       <node id="BOARD_ID"  address="0x00900002"
 	    description="is the GLIB accessible"/>
-      <node id="DAQ"  address="0x00700000"
-	    description="is the GLIB accessible"/>
-      <node id="DAV_TIMEOUT"  address="0x00700006"
+      <node id="DAQ"  address="0x00000000"
 	    description="is the GLIB accessible"/>
       <node id="TTC"  address="0x00300001"
 	    description="is the GLIB accessible"/>
-      <node id="OPTOHYBRID"  address="0x0040c000"
+      <node id="OPTOHYBRID"  address="0x00600100"
 	    description="is the GLIB accessible"/>
     </node> <!-- end TEST registers -->
   </node> <!--end glib_regs-->
