@@ -53,7 +53,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  std::make_pair("Ref_clk",     "CONTROL.CLOCK.REF_CLK"),
                  GEMUpdateType::HW32, "bit");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBit_Mask",   "CONTROL.SBIT_MASK"),
+                 std::make_pair("SBit_Mask",   "CONTROL.VFAT.SBIT_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("SBitsOut",    "CONTROL.OUTPUT.SBITS"),
