@@ -126,7 +126,7 @@ bool gem::hw::HwGenericAMC::isHwConnected()
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       }
     } else {
-      INFO("Device not reachable (unable to find 'GenericAMC' in the board ID)"
+      INFO("Device not reachable (unable to find 'GLIB' in the board ID)"
            << " board ID "              << this->getBoardID()
            << " user firmware version " << this->getFirmwareVer());
     }
