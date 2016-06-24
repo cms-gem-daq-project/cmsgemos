@@ -11,6 +11,7 @@
     <node id="DROP_BAD_CRC"  address="0xa"  mask="0x1"  permission="rw"
 	  description="Mask to drop at the OH data packets failing the CRC"/>
   </node>
+
   <node id="TRIGGER" address="0x1" permission="rw"
         description="Trigger options for the OptoHybrid">
     <node id="SOURCE"  address="0x0"  mask="0x7"  permission="rw"
