@@ -256,7 +256,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
         m_glibMonitors.at(slot)->setupHwMonitoring();
         m_glibMonitors.at(slot)->startMonitoring();
       } else {
-        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << slot);
+        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << (slot+1));
         XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       }
     } catch (uhalException const& ex) {
