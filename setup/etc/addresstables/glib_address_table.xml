@@ -86,7 +86,9 @@
 	    description="is the GLIB accessible"/>
       <node id="TTC"  address="0x00300001"
 	    description="is the GLIB accessible"/>
-      <node id="OPTOHYBRID"  address="0x00600100"
+      <node id="OPTOHYBRID"  address="0x00400100"
+	    description="is the GLIB accessible"/>
+      <node id="OPTOHYBRID"  address="0x00400100"
 	    description="is the GLIB accessible"/>
     </node> <!-- end TEST registers -->
   </node> <!--end glib_regs-->

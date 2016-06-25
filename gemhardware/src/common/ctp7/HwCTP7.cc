@@ -22,7 +22,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7() :
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done " << isHwConnected());
+  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
@@ -39,7 +39,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done " << isHwConnected());
+  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
@@ -59,7 +59,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done " << isHwConnected());
+  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
@@ -77,7 +77,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done " << isHwConnected());
+  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::HwCTP7(const int& crate, const int& slot) :
@@ -114,7 +114,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(const int& crate, const int& slot) :
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done " << isHwConnected());
+  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::~HwCTP7()
