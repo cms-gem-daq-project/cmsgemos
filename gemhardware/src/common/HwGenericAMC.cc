@@ -15,7 +15,7 @@ gem::hw::HwGenericAMC::HwGenericAMC() :
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done");
+  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
@@ -31,7 +31,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done");
+  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
@@ -49,7 +49,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done");
+  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
@@ -66,7 +66,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done");
+  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
@@ -85,7 +85,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done");
+  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
@@ -101,7 +101,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwGenericAMC ctor done");
+  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::~HwGenericAMC()
@@ -126,9 +126,10 @@ bool gem::hw::HwGenericAMC::isHwConnected()
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       }
     } else {
-      INFO("Device not reachable (unable to find 'GLIB' in the board ID)"
+      WARN("Device not reachable (unable to find 'GLIB' in the board ID)"
            << " board ID "              << this->getBoardID()
            << " user firmware version " << this->getFirmwareVer());
+      return false;
     }
 
     v_activeLinks = tmp_activeLinks;
