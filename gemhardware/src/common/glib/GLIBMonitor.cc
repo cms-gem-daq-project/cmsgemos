@@ -234,7 +234,7 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("Trigger", "HWMonitoring");
-  for (int oh = 0; oh < 4; ++oh) {
+  for (int oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" << oh;
     for (int cluster = 0; cluster < 8; ++cluster) {
