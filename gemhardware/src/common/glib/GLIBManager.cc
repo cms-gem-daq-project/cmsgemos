@@ -3,7 +3,7 @@
  * description: Manager application for GLIB cards
  *              structure borrowed from TCDS core, with nods to HCAL and EMU code
  * author: J. Sturdy
- * date: 
+ * date:
  */
 
 #include "gem/hw/glib/GLIBManager.h"
@@ -29,7 +29,7 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   addressTable      = "";
   controlHubPort    = 0;
   ipBusPort         = 0;
-  
+
   sbitSource    = 0;
 }
 
@@ -45,7 +45,7 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
   bag->addField("AddressTable",      &addressTable);
   bag->addField("ControlHubPort",    &controlHubPort);
   bag->addField("IPBusPort",         &ipBusPort);
-            
+
   bag->addField("sbitSource",    &sbitSource);
 }
 
@@ -73,8 +73,8 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_gemWebInterface = new gem::hw::glib::GLIBManagerWeb(this);
   // p_gemMonitor      = new gem::hw::glib::GLIBHwMonitor(this);
   DEBUG("GLIBManager::done");
-  
-  // set up the info hwCfgInfoSpace 
+
+  // set up the info hwCfgInfoSpace
   init();
 
   // getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/glib/GLIBManager.png");
@@ -100,7 +100,7 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
     //       << " has no tracking data in the FIFO");
     //  return dump;
   }
-  
+
   try {
     INFO("GLIBManager::dumpGLIBFIFO Dumping FIFO for specified GLIB card " << glib+1);
     return m_glibs.at(glib)->getTrackingData(0, 24);
@@ -123,12 +123,12 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
 void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("GLIBManager::actionPerformed() setDefaultValues" << 
+    DEBUG("GLIBManager::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     m_amcEnableMask = gem::hw::utils::parseAMCEnableList(m_amcSlots.toString());
     INFO("GLIBManager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
          << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
-    
+
     // how to handle passing in various values nested in a vector in a bag
     for (auto slot = m_glibInfo.begin(); slot != m_glibInfo.end(); ++slot) {
       // if (slot->bag.present.value_)
@@ -153,7 +153,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
   throw (gem::hw::glib::exception::Exception)
 {
   DEBUG("GLIBManager::initializeAction begin");
-  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     GLIBInfo& info = m_glibInfo[slot].bag;
     if ((m_amcEnableMask >> (slot)) & 0x1) {
@@ -176,18 +176,17 @@ void gem::hw::glib::GLIBManager::initializeAction()
       // needs .value_?
       // p_gemWebInterface->glibInSlot(slot);
     }
-  }  
-  
+  }
+
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     GLIBInfo& info = m_glibInfo[slot].bag;
-    
+
     // check the config file if there should be a GLIB in the specified slot, if not, do not initialize
     if (!info.present)
       continue;
-    
-    DEBUG("GLIBManager::info:" << info.toString());
+
     DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
-    
+
     // create the cfgInfoSpace object (qualified vs non?)
     std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d",
                                                info.crateID.value_,
@@ -206,7 +205,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
                                                                                    hwCfgURN.toString(),
                                                                                    true));
     }
-    
+
     DEBUG("GLIBManager::exporting config parameters into infospace");
     is_glibs.at(slot)->createString("ControlHubAddress", info.controlHubAddress.value_, &(info.controlHubAddress),
                                  GEMUpdateType::NOUPDATE);
@@ -220,7 +219,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
                                  GEMUpdateType::NOUPDATE);
     is_glibs.at(slot)->createUInt32("IPBusPort",         info.ipBusPort.value_        , &(info.ipBusPort),
                                  GEMUpdateType::NOUPDATE);
-    
+
     DEBUG("GLIBManager::InfoSpace found item: ControlHubAddress "
           << is_glibs.at(slot)->getString("ControlHubAddress"));
     DEBUG("GLIBManager::InfoSpace found item: IPBusProtocol "
@@ -241,7 +240,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
       if (m_glibs.at(slot)->isHwConnected()) {
         // maybe better to rais exception here and fail if not connected, as we expected the card to be here?
         createGLIBInfoSpaceItems(is_glibs.at(slot), m_glibs.at(slot));
-        
+
         m_glibMonitors.at(slot) = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs.at(slot), this, slot+1));
         m_glibMonitors.at(slot)->addInfoSpace("HWMonitoring", is_glibs.at(slot));
         m_glibMonitors.at(slot)->setupHwMonitoring();
@@ -274,12 +273,13 @@ void gem::hw::glib::GLIBManager::initializeAction()
 
     if (!info.present)
       continue;
-    
+
     if (m_glibs.at(slot)->isHwConnected()) {
       DEBUG("GLIBManager::connected a card in slot " << (slot+1));
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
@@ -299,7 +299,7 @@ void gem::hw::glib::GLIBManager::configureAction()
 
     if (!info.present)
       continue;
-    
+
     if (m_glibs.at(slot)->isHwConnected()) {
       m_glibs.at(slot)->resetL1ACount();
       m_glibs.at(slot)->resetCalPulseCount();
@@ -309,7 +309,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       m_glibs.at(slot)->resetDAQLink();
       m_glibs.at(slot)->setDAQLinkRunType(0x3);
       m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
-      
+
       // should FIFOs be emptied in configure or at start?
       DEBUG("GLIBManager::emptying trigger/tracking data FIFOs");
       for (unsigned gtx = 0; gtx < HwGLIB::N_GTX; ++gtx) {
@@ -323,11 +323,12 @@ void gem::hw::glib::GLIBManager::configureAction()
       // setup DAQ mode?
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "configureAction failed");
       // maybe raise exception so as to not continue with other cards?
     }
   }
-  
+
   DEBUG("GLIBManager::configureAction end");
 }
 
@@ -344,7 +345,7 @@ void gem::hw::glib::GLIBManager::startAction()
 
     if (!info.present)
       continue;
-    
+
     if (m_glibs.at(slot)->isHwConnected()) {
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
@@ -353,7 +354,8 @@ void gem::hw::glib::GLIBManager::startAction()
       usleep(100); // just for testing the timing of different applications
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "startAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
@@ -393,7 +395,7 @@ void gem::hw::glib::GLIBManager::stopAction()
 
     if (!info.present)
       continue;
-    
+
     if (m_glibs[slot]->isHwConnected()) {
       // what is required for stopping the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
@@ -415,25 +417,25 @@ void gem::hw::glib::GLIBManager::resetAction()
 {
   // what is required for resetting the GLIB?
   // unregister listeners and items in info spaces
-  
+
   DEBUG("GLIBManager::resetAction begin");
-  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {    
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     usleep(500);  // just for testing the timing of different applications
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
-    
+
     if (!info.present)
       continue;
 
     // reset the hw monitor
     if (m_glibMonitors.at(slot))
       m_glibMonitors.at(slot)->reset();
-    
+
     DEBUG("GLIBManager::looking for hwCfgInfoSpace items for GLIB in slot " << (slot+1));
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d",
                                                                info.crateID.value_,
                                                                info.slotID.value_));
-    
+
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
       DEBUG("GLIBManager::revoking config parameters infospace");
 
@@ -443,19 +445,19 @@ void gem::hw::glib::GLIBManager::resetAction()
       // these should now be gone from the reset call..., holdover from the old way
       if (is_glibs.at(slot)->getInfoSpace()->hasItem("ControlHubAddress"))
         is_glibs.at(slot)->getInfoSpace()->fireItemRevoked("ControlHubAddress");
-      
+
       if (is_glibs.at(slot)->getInfoSpace()->hasItem("IPBusProtocol"))
         is_glibs.at(slot)->getInfoSpace()->fireItemRevoked("IPBusProtocol");
-      
+
       if (is_glibs.at(slot)->getInfoSpace()->hasItem("DeviceIPAddress"))
         is_glibs.at(slot)->getInfoSpace()->fireItemRevoked("DeviceIPAddress");
-      
+
       if (is_glibs.at(slot)->getInfoSpace()->hasItem("AddressTable"))
         is_glibs.at(slot)->getInfoSpace()->fireItemRevoked("AddressTable");
-      
+
       if (is_glibs.at(slot)->getInfoSpace()->hasItem("ControlHubPort"))
         is_glibs.at(slot)->getInfoSpace()->fireItemRevoked("ControlHubPort");
-      
+
       if (is_glibs.at(slot)->getInfoSpace()->hasItem("IPBusPort"))
         is_glibs.at(slot)->getInfoSpace()->fireItemRevoked("IPBusPort");
     } else {
