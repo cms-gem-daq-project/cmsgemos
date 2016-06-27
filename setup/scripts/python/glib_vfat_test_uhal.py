@@ -27,6 +27,8 @@ parser.add_option("-e", "--enable", type="string", dest="enabledChips",
 		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
 parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
+parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
+		  help="Testing the I2C lines (select I2C line 0-5, or 6 for all", metavar="testi2c")
 
 (options, args) = parser.parse_args()
 
@@ -98,12 +100,44 @@ thechipid = 0x0000
 ## these need to be done in a link specific way, so select the first available link
 print "GLIB FW: 0x%08x"%(readRegister(glib,"GLIB.SYSTEM.FIRMWARE"))
 print "OH   FW: 0x%08x"%(readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.FW"%(options.gtx)))
-print "Trying to do a block read on all VFATs chipID0"
-#chipID0s = readAllVFATs(glib, options.gtx, 0xf0000000, "ChipID0", options.debug)
-#chipID1s = readAllVFATs(glib, options.gtx, 0xf0000000, "ChipID1", options.debug)
-
+        
 controls = []
 chipmask = 0xff000000
+if options.testi2c > -1:
+        chipmask = 0xff000000
+        line = options.testi2c
+        while (True):
+                if line < 6:
+                        for idx in range((line/2)*8,((line/2)+1)*8):
+                                if (line%2):
+                                        # 0  0-3  
+                                        # 1  4-7  
+                                        # 2  8-11 
+                                        # 3 12-15 
+                                        # 4 16-19 
+                                        # 5 20-23 
+                                        if (idx%8) > 3:
+                                                print "VFAT%02d: 0x%08x"%(idx,getChipID(glib,options.gtx,idx))
+                                                pass
+                                        pass
+                                else:
+                                        if (idx%8) < 4:
+                                                print "VFAT%02d: 0x%08x"%(idx,getChipID(glib,options.gtx,idx))
+                                        pass
+                                pass
+                        pass
+                else:
+                        print getAllChipIDs(glib, options.gtx, chipmask)
+                        for idx in range(24):
+                                # if (idx%8) > 3:
+                                print "VFAT%02d: 0x%08x"%(idx,getChipID(glib,options.gtx,idx))
+                                # pass
+                                pass
+                        pass
+                time.sleep(1)
+                pass
+        pass
+print "Trying to do a block read on all VFATs chipID0"
 chipids = getAllChipIDs(glib, options.gtx, chipmask)
 print chipids
 
