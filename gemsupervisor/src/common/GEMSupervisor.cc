@@ -167,6 +167,7 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     INFO(std::string("Initializing ")+(*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *i);
   }
+  m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::configureAction()
@@ -368,7 +369,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
 
   // book the next run number
   std::string sqlInsert = "INSERT INTO runnumbertbl (USERNAME,SEQUENCENAME,SEQUENCENUMBER) VALUES (?,?,?)";
-  
+
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
