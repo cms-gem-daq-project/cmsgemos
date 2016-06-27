@@ -18,7 +18,7 @@ include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
 #Sources+=GEMDataParker.cc
-Sources+=GEMReadoutApplication.cc
+Sources+=GEMReadoutApplication.cc GEMReadoutWebApplication.cc
 #Sources+=GEMDataChecker.cc
 
 DynamicLibrary=gemreadout
@@ -49,8 +49,9 @@ DependentLibraries+=gemutils gembase
 UserDynamicLinkFlags+=$(ROOTLIBS)
 
 include $(XDAQ_ROOT)/config/Makefile.rules
+#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

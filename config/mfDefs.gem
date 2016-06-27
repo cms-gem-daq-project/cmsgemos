@@ -50,5 +50,4 @@ DependentLibraries+=numa toolbox uuid xcept xdaq2rc xerces-c
 #UserExecutableLinkFlags+=-lcactus_uhal_log -lcactus_uhal_grammars -lcactus_uhal_uhal
 
 #include $(XDAQ_ROOT)/config/Makefile.rules
-#include $(XDAQ_ROOT)/config/mfRPM.rules
 #include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules

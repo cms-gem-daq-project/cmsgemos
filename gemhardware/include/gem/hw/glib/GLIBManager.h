@@ -2,8 +2,7 @@
 #define GEM_HW_GLIB_GLIBMANAGER_H
 /** @file GLIBManager.h */
 
-
-//#include "uhal/uhal.hpp"
+#include <array>
 
 #include "gem/base/GEMFSMApplication.h"
 //#include "gem/hw/glib/GLIBSettings.h"
@@ -57,9 +56,19 @@ namespace gem {
             throw (toolbox::fsm::exception::Exception);
 
 	  bool is_initialized_, is_configured_, is_running_, is_paused_, is_resumed_;
+
+        protected:
+          /**
+           */
+          std::vector<uint32_t> dumpGLIBFIFO(int const& glib);
+          
+          /**
+           */
+          void dumpGLIBFIFO(xgi::Input* in, xgi::Output* out);
+
         private:
-	  uint16_t parseAMCEnableList(std::string const&);
-	  bool     isValidSlotNumber( std::string const&);
+	  //uint16_t parseAMCEnableList(std::string const&);
+	  //bool     isValidSlotNumber( std::string const&);
           void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
           uint16_t m_amcEnableMask;
 
@@ -83,11 +92,9 @@ namespace gem {
             xdata::UnsignedInteger32 ipBusPort;
 
             //registers to set
-            xdata::Integer triggerSource;
             xdata::Integer sbitSource;
 
             inline std::string toString() {
-              // write obj to stream
               std::stringstream os;
               os << "present:" << present.toString() << std::endl
                  << "crateID:" << crateID.toString() << std::endl
@@ -99,22 +106,21 @@ namespace gem {
                  << "addressTable:"      << addressTable.toString()      << std::endl
                  << "controlHubPort:"    << controlHubPort.value_        << std::endl
                  << "ipBusPort:"         << ipBusPort.value_             << std::endl
-                 << "triggerSource:0x"   << std::hex << triggerSource.value_ << std::dec << std::endl
                  << "sbitSource:0x"      << std::hex << sbitSource.value_    << std::dec << std::endl
                  << std::endl;
               return os.str();
             };
           };
 
-          mutable gem::utils::Lock m_deviceLock;//[MAX_AMCS_PER_CRATE];
+          mutable gem::utils::Lock m_deviceLock;  // [MAX_AMCS_PER_CRATE];
 
-          glib_shared_ptr              m_glibs[MAX_AMCS_PER_CRATE];
-          std::shared_ptr<GLIBMonitor> m_glibMonitors[MAX_AMCS_PER_CRATE];
-          //xdata::InfoSpace*            is_glibs[MAX_AMCS_PER_CRATE];
-          is_toolbox_ptr               is_glibs[MAX_AMCS_PER_CRATE];
-          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;//[MAX_AMCS_PER_CRATE];
-          xdata::String        m_amcSlots;
-          xdata::String        m_connectionFile;
+          std::array<glib_shared_ptr, MAX_AMCS_PER_CRATE>              m_glibs;
+          std::array<std::shared_ptr<GLIBMonitor>, MAX_AMCS_PER_CRATE> m_glibMonitors;
+          std::array<is_toolbox_ptr, MAX_AMCS_PER_CRATE>               is_glibs;
+
+          xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
+          xdata::String                        m_amcSlots;
+          xdata::String                        m_connectionFile;
         };  // class GLIBManager
 
     }  // namespace gem::hw::glib
