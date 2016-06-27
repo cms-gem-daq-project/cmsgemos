@@ -13,7 +13,7 @@ namespace gem {
       static const toolbox::fsm::State STATE_CONFIGURED  = 'C';  ///< Configured state
       static const toolbox::fsm::State STATE_RUNNING     = 'E';  ///< Running (enabled, active) state
       static const toolbox::fsm::State STATE_PAUSED      = 'P';  ///< Paused state
-      static const toolbox::fsm::State STATE_FAILED      = 'F';  ///< Failed state
+      static const toolbox::fsm::State STATE_FAILED      = 'F';  ///< Failed/Error state
 
       // transitional states, TCDS way seems more elegant than HCAL, but both use a similar idea
       static const toolbox::fsm::State STATE_INITIALIZING = 'i';  ///< Initializing transitional state

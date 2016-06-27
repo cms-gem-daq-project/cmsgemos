@@ -56,7 +56,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  std::make_pair("SBit_Mask",   "CONTROL.SBIT_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitsOut",    "CONTROL.OUTPUT.SBits"),
+                 std::make_pair("SBitsOut",    "CONTROL.OUTPUT.SBITS"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("Status and Control", "HWMonitoring",
+                 std::make_pair("SBitOutMode","CONTROL.OUTPUT.HDMI_SBIT_MODE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("TrgThrottle", "CONTROL.THROTTLE"),
@@ -188,7 +191,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   addMonitorableSet("Firmware Scan Controller", "HWMonitoring");
   std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
                                                               std::make_pair("DAC","DAC")}};
-  std::array<std::string, 9> scanregs = {{"START","MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
+  std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
     // addMonitorableSet(scan->first+"Scan", "HWMonitoring");
     for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
@@ -663,7 +666,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
 
   std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
                                                               std::make_pair("DAC","DAC")}};
-  std::array<std::string, 9> scanregs = {{"START","MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
+  std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
