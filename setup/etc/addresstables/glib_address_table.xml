@@ -75,7 +75,7 @@
       </node>
     </node>
 
-    <node id="TEST">
+    <node id="TEST"  address="0x40000000">
       <node id="RXPOLARITY"  address="0x00900000"
 	    description="is the GLIB accessible"/>
       <node id="TXPOLARITY"  address="0x00900001"
@@ -85,8 +85,6 @@
       <node id="DAQ"  address="0x00000000"
 	    description="is the GLIB accessible"/>
       <node id="TTC"  address="0x00300001"
-	    description="is the GLIB accessible"/>
-      <node id="OPTOHYBRID"  address="0x00400100"
 	    description="is the GLIB accessible"/>
       <node id="OPTOHYBRID"  address="0x00400100"
 	    description="is the GLIB accessible"/>
