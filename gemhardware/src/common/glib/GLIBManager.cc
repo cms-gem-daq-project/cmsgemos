@@ -185,7 +185,6 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (!info.present)
       continue;
 
-    DEBUG("GLIBManager::info:" << info.toString());
     DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
 
     // create the cfgInfoSpace object (qualified vs non?)
@@ -279,7 +278,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
       DEBUG("GLIBManager::connected a card in slot " << (slot+1));
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
@@ -323,7 +323,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       // setup DAQ mode?
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "configureAction failed");
       // maybe raise exception so as to not continue with other cards?
     }
   }
@@ -353,7 +354,8 @@ void gem::hw::glib::GLIBManager::startAction()
       usleep(100); // just for testing the timing of different applications
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "startAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
