@@ -39,6 +39,7 @@ void gem::hw::glib::GLIBManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out
   throw (xgi::exception::Exception)
 {
   DEBUG("GLIBManagerWeb::monitorPage");
+
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "      <div class=\"xdaq-tab\" title=\"DAQ Link Monitoring\" >"  << std::endl;
   // all monitored GLIBs in one page, or separate tabs?
@@ -47,7 +48,6 @@ void gem::hw::glib::GLIBManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out
    */
   buildCardSummaryTable(in, out);
   *out << "      </div>" << std::endl;
-
   *out << "    </div>" << std::endl;
 }
 
