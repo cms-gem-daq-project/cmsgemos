@@ -257,7 +257,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
         m_glibMonitors.at(slot)->startMonitoring();
       } else {
         ERROR("GLIBManager:: unable to communicate with GLIB in slot " << (slot+1));
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+        XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "initializeAction failed");
       }
     } catch (uhalException const& ex) {
       ERROR("GLIBManager::caught uHAL exception " << ex.what());
@@ -289,7 +289,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "initializeAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
@@ -355,7 +355,7 @@ void gem::hw::glib::GLIBManager::configureAction()
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "configureAction failed");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "configureAction failed");
       // maybe raise exception so as to not continue with other cards?
     }
   }
@@ -395,7 +395,7 @@ void gem::hw::glib::GLIBManager::startAction()
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "startAction failed");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "startAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
