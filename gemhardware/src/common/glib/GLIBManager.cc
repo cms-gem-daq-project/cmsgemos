@@ -276,6 +276,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
     // p_gemWebInterface->glibInSlot(slot);
+    // FOR MISHA
+    // hardware should be connected, can update ldqm_db for teststand/local runs
   }
 
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {

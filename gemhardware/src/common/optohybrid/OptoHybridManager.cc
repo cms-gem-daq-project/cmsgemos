@@ -341,6 +341,8 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         //maybe raise exception so as to not continue with other cards? let's just return for the moment
         return;
       }
+      // FOR MISHA
+      // hardware should be connected, can update ldqm_db for teststand/local runs
     }
   }
   DEBUG("OptoHybridManager::initializeAction end");
