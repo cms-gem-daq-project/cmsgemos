@@ -74,6 +74,8 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("MonitorBackPressure", &monBackPressure);
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
 
+  bag->addField("EnableLEMO",      &enableLEMO );
+
   bag->addField("LocalTriggerConfig",  &localTriggerConfig );
 
   bag->addField("PrescaleFactor", &prescaleFactor);
@@ -146,6 +148,8 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_enableFakeData     = m_amc13Params.bag.enableFakeData.value_;
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
+
+  m_enableLEMO         = m_amc13Params.bag.enableLEMO.value_;
 
   m_enableLocalL1A         = m_localTriggerConfig.bag.enableLocalL1A.value_;
   m_internalPeriodicPeriod = m_localTriggerConfig.bag.internalPeriodicPeriod.value_;
@@ -240,6 +244,27 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
+
+  if (m_enableLEMO)
+    {
+      try {
+	gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
+	DEBUG("Trying to create connection, for amc13 simple, to " << m_cardName << " in " << connection);
+	p_amc13simple = new ::amc13::AMC13Simple(connection, cardname+".T1", cardname+".T2");
+      } catch (uhal::exception::exception & e) {
+	ERROR("AMC13Manager::AMC13::AMC13Simple() failed, caught uhal::exception:" <<  e.what() );
+	XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+      } catch (std::exception& e) {
+	ERROR("AMC13Manager::AMC13::AMC13Simple() failed, caught std::exception:" << e.what() );
+	XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+      } catch (...) {
+	ERROR("AMC13Manager::AMC13::AMC13Simple() failed, caught ...");
+	XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
+      }
+
+      p_amc13simple->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+      
+    }
 
   //equivalent to hcal init part
   if (p_amc13==0)
