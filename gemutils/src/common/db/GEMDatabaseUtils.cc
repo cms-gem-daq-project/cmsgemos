@@ -84,8 +84,8 @@ void gem::utils::db::GEMDatabaseUtils::configure()
 {
   Py_Initialize();
   PyObject *amclist, *gtxlist;
-  amclist = Py_BuildValue("[iii]", 1, 2, 3);//make a list of amc slot numbers
-  gtxlist = Py_BuildValue("[sss]", "01","10","11"); // make a list of gtx masks as strings
+  amclist = Py_BuildValue("[iiiiiiiiiiii]", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);//make a list of amc slot numbers
+  gtxlist = Py_BuildValue("[ssssssssssss]", "11","11","11", "11","11","11", "11","11","11", "11","11","11"); // make a list of gtx masks as strings
   PyObject *pName, *pModule, *pFunc, *pArgs;
   pName = PyUnicode_FromString("query");
   pModule = PyImport_Import(pName);

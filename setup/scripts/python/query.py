@@ -10,7 +10,10 @@ def configure_db(amc_list, geb_list):
     for amcN, gtx_list in zlist:
       print "Trying to connect to AMC # %s\n" %(amcN)
       m_AMCmanager = AMCmanager()
-      m_AMCmanager.connect(int(amcN))
+      try:
+        m_AMCmanager.connect(int(amcN))
+      except ValueError as ve:
+        continue
       # retrieve VFAT slot numberd and ChipIDs from HW
       for gtx in gtx_list:
         chipids = m_AMCmanager.getVFATs(gtx)
@@ -77,7 +80,3 @@ def configure_db(amc_list, geb_list):
     newrun.save()
     for a in a_list:
       newrun.amcs.add(a)
- 
-a_l = (1,)
-b_l=((0,1),)
-configure_db(a_l,b_l)
