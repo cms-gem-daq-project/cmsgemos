@@ -11,6 +11,7 @@
 namespace amc13 {
   class AMC13;
   class Status;
+  class AMC13Simple;
 }
 
 namespace gem {
@@ -119,6 +120,8 @@ namespace gem {
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
 
+	    xdata::Boolean enableLEMO;
+
 	    xdata::Bag<L1AInfo> localTriggerConfig;
 
 	    // can configure up to 4 BGO channels
@@ -138,6 +141,7 @@ namespace gem {
           mutable gem::utils::Lock m_amc13Lock;
 
           ::amc13::AMC13 *p_amc13;
+	  ::amc13::AMC13Simple *p_amc13simple;
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
@@ -151,7 +155,7 @@ namespace gem {
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,
-	    m_bgoRepeat, m_bgoIsLong;
+	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
 	  uint8_t m_bgoCMD;
