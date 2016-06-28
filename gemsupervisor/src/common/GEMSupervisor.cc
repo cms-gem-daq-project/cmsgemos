@@ -377,6 +377,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     |   4 | run000001_bench_TAMU_2015-12-15  | bench | 000001 | 2015-12-16 | 2015T  | TAMU    |      1 |     NULL |
   */
   
+  // hacky time for teststand/local runs, before connection through RCMS to RunInfoDB is established
   if (p_gemDBHelper->connect("ldqm_db")) {
     // get these from or send them to the readout application
     std::string    setup = "teststand";

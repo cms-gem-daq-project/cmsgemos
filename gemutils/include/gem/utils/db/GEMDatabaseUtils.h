@@ -36,7 +36,7 @@ namespace gem {
 
       private:
         log4cplus::Logger m_gemLogger;
-        
+
         //std::shared_ptr<MYSQL> p_db;
         MYSQL *p_db;
 
