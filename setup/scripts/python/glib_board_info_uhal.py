@@ -94,12 +94,13 @@ print "--=======================================--"
 print "-> TEST INFORMATION"
 print "--=======================================--"
 print
-print "0x%x"%(readRegister(glib,"GLIB.TEST.RXPOLARITY"))
-print "0x%x"%(readRegister(glib,"GLIB.TEST.TXPOLARITY"))
-print "0x%x"%(readRegister(glib,"GLIB.TEST.BOARD_ID"))
-print "0x%x"%(readRegister(glib,"GLIB.TEST.DAQ"))
-print "0x%x"%(readRegister(glib,"GLIB.TEST.OPTOHYBRID"))
-print "0x%x"%(readRegister(glib,"GLIB.TEST.TTC"))
+print "0x%08x"%(readRegister(glib,"GLIB.TEST.RXPOLARITY"))
+print "0x%08x"%(readRegister(glib,"GLIB.TEST.TXPOLARITY"))
+print "0x%08x"%(readRegister(glib,"GLIB.TEST.BOARD_ID"))
+print "0x%08x"%(readRegister(glib,"GLIB.TEST.DAQ"))
+print "0x%08x"%(readRegister(glib,"GLIB.TEST.DAV_TIMEOUT"))
+print "0x%08x"%(readRegister(glib,"GLIB.TEST.TTC"))
+print "0x%08x"%(readRegister(glib,"GLIB.TEST.OPTOHYBRID"))
 print
 print "--=======================================--"
 print "-> DAQ INFORMATION"
