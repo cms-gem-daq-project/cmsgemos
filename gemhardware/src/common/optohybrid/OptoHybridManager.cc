@@ -354,6 +354,8 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         //fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
+      // FOR MISHA
+      // hardware should be connected, can update ldqm_db for teststand/local runs
     }
   }
   DEBUG("OptoHybridManager::initializeAction end");
