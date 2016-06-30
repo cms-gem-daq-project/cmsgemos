@@ -38,7 +38,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   DEBUG("done");
   //p_gemMonitor      = new gem generic system monitor
 
-  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>("localhost",3306,"gemdaq","gemdaq");
+  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>("gem904daq01.cern.ch",3306,"gemdaq","gemdaq");
 
   v_supervisedApps.clear();
   // reset the GEMInfoSpaceToolBox object?
@@ -382,6 +382,33 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
 
   // hacky time for teststand/local runs, before connection through RCMS to RunInfoDB is established
   p_gemDBHelper->configure();
+
+  if (p_gemDBHelper->connect("ldqm_db")) {
+    // get these from or send them to the readout application
+    std::string    setup = "teststand";
+    std::string   period = "2016T";
+    std::string location = "TIF";
+
+    std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
+    lastRunNumberQuery += location;
+    lastRunNumberQuery += "' ORDER BY id DESC LIMIT 1;";
+    WARN("GEMSupervisor::updateRunNumber, current run number is: " << m_runNumber.toString());
+    try {
+      m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
+    } catch (gem::utils::exception::DBEmptyQueryResult& e) {
+      WARN("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
+      // m_runNumber.value_ = 0;
+    } catch (xcept::Exception& e) {
+      ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+    } catch (std::exception& e) {
+      ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+    }
+
+    INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
+    //parse and increment by 1, if it is a new station, start at 1
+    //m_runNumber.value_ += 1;
+    WARN("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
+  }
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)

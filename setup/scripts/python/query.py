@@ -3,6 +3,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "db.settings")
 import django
 django.setup()
 import datetime
+from time import sleep
 from ldqm_db.models import *
 from ldqm_db.amcmanager import *
 
@@ -36,7 +37,7 @@ def configure_db():
               v.save()
             v_list.append(VFAT.objects.get(ChipID = t_chipid, Slot = chip))
           #t_chamberID = 'OHv2aM'#hard code now, read from HW later when available
-          t_chamberID = 'GTX0'+str(gtx) #use gtx link number now, read from HW later when available
+          t_chamberID = 'GTX-'+str(gtx) #use gtx link number now, read from HW later when available
           print "t_chamberID = %s" %(t_chamberID)
           gebs = GEB.objects.filter(ChamberID=t_chamberID)
           t_flag = False
@@ -56,7 +57,7 @@ def configure_db():
               g_list.append(g)
     
       t_flag = False
-      t_boardID = "AMC0"+str(amcN)#hard code now, read from HW later when available
+      t_boardID = "AMC-"+str(amcN)#hard code now, read from HW later when available
       a_list = []
       amcs = AMC.objects.filter(BoardID = t_boardID)
       for amc in amcs:
@@ -87,3 +88,4 @@ def configure_db():
     newrun.save()
     for a in a_list:
       newrun.amcs.add(a)
+    sleep(2)
