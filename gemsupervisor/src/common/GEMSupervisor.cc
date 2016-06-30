@@ -8,10 +8,13 @@
 
 #include "gem/supervisor/GEMSupervisor.h"
 
+#include <iomanip>
+
 #include "gem/supervisor/GEMSupervisorWeb.h"
 #include "gem/supervisor/GEMSupervisorMonitor.h"
 
 #include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
@@ -34,6 +37,8 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   p_gemWebInterface = new gem::supervisor::GEMSupervisorWeb(this);
   DEBUG("done");
   //p_gemMonitor      = new gem generic system monitor
+
+  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>("localhost",3306,"gemdaq","gemdaq");
 
   v_supervisedApps.clear();
   // reset the GEMInfoSpaceToolBox object?
@@ -365,11 +370,18 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     + "ORDER BY runnumbertbl.runnumber DESC "
     + limit;
   */
-  m_runNumber = 10472;
 
-  // book the next run number
-  std::string sqlInsert = "INSERT INTO runnumbertbl (USERNAME,SEQUENCENAME,SEQUENCENUMBER) VALUES (?,?,?)";
+  // // book the next run number
+  // std::string sqlInsert = "INSERT INTO runnumbertbl (USERNAME,SEQUENCENAME,SEQUENCENUMBER) VALUES (?,?,?)";
 
+  /*ldqm_db example
+    | id  | Name                             | Type  | Number | Date       | Period | Station | Status | State_id |
+    +-----+----------------------------------+-------+--------+------------+--------+---------+--------+----------+
+    |   4 | run000001_bench_TAMU_2015-12-15  | bench | 000001 | 2015-12-16 | 2015T  | TAMU    |      1 |     NULL |
+  */
+
+  // hacky time for teststand/local runs, before connection through RCMS to RunInfoDB is established
+  p_gemDBHelper->configure();
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)

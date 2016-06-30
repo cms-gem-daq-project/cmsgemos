@@ -1,3 +1,5 @@
+/** @file Exception.h */
+
 #ifndef GEM_UTILS_EXCEPTION_EXCEPTION_H
 #define GEM_UTILS_EXCEPTION_EXCEPTION_H
 
@@ -64,6 +66,8 @@ GEM_UTILS_DEFINE_EXCEPTION(ConfigurationParseProblem)
 GEM_UTILS_DEFINE_EXCEPTION(SOAPException)
 GEM_UTILS_DEFINE_EXCEPTION(ConfigurationProblem)
 GEM_UTILS_DEFINE_EXCEPTION(ConfigurationValidationProblem)
+
+GEM_UTILS_DEFINE_EXCEPTION(DBEmptyQueryResult)
 
 GEM_UTILS_DEFINE_EXCEPTION(HardwareProblem)
 
