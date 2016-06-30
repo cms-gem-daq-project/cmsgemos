@@ -1,3 +1,5 @@
+/** @file AMC13Manager.h */
+
 #ifndef GEM_HW_AMC13_AMC13MANAGER_H
 #define GEM_HW_AMC13_AMC13MANAGER_H
 
