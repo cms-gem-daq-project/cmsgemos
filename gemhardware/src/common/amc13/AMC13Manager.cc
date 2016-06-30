@@ -47,6 +47,7 @@ gem::hw::amc13::AMC13Manager::L1AInfo::L1AInfo()
   l1Aburst               = 1;
   sendl1ATriburst        = false;
   sendl1ATriburst        = false;
+  enableLEMO             = false;
 }
 
 void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *l1Abag)
@@ -58,6 +59,7 @@ void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *
   l1Abag->addField("L1Aburst",               &l1Aburst );
   l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );
   l1Abag->addField("startL1ATricont",        &startl1ATricont );
+  l1Abag->addField("EnableLEMO",             &enableLEMO );
 }
 
 void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Info> *bag)
@@ -73,8 +75,6 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("EnableFakeData",      &enableFakeData );
   bag->addField("MonitorBackPressure", &monBackPressure);
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
-
-  bag->addField("EnableLEMO",      &enableLEMO );
 
   bag->addField("LocalTriggerConfig",  &localTriggerConfig );
 
@@ -149,8 +149,6 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
 
-  m_enableLEMO         = m_amc13Params.bag.enableLEMO.value_;
-
   m_enableLocalL1A         = m_localTriggerConfig.bag.enableLocalL1A.value_;
   m_internalPeriodicPeriod = m_localTriggerConfig.bag.internalPeriodicPeriod.value_;
   m_L1Amode                = m_localTriggerConfig.bag.l1Amode.value_;
@@ -158,6 +156,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_L1Aburst               = m_localTriggerConfig.bag.l1Aburst.value_;
   m_sendL1ATriburst        = m_localTriggerConfig.bag.sendl1ATriburst.value_;
   m_startL1ATricont        = m_localTriggerConfig.bag.startl1ATricont.value_;
+  m_enableLEMO             = m_localTriggerConfig.bag.enableLEMO.value_;
 
   DEBUG("AMC13Manager::actionPerformed BGO channels "
         << m_amc13Params.bag.bgoConfig.size());
@@ -247,23 +246,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
   if (m_enableLEMO)
     {
-      try {
-	gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-	DEBUG("Trying to create connection, for amc13 simple, to " << m_cardName << " in " << connection);
-	p_amc13simple = new ::amc13::AMC13Simple(connection, cardname+".T1", cardname+".T2");
-      } catch (uhal::exception::exception & e) {
-	ERROR("AMC13Manager::AMC13::AMC13Simple() failed, caught uhal::exception:" <<  e.what() );
-	XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
-      } catch (std::exception& e) {
-	ERROR("AMC13Manager::AMC13::AMC13Simple() failed, caught std::exception:" << e.what() );
-	XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
-      } catch (...) {
-	ERROR("AMC13Manager::AMC13::AMC13Simple() failed, caught ...");
-	XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
-      }
-
-      p_amc13simple->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-      
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
     }
 
   //equivalent to hcal init part

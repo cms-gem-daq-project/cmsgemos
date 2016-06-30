@@ -101,6 +101,7 @@ namespace gem {
 	    xdata::UnsignedInteger32 l1Aburst;
 	    xdata::Boolean           sendl1ATriburst;
 	    xdata::Boolean           startl1ATricont;
+	    xdata::Boolean           enableLEMO;
 
 	  };
 
@@ -119,8 +120,6 @@ namespace gem {
             xdata::Boolean enableFakeData;
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
-
-	    xdata::Boolean enableLEMO;
 
 	    xdata::Bag<L1AInfo> localTriggerConfig;
 
@@ -141,7 +140,6 @@ namespace gem {
           mutable gem::utils::Lock m_amc13Lock;
 
           ::amc13::AMC13 *p_amc13;
-	  ::amc13::AMC13Simple *p_amc13simple;
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
