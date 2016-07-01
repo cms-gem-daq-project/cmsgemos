@@ -36,7 +36,6 @@ UserCCFlags +=$(MySQLCFLAGS)
 LibraryDirs+=$(MySQLLIBS)
 LibraryDirs+=$(MySQLGLIBS)
 
-
 UserDynamicLinkFlags+=$(MySQLLIBS)
 
 include $(XDAQ_ROOT)/config/Makefile.rules

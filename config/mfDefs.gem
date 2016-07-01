@@ -41,9 +41,11 @@ UserStaticLinkFlags  =
 UserDynamicLinkFlags =
 
 IncludeDirs+=$(XDAQ_ROOT)/include
-IncludeDirs+=/usr/local/include/python2.7
 LibraryDirs+=$(XDAQ_ROOT)/lib
 DependentLibraryDirs+=$(XDAQ_ROOT)/lib
+
+IncludeDirs+=/usr/local/include/python2.7
+LibraryDirs+=/usr/local/lib
 DependentLibraryDirs+=/usr/local/lib
 
 DependentLibraries+=asyncresolv boost_system config log4cplus
