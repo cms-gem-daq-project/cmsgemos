@@ -1,3 +1,5 @@
+/** @file gemXMLparser.h */
+
 #ifndef GEM_UTILS_GEMXMLPARSER_H
 #define GEM_UTILS_GEMXMLPARSER_H
 
@@ -29,7 +31,7 @@ namespace gem {
   namespace utils {
     class gemXMLparser
     {
-      
+
     public:
       gemXMLparser(const std::string& xmlFile);
 
@@ -63,7 +65,7 @@ namespace gem {
       void parseVFAT2Settings(xercesc::DOMNode * pNode);
 
       /**
-       *   Access to gemSystemProperties. A bit unsafe due to non-const pointer  
+       *   Access to gemSystemProperties. A bit unsafe due to non-const pointer
        */
       gemSystemProperties* getGEMDevice() {return p_gemSystem;}
 

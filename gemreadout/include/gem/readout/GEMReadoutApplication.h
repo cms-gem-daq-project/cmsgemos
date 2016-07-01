@@ -1,3 +1,5 @@
+/** @file GEMReadoutApplication.h */
+
 #ifndef GEM_READOUT_GEMREADOUTAPPLICATION_H
 #define GEM_READOUT_GEMREADOUTAPPLICATION_H
 
@@ -98,9 +100,11 @@ namespace gem {
 
           //configuration parameters
           xdata::String runType;
+          xdata::String runPeriod;
           xdata::String fileName;
           xdata::String outputType;
           xdata::String outputLocation;
+          xdata::String setupLocation;
         };
 
         xdata::Bag<GEMReadoutSettings> m_readoutSettings;

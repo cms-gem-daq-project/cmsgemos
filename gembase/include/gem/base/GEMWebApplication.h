@@ -1,3 +1,5 @@
+/** @file GEMWebApplication.h */
+
 #ifndef GEM_BASE_GEMWEBAPPLICATION_H
 #define GEM_BASE_GEMWEBAPPLICATION_H
 
