@@ -1,3 +1,5 @@
+/** @file version.h */
+
 #ifndef GEM_UTILS_VERSION_H
 #define GEM_UTILS_VERSION_H
 

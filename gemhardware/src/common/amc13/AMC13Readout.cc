@@ -41,6 +41,8 @@ gem::hw::amc13::AMC13Readout::AMC13Readout(xdaq::ApplicationStub* stub)
         << " m_crateID:"        << m_crateID.toString()        << std::endl
         << " m_slot:"           << m_slot.toString()           << std::endl
         );
+  cnt = 0;
+  nwrote_global = 0;
   DEBUG("AMC13Readout ctor end");
 }
 
@@ -51,7 +53,7 @@ gem::hw::amc13::AMC13Readout::~AMC13Readout()
 void gem::hw::amc13::AMC13Readout::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("AMC13Readout::actionPerformed() setDefaultValues" << 
+    DEBUG("AMC13Readout::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
   }
 
@@ -92,7 +94,7 @@ void gem::hw::amc13::AMC13Readout::initializeAction()
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
   }
   DEBUG("AMC13Readout::initializeAction connected");
-  
+
   gem::readout::GEMReadoutApplication::initializeAction();
 }
 
@@ -165,7 +167,6 @@ int gem::hw::amc13::AMC13Readout::dumpData()
 
   //FILE *fp;
   //fp = fopen(m_outFileName.c_str(), "a");
-  std::ofstream outf(m_outFileName.c_str(), std::ios_base::app | std::ios::binary );
   int nwrote = 0;
 
   DEBUG("File for output open");
@@ -173,21 +174,31 @@ int gem::hw::amc13::AMC13Readout::dumpData()
     DEBUG("Get number of events in the buffer");
     int nevt = p_amc13->read( ::amc13::AMC13Simple::T1, "STATUS.MONITOR_BUFFER.UNREAD_BLOCKS");
     DEBUG("Trying to read " << std::dec << nevt << " events" << std::endl);
-    for (int i = 0; i < nevt; i++) {
-      if ( (i % 100) == 0)
-        DEBUG("calling readEvent " << std::dec << i << "..." << std::endl);
-      pEvt = p_amc13->readEvent(siz, rc);
-      
-      if (rc == 0 && siz > 0 && pEvt != NULL) {
-        //fwrite(pEvt, sizeof(uint64_t), siz, fp);
-        outf.write((char*)pEvt, siz*sizeof(uint64_t));
-        ++nwrote;
-      } else {
-        DEBUG("No more events" << std::endl);
-        break;
+    if (nevt) {
+      std::ofstream outf((m_outFileName.substr(0,m_outFileName.length()-4)+"_chunk_"+std::to_string(static_cast <long long> (cnt))+".dat").c_str(), std::ios_base::app | std::ios::binary );
+      for (int i = 0; i < nevt; i++) {
+        if ( (i % 100) == 0)
+          DEBUG("calling readEvent " << std::dec << i << "..." << std::endl);
+        pEvt = p_amc13->readEvent(siz, rc);
+
+        if (rc == 0 && siz > 0 && pEvt != NULL) {
+          //fwrite(pEvt, sizeof(uint64_t), siz, fp);
+          outf.write((char*)pEvt, siz*sizeof(uint64_t));
+          ++nwrote;
+          ++nwrote_global;
+        } else {
+          DEBUG("No more events" << std::endl);
+          break;
+        }
+        if (pEvt)
+          free(pEvt);
       }
-      if (pEvt)
-        free(pEvt);
+      outf.close();
+      m_duration = ( std::clock() - m_start ) / (double) CLOCKS_PER_SEC;
+      if ((nwrote_global/1000 > cnt) || ((cnt > 0) && (m_duration > 10))) {
+        cnt++;
+        m_start = std::clock();
+      }
     }
     if (nevt == 0) {
       DEBUG("Monitor buffer empty" << std::endl);
@@ -196,7 +207,6 @@ int gem::hw::amc13::AMC13Readout::dumpData()
   }
   DEBUG("Closing file" << std::endl);
   //fclose(fp);
-  outf.close();
   return nwrote;
 }
 
