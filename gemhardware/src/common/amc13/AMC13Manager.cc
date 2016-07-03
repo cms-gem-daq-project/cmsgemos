@@ -47,6 +47,7 @@ gem::hw::amc13::AMC13Manager::L1AInfo::L1AInfo()
   l1Aburst               = 1;
   sendl1ATriburst        = false;
   sendl1ATriburst        = false;
+  enableLEMO             = false;
 }
 
 void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *l1Abag)
@@ -58,6 +59,7 @@ void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *
   l1Abag->addField("L1Aburst",               &l1Aburst );
   l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );
   l1Abag->addField("startL1ATricont",        &startl1ATricont );
+  l1Abag->addField("EnableLEMO",             &enableLEMO );
 }
 
 void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Info> *bag)
@@ -154,6 +156,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_L1Aburst               = m_localTriggerConfig.bag.l1Aburst.value_;
   m_sendL1ATriburst        = m_localTriggerConfig.bag.sendl1ATriburst.value_;
   m_startL1ATricont        = m_localTriggerConfig.bag.startl1ATricont.value_;
+  m_enableLEMO             = m_localTriggerConfig.bag.enableLEMO.value_;
 
   DEBUG("AMC13Manager::actionPerformed BGO channels "
         << m_amc13Params.bag.bgoConfig.size());
@@ -240,6 +243,11 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
+
+  if (m_enableLEMO)
+    {
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+    }
 
   //equivalent to hcal init part
   if (p_amc13==0)
