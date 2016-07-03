@@ -46,7 +46,7 @@ BUILD_VERSION=1
 endif
 
 ifndef BUILD_COMPILER
-BUILD_COMPILER :=$(CC)$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
+BUILD_COMPILER :=$(shell $(CC) --version | grep GCC |sed -e 's/-.*//g')$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
 endif
 
 ifndef BUILD_DISTRIBUTION

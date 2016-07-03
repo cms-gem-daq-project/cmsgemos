@@ -1,3 +1,5 @@
+/** @file GEMSupervisorWeb.h */
+
 #ifndef GEM_SUPERVISOR_GEMSUPERVISORWEB_H
 #define GEM_SUPERVISOR_GEMSUPERVISORWEB_H
 
