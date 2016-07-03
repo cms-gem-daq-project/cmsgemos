@@ -13,7 +13,6 @@
 namespace amc13 {
   class AMC13;
   class Status;
-  class AMC13Simple;
 }
 
 namespace gem {
