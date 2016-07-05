@@ -49,17 +49,17 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
   b_is_connected = false;
   // what's the difference between connect, init, enable for VFAT?
   // check that register values are hardware default values, if not, something may be amiss
-  
+
   // set register values to sw default values
-  
+
   // hardware is enabled!
-  
+
   // set register values to desired values
-  
+
   // hardware is configured!
-  
+
   // set run bit
-  
+
   // hardware is running
   m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
 
@@ -76,7 +76,7 @@ gem::hw::vfat::HwVFAT2::~HwVFAT2()
 
 std::string gem::hw::vfat::HwVFAT2::printErrorCounts() const {
   std::stringstream errstream;
-  errstream << "VFAT errors while accessing registers:" << std::endl 
+  errstream << "VFAT errors while accessing registers:" << std::endl
             << "Error:      " << m_vfatErrors.Error      << std::endl
             << "Invalid:    " << m_vfatErrors.Invalid    << std::endl
             << "RWMismatch: " << m_vfatErrors.RWMismatch << std::endl
@@ -92,29 +92,29 @@ void gem::hw::vfat::HwVFAT2::loadDefaults()
   setCalibrationMode(0x0);  // set to normal
   setMSPolarity(     0x1);  // negative
   setCalPolarity(    0x1);  // negative
-  
+
   setProbeMode(        0x0);
   setLVDSMode(         0x0);
   setDACMode(          0x0);
   setHitCountCycleTime(0x0);  // maximum number of bits
-  
+
   setHitCountMode( 0x0);
   setMSPulseLength(0x3);
   setInputPadMode( 0x0);
   setTrimDACRange( 0x0);
   setBandgapPad(   0x0);
   sendTestPattern( 0x0);
-  
-  
+
+
   setIPreampIn(  168);
   setIPreampFeed( 80);
   setIPreampOut( 150);
   setIShaper(    150);
   setIShaperFeed(100);
   setIComp(       75);
-  
+
   setLatency(9);
-  
+
   setVThreshold1(60);
   setVThreshold2(0);
 }
@@ -124,9 +124,9 @@ void gem::hw::vfat::HwVFAT2::printDefaults(std::ofstream& SetupFile)
   // here print the default settings
   SetupFile << std::hex << std::endl;
   SetupFile << " TriggerMode        0x" << static_cast<int>(getTriggerMode())       << std::endl;
-  SetupFile << " CalibrationMode    0x" << static_cast<int>(getCalibrationMode())   << std::endl; 
-  SetupFile << " MSPolarity         0x" << static_cast<int>(getMSPolarity())        << std::endl; 
-  SetupFile << " CalPolarity        0x" << static_cast<int>(getCalPolarity())       << std::endl; 
+  SetupFile << " CalibrationMode    0x" << static_cast<int>(getCalibrationMode())   << std::endl;
+  SetupFile << " MSPolarity         0x" << static_cast<int>(getMSPolarity())        << std::endl;
+  SetupFile << " CalPolarity        0x" << static_cast<int>(getCalPolarity())       << std::endl;
   SetupFile << " ProbeMode          0x" << static_cast<int>(getProbeMode())         << std::endl;
   SetupFile << " LVDSMode           0x" << static_cast<int>(getLVDSMode())          << std::endl;
   SetupFile << " DACMode            0x" << static_cast<int>(getDACMode())           << std::endl;
@@ -152,36 +152,36 @@ void gem::hw::vfat::HwVFAT2::printDefaults(std::ofstream& SetupFile)
 // {
 //   //here load the xml file settings onto the chip
 // }
-// 
+//
 // void gem::hw::vfat::HwVFAT2::configureDevice()
 // {
 //   //determine the manner in which to configure the device (XML or DB parameters)
 // }
 
-bool gem::hw::vfat::HwVFAT2::isHwConnected() 
+bool gem::hw::vfat::HwVFAT2::isHwConnected()
 {
   if ( b_is_connected )
     return true;
-  
+
   else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection" << std::endl);
     try {
       uint32_t chipTest = readVFATReg("ChipID0", true);
       INFO("read chipID0 0x" << std::hex << chipTest << std::dec << std::endl);
       b_is_connected = true;
-      
-      return true;      
+
+      return true;
     } catch (gem::hw::vfat::exception::TransactionError const& e) {
       b_is_connected = false;
-      return false;      
+      return false;
     } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
       b_is_connected = false;
-      return false;      
+      return false;
     } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
       b_is_connected = false;
-      return false;      
+      return false;
     }
-    
+
   } else {
     b_is_connected = false;
     return false;
@@ -233,18 +233,18 @@ uint8_t gem::hw::vfat::HwVFAT2::readVFATReg(std::string const& regName)
   try {
     return readVFATReg(regName, false);
   } catch (gem::hw::vfat::exception::TransactionError const& e) {
-    return 0xff;      
+    return 0xff;
   } catch (gem::hw::vfat::exception::InvalidTransaction const& e) {
-    return 0xff;      
+    return 0xff;
   } catch (gem::hw::vfat::exception::WrongTransaction const& e) {
-    return 0xff;      
+    return 0xff;
   }
 }
 
 void gem::hw::vfat::HwVFAT2::readVFATRegs(vfat_reg_pair_list &regList)
 {
   register_pair_list fullRegList;
-  for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) 
+  for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
     fullRegList.push_back(std::make_pair(getDeviceBaseNode()+"."+curReg->first,
                                          static_cast<uint32_t>(curReg->second)));
   readRegs(fullRegList);
@@ -299,32 +299,32 @@ void gem::hw::vfat::HwVFAT2::setAllSettings(const gem::hw::vfat::VFAT2ControlPar
 {
   // want to lock the hardware while performing this operation
   // when sending all these requests, might it be better to do a single transaction?
-  
+
   // check that the hardware is alive
   // check that the settings are non-empty?
   uint8_t cont0 = 0x0;
   uint8_t cont1 = 0x0;
   uint8_t cont2 = 0x0;
   uint8_t cont3 = 0x0;
-  
+
   setRunMode(        params.runMode   , cont0);
   setTriggerMode(    params.trigMode  , cont0);
   setMSPolarity(     params.msPol     , cont0);
   setCalPolarity(    params.calPol    , cont0);
   setCalibrationMode(params.calibMode , cont0);
   writeVFATReg("ContReg0", cont0);
-  
+
   setDACMode(          params.dacMode  , cont1);
   setProbeMode(        params.probeMode, cont1);
   setLVDSMode(         params.lvdsMode , cont1);
   setHitCountCycleTime(params.reHitCT  , cont1);
   writeVFATReg("ContReg1", cont1);
-  
+
   setHitCountMode( params.hitCountMode, cont2);
   setMSPulseLength(params.msPulseLen  , cont2);
   setInputPadMode( params.digInSel    , cont2);
   writeVFATReg("ContReg2", cont2);
-  
+
   setTrimDACRange(   params.trimDACRange   , cont3);
   setBandgapPad(     params.padBandGap     , cont3);
   sendTestPattern   (params.sendTestPattern, cont3);
@@ -336,7 +336,7 @@ void gem::hw::vfat::HwVFAT2::setAllSettings(const gem::hw::vfat::VFAT2ControlPar
   setIShaper(    params.iShaper    );
   setIShaperFeed(params.iShaperFeed);
   setIComp(      params.iComp      );
-  
+
   setVCal(       params.vCal    );
   setVThreshold1(params.vThresh1);
   setVThreshold2(params.vThresh2);
@@ -374,27 +374,27 @@ void gem::hw::vfat::HwVFAT2::getAllSettings()
     uint8_t cont1 = readVFATReg("ContReg1");
     uint8_t cont2 = readVFATReg("ContReg2");
     uint8_t cont3 = readVFATReg("ContReg3");
-  
+
     m_vfatParams.control0 = static_cast<unsigned>(cont0);
     m_vfatParams.control1 = static_cast<unsigned>(cont1);
     m_vfatParams.control2 = static_cast<unsigned>(cont2);
     m_vfatParams.control3 = static_cast<unsigned>(cont3);
-    
+
     m_vfatParams.runMode   = static_cast<VFAT2RunMode  >(getRunMode(        cont0));
     m_vfatParams.trigMode  = static_cast<VFAT2TrigMode >(getTriggerMode(    cont0));
     m_vfatParams.msPol     = static_cast<VFAT2MSPol    >(getMSPolarity(     cont0));
     m_vfatParams.calPol    = static_cast<VFAT2CalPol   >(getCalPolarity(    cont0));
     m_vfatParams.calibMode = static_cast<VFAT2CalibMode>(getCalibrationMode(cont0));
-    
+
     m_vfatParams.dacMode   = static_cast<VFAT2DACMode  >(getDACMode(          cont1));
     m_vfatParams.probeMode = static_cast<VFAT2ProbeMode>(getProbeMode(        cont1));
     m_vfatParams.lvdsMode  = static_cast<VFAT2LVDSMode >(getLVDSMode(         cont1));
     m_vfatParams.reHitCT   = static_cast<VFAT2ReHitCT  >(getHitCountCycleTime(cont1));
-    
+
     m_vfatParams.hitCountMode = static_cast<VFAT2HitCountMode >(getHitCountMode( cont2));
     m_vfatParams.msPulseLen   = static_cast<VFAT2MSPulseLength>(getMSPulseLength(cont2));
     m_vfatParams.digInSel     = static_cast<VFAT2DigInSel     >(getInputPadMode( cont2));
-    
+
     m_vfatParams.trimDACRange    = static_cast<VFAT2TrimDACRange >(getTrimDACRange(   cont3));
     m_vfatParams.padBandGap      = static_cast<VFAT2PadBandgap   >(getBandgapPad(     cont3));
     m_vfatParams.sendTestPattern = static_cast<VFAT2DFTestPattern>(getTestPatternMode(cont3));
@@ -408,14 +408,14 @@ void gem::hw::vfat::HwVFAT2::getAllSettings()
 
   try {
     m_vfatParams.latency = getLatency();
-    
+
     m_vfatParams.iPreampIn   = getIPreampIn();
     m_vfatParams.iPreampFeed = getIPreampFeed();
     m_vfatParams.iPreampOut  = getIPreampOut();
     m_vfatParams.iShaper     = getIShaper();
     m_vfatParams.iShaperFeed = getIShaperFeed();
     m_vfatParams.iComp       = getIComp();
-    
+
     m_vfatParams.vCal     = getVCal();
     m_vfatParams.vThresh1 = getVThreshold1();
     m_vfatParams.vThresh2 = getVThreshold2();
@@ -467,15 +467,15 @@ void gem::hw::vfat::HwVFAT2::enableCalPulseToChannel(uint8_t channel, bool on)
     // XCEPT_RAISE(gem::hw::vfat::exception::NonexistentChannel, msg);
     return;
   }
-  
+
   std::string registerName = "VFATChannels.ChanReg1";
   if (channel > 1)
     registerName = toolbox::toString("VFATChannels.ChanReg%d", (unsigned)channel);
-  
+
   try {
     uint8_t channelSettings = readVFATReg(registerName);
-    
-    if (channel == 0) 
+
+    if (channel == 0)
       writeVFATReg(registerName, (channelSettings&~VFAT2ChannelBitMasks::CHANCAL0)|(on ? 0x80 : 0x0));
     else
       writeVFATReg(registerName, (channelSettings&~VFAT2ChannelBitMasks::CHANCAL)|(on ? 0x40 : 0x0));

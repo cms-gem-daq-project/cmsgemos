@@ -1,3 +1,5 @@
+/** @file version.h */
+
 #ifndef GEM_UTILS_VERSION_H
 #define GEM_UTILS_VERSION_H
 
@@ -19,14 +21,14 @@ namespace gemutils {
 #else
 #define GEMUTILS_FULL_VERSION_LIST  GEMUTILS_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMUTILS_VERSION_MAJOR, GEMUTILS_VERSION_MINOR, GEMUTILS_VERSION_PATCH)
 #endif
-    
+
   const std::string package     = "gemutils";
   const std::string versions    = GEMUTILS_FULL_VERSION_LIST;
   const std::string summary     = "Utilities for GEM online software";
   const std::string description = "";
   const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "";
-    
+  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);
   std::set<std::string,std::less<std::string> > getPackageDependencies();

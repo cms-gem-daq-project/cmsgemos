@@ -87,6 +87,7 @@
             <slot    xsi:type="xsd:integer">11</slot>
             <present xsi:type="xsd:boolean">true</present>
             
+	    <CardName          xsi:type="xsd:string"></CardName>
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
             <DeviceIPAddress   xsi:type="xsd:string">192.168.0.171</DeviceIPAddress>
             <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
