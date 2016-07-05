@@ -102,6 +102,7 @@ namespace gem {
 	    xdata::UnsignedInteger32 l1Aburst;
 	    xdata::Boolean           sendl1ATriburst;
 	    xdata::Boolean           startl1ATricont;
+	    xdata::Boolean           enableLEMO;
 
 	  };
 
@@ -153,7 +154,7 @@ namespace gem {
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,
-	    m_bgoRepeat, m_bgoIsLong;
+	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
 	  uint8_t m_bgoCMD;
