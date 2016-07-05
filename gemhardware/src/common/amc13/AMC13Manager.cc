@@ -538,7 +538,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
   }
-    
+
   if (m_enableLocalL1A && m_startL1ATricont) {
     p_amc13->startContinuousL1A();
   }
