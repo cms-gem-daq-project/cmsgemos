@@ -1,3 +1,5 @@
+/** @file GEMWebApplication.h */
+
 #ifndef GEM_BASE_GEMWEBAPPLICATION_H
 #define GEM_BASE_GEMWEBAPPLICATION_H
 
@@ -58,6 +60,9 @@ namespace gem {
 
       virtual void expertPage(xgi::Input* in, xgi::Output* out)
         throw (xgi::exception::Exception);
+
+      virtual void applicationPage(xgi::Input* in, xgi::Output* out)
+        throw (xgi::exception::Exception)=0;
 
       virtual void jsonStateUpdate(xgi::Input* in, xgi::Output* out)
         throw (xgi::exception::Exception);

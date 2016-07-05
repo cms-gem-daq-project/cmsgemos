@@ -1,3 +1,5 @@
+/** @file AMC.h */
+
 #ifndef GEM_READOUT_AMC_H
 #define GEM_READOUT_AMC_H
 

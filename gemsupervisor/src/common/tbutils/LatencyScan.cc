@@ -700,8 +700,8 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
         (*chip)->enableCalPulseToChannel(chan, false);
 
     (*chip)->setIPreampIn(  168);
-    (*chip)->setIPreampFeed(150);
-    (*chip)->setIPreampOut(  80);
+    (*chip)->setIPreampFeed( 80);
+    (*chip)->setIPreampOut( 150);
     (*chip)->setIShaper(    150);
     (*chip)->setIShaperFeed(100);
     (*chip)->setIComp(       75);
@@ -776,6 +776,7 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
 
   // enableTriggers();
   sleep(1);
+  glibDevice_->enableDAQLink(0x1<<(confParams_.bag.ohGTXLink.value_));
 
   //AppHeader ah;
   threshold_     = scanParams_.bag.deviceVT2 -scanParams_.bag.deviceVT1;

@@ -35,8 +35,9 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PL
 DependentLibraries+=gemutils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
+#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 
 print-env:
@@ -50,3 +51,6 @@ print-env:
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
+	@echo CC            $(CC)
+	@echo CPP           $(CPP)
+	@echo GCCVERSION    $(GCCVERSION)
