@@ -47,6 +47,7 @@ gem::hw::amc13::AMC13Manager::L1AInfo::L1AInfo()
   l1Aburst               = 1;
   sendl1ATriburst        = false;
   sendl1ATriburst        = false;
+  enableLEMO             = false;
 }
 
 void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *l1Abag)
@@ -58,6 +59,7 @@ void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *
   l1Abag->addField("L1Aburst",               &l1Aburst );
   l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );
   l1Abag->addField("startL1ATricont",        &startl1ATricont );
+  l1Abag->addField("EnableLEMO",             &enableLEMO );
 }
 
 void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Info> *bag)
@@ -154,6 +156,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_L1Aburst               = m_localTriggerConfig.bag.l1Aburst.value_;
   m_sendL1ATriburst        = m_localTriggerConfig.bag.sendl1ATriburst.value_;
   m_startL1ATricont        = m_localTriggerConfig.bag.startl1ATricont.value_;
+  m_enableLEMO             = m_localTriggerConfig.bag.enableLEMO.value_;
 
   DEBUG("AMC13Manager::actionPerformed BGO channels "
         << m_amc13Params.bag.bgoConfig.size());
@@ -301,8 +304,12 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   if (m_enableLocalL1A) {
-    m_L1Aburst           = m_localTriggerConfig.bag.l1Aburst.value_;
-    p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+    if (m_enableLEMO) {
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+    } else {
+      m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
+      p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+    }
   }
   //DEBUG("Looking at L1A history after configure");
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
@@ -363,8 +370,13 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   //what does pause mean here?
   //if local triggers are enabled, do we have a separate trigger application?
   //we can just disable them here maybe?
-  if (m_enableLocalL1A)
-    p_amc13->stopContinuousL1A();
+  if (m_enableLocalL1A) {
+    if (m_enableLEMO) {
+      p_amc13->enableLocalL1A(false);
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
+    } else
+      p_amc13->stopContinuousL1A();
+  }
 
   if (m_enableLocalTTC)
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
@@ -378,8 +390,13 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //undo the actions taken in pauseAction
-  if (m_enableLocalL1A)
-    p_amc13->startContinuousL1A();
+  if (m_enableLocalL1A) {
+    if (m_enableLEMO) {
+      p_amc13->enableLocalL1A(m_enableLocalL1A);
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+    } else
+      p_amc13->startContinuousL1A();
+  }
 
   if (m_enableLocalTTC) {
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
@@ -399,8 +416,13 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
-  if (m_enableLocalL1A)
-    p_amc13->stopContinuousL1A();
+  if (m_enableLocalL1A) {
+    if (m_enableLEMO) {
+      p_amc13->enableLocalL1A(m_enableLocalL1A);
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+    } else
+      p_amc13->stopContinuousL1A();
+  }
 
   if (m_enableLocalTTC)
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
@@ -511,12 +533,10 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
 
-  if(!m_startL1ATricont){
-    if (m_enableLocalL1A)
-      p_amc13->enableLocalL1A(true);
-    else
-      //disable localL1A generator in order to enable the CSC triggers
-      p_amc13->enableLocalL1A(false);
+  if (!m_startL1ATricont) {
+    p_amc13->enableLocalL1A(m_enableLocalL1A);
+    if (m_enableLEMO)
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
   }
 
   if (m_enableLocalL1A && m_startL1ATricont) {
@@ -555,12 +575,10 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
 
-  if(!m_startL1ATricont){
-    if (m_enableLocalL1A)
-    p_amc13->enableLocalL1A(false);
-    else
-      //disable localL1A generator in order to enable the CSC triggers
-      p_amc13->enableLocalL1A(true);
+  if (!m_startL1ATricont) {
+    p_amc13->enableLocalL1A(!m_enableLocalL1A);
+    if (m_enableLEMO)
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
   }
 
   if (m_enableLocalL1A && m_startL1ATricont) {
