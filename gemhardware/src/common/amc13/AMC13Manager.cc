@@ -149,6 +149,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
 
+  m_localTriggerConfig     = m_amc13Params.bag.localTriggerConfig;
   m_enableLocalL1A         = m_localTriggerConfig.bag.enableLocalL1A.value_;
   m_internalPeriodicPeriod = m_localTriggerConfig.bag.internalPeriodicPeriod.value_;
   m_L1Amode                = m_localTriggerConfig.bag.l1Amode.value_;
