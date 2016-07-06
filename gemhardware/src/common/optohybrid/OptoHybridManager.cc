@@ -407,7 +407,18 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
 
       if (optohybrid->isHwConnected()) {
         // turn on all VFATs? or should they always be on?
-        //optohybrid->broadcastWrite("ContReg1",     ~vfatMask, 0x36);
+        uint32_t vfatMask = m_broadcastList.at(slot).at(link);
+        std::vector<uint32_t> res = optohybrid->broadcastRead("ContReg0",vfatMask);
+        DEBUG("ContReg0: vfatMask = " << std::hex << std::setw(8) << std::setfill('0') << vfatMask);
+        for (auto r = res.begin(); r != res.end(); ++r)
+          DEBUG(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
+
+        optohybrid->broadcastWrite("ContReg0", 0x37, vfatMask);
+        res.clear();
+        res = optohybrid->broadcastRead("ContReg0",vfatMask);
+        DEBUG("ContReg0");
+        for (auto r = res.begin(); r != res.end(); ++r)
+          DEBUG(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
 
         // what resets to do
       } else {
@@ -440,8 +451,38 @@ void gem::hw::optohybrid::OptoHybridManager::resumeAction()
 void gem::hw::optohybrid::OptoHybridManager::stopAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  // put all connected VFATs into sleep mode?
-  usleep(1000);
+  DEBUG("OptoHybridManager::stopAction");
+  //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?                                                                                                                                                                             
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(1000); // just for testing the timing of different applications                                                                                                                                                                                                        
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+      usleep(1000); // just for testing the timing of different applications                                                                                                                                                                                                      
+      unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
+      DEBUG("OptoHybridManager::index = " << index);
+      OptoHybridInfo& info = m_optohybridInfo[index].bag;
+
+      if (!info.present)
+        continue;
+
+      DEBUG("OptoHybridManager::stopAction::grabbing pointer to hardware device");
+      optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
+
+      if (optohybrid->isHwConnected()) {
+        // put all connected VFATs into sleep mode?                                                                                                                                                                                                                               
+        uint32_t vfatMask = m_broadcastList.at(slot).at(link);
+        optohybrid->broadcastWrite("ContReg0", 0x36, vfatMask);
+        // what resets to do                                                                                                                                                                                                                                                      
+      } else {
+        ERROR("stopAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
+              << " is not responding");
+        //fireEvent("Fail");                                                                                                                                                                                                                                                      
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "stopAction failed");
+        //maybe raise exception so as to not continue with other cards?                                                                                                                                                                                                           
+      } 
+    }
+  }
+
+  DEBUG("OptoHybridManager::stopAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::haltAction()
