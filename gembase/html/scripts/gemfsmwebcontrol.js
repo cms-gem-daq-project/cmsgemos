@@ -41,7 +41,14 @@ function showTable( )
 {
     document.getElementById("fsmdebug").innerHTML = document.getElementById("fsmdebug").innerHTML;
     var state = document.getElementById("fsmState").innerHTML;
-    if (state.indexOf("ing") > 0 && state != "Running") {
+    if (state == "Failed" || state == "Error") {
+        // hide all buttons except for 'reset'
+        $("tr.hide#initconf").hide();
+        $("tr.hide#startstop").hide();
+        $("tr.hide#haltreset").show();
+        $("button.hide#halt" ).hide();
+        $("button.hide#reset").show();
+    } else if (state.indexOf("ing") > 0 && state != "Running") {
         $("tr.hide#initconf" ).hide();
         $("tr.hide#startstop").hide();
         $("tr.hide#haltreset").hide();
@@ -93,11 +100,6 @@ function showTable( )
             // show halt/reset buttons
             $("tr.hide#haltreset").show();
             $("button.hide#halt" ).show();
-            $("button.hide#reset").show();
-        } else if (state == "Failed" || state == "Error") {
-            // hide halt button
-            $("tr.hide#haltreset").show();
-            $("button.hide#halt" ).hide();
             $("button.hide#reset").show();
         }
     }// state not initial

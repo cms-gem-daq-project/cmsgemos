@@ -1,7 +1,7 @@
 #ifndef GEM_UTILS_DB_GEMDATABASEUTILS_H
 #define GEM_UTILS_DB_GEMDATABASEUTILS_H
 
-#include "Python.h"
+#include <Python.h>
 #include <mysql/mysql.h>
 #include <string>
 #include <memory>

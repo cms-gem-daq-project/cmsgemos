@@ -13,8 +13,8 @@ class AMCmanager:
     self.address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
     self.uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(self.ipaddr)
     #consider all AMCs to be GLIBs
-    if (int(sn) == 2):
-      self.uri = "ipbustcp-2.0://eagle34:70002"
+    #if (int(sn) == 2):
+    #  self.uri = "ipbustcp-2.0://eagle34:70002"
     print "Open new connection\n"
     self.glib  = uhal.getDevice( "glib" , self.uri, self.address_table )
     #check if glib is really connected
@@ -26,6 +26,13 @@ class AMCmanager:
     writeRegister(self.glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
     writeRegister(self.glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
     writeRegister(self.glib,"GLIB.DAQ.CONTROL", 0x8)
+
+  def checkGTX(self,link):
+    fwv = readRegister(self.glib,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.FW"%(link))
+    if fwv != 0x0:
+      return True
+    else:
+      return False
 
   def activateGTX(self):
     c = 0
