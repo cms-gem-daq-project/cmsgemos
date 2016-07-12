@@ -30,6 +30,18 @@
   <connection id="gem.shelf02.glib02.optohybrid01" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.0.162:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
 
+  <connection id="gem.shelf02.ctp7-02" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
+  <connection id="gem.shelf02.ctp7-02.optohybrid00" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf02.ctp7-02.optohybrid01" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf02.ctp7-02.optohybrid02" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf02.ctp7-02.optohybrid03" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+
   <connection id="gem.shelf02.glib03" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.0.163:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
@@ -94,7 +106,7 @@
   <connection id="gem.shelf02.glib10.optohybrid01" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.0.170:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
   <connection id="gem.shelf02.glib10-new" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.0.170:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
 
   <connection id="gem.shelf02.glib11" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.0.171:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
