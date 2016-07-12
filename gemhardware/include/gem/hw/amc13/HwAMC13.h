@@ -1,3 +1,5 @@
+/** @file HwAMC13.h */
+
 #ifndef GEM_HW_AMC13_HWAMC13_H
 #define GEM_HW_AMC13_HWAMC13_H
 
