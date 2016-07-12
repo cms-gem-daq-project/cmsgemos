@@ -9,10 +9,10 @@
 #include "amc13/AMC13.hh"
 #include "amc13/Status.hh"
 
-gem::hw::amc13::AMC13ManagerWeb::AMC13ManagerWeb(gem::hw::amc13::AMC13Manager* amc13App) :
+gem::hw::amc13::AMC13ManagerWeb::AMC13ManagerWeb(gem::hw::amc13::AMC13Manager *amc13App) :
   gem::base::GEMWebApplication(amc13App)
 {
-  level = 5;
+  level = 2;
 }
 
 gem::hw::amc13::AMC13ManagerWeb::~AMC13ManagerWeb()
@@ -20,104 +20,85 @@ gem::hw::amc13::AMC13ManagerWeb::~AMC13ManagerWeb()
   //default destructor
 }
 
-void gem::hw::amc13::AMC13ManagerWeb::webDefault(xgi::Input * in, xgi::Output * out)
+void gem::hw::amc13::AMC13ManagerWeb::webDefault(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
     DEBUG("AMC13ManagerWeb::current state is" << dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState());
-  *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-  *out << "<div class=\"xdaq-tab\" title=\"AMC13 Control Panel\" >"  << std::endl;
-  controlPanel(in,out);
-  *out << "</div>" << std::endl;
 
-  *out << "<div class=\"xdaq-tab\" title=\"Monitoring page\"/>"  << std::endl;
-  monitorPage(in,out);
-  *out << "</div>" << std::endl;
+  *out << cgicc::script().set("type", "text/javascript")
+    .set("src", "/gemdaq/gemhardware/html/scripts/amc13/amc13.js")
+       << cgicc::script() << std::endl;
 
-  std::string expURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/expertPage";
-  *out << "<div class=\"xdaq-tab\" title=\"Expert page\"/>"  << std::endl;
-  expertPage(in,out);
-  *out << "</div>" << std::endl;
-  *out << "</div>" << std::endl;
+  GEMWebApplication::webDefault(in, out);
 }
 
 /*To be filled in with the monitor page code
- * right now it just prints out the status page that the AMC13 generates
- * in the future it will be nice to add other monitoring to a separate tab perhaps
- * need a way to have the content be dynamic with, e.g., AJAX
+ *right now it just prints out the status page that the AMC13 generates
+ *in the future it will be nice to add other monitoring to a separate tab perhaps
+ *need a way to have the content be dynamic with, e.g., AJAX
  */
-void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output * out)
+void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  INFO("AMC13ManagerWeb::monitorPage");
+  DEBUG("AMC13ManagerWeb::monitorPage");
 
   // process the form for the debug level, how do we set the default of 2 for the first load?
-  DEBUG("AMC13ManagerWeb::current level is "      << level);
-  if (level != 5)
-    try {
-      cgicc::Cgicc cgi(in);
-      int radio_i       = cgi["level"]->getIntegerValue();
-      DEBUG("AMC13ManagerWeb::radio button value is " << radio_i);
-      level = static_cast<size_t>(radio_i);
-      DEBUG("AMC13ManagerWeb::setting AMC13 display status info to " << level);
-    } catch (const xgi::exception::Exception& e) {
-      level = 2;
-      WARN("AMC13ManagerWeb::Caught xgi::exception " << e.what());
-      //XCEPT_RAISE(xgi::exception::Exception, e.what());
-    } catch (const std::exception& e) {
-      level = 2;
-      WARN("AMC13ManagerWeb::Caught std::exception " << e.what());
-      //XCEPT_RAISE(xgi::exception::Exception, e.what());
-    } catch (...) {
-      level = 2;
-      WARN("AMC13ManagerWeb::Caught unknown exception");
-      //XCEPT_RAISE(xgi::exception::Exception, e.what());
-    }
-  else
-    level = 2;
-
+  *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
+  *out << "      <div class=\"xdaq-tab\" title=\"AMC13 Status Page\" >"  << std::endl;
   DEBUG("AMC13ManagerWeb::current level is "      << level);
 
-  //form and control to set the display level of information
-  std::string method = toolbox::toString("/%s/monitorView",p_gemFSMApp->getApplicationDescriptor()->getURN().c_str());
-  *out << cgicc::form().set("method","POST").set("action",method) << std::endl;
+  std::string method = toolbox::toString("/%s/setDisplayLevel", (p_gemApp->m_urn).c_str());
+  *out << cgicc::form().set("method","POST")
+    .set("name","amc13statusform")
+    .set("id","amc13statusform")
+    .set("action",method)
+       << std::endl;
 
-  *out << cgicc::section().set("style","display:inline-block;float:left") << std::endl
-       << cgicc::fieldset().set("style","display:block;padding:5px;margin:5px;list-style-type:none;margin-bottom:5px;line-height:18px;padding:2px 5px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;border:medium outset #CCC;")
-       << std::endl
-       << cgicc::legend("AMC13 Status")    << std::endl
-       << cgicc::br()                      << std::endl
-       << cgicc::div().set("align","left") << std::endl
-
-       << cgicc::input().set("style","display:inline-block;margin-right:25px;margin-left:25px;float:center;-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;border:medium outset #CCC;")
-    .set("type","submit")
-    .set("value","Set level")
-    .set("name","setLevel") << std::endl
-
-       << (level == 0 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","0").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","0"))
+  *out << (level == 0 ?
+           cgicc::input().set("type","radio").set("id","level0")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","0").set("checked") :
+           cgicc::input().set("type","radio").set("id","level0")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","0"))
        << "version" << std::endl
        << (level == 1 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","1").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","1"))
+           cgicc::input().set("type","radio").set("id","level1")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","1").set("checked") :
+           cgicc::input().set("type","radio").set("id","level1")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","1"))
        << "minimum" << std::endl
        << (level == 2 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","2").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","2"))
+           cgicc::input().set("type","radio").set("id","level2")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","2").set("checked") :
+           cgicc::input().set("type","radio").set("id","level2")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","2"))
        << "default" << std::endl
        << (level == 3 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","3").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","3"))
+           cgicc::input().set("type","radio").set("id","level3")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","3").set("checked") :
+           cgicc::input().set("type","radio").set("id","level3")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","3"))
+       << "advanced" << std::endl
+       << (level == 4 ?
+           cgicc::input().set("type","radio").set("id","level4")
+           .set("class","amc14statuslevel").set("name","amc14statuslevel").set("value","4").set("checked") :
+           cgicc::input().set("type","radio").set("id","level4")
+           .set("class","amc14statuslevel").set("name","amc14statuslevel").set("value","4"))
        << "maximum" << std::endl
        << (level == 99 ?
-           cgicc::input().set("type","radio").set("name","level").set("value","99").set("checked") :
-           cgicc::input().set("type","radio").set("name","level").set("value","99"))
-       << "expert" << std::endl
+           cgicc::input().set("type","radio").set("id","level99")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","99").set("checked") :
+           cgicc::input().set("type","radio").set("id","level99")
+           .set("class","amc13statuslevel").set("name","amc13statuslevel").set("value","99"))
+       << "expert" << std::endl;
 
-       << cgicc::br()     << std::endl
-       << cgicc::div()    << std::endl
-       << cgicc::span().set("style","display:block;float:left") << std::endl;
+  *out << cgicc::form()
+       << cgicc::br()
+       << std::endl;
+
+  *out << "        <span style=\"display:block;float:left\""
+       << " name=\"amc13status\" id=\"amc13status\">"
+       << std::endl;
 
   try {
     if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
@@ -134,34 +115,74 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input * in, xgi::Output *
     WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
   }
 
-  *out << cgicc::span()     << std::endl
-       << cgicc::fieldset() << std::endl
-       << cgicc::section()  << std::endl
-       << cgicc::form()     << std::endl;
-
-  //will be nice to have the "last update time" printed on the bottom of all monitoring or status pages
-  //obtain this value from an infospace?
+  *out << "        </span>" << std::endl;
+  *out << "      </div>"    << std::endl;
+  *out << "    </div>"      << std::endl;
 }
 
 /*To be filled in with the expert page code*/
-void gem::hw::amc13::AMC13ManagerWeb::expertPage(xgi::Input * in, xgi::Output * out)
+void gem::hw::amc13::AMC13ManagerWeb::expertPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  INFO("AMC13ManagerWeb::expertPage");
-  //fill this page with the expert views for the AMC13Manager
-  *out << cgicc::section().set("style","display:inline-block;float:left") << std::endl
-       << cgicc::fieldset().set("style","display:block;padding:5px;margin:5px;list-style-type:none;margin-bottom:5px;line-height:18px;padding:2px 5px;-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;border:medium outset #CCC;")
-       << std::endl
-       << cgicc::legend("GEM AMC13Manager expert page")    << std::endl
-       << cgicc::br()                      << std::endl
-       << cgicc::span()     << std::endl
-       << cgicc::fieldset() << std::endl
-       << cgicc::section()  << std::endl;
+  DEBUG("AMC13ManagerWeb::expertPage");
 }
 
-void gem::hw::amc13::AMC13ManagerWeb::applicationPage(xgi::Input * in, xgi::Output * out)
+void gem::hw::amc13::AMC13ManagerWeb::applicationPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   DEBUG("AMC13ManagerWeb::applicationPage");
-  *out << "applicationPage</br>" << std::endl;
+}
+
+void gem::hw::amc13::AMC13ManagerWeb::jsonUpdate(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  DEBUG("AMC13ManagerWeb::jsonUpdate");
+  updateStatus(out);
+}
+
+void gem::hw::amc13::AMC13ManagerWeb::setDisplayLevel(xgi::Input *in)
+  throw (xgi::exception::Exception)
+{
+  // parse the form for the debug level
+  try {
+    cgicc::Cgicc cgi(in);
+    int radio_i       = cgi["amc13statuslevel"]->getIntegerValue();
+    DEBUG("AMC13ManagerWeb::radio button value is " << radio_i);
+    level = static_cast<size_t>(radio_i);
+    DEBUG("AMC13ManagerWeb::setting AMC13 display status info to " << level);
+  } catch (const xgi::exception::Exception& e) {
+    level = 2;
+    WARN("AMC13ManagerWeb::Caught xgi::exception " << e.what());
+    //XCEPT_RAISE(xgi::exception::Exception, e.what());
+  } catch (const std::exception& e) {
+    level = 2;
+    WARN("AMC13ManagerWeb::Caught std::exception " << e.what());
+    //XCEPT_RAISE(xgi::exception::Exception, e.what());
+  } catch (...) {
+    level = 2;
+    WARN("AMC13ManagerWeb::Caught unknown exception");
+    //XCEPT_RAISE(xgi::exception::Exception, e.what());
+  }
+}
+
+void gem::hw::amc13::AMC13ManagerWeb::updateStatus(xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  out->getHTTPResponseHeader().addHeader("Content-Type", "plain/text");
+  try {
+    if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
+      ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus();
+      s->SetHTML();
+      s->Report(level,*out);
+    } else {
+      ERROR("AMC13ManagerWeb::Unable to obtain pointer to AMC13 device");
+      XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, "Unable to obtain pointer to AMC13 device");
+    }
+  } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
+    WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+    *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
+  } catch (const std::exception& e) {
+    WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+    *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
+  }
 }

@@ -26,6 +26,7 @@
 #include "xdata/Integer.h"
 #include "xdata/Integer32.h"
 #include "xdata/Integer64.h"
+#include "xdata/UnsignedShort.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/UnsignedInteger64.h"
@@ -48,6 +49,7 @@
 #include "xcept/tools.h"
 
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/db/GEMDatabaseUtils.h"
 #include "gem/base/exception/Exception.h"
 #include "gem/base/utils/exception/Exception.h"
 #include "gem/base/utils/GEMInfoSpaceToolBox.h"
@@ -195,6 +197,10 @@ namespace gem {
 
         xdata::String  m_runType;
         xdata::String  m_cfgType;
+
+        std::shared_ptr<gem::utils::db::GEMDatabaseUtils> p_gemDBHelper;
+
+      private:
       };
   }  // namespace gem::base
 }  // namespace gem

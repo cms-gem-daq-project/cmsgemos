@@ -9,6 +9,8 @@
 !*.cc
 !*.h
 !*.py
+# ignore __init__.py files
+__init__.py
 !*.js
 !*.css
 !setup/etc/addresstables/*.xml

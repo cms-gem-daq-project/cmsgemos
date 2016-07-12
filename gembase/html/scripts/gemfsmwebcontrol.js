@@ -5,7 +5,7 @@ function fsmdebug( text )
 
 function staterequest( jsonurl )
 {
-    if (window.jQuery) {  
+    if (window.jQuery) {
         $.getJSON(jsonurl)
             .done(function(data) {
                     updateStateMonitorables( data );
@@ -32,7 +32,7 @@ function staterequest( jsonurl )
     }
 }
 
-function updateStateMonitorables( statejson ) 
+function updateStateMonitorables( statejson )
 {
     document.getElementById( statejson.name ).innerHTML = statejson.value;
 };
@@ -59,7 +59,7 @@ function showTable( )
         $("tr.hide#initconf").show();
         $("button.hide#init").hide();
         $("button.hide#conf").show();
-        
+
         // startstop tr
         if (state == "Halted") {
             // hide startstop tr
@@ -86,7 +86,7 @@ function showTable( )
             $("button.hide#pause" ).hide();
             $("button.hide#resume").show();
         }
-        
+
         // haltreset tr
         if (state == "Halted"  || state == "Configured" ||
             state == "Running" || state == "Paused") {

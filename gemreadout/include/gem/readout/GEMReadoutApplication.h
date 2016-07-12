@@ -100,9 +100,11 @@ namespace gem {
 
           //configuration parameters
           xdata::String runType;
+          xdata::String runPeriod;
           xdata::String fileName;
           xdata::String outputType;
           xdata::String outputLocation;
+          xdata::String setupLocation;
         };
 
         xdata::Bag<GEMReadoutSettings> m_readoutSettings;

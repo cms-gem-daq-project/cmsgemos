@@ -188,7 +188,6 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (!info.present)
       continue;
 
-    DEBUG("GLIBManager::info:" << info.toString());
     DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
 
     // create the cfgInfoSpace object (qualified vs non?)
@@ -254,7 +253,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
         m_glibMonitors.at(slot)->startMonitoring();
       } else {
         ERROR("GLIBManager:: unable to communicate with GLIB in slot " << (slot+1));
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+        XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "initializeAction failed");
       }
     } catch (uhalException const& ex) {
       ERROR("GLIBManager::caught uHAL exception " << ex.what());
@@ -273,6 +272,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
     // p_gemWebInterface->glibInSlot(slot);
+    // FOR MISHA
+    // hardware should be connected, can update ldqm_db for teststand/local runs
   }
 
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
@@ -285,7 +286,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
       DEBUG("GLIBManager::connected a card in slot " << (slot+1));
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "initializeAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
@@ -329,7 +331,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       // setup DAQ mode?
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "configureAction failed");
       // maybe raise exception so as to not continue with other cards?
     }
   }
@@ -359,7 +362,8 @@ void gem::hw::glib::GLIBManager::startAction()
       usleep(100); // just for testing the timing of different applications
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
-      fireEvent("Fail");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "startAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
