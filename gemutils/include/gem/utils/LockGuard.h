@@ -1,3 +1,5 @@
+/** @file LockGuard.h */
+
 // copied from tcds/utils/include/tcds/utils/LockGuard.h
 // would like to just include their library, but it's not in our xdaq release
 #ifndef GEM_UTILS_LOCKGUARD_H
