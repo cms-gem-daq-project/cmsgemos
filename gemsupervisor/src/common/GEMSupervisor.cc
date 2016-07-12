@@ -557,7 +557,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       WARN("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
       // m_runNumber.value_ = 0;
     } catch (xcept::Exception& e) {
-      ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+      ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
     } catch (std::exception& e) {
       ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
     }
