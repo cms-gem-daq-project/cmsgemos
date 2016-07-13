@@ -233,7 +233,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
 
       DEBUG("OptoHybridManager::initializeAction: info is: " << info.toString());
       DEBUG("OptoHybridManager::initializeAction creating pointer to board connected on link "
-            << link << " to GLIB in slot " << (slot+1));
+            << link << " to AMC in slot " << (slot+1));
       std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
                                                  info.crateID.value_,
                                                  info.slotID.value_,
@@ -332,7 +332,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         m_optohybridMonitors.at(slot).at(link)->startMonitoring();
 
         INFO("OptoHybridManager::initializeAction OptoHybrid connected on link "
-             << link << " to GLIB in slot " << (slot+1) << std::endl
+             << link << " to AMC in slot " << (slot+1) << std::endl
              << "Tracking mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
              << m_trackingMask.at(slot).at(link)
              << std::dec << std::endl
@@ -349,7 +349,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       } else {
         std::stringstream msg;
         msg << "OptoHybridManager::initializeAction OptoHybrid connected on link "
-            << link << " to GLIB in slot " << (slot+1) << " is not responding";
+            << link << " to AMC in slot " << (slot+1) << " is not responding";
         ERROR(msg.str());
         //fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
@@ -368,7 +368,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   //std::ofstream of
 
   std::map<int,std::set<int> > hwMapping;
-  //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
+  //will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -405,7 +405,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         optohybrid->setSBitSource(info.cdceClkSrc.value_);
         */
         /*
-        for (unsigned olink = 0; olink < HwGLIB::N_GTX; ++olink) {
+        for (unsigned olink = 0; olink < HwAMC::N_GTX; ++olink) {
         }
         */
 
@@ -476,13 +476,13 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
         //reset counters?
-        uint32_t gtxMask = optohybrid->readReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK");
+        uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
         gtxMask |= (0x1<<link);
-        optohybrid->writeReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
+        optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
       } else {
         std::stringstream msg;
         msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
-            << " to GLIB in slot " << (int)(slot+1) << " is not responding";
+            << " to AMC in slot " << (int)(slot+1) << " is not responding";
         ERROR(msg.str());
         //fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
@@ -505,7 +505,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
   }
 
   DEBUG("OptoHybridManager::startAction");
-  //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
+  //will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -544,7 +544,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
       } else {
         std::stringstream msg;
         msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << (int)link
-            << " to GLIB in slot " << (int)(slot+1) << " is not responding";
+            << " to AMC in slot " << (int)(slot+1) << " is not responding";
         ERROR(msg.str());
         //fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
@@ -579,14 +579,14 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
 	if (m_scanType.value_ == 2) {
 	  uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
 	  INFO("OptoHybridManager::LatencyScan OptoHybrid on link " << (int)link
-	       << " GLIB slot " << (slot+1) << " Latency  " << (int)updatedLatency);
+	       << " AMC slot " << (slot+1) << " Latency  " << (int)updatedLatency);
 
           optohybrid->broadcastWrite("Latency", updatedLatency, vfatMask);
       } else if (m_scanType.value_ == 3) {
 	  uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
 	  uint8_t VT2 = 0; //std::max(0,(int)m_scanMax.value_);
 	  INFO("OptoHybridManager::ThresholdScan OptoHybrid on link " << (int)link
-	       << " GLIB slot " << (slot+1) << " VT1 " << (int)updatedVT1
+	       << " AMC slot " << (slot+1) << " VT1 " << (int)updatedVT1
                << " VT2 " << VT2 << " StepSize " << m_stepSize.value_);
 
           optohybrid->broadcastWrite("VThreshold1", updatedVT1, vfatMask);
@@ -596,7 +596,7 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
       } else {
         std::stringstream msg;
         msg << "OptoHybridManager::pauseAction OptoHybrid connected on link " << (int)link
-            << " to GLIB in slot " << (int)(slot+1) << " is not responding";
+            << " to AMC in slot " << (int)(slot+1) << " is not responding";
         ERROR(msg.str());
         //fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
@@ -626,7 +626,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   DEBUG("OptoHybridManager::stopAction");
-  //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
+  //will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -667,7 +667,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
       } else {
         std::stringstream msg;
         msg << "OptoHybridManager::stopAction::OptoHybrid connected on link " << (int)link
-            << " to GLIB in slot " << (int)(slot+1) << " is not responding";
+            << " to AMC in slot " << (int)(slot+1) << " is not responding";
         ERROR(msg.str());
         //fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
@@ -710,7 +710,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
       m_optohybridMonitors.at(slot).at(link)->reset();
 
       DEBUG("OptoHybridManager::revoking hwCfgInfoSpace items for board connected on link "
-            << link << " to GLIB in slot " << (slot+1));
+            << link << " to AMC in slot " << (slot+1));
       toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
                                                                  info.crateID.value_,
                                                                  info.slotID.value_,
