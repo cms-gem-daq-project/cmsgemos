@@ -630,7 +630,8 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 /** DAQ link module functions **/
 void gem::hw::glib::HwGLIB::enableDAQLink(uint32_t const& enableMask)
 {
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK", enableMask);
+  // move enabling of input mask to OH manager
+  // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK", enableMask);
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE", 0x1);
 }
 
