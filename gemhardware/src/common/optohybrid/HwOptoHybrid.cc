@@ -415,7 +415,7 @@ void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults(uint8_t  const& vt1,
   // for (auto r = res.begin(); r != res.end(); ++r) {
   //   WARN(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
   // }
-  
+
   broadcastWrite("ContReg0",   0x36, broadcastMask);
   broadcastWrite("ContReg1",   0x00, broadcastMask);
   broadcastWrite("ContReg2",   0x30, broadcastMask);
