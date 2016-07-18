@@ -246,9 +246,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
   if (m_enableLEMO)
     {
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",true);
+      INFO("AMC13Manager enabling LEMO trigger " << m_enableLEMO);
     }
-
+  
   //equivalent to hcal init part
   if (p_amc13==0)
     return;
@@ -367,6 +368,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
         p_amc13->enableBGO(bchan->bag.channel.value_);
     p_amc13->sendBGO();
   }
+
 }
 
 void gem::hw::amc13::AMC13Manager::pauseAction()
