@@ -391,7 +391,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
 
     std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
     lastRunNumberQuery += location;
-    lastRunNumberQuery += "' ORDER BY id DESC LIMIT 1;";
+    lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
     WARN("GEMSupervisor::updateRunNumber, current run number is: " << m_runNumber.toString());
     try {
       m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
