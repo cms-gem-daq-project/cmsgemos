@@ -404,7 +404,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
     }
 
-    INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
+    WARN("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
     //parse and increment by 1, if it is a new station, start at 1
     //m_runNumber.value_ += 1;
     WARN("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
