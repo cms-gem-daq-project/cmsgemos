@@ -74,7 +74,8 @@ unsigned int gem::utils::db::GEMDatabaseUtils::query(const std::string& query)
     ERROR("GEMDatabaseUtils::query " << errMsg);
     XCEPT_RAISE(gem::utils::exception::DBEmptyQueryResult, errMsg);
   }
-  unsigned int retval = strtoul(row[0],0,0);
+  
+  unsigned int retval = strtoul(row[0],0,10);
   mysql_free_result(res);
 
   return retval;
