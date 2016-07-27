@@ -1,3 +1,5 @@
+/** @file version.h */
+
 #ifndef GEM_DATACHECKER_VERSION_H
 #define GEM_DATACHECKER_VERSION_H
 
@@ -19,14 +21,14 @@ namespace gemdatachecker {
 #else
 #define GEMDATACHECKER_FULL_VERSION_LIST GEMDATACHECKER_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMDATACHECKER_VERSION_MAJOR, GEMDATACHECKER_VERSION_MINOR, GEMDATACHECKER_VERSION_PATCH)
 #endif
-    
+
   const std::string package     = "gemdatachecker";
   const std::string versions    = GEMDATACHECKER_FULL_VERSION_LIST;
   const std::string summary     = "GEM datachecker";
   const std::string description = "";
   const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "";
-    
+  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);
   std::set<std::string, std::less<std::string> > getPackageDependencies();

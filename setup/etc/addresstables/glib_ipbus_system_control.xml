@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="RX_polarity"  address="0x0" permission="rw"
+    description="the four lowest bits control the *RX* polarity of the four links (bit 0 corresponds to link 0, which is the top SFP)"/>
+  <node id="TX_polarity"  address="0x1" permission="rw"
+    description="the four lowest bits control the *TX* polarity of the four links (bit 0 corresponds to link 0, which is the top SFP)"/>
+</node> <!-- end top block -->
+

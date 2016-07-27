@@ -157,7 +157,7 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP) :
   p_gemfsm->addStateTransition(STATE_RESETTING,    STATE_INITIAL,    "IsInitial",    p_gemApp,
                                &gem::base::GEMFSMApplication::transitionDriver);
 
-  // Invalid transitions that should result in no action taken
+  // Invalid transitions that should result in no action taken, define these for safety?
   /*
     p_gemfsm->addStateTransition(STATE_RESETTING,    STATE_INITIAL,    "IsInitial",    p_gemApp,
     &gem::base::GEMFSMApplication::noAction);

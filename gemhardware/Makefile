@@ -17,14 +17,14 @@ GEMHARDWARE_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
-Sources+=GEMHwDevice.cc
+Sources+=GEMHwDevice.cc utils/GEMCrateUtils.cc
 Sources+=vfat/HwVFAT2.cc
 Sources+=glib/HwGLIB.cc
 Sources+=optohybrid/HwOptoHybrid.cc
 Sources+=vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc
 Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc amc13/AMC13Readout.cc
 Sources+=glib/GLIBManager.cc glib/GLIBManagerWeb.cc glib/GLIBMonitor.cc #glib/GLIBReadout.cc
-Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc
+Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc optohybrid/OptoHybridMonitor.cc
 #Sources+=GEMController.cc GEMControllerPanelWeb.cc
 
 DynamicLibrary=gemhardware
@@ -49,8 +49,9 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
 DependentLibraries+=gemutils gembase gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
+#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 #test#hwbase:
 #test#	Sources=GEMHwDevice.cc 

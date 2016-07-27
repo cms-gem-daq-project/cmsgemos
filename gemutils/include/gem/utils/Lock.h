@@ -1,3 +1,5 @@
+/** @file Lock.h */
+
 #ifndef GEM_UTILS_LOCK_H
 #define GEM_UTILS_LOCK_H
 // copied from tcds/utils/include/tcds/utils/Lock.h

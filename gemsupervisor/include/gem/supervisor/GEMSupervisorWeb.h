@@ -1,3 +1,5 @@
+/** @file GEMSupervisorWeb.h */
+
 #ifndef GEM_SUPERVISOR_GEMSUPERVISORWEB_H
 #define GEM_SUPERVISOR_GEMSUPERVISORWEB_H
 
@@ -32,6 +34,9 @@ namespace gem {
           throw (xgi::exception::Exception);
 
         virtual void expertPage(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
+
+        virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
         virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)

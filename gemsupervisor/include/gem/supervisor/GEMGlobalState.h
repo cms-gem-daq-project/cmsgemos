@@ -1,3 +1,5 @@
+/** @file GEMGlobalState.h */
+
 #ifndef GEM_SUPERVISOR_GEMGLOBALSTATE_H
 #define GEM_SUPERVISOR_GEMGLOBALSTATE_H
 

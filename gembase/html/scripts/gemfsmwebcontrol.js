@@ -5,7 +5,7 @@ function fsmdebug( text )
 
 function staterequest( jsonurl )
 {
-    if (window.jQuery) {  
+    if (window.jQuery) {
         $.getJSON(jsonurl)
             .done(function(data) {
                     updateStateMonitorables( data );
@@ -32,7 +32,7 @@ function staterequest( jsonurl )
     }
 }
 
-function updateStateMonitorables( statejson ) 
+function updateStateMonitorables( statejson )
 {
     document.getElementById( statejson.name ).innerHTML = statejson.value;
 };
@@ -41,7 +41,14 @@ function showTable( )
 {
     document.getElementById("fsmdebug").innerHTML = document.getElementById("fsmdebug").innerHTML;
     var state = document.getElementById("fsmState").innerHTML;
-    if (state.indexOf("ing") > 0 && state != "Running") {
+    if (state == "Failed" || state == "Error") {
+        // hide all buttons except for 'reset'
+        $("tr.hide#initconf").hide();
+        $("tr.hide#startstop").hide();
+        $("tr.hide#haltreset").show();
+        $("button.hide#halt" ).hide();
+        $("button.hide#reset").show();
+    } else if (state.indexOf("ing") > 0 && state != "Running") {
         $("tr.hide#initconf" ).hide();
         $("tr.hide#startstop").hide();
         $("tr.hide#haltreset").hide();
@@ -59,7 +66,7 @@ function showTable( )
         $("tr.hide#initconf").show();
         $("button.hide#init").hide();
         $("button.hide#conf").show();
-        
+
         // startstop tr
         if (state == "Halted") {
             // hide startstop tr
@@ -86,18 +93,13 @@ function showTable( )
             $("button.hide#pause" ).hide();
             $("button.hide#resume").show();
         }
-        
+
         // haltreset tr
         if (state == "Halted"  || state == "Configured" ||
             state == "Running" || state == "Paused") {
             // show halt/reset buttons
             $("tr.hide#haltreset").show();
             $("button.hide#halt" ).show();
-            $("button.hide#reset").show();
-        } else if (state == "Failed" || state == "Error") {
-            // hide halt button
-            $("tr.hide#haltreset").show();
-            $("button.hide#halt" ).hide();
             $("button.hide#reset").show();
         }
     }// state not initial

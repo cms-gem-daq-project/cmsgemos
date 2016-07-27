@@ -1,3 +1,5 @@
+/** @file GEMDataParker.h */
+
 #ifndef GEM_READOUT_GEMDATAPARKER_H
 #define GEM_READOUT_GEMDATAPARKER_H
 

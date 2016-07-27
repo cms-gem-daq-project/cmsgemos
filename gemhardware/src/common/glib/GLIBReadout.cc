@@ -6,13 +6,7 @@
  * date: 14/03/2016
  */
 
-#include <gem/hw/glib/GLIBReadout.h>
-#include <gem/hw/glib/HwGLIB.h>
-#include <gem/utils/soap/GEMSOAPToolBox.h>
-#include <gem/readout/exception/Exception.h>
-
-#include <boost/utility/binary.hpp>
-#include <bitset>
+#include "gem/hw/glib/GLIBReadout.h"
 
 #include <iomanip>
 #include <iostream>
@@ -20,8 +14,13 @@
 #include <cstdlib>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
+#include "boost/format.hpp"
+#include "boost/lexical_cast.hpp"
+#include "boost/utility/binary.hpp"
+
+#include "gem/hw/glib/HwGLIB.h"
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/readout/exception/Exception.h"
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBReadout);
 
