@@ -307,7 +307,7 @@ bool gem::supervisor::GEMSupervisor::isGEMApplication(const std::string& classna
   if (classname.find("gem") != std::string::npos)
     return true;  // handle all GEM applications
   /*
-  if (m_otherClassesToSupport.count(classname) != 0)
+    if (m_otherClassesToSupport.count(classname) != 0)
     return true;  // include from list
   */
   return false;
@@ -318,7 +318,7 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
   if (classname == "GEMSupervisor")
     return false;  // ignore ourself
   /*
-  if (m_otherClassesToSupport.count(classname) != 0)
+    if (m_otherClassesToSupport.count(classname) != 0)
     return true;  // include from list
   */
   if (classname.find("gem") != std::string::npos)
@@ -326,11 +326,11 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
   if (classname.find("PeerTransport") != std::string::npos)
     return false;  // ignore all peer transports
   /*
-  if ((classname == "TTCciControl" || classname == "ttc::TTCciControl") && m_handleTTCci.value_)
+    if ((classname == "TTCciControl" || classname == "ttc::TTCciControl") && m_handleTTCci.value_)
     return true;
-  if ((classname == "LTCControl" || classname == "ttc::LTCControl") && m_handleTTCci.value_)
+    if ((classname == "LTCControl" || classname == "ttc::LTCControl") && m_handleTTCci.value_)
     return true;
-  if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
+    if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
     return true;
   */
   return false;  // assume not ok.
@@ -360,7 +360,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
   // get the last entry
   // query parameter
   /*
-  std::string sqlString = ""
+    std::string sqlString = ""
     + "SELECT DISTINCT runnumbertbl.runnumber, runnumbertbl.username, runnumbertbl.bookingtime, runsession_parameter.session_id "
     + "FROM runnumbertbl "
     + "LEFT JOIN runsession_parameter ON (runsession_parameter.runnumber = runnumbertbl.runnumber) "
@@ -392,7 +392,6 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
     lastRunNumberQuery += location;
     lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
-    WARN("GEMSupervisor::updateRunNumber, current run number is: " << m_runNumber.toString());
     try {
       m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
     } catch (gem::utils::exception::DBEmptyQueryResult& e) {
@@ -404,10 +403,10 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
     }
 
-    WARN("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
+    INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
     //parse and increment by 1, if it is a new station, start at 1
     //m_runNumber.value_ += 1;
-    WARN("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
+    INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
   }
 }
 
