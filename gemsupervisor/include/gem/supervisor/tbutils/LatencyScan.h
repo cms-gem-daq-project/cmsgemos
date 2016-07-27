@@ -1,3 +1,5 @@
+/** @file LatencyScan.h */
+
 #ifndef GEM_SUPERVISOR_TBUTILS_LATENCYSCAN_H
 #define GEM_SUPERVISOR_TBUTILS_LATENCYSCAN_H
 

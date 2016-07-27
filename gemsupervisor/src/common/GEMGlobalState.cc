@@ -171,6 +171,9 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
   std::vector<xoap::SOAPElement> basic = props.getChildElements(stateReply);
   if (basic.size() == 1) {
     std::string stateString = basic[0].getValue();
+    DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
+          << " returned state " << stateString);
+
     if (!strcasecmp(stateString.c_str(), "Uninitialized"))
       i->second.state = gem::base::STATE_UNINIT;
     else if (!strcasecmp(stateString.c_str(), "Halted"))
@@ -185,7 +188,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
       i->second.state = gem::base::STATE_RUNNING;
     else if (!strcasecmp(stateString.c_str(), "Enabled"))
       i->second.state = gem::base::STATE_RUNNING;
-    else if (!strcasecmp(stateString.c_str(), "RUNNING"))
+    else if (!strcasecmp(stateString.c_str(), "Running"))
       i->second.state = gem::base::STATE_RUNNING;
     else if (!strcasecmp(stateString.c_str(), "Paused"))
       i->second.state = gem::base::STATE_PAUSED;
@@ -210,7 +213,9 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
       i->second.state = gem::base::STATE_RESETTING;
     else if (!strcasecmp(stateString.c_str(), "Fixing"))
       i->second.state = gem::base::STATE_FIXING;
-    else if (!strcasecmp(stateString.c_str(), "failed"))
+    else if (!strcasecmp(stateString.c_str(), "Failed"))
+      i->second.state = gem::base::STATE_FAILED;
+    else if (!strcasecmp(stateString.c_str(), "Error"))
       i->second.state = gem::base::STATE_FAILED;
     else
       WARN("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
@@ -258,7 +263,7 @@ std::string gem::supervisor::GEMGlobalState::getStateName(toolbox::fsm::State st
     return "Pause";
     break;
   case (gem::base::STATE_FAILED):
-    return "Failed";
+    return "Error";
     break;
   case (gem::base::STATE_INITIALIZING):
     return "Initializing";

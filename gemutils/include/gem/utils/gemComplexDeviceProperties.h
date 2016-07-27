@@ -1,8 +1,10 @@
-#ifndef GEM_UTILS_GEMCOMPLEXDEVICEPROPERTIES_H
-#define GEM_UTILS_GEMCOMPLEXDEVICEPROPERTIES_H
+/** @file gemComplexDeviceProperties.h */
 /*
  * This class provides base interface for the device properties.
  */
+
+#ifndef GEM_UTILS_GEMCOMPLEXDEVICEPROPERTIES_H
+#define GEM_UTILS_GEMCOMPLEXDEVICEPROPERTIES_H
 
 #include <algorithm>
 #include <cstdlib>
@@ -22,11 +24,11 @@ namespace gem {
       const std::vector<T*>& getSubDevicesRefs() {return m_subDevicesRefs;}
 
       void addSubDeviceRef(T* &&subDeviceRef) {m_subDevicesRefs.push_back(subDeviceRef);}
-      
+
     private:
       std::vector <T*> m_subDevicesRefs;
     };
-    
+
     typedef gemDeviceProperties gemVFATProperties;
     typedef gemComplexDeviceProperties<gemVFATProperties>  gemOHProperties;
     typedef gemComplexDeviceProperties<gemOHProperties>    gemGLIBProperties;

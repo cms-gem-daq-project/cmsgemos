@@ -1,3 +1,5 @@
+/** @file AMC13Manager.h */
+
 #ifndef GEM_HW_AMC13_AMC13MANAGER_H
 #define GEM_HW_AMC13_AMC13MANAGER_H
 
@@ -40,6 +42,12 @@ namespace gem {
           ::amc13::Status *getHTMLStatus()  const;
           ::amc13::AMC13  *getAMC13Device() const { return p_amc13; };
 
+          void setDisplayLevel(xgi::Input *in, xgi::Output *out)
+            throw (xgi::exception::Exception);
+
+          void updateStatus(xgi::Input *in, xgi::Output * out)
+            throw (xgi::exception::Exception);
+
           //state transitions
           virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
           virtual void configureAction()  throw (gem::hw::amc13::exception::Exception);
@@ -57,8 +65,8 @@ namespace gem {
           xoap::MessageReference disableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
 
-          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception); 
-	
+          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception);
+
           virtual void failAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
 
@@ -72,7 +80,6 @@ namespace gem {
 
 	    void registerFields(xdata::Bag<BGOInfo> *bag);
 
-	    // can configure up to 4 BGO channels
 	    xdata::Integer           channel;
 	    xdata::UnsignedInteger32 cmd;
 	    xdata::UnsignedInteger32 bx;
@@ -95,6 +102,7 @@ namespace gem {
 	    xdata::UnsignedInteger32 l1Aburst;
 	    xdata::Boolean           sendl1ATriburst;
 	    xdata::Boolean           startl1ATricont;
+	    xdata::Boolean           enableLEMO;
 
 	  };
 
@@ -116,6 +124,7 @@ namespace gem {
 
 	    xdata::Bag<L1AInfo> localTriggerConfig;
 
+	    // can configure up to 4 BGO channels
             xdata::Vector<xdata::Bag<BGOInfo> > bgoConfig;
 
             xdata::Integer prescaleFactor;
@@ -132,7 +141,6 @@ namespace gem {
           mutable gem::utils::Lock m_amc13Lock;
 
           ::amc13::AMC13 *p_amc13;
-	  //hcal::utca::DTCMonitoring m_monitoringHelper; to be developed!!!
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;
@@ -146,7 +154,7 @@ namespace gem {
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
           bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,
-	    m_bgoRepeat, m_bgoIsLong; //m_enableCalpulse,
+	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
 	  uint8_t m_bgoCMD;

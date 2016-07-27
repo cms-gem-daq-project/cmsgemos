@@ -17,15 +17,31 @@ GEMUTILS_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
-Sources+=Lock.cc gemXMLparser.cc soap/GEMSOAPToolBox.cc GEMRegisterUtils.cc
+Sources+=Lock.cc gemXMLparser.cc GEMRegisterUtils.cc
+Sources+=soap/GEMSOAPToolBox.cc
+Sources+=db/GEMDatabaseUtils.cc
 
 DynamicLibrary=gemutils
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
+# MySQL Config
+MySQLCFLAGS = $(shell mysql_config --cflags)
+MySQLLIBS   = $(shell mysql_config --libs)
+MySQLGLIBS  = $(shell mysql_config --glibs)
+
+UserCFlags  +=$(MySQLCFLAGS)
+UserCCFlags +=$(MySQLCFLAGS)
+
+LibraryDirs+=$(MySQLLIBS)
+LibraryDirs+=$(MySQLGLIBS)
+
+UserDynamicLinkFlags+=$(MySQLLIBS)
+
 include $(XDAQ_ROOT)/config/Makefile.rules
+#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

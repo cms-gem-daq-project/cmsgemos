@@ -106,14 +106,14 @@ gem::supervisor::tbutils::ADCScan::ADCScan(xdaq::ApplicationStub * s)
   xgi::framework::deferredbind(this, this, &gem::supervisor::tbutils::ADCScan::webStop,         "Stop"       );
   xgi::framework::deferredbind(this, this, &gem::supervisor::tbutils::ADCScan::webHalt,         "Halt"       );
   xgi::framework::deferredbind(this, this, &gem::supervisor::tbutils::ADCScan::webReset,        "Reset"      );
-  
+
   xoap::bind(this, &gem::supervisor::tbutils::ADCScan::onInitialize,  "Initialize",  XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::ADCScan::onConfigure,   "Configure",   XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::ADCScan::onStart,       "Start",       XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::ADCScan::onStop,        "Stop",        XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::ADCScan::onHalt,        "Halt",        XDAQ_NS_URI);
   xoap::bind(this, &gem::supervisor::tbutils::ADCScan::onReset,       "Reset",       XDAQ_NS_URI);
-  
+
   initSig_  = toolbox::task::bind(this, &ADCScan::initialize, "initialize");
   confSig_  = toolbox::task::bind(this, &ADCScan::configure,  "configure" );
   startSig_ = toolbox::task::bind(this, &ADCScan::start,      "start"     );
@@ -123,16 +123,16 @@ gem::supervisor::tbutils::ADCScan::ADCScan(xdaq::ApplicationStub * s)
   runSig_   = toolbox::task::bind(this, &ADCScan::run,        "run"       );
 
   fsmP_ = new toolbox::fsm::AsynchronousFiniteStateMachine("GEMTestBeamADCScan");
-  
+
   fsmP_->addState('I', "Initial",     this, &gem::supervisor::tbutils::ADCScan::stateChanged);
   fsmP_->addState('H', "Halted",      this, &gem::supervisor::tbutils::ADCScan::stateChanged);
   fsmP_->addState('C', "Configured",  this, &gem::supervisor::tbutils::ADCScan::stateChanged);
   fsmP_->addState('E', "Running",     this, &gem::supervisor::tbutils::ADCScan::stateChanged);
-  
+
   fsmP_->setStateName('F', "Error");
   fsmP_->setFailedStateTransitionAction(this,  &gem::supervisor::tbutils::ADCScan::transitionFailed);
   fsmP_->setFailedStateTransitionChanged(this, &gem::supervisor::tbutils::ADCScan::stateChanged);
-  
+
   fsmP_->addStateTransition('I', 'H', "Initialize", this, &gem::supervisor::tbutils::ADCScan::initializeAction);
   fsmP_->addStateTransition('H', 'C', "Configure",  this, &gem::supervisor::tbutils::ADCScan::configureAction);
   fsmP_->addStateTransition('C', 'C', "Configure",  this, &gem::supervisor::tbutils::ADCScan::configureAction);
@@ -154,7 +154,7 @@ gem::supervisor::tbutils::ADCScan::ADCScan(xdaq::ApplicationStub * s)
 
   fsmP_->setInitialState('I');
   fsmP_->reset();
-  
+
   dacMap["IPreampIn"]   = std::pair<std::string,std::string>("Current", "IPreampIn"  );
   dacMap["IPreampFeed"] = std::pair<std::string,std::string>("Current", "IPreampFeed");
   dacMap["IPreampOut"]  = std::pair<std::string,std::string>("Current", "IPreampOut" );
@@ -172,23 +172,23 @@ gem::supervisor::tbutils::ADCScan::ADCScan(xdaq::ApplicationStub * s)
 }
 
 gem::supervisor::tbutils::ADCScan::~ADCScan()
-  
+
 {
   wl_ = toolbox::task::getWorkLoopFactory()->getWorkLoop("urn:xdaq-workloop:GEMTestBeamSupervisor:ADCScan","waiting");
   //should we check to see if it's running and try to stop?
   wl_->cancel();
   wl_ = 0;
-  
-  //if (histo) 
+
+  //if (histo)
   //  histo->Delete();
-  if (histo) 
+  if (histo)
     delete histo;
   histo = 0;
-  
+
   if (outputCanvas)
     delete outputCanvas;
   outputCanvas = 0;
-  
+
   //if (scanStream) {
   //  if (scanStream->is_open())
   //    scanStream->close();
@@ -199,7 +199,7 @@ gem::supervisor::tbutils::ADCScan::~ADCScan()
   if (fsmP_)
     delete fsmP_;
   fsmP_ = 0;
-  
+
 }
 
 
@@ -217,26 +217,26 @@ void gem::supervisor::tbutils::ADCScan::actionPerformed(xdata::Event& event)
 
 void gem::supervisor::tbutils::ADCScan::fireEvent(const std::string& name)
 {
-  toolbox::Event::Reference event((new toolbox::Event(name, this)));  
+  toolbox::Event::Reference event((new toolbox::Event(name, this)));
   fsmP_->fireEvent(event);
 }
 
 void gem::supervisor::tbutils::ADCScan::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
 {
   //keep_refresh_ = false;
-  
+
   LOG4CPLUS_INFO(getApplicationLogger(),"Current state is: [" << fsm.getStateName (fsm.getCurrentState()) << "]");
   std::string state_=fsm.getStateName (fsm.getCurrentState());
-  
+
   LOG4CPLUS_INFO(getApplicationLogger(), "StateChanged: " << (std::string)state_);
-  
+
 }
 
 void gem::supervisor::tbutils::ADCScan::transitionFailed(toolbox::Event::Reference event)
 {
   //keep_refresh_ = false;
   toolbox::fsm::FailedEvent &failed = dynamic_cast<toolbox::fsm::FailedEvent&>(*event);
-  
+
   std::stringstream reason;
   reason << "<![CDATA["
          << std::endl
@@ -246,7 +246,7 @@ void gem::supervisor::tbutils::ADCScan::transitionFailed(toolbox::Event::Referen
          << ". Exception: " << xcept::stdformat_exception_history( failed.getException() )
          << std::endl
          << "]]>";
-  
+
   LOG4CPLUS_ERROR(getApplicationLogger(), reason.str());
 }
 
@@ -298,7 +298,7 @@ bool gem::supervisor::tbutils::ADCScan::run(toolbox::task::WorkLoop* wl)
     wl_->submit(stopSig_);
     return false;
   }
-  
+
   if (samplesTaken_ < confParams_.bag.nSamples) {
     hw_semaphore_.take();
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFAT_ADC");
@@ -307,13 +307,13 @@ bool gem::supervisor::tbutils::ADCScan::run(toolbox::task::WorkLoop* wl)
                     << " ADC for "
                     << confParams_.bag.dacToScan.toString());
     curDACValue = vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),dacMap[confParams_.bag.dacToScan.toString()].first);
-    
+
     ++samplesTaken_;
     vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
     hw_semaphore_.give();
 
     histo->Fill((unsigned)curDACRegValue, curDACValue);
-    
+
     wl_semaphore_.give();
     return true;
   }
@@ -342,15 +342,15 @@ bool gem::supervisor::tbutils::ADCScan::run(toolbox::task::WorkLoop* wl)
     outputCanvas->Update();
     outputCanvas->SaveAs(TString(imgRoot+imgName));
     delete imgFit;
-    
+
     samplesTaken_ = 0;
 
     if (curDACRegValue < confParams_.bag.maxDACValue) {
       hw_semaphore_.take();
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
-      if ((curDACRegValue + confParams_.bag.stepSize) < 0xFF) 
+      if ((curDACRegValue + confParams_.bag.stepSize) < 0xFF)
         vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),confParams_.bag.dacToScan.toString(),curDACRegValue + confParams_.bag.stepSize);
-      else  
+      else
         vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),confParams_.bag.dacToScan.toString(),0xFF);
       curDACRegValue = vfatDevice_->readVFATReg(confParams_.bag.dacToScan.toString());
       //vfatDevice_->setRunMode(0);
@@ -435,7 +435,7 @@ void gem::supervisor::tbutils::ADCScan::selectVFAT(xgi::Output *out)
     std::string isDisabled = "";
     if (is_running_ || is_configured_ || is_initialized_)
       isDisabled = "disabled";
-    
+
     LOG4CPLUS_DEBUG(getApplicationLogger(),"selected device is: "<<confParams_.bag.deviceName.toString());
     *out << cgicc::span() << std::endl
          << "<table>"     << std::endl
@@ -472,7 +472,7 @@ void gem::supervisor::tbutils::ADCScan::selectVFAT(xgi::Output *out)
              (cgicc::option("VFAT13").set(isDisabled).set("value","VFAT13"))) << std::endl
          << cgicc::select()<< std::endl
          << "</td>" << std::endl
-      
+
          << "<td>" << std::endl
          << cgicc::input().set("type","text").set("id","ChipID")
       .set("name","ChipID").set("readonly")
@@ -552,7 +552,7 @@ void gem::supervisor::tbutils::ADCScan::scanParameters(xgi::Output *out)
       .set("value",boost::str(boost::format("%d")%(confParams_.bag.maxDACValue)))
          << std::endl
          << cgicc::br() << std::endl
-      
+
          << cgicc::label("ReadDACReg").set("for","ReadDACReg") << std::endl
          << cgicc::input().set("id","ReadDACReg").set("name","ReadDACReg")
       .set("type","text").set("readonly")
@@ -631,7 +631,7 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
 {
 
   try {
-    ////update the page refresh 
+    ////update the page refresh
     if (!is_working_ && !is_running_) {
     }
     else if (is_working_) {
@@ -644,7 +644,7 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
       LOG4CPLUS_DEBUG(this->getApplicationLogger()," why do we need &head ?: " << &head);
       //head.addHeader("Refresh","5");
     }
-    
+
     //generate the control buttons and display the ones that can be touched depending on the run mode
     *out << "<div class=\"xdaq-tab-wrapper\">"            << std::endl;
     *out << "<div class=\"xdaq-tab\" title=\"Control\">"  << std::endl;
@@ -655,91 +655,91 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
          << cgicc::th()    << "Control" << cgicc::th() << std::endl
          << cgicc::th()    << "Buffer"  << cgicc::th() << std::endl
          << cgicc::tr()    << std::endl //close
-         << cgicc::thead() << std::endl 
-      
+         << cgicc::thead() << std::endl
+
          << "<tbody>" << std::endl
          << "<tr>"    << std::endl
          << "<td>"    << std::endl;
-    
+
     if (!is_initialized_) {
       //have a menu for selecting the VFAT
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Initialize") << std::endl;
 
       selectVFAT(out);
       scanParameters(out);
-      
+
       *out << cgicc::input().set("type", "submit")
         .set("name", "command").set("title", "Initialize hardware acces.")
         .set("value", "Initialize") << std::endl;
 
       *out << cgicc::form() << std::endl;
     }
-    
+
     else if (!is_configured_) {
       //this will allow the parameters to be set to the chip and scan routine
 
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Configure") << std::endl;
-      
+
       selectVFAT(out);
       scanParameters(out);
-      
+
       //adding aysen's xml parser
       //std::string setConfFile = toolbox::toString("/%s/setConfFile",getApplicationDescriptor()->getURN().c_str());
       //*out << cgicc::form().set("method","POST").set("action",setConfFile) << std::endl ;
-      
+
       *out << cgicc::input().set("type","text").set("name","xmlFilename").set("size","80")
         .set("ENCTYPE","multipart/form-data").set("readonly")
         .set("value",confParams_.bag.settingsFile.toString()) << std::endl;
       //*out << cgicc::input().set("type","submit").set("value","Set configuration file") << std::endl ;
       //*out << cgicc::form() << std::endl ;
-      
+
       *out << cgicc::br() << std::endl;
       *out << cgicc::input().set("type", "submit")
         .set("name", "command").set("title", "Configure scan.")
         .set("value", "Configure") << std::endl;
       *out << cgicc::form()        << std::endl;
     }
-    
+
     else if (!is_running_) {
       //hardware is initialized and configured, we can start the run
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Start") << std::endl;
-      
+
       selectVFAT(out);
       scanParameters(out);
-      
+
       *out << cgicc::input().set("type", "submit")
         .set("name", "command").set("title", "Start scan.")
         .set("value", "Start") << std::endl;
       *out << cgicc::form()    << std::endl;
     }
-    
+
     else if (is_running_) {
       *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Stop") << std::endl;
-      
+
       selectVFAT(out);
       scanParameters(out);
-      
+
       *out << cgicc::input().set("type", "submit")
         .set("name", "command").set("title", "Stop scan.")
         .set("value", "Stop") << std::endl;
       *out << cgicc::form()   << std::endl;
     }
-    
+
     *out << cgicc::comment() << "end the main commands, now putting the halt/reset commands" << cgicc::comment() << cgicc::br() << std::endl;
     *out << cgicc::span()  << std::endl
          << "<table>" << std::endl
          << "<tr>"    << std::endl
          << "<td>"    << std::endl;
-      
+
     //always should have a halt command
     *out << cgicc::form().set("method","POST").set("action", "/" + getApplicationDescriptor()->getURN() + "/Halt") << std::endl;
-    
+
     *out << cgicc::input().set("type", "submit")
       .set("name", "command").set("title", "Halt scan.")
       .set("value", "Halt") << std::endl;
     *out << cgicc::form() << std::endl
          << "</td>" << std::endl;
-    
+
     *out << "<td>"  << std::endl;
     if (!is_running_) {
       //comand that will take the system to initial and allow to change the hw device
@@ -762,9 +762,9 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
          << "</tr>"    << std::endl
          << "</tbody>" << std::endl
          << "</table>" << cgicc::br() << std::endl;
-    
+
     *out << "</div>" << std::endl;
-    
+
     //place new div class=xdaq-tab here to hold the histograms
     /*
       display a single histogram and have a form that selects which channel you want to display
@@ -772,13 +772,13 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
     */
     *out << "<div class=\"xdaq-tab\" title=\"Scan histogram\">"  << std::endl;
     displayHistograms(out);
-    
+
     *out << "</div>" << std::endl;
     *out << "</div>" << std::endl;
     //</div> //close the new div xdaq-tab
 
     *out << cgicc::br() << cgicc::br() << std::endl;
-    
+
     //*out << "<div class=\"xdaq-tab\" title=\"Status\">"  << std::endl
     //*out << cgicc::div().set("class","xdaq-tab").set("title","Status")   << std::endl
     *out << "<table class=\"xdaq-table\">" << std::endl
@@ -787,12 +787,12 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
          << cgicc::th()    << "Program" << cgicc::th() << std::endl
          << cgicc::th()    << "System"  << cgicc::th() << std::endl
          << cgicc::tr()    << std::endl //close
-         << cgicc::thead() << std::endl 
+         << cgicc::thead() << std::endl
       //<< "<tr>"    << std::endl
       //<< "<td>" << "Status:"   << "</td>"
       //<< "<td>" << "Value:"    << "</td>"
       //<< "</tr>" << std::endl
-      
+
          << "<tbody>" << std::endl
          << "<tr>"    << std::endl
          << "<td>"    << std::endl;
@@ -803,12 +803,12 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
          << cgicc::th()    << "Status" << cgicc::th() << std::endl
          << cgicc::th()    << "Value"  << cgicc::th() << std::endl
          << cgicc::tr()    << std::endl //close
-         << cgicc::thead() << std::endl 
+         << cgicc::thead() << std::endl
       //<< "<tr>"    << std::endl
       //<< "<td>" << "Status:"   << "</td>"
       //<< "<td>" << "Value:"    << "</td>"
       //<< "</tr>" << std::endl
-      
+
          << "<tbody>" << std::endl
 
          << "<tr>" << std::endl
@@ -834,7 +834,7 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
          << "</tbody>" << std::endl
          << "</table>" << cgicc::br() << std::endl
          << "</td>"    << std::endl;
-    
+
     *out  << "<td>"     << std::endl
           << "<table class=\"xdaq-table\">" << std::endl
           << cgicc::thead() << std::endl
@@ -842,9 +842,9 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
           << cgicc::th()    << "Device"     << cgicc::th() << std::endl
           << cgicc::th()    << "Connected"  << cgicc::th() << std::endl
           << cgicc::tr()    << std::endl //close
-          << cgicc::thead() << std::endl 
+          << cgicc::thead() << std::endl
           << "<tbody>" << std::endl;
-    
+
     if (is_initialized_ && vfatDevice_) {
       hw_semaphore_.take();
       vfatDevice_->setDeviceBaseNode("TEST");
@@ -852,21 +852,21 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
            << "<td>" << "GLIB" << "</td>"
            << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"GLIB") << "</td>"
            << "</tr>"   << std::endl
-	
+
            << "<tr>" << std::endl
            << "<td>" << "OptoHybrid" << "</td>"
            << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"OptoHybrid") << "</td>"
            << "</tr>"       << std::endl
-	
+
            << "<tr>" << std::endl
            << "<td>" << "VFATs" << "</td>"
            << "<td>" << vfatDevice_->readReg(vfatDevice_->getDeviceBaseNode(),"VFATs") << "</td>"
            << "</tr>"      << std::endl;
-      
+
       vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
       hw_semaphore_.give();
     }
-    
+
     *out << "</tbody>" << std::endl
          << "</table>" << std::endl
          << "</td>"    << std::endl
@@ -898,18 +898,18 @@ void gem::supervisor::tbutils::ADCScan::webDefault(xgi::Input *in, xgi::Output *
 
 void gem::supervisor::tbutils::ADCScan::webInitialize(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception) {
-  
+
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> vfat2FormEntries = cgi.getElements();
     LOG4CPLUS_DEBUG(getApplicationLogger(), "debugging form entries");
     std::vector<cgicc::FormEntry>::const_iterator myiter = vfat2FormEntries.begin();
-    
+
     //for (; myiter != vfat2FormEntries.end(); ++myiter ) {
     //  LOG4CPLUS_DEBUG(getApplicationLogger(), "form entry::" myiter->getName());
     //}
 
-    
+
     std::string tmpDeviceName = "";
     cgicc::const_form_iterator name = cgi.getElement("VFATDevice");
     if (name != cgi.getElements().end())
@@ -920,7 +920,7 @@ void gem::supervisor::tbutils::ADCScan::webInitialize(xgi::Input *in, xgi::Outpu
     LOG4CPLUS_DEBUG(getApplicationLogger(), "setting deviceName_ to ::" << tmpDeviceName);
     confParams_.bag.deviceName = tmpDeviceName;
     LOG4CPLUS_DEBUG(getApplicationLogger(), "deviceName_::"             << confParams_.bag.deviceName.toString());
-    
+
     int tmpDeviceNum = -1;
     tmpDeviceName.erase(0,4);
     tmpDeviceNum = atoi(tmpDeviceName.c_str());
@@ -929,7 +929,7 @@ void gem::supervisor::tbutils::ADCScan::webInitialize(xgi::Input *in, xgi::Outpu
     LOG4CPLUS_DEBUG(getApplicationLogger(), "setting deviceNum_ to ::" << tmpDeviceNum);
     confParams_.bag.deviceNum = tmpDeviceNum;
     LOG4CPLUS_DEBUG(getApplicationLogger(), "deviceNum_::"             << confParams_.bag.deviceNum.toString());
-    
+
     //change the status to initializing and make sure the page displays this information
   }
   catch (const xgi::exception::Exception & e) {
@@ -938,7 +938,7 @@ void gem::supervisor::tbutils::ADCScan::webInitialize(xgi::Input *in, xgi::Outpu
   catch (const std::exception & e) {
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
-  
+
   wl_->submit(initSig_);
 
   redirect(in,out);
@@ -950,10 +950,10 @@ void gem::supervisor::tbutils::ADCScan::webConfigure(xgi::Input *in, xgi::Output
 
   try {
     cgicc::Cgicc cgi(in);
-    
+
     //aysen's xml parser
     confParams_.bag.settingsFile = cgi.getElement("xmlFilename")->getValue();
-    
+
     cgicc::const_form_iterator element = cgi.getElement("DACToScan");
     if (element != cgi.getElements().end())
       confParams_.bag.dacToScan   = element->getValue();
@@ -961,7 +961,7 @@ void gem::supervisor::tbutils::ADCScan::webConfigure(xgi::Input *in, xgi::Output
     element = cgi.getElement("MinDACValue");
     if (element != cgi.getElements().end())
       confParams_.bag.minDACValue = element->getIntegerValue();
-    
+
     element = cgi.getElement("MaxDACValue");
     if (element != cgi.getElements().end())
       confParams_.bag.maxDACValue = element->getIntegerValue();
@@ -969,7 +969,7 @@ void gem::supervisor::tbutils::ADCScan::webConfigure(xgi::Input *in, xgi::Output
     element = cgi.getElement("DACStep");
     if (element != cgi.getElements().end())
       confParams_.bag.stepSize  = element->getIntegerValue();
-        
+
     element = cgi.getElement("SamplesToTake");
     if (element != cgi.getElements().end())
       confParams_.bag.nSamples  = element->getIntegerValue();
@@ -980,9 +980,9 @@ void gem::supervisor::tbutils::ADCScan::webConfigure(xgi::Input *in, xgi::Output
   catch (const std::exception & e) {
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
-  
+
   wl_->submit(confSig_);
-  
+
   redirect(in,out);
 }
 
@@ -992,7 +992,7 @@ void gem::supervisor::tbutils::ADCScan::webStart(xgi::Input *in, xgi::Output *ou
 
   try {
     cgicc::Cgicc cgi(in);
-    
+
     cgicc::const_form_iterator element = cgi.getElement("DACToScan");
     if (element != cgi.getElements().end())
       confParams_.bag.dacToScan   = element->getValue();
@@ -1000,7 +1000,7 @@ void gem::supervisor::tbutils::ADCScan::webStart(xgi::Input *in, xgi::Output *ou
     element = cgi.getElement("MinDACValue");
     if (element != cgi.getElements().end())
       confParams_.bag.minDACValue = element->getIntegerValue();
-    
+
     element = cgi.getElement("MaxDACValue");
     if (element != cgi.getElements().end())
       confParams_.bag.maxDACValue = element->getIntegerValue();
@@ -1008,7 +1008,7 @@ void gem::supervisor::tbutils::ADCScan::webStart(xgi::Input *in, xgi::Output *ou
     element = cgi.getElement("DACStep");
     if (element != cgi.getElements().end())
       confParams_.bag.stepSize  = element->getIntegerValue();
-        
+
     element = cgi.getElement("SamplesToTake");
     if (element != cgi.getElements().end())
       confParams_.bag.nSamples  = element->getIntegerValue();
@@ -1021,7 +1021,7 @@ void gem::supervisor::tbutils::ADCScan::webStart(xgi::Input *in, xgi::Output *ou
   }
 
   wl_->submit(startSig_);
-  
+
   redirect(in,out);
 }
 
@@ -1029,7 +1029,7 @@ void gem::supervisor::tbutils::ADCScan::webStart(xgi::Input *in, xgi::Output *ou
 void gem::supervisor::tbutils::ADCScan::webStop(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception) {
   wl_->submit(stopSig_);
-  
+
   redirect(in,out);
 }
 
@@ -1037,7 +1037,7 @@ void gem::supervisor::tbutils::ADCScan::webStop(xgi::Input *in, xgi::Output *out
 void gem::supervisor::tbutils::ADCScan::webHalt(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception) {
   wl_->submit(haltSig_);
-  
+
   redirect(in,out);
 }
 
@@ -1045,7 +1045,7 @@ void gem::supervisor::tbutils::ADCScan::webHalt(xgi::Input *in, xgi::Output *out
 void gem::supervisor::tbutils::ADCScan::webReset(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception) {
   wl_->submit(resetSig_);
-  
+
   redirect(in,out);
 }
 
@@ -1063,7 +1063,7 @@ void gem::supervisor::tbutils::ADCScan::initializeAction(toolbox::Event::Referen
   setLogLevelTo(uhal::Debug());  // Set uHAL logging level Debug (most) to Error (least)
   hw_semaphore_.take();
   vfatDevice_ = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(confParams_.bag.deviceName.toString()));
-  
+
   //vfatDevice_->setAddressTableFileName("allregsnonfram.xml");
   //vfatDevice_->setDeviceBaseNode("user_regs.vfats."+confParams_.bag.deviceName.toString());
   vfatDevice_->setAddressTableFileName("testbeam_registers.xml");
@@ -1071,7 +1071,7 @@ void gem::supervisor::tbutils::ADCScan::initializeAction(toolbox::Event::Referen
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
   //sleep(1);
   //  vfatDevice_->connectDevice();
-  
+
   //read in default parameters from an xml file?
   //vfatDevice_->setRegisters(xmlFile);
   vfatDevice_->readVFAT2Counters();
@@ -1093,7 +1093,7 @@ void gem::supervisor::tbutils::ADCScan::configureAction(toolbox::Event::Referenc
   stepSize_    = confParams_.bag.stepSize;
   minDACValue_ = confParams_.bag.minDACValue;
   maxDACValue_ = confParams_.bag.maxDACValue;
-  
+
   hw_semaphore_.take();
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
   //make sure device is not running
@@ -1107,7 +1107,7 @@ void gem::supervisor::tbutils::ADCScan::configureAction(toolbox::Event::Referenc
        theParser.parseXMLFile();
        }
   */
-  
+
   //else {
   LOG4CPLUS_INFO(getApplicationLogger(),"loading default settings");
   //default settings for the frontend
@@ -1115,31 +1115,31 @@ void gem::supervisor::tbutils::ADCScan::configureAction(toolbox::Event::Referenc
   vfatDevice_->setCalibrationMode(0x0); //set to normal
   vfatDevice_->setMSPolarity(     0x1); //negative
   vfatDevice_->setCalPolarity(    0x1); //negative
-  
+
   vfatDevice_->setProbeMode(        0x0);
   vfatDevice_->setLVDSMode(         0x0);
   vfatDevice_->setHitCountCycleTime(0x0); //maximum number of bits
-  
+
   vfatDevice_->setHitCountMode( 0x0);
   vfatDevice_->setMSPulseLength(0x3);
   vfatDevice_->setInputPadMode( 0x0);
   vfatDevice_->setTrimDACRange( 0x0);
   vfatDevice_->setBandgapPad(   0x0);
   vfatDevice_->sendTestPattern( 0x0);
-  
-  
+
+
   vfatDevice_->setIPreampIn(  168);
   vfatDevice_->setIPreampFeed(150);
   vfatDevice_->setIPreampOut(  80);
   vfatDevice_->setIShaper(    150);
   vfatDevice_->setIShaperFeed(100);
   vfatDevice_->setIComp(      120);
-  
+
   vfatDevice_->setLatency(     12);
   vfatDevice_->setVThreshold1( 25);
   vfatDevice_->setVThreshold2(  0);
   //}
-  
+
   LOG4CPLUS_DEBUG(getApplicationLogger(),"trying to get an enum from ::" << confParams_.bag.dacToScan.toString());
   vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
   vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),confParams_.bag.dacToScan.toString(),
@@ -1148,13 +1148,13 @@ void gem::supervisor::tbutils::ADCScan::configureAction(toolbox::Event::Referenc
 
   is_configured_ = true;
   hw_semaphore_.give();
-  
-  //if (histo) 
+
+  //if (histo)
   //  histo->Delete();
-  if (histo) 
+  if (histo)
     delete histo;
   histo = 0;
-  
+
   TString histName  = confParams_.bag.dacToScan.toString();
   TString histTitle = confParams_.bag.dacToScan.toString()+"DAC scan";
   int minVal = confParams_.bag.minDACValue;
@@ -1164,14 +1164,14 @@ void gem::supervisor::tbutils::ADCScan::configureAction(toolbox::Event::Referenc
   histo = new TH2F(histName, histTitle, nBins, minVal-0.5, maxVal+0.5, 1024, -0.5, 1023.5);
 
   outputCanvas = new TCanvas("outputCanvas","outputCanvas",600,800);
-  
+
   is_working_    = false;
 }
 
 
 void gem::supervisor::tbutils::ADCScan::startAction(toolbox::Event::Reference e)
   throw (toolbox::fsm::exception::Exception) {
-  
+
   is_working_ = true;
 
   samplesTaken_ = 0;
@@ -1179,7 +1179,7 @@ void gem::supervisor::tbutils::ADCScan::startAction(toolbox::Event::Reference e)
   time_t now = time(0);
   // convert now to string form
   //char* dt = ctime(&now);
-  
+
   tm *gmtm = gmtime(&now);
   char* utcTime = asctime(gmtm);
 
@@ -1200,16 +1200,16 @@ void gem::supervisor::tbutils::ADCScan::startAction(toolbox::Event::Reference e)
     LOG4CPLUS_DEBUG(getApplicationLogger(),"file " << confParams_.bag.outFileName.toString() << "opened");
 
   //write some global run information header
-  
+
   //char data[128/8]
   is_running_ = true;
   hw_semaphore_.take();
-  
+
   vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
   vfatDevice_->writeReg(vfatDevice_->getDeviceBaseNode(),confParams_.bag.dacToScan.toString(),
                         confParams_.bag.minDACValue);
   curDACRegValue = vfatDevice_->readVFATReg(confParams_.bag.dacToScan.toString());
-  
+
   vfatDevice_->setDeviceBaseNode("OptoHybrid.GEB.VFATS."+confParams_.bag.deviceName.toString());
   vfatDevice_->setRunMode(1);
   hw_semaphore_.give();
@@ -1218,12 +1218,12 @@ void gem::supervisor::tbutils::ADCScan::startAction(toolbox::Event::Reference e)
 
   scanStream.close();
 
-  //if (histo) 
+  //if (histo)
   //  histo->Delete();
-  if (histo) 
+  if (histo)
     delete histo;
   histo = 0;
-  
+
   TString histName  = confParams_.bag.dacToScan.toString();
   TString histTitle = confParams_.bag.dacToScan.toString()+"DAC scan";
   int minVal = confParams_.bag.minDACValue;
@@ -1234,7 +1234,7 @@ void gem::supervisor::tbutils::ADCScan::startAction(toolbox::Event::Reference e)
 
   //start scan routine
   wl_->submit(runSig_);
-  
+
   is_working_ = false;
 }
 
@@ -1253,12 +1253,12 @@ void gem::supervisor::tbutils::ADCScan::stopAction(toolbox::Event::Reference e)
   }
 
   //here we delete the histogram, so it should be created at start
-  //if (histo) 
+  //if (histo)
   //  histo->Delete();
-  if (histo) 
+  if (histo)
     delete histo;
   histo = 0;
-  
+
   wl_semaphore_.give();
   is_working_ = false;
 }
@@ -1283,9 +1283,9 @@ void gem::supervisor::tbutils::ADCScan::haltAction(toolbox::Event::Reference e)
   //vfatDevice_->setDACMode(gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy(confParams_.bag.dacToScan.toString())));
   vfatDevice_->setRunMode(0);
   hw_semaphore_.give();
-  
+
   //wl_->submit(haltSig_);
-  
+
   //sleep(5);
   wl_semaphore_.give();
   is_working_    = false;
@@ -1320,9 +1320,9 @@ void gem::supervisor::tbutils::ADCScan::resetAction(toolbox::Event::Reference e)
 
   confParams_.bag.deviceName   = "";
   confParams_.bag.deviceChipID = 0x0;
-  
+
   //wl_->submit(resetSig_);
-  
+
   //sleep(5);
   wl_semaphore_.give();
   is_working_     = false;

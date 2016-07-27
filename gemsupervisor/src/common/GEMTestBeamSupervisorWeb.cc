@@ -21,7 +21,7 @@ xdaq::WebApplication(s)
   xgi::framework::deferredbind(this, this, &GEMTestBeamSupervisorWeb::daqWeb,            "daqWeb");
 
   this->getApplicationInfoSpace()->addListener(this, "urn:xdaq-event:setDefaultValues");
-  
+
   gem::supervisor::GEMTestBeamSupervisorWeb::initializeConnection();
 }
 
@@ -33,7 +33,7 @@ void gem::supervisor::GEMTestBeamSupervisorWeb::actionPerformed (xdata::Event& e
       ss << "myParameter=[" << myParameter_ << "]" << std::endl;
       ss.str(std::string());
       ss << "vfatSleep=[" << vfatSleep_ << "]" << std::endl;
-      
+
       /*
         for ( std::vector<xdata::UnsignedInteger>::size_t i = 0;  i != myVector_.size() ; i++ )
         {
@@ -56,13 +56,13 @@ void gem::supervisor::GEMTestBeamSupervisorWeb::controlPanel(xgi::Input * in, xg
    *out << cgicc::title("GEM Web Supervisor") << std::endl;
    *out << cgicc::a("Visit the XDAQ Web site").set("href","http://xdaq.web.cern.ch") << std::endl;
    */
-  
+
   // set parameter callback
   std::string method = toolbox::toString("/%s/setParameter",getApplicationDescriptor()->getURN().c_str());
   *out << cgicc::fieldset().set("style","font-size: 10pt; font-family: arial;") << std::endl;
   *out << cgicc::legend("Set the parameters") << cgicc::p() << std::endl;
   *out << cgicc::form().set("method","GET").set("action", method) << "</br>" << std::endl;
-  
+
   *out << "myParameter:" << cgicc::input().set("type","number"
                                                ).set("name","myParam"
                                                      ).set("value", boost::str(boost::format("0x%08x")%myParameter_)
@@ -98,13 +98,13 @@ void gem::supervisor::GEMTestBeamSupervisorWeb::controlPanel(xgi::Input * in, xg
                                                       ).set("value", boost::str(boost::format("0x%08x")%systemFirmwareID_)
                                                             ).set("size","10").set("maxlength","32").set("readonly") << "</br>" << std::endl;
   *out << "</br>" << std::endl;
-  
+
   *out << cgicc::input().set("type","submit").set("value","Write").set("name","option") << std::endl;
   *out << cgicc::input().set("type","submit").set("value","Read").set("name","option") << std::endl;
   *out << cgicc::input().set("type","reset").set("value","Clear") << std::endl;
   *out << cgicc::form() << "</br>" << std::endl;
   *out << cgicc::fieldset();
-  
+
   // print out basic information
   *out << "Current value of myParameter_ = "   << myParameter_                  << "</br>" << std::endl;
   *out << "Current value of vfatSleep_ =   "   << vfatSleep_                    << "</br>" << std::endl;
