@@ -8,7 +8,7 @@
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
 	<AMCSlots       xsi:type="xsd:string">9</AMCSlots>
-	<ConnectionFile xsi:type="xsd:string">connections_tif_uncommonFW.xml</ConnectionFile>
+	<ConnectionFile xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
           <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="8">
             <crateID  xsi:type="xsd:integer">2</crateID>
@@ -43,7 +43,7 @@
       <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
 		  xsi:type="soapenc:Struct">
 	<!--AMCSlots       xsi:type="xsd:string">10</AMCSlots-->
-	<ConnectionFile xsi:type="xsd:string">connections_tif_uncommonFW.xml</ConnectionFile>
+	<ConnectionFile xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
 	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[48]">
           <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="15"> <!-- position must be (slot-1)*2+link-1 -->
             <crateID xsi:type="xsd:integer">2</crateID>
@@ -75,7 +75,7 @@
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
         	  xsi:type="soapenc:Struct">
         <amc13ConfigParams xsi:type="soapenc:Struct">
-          <ConnectionFile     xsi:type="xsd:string">connections_tif_uncommonFW.xml</ConnectionFile>
+          <ConnectionFile     xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
 	  <CardName     xsi:type="xsd:string">gem.shelf02.amc13</CardName>
           <AMCInputEnableList xsi:type="xsd:string">9</AMCInputEnableList>
           <AMCIgnoreTTSList   xsi:type="xsd:string">1-8 </AMCIgnoreTTSList>
@@ -121,7 +121,7 @@
     <xc:Application class="gem::hw::amc13::AMC13Readout" id="260" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Readout"
 		  xsi:type="soapenc:Struct">
-        <ConnectionFile  xsi:type="xsd:string">connections_tif_uncommonFW.xml</ConnectionFile>
+        <ConnectionFile  xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
         <DeviceName      xsi:type="xsd:string">AMC13</DeviceName>
         <CardName        xsi:type="xsd:string">gem.shelf02.amc13</CardName>
         <crateID         xsi:type="xsd:integer">2</crateID>
