@@ -149,6 +149,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
   m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
 
+  m_localTriggerConfig     = m_amc13Params.bag.localTriggerConfig;
   m_enableLocalL1A         = m_localTriggerConfig.bag.enableLocalL1A.value_;
   m_internalPeriodicPeriod = m_localTriggerConfig.bag.internalPeriodicPeriod.value_;
   m_L1Amode                = m_localTriggerConfig.bag.l1Amode.value_;
@@ -242,6 +243,11 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   } catch (std::exception& e) {
     ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
+  }
+
+  if (m_enableLEMO) {
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",true);
+    INFO("AMC13Manager enabling LEMO trigger " << m_enableLEMO);
   }
 
   //equivalent to hcal init part
@@ -362,6 +368,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
         p_amc13->enableBGO(bchan->bag.channel.value_);
     p_amc13->sendBGO();
   }
+
 }
 
 void gem::hw::amc13::AMC13Manager::pauseAction()
