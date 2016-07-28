@@ -373,6 +373,10 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
         //reset counters?
+        uint32_t gtxMask = optohybrid->readReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK");
+        gtxMask |= (0x1<<link);
+        optohybrid->writeReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
+
       } else {
         ERROR("configureAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
               << " is not responding");
