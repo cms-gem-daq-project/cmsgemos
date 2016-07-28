@@ -19,3 +19,4 @@
 # don't ignore CSS/JS etc
 !*.js
 !*.css
+*.#*
