@@ -72,6 +72,8 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   bag->addField("LocalTriggerPeriod",  &localTriggerPeriod);
 //  bag->addField("triggerSource",&triggerSource);
   bag->addField("slotFileName",  &slotFileName);
+  bag->addField("enableLEMOTrigger",  &enableLEMOTrigger);
+
 
 }
 
@@ -1758,6 +1760,12 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
   xoap::SOAPElement tc_enableTrigCont = tc_param.addChildElement(enableTrigCont_name);
   tc_enableTrigCont.addAttribute(xsi_type,"xsd:boolean");
   tc_enableTrigCont.addTextNode(confParams_.bag.EnableTrigCont.toString());
+
+  //LEMO Triggers
+  xoap::SOAPName  useLEMOTrigger_name = envelope.createName("EnableLEMO","props",appUrn);
+  xoap::SOAPElement tc_useLEMO = tc_param.addChildElement(useLEMOTrigger_name);
+  tc_useLEMO.addAttribute(xsi_type,"xsd:boolean");
+  tc_useLEMO.addTextNode(confParams_.bag.enableLEMOTrigger.toString());
 
   // Create the BGOConfig element
   xoap::SOAPName     bgoarray_name = envelope.createName("BGOConfig","props", appUrn);
