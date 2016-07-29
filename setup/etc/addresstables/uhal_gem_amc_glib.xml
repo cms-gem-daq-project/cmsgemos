@@ -129,7 +129,7 @@
         <node id="LINK0_SYNC_WORD_CNT" address="0x000000a4" permission="r" mask="0x0000ffff"/>
         <node id="LINK1_SYNC_WORD_CNT" address="0x000000a4" permission="r" mask="0xffff0000"/>
         <node id="DEBUG_LAST_CLUSTER_0" address="0x000000f0" permission="r" mask="0x0000ffff"/>
-        <node id="DEBUG_LAST_CLUSTER_o1" address="0x000000f1" permission="r" mask="0x0000ffff"/>
+        <node id="DEBUG_LAST_CLUSTER_1" address="0x000000f1" permission="r" mask="0x0000ffff"/>
         <node id="DEBUG_LAST_CLUSTER_2" address="0x000000f2" permission="r" mask="0x0000ffff"/>
         <node id="DEBUG_LAST_CLUSTER_3" address="0x000000f3" permission="r" mask="0x0000ffff"/>
         <node id="DEBUG_LAST_CLUSTER_4" address="0x000000f4" permission="r" mask="0x0000ffff"/>
