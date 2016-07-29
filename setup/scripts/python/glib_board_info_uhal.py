@@ -88,21 +88,18 @@ print
 #        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x1)
                 
 if not options.userOnly:
-  #pass
 	getSystemInfo(glib)
+        pass
 print
 print "--=======================================--"
-print "-> TEST INFORMATION"
+print "-> GEM SYSTEM INFORMATION"
 print "--=======================================--"
 print
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_RX_POLARITY"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.BOARD_ID"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.BOARD_TYPE"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.RELEASE"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.CONTROL"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.STATUS"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.TTC.CTRL"))
+print "TK_LINK_RX_POLARITY 0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_RX_POLARITY"))
+print "TK_LINK_TX_POLARITY 0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY"))
+print "BOARD_ID            0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.BOARD_ID"))
+print "BOARD_TYPE          0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.BOARD_TYPE"))
+print "RELEASE             0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.RELEASE"))
 print
 print "--=======================================--"
 print "-> DAQ INFORMATION"
