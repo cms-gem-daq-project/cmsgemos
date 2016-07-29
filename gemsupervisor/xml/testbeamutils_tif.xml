@@ -52,7 +52,7 @@
             <L1Arules               xsi:type="xsd:integer">0</L1Arules>
 	    <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
 	    <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont>
-            <EnableLEMO             xsi:type="xsd:boolean">true</EnableLEMO>
+            <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO>
           </LocalTriggerConfig>
 
           <BGOConfig xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[4]">
