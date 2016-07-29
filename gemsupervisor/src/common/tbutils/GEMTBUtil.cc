@@ -1759,6 +1759,12 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
   tc_enableTrigCont.addAttribute(xsi_type,"xsd:boolean");
   tc_enableTrigCont.addTextNode(confParams_.bag.EnableTrigCont.toString());
 
+  //LEMO Triggers
+  xoap::SOAPName  useLEMOTrigger_name = envelope.createName("EnableLEMO","props",appUrn);
+  xoap::SOAPElement tc_useLEMO = tc_param.addChildElement(useLEMOTrigger_name);
+  tc_useLEMO.addAttribute(xsi_type,"xsd:boolean");
+  tc_useLEMO.addTextNode(confParams_.bag.enableLEMOTrigger.toString());
+
   // Create the BGOConfig element
   xoap::SOAPName     bgoarray_name = envelope.createName("BGOConfig","props", appUrn);
   xoap::SOAPElement bgoarray_param = amc13config_param.addChildElement(bgoarray_name);
