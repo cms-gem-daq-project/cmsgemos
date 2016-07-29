@@ -8,7 +8,7 @@ def getFirmwareVersion(device,gtx=0):
     """
     Returns the OH firmware date as a map (day, month, year)
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d"%(gtx)
     fwver = readRegister(device,"%s.STATUS.FW"%(baseNode))
     date = {}
     date["d"] = fwver&0xff
@@ -20,7 +20,7 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
     """
     Returns the broadcast I2C mask corresponding to the connected VFATs
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
     writeRegister(device,"%s.Reset"%(baseNode), 0x1)
     writeRegister(device,"%s.Mask"%(baseNode), 0x0)
     vfatVal  = readRegister(device,"%s.Request.ChipID0"%(baseNode))
@@ -43,7 +43,7 @@ def optohybridCounters(device,gtx=0,doReset=False):
     T1:TTC,INTERNAL,EXTERNAL,LOOPBACK,SENT
     GTX
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(gtx)
 
     if doReset:
         for wbcnt in ["Strobe","Ack"]:
@@ -116,14 +116,14 @@ def setTriggerSource(device,gtx,source):
     Set the trigger source
     OH:   0=TTC, 1=FIRMWARE, 2=EXTERNAL, 3=LOOPBACK
     """
-    return writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(gtx),source)
+    return writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(gtx),source)
 
 def getTriggerSource(device,gtx):
     """
     Get the trigger source
     OH:   0=TTC, 1=FIRMWARE, 2=EXTERNAL, 3=LOOPBACK
     """
-    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(gtx))
+    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(gtx))
 
 def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=False):
     """
@@ -140,35 +140,35 @@ def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=F
     interval (only for mode 0,1), how often to repeat signals
     number how many signals to send (0 is continuous)
     """
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MODE"%(gtx),mode)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx),mode)
     if debug:
         print "configuring the T1 controller for mode 0x%x (0x%x)"%(
             mode,
-            readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MODE"%(gtx)))
+            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx)))
     if (mode == 0):
-        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TYPE"%(gtx),t1type)
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx),t1type)
         if debug:
             print "configuring the T1 controller for type 0x%x (0x%x)"%(
                 t1type,
-                readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TYPE"%(gtx)))
+                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx)))
     if (mode == 1):
-        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.DELAY"%(gtx),delay)
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx),delay)
         if debug:
             print "configuring the T1 controller for delay %d (%d)"%(
                 delay,
-                readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.DELAY"%(gtx)))
+                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx)))
     if (mode != 2):
-        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.INTERVAL"%(gtx),interval)
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx),interval)
         if debug:
             print "configuring the T1 controller for interval %d (%d)"%(
                 interval,
-                readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.INTERVAL"%(gtx)))
+                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx)))
 
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.NUMBER"%(gtx),number)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx),number)
     if debug:
         print "configuring the T1 controller for nsignals %d (%d)"%(
             number,
-            readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.NUMBER"%(gtx)))
+            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx)))
     return
 
 def sendL1A(device,gtx,interval=25,number=0,debug=False):
@@ -182,15 +182,15 @@ def sendL1A(device,gtx,interval=25,number=0,debug=False):
     """
     if debug:
         print "resetting the T1 controller"
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.RESET"%(gtx),0x1)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
     if debug:
         print "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
     configureLocalT1(device,gtx,0x0,0x0,0x0,interval,number)
-    #if not readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
-    #    print "status: 0x%x"%(readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)))
+    #if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+    #    print "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
     #    print "toggling T1Controller for sending L1A"
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
-    #print "status: 0x%x"%(readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)))
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    #print "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
     return
 
 def sendL1ACalPulse(device,gtx,delay,interval=25,number=0,debug=False):
@@ -204,40 +204,40 @@ def sendL1ACalPulse(device,gtx,delay,interval=25,number=0,debug=False):
     """
     if debug:
         print "resetting the T1 controller"
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.RESET"%(gtx),0x1)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
     if debug:
         print "configuring the T1 controller for mode 0x1, delay %d, interval %d, nsignals %d"%(delay,interval,number)
     configureLocalT1(device,gtx,0x1,0x0,delay,interval,number)
-    if not readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
-        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def sendResync(device,gtx,interval=25,number=1,debug=False):
     """
     Send a Resync signal
     """
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.RESET"%(gtx),0x1)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
     if debug:
         print "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
     configureLocalT1(device,gtx,0x0,0x2,0x0,interval,number)
     if debug:
-        print "current T1 status"%(gtx),readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx))
-    if not readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
-        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
+        print "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def sendBC0(device,gtx,interval=25,number=1,debug=False):
     """
     Send a BC0 signal
     """
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.RESET"%(gtx),0x1)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
     if debug:
         print "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
     configureLocalT1(device,gtx,0x0,0x3,0x0,interval,number)
     if debug:
-        print "current T1 status"%(gtx),readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx))
-    if not readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
-        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
+        print "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def setReferenceClock(device,gtx,source,debug=False):
@@ -246,7 +246,7 @@ def setReferenceClock(device,gtx,source,debug=False):
     OH:   0=onboard,     1=GTX recovered,  2=external clock
     V2A only
     """
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
+    writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
 
 def getClockingInfo(device,gtx,debug=False):
@@ -256,15 +256,15 @@ def getClockingInfo(device,gtx,debug=False):
     clocking = {}
 
     # v2b only
-    clocking["qplllock"]        = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.QPLL_LOCK" %(gtx))
-    clocking["qpllfpgaplllock"] = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.QPLL_FPGA_PLL_LOCK"%(gtx))
+    clocking["qplllock"]        = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.QPLL_LOCK" %(gtx))
+    clocking["qpllfpgaplllock"] = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.QPLL_FPGA_PLL_LOCK"%(gtx))
     
     #v2a only
-    clocking["fpgaplllock"] = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.FPGA_PLL_LOCK"%(gtx))
-    clocking["extplllock"]  = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.EXT_PLL_LOCK" %(gtx))
-    clocking["cdcelock"]    = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.CDCE_LOCK"    %(gtx))
-    clocking["gtxreclock"]  = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.GTX_LOCK" %(gtx))
-    clocking["refclock"]    = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx))
+    clocking["fpgaplllock"] = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.FPGA_PLL_LOCK"%(gtx))
+    clocking["extplllock"]  = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.EXT_PLL_LOCK" %(gtx))
+    clocking["cdcelock"]    = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.CDCE_LOCK"    %(gtx))
+    clocking["gtxreclock"]  = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.GTX_LOCK" %(gtx))
+    clocking["refclock"]    = readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx))
 
     return clocking
 
@@ -272,18 +272,18 @@ def getVFATsBitMask(device,gtx=0,debug=False):
     """
     Returns the VFAT s-bit mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL"%(gtx)
-    return readRegister(device,"%s.SBIT_MASK"%(baseNode))
+    baseNode = "GEM_AMC.OH.OH%d.CONTROL"%(gtx)
+    return readRegister(device,"%s.VFAT.SBIT_MASK"%(baseNode))
 
 def setVFATsBitMask(device,gtx=0,mask=0x000000,debug=False):
     """
     Set the VFAT s-bit mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL"%(gtx)
-    return writeRegister(device,"%s.SBIT_MASK"%(baseNode),mask)
+    baseNode = "GEM_AMC.OH.OH%d.CONTROL"%(gtx)
+    return writeRegister(device,"%s.VFAT.SBIT_MASK"%(baseNode),mask)
 
 def calculateLockErrors(device,gtx,register,sampleTime):
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(gtx)
     errorCounts = {}
 
     #for link in ("QPLL_LOCK","QPLL_FPGA_PLL_LOCK"):

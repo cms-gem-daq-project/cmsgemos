@@ -5,16 +5,16 @@ import uhal
 from registers_uhal import *
 
 def calculateLinkErrors(isGLIB,device,gtx,sampleTime):
-    baseNode = "GLIB.COUNTERS.GTX%d"%(gtx)
+    baseNode = "GEM_AMC.OH_LINKS"
     errorCounts = {}
     if not isGLIB:
-        baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS.GTX"%(gtx)
+        baseNode = "GEM_AMC.OH_LINKS"
 
     for link in ("TRK","TRG"):
-        writeRegister(device,"%s.%s_ERR.Reset"%(baseNode,link),0x1)
-        first = readRegister(device,"%s.%s_ERR"%(baseNode,link))
+        writeRegister(device,"%s.CTRL.CNT_RESET"%(baseNode),0x1)
+        first = readRegister(device,"%s.OH%d.TRACK_LINK_ERROR_CNT"%(baseNode,gtx))
         time.sleep(sampleTime)
-        second = readRegister(device,"%s.%s_ERR"%(baseNode,link))
+        second = readRegister(device,"%s.OH%d.TRACK_LINK_ERROR_CNT"%(baseNode,gtx))
         errorCounts[link] = [first,second]
     return errorCounts
 
