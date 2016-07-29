@@ -126,19 +126,6 @@ print "USE_GBT             0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.CONFIG
 print "USE_TRIG_LINKS      0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.CONFIG.USE_TRIG_LINKS"))
 print
 print "--=======================================--"
-print "-> TEST INFORMATION"
-print "--=======================================--"
-print
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_RX_POLARITY"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.BOARD_ID"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.BOARD_TYPE"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.RELEASE"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.CONTROL"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.STATUS"))
-print "0x%08x"%(readRegister(glib,"GEM_AMC.TTC.CTRL"))
-print
-print "--=======================================--"
 print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
