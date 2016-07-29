@@ -33,7 +33,6 @@ def getBasicSystemInfo(glib):
     brd_char[2] = chr(readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.BOARD_ID.CHAR3"))
     brd_char[3] = chr(readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.BOARD_ID.CHAR4"))
 
-
     board_id = ''.join([brd_char[0],brd_char[1],brd_char[2],brd_char[3]])
     print "-> board type  : %s%s%s"%(colors.CYAN,board_id,colors.ENDC)
 
