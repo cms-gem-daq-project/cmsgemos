@@ -110,79 +110,83 @@ print "--=======================================--"
 print "-> TEST INFORMATION"
 print "--=======================================--"
 print
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.RXPOLARITY"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.TXPOLARITY"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.BOARD_ID"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.DAQ"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.DAV_TIMEOUT"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.TTC"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.OPTOHYBRID"))
+print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_RX_POLARITY"))
+print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY"))
+print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.BOARD_ID"))
+print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.BOARD_TYPE"))
+print "0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.RELEASE"))
+print "0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.CONTROL"))
+print "0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.STATUS"))
+print "0x%08x"%(readRegister(glib,"GEM_AMC.TTC.CTRL"))
 print
 print "--=======================================--"
 print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
 if (options.l1a_block):
-    writeRegister(glib, "GLIB.TTC.CONTROL.INHIBIT_L1A", 0x1)
+    writeRegister(glib, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
 else:
-    writeRegister(glib, "GLIB.TTC.CONTROL.INHIBIT_L1A", 0x0)
+    writeRegister(glib, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
 
 if (options.resetCounters):
     glibCounters(glib,options.gtx,True)
-    writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
-    writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
+    writeRegister(glib,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
+    writeRegister(glib,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
 
 if (options.daq_enable>=0):
     print "Reset daq_enable: %i"%(options.daq_enable)
     if (options.reset_daq>=0):
-        writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x1)
-        writeRegister(glib, "GLIB.DAQ.CONTROL.RESET", 0x0)
+        writeRegister(glib, "GEM_AMC.DAQ.CONTROL.RESET", 0x1)
+        writeRegister(glib, "GEM_AMC.DAQ.CONTROL.RESET", 0x0)
 
-    writeRegister(glib, "GLIB.DAQ.CONTROL.DAQ_ENABLE",        0x1)
-    writeRegister(glib, "GLIB.DAQ.CONTROL.TTS_OVERRIDE",      0x8)
-    writeRegister(glib, "GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x1)
-    writeRegister(glib, "GLIB.DAQ.CONTROL.DAV_TIMEOUT",       0x30D40)
-    writeRegister(glib, "GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT", 0x30D4)
+    writeRegister(glib, "GEM_AMC.DAQ.CONTROL.DAQ_ENABLE",        0x1)
+    writeRegister(glib, "GEM_AMC.DAQ.CONTROL.TTS_OVERRIDE",      0x8)
+    writeRegister(glib, "GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x1)
+    writeRegister(glib, "GEM_AMC.DAQ.CONTROL.DAV_TIMEOUT",       0x30D40)
     for olink in range(NGTX):
         # in 160MHz clock cycles, so multiply by 4 to get in terms of BX
         # 0xc35 -> 781 BX
-        writeRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink),0x30D4)
+        writeRegister(glib,"GEM_AMC.DAQ.OH%d.CONTROL.EOE_TIMEOUT"%(olink),0x30D4)
 
 print
-print "-> DAQ control reg    :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL"))
-print "-> DAQ status reg     :0x%08x"%(readRegister(glib,"GLIB.DAQ.STATUS"))
-print "-> DAQ L1A ID         :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.L1AID"))
-print "-> DAQ sent events cnt:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.EVT_SENT"))
+print "-> DAQ control reg    :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.CONTROL"))
+print "-> DAQ status reg     :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.STATUS"))
+print "-> DAQ L1A ID         :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.EXT_STATUS.L1AID"))
+print "-> DAQ sent events cnt:0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.EXT_STATUS.EVT_SENT"))
 print
-print "-> DAQ DAV_TIMEOUT  :0x%08x"%(readRegister(glib,"GLIB.DAQ.CONTROL.DAV_TIMEOUT"))
-print "-> DAQ INPUT_TIMEOUT:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.INPUT_TIMEOUT"))
-print "-> DAQ RUN_TYPE     :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_TYPE"))
-print "-> DAQ RUN_PARAMS   :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_CONTROL.RUN_PARAMS"))
+print "-> DAQ DAV_TIMEOUT  :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.CONTROL.DAV_TIMEOUT"))
+print "-> DAQ RUN_TYPE     :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.EXT_CONTROL.RUN_TYPE"))
+print "-> DAQ RUN_PARAMS   :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.EXT_CONTROL.RUN_PARAMS"))
 print
-print "-> DAQ GTX NOT_IN_TABLE error counter:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
-print "-> DAQ GTX dispersion error counter  :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.DISPER_ERR"))
+print "-> DAQ GTX NOT_IN_TABLE error counter:0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.EXT_STATUS.NOTINTABLE_ERR"))
+print "-> DAQ GTX dispersion error counter  :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.EXT_STATUS.DISPER_ERR"))
 print
-print "-> GLIB MAX_DAV_TIMER :0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.MAX_DAV_TIMER"))
-print "-> GLIB LAST_DAV_TIMER:0x%08x"%(readRegister(glib,"GLIB.DAQ.EXT_STATUS.LAST_DAV_TIMER"))
+print "-> AMC MAX_DAV_TIMER :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.EXT_STATUS.MAX_DAV_TIMER"))
+print "-> AMC LAST_DAV_TIMER:0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.EXT_STATUS.LAST_DAV_TIMER"))
 
 print
-if options.gemttc in [0,1]:
-    writeRegister(glib,"GLIB.TTC.CONTROL.GEMFORMAT",options.gemttc)
-print "-> TTC Control :0x%08x"%(readRegister(glib,"GLIB.TTC.CONTROL"))
-print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GLIB.TTC.SPY"))
+print "-> TTC Control :0x%08x"%(readRegister(glib,"GEM_AMC.TTC.CTRL"))
+print "-> TTC Spy     :0x%08x"%(readRegister(glib,"GEM_AMC.TTC.TTC_SPY_BUFFER"))
 print
-print "-> RX Link Control :0x%08x"%(readRegister(glib,"GLIB.LINK_CONTROL.RX_Polarity"))
-print "-> TX Link Control :0x%08x"%(readRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity"))
+print "-> RX Link Control :0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_RX_POLARITY"))
+print "-> TX Link Control :0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY"))
 
 print
 print "--=======================================--"
 print "-> SSSSSSSSSSSSSSSSSSSSSSBITSSSSSSSSSSSSSS"
 print "--=======================================--"
-print "-> SBIT_RATE:%d %sHz"%(rateConverter(int(readRegister(glib,"GLIB.DAQ.SBIT_RATE"))/4))
+print "-> TRIGGER_RATE:%d %sHz"%(rateConverter(int(readRegister(glib,"GEM_AMC.TRIGGER.STATUS.OR_TRIGGER_RATE"))))
 print
 for olink in range(NGTX):
-    print "-> DAQ GTX%d clusters 01:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d_CLUSTER_01"%(olink)))
-    print "-> DAQ GTX%d clusters 23:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d_CLUSTER_23"%(olink)))
+    print "-> DAQ OH%d clusters 0:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_0_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 1:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_1_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 2:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_2_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 3:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_3_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 4:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_4_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 5:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_5_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 6:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_6_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 7:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_7_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 8:0x%08x"%(olink,readRegister(glib,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_8_RATE"%(olink)))
     print
 
 if options.short:
@@ -193,27 +197,21 @@ print "-> DAQ GTX INFO"
 print "--=======================================--"
 for olink in range(NGTX):
     print "-------------------------================--"
-    print "----------> DAQ GTX%d INFO <---------------"%(olink)
+    print "----------> DAQ OH%d INFO <---------------"%(olink)
     print "-------------------------================--"
-    print "---------> DAQ GTX%d status                      :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.STATUS"%(olink)))
-    print "---------> DAQ GTX%d corrupted VFAT block counter:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.CORRUPT_VFAT_BLK_CNT"%(olink)))
-    print "---------> DAQ GTX%d evn                         :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.EVN"%(olink)))
+    print "---------> DAQ OH%d status                      :0x%08x"%(olink,readRegister(glib,"GEM_AMC.DAQ.OH%d.STATUS"%(olink)))
+    print "---------> DAQ OH%d corrupted VFAT block counter:0x%08x"%(olink,readRegister(glib,"GEM_AMC.DAQ.OH%d.COUNTERS.CORRUPT_VFAT_BLK_CNT"%(olink)))
+    print "---------> DAQ OH%d evn                         :0x%08x"%(olink,readRegister(glib,"GEM_AMC.DAQ.OH%d.COUNTERS.EVN"%(olink)))
     print
-    print "---------> DAQ GTX%d MAX_DAV_TIMER :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.MAX_DAV_TIMER" %(olink)))
-    print "---------> DAQ GTX%d LAST_DAV_TIMER:0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.COUNTERS.LAST_DAV_TIMER"%(olink)))
-    print "---------> DAQ GTX%d DAV_TIMEOUT   :0x%08x"%(olink,readRegister(glib,"GLIB.DAQ.GTX%d.CONTROL.DAV_TIMEOUT"%(olink)))
+    print "---------> DAQ OH%d MAX_EOE_TIMER :0x%08x"%(olink,readRegister(glib,"GEM_AMC.DAQ.OH%d.COUNTERS.MAX_EOE_TIMER" %(olink)))
+    print "---------> DAQ OH%d LAST_EOE_TIMER:0x%08x"%(olink,readRegister(glib,"GEM_AMC.DAQ.OH%d.COUNTERS.LAST_EOE_TIMER"%(olink)))
+    print "---------> DAQ OH%d EOE_TIMEOUT   :0x%08x"%(olink,readRegister(glib,"GEM_AMC.DAQ.OH%d.CONTROL.EOE_TIMEOUT"%(olink)))
     print "-------------------------================--"
     print "-------------> DEBUG INFO <----------------"
     print "-------------------------================--"
-    dbgWords = readBlock(glib,"GLIB.DAQ.GTX%d.LASTBLOCK"%(olink),7)
+    dbgWords = readBlock(glib,"GEM_AMC.DAQ.OH%d.LASTBLOCK"%(olink),7)
     for word in dbgWords:
-        print "-> DAQ GTX%d debug:0x%08x"%(olink,word)
-
-    data = readFIFODepth(glib,olink)
-    if options.debug and not data["isEMPTY"]:
-        dbgWords = readBlock(glib,"GLIB.TRK_DATA.OptoHybrid_%d.FIFO"%(olink),24*7,True)
-        for word in dbgWords:
-            print "-> GLIB GTX%d FIFO:0x%08x"%(olink,word)
+        print "-> DAQ OH%d debug:0x%08x"%(olink,word)
 
 print
 print "--=======================================--"
@@ -223,42 +221,41 @@ print
 
 if (options.resetCounters):
     glibCounters(glib,options.gtx,True)
-    writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
-    writeRegister(glib,"GLIB.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
+    writeRegister(glib,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
+    writeRegister(glib,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
 print
 
 if (options.flipPolarityTX0):
-    tx0polarity = readRegister(glib,"GLIB.IPBus_System_Control.TX_polarity")
+    tx0polarity = readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY")
     if tx0polarity == 0x0:
-      print "TX0 polarity %s" %(tx0polarity)
-      writeRegister(glib,"GLIB.IPBus_System_Control.TX_polarity",0x1)
+        print "TX0 polarity %s" %(tx0polarity)
+        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x1)
     else:
-      print "TX0 polarity %s" %(tx0polarity)
-      writeRegister(glib,"GLIB.IPBus_System_Control.TX_polarity",0x0)
+        print "TX0 polarity %s" %(tx0polarity)
+        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x0)
 
 sys.stdout.flush()
-for olink in range(NGTX):
-    print "--=====GTX%d==============================--"%(olink)
-    errorCounts = []
-    SAMPLE_TIME = 1.
-    for trial in range(options.errorRate):
-        errorCounts.append(calculateLinkErrors(True,glib,olink,SAMPLE_TIME))
-    sys.stdout.flush()
-
-    rates = errorRate(errorCounts,SAMPLE_TIME)
-    print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
-    print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
-    print
-
-    sys.stdout.flush()
-    print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
-    counters = glibCounters(glib,olink)
-    print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(
-        "",
-        counters["T1"]["L1A"],
-        counters["T1"]["CalPulse"],
-        counters["T1"]["Resync"],
-        counters["T1"]["BC0"])
+#for olink in range(NGTX):
+#        print "--=====OH%d==============================--"%(olink)
+#        errorCounts = []
+#        SAMPLE_TIME = 1.
+#        for trial in range(options.errorRate):
+#                errorCounts.append(calculateLinkErrors(True,glib,olink,SAMPLE_TIME))
+#        sys.stdout.flush()
+#
+#        rates = errorRate(errorCounts,SAMPLE_TIME)
+#        print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
+#        print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
+#        print
+#
+#        sys.stdout.flush()
+#        print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
+#        counters = glibCounters(glib,olink)
+#        print "   %8s  0x%08x   0x%08x   0x%08x   0x%08x"%(
+#                "",
+#                counters["T1"]["L1A"],
+#                counters["T1"]["CalPulse"],
+#                counters["T1"]["Resync"],
+#                counters["T1"]["BC0"])
 print "--=======================================--"
-print "-> VCAL %x"%(readRegister(glib,"GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS.VFAT6.VCal"))
 sys.stdout.flush()
