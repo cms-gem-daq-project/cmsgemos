@@ -174,14 +174,13 @@ int gem::hw::amc13::AMC13Readout::dumpData()
     DEBUG("Get number of events in the buffer");
     int nevt = p_amc13->read( ::amc13::AMC13Simple::T1, "STATUS.MONITOR_BUFFER.UNREAD_BLOCKS");
     DEBUG("Trying to read " << std::dec << nevt << " events" << std::endl);
-
     if (nevt) {
-      std::ofstream outf((m_outFileName+"_chunk_"+std::to_string(static_cast <long long> (cnt))+".dat").c_str(), std::ios_base::app | std::ios::binary );
+      std::ofstream outf((m_outFileName.substr(0,m_outFileName.length()-4)+"_chunk_"+std::to_string(static_cast <long long> (cnt))+".dat").c_str(), std::ios_base::app | std::ios::binary );
       for (int i = 0; i < nevt; i++) {
         if ( (i % 100) == 0)
           DEBUG("calling readEvent " << std::dec << i << "..." << std::endl);
         pEvt = p_amc13->readEvent(siz, rc);
-        
+
         if (rc == 0 && siz > 0 && pEvt != NULL) {
           //fwrite(pEvt, sizeof(uint64_t), siz, fp);
           outf.write((char*)pEvt, siz*sizeof(uint64_t));

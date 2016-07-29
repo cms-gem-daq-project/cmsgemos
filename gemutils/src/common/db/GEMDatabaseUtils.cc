@@ -83,20 +83,8 @@ unsigned int gem::utils::db::GEMDatabaseUtils::query(const std::string& query)
 void gem::utils::db::GEMDatabaseUtils::configure()
 {
   Py_Initialize();
-  PyObject *amclist, *gtxlist;
-  amclist = Py_BuildValue("[iiiiiiiiiiii]", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);//make a list of amc slot numbers
-  gtxlist = Py_BuildValue("[ssssssssssss]", "11","11","11", "11","11","11", "11","11","11", "11","11","11"); // make a list of gtx masks as strings
-  PyObject *pName, *pModule, *pFunc, *pArgs;
-  pName = PyUnicode_FromString("query");
-  pModule = PyImport_Import(pName);
-  Py_DECREF(pName);
-  if (pModule != NULL)
-  {
-    PyTuple_SetItem(pArgs,0,amclist);
-    PyTuple_SetItem(pArgs,1,gtxlist);
-    pFunc = PyObject_GetAttrString(pModule, "configure_db");
-    PyObject_CallObject(pFunc, pArgs);
-  }
-
+  PyRun_SimpleString("from query import configure_db\n"
+                     "configure_db()\n");
+  DEBUG("GEMDatabaseUtils::configure_db");
   Py_Finalize();
 }

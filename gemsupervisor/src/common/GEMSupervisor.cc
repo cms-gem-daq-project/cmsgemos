@@ -38,7 +38,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   DEBUG("done");
   //p_gemMonitor      = new gem generic system monitor
 
-  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>("localhost",3306,"gemdaq","gemdaq");
+  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>("gem904daq01.cern.ch",3306,"gemdaq","gemdaq");
 
   v_supervisedApps.clear();
   // reset the GEMInfoSpaceToolBox object?
@@ -371,12 +371,15 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     + limit;
   */
 
+  // // book the next run number
+  // std::string sqlInsert = "INSERT INTO runnumbertbl (USERNAME,SEQUENCENAME,SEQUENCENUMBER) VALUES (?,?,?)";
+
   /*ldqm_db example
     | id  | Name                             | Type  | Number | Date       | Period | Station | Status | State_id |
     +-----+----------------------------------+-------+--------+------------+--------+---------+--------+----------+
     |   4 | run000001_bench_TAMU_2015-12-15  | bench | 000001 | 2015-12-16 | 2015T  | TAMU    |      1 |     NULL |
   */
-  
+
   // hacky time for teststand/local runs, before connection through RCMS to RunInfoDB is established
   p_gemDBHelper->configure();
 

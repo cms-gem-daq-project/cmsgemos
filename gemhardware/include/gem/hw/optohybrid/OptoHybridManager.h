@@ -134,7 +134,7 @@ namespace gem {
             // xdata::Integer cdceClkSrc;
 
             xdata::Bag<CommonVFATSettings> commonVFATSettings;
-            
+
             inline std::string toString() {
               // write obj to stream
               std::stringstream os;
