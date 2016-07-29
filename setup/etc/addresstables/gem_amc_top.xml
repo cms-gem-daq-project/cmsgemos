@@ -652,6 +652,7 @@
             </node>
 
             <node id="LASTBLOCK${BLOCK_IDX}"  address="0x9" permission="r" mask="0xffffffff"
+                  mode="incremental"  size="7"
                   description="contains the last 192+32 bits received from the VFAT and OH"
                   generate="true" generate_size="7" generate_address_step="0x1" generate_idx_var="BLOCK_IDX"
                   fw_signal="input_status_arr(${OH_IDX}).ep_vfat_block_data(${BLOCK_IDX})">
@@ -2078,7 +2079,7 @@
           fw_is_module_external="true">
           
         <node id="SYSTEM"  address="0x00000000"  permission="r" description="GLIB system registers">
-          <node id="BOARD_ID" address="0x0" description="GLIB board ID code">
+          <node id="BOARD_ID" address="0x0"  permission="r" description="GLIB board ID code">
             <node id="CHAR1"  mask="0xff000000"  permission="r" address="0x00000000"/>
             <node id="CHAR2"  mask="0x00ff0000"  permission="r" address="0x00000000"/>
             <node id="CHAR3"  mask="0x0000ff00"  permission="r" address="0x00000000"/>
