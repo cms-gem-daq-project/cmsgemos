@@ -13,7 +13,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   m_controlLink(-1)
 {
   setDeviceID("OptoHybridHw");
-  setAddressTableFileName("glib_address_table.xml");
+  setAddressTableFileName("uhal_gem_amc_glib.xml");
   //need to know which device this is 0 or 1?
   //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GEM_AMC.OH.OH0");
@@ -43,7 +43,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   b_links({false,false,false}),
   m_controlLink(-1)
 {
-  setAddressTableFileName("glib_address_table.xml");
+  setAddressTableFileName("uhal_gem_amc_glib.xml");
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());

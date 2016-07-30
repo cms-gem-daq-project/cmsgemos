@@ -29,7 +29,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
     ERROR("GEMHwDevice::" << msg);
   } catch (std::exception const& err) {
     ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
-    std::string msgBase = "Could not connect to th e hardware";
+    std::string msgBase = "Could not connect to the hardware";
     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
     ERROR("GEMHwDevice::" << msg);
   }
@@ -102,7 +102,7 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
   m_hwLock(toolbox::BSem::FULL, true),
   m_controlHubIPAddress("localhost"),
-  m_addressTable("glib_address_table.xml"),
+  m_addressTable("uhal_gem_amc_glib.xml"),
   m_ipBusProtocol("2.0"),
   m_deviceIPAddress("192.168.0.115"),
   m_controlHubPort(10203),
@@ -212,7 +212,7 @@ void gem::hw::GEMHwDevice::setParametersFromInfoSpace()
   // if we catch an exception, need to execute this, as successful operation will return in the try block
   DEBUG("GEMHwDevice::Setting default values as InfoSpace setting failed");
   setControlHubIPAddress("localhost");
-  setAddressTableFileName("glib_address_table.xml");
+  setAddressTableFileName("uhal_gem_amc_glib.xml");
   setIPBusProtocolVersion("2.0");
   setDeviceIPAddress("192.168.0.115");
 
