@@ -12,7 +12,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   m_controlLink(-1)
 {
   setDeviceID("OptoHybridHw");
-  setAddressTableFileName("glib_address_table.xml");
+  setAddressTableFileName("uhal_gem_amc_glib.xml");
   //need to know which device this is 0 or 1?
   //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GEM_AMC.OH.OH0");
@@ -42,7 +42,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   b_links({false,false,false}),
   m_controlLink(-1)
 {
-  setAddressTableFileName("glib_address_table.xml");
+  setAddressTableFileName("uhal_gem_amc_glib.xml");
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
@@ -77,7 +77,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
   //p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
   //p_gemHW = std::shared_ptr<uhal::HwInterface>(p_gemConnectionManager->getDevice(this->getDeviceID()));
-  //setAddressTableFileName("glib_address_table.xml");
+  //setAddressTableFileName("uhal_gem_amc_glib.xml");
   //setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
   setDeviceBaseNode("OptoHybrid");
   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
