@@ -40,11 +40,15 @@ parser.add_option("--v2b", action="store_true", dest="v2b",
 (options, args) = parser.parse_args()
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
+from gemlogger import GEMLogger
+gemlogger = GEMLogger("optohybrid_board_info_uhal").gemlogger
+gemlogger.setLevel(GEMLogger.INFO)
 
 uTCAslot = 10
 if options.slot:
 	uTCAslot = 160+options.slot
-	print options.slot, uTCAslot
+	msg = options.slot, uTCAslot
+        gemlogger.debug(msg)
 ipaddr        = '192.168.0.%d'%(uTCAslot)
 if options.testbeam:
         ipaddr        = '137.138.115.185'
