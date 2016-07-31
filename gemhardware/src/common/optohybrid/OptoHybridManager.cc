@@ -14,6 +14,7 @@
 
 #include "gem/hw/optohybrid/exception/Exception.h"
 
+#include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/utils/GEMCrateUtils.h"
 
 #include "xoap/MessageReference.h"
@@ -454,6 +455,26 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
           for (auto r = res.begin(); r != res.end(); ++r) {
             INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
           }
+        }
+
+        // per VFAT configurations
+        INFO("Setting per VFAT parameters");
+        for (int vfat = 0; vfat < 24; ++vfat) {
+          // skip VFATs not part of the mask
+          INFO("Checking mask " << std::hex << std::setw(8) << std::setfill('0') << vfatMask << std::dec
+               << " for VFAT in slot " << vfat);
+          if ((vfatMask << vfat) & 0x1)
+            continue;
+
+          INFO("Found VFAT in slot " << vfat);
+          // Apply specific settings on a per connected VFAT level, properties taken from the DB
+          std::stringstream vfatName;
+          vfatName << "VFAT" << vfat;
+          vfat_shared_ptr vfatDevice = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(vfatName.str(),optohybrid->getGEMHwInterface()));
+          INFO("Setting parameters for " << vfatName.str() << ": ChipID is: 0x"
+               << std::hex << std::setw(4) << std::setfill('0') << vfatDevice->getChipID()
+               << std::dec);
+          //vfatDevice->setPropertiesFromDB();
         }
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
