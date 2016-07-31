@@ -4,6 +4,18 @@ sys.path.append('${GEM_PYTHON_PATH}')
 import uhal
 from registers_uhal import *
 
+def getSystemFWVer(glib):
+    ver_major = readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE.MAJOR")
+    ver_minor = readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE.MINOR")
+    ver_build = readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE.BUILD")
+    return 0x0
+
+def getSystemFWDate(glib):
+    yyyy  = 2000+readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE.YY")
+    mm    = readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE.MM")
+    dd    = readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE.DD")
+    return "0x%04d%02d%02d"%(yyyy,mm,dd)
+
 def getBasicSystemInfo(glib):
 
     #chipsLog.setLevel(logging.DEBUG)    # Verbose logging (see packets being sent and received)

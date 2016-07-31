@@ -6,6 +6,14 @@ from registers_uhal import *
 from gemlogger import GEMLogger
 gemlogger = GEMLogger("optohybrid_user_functions").gemlogger
 
+def getFirmwareVersionRaw(device,gtx=0):
+    """
+    Returns the raw OH firmware date
+    """
+    baseNode = "GEM_AMC.OH.OH%d"%(gtx)
+    fwver = readRegister(device,"%s.STATUS.FW"%(baseNode))
+    return fwver
+
 def getFirmwareVersion(device,gtx=0):
     """
     Returns the OH firmware date as a map (day, month, year)

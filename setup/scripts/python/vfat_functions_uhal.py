@@ -3,22 +3,25 @@ import sys, os, time, signal, random
 import uhal
 from registers_uhal import *
 from optohybrid_user_functions_uhal import *
+from gemlogger import GEMLogger
+
+gemlogger = GEMLogger("vfat_functions_uhal").gemlogger
 
 def readVFAT(device, gtx, chip, reg, debug=False):
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(gtx,chip)
+    baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
     vfatVal = readRegister(device,"%s.%s"%(baseNode,reg))
     # do check on status
     if ((vfatVal >> 26) & 0x1) :
-        if debug:
-            print "error on VFAT transaction (chip %d, %s)"%(chip, reg)
+        msg = "error on VFAT transaction (chip %d, %s)"%(chip, reg)
+        gemlogger.debug(msg)
         return -1
     elif ((vfatVal >> 25) & 0x0):
-        if debug:
-            print "invalid VFAT transaction (chip %d, %s)"%(chip, reg)
+        msg = "invalid VFAT transaction (chip %d, %s)"%(chip, reg)
+        gemlogger.debug(msg)
         return -1
     elif ((vfatVal >> 24) & 0x0):
-        if debug:
-            print "wrong type of VFAT transaction (chip %d, %s)"%(chip, reg)
+        msg = "wrong type of VFAT transaction (chip %d, %s)"%(chip, reg)
+        gemlogger.debug(msg)
         return -1
     else :
         return vfatVal
@@ -32,23 +35,23 @@ def readAllVFATs(device, gtx, reg, mask=0x0, debug=False):
         pass
     ## do check on status, maybe only do the check in the calling code
     #if ((vfatVals >> 26) & 0x1) :
-    #    if debug:
-    #        print "error on block VFAT transaction (%s)"%(reg)
+    #    msg = "error on block VFAT transaction (%s)"%(reg)
+    #    gemlogger.debug(msg)
     #    return -1
     #elif ((vfatVals >> 25) & 0x0):
-    #    if debug:
-    #        print "invalid block VFAT transaction (%s)"%(reg)
+    #    msg = "invalid block VFAT transaction (%s)"%(reg)
+    #    gemlogger.debug(msg)
     #    return -1
     #elif ((vfatVals >> 24) & 0x0):
-    #    if debug:
-    #        print "wrong type of block VFAT transaction (%s)"%(reg)
+    #    msg = "wrong type of block VFAT transaction (%s)"%(reg)
+    #    gemlogger.debug(msg)
     #    return -1
     #else :
     #    return vfatVals
     return vfatVals
 
 def writeVFAT(device, gtx, chip, reg, value, debug=False):
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(gtx,chip)
+    baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
     writeRegister(device,"%s.%s"%(baseNode,reg), value)
 
 def writeVFATRegisters(device, gtx, chip, regs_with_values, debug=False):
@@ -196,7 +199,7 @@ def biasAllVFATs(device, gtx, mask, enable=True, debug=False):
 
 def getChipID(device, gtx, chip, debug=False):
     thechipid = 0x0000
-    #baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(chip)
+    #baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(chip)
     emptyMask = 0xffff
     ebmask = 0x000000ff
     thechipid  = readVFAT(device, gtx, chip, "ChipID1")
@@ -245,13 +248,16 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
         ]
 
     slotmap = map(lambda slotID: perslot%(slotID), regkeys.keys())
-    print "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
+    msg = "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
+    gemlogger.info(msg)
     chipmap = map(lambda chipID: perchip%(regkeys[chipID]), regkeys.keys())
-    print "%s%s%s%s"%(base,colors.CYAN,' '.join(map(str, chipmap)),colors.ENDC)
+    msg = "%s%s%s%s"%(base,colors.CYAN,' '.join(map(str, chipmap)),colors.ENDC)
+    gemlogger.info(msg)
     for reg in registerList:
         #regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())
         regValues = readAllVFATs(device, gtx, reg, mask, debug)
         regmap = map(lambda chip: perreg%(chip&0xff), regValues)
-        print "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
-        pass
+        msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
+        gemlogger.info(msg)
+
     return
