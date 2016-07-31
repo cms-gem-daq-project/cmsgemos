@@ -230,20 +230,20 @@ def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=F
     return
 
 def resetLocalT1(device,gtx,debug=False):
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.RESET"%(gtx),0x1)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
     return
 
 def getLocalT1Status(device,gtx,debug=False):
-    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx))
+    return readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
 
 def startLocalT1(device,gtx,debug=False):
-    if not readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
-        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def stopLocalT1(device,gtx,debug=False):
-    if readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
-        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
+    if readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def sendL1A(device,gtx,interval=25,number=0,debug=False):
