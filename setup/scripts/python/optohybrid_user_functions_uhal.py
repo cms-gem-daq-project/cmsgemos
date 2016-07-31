@@ -42,7 +42,7 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
         for i,val in enumerate(vfatVals):
             msg = "%d: value = 0x%08x"%(i,vfatVal)
             gemlogger.debug(msg)
-    
+
     return bmask
 
 def optohybridCounters(device,gtx=0,doReset=False):
@@ -83,7 +83,7 @@ def optohybridCounters(device,gtx=0,doReset=False):
         return
     else:
         counters = {}
-        
+
         counters["WB"] = {}
         counters["WB"]["MASTER"] = {}
         counters["WB"]["SLAVE"]  = {}
@@ -100,7 +100,7 @@ def optohybridCounters(device,gtx=0,doReset=False):
                 counters["WB"]["MASTER"][wbcnt]["I2C%d"%i2c] = readRegister(device,"%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
             for slave in ["ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"]:
                 counters["WB"]["MASTER"][wbcnt][slave] = readRegister(device,"%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
-        
+
         #CRC counters
         counters["CRC"] = {}
         counters["CRC"]["VALID"]     = {}
@@ -272,7 +272,7 @@ def getClockingInfo(device,gtx,debug=False):
     # v2b only
     clocking["qplllock"]        = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.QPLL_LOCK" %(gtx))
     clocking["qpllfpgaplllock"] = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.QPLL_FPGA_PLL_LOCK"%(gtx))
-    
+
     #v2a only
     clocking["fpgaplllock"] = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.FPGA_PLL_LOCK"%(gtx))
     clocking["extplllock"]  = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.EXT_PLL_LOCK" %(gtx))
