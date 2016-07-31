@@ -91,7 +91,7 @@ print
 #        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x0)
 #else:
 #        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x1)
-                
+
 if not options.userOnly:
 	getSystemInfo(glib)
         pass
@@ -219,12 +219,12 @@ sys.stdout.flush()
 #        for trial in range(options.errorRate):
 #                errorCounts.append(calculateLinkErrors(True,glib,olink,SAMPLE_TIME))
 #        sys.stdout.flush()
-#        
+#
 #        rates = errorRate(errorCounts,SAMPLE_TIME)
 #        print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
 #        print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
-#        print 
-#        
+#        print
+#
 #        sys.stdout.flush()
 #        print "-> Counters    %8s     %8s     %8s     %8s"%("L1A","Cal","Resync","BC0")
 #        counters = glibCounters(glib,olink)
