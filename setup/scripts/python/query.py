@@ -6,6 +6,8 @@ import datetime
 from time import sleep
 from ldqm_db.models import *
 from ldqm_db.amcmanager import *
+from gemlogger import GEMLogger
+gemlogger = GEMLogger("query").gemlogger
 
 def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
     amc_list=[1,2,3,4,5,6,7,8,9,10,11,12]
@@ -13,7 +15,8 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
     zlist = zip(amc_list, geb_list)
     a_list = []
     for amcN, gtx_list in zlist:
-      print "Trying to connect to AMC # %s\n" %(amcN)
+      msg = "Trying to connect to AMC # %s\n" %(amcN)
+      gemlogger.info(msg)
       m_AMCmanager = AMCmanager()
       g_list = []
       try:
@@ -33,13 +36,15 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
             if t_chipid in vfats.filter(Slot=chip).values_list("ChipID", flat=True):
               pass
             else:
-              print "Adding VFAT(ChipID = %s, Slot = %d)"%(t_chipid,chip)
+              msg = "Adding VFAT(ChipID = %s, Slot = %d)"%(t_chipid,chip)
+              gemlogger.info(msg)
               v = VFAT(ChipID = t_chipid, Slot = chip)
               v.save()
             v_list.append(VFAT.objects.get(ChipID = t_chipid, Slot = chip))
           #t_chamberID = 'OHv2aM'#hard code now, read from HW later when available
           t_chamberID = 'GTX-'+str(gtx) #use gtx link number now, read from HW later when available
-          print "t_chamberID = %s" %(t_chamberID)
+          msg = "t_chamberID = %s" %(t_chamberID)
+          gemlogger.info(msg)
           gebs = GEB.objects.filter(ChamberID=t_chamberID)
           t_flag = False
           for geb in gebs:
@@ -50,7 +55,8 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
           if t_flag:
             pass
           else:
-            print "Update DB"
+            msg = "Update DB"
+            gemlogger.info(msg)
             g = GEB(Type="Long",ChamberID = t_chamberID)
             g.save()
             for v in v_list:
@@ -69,7 +75,8 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
       if t_flag:
         pass
       else:
-        print "Update DB"
+        msg = "Update DB"
+        gemlogger.info(msg)
         a = AMC(Type="GLIB",BoardID = t_boardID)
         a.save()
         for g in g_list:

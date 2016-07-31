@@ -4,7 +4,10 @@ from glib_user_functions_uhal import *
 from vfat_functions_uhal import *
 
 class AMCmanager:
+  from gemlogger import GEMLogger
+
   def __init__(self):
+    self.gemlogger = GEMLogger("AMCmanager").gemlogger
     pass
 
   def connect(self,sn):
@@ -15,7 +18,8 @@ class AMCmanager:
     #consider all AMCs to be GLIBs
     #if (int(sn) == 2):
     #  self.uri = "ipbustcp-2.0://eagle34:70002"
-    print "Open new connection\n"
+    msg = "Open new connection\n"
+    self.gemlogger.info(msg)
     self.glib  = uhal.getDevice( "glib" , self.uri, self.address_table )
     #check if glib is really connected
     fwv = readRegister(self.glib,"GLIB.SYSTEM.FIRMWARE")
