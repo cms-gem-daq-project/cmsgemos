@@ -42,7 +42,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
   // this->gem::hw::GEMHwDevice::GEMHwDevice();
   // gem::hw::vfat::HwVFAT2::initDevice();
   // can use a different address table for the VFAT access
-  setAddressTableFileName("glib_address_table.xml");
+  setAddressTableFileName("uhal_gem_amc_glib.xml");
   setDeviceID("VFAT2Hw");
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GEM_AMC.OH.OH0.GEB.VFATS."+vfatDevice);

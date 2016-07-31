@@ -176,11 +176,19 @@ namespace gem {
           } OptoHybridVFATCRCCounters;
 
           HwOptoHybrid();
+
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionFile);
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI,
                        std::string const& addressTable);
           HwOptoHybrid(std::string const& optohybridDevice, uhal::HwInterface& uhalDevice);
           HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
+
+          /*
+          // constructors from existing GEM hardware devices
+          HwOptoHybrid(uhal::HwInterface& device, uint8_t const& slot, uint8_t const& olink, uint8_t const& );
+          HwOptoHybrid(GEMHwDevice  const& gemDevice,  uint8_t const& slot, uint8_t const& olink);
+          HwOptoHybrid(HwGLIB       const& glibDevice, uint8_t const& olink);
+          */
 
           virtual ~HwOptoHybrid();
 
