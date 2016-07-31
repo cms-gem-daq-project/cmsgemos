@@ -72,16 +72,16 @@ def getBasicSystemInfo(glib):
 
     #print "-> ip_addr           :", readRegister(glib,"ip_addr")
     print "-> ip_addr        : %d.%d.%d.%d"%(readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.IP_INFO.B3"),
-                                               readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.IP_INFO.B2"),
-                                               readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.IP_INFO.B1"),
-                                               readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.IP_INFO.B0"))
+                                             readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.IP_INFO.B2"),
+                                             readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.IP_INFO.B1"),
+                                             readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.IP_INFO.B0"))
 
     print "-> hw_addr        : %02x.%02x.%02x.%02x.%02x.%02x"%(readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B6"),
-                                                                 readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B5"),
-                                                                 readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B4"),
-                                                                 readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B3"),
-                                                                 readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B2"),
-                                                                 readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B1"))
+                                                               readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B5"),
+                                                               readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B4"),
+                                                               readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B3"),
+                                                               readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B2"),
+                                                               readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B1"))
     amc_slot = readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.V6_CPLD") & 0x0f
 
     print "-> CPLD bus state : 0x%02x"%(readRegister(glib,"GEM_AMC.GLIB_SYSTEM.SYSTEM.STATUS.V6_CPLD"))
