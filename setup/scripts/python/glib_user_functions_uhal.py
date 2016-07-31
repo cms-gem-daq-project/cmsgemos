@@ -133,6 +133,10 @@ def resetDAQLink(device):
     writeRegister(device,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
     pass
 
+def enableDAQLinkMask(linkno, linkEnableMask=0x0):
+    linkEnableMask |= (0x1<<linkno)
+    return linkEnableMask
+
 def enableDAQLink(device, linkEnableMask=0x1, doReset=False):
     gemlogger.info("Reset daq_enable: %i"%(1))
     if (doReset):
