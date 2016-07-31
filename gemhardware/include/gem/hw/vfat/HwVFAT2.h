@@ -56,6 +56,14 @@ namespace gem {
                   uint8_t                           const& vfatDevice);
           HwVFAT2(std::string const& vfatDevice="VFAT13");
 
+          /*
+          // constructors from existing GEM hardware devices
+          HwVFAT2(uhal::HwInterface& device, uint8_t const& slot, uint8_t const& olink, uint8_t const& );
+          HwVFAT2(GEMHwDevice  const& gemDevice,  uint8_t const& slot, uint8_t const& olink);
+          HwVFAT2(HwGLIB       const& glibDevice, uint8_t const& olink);
+          HwVFAT2(HwOptoHybrid const& ohDevice,   uint8_t const& olink);
+          */
+
           virtual ~HwVFAT2();
 
           /**
@@ -622,6 +630,7 @@ namespace gem {
 
         };  // class HwVFAT2
     }  // namespace gem::hw::vfat
+    typedef std::shared_ptr<gem::hw::vfat::HwVFAT2> vfat_shared_ptr;
   }  // namespace gem::hw
 }  // namespace gem
 

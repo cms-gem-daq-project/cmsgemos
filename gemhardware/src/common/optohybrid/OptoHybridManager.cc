@@ -14,6 +14,7 @@
 
 #include "gem/hw/optohybrid/exception/Exception.h"
 
+#include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/utils/GEMCrateUtils.h"
 
 #include "xoap/MessageReference.h"
