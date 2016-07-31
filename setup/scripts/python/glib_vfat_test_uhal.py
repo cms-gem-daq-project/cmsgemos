@@ -194,7 +194,6 @@ for chip in chipids.keys():
                                                                      controlRegs["ctrl2"][chip],
                                                                      controlRegs["ctrl3"][chip])
 
-
 print
 print "--=======================================--"
 print
