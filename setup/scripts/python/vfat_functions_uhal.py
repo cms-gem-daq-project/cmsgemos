@@ -259,5 +259,5 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
         regmap = map(lambda chip: perreg%(chip&0xff), regValues)
         msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
         gemlogger.info(msg)
-
+        pass
     return
