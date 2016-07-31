@@ -3,8 +3,12 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 
-gMAX_RETRIES = 11
+from gemlogger import GEMLogger
+gemlogger = GEMLogger("registers_uhal").gemlogger
+
+gMAX_RETRIES = 5
 gRetries = 0
+
 class colors:
     WHITE   = '\033[97m'
     CYAN    = '\033[96m'
@@ -146,7 +150,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
             device.getNode(register).write(0xffffffff&value)
             device.dispatch()
             return
-        
+
         except uhal.exception, e:
             # if ('amount of data' in e):
             #     print colors.BLUE, "bad header",register, "-> Error : ", e, colors.ENDC
@@ -180,7 +184,7 @@ def writeRegisterList(device, regs_with_vals, debug=False):
                 pass
             device.dispatch()
             return
-        
+
         except uhal.exception, e:
             nRetries += 1
             gRetries += 1
