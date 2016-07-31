@@ -13,6 +13,9 @@ from glib_system_info_uhal import *
 from rate_calculator import rateConverter,errorRate
 from glib_user_functions_uhal import *
 
+from gemlogger import GEMLogger
+gemlogger = GEMLogger("glib_board_info_uhal").gemlogger
+
 #from glib_clock_src import *
 
 from optparse import OptionParser
@@ -61,12 +64,14 @@ if options.slot:
 	uTCAslot = 160+options.slot
 
 if options.debug:
-        print options.slot, uTCAslot
+        msg = options.slot, uTCAslot
+        gemlogger.debug(msg)
 
 ipaddr = '192.168.0.%d'%(uTCAslot)
 #ipaddr = '192.168.250.53'
 if options.testbeam:
         ipaddr        = '137.138.115.185'
+## almost definitely better to use a connection file here?
 #address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
@@ -109,29 +114,16 @@ print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
 if (options.l1a_block):
-        writeRegister(glib, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
+        blockL1A(glib)
 else:
-        writeRegister(glib, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
+        enableL1A(glib)
 
 if (options.resetCounters):
         glibCounters(glib,options.gtx,True)
-        writeRegister(glib,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
-        writeRegister(glib,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
+        resetDAQLink(glib)
 
 if (options.daq_enable>=0):
-        print "Reset daq_enable: %i"%(options.daq_enable)
-        if (options.reset_daq>=0):
-                writeRegister(glib, "GEM_AMC.DAQ.CONTROL.RESET", 0x1)
-                writeRegister(glib, "GEM_AMC.DAQ.CONTROL.RESET", 0x0)
-
-        writeRegister(glib, "GEM_AMC.DAQ.CONTROL.DAQ_ENABLE",        0x1)
-        writeRegister(glib, "GEM_AMC.DAQ.CONTROL.TTS_OVERRIDE",      0x8)
-        writeRegister(glib, "GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x1)
-        writeRegister(glib, "GEM_AMC.DAQ.CONTROL.DAV_TIMEOUT",       0x30D40)
-        for olink in range(NGTX):
-                # in 160MHz clock cycles, so multiply by 4 to get in terms of BX
-                # 0xc35 -> 781 BX
-                writeRegister(glib,"GEM_AMC.DAQ.OH%d.CONTROL.EOE_TIMEOUT"%(olink),0x30D4)
+        enableDAQLink(glib)
 
 print
 print "-> DAQ control reg    :0x%08x"%(readRegister(glib,"GEM_AMC.DAQ.CONTROL"))
