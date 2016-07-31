@@ -3,6 +3,8 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 from registers_uhal import *
+from gemlogger import GEMLogger
+gemlogger = GEMLogger("optohybrid_user_functions").gemlogger
 
 def getFirmwareVersion(device,gtx=0):
     """
@@ -24,13 +26,14 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
     writeRegister(device,"%s.Reset"%(baseNode), 0x1)
     writeRegister(device,"%s.Mask"%(baseNode), 0x0)
     vfatVal  = readRegister(device,"%s.Request.ChipID0"%(baseNode))
-    if (debug):
-        print "vfatVal = 0x%08x"%(vfatVal)
+    msg = "vfatVal = 0x%08x"%(vfatVal)
+    gemlogger.debug(msg)
     vfatVals = readBlock(device,"%s.Results"%(baseNode),24)
     bmask = 0x0
-    if (debug and vfatVals):
+    if (vfatVals):
         for i,val in enumerate(vfatVals):
-            print "%d: value = 0x%08x"%(i,vfatVal)
+            msg = "%d: value = 0x%08x"%(i,vfatVal)
+            gemlogger.debug(msg)
     
     return bmask
 
@@ -141,34 +144,35 @@ def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=F
     number how many signals to send (0 is continuous)
     """
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx),mode)
-    if debug:
-        print "configuring the T1 controller for mode 0x%x (0x%x)"%(
-            mode,
-            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx)))
+    msg = "configuring the T1 controller for mode 0x%x (0x%x)"%(
+        mode,
+        readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx)))
+    gemlogger.debug(msg)
+
     if (mode == 0):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx),t1type)
-        if debug:
-            print "configuring the T1 controller for type 0x%x (0x%x)"%(
-                t1type,
-                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx)))
+        msg = "configuring the T1 controller for type 0x%x (0x%x)"%(
+            t1type,
+            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx)))
+        gemlogger.debug(msg)
     if (mode == 1):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx),delay)
-        if debug:
-            print "configuring the T1 controller for delay %d (%d)"%(
-                delay,
-                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx)))
+        msg = "configuring the T1 controller for delay %d (%d)"%(
+            delay,
+            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx)))
+        gemlogger.debug(msg)
     if (mode != 2):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx),interval)
-        if debug:
-            print "configuring the T1 controller for interval %d (%d)"%(
-                interval,
-                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx)))
+        msg = "configuring the T1 controller for interval %d (%d)"%(
+            interval,
+            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx)))
+        gemlogger.debug(msg)
 
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx),number)
-    if debug:
-        print "configuring the T1 controller for nsignals %d (%d)"%(
-            number,
-            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx)))
+    msg = "configuring the T1 controller for nsignals %d (%d)"%(
+        number,
+        readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx)))
+    gemlogger.debug(msg)
     return
 
 def sendL1A(device,gtx,interval=25,number=0,debug=False):
@@ -181,16 +185,18 @@ def sendL1A(device,gtx,interval=25,number=0,debug=False):
     number how many signals to send (0 is continuous
     """
     if debug:
-        print "resetting the T1 controller"
+        msg = "resetting the T1 controller"
+        gemlogger.debug(msg)
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
     if debug:
-        print "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
+        msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
+        gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x0,0x0,0x0,interval,number)
     #if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #    print "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
-    #    print "toggling T1Controller for sending L1A"
+    #    msg = "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+    #    msg = "toggling T1Controller for sending L1A"
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
-    #print "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+    #msg = "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
     return
 
 def sendL1ACalPulse(device,gtx,delay,interval=25,number=0,debug=False):
@@ -202,11 +208,11 @@ def sendL1ACalPulse(device,gtx,delay,interval=25,number=0,debug=False):
     interval only for mode 0,1, how often to repeat signals
     number how many signals to send (0 is continuous
     """
-    if debug:
-        print "resetting the T1 controller"
+    msg = "resetting the T1 controller"
+    gemlogger.debug(msg)
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
-    if debug:
-        print "configuring the T1 controller for mode 0x1, delay %d, interval %d, nsignals %d"%(delay,interval,number)
+    msg = "configuring the T1 controller for mode 0x1, delay %d, interval %d, nsignals %d"%(delay,interval,number)
+    gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x1,0x0,delay,interval,number)
     if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
@@ -217,11 +223,11 @@ def sendResync(device,gtx,interval=25,number=1,debug=False):
     Send a Resync signal
     """
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
-    if debug:
-        print "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
+    msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
+    gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x0,0x2,0x0,interval,number)
-    if debug:
-        print "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    gemlogger.debug(msg)
     if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
@@ -231,11 +237,11 @@ def sendBC0(device,gtx,interval=25,number=1,debug=False):
     Send a BC0 signal
     """
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
-    if debug:
-        print "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
+    msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
+    gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x0,0x3,0x0,interval,number)
-    if debug:
-        print "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    gemlogger.debug(msg)
     if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
