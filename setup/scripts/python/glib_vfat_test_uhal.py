@@ -35,7 +35,7 @@ parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
 
 chips = []
 if options.enabledChips:
-	chips = [int(n) for n in options.enabledChips.split(",")] 
+	chips = [int(n) for n in options.enabledChips.split(",")]
 	msg = "chips", chips
         gemlogger.info(msg)
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
@@ -111,7 +111,7 @@ thechipid = 0x0000
 
 print "GLIB FW: %s"%(getSystemFWDate(glib))
 print "OH   FW: 0x%08x"%(getFirmwareVersionRaw(optohybrid,options.gtx))
-        
+
 controls = []
 chipmask = 0xff000000
 if options.testi2c > -1:
@@ -121,12 +121,12 @@ if options.testi2c > -1:
                 if line < 6:
                         for idx in range((line/2)*8,((line/2)+1)*8):
                                 if (line%2):
-                                        # 0  0-3  
-                                        # 1  4-7  
-                                        # 2  8-11 
-                                        # 3 12-15 
-                                        # 4 16-19 
-                                        # 5 20-23 
+                                        # 0  0-3
+                                        # 1  4-7
+                                        # 2  8-11
+                                        # 3 12-15
+                                        # 4 16-19
+                                        # 5 20-23
                                         if (idx%8) > 3:
                                                 print "VFAT%02d: 0x%08x"%(idx,getChipID(glib,options.gtx,idx))
                                                 pass
@@ -160,7 +160,7 @@ if options.debug:
         gemlogger.debug(msg)
         msg = controlRegs
         gemlogger.debug(msg)
-        
+
 if options.biasAll:
         biasAllVFATs(optohybrid, options.gtx, chipmask)
 
@@ -174,7 +174,7 @@ for chip in chips:
         msg = "enabling chip %d"%(chip)
         gemlogger.info(msg)
         setRunMode(optohybrid, options.gtx, chip, True)
- 
+
 controlRegs = {}
 for control in range(4):
         controls.append(readAllVFATs(glib, options.gtx, 0xf0000000, "ContReg%d"%(control), options.debug))
@@ -193,7 +193,7 @@ for chip in chipids.keys():
                                                                          controlRegs["ctrl1"][chip],
                                                                          controlRegs["ctrl2"][chip],
                                                                          controlRegs["ctrl3"][chip])
-	
+
 
 print
 print "--=======================================--"
