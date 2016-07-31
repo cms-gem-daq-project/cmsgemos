@@ -6,6 +6,8 @@ import datetime
 from time import sleep
 from ldqm_db.models import *
 from ldqm_db.amcmanager import *
+from gemlogger import GEMLogger
+gemlogger = GEMLogger("query").gemlogger
 
 def configure_db(station="CERN904",setuptype="teststand",runperiod="2016T",shelf=1):
   amc_list=[1,2,3,4,5,6,7,8,9,10,11,12]

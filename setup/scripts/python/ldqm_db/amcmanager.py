@@ -4,6 +4,8 @@ from glib_user_functions_uhal import *
 from vfat_functions_uhal import *
 
 class AMCmanager:
+  from gemlogger import GEMLogger
+
   def __init__(self):
     self.connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
     pass
