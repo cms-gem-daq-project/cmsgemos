@@ -4,6 +4,30 @@
 
 #include "gem/utils/exception/Exception.h"
 
+gem::utils::db::GEMDatabaseUtils::GEMDBInfo::GEMDBInfo()
+{
+  dbName = "";
+  dbHost = "";
+  dbPort = 3306;
+  dbUser = "";
+  dbPass = "";
+  setupTag      = "";
+  runPeriod     = "";
+  setupLocation = "";
+}
+
+void gem::utils::db::GEMDatabaseUtils::GEMDBInfo::registerFields(xdata::Bag<gem::utils::db::GEMDatabaseUtils::GEMDBInfo>* bag)
+{
+  bag->addField("dbName",        &dbName);
+  bag->addField("dbHost",        &dbHost);
+  bag->addField("dbPort",        &dbPort);
+  bag->addField("dbUser",        &dbUser);
+  bag->addField("dbPass",        &dbPass);
+  bag->addField("setupTag",      &setupTag);
+  bag->addField("runPeriod",     &runPeriod);
+  bag->addField("setupLocation", &setupLocation);
+}
+
 gem::utils::db::GEMDatabaseUtils::GEMDatabaseUtils(std::string const& host, int const& port,
                                                    std::string const& user, std::string const& password) :
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GEMDatabaseUtilsLogger"))),
@@ -74,7 +98,7 @@ unsigned int gem::utils::db::GEMDatabaseUtils::query(const std::string& query)
     ERROR("GEMDatabaseUtils::query " << errMsg);
     XCEPT_RAISE(gem::utils::exception::DBEmptyQueryResult, errMsg);
   }
-  
+
   unsigned int retval = strtoul(row[0],0,10);
   mysql_free_result(res);
 
