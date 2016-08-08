@@ -390,6 +390,10 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
       if (bchan->bag.channel.value_ > -1)
         p_amc13->disableBGO(bchan->bag.channel.value_);
 
+  // need to ensure that all BGO channels are disabled, rather than just the ones in the config
+  for (int bchan = 0; bchan < 4; ++bchan)
+    p_amc13->disableBGO(bchan);
+
   usleep(500);
 }
 
@@ -406,11 +410,15 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   }
 
   if (m_enableLocalTTC) {
+    bool sendLocalBGO = false;
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
-      if (bchan->bag.channel.value_ > -1)
+      if (bchan->bag.channel.value_ > -1) {
+        sendLocalBGO = true;
         p_amc13->enableBGO(bchan->bag.channel.value_);
+      }
 
-    p_amc13->sendBGO();
+    if (sendLocalBGO)
+      p_amc13->sendBGO();
   }
 
   usleep(500);
