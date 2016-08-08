@@ -1,6 +1,6 @@
 #ifndef GEM_HW_GLIB_GLIBMONITOR_H
 #define GEM_HW_GLIB_GLIBMONITOR_H
-/** @file GLIBMonitor.h */ 
+/** @file GLIBMonitor.h */
 
 
 #include "gem/base/GEMMonitor.h"
@@ -10,10 +10,10 @@
 namespace gem {
   namespace hw {
     namespace glib {
-      
+
       class HwGLIB;
       class GLIBManager;
-      
+
       class GLIBMonitor : public gem::base::GEMMonitor
       {
       public:
@@ -24,18 +24,18 @@ namespace gem {
          * @param glibManager the manager application for the GLIB to be monitored
          */
         GLIBMonitor(std::shared_ptr<HwGLIB> glib, GLIBManager* glibManager, int const& index);
-        
+
         virtual ~GLIBMonitor();
-        
+
         virtual void updateMonitorables();
         virtual void reset();
         void setupHwMonitoring();
         void buildMonitorPage(xgi::Output* out);
         std::string getDeviceID() { return p_glib->getDeviceID(); }
-        
+
       private:
         std::shared_ptr<HwGLIB> p_glib;
-        
+
         // system_monitorables
         //  "BOARD_ID"
         //  "SYSTEM_ID"
@@ -53,9 +53,9 @@ namespace gem {
         //  "GBE_INT"
         //  "V6_CPLD"
         //  "CPLD_LOCK"
-          
+
       };  // class GLIBMonitor
-            
+
     }  // namespace gem::hw::glib
   }  // namespace gem::hw
 }  // namespace gem

@@ -3,7 +3,7 @@
  * description: Manager application for Vfat cards
  *              structure borrowed from TCDS core, with nods to HCAL and EMU code
  * author: J. Sturdy
- * date: 
+ * date:
  */
 
 #include "gem/hw/vfat/VFATManagerWeb.h"
@@ -23,7 +23,7 @@ gem::hw::vfat::VFATManager::VFATInfo::VFATInfo() {
   addressTable        = "";
   controlHubPort      = 0;
   ipBusPort           = 0;
-  
+
   triggerSource = 0;
 }
 
@@ -39,7 +39,7 @@ void gem::hw::vfat::VFATManager::VFATInfo::registerFields(xdata::Bag<gem::hw::vf
   bag->addField("AddressTable",      &addressTable);
   bag->addField("ControlHubPort",    &controlHubPort);
   bag->addField("IPBusPort",         &ipBusPort);
-            
+
   bag->addField("triggerSource", &triggerSource);
 }
 
@@ -62,7 +62,7 @@ gem::hw::vfat::VFATManager::VFATManager(xdaq::ApplicationStub* stub) :
   //p_gemMonitor      = new gem::hw::vfat::VFATHwMonitor(this);
   DEBUG("VFATManager::done");
 
-  //set up the info hwCfgInfoSpace 
+  //set up the info hwCfgInfoSpace
   init();
 
   //getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/vfat/VFATManager.png");
@@ -76,9 +76,9 @@ gem::hw::vfat::VFATManager::~VFATManager() {
 void gem::hw::vfat::VFATManager::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("VFATManager::actionPerformed() setDefaultValues" << 
+    DEBUG("VFATManager::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
-    
+
     //how to handle passing in various values nested in a vector in a bag
     for (auto board = m_vfatInfo.begin(); board != m_vfatInfo.end(); ++board) {
       if (board->bag.present.value_)
@@ -126,7 +126,7 @@ void gem::hw::vfat::VFATManager::initializeAction()
         DEBUG("VFATManager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
         is_vfats[slot] = xdata::getInfoSpaceFactory()->create(hwCfgURN.toString());
       }
-      
+
       DEBUG("VFATManager::exporting config parameters into infospace");
       /* figure out how to make it work like this
          probably just have to define begin/end for VFATInfo class and iterators
@@ -136,19 +136,19 @@ void gem::hw::vfat::VFATManager::initializeAction()
       */
       if (!is_vfats[slot]->hasItem("ControlHubAddress"))
         is_vfats[slot]->fireItemAvailable("ControlHubAddress", &info.controlHubAddress);
-      
+
       if (!is_vfats[slot]->hasItem("IPBusProtocol"))
         is_vfats[slot]->fireItemAvailable("IPBusProtocol",     &info.ipBusProtocol);
-      
+
       if (!is_vfats[slot]->hasItem("DeviceIPAddress"))
         is_vfats[slot]->fireItemAvailable("DeviceIPAddress",   &info.deviceIPAddress);
-      
+
       if (!is_vfats[slot]->hasItem("AddressTable"))
         is_vfats[slot]->fireItemAvailable("AddressTable",      &info.addressTable);
-      
+
       if (!is_vfats[slot]->hasItem("ControlHubPort"))
         is_vfats[slot]->fireItemAvailable("ControlHubPort",    &info.controlHubPort);
-      
+
       if (!is_vfats[slot]->hasItem("IPBusPort"))
         is_vfats[slot]->fireItemAvailable("IPBusPort",         &info.ipBusPort);
 
@@ -158,7 +158,7 @@ void gem::hw::vfat::VFATManager::initializeAction()
       DEBUG("VFATManager::InfoSpace found item: AddressTable "      << is_vfats[slot]->find("AddressTable")     );
       DEBUG("VFATManager::InfoSpace found item: ControlHubPort "    << is_vfats[slot]->find("ControlHubPort")   );
       DEBUG("VFATManager::InfoSpace found item: IPBusPort "         << is_vfats[slot]->find("IPBusPort")        );
-    
+
       is_vfats[slot]->fireItemValueRetrieve("ControlHubAddress");
       is_vfats[slot]->fireItemValueRetrieve("IPBusProtocol");
       is_vfats[slot]->fireItemValueRetrieve("DeviceIPAddress");
@@ -180,17 +180,17 @@ void gem::hw::vfat::VFATManager::initializeAction()
       DEBUG("VFATManager::InfoSpace item value: AddressTable "      << info.addressTable.toString()     );
       DEBUG("VFATManager::InfoSpace item value: ControlHubPort "    << info.controlHubPort.toString()   );
       DEBUG("VFATManager::InfoSpace item value: IPBusPort "         << info.ipBusPort.toString()        );
-    
+
       try {
         DEBUG("VFATManager::obtaining pointer to HwVFAT2 " << deviceName
              << " (slot " << slot+1 << ")"
              << " (link " << link   << ")");
         m_vfats[index] = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(deviceName,m_connectionFile.toString()));
-        
+
         /*
         //still uses the above method behind the scenes
         //m_vfats[index] = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(info.crateID.value_,info.slotID.value_,info.linkID.value_));
-        
+
         //maybe make this into a commonly used function? createHwURI(what though)
         //std::string tmpURI = toolbox::toString();
         std::stringstream tmpURI;
@@ -235,7 +235,7 @@ void gem::hw::vfat::VFATManager::initializeAction()
         WARN("VFATManager::VFAT connected on link " << link << " to GLIB in slot " << (slot+1) << " is not responding");
       }
     }
-  }  
+  }
   DEBUG("VFATManager::initializeAction end");
 }
 
@@ -254,10 +254,10 @@ void gem::hw::vfat::VFATManager::configureAction()
       DEBUG("VFATManager::line 231: info is: " << info.toString());
       if (!info.present)
         continue;
-      
+
       DEBUG("VFATManager::grabbing pointer to hardware device");
       vfat_shared_ptr vfat = m_vfats[index];
-      
+
       if (vfat->isHwConnected()) {
         /*
         DEBUG("VFATManager::setting cdce clock source to 0x" << std::hex << info.cdceClkSrc.value_ << std::dec);
@@ -273,7 +273,7 @@ void gem::hw::vfat::VFATManager::configureAction()
       }
     }
   }
-  
+
   DEBUG("VFATManager::configureAction end");
 }
 
@@ -320,7 +320,7 @@ void gem::hw::vfat::VFATManager::resetAction()
       DEBUG("VFATManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_VFATS_PER_AMC)+link;
       VFATInfo& info = m_vfatInfo[index].bag;
-      
+
       if (!info.present)
         continue;
       // set up the info space here rather than in initialize (where it can then get unset in reset?
@@ -338,23 +338,23 @@ void gem::hw::vfat::VFATManager::resetAction()
         DEBUG("VFATManager::resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
         continue;
       }
-      
+
       DEBUG("VFATManager::revoking config parameters into infospace");
       if (is_vfats[slot]->hasItem("ControlHubAddress"))
         is_vfats[slot]->fireItemRevoked("ControlHubAddress");
-      
+
       if (is_vfats[slot]->hasItem("IPBusProtocol"))
         is_vfats[slot]->fireItemRevoked("IPBusProtocol");
-      
+
       if (is_vfats[slot]->hasItem("DeviceIPAddress"))
         is_vfats[slot]->fireItemRevoked("DeviceIPAddress");
-      
+
       if (is_vfats[slot]->hasItem("AddressTable"))
         is_vfats[slot]->fireItemRevoked("AddressTable");
-      
+
       if (is_vfats[slot]->hasItem("ControlHubPort"))
         is_vfats[slot]->fireItemRevoked("ControlHubPort");
-      
+
       if (is_vfats[slot]->hasItem("IPBusPort"))
         is_vfats[slot]->fireItemRevoked("IPBusPort");
     }
