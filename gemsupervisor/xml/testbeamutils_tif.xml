@@ -3,7 +3,7 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://cosmicstandtif:4444">
+  <xc:Context url="http://cosmicstandtif:5044">
 
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="1" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
@@ -42,7 +42,7 @@
           <EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
-          <EnableLocalTTC      xsi:type="xsd:boolean">false</EnableLocalTTC>
+          <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
 
           <LocalTriggerConfig xsi:type="soapenc:Struct">
             <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
@@ -56,13 +56,13 @@
           </LocalTriggerConfig>
 
           <BGOConfig xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[4]">
-            <!--BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">
+            <BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">
 	    <BGOChannel  xsi:type="xsd:integer">0</BGOChannel>
 	    <BGOcmd      xsi:type="xsd:unsignedInt">0x14</BGOcmd>
 	    <BGObx       xsi:type="xsd:unsignedInt">0x1</BGObx>
 	    <BGOprescale xsi:type="xsd:unsignedInt">0x1</BGOprescale>
 	    <BGOrepeat   xsi:type="xsd:boolean">true</BGOrepeat>
-            </BGOInfo-->>
+            </BGOInfo>
           </BGOConfig>
 
           <PrescaleFactor xsi:type="xsd:integer">0</PrescaleFactor>
