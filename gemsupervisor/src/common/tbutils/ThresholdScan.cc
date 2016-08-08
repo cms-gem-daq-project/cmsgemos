@@ -121,7 +121,6 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   hw_semaphore_.give(); //give hw to send the trigger
 
     // if triggersSeen < N triggers
-
   if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
     hw_semaphore_.take(); // take hw to set buffer depth
 
