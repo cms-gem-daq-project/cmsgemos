@@ -1,3 +1,5 @@
+#include <Python.h>
+
 #include <gem/utils/db/GEMDatabaseUtils.h>
 
 #include <gem/utils/GEMLogging.h>
