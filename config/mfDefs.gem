@@ -75,3 +75,14 @@ DependentLibraries+=python2.7
 #RANLIB = ranlib-${GCC_VERSION}
 GCCVERSION = $(shell $(CXX) --version | awk '/gcc /{print $0;exit 0;}')
 
+## Choose the version of Clang that we want to use
+##CLANG_VERSION = 3.4.2
+#CC     = clang
+#CPP    = clang++
+#CXX    = clang++
+#LD     = clang++
+#AR     = llvm-ar
+#NM     = llvm-nm
+#RANLIB = llvm-ranlib
+CLANGVERSION = $(shell $(CXX) --version | awk '/clang /{print $0;exit 0;}')
+
