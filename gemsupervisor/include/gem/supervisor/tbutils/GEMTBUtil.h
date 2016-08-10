@@ -207,9 +207,10 @@ namespace gem {
 	    xdata::Integer       ADCurrent;
 
             xdata::Boolean       useLocalTriggers;
+            xdata::Boolean       enableLEMOTrigger;
+
             xdata::Integer       localTriggerMode;
             xdata::Integer       localTriggerPeriod;
-	    xdata::Boolean       enableLEMOTrigger;
 	    xdata::Boolean       EnableTrigCont;
 
 	    xdata::UnsignedShort deviceVT1;
