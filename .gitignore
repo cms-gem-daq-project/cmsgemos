@@ -2,6 +2,8 @@
 *
 # Don't ignore subdirectories
 !*/
+# Ignore RPM directories
+*/rpm
 # Don't ignore source files, etc
 !*.gitignore
 !*.cc
@@ -17,3 +19,4 @@
 # don't ignore CSS/JS etc
 !*.js
 !*.css
+*.#*
