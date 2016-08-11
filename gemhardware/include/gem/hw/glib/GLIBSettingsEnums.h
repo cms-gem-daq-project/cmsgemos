@@ -68,22 +68,22 @@ namespace gem {
             BOTH = 0x2, //Use all sources of triggers
           } TriggerMode;
         };
-	
+
         struct TTCEncoding { //TTCEncoding settings
           enum ETTCEncoding { //TTCEncoding settings
             AMC13  = 0x0, //Use the AMC13 style TTC encoding
             GEMCSC = 0x1, //Use the CSC/GEM style TTC encoding
           } TTCEncoding;
         };
-	
+
       };  // class GLIBSettings
     }  // namespace gem::hw::glib
   }  // namespace gem::hw
-  
+
   //typedef the struct for access to the members via struct::VALUE
   typedef gem::hw::glib::GLIBLinkSettings::LinkBitMasks   GLIBLinkBitMasks;
   typedef gem::hw::glib::GLIBLinkSettings::LinkBitShifts  GLIBLinkBitShifts;
-  
+
   //typedef the enum for casting and access
   typedef gem::hw::glib::GLIBSettings::RunMode::ERunMode          GLIBRunMode;
   typedef gem::hw::glib::GLIBSettings::TriggerMode::ETriggerMode  GLIBTrigMode;

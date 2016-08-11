@@ -2,7 +2,6 @@
 # Makefile for gemsupervisor package
 #
 
-#Project=gem
 Project=cmsgemos
 ShortProject=gem
 Package=gemsupervisor
@@ -44,8 +43,6 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
 DependentLibraries+=gemhardware gemutils gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
 
 print-env:
@@ -61,4 +58,10 @@ print-env:
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
 	@echo CC            $(CC)
 	@echo CPP           $(CPP)
+	@echo CXX           $(CXX)
+	@echo LD            $(LD)
+	@echo AR            $(AR)
+	@echo NM            $(NM)
+	@echo RANLIB        $(RANLIB)
 	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)

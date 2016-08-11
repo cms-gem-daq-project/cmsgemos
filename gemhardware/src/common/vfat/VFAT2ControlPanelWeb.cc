@@ -41,13 +41,13 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createHeader(xgi::Output
        << "<link rel=\"stylesheet\" type=\"text/css\" href=\"gemdaq/gemhardware/html/css/vfat//vfatcontrolregisters.css\"/>"      << std::endl
        << "<link rel=\"stylesheet\" type=\"text/css\" href=\"gemdaq/gemhardware/html/css/vfat//vfatglobalsettings.css\"/>"      << std::endl
        << "<link rel=\"stylesheet\" type=\"text/css\" href=\"gemdaq/gemhardware/html/css/vfat//vfatmanager.css\"/>"<< std::endl;
- 
+
   *out << "<script>" << std::endl;
   *out << "window.onload = function()" << std::endl
        << "    alert( \"welcome\" );"  << std::endl
        << "}"                          << std::endl
        << "</script>"     << std::endl << std::endl;
- 
+
   *out << "<script>" << std::endl;
   *out << "$( document ).ready(function() {"           << std::endl
        << "    $( \"a\" ).click(function( event ) {"   << std::endl
@@ -138,13 +138,13 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCounterLayout(xgi:
     */
        << cgicc::br() << std::endl
        << std::endl
-    
+
        << cgicc::input().set("class","vfatButtonInput").set("type","submit")
     //.set("value","Read counters").set("name","ReadCounters")
     .set("value","Read counters").set("name","VFAT2ControlOption")
        << std::endl
        << cgicc::comment() << "ending the Counters fieldset" <<cgicc::comment() << std::endl
-       << "          </fieldset>" << std::endl;  
+       << "          </fieldset>" << std::endl;
 }
 
 //building the control register view
@@ -178,7 +178,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("External").set("value","External"))) << std::endl
        << cgicc::select()                                     << std::endl
        << "                  </div>"                          << std::endl;
-	             
+
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">"  << std::endl
        << cgicc::label("CalPolarity &lt;5&gt;").set("for","CalPolarity")    << std::endl
        << cgicc::select().set("id","CalPolarity").set("name","CalPolarity") << std::endl
@@ -192,7 +192,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("Negative").set("value","Negative"))) << std::endl
        << cgicc::select()                                                   << std::endl
        << "            	     </div>"                                        << std::endl;
-	             
+
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">"  << std::endl
        << cgicc::label("MSPolarity &lt;4&gt;").set("for","MSPolarity")      << std::endl
        << cgicc::select().set("id","MSPolarity").set("name","MSPolarity")   << std::endl
@@ -206,7 +206,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("Negative").set("value","Negative"))) << std::endl
        << cgicc::select()                                                   << std::endl
        << "            	     </div>"                                        << std::endl;
-	             
+
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">"    << std::endl
        << cgicc::label("TriggerMode &lt;3:1&gt;").set("for","TriggerMode")    << std::endl
        << cgicc::select().set("id","TriggerMode").set("name","TriggerMode")   << std::endl
@@ -235,7 +235,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("GEMMode").set("value","GEMMode"))) << std::endl
        << cgicc::select()                                         << std::endl
        << "                  </div>"                              << std::endl;
-	             
+
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("RunMode &lt;0&gt;").set("for","RunMode")           << std::endl
        << cgicc::select().set("id","RunMode").set("name","RunMode")        << std::endl
@@ -248,7 +248,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << cgicc::select()                                                  << std::endl
        << "            	     </div>"                                       << std::endl
        << "                </div>"                                         << std::endl;
-  	             
+
   *out << "                <div class=\"controlRegisterCheckBox\">" << std::endl
        << cgicc::label("Set CR #0").set("for","CR0Set")             << std::endl
        << cgicc::input().set("type","checkbox").set("id","CR0Set")
@@ -285,7 +285,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("107 s").set("value","107sec"))) << std::endl
        << cgicc::select()                                                  << std::endl
        << "            	     </div>"                                       << std::endl;
-	               
+
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">"      << std::endl
        << cgicc::label("LVDSPowerSave &lt;5&gt;").set("for","LVDSPowerSave")    << std::endl
        << cgicc::select().set("id","LVDSPowerSave").set("name","LVDSPowerSave") << std::endl
@@ -299,7 +299,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("Enabled").set("value","On"))) << std::endl
        << cgicc::select()                                                       << std::endl
        << "            	     </div>"                                            << std::endl;
-  
+
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("ProbeMode &lt;4&gt;").set("for","ProbeMode")       << std::endl
        << cgicc::select().set("id","ProbeMode").set("name","ProbeMode")    << std::endl
@@ -311,7 +311,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("Enabled").set("value","On"))) << std::endl
        << cgicc::select()                                                  << std::endl
        << "            	     </div>"                                       << std::endl;
-  	               
+
   *out << "            	     <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("DACMode &lt;3:0&gt;").set("for","DACMode")         << std::endl
        << cgicc::select().set("id","DACMode").set("name","DACMode")               << std::endl
@@ -354,7 +354,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << cgicc::select() << std::endl
        << "            	     </div>"      << std::endl
        << "                </div>"        << std::endl;
-  	               
+
   *out << "                <div class=\"controlRegisterCheckBox\">" << std::endl
        << cgicc::label("Set CR #1").set("for","CR1Set")             << std::endl
        << cgicc::input().set("type","checkbox").set("id","CR1Set")
@@ -380,7 +380,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("Digital").set("value","DigIP"))) << std::endl
        << cgicc::select()                                                << std::endl
        << "            	     </div>"                                     << std::endl;
-	               
+
   *out << "                  <div class=\"controlRegisterDropdownEntry\">"      << std::endl
        << cgicc::label("MSPulseLength &lt;6:4&gt;").set("for","MSPulseLength")  << std::endl
        << cgicc::select().set("id","MSPulseLength").set("name","MSPulseLength") << std::endl
@@ -418,7 +418,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("8 Clocks").set("value","8"))) << std::endl
        << cgicc::select()                               << std::endl
        << "                  </div>"                    << std::endl;
-  	               
+
   *out << "                  <div class=\"controlRegisterDropdownEntry\">"  << std::endl
        << cgicc::label("HitCountMode &lt;3:0&gt;").set("for","HitCountMode")  << std::endl
        << cgicc::select().set("id","HitCountMode").set("name","HitCountMode") << std::endl
@@ -461,7 +461,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << cgicc::select()                                 << std::endl
        << "                  </div>"                      << std::endl
        << "                </div>"                        << std::endl;
-  	               
+
   *out << "                <div class=\"controlRegisterCheckBox\">" << std::endl
        << cgicc::label("Set CR #2").set("for","CR2Set")             << std::endl
        << cgicc::input().set("type","checkbox").set("id","CR2Set")
@@ -489,7 +489,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("Send").set("value","On"))) << std::endl
        << cgicc::select()                                           << std::endl
        << "                  </div>"                                << std::endl;
-	               
+
   *out << "                  <div class=\"controlRegisterDropdownEntry\">" << std::endl
        << cgicc::label("PbBG &lt;3&gt;").set("for","PbBG")                 << std::endl
        << cgicc::select().set("id","PbBG").set("name","PbBG")              << std::endl
@@ -503,7 +503,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
            (cgicc::option("Connected").set("value","On"))) << std::endl
        << cgicc::select()            << std::endl
        << "                  </div>" << std::endl;
-	               
+
   *out << "                  <div class=\"controlRegisterDropdownEntry\">"    << std::endl
        << cgicc::label("TrimDACRange &lt;2:0&gt;").set("for","TrimDACRange")  << std::endl
        << cgicc::select().set("id","TrimDACRange").set("name","TrimDACRange") << std::endl
@@ -542,7 +542,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << cgicc::select()                                 << std::endl
        << "                  </div>"                      << std::endl
        << "                </div>"                        << std::endl;
-	               
+
   *out << "                <div class=\"controlRegisterCheckBox\">" << std::endl
        << cgicc::label("Set CR #3").set("for","CR3Set")             << std::endl
        << cgicc::input().set("type","checkbox").set("id","CR3Set")
@@ -553,7 +553,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createControlRegisterLay
        << cgicc::comment() << "ending the CR #3 section" <<cgicc::comment() << std::endl
        << "            </section>"                                     << std::endl
        << cgicc::comment() << "ending the Control registers fieldset" << cgicc::comment() << std::endl
-       << "          </fieldset>"                                      << std::endl;  
+       << "          </fieldset>"                                      << std::endl;
 }
 
 //building the settings view
@@ -669,13 +669,13 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createSettingsLayout(xgi
        << "            </div>" << std::endl
        << cgicc::comment() << "ending the Biasing fieldset" << cgicc::comment() << std::endl
        << "          </fieldset>" << std::endl;
-  
+
 }
 
 //building the channel view
 void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLayout(xgi::Output *out, const gem::hw::vfat::VFAT2ControlParams params) {
   boost::format inputform("%1%");
-  
+
   *out << "        <fieldset class=\"vfatChannelRegisters\">" << std::endl
        << cgicc::legend("VFAT2 Channel registers") << std::endl
        << "          <fieldset class=\"vfatChannelSettings\">" << std::endl
@@ -698,7 +698,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLay
     .set("id","Ch1Mask").set("name","Ch1Mask")
     .set(params.channels[0].mask == 0 ? "" : "checked") << std::endl
        << "            </div>" << std::endl;
-  	           
+
   *out << "            <div>" << std::endl
        << cgicc::label("TrimDAC").set("class","vfatTrimDACLabel").set("for","Ch1TrimDAC") << std::endl
        << cgicc::input().set("class","vfatChannelInput").set("type","number")
@@ -716,7 +716,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLay
        << "            </div>" << std::endl
        << "            <!-- ending the Channel 0,1 fieldset -->" << std::endl
        << "          </fieldset>" << std::endl;
-  
+
   int chanID = params.activeChannel;
   /*
     std::cout << "chan = "<< std::dec << (unsigned)chanID
@@ -745,7 +745,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLay
     .set(params.channels[chanID-1].mask == 0 ? "" : "checked")
        << std::endl
        << "            </div>" << std::endl;
-  	           
+
   *out << "            <div>" << std::endl
        << cgicc::label("TrimDAC").set("class","vfatTrimDACLabel").set("for","TrimDAC") << std::endl
        << cgicc::input().set("class","vfatChannelInput").set("type","number")
@@ -757,7 +757,7 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createChannelRegisterLay
        << std::endl
        << "            </div>" << std::endl
        << cgicc::br() << std::endl;
-	           
+
   *out << "            <div>" << std::endl
        << "              <div>" << std::endl
        << cgicc::input().set("class","vfatChannelButton").set("type","submit")
@@ -846,20 +846,20 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::createCommandLayout(xgi:
        << cgicc::br() << std::endl
        << cgicc::comment() << "ending the XML file upload fieldset" << cgicc::comment() << std::endl
        << cgicc::fieldset() << std::endl
-    
+
        << cgicc::comment() << "ending the Commands section" << cgicc::comment() << std::endl
        << cgicc::section() << std::endl;
 }
 
 void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::getCurrentParametersAsXML( ) {
-  
+
 }
 
 void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::saveCurrentParametersAsXML( ) {
-  
+
 }
 
 void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::setParametersByXML( ) {
-  
+
 }
 

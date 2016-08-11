@@ -22,6 +22,7 @@
 #include "xdaq/WebApplication.h"
 #include "xdaq/XceptSerializer.h"
 
+#include "xdata/Bag.h"
 #include "xdata/Boolean.h"
 #include "xdata/Integer.h"
 #include "xdata/Integer32.h"
