@@ -29,7 +29,6 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-
 DependentLibraries+=gemutils gembase
 
 include $(XDAQ_ROOT)/config/Makefile.rules
