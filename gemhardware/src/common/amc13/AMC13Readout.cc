@@ -111,6 +111,8 @@ void gem::hw::amc13::AMC13Readout::startAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   DEBUG("AMC13Readout::startAction begin");
+  cnt = 0;
+  nwrote_global = 0;
   gem::readout::GEMReadoutApplication::startAction();
 }
 

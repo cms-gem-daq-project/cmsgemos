@@ -224,7 +224,7 @@
       </node>
       <node id="TK_LINK_RX_POLARITY" address="0x00000000" permission="rw" mask="0x00ffffff"/>
       <node id="TK_LINK_TX_POLARITY" address="0x00000001" permission="rw" mask="0x00ffffff"/>
-      <node id="BOARD_ID" address="0x00000002" permission="rw" mask="0x0000ffff"/>
+      <node id="BOARD_ID" address="0x00000002" permission="r" mask="0x0000ffff"/>
       <node id="BOARD_TYPE" address="0x00000002" permission="r" mask="0x000f0000"/>
       <node id="RELEASE" address="0x00000003" >
         <node id="MAJOR" address="0x00000000" permission="r" mask="0x00ff0000"/>
@@ -328,13 +328,15 @@
           <node id="MAX_EOE_TIMER" address="0x00000007" permission="r" mask="0x00ffffff"/>
           <node id="LAST_EOE_TIMER" address="0x00000008" permission="r" mask="0x00ffffff"/>
         </node>
-        <node id="LASTBLOCK0" address="0x00000009" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK1" address="0x0000000a" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK2" address="0x0000000b" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK3" address="0x0000000c" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK4" address="0x0000000d" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK5" address="0x0000000e" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK6" address="0x0000000f" permission="r" mask="0xffffffff"/>
+        <node id="LASTBLOCK" address="0x00000009"  permission="r"  mode="incremental"  size="7" >
+          <!-- <node id="LASTBLOCK0" address="0x0" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK1" address="0x1" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK2" address="0x2" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK3" address="0x3" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK4" address="0x4" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK5" address="0x5" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK6" address="0x6" permission="r" mask="0xffffffff"/> -->
+        </node>
       </node>
       <node id="OH1" address="0x00000020" >
         <node id="CONTROL" address="0x00000000" >
@@ -374,13 +376,15 @@
           <node id="MAX_EOE_TIMER" address="0x00000007" permission="r" mask="0x00ffffff"/>
           <node id="LAST_EOE_TIMER" address="0x00000008" permission="r" mask="0x00ffffff"/>
         </node>
-        <node id="LASTBLOCK0" address="0x00000009" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK1" address="0x0000000a" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK2" address="0x0000000b" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK3" address="0x0000000c" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK4" address="0x0000000d" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK5" address="0x0000000e" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK6" address="0x0000000f" permission="r" mask="0xffffffff"/>
+        <node id="LASTBLOCK" address="0x00000009"  permission="r"  mode="incremental"  size="7">
+          <!-- <node id="LASTBLOCK0" address="0x0" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK1" address="0x1" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK2" address="0x2" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK3" address="0x3" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK4" address="0x4" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK5" address="0x5" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK6" address="0x6" permission="r" mask="0xffffffff"/> -->
+        </node>
       </node>
       <node id="OH2" address="0x00000030" >
         <node id="CONTROL" address="0x00000000" >
@@ -420,13 +424,15 @@
           <node id="MAX_EOE_TIMER" address="0x00000007" permission="r" mask="0x00ffffff"/>
           <node id="LAST_EOE_TIMER" address="0x00000008" permission="r" mask="0x00ffffff"/>
         </node>
-        <node id="LASTBLOCK0" address="0x00000009" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK1" address="0x0000000a" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK2" address="0x0000000b" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK3" address="0x0000000c" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK4" address="0x0000000d" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK5" address="0x0000000e" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK6" address="0x0000000f" permission="r" mask="0xffffffff"/>
+        <node id="LASTBLOCK" address="0x00000009"  permission="r"  mode="incremental"  size="7">
+          <!-- <node id="LASTBLOCK0" address="0x0" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK1" address="0x1" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK2" address="0x2" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK3" address="0x3" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK4" address="0x4" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK5" address="0x5" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK6" address="0x6" permission="r" mask="0xffffffff"/> -->
+        </node>
       </node>
       <node id="OH3" address="0x00000040" >
         <node id="CONTROL" address="0x00000000" >
@@ -466,13 +472,15 @@
           <node id="MAX_EOE_TIMER" address="0x00000007" permission="r" mask="0x00ffffff"/>
           <node id="LAST_EOE_TIMER" address="0x00000008" permission="r" mask="0x00ffffff"/>
         </node>
-        <node id="LASTBLOCK0" address="0x00000009" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK1" address="0x0000000a" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK2" address="0x0000000b" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK3" address="0x0000000c" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK4" address="0x0000000d" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK5" address="0x0000000e" permission="r" mask="0xffffffff"/>
-        <node id="LASTBLOCK6" address="0x0000000f" permission="r" mask="0xffffffff"/>
+        <node id="LASTBLOCK" address="0x00000009"  permission="r"  mode="incremental"  size="7">
+          <!-- <node id="LASTBLOCK0" address="0x0" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK1" address="0x1" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK2" address="0x2" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK3" address="0x3" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK4" address="0x4" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK5" address="0x5" permission="r" mask="0xffffffff"/> -->
+          <!-- <node id="LASTBLOCK6" address="0x6" permission="r" mask="0xffffffff"/> -->
+        </node>
       </node>
     </node>
     <node id="OH_LINKS" address="0x00600000" >
@@ -18101,7 +18109,7 @@
     </node>
     <node id="GLIB_SYSTEM" address="0x00910000" >
       <node id="SYSTEM" address="0x00000000" permission="r" >
-        <node id="BOARD_ID" address="0x00000000" >
+        <node id="BOARD_ID" address="0x00000000" permission="r">
           <node id="CHAR1" address="0x00000000" permission="r" mask="0xff000000"/>
           <node id="CHAR2" address="0x00000000" permission="r" mask="0x00ff0000"/>
           <node id="CHAR3" address="0x00000000" permission="r" mask="0x0000ff00"/>

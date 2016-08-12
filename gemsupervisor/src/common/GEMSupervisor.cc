@@ -38,7 +38,38 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   DEBUG("done");
   //p_gemMonitor      = new gem generic system monitor
 
-  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>("gem904daq01.cern.ch",3306,"gemdaq","gemdaq");
+  p_appInfoSpace->fireItemAvailable("DatabaseInfo",&m_dbInfo);
+  // p_appInfoSpace->fireItemAvailable("DatabaseName",&m_dbName);
+  // p_appInfoSpace->fireItemAvailable("DatabaseHost",&m_dbHost);
+  // p_appInfoSpace->fireItemAvailable("DatabasePort",&m_dbPort);
+  // p_appInfoSpace->fireItemAvailable("DatabaseUser",&m_dbUser);
+  // p_appInfoSpace->fireItemAvailable("DatabasePass",&m_dbPass);
+
+  // p_appInfoSpace->fireItemAvailable("SetupTag",     &m_setupTag);
+  // p_appInfoSpace->fireItemAvailable("RunPeriod",    &m_runPeriod);
+  // p_appInfoSpace->fireItemAvailable("SetupLocation",&m_setupLocation);
+
+  p_appInfoSpace->addItemRetrieveListener("DatabaseInfo", this);
+  // p_appInfoSpace->addItemRetrieveListener("DatabaseName", this);
+  // p_appInfoSpace->addItemRetrieveListener("DatabaseHost", this);
+  // p_appInfoSpace->addItemRetrieveListener("DatabasePort", this);
+  // p_appInfoSpace->addItemRetrieveListener("DatabaseUser", this);
+  // p_appInfoSpace->addItemRetrieveListener("DatabasePass", this);
+
+  // p_appInfoSpace->addItemRetrieveListener("SetupTag",      this);
+  // p_appInfoSpace->addItemRetrieveListener("RunPeriod",     this);
+  // p_appInfoSpace->addItemRetrieveListener("SetupLocation", this);
+
+  p_appInfoSpace->addItemChangedListener("DatabaseInfo", this);
+  // p_appInfoSpace->addItemChangedListener("DatabaseName", this);
+  // p_appInfoSpace->addItemChangedListener("DatabaseHost", this);
+  // p_appInfoSpace->addItemChangedListener("DatabasePort", this);
+  // p_appInfoSpace->addItemChangedListener("DatabaseUser", this);
+  // p_appInfoSpace->addItemChangedListener("DatabasePass", this);
+
+  // p_appInfoSpace->addItemChangedListener("SetupTag",      this);
+  // p_appInfoSpace->addItemChangedListener("RunPeriod",     this);
+  // p_appInfoSpace->addItemChangedListener("SetupLocation", this);
 
   v_supervisedApps.clear();
   // reset the GEMInfoSpaceToolBox object?
@@ -88,6 +119,17 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
     importConfigurationParameters();
     importMonitoringParameters();
     // p_gemMonitor->startMonitoring();
+
+    m_dbName        = m_dbInfo.bag.dbName.toString();
+    m_dbHost        = m_dbInfo.bag.dbHost.toString();
+    m_dbPort        = m_dbInfo.bag.dbPort.value_;
+    m_dbUser        = m_dbInfo.bag.dbUser.toString();
+    m_dbPass        = m_dbInfo.bag.dbPass.toString();
+    m_setupTag      = m_dbInfo.bag.setupTag.toString();
+    m_runPeriod     = m_dbInfo.bag.runPeriod.toString();
+    m_setupLocation = m_dbInfo.bag.setupLocation.toString();
+
+    DEBUG("GEMSupervisor::actionPerformed m_dbInfo = " << m_dbInfo.toString());
   }
   // update monitoring variables
   gem::base::GEMApplication::actionPerformed(event);
@@ -166,6 +208,11 @@ void gem::supervisor::GEMSupervisor::initializeAction()
   throw (gem::supervisor::exception::Exception)
 {
   INFO("gem::supervisor::GEMSupervisor::initializeAction Initializing");
+
+  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>(m_dbHost.toString(),
+                                                                     m_dbPort.value_,
+                                                                     m_dbUser.toString(),
+                                                                     m_dbPass.toString());
 
   // for (std::vector<xdaq::ApplicationDescriptor*>::iterator i=v_supervisedApps.begin(); i!=v_supervisedApps.end(); i++) {
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
@@ -307,7 +354,7 @@ bool gem::supervisor::GEMSupervisor::isGEMApplication(const std::string& classna
   if (classname.find("gem") != std::string::npos)
     return true;  // handle all GEM applications
   /*
-  if (m_otherClassesToSupport.count(classname) != 0)
+    if (m_otherClassesToSupport.count(classname) != 0)
     return true;  // include from list
   */
   return false;
@@ -318,7 +365,7 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
   if (classname == "GEMSupervisor")
     return false;  // ignore ourself
   /*
-  if (m_otherClassesToSupport.count(classname) != 0)
+    if (m_otherClassesToSupport.count(classname) != 0)
     return true;  // include from list
   */
   if (classname.find("gem") != std::string::npos)
@@ -326,11 +373,11 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
   if (classname.find("PeerTransport") != std::string::npos)
     return false;  // ignore all peer transports
   /*
-  if ((classname == "TTCciControl" || classname == "ttc::TTCciControl") && m_handleTTCci.value_)
+    if ((classname == "TTCciControl" || classname == "ttc::TTCciControl") && m_handleTTCci.value_)
     return true;
-  if ((classname == "LTCControl" || classname == "ttc::LTCControl") && m_handleTTCci.value_)
+    if ((classname == "LTCControl" || classname == "ttc::LTCControl") && m_handleTTCci.value_)
     return true;
-  if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
+    if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
     return true;
   */
   return false;  // assume not ok.
@@ -360,7 +407,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
   // get the last entry
   // query parameter
   /*
-  std::string sqlString = ""
+    std::string sqlString = ""
     + "SELECT DISTINCT runnumbertbl.runnumber, runnumbertbl.username, runnumbertbl.bookingtime, runsession_parameter.session_id "
     + "FROM runnumbertbl "
     + "LEFT JOIN runsession_parameter ON (runsession_parameter.runnumber = runnumbertbl.runnumber) "
@@ -383,16 +430,18 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
   // hacky time for teststand/local runs, before connection through RCMS to RunInfoDB is established
   p_gemDBHelper->configure();
 
-  if (p_gemDBHelper->connect("ldqm_db")) {
+  try {
+    // if (p_gemDBHelper->connect(m_dbName.toString())) {
+    p_gemDBHelper->connect(m_dbName.toString());
+
     // get these from or send them to the readout application
     std::string    setup = "teststand";
     std::string   period = "2016T";
-    std::string location = "TIF";
+    std::string location = m_setupLocation.toString();
 
     std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
     lastRunNumberQuery += location;
-    lastRunNumberQuery += "' ORDER BY id DESC LIMIT 1;";
-    WARN("GEMSupervisor::updateRunNumber, current run number is: " << m_runNumber.toString());
+    lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
     try {
       m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
     } catch (gem::utils::exception::DBEmptyQueryResult& e) {
@@ -405,9 +454,19 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     }
 
     INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
-    // parse and increment by 1, if it is a new station, start at 1
-    // m_runNumber.value_ += 1;
-    WARN("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
+    //parse and increment by 1, if it is a new station, start at 1
+    //m_runNumber.value_ += 1;
+    INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
+  } catch (xcept::Exception& e) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::utils::exception::DBConnectionError, msg.str());
+  } catch (std::exception& e) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::utils::exception::DBConnectionError, msg.str());
   }
 }
 

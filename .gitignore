@@ -21,3 +21,4 @@ __init__.py
 # don't ignore CSS/JS etc
 !*.js
 !*.css
+*.#*

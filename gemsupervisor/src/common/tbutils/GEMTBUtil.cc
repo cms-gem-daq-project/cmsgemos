@@ -72,6 +72,8 @@ void gem::supervisor::tbutils::GEMTBUtil::ConfigParams::registerFields(xdata::Ba
   bag->addField("LocalTriggerPeriod",  &localTriggerPeriod);
 //  bag->addField("triggerSource",&triggerSource);
   bag->addField("slotFileName",  &slotFileName);
+  bag->addField("enableLEMOTrigger",  &enableLEMOTrigger);
+
 
 }
 
@@ -1241,6 +1243,9 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::optohybrid::OptoHybridManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
 
@@ -1259,7 +1264,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, "connections_ch.xml"));
 
   if (glibDevice_->isHwConnected()) {
-    DEBUG("GLIB device connected");
+    INFO("GLIB device connected");
 
     glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
     disableTriggers();
@@ -1404,6 +1409,10 @@ void gem::supervisor::tbutils::GEMTBUtil::stopAction(toolbox::Event::Reference e
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::optohybrid::OptoHybridManager", 0));  // this should not be hard coded
+
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
 
@@ -1441,6 +1450,9 @@ void gem::supervisor::tbutils::GEMTBUtil::haltAction(toolbox::Event::Reference e
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::optohybrid::OptoHybridManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
 
@@ -1467,6 +1479,9 @@ void gem::supervisor::tbutils::GEMTBUtil::resetAction(toolbox::Event::Reference 
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::optohybrid::OptoHybridManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
@@ -1758,6 +1773,12 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
   xoap::SOAPElement tc_enableTrigCont = tc_param.addChildElement(enableTrigCont_name);
   tc_enableTrigCont.addAttribute(xsi_type,"xsd:boolean");
   tc_enableTrigCont.addTextNode(confParams_.bag.EnableTrigCont.toString());
+
+  //LEMO Triggers
+  xoap::SOAPName  useLEMOTrigger_name = envelope.createName("EnableLEMO","props",appUrn);
+  xoap::SOAPElement tc_useLEMO = tc_param.addChildElement(useLEMOTrigger_name);
+  tc_useLEMO.addAttribute(xsi_type,"xsd:boolean");
+  tc_useLEMO.addTextNode(confParams_.bag.enableLEMOTrigger.toString());
 
   // Create the BGOConfig element
   xoap::SOAPName     bgoarray_name = envelope.createName("BGOConfig","props", appUrn);

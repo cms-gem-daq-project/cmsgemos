@@ -6,7 +6,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
   m_slot(-1)
 {
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
-  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  setDeviceBaseNode("GEM_AMC.OH.OH0.GEB.VFATS."+vfatDevice);
   m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
@@ -18,7 +18,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
   m_slot(-1)
 {
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
-  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  setDeviceBaseNode("GEM_AMC.OH.OH0.GEB.VFATS."+vfatDevice);
   m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
@@ -29,7 +29,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
   m_slot(-1)
 {
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
-  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  setDeviceBaseNode("GEM_AMC.OH.OH0.GEB.VFATS."+vfatDevice);
   m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
@@ -42,10 +42,10 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
   // this->gem::hw::GEMHwDevice::GEMHwDevice();
   // gem::hw::vfat::HwVFAT2::initDevice();
   // can use a different address table for the VFAT access
-  setAddressTableFileName("glib_address_table.xml");
+  setAddressTableFileName("uhal_gem_amc_glib.xml");
   setDeviceID("VFAT2Hw");
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
-  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  setDeviceBaseNode("GEM_AMC.OH.OH0.GEB.VFATS."+vfatDevice);
   b_is_connected = false;
   // what's the difference between connect, init, enable for VFAT?
   // check that register values are hardware default values, if not, something may be amiss

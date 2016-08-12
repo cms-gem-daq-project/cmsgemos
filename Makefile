@@ -10,7 +10,7 @@ SUBPACKAGES := \
         gemsupervisor \
         gemHwMonitor \
 
-SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,  ${SUBPACKAGES})
+SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
 SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})
 SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
 SUBPACKAGES.CLEANRPM := $(patsubst %,%.cleanrpm, ${SUBPACKAGES})
@@ -98,7 +98,7 @@ $(SUBPACKAGES.CLEAN):
 .PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN)
 
 
-gemHwMonitor: gemutils gembase gemhardware 
+gemHwMonitor: gemutils gembase gemhardware
 
 gemhardware: gemutils gembase gemreadout
 
@@ -106,7 +106,7 @@ gembase: gemutils
 
 gemsupervisor: gemutils gembase gemhardware gemreadout
 
-gemutils: 
+gemutils:
 
 gemreadout: gemutils gembase
 
@@ -120,7 +120,13 @@ print-env:
 	@echo ROOTLIBS      $(ROOTLIBS)
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
-	@echo GEMDEVELOPER  $(GEMDEVELOPER)
+	@echo GEMDEVLOPER   $(GEMDEVLOPER)
 	@echo CC            $(CC)
 	@echo CPP           $(CPP)
+	@echo CXX           $(CXX)
+	@echo LD            $(LD)
+	@echo AR            $(AR)
+	@echo NM            $(NM)
+	@echo RANLIB        $(RANLIB)
 	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)

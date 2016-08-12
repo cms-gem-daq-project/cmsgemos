@@ -10,7 +10,7 @@ gem::hw::glib::HwGLIB::HwGLIB() :
 
   // use a connection file and connection manager?
   setDeviceID("GLIBHw");
-  setAddressTableFileName("glib_address_table.xml");
+  setAddressTableFileName("uhal_gem_amc_glib.xml");
   setDeviceBaseNode("GEM_AMC");
   setExpectedBoardID("GLIB");
 
@@ -334,4 +334,3 @@ void gem::hw::glib::HwGLIB::flushFIFO(uint8_t const& gtx)
 {
   return;
 }
-

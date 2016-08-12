@@ -77,7 +77,6 @@ namespace gem {
             xdata::UnsignedShort VThreshold1;
             xdata::UnsignedShort VThreshold2;
 
-
             inline std::string toString() {
               // write obj to stream
               std::stringstream os;
@@ -153,6 +152,8 @@ namespace gem {
 
                  << "vfatBroadcastList:"   << vfatBroadcastList.toString() << std::endl
                  << "vfatBroadcastMask:0x" << std::hex << vfatBroadcastMask.value_ << std::dec << std::endl
+                 << "vfatSBitList:"        << vfatSBitList.toString() << std::endl
+                 << "vfatSBitMask:0x"      << std::hex << vfatSBitMask.value_ << std::dec << std::endl
 
                  << "vfatSBitList:"   << vfatSBitList.toString() << std::endl
                  << "vfatSBitMask:0x" << std::hex << vfatSBitMask.value_ << std::dec << std::endl

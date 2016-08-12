@@ -1,10 +1,13 @@
 #ifndef GEM_UTILS_DB_GEMDATABASEUTILS_H
 #define GEM_UTILS_DB_GEMDATABASEUTILS_H
 
-#include <Python.h>
 #include <mysql/mysql.h>
 #include <string>
 #include <memory>
+
+#include "xdata/Bag.h"
+#include "xdata/Integer.h"
+#include "xdata/String.h"
 
 #include "log4cplus/logger.h"
 
@@ -31,6 +34,37 @@ namespace gem {
         void configure();
 
         unsigned int query(const std::string& query);
+
+        class GEMDBInfo {
+
+        public:
+          GEMDBInfo();
+          void registerFields(xdata::Bag<GEMDatabaseUtils::GEMDBInfo>* bag);
+
+          xdata::String   dbName;
+          xdata::String   dbHost;
+          xdata::Integer  dbPort;
+          xdata::String   dbUser;
+          xdata::String   dbPass;
+          xdata::String   setupTag;
+          xdata::String   runPeriod;
+          xdata::String   setupLocation;
+
+          inline std::string toString() {
+            std::stringstream os;
+            os << "dbName:" << dbName.toString() << std::endl
+               << "dbHost:" << dbHost.toString() << std::endl
+               << "dbPort:" << dbPort.toString() << std::endl
+               << "dbUser:" << dbUser.toString() << std::endl
+               << "dbPass:" << dbPass.toString() << std::endl
+              
+               << "setupTag:"      << setupTag.toString()      << std::endl
+               << "runPeriod:"     << runPeriod.toString()     << std::endl
+               << "setupLocation:" << setupLocation.toString() << std::endl
+               << std::endl;
+            return os.str();
+          }
+        };
 
       protected:
 
