@@ -39,37 +39,10 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   //p_gemMonitor      = new gem generic system monitor
 
   p_appInfoSpace->fireItemAvailable("DatabaseInfo",&m_dbInfo);
-  // p_appInfoSpace->fireItemAvailable("DatabaseName",&m_dbName);
-  // p_appInfoSpace->fireItemAvailable("DatabaseHost",&m_dbHost);
-  // p_appInfoSpace->fireItemAvailable("DatabasePort",&m_dbPort);
-  // p_appInfoSpace->fireItemAvailable("DatabaseUser",&m_dbUser);
-  // p_appInfoSpace->fireItemAvailable("DatabasePass",&m_dbPass);
-
-  // p_appInfoSpace->fireItemAvailable("SetupTag",     &m_setupTag);
-  // p_appInfoSpace->fireItemAvailable("RunPeriod",    &m_runPeriod);
-  // p_appInfoSpace->fireItemAvailable("SetupLocation",&m_setupLocation);
 
   p_appInfoSpace->addItemRetrieveListener("DatabaseInfo", this);
-  // p_appInfoSpace->addItemRetrieveListener("DatabaseName", this);
-  // p_appInfoSpace->addItemRetrieveListener("DatabaseHost", this);
-  // p_appInfoSpace->addItemRetrieveListener("DatabasePort", this);
-  // p_appInfoSpace->addItemRetrieveListener("DatabaseUser", this);
-  // p_appInfoSpace->addItemRetrieveListener("DatabasePass", this);
-
-  // p_appInfoSpace->addItemRetrieveListener("SetupTag",      this);
-  // p_appInfoSpace->addItemRetrieveListener("RunPeriod",     this);
-  // p_appInfoSpace->addItemRetrieveListener("SetupLocation", this);
 
   p_appInfoSpace->addItemChangedListener("DatabaseInfo", this);
-  // p_appInfoSpace->addItemChangedListener("DatabaseName", this);
-  // p_appInfoSpace->addItemChangedListener("DatabaseHost", this);
-  // p_appInfoSpace->addItemChangedListener("DatabasePort", this);
-  // p_appInfoSpace->addItemChangedListener("DatabaseUser", this);
-  // p_appInfoSpace->addItemChangedListener("DatabasePass", this);
-
-  // p_appInfoSpace->addItemChangedListener("SetupTag",      this);
-  // p_appInfoSpace->addItemChangedListener("RunPeriod",     this);
-  // p_appInfoSpace->addItemChangedListener("SetupLocation", this);
 
   v_supervisedApps.clear();
   // reset the GEMInfoSpaceToolBox object?
@@ -77,6 +50,9 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   // getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemsupervisor/images/supervisor/GEMSupervisor.png");
   init();
 
+  p_appInfoSpaceToolBox->createBool("HandleTCDS",       m_handleTCDS.value_,       &m_handleTCDS,       GEMUpdateType::PROCESS);
+  p_appInfoSpaceToolBox->createBool("UseLocalReadout",  m_useLocalReadout.value_,  &m_useLocalReadout,  GEMUpdateType::PROCESS);
+  p_appInfoSpaceToolBox->createBool("UseFedKitReadout", m_useFedKitReadout.value_, &m_useFedKitReadout, GEMUpdateType::PROCESS);
   // Find connection to RCMS.
   /*p_appInfoSpaceToolBox->createBag("rcmsStateListener", m_gemRCMSNotifier.getRcmsStateListenerParameter(),
     m_gemRCMSNotifier.getRcmsStateListenerParameter(),
@@ -373,13 +349,15 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
   if (classname.find("PeerTransport") != std::string::npos)
     return false;  // ignore all peer transports
   /*
-    if ((classname == "TTCciControl" || classname == "ttc::TTCciControl") && m_handleTTCci.value_)
-    return true;
-    if ((classname == "LTCControl" || classname == "ttc::LTCControl") && m_handleTTCci.value_)
-    return true;
     if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
     return true;
   */
+  // if using uFedKit readout, following applications:
+  if ((classname == "evb::EVM" || classname == "evb::BU" ||
+       classname == "pt::blit::Application" || classname == "ferol::FerolController")
+      && m_useFedKitReadout.value_)
+    return true;
+
   return false;  // assume not ok.
 }
 
@@ -493,4 +471,9 @@ void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xda
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber", "xsd:long",
                                                              m_runNumber.toString(),
                                                              p_appContext, p_appDescriptor, ad);
+
+  // if using uFedKit:
+  // run number parameter is runNumber for applications evb::EVM and evb::BU
+  // rawDataDir and metaDataDir are output location
+  // ferol::FerolController, pt::blit::Application, evb::EVM, evb::BU
 }
