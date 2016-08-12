@@ -2,7 +2,6 @@
 # Makefile for gemhardware package
 #
 
-#Project=gem
 Project=cmsgemos
 ShortProject=gem
 Package=gemhardware
@@ -50,8 +49,6 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
 DependentLibraries+=gemutils gembase gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
 
 #test#hwbase:
@@ -116,4 +113,10 @@ print-env:
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
 	@echo CC            $(CC)
 	@echo CPP           $(CPP)
+	@echo CXX           $(CXX)
+	@echo LD            $(LD)
+	@echo AR            $(AR)
+	@echo NM            $(NM)
+	@echo RANLIB        $(RANLIB)
 	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)

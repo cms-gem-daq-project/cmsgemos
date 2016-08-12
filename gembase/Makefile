@@ -2,7 +2,6 @@
 # Makefile for gembase package
 #
 
-#Project=gem
 Project=cmsgemos
 ShortProject=gem
 Package=gembase
@@ -25,18 +24,12 @@ DynamicLibrary=gembase
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-#IncludeDirs+=$(uHALROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-#DependentLibraryDirs+=$(uHALROOT)/lib
-
-#LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=gemutils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-#include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-#include $(XDAQ_ROOT)/config/mfRPM.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
 
 
@@ -53,4 +46,10 @@ print-env:
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
 	@echo CC            $(CC)
 	@echo CPP           $(CPP)
+	@echo CXX           $(CXX)
+	@echo LD            $(LD)
+	@echo AR            $(AR)
+	@echo NM            $(NM)
+	@echo RANLIB        $(RANLIB)
 	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)
