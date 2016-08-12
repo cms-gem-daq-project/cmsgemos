@@ -163,6 +163,9 @@ namespace gem {
         xdata::String   m_runPeriod;
         xdata::String   m_setupLocation;
 
+        xdata::Boolean             m_handleTCDS;
+        xdata::Boolean             m_useLocalReadout;
+        xdata::Boolean             m_useFedKitReadout;
         xdata::Boolean             m_reportToRCMS;
         xdata::String              m_rcmsStateListenerUrl;
         xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
