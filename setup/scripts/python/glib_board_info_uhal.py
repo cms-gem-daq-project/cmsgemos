@@ -110,18 +110,6 @@ print "USE_GBT             0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.CONFIG
 print "USE_TRIG_LINKS      0x%08x"%(readRegister(glib,"GEM_AMC.GEM_SYSTEM.CONFIG.USE_TRIG_LINKS"))
 print
 print "--=======================================--"
-print "-> TEST INFORMATION"
-print "--=======================================--"
-print
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.RXPOLARITY"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.TXPOLARITY"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.BOARD_ID"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.DAQ"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.DAV_TIMEOUT"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.TTC"))
-print "0x%08x"%(readRegister(glib,"GLIB.TEST.OPTOHYBRID"))
-print
-print "--=======================================--"
 print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
