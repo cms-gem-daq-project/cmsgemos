@@ -55,7 +55,7 @@ namespace gem {
           HwVFAT2(uhal::HwInterface& device, uint8_t const& slot, uint8_t const& olink, uint8_t const& );
           HwVFAT2(GEMHwDevice  const& gemDevice,  uint8_t const& slot, uint8_t const& olink);
           HwVFAT2(HwGLIB       const& glibDevice, uint8_t const& olink);
-          HwVFAT2(HwOptoHybrid const& ohDevice,   uint8_t const& olink);
+          //HwVFAT2(GEMHwDevice const& ohDevice,   uint8_t const& position);
           */
 
           virtual ~HwVFAT2();
