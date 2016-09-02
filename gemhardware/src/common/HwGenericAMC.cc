@@ -4,6 +4,7 @@
 
 gem::hw::HwGenericAMC::HwGenericAMC() :
   gem::hw::GEMHwDevice::GEMHwDevice("HwGenericAMC"),
+  m_links(0),
   m_crate(-1),
   m_slot(-1)
 {
@@ -20,6 +21,7 @@ gem::hw::HwGenericAMC::HwGenericAMC() :
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
+  m_links(0),
   m_crate(-1),
   m_slot(-1)
 {
@@ -38,6 +40,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     int const& crate,
                                     int const& slot) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
+  m_links(0),
   m_crate(crate),
   m_slot(slot)
 {
@@ -55,6 +58,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionFile),
+  m_links(0),
   m_crate(-1),
   m_slot(-1)
 {
@@ -73,6 +77,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& connectionURI,
                                     std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionURI, addressTable),
+  m_links(0),
   m_crate(-1),
   m_slot(-1)
 
@@ -91,6 +96,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice,uhalDevice),
+  m_links(0),
   m_crate(-1),
   m_slot(-1)
 
@@ -122,6 +128,7 @@ bool gem::hw::HwGenericAMC::isHwConnected()
       for (unsigned int gtx = 0; gtx < this->getSupportedOptoHybrids(); ++gtx) {
         // somehow need to actually check that the specified link is present
         b_links[gtx] = true;
+        m_links |= (0x1<<gtx);
         DEBUG("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       }
@@ -234,7 +241,8 @@ bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opM
     ERROR(msg);
     // XCEPT_RAISE(gem::hw::exception::InvalidLink,msg);
     return false;
-  } else if (!b_links[gtx]) {
+    //  } else if (!b_links[gtx]) {
+  } else if (!((m_links>>gtx)&0x1)) {
     std::string msg = toolbox::toString("%s requested inactive gtx (%d)",opMsg.c_str(), gtx);
     ERROR(msg);
     // XCEPT_RAISE(gem::hw::exception::InvalidLink,msg);

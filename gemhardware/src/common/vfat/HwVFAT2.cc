@@ -83,7 +83,14 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice) :
 
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
-
+/*
+gem::hw::vfat::HwVFAT2::HwVFAT2(GEMHwDevice const& ohDevice, uint8_t const& position)
+{
+  std::stringstream vfatDevice;
+  vfatDevice << "VFAT" << (int)position;
+  HwVFAT2(vfatDevice.str(), ohDevice.getGEMHwInterface());
+}
+*/
 gem::hw::vfat::HwVFAT2::~HwVFAT2()
 {
   // what does release device do to the hardware?
