@@ -75,7 +75,7 @@ namespace gem {
         virtual bool isHwConnected();
 
         /**************************/
-        /** DAQ link information **/
+        /** GEM system information **/
         /**************************/
         /**
          * Read the board ID registers
@@ -93,7 +93,23 @@ namespace gem {
          * Check how many OptoHybrids the AMC can support
          * @returns the number of supported OptoHybrid boards
          */
-        virtual uint32_t getSupportedOptoHybrids() { return N_GTX; }
+        uint32_t getSupportedOptoHybrids() {
+          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.NUM_OF_OH"); }
+        //return N_GTX; }
+
+        /**
+         * Check if the firmware supports GBT communication
+         * @returns whether or not the firmware supports GBT communication
+         */
+        uint32_t supportsGBTLink() {
+          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_GBT"); }
+
+        /**
+         * Check if the firmware supports trigger links
+         * @returns whether or not the firmware supports trigger links
+         */
+        uint32_t supportsTriggerLink() {
+          return readReg(getDeviceBaseNode(),"GEM_SYSTEM.CONFIG.USE_TRIG_LINKS"); }
 
         /**
          * Read the system firmware register
@@ -702,7 +718,8 @@ namespace gem {
         //GenericAMCMonitor *monGenericAMC_;
 
         bool b_links[N_GTX];
-
+        uint32_t m_links;
+        
         std::vector<linkStatus> v_activeLinks;
 
         /**
