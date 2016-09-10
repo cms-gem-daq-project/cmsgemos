@@ -81,6 +81,17 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   /*p_appInfoSpaceToolBox->createBag("rcmsStateListener", m_gemRCMSNotifier.getRcmsStateListenerParameter(),
     m_gemRCMSNotifier.getRcmsStateListenerParameter(),
     GEMUpdateType::PROCESS);*/
+  
+  //  p_appInfoSpace->fireItemAvailable("ScanParameters",&m_scanparameters);
+  /*xdata::Bag<GEMSupervisor> *bagscan;
+  bagscan->addField("runType", &m_RunType);
+  */
+  p_appInfoSpace->fireItemAvailable("runType_",        &m_RunType_ );
+  p_appInfoSpace->fireItemAvailable("Min_",           &m_Min_ );
+  p_appInfoSpace->fireItemAvailable("Max_",           &m_Max_ );
+  p_appInfoSpace->fireItemAvailable("StepSize_",      &m_StepSize_ );
+  p_appInfoSpace->fireItemAvailable("NTriggers_",      &m_NTriggers_ );
+
   p_appInfoSpace->fireItemAvailable("rcmsStateListener",
                                     m_gemRCMSNotifier.getRcmsStateListenerParameter());
   /*p_appInfoSpaceToolBox->createBool( "foundRcmsStateListener", m_gemRCMSNotifier.getFoundRcmsStateListenerParameter()->value_,
@@ -107,6 +118,9 @@ gem::supervisor::GEMSupervisor::~GEMSupervisor()
 {
   // make sure to empty the v_supervisedApps  vector and free the pointers
   v_supervisedApps.clear();
+
+
+
 }
 
 
@@ -230,6 +244,10 @@ void gem::supervisor::GEMSupervisor::configureAction()
       sendCfgType("testCfgType", (*i));
       sendRunType("testRunType", (*i));
       sendRunNumber(10254, (*i));
+      if(m_RunType_ == 2){    
+	INFO(std::string("Setting ScanParameters ")+(*i)->getClassName());
+	sendScanParameters(m_RunType_,m_NTriggers_, m_Min_, m_Max_, m_StepSize_,(*i));
+      }
       INFO(std::string("Configuring ")+(*i)->getClassName());
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure", p_appContext, p_appDescriptor, *i);
       if (((*i)->getClassName()).rfind("AMC13") != std::string::npos) {
@@ -237,6 +255,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
         gem::utils::soap::GEMSOAPToolBox::sendAMC13Config(p_appContext, p_appDescriptor, *i);
       }
     }
+
   } catch (gem::supervisor::exception::Exception& e) {
     ERROR("GEMSupervisor::configureAction " << e.what());
     throw e;
@@ -494,3 +513,78 @@ void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xda
                                                              m_runNumber.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 }
+/*
+void gem::supervisor::GEMSupervisor::sendScanParameters(std::vector<std::string> const& ScanParameter_v, xdaq::ApplicationDescriptor* ad)
+  throw (gem::supervisor::exception::Exception)
+{
+  INFO(std::string("GEMSupervisor::sendScanParameters to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendParameter( ScanParameter_v, p_appContext, p_appDescriptor, ad);
+}
+*/
+ 
+
+
+//void gem::supervisor::GEMSupervisor::sendScanParameters(int const& scantype, int const& minparam, int const& maxparam, int const& stepsize, xdaq::ApplicationDescriptor* ad)
+void gem::supervisor::GEMSupervisor::sendScanParameters(int64_t const& scantype, int64_t const& ntriggers, int64_t const& minparam, int64_t const& maxparam, int64_t const& stepsize, xdaq::ApplicationDescriptor* ad)
+  throw (gem::supervisor::exception::Exception)
+{
+
+  m_scanTypeParam.value_ = scantype;
+  m_minParam.value_ = minparam;
+  m_maxParam.value_ = maxparam;
+  m_stepsizeParam.value_ = stepsize;
+  m_NTriggersParam.value_ = ntriggers;
+
+  INFO(std::string("GEMSupervisor::sendScanParameter ScanType to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("ScanTypeParam", "xsd:long",
+                                                             m_scanTypeParam.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+
+  INFO(std::string("GEMSupervisor::sendScanParameter nTriggers to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("NTriggersParam", "xsd:long",
+                                                             m_NTriggersParam.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+
+  INFO(std::string("GEMSupervisor::sendScanParameter Min to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("MinParam", "xsd:long",
+                                                             m_minParam.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+
+  INFO(std::string("GEMSupervisor::sendScanParameter Max to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("MaxParam", "xsd:long",
+                                                             m_maxParam.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+
+  INFO(std::string("GEMSupervisor::sendScanParameter StepSize to ")+ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("StepSizeParam", "xsd:long",
+                                                             m_stepsizeParam.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+
+}
+
+/*
+void gem::supervisor::GEMSupervisor::sendScanParameters(int const& RUNTYPE, int const& Min, int const& Max, int const& StepSize, xdaq::ApplicationDescriptor* ad)
+  throw (gem::supervisor::exception::Exception)
+{
+  INFO(std::string("GEMSupervisor::sendScanParameters to ")+ad->getClassName());
+
+  std::cout << " Min " << Min << " Max " << Max << " StepSize " << StepSize << std::endl;
+  std::cout << " m_Min " << m_Min_ << " m_Max " << m_Max << " m_StepSize " << m_StepSize << std::endl;
+  std::cout << " m_Min.value " << m_Min.value_ << " m_Max.value_ " << m_Max.value_ << " m_StepSize.value_ " << m_StepSize.value_ << std::endl;
+
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("ScanType", "xsd:long",
+                                                             m_RunType_.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("Min", "xsd:long",
+                                                             m_Min_.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("Max", "xsd:long",
+                                                             m_Max_.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("StepSize", "xsd:long",
+                                                             m_StepSize_.toString(),
+                                                             p_appContext, p_appDescriptor, ad);
+
+  
+}
+ */

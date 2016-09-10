@@ -159,6 +159,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_startL1ATricont        = m_localTriggerConfig.bag.startl1ATricont.value_;
   m_enableLEMO             = m_localTriggerConfig.bag.enableLEMO.value_;
 
+
   DEBUG("AMC13Manager::actionPerformed BGO channels "
         << m_amc13Params.bag.bgoConfig.size());
 
@@ -309,12 +310,30 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
+
+  if(m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3){ 
+    INFO("AMC13Manager::configureAction ScanRoutines ThresholdScan Configuration ");
+    m_enableDAQLink      = true;
+    m_enableFakeData     = false;
+    m_monBackPressEnable = false;
+    m_enableLocalTTC     = true;
+    m_enableLocalL1A         = true;
+    m_internalPeriodicPeriod = 500;
+    m_L1Amode                = 0;
+    m_L1Arules               = 0;
+    m_L1Aburst               = 1;
+    m_sendL1ATriburst        = false;
+    m_startL1ATricont        = true;
+    m_enableLEMO             = false;
+  }
+
   if (m_enableLocalL1A) {
     if (m_enableLEMO) {
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
     } else {
       m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
       p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+          INFO("AMC13Manager::configureAction ScanRoutines ThresholdScan Configuration ");
     }
   }
   //DEBUG("Looking at L1A history after configure");
@@ -339,6 +358,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
     }
   }
 
+
   INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
   //set the settings from the config options
   usleep(500); // just for testing the timing of different applications
@@ -360,6 +380,24 @@ void gem::hw::amc13::AMC13Manager::startAction()
     //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     //    p_amc13->startContinuousL1A();
+  }
+
+  if (m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 2) {
+    INFO("AMC13Manager::startAction Sending Continuos triggers for ScanRoutines ");
+    m_enableLocalL1A = true;
+    p_amc13->enableLocalL1A(m_enableLocalL1A);
+    std::cout << "Enable Local Trigger " << m_enableLocalL1A << std::endl;
+    p_amc13->startContinuousL1A();
+    
+    //---------------------AQUI VOY!!!-------------------------------------------
+    /*FALTA EL CONTADOR DE TRIGGER DEL AMC13 
+        int AMC13Counter = ????
+      while(AMC13Counter < m_NTriggersParam.value_) {
+       }
+       p_amc13->stopContinuousL1A();
+       Enviar Mensaje al GEMSupervisor. Como ??
+       //-----------------------------------------------
+    */
   }
 
   if (m_enableLocalTTC) {
@@ -616,4 +654,28 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
   }
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
+/*
+xoap::MessageReference gem::hw::amc13::AMC13Manager::TriggerCounter(xoap::MessageReference msg, int triggerSeen)
+  throw (xoap::exception::Exception)
+{
+  DEBUG("AMC13Manager::SetScanParameters");
+  std::string commandName = "setscanparameters";
+  
+  
+  try {
+    INFO("AMC13Manager::SetScanParameters " << commandName << " succeeded ");
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "setscanparameters");
+  } catch(xcept::Exception& err) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+					    commandName.c_str());
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                         top, toolbox::toString("%s.",msgBase.c_str()), err);
+    this->notifyQualified("error", top);
 
+    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+  }
+  XCEPT_RAISE(xoap::exception::Exception,"command not found");
+}
+*/

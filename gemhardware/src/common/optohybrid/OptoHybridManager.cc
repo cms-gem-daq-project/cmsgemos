@@ -16,6 +16,16 @@
 
 #include "gem/hw/utils/GEMCrateUtils.h"
 
+#include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPConstants.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/Method.h"
+#include "xoap/AttachmentPart.h"
+#include "xoap/domutils.h"
+
+
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
@@ -23,6 +33,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   crateID = -1;
   slotID  = -1;
   linkID  = -1;
+  //  m_RunType = (0x0);
 
   controlHubAddress = "";
   deviceIPAddress     = "";
@@ -353,15 +364,47 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         INFO("Setting VFAT parameters with broadcast write using mask " << std::hex << vfatMask << std::dec);
-        optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_,
-                                       info.commonVFATSettings.bag.VThreshold2.value_,
-                                       info.commonVFATSettings.bag.Latency.value_,
-                                       vfatMask);
 
-        std::array<std::string, 11> setupregs = {{"ContReg0", "ContReg2", "IPreampIn", "IPreampFeed", "IPreampOut",
-                                                  "IShaper", "IShaperFeed", "IComp", "Latency",
-                                                  "VThreshold1", "VThreshold2"}};
+	if(m_scanTypeParam.value_ == 3){ //latency should be runtype ==2
+	  int latency = m_minParam.value_;
+	  INFO("OptoHybridManager::LATENCYScan Parameters Received from GEMSupervisor ");
+	  std::cout << " Writting Latency  " << latency << std::endl;
+	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_, info.commonVFATSettings.bag.VThreshold2.value_, latency, vfatMask);
+	  /*
+	  if (latency < 0xFF) {
+	    optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_, info.commonVFATSettings.bag.VThreshold2.value_, latency, vfatMask);
+	  } else  {
+	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_, info.commonVFATSettings.bag.VThreshold2.value_, 0xFF, vfatMask);
+	}//end else*/
+	}else if(m_scanTypeParam.value_ == 2){  // should be runtype == 3){
+	  int VT1 = (m_maxParam.value_ - m_minParam.value_);
+	  int VT2 = std::max(0,(int)m_maxParam.value_);
+	  int step = m_stepsizeParam.value_;
+	  INFO("OptoHybridManager::THRESHOLDScan Parameters Received from GEMSupervisor ");
+	  std::cout << " VT1 " << VT1 << " VT2 " << VT2 << " StepSize " << step << std::endl;
+	  std::cout << " Writting VT1 - step  " << VT1 -step << " VT2 " << VT2 << std::endl;
+	  optohybrid->setVFATsToDefaults( VT1, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
+	  /*
+	  if(VT2-VT1 <= step){
+	    if(VT1 > step){
+	      std::cout << " Writting VT1 - step  " << VT1 -step << " VT2 " << VT2 << std::endl;
+	      optohybrid->setVFATsToDefaults( VT1-step, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
+	    }else{
+	      std::cout << " Writting VT1   " << 0 << " VT2 " << VT2 << std::endl;
+	      optohybrid->setVFATsToDefaults( 0x0, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
+	    } 
+	    }*/
+	}else{
+	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_,
+					 info.commonVFATSettings.bag.VThreshold2.value_,
+					 info.commonVFATSettings.bag.Latency.value_,
+					 vfatMask);
+	}
 
+	std::array<std::string, 11> setupregs = {{"ContReg0", "ContReg2", "IPreampIn", "IPreampFeed", "IPreampOut",
+						  "IShaper", "IShaperFeed", "IComp", "Latency",
+						  "VThreshold1", "VThreshold2"}};
+	
         INFO("Reading back values after setting defaults:");
         for (auto reg = setupregs.begin(); reg != setupregs.end(); ++reg) {
           std::vector<uint32_t> res = optohybrid->broadcastRead(*reg,vfatMask);
@@ -649,3 +692,5 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
     }
   }
 }
+
+

@@ -9,6 +9,9 @@
 
 #include "gem/hw/glib/exception/Exception.h"
 
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
+
 namespace gem {
   namespace hw {
     namespace glib {
