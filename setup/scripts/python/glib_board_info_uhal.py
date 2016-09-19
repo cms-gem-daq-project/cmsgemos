@@ -87,10 +87,10 @@ print "  Opening GLIB with IP", ipaddr
 print "--=======================================--"
 print
 
-#if options.vtrx :
-#        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x0)
-#else:
-#        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x1)
+if options.vtrx :
+        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x0)
+else:
+        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x1)
 
 if not options.userOnly:
 	getSystemInfo(glib)
