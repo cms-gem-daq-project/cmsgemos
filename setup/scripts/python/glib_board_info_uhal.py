@@ -88,10 +88,10 @@ print "--=======================================--"
 print
 
 if options.vtrx :
-        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x0)
+        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x0)
 else:
-        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x1)
-                
+        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x1)
+
 if not options.userOnly:
 	getSystemInfo(glib)
         pass
