@@ -120,11 +120,11 @@
           <runPeriod xsi:type="xsd:string">2016T</runPeriod>
           <setupLocation xsi:type="xsd:string">CERN904</setupLocation>
         </DatabaseInfo>
-        <runType_        xsi:type="xsd:integer">2</runType_>
+        <runType_        xsi:type="xsd:integer">0</runType_>
         <Min_           xsi:type="xsd:integer">0</Min_>
         <Max_           xsi:type="xsd:integer">100</Max_>
-        <StepSize_      xsi:type="xsd:integer">5</StepSize_>
-        <NTriggers_      xsi:type="xsd:integer">1000</NTriggers_>
+        <StepSize_      xsi:type="xsd:integer">10</StepSize_>
+        <NTriggers_      xsi:type="xsd:integer">5</NTriggers_>
         <!--dbAccessor xsi:type="xsd:string">mysql://gem904daq01.cern.ch:3306/</dbAccessor-->
 	<rcmsStateListener xsi:type="soapenc:Struct">
           <classname xsi:type="xsd:string">RCMSStateListener</classname>

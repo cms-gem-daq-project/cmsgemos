@@ -365,7 +365,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         INFO("Setting VFAT parameters with broadcast write using mask " << std::hex << vfatMask << std::dec);
 
-	if(m_scanTypeParam.value_ == 3){ //latency should be runtype ==2
+	if(m_scanTypeParam.value_ == 2){
 	  int latency = m_minParam.value_;
 	  INFO("OptoHybridManager::LATENCYScan Parameters Received from GEMSupervisor ");
 	  std::cout << " Writting Latency  " << latency << std::endl;
@@ -376,13 +376,13 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 	  } else  {
 	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_, info.commonVFATSettings.bag.VThreshold2.value_, 0xFF, vfatMask);
 	}//end else*/
-	}else if(m_scanTypeParam.value_ == 2){  // should be runtype == 3){
+	}else if(m_scanTypeParam.value_ == 3){  
 	  int VT1 = (m_maxParam.value_ - m_minParam.value_);
-	  int VT2 = std::max(0,(int)m_maxParam.value_);
+	  int VT2 = 0; //std::max(0,(int)m_maxParam.value_);
 	  int step = m_stepsizeParam.value_;
 	  INFO("OptoHybridManager::THRESHOLDScan Parameters Received from GEMSupervisor ");
 	  std::cout << " VT1 " << VT1 << " VT2 " << VT2 << " StepSize " << step << std::endl;
-	  std::cout << " Writting VT1 - step  " << VT1 -step << " VT2 " << VT2 << std::endl;
+	  std::cout << " Writting VT1 " << VT1 << " VT2 " << VT2 << std::endl;
 	  optohybrid->setVFATsToDefaults( VT1, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
 	  /*
 	  if(VT2-VT1 <= step){

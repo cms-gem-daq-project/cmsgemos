@@ -376,28 +376,34 @@ void gem::hw::amc13::AMC13Manager::startAction()
   p_amc13->startRun();
   INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
 
+  INFO("AMC13Manager::ScanType = " << m_scanTypeParam.value_);
+
   if (m_enableLocalL1A && m_startL1ATricont) {
     //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     //    p_amc13->startContinuousL1A();
   }
 
-  if (m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 2) {
+  if (m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3) {
     INFO("AMC13Manager::startAction Sending Continuos triggers for ScanRoutines ");
     m_enableLocalL1A = true;
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     std::cout << "Enable Local Trigger " << m_enableLocalL1A << std::endl;
+
     p_amc13->startContinuousL1A();
+    int NTriggersRequested = m_NTriggersParam.value_;
     
-    //---------------------AQUI VOY!!!-------------------------------------------
-    /*FALTA EL CONTADOR DE TRIGGER DEL AMC13 
-        int AMC13Counter = ????
-      while(AMC13Counter < m_NTriggersParam.value_) {
-       }
-       p_amc13->stopContinuousL1A();
-       Enviar Mensaje al GEMSupervisor. Como ??
-       //-----------------------------------------------
-    */
+    INFO("GEMSupervisor Trigger Requested " << NTriggersRequested);
+
+    int currentTrigger =  TriggerCounter();
+    while(currentTrigger <  NTriggersRequested){
+      currentTrigger =  TriggerCounter();    
+      INFO("GEMSupervisor ipdating trigger counter" << currentTrigger);
+    }
+    
+    INFO("GEMSupervisor::TriggerSeen " << currentTrigger);
+    p_amc13->stopContinuousL1A();
+    
   }
 
   if (m_enableLocalTTC) {
@@ -654,6 +660,53 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
   }
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
+
+int gem::hw::amc13::AMC13Manager::TriggerCounter()
+  throw (gem::hw::amc13::exception::Exception)
+{
+  int m_triggercounter_init;
+
+  m_triggercounter_init = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
+
+  INFO("AMC13Manager::TriggerCounter = " << m_triggercounter_init );
+  
+  return m_triggercounter_init;
+ 
+}
+/*
+xoap::MessageReference gem::hw::amc13::AMC13Manager::endscanpoint(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  INFO("AMC13Manager::END SCAN POINT");
+
+  std::string commandName = "enableTriggers";
+
+  if (!p_amc13) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s', AMC13 not yet connected",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s", msgBase.c_str()));
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
+  }
+
+  try {
+    INFO("AMC13Manager::endscanpoint command " << commandName << " succeeded ");
+
+  } catch(xcept::Exception& err) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                         top, toolbox::toString("%s.",msgBase.c_str()), err);
+    this->notifyQualified("error", top);
+
+    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+  }
+  XCEPT_RAISE(xoap::exception::Exception,"command not found");
+}
+*/  
+
+
 /*
 xoap::MessageReference gem::hw::amc13::AMC13Manager::TriggerCounter(xoap::MessageReference msg, int triggerSeen)
   throw (xoap::exception::Exception)

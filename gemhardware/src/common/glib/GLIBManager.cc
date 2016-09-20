@@ -321,11 +321,11 @@ void gem::hw::glib::GLIBManager::configureAction()
       m_glibs.at(slot)->resetDAQLink();
       m_glibs.at(slot)->setL1AInhibit(0x1);
 
-      if(m_scanTypeParam.value_ == 3){ //latency should be runtype ==2
+      if(m_scanTypeParam.value_ == 2){ 
 	int latency = m_minParam.value_;
 	m_glibs.at(slot)->setDAQLinkRunType(0x2);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,latency);
-      }else if(m_scanTypeParam.value_ == 2){ //threshold should be runtype ==3
+      }else if(m_scanTypeParam.value_ == 3){ 
 	int VT1 = (m_maxParam.value_ - m_minParam.value_);
 	int VT2 = 0; //std::max(0,(int)m_maxParam.value_);
 	m_glibs.at(slot)->setDAQLinkRunType(0x3);

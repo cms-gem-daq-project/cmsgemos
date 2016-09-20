@@ -137,8 +137,6 @@ namespace gem {
 	void sendScanParameters(int64_t const& scantype, int64_t const& ntriggers, int64_t const& minparam, int64_t const& maxparam, int64_t const& stepsize, xdaq::ApplicationDescriptor* ad)
 	  throw (gem::supervisor::exception::Exception);
 
-	//(int64_t const& scantype, int64_t const& minparam, int64_t const& maxparam, int64_t const& stepsize, xdaq::ApplicationDescriptor* ad)
-
 	GEMGlobalState m_globalState;
 
         xdata::Integer  m_RunType_;

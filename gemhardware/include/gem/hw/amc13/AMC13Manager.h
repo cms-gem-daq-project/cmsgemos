@@ -58,13 +58,17 @@ namespace gem {
           virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
 
+          virtual int TriggerCounter()      throw (gem::hw::amc13::exception::Exception);
+
           xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
           xoap::MessageReference enableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
           xoap::MessageReference disableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-
+	  /*          xoap::MessageReference endscanpoint(xoap::MessageReference mns)
+	    throw (xoap::exception::Exception);
+	  */
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception);
 
           virtual void failAction(toolbox::Event::Reference e)
@@ -148,6 +152,8 @@ namespace gem {
           xdata::Bag<AMC13Info>               m_amc13Params;
           xdata::Vector<xdata::Bag<BGOInfo> > m_bgoConfig;
 	  xdata::Bag<L1AInfo>                 m_localTriggerConfig;
+
+	  
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
