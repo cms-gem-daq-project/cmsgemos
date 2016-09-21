@@ -220,10 +220,30 @@ void gem::supervisor::GEMSupervisor::initializeAction()
                                                                      m_dbUser.toString(),
                                                                      m_dbPass.toString());
 
-  // for (std::vector<xdaq::ApplicationDescriptor*>::iterator i=v_supervisedApps.begin(); i!=v_supervisedApps.end(); i++) {
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO(std::string("Initializing ")+(*i)->getClassName());
-    gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *i);
+  try {
+    // if (p_gemDBHelper->connect(m_dbName.toString())) {
+    p_gemDBHelper->connect(m_dbName.toString());
+
+    // for (std::vector<xdaq::ApplicationDescriptor*>::iterator i=v_supervisedApps.begin(); i!=v_supervisedApps.end(); i++) {
+    for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+      INFO(std::string("Initializing ")+(*i)->getClassName());
+      gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *i);
+    }
+  } catch (gem::utils::exception::DBConnectionError& e) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::initializeAction unable to connect to the database (DBConnectionError)" << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+  } catch (xcept::Exception& e) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::initializeAction unable to connect to the database (xcept)" << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+  } catch (std::exception& e) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::initializeAction unable to connect to the database (std)" << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   }
   m_globalState.update();
 }
@@ -448,6 +468,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
     lastRunNumberQuery += location;
     lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
+
     try {
       m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
     } catch (gem::utils::exception::DBEmptyQueryResult& e) {
@@ -463,16 +484,21 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     //parse and increment by 1, if it is a new station, start at 1
     //m_runNumber.value_ += 1;
     INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
+  } catch (gem::utils::exception::DBConnectionError& e) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::updateRunNumber unable to connect to the database (DBConnectionError)" << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
     ERROR(msg.str());
-    XCEPT_RAISE(gem::utils::exception::DBConnectionError, msg.str());
+    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
     ERROR(msg.str());
-    XCEPT_RAISE(gem::utils::exception::DBConnectionError, msg.str());
+    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   }
 }
 

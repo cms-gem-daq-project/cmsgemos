@@ -434,13 +434,12 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
 
   p_gemWebInterface->buildCfgWebpage();  // Set up the basic config web page from the GEMWebApplication
 
+  m_progress = 0.0;
   try {
-    m_progress = 0.0;
     DEBUG("GEMFSMApplication::Calling initializeAction");
     this->initializeAction();
     DEBUG("GEMFSMApplication::Finished initializeAction");
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
-    m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     ERROR("GEMFSMApplication::Error in initialize gem::utils::exception " << ex.what());
     fireEvent("Fail");
@@ -461,6 +460,11 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
+  } catch (...) {
+    ERROR("GEMFSMApplication::Error in initialize, unknown exception");
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
   }
 
   if (p_gemMonitor) {
@@ -473,6 +477,7 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
     }
   }
   INFO("GEMFSMApplication::Firing 'IsHalted' into the FSM");
+  m_progress = 1.0;
   fireEvent("IsHalted");
   m_wl_semaphore.give();
   return false;

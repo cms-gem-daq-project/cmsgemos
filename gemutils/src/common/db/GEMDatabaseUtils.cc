@@ -61,7 +61,7 @@ bool gem::utils::db::GEMDatabaseUtils::connect(std::string const& database)
     message += mysql_error(p_db);
     p_db = 0;
     ERROR(message);
-    //XCEPT_RAISE(gem::exception::ConfigurationDatabaseException,message);
+    XCEPT_RAISE(gem::utils::exception::DBConnectionError,message);
     return false;
   }
   return true;
