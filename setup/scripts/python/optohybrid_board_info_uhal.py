@@ -36,7 +36,7 @@ parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
 parser.add_option("--v2b", action="store_true", dest="v2b",
 		  help="Specific functionality only in v2b", metavar="v2b")
-parser.add_option("--sbitmask", type="int", dest="sbitmask",
+parser.add_option("--sbitmask", type="int", dest="sbitmask",default=0x0,
 		  help="use s-bit mask", metavar="sbitmask")
 
 (options, args) = parser.parse_args()
