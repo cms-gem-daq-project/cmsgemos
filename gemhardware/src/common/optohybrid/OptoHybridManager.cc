@@ -197,7 +197,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       DEBUG("OptoHybridManager::initializeAction: info is: " << info.toString());
       DEBUG("OptoHybridManager::initializeAction creating pointer to board connected on link "
             << link << " to GLIB in slot " << (slot+1));
-      std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+      std::string deviceName = toolbox::toString("gem.shelf%02d.ctp7-%02d.optohybrid%02d",
                                                  info.crateID.value_,
                                                  info.slotID.value_,
                                                  info.linkID.value_);
@@ -547,7 +547,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
 
       DEBUG("OptoHybridManager::revoking hwCfgInfoSpace items for board connected on link "
             << link << " to GLIB in slot " << (slot+1));
-      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.ctp7-.optohybrid%02d",
                                                                  info.crateID.value_,
                                                                  info.slotID.value_,
                                                                  info.linkID.value_));

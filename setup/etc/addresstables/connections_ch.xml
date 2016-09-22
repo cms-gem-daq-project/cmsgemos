@@ -57,6 +57,22 @@
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
   <connection id="gem.shelf01.ctp7-02.optohybrid03" uri="ipbustcp-2.0://192.168.2.42:60002"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf01.ctp7-02.optohybrid04" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf01.ctp7-02.optohybrid05" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf01.ctp7-02.optohybrid06" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf01.ctp7-02.optohybrid07" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf01.ctp7-02.optohybrid08" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf01.ctp7-02.optohybrid09" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf01.ctp7-02.optohybrid10" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
+  <connection id="gem.shelf01.ctp7-02.optohybrid11" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
 
   <connection id="gem.shelf01.glib03" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.163:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
