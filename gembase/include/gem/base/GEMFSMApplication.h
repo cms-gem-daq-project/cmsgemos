@@ -29,7 +29,7 @@ namespace gem {
     {
     public:
       static const unsigned MAX_AMCS_PER_CRATE      = 12;  ///<
-      static const unsigned MAX_OPTOHYBRIDS_PER_AMC = 2;   ///<
+      static const unsigned MAX_OPTOHYBRIDS_PER_AMC = 9;   ///<
       static const unsigned MAX_VFATS_PER_GEB       = 24;  ///<
 
       friend class GEMFSM;
