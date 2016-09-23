@@ -70,12 +70,15 @@ if options.debug:
 ipaddr = '192.168.0.%d'%(uTCAslot)
 #ipaddr = '192.168.250.53'
 if options.testbeam:
-        ipaddr        = '137.138.115.185'
+        #ipaddr        = '137.138.115.185'
+        ipaddr        = '192.168.2.42'
 ## almost definitely better to use a connection file here?
 #address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
-#uri = "ipbustcp-2.0://eagle45:60002"
+if options.testbeam:
+        uri = "ipbustcp-2.0://192.168.250.42:60002"
+        # uri = "ipbustcp-2.0://eagle45:60002"
 glib  = uhal.getDevice( "glib" , uri, address_table )
 
 ########################################
