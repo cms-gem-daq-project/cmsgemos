@@ -36,6 +36,8 @@ parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
 parser.add_option("--v2b", action="store_true", dest="v2b",
 		  help="Specific functionality only in v2b", metavar="v2b")
+parser.add_option("--sbitmask", type="int", dest="sbitmask",default=0x0,
+		  help="use s-bit mask", metavar="sbitmask")
 
 (options, args) = parser.parse_args()
 
@@ -72,7 +74,7 @@ print "-> oh fw date : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
 print
 print "Connected VFATs mask: 0x%08x"%(getConnectedVFATsMask(glib,options.gtx,options.debug))
 print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(glib,options.gtx,options.debug))
-setVFATsBitMask(glib,options.gtx,0x000000,options.debug)
+setVFATsBitMask(glib,options.gtx,options.sbitmask,options.debug)
 print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(glib,options.gtx,options.debug))
 print
 
