@@ -14,28 +14,30 @@
 
 #include "gem/hw/optohybrid/exception/Exception.h"
 
+#include "gem/hw/vfat/HwVFAT2.h"
 #include "gem/hw/utils/GEMCrateUtils.h"
 
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
-  present = false;
-  crateID = -1;
-  slotID  = -1;
-  linkID  = -1;
-
-  controlHubAddress = "";
-  deviceIPAddress     = "";
-  ipBusProtocol       = "";
-  addressTable        = "";
-  controlHubPort      = 0;
-  ipBusPort           = 0;
+  present  = false;
+  crateID  = -1;
+  slotID   = -1;
+  linkID   = -1;
+  cardName = "";
 
   vfatBroadcastList = "0-23";
   vfatBroadcastMask = 0xff000000;
 
   vfatSBitList = "0-23";
   vfatSBitMask = 0xff000000;
+
+  controlHubAddress = "";
+  deviceIPAddress   = "";
+  ipBusProtocol     = "";
+  addressTable      = "";
+  controlHubPort    = 0;
+  ipBusPort         = 0;
 
   triggerSource = 0;
   sbitSource    = 0;
@@ -45,10 +47,11 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
 }
 
 void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo>* bag) {
-  bag->addField("crateID",       &crateID);
-  bag->addField("slot",          &slotID);
-  bag->addField("link",          &linkID);
-  bag->addField("present",       &present);
+  bag->addField("crateID",  &crateID);
+  bag->addField("slot",     &slotID);
+  bag->addField("link",     &linkID);
+  bag->addField("present",  &present);
+  bag->addField("CardName", &cardName);
 
   bag->addField("ControlHubAddress", &controlHubAddress);
   bag->addField("DeviceIPAddress",   &deviceIPAddress);
@@ -194,10 +197,12 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       DEBUG("OptoHybridManager::initializeAction: info is: " << info.toString());
       DEBUG("OptoHybridManager::initializeAction creating pointer to board connected on link "
             << link << " to GLIB in slot " << (slot+1));
-      std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
-                                                 info.crateID.value_,
-                                                 info.slotID.value_,
-                                                 info.linkID.value_);
+      std::string deviceName = info.cardName.toString();
+      if (deviceName.empty())
+        deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+                                       info.crateID.value_,
+                                       info.slotID.value_,
+                                       info.linkID.value_);
       toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
       if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
@@ -297,6 +302,8 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         //maybe raise exception so as to not continue with other cards? let's just return for the moment
         return;
       }
+      // FOR MISHA
+      // hardware should be connected, can update ldqm_db for teststand/local runs
     }
   }
   DEBUG("OptoHybridManager::initializeAction end");
@@ -332,6 +339,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         DEBUG("OptoHybridManager::setting reference clock source to 0x"
              << std::hex << info.refClkSrc.value_ << std::dec);
         optohybrid->setReferenceClock(info.refClkSrc.value_);
+
         /*
         DEBUG("OptoHybridManager::setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
         optohybrid->setVFATClock(info.vfatClkSrc.value_,);
@@ -370,13 +378,32 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
             INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
           }
         }
+
+        // per VFAT configurations
+        INFO("Setting per VFAT parameters");
+        for (int vfat = 0; vfat < 24; ++vfat) {
+          // skip VFATs not part of the mask
+          INFO("Checking mask " << std::hex << std::setw(8) << std::setfill('0') << vfatMask << std::dec
+               << " for VFAT in slot " << vfat);
+          if ((vfatMask << vfat) & 0x1)
+            continue;
+
+          INFO("Found VFAT in slot " << vfat);
+          // Apply specific settings on a per connected VFAT level, properties taken from the DB
+          std::stringstream vfatName;
+          vfatName << "VFAT" << vfat;
+          vfat_shared_ptr vfatDevice = vfat_shared_ptr(new gem::hw::vfat::HwVFAT2(vfatName.str(),optohybrid->getGEMHwInterface()));
+          INFO("Setting parameters for " << vfatName.str() << ": ChipID is: 0x"
+               << std::hex << std::setw(4) << std::setfill('0') << vfatDevice->getChipID()
+               << std::dec);
+          //vfatDevice->setPropertiesFromDB();
+        }
         //what else is required for configuring the OptoHybrid?
         //need to reset optical links?
         //reset counters?
-        uint32_t gtxMask = optohybrid->readReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK");
+        uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
         gtxMask |= (0x1<<link);
-        optohybrid->writeReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
-
+        optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
       } else {
         ERROR("configureAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
               << " is not responding");
@@ -522,7 +549,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
 
       DEBUG("OptoHybridManager::revoking hwCfgInfoSpace items for board connected on link "
             << link << " to GLIB in slot " << (slot+1));
-      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.ctp7-%02d.optohybrid%02d",
                                                                  info.crateID.value_,
                                                                  info.slotID.value_,
                                                                  info.linkID.value_));

@@ -1,3 +1,5 @@
+/** @file Exception.h */
+
 #ifndef GEM_HW_EXCEPTION_EXCEPTION_H
 #define GEM_HW_EXCEPTION_EXCEPTION_H
 
@@ -72,6 +74,7 @@ GEM_HW_DEFINE_EXCEPTION(UninitializedDevice)
 
 GEM_HW_DEFINE_EXCEPTION(RCMSNotificationError)
 GEM_HW_DEFINE_EXCEPTION(SOAPTransitionProblem)
+GEM_HW_DEFINE_EXCEPTION(NULLReadoutPointer)
 
 GEM_HW_DEFINE_EXCEPTION(SoftwareProblem)
 GEM_HW_DEFINE_EXCEPTION(TransitionProblem)

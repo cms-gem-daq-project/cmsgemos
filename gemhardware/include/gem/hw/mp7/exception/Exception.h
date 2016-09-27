@@ -1,3 +1,5 @@
+/** @file Exception.h */
+
 #ifndef GEM_HW_MP7_EXCEPTION_EXCEPTION_H
 #define GEM_HW_MP7_EXCEPTION_EXCEPTION_H
 

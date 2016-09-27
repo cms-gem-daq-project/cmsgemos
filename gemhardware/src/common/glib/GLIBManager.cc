@@ -20,9 +20,11 @@ XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBManager);
 
 gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
 {
-  present = false;
-  crateID = -1;
-  slotID  = -1;
+  present  = false;
+  crateID  = -1;
+  slotID   = -1;
+  cardName = "";
+
   controlHubAddress = "";
   deviceIPAddress   = "";
   ipBusProtocol     = "";
@@ -38,6 +40,7 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
   bag->addField("crateID", &crateID);
   bag->addField("slot",    &slotID);
   bag->addField("present", &present);
+  bag->addField("CardName", &cardName);
 
   bag->addField("ControlHubAddress", &controlHubAddress);
   bag->addField("DeviceIPAddress",   &deviceIPAddress);
@@ -188,9 +191,11 @@ void gem::hw::glib::GLIBManager::initializeAction()
     DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
 
     // create the cfgInfoSpace object (qualified vs non?)
-    std::string deviceName = toolbox::toString("gem.shelf%02d.glib%02d",
-                                               info.crateID.value_,
-                                               info.slotID.value_);
+    std::string deviceName = info.cardName.toString();
+    if (deviceName.empty())
+      deviceName = toolbox::toString("gem.shelf%02d.glib%02d",
+                                     info.crateID.value_,
+                                     info.slotID.value_);
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
@@ -238,6 +243,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
       // m_glibs.at(slot) = glib_shared_ptr(new gem::hw::glib::HwGLIB(info.crateID.value_,info.slotID.value_));
       m_glibs.at(slot) = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
       if (m_glibs.at(slot)->isHwConnected()) {
+        DEBUG("GLIBManager::Creating InfoSpace items for GLIB device " << deviceName);
         // maybe better to rais exception here and fail if not connected, as we expected the card to be here?
         createGLIBInfoSpaceItems(is_glibs.at(slot), m_glibs.at(slot));
 
@@ -246,8 +252,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
         m_glibMonitors.at(slot)->setupHwMonitoring();
         m_glibMonitors.at(slot)->startMonitoring();
       } else {
-        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << slot);
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << (slot+1));
+        XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "initializeAction failed");
       }
     } catch (uhalException const& ex) {
       ERROR("GLIBManager::caught uHAL exception " << ex.what());
@@ -266,6 +272,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
     // p_gemWebInterface->glibInSlot(slot);
+    // FOR MISHA
+    // hardware should be connected, can update ldqm_db for teststand/local runs
   }
 
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
@@ -279,7 +287,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "initializeAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
@@ -305,9 +313,9 @@ void gem::hw::glib::GLIBManager::configureAction()
       m_glibs.at(slot)->resetCalPulseCount();
 
       // reset the DAQ
-      m_glibs.at(slot)->setL1AInhibit(0x1);
+      m_glibs.at(slot)->setL1AEnable(0x0);
       m_glibs.at(slot)->resetDAQLink();
-      m_glibs.at(slot)->setDAQLinkRunType(0x3);
+      m_glibs.at(slot)->setDAQLinkRunType(0x0);
       m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
 
       // should FIFOs be emptied in configure or at start?
@@ -324,7 +332,7 @@ void gem::hw::glib::GLIBManager::configureAction()
     } else {
       ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "configureAction failed");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "configureAction failed");
       // maybe raise exception so as to not continue with other cards?
     }
   }
@@ -349,13 +357,13 @@ void gem::hw::glib::GLIBManager::startAction()
     if (m_glibs.at(slot)->isHwConnected()) {
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
-      m_glibs.at(slot)->enableDAQLink();
-      m_glibs.at(slot)->setL1AInhibit(0x0);
+      m_glibs.at(slot)->enableDAQLink(0x4);  //FIXME
+      m_glibs.at(slot)->setL1AEnable(0x1);
       usleep(100); // just for testing the timing of different applications
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "startAction failed");
+      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "startAction failed");
       // maybe raise exception so as to not continue with other cards? let's just return for the moment
       return;
     }
@@ -399,7 +407,7 @@ void gem::hw::glib::GLIBManager::stopAction()
     if (m_glibs[slot]->isHwConnected()) {
       // what is required for stopping the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
-      m_glibs[slot]->setL1AInhibit(0x1);
+      m_glibs[slot]->setL1AEnable(0x0);
     }
   }
   usleep(10000);  // just for testing the timing of different applications
@@ -521,29 +529,31 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("DISPER_ERR",        glib->getDAQLinkDisperErrors(),          NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("EVT_SENT",          glib->getDAQLinkEventsSent(),            NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("L1AID",             glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("INPUT_TIMEOUT",     glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("RUN_TYPE",          glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("RUN_PARAMS",        glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("SBIT_RATE",         glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
 
-  is_glib->createUInt32("GTX0_STATUS",               glib->getDAQLinkStatus(0),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(0, 0), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_EVN",                  glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_DAV_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_MAX_DAV_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_LAST_DAV_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_CLUSTER_01",           glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX0_CLUSTER_23",           glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH0_STATUS",               glib->getDAQLinkStatus(0),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH0_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(0, 0), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH0_EVN",                  glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH0_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH0_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH0_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
 
-  is_glib->createUInt32("GTX1_STATUS",               glib->getDAQLinkStatus(1),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(1, 0), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_EVN",                  glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_DAV_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_MAX_DAV_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_LAST_DAV_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_CLUSTER_01",           glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("GTX1_CLUSTER_23",           glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH1_STATUS",               glib->getDAQLinkStatus(1),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH1_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(1, 0), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH1_EVN",                  glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH1_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH1_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH1_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
 
+  is_glib->createUInt32("OH2_STATUS",               glib->getDAQLinkStatus(2),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH2_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(2, 0), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH2_EVN",                  glib->getDAQLinkCounters(2, 1), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH2_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH2_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OH2_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(2),    NULL, GEMUpdateType::HW32);
+
+  /* not yet implemented
   // request counters
   is_glib->createUInt64("OptoHybrid_0", 0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
   is_glib->createUInt64("OptoHybrid_1", 0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
@@ -558,10 +568,22 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("GTX1_TRG_ERR",      0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
   is_glib->createUInt32("GTX1_TRK_ERR",      0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
   is_glib->createUInt32("GTX1_DATA_Packets", 0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
-
+  */
   // TTC registers
-  is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);
+
+  // TRIGGER registers
+  for (int oh = 0; oh < 4; ++oh) {
+    std::stringstream ohname;
+    ohname << "OH" << oh;
+    for (int cluster = 0; cluster < 8; ++cluster) {
+      std::stringstream cluname;
+      cluname << "CLUSTER_" << cluster;
+      is_glib->createUInt32(ohname.str()+"_"+cluname.str(),
+                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+    }
+  }
 }
 
 void gem::hw::glib::GLIBManager::dumpGLIBFIFO(xgi::Input* in, xgi::Output* out)

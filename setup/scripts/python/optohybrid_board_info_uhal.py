@@ -42,20 +42,24 @@ parser.add_option("--sbitmask", type="int", dest="sbitmask",default=0x0,
 (options, args) = parser.parse_args()
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
+from gemlogger import GEMLogger
+gemlogger = GEMLogger("optohybrid_board_info_uhal").gemlogger
+gemlogger.setLevel(GEMLogger.INFO)
 
 uTCAslot = 10
 if options.slot:
 	uTCAslot = 160+options.slot
-	print options.slot, uTCAslot
+	msg = options.slot, uTCAslot
+        gemlogger.debug(msg)
 ipaddr        = '192.168.0.%d'%(uTCAslot)
 if options.testbeam:
         ipaddr        = '137.138.115.185'
 uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 
-address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
+address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
 optohybrid    = uhal.getDevice( "optohybrid" , uri, address_table )
 
-address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
+address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
 glib          = uhal.getDevice( "glib"       , uri, address_table )
 
 SAMPLE_TIME = 1.
@@ -98,8 +102,8 @@ clocking = getClockingInfo(optohybrid,options.gtx)
 if options.v2b:
         print "Sources:  %6s  %7s"%("TrgSrc","SBitSrc")
         print "             0x%x      0x%x"%(
-                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
-                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.OUTPUT.SBits"%(options.gtx)))
+                readRegister(optohybrid,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
+                readRegister(optohybrid,"GEM_AMC.OH.OH%d.CONTROL.OUTPUT.SBITS"%(options.gtx)))
 
         print "Lock status:  %10s  %13s"%("QPLL","QPLL FPGA PLL")
         print "                     0x%x            0x%x"%(
@@ -120,8 +124,8 @@ if options.v2b:
 else:
         print "Sources:  %6s  %7s  %9s"%("TrgSrc","SBitSrc","RefCLKSrc")
         print "             0x%x      0x%x        0x%x"%(
-                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
-                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.OUTPUT.SBits"%(options.gtx)),
+                readRegister(optohybrid,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
+                readRegister(optohybrid,"GEM_AMC.OH.OH%d.CONTROL.OUTPUT.SBITS"%(options.gtx)),
                 clocking["refclock"])
 
         print "Lock status:  %8s  %7s  %4s  %3s"%("FPGA PLL","EXT PLL","CDCE","GTX")
@@ -164,11 +168,11 @@ print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK
 print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
 
 print
-print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
-fifoInfo = readFIFODepth(glib,options.gtx)
-print "       %8s  %7s  %10s"%("0x%x"%(fifoInfo["isEMPTY"]),
-                               "0x%x"%(fifoInfo["isFULL"]),
-                               "0x%x"%(fifoInfo["Occupancy"]))
-
-print
+# print "FIFO:  %8s  %7s  %10s"%("isEmpty",  "isFull", "depth")
+# fifoInfo = readFIFODepth(glib,options.gtx)
+# print "       %8s  %7s  %10s"%("0x%x"%(fifoInfo["isEMPTY"]),
+#                                "0x%x"%(fifoInfo["isFULL"]),
+#                                "0x%x"%(fifoInfo["Occupancy"]))
+#
+#print
 print "--=======================================--"

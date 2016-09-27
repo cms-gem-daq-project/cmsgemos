@@ -1,3 +1,5 @@
+/** @file GLIBReadout.h */
+
 #ifndef GEM_HW_GLIB_GLIBREADOUT_H
 #define GEM_HW_GLIB_GLIBREADOUT_H
 

@@ -1,14 +1,16 @@
 # xdaq initialization
 
 if [ "$LD_LIBRARY_PATH" != "0" ]; then
-  export LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH
 fi
 
 if [ "$XDAQ_ROOT" != "0" ]; then
-  export XDAQ_ROOT=/opt/xdaq
-  #export XDAQ_DOCUMENT_ROOT=$XDAQ_ROOT/htdocs
-  export XDAQ_DOCUMENT_ROOT=/data/xdaq/${USER}
-  export uHALROOT=/opt/cactus
+    echo "executing gem daq setup"
+    export XDAQ_ROOT=/opt/xdaq
+    # export XDAQ_DOCUMENT_ROOT=$XDAQ_ROOT/htdocs
+    # only do this for regular users
+    export XDAQ_DOCUMENT_ROOT=/data/xdaq/${USER}
+    export uHALROOT=/opt/cactus
 fi
 
 if [ "$LD_LIBRARY_PATH" != "0" ]; then
@@ -74,3 +76,4 @@ export PATH=$PATH:$uHALROOT/bin
 export PATH=$PATH:$uHALROOT/bin/amc13
 export AMC13_ADDRESS_TABLE_PATH=${uHALROOT}/etc/amc13/
 export GEMHOST=`hostname --short`
+export GEM_OS_PROJECT=cmsgemos

@@ -10,6 +10,7 @@ from glib_system_info_uhal import *
 from vfat_functions_uhal import *
 from rate_calculator import errorRate
 from glib_user_functions_uhal import *
+from optohybrid_user_functions_uhal import *
 
 from optparse import OptionParser
 parser = OptionParser()
@@ -34,24 +35,25 @@ parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
 
 chips = []
 if options.enabledChips:
-	chips = [int(n) for n in options.enabledChips.split(",")] 
-	print "chips", chips
-
+	chips = [int(n) for n in options.enabledChips.split(",")]
+	msg = "chips", chips
+        gemlogger.info(msg)
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
 uTCAslot = 10
 if options.slot:
 	uTCAslot = 160+options.slot
-print options.slot, uTCAslot
+msg = options.slot, uTCAslot
+gemlogger.debug(msg)
 ipaddr        = '192.168.0.%d'%(uTCAslot)
 if options.testbeam:
         ipaddr        = '137.138.115.185'
 uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 
-address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
+address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
 optohybrid    = uhal.getDevice( "optohybrid" , uri, address_table )
 
-address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
+address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
 glib          = uhal.getDevice( "glib"       , uri, address_table )
 
 ########################################
@@ -63,25 +65,34 @@ if options.debug:
 	print "  Opening GLIB with IP", ipaddr
 	print "--=======================================--"
 	getSystemInfo(glib)
-        print "The nodes within GLIB are:"
-        for inode in glib.getNode("GLIB").getNodes():
-                print inode, "attributes ..."
-                node = glib.getNode("GLIB."+inode)
-                print "Address:0x%08x"%(node.getAddress())
+        msg = "The nodes within GEM_AMC are:"
+        gemlogger.debug(msg)
+        for inode in glib.getNode("GEM_AMC").getNodes():
+                msg = inode, "attributes ..."
+                gemlogger.debug(msg)
+                node = glib.getNode("GEM_AMC."+inode)
+                msg = "Address:0x%08x"%(node.getAddress())
+                gemlogger.debug(msg)
                 # Bit-mask of node
-                print "Mask:   0x%08x"%(node.getMask())
+                msg = "Mask:   0x%08x"%(node.getMask())
+                gemlogger.debug(msg)
                 # Mode enum - one of uhal.BlockReadWriteMode.SINGLE (default), INCREMENTAL and NON_INCREMENTAL,
                 #  or HIERARCHICAL for top-level nodes nesting other nodes.
-                print "Mode:", node.getMode()
+                msg = "Mode:", node.getMode()
+                gemlogger.debug(msg)
                 # One of uhal.NodePermission.READ, WRITE and READWRITE
-                print "R/W:", node.getPermission()
+                msg = "R/W:", node.getPermission()
+                gemlogger.debug(msg)
                 # In units of 32-bits. All single registers and FIFOs have default size of 1
-                print "Size (in units of 32-bits):", node.getSize()
+                msg = "Size (in units of 32-bits):", node.getSize()
+                gemlogger.debug(msg)
                 # User-definable string from address table - in principle a comma separated list of values
-                #print "Tags:", node.getTags()
+                #msg = "Tags:", node.getTags()
+                #gemlogger.debug(msg)
                 ## Map of user-definable, semicolon-delimited parameter=value pairs specified in the "parameters"
                 ##  xml address file attribute.
-                #print "Parameters:", node.getParameters()
+                #msg = "Parameters:", node.getParameters()
+                #gemlogger.debug(msg)
 
 
 print
@@ -97,10 +108,10 @@ for gebslot in range(24):
 ##time.sleep(5)
 emptyMask = 0xFFFF
 thechipid = 0x0000
-## these need to be done in a link specific way, so select the first available link
-print "GLIB FW: 0x%08x"%(readRegister(glib,"GLIB.SYSTEM.FIRMWARE"))
-print "OH   FW: 0x%08x"%(readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.FW"%(options.gtx)))
-        
+
+print "GLIB FW: %s"%(getSystemFWDate(glib))
+print "OH   FW: 0x%08x"%(getFirmwareVersionRaw(optohybrid,options.gtx))
+
 controls = []
 chipmask = 0xff000000
 if options.testi2c > -1:
@@ -110,12 +121,12 @@ if options.testi2c > -1:
                 if line < 6:
                         for idx in range((line/2)*8,((line/2)+1)*8):
                                 if (line%2):
-                                        # 0  0-3  
-                                        # 1  4-7  
-                                        # 2  8-11 
-                                        # 3 12-15 
-                                        # 4 16-19 
-                                        # 5 20-23 
+                                        # 0  0-3
+                                        # 1  4-7
+                                        # 2  8-11
+                                        # 3 12-15
+                                        # 4 16-19
+                                        # 5 20-23
                                         if (idx%8) > 3:
                                                 print "VFAT%02d: 0x%08x"%(idx,getChipID(glib,options.gtx,idx))
                                                 pass
@@ -137,26 +148,33 @@ if options.testi2c > -1:
                 time.sleep(1)
                 pass
         pass
-print "Trying to do a block read on all VFATs chipID0"
-chipids = getAllChipIDs(glib, options.gtx, chipmask)
-print chipids
+msg = "Trying to do a block read on all VFATs chipID0"
+gemlogger.debug(msg)
+
+chipids = getAllChipIDs(glib, options.gtx, chipmask,options.debug)
+msg = chipids
+gemlogger.debug(msg)
 
 if options.debug:
-        print chipids
-        print controlRegs
-        
+        msg = chipids
+        gemlogger.debug(msg)
+        msg = controlRegs
+        gemlogger.debug(msg)
+
 if options.biasAll:
         biasAllVFATs(optohybrid, options.gtx, chipmask)
 
 if options.sleepAll:
         for chip in range(24):
-                print "sleeping chip %d"%(chip)
+                msg = "sleeping chip %d"%(chip)
+                gemlogger.info(msg)
                 setRunMode(optohybrid, options.gtx, chip, False)
 
 for chip in chips:
-        print "enabling chip %d"%(chip)
+        msg = "enabling chip %d"%(chip)
+        gemlogger.info(msg)
         setRunMode(optohybrid, options.gtx, chip, True)
- 
+
 controlRegs = {}
 for control in range(4):
         controls.append(readAllVFATs(glib, options.gtx, 0xf0000000, "ContReg%d"%(control), options.debug))
@@ -175,7 +193,7 @@ for chip in chipids.keys():
                                                                          controlRegs["ctrl1"][chip],
                                                                          controlRegs["ctrl2"][chip],
                                                                          controlRegs["ctrl3"][chip])
-	
+
 
 print
 print "--=======================================--"

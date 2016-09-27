@@ -1264,7 +1264,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, "connections_ch.xml"));
 
   if (glibDevice_->isHwConnected()) {
-    DEBUG("GLIB device connected");
+    INFO("GLIB device connected");
 
     glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
     disableTriggers();

@@ -77,7 +77,6 @@ namespace gem {
             xdata::UnsignedShort VThreshold1;
             xdata::UnsignedShort VThreshold2;
 
-
             inline std::string toString() {
               // write obj to stream
               std::stringstream os;
@@ -109,6 +108,7 @@ namespace gem {
             xdata::Integer crateID;
             xdata::Integer slotID;
             xdata::Integer linkID;
+            xdata::String  cardName;
 
             // configuration parameters
             xdata::String controlHubAddress;
@@ -121,6 +121,7 @@ namespace gem {
 
             xdata::String            vfatBroadcastList;
             xdata::UnsignedInteger32 vfatBroadcastMask;
+
             xdata::String            vfatSBitList;
             xdata::UnsignedInteger32 vfatSBitMask;
 
@@ -140,6 +141,7 @@ namespace gem {
                  << "crateID:" << crateID.toString() << std::endl
                  << "slotID:"  << slotID.toString()  << std::endl
                  << "linkID:"  << linkID.toString()  << std::endl
+                 << "cardName:" << cardName.toString() << std::endl
 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
@@ -150,6 +152,8 @@ namespace gem {
 
                  << "vfatBroadcastList:"   << vfatBroadcastList.toString() << std::endl
                  << "vfatBroadcastMask:0x" << std::hex << vfatBroadcastMask.value_ << std::dec << std::endl
+                 << "vfatSBitList:"        << vfatSBitList.toString() << std::endl
+                 << "vfatSBitMask:0x"      << std::hex << vfatSBitMask.value_ << std::dec << std::endl
 
                  << "vfatSBitList:"   << vfatSBitList.toString() << std::endl
                  << "vfatSBitMask:0x" << std::hex << vfatSBitMask.value_ << std::dec << std::endl
