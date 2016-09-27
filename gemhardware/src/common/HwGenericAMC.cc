@@ -128,9 +128,17 @@ bool gem::hw::HwGenericAMC::isHwConnected()
       for (unsigned int gtx = 0; gtx < this->getSupportedOptoHybrids(); ++gtx) {
         // somehow need to actually check that the specified link is present
         b_links[gtx] = true;
+        INFO("m_links 0x" << std::hex << std::setw(8) << std::setfill('0')
+             << m_links
+             << " 0x1 << gtx = " << std::setw(8) << std::setfill('0') << (0x1<<gtx)
+             << std::dec);
         m_links |= (0x1<<gtx);
-        DEBUG("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
+        INFO("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
+        INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+              << m_links << std::dec);
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
+        INFO("m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+              << m_links << std::dec);
       }
     } else {
       WARN("Device not reachable (unable to find 'GLIB' in the board ID)"
@@ -235,6 +243,8 @@ std::string gem::hw::HwGenericAMC::getUserFirmwareDate()
 
 bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opMsg)
 {
+  INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+       << m_links << std::dec);
   if (gtx > this->getSupportedOptoHybrids()) {
     std::string msg = toolbox::toString("%s requested for gtx (%d): outside expectation (0-%d)",
                                         opMsg.c_str(), gtx, this->getSupportedOptoHybrids());
@@ -243,11 +253,15 @@ bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opM
     return false;
     //  } else if (!b_links[gtx]) {
   } else if (!((m_links>>gtx)&0x1)) {
-    std::string msg = toolbox::toString("%s requested inactive gtx (%d)",opMsg.c_str(), gtx);
+    INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+         << m_links << std::dec);
+    std::string msg = toolbox::toString("%s requested inactive gtx (%d, 0x%08x, 0x%08x)",opMsg.c_str(), gtx,m_links,m_links>>gtx);
     ERROR(msg);
     // XCEPT_RAISE(gem::hw::exception::InvalidLink,msg);
     return false;
   }
+  INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+       << m_links << std::dec);
   return true;
 }
 
@@ -255,11 +269,15 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_
 {
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
 
+  INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+       << m_links << std::dec);
   if (linkCheck(gtx, "Link status")) {
     linkStatus.TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.TRACK_LINK_ERROR_CNT", gtx));
     linkStatus.TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("TRIGGER.OH%d.LINK0_MISSED_COMMA_CNT",gtx));
     linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("OH_LINKS.OH%d.VFAT_BLOCK_CNT",       gtx));
   }
+  INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
+       << m_links << std::dec);
   return linkStatus;
 }
 

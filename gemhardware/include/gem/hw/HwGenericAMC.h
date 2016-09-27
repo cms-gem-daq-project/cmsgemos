@@ -15,7 +15,7 @@ namespace gem {
       {
       public:
 
-        static const unsigned N_GTX = 2; ///< maximum number of GTX links on the GenericAMC
+        static const unsigned N_GTX = 9; ///< maximum number of GTX links on the GenericAMC
 
         /**
          * @struct AMCIPBusCounters
@@ -717,9 +717,9 @@ namespace gem {
       protected:
         //GenericAMCMonitor *monGenericAMC_;
 
-        bool b_links[N_GTX];
+        bool b_links[N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it...
         uint32_t m_links;
-        
+
         std::vector<linkStatus> v_activeLinks;
 
         /**
