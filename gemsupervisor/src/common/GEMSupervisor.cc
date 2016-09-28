@@ -131,6 +131,12 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
 
     DEBUG("GEMSupervisor::actionPerformed m_dbInfo = " << m_dbInfo.toString());
   }
+
+  // item is changed, update it
+  if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
+    DEBUG("GEMSupervisor::actionPerformed() ItemChangedEvent");
+  }
+
   // update monitoring variables
   gem::base::GEMApplication::actionPerformed(event);
 }

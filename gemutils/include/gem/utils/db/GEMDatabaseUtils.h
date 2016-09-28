@@ -57,7 +57,7 @@ namespace gem {
                << "dbPort:" << dbPort.toString() << std::endl
                << "dbUser:" << dbUser.toString() << std::endl
                << "dbPass:" << dbPass.toString() << std::endl
-              
+
                << "setupTag:"      << setupTag.toString()      << std::endl
                << "runPeriod:"     << runPeriod.toString()     << std::endl
                << "setupLocation:" << setupLocation.toString() << std::endl

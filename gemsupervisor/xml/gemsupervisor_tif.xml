@@ -7,9 +7,23 @@
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">9</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">7,9</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
+          <!-- <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="5"> -->
+          <!--   <crateID  xsi:type="xsd:integer">2</crateID> -->
+          <!--   <slot     xsi:type="xsd:integer">6</slot> -->
+          <!--   <present  xsi:type="xsd:boolean">true</present> -->
+            
+          <!--   <sbitSource    xsi:type="xsd:integer">5</sbitSource> -->
+          <!-- </GLIBInfo> -->
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="6">
+            <crateID  xsi:type="xsd:integer">2</crateID>
+            <slot     xsi:type="xsd:integer">7</slot>
+            <present  xsi:type="xsd:boolean">true</present>
+            
+            <sbitSource    xsi:type="xsd:integer">5</sbitSource>
+          </GLIBInfo>
           <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="8">
             <crateID  xsi:type="xsd:integer">2</crateID>
             <slot     xsi:type="xsd:integer">9</slot>
@@ -47,18 +61,18 @@
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
 	  <CardName     xsi:type="xsd:string">gem.shelf02.amc13</CardName>
-          <AMCInputEnableList xsi:type="xsd:string">9</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">1-8,10-12</AMCIgnoreTTSList>
+          <AMCInputEnableList xsi:type="xsd:string">7,9</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">1-6,8,10-12</AMCIgnoreTTSList>
           
           <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
-          <EnableLocalTTC      xsi:type="xsd:boolean">false</EnableLocalTTC>
+          <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
 
           <LocalTriggerConfig xsi:type="soapenc:Struct">
-            <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
+            <EnableLocalL1A         xsi:type="xsd:boolean">false</EnableLocalL1A>
             <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">50000</InternalPeriodicPeriod>
-	    <EnableLEMO             xsi:type="xsd:boolean">true</EnableLEMO>
+	    <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO>
           
             <L1Aburst               xsi:type="xsd:unsignedInt">1</L1Aburst>
             <L1Amode                xsi:type="xsd:integer">2</L1Amode>
