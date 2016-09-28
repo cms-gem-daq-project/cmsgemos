@@ -444,7 +444,7 @@ namespace gem {
           void setSBitSource(std::array<uint8_t, 6> const sources) {
             uint32_t mask = 0x0;
             for (int i = 0; i < 6; ++i)
-              mask |= (sources[i] << (5*1));
+              mask |= (sources[i] << (5*i));
             setSBitSource(mask);
           };
 
@@ -467,6 +467,31 @@ namespace gem {
            * @retval uint32_t which mode the OptoHybrid is sending s-bits to the HDMI connector
            */
           uint32_t getSBitMode() {
+            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
+
+          /**
+           * Set the S-bit source
+           * @param uint32_t mask which s-bits to forward (maximum 6)
+           */
+          void setHDMISBitSource(uint32_t const mask) {
+            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS",mask); };
+
+          /**
+           * Set the S-bit source
+           * @param std::array<uint8_t, 6> which s-bits to forward (maximum 6)
+           */
+          void setHDMISBitSource(std::array<uint8_t, 6> const sources) {
+            uint32_t mask = 0x0;
+            for (int i = 0; i < 6; ++i)
+              mask |= (sources[i] << (5*i));
+            setHDMISBitSource(mask);
+          };
+
+          /**
+           * Read the S-bit source
+           * @retval uint32_t which VFAT chips are sending S-bits
+           */
+          uint32_t getHDMISBitSource() {
             return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
 
           /**

@@ -56,6 +56,37 @@ namespace gem {
             throw (toolbox::fsm::exception::Exception);
 
         protected:
+          class SBitConfig
+          {
+          public:
+            SBitConfig();
+            void registerFields(xdata::Bag<OptoHybridManager::SBitConfig>* bag);
+
+            // configuration parameters
+            xdata::UnsignedShort Mode;
+            xdata::Vector<xdata::UnsignedShort> Outputs;
+            xdata::UnsignedShort Output0Src;
+            xdata::UnsignedShort Output1Src;
+            xdata::UnsignedShort Output2Src;
+            xdata::UnsignedShort Output3Src;
+            xdata::UnsignedShort Output4Src;
+            xdata::UnsignedShort Output5Src;
+
+            inline std::string toString() {
+              // write obj to stream
+              std::stringstream os;
+              os << "Mode      :" << Mode.toString()       << std::endl
+                 << "Output0Src:" << Output0Src.toString() << std::endl
+                 << "Output1Src:" << Output1Src.toString() << std::endl
+                 << "Output2Src:" << Output2Src.toString() << std::endl
+                 << "Output3Src:" << Output3Src.toString() << std::endl
+                 << "Output4Src:" << Output4Src.toString() << std::endl
+                 << "Output5Src:" << Output5Src.toString() << std::endl
+                 << std::endl;
+              return os.str();
+            };
+          };
+
           class CommonVFATSettings
           {
           public:
@@ -76,7 +107,6 @@ namespace gem {
             xdata::UnsignedShort Latency    ;
             xdata::UnsignedShort VThreshold1;
             xdata::UnsignedShort VThreshold2;
-
 
             inline std::string toString() {
               // write obj to stream
@@ -126,10 +156,12 @@ namespace gem {
 
             // registers to set
             xdata::Integer triggerSource;
-            xdata::Integer sbitSource;
+            // xdata::Integer sbitSource;
             xdata::Integer refClkSrc;
             // xdata::Integer vfatClkSrc;
             // xdata::Integer cdceClkSrc;
+
+            xdata::Bag<SBitConfig> sbitConfig;
 
             xdata::Bag<CommonVFATSettings> commonVFATSettings;
 
@@ -155,10 +187,12 @@ namespace gem {
                  << "vfatSBitMask:0x" << std::hex << vfatSBitMask.value_ << std::dec << std::endl
 
                  << "triggerSource:0x" << std::hex << triggerSource.value_ << std::dec << std::endl
-                 << "sbitSource:0x"    << std::hex << sbitSource.value_    << std::dec << std::endl
+                // << "sbitSource:0x"    << std::hex << sbitSource.value_    << std::dec << std::endl
                  << "refClkSrc:0x"     << std::hex << refClkSrc.value_     << std::dec << std::endl
                  // << "vfatClkSrc:0x"    << std::hex << vfatClkSrc.value_    << std::dec << std::endl
                  // << "cdceClkSrc:0x"    << std::hex << cdceClkSrc.value_    << std::dec << std::endl
+                 << "sbitConfig"         << sbitConfig.toString()         << std::endl
+                 << "commonVFATSettings" << commonVFATSettings.toString() << std::endl
                  << std::endl;
               return os.str();
             };

@@ -38,7 +38,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   vfatSBitMask = 0xff000000;
 
   triggerSource = 0;
-  sbitSource    = 0;
+  //sbitSource    = 0;
   refClkSrc     = 1;
   //vfatClkSrc    = 0;
   //cdceClkSrc    = 0;
@@ -64,12 +64,41 @@ void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdat
   bag->addField("VFATSBitMask", &vfatSBitMask);
 
   bag->addField("triggerSource", &triggerSource);
-  bag->addField("sbitSource",    &sbitSource);
+  //bag->addField("sbitSource",    &sbitSource);
   bag->addField("refClkSrc",     &refClkSrc);
   //bag->addField("vfatClkSrc",    &vfatClkSrc);
   //bag->addField("cdceClkSrc",    &cdceClkSrc);
 
-  bag->addField("CommonVFATSettings",  &commonVFATSettings);
+  bag->addField("SBitConfig",         &sbitConfig);
+  bag->addField("CommonVFATSettings", &commonVFATSettings);
+}
+
+gem::hw::optohybrid::OptoHybridManager::SBitConfig::SBitConfig() {
+  Mode       = 0;
+  Output0Src = 0;
+  Output1Src = 1;
+  Output2Src = 2;
+  Output3Src = 3;
+  Output4Src = 4;
+  Output5Src = 5;
+  Outputs.setSize(6);
+  Outputs.at(0) = Output0Src.value_;
+  Outputs.at(1) = Output1Src.value_;
+  Outputs.at(2) = Output2Src.value_;
+  Outputs.at(3) = Output3Src.value_;
+  Outputs.at(4) = Output4Src.value_;
+  Outputs.at(5) = Output5Src.value_;
+}
+
+void gem::hw::optohybrid::OptoHybridManager::SBitConfig::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::SBitConfig>* bag) {
+  bag->addField("Mode",       &Mode      );
+  bag->addField("Output0Src", &Output0Src);
+  bag->addField("Output1Src", &Output1Src);
+  bag->addField("Output2Src", &Output2Src);
+  bag->addField("Output3Src", &Output3Src);
+  bag->addField("Output4Src", &Output4Src);
+  bag->addField("Output5Src", &Output5Src);
+  bag->addField("Outputs",    &Outputs);
 }
 
 gem::hw::optohybrid::OptoHybridManager::CommonVFATSettings::CommonVFATSettings() {
@@ -326,9 +355,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         DEBUG("OptoHybridManager::configureAction::setting trigger source to 0x"
              << std::hex << info.triggerSource.value_ << std::dec);
         optohybrid->setTrigSource(info.triggerSource.value_);
-        DEBUG("OptoHybridManager::configureAction::setting sbit source to 0x"
-             << std::hex << info.sbitSource.value_ << std::dec);
-        optohybrid->setSBitSource(info.sbitSource.value_);
+        // DEBUG("OptoHybridManager::configureAction::setting sbit source to 0x"
+        //      << std::hex << info.sbitSource.value_ << std::dec);
+        // optohybrid->setSBitSource(info.sbitSource.value_);
         DEBUG("OptoHybridManager::setting reference clock source to 0x"
              << std::hex << info.refClkSrc.value_ << std::dec);
         optohybrid->setReferenceClock(info.refClkSrc.value_);
@@ -342,6 +371,20 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         for (unsigned olink = 0; olink < HwGLIB::N_GTX; ++olink) {
         }
         */
+
+        DEBUG("OptoHybridManager::configureAction Setting output s-bit configuration parameters");
+        optohybrid->setSBitMode(info.sbitConfig.bag.Mode.value_);
+
+        std::array<uint8_t, 6> sbitSources = {{
+            static_cast<uint8_t>(info.sbitConfig.bag.Output0Src.value_ & 0x1f),
+            static_cast<uint8_t>(info.sbitConfig.bag.Output1Src.value_ & 0x1f),
+            static_cast<uint8_t>(info.sbitConfig.bag.Output2Src.value_ & 0x1f),
+            static_cast<uint8_t>(info.sbitConfig.bag.Output3Src.value_ & 0x1f),
+            static_cast<uint8_t>(info.sbitConfig.bag.Output4Src.value_ & 0x1f),
+            static_cast<uint8_t>(info.sbitConfig.bag.Output5Src.value_ & 0x1f),
+          }};
+
+        optohybrid->setHDMISBitSource(sbitSources);
 
         std::vector<std::pair<uint8_t,uint32_t> > chipIDs = optohybrid->getConnectedVFATs();
         for (auto chip = chipIDs.begin(); chip != chipIDs.end(); ++chip)
