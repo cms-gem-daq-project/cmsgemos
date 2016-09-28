@@ -38,7 +38,7 @@
 	<!--AMCSlots       xsi:type="xsd:string">10</AMCSlots-->
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[24]">
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="18"> <!-- position must be (slot-1)*2+link-1 -->
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="18"> <!-- position must be (slot-1)*2+link -->
             <crateID xsi:type="xsd:integer">1</crateID>
             <slot    xsi:type="xsd:integer">10</slot>
             <link    xsi:type="xsd:integer">0</link>
@@ -46,7 +46,31 @@
             <!--CardName xsi:type="xsd:string">gem.shelf01.ctp7-02.optohybrid02</CardName-->
 
             <triggerSource xsi:type="xsd:integer">0</triggerSource>
-            <sbitSource    xsi:type="xsd:integer">5</sbitSource>
+
+            <SBitConfig xsi:type="soapenc:Struct">
+              <Mode       xsi:type="xsd:unsignedShort">1</Mode>
+              <Output0Src xsi:type="xsd:unsignedShort">0</Output0Src>
+              <Output1Src xsi:type="xsd:unsignedShort">1</Output1Src>
+              <Output2Src xsi:type="xsd:unsignedShort">2</Output2Src>
+              <Output3Src xsi:type="xsd:unsignedShort">3</Output3Src>
+              <Output4Src xsi:type="xsd:unsignedShort">4</Output4Src>
+              <Output5Src xsi:type="xsd:unsignedShort">5</Output5Src>
+            </SBitConfig>
+
+            <CommonVFATSettings xsi:type="soapenc:Struct">
+              <ContReg0    xsi:type="xsd:unsignedShort"> 0x37</ContReg0   >
+              <ContReg2    xsi:type="xsd:unsignedShort"> 0x30</ContReg2   >
+              <IPreampIn   xsi:type="xsd:unsignedShort">  168</IPreampIn  >
+              <IPreampFeed xsi:type="xsd:unsignedShort">   80</IPreampFeed>
+              <IPreampOut  xsi:type="xsd:unsignedShort">  150</IPreampOut >
+              <IShaper     xsi:type="xsd:unsignedShort">  150</IShaper    >
+              <IShaperFeed xsi:type="xsd:unsignedShort">  100</IShaperFeed>
+              <IComp       xsi:type="xsd:unsignedShort">   75</IComp      >
+              <Latency     xsi:type="xsd:unsignedShort">  157</Latency    >
+              <VThreshold1 xsi:type="xsd:unsignedShort">   25</VThreshold1>
+              <VThreshold2 xsi:type="xsd:unsignedShort">    0</VThreshold2>
+            </CommonVFATSettings>
+          </OptoHybridInfo>
           </OptoHybridInfo>
 	</AllOptoHybridsInfo>
       </properties>
@@ -66,6 +90,29 @@
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
           <EnableLocalTTC      xsi:type="xsd:boolean">false</EnableLocalTTC>
           
+          <LocalTriggerConfig xsi:type="soapenc:Struct">
+            <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
+            <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">50000</InternalPeriodicPeriod>
+	    <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO>
+          
+            <L1Aburst               xsi:type="xsd:unsignedInt">1</L1Aburst>
+            <L1Amode                xsi:type="xsd:integer">2</L1Amode>
+            <L1Arules               xsi:type="xsd:integer">0</L1Arules>
+	    <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
+	    <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont>
+          </LocalTriggerConfig>
+          
+          <BGOConfig xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[4]">
+<!--
+            <BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">
+	      <BGOChannel  xsi:type="xsd:integer">0</BGOChannel>
+	      <BGOcmd      xsi:type="xsd:unsignedInt">0x14</BGOcmd>
+	      <BGObx       xsi:type="xsd:unsignedInt">0x1</BGObx>
+	      <BGOprescale xsi:type="xsd:unsignedInt">0x1</BGOprescale>
+	      <BGOrepeat   xsi:type="xsd:boolean">true</BGOrepeat>
+            </BGOInfo>
+-->
+          </BGOConfig>
           <PrescaleFactor xsi:type="xsd:integer">1</PrescaleFactor>
           <BCOffset       xsi:type="xsd:integer">1</BCOffset>
           
@@ -97,7 +144,18 @@
     <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMSupervisor"
 		  xsi:type="soapenc:Struct">
-        <!--dbAccessor xsi:type="xsd:string">mysql://gem904daq01.cern.ch:3306/</dbAccessor-->
+        <DatabaseInfo xsi:type="soapenc:Struct">
+          <dbName xsi:type="xsd:string">ldqm_test_db</dbName>
+          <dbHost xsi:type="xsd:string">gem904daq01.cern.ch</dbHost>
+          <dbPort xsi:type="xsd:integer">3306</dbPort>
+          <dbUser xsi:type="xsd:string">gemdaq</dbUser>
+          <dbPass xsi:type="xsd:string">gemdaq</dbPass>
+          
+          <setupTag xsi:type="xsd:string">teststand</setupTag>
+          <runPeriod xsi:type="xsd:string">2016T</runPeriod>
+          <setupLocation xsi:type="xsd:string">CERN904</setupLocation>
+        </DatabaseInfo>
+
 	<rcmsStateListener xsi:type="soapenc:Struct">
           <classname xsi:type="xsd:string">RCMSStateListener</classname>
           <instance  xsi:type="xsd:unsignedInt">0</instance>
