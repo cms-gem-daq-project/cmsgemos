@@ -77,7 +77,6 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
 
   bag->addField("LocalTriggerConfig",  &localTriggerConfig );
-
   bag->addField("PrescaleFactor", &prescaleFactor);
   bag->addField("BCOffset",       &bcOffset      );
   bag->addField("BGOConfig",      &bgoConfig     );
@@ -139,6 +138,12 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
           "Default configuration values have been loaded from xml profile");
     //p_gemMonitor->startMonitoring();
   }
+
+  // item is changed, update it
+  if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
+    DEBUG("AMC13Manager::actionPerformed() ItemChangedEvent");
+  }
+
   // update configuration variables
   m_connectionFile     = m_amc13Params.bag.connectionFile.value_;
   m_cardName           = m_amc13Params.bag.cardName.value_;
@@ -245,11 +250,6 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
 
-  if (m_enableLEMO) {
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",true);
-    INFO("AMC13Manager enabling LEMO trigger " << m_enableLEMO);
-  }
-
   //equivalent to hcal init part
   if (p_amc13==0)
     return;
@@ -266,6 +266,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     p_amc13->fakeDataEnable(m_enableFakeData);
     p_amc13->daqLinkEnable(m_enableDAQLink);
     p_amc13->sfpOutputEnable(m_sfpMask);
+  } else {
+    p_amc13->fakeDataEnable(false);
+    p_amc13->daqLinkEnable(false);
+    p_amc13->sfpOutputEnable(0x0);
   }
   //enable SFP outputs based on mask configuration
 
@@ -275,8 +279,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   m_slotMask = p_amc13->parseInputEnableList(m_amcInputEnableList,true);
   p_amc13->AMCInputEnable(m_slotMask);
 
-  // Use local TTC signal if config doc says so
+  // Use local trigger generator if config doc says so
+  p_amc13->enableLocalL1A(m_enableLocalL1A);
 
+  // Use local TTC signal if config doc says so
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
 
   // need to ensure that all BGO channels are disabled
@@ -310,12 +316,12 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   if (m_enableLocalL1A) {
-    if (m_enableLEMO) {
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    } else {
-      m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
-      p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    }
+    // this should *not* happen here...
+    // if (m_enableLEMO) {
+    //   p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+    // } else {
+    m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
+    p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   }
   //DEBUG("Looking at L1A history after configure");
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
@@ -351,15 +357,23 @@ void gem::hw::amc13::AMC13Manager::startAction()
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   p_amc13->reset(::amc13::AMC13::T1);
+  p_amc13->resetCounters();
   usleep(500);
 
   p_amc13->startRun();
   INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
 
-  if (m_enableLocalL1A && m_startL1ATricont) {
-    //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
-    p_amc13->enableLocalL1A(m_enableLocalL1A);
-    //    p_amc13->startContinuousL1A();
+  if (m_enableLocalL1A) {
+    // p_amc13->localTtcSignalEnable(m_enableLocalL1A);
+    // p_amc13->enableLocalL1A(m_enableLocalL1A); //  should already be enabled in initialize
+
+    if (m_startL1ATricont)
+      p_amc13->startContinuousL1A();
+
+    if (m_enableLEMO) {
+      DEBUG("AMC13Manager::startAction enabling LEMO trigger " << m_enableLEMO);
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0x1);
+    }
   }
 
   if (m_enableLocalTTC) {
@@ -378,11 +392,11 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   //if local triggers are enabled, do we have a separate trigger application?
   //we can just disable them here maybe?
   if (m_enableLocalL1A) {
-    if (m_enableLEMO) {
-      p_amc13->enableLocalL1A(false);
+    // p_amc13->enableLocalL1A(false); // probably not this
+    p_amc13->stopContinuousL1A(); // probably outside this block
+
+    if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-    } else
-      p_amc13->stopContinuousL1A();
   }
 
   if (m_enableLocalTTC)
@@ -402,11 +416,11 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
 {
   //undo the actions taken in pauseAction
   if (m_enableLocalL1A) {
-    if (m_enableLEMO) {
-      p_amc13->enableLocalL1A(m_enableLocalL1A);
+    // p_amc13->enableLocalL1A(m_enableLocalL1A); // should probably already be enabled
+    p_amc13->startContinuousL1A(); // only if we want to send triggers continuously
+
+    if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    } else
-      p_amc13->startContinuousL1A();
   }
 
   if (m_enableLocalTTC) {
@@ -432,11 +446,11 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   if (m_enableLocalL1A) {
-    if (m_enableLEMO) {
-      p_amc13->enableLocalL1A(m_enableLocalL1A);
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    } else
-      p_amc13->stopContinuousL1A();
+    // p_amc13->enableLocalL1A(m_enableLocalL1A);  // this should behave similarly to pause, so why is it not?
+    p_amc13->stopContinuousL1A(); // probably outside this block
+
+    if (m_enableLEMO)
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
   }
 
   if (m_enableLocalTTC)
@@ -456,6 +470,7 @@ void gem::hw::amc13::AMC13Manager::haltAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //what is necessary for a halt on the AMC13?
+  // maybe ensure triggers are disabled as well as BGO commands?
   usleep(500); // just for testing the timing of different applications
 }
 
@@ -464,8 +479,10 @@ void gem::hw::amc13::AMC13Manager::resetAction()
 {
   //what is necessary for a reset on the AMC13?
   DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
-  if (p_amc13!=0) delete p_amc13;
-  p_amc13 = 0;
+  // maybe ensure triggers are disabled as well as BGO commands?
+  if (p_amc13)
+    delete p_amc13;
+  p_amc13 = NULL;
   usleep(500);
   //gem::base::GEMFSMApplication::resetAction();
 }
