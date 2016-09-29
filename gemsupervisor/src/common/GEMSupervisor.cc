@@ -272,31 +272,25 @@ void gem::supervisor::GEMSupervisor::configureAction()
     ERROR("GEMSupervisor::configureAction ");
   }
   m_globalState.update();
+  INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::startAction()
   throw (gem::supervisor::exception::Exception)
 {
-
   updateRunNumber();
+
+  if(m_scanTypeParam.value_ == 2 || (m_scanTypeParam.value_ == 3)){
+      scanparam_final = m_minParam.value_;
+    }
+
   try {
     for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
       sendRunNumber(m_runNumber, (*i));
       INFO(std::string("Starting ")+(*i)->getClassName());
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Start", p_appContext, p_appDescriptor, *i);
     }
-    // trigger counter
-    /*
-     if(m_RunType_ == 2 || m_RunType_ == 3){   
-       INFO("GEMSupervisor::Trigger Counter from AMC13");
-       int currentTrigger =  v_supervisedApps.at(2).TriggerCounter();
-       int NTriggersRequested = m_NTriggersParam.value_;
-       while(currentTrigger <  NTriggersRequested){
-	 currentTrigger =  TriggerCounter();    
-	 INFO("GEMSupervisor updating trigger counter" << currentTrigger);
-       }
-     }
-    */
+
   } catch (gem::supervisor::exception::Exception& e) {
     ERROR("GEMSupervisor::startAction " << e.what());
     throw e;
@@ -310,6 +304,7 @@ void gem::supervisor::GEMSupervisor::startAction()
     ERROR("GEMSupervisor::startAction ");
   }
   m_globalState.update();
+  INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::pauseAction()
@@ -580,20 +575,36 @@ void gem::supervisor::GEMSupervisor::sendScanParameters(int64_t const& scantype,
 xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
-  INFO("GEMSupervisor::END SCAN POINT");
+  INFO("GEMSupervisor::ENDSCANPOINT");
 
   std::string commandName = "EndScanPoint";
-
   INFO("GEMSupervisor::endscanpoint command " << commandName << " succeeded ");
-  //  gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "ENDSCANPOINT");
 
-      if(m_RunType_ == 2 || m_RunType_ == 3){    
-	for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-	INFO(std::string(" ScanParameters update")+(*i)->getClassName());
-	sendScanParameters(m_RunType_,m_NTriggers_, m_Min_ + m_StepSize_, m_Max_, m_StepSize_,(*i));
-	}
-      }
+  int currentscanparam = scanparam_final + m_stepsizeParam.value_;
 
+  INFO("GEMSupervisor::Endscanpoint Scan");
+  if(m_scanTypeParam.value_ == 2){
+    INFO(" Latency " << currentscanparam);
+  }else if(m_scanTypeParam.value_ == 3){
+    INFO(" VT1 " << currentscanparam);
+  }
+
+  if(currentscanparam <= m_maxParam.value_){
+
+    pauseAction();
+    
+    while(!(m_globalState.getStateName() == "Paused")){
+      DEBUG("GEMSupervisor::Endscanpoint GlobalState = " << m_globalState.getStateName());
+      usleep(1000);//testing change of state
+    }
+    resumeAction();
+
+    scanparam_final = currentscanparam;
+
+  }else{
+    stopAction();
+  }
+ 
   try {
     INFO("GEMSupervisor::endscanpoint " << commandName << " succeeded ");
     return

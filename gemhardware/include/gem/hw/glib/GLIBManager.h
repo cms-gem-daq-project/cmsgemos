@@ -124,6 +124,9 @@ namespace gem {
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
           xdata::String                        m_amcSlots;
           xdata::String                        m_connectionFile;
+
+	  int latency_final,VT1_final;
+
         };  // class GLIBManager
 
     }  // namespace gem::hw::glib

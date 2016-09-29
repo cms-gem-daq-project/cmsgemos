@@ -198,6 +198,8 @@ namespace gem {
 
           std::array<std::array<std::vector<std::pair<uint8_t, uint32_t> >, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
             m_vfatMapping;
+
+	  int latency_final,VT1_final;
         };  // class OptoHybridManager
 
     }  // namespace gem::hw::optohybrid

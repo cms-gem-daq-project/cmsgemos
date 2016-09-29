@@ -161,6 +161,8 @@ namespace gem {
         xdata::Boolean             m_reportToRCMS;
         xdata::String              m_rcmsStateListenerUrl;
         xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
+
+	int scanparam_final;
       };
   }  // namespace gem::supervisor
 }  // namespace gem

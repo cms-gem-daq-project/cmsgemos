@@ -51,6 +51,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
   triggerSource = 0;
   sbitSource    = 0;
   refClkSrc     = 1;
+
   //vfatClkSrc    = 0;
   //cdceClkSrc    = 0;
 }
@@ -364,36 +365,20 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         INFO("Setting VFAT parameters with broadcast write using mask " << std::hex << vfatMask << std::dec);
-
+	
 	if(m_scanTypeParam.value_ == 2){
 	  int latency = m_minParam.value_;
-	  INFO("OptoHybridManager::LATENCYScan Parameters Received from GEMSupervisor ");
-	  std::cout << " Writting Latency  " << latency << std::endl;
+	  INFO("OptoHybridManager::configureAction Scan Parameters Received from GEMSupervisor ");
+	  std::cout << " configureAction: FIRST Latency  " << latency << std::endl;
 	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_, info.commonVFATSettings.bag.VThreshold2.value_, latency, vfatMask);
-	  /*
-	  if (latency < 0xFF) {
-	    optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_, info.commonVFATSettings.bag.VThreshold2.value_, latency, vfatMask);
-	  } else  {
-	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_, info.commonVFATSettings.bag.VThreshold2.value_, 0xFF, vfatMask);
-	}//end else*/
 	}else if(m_scanTypeParam.value_ == 3){  
-	  int VT1 = (m_maxParam.value_ - m_minParam.value_);
+	  int VT1 = m_minParam.value_;
+	  //	  int VT1 = (m_maxParam.value_ - m_minParam.value_);
 	  int VT2 = 0; //std::max(0,(int)m_maxParam.value_);
 	  int step = m_stepsizeParam.value_;
-	  INFO("OptoHybridManager::THRESHOLDScan Parameters Received from GEMSupervisor ");
-	  std::cout << " VT1 " << VT1 << " VT2 " << VT2 << " StepSize " << step << std::endl;
-	  std::cout << " Writting VT1 " << VT1 << " VT2 " << VT2 << std::endl;
+	  INFO("OptoHybridManager::configureAction Scan Parameters Received from GEMSupervisor ");
+	  std::cout << " FIRST VT1 " << VT1 << " VT2 " << VT2 << std::endl;
 	  optohybrid->setVFATsToDefaults( VT1, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
-	  /*
-	  if(VT2-VT1 <= step){
-	    if(VT1 > step){
-	      std::cout << " Writting VT1 - step  " << VT1 -step << " VT2 " << VT2 << std::endl;
-	      optohybrid->setVFATsToDefaults( VT1-step, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
-	    }else{
-	      std::cout << " Writting VT1   " << 0 << " VT2 " << VT2 << std::endl;
-	      optohybrid->setVFATsToDefaults( 0x0, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
-	    } 
-	    }*/
 	}else{
 	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_,
 					 info.commonVFATSettings.bag.VThreshold2.value_,
@@ -436,6 +421,15 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 void gem::hw::optohybrid::OptoHybridManager::startAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
+  if(m_scanTypeParam.value_ == 2){
+    latency_final = m_minParam.value_;    
+    VT1_final = 0;
+  }else if(m_scanTypeParam.value_ == 3){
+    latency_final = 0;    
+    VT1_final = m_minParam.value_;
+  }
+  
+
   DEBUG("OptoHybridManager::startAction");
   //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
@@ -485,7 +479,52 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into sleep mode?
-  usleep(1000);
+
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(1000); // just for testing the timing of different applications
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
+      usleep(1000); // just for testing the timing of different applications
+      unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
+      DEBUG("OptoHybridManager::index = " << index);
+      OptoHybridInfo& info = m_optohybridInfo[index].bag;
+
+      if (!info.present)
+        continue;
+
+      DEBUG("OptoHybridManager::pauseAction::grabbing pointer to hardware device");
+      optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
+
+      if (optohybrid->isHwConnected()) {
+        // turn on all VFATs? or should they always be on?
+        uint32_t vfatMask = m_broadcastList.at(slot).at(link);
+	if(m_scanTypeParam.value_ == 2){
+	  int currentlatency = latency_final + m_stepsizeParam.value_;
+	  INFO("OptoHybridManager::LatencyScan Parameters updated ");
+	  std::cout << " Latency  " << currentlatency << std::endl;
+
+	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_, info.commonVFATSettings.bag.VThreshold2.value_, currentlatency, vfatMask);
+	  latency_final = currentlatency;
+      }else if(m_scanTypeParam.value_ == 3){  
+	  int currentVT1 = VT1_final + m_stepsizeParam.value_;
+	  int VT2 = 0; //std::max(0,(int)m_maxParam.value_);
+	  int step = m_stepsizeParam.value_;
+	  INFO("OptoHybridManager::ThresholdScan Parameters updated ");
+	  std::cout << " VT1 " << currentVT1 << " VT2 " << VT2 << " StepSize " << step << std::endl;
+
+	  optohybrid->setVFATsToDefaults( currentVT1, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
+	  VT1_final = currentVT1;
+	}
+        // what resets to do
+      } else {
+        ERROR("pauseAction::Scanparameters update OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
+              << " is not responding");
+        //fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "pauseAction failed");
+        //maybe raise exception so as to not continue with other cards?
+      }
+    }
+  }
+
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()

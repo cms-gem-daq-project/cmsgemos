@@ -64,7 +64,7 @@ void gem::supervisor::GEMGlobalState::update()
   }
   toolbox::fsm::State before = m_globalState;
   calculateGlobals();
-
+  m_globalStateName = getStateName(m_globalState);
   DEBUG("GEMGlobalState::update before=" << before << " after=" << m_globalState);
   if (before != m_globalState)
     p_gemSupervisor->globalStateChanged(before, m_globalState);
@@ -260,7 +260,7 @@ std::string gem::supervisor::GEMGlobalState::getStateName(toolbox::fsm::State st
     return "Running";
     break;
   case (gem::base::STATE_PAUSED):
-    return "Pause";
+    return "Paused";
     break;
   case (gem::base::STATE_FAILED):
     return "Error";

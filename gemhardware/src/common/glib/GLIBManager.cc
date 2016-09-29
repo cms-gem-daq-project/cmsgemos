@@ -323,11 +323,17 @@ void gem::hw::glib::GLIBManager::configureAction()
 
       if(m_scanTypeParam.value_ == 2){ 
 	int latency = m_minParam.value_;
+	INFO("GLIBManager::configureAction Scan Parameters Received from GEMSupervisor ");
+	std::cout << " configureAction: FIRST Latency  " << latency << std::endl;
+
 	m_glibs.at(slot)->setDAQLinkRunType(0x2);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,latency);
       }else if(m_scanTypeParam.value_ == 3){ 
-	int VT1 = (m_maxParam.value_ - m_minParam.value_);
+	int VT1 = m_minParam.value_;
 	int VT2 = 0; //std::max(0,(int)m_maxParam.value_);
+	INFO("GLIBManager::configureAction Scan Parameters Received from GEMSupervisor ");
+	std::cout << " FIRST VT1 " << VT1 << " VT2 " << VT2 << std::endl;
+
 	m_glibs.at(slot)->setDAQLinkRunType(0x3);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,VT1);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,VT2);
@@ -361,6 +367,13 @@ void gem::hw::glib::GLIBManager::configureAction()
 void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  if(m_scanTypeParam.value_ == 2){
+    latency_final = m_minParam.value_;    
+    VT1_final = 0;
+  }else if(m_scanTypeParam.value_ == 3){
+    latency_final = 0;    
+    VT1_final = m_minParam.value_;
+  }
 
   INFO("gem::hw::glib::GLIBManager::startAction begin");
   // what is required for starting the GLIB?
@@ -400,7 +413,47 @@ void gem::hw::glib::GLIBManager::pauseAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for pausing the GLIB?
-  usleep(10000);  // just for testing the timing of different applications
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    usleep(500);
+    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    GLIBInfo& info = m_glibInfo[slot].bag;
+
+    if (!info.present)
+      continue;
+
+    if (m_glibs.at(slot)->isHwConnected()) {
+      DEBUG("connected a card in slot " << (slot+1));
+
+      if(m_scanTypeParam.value_ == 2){ 
+	int currentlatency = latency_final + m_stepsizeParam.value_;
+	INFO("GLIBManager::LatencyScan Parameters updated ");
+	std::cout << " Latency  " << currentlatency << std::endl;
+	
+	m_glibs.at(slot)->setDAQLinkRunType(0x2);
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,currentlatency);
+	latency_final = currentlatency;
+      }else if(m_scanTypeParam.value_ == 3){ 
+	int currentVT1 = VT1_final + m_stepsizeParam.value_;
+	int VT2 = 0; //std::max(0,(int)m_maxParam.value_);
+	INFO("GLIBManager::Thresholdcan parameters updated ");
+	std::cout << " VT1 " << currentVT1 << " VT2 " << VT2 <<  std::endl;
+
+	m_glibs.at(slot)->setDAQLinkRunType(0x3);
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,currentVT1);
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,VT2);
+	VT1_final = currentVT1;
+      }
+      usleep(100); // just for testing the timing of different applications
+
+    } else {
+      ERROR("pauseAction:Scanparameters update GLIB in slot " << (slot+1) << " is not connected");
+      //fireEvent("Fail");
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "startAction failed");
+      // maybe raise exception so as to not continue with other cards? let's just return for the moment
+      return;
+    }
+
+  }
 }
 
 void gem::hw::glib::GLIBManager::resumeAction()

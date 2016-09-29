@@ -266,13 +266,13 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   //enable daq link (if SFP mask is non-zero
-  if (m_enableDAQLink) {
-    DEBUG("Enabling DAQLink with settings: fake data:" << m_enableFakeData
-          << ", sfpMask:" << m_sfpMask);
-    p_amc13->fakeDataEnable(m_enableFakeData);
-    p_amc13->daqLinkEnable(m_enableDAQLink);
-    p_amc13->sfpOutputEnable(m_sfpMask);
-  }
+  
+  DEBUG("Enabling DAQLink with settings: fake data:" << m_enableFakeData
+	<< ", sfpMask:" << m_sfpMask);
+  p_amc13->fakeDataEnable(m_enableFakeData);
+  p_amc13->daqLinkEnable(m_enableDAQLink);
+  p_amc13->sfpOutputEnable(m_sfpMask);
+    
   //enable SFP outputs based on mask configuration
 
   //ignore AMC tts state per mask
@@ -424,6 +424,7 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   //what does pause mean here?
   //if local triggers are enabled, do we have a separate trigger application?
   //we can just disable them here maybe?
+
   if (m_enableLocalL1A) {
     if (m_enableLEMO) {
       p_amc13->enableLocalL1A(false);
@@ -441,7 +442,6 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   for (int bchan = 0; bchan < 4; ++bchan)
     p_amc13->disableBGO(bchan);
 
-  usleep(500);
 }
 
 void gem::hw::amc13::AMC13Manager::resumeAction()
@@ -467,6 +467,16 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
     if (sendLocalBGO)
       p_amc13->sendBGO();
   }
+  
+  
+  if (m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3) {
+    INFO("AMC13Manager::resumeAction Sending Continuos triggers for ScanRoutines ");
+    m_enableLocalL1A = true;
+    p_amc13->enableLocalL1A(m_enableLocalL1A);
+    std::cout << "Enable Local Trigger " << m_enableLocalL1A << std::endl;
+
+    p_amc13->startContinuousL1A();
+  }
 
   usleep(500);
 }
@@ -479,8 +489,8 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   if (m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3) {
-    INFO("AMC13Manager::startAction Sending Continuos triggers for ScanRoutines ");
-    p_timer->start();
+    INFO("AMC13Manager::stopAction Sending Continuos triggers for ScanRoutines ");
+    p_timer->stop();
   }
   
   if (m_enableLocalL1A) {
