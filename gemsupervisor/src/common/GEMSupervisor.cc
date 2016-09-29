@@ -29,6 +29,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
                     this->getApplicationContext())
 {
 
+  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "Endscanpoint",  XDAQ_NS_URI );
   // xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
   DEBUG("Creating the GEMSupervisorWeb interface");
@@ -118,7 +119,6 @@ gem::supervisor::GEMSupervisor::~GEMSupervisor()
 {
   // make sure to empty the v_supervisedApps  vector and free the pointers
   v_supervisedApps.clear();
-
 
 
 }
@@ -277,14 +277,26 @@ void gem::supervisor::GEMSupervisor::configureAction()
 void gem::supervisor::GEMSupervisor::startAction()
   throw (gem::supervisor::exception::Exception)
 {
-  updateRunNumber();
 
+  updateRunNumber();
   try {
     for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
       sendRunNumber(m_runNumber, (*i));
       INFO(std::string("Starting ")+(*i)->getClassName());
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Start", p_appContext, p_appDescriptor, *i);
     }
+    // trigger counter
+    /*
+     if(m_RunType_ == 2 || m_RunType_ == 3){   
+       INFO("GEMSupervisor::Trigger Counter from AMC13");
+       int currentTrigger =  v_supervisedApps.at(2).TriggerCounter();
+       int NTriggersRequested = m_NTriggersParam.value_;
+       while(currentTrigger <  NTriggersRequested){
+	 currentTrigger =  TriggerCounter();    
+	 INFO("GEMSupervisor updating trigger counter" << currentTrigger);
+       }
+     }
+    */
   } catch (gem::supervisor::exception::Exception& e) {
     ERROR("GEMSupervisor::startAction " << e.what());
     throw e;
@@ -563,4 +575,38 @@ void gem::supervisor::GEMSupervisor::sendScanParameters(int64_t const& scantype,
                                                              m_stepsizeParam.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 
+}
+
+xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  INFO("GEMSupervisor::END SCAN POINT");
+
+  std::string commandName = "EndScanPoint";
+
+  INFO("GEMSupervisor::endscanpoint command " << commandName << " succeeded ");
+  //  gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "ENDSCANPOINT");
+
+      if(m_RunType_ == 2 || m_RunType_ == 3){    
+	for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+	INFO(std::string(" ScanParameters update")+(*i)->getClassName());
+	sendScanParameters(m_RunType_,m_NTriggers_, m_Min_ + m_StepSize_, m_Max_, m_StepSize_,(*i));
+	}
+      }
+
+  try {
+    INFO("GEMSupervisor::endscanpoint " << commandName << " succeeded ");
+    return
+      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
+  } catch(xcept::Exception& err) {
+    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
+                                            commandName.c_str());
+    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
+                         top, toolbox::toString("%s.",msgBase.c_str()), err);
+    this->notifyQualified("error", top);
+
+    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
+  }
+  XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }

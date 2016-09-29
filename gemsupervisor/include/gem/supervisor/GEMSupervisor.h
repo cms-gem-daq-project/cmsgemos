@@ -60,7 +60,10 @@ namespace gem {
 
         virtual void resetAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
-
+	
+	xoap::MessageReference EndScanPoint(xoap::MessageReference mns)
+	  throw (xoap::exception::Exception);
+	
         std::vector<xdaq::ApplicationDescriptor*> getSupervisedAppDescriptors() {
           return v_supervisedApps; };
 

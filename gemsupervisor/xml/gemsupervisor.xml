@@ -7,12 +7,12 @@
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">11</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">10</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="10"> <!--  position must be slot-1  -->
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="9"> <!--  position must be slot-1  -->
             <crateID  xsi:type="xsd:integer">1</crateID>
-            <slot     xsi:type="xsd:integer">11</slot>
+            <slot     xsi:type="xsd:integer">10</slot>
             <present  xsi:type="xsd:boolean">true</present>
             <!--CardName xsi:type="xsd:string">gem.shelf01.ctp7-02</CardName-->
             
@@ -38,9 +38,9 @@
 	<!--AMCSlots       xsi:type="xsd:string">10</AMCSlots-->
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[24]">
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="18"> <!-- position must be (slot-1)*2+link-1 -->
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="17"> <!-- position must be (slot-1)*2+link-1 -->
             <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">11</slot>
+            <slot    xsi:type="xsd:integer">10</slot>
             <link    xsi:type="xsd:integer">0</link>
             <present xsi:type="xsd:boolean">true</present>
             <!--CardName xsi:type="xsd:string">gem.shelf01.ctp7-02.optohybrid02</CardName-->
@@ -58,10 +58,10 @@
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	  <CardName     xsi:type="xsd:string">gem.shelf01.amc13</CardName>
-          <AMCInputEnableList xsi:type="xsd:string">11</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">0-10,12-15 </AMCIgnoreTTSList>
+          <AMCInputEnableList xsi:type="xsd:string">10</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">0-9,11-15 </AMCIgnoreTTSList>
           
-          <EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
+          <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
           <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
@@ -95,7 +95,7 @@
         <DeviceName      xsi:type="xsd:string">AMC13</DeviceName>
         <CardName        xsi:type="xsd:string">gem.shelf01.amc13</CardName>
         <crateID         xsi:type="xsd:integer">1</crateID>
-        <slot            xsi:type="xsd:integer">13</slot>
+        <slot            xsi:type="xsd:integer">10</slot>
         <ReadoutSettings xsi:type="soapenc:Struct">
           <runType        xsi:type="xsd:string">teststand</runType>
           <fileName       xsi:type="xsd:string">test</fileName>
@@ -120,9 +120,9 @@
           <runPeriod xsi:type="xsd:string">2016T</runPeriod>
           <setupLocation xsi:type="xsd:string">CERN904</setupLocation>
         </DatabaseInfo>
-        <runType_        xsi:type="xsd:integer">0</runType_>
+        <runType_        xsi:type="xsd:integer">3</runType_>
         <Min_           xsi:type="xsd:integer">0</Min_>
-        <Max_           xsi:type="xsd:integer">100</Max_>
+        <Max_           xsi:type="xsd:integer">80</Max_>
         <StepSize_      xsi:type="xsd:integer">10</StepSize_>
         <NTriggers_      xsi:type="xsd:integer">5</NTriggers_>
         <!--dbAccessor xsi:type="xsd:string">mysql://gem904daq01.cern.ch:3306/</dbAccessor-->

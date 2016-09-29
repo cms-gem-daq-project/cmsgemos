@@ -123,6 +123,11 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::sendTriggerBurst,"sendtriggerburst", XDAQ_NS_URI );
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::enableTriggers,  "enableTriggers",   XDAQ_NS_URI );
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::disableTriggers, "disableTriggers",  XDAQ_NS_URI );
+
+  p_timer = toolbox::task::getTimerFactory()->createTimer("updating_triggercounter");
+
+  m_triggercounter_final = 0; 
+  NTriggersRequested = m_NTriggersParam.value_;
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
@@ -313,7 +318,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
 
   if(m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3){ 
     INFO("AMC13Manager::configureAction ScanRoutines ThresholdScan Configuration ");
-    m_enableDAQLink      = true;
+    m_enableDAQLink      = false;
     m_enableFakeData     = false;
     m_monBackPressEnable = false;
     m_enableLocalTTC     = true;
@@ -391,19 +396,17 @@ void gem::hw::amc13::AMC13Manager::startAction()
     std::cout << "Enable Local Trigger " << m_enableLocalL1A << std::endl;
 
     p_amc13->startContinuousL1A();
-    int NTriggersRequested = m_NTriggersParam.value_;
-    
-    INFO("GEMSupervisor Trigger Requested " << NTriggersRequested);
 
-    int currentTrigger =  TriggerCounter();
-    while(currentTrigger <  NTriggersRequested){
-      currentTrigger =  TriggerCounter();    
-      INFO("GEMSupervisor ipdating trigger counter" << currentTrigger);
+    try {
+      p_timer->stop();
+    } catch (toolbox::task::exception::NotActive const& ex) {
+      WARN("AMC13Manager::start could not stop timer " << ex.what());
     }
-    
-    INFO("GEMSupervisor::TriggerSeen " << currentTrigger);
-    p_amc13->stopContinuousL1A();
-    
+    p_timer->start();
+    toolbox::TimeInterval interval(1,0); // period of 1 secs
+    toolbox::TimeVal Start;
+    Start = toolbox::TimeVal::gettimeofday();
+    p_timer->scheduleAtFixedRate(Start, this,interval, 0, "" );
   }
 
   if (m_enableLocalTTC) {
@@ -475,6 +478,11 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
+  if (m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3) {
+    INFO("AMC13Manager::startAction Sending Continuos triggers for ScanRoutines ");
+    p_timer->start();
+  }
+  
   if (m_enableLocalL1A) {
     if (m_enableLEMO) {
       p_amc13->enableLocalL1A(m_enableLocalL1A);
@@ -665,7 +673,6 @@ int gem::hw::amc13::AMC13Manager::TriggerCounter()
   throw (gem::hw::amc13::exception::Exception)
 {
   int m_triggercounter_init;
-
   m_triggercounter_init = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
 
   INFO("AMC13Manager::TriggerCounter = " << m_triggercounter_init );
@@ -673,62 +680,31 @@ int gem::hw::amc13::AMC13Manager::TriggerCounter()
   return m_triggercounter_init;
  
 }
-/*
-xoap::MessageReference gem::hw::amc13::AMC13Manager::endscanpoint(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
+
+void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
-  INFO("AMC13Manager::END SCAN POINT");
+  NTriggersRequested = m_NTriggersParam.value_;
+  INFO("AMC13Manager::timeExpired Ntrigger counter = NtriggersRequested " << event.type());
+  int currentTrigger = 0;
+  currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_triggercounter_final;
 
-  std::string commandName = "enableTriggers";
+  INFO("AMC13Manager::timeExpried, NTriggerRequested = " << NTriggersRequested << " currentT = " << currentTrigger << " triggercounter final =  " << m_triggercounter_final );
 
-  if (!p_amc13) {
-    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s', AMC13 not yet connected",
-                                            commandName.c_str());
-    ERROR(toolbox::toString("%s", msgBase.c_str()));
-    return
-      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
+  if(currentTrigger >=  NTriggersRequested){
+    p_amc13->stopContinuousL1A();
+    endscanpoint();
+    m_triggercounter_final = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
+    INFO("AMC13Manager::timeExpried, NTrigger = " << m_triggercounter_final);
   }
-
-  try {
-    INFO("AMC13Manager::endscanpoint command " << commandName << " succeeded ");
-
-  } catch(xcept::Exception& err) {
-    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
-                                            commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
-    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
-                         top, toolbox::toString("%s.",msgBase.c_str()), err);
-    this->notifyQualified("error", top);
-
-    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
-  }
-  XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
-*/  
 
-
-/*
-xoap::MessageReference gem::hw::amc13::AMC13Manager::TriggerCounter(xoap::MessageReference msg, int triggerSeen)
-  throw (xoap::exception::Exception)
+void gem::hw::amc13::AMC13Manager::endscanpoint()
+  throw (xgi::exception::Exception)
 {
-  DEBUG("AMC13Manager::SetScanParameters");
-  std::string commandName = "setscanparameters";
-  
-  
-  try {
-    INFO("AMC13Manager::SetScanParameters " << commandName << " succeeded ");
-    return
-      gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "setscanparameters");
-  } catch(xcept::Exception& err) {
-    std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
-					    commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
-    XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
-                         top, toolbox::toString("%s.",msgBase.c_str()), err);
-    this->notifyQualified("error", top);
 
-    XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
-  }
-  XCEPT_RAISE(xoap::exception::Exception,"command not found");
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Endscanpoint",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::supervisor::GEMSupervisor", 0));  // this should not be hard coded
 }
-*/
+
+ 
