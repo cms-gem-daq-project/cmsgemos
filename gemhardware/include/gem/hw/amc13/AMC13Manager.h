@@ -100,8 +100,8 @@ namespace gem {
 	    xdata::Integer           l1Amode;
 	    xdata::Integer           l1Arules;
 	    xdata::UnsignedInteger32 l1Aburst;
-	    xdata::Boolean           sendl1ATriburst;
-	    xdata::Boolean           startl1ATricont;
+	    xdata::Boolean           sendl1ATriburst; // need to remove
+	    xdata::Boolean           startl1ATricont; // need to remove
 	    xdata::Boolean           enableLEMO;
 
 	  };
@@ -153,7 +153,8 @@ namespace gem {
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A, m_sendL1ATriburst, m_startL1ATricont,
+          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A,
+            m_sendL1ATriburst, m_startL1ATricont, // need to remove
 	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;

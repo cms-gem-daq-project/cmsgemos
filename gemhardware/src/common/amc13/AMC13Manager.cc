@@ -45,8 +45,8 @@ gem::hw::amc13::AMC13Manager::L1AInfo::L1AInfo()
   l1Amode                = 0;
   l1Arules               = 0;
   l1Aburst               = 1;
-  sendl1ATriburst        = false;
-  sendl1ATriburst        = false;
+  sendl1ATriburst        = false; // need to remove
+  sendl1ATriburst        = false; // need to remove
   enableLEMO             = false;
 }
 
@@ -57,8 +57,8 @@ void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *
   l1Abag->addField("L1Amode",                &l1Amode  );
   l1Abag->addField("L1Arules",               &l1Arules );
   l1Abag->addField("L1Aburst",               &l1Aburst );
-  l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );
-  l1Abag->addField("startL1ATricont",        &startl1ATricont );
+  l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );// need to remove
+  l1Abag->addField("startL1ATricont",        &startl1ATricont );// need to remove
   l1Abag->addField("EnableLEMO",             &enableLEMO );
 }
 
@@ -160,8 +160,8 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
   m_L1Amode                = m_localTriggerConfig.bag.l1Amode.value_;
   m_L1Arules               = m_localTriggerConfig.bag.l1Arules.value_;
   m_L1Aburst               = m_localTriggerConfig.bag.l1Aburst.value_;
-  m_sendL1ATriburst        = m_localTriggerConfig.bag.sendl1ATriburst.value_;
-  m_startL1ATricont        = m_localTriggerConfig.bag.startl1ATricont.value_;
+  m_sendL1ATriburst        = m_localTriggerConfig.bag.sendl1ATriburst.value_; // need to remove
+  m_startL1ATricont        = m_localTriggerConfig.bag.startl1ATricont.value_; // need to remove
   m_enableLEMO             = m_localTriggerConfig.bag.enableLEMO.value_;
 
   DEBUG("AMC13Manager::actionPerformed BGO channels "
@@ -260,17 +260,12 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   //enable daq link (if SFP mask is non-zero
-  if (m_enableDAQLink) {
-    DEBUG("Enabling DAQLink with settings: fake data:" << m_enableFakeData
-          << ", sfpMask:" << m_sfpMask);
-    p_amc13->fakeDataEnable(m_enableFakeData);
-    p_amc13->daqLinkEnable(m_enableDAQLink);
-    p_amc13->sfpOutputEnable(m_sfpMask);
-  } else {
-    p_amc13->fakeDataEnable(false);
-    p_amc13->daqLinkEnable(false);
-    p_amc13->sfpOutputEnable(0x0);
-  }
+  DEBUG("Enabling DAQLink with settings: fake data:" << m_enableFakeData
+        << ", sfpMask:" << m_sfpMask);
+  p_amc13->fakeDataEnable(m_enableFakeData);
+  p_amc13->daqLinkEnable(m_enableDAQLink);
+  p_amc13->sfpOutputEnable(m_sfpMask);
+
   //enable SFP outputs based on mask configuration
 
   //ignore AMC tts state per mask
@@ -367,7 +362,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
     // p_amc13->localTtcSignalEnable(m_enableLocalL1A);
     // p_amc13->enableLocalL1A(m_enableLocalL1A); //  should already be enabled in initialize
 
-    if (m_startL1ATricont)
+    if (m_startL1ATricont) // need to remove
       p_amc13->startContinuousL1A();
 
     if (m_enableLEMO) {
@@ -514,7 +509,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
   std::string commandName = "sendTriggerBurst";
 
   try {
-    if (m_enableLocalL1A &&  m_sendL1ATriburst) {
+    if (m_enableLocalL1A &&  m_sendL1ATriburst) { // need to remove
       //      p_amc13->localTtcgSignalEnable(m_enableLocalL1A);
       //p_amc13->enableLocalL1A(m_enableLocalL1A);
       p_amc13->sendL1ABurst();
@@ -565,13 +560,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
 
-  if (!m_startL1ATricont) {
+  if (!m_startL1ATricont) { // need to remove
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
   }
 
-  if (m_enableLocalL1A && m_startL1ATricont) {
+  if (m_enableLocalL1A && m_startL1ATricont) { // need to remove
     p_amc13->startContinuousL1A();
   }
 
@@ -607,13 +602,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
 
-  if (!m_startL1ATricont) {
+  if (!m_startL1ATricont) { // need to remove
     p_amc13->enableLocalL1A(!m_enableLocalL1A);
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
   }
 
-  if (m_enableLocalL1A && m_startL1ATricont) {
+  if (m_enableLocalL1A && m_startL1ATricont) { // need to remove
     p_amc13->stopContinuousL1A();
   }
 
