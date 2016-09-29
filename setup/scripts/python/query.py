@@ -7,7 +7,7 @@ from time import sleep
 from ldqm_db.models import *
 from ldqm_db.amcmanager import *
 
-def configure_db():
+def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
     amc_list=[1,2,3,4,5,6,7,8,9,10,11,12]
     geb_list=[[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],]
     zlist = zip(amc_list, geb_list)
@@ -75,7 +75,7 @@ def configure_db():
           a_list.append(a)
     
     # create a new run. Some values are hard-coded for now
-    runs = Run.objects.filter(Period = "2016T", Type = "teststand", Station = "TIF")
+    runs = Run.objects.filter(Period = runperiod, Type = setuptype, Station = station)
     rns = list(int(x) for x in list(runs.values_list("Number", flat=True)))
     try:
       nrs = u'%s'%(max(rns)+1)
@@ -83,8 +83,8 @@ def configure_db():
       nrs = u'%s'%(1)
     nrs = nrs.zfill(6)
     t_date = str(datetime.date.today())
-    m_filename = "run"+str(nrs)+""+"_teststand_TIF_"+t_date
-    newrun = Run(Name=m_filename, Type = "teststand", Number = str(nrs), Date = datetime.date.today(), Period = "2016T", Station = "TIF")
+    m_filename = "run"+str(nrs)+""+"_"+setuptype+"_"+station+"_"+t_date
+    newrun = Run(Name=m_filename, Type = setuptype, Number = str(nrs), Date = datetime.date.today(), Period = runperiod, Station = station)
     newrun.save()
     for a in a_list:
       newrun.amcs.add(a)
