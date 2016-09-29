@@ -233,17 +233,21 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to connect to the database (DBConnectionError)" << e.what();
     ERROR(msg.str());
-    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    fireEvent("Fail");
+    // can't raise exception in workloop?
+    // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to connect to the database (xcept)" << e.what();
     ERROR(msg.str());
-    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    fireEvent("Fail");
+    // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to connect to the database (std)" << e.what();
     ERROR(msg.str());
-    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    fireEvent("Fail");
+    // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   }
   m_globalState.update();
 }
@@ -487,17 +491,20 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     std::stringstream msg;
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (DBConnectionError)" << e.what();
     ERROR(msg.str());
-    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    fireEvent("Fail");
+    // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
     ERROR(msg.str());
-    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    fireEvent("Fail");
+    // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
     ERROR(msg.str());
-    XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    fireEvent("Fail");
+    // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   }
 }
 

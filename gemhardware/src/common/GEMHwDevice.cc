@@ -253,6 +253,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
   uint32_t res = 0x0;
   TRACE("GEMHwDevice::gem::hw::GEMHwDevice::readReg " << name << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       uhal::ValWord<uint32_t> val = hw.getNode(name).read();
       hw.dispatch();
@@ -266,7 +267,6 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         if (retryCount > 4)
           WARN("GEMHwDevice::Failed to read register " << name <<
                ", retrying. retryCount("<<retryCount<<")"
@@ -300,6 +300,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
   TRACE("GEMHwDevice::gem::hw::GEMHwDevice::readReg 0x" << std::setfill('0') << std::setw(8)
         << std::hex << address << std::dec << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       uhal::ValWord<uint32_t> val = hw.getClient().read(address);
       hw.dispatch();
@@ -314,7 +315,6 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         if (retryCount > 4)
           WARN("GEMHwDevice::Failed to read register 0x" << std::setfill('0') << std::setw(8)
                << std::hex << address << std::dec
@@ -350,6 +350,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& 
   TRACE("GEMHwDevice::gem::hw::GEMHwDevice::readReg 0x" << std::setfill('0') << std::setw(8)
         << std::hex << address << std::dec << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       uhal::ValWord<uint32_t> val = hw.getClient().read(address,mask);
       hw.dispatch();
@@ -365,7 +366,6 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& 
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         if (retryCount > 4)
           WARN("GEMHwDevice::Failed to read register 0x" << std::setfill('0') << std::setw(8)
                << std::hex << address << std::dec << " with mask "
@@ -406,6 +406,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
 
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       std::vector<std::pair<std::string,uhal::ValWord<uint32_t> > > vals;
       // vals.reserve(regList.size());
@@ -426,7 +427,6 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
       std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -442,6 +442,9 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
       // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
+  ERROR("GEMHwDevice::" << msg);
+  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
@@ -451,6 +454,7 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
 
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       std::vector<std::pair<uint32_t, uhal::ValWord<uint32_t> > > vals;
       // vals.reserve(regList.size());
@@ -471,7 +475,6 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
       std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -487,6 +490,9 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
       // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
+  ERROR("GEMHwDevice::" << msg);
+  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
@@ -496,6 +502,7 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
 
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       std::vector<std::pair<std::pair<uint32_t,uint32_t>,uhal::ValWord<uint32_t> > > vals;
       // vals.reserve(regList.size());
@@ -517,7 +524,6 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
       std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -533,6 +539,9 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
       // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to read registers");
+  ERROR("GEMHwDevice::" << msg);
+  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
@@ -541,6 +550,7 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
   uhal::HwInterface& hw = getGEMHwInterface();
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       hw.getNode(name).write(val);
       hw.dispatch();
@@ -550,7 +560,6 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         if (retryCount > 4)
           WARN("GEMHwDevice::Failed to write value 0x" << std::hex<< val << std::dec << " to register " << name <<
                ", retrying. retryCount("<<retryCount<<")"
@@ -568,6 +577,9 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
       // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to write to register %s",name.c_str());
+  ERROR("GEMHwDevice::" << msg);
+  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
@@ -576,6 +588,7 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
   uhal::HwInterface& hw = getGEMHwInterface();
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       hw.getClient().write(address, val);
       hw.dispatch();
@@ -585,7 +598,6 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         if (retryCount > 4)
           WARN("GEMHwDevice::Failed to write value 0x" << std::hex<< val << std::dec << " to register 0x"
                 << std::setfill('0') << std::setw(8) << std::hex << address << std::dec
@@ -604,6 +616,10 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
       // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to write to register 0x%08x",
+                                      address);
+  ERROR("GEMHwDevice::" << msg);
+  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
 void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
@@ -612,6 +628,7 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
   uhal::HwInterface& hw = getGEMHwInterface();
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
         hw.getNode(curReg->first).write(curReg->second);
@@ -625,7 +642,6 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
       std::string msg     = toolbox::toString("%s (uHAL): %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         updateErrorCounters(errCode);
         continue;
       } else {
@@ -687,6 +703,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
     return res;
 
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       uhal::ValVector<uint32_t> values = hw.getNode(name).readBlock(numWords);
       hw.dispatch();
@@ -697,7 +714,6 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         if (retryCount > 4)
           WARN("GEMHwDevice::Failed to read block " << name << " with " << numWords << " words" <<
                ", retrying. retryCount("<<retryCount<<")" << std::endl
@@ -745,6 +761,7 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
   uhal::HwInterface& hw = getGEMHwInterface();
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
+    ++retryCount;
     try {
       hw.getNode(name).writeBlock(values);
       hw.dispatch();
@@ -754,7 +771,6 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
       std::string errCode = toolbox::toString("%s",err.what());
       if (knownErrorCode(errCode)) {
-        ++retryCount;
         if (retryCount > 4)
           WARN("GEMHwDevice::Failed to write block " << name <<
                ", retrying. retryCount("<<retryCount<<")"
@@ -772,6 +788,9 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
       // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
     }
   }
+  std::string msg = toolbox::toString("Maximum number of retries reached, unable to write block %s",name.c_str());
+  ERROR("GEMHwDevice::" << msg);
+  // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readFIFO(std::string const& name)
@@ -808,6 +827,7 @@ bool gem::hw::GEMHwDevice::knownErrorCode(std::string const& errCode) const {
           (errCode.find("timed out")                   != std::string::npos) ||
           (errCode.find("had response field = 0x04")   != std::string::npos) ||
           (errCode.find("had response field = 0x06")   != std::string::npos) ||
+          (errCode.find("ControlHub error code is: 3") != std::string::npos) ||
           (errCode.find("ControlHub error code is: 4") != std::string::npos));
 }
 
@@ -820,6 +840,8 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
   if ((errCode.find("INFO CODE = 0x6L") != std::string::npos) ||
       (errCode.find("timed out")        != std::string::npos))
     ++m_ipBusErrs.Timeout;
+  if (errCode.find("ControlHub error code is: 3") != std::string::npos)
+    ++m_ipBusErrs.ControlHubErr;
   if (errCode.find("ControlHub error code is: 4") != std::string::npos)
     ++m_ipBusErrs.ControlHubErr;
   if ((errCode.find("had response field = 0x04") != std::string::npos) ||

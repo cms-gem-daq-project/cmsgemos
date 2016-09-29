@@ -339,8 +339,16 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
     else if (command == "Halt")       loop->submit(haltSig_  );
     else if (command == "Reset")      loop->submit(resetSig_ );
     DEBUG("GEMFSMApplication::Workloop should now be submitted");
+  } catch (gem::utils::exception::Exception& e) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::workloopDriver Workloop failure (gem::utils::exception)";
+    ERROR(msg.str());
+    XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (toolbox::task::exception::Exception& e) {
-    XCEPT_RETHROW(gem::utils::exception::Exception, "Workloop failure", e);
+    std::stringstream msg;
+    msg << "GEMFSMApplication::workloopDriver Workloop failure (toolbox::task::exception)";
+    ERROR(msg.str());
+    XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   }
   updateState();
   // gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace, "State", m_stateName.toString());
