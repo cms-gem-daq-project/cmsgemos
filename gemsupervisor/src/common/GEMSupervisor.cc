@@ -129,7 +129,7 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
     m_runPeriod     = m_dbInfo.bag.runPeriod.toString();
     m_setupLocation = m_dbInfo.bag.setupLocation.toString();
 
-    DEBUG("GEMSupervisor::actionPerformed m_dbInfo = " << m_dbInfo.toString());
+    DEBUG("GEMSupervisor::actionPerformed m_dbInfo = " << m_dbInfo.bag.toString());
   }
 
   // item is changed, update it
@@ -454,16 +454,15 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
   */
 
   // hacky time for teststand/local runs, before connection through RCMS to RunInfoDB is established
-  p_gemDBHelper->configure();
+  // get these from or send them to the readout application
+  std::string    setup = "teststand";
+  std::string   period = "2016T";
+  std::string location = m_setupLocation.toString();
+  p_gemDBHelper->configure(m_setupLocation.toString(),setup,period);
 
   try {
     // if (p_gemDBHelper->connect(m_dbName.toString())) {
     p_gemDBHelper->connect(m_dbName.toString());
-
-    // get these from or send them to the readout application
-    std::string    setup = "teststand";
-    std::string   period = "2016T";
-    std::string location = m_setupLocation.toString();
 
     std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
     lastRunNumberQuery += location;
