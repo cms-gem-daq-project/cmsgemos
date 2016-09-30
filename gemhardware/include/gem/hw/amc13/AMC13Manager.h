@@ -73,8 +73,6 @@ namespace gem {
           virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
           virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
 
-          virtual int TriggerCounter()      throw (gem::hw::amc13::exception::Exception);
-
           xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
           xoap::MessageReference enableTriggers(xoap::MessageReference mns)

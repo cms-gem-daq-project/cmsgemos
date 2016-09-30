@@ -316,22 +316,6 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   throw (gem::hw::amc13::exception::Exception)
 {
 
-  if(m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3){ 
-    INFO("AMC13Manager::configureAction ScanRoutines ThresholdScan Configuration ");
-    m_enableDAQLink      = false;
-    m_enableFakeData     = false;
-    m_monBackPressEnable = false;
-    m_enableLocalTTC     = true;
-    m_enableLocalL1A         = true;
-    m_internalPeriodicPeriod = 500;
-    m_L1Amode                = 0;
-    m_L1Arules               = 0;
-    m_L1Aburst               = 1;
-    m_sendL1ATriburst        = false;
-    m_startL1ATricont        = true;
-    m_enableLEMO             = false;
-  }
-
   if (m_enableLocalL1A) {
     if (m_enableLEMO) {
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
@@ -383,19 +367,22 @@ void gem::hw::amc13::AMC13Manager::startAction()
 
   INFO("AMC13Manager::ScanType = " << m_scanTypeParam.value_);
 
-  if (m_enableLocalL1A && m_startL1ATricont) {
-    //    p_amc13->localTtcSignalEnable(m_enableLocalL1A);
-    p_amc13->enableLocalL1A(m_enableLocalL1A);
-    //    p_amc13->startContinuousL1A();
-  }
-
   if (m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3) {
     INFO("AMC13Manager::startAction Sending Continuos triggers for ScanRoutines ");
     m_enableLocalL1A = true;
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     std::cout << "Enable Local Trigger " << m_enableLocalL1A << std::endl;
+    
+    if (m_enableLocalL1A) {
+      if (m_enableLEMO) {
+	p_amc13->enableLocalL1A(m_enableLocalL1A);
+	p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+      } else
+	p_amc13->enableLocalL1A(m_enableLocalL1A);
+	p_amc13->startContinuousL1A();
+    }
 
-    p_amc13->startContinuousL1A();
+
 
     try {
       p_timer->stop();
@@ -407,7 +394,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
     toolbox::TimeVal Start;
     Start = toolbox::TimeVal::gettimeofday();
     p_timer->scheduleAtFixedRate(Start, this,interval, 0, "" );
-  }
+  }// end scan type
 
   if (m_enableLocalTTC) {
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
@@ -448,13 +435,6 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //undo the actions taken in pauseAction
-  if (m_enableLocalL1A) {
-    if (m_enableLEMO) {
-      p_amc13->enableLocalL1A(m_enableLocalL1A);
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    } else
-      p_amc13->startContinuousL1A();
-  }
 
   if (m_enableLocalTTC) {
     bool sendLocalBGO = false;
@@ -471,11 +451,16 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   
   if (m_scanTypeParam.value_ == 2 || m_scanTypeParam.value_ == 3) {
     INFO("AMC13Manager::resumeAction Sending Continuos triggers for ScanRoutines ");
-    m_enableLocalL1A = true;
-    p_amc13->enableLocalL1A(m_enableLocalL1A);
-    std::cout << "Enable Local Trigger " << m_enableLocalL1A << std::endl;
+    
+    if (m_enableLocalL1A) {
+      if (m_enableLEMO) {
+	p_amc13->enableLocalL1A(m_enableLocalL1A);
+	p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+      } else
+	p_amc13->enableLocalL1A(m_enableLocalL1A);
+	p_amc13->startContinuousL1A();
+    }
 
-    p_amc13->startContinuousL1A();
   }
 
   usleep(500);
@@ -679,18 +664,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
 
-int gem::hw::amc13::AMC13Manager::TriggerCounter()
-  throw (gem::hw::amc13::exception::Exception)
-{
-  int m_triggercounter_init;
-  m_triggercounter_init = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-
-  INFO("AMC13Manager::TriggerCounter = " << m_triggercounter_init );
-  
-  return m_triggercounter_init;
- 
-}
-
 void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
   NTriggersRequested = m_NTriggersParam.value_;
@@ -701,7 +674,13 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
   INFO("AMC13Manager::timeExpried, NTriggerRequested = " << NTriggersRequested << " currentT = " << currentTrigger << " triggercounter final =  " << m_triggercounter_final );
 
   if(currentTrigger >=  NTriggersRequested){
-    p_amc13->stopContinuousL1A();
+    if (m_enableLocalL1A) {
+      if (m_enableLEMO) {
+	p_amc13->enableLocalL1A(false);
+	p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
+      } else
+	p_amc13->stopContinuousL1A();
+    }
     endscanpoint();
     m_triggercounter_final = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
     INFO("AMC13Manager::timeExpried, NTrigger = " << m_triggercounter_final);
