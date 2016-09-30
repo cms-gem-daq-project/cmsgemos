@@ -66,6 +66,11 @@
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
           <EnableLocalTTC      xsi:type="xsd:boolean">true</EnableLocalTTC>
 
+	  <!--Scan Routines Config -->
+	  <!-- LOCAL TRIGGERS = enableLocalL1A = true, LEMO false, EnableLocalTTC true -->
+	  <!-- LEMO TRIGGERS = enableLocalL1A = true, LEMO true, EnableLocalTTC true -->
+	  <!-- EXTERNAL TRIGGERS (CSC) = enableLocalL1A = false, LEMO false, EnableLocalTTC false -->
+	  
           <LocalTriggerConfig xsi:type="soapenc:Struct">
             <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
             <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">500</InternalPeriodicPeriod>
@@ -73,8 +78,8 @@
             <L1Amode                xsi:type="xsd:integer">0</L1Amode>
             <L1Arules               xsi:type="xsd:integer">0</L1Arules>
 	    <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
-	    <startL1ATricont        xsi:type="xsd:boolean">true</startL1ATricont> <!--for LEMO should be false -->
-            <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO> <!-- for LEMO should be true-->
+	    <startL1ATricont        xsi:type="xsd:boolean">true</startL1ATricont> 
+            <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO> 
           </LocalTriggerConfig>
 	  <!-- Missing BGO Commands Config -->
           
