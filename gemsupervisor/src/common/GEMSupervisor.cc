@@ -281,7 +281,14 @@ void gem::supervisor::GEMSupervisor::startAction()
   updateRunNumber();
 
   if(m_scanTypeParam.value_ == 2 || (m_scanTypeParam.value_ == 3)){
-      scanparam_final = m_minParam.value_;
+    
+    INFO("GEMSupervisor::Endscanpoint Scan");
+    if(m_scanTypeParam.value_ == 2){
+      INFO(" Latency " << m_minParam.value_);
+    }else if(m_scanTypeParam.value_ == 3){
+      INFO(" VT1 " << m_minParam.value_);
+    }
+    
     }
 
   try {
@@ -571,15 +578,14 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
 
   int currentscanparam = scanparam_final + m_stepsizeParam.value_;
 
-  INFO("GEMSupervisor::Endscanpoint Scan");
-  if(m_scanTypeParam.value_ == 2){
-    INFO(" Latency " << currentscanparam);
-  }else if(m_scanTypeParam.value_ == 3){
-    INFO(" VT1 " << currentscanparam);
-  }
-
   if(currentscanparam <= m_maxParam.value_){
 
+    INFO("GEMSupervisor::Endscanpoint Scan");
+    if(m_scanTypeParam.value_ == 2){
+      INFO(" Latency " << currentscanparam);
+    }else if(m_scanTypeParam.value_ == 3){
+    INFO(" VT1 " << currentscanparam);
+    }
     pauseAction();
     
     while(!(m_globalState.getStateName() == "Paused")){

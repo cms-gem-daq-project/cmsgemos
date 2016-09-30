@@ -70,6 +70,7 @@
 	  <!-- LOCAL TRIGGERS = enableLocalL1A = true, LEMO false, EnableLocalTTC true -->
 	  <!-- LEMO TRIGGERS = enableLocalL1A = true, LEMO true, EnableLocalTTC true -->
 	  <!-- EXTERNAL TRIGGERS (CSC) = enableLocalL1A = false, LEMO false, EnableLocalTTC false -->
+
 	  
           <LocalTriggerConfig xsi:type="soapenc:Struct">
             <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
@@ -78,7 +79,7 @@
             <L1Amode                xsi:type="xsd:integer">0</L1Amode>
             <L1Arules               xsi:type="xsd:integer">0</L1Arules>
 	    <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
-	    <startL1ATricont        xsi:type="xsd:boolean">true</startL1ATricont> 
+	    <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont> 
             <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO> 
           </LocalTriggerConfig>
 	  <!-- Missing BGO Commands Config -->
@@ -127,7 +128,7 @@
         </DatabaseInfo>
         <runType_        xsi:type="xsd:integer">3</runType_>
         <Min_           xsi:type="xsd:integer">0</Min_>
-        <Max_           xsi:type="xsd:integer">80</Max_>
+        <Max_           xsi:type="xsd:integer">30</Max_>
         <StepSize_      xsi:type="xsd:integer">10</StepSize_>
         <NTriggers_      xsi:type="xsd:integer">5</NTriggers_>
         <!--dbAccessor xsi:type="xsd:string">mysql://gem904daq01.cern.ch:3306/</dbAccessor-->
