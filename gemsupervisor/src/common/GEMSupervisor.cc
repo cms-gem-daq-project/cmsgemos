@@ -523,18 +523,7 @@ void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xda
                                                              m_runNumber.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 }
-/*
-void gem::supervisor::GEMSupervisor::sendScanParameters(std::vector<std::string> const& ScanParameter_v, xdaq::ApplicationDescriptor* ad)
-  throw (gem::supervisor::exception::Exception)
-{
-  INFO(std::string("GEMSupervisor::sendScanParameters to ")+ad->getClassName());
-  gem::utils::soap::GEMSOAPToolBox::sendParameter( ScanParameter_v, p_appContext, p_appDescriptor, ad);
-}
-*/
- 
 
-
-//void gem::supervisor::GEMSupervisor::sendScanParameters(int const& scantype, int const& minparam, int const& maxparam, int const& stepsize, xdaq::ApplicationDescriptor* ad)
 void gem::supervisor::GEMSupervisor::sendScanParameters(int64_t const& scantype, int64_t const& ntriggers, int64_t const& minparam, int64_t const& maxparam, int64_t const& stepsize, xdaq::ApplicationDescriptor* ad)
   throw (gem::supervisor::exception::Exception)
 {
