@@ -125,8 +125,7 @@ namespace gem {
           xdata::String                        m_amcSlots;
           xdata::String                        m_connectionFile;
 
-	  int latency_final,VT1_final;
-
+	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
         };  // class GLIBManager
 
     }  // namespace gem::hw::glib
