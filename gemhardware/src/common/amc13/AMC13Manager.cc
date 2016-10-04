@@ -45,8 +45,8 @@ gem::hw::amc13::AMC13Manager::L1AInfo::L1AInfo()
   l1Amode                = 0;
   l1Arules               = 0;
   l1Aburst               = 1;
-  sendl1ATriburst        = false;
-  sendl1ATriburst        = false;
+  sendl1ATriburst        = false; // need to remove
+  sendl1ATriburst        = false; // need to remove
   enableLEMO             = false;
 }
 
@@ -57,8 +57,8 @@ void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *
   l1Abag->addField("L1Amode",                &l1Amode  );
   l1Abag->addField("L1Arules",               &l1Arules );
   l1Abag->addField("L1Aburst",               &l1Aburst );
-  l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );
-  l1Abag->addField("startL1ATricont",        &startl1ATricont );
+  l1Abag->addField("sendL1ATriburst",        &sendl1ATriburst );// need to remove
+  l1Abag->addField("startL1ATricont",        &startl1ATricont );// need to remove
   l1Abag->addField("EnableLEMO",             &enableLEMO );
 }
 
@@ -103,7 +103,6 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
 
   bag->addField("LocalTriggerConfig",  &localTriggerConfig );
-
   bag->addField("PrescaleFactor", &prescaleFactor);
   bag->addField("BCOffset",       &bcOffset      );
   bag->addField("BGOConfig",      &bgoConfig     );
@@ -215,6 +214,11 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
     //m_localL1AMask       = m_amc13Params.bag.localL1AMask.value_;
   }
 
+  // item is changed, update it
+  if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
+    DEBUG("AMC13Manager::actionPerformed() ItemChangedEvent");
+  }
+
   gem::base::GEMApplication::actionPerformed(event);
 }
 
@@ -288,29 +292,30 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   //enable daq link (if SFP mask is non-zero
-
   DEBUG("Enabling DAQLink with settings: fake data:" << m_enableFakeData
-	<< ", sfpMask:" << m_sfpMask);
+        << ", sfpMask:" << m_sfpMask);
 
   p_amc13->fakeDataEnable(m_enableFakeData);
   p_amc13->daqLinkEnable(m_enableDAQLink);
+
+  // enable SFP outputs based on mask configuration
   p_amc13->sfpOutputEnable(m_sfpMask);
 
-  //enable SFP outputs based on mask configuration
-
   //ignore AMC tts state per mask
+  // if (m_ignoreAmcTts) {
+  //   p_amc13->write(amc13::AMC13Simple::T1, "CONF.AMC.TTS_DISABLE_MASK", 0xfff);
+  // } else {
+  //   p_amc13->write(amc13::AMC13Simple::T1, "CONF.AMC.TTS_DISABLE_MASK", 0x0);
+  // }
 
   //enable specified AMCs
   m_slotMask = p_amc13->parseInputEnableList(m_amcInputEnableList,true);
   p_amc13->AMCInputEnable(m_slotMask);
-
+  
   // Use local TTC signal if config doc says so
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
 
-  WARN("AMC13Manager::initializeAction m_enableLocalL1A "
-       << m_localTriggerConfig.bag.toString());
-  // enable local trigger generator if told to do so
-  // p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+  // Use local trigger generator if config doc says so
   p_amc13->enableLocalL1A(m_enableLocalL1A);
 
   // need to ensure that all BGO channels are disabled
@@ -345,14 +350,8 @@ void gem::hw::amc13::AMC13Manager::configureAction()
 {
 
   if (m_enableLocalL1A) {
-    if (m_enableLEMO) {
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
-    } else {
-      m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
-      WARN("AMC13Manager::configureAction m_enableLocalL1A "
-           << m_localTriggerConfig.bag.toString());
-      p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-    }
+    m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
+    p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   }
   //DEBUG("Looking at L1A history after configure");
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
@@ -389,7 +388,9 @@ void gem::hw::amc13::AMC13Manager::startAction()
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   p_amc13->reset(::amc13::AMC13::T1);
- // usleep(50);
+  usleep(50);
+
+  p_amc13->resetCounters();
 
   p_amc13->startRun();
 
@@ -400,15 +401,19 @@ void gem::hw::amc13::AMC13Manager::startAction()
     p_amc13->sendBGO();
   }
 
-  INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);  // REMOVE
+  if (m_enableLocalL1A) {
+    if (m_startL1ATricont) // need to remove
+      p_amc13->startContinuousL1A();
 
-  INFO("AMC13Manager::ScanType = " << m_scanType.value_);  // REMOVE
+    if (m_enableLEMO) {
+      DEBUG("AMC13Manager::startAction enabling LEMO trigger " << m_enableLEMO);
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0x1);
+    }
+  }
 
   if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-    INFO("AMC13Manager::startAction Sending Continuos triggers for ScanRoutines ");
-    // m_enableLocalL1A = true; // wtf, what if we want external triggers?
+    DEBUG("AMC13Manager::startAction Sending continuous triggers for ScanRoutines ");
     p_amc13->enableLocalL1A(m_enableLocalL1A);
-    INFO("AMC13Manager::startAction Enable Local Trigger " << m_enableLocalL1A);
 
     if (m_enableLocalL1A) {
       if (m_enableLEMO)
@@ -440,10 +445,10 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
     INFO("AMC13Manager::pauseAction disabling triggers for scan");
 
   if (m_enableLocalL1A) {
-    // p_amc13->enableLocalL1A(false);
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
     else
+      // what if using both local triggers and LEMO triggers?
       p_amc13->stopContinuousL1A();
   } else {
     p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
@@ -457,14 +462,12 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   // need to ensure that all BGO channels are disabled, rather than just the ones in the config
   for (int bchan = 0; bchan < 4; ++bchan)
     p_amc13->disableBGO(bchan);
-
 }
 
 void gem::hw::amc13::AMC13Manager::resumeAction()
   throw (gem::hw::amc13::exception::Exception)
 {
   //undo the actions taken in pauseAction
-
   if (m_enableLocalTTC) {
     bool sendLocalBGO = false;
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
@@ -477,11 +480,17 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
       p_amc13->sendBGO();
   }
 
-
   p_amc13->enableLocalL1A(m_enableLocalL1A);
 
+  if (m_enableLocalL1A) {
+    if (m_enableLEMO)
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+    else
+      p_amc13->startContinuousL1A(); // only if we want to send triggers continuously
+  }
+
   if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-    INFO("AMC13Manager::resumeAction enabling triggers for scan");
+    DEBUG("AMC13Manager::resumeAction enabling triggers for scan");
 
     if (m_enableLocalL1A) {
       if (m_enableLEMO) {
@@ -501,13 +510,13 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-    INFO("AMC13Manager::stopAction Sending Continuos triggers for ScanRoutines ");
+    DEBUG("AMC13Manager::stopAction Sending continuous triggers for ScanRoutines ");
     p_timer->stop();
   }
 
   if (m_enableLocalL1A) {
     if (m_enableLEMO)
-      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
+      p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
     else
       p_amc13->stopContinuousL1A();
   } else {
@@ -539,9 +548,11 @@ void gem::hw::amc13::AMC13Manager::resetAction()
 {
   //what is necessary for a reset on the AMC13?
   DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
-  if (p_amc13!=0) delete p_amc13;
-  p_amc13 = 0;
- // usleep(50);
+  // maybe ensure triggers are disabled as well as BGO commands?
+  if (p_amc13)
+    delete p_amc13;
+  p_amc13 = NULL;
+  usleep(50);
   //gem::base::GEMFSMApplication::resetAction();
 }
 
@@ -572,7 +583,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
   std::string commandName = "sendTriggerBurst";
 
   try {
-    if (m_enableLocalL1A &&  m_sendL1ATriburst) {
+    if (m_enableLocalL1A &&  m_sendL1ATriburst) { // need to remove
       //      p_amc13->localTtcgSignalEnable(m_enableLocalL1A);
       //p_amc13->enableLocalL1A(m_enableLocalL1A);
       p_amc13->sendL1ABurst();
@@ -623,13 +634,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
 
-  if (!m_startL1ATricont) {
+  if (!m_startL1ATricont) { // need to remove
     p_amc13->enableLocalL1A(m_enableLocalL1A);
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",1);
   }
 
-  if (m_enableLocalL1A && m_startL1ATricont) {
+  if (m_enableLocalL1A && m_startL1ATricont) { // need to remove
     p_amc13->startContinuousL1A();
   }
 
@@ -665,13 +676,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
 
-  if (!m_startL1ATricont) {
+  if (!m_startL1ATricont) { // need to remove
     p_amc13->enableLocalL1A(!m_enableLocalL1A);
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
   }
 
-  if (m_enableLocalL1A && m_startL1ATricont) {
+  if (m_enableLocalL1A && m_startL1ATricont) { // need to remove
     p_amc13->stopContinuousL1A();
   }
 
