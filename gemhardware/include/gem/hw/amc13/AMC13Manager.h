@@ -10,6 +10,13 @@
 #include "gem/hw/amc13/exception/Exception.h"
 //#include "gem/hw/amc13/AMC13Monitoring.hh"
 
+#include "toolbox/task/TimerFactory.h"
+#include "toolbox/task/TimerListener.h"
+#include "toolbox/task/TimerEvent.h"
+#include "toolbox/lang/Class.h"
+#include "toolbox/TimeVal.h"
+#include "toolbox/TimeInterval.h"
+
 namespace amc13 {
   class AMC13;
   class Status;
@@ -20,8 +27,16 @@ namespace gem {
     namespace amc13 {
 
       class AMC13ManagerWeb;
-
-      class AMC13Manager : public gem::base::GEMFSMApplication
+      /*
+      class AMC13ManagerListener : 
+	{
+	public:
+	  toolbox::task::Timer* p_timer;    // timer for general info space updates
+	  void timer_triggerupdate() throw (xgi::exception::Exception);	  
+	  virtual void timeExpired(toolbox::task::TimerEvent& event);
+	}
+      */
+      class AMC13Manager : public gem::base::GEMFSMApplication, public toolbox::task::TimerListener
         {
 
           friend class AMC13ManagerWeb;
@@ -64,6 +79,11 @@ namespace gem {
 	    throw (xoap::exception::Exception);
           xoap::MessageReference disableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
+	  
+	  void endscanpoint() throw (xgi::exception::Exception);
+
+	  toolbox::task::Timer* p_timer;    // timer for general info space updates
+	  virtual void timeExpired(toolbox::task::TimerEvent& event);
 
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception);
 
@@ -148,6 +168,8 @@ namespace gem {
           xdata::Bag<AMC13Info>               m_amc13Params;
           xdata::Vector<xdata::Bag<BGOInfo> > m_bgoConfig;
 	  xdata::Bag<L1AInfo>                 m_localTriggerConfig;
+
+	  
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
@@ -161,7 +183,8 @@ namespace gem {
 	  uint16_t m_bgoBX, m_bgoPrescale;
           uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
           //uint64_t m_localL1AMask;
-
+	  uint64_t m_triggercounter_final;
+	  int NTriggersRequested;
           ////counters
 
         protected:

@@ -20,7 +20,14 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_gemWebInterface(NULL),
   p_gemMonitor(     NULL),
   m_runNumber(0),
-  m_runType("")
+  m_runType(""),
+
+  m_scanTypeParam(0),
+  m_minParam(0),
+  m_maxParam(0),
+  m_stepsizeParam(0),
+  m_NTriggersParam(0)
+
 
 {
   DEBUG("GEMApplication::called gem::base::GEMApplication constructor");
@@ -94,14 +101,32 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpaceToolBox->createString(   "RunType",   m_runType.toString(), &m_runType,   utils::GEMInfoSpaceToolBox::PROCESS);
   p_appInfoSpaceToolBox->createString(   "CfgType",   m_cfgType.toString(), &m_cfgType,   utils::GEMInfoSpaceToolBox::PROCESS);
   // p_appInfoSpaceToolBox->createString("reasonForFailure", &reasonForFailure_,utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createInteger64("ScanTypeParam", m_scanTypeParam.value_, &m_scanTypeParam, utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createInteger64("NTriggersParam", m_NTriggersParam.value_, &m_NTriggersParam, utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createInteger64("MinParam", m_minParam.value_, &m_minParam, utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createInteger64("MaxParam", m_maxParam.value_, &m_maxParam, utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createInteger64("StepSizeParam", m_stepsizeParam.value_, &m_stepsizeParam, utils::GEMInfoSpaceToolBox::PROCESS);
 
   // is this the correct syntax? what does it really do?
   p_appInfoSpace->addItemRetrieveListener("RunNumber", this);
   p_appInfoSpace->addItemRetrieveListener("RunType",   this);
   p_appInfoSpace->addItemRetrieveListener("CfgType",   this);
+
+  p_appInfoSpace->addItemRetrieveListener("ScanTypeParam", this);
+  p_appInfoSpace->addItemRetrieveListener("NTriggersParam", this);
+  p_appInfoSpace->addItemRetrieveListener("MinParam", this);
+  p_appInfoSpace->addItemRetrieveListener("MaxParam", this);
+  p_appInfoSpace->addItemRetrieveListener("StepSizeParam", this);
+
   p_appInfoSpace->addItemChangedListener( "RunNumber", this);
   p_appInfoSpace->addItemChangedListener( "RunType",   this);
   p_appInfoSpace->addItemChangedListener( "CfgType",   this);
+
+  p_appInfoSpace->addItemChangedListener( "ScanTypeParam", this);
+  p_appInfoSpace->addItemChangedListener( "NTriggersParam", this);
+  p_appInfoSpace->addItemChangedListener( "MinParam", this);
+  p_appInfoSpace->addItemChangedListener( "MaxParam", this);
+  p_appInfoSpace->addItemChangedListener( "StepSizeParam", this);
 
   DEBUG("GEMApplication::gem::base::GEMApplication constructed");
 }
@@ -135,6 +160,8 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
     }
   */
   // update monitoring variables
+
+
   if (event.type() == "ItemRetrieveEvent" ||
       event.type() == "urn:xdata-event:ItemRetrieveEvent") {
     DEBUG("GEMApplication::actionPerformed() ItemRetrieveEvent"
@@ -150,10 +177,29 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
     DEBUG("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_runNumber:" << m_runNumber
           << " getInteger64(\"RunNumber\"):" << p_appInfoSpaceToolBox->getInteger64("RunNumber"));
+    
+    /*
+    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+          << "m_RUNTYPE:" << m_RUNTYPE
+          << " getInteger(\"ScanType\"):" << p_appInfoSpaceToolBox->getInteger("ScanType"));
+
+    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+          << "m_Min:" << m_Min
+          << " getInteger(\"Min\"):" << p_appInfoSpaceToolBox->getInteger("Min"));
+
+    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+          << "m_Max:" << m_Max
+          << " getInteger(\"Max\"):" << p_appInfoSpaceToolBox->getInteger("Max"));
+
+    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
+          << "m_StepSize:" << m_StepSize
+          << " getInteger(\"StepSize\"):" << p_appInfoSpaceToolBox->getInteger("StepSize"));
+    */
 
     /* from HCAL runInfoServer
        std::list<std::string> names;
        names.push_back(str_RUNNUMBER);
+
 
        try {
        getMonitorInfospace()->fireItemGroupChanged(names, this);
@@ -162,6 +208,7 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
        }
     */
   }
+
 }
 
 void gem::base::GEMApplication::importConfigurationParameters()

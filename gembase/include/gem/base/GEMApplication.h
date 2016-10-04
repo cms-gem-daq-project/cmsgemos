@@ -195,9 +195,14 @@ namespace gem {
 
       protected:
         xdata::Integer64 m_runNumber;
-
         xdata::String  m_runType;
         xdata::String  m_cfgType;
+
+        xdata::Integer64 m_scanTypeParam;
+        xdata::Integer64 m_minParam;
+        xdata::Integer64 m_maxParam;
+        xdata::Integer64 m_stepsizeParam;
+        xdata::Integer64 m_NTriggersParam;
 
         std::shared_ptr<gem::utils::db::GEMDatabaseUtils> p_gemDBHelper;
 
