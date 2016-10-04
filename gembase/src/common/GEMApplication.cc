@@ -13,6 +13,25 @@
 #include "gem/base/GEMApplication.h"
 #include "gem/base/GEMMonitor.h"
 
+gem::base::GEMApplication::ScanInfo::ScanInfo()
+{
+  scanType  = 0;
+  scanMin   = 0;
+  scanMax   = 0;
+  stepSize  = 0;
+  nTriggers = 0;
+
+}
+
+void gem::base::GEMApplication::ScanInfo::registerFields(xdata::Bag<gem::base::GEMApplication::ScanInfo>* bag)
+{
+  bag->addField("ScanType",  &scanType );
+  bag->addField("ScanMin",   &scanMin );
+  bag->addField("ScanMax",   &scanMax );
+  bag->addField("StepSize",  &stepSize );
+  bag->addField("NTriggers", &nTriggers);
+}
+
 gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   throw (xdaq::exception::Exception) :
   xdaq::WebApplication(stub),
@@ -22,13 +41,11 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   m_runNumber(0),
   m_runType(""),
 
-  m_scanTypeParam(0),
-  m_minParam(0),
-  m_maxParam(0),
-  m_stepsizeParam(0),
-  m_NTriggersParam(0)
-
-
+  m_scanType(0),
+  m_scanMin(0),
+  m_scanMax(0),
+  m_stepSize(0),
+  m_nScanTriggers(0)
 {
   DEBUG("GEMApplication::called gem::base::GEMApplication constructor");
   INFO("GEMApplication GIT_VERSION:" << GIT_VERSION);
@@ -101,32 +118,36 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpaceToolBox->createString(   "RunType",   m_runType.toString(), &m_runType,   utils::GEMInfoSpaceToolBox::PROCESS);
   p_appInfoSpaceToolBox->createString(   "CfgType",   m_cfgType.toString(), &m_cfgType,   utils::GEMInfoSpaceToolBox::PROCESS);
   // p_appInfoSpaceToolBox->createString("reasonForFailure", &reasonForFailure_,utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createInteger64("ScanTypeParam", m_scanTypeParam.value_, &m_scanTypeParam, utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createInteger64("NTriggersParam", m_NTriggersParam.value_, &m_NTriggersParam, utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createInteger64("MinParam", m_minParam.value_, &m_minParam, utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createInteger64("MaxParam", m_maxParam.value_, &m_maxParam, utils::GEMInfoSpaceToolBox::PROCESS);
-  p_appInfoSpaceToolBox->createInteger64("StepSizeParam", m_stepsizeParam.value_, &m_stepsizeParam, utils::GEMInfoSpaceToolBox::PROCESS);
+
+  p_appInfoSpace->fireItemAvailable("ScanInfo",    &m_scanInfo);
+  p_appInfoSpaceToolBox->createUInt32("ScanType", m_scanType.value_, &m_scanType, utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createUInt32("ScanMin",  m_scanMin.value_,  &m_scanMin,  utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createUInt32("ScanMax",  m_scanMax.value_,  &m_scanMax,  utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createUInt32("StepSize", m_stepSize.value_, &m_stepSize, utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createUInt64("nScanTriggers", m_nScanTriggers.value_, &m_nScanTriggers, utils::GEMInfoSpaceToolBox::PROCESS);
 
   // is this the correct syntax? what does it really do?
   p_appInfoSpace->addItemRetrieveListener("RunNumber", this);
   p_appInfoSpace->addItemRetrieveListener("RunType",   this);
   p_appInfoSpace->addItemRetrieveListener("CfgType",   this);
 
-  p_appInfoSpace->addItemRetrieveListener("ScanTypeParam", this);
-  p_appInfoSpace->addItemRetrieveListener("NTriggersParam", this);
-  p_appInfoSpace->addItemRetrieveListener("MinParam", this);
-  p_appInfoSpace->addItemRetrieveListener("MaxParam", this);
-  p_appInfoSpace->addItemRetrieveListener("StepSizeParam", this);
+  p_appInfoSpace->addItemRetrieveListener("ScanInfo",      this);
+  p_appInfoSpace->addItemRetrieveListener("ScanType",      this);
+  p_appInfoSpace->addItemRetrieveListener("nScanTriggers", this);
+  p_appInfoSpace->addItemRetrieveListener("ScanMin",       this);
+  p_appInfoSpace->addItemRetrieveListener("ScanMax",       this);
+  p_appInfoSpace->addItemRetrieveListener("StepSize",      this);
 
   p_appInfoSpace->addItemChangedListener( "RunNumber", this);
   p_appInfoSpace->addItemChangedListener( "RunType",   this);
   p_appInfoSpace->addItemChangedListener( "CfgType",   this);
 
-  p_appInfoSpace->addItemChangedListener( "ScanTypeParam", this);
-  p_appInfoSpace->addItemChangedListener( "NTriggersParam", this);
-  p_appInfoSpace->addItemChangedListener( "MinParam", this);
-  p_appInfoSpace->addItemChangedListener( "MaxParam", this);
-  p_appInfoSpace->addItemChangedListener( "StepSizeParam", this);
+  p_appInfoSpace->addItemChangedListener( "ScanInfo",      this);
+  p_appInfoSpace->addItemChangedListener( "ScanType",      this);
+  p_appInfoSpace->addItemChangedListener( "nScanTriggers", this);
+  p_appInfoSpace->addItemChangedListener( "ScanMin",       this);
+  p_appInfoSpace->addItemChangedListener( "ScanMax",       this);
+  p_appInfoSpace->addItemChangedListener( "StepSize",      this);
 
   DEBUG("GEMApplication::gem::base::GEMApplication constructed");
 }
@@ -177,7 +198,7 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
     DEBUG("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_runNumber:" << m_runNumber
           << " getInteger64(\"RunNumber\"):" << p_appInfoSpaceToolBox->getInteger64("RunNumber"));
-    
+
     /*
     INFO("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_RUNTYPE:" << m_RUNTYPE
@@ -208,7 +229,11 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
        }
     */
   }
-
+  m_scanType      = m_scanInfo.bag.scanType;
+  m_scanMin       = m_scanInfo.bag.scanMin;
+  m_scanMax       = m_scanInfo.bag.scanMax;
+  m_stepSize      = m_scanInfo.bag.stepSize;
+  m_nScanTriggers = m_scanInfo.bag.nTriggers;
 }
 
 void gem::base::GEMApplication::importConfigurationParameters()
