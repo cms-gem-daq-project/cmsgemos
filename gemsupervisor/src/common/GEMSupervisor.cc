@@ -23,13 +23,14 @@ XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMSupervisor);
 gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   m_globalState(this->getApplicationContext(), this),
+  m_scanParameter(0),
   m_reportToRCMS(false),
   m_gemRCMSNotifier(this->getApplicationLogger(),
                     this->getApplicationDescriptor(),
                     this->getApplicationContext())
 {
 
-  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "Endscanpoint",  XDAQ_NS_URI );
+  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "EndScanPoint",  XDAQ_NS_URI );
   // xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
   DEBUG("Creating the GEMSupervisorWeb interface");
@@ -82,16 +83,16 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   /*p_appInfoSpaceToolBox->createBag("rcmsStateListener", m_gemRCMSNotifier.getRcmsStateListenerParameter(),
     m_gemRCMSNotifier.getRcmsStateListenerParameter(),
     GEMUpdateType::PROCESS);*/
-  
+
   //  p_appInfoSpace->fireItemAvailable("ScanParameters",&m_scanparameters);
   /*xdata::Bag<GEMSupervisor> *bagscan;
   bagscan->addField("runType", &m_RunType);
-  */
   p_appInfoSpace->fireItemAvailable("runType_",        &m_RunType_ );
   p_appInfoSpace->fireItemAvailable("Min_",           &m_Min_ );
   p_appInfoSpace->fireItemAvailable("Max_",           &m_Max_ );
   p_appInfoSpace->fireItemAvailable("StepSize_",      &m_StepSize_ );
   p_appInfoSpace->fireItemAvailable("NTriggers_",      &m_NTriggers_ );
+  */
 
   p_appInfoSpace->fireItemAvailable("rcmsStateListener",
                                     m_gemRCMSNotifier.getRcmsStateListenerParameter());
@@ -251,12 +252,17 @@ void gem::supervisor::GEMSupervisor::configureAction()
       sendCfgType("testCfgType", (*i));
       sendRunType("testRunType", (*i));
       sendRunNumber(10254, (*i));
-      
-      if(m_RunType_ == 2 || m_RunType_ == 3){    
+
+      if (m_scanInfo.bag.scanType.value_ == 2 || m_scanInfo.bag.scanType.value_ == 3) {
 	INFO(std::string("Setting ScanParameters ")+(*i)->getClassName());
-	sendScanParameters(m_RunType_,m_NTriggers_, m_Min_, m_Max_, m_StepSize_,(*i));
+	sendScanParameters(m_scanInfo.bag.scanType.value_,
+                           m_scanInfo.bag.nTriggers.value_,
+                           m_scanInfo.bag.scanMin.value_,
+                           m_scanInfo.bag.scanMax.value_,
+                           m_scanInfo.bag.stepSize.value_,
+                           (*i));
       }
-      
+
       INFO(std::string("Configuring ")+(*i)->getClassName());
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure", p_appContext, p_appDescriptor, *i);
       if (((*i)->getClassName()).rfind("AMC13") != std::string::npos) {
@@ -286,15 +292,15 @@ void gem::supervisor::GEMSupervisor::startAction()
 {
   updateRunNumber();
 
-  if(m_scanTypeParam.value_ == 2 || (m_scanTypeParam.value_ == 3)){
-    
+  if(m_scanType.value_ == 2 || (m_scanType.value_ == 3)){
+
     INFO("GEMSupervisor::Endscanpoint Scan");
-    if(m_scanTypeParam.value_ == 2){
-      INFO(" Latency " << m_minParam.value_);
-    }else if(m_scanTypeParam.value_ == 3){
-      INFO(" VT1 " << m_minParam.value_);
+    if(m_scanType.value_ == 2){
+      INFO(" Latency " << m_scanMin.value_);
+    }else if(m_scanType.value_ == 3){
+      INFO(" VT1 " << m_scanMin.value_);
     }
-    
+
     }
 
   try {
@@ -537,77 +543,81 @@ void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xda
                                                              p_appContext, p_appDescriptor, ad);
 }
 
-void gem::supervisor::GEMSupervisor::sendScanParameters(int64_t const& scantype, int64_t const& ntriggers, int64_t const& minparam, int64_t const& maxparam, int64_t const& stepsize, xdaq::ApplicationDescriptor* ad)
+void gem::supervisor::GEMSupervisor::sendScanParameters(uint32_t const& scantype, uint64_t const& ntriggers,
+                                                        uint32_t const& minparam, uint32_t const& maxparam,
+                                                        uint32_t const& stepsize,
+                                                        xdaq::ApplicationDescriptor* ad)
   throw (gem::supervisor::exception::Exception)
 {
 
-  m_scanTypeParam.value_ = scantype;
-  m_minParam.value_ = minparam;
-  m_maxParam.value_ = maxparam;
-  m_stepsizeParam.value_ = stepsize;
-  m_NTriggersParam.value_ = ntriggers;
+  m_scanType.value_ = scantype;
+  m_scanMin.value_  = minparam;
+  m_scanMax.value_  = maxparam;
+  m_stepSize.value_ = stepsize;
+  m_nScanTriggers.value_ = ntriggers;
 
-  INFO(std::string("GEMSupervisor::sendScanParameter ScanType to ")+ad->getClassName());
-  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("ScanTypeParam", "xsd:long",
-                                                             m_scanTypeParam.toString(),
+  INFO("GEMSupervisor::sendScanParameter ScanInfo ");
+
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameterBag("ScanInfo", m_scanInfo, p_appContext, p_appDescriptor, ad);
+
+  /*
+  INFO("GEMSupervisor::sendScanParameter ScanType to " << ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("ScanType", "xsd:unsignedInteger",
+                                                             m_scanType.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 
-  INFO(std::string("GEMSupervisor::sendScanParameter nTriggers to ")+ad->getClassName());
-  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("NTriggersParam", "xsd:long",
-                                                             m_NTriggersParam.toString(),
+  INFO("GEMSupervisor::sendScanParameter nTriggers to " << ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("nScanTriggers", "xsd:unsignedInteger64",
+                                                             m_nScanTriggers.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 
-  INFO(std::string("GEMSupervisor::sendScanParameter Min to ")+ad->getClassName());
-  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("MinParam", "xsd:long",
-                                                             m_minParam.toString(),
+  INFO("GEMSupervisor::sendScanParameter Min to " << ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("ScanMin", "xsd:unsignedInteger",
+                                                             m_scanMin.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 
-  INFO(std::string("GEMSupervisor::sendScanParameter Max to ")+ad->getClassName());
-  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("MaxParam", "xsd:long",
-                                                             m_maxParam.toString(),
+  INFO("GEMSupervisor::sendScanParameter Max to " << ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("ScanMax", "xsd:unsignedInteger",
+                                                             m_scanMax.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 
-  INFO(std::string("GEMSupervisor::sendScanParameter StepSize to ")+ad->getClassName());
-  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("StepSizeParam", "xsd:long",
-                                                             m_stepsizeParam.toString(),
+  INFO("GEMSupervisor::sendScanParameter StepSize to " << ad->getClassName());
+  gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("StepSize", "xsd:unsignedInteger",
+                                                             m_stepSize.toString(),
                                                              p_appContext, p_appDescriptor, ad);
-
+  */
 }
 
 xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
-  INFO("GEMSupervisor::ENDSCANPOINT");
-
   std::string commandName = "EndScanPoint";
   INFO("GEMSupervisor::endscanpoint command " << commandName << " succeeded ");
 
-  int currentscanparam = scanparam_final + m_stepsizeParam.value_;
+  uint32_t updatedParameter = m_scanParameter + m_stepSize.value_;
 
-  if(currentscanparam <= m_maxParam.value_){
-
-    INFO("GEMSupervisor::Endscanpoint Scan");
-    if(m_scanTypeParam.value_ == 2){
-      INFO(" Latency " << currentscanparam);
-    }else if(m_scanTypeParam.value_ == 3){
-    INFO(" VT1 " << currentscanparam);
+  if (updatedParameter <= m_scanMax.value_) {
+    if (m_scanType.value_ == 2) {
+      INFO("GEMSupervisor::EndScanPoint LatencyScan Latency " << updatedParameter);
+    } else if (m_scanType.value_ == 3) {
+      INFO("GEMSupervisor::EndScanPoint ThresholdScan VT1 " << updatedParameter);
     }
     pauseAction();
-    
-    while(!(m_globalState.getStateName() == "Paused")){
+
+    while (!(m_globalState.getStateName() == "Paused")) {
       DEBUG("GEMSupervisor::Endscanpoint GlobalState = " << m_globalState.getStateName());
       usleep(1000);//testing change of state
     }
     resumeAction();
 
-    scanparam_final = currentscanparam;
-
-  }else{
+    m_scanParameter = updatedParameter;
+  } else {
+    INFO("GEMSupervisor::EndScanPoint Scan Finished " << updatedParameter);
     stopAction();
   }
- 
+
   try {
-    INFO("GEMSupervisor::endscanpoint " << commandName << " succeeded ");
+    INFO("GEMSupervisor::EndScanPoint " << commandName << " succeeded ");
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& err) {

@@ -195,8 +195,8 @@ namespace gem {
                  << "refClkSrc:0x"     << std::hex << refClkSrc.value_     << std::dec << std::endl
                  // << "vfatClkSrc:0x"    << std::hex << vfatClkSrc.value_    << std::dec << std::endl
                  // << "cdceClkSrc:0x"    << std::hex << cdceClkSrc.value_    << std::dec << std::endl
-                 << "sbitConfig"         << sbitConfig.toString()         << std::endl
-                 << "commonVFATSettings" << commonVFATSettings.toString() << std::endl
+                 << "sbitConfig"         << sbitConfig.bag.toString()         << std::endl
+                 << "commonVFATSettings" << commonVFATSettings.bag.toString() << std::endl
                  << std::endl;
               return os.str();
             };
@@ -233,7 +233,7 @@ namespace gem {
           std::array<std::array<std::vector<std::pair<uint8_t, uint32_t> >, MAX_OPTOHYBRIDS_PER_AMC>, MAX_AMCS_PER_CRATE>
             m_vfatMapping;
 
-	  int latency_final,VT1_final;
+	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
         };  // class OptoHybridManager
 
     }  // namespace gem::hw::optohybrid

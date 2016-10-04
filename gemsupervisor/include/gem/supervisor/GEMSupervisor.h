@@ -60,10 +60,10 @@ namespace gem {
 
         virtual void resetAction(toolbox::Event::Reference e)
           throw (toolbox::fsm::exception::Exception);
-	
+
 	xoap::MessageReference EndScanPoint(xoap::MessageReference mns)
 	  throw (xoap::exception::Exception);
-	
+
         std::vector<xdaq::ApplicationDescriptor*> getSupervisedAppDescriptors() {
           return v_supervisedApps; };
 
@@ -136,17 +136,22 @@ namespace gem {
          * @param ad is the application descriptor to send the SOAP message to
          * @throws
          */
-	
-	void sendScanParameters(int64_t const& scantype, int64_t const& ntriggers, int64_t const& minparam, int64_t const& maxparam, int64_t const& stepsize, xdaq::ApplicationDescriptor* ad)
+
+	void sendScanParameters(uint32_t const& scantype, uint64_t const& ntriggers,
+                                uint32_t const& minparam, uint32_t const& maxparam,
+                                uint32_t const& stepsize,
+                                xdaq::ApplicationDescriptor* ad)
 	  throw (gem::supervisor::exception::Exception);
 
 	GEMGlobalState m_globalState;
 
+        /*
         xdata::Integer  m_RunType_;
         xdata::Integer  m_Min_;
         xdata::Integer  m_Max_;
         xdata::Integer  m_StepSize_;
         xdata::Integer  m_NTriggers_;
+        */
 
         xdata::Bag<gem::utils::db::GEMDatabaseUtils::GEMDBInfo> m_dbInfo;
         xdata::String   m_dbName;
@@ -158,11 +163,12 @@ namespace gem {
         xdata::String   m_runPeriod;
         xdata::String   m_setupLocation;
 
+	uint32_t m_scanParameter;
+
         xdata::Boolean             m_reportToRCMS;
         xdata::String              m_rcmsStateListenerUrl;
         xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
 
-	int scanparam_final;
       };
   }  // namespace gem::supervisor
 }  // namespace gem

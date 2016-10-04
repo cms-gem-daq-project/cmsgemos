@@ -28,11 +28,11 @@ namespace gem {
 
       class AMC13ManagerWeb;
       /*
-      class AMC13ManagerListener : 
+      class AMC13ManagerListener :
 	{
 	public:
 	  toolbox::task::Timer* p_timer;    // timer for general info space updates
-	  void timer_triggerupdate() throw (xgi::exception::Exception);	  
+	  void timer_triggerupdate() throw (xgi::exception::Exception);
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
 	}
       */
@@ -79,8 +79,8 @@ namespace gem {
 	    throw (xoap::exception::Exception);
           xoap::MessageReference disableTriggers(xoap::MessageReference mns)
 	    throw (xoap::exception::Exception);
-	  
-	  void endscanpoint() throw (xgi::exception::Exception);
+
+	  void endScanPoint() throw (xgi::exception::Exception);
 
 	  toolbox::task::Timer* p_timer;    // timer for general info space updates
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
@@ -97,8 +97,7 @@ namespace gem {
 	  {
 	  public:
             BGOInfo();
-
-	    void registerFields(xdata::Bag<BGOInfo> *bag);
+            void registerFields(xdata::Bag<BGOInfo> *bag);
 
 	    xdata::Integer           channel;
 	    xdata::UnsignedInteger32 cmd;
@@ -106,13 +105,24 @@ namespace gem {
 	    xdata::UnsignedInteger32 prescale;
 	    xdata::Boolean           repeat;
 	    xdata::Boolean           isLong;
+
+            inline std::string toString() {
+              std::stringstream os;
+              os << "channel : " <<  channel.toString()  << std::endl
+                 << "cmd     : " <<  cmd.toString()      << std::endl
+                 << "bx      : " <<  bx.toString()       << std::endl
+                 << "prescale: " <<  prescale.toString() << std::endl
+                 << "repeat  : " <<  repeat.toString()   << std::endl
+                 << "isLong  : " <<  isLong.toString()   << std::endl
+                 << std::endl;
+              return os.str();
+            };
 	  };
 
 	  class L1AInfo
 	  {
 	  public:
             L1AInfo();
-
 	    void registerFields(xdata::Bag<L1AInfo> *bag);
 
 	    xdata::Boolean           enableLocalL1A;
@@ -124,12 +134,25 @@ namespace gem {
 	    xdata::Boolean           startl1ATricont;
 	    xdata::Boolean           enableLEMO;
 
+            inline std::string toString() {
+              std::stringstream os;
+              os << "enableLocalL1A        : " <<  enableLocalL1A.toString()         << std::endl
+                 << "internalPeriodicPeriod: " <<  internalPeriodicPeriod.toString() << std::endl
+                 << "l1Amode               : " <<  l1Amode.toString()                << std::endl
+                 << "l1Arules              : " <<  l1Arules.toString()               << std::endl
+                 << "l1Aburst              : " <<  l1Aburst.toString()               << std::endl
+                 << "sendl1ATriburst       : " <<  sendl1ATriburst.toString()        << std::endl
+                 << "startl1ATricont       : " <<  startl1ATricont.toString()        << std::endl
+                 << "enableLEMO            : " <<  enableLEMO.toString()             << std::endl
+                 << std::endl;
+              return os.str();
+            };
 	  };
 
           class AMC13Info
           {
           public:
-
+            AMC13Info();
 	    void registerFields(xdata::Bag<AMC13Info> *bag);
 
             xdata::String connectionFile;
@@ -169,7 +192,7 @@ namespace gem {
           xdata::Vector<xdata::Bag<BGOInfo> > m_bgoConfig;
 	  xdata::Bag<L1AInfo>                 m_localTriggerConfig;
 
-	  
+
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
           //what is the reason for this?  is it necessary/better to have these variables?
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
@@ -183,8 +206,7 @@ namespace gem {
 	  uint16_t m_bgoBX, m_bgoPrescale;
           uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
           //uint64_t m_localL1AMask;
-	  uint64_t m_triggercounter_final;
-	  int NTriggersRequested;
+	  uint64_t m_updatedL1ACount;
           ////counters
 
         protected:
