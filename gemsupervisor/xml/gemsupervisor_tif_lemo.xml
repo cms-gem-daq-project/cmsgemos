@@ -2,7 +2,7 @@
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
-  <xc:Context url="http://cosmicstandtif:5009">
+  <xc:Context url="http://cosmicstandtif:5050">
 
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
@@ -55,21 +55,20 @@
             <triggerSource xsi:type="xsd:integer">0</triggerSource>
             <sbitSource    xsi:type="xsd:integer">5</sbitSource>
           </OptoHybridInfo>
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="16"> <!-- position must be (slot-1)*2+link-1 -->
-            <crateID xsi:type="xsd:integer">2</crateID>
-            <slot    xsi:type="xsd:integer">9</slot>
-            <link    xsi:type="xsd:integer">1</link>
-            <present xsi:type="xsd:boolean">true</present>
-            <!--CardName xsi:type="xsd:string">gem.shelf01.ctp7-02.optohybrid00</CardName-->
+          <!-- <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="16"> <!-\- position must be (slot-1)*2+link-1 -\-> -->
+          <!--   <crateID xsi:type="xsd:integer">2</crateID> -->
+          <!--   <slot    xsi:type="xsd:integer">9</slot> -->
+          <!--   <link    xsi:type="xsd:integer">1</link> -->
+          <!--   <present xsi:type="xsd:boolean">true</present> -->
+          <!--   <!-\-CardName xsi:type="xsd:string">gem.shelf01.ctp7-02.optohybrid00</CardName-\-> -->
 
-            <triggerSource xsi:type="xsd:integer">0</triggerSource>
-            <sbitSource    xsi:type="xsd:integer">5</sbitSource>
-          </OptoHybridInfo>
+          <!--   <triggerSource xsi:type="xsd:integer">0</triggerSource> -->
+          <!--   <sbitSource    xsi:type="xsd:integer">5</sbitSource> -->
+          <!-- </OptoHybridInfo> -->
 
 	</AllOptoHybridsInfo>
       </properties>
     </xc:Application>
-
 
     <xc:Application class="gem::hw::amc13::AMC13Manager" id="255" instance="3" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
@@ -78,7 +77,7 @@
           <ConnectionFile     xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
 	  <CardName     xsi:type="xsd:string">gem.shelf02.amc13</CardName>
           <AMCInputEnableList xsi:type="xsd:string">9</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">1-8 </AMCIgnoreTTSList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">1-8,10-12</AMCIgnoreTTSList>
           
           <EnableDAQLink       xsi:type="xsd:boolean">true</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
@@ -139,7 +138,18 @@
     <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMSupervisor"
 		  xsi:type="soapenc:Struct">
-        <!--dbAccessor xsi:type="xsd:string">mysql://gem904daq01.cern.ch:3306/</dbAccessor-->
+        <DatabaseInfo xsi:type="soapenc:Struct">
+          <dbName xsi:type="xsd:string">ldqm_test_db</dbName>
+          <dbHost xsi:type="xsd:string">gem904daq01.cern.ch</dbHost>
+          <dbPort xsi:type="xsd:integer">3306</dbPort>
+          <dbUser xsi:type="xsd:string">gemdaq</dbUser>
+          <dbPass xsi:type="xsd:string">gemdaq</dbPass>
+          
+          <setupTag xsi:type="xsd:string">teststand</setupTag>
+          <runPeriod xsi:type="xsd:string">2016T</runPeriod>
+          <setupLocation xsi:type="xsd:string">TIF</setupLocation>
+        </DatabaseInfo>
+
 	<rcmsStateListener xsi:type="soapenc:Struct">
           <classname xsi:type="xsd:string">RCMSStateListener</classname>
           <instance  xsi:type="xsd:unsignedInt">0</instance>

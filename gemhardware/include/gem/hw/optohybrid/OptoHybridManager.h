@@ -191,8 +191,8 @@ namespace gem {
                  << "refClkSrc:0x"     << std::hex << refClkSrc.value_     << std::dec << std::endl
                  // << "vfatClkSrc:0x"    << std::hex << vfatClkSrc.value_    << std::dec << std::endl
                  // << "cdceClkSrc:0x"    << std::hex << cdceClkSrc.value_    << std::dec << std::endl
-                 << "sbitConfig"         << sbitConfig.toString()         << std::endl
-                 << "commonVFATSettings" << commonVFATSettings.toString() << std::endl
+                 << "sbitConfig"         << sbitConfig.bag.toString()         << std::endl
+                 << "commonVFATSettings" << commonVFATSettings.bag.toString() << std::endl
                  << std::endl;
               return os.str();
             };
