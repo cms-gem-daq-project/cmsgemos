@@ -11,6 +11,7 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
     amc_list=[1,2,3,4,5,6,7,8,9,10,11,12]
     geb_list=[[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],]
     zlist = zip(amc_list, geb_list)
+    a_list = []    
     for amcN, gtx_list in zlist:
       print "Trying to connect to AMC # %s\n" %(amcN)
       m_AMCmanager = AMCmanager()
@@ -58,7 +59,6 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
     
       t_flag = False
       t_boardID = "AMC-"+str(amcN)#hard code now, read from HW later when available
-      a_list = []
       amcs = AMC.objects.filter(BoardID = t_boardID)
       for amc in amcs:
         if g_list == list(amc.gebs.all()):
