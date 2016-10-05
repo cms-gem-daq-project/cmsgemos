@@ -362,11 +362,12 @@ void gem::hw::glib::GLIBManager::configureAction()
 void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  WARN("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
   if (m_scanType.value_ == 2) {
+    INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
     m_lastLatency = m_scanMin.value_;
     m_lastVT1 = 0;
   } else if (m_scanType.value_ == 3) {
+    INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
     m_lastLatency = 0;
     m_lastVT1 = m_scanMin.value_;
   }

@@ -61,7 +61,7 @@ bool gem::utils::db::GEMDatabaseUtils::connect(std::string const& database)
     message += mysql_error(p_db);
     p_db = 0;
     ERROR(message);
-    //XCEPT_RAISE(gem::exception::ConfigurationDatabaseException,message);
+    XCEPT_RAISE(gem::utils::exception::DBConnectionError,message);
     return false;
   }
   return true;
@@ -107,11 +107,19 @@ unsigned int gem::utils::db::GEMDatabaseUtils::query(const std::string& query)
   return retval;
 }
 
-void gem::utils::db::GEMDatabaseUtils::configure()
+void gem::utils::db::GEMDatabaseUtils::configure(const std::string& station,
+                                                 const std::string& setuptype,
+                                                 const std::string& runperiod)
 {
   Py_Initialize();
-  PyRun_SimpleString("from query import configure_db\n"
-                     "configure_db()\n");
+  std::stringstream cmd;
+  cmd << "from query import configure_db" << std::endl;
+  cmd << "configure_db(station=\"" << station
+      << "\",setuptype=\"" << setuptype
+      << "\",runperiod=\"" << runperiod
+      << "\")" << std::endl;
+  PyRun_SimpleString(cmd.str().c_str());
+  //PyRun_SimpleString("from query import configure_db\n"+cmd.c_str()+")\n");
   DEBUG("GEMDatabaseUtils::configure_db");
   Py_Finalize();
 }

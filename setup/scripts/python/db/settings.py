@@ -8,7 +8,7 @@ INSTALLED_APPS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ldqm_db',
+        'NAME': 'ldqm_test_db',
         'PORT': 3306,
         'HOST': 'gem904daq01',
         'USER': 'gemdaq',
