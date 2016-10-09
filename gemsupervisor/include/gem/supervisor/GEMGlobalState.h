@@ -114,6 +114,7 @@ namespace gem {
         virtual void timeExpired(toolbox::task::TimerEvent& event);
 
         static std::string getStateName(toolbox::fsm::State state);
+	std::string getStateName() const {return m_globalStateName;};
 
         static int getStatePriority(toolbox::fsm::State state);
 

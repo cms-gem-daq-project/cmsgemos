@@ -338,9 +338,32 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
   throw (toolbox::fsm::exception::Exception)
 {
   DEBUG("GEMFSM::stateChanged() begin");
-  m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
-  p_gemApp->getAppISToolBox()->setString("FSMState",  m_gemFSMState.toString());
-  p_gemApp->getAppISToolBox()->setString("StateName", m_gemFSMState.toString());
+  try {
+    m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
+    p_gemApp->getAppISToolBox()->setString("FSMState",  m_gemFSMState.toString());
+    p_gemApp->getAppISToolBox()->setString("StateName", m_gemFSMState.toString());
+  } catch(xcept::Exception& ex) {
+    std::stringstream msg;
+    msg << "Problem updating state after stateChanged " << ex.what();
+    FATAL(msg.str());
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
+    p_gemApp->notifyQualified("fatal", top);
+  } catch (toolbox::fsm::exception::Exception & ex) {
+    std::stringstream msg;
+    msg << "Problem updating state after stateChanged " << ex.what();
+    FATAL(msg.str());
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
+  } catch (std::exception& ex) {
+    std::stringstream msg;
+    msg << "Problem updating state after stateChanged " << ex.what();
+    FATAL(msg.str());
+    XCEPT_RAISE(gem::utils::exception::SoftwareProblem, msg.str());
+  } catch (...) {
+    std::stringstream msg;
+    msg << "Problem updating state after stateChanged";
+    FATAL(msg.str());
+    XCEPT_RAISE(gem::utils::exception::SoftwareProblem, msg.str());
+  }
   INFO("GEMFSM::stateChanged:Current state is: [" << m_gemFSMState.toString() << "]");
   DEBUG("GEMFSM::stateChanged:stateChanged() end");
 }
@@ -388,9 +411,10 @@ void gem::base::GEMFSM::gotoFailedAsynchronously(xcept::Exception& err)
     toolbox::Event::Reference event(new toolbox::Event("Fail", this));
     p_gemfsm->fireEvent(event);
   } catch(xcept::Exception& error) {
-    std::string msg = "Cannot initiate asynchronous 'Fail' transition.";
-    FATAL(msg);
-    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg, error);
+    std::stringstream msg;
+    msg << "Cannot initiate asynchronous 'Fail' transition.";
+    FATAL(msg.str());
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), error);
     p_gemApp->notifyQualified("fatal", top);
   }
 }

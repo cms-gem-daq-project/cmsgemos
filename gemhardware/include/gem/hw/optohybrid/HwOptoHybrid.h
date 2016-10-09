@@ -467,7 +467,7 @@ namespace gem {
            * @retval uint32_t which mode the OptoHybrid is sending s-bits to the HDMI connector
            */
           uint32_t getSBitMode() {
-            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.HDMI_SBIT_MODE"); };
 
           /**
            * Set the S-bit source
@@ -1027,6 +1027,8 @@ namespace gem {
            *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the GLIB
            */
           void setVFATMask(uint32_t const mask) {
+            DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
+                  << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK"),mask); };
 
           /**

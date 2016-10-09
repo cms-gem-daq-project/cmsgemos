@@ -9,6 +9,9 @@
 
 #include "gem/hw/glib/exception/Exception.h"
 
+#include "gem/utils/soap/GEMSOAPToolBox.h"
+#include "gem/utils/exception/Exception.h"
+
 namespace gem {
   namespace hw {
     namespace glib {
@@ -121,6 +124,8 @@ namespace gem {
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
           xdata::String                        m_amcSlots;
           xdata::String                        m_connectionFile;
+
+	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
         };  // class GLIBManager
 
     }  // namespace gem::hw::glib

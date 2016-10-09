@@ -369,14 +369,14 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
   std::vector<uint32_t> allChips = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK);
   uint32_t connectedMask = 0x0; // high means don't broadcast
   uint32_t disabledMask  = 0x0; // high means ignore data
-  WARN("HwOptoHybrid::getConnectedVFATMask Reading ChipID0 from all possible slots");
+  DEBUG("HwOptoHybrid::getConnectedVFATMask Reading ChipID0 from all possible slots");
   for (auto id = allChips.begin(); id != allChips.end(); ++id) {
     // 0x00XXYYZZ
     // XX = status (00000EVR)
     // YY = chip number
     // ZZ = register contents
-    WARN("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
-    bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
+    DEBUG("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
+    // bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
 
     // if (v_bit && !e_bit) {
     if (((*id) >> 16) != 0x3) {
@@ -384,7 +384,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
       connectedMask |= (0x1 << shift);
       disabledMask  |= (0x1 << shift);
     }
-    WARN("HwOptoHybrid::getConnectedVFATMask mask is " << std::hex << connectedMask << std::dec);
+    DEBUG("HwOptoHybrid::getConnectedVFATMask mask is " << std::hex << connectedMask << std::dec);
   }
 
   DEBUG("HwOptoHybrid::getConnectedVFATMask previous mask is 0x" << std::setw(8) << std::setfill('0')
