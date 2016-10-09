@@ -22,7 +22,7 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
         continue
       # retrieve VFAT slot numberd and ChipIDs from HW
       for gtx in gtx_list:
-        if m_AMCmanager.checkGTX(gtx):  
+        if m_AMCmanager.checkGTX(gtx):
           chipids = m_AMCmanager.getVFATs(gtx)
           # retrieve VFAT slot numberd and ChipIDs from DB
           vfats = VFAT.objects.all()
@@ -56,7 +56,7 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
             for v in v_list:
               g.vfats.add(v)
               g_list.append(g)
-    
+
       t_flag = False
       t_boardID = "AMC-"+str(amcN)#hard code now, read from HW later when available
       amcs = AMC.objects.filter(BoardID = t_boardID)
@@ -77,7 +77,7 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
           a_list.append(a)
           print "Adding to a_list : %s" %(amc.BoardID)
           pass
-    
+
     # create a new run. Some values are hard-coded for now
     runs = Run.objects.filter(Period = runperiod, Type = setuptype, Station = station)
     rns = list(int(x) for x in list(runs.values_list("Number", flat=True)))
