@@ -315,18 +315,19 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
         m_optohybridMonitors.at(slot).at(link)->startMonitoring();
 
-        DEBUG("OptoHybridManager::initializeAction OptoHybrid connected on link "
-              << link << " to GLIB in slot " << (slot+1) << std::endl
-              << "Tracking mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
-              << m_trackingMask.at(slot).at(link)
-              << std::dec << std::endl
-              << "Broadcst mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
-              << m_broadcastList.at(slot).at(link)
-              << std::dec << std::endl
-              << "    SBit mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
-              << m_sbitMask.at(slot).at(link)
-              << std::dec << std::endl
-              );
+        INFO("OptoHybridManager::initializeAction OptoHybrid connected on link "
+             << link << " to GLIB in slot " << (slot+1) << std::endl
+             << "Tracking mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
+             << m_trackingMask.at(slot).at(link)
+             << std::dec << std::endl
+             << "Broadcst mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
+             << m_broadcastList.at(slot).at(link)
+             << std::dec << std::endl
+             << "    SBit mask: 0x" << std::hex << std::setw(8) << std::setfill('0')
+             << m_sbitMask.at(slot).at(link)
+             << std::dec << std::endl
+             );
+        m_optohybrids.at(slot).at(link)->setVFATMask(m_trackingMask.at(slot).at(link));
         // turn off any that are excluded by the additional mask?
       } else {
         ERROR("OptoHybridManager::initializeAction OptoHybrid connected on link "
@@ -362,15 +363,18 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
 
       if (optohybrid->isHwConnected()) {
+
         DEBUG("OptoHybridManager::configureAction::setting trigger source to 0x"
              << std::hex << info.triggerSource.value_ << std::dec);
         optohybrid->setTrigSource(info.triggerSource.value_);
+
         // DEBUG("OptoHybridManager::configureAction::setting sbit source to 0x"
         //      << std::hex << info.sbitSource.value_ << std::dec);
         // optohybrid->setSBitSource(info.sbitSource.value_);
         DEBUG("OptoHybridManager::setting reference clock source to 0x"
              << std::hex << info.refClkSrc.value_ << std::dec);
         optohybrid->setReferenceClock(info.refClkSrc.value_);
+
         /*
         DEBUG("OptoHybridManager::setting vfat clock source to 0x" << std::hex << info.vfatClkSrc.value_ << std::dec);
         optohybrid->setVFATClock(info.vfatClkSrc.value_,);
@@ -397,6 +401,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         optohybrid->setHDMISBitSource(sbitSources);
 
         std::vector<std::pair<uint8_t,uint32_t> > chipIDs = optohybrid->getConnectedVFATs();
+
         for (auto chip = chipIDs.begin(); chip != chipIDs.end(); ++chip)
           if (chip->second)
             INFO("VFAT found in GEB slot " << std::setw(2) << (int)chip->first << " has ChipID "
@@ -412,6 +417,13 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_,
                                          info.commonVFATSettings.bag.VThreshold2.value_,
                                          m_scanMin.value_, vfatMask);
+          // HACK
+          // have to enable the pulse to the channel if using cal pulse latency scan
+          // but shouldn't mess with other settings... not possible here, so just a hack
+          optohybrid->broadcastWrite("VFATChannels.ChanReg23",  0x40, vfatMask);
+          optohybrid->broadcastWrite("VFATChannels.ChanReg124", 0x40, vfatMask);
+          optohybrid->broadcastWrite("VFATChannels.ChanReg65",  0x40, vfatMask);
+          optohybrid->broadcastWrite("VCal",                    0xaf, vfatMask);
 	} else if (m_scanType.value_ == 3) {
 	  uint32_t initialVT1 = m_scanMin.value_;
 	  //	  uint32_t VT1 = (m_scanMax.value_ - m_scanMin.value_);
@@ -443,7 +455,6 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         uint32_t gtxMask = optohybrid->readReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK");
         gtxMask |= (0x1<<link);
         optohybrid->writeReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
-
       } else {
         ERROR("configureAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
               << " is not responding");
@@ -460,10 +471,10 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 void gem::hw::optohybrid::OptoHybridManager::startAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  if (m_scanType.value_ == 2){
+  if (m_scanType.value_ == 2) {
     m_lastLatency = m_scanMin.value_;
     m_lastVT1 = 0;
-  } else if(m_scanType.value_ == 3){
+  } else if (m_scanType.value_ == 3) {
     m_lastLatency = 0;
     m_lastVT1 = m_scanMin.value_;
   }
@@ -488,16 +499,16 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         // turn on all VFATs? or should they always be on?
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         std::vector<uint32_t> res = optohybrid->broadcastRead("ContReg0",vfatMask);
-        DEBUG("ContReg0: vfatMask = " << std::hex << std::setw(8) << std::setfill('0') << vfatMask);
+        INFO("ContReg0: vfatMask = " << std::hex << std::setw(8) << std::setfill('0') << vfatMask);
         for (auto r = res.begin(); r != res.end(); ++r)
-          DEBUG(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
+          INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
 
         optohybrid->broadcastWrite("ContReg0", 0x37, vfatMask);
         res.clear();
         res = optohybrid->broadcastRead("ContReg0",vfatMask);
-        DEBUG("ContReg0");
+        INFO("OptoHybridManager::startAction ContReg0");
         for (auto r = res.begin(); r != res.end(); ++r)
-          DEBUG(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
+          INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
 
         // what resets to do
       } else {
@@ -509,8 +520,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
       }
     }
   }
-
-  DEBUG("OptoHybridManager::startAction end");
+  INFO("OptoHybridManager::startAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::pauseAction()
@@ -536,25 +546,24 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
         // turn on all VFATs? or should they always be on?
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
 	if (m_scanType.value_ == 2) {
-	  uint32_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	  INFO("OptoHybridManager::LatencyScan Latency  " << updatedLatency);
+	  uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
+	  INFO("OptoHybridManager::LatencyScan Latency  " << (int)updatedLatency);
 
-	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_,
-                                         info.commonVFATSettings.bag.VThreshold2.value_,
-                                         updatedLatency,
-                                         vfatMask);
+          optohybrid->broadcastWrite("Latency", updatedLatency, vfatMask);
 	  m_lastLatency = updatedLatency;
       } else if (m_scanType.value_ == 3) {
-	  uint32_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
-	  uint32_t VT2 = 0; //std::max(0,(int)m_scanMax.value_);
-	  INFO("OptoHybridManager::ThresholdScan VT1 " << updatedVT1 << " VT2 " << VT2 << " StepSize " << m_stepSize.value_);
+	  uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
+	  uint8_t VT2 = 0; //std::max(0,(int)m_scanMax.value_);
+	  INFO("OptoHybridManager::ThresholdScan VT1 " << (int)updatedVT1
+               << " VT2 " << VT2 << " StepSize " << m_stepSize.value_);
 
-	  optohybrid->setVFATsToDefaults( updatedVT1, VT2, info.commonVFATSettings.bag.Latency.value_, vfatMask);
+          optohybrid->broadcastWrite("VThreshold1", updatedVT1, vfatMask);
+          optohybrid->broadcastWrite("VThreshold2", VT2, vfatMask);
 	  m_lastVT1 = updatedVT1;
 	}
         // what resets to do
       } else {
-        ERROR("pauseAction::Scanparameters update OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
+        ERROR("OptoHybridManager::pauseAction OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
               << " is not responding");
         //fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "pauseAction failed");
@@ -562,7 +571,6 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
       }
     }
   }
-
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()
@@ -596,6 +604,24 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
         optohybrid->broadcastWrite("ContReg0", 0x36, vfatMask);
         // what resets to do
+	if (m_scanType.value_ == 2) {
+	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_,
+                                         info.commonVFATSettings.bag.VThreshold2.value_,
+                                         info.commonVFATSettings.bag.Latency.value_,
+                                         vfatMask);
+          // HACK
+          // have to disable the pulse to the channel if using cal pulse latency scan
+          // but shouldn't mess with other settings... not possible here, so just a hack
+          optohybrid->broadcastWrite("VFATChannels.ChanReg23",  0x00, vfatMask);
+          optohybrid->broadcastWrite("VFATChannels.ChanReg124", 0x00, vfatMask);
+          optohybrid->broadcastWrite("VFATChannels.ChanReg65",  0x00, vfatMask);
+          optohybrid->broadcastWrite("VCal",                    0x00, vfatMask);
+	} else if (m_scanType.value_ == 3) {
+	  optohybrid->setVFATsToDefaults(info.commonVFATSettings.bag.VThreshold1.value_,
+                                         info.commonVFATSettings.bag.VThreshold2.value_,
+                                         info.commonVFATSettings.bag.Latency.value_,
+                                         vfatMask);
+        }
       } else {
         ERROR("stopAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
               << " is not responding");
