@@ -132,26 +132,14 @@ namespace gem {
         xdaq::ApplicationDescriptor* readoutApp;
 
         /**
-         * @param scan{arameter_v is a vector with scan parameters tells the application which scan to take
          * @param ad is the application descriptor to send the SOAP message to
          * @throws
          */
 
-	void sendScanParameters(uint32_t const& scantype, uint64_t const& ntriggers,
-                                uint32_t const& minparam, uint32_t const& maxparam,
-                                uint32_t const& stepsize,
-                                xdaq::ApplicationDescriptor* ad)
+	void sendScanParameters(xdaq::ApplicationDescriptor* ad)
 	  throw (gem::supervisor::exception::Exception);
 
 	GEMGlobalState m_globalState;
-
-        /*
-        xdata::Integer  m_RunType_;
-        xdata::Integer  m_Min_;
-        xdata::Integer  m_Max_;
-        xdata::Integer  m_StepSize_;
-        xdata::Integer  m_NTriggers_;
-        */
 
         xdata::Bag<gem::utils::db::GEMDatabaseUtils::GEMDBInfo> m_dbInfo;
         xdata::String   m_dbName;
