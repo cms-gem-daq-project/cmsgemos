@@ -292,7 +292,7 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
                event->type() == "IsRunning" || event->type() == "IsPaused"     ||
                event->type() == "IsHalted") {
       // report success
-      DEBUG("GEMFSMApplication::Recieved confirmation that state changed to " << event->type());
+      DEBUG("GEMFSMApplication::transitionDriver::Recieved confirmation that state changed to " << event->type());
     } else if (event->type() == "Fail" || event->type() == "fail") {
       // do nothing for the fail action
       DEBUG("GEMFSMApplication::Recieved fail event type");
@@ -410,7 +410,7 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
     toolbox::Event::Reference e(new toolbox::Event(event, this));
     m_gemfsm.fireEvent(e);
   } catch (toolbox::fsm::exception::Exception& e) {
-    XCEPT_RETHROW(::xoap::exception::Exception, "invalid command", e);
+    XCEPT_RETHROW(xoap::exception::Exception, "invalid command", e);
   }
   updateState();
   // gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace, "State", m_stateName.toString());

@@ -16,6 +16,16 @@
 
 #include "gem/hw/utils/GEMCrateUtils.h"
 
+#include "xoap/MessageReference.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPConstants.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/Method.h"
+#include "xoap/AttachmentPart.h"
+#include "xoap/domutils.h"
+
+
 XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBManager);
 
 gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
@@ -143,7 +153,7 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
   gem::base::GEMApplication::actionPerformed(event);
 }
 
-  void gem::hw::glib::GLIBManager::init()
+void gem::hw::glib::GLIBManager::init()
 {
   // anything needed here?
 }
@@ -208,17 +218,17 @@ void gem::hw::glib::GLIBManager::initializeAction()
 
     DEBUG("GLIBManager::exporting config parameters into infospace");
     is_glibs.at(slot)->createString("ControlHubAddress", info.controlHubAddress.value_, &(info.controlHubAddress),
-                                 GEMUpdateType::NOUPDATE);
+                                    GEMUpdateType::NOUPDATE);
     is_glibs.at(slot)->createString("IPBusProtocol",     info.ipBusProtocol.value_    , &(info.ipBusProtocol),
-                                 GEMUpdateType::NOUPDATE);
+                                    GEMUpdateType::NOUPDATE);
     is_glibs.at(slot)->createString("DeviceIPAddress",   info.deviceIPAddress.value_  , &(info.deviceIPAddress),
-                                 GEMUpdateType::NOUPDATE);
+                                    GEMUpdateType::NOUPDATE);
     is_glibs.at(slot)->createString("AddressTable",      info.addressTable.value_     , &(info.addressTable),
-                                 GEMUpdateType::NOUPDATE);
+                                    GEMUpdateType::NOUPDATE);
     is_glibs.at(slot)->createUInt32("ControlHubPort",    info.controlHubPort.value_   , &(info.controlHubPort),
-                                 GEMUpdateType::NOUPDATE);
+                                    GEMUpdateType::NOUPDATE);
     is_glibs.at(slot)->createUInt32("IPBusPort",         info.ipBusPort.value_        , &(info.ipBusPort),
-                                 GEMUpdateType::NOUPDATE);
+                                    GEMUpdateType::NOUPDATE);
 
     DEBUG("GLIBManager::InfoSpace found item: ControlHubAddress "
           << is_glibs.at(slot)->getString("ControlHubAddress"));
@@ -284,7 +294,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
       return;
     }
   }
-  usleep(10000); // just for testing the timing of different applications
+  // usleep(100); // just for testing the timing of different applications
   DEBUG("GLIBManager::initializeAction end");
 }
 
@@ -294,7 +304,7 @@ void gem::hw::glib::GLIBManager::configureAction()
   DEBUG("GLIBManager::configureAction");
 
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(5000); // just for testing the timing of different applications
+    // usleep(50); // just for testing the timing of different applications
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -305,13 +315,33 @@ void gem::hw::glib::GLIBManager::configureAction()
       m_glibs.at(slot)->resetCalPulseCount();
 
       // reset the DAQ
-      m_glibs.at(slot)->setL1AInhibit(0x1);
       m_glibs.at(slot)->resetDAQLink();
-      m_glibs.at(slot)->setDAQLinkRunType(0x3);
-      m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
+      m_glibs.at(slot)->setL1AInhibit(0x1);
+
+      if (m_scanType.value_ == 2) {
+	//uint32_t ilatency = m_scanMin.value_;
+	INFO("GLIBManager::configureAction: FIRST  " << m_scanMin.value_);
+
+	m_glibs.at(slot)->setDAQLinkRunType(0x2);
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,m_scanMin.value_);
+	// m_glibs.at(slot)->setDAQLinkRunParameter(0x2,VT1);  // set these at start so DQM has them?
+	// m_glibs.at(slot)->setDAQLinkRunParameter(0x3,VT2);  // set these at start so DQM has them?
+      } else if (m_scanType.value_ == 3) {
+	uint32_t initialVT1 = m_scanMin.value_;
+	uint32_t initialVT2 = 0; //std::max(0,(uint32_t)m_scanMax.value_);
+	INFO("GLIBManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
+
+	m_glibs.at(slot)->setDAQLinkRunType(0x3);
+	// m_glibs.at(slot)->setDAQLinkRunParameter(0x1,latency);  // set this at start so DQM has it?
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,initialVT1);
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,initialVT2);
+      } else {
+	m_glibs.at(slot)->setDAQLinkRunType(0x1);
+	m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
+      }
 
       // should FIFOs be emptied in configure or at start?
-      DEBUG("GLIBManager::emptying trigger/tracking data FIFOs");
+      INFO("GLIBManager::emptying trigger/tracking data FIFOs");
       for (unsigned gtx = 0; gtx < HwGLIB::N_GTX; ++gtx) {
         // m_glibs.at(slot)->flushTriggerFIFO(gtx);
         m_glibs.at(slot)->flushFIFO(gtx);
@@ -335,11 +365,20 @@ void gem::hw::glib::GLIBManager::configureAction()
 void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
+  if (m_scanType.value_ == 2) {
+    INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
+    m_lastLatency = m_scanMin.value_;
+    m_lastVT1 = 0;
+  } else if (m_scanType.value_ == 3) {
+    INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
+    m_lastLatency = 0;
+    m_lastVT1 = m_scanMin.value_;
+  }
 
   INFO("gem::hw::glib::GLIBManager::startAction begin");
   // what is required for starting the GLIB?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(500);
+    // usleep(50);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -351,7 +390,7 @@ void gem::hw::glib::GLIBManager::startAction()
       // enable the DAQ
       m_glibs.at(slot)->enableDAQLink();
       m_glibs.at(slot)->setL1AInhibit(0x0);
-      usleep(100); // just for testing the timing of different applications
+      // usleep(100); // just for testing the timing of different applications
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
       //fireEvent("Fail");
@@ -363,10 +402,10 @@ void gem::hw::glib::GLIBManager::startAction()
     /*
     // reset the hw monitor, this was in release-v2 but not in integrated-application-framework, may have forgotten something
     if (m_glibMonitors.at(slot))
-      m_glibMonitors.at(slot)->reset();
+    m_glibMonitors.at(slot)->reset();
     */
   }
-  usleep(10000);
+  // usleep(100);
   INFO("gem::hw::glib::GLIBManager::startAction end");
 }
 
@@ -374,14 +413,65 @@ void gem::hw::glib::GLIBManager::pauseAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for pausing the GLIB?
-  usleep(10000);  // just for testing the timing of different applications
+  for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
+    // usleep(50);
+    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    GLIBInfo& info = m_glibInfo[slot].bag;
+
+    if (!info.present)
+      continue;
+
+    if (m_glibs.at(slot)->isHwConnected()) {
+      DEBUG("connected a card in slot " << (slot+1));
+
+      if (m_scanType.value_ == 2) {
+	uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
+	INFO("GLIBManager::pauseAction LatencyScan " << (int)updatedLatency);
+
+        // wait for events to finish building
+        while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
+          DEBUG("GLIBManager::pauseAction waiting for GLIB to finish building events");
+          usleep(100);
+        }
+        DEBUG("GLIBManager::pauseAction finished building events, updating run parameter "
+              << (int)updatedLatency);
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,updatedLatency);
+	m_lastLatency = updatedLatency;
+      } else if (m_scanType.value_ == 3) {
+	uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
+	uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
+	INFO("GLIBManager::pauseAction ThresholdScan"
+             << " VT1 " << (int)updatedVT1
+             << " VT2 " << (int)updatedVT2);
+
+        // wait for events to finish building
+        while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
+          DEBUG("GLIBManager::pauseAction waiting for GLIB to finish building events");
+          usleep(100);
+        }
+        DEBUG("GLIBManager::pauseAction finished building events, updating VT1 " << (int)updatedVT1
+              << " and VT2 " << (int)updatedVT2);
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,updatedVT1);
+	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,updatedVT2);
+	m_lastVT1 = updatedVT1;
+      }
+      // usleep(100); // just for testing the timing of different applications
+
+    } else {
+      ERROR("GLIBManager::pauseAction: GLIB in slot " << (slot+1) << " is not connected");
+      //fireEvent("Fail");
+      // maybe raise exception so as to not continue with other cards? let's just return for the moment
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, "pauseAction failed");
+      return;  // no need to return as the exception will exit the block
+    }
+  }
 }
 
 void gem::hw::glib::GLIBManager::resumeAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for resuming the GLIB?
-  usleep(10000);  // just for testing the timing of different applications
+  usleep(100);  // just for testing the timing of different applications
 }
 
 void gem::hw::glib::GLIBManager::stopAction()
@@ -389,7 +479,7 @@ void gem::hw::glib::GLIBManager::stopAction()
 {
   INFO("gem::hw::glib::GLIBManager::stopAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(500);
+    // usleep(50);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -402,14 +492,14 @@ void gem::hw::glib::GLIBManager::stopAction()
       m_glibs[slot]->setL1AInhibit(0x1);
     }
   }
-  usleep(10000);  // just for testing the timing of different applications
+  // usleep(100);  // just for testing the timing of different applications
 }
 
 void gem::hw::glib::GLIBManager::haltAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for halting the GLIB?
-  usleep(10000);  // just for testing the timing of different applications
+  usleep(100);  // just for testing the timing of different applications
 }
 
 void gem::hw::glib::GLIBManager::resetAction()
@@ -420,7 +510,7 @@ void gem::hw::glib::GLIBManager::resetAction()
 
   DEBUG("GLIBManager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(500);  // just for testing the timing of different applications
+    // usleep(50);  // just for testing the timing of different applications
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 

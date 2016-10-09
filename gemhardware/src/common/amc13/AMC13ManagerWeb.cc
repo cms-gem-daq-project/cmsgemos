@@ -99,21 +99,23 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *o
   *out << "        <span style=\"display:block;float:left\""
        << " name=\"amc13status\" id=\"amc13status\">"
        << std::endl;
-
-  try {
-    if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
-      ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus();
-      s->SetHTML();
-      s->Report(level,*out);
-    } else {
-      ERROR("AMC13ManagerWeb::Unable to obtain pointer to AMC13 device");
-      XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, "Unable to obtain pointer to AMC13 device");
+  std::string currentState = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState();
+  if ( currentState != "Initial")
+    try {
+      if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
+        ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus();
+        s->SetHTML();
+        s->Report(level,*out);
+      } else {
+        std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
+        WARN("AMC13ManagerWeb:: " << msg);
+        XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg);
+      }
+    } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
+      WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+    } catch (const std::exception& e) {
+      WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
     }
-  } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
-    WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
-  } catch (const std::exception& e) {
-    WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
-  }
 
   *out << "        </span>" << std::endl;
   *out << "      </div>"    << std::endl;
@@ -169,20 +171,23 @@ void gem::hw::amc13::AMC13ManagerWeb::updateStatus(xgi::Output *out)
   throw (xgi::exception::Exception)
 {
   out->getHTTPResponseHeader().addHeader("Content-Type", "plain/text");
-  try {
-    if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
-      ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus();
-      s->SetHTML();
-      s->Report(level,*out);
-    } else {
-      ERROR("AMC13ManagerWeb::Unable to obtain pointer to AMC13 device");
-      XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, "Unable to obtain pointer to AMC13 device");
+  std::string currentState = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState();
+  if ( currentState != "Initial")
+    try {
+      if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
+        ::amc13::Status *s = dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus();
+        s->SetHTML();
+        s->Report(level,*out);
+      } else {
+        std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
+        WARN("AMC13ManagerWeb:: " << msg);
+        XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg);
+      }
+    } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
+      WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+      *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
+    } catch (const std::exception& e) {
+      WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+      *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
     }
-  } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
-    WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
-    *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
-  } catch (const std::exception& e) {
-    WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
-    *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
-  }
 }

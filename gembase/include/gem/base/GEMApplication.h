@@ -179,7 +179,32 @@ namespace gem {
         GEMMonitor        *p_gemMonitor;       /* */
 
       public:
-        // should these be protected?
+
+        class ScanInfo {
+
+        public:
+          ScanInfo();
+          void registerFields(xdata::Bag<GEMApplication::ScanInfo>* bag);
+
+          xdata::UnsignedInteger32 scanType;
+          xdata::UnsignedInteger32 scanMin;
+          xdata::UnsignedInteger32 scanMax;
+          xdata::UnsignedInteger32 stepSize;
+          xdata::UnsignedInteger64 nTriggers;
+
+          inline std::string toString() {
+            std::stringstream os;
+            os << "scanType:" << scanType.toString() << std::endl
+               << "scanMin:"  << scanMin.toString()  << std::endl
+               << "scanMax:"  << scanMax.toString()  << std::endl
+               << "stepSize:" << stepSize.toString() << std::endl
+               << "nTrigger:" << nTriggers.value_    << std::endl
+               << std::endl;
+            return os.str();
+          };
+        };
+
+          // should these be protected?
         /**
          * various application properties
          */
@@ -195,9 +220,16 @@ namespace gem {
 
       protected:
         xdata::Integer64 m_runNumber;
+        xdata::String    m_runType;
+        xdata::String    m_cfgType;
 
-        xdata::String  m_runType;
-        xdata::String  m_cfgType;
+        xdata::Bag<ScanInfo>     m_scanInfo;
+
+        xdata::UnsignedInteger32 m_scanType;
+        xdata::UnsignedInteger32 m_scanMin;
+        xdata::UnsignedInteger32 m_scanMax;
+        xdata::UnsignedInteger32 m_stepSize;
+        xdata::UnsignedInteger64 m_nScanTriggers;
 
         std::shared_ptr<gem::utils::db::GEMDatabaseUtils> p_gemDBHelper;
 

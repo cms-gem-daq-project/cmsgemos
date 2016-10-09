@@ -33,7 +33,7 @@
   <!-- register only in V2B -->
   <node id="SBIT_MASK"  address="0x4"  mask="0x00ffffff"  permission="rw"
 	description="Mask to block individual VFATs from sending s-bits data"/>
-  
+
   <node id="OUTPUT"  address="0x5"  permission="rw"
 	description="Control on the OptoHybrid related to the s-bits sent out">
     <node id="SBITS"  address="0x0"  permission="rw"
@@ -52,11 +52,11 @@
                        2: OUT[0-5] correspond to I2C sectors (automatically selected)
                        3: OUT[0-5] are constant 0"/>
   </node>
-  
+
   <node id="THROTTLE"  address="0x6"  mask="0xffffffff"  permission="rw"
 	description="Throttle the triggers sent to the GEB "/>
-  
+
   <node id="ZS"  address="0x7"  mask="0x00000001"  permission="rw"
 	description="Enable/disable zero-suppression"/>
-    
+
 </node> <!-- end top block -->

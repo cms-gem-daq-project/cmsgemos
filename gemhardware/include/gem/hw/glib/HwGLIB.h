@@ -671,14 +671,34 @@ namespace gem {
           bool daqTTCReady();
 
           /**
+           * @returns Returns the current TTS state asserted by the DAQ link firmware
+           */
+          uint8_t daqTTSState();
+
+          /**
            * @returns Returns true if the event FIFO is almost full (70%)
            */
           bool daqAlmostFull();
 
           /**
-           * @returns Returns the current TTS state asserted by the DAQ link firmware
+           * @returns Returns true if the L1A FIFO is empty (0%)
            */
-          uint8_t daqTTSState();
+          bool l1aFIFOIsEmpty();
+
+          /**
+           * @returns Returns true if the L1A FIFO is almost full (70%)
+           */
+          bool l1aFIFOIsAlmostFull();
+
+          /**
+           * @returns Returns true if the L1A FIFO is full (100%)
+           */
+          bool l1aFIFOIsFull();
+
+          /**
+           * @returns Returns true if the L1A FIFO is underflos
+           */
+          bool l1aFIFOIsUnderflow();
 
           /**
            * @returns Returns the number of events built and sent on the DAQ link
