@@ -3,6 +3,8 @@
 #ifndef GEM_HW_AMC13_AMC13MANAGER_H
 #define GEM_HW_AMC13_AMC13MANAGER_H
 
+#include <iomanip>
+
 //copying general structure of the HCAL DTCManager (HCAL name for AMC13)
 #include "uhal/uhal.hpp"
 
@@ -178,6 +180,29 @@ namespace gem {
             xdata::UnsignedInteger32 slotMask;
 
             //xdata::UnsignedInteger64 localL1AMask;
+
+            inline std::string toString() {
+              std::stringstream os;
+              os << "connectionFile:     " << connectionFile.toString()         << std::endl
+                 << "cardName:           " << cardName.toString()               << std::endl
+                 << "amcInputEnableList: " << amcInputEnableList.toString()     << std::endl
+                 << "amcIgnoreTTSList:   " << amcIgnoreTTSList.toString()       << std::endl
+                 << "enableDAQLink:      " << enableDAQLink.toString()          << std::endl
+                 << "enableFakeData:     " << enableFakeData.toString()         << std::endl
+                 << "monBackPressure:    " << monBackPressure.toString()        << std::endl
+                 << "enableLocalTTC:     " << enableLocalTTC.toString()         << std::endl
+                 << "localTriggerConfig: " << localTriggerConfig.bag.toString() << std::endl;
+              // can configure up to 4 BGO channels
+               for (auto bgo = bgoConfig.begin(); bgo != bgoConfig.end(); ++bgo)
+                 os << "bgoConfig: " << bgo->bag.toString() << std::endl;
+               os << "prescaleFactor: " << prescaleFactor.toString() << std::endl
+                  << "bcOffset:       " << bcOffset.toString()       << std::endl
+                  << "fedID         0x" << std::hex << std::setw(8) << std::setfill('0') << fedID.value_    << std::endl
+                  << "sfpMask       0x" << std::hex << std::setw(8) << std::setfill('0') << sfpMask.value_  << std::endl
+                  << "slotMask      0x" << std::hex << std::setw(8) << std::setfill('0') << slotMask.value_ << std::endl;
+              // os << "localL1AMask: 0x" << std::hex << std::setw(8) << std::setfill('0') << localL1AMask << std::dec << std::endl;
+               return os.str();
+            };
           };
 
         private:
