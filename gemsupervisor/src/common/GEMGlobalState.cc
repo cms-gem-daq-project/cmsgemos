@@ -75,7 +75,7 @@ void gem::supervisor::GEMGlobalState::startTimer() {
     // p_timer = std::make_shared<toolbox::task::Timer>(toolbox::task::TimerFactory::getInstance()->createTimer("GEMGlobalStateTimer"));
     p_timer = toolbox::task::TimerFactory::getInstance()->createTimer("GEMGlobalStateTimer");
     toolbox::TimeVal      start = toolbox::TimeVal::gettimeofday();
-    toolbox::TimeInterval delta(5, 0);
+    toolbox::TimeInterval delta(1, 0);  // how often is enough/too often?
     p_timer->activate();
     p_timer->scheduleAtFixedRate(start, this, delta, 0, "GEMGlobalStateUpdate");
   }
