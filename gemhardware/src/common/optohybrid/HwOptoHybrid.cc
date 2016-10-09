@@ -376,7 +376,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
     // YY = chip number
     // ZZ = register contents
     DEBUG("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
-    bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
+    // bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
 
     // if (v_bit && !e_bit) {
     if (((*id) >> 16) != 0x3) {
