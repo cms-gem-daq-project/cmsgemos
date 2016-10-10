@@ -317,9 +317,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       m_glibs.at(slot)->resetCalPulseCount();
 
       // reset the DAQ
-      m_glibs.at(slot)->setL1AEnable(0x0);
+      m_glibs.at(slot)->setL1AEnable(false);
       m_glibs.at(slot)->resetDAQLink();
-      m_glibs.at(slot)->setL1AInhibit(0x1);
 
       if (m_scanType.value_ == 2) {
 	//uint32_t ilatency = m_scanMin.value_;
@@ -392,7 +391,7 @@ void gem::hw::glib::GLIBManager::startAction()
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       m_glibs.at(slot)->enableDAQLink(0x4);  //FIXME
-      m_glibs.at(slot)->setL1AEnable(0x1);
+      m_glibs.at(slot)->setL1AEnable(true);
       usleep(100); // just for testing the timing of different applications
     } else {
       ERROR("GLIB in slot " << (slot+1) << " is not connected");
@@ -492,7 +491,7 @@ void gem::hw::glib::GLIBManager::stopAction()
     if (m_glibs[slot]->isHwConnected()) {
       // what is required for stopping the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
-      m_glibs[slot]->setL1AEnable(0x0);
+      m_glibs[slot]->setL1AEnable(false);
     }
   }
   // usleep(100);  // just for testing the timing of different applications
