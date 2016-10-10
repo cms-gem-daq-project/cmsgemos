@@ -34,13 +34,15 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
           for chip in chipids.keys():
             t_chipid = "0x%04x"%(chipids[chip])
             if t_chipid in vfats.filter(Slot=chip).values_list("ChipID", flat=True):
-              pass
+              pass # closes if t_chipid
             else:
               msg = "Adding VFAT(ChipID = %s, Slot = %d)"%(t_chipid,chip)
               gemlogger.info(msg)
               v = VFAT(ChipID = t_chipid, Slot = chip)
               v.save()
+              pass # closese else (if t_chipid)
             v_list.append(VFAT.objects.get(ChipID = t_chipid, Slot = chip))
+            pass # closes for chip in chipids.keys
           #t_chamberID = 'OHv2aM'#hard code now, read from HW later when available
           t_chamberID = 'GTX-'+str(gtx) #use gtx link number now, read from HW later when available
           msg = "t_chamberID = %s" %(t_chamberID)
@@ -52,8 +54,9 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
               t_flag = True
               g_list.append(geb)
               break
+            pass # closes for geb in gebs
           if t_flag:
-            pass
+            pass # bypass if t_flag
           else:
             msg = "Update DB"
             gemlogger.info(msg)
@@ -62,6 +65,10 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
             for v in v_list:
               g.vfats.add(v)
               g_list.append(g)
+              pass # closes for v in v_list
+            pass # closes else (if t_flag)
+          pass # closes if m_AMCmanager
+        pass # closes for gtx in gtx_list
 
       t_flag = False
       t_boardID = "AMC-"+str(amcN)#hard code now, read from HW later when available
@@ -70,10 +77,12 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
         if g_list == list(amc.gebs.all()):
           t_flag = True
           a_list.append(amc)
-          print "Adding to a_list : %s" %(amc.BoardID)
-          pass
+          msg = "Adding to a_list : %s" %(amc.BoardID)
+          gemlogger.debug(msg)
+          pass # closes if g_list
+        pass # closes for amc in amcs
       if t_flag:
-        pass
+        pass # closes if t_flag
       else:
         msg = "Update DB"
         gemlogger.info(msg)
@@ -82,8 +91,11 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
         for g in g_list:
           a.gebs.add(g)
           a_list.append(a)
-          print "Adding to a_list : %s" %(amc.BoardID)
-          pass
+          msg = "Adding to a_list : %s" %(amc.BoardID)
+          gemlogger.debug(msg)
+          pass # closes for g in g_list
+        pass # closes else (if t_flag)
+      pass # closes for amcN, gtx_list in zlist
 
     # create a new run. Some values are hard-coded for now
     runs = Run.objects.filter(Period = runperiod, Type = setuptype, Station = station)
@@ -92,16 +104,19 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
       nrs = u'%s'%(max(rns)+1)
     except ValueError as ve:
       nrs = u'%s'%(1)
+      pass
     nrs = nrs.zfill(6)
     t_date = str(datetime.date.today())
     m_filename = "run"+str(nrs)+""+"_"+setuptype+"_"+station+"_"+t_date
     newrun = Run(Name=m_filename, Type = setuptype, Number = str(nrs), Date = datetime.date.today(), Period = runperiod, Station = station)
     newrun.save()
     for a in a_list:
-        print "Adding AMC: %s" %(a.BoardID)
+        msg = "Adding AMC: %s" %(a.BoardID)
+        gemlogger.info(msg)
         newrun.amcs.add(a)
         for g in a.gebs.all():
-            print "Adding GEB: %s" %(g.ChamberID)
+            msg = "Adding GEB: %s" %(g.ChamberID)
+            gemlogger.info(msg)
             pass
         pass
     sleep(2)
