@@ -647,7 +647,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
     fireEvent("Pause");
     // pauseAction();
 
-    while (!(m_globalState.getStateName() == "Paused")) {
+    while ((m_globalState.getStateName() != "Paused") && (getCurrentState() != "Paused")) {
       TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName());
       usleep(100);//testing change of state
       m_globalState.update();
@@ -659,7 +659,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
     // resumeAction();
 
     m_scanParameter = updatedParameter;
-    while (!(m_globalState.getStateName() == "Running")) {
+    while ((m_globalState.getStateName() != "Running") && (getCurrentState() != "Running")) {
       TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName());
       usleep(100);//testing change of state
       m_globalState.update();
