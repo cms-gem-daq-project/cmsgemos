@@ -328,7 +328,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
              << std::dec << std::endl
              );
         m_optohybrids.at(slot).at(link)->setVFATMask(m_trackingMask.at(slot).at(link));
-        m_optohybrids.at(slot).at(link)->setVFATSBitMask(m_sbitMask.at(slot).at(link));
+        m_optohybrids.at(slot).at(link)->setSBitMask(m_sbitMask.at(slot).at(link));
         // turn off any that are excluded by the additional mask?
       } else {
         ERROR("OptoHybridManager::initializeAction OptoHybrid connected on link "
