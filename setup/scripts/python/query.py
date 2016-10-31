@@ -79,7 +79,7 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
           pass
 
     # create a new run. Some values are hard-coded for now
-    runs = Run.objects.filter(Period = runperiod, Type = setuptype, Station = station)
+    runs = Run.objects.filter(Period = runperiod, Station = station)
     rns = list(int(x) for x in list(runs.values_list("Number", flat=True)))
     try:
       nrs = u'%s'%(max(rns)+1)

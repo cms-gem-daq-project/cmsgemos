@@ -540,10 +540,10 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
 
   // hacky time for teststand/local runs, before connection through RCMS to RunInfoDB is established
   // get these from or send them to the readout application
-  std::string    setup = "teststand";
-  std::string   period = "2016T";
+  std::string    setup = m_setupTag.toString();
+  std::string   period = m_runPeriod.toString();
   std::string location = m_setupLocation.toString();
-  p_gemDBHelper->configure(m_setupLocation.toString(),setup,period);
+  p_gemDBHelper->configure(location,setup,period);
 
   try {
     // if (p_gemDBHelper->connect(m_dbName.toString())) {
