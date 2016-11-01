@@ -231,7 +231,7 @@ void gem::supervisor::GEMSupervisor::initializeAction()
   INFO("gem::supervisor::GEMSupervisor::initializeAction Initializing");
 
   // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(gem::base::STATE_CONFIGURING)) {  // deal with possible race condition
-  while (!(m_globalState.getStateName() == "Initial") && getCurrentState() = "Initializing")) {
+  while (!(m_globalState.getStateName() == "Initial" && getCurrentState() == "Initializing")) {
     INFO("GEMSupervisor::initializeAction global state not in " << gem::base::STATE_INITIAL
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
@@ -390,7 +390,7 @@ void gem::supervisor::GEMSupervisor::pauseAction()
 void gem::supervisor::GEMSupervisor::resumeAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while (!(m_globalState.getStateName() = "Paused" && getCurrentState() == "Resuming")) {
+  while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Resuming")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
