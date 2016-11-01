@@ -231,9 +231,10 @@ void gem::supervisor::GEMSupervisor::initializeAction()
   INFO("gem::supervisor::GEMSupervisor::initializeAction Initializing");
 
   // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(gem::base::STATE_CONFIGURING)) {  // deal with possible race condition
-  while ((m_globalState.getStateName() != "Initial") && (getCurrentState() != "Initial")) {
+  while (!(m_globalState.getStateName() == "Initial") && getCurrentState() = "Initializing")) {
     INFO("GEMSupervisor::initializeAction global state not in " << gem::base::STATE_INITIAL
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -278,11 +279,12 @@ void gem::supervisor::GEMSupervisor::initializeAction()
 void gem::supervisor::GEMSupervisor::configureAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Halted") ||
-           (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configured"))) {
+  while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Configuring") ||
+           (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configuring"))) {
     INFO("GEMSupervisor::configureAction global state not in " << gem::base::STATE_HALTED
-          << " or "  << gem::base::STATE_CONFIGURED
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " or "  << gem::base::STATE_CONFIGURED
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -325,9 +327,10 @@ void gem::supervisor::GEMSupervisor::configureAction()
 void gem::supervisor::GEMSupervisor::startAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while ((m_globalState.getStateName() != "Configured") && (getCurrentState() != "Configured")) {
+  while (!(m_globalState.getStateName() == "Configured" && getCurrentState() == "Starting")) {
     INFO("GEMSupervisor::startAction global state not in " << gem::base::STATE_CONFIGURED
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -369,9 +372,10 @@ void gem::supervisor::GEMSupervisor::startAction()
 void gem::supervisor::GEMSupervisor::pauseAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while ((m_globalState.getStateName() != "Running") && (getCurrentState() != "Running")) {
+  while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Pausing")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -386,9 +390,10 @@ void gem::supervisor::GEMSupervisor::pauseAction()
 void gem::supervisor::GEMSupervisor::resumeAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while ((m_globalState.getStateName() != "Paused") && (getCurrentState() != "Paused")) {
+  while (!(m_globalState.getStateName() = "Paused" && getCurrentState() == "Resuming")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -403,11 +408,12 @@ void gem::supervisor::GEMSupervisor::resumeAction()
 void gem::supervisor::GEMSupervisor::stopAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while (!((m_globalState.getStateName() == "Running" && getCurrentState() == "Running") ||
-           (m_globalState.getStateName() == "Paused"  && getCurrentState() == "Paused"))) {
+  while (!((m_globalState.getStateName() == "Running" && getCurrentState() == "Stopping") ||
+           (m_globalState.getStateName() == "Paused"  && getCurrentState() == "Stopping"))) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
-          << " or " << gem::base::STATE_PAUSED
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " or " << gem::base::STATE_PAUSED
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
