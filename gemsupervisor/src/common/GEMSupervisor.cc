@@ -644,37 +644,46 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
     } else if (m_scanType.value_ == 3) {
       INFO("GEMSupervisor::EndScanPoint ThresholdScan VT1 " << updatedParameter);
     }
-    DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-         << " calling pauseAction");
-    fireEvent("Pause");
-    // pauseAction();
 
-    while ((m_globalState.getStateName() != "Paused") && (getCurrentState() != "Paused")) {
-      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName());
-      usleep(100);//testing change of state
+    while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
+      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	    << " FSM state " << getCurrentState());
+      usleep(100);
       m_globalState.update();
     }
 
     DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-         << " calling resumeAction");
+	  << " FSM state " << getCurrentState()
+	  << " calling pauseAction");
+    fireEvent("Pause");
+
+    while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Paused")) {
+      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	    << " FSM state " << getCurrentState());
+      usleep(100);
+      m_globalState.update();
+    }
+
+    DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	  << " FSM state " << getCurrentState()
+	  << " calling resumeAction");
     fireEvent("Resume");
-    // resumeAction();
 
     m_scanParameter = updatedParameter;
-    while ((m_globalState.getStateName() != "Running") && (getCurrentState() != "Running")) {
-      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName());
-      usleep(100);//testing change of state
+    while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
+      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	    << " FSM state " << getCurrentState());
+      usleep(100);
       m_globalState.update();
     }
   } else {
     INFO("GEMSupervisor::EndScanPoint Scan Finished " << updatedParameter);
     DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	  << " FSM state " << getCurrentState()
           << " calling stopAction");
+
     fireEvent("Stop");
-    // stopAction();
-    // how do we get this to happen naturally... (in framework)
     usleep(1000);
-    // fireEvent("IsConfigured");
   }
 
   try {
