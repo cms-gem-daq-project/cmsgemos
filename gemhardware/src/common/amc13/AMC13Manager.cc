@@ -396,6 +396,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   usleep(50);
 
   p_amc13->resetCounters();
+  m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
 
   p_amc13->startRun();
 
@@ -543,7 +544,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   }
 
   if (m_enableLocalL1A) {
-    p_amc13->enableLocalL1A(false);
+    // p_amc13->enableLocalL1A(false);
 
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
@@ -747,13 +748,18 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
   if (currentTrigger >=  m_nScanTriggers.value_){
     if (m_enableLocalL1A) {
       if (m_enableLEMO) {
-	p_amc13->enableLocalL1A(false);
 	p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-      } else
+      } else {
 	p_amc13->stopContinuousL1A();
+      }
+    } else {
+      p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+      p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
     }
+    INFO("AMC13Manager::timeExpried, triggers seen this point = "
+	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
     m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    INFO("AMC13Manager::timeExpried, NTrigger = " << m_updatedL1ACount);
+    INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
     endScanPoint();
   }
 }
