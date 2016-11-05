@@ -638,7 +638,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
 
   uint32_t updatedParameter = m_scanParameter + m_stepSize.value_;
 
-  DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
+  INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
        << " m_scanParameter  = " << m_scanParameter  << std::endl
        << " updatedParameter = " << updatedParameter << std::endl
        << " m_scanMax.value_ = " << m_scanMax.value_ << std::endl
@@ -658,7 +658,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
       m_globalState.update();
     }
 
-    DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	  << " FSM state " << getCurrentState()
 	  << " calling pauseAction");
     fireEvent("Pause");
@@ -670,7 +670,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
       m_globalState.update();
     }
 
-    DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	  << " FSM state " << getCurrentState()
 	  << " calling resumeAction");
     fireEvent("Resume");
@@ -684,7 +684,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
     }
   } else {
     INFO("GEMSupervisor::EndScanPoint Scan Finished " << updatedParameter);
-    DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	  << " FSM state " << getCurrentState()
           << " calling stopAction");
 
