@@ -118,7 +118,8 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   throw (xdaq::exception::Exception) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
-  p_amc13(NULL)
+  p_amc13(NULL),
+  p_timer(NULL)
 {
   m_bgoConfig.setSize(4);
 
@@ -289,7 +290,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   }
 
   //equivalent to hcal init part
-  if (p_amc13==0)
+  if (p_amc13 == 0)
     return;
 
   //have to set up the initialization of the AMC13 for the desired running situation
@@ -582,6 +583,17 @@ void gem::hw::amc13::AMC13Manager::resetAction()
 {
   //what is necessary for a reset on the AMC13?
   DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
+
+  if (p_timer) {
+    try {
+      p_timer->stop();
+    } catch (toolbox::task::exception::NotActive const& ex) {
+      WARN("AMC13Manager::start could not stop timer " << ex.what());
+    }
+    delete p_timer;
+  }
+  p_timer = NULL;
+
   // maybe ensure triggers are disabled as well as BGO commands?
   if (p_amc13)
     delete p_amc13;
@@ -739,7 +751,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
 
 void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
-;
   uint64_t currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount;
 
   DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " << m_nScanTriggers.value_
