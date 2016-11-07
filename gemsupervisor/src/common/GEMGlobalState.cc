@@ -20,6 +20,7 @@ gem::supervisor::GEMApplicationState::GEMApplicationState()
 gem::supervisor::GEMGlobalState::GEMGlobalState(xdaq::ApplicationContext* context, GEMSupervisor* gemSupervisor) :
   // m_globalState(gem::base::STATE_UNINIT),
   // p_gemSupervisor(std::make_shared<GEMSupervisor>(gemSupervisor)),
+  p_timer(NULL),
   p_gemSupervisor(gemSupervisor),
   p_appContext(context),
   p_srcApp(gemSupervisor->getApplicationDescriptor()),

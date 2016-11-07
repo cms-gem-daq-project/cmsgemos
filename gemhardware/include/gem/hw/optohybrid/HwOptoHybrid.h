@@ -499,7 +499,7 @@ namespace gem {
            * @param uint32_t mask s-bits coming from specific GEB slots
            */
           void setSBitMask(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK", mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK", 0x00ffffff&mask); };
 
           /**
            * Read the S-bit mask

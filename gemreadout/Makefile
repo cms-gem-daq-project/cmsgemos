@@ -25,20 +25,12 @@ DynamicLibrary=gemreadout
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(ROOTDIR)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-LibraryDirs+=$(ROOTLIBS)
-LibraryDirs+=$(ROOTGLIBS)
-
-UserCFlags +=$(ROOTCFLAGS)
-UserCCFlags+=$(ROOTCFLAGS)
 
 DependentLibraries+=gemutils gembase
-
-UserDynamicLinkFlags+=$(ROOTLIBS)
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules

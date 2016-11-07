@@ -231,9 +231,10 @@ void gem::supervisor::GEMSupervisor::initializeAction()
   INFO("gem::supervisor::GEMSupervisor::initializeAction Initializing");
 
   // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(gem::base::STATE_CONFIGURING)) {  // deal with possible race condition
-  while ((m_globalState.getStateName() != "Initial") && (getCurrentState() != "Initial")) {
+  while (!(m_globalState.getStateName() == "Initial" && getCurrentState() == "Initializing")) {
     INFO("GEMSupervisor::initializeAction global state not in " << gem::base::STATE_INITIAL
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -278,11 +279,12 @@ void gem::supervisor::GEMSupervisor::initializeAction()
 void gem::supervisor::GEMSupervisor::configureAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Halted") ||
-           (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configured"))) {
+  while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Configuring") ||
+           (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configuring"))) {
     INFO("GEMSupervisor::configureAction global state not in " << gem::base::STATE_HALTED
-          << " or "  << gem::base::STATE_CONFIGURED
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " or "  << gem::base::STATE_CONFIGURED
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -325,9 +327,10 @@ void gem::supervisor::GEMSupervisor::configureAction()
 void gem::supervisor::GEMSupervisor::startAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while ((m_globalState.getStateName() != "Configured") && (getCurrentState() != "Configured")) {
+  while (!(m_globalState.getStateName() == "Configured" && getCurrentState() == "Starting")) {
     INFO("GEMSupervisor::startAction global state not in " << gem::base::STATE_CONFIGURED
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -369,9 +372,10 @@ void gem::supervisor::GEMSupervisor::startAction()
 void gem::supervisor::GEMSupervisor::pauseAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while ((m_globalState.getStateName() != "Running") && (getCurrentState() != "Running")) {
+  while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Pausing")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -386,9 +390,10 @@ void gem::supervisor::GEMSupervisor::pauseAction()
 void gem::supervisor::GEMSupervisor::resumeAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while ((m_globalState.getStateName() != "Paused") && (getCurrentState() != "Paused")) {
+  while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Resuming")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -403,11 +408,12 @@ void gem::supervisor::GEMSupervisor::resumeAction()
 void gem::supervisor::GEMSupervisor::stopAction()
   throw (gem::supervisor::exception::Exception)
 {
-  while (!((m_globalState.getStateName() == "Running" && getCurrentState() == "Running") ||
-           (m_globalState.getStateName() == "Paused"  && getCurrentState() == "Paused"))) {
+  while (!((m_globalState.getStateName() == "Running" && getCurrentState() == "Stopping") ||
+           (m_globalState.getStateName() == "Paused"  && getCurrentState() == "Stopping"))) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
-          << " or " << gem::base::STATE_PAUSED
-          << " sleeping (" << m_globalState.getStateName() << ")");
+	 << " or " << gem::base::STATE_PAUSED
+	 << " sleeping (" << m_globalState.getStateName() << ","
+	 << getCurrentState() << ")");
     usleep(100);
     m_globalState.update();
   }
@@ -632,7 +638,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
 
   uint32_t updatedParameter = m_scanParameter + m_stepSize.value_;
 
-  DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
+  INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
        << " m_scanParameter  = " << m_scanParameter  << std::endl
        << " updatedParameter = " << updatedParameter << std::endl
        << " m_scanMax.value_ = " << m_scanMax.value_ << std::endl
@@ -644,37 +650,46 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
     } else if (m_scanType.value_ == 3) {
       INFO("GEMSupervisor::EndScanPoint ThresholdScan VT1 " << updatedParameter);
     }
-    DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-         << " calling pauseAction");
-    fireEvent("Pause");
-    // pauseAction();
 
-    while ((m_globalState.getStateName() != "Paused") && (getCurrentState() != "Paused")) {
-      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName());
-      usleep(100);//testing change of state
+    while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
+      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	    << " FSM state " << getCurrentState());
+      usleep(100);
       m_globalState.update();
     }
 
-    DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
-         << " calling resumeAction");
+    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	  << " FSM state " << getCurrentState()
+	  << " calling pauseAction");
+    fireEvent("Pause");
+
+    while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Paused")) {
+      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	    << " FSM state " << getCurrentState());
+      usleep(100);
+      m_globalState.update();
+    }
+
+    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	  << " FSM state " << getCurrentState()
+	  << " calling resumeAction");
     fireEvent("Resume");
-    // resumeAction();
 
     m_scanParameter = updatedParameter;
-    while ((m_globalState.getStateName() != "Running") && (getCurrentState() != "Running")) {
-      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName());
-      usleep(100);//testing change of state
+    while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
+      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	    << " FSM state " << getCurrentState());
+      usleep(100);
       m_globalState.update();
     }
   } else {
     INFO("GEMSupervisor::EndScanPoint Scan Finished " << updatedParameter);
-    DEBUG("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+	  << " FSM state " << getCurrentState()
           << " calling stopAction");
+
     fireEvent("Stop");
-    // stopAction();
-    // how do we get this to happen naturally... (in framework)
     usleep(1000);
-    // fireEvent("IsConfigured");
   }
 
   try {

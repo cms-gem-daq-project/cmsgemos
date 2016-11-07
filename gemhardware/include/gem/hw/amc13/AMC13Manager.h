@@ -84,7 +84,6 @@ namespace gem {
 
 	  void endScanPoint() throw (xgi::exception::Exception);
 
-	  toolbox::task::Timer* p_timer;    // timer for general info space updates
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
 
           //virtual void noAction()         throw (gem::hw::amc13::exception::Exception);
@@ -209,6 +208,8 @@ namespace gem {
           mutable gem::utils::Lock m_amc13Lock;
 
           ::amc13::AMC13 *p_amc13;
+
+	  toolbox::task::Timer* p_timer;    // timer for general info space updates
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;

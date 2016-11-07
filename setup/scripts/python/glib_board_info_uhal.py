@@ -49,8 +49,8 @@ parser.add_option("--l1a_block", action="store_true", dest="l1a_block",
 		  help="Inhibit the L1As at the TTC backplane link", metavar="l1a_block")
 parser.add_option("--short", action="store_true", dest="short",
 		  help="Skip extended information", metavar="short")
-parser.add_option("--vtrx", action="store_true", dest="vtrx",
-		  help="Flip polarity for VTRx (only for SFP0 now)", metavar="vtrx")
+parser.add_option("--invertTX", action="store_true", dest="invertTX",
+		  help="Flip polarity for SFP", metavar="invertTX")
 
 (options, args) = parser.parse_args()
 
@@ -81,10 +81,12 @@ print "  Opening GLIB with IP", ipaddr
 print "--=======================================--"
 print
 
-if options.vtrx :
-        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x0)
-else:
+if options.invertTX :
         writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x1)
+        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP2",0x1)
+else:
+        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x0)
+        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP2",0x0)
                 
 if not options.userOnly:
   #pass
