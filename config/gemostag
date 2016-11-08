@@ -242,6 +242,44 @@ sub update_tag() {
     }
     close(VERFILE);
     print "git add $file\n";
+
+    $file=glob("gem${subpackage}/Makefile");
+    open(VERFILE,$file);
+    @lines=<VERFILE>;
+    close(VERFILE);
+    open(VERFILE,">$file");
+    foreach (@lines) {
+	if (/([A-Z]+)_VER_MAJOR/) {
+            if (($reltype eq "maj") || ($reltype eq "major")) {
+                print "updating major version\n";
+                $major=$major+1;
+            }
+	    print VERFILE "$1_VER_MAJOR ${major}\n";
+	} elsif (/([A-Z]+)_VER_MINOR/) {
+            if (($reltype eq "maj") || ($reltype eq "major")) {
+                print "resetting minor version\n";
+                $minor=0;
+            } elsif (($reltype eq "min") || ($reltype eq "minor")) {
+                print "updating minor version\n";
+                $minor=$minor+1;
+            }
+	    print VERFILE "$1_VER_MINOR ${minor}\n";
+	} elsif (/([A-Z]+)_VER_PATCH/) {
+            if (($reltype eq "pat") || ($reltype eq "patch")) {
+                print "updating patch version\n";
+                $patch=$patch+1;
+            } elsif (($reltype eq "maj") || ($reltype eq "major") ||
+                     ($reltype eq "min") || ($reltype eq "minor")) {
+                print "resetting patch version\n";
+                $patch=0;
+            }
+	    print VERFILE "$1_VER_PATCH ${patch}\n";
+	} else {
+            print VERFILE $_;
+        }
+    }
+    close(VERFILE);
+    print "git add $file\n";
     #$git->add("$file");
     print "git commit -m \"updating $subpackage version file with gemostag\" $file\n";
     #$git->commit("-m \"updating version with gemostag\" $file");
