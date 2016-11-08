@@ -2,6 +2,7 @@
 #define GEM_HW_GEMHWDEVICE_H
 
 #include <iomanip>
+#include <memory>
 
 //#include "xdata/InfoSpace.h"
 #include "xdata/InfoSpaceFactory.h"
@@ -361,6 +362,9 @@ namespace gem {
         m_ipBusPort = port; };
 
       uhal::HwInterface& getGEMHwInterface() const;
+
+      std::string getLoggerName() const {
+        return m_gemLogger.getName(); };
 
       void updateErrorCounters(std::string const& errCode);
 

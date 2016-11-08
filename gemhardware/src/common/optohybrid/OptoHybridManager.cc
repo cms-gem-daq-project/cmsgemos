@@ -309,6 +309,15 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         m_sbitMask.at(slot).at(link)      = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
 
         createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), m_optohybrids.at(slot).at(link));
+        INFO("OptoHybridManager::initializeAction looping over created VFAT devices");
+        for (auto mapit = m_vfatMapping.at(slot).at(link).begin();
+             mapit != m_vfatMapping.at(slot).at(link).end(); ++mapit) {
+          INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
+               << std::hex << (int)mapit->second << std::dec << " (from map)");
+          gem::hw::vfat::HwVFAT2& vfatDevice = m_optohybrids.at(slot).at(link)->getVFATDevice(mapit->first);
+          INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
+               << std::hex << (int)vfatDevice.getChipID() << std::dec << " (from HW device) ");
+        }
 
         m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
         m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));

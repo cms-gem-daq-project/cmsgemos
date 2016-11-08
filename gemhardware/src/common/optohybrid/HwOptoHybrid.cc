@@ -322,6 +322,7 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
   regName << getDeviceBaseNode() << ".GEB.Broadcast.Results";
   std::vector<uint32_t> results;
   //need to compute the number of required reads based on the mask
+  usleep(1000);
   return readBlock(regName.str(),std::bitset<32>(~mask).count());
 }
 
@@ -334,6 +335,7 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
     writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()),value);
+  usleep(1000);
 }
 
 
@@ -352,13 +354,15 @@ std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::get
                  std::make_pair<uint32_t,uint32_t>);
 
   for (auto chip = chipPairs.begin(); chip != chipPairs.end(); ++chip) {
-    uint8_t slot = ((chip->first)>>8)&0xff;
-    uint32_t chipID = (((chip->first)&0xff)<<8)+((chip->second)&0xff);
-    DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << (int)slot
-          << ", chipID1: 0x" << std::hex << chip->first   << std::dec
-          << ", chipID2: 0x" << std::hex << chip->second  << std::dec
-          << ", chipID: 0x"  << std::hex << chipID        << std::dec);
-    chipIDs.push_back(std::make_pair(slot,chipID));
+    if (((chip->first) >> 16) != 0x3) {
+      uint8_t slot = ((chip->first)>>8)&0xff;
+      uint32_t chipID = (((chip->first)&0xff)<<8)+((chip->second)&0xff);
+      DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << (int)slot
+            << ", chipID1: 0x" << std::hex << chip->first   << std::dec
+            << ", chipID2: 0x" << std::hex << chip->second  << std::dec
+            << ", chipID: 0x"  << std::hex << chipID        << std::dec);
+      chipIDs.push_back(std::make_pair(slot,chipID));
+    }
   }
   return chipIDs;
 }
@@ -375,7 +379,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
     // XX = status (00000EVR)
     // YY = chip number
     // ZZ = register contents
-    DEBUG("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
+    INFO("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
     // bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
 
     // if (v_bit && !e_bit) {
