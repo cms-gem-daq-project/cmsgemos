@@ -9,9 +9,9 @@ LongPackage=gemutils
 ShortPackage=utils
 PackageName=utils
 
-GEMUTILS_VER_MAJOR 0
-GEMUTILS_VER_MINOR 2
-GEMUTILS_VER_PATCH 1
+GEMUTILS_VER_MAJOR=0
+GEMUTILS_VER_MINOR=2
+GEMUTILS_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 

@@ -250,11 +250,11 @@ sub update_tag() {
     open(VERFILE,">$file");
     foreach (@lines) {
 	if (/([A-Z]+)_VER_MAJOR/) {
-	    print VERFILE "$1_VER_MAJOR ${major}\n";
+	    print VERFILE "$1_VER_MAJOR=${major}\n";
 	} elsif (/([A-Z]+)_VER_MINOR/) {
-	    print VERFILE "$1_VER_MINOR ${minor}\n";
+	    print VERFILE "$1_VER_MINOR=${minor}\n";
 	} elsif (/([A-Z]+)_VER_PATCH/) {
-	    print VERFILE "$1_VER_PATCH ${patch}\n";
+	    print VERFILE "$1_VER_PATCH=${patch}\n";
 	} else {
             print VERFILE $_;
         }
