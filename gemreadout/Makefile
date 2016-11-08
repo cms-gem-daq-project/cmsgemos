@@ -11,7 +11,7 @@ PackageName=readout
 
 GEMREADOUT_VER_MAJOR=0
 GEMREADOUT_VER_MINOR=2
-GEMREADOUT_VER_PATCH=0
+GEMREADOUT_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
@@ -25,20 +25,12 @@ DynamicLibrary=gemreadout
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
-IncludeDirs+=$(ROOTDIR)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-LibraryDirs+=$(ROOTLIBS)
-LibraryDirs+=$(ROOTGLIBS)
-
-UserCFlags +=$(ROOTCFLAGS)
-UserCCFlags+=$(ROOTCFLAGS)
 
 DependentLibraries+=gemutils gembase
-
-UserDynamicLinkFlags+=$(ROOTLIBS)
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules

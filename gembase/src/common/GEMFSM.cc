@@ -342,17 +342,17 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
     m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
     p_gemApp->getAppISToolBox()->setString("FSMState",  m_gemFSMState.toString());
     p_gemApp->getAppISToolBox()->setString("StateName", m_gemFSMState.toString());
+  } catch (toolbox::fsm::exception::Exception & ex) {
+    std::stringstream msg;
+    msg << "Problem updating state after stateChanged " << ex.what();
+    FATAL(msg.str());
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
   } catch(xcept::Exception& ex) {
     std::stringstream msg;
     msg << "Problem updating state after stateChanged " << ex.what();
     FATAL(msg.str());
     XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
     p_gemApp->notifyQualified("fatal", top);
-  } catch (toolbox::fsm::exception::Exception & ex) {
-    std::stringstream msg;
-    msg << "Problem updating state after stateChanged " << ex.what();
-    FATAL(msg.str());
-    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
   } catch (std::exception& ex) {
     std::stringstream msg;
     msg << "Problem updating state after stateChanged " << ex.what();

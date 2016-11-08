@@ -1,0 +1,89 @@
+<?xml version='1.0'?>
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+
+  <xc:Context url="http://cosmicstandtif:5051">
+    <xc:Application class="gem::hw::optohybrid::OptoHybridManager" id="50" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
+		  xsi:type="soapenc:Struct">
+	<ConnectionFile xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
+	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[24]">
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="16"> <!-- position must be (slot-1)*2+link -->
+            <crateID xsi:type="xsd:integer">2</crateID>
+            <slot    xsi:type="xsd:integer">9</slot>
+            <link    xsi:type="xsd:integer">0</link>
+            <present xsi:type="xsd:boolean">true</present>
+            <!--CardName xsi:type="xsd:string">gem.shelf02.ctp7-02.optohybrid02</CardName-->
+            
+            <triggerSource xsi:type="xsd:integer">0</triggerSource>
+            
+            <SBitConfig xsi:type="soapenc:Struct">
+              <Mode       xsi:type="xsd:unsignedShort">1</Mode>
+              <Output0Src xsi:type="xsd:unsignedShort">0</Output0Src>
+              <Output1Src xsi:type="xsd:unsignedShort">1</Output1Src>
+              <Output2Src xsi:type="xsd:unsignedShort">2</Output2Src>
+              <Output3Src xsi:type="xsd:unsignedShort">3</Output3Src>
+              <Output4Src xsi:type="xsd:unsignedShort">4</Output4Src>
+              <Output5Src xsi:type="xsd:unsignedShort">5</Output5Src>
+            </SBitConfig>
+            
+            <CommonVFATSettings xsi:type="soapenc:Struct">
+              <ContReg0    xsi:type="xsd:unsignedShort"> 0x37</ContReg0   >
+              <ContReg2    xsi:type="xsd:unsignedShort"> 0x30</ContReg2   >
+              <IPreampIn   xsi:type="xsd:unsignedShort">  168</IPreampIn  >
+              <IPreampFeed xsi:type="xsd:unsignedShort">   80</IPreampFeed>
+              <IPreampOut  xsi:type="xsd:unsignedShort">  150</IPreampOut >
+              <IShaper     xsi:type="xsd:unsignedShort">  150</IShaper    >
+              <IShaperFeed xsi:type="xsd:unsignedShort">  100</IShaperFeed>
+              <IComp       xsi:type="xsd:unsignedShort">   90</IComp      >
+              <Latency     xsi:type="xsd:unsignedShort">  157</Latency    >
+              <VThreshold1 xsi:type="xsd:unsignedShort">   50</VThreshold1>
+              <VThreshold2 xsi:type="xsd:unsignedShort">    0</VThreshold2>
+            </CommonVFATSettings>
+          </OptoHybridInfo>
+
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="17"> <!-- position must be (slot-1)*2+link -->
+            <crateID xsi:type="xsd:integer">2</crateID>
+            <slot    xsi:type="xsd:integer">9</slot>
+            <link    xsi:type="xsd:integer">1</link>
+            <present xsi:type="xsd:boolean">true</present>
+            <!--CardName xsi:type="xsd:string">gem.shelf02.ctp7-02.optohybrid02</CardName-->
+            
+            <SBitConfig xsi:type="soapenc:Struct">
+              <Mode       xsi:type="xsd:unsignedShort">1</Mode>
+              <Output0Src xsi:type="xsd:unsignedShort">0</Output0Src>
+              <Output1Src xsi:type="xsd:unsignedShort">1</Output1Src>
+              <Output2Src xsi:type="xsd:unsignedShort">2</Output2Src>
+              <Output3Src xsi:type="xsd:unsignedShort">3</Output3Src>
+              <Output4Src xsi:type="xsd:unsignedShort">4</Output4Src>
+              <Output5Src xsi:type="xsd:unsignedShort">5</Output5Src>
+            </SBitConfig>
+            
+            <CommonVFATSettings xsi:type="soapenc:Struct">
+              <ContReg0    xsi:type="xsd:unsignedShort"> 0x37</ContReg0   >
+              <ContReg2    xsi:type="xsd:unsignedShort"> 0x30</ContReg2   >
+              <IPreampIn   xsi:type="xsd:unsignedShort">  168</IPreampIn  >
+              <IPreampFeed xsi:type="xsd:unsignedShort">   80</IPreampFeed>
+              <IPreampOut  xsi:type="xsd:unsignedShort">  150</IPreampOut >
+              <IShaper     xsi:type="xsd:unsignedShort">  150</IShaper    >
+              <IShaperFeed xsi:type="xsd:unsignedShort">  100</IShaperFeed>
+              <IComp       xsi:type="xsd:unsignedShort">   90</IComp      >
+              <Latency     xsi:type="xsd:unsignedShort">  157</Latency    >
+              <VThreshold1 xsi:type="xsd:unsignedShort">   50</VThreshold1>
+              <VThreshold2 xsi:type="xsd:unsignedShort">    0</VThreshold2>
+            </CommonVFATSettings>
+
+            <triggerSource xsi:type="xsd:integer">0</triggerSource>
+          </OptoHybridInfo>
+	</AllOptoHybridsInfo>
+      </properties>
+    </xc:Application>
+
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemsupervisor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
+
+  </xc:Context>
+</xc:Partition>

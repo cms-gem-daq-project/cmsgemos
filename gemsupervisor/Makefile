@@ -11,7 +11,7 @@ PackageName=supervisor
 
 GEMSUPERVISOR_VER_MAJOR=0
 GEMSUPERVISOR_VER_MINOR=2
-GEMSUPERVISOR_VER_PATCH=0
+GEMSUPERVISOR_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
@@ -30,7 +30,6 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
 IncludeDirs+=$(uHALROOT)/include
-IncludeDirs+=$(ROOTDIR)/include 
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)

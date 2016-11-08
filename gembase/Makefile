@@ -11,7 +11,7 @@ PackageName=base
 
 GEMBASE_VER_MAJOR=0
 GEMBASE_VER_MINOR=2
-GEMBASE_VER_PATCH=0
+GEMBASE_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 

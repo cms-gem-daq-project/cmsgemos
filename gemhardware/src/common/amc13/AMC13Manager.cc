@@ -118,7 +118,8 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   throw (xdaq::exception::Exception) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
-  p_amc13(NULL)
+  p_amc13(NULL),
+  p_timer(NULL)
 {
   m_bgoConfig.setSize(4);
 
@@ -289,7 +290,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   }
 
   //equivalent to hcal init part
-  if (p_amc13==0)
+  if (p_amc13 == 0)
     return;
 
   //have to set up the initialization of the AMC13 for the desired running situation
@@ -396,6 +397,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   usleep(50);
 
   p_amc13->resetCounters();
+  m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
 
   p_amc13->startRun();
 
@@ -543,7 +545,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   }
 
   if (m_enableLocalL1A) {
-    p_amc13->enableLocalL1A(false);
+    // p_amc13->enableLocalL1A(false);
 
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
@@ -581,6 +583,17 @@ void gem::hw::amc13::AMC13Manager::resetAction()
 {
   //what is necessary for a reset on the AMC13?
   DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
+
+  if (p_timer) {
+    try {
+      p_timer->stop();
+    } catch (toolbox::task::exception::NotActive const& ex) {
+      WARN("AMC13Manager::start could not stop timer " << ex.what());
+    }
+    delete p_timer;
+  }
+  p_timer = NULL;
+
   // maybe ensure triggers are disabled as well as BGO commands?
   if (p_amc13)
     delete p_amc13;
@@ -738,7 +751,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
 
 void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
-;
   uint64_t currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount;
 
   DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " << m_nScanTriggers.value_
@@ -747,13 +759,18 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
   if (currentTrigger >=  m_nScanTriggers.value_){
     if (m_enableLocalL1A) {
       if (m_enableLEMO) {
-	p_amc13->enableLocalL1A(false);
 	p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-      } else
+      } else {
 	p_amc13->stopContinuousL1A();
+      }
+    } else {
+      p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+      p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
     }
+    INFO("AMC13Manager::timeExpried, triggers seen this point = "
+	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
     m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    INFO("AMC13Manager::timeExpried, NTrigger = " << m_updatedL1ACount);
+    INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
     endScanPoint();
   }
 }
