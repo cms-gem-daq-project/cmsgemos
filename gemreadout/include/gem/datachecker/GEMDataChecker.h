@@ -1,3 +1,5 @@
+/** @file GEMDataChecker.h */
+
 #ifndef GEM_DATACHECKER_GEMDATACHECKER_H
 #define GEM_DATACHECKER_GEMDATACHECKER_H
 

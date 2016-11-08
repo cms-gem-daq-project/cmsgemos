@@ -15,7 +15,7 @@ print
 ####################################################
 
 Passed = '\033[92m   > Passed... \033[0m'
-Failed = '\033[91m   > Failed... \033[0m' 
+Failed = '\033[91m   > Failed... \033[0m'
 
 def txtTitle(str):
     print '\033[1m' + str + '\033[0m'
@@ -72,7 +72,7 @@ print
 ####################################################
 
 txtTitle("C. Testing the GLIB registers")
-print "   Performing single and FIFO reads on the GLIB counters and ensuring they increment." 
+print "   Performing single and FIFO reads on the GLIB counters and ensuring they increment."
 
 countersSingle = []
 countersFifo = []
@@ -95,7 +95,7 @@ print
 ####################################################
 
 txtTitle("D. Testing the OH registers")
-print "   Performing single and FIFO reads on the OptoHybrid counters and ensuring they increment." 
+print "   Performing single and FIFO reads on the OptoHybrid counters and ensuring they increment."
 
 countersSingle = []
 countersFifo = []
@@ -118,7 +118,7 @@ print
 ####################################################
 
 txtTitle("E. Detecting the VFAT2s over I2C")
-print "   Detecting VFAT2s on the GEM by reading out their chip ID." 
+print "   Detecting VFAT2s on the GEM by reading out their chip ID."
 
 presentVFAT2sSingle = []
 presentVFAT2sFifo = []
@@ -149,7 +149,7 @@ print
 ####################################################
 
 txtTitle("F. Testing the I2C communication with the VFAT2s")
-print "   Performing random read/write operation on each connect VFAT2." 
+print "   Performing random read/write operation on each connect VFAT2."
 
 testF = True
 
@@ -162,7 +162,7 @@ for i in presentVFAT2sSingle:
         if (readData == writeData): validOperations += 1
     glib.set("vfat2_" + str(i) + "_ctrl3", 0)
     if (validOperations == I2C_TEST):  print Passed, "#" + str(i)
-    else: 
+    else:
         print Failed, "#" + str(i)
         testF = False
 
@@ -194,7 +194,7 @@ for i in presentVFAT2sSingle:
     glib.set("t1_interval", 200)
     glib.set("t1_toggle", 1)
 
-    while (glib.get("tk_data_cnt") != 7 * TK_RD_TEST): 
+    while (glib.get("tk_data_cnt") != 7 * TK_RD_TEST):
         timeOut += 1
         if (timeOut == 10 * TK_RD_TEST): break
 
@@ -212,7 +212,7 @@ for i in presentVFAT2sSingle:
         for j in range(0, TK_RD_TEST - 1):
             if (ecs[j + 1] - ecs[j] != 1): followingECS = False
         if (followingECS): print Passed, "#" + str(i)
-        else: 
+        else:
             print Failed, "#" + str(i)
             testG = False
 
@@ -254,7 +254,7 @@ if (testG):
     ecs = []
 
     while (glib.get("tk_data_cnt") != len(presentVFAT2sSingle) * TK_RD_TEST):
-        timeOut += 1 
+        timeOut += 1
         if (timeOut == 20 * TK_RD_TEST): break
 
     while (glib.get("tk_data_empty") != 1):
@@ -274,7 +274,7 @@ if (testG):
                 if (ecs[i * len(presentVFAT2sSingle) + j + 1] != ecs[i * len(presentVFAT2sSingle) + j]): followingECS = False
             if (ecs[(i + 1) * len(presentVFAT2sSingle)] - ecs[i * len(presentVFAT2sSingle)] != 1): followingECS = False
         if (followingECS): print Passed
-        else: 
+        else:
             print Failed
             testH = False
 
@@ -284,7 +284,7 @@ else:
     print "   Skipping this test as the previous test did not succeed..."
     testH = False
 
-print 
+print
 
 ####################################################
 
@@ -299,8 +299,8 @@ glib.set("oh_sys_vfat2_mask", ~(0x1 << presentVFAT2sSingle[0]))
 f = open('out.log', 'w')
 
 values = [
-          100, 200, 300, 400, 500, 600, 700, 800, 900, 
-          1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 
+          100, 200, 300, 400, 500, 600, 700, 800, 900,
+          1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
           10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000,
           100000, 125000, 150000, 175000, 200000
         ]
@@ -324,18 +324,18 @@ for i in values:
             if (depth > 0):
                 data = glib.fifoRead("tk_data_rd", depth)
                 for d in data: f.write(str(d))
-            if (glib.get("tk_data_full") == 1): 
+            if (glib.get("tk_data_full") == 1):
                 isFull = True
                 break
     else:
         for j in range(0, 1000):
             depth = glib.get("tk_data_cnt")
             glib.fifoRead("tk_data_rd", depth)
-            if (glib.get("tk_data_full") == 1): 
+            if (glib.get("tk_data_full") == 1):
                 isFull = True
                 break
 
-    if (isFull): 
+    if (isFull):
         print "   Maximum readout rate\t", str(previous), "Hz"
         break
 
@@ -381,7 +381,7 @@ print "   OptoHybrid trigger link error rate is of\t", str(oh_tr_error_reg), "Hz
 
 testJ = True
 
-print 
+print
 
 ####################################################
 
@@ -398,4 +398,4 @@ print "   H.", (Passed if testH else Failed)
 print "   I.", (Passed if testI else Failed)
 print "   J.", (Passed if testJ else Failed)
 
-print 
+print

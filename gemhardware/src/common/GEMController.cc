@@ -17,17 +17,17 @@ xdaq::WebApplication(s),
   xgi::framework::deferredbind(this, this, &GEMController::Dummy,         "Dummy"         );
   xgi::framework::deferredbind(this, this, &GEMController::ControlPanel,  "ControlPanel"  );
   xgi::framework::deferredbind(this, this, &GEMController::controlVFAT2,  "controlVFAT2"  );
-  xgi::framework::deferredbind(this, this, &GEMController::CrateSelection,"CrateSelection"); 
-  xgi::framework::deferredbind(this, this, &GEMController::setConfFile,   "setConfFile"   ); 
-  xgi::framework::deferredbind(this, this, &GEMController::MCHStatus,     "MCHStatus"     ); 
-  xgi::framework::deferredbind(this, this, &GEMController::MCHUtils,      "MCHUtils"      ); 
-  xgi::framework::deferredbind(this, this, &GEMController::AMCStatus,     "AMCStatus"     ); 
-  xgi::framework::deferredbind(this, this, &GEMController::AMCUtils,      "AMCUtils"      ); 
-  xgi::framework::deferredbind(this, this, &GEMController::GLIBStatus,    "GLIBStatus"    ); 
-  xgi::framework::deferredbind(this, this, &GEMController::GLIBUtils,     "GLIBUtils"     ); 
-  xgi::framework::deferredbind(this, this, &GEMController::OHStatus,      "OHStatus"      ); 
-  xgi::framework::deferredbind(this, this, &GEMController::OHUtils,       "OHUtils"       ); 
-  xgi::framework::deferredbind(this, this, &GEMController::VFAT2Manager,  "VFAT2Manager"  ); 
+  xgi::framework::deferredbind(this, this, &GEMController::CrateSelection,"CrateSelection");
+  xgi::framework::deferredbind(this, this, &GEMController::setConfFile,   "setConfFile"   );
+  xgi::framework::deferredbind(this, this, &GEMController::MCHStatus,     "MCHStatus"     );
+  xgi::framework::deferredbind(this, this, &GEMController::MCHUtils,      "MCHUtils"      );
+  xgi::framework::deferredbind(this, this, &GEMController::AMCStatus,     "AMCStatus"     );
+  xgi::framework::deferredbind(this, this, &GEMController::AMCUtils,      "AMCUtils"      );
+  xgi::framework::deferredbind(this, this, &GEMController::GLIBStatus,    "GLIBStatus"    );
+  xgi::framework::deferredbind(this, this, &GEMController::GLIBUtils,     "GLIBUtils"     );
+  xgi::framework::deferredbind(this, this, &GEMController::OHStatus,      "OHStatus"      );
+  xgi::framework::deferredbind(this, this, &GEMController::OHUtils,       "OHUtils"       );
+  xgi::framework::deferredbind(this, this, &GEMController::VFAT2Manager,  "VFAT2Manager"  );
 
   //device_ = "CMS_hybrid_J8";
   device_ = "VFAT9";
@@ -114,15 +114,15 @@ void gem::hw::vfat::GEMController::parseXMLFile()
     xercesc::DOMNode * pDoc = parser->getDocument();
     xercesc::DOMNode * n = pDoc->getFirstChild();
     while (n) {
-      if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) 
+      if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
 	{
 	  if (strcmp("GEMSystem",xercesc::XMLString::transcode(n->getNodeName()))==0) {
 	    parseGEMSystem(n);
 	  }
 	}
       n = n->getNextSibling();
-    } 
-  } 
+    }
+  }
 
   //delete parser;
   //xercesc::XMLPlatformUtils::Terminate();
@@ -137,7 +137,7 @@ void gem::hw::vfat::GEMController::parseGEMSystem(xercesc::DOMNode * pNode)
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("uTCACrate",xercesc::XMLString::transcode(n->getNodeName()))==0) {
 	  LOG4CPLUS_INFO(this->getApplicationLogger(),xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateID"))->getNodeValue()));
 	  crateIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateID"))->getNodeValue()));
@@ -148,7 +148,7 @@ void gem::hw::vfat::GEMController::parseGEMSystem(xercesc::DOMNode * pNode)
 	  }
 	  parseCrate(n);
 	}
-      }    
+      }
     n = n->getNextSibling();
   }
 }
@@ -173,16 +173,16 @@ void gem::hw::vfat::GEMController::parseCrate(xercesc::DOMNode * pNode)
 	if (strcmp("MCH",xercesc::XMLString::transcode(n->getNodeName()))==0) {
 	  LOG4CPLUS_INFO(this->getApplicationLogger(), "parseMCH");
 	  if (cur) MCHIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("MCHId"))->getNodeValue()));
-	} 
+	}
 	if (strcmp("AMC",xercesc::XMLString::transcode(n->getNodeName()))==0) {
 	  LOG4CPLUS_INFO(this->getApplicationLogger(), "parseAMC");
 	  if (cur) AMCIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("AMCId"))->getNodeValue()));
-	} 
+	}
 	if (strcmp("GLIB",xercesc::XMLString::transcode(n->getNodeName()))==0) {
 	  LOG4CPLUS_INFO(this->getApplicationLogger(), "parseGLIB");
 	  GLIBIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue()));
 	  if (cur) parseGLIB(n);
-	} 
+	}
       }
     n = n->getNextSibling();
   }
@@ -196,14 +196,14 @@ void gem::hw::vfat::GEMController::parseGLIB(xercesc::DOMNode * pNode)
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("OH",xercesc::XMLString::transcode(n->getNodeName()))==0) {
 	  OHIds.push_back(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue()));
 	  parseOH(n);
 	}
-      }    
+      }
     n = n->getNextSibling();
-  }    
+  }
 }
 
 void gem::hw::vfat::GEMController::parseOH(xercesc::DOMNode * pNode)
@@ -213,11 +213,11 @@ void gem::hw::vfat::GEMController::parseOH(xercesc::DOMNode * pNode)
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("VFATSettings",xercesc::XMLString::transcode(n->getNodeName()))==0) parseVFAT2Settings(n);
-      }    
+      }
     n = n->getNextSibling();
-  }    
+  }
 }
 
 void gem::hw::vfat::GEMController::parseVFAT2Settings(xercesc::DOMNode * pNode)
@@ -241,12 +241,12 @@ void gem::hw::vfat::GEMController::parseControlRegisters(xercesc::DOMNode * pNod
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {   
+      {
 	if (strcmp("ControlRegister0",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegister0(n);
 	if (strcmp("ControlRegister1",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegister1(n);
 	if (strcmp("ControlRegister2",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegister2(n);
 	if (strcmp("ControlRegister3",xercesc::XMLString::transcode(n->getNodeName()))==0) parseControlRegister3(n);
-      }   
+      }
     n = n->getNextSibling();
   }
 }
@@ -257,7 +257,7 @@ void gem::hw::vfat::GEMController::parseControlRegister0(xercesc::DOMNode * pNod
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("CalMode",xercesc::XMLString::transcode(n->getNodeName()))==0)
 	  {
 	    LOG4CPLUS_INFO(this->getApplicationLogger(), "CalMode: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
@@ -283,7 +283,7 @@ void gem::hw::vfat::GEMController::parseControlRegister0(xercesc::DOMNode * pNod
 	    LOG4CPLUS_INFO(this->getApplicationLogger(), "RunMode: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
 	    vfatDevice->setRunMode((gem::hw::vfat::StringToRunMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
 	  }
-      }    
+      }
     n = n->getNextSibling();
   }
 }
@@ -294,7 +294,7 @@ void gem::hw::vfat::GEMController::parseControlRegister1(xercesc::DOMNode * pNod
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("ReHitCT",xercesc::XMLString::transcode(n->getNodeName()))==0)
 	  {
 	    LOG4CPLUS_INFO(this->getApplicationLogger(), "ReHitCT: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
@@ -315,7 +315,7 @@ void gem::hw::vfat::GEMController::parseControlRegister1(xercesc::DOMNode * pNod
 	    LOG4CPLUS_INFO(this->getApplicationLogger(), "DACSel: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
 	    vfatDevice->setDACMode((gem::hw::vfat::StringToDACMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
 	  }
-      }    
+      }
     n = n->getNextSibling();
   }
 }
@@ -326,7 +326,7 @@ void gem::hw::vfat::GEMController::parseControlRegister2(xercesc::DOMNode * pNod
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("DigInSel",xercesc::XMLString::transcode(n->getNodeName()))==0)
 	  {
 	    LOG4CPLUS_INFO(this->getApplicationLogger(), "DigInSel: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
@@ -342,7 +342,7 @@ void gem::hw::vfat::GEMController::parseControlRegister2(xercesc::DOMNode * pNod
 	    LOG4CPLUS_INFO(this->getApplicationLogger(), "HitCountSel: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
 	    vfatDevice->setHitCountMode((gem::hw::vfat::StringToHitCountMode.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
 	  }
-      }    
+      }
     n = n->getNextSibling();
   }
 }
@@ -353,7 +353,7 @@ void gem::hw::vfat::GEMController::parseControlRegister3(xercesc::DOMNode * pNod
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("DFTest",xercesc::XMLString::transcode(n->getNodeName()))==0)
 	  {
 	    LOG4CPLUS_INFO(this->getApplicationLogger(), "DFTest: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
@@ -369,7 +369,7 @@ void gem::hw::vfat::GEMController::parseControlRegister3(xercesc::DOMNode * pNod
 	    LOG4CPLUS_INFO(this->getApplicationLogger(), "TrimDACRange: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
 	    vfatDevice->setTrimDACRange((gem::hw::vfat::StringToTrimDACRange.at(boost::to_upper_copy((std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())))));
 	  }
-      }    
+      }
     n = n->getNextSibling();
   }
 }
@@ -380,14 +380,14 @@ void gem::hw::vfat::GEMController::parseBiasSettings(xercesc::DOMNode * pNode)
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("CurrentBias",xercesc::XMLString::transcode(n->getNodeName()))==0) parseCurrentBias(n);
 	if (strcmp("Latency",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("Latency",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("VCal",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("VCal",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("VThreshold1",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("VThreshold1",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("VThreshold2",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("VThreshold2",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("CalPhase",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("CalPhase",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-      }    
+      }
     n = n->getNextSibling();
   }
 }
@@ -398,14 +398,14 @@ void gem::hw::vfat::GEMController::parseCurrentBias(xercesc::DOMNode * pNode)
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
 	if (strcmp("IPreampIn",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("IPreampIn",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("IPreampFeed",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("IPreampFeed",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("IPreampOut",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("IPreampOut",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("IShaper",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("IShaper",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("IShaperFeed",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("IShaperFeed",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
 	if (strcmp("IComp",xercesc::XMLString::transcode(n->getNodeName()))==0) vfatDevice->writeVFATReg("IComp",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
-      }    
+      }
     n = n->getNextSibling();
   }
 }
@@ -745,7 +745,7 @@ void gem::hw::vfat::GEMController::VFAT2Manager(xgi::Input * in, xgi::Output * o
 
 ///////////////////////////////////////////////
 //
-// Default 
+// Default
 //
 ///////////////////////////////////////////////
 
@@ -1100,17 +1100,17 @@ void gem::hw::vfat::GEMController::getCheckedRegisters(cgicc::Cgicc cgi, std::ve
    ContReg2 - CR2Set - DigInSel:MSPulseLength:HitCountMode
    ContReg3 - CR3Set - DFTest:PbBG:TrimDACRange
 
-   IPreampIn   - SetIPreampIn    - IPreampIn   
-   IPreampFeed - SetIPreampFeed  - IPreampFeed 
-   IPreampOut  - SetIPreampOut   - IPreampOut  
-   IShaper     - SetIShaper      - IShaper     
-   IShpaerFeed - SetIShpaerFeed  - IShpaerFeed 
-   IComp       - SetIComp        - IComp       
+   IPreampIn   - SetIPreampIn    - IPreampIn
+   IPreampFeed - SetIPreampFeed  - IPreampFeed
+   IPreampOut  - SetIPreampOut   - IPreampOut
+   IShaper     - SetIShaper      - IShaper
+   IShpaerFeed - SetIShpaerFeed  - IShpaerFeed
+   IComp       - SetIComp        - IComp
 
-   Latency     - SetLatency      - Latency     
-   VCal        - SetVCal         - VCal        
-   VThreshold1 - SetVThreshold1  - VThreshold1 
-   VThreshold2 - SetVThreshold2  - VThreshold2 
+   Latency     - SetLatency      - Latency
+   VCal        - SetVCal         - VCal
+   VThreshold1 - SetVThreshold1  - VThreshold1
+   VThreshold2 - SetVThreshold2  - VThreshold2
 
    CalPhase - SetCalPhase - CalPhase
 
@@ -1241,7 +1241,7 @@ void gem::hw::vfat::GEMController::getCheckedRegisters(cgicc::Cgicc cgi, std::ve
       XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception & e) {
       XCEPT_RAISE(xgi::exception::Exception, e.what());
-  }  
+  }
   LOG4CPLUS_INFO(this->getApplicationLogger(), "getCheckedRegisters::list obtained");
   //return regValsToSet;
 }
@@ -1302,7 +1302,7 @@ void gem::hw::vfat::GEMController::performAction(cgicc::Cgicc cgi, std::vector<s
       vfatDevice->maskChannel(1);
     else
       vfatDevice->maskChannel(1,false);
-    if (cgi.queryCheckbox("SetCh1TrimDAC")) 
+    if (cgi.queryCheckbox("SetCh1TrimDAC"))
       vfatDevice->setChannelTrimDAC(1,cgi["Ch1TrimDAC"]->getIntegerValue());
 
     vfatDevice->readVFAT2Channel(1);
@@ -1317,7 +1317,7 @@ void gem::hw::vfat::GEMController::performAction(cgicc::Cgicc cgi, std::vector<s
   }
 
   else if (strcmp(controlOption.c_str(),"Get This Channel") == 0) {
-    //shouldn't need to query the device here, just read the properties from the 
+    //shouldn't need to query the device here, just read the properties from the
     //stored values, and ensure the web page displays that channel
     LOG4CPLUS_INFO(this->getApplicationLogger(),"Get channel button pressed");
     uint8_t chan = cgi["ChanSel"]->getIntegerValue();
@@ -1344,7 +1344,7 @@ void gem::hw::vfat::GEMController::performAction(cgicc::Cgicc cgi, std::vector<s
       vfatDevice->maskChannel(chan);
     else
       vfatDevice->maskChannel(chan,false);
-    if (cgi.queryCheckbox("SetTrimDAC")) 
+    if (cgi.queryCheckbox("SetTrimDAC"))
       //vfatDevice->getVFAT2Params().channels[chan-1].trimDAC = cgi["TrimDAC"]->getIntegerValue();
       vfatDevice->setChannelTrimDAC(chan,cgi["TrimDAC"]->getIntegerValue());
 
@@ -1377,7 +1377,7 @@ void gem::hw::vfat::GEMController::performAction(cgicc::Cgicc cgi, std::vector<s
     if (cgi.queryCheckbox("ChMask") )
       for (int chan = min_chan; chan < 129; ++chan)
 	vfatDevice->maskChannel(chan);
-    if (cgi.queryCheckbox("SetTrimDAC")) 
+    if (cgi.queryCheckbox("SetTrimDAC"))
       for (int chan = min_chan; chan < 129; ++chan)
 	vfatDevice->setChannelTrimDAC(chan,cgi["TrimDAC"]->getIntegerValue());
 
@@ -1443,7 +1443,7 @@ void gem::hw::vfat::GEMController::actionPerformed(xdata::Event& event)
     LOG4CPLUS_INFO(this->getApplicationLogger(), ss.str());
     //LOG4CPLUS_DEBUG(getApplicationLogger(), "GEMController::actionPerformed()   --> starting monitoring");
     //monitorP_->startMonitoring();
-  }    
+  }
   //Initialize the HW device, should have picked up the device string from the xml file by now
   LOG4CPLUS_INFO(this->getApplicationLogger(),"GEMController::GEMController::4 device_ = " << device_.toString() << std::endl);
   vfatDevice = new HwVFAT2(device_.toString());

@@ -1,8 +1,11 @@
+/** @file AMC13Readout.h */
+
 #ifndef GEM_HW_AMC13_AMC13READOUT_H
 #define GEM_HW_AMC13_AMC13READOUT_H
 
 #include <gem/readout/GEMReadoutApplication.h>
 #include <gem/hw/amc13/exception/Exception.h>
+#include <ctime>
 
 namespace amc13 {
   class AMC13;
@@ -45,6 +48,10 @@ namespace gem {
           amc13_shared_ptr p_amc13;
           xdata::String  m_cardName;
           xdata::Integer m_crateID, m_slot;
+          int cnt;
+          int nwrote_global;
+          std::clock_t m_start;
+          double m_duration;
       };
     }  // namespace gem::hw::amc13
   }  // namespace gem::hw

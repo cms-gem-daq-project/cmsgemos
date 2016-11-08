@@ -8,7 +8,7 @@
 
 gem::supervisor::tbutils::VFAT2XMLParser::VFAT2XMLParser(const std::string& xmlFile, gem::hw::vfat::HwVFAT2 *vfatDevice)
 {
-  xmlFile_    = xmlFile;  
+  xmlFile_    = xmlFile;
   vfatDevice_ = vfatDevice;
 }
 
@@ -22,7 +22,7 @@ gem::supervisor::tbutils::VFAT2XMLParser::~VFAT2XMLParser()
 void gem::supervisor::tbutils::VFAT2XMLParser::parseXMLFile()
 {
   //LOG4CPLUS_INFO(this->getApplicationLogger(), "Parsing XML file: " << xmlFile_);
-    
+
   //
   /// Initialize XML4C system
   try{
@@ -112,13 +112,13 @@ void gem::supervisor::tbutils::VFAT2XMLParser::parseTURBO(xercesc::DOMNode * pNo
   xercesc::DOMNode * n = pNode->getFirstChild();
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE)
-      {    
+      {
         if (strcmp("VFAT",xercesc::XMLString::transcode(n->getNodeName()))==0) {
           parseVFAT(n);
-        }    
-      }    
+        }
+      }
     n = n->getNextSibling();
-  }    
+  }
 }
 
 ///////////////////////////////////////////////
@@ -267,9 +267,9 @@ void gem::supervisor::tbutils::VFAT2XMLParser::parseVFAT(xercesc::DOMNode * pNod
           //LOG4CPLUS_INFO(this->getApplicationLogger(), "VThreshold2: " << xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue()));
           vfatDevice_->writeVFATReg("VThreshold2",atoi(xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue())));
         }
-      }    
+      }
     n = n->getNextSibling();
-  }    
+  }
 }
 
 

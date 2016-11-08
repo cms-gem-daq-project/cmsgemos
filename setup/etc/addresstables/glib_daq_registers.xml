@@ -16,6 +16,10 @@
     <node id="TTC_RDY"         address="0x0"  mask="0x00000004"/>
     <node id="DAQ_AFULL"       address="0x0"  mask="0x00000008"/>
     <node id="TTS_STATE"       address="0x0"  mask="0xf0000000"/>
+    <node id="L1A_EMPTY"       address="0x0"  mask="0x08000000"/>
+    <node id="L1A_AFULL"       address="0x0"  mask="0x04000000"/>
+    <node id="L1A_FULL"        address="0x0"  mask="0x02000000"/>
+    <node id="L1A_UFLOW"       address="0x0"  mask="0x01000000"/>
   </node>
   <node id="EXT_STATUS"  address="0x2"  permission="r"
         description="DAQ global extended status registers">

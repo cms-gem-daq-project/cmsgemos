@@ -1,3 +1,5 @@
+/** @file GEMSOAPToolBox.h */
+
 #ifndef GEM_UTILS_SOAP_GEMSOAPTOOLBOX_H
 #define GEM_UTILS_SOAP_GEMSOAPTOOLBOX_H
 
@@ -21,7 +23,11 @@
 #include <xdaq/ApplicationDescriptor.h>
 #include <xdaq/ApplicationContext.h>
 
+#include <xdata/Bag.h>
+#include <xdata/Serializable.h>
+
 #include <gem/utils/exception/Exception.h>
+#include <gem/utils/GEMLogging.h>
 
 namespace gem {
   namespace utils {
@@ -111,6 +117,72 @@ namespace gem {
                                              )
           throw (gem::utils::exception::Exception);
 
+         /**
+         * @param parName Name of the parameter in the destination application info space
+         * @param parValue parameter value (as string) to send in SOAP message
+         * @param appCxt context in which the source/receiver applications are running
+         * @param srcDsc source application descriptor
+         * @param destDsc destination application descriptor
+         * returns true if successful/completed
+         */
+        template <typename T>
+          static bool sendApplicationParameterBag(std::string const& bagName,
+                                                  xdata::Bag<T> const& bag,
+                                                  xdaq::ApplicationContext* appCxt,
+                                                  xdaq::ApplicationDescriptor* srcDsc,
+                                                  xdaq::ApplicationDescriptor* destDsc
+                                                  )
+          throw (gem::utils::exception::Exception) {
+          log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
+          try {
+            xoap::MessageReference msg = xoap::createMessage(), answer;
+
+            xoap::SOAPEnvelope env       = msg->getSOAPPart().getEnvelope();
+            xoap::SOAPName     soapcmd   = env.createName("ParameterSet", "xdaq", XDAQ_NS_URI);
+            xoap::SOAPElement  container = env.getBody().addBodyElement(soapcmd);
+            container.addNamespaceDeclaration("xsd", "http://www.w3.org/2001/XMLSchema");
+            container.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+            container.addNamespaceDeclaration("soapenc", "http://schemas.xmlsoap.org/soap/encoding/");
+            xoap::SOAPName    tname    = env.createName("type", "xsi", "http://www.w3.org/2001/XMLSchema-instance");
+            std::string       appUrn   = "urn:xdaq-application:"+destDsc->getClassName();
+            xoap::SOAPName    pboxname = env.createName("Properties", "props", appUrn);
+            xoap::SOAPElement pbox     = container.addChildElement(pboxname);
+            pbox.addAttribute(tname, "soapenc:Struct");
+
+            xoap::SOAPName    soapBagName = env.createName(bagName, "props", appUrn);
+            xoap::SOAPElement csbag       = pbox.addChildElement(soapBagName);
+            csbag.addAttribute(tname, "soapenc:Struct");
+            for (auto b = bag.begin(); b != bag.end(); ++b) {
+              xdata::Serializable* s = bag.getField((*b).first);
+              xoap::SOAPName    soapName = env.createName(b->first, "props", appUrn);
+              xoap::SOAPElement cs       = csbag.addChildElement(soapName);
+              cs.addAttribute(tname, getXSDType(*s));
+              cs.addTextNode(s->toString());
+            }
+            std::string tool;
+            xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
+            DEBUG("GEMSOAPToolBox::sendApplicationParameterBag: " << tool);
+            answer = appCxt->postSOAP(msg, *srcDsc, *destDsc);
+          } catch (gem::utils::exception::Exception& e) {
+            std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (gem::utils::exception::Exception)",
+                                                   bagName.c_str(), e.what());
+            XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
+          } catch (xcept::Exception& e) {
+            std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (xcept::Exception)",
+                                                   bagName.c_str(), e.what());
+            XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
+          } catch (std::exception& e) {
+            std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (std::exception)",
+                                                   bagName.c_str(), e.what());
+            XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
+          } catch (...) {
+            std::string errMsg = toolbox::toString("Send application parameter bag %s failed (...)",
+                                                   bagName.c_str());
+            XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
+          }
+          return true;
+        }
+
         /**
          * @brief Creates a SOAP message requesting informtion about an application FSM state
          * @param nstag Namespace tag to append to the parameter request
@@ -125,6 +197,15 @@ namespace gem {
         static void sendAMC13Config(xdaq::ApplicationContext* appCxt,
                                     xdaq::ApplicationDescriptor* src,
                                     xdaq::ApplicationDescriptor* dest);
+
+        /**
+         * @brief Creates a SOAP message requesting informtion about an application FSM state
+         * @param nstag Namespace tag to append to the parameter request
+         * @param appURN URN of the application to send the request to
+         * @param isGEMApp whether to query additional parameters that are only in GEM applications
+         * returns xoap::MessageReference to calling application
+         */
+        static std::string getXSDType(xdata::Serializable const& item);
 
         // methods copied from emu/soap/toolbox
         /*

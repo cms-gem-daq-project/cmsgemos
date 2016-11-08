@@ -1,3 +1,5 @@
+/** @file LatencyScan.h */
+
 #ifndef GEM_SUPERVISOR_TBUTILS_LATENCYSCAN_H
 #define GEM_SUPERVISOR_TBUTILS_LATENCYSCAN_H
 
@@ -51,6 +53,8 @@ namespace gem {
 	void registerFields(xdata::Bag<ConfigParams> *bag);
 
 	xdata::String          slotFileName;
+	xdata::Boolean           externaltrigger;
+	xdata::Boolean           internaltrigger;
 
 	xdata::UnsignedShort  stepSize;
 	xdata::UnsignedShort  minLatency;
@@ -73,7 +77,8 @@ namespace gem {
       uint8_t  currentLatency_;
       uint64_t stepSize_;
       int totaltriggers;
-      bool scanpoint_;
+      bool scanpoint_,externaltrigger,internaltrigger;
+      bool m_externaltrigger,m_internaltrigger;
 
       protected:
 

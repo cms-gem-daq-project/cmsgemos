@@ -1,3 +1,5 @@
+/** @file GEMslotContents.h */
+
 #ifndef GEM_READOUT_GEMSLOTCONTENTS_H
 #define GEM_READOUT_GEMSLOTCONTENTS_H
 
@@ -32,8 +34,8 @@ namespace gem {
         std::ifstream ifile;
         std::string build_home     = std::getenv("BUILD_HOME");
         std::string gem_os_project = std::getenv("GEM_OS_PROJECT");
-        std::string path =build_home + "/" + gem_os_project;
-        path +="/gemreadout/data/";
+        std::string path           = build_home + "/" + gem_os_project;
+        path += "/gemreadout/data/";
         path += slotFile_;
         ifile.open(path);
 

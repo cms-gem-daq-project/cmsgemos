@@ -33,4 +33,11 @@
         module="file://${GEM_ADDRESS_TABLE_PATH}/gtx_counters.xml"
         description="Counters related to the OptoHybrid optical links">
   </node>
+  
+  <node id="QPLL_LOCK"           address="0x6B"  permission="rw">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
+  <node id="QPLL_FPGA_PLL_LOCK"  address="0x6C"  permission="rw">
+    <node id="Reset"  address="0x0"  mask="0x1"  permission="w"/>
+  </node>
 </node>

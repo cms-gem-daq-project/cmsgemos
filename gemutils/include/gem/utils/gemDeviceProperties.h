@@ -1,8 +1,10 @@
-#ifndef GEM_UTILS_GEMDEVICEPROPERTIES_H
-#define GEM_UTILS_GEMDEVICEPROPERTIES_H
+/** @file gemDeviceProperties.h */
 /*
  * This class provides base interface for the device properties.
  */
+
+#ifndef GEM_UTILS_GEMDEVICEPROPERTIES_H
+#define GEM_UTILS_GEMDEVICEPROPERTIES_H
 
 #include <map>
 #include <string>
@@ -30,7 +32,7 @@ namespace gem {
       void addDeviceProperty(const std::string& first, const std::string& second) {
         m_deviceProperties.insert(std::pair<std::string, std::string>(first,second));
       }
-      
+
     private:
       std::string m_deviceId;
       std::vector <std::string> m_subDevicesIds;

@@ -1,7 +1,7 @@
 $(function(){
 	$.ajax({
 		type: "GET",
-		url: "$BUILD_HOME/gemdaq-testing/gemhardware/xml/vfat/vfat_settings.xml",
+		url: "$BUILD_HOME/$GEM_OS_PROJECT/gemhardware/xml/vfat/vfat_settings.xml",
 		dataType: "xml",
 		success: function(xml) {
 		    //remainder of the code
