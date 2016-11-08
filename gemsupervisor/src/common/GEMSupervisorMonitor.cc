@@ -47,6 +47,7 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
 void gem::supervisor::GEMSupervisorMonitor::updateMonitorables()
 {
   updateApplicationStates();
+  // updateTriggerCounts();
 }
 
 void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()

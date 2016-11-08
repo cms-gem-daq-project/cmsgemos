@@ -9,8 +9,8 @@ namespace gemHwMonitor {
 
 #define GEMHWMONITOR_VERSION_MAJOR 0
 #define GEMHWMONITOR_VERSION_MINOR 1
-#define GEMHWMONITOR_VERSION_PATCH 0
-#define GEMHWMONITOR_PREVIOUS_VERSIONS "0.0.0"
+#define GEMHWMONITOR_VERSION_PATCH 1
+#define GEMHWMONITOR_PREVIOUS_VERSIONS "0.0.0,0.1.0"
 
 #define GEMHWMONITOR_VERSION_CODE PACKAGE_VERSION_CODE(GEMHWMONITOR_VERSION_MAJOR, GEMHWMONITOR_VERSION_MINOR, GEMHWMONITOR_VERSION_PATCH)
 
@@ -19,14 +19,14 @@ namespace gemHwMonitor {
 #else
 #define GEMHWMONITOR_FULL_VERSION_LIST GEMHWMONITOR_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMHWMONITOR_VERSION_MAJOR, GEMHWMONITOR_VERSION_MINOR, GEMHWMONITOR_VERSION_PATCH)
 #endif
-    
+
   const std::string package     = "gemhwMonitor";
   const std::string versions    = GEMHWMONITOR_FULL_VERSION_LIST;
   const std::string summary     = "GEM hwMonitor";
   const std::string description = "";
   const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "";
-    
+  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);
   std::set<std::string, std::less<std::string> > getPackageDependencies();

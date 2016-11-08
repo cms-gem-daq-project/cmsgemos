@@ -2,7 +2,6 @@
 # Makefile for gemhardware package
 #
 
-#Project=gem
 Project=cmsgemos
 ShortProject=gem
 Package=gemhardware
@@ -12,19 +11,19 @@ PackageName=hw
 
 GEMHARDWARE_VER_MAJOR=0
 GEMHARDWARE_VER_MINOR=2
-GEMHARDWARE_VER_PATCH=0
+GEMHARDWARE_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
-Sources+=GEMHwDevice.cc
+Sources+=GEMHwDevice.cc utils/GEMCrateUtils.cc
 Sources+=vfat/HwVFAT2.cc
 Sources+=glib/HwGLIB.cc
 Sources+=optohybrid/HwOptoHybrid.cc
 Sources+=vfat/VFAT2Manager.cc vfat/VFAT2ControlPanelWeb.cc
 Sources+=amc13/AMC13Manager.cc amc13/AMC13ManagerWeb.cc amc13/AMC13Readout.cc
 Sources+=glib/GLIBManager.cc glib/GLIBManagerWeb.cc glib/GLIBMonitor.cc #glib/GLIBReadout.cc
-Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc
+Sources+=optohybrid/OptoHybridManager.cc optohybrid/OptoHybridManagerWeb.cc optohybrid/OptoHybridMonitor.cc
 #Sources+=GEMController.cc GEMControllerPanelWeb.cc
 
 DynamicLibrary=gemhardware
@@ -50,7 +49,6 @@ DependentLibraries+=gemutils gembase gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 #test#hwbase:
 #test#	Sources=GEMHwDevice.cc 
@@ -112,3 +110,12 @@ print-env:
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
+	@echo CC            $(CC)
+	@echo CPP           $(CPP)
+	@echo CXX           $(CXX)
+	@echo LD            $(LD)
+	@echo AR            $(AR)
+	@echo NM            $(NM)
+	@echo RANLIB        $(RANLIB)
+	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)

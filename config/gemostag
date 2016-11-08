@@ -242,6 +242,25 @@ sub update_tag() {
     }
     close(VERFILE);
     print "git add $file\n";
+
+    $file=glob("gem${subpackage}/Makefile");
+    open(VERFILE,$file);
+    @lines=<VERFILE>;
+    close(VERFILE);
+    open(VERFILE,">$file");
+    foreach (@lines) {
+	if (/([A-Z]+)_VER_MAJOR/) {
+	    print VERFILE "$1_VER_MAJOR=${major}\n";
+	} elsif (/([A-Z]+)_VER_MINOR/) {
+	    print VERFILE "$1_VER_MINOR=${minor}\n";
+	} elsif (/([A-Z]+)_VER_PATCH/) {
+	    print VERFILE "$1_VER_PATCH=${patch}\n";
+	} else {
+            print VERFILE $_;
+        }
+    }
+    close(VERFILE);
+    print "git add $file\n";
     #$git->add("$file");
     print "git commit -m \"updating $subpackage version file with gemostag\" $file\n";
     #$git->commit("-m \"updating version with gemostag\" $file");

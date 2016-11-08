@@ -35,19 +35,19 @@ namespace gem {
         (VFAT2ChannelSettings::ChannelBitMasks::CHANCAL0, "CHANCAL0")
         (VFAT2ChannelSettings::ChannelBitMasks::CHANCAL , "CHANCAL" );
 
-      //VFAT2Settings 
+      //VFAT2Settings
       const enumContRegBitMaskToString ContRegBitMaskToString = boost::assign::map_list_of
         (VFAT2Settings::ContRegBitMasks::RUNMODE       , "RUNMODE"       )
         (VFAT2Settings::ContRegBitMasks::TRIGMODE      , "TRIGMODE"      )
         (VFAT2Settings::ContRegBitMasks::MSPOL         , "MSPOL"         )
         (VFAT2Settings::ContRegBitMasks::CALPOL        , "CALPOL"        )
         (VFAT2Settings::ContRegBitMasks::CALMODE       , "CALMODE"       )
-					              	               
+
         (VFAT2Settings::ContRegBitMasks::DACMODE       , "DACMODE"       )
         (VFAT2Settings::ContRegBitMasks::PROBEMODE     , "PROBEMODE"     )
         (VFAT2Settings::ContRegBitMasks::LVDSMODE      , "LVDSMODE"      )
         (VFAT2Settings::ContRegBitMasks::REHITCT       , "REHITCT"       )
-					              	               
+
         (VFAT2Settings::ContRegBitMasks::HITCOUNTMODE  , "HITCOUNTMODE"  )
         (VFAT2Settings::ContRegBitMasks::MSPULSELENGTH , "MSPULSELENGTH" )
         (VFAT2Settings::ContRegBitMasks::DIGINSEL      , "DIGINSEL"      )
@@ -63,12 +63,12 @@ namespace gem {
         (VFAT2Settings::ContRegBitShifts::MSPOL         , "MSPOL"         )
         (VFAT2Settings::ContRegBitShifts::CALPOL        , "CALPOL"        )
         (VFAT2Settings::ContRegBitShifts::CALMODE       , "CALMODE"       )
-					              	               
+
         (VFAT2Settings::ContRegBitShifts::DACMODE       , "DACMODE"       )
         (VFAT2Settings::ContRegBitShifts::PROBEMODE     , "PROBEMODE"     )
         (VFAT2Settings::ContRegBitShifts::LVDSMODE      , "LVDSMODE"      )
         (VFAT2Settings::ContRegBitShifts::REHITCT       , "REHITCT"       )
-					              	               
+
         (VFAT2Settings::ContRegBitShifts::HITCOUNTMODE  , "HITCOUNTMODE"  )
         (VFAT2Settings::ContRegBitShifts::MSPULSELENGTH , "MSPULSELENGTH" )
         (VFAT2Settings::ContRegBitShifts::DIGINSEL      , "DIGINSEL"      )
@@ -94,7 +94,7 @@ namespace gem {
         (VFAT2Settings::TriggerMode::SPARE1    , "GEMMODE"    )
         (VFAT2Settings::TriggerMode::SPARE2    , "GEMMODE"    );
       //(VFAT2Settings::TriggerMode::SPARE3    , "GEMMODE"    );
-      
+
       const enumCalibModeToString CalibrationModeToString = boost::assign::map_list_of
         (VFAT2Settings::CalibrationMode::NORMAL   , "NORMAL"   )
         (VFAT2Settings::CalibrationMode::VCAL     , "VHI"      )//VCAL
@@ -154,7 +154,7 @@ namespace gem {
         (VFAT2Settings::HitCountMode::REDUNDANT4   , "S8"   ) //COUNTS8
         (VFAT2Settings::HitCountMode::REDUNDANT5   , "S8"   ) //COUNTS8
         (VFAT2Settings::HitCountMode::REDUNDANT6   , "S8"   );//COUNTS8
-	
+
       const enumMSPulseLenToString MSPulseLengthToString = boost::assign::map_list_of
         (VFAT2Settings::MSPulseLength::CLOCK1 , "1" ) //CLOCK1
         (VFAT2Settings::MSPulseLength::CLOCK2 , "2" ) //CLOCK2
@@ -170,7 +170,7 @@ namespace gem {
         (VFAT2Settings::ReHitCT::CYCLE1 , "1.6MILLISEC" ) //CYCLE1
         (VFAT2Settings::ReHitCT::CYCLE2 , "0.4SEC"      ) //CYCLE2
         (VFAT2Settings::ReHitCT::CYCLE3 , "107SEC"      );//CYCLE3
-	
+
       const enumDigInSelToString DigInSelToString = boost::assign::map_list_of
         (VFAT2Settings::DigInSel::ANALOG  , "ANIP"  ) //ANALOG
         (VFAT2Settings::DigInSel::DIGITAL , "DIGIP" );//DIGITAL
@@ -192,7 +192,7 @@ namespace gem {
       const enumDFTestToString DFTestPatternToString = boost::assign::map_list_of
         (VFAT2Settings::DFTestPattern::IDLE , "OFF" ) //IDLE
         (VFAT2Settings::DFTestPattern::SEND , "ON"  );//SEND
-      
+
     }  // namespace gem::hw::vfat
   }  // namespace gem::hw
 }  // namespace gem

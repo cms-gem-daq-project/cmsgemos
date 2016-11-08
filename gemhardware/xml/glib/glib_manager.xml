@@ -1,0 +1,31 @@
+<?xml version='1.0'?>
+<xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
+
+  <xc:Context url="http://cosmicstandtif:5051">
+    <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
+		  xsi:type="soapenc:Struct">
+	<AMCSlots       xsi:type="xsd:string">9</AMCSlots>
+	<ConnectionFile xsi:type="xsd:string">connections_tif.xml</ConnectionFile>
+	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="8"> <!--  position must be slot-1  -->
+            <crateID  xsi:type="xsd:integer">2</crateID>
+            <slot     xsi:type="xsd:integer">9</slot>
+            <present  xsi:type="xsd:boolean">true</present>
+            <!--CardName xsi:type="xsd:string">gem.shelf02.ctp7-02</CardName-->
+            
+            <sbitSource    xsi:type="xsd:integer">5</sbitSource>
+          </GLIBInfo>
+	</AllGLIBsInfo>
+      </properties>
+    </xc:Application>
+    
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemutils/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemutils.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gembase/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgembase.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemsupervisor.so</xc:Module>
+    <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
+
+  </xc:Context>
+</xc:Partition>

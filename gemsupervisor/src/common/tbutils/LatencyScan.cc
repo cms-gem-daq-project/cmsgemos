@@ -48,6 +48,10 @@ void gem::supervisor::tbutils::LatencyScan::ConfigParams::registerFields(xdata::
   MSPulseLength = 3;
   VCal          = 100;
 
+
+  bag->addField("ExternalTrigger",    &externaltrigger);
+  bag->addField("InternalTrigger",    &internaltrigger);
+
   bag->addField("minLatency",    &minLatency   );
   bag->addField("maxLatency",    &maxLatency   );
   bag->addField("stepSize",      &stepSize     );
@@ -85,10 +89,23 @@ gem::supervisor::tbutils::LatencyScan::LatencyScan(xdaq::ApplicationStub * s)  t
   confParams_.bag.localTriggerPeriod = 1;
   */
 
-  confParams_.bag.useLocalTriggers   = false;
-  confParams_.bag.localTriggerMode   = 0; // per orbit
-  confParams_.bag.EnableTrigCont     = false;
-  confParams_.bag.localTriggerPeriod = 1;
+  m_externaltrigger  =   scanParams_.bag.externaltrigger;
+  m_internaltrigger  =   scanParams_.bag.internaltrigger;
+
+  if(m_externaltrigger){
+    confParams_.bag.useLocalTriggers   = false;
+    confParams_.bag.localTriggerMode   = 0; // per orbit
+    confParams_.bag.EnableTrigCont     = false;
+    confParams_.bag.localTriggerPeriod = 1;
+  }
+
+  if(m_internaltrigger){
+    confParams_.bag.useLocalTriggers   = true;
+    confParams_.bag.localTriggerMode   = 0; // per orbit
+    confParams_.bag.EnableTrigCont     = true;
+    confParams_.bag.localTriggerPeriod = 1;
+  }
+
 
 
   disableTriggers();
@@ -145,23 +162,11 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     disableTriggers();
     glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
 
-    int counter = 3;
-    while (counter > 0) {
-      confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-      TRACE(" ABC Scan point TriggersSeen "
-           << confParams_.bag.triggersSeen
-           << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0)
-           << " counter = " << counter);
-      sleep(1);
-      --counter;
-    }
-    //uint32_t bufferDepth = 0;
-    //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
+    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+    TRACE("ABC Scan point TriggersSeen "
+         << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 
-    // have to be sure that no more triggers are coming here!!!
-    sleep(0.005);
-    // and if no more triggers are coming, then this step *should* be unnecessary
-    // also better to do a broadcast write
+    hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs
     for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
       (*chip)->setRunMode(0);
     }// end for
@@ -170,18 +175,39 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
     //reset counters
     optohybridDevice_->resetL1ACount(0x0);
-    /*    optohybridDevice_->resetResyncCount();
-	  optohybridDevice_->resetBC0Count();
-	  optohybridDevice_->resetCalPulseCount(0x0);
-	  optohybridDevice_->sendResync();
-	  optohybridDevice_->sendBC0();
+    hw_semaphore_.give();  // give hw to reset counters
+
+    /*    int counter = 3;
+    while (counter > 0) {
+      confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
+      TRACE(" ABC Scan point TriggersSeen "
+           << confParams_.bag.triggersSeen
+           << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0)
+           << " counter = " << counter);
+      sleep(1);
+      --counter;
+      }*/
+    /*
+      while ((glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+				   toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
+						     confParams_.bag.ohGTXLink.value_))))
+	TRACE("waiting for FIFO is empty: "
+	      << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+                                      toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
+                                                        confParams_.bag.ohGTXLink.value_));
+	      sleep(0.005);
+	      );
     */
 
-    confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    TRACE("ABC Scan point TriggersSeen "
-         << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
+    //uint32_t bufferDepth = 0;
+    //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
 
-    hw_semaphore_.give(); // give hw to reset counters
+    // have to be sure that no more triggers are coming here!!!
+
+    // and if no more triggers are coming, then this step *should* be unnecessary
+    // also better to do a broadcast write
+
+
 
     //if max Latency - current Latency >= stepsize
     if (scanParams_.bag.maxLatency - currentLatency_ >= scanParams_.bag.stepSize) {
@@ -211,7 +237,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	scanParams_.bag.deviceVT1 = (*chip)->getVThreshold1();
 	scanParams_.bag.deviceVT2 = (*chip)->getVThreshold2();
       }
-      while (!(glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+      while ((glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
                                     toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
                                                       confParams_.bag.ohGTXLink.value_))))
 	TRACE("waiting for FIFO is empty: "
@@ -226,6 +252,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 	(*chip)->setRunMode(1);
       }
 
+      scanpoint_=true;
       //setting counters  = 0
       optohybridDevice_->resetL1ACount(0x0);
       confParams_.bag.triggersSeen = 0;
@@ -658,6 +685,9 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::optohybrid::OptoHybridManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
   AMC13TriggerSetup();
@@ -700,8 +730,8 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
         (*chip)->enableCalPulseToChannel(chan, false);
 
     (*chip)->setIPreampIn(  168);
-    (*chip)->setIPreampFeed(150);
-    (*chip)->setIPreampOut(  80);
+    (*chip)->setIPreampFeed( 80);
+    (*chip)->setIPreampOut( 150);
     (*chip)->setIShaper(    150);
     (*chip)->setIShaperFeed(100);
     (*chip)->setIComp(       75);
@@ -771,11 +801,15 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::glib::GLIBManager", 0));  // this should not be hard coded
   gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
                                                 getApplicationContext(),this->getApplicationDescriptor(),
+                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::optohybrid::OptoHybridManager", 0));  // this should not be hard coded
+  gem::utils::soap::GEMSOAPToolBox::sendCommand("Start",
+                                                getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
 
   // enableTriggers();
   sleep(1);
+  glibDevice_->enableDAQLink(0x1<<(confParams_.bag.ohGTXLink.value_));
 
   //AppHeader ah;
   threshold_     = scanParams_.bag.deviceVT2 -scanParams_.bag.deviceVT1;

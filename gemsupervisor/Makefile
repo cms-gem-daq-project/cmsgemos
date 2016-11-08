@@ -2,7 +2,6 @@
 # Makefile for gemsupervisor package
 #
 
-#Project=gem
 Project=cmsgemos
 ShortProject=gem
 Package=gemsupervisor
@@ -12,7 +11,7 @@ PackageName=supervisor
 
 GEMSUPERVISOR_VER_MAJOR=0
 GEMSUPERVISOR_VER_MINOR=2
-GEMSUPERVISOR_VER_PATCH=0
+GEMSUPERVISOR_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
@@ -45,7 +44,6 @@ DependentLibraries+=gemhardware gemutils gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
@@ -58,3 +56,12 @@ print-env:
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
+	@echo CC            $(CC)
+	@echo CPP           $(CPP)
+	@echo CXX           $(CXX)
+	@echo LD            $(LD)
+	@echo AR            $(AR)
+	@echo NM            $(NM)
+	@echo RANLIB        $(RANLIB)
+	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)

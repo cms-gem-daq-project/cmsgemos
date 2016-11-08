@@ -1,6 +1,6 @@
 function sendrequest( jsonurl )
 {
-    if (window.jQuery) {  
+    if (window.jQuery) {
         // can use jQuery libraries rather than raw javascript
         $.getJSON(jsonurl)
             .done(function(data) {

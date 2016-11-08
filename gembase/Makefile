@@ -2,7 +2,6 @@
 # Makefile for gembase package
 #
 
-#Project=gem
 Project=cmsgemos
 ShortProject=gem
 Package=gembase
@@ -12,7 +11,7 @@ PackageName=base
 
 GEMBASE_VER_MAJOR=0
 GEMBASE_VER_MINOR=2
-GEMBASE_VER_PATCH=0
+GEMBASE_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
@@ -25,18 +24,13 @@ DynamicLibrary=gembase
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-#IncludeDirs+=$(uHALROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-#DependentLibraryDirs+=$(uHALROOT)/lib
-
-#LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=gemutils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 
 print-env:
@@ -50,3 +44,12 @@ print-env:
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
+	@echo CC            $(CC)
+	@echo CPP           $(CPP)
+	@echo CXX           $(CXX)
+	@echo LD            $(LD)
+	@echo AR            $(AR)
+	@echo NM            $(NM)
+	@echo RANLIB        $(RANLIB)
+	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)

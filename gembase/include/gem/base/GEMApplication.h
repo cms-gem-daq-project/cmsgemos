@@ -1,3 +1,5 @@
+/** @file GEMApplication.h */
+
 #ifndef GEM_BASE_GEMAPPLICATION_H
 #define GEM_BASE_GEMAPPLICATION_H
 
@@ -7,10 +9,6 @@
 #include <memory>
 #include <deque>
 #include <map>
-
-#include "boost/algorithm/string.hpp"
-#include "boost/lexical_cast.hpp"
-#include "boost/format.hpp"
 
 #include "log4cplus/logger.h"
 
@@ -24,10 +22,12 @@
 #include "xdaq/WebApplication.h"
 #include "xdaq/XceptSerializer.h"
 
+#include "xdata/Bag.h"
 #include "xdata/Boolean.h"
 #include "xdata/Integer.h"
 #include "xdata/Integer32.h"
 #include "xdata/Integer64.h"
+#include "xdata/UnsignedShort.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/UnsignedInteger64.h"
@@ -50,6 +50,7 @@
 #include "xcept/tools.h"
 
 #include "gem/utils/GEMLogging.h"
+#include "gem/utils/db/GEMDatabaseUtils.h"
 #include "gem/base/exception/Exception.h"
 #include "gem/base/utils/exception/Exception.h"
 #include "gem/base/utils/GEMInfoSpaceToolBox.h"
@@ -178,7 +179,32 @@ namespace gem {
         GEMMonitor        *p_gemMonitor;       /* */
 
       public:
-        // should these be protected?
+
+        class ScanInfo {
+
+        public:
+          ScanInfo();
+          void registerFields(xdata::Bag<GEMApplication::ScanInfo>* bag);
+
+          xdata::UnsignedInteger32 scanType;
+          xdata::UnsignedInteger32 scanMin;
+          xdata::UnsignedInteger32 scanMax;
+          xdata::UnsignedInteger32 stepSize;
+          xdata::UnsignedInteger64 nTriggers;
+
+          inline std::string toString() {
+            std::stringstream os;
+            os << "scanType:" << scanType.toString() << std::endl
+               << "scanMin:"  << scanMin.toString()  << std::endl
+               << "scanMax:"  << scanMax.toString()  << std::endl
+               << "stepSize:" << stepSize.toString() << std::endl
+               << "nTrigger:" << nTriggers.value_    << std::endl
+               << std::endl;
+            return os.str();
+          };
+        };
+
+          // should these be protected?
         /**
          * various application properties
          */
@@ -194,9 +220,20 @@ namespace gem {
 
       protected:
         xdata::Integer64 m_runNumber;
+        xdata::String    m_runType;
+        xdata::String    m_cfgType;
 
-        xdata::String  m_runType;
-        xdata::String  m_cfgType;
+        xdata::Bag<ScanInfo>     m_scanInfo;
+
+        xdata::UnsignedInteger32 m_scanType;
+        xdata::UnsignedInteger32 m_scanMin;
+        xdata::UnsignedInteger32 m_scanMax;
+        xdata::UnsignedInteger32 m_stepSize;
+        xdata::UnsignedInteger64 m_nScanTriggers;
+
+        std::shared_ptr<gem::utils::db::GEMDatabaseUtils> p_gemDBHelper;
+
+      private:
       };
   }  // namespace gem::base
 }  // namespace gem
