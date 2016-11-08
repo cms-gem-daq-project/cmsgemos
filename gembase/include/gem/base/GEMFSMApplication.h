@@ -1,3 +1,5 @@
+/** @file GEMFSMApplication.h */
+
 #ifndef GEM_BASE_GEMFSMAPPLICATION_H
 #define GEM_BASE_GEMFSMAPPLICATION_H
 

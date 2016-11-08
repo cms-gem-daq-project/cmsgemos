@@ -20,6 +20,7 @@ gem::supervisor::GEMApplicationState::GEMApplicationState()
 gem::supervisor::GEMGlobalState::GEMGlobalState(xdaq::ApplicationContext* context, GEMSupervisor* gemSupervisor) :
   // m_globalState(gem::base::STATE_UNINIT),
   // p_gemSupervisor(std::make_shared<GEMSupervisor>(gemSupervisor)),
+  p_timer(NULL),
   p_gemSupervisor(gemSupervisor),
   p_appContext(context),
   p_srcApp(gemSupervisor->getApplicationDescriptor()),
@@ -64,7 +65,7 @@ void gem::supervisor::GEMGlobalState::update()
   }
   toolbox::fsm::State before = m_globalState;
   calculateGlobals();
-
+  m_globalStateName = getStateName(m_globalState);
   DEBUG("GEMGlobalState::update before=" << before << " after=" << m_globalState);
   if (before != m_globalState)
     p_gemSupervisor->globalStateChanged(before, m_globalState);
@@ -75,7 +76,7 @@ void gem::supervisor::GEMGlobalState::startTimer() {
     // p_timer = std::make_shared<toolbox::task::Timer>(toolbox::task::TimerFactory::getInstance()->createTimer("GEMGlobalStateTimer"));
     p_timer = toolbox::task::TimerFactory::getInstance()->createTimer("GEMGlobalStateTimer");
     toolbox::TimeVal      start = toolbox::TimeVal::gettimeofday();
-    toolbox::TimeInterval delta(5, 0);
+    toolbox::TimeInterval delta(1, 0);  // how often is enough/too often?
     p_timer->activate();
     p_timer->scheduleAtFixedRate(start, this, delta, 0, "GEMGlobalStateUpdate");
   }
@@ -171,6 +172,9 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
   std::vector<xoap::SOAPElement> basic = props.getChildElements(stateReply);
   if (basic.size() == 1) {
     std::string stateString = basic[0].getValue();
+    DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
+          << " returned state " << stateString);
+
     if (!strcasecmp(stateString.c_str(), "Uninitialized"))
       i->second.state = gem::base::STATE_UNINIT;
     else if (!strcasecmp(stateString.c_str(), "Halted"))
@@ -185,7 +189,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
       i->second.state = gem::base::STATE_RUNNING;
     else if (!strcasecmp(stateString.c_str(), "Enabled"))
       i->second.state = gem::base::STATE_RUNNING;
-    else if (!strcasecmp(stateString.c_str(), "RUNNING"))
+    else if (!strcasecmp(stateString.c_str(), "Running"))
       i->second.state = gem::base::STATE_RUNNING;
     else if (!strcasecmp(stateString.c_str(), "Paused"))
       i->second.state = gem::base::STATE_PAUSED;
@@ -210,7 +214,9 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
       i->second.state = gem::base::STATE_RESETTING;
     else if (!strcasecmp(stateString.c_str(), "Fixing"))
       i->second.state = gem::base::STATE_FIXING;
-    else if (!strcasecmp(stateString.c_str(), "failed"))
+    else if (!strcasecmp(stateString.c_str(), "Failed"))
+      i->second.state = gem::base::STATE_FAILED;
+    else if (!strcasecmp(stateString.c_str(), "Error"))
       i->second.state = gem::base::STATE_FAILED;
     else
       WARN("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
@@ -255,10 +261,10 @@ std::string gem::supervisor::GEMGlobalState::getStateName(toolbox::fsm::State st
     return "Running";
     break;
   case (gem::base::STATE_PAUSED):
-    return "Pause";
+    return "Paused";
     break;
   case (gem::base::STATE_FAILED):
-    return "Failed";
+    return "Error";
     break;
   case (gem::base::STATE_INITIALIZING):
     return "Initializing";

@@ -1,3 +1,5 @@
+/** @file GEMInfoSpaceToolBox.h */
+
 #ifndef GEM_BASE_UTILS_GEMINFOSPACETOOLBOX_H
 #define GEM_BASE_UTILS_GEMINFOSPACETOOLBOX_H
 
@@ -230,6 +232,8 @@ namespace gem {
 
     }  // namespace gem::base::utils
   }  // namespace gem::base
+
+  typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 }  // namespace gem
 
 #endif  // GEM_BASE_UTILS_GEMINFOSPACETOOLBOX_H

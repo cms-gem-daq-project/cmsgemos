@@ -2,7 +2,6 @@
 # Makefile for gemutils package
 #
 
-#Project=gem
 Project=cmsgemos
 ShortProject=gem
 Package=gemutils
@@ -12,20 +11,34 @@ PackageName=utils
 
 GEMUTILS_VER_MAJOR=0
 GEMUTILS_VER_MINOR=2
-GEMUTILS_VER_PATCH=0
+GEMUTILS_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
-Sources+=Lock.cc gemXMLparser.cc soap/GEMSOAPToolBox.cc GEMRegisterUtils.cc
+Sources+=Lock.cc gemXMLparser.cc GEMRegisterUtils.cc
+Sources+=soap/GEMSOAPToolBox.cc
+Sources+=db/GEMDatabaseUtils.cc
 
 DynamicLibrary=gemutils
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
+# MySQL Config
+MySQLCFLAGS = $(shell mysql_config --cflags)
+MySQLLIBS   = $(shell mysql_config --libs)
+MySQLGLIBS  = $(shell mysql_config --glibs)
+
+UserCFlags  +=$(MySQLCFLAGS)
+UserCCFlags +=$(MySQLCFLAGS)
+
+LibraryDirs+=$(MySQLLIBS)
+LibraryDirs+=$(MySQLGLIBS)
+
+UserDynamicLinkFlags+=$(MySQLLIBS)
+
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-include $(XDAQ_ROOT)/config/mfRPM.rules
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
@@ -38,3 +51,12 @@ print-env:
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
+	@echo CC            $(CC)
+	@echo CPP           $(CPP)
+	@echo CXX           $(CXX)
+	@echo LD            $(LD)
+	@echo AR            $(AR)
+	@echo NM            $(NM)
+	@echo RANLIB        $(RANLIB)
+	@echo GCCVERSION    $(GCCVERSION)
+	@echo CLANGVERSION  $(CLANGVERSION)

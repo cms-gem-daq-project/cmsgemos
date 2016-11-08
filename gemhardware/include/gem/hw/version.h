@@ -9,8 +9,8 @@ namespace gemhardware {
 
 #define GEMHARDWARE_VERSION_MAJOR 0
 #define GEMHARDWARE_VERSION_MINOR 2
-#define GEMHARDWARE_VERSION_PATCH 0
-#define GEMHARDWARE_PREVIOUS_VERSIONS "0.0.0,0.1.0"
+#define GEMHARDWARE_VERSION_PATCH 1
+#define GEMHARDWARE_PREVIOUS_VERSIONS "0.0.0,0.1.0,0.2.0"
 
 #define GEMHARDWARE_VERSION_CODE PACKAGE_VERSION_CODE(GEMHARDWARE_VERSION_MAJOR, GEMHARDWARE_VERSION_MINOR, GEMHARDWARE_VERSION_PATCH)
 #ifndef GEMHARDWARE_PREVIOUS_VERSIONS
@@ -18,14 +18,14 @@ namespace gemhardware {
 #else
 #define GEMHARDWARE_FULL_VERSION_LIST  GEMHARDWARE_PREVIOUS_VERSIONS "," PACKAGE_VERSION_STRING(GEMHARDWARE_VERSION_MAJOR, GEMHARDWARE_VERSION_MINOR, GEMHARDWARE_VERSION_PATCH)
 #endif
-  
+
   const std::string package     = "gemhardware";
   const std::string versions    = GEMHARDWARE_FULL_VERSION_LIST;
   const std::string summary     = "HW interfaces for GEM devices";
   const std::string description = "";
   const std::string authors     = "GEM Online Systems Group";
-  const std::string link        = "";
-  
+  const std::string link        = "https://cms-gem-daq-project.github.io/cmsgemos/";
+
   config::PackageInfo getPackageInfo();
   void checkPackageDependencies() throw (config::PackageInfo::VersionException);
   std::set<std::string,std::less<std::string> > getPackageDependencies();

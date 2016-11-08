@@ -1,9 +1,9 @@
-#include <gem/utils/GEMLogging.h>
 #include <gem/utils/soap/GEMSOAPToolBox.h>
 
 xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(std::string const& command,
                                                                        std::string const& response)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   xoap::MessageReference reply        = xoap::createMessage();
   xoap::SOAPEnvelope     envelope     = reply->getSOAPPart().getEnvelope();
   xoap::SOAPName         responseName = envelope.createName(command, "xdaq", XDAQ_NS_URI);
@@ -17,6 +17,7 @@ xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(std:
                                                                             std::string const& detail,
                                                                             std::string const& faultActor)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   xoap::MessageReference reply       = xoap::createMessage();
   xoap::SOAPEnvelope     envelope    = reply->getSOAPPart().getEnvelope();
   xoap::SOAPName         faultName   = envelope.createName("Fault", "xdaq", XDAQ_NS_URI);
@@ -48,39 +49,42 @@ xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeSOAPFaultReply(std:
 xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(std::string const& event,
                                                                           std::string const& state)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   // xoap::MessageFactory* messageFactory = xoap::MessageFactory::getInstance(soapProtocolVersion);
   // xoap::MessageReference reply         = messageFactory->createMessage();
   xoap::MessageReference reply         = xoap::createMessage();
   xoap::SOAPEnvelope     envelope      = reply->getSOAPPart().getEnvelope();
   xoap::SOAPBody         body          = envelope.getBody();
   std::string            replyString   = event + "Response";
-  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG replyString "
-            << replyString << std::endl;
+  DEBUG("GEMSOAPToolBox::makeFSMSOAPReplyreplyString "
+            << replyString);
   xoap::SOAPName         replyName     = envelope.createName(replyString, "xdaq", XDAQ_NS_URI);
-  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG replyName "
-            << replyName.getLocalName() << std::endl;
+  DEBUG("GEMSOAPToolBox::makeFSMSOAPReplyreplyName "
+            << replyName.getLocalName());
   xoap::SOAPBodyElement  replyElement  = body.addBodyElement(replyName);
-  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG replyElement "
-            << replyElement.getTextContent() << std::endl;
+  DEBUG("GEMSOAPToolBox::makeFSMSOAPReplyreplyElement "
+            << replyElement.getTextContent());
   xoap::SOAPName         stateName     = envelope.createName("state", "xdaq", XDAQ_NS_URI);
-  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG stateName "
-            << stateName.getLocalName() << std::endl;
+  DEBUG("GEMSOAPToolBox::makeFSMSOAPReplystateName "
+            << stateName.getLocalName());
   xoap::SOAPElement      stateElement  = replyElement.addChildElement(stateName);
-  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG stateElement"
-            << stateElement.getTextContent() << std::endl;
+  DEBUG("GEMSOAPToolBox::makeFSMSOAPReplystateElement"
+            << stateElement.getTextContent());
   xoap::SOAPName         attributeName = envelope.createName("stateName", "xdaq", XDAQ_NS_URI);
-  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG attributeName "
-            << attributeName.getLocalName() << std::endl;
+  DEBUG("GEMSOAPToolBox::makeFSMSOAPReplyattributeName "
+            << attributeName.getLocalName());
   stateElement.addAttribute(attributeName, state);
-  std::cout << "GEMSOAPToolBox::makeFSMSOAPReply::DEBUG reply " << std::endl;
-  reply->writeTo(std::cout);
-  std::cout << std::endl;
+  DEBUG("GEMSOAPToolBox::makeFSMSOAPReplyreply ");
+  std::string tool;
+  reply->writeTo(tool);
+  DEBUG(tool);
   return reply;
 }
 
 
 std::string gem::utils::soap::GEMSOAPToolBox::extractFSMCommandName(xoap::MessageReference const& msg)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   xoap::SOAPPart     part = msg->getSOAPPart();
   xoap::SOAPEnvelope env  = part.getEnvelope();
   xoap::SOAPBody     body = env.getBody();
@@ -108,6 +112,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
                                                    )
   throw (gem::utils::exception::Exception)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
     xoap::MessageReference msg = xoap::createMessage();
 
@@ -142,6 +147,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendParameter(std::vector<std::string> co
                                                      )
   throw (gem::utils::exception::Exception)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   if (parameter.size() != 3)
     return false;
 
@@ -212,6 +218,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameter(std::string cons
                                                                 )
   throw (gem::utils::exception::Exception)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
     xoap::MessageReference msg = xoap::createMessage();
 
@@ -248,6 +255,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter(std::string cons
                                                                 )
   throw (gem::utils::exception::Exception)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
     xoap::MessageReference msg = xoap::createMessage(), answer;
 
@@ -288,11 +296,65 @@ bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter(std::string cons
   return true;
 }
 
+// template <typename T>
+// bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameterBag(std::string const& bagName,
+//                                                                    xdata::Bag<T> const& bag,
+//                                                                    xdaq::ApplicationContext* appCxt,
+//                                                                    xdaq::ApplicationDescriptor* srcDsc,
+//                                                                    xdaq::ApplicationDescriptor* destDsc
+//                                                                    )
+//   throw (gem::utils::exception::Exception)
+// {
+//   try {
+//     xoap::MessageReference msg = xoap::createMessage(), answer;
+
+//     xoap::SOAPEnvelope env       = msg->getSOAPPart().getEnvelope();
+//     xoap::SOAPName     soapcmd   = env.createName("ParameterSet", "xdaq", XDAQ_NS_URI);
+//     xoap::SOAPElement  container = env.getBody().addBodyElement(soapcmd);
+//     container.addNamespaceDeclaration("xsd", "http://www.w3.org/2001/XMLSchema");
+//     container.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+//     container.addNamespaceDeclaration("soapenc", "http://schemas.xmlsoap.org/soap/encoding/");
+//     xoap::SOAPName    tname    = env.createName("type", "xsi", "http://www.w3.org/2001/XMLSchema-instance");
+//     std::string       appUrn   = "urn:xdaq-application:"+destDsc->getClassName();
+//     xoap::SOAPName    pboxname = env.createName("Properties", "props", appUrn);
+//     xoap::SOAPElement pbox     = container.addChildElement(pboxname);
+//     pbox.addAttribute(tname, "soapenc:Struct");
+//     xoap::SOAPName    soapBagName = env.createName(bagName, "props", appUrn);
+//     xoap::SOAPElement csbag       = pbox.addChildElement(soapBagName);
+//     csbag.addAttribute(tname, "soapenc:Struct");
+//     for (auto b = bag.begin(); b != bag.end(); ++b) {
+//       xdata::Serializable* s = bag.getField((*b).first);
+//       xoap::SOAPName    soapName = env.createName(b->first, "props", appUrn);
+//       xoap::SOAPElement cs       = csbag.addChildElement(soapName);
+//       csbag.addAttribute(tname, getXSDType(*s));
+//       csbag.addTextNode(s->toString());
+//     }
+//     answer = appCxt->postSOAP(msg, *srcDsc, *destDsc);
+//   } catch (gem::utils::exception::Exception& e) {
+//     std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (gem::utils::exception::Exception)",
+//                                            bagName.c_str(), e.what());
+//     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
+//   } catch (xcept::Exception& e) {
+//     std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (xcept::Exception)",
+//                                            bagName.c_str(), e.what());
+//     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
+//   } catch (std::exception& e) {
+//     std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (std::exception)",
+//                                            bagName.c_str(), e.what());
+//     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
+//   } catch (...) {
+//     std::string errMsg = toolbox::toString("Send application parameter bag %s failed (...)",
+//                                            bagName.c_str());
+//     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
+//   }
+//   return true;
+// }
 
 xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::createStateRequestMessage(std::string const& nstag,
                                                                                    std::string const& appURN,
                                                                                    bool const& isGEMApp)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   xoap::MessageReference msg = xoap::createMessage();
 
   xoap::SOAPEnvelope env       = msg->getSOAPPart().getEnvelope();
@@ -329,6 +391,7 @@ void gem::utils::soap::GEMSOAPToolBox::sendAMC13Config(xdaq::ApplicationContext*
                                                        xdaq::ApplicationDescriptor* srcDsc,
                                                        xdaq::ApplicationDescriptor* destDsc)
 {
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
     xoap::MessageReference msg = xoap::createMessage(), answer;
 
@@ -376,4 +439,56 @@ void gem::utils::soap::GEMSOAPToolBox::sendAMC13Config(xdaq::ApplicationContext*
     std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed (...)");
     XCEPT_RAISE(gem::utils::exception::SOAPException, errMsg);
   }
+}
+
+std::string gem::utils::soap::GEMSOAPToolBox::getXSDType(xdata::Serializable const& item)
+{
+  if (item.type() == "bool")
+    return "xsd:boolean";
+
+  else if (item.type() == "double")
+    return "xsd:double";
+
+  else if (item.type() == "float")
+    return "xsd:float";
+
+  else if (item.type() == "int 32")
+    return "xsd:int";
+
+  else if (item.type() == "int 64")
+    return "xsd:long";
+
+  else if (item.type() == "int")
+    return "xsd:integer";
+
+  else if (item.type() == "mime")
+    return "xsd:mime";
+
+  else if (item.type() == "properties")
+    return "xsd:properties";
+
+  else if (item.type() == "string")
+    return "xsd:string";
+
+  else if (item.type() == "table")
+    return "xsd:table";
+
+  else if (item.type() == "time")
+    return "xsd:dateTime";
+
+  else if (item.type() == "unsigned int 32")
+    return "xsd:unsignedInt";
+
+  else if (item.type() == "unsigned int 64")
+    return "xsd:unsignedLong";
+
+  else if (item.type() == "unsigned int")
+    return "xsd:unsignedInt";
+
+  else if (item.type() == "unsigned long")
+    return "xsd:unsignedLong";
+
+  else if (item.type() == "unsigned short")
+    return "xsd:unsignedShort";
+
 }

@@ -10,6 +10,7 @@
 !*.h
 !*.py
 !*.js
+!*.jsp
 !*.css
 !setup/etc/addresstables/*.xml
 !setup/paths.sh

@@ -182,20 +182,6 @@ namespace gem {
 
           virtual ~HwOptoHybrid();
 
-          //updating interfaces////virtual void connectDevice();
-          //updating interfaces////virtual void releaseDevice();
-          //updating interfaces////virtual void initDevice();
-          //updating interfaces////virtual void enableDevice();
-          //updating interfaces//virtual void configureDevice();
-          //updating interfaces//virtual void configureDevice(std::string const& xmlSettings);
-          //updating interfaces////virtual void configureDevice(std::string const& dbConnectionString);
-          //updating interfaces////virtual void disableDevice();
-          //updating interfaces////virtual void pauseDevice();
-          //updating interfaces////virtual void startDevice();
-          //updating interfaces////virtual void stopDevice();
-          //updating interfaces////virtual void resumeDevice();
-          //updating interfaces////virtual void haltDevice();
-
           virtual bool isHwConnected();
 
           /** Read the board ID registers
@@ -209,10 +195,8 @@ namespace gem {
            */
 
           uint32_t getFirmware() {
-            std::cout << "oh device base node " << getDeviceBaseNode() << std::endl;
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
-            DEBUG("OH has firmware version 0x"
-                  << std::hex << fwver << std::dec << std::endl);
+            TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 
@@ -446,20 +430,83 @@ namespace gem {
           uint8_t getTrigSource() {
             return readReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE"); };
 
-
           /**
            * Set the S-bit source
            * @param uint32_t mask which s-bits to forward (maximum 6)
            */
           void setSBitSource(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBits",mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS",mask); };
+
+          /**
+           * Set the S-bit source
+           * @param std::array<uint8_t, 6> which s-bits to forward (maximum 6)
+           */
+          void setSBitSource(std::array<uint8_t, 6> const sources) {
+            uint32_t mask = 0x0;
+            for (int i = 0; i < 6; ++i)
+              mask |= (sources[i] << (5*i));
+            setSBitSource(mask);
+          };
 
           /**
            * Read the S-bit source
            * @retval uint32_t which VFAT chips are sending S-bits
            */
           uint32_t getSBitSource() {
-            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBits"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
+
+          /**
+           * Set the S-bit mode
+           * @param uint32_t mode of sending s-bits out the HDMI connector
+           */
+          void setSBitMode(uint8_t const mode) {
+            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.HDMI_SBIT_MODE", mode); };
+
+          /**
+           * Read the S-bit mode
+           * @retval uint32_t which mode the OptoHybrid is sending s-bits to the HDMI connector
+           */
+          uint32_t getSBitMode() {
+            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.HDMI_SBIT_MODE"); };
+
+          /**
+           * Set the S-bit source
+           * @param uint32_t mask which s-bits to forward (maximum 6)
+           */
+          void setHDMISBitSource(uint32_t const mask) {
+            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS",mask); };
+
+          /**
+           * Set the S-bit source
+           * @param std::array<uint8_t, 6> which s-bits to forward (maximum 6)
+           */
+          void setHDMISBitSource(std::array<uint8_t, 6> const sources) {
+            uint32_t mask = 0x0;
+            for (int i = 0; i < 6; ++i)
+              mask |= (sources[i] << (5*i));
+            setHDMISBitSource(mask);
+          };
+
+          /**
+           * Read the S-bit source
+           * @retval uint32_t which VFAT chips are sending S-bits
+           */
+          uint32_t getHDMISBitSource() {
+            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
+
+          /**
+           * Set the S-bit mask
+           * @param uint32_t mask s-bits coming from specific GEB slots
+           */
+          void setSBitMask(uint32_t const mask) {
+            writeReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK", 0x00ffffff&mask); };
+
+          /**
+           * Read the S-bit mask
+           * @retval uint32_t which slots s-bits are processed
+           */
+          uint32_t getSBitMask() {
+            return readReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK"); };
 
 
           /**
@@ -980,6 +1027,8 @@ namespace gem {
            *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the GLIB
            */
           void setVFATMask(uint32_t const mask) {
+            DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
+                  << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK"),mask); };
 
           /**
@@ -1015,8 +1064,9 @@ namespace gem {
           /**
            * Uses a broadcast read to determine which slots are occupied and returns the
            * corresponding broadcast mask
+           * @returns uint32_t 24 bit mask
            * The mask has a 1 for VFATs that will not receive a broadcast request
-           * The mask has a 1 for VFATs whose data will be ignored
+           * The mask has a 1 for VFATs whose tracking data will be ignored
            */
           uint32_t getConnectedVFATMask();
 

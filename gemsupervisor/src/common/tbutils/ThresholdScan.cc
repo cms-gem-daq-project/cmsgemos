@@ -121,7 +121,6 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   hw_semaphore_.give(); //give hw to send the trigger
 
     // if triggersSeen < N triggers
-
   if ((uint64_t)(confParams_.bag.triggersSeen) < (uint64_t)(confParams_.bag.nTriggers)) {
     hw_semaphore_.take(); // take hw to set buffer depth
 
@@ -197,8 +196,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 	scanParams_.bag.deviceVT2    = (*chip)->getVThreshold2();
       }
 
-
-      while (!(glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+      while ((glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
                                     toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
                                                       confParams_.bag.ohGTXLink.value_))))
 	TRACE("waiting for FIFO is empty: "

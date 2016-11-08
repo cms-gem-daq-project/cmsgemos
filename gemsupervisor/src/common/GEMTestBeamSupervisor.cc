@@ -15,7 +15,7 @@ gem::supervisor::GEMTestBeamSupervisor::GEMTestBeamSupervisor(xdaq::ApplicationS
   wl_semaphore_(toolbox::BSem::EMPTY)
 {
   LOG4CPLUS_DEBUG(getApplicationLogger(), "gem::supervisor::GEMTestBeamSupervisor being constructed");
-  
+
   try {
     //i2oAddressMap_ = i2o::utils::getAddressMap();
     //poolFactory_   = toolbox::mem::getMemoryPoolFactory();
@@ -30,18 +30,18 @@ gem::supervisor::GEMTestBeamSupervisor::GEMTestBeamSupervisor(xdaq::ApplicationS
   catch(xcept::Exception e) {
     XCEPT_RETHROW(xdaq::exception::Exception, "Failed to get GEM TestBeam Supervisor application information", e);
   }
-  
+
   xgi::bind(webInterface_, &gem::supervisor::GEMTestBeamSupervisorWeb::Default, "Default");
-  
+
   appInfoSpace_->addListener(this, "urn:xdaq-event:setDefaultValues");
-  
+
   appInfoSpace_->fireItemAvailable("isInitialized", &isInitialized_);
   appInfoSpace_->addItemChangedListener("isInitialized", this);
-  
+
   semaphore_.take();
   gem::supervisor::GEMTestBeamSupervisor::initialize();
   semaphore_.give();
-  
+
   //how to use this?
   std::list<xdaq::Application*> apps = appContext_->getApplicationRegistry()->getApplications();
   for (std::list<xdaq::Application*>::iterator i = apps.begin(); i != apps.end(); ++i) {
@@ -58,26 +58,26 @@ gem::supervisor::GEMTestBeamSupervisor::GEMTestBeamSupervisor(xdaq::ApplicationS
       webInterface_ = new GEMTestBeamSupervisorWeb(app->getApplicationStub());
     }
   }
-  
+
   LOG4CPLUS_DEBUG(getApplicationLogger(), "loaded " << managerApps_.size() << " VFAT2Manager applications into the supervisor");
 
   LOG4CPLUS_DEBUG(getApplicationLogger(), "gem::supervisor::GEMTestBeamSupervisor constructed");
 }
 
-gem::supervisor::GEMTestBeamSupervisor::~GEMTestBeamSupervisor() 
+gem::supervisor::GEMTestBeamSupervisor::~GEMTestBeamSupervisor()
 {
   LOG4CPLUS_DEBUG(getApplicationLogger(), "gem::supervisor::GEMTestBeamSupervisor being destructed");
   semaphore_.take();
   if (webInterface_ != 0)
     delete webInterface_;
   webInterface_ = 0;
-  
+
   /*
     if (gemTBfsmP_ != 0)
     delete gemTBfsmP_;
   */
   gemTBfsmP_ = 0;
-  
+
   /*
     if (poolFactory_ != 0)
     delete poolFactory_;
@@ -95,7 +95,7 @@ gem::supervisor::GEMTestBeamSupervisor::~GEMTestBeamSupervisor()
   appInfoSpace_ = 0;
 
   semaphore_.give();
-  
+
   LOG4CPLUS_DEBUG(getApplicationLogger(), "gem::supervisor::GEMTestBeamSupervisor destructed");
 }
 
@@ -110,18 +110,18 @@ void gem::supervisor::GEMTestBeamSupervisor::actionPerformed (xdata::Event& even
 }
 
 
-void gem::supervisor::GEMTestBeamSupervisor::initialize() 
+void gem::supervisor::GEMTestBeamSupervisor::initialize()
 {
   //check GLIB firmware with version supplied in xml?
-  
+
   //check OptoHybrid firmware with version supplied in xml?
-  
+
   //find connected VFAT chips (based on those listed in xml?), and connect to their VFAT2Manager apps
-  
+
   xdata::Serializable* ser = appInfoSpace_->find("isInitialized");
   xdata::Boolean* ini = dynamic_cast<xdata::Boolean*>(ser);
   *ini = true;
-    
+
   //isInitialized_ = true;
   appInfoSpace_->fireItemChanged("isInitialized",0);
   return;

@@ -1,8 +1,7 @@
-#ifndef GEM_SUPERVISOR_GEMSUPERVISORMONITOR_H
-#define GEM_SUPERVISOR_GEMSUPERVISORMONITOR_H
-
 /** @file GEMSupervisorMonitor.h */
 
+#ifndef GEM_SUPERVISOR_GEMSUPERVISORMONITOR_H
+#define GEM_SUPERVISOR_GEMSUPERVISORMONITOR_H
 
 #include "gem/base/GEMMonitor.h"
 #include "gem/supervisor/exception/Exception.h"
