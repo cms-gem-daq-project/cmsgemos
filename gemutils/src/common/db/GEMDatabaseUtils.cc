@@ -33,12 +33,16 @@ void gem::utils::db::GEMDatabaseUtils::GEMDBInfo::registerFields(xdata::Bag<gem:
 gem::utils::db::GEMDatabaseUtils::GEMDatabaseUtils(std::string const& host, int const& port,
                                                    std::string const& user, std::string const& password) :
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GEMDatabaseUtilsLogger"))),
-  p_db(0),
+  p_db(NULL),
   m_host(host),
   m_user(user),
   m_password(password),
   m_port(port)
 {
+  if (mysql_library_init(0, NULL, NULL)) {
+    WARN("GEMDatabaseUtils::GEMDatabaseUtils unable to initialize MYSQL library");
+  }
+
   //p_db = std::make_shared<MYSQL>(mysql_init(0));
   //m_gemLogger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GEMDatabaseUtilsLogger"));
   //connect(std::string const& database);
@@ -52,7 +56,7 @@ gem::utils::db::GEMDatabaseUtils::~GEMDatabaseUtils()
 bool gem::utils::db::GEMDatabaseUtils::connect(std::string const& database)
 {
   //p_db = std::make_shared<MYSQL>(mysql_init(0));
-  p_db = mysql_init(0);
+  p_db = mysql_init(NULL);
 
   if (mysql_real_connect(p_db,m_host.c_str(),m_user.c_str(),m_password.c_str(),database.c_str(),m_port,0,CLIENT_COMPRESS) == 0) {
     std::string message("Error connecting to database '");
