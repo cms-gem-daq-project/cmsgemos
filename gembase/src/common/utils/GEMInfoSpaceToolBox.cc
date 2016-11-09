@@ -58,22 +58,18 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createString(std::string const& item
       XCEPT_DECLARE(gem::base::utils::exception::InfoSpaceProblem, top, err);
       p_gemApp->notifyQualified("fatal", top);
       ERROR("GEMInfoSpaceToolBox::" << err);
-      return false;
     }
 
-    // std::shared_ptr<xdata::String> tmpptr(ptr);
-    xdata::String* tmpptr(ptr);
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(STRING, type, itemName, docstring, format);
-    m_itemMap.insert(std::make_pair(itemName, item));
+    std::shared_ptr<xdata::String> tmpptr(ptr);
+    // auto tmpptr = std::make_shared<xdata::String>(ptr);
+    auto item = std::make_shared<GEMInfoSpaceItem>(STRING, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item.get()));
     if (!ptr)
-      // tmpptr.reset(new xdata::String(value));
-      tmpptr = new xdata::String(value);
-    // m_stringItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
-    m_stringItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+      tmpptr.reset(new xdata::String(value));
+    m_stringItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
 
     p_infoSpace->lock();
-    // p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
-    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created string " << itemName << " in infoSpace " << p_infoSpace->name());
     return true;
@@ -107,20 +103,16 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createBool(std::string const& itemNa
       return false;
     }
 
-    // std::shared_ptr<xdata::Boolean> tmpptr(ptr);
-    xdata::Boolean* tmpptr(ptr);
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(BOOL, type, itemName, docstring, format);
-    m_itemMap.insert(std::make_pair(itemName, item));
+    std::shared_ptr<xdata::Boolean> tmpptr(ptr);
+    auto item = std::make_shared<GEMInfoSpaceItem>(BOOL, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item.get()));
 
     if (!ptr)
-      // tmpptr.reset(new xdata::Boolean(value));
-      tmpptr = new xdata::Boolean(value);
-    // m_boolItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
-    m_boolItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+      tmpptr.reset(new xdata::Boolean(value));
+    m_boolItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
 
     p_infoSpace->lock();
-    // p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
-    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created bool " << itemName << " in infoSpace " << p_infoSpace->name());
     return true;
@@ -154,20 +146,16 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createDouble(std::string const& item
       return false;
     }
 
-    // std::shared_ptr<xdata::Double> tmpptr(ptr);
-    xdata::Double* tmpptr(ptr);
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(DOUBLE, type, itemName, docstring, format);
-    m_itemMap.insert(std::make_pair(itemName, item));
+    std::shared_ptr<xdata::Double> tmpptr(ptr);
+    auto item = std::make_shared<GEMInfoSpaceItem>(DOUBLE, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item.get()));
 
     if (!ptr)
-      // tmpptr.reset(new xdata::Double(value));
-      tmpptr = new xdata::Double(value);
-    // m_doubleItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
-    m_doubleItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+      tmpptr.reset(new xdata::Double(value));
+    m_doubleItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
 
     p_infoSpace->lock();
-    // p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
-    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created double " << itemName << " in infoSpace " << p_infoSpace->name());
     return true;
@@ -201,20 +189,16 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger(std::string const& ite
       return false;
     }
 
-    // std::shared_ptr<xdata::Integer> tmpptr(ptr);
-    xdata::Integer* tmpptr(ptr);
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER, type, itemName, docstring, format);
-    m_itemMap.insert(std::make_pair(itemName, item));
+    std::shared_ptr<xdata::Integer> tmpptr(ptr);
+    auto item = std::make_shared<GEMInfoSpaceItem>(INTEGER, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item.get()));
 
     if (!ptr)
-      // tmpptr.reset(new xdata::Integer(value));
-      tmpptr = new xdata::Integer(value);
-    // m_intItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
-    m_intItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+      tmpptr.reset(new xdata::Integer(value));
+    m_intItems.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
 
     p_infoSpace->lock();
-    // p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
-    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created int " << itemName << " in infoSpace " << p_infoSpace->name());
     return true;
@@ -248,20 +232,16 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger32(std::string const& i
       return false;
     }
 
-    // std::shared_ptr<xdata::Integer32> tmpptr(ptr);
-    xdata::Integer32* tmpptr(ptr);
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER32, type, itemName, docstring, format);
-    m_itemMap.insert(std::make_pair(itemName, item));
+    std::shared_ptr<xdata::Integer32> tmpptr(ptr);
+    auto item = std::make_shared<GEMInfoSpaceItem>(INTEGER32, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item.get()));
 
     if (!ptr)
-      // tmpptr.reset(new xdata::Integer32(value));
-      tmpptr = new xdata::Integer32(value);
-    // m_int32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
-    m_int32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+      tmpptr.reset(new xdata::Integer32(value));
+    m_int32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
 
     p_infoSpace->lock();
-    // p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
-    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created int32_t " << itemName << " in infoSpace " << p_infoSpace->name());
     return true;
@@ -295,20 +275,16 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createInteger64(std::string const& i
       return false;
     }
 
-    // std::shared_ptr<xdata::Integer64> tmpptr(ptr);
-    xdata::Integer64* tmpptr(ptr);
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(INTEGER64, type, itemName, docstring, format);
-    m_itemMap.insert(std::make_pair(itemName, item));
+    std::shared_ptr<xdata::Integer64> tmpptr(ptr);
+    auto item = std::make_shared<GEMInfoSpaceItem>(INTEGER64, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item.get()));
 
     if (!ptr)
-      // tmpptr.reset(new xdata::Integer64(value));
-      tmpptr = new xdata::Integer64(value);
-    // m_int64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
-    m_int64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+      tmpptr.reset(new xdata::Integer64(value));
+    m_int64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
 
     p_infoSpace->lock();
-    // p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
-    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created int64_t " << itemName << " in infoSpace " << p_infoSpace->name());
     return true;
@@ -342,20 +318,16 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt32(std::string const& item
       return false;
     }
 
-    // std::shared_ptr<xdata::UnsignedInteger32> tmpptr(ptr);
-    xdata::UnsignedInteger32* tmpptr(ptr);
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT32, type, itemName, docstring, format);
-    m_itemMap.insert(std::make_pair(itemName, item));
+    std::shared_ptr<xdata::UnsignedInteger32> tmpptr(ptr);
+    auto item = std::make_shared<GEMInfoSpaceItem>(UINT32, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item.get()));
 
     if (!ptr)
-      // tmpptr.reset(new xdata::UnsignedInteger32(value));
-      tmpptr = new xdata::UnsignedInteger32(value);
-    // m_uint32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
-    m_uint32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+      tmpptr.reset(new xdata::UnsignedInteger32(value));
+    m_uint32Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
 
     p_infoSpace->lock();
-    // p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
-    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created uint32_t " << itemName << " in infoSpace " << p_infoSpace->name());
     return true;
@@ -389,20 +361,16 @@ bool gem::base::utils::GEMInfoSpaceToolBox::createUInt64(std::string const& item
       return false;
     }
 
-    // std::shared_ptr<xdata::UnsignedInteger64> tmpptr(ptr);
-    xdata::UnsignedInteger64* tmpptr(ptr);
-    GEMInfoSpaceItem* item = new GEMInfoSpaceItem(UINT64, type, itemName, docstring, format);
-    m_itemMap.insert(std::make_pair(itemName, item));
+    std::shared_ptr<xdata::UnsignedInteger64> tmpptr(ptr);
+    auto item = std::make_shared<GEMInfoSpaceItem>(UINT64, type, itemName, docstring, format);
+    m_itemMap.insert(std::make_pair(itemName, item.get()));
 
     if (!ptr)
-      // tmpptr.reset(new xdata::UnsignedInteger64(value));
-      tmpptr = new xdata::UnsignedInteger64(value);
-    // m_uint64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
-    m_uint64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr)));
+      tmpptr.reset(new xdata::UnsignedInteger64(value));
+    m_uint64Items.insert(std::make_pair(itemName, std::make_pair(*tmpptr, tmpptr.get())));
 
     p_infoSpace->lock();
-    // p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
-    p_infoSpace->fireItemAvailable(itemName, tmpptr);
+    p_infoSpace->fireItemAvailable(itemName, tmpptr.get());
     p_infoSpace->unlock();
     DEBUG("GEMInfoSpaceToolBox::Created uint64_t " << itemName << " in infoSpace " << p_infoSpace->name());
     return true;
