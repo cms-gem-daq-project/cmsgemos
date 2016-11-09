@@ -259,6 +259,9 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
     p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
+  } catch (::amc13::Exception::exBase & e) {
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught amc13::Exception:" <<  e.what() );
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (uhal::exception::exception & e) {
     ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
