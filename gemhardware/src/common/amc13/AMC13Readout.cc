@@ -81,7 +81,6 @@ void gem::hw::amc13::AMC13Readout::initializeAction()
   try {
     //gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     DEBUG("Trying to create connection to " << cardName << " in " << connection);
-    //p_amc13 = new ::amc13::AMC13(connection, cardName+".T1", cardName+".T2");
     p_amc13 = std::make_shared< ::amc13::AMC13>(connection, cardName+".T1", cardName+".T2");
   } catch (uhal::exception::exception & e) {
     ERROR("AMC13Readout::initializeAction failed, caught uhal::exception:" <<  e.what() );
