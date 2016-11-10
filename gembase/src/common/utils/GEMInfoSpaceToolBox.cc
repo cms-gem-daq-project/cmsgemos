@@ -46,14 +46,6 @@ gem::base::utils::GEMInfoSpaceToolBox::~GEMInfoSpaceToolBox()
 {
   // default destructor
   reset();
-
-  if (p_gemApp)
-    delete p_gemApp;
-  p_gemApp = NULL;
-
-  if (p_infoSpace)
-    delete p_infoSpace;
-  p_infoSpace = NULL;
 }
 
 // how to template this?
