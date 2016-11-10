@@ -45,6 +45,15 @@ gem::base::utils::GEMInfoSpaceToolBox::GEMInfoSpaceToolBox(gem::base::GEMApplica
 gem::base::utils::GEMInfoSpaceToolBox::~GEMInfoSpaceToolBox()
 {
   // default destructor
+  reset();
+
+  if (p_gemApp)
+    delete p_gemApp;
+  p_gemApp = NULL;
+
+  if (p_infoSpace)
+    delete p_infoSpace;
+  p_infoSpace = NULL;
 }
 
 // how to template this?
@@ -1015,15 +1024,77 @@ void gem::base::utils::GEMInfoSpaceToolBox::reset()
     p_infoSpace->unlock();
   }
   // now clear out the map so it could be repopulated
+  for (auto it = m_itemMap.begin(); it != m_itemMap.end(); ++it) {
+    if (it->second)
+      delete it->second;
+    it->second = NULL;
+  }
   m_itemMap.clear();
 
-  // simply empty the item lists?
+  // // simply empty the item lists?
+  // for (auto it = m_uint32Items.begin(); it != m_uint32Items.end(); ++it) {
+  //   if ((it->second).second) {
+  //     WARN("GEMInfoSpaceToolBox::resetGEMInfoSpaceToolBox::reset delete called for"
+  //          // << std::hex << std::setw(8) << std::setfill('0') << it << std::dec
+  //          << " " << it->first << " " << (it->second).first << " "
+  //          << sizeof((*(it->second).second)) << "(size) "
+  //          << std::hex << std::setw(8) << std::setfill('0') << (it->second).second << std::dec);
+  //     delete (it->second).second;
+  //     WARN("GEMInfoSpaceToolBox::resetGEMInfoSpaceToolBox::reset done with"
+  //          // << std::hex << std::setw(8) << std::setfill('0') << it << std::dec
+  //          << " " << it->first << " " << (it->second).first << " "
+  //          << sizeof(*((it->second).second)) << "(size) ");
+  //   }
+  //   (it->second).second = NULL;
+  // }
   m_uint32Items.clear();
+
+  // for (auto it = m_uint64Items.begin(); it != m_uint64Items.end(); ++it) {
+  //   if ((it->second).second)
+  //     delete (it->second).second;
+  //   (it->second).second = NULL;
+  // }
   m_uint64Items.clear();
+
+  // for (auto it = m_boolItems.begin(); it != m_boolItems.end(); ++it) {
+  //   if ((it->second).second)
+  //     delete (it->second).second;
+  //   (it->second).second = NULL;
+  // }
   m_boolItems.clear();
+
+  // for (auto it = m_intItems.begin(); it != m_intItems.end(); ++it) {
+  //   if ((it->second).second)
+  //     delete (it->second).second;
+  //   (it->second).second = NULL;
+  // }
   m_intItems.clear();
+
+  // for (auto it = m_int32Items.begin(); it != m_int32Items.end(); ++it) {
+  //   if ((it->second).second)
+  //     delete (it->second).second;
+  //   (it->second).second = NULL;
+  // }
   m_int32Items.clear();
+
+  // for (auto it = m_int64Items.begin(); it != m_int64Items.end(); ++it) {
+  //   if ((it->second).second)
+  //     delete (it->second).second;
+  //   (it->second).second = NULL;
+  // }
   m_int64Items.clear();
+
+  // for (auto it = m_doubleItems.begin(); it != m_doubleItems.end(); ++it) {
+  //   if ((it->second).second)
+  //     delete (it->second).second;
+  //   (it->second).second = NULL;
+  // }
   m_doubleItems.clear();
+
+  // for (auto it = m_stringItems.begin(); it != m_stringItems.end(); ++it) {
+  //   if ((it->second).second)
+  //     delete (it->second).second;
+  //   (it->second).second = NULL;
+  // }
   m_stringItems.clear();
 }
