@@ -118,7 +118,6 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   throw (xdaq::exception::Exception) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
-  p_amc13(NULL),
   p_timer(NULL)
 {
   m_bgoConfig.setSize(4);
@@ -156,9 +155,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
-  if (p_amc13)
-    delete p_amc13;
-  p_amc13 = NULL;
+  DEBUG("AMC13Manager::dtor called");
 }
 
 // This is the callback used for handling xdata:Event objects
@@ -227,9 +224,9 @@ void gem::hw::amc13::AMC13Manager::init()
 {
 }
 
-::amc13::Status* gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
+gem::hw::amc13::amc13_status_ptr gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  return p_amc13->getStatus();
+  return std::shared_ptr< ::amc13::Status>(p_amc13->getStatus());
 }
 
 void gem::hw::amc13::AMC13Manager::setDisplayLevel(xgi::Input *in, xgi::Output *out)
@@ -241,7 +238,7 @@ void gem::hw::amc13::AMC13Manager::setDisplayLevel(xgi::Input *in, xgi::Output *
 void gem::hw::amc13::AMC13Manager::updateStatus(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->updateStatus(out);
+  // dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->updateStatus(out);
 }
 
 //state transitions
@@ -258,7 +255,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
-    p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
+    p_amc13 = std::make_shared< ::amc13::AMC13>(connection, cardname+".T1", cardname+".T2");
+  } catch (::amc13::Exception::exBase & e) {
+    ERROR("AMC13Manager::AMC13::AMC13() failed, caught amc13::Exception:" <<  e.what() );
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
   } catch (uhal::exception::exception & e) {
     ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
@@ -290,7 +290,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   }
 
   //equivalent to hcal init part
-  if (p_amc13 == 0)
+  if (!p_amc13)
     return;
 
   //have to set up the initialization of the AMC13 for the desired running situation
@@ -590,14 +590,9 @@ void gem::hw::amc13::AMC13Manager::resetAction()
     } catch (toolbox::task::exception::NotActive const& ex) {
       WARN("AMC13Manager::start could not stop timer " << ex.what());
     }
-    delete p_timer;
   }
-  p_timer = NULL;
 
   // maybe ensure triggers are disabled as well as BGO commands?
-  if (p_amc13)
-    delete p_amc13;
-  p_amc13 = NULL;
   usleep(50);
   //gem::base::GEMFSMApplication::resetAction();
 }

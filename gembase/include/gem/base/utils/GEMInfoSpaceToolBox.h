@@ -213,14 +213,28 @@ namespace gem {
         std::unordered_map<std::string, GEMInfoSpaceItem*> m_itemMap;
 
         // maps of variables and their associated xdata types
-        std::unordered_map<std::string, std::pair<uint32_t,    xdata::UnsignedInteger32* > >  m_uint32Items;
-        std::unordered_map<std::string, std::pair<uint64_t,    xdata::UnsignedInteger64* > >  m_uint64Items;
-        std::unordered_map<std::string, std::pair<bool,        xdata::Boolean* > >            m_boolItems;
-        std::unordered_map<std::string, std::pair<int,         xdata::Integer* > >            m_intItems;
-        std::unordered_map<std::string, std::pair<int32_t,     xdata::Integer32* > >          m_int32Items;
-        std::unordered_map<std::string, std::pair<int64_t,     xdata::Integer64* > >          m_int64Items;
-        std::unordered_map<std::string, std::pair<double,      xdata::Double*  > >            m_doubleItems;
-        std::unordered_map<std::string, std::pair<std::string, xdata::String*  > >            m_stringItems;
+        template<typename T, typename P>
+          struct InfoSpaceTypes {
+            typedef std::unordered_map<std::string, std::pair<T, P> > ObjectMap;
+          };
+
+        /* InfoSpaceTypes<uint32_t,    std::shared_ptr<xdata::UnsignedInteger32> >::ObjectMap  m_uint32Items; */
+        /* InfoSpaceTypes<uint64_t,    std::shared_ptr<xdata::UnsignedInteger64>  >::ObjectMap m_uint64Items; */
+        /* InfoSpaceTypes<bool,        std::shared_ptr<xdata::Boolean>  >::ObjectMap           m_boolItems; */
+        /* InfoSpaceTypes<int,         std::shared_ptr<xdata::Integer>  >::ObjectMap           m_intItems; */
+        /* InfoSpaceTypes<int32_t,     std::shared_ptr<xdata::Integer32>  >::ObjectMap         m_int32Items; */
+        /* InfoSpaceTypes<int64_t,     std::shared_ptr<xdata::Integer64>  >::ObjectMap         m_int64Items; */
+        /* InfoSpaceTypes<double,      std::shared_ptr<xdata::Double>   >::ObjectMap           m_doubleItems; */
+        /* InfoSpaceTypes<std::string, std::shared_ptr<xdata::String>   >::ObjectMap           m_stringItems; */
+
+        InfoSpaceTypes<uint32_t,    xdata::UnsignedInteger32*>::ObjectMap  m_uint32Items;
+        InfoSpaceTypes<uint64_t,    xdata::UnsignedInteger64* >::ObjectMap m_uint64Items;
+        InfoSpaceTypes<bool,        xdata::Boolean* >::ObjectMap           m_boolItems;
+        InfoSpaceTypes<int,         xdata::Integer* >::ObjectMap           m_intItems;
+        InfoSpaceTypes<int32_t,     xdata::Integer32* >::ObjectMap         m_int32Items;
+        InfoSpaceTypes<int64_t,     xdata::Integer64* >::ObjectMap         m_int64Items;
+        InfoSpaceTypes<double,      xdata::Double*  >::ObjectMap           m_doubleItems;
+        InfoSpaceTypes<std::string, xdata::String*  >::ObjectMap           m_stringItems;
 
       protected:
         gem::base::GEMApplication* p_gemApp;
