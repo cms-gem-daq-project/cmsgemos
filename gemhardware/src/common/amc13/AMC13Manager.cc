@@ -590,9 +590,7 @@ void gem::hw::amc13::AMC13Manager::resetAction()
     } catch (toolbox::task::exception::NotActive const& ex) {
       WARN("AMC13Manager::start could not stop timer " << ex.what());
     }
-    delete p_timer;
   }
-  p_timer = NULL;
 
   // maybe ensure triggers are disabled as well as BGO commands?
   usleep(50);
