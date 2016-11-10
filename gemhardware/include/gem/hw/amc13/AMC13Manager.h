@@ -28,6 +28,10 @@ namespace gem {
   namespace hw {
     namespace amc13 {
 
+      typedef std::shared_ptr< ::amc13::Status> amc13_status_ptr;
+      typedef std::shared_ptr< ::amc13::AMC13>  amc13_ptr;
+      typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
+
       class AMC13ManagerWeb;
       /*
       class AMC13ManagerListener :
@@ -56,8 +60,8 @@ namespace gem {
 
           virtual void actionPerformed(xdata::Event& event);
 
-          ::amc13::Status *getHTMLStatus()  const;
-          ::amc13::AMC13  *getAMC13Device() const { return p_amc13; };
+          amc13_status_ptr getHTMLStatus()  const;
+          amc13_ptr        getAMC13Device() const { return p_amc13; };
 
           void setDisplayLevel(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
@@ -207,7 +211,7 @@ namespace gem {
         private:
           mutable gem::utils::Lock m_amc13Lock;
 
-          ::amc13::AMC13 *p_amc13;
+          amc13_ptr p_amc13;
 
 	  toolbox::task::Timer* p_timer;    // timer for general info space updates
 
