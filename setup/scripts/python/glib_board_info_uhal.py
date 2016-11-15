@@ -86,7 +86,13 @@ for sfp in range(4):
     writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP%d"%(sfp),0x0)
     pass
 # invert specified links
-invertList = [int(x) for x in (options.invertTX).split(',')]
+invertList = []
+try:
+    invertList = map(int, (options.invertTX).split(','))
+except ValueError:
+    print "Cannot convert %s to list of ints"%(options.invertTX)
+    pass
+
 if len(invertList) :
     for sfp in invertList:
         if (sfp > 4 or sfp < 0):
@@ -95,6 +101,7 @@ if len(invertList) :
         writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP%d"%(sfp),0x1)
         pass
     pass
+
 if not options.userOnly:
   #pass
 	getSystemInfo(glib)
