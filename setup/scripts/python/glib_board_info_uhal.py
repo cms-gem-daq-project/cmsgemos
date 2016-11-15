@@ -49,8 +49,8 @@ parser.add_option("--l1a_block", action="store_true", dest="l1a_block",
 		  help="Inhibit the L1As at the TTC backplane link", metavar="l1a_block")
 parser.add_option("--short", action="store_true", dest="short",
 		  help="Skip extended information", metavar="short")
-parser.add_option("--invertTX", action="store_true", dest="invertTX",
-		  help="Flip polarity for SFP", metavar="invertTX")
+parser.add_option("--invertTX", type="string", dest="invertTX",default="",  
+                  help="Flip polarity for SFPs in list", metavar="invertTX")
 
 (options, args) = parser.parse_args()
 
@@ -61,12 +61,12 @@ if options.slot:
 	uTCAslot = 160+options.slot
 
 if options.debug:
-        print options.slot, uTCAslot
+    print options.slot, uTCAslot
 
 ipaddr = '192.168.0.%d'%(uTCAslot)
 #ipaddr = '192.168.250.53'
 if options.testbeam:
-        ipaddr        = '137.138.115.185'
+    ipaddr        = '137.138.115.185'
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 #uri = "ipbustcp-2.0://eagle45:60002"
@@ -81,13 +81,20 @@ print "  Opening GLIB with IP", ipaddr
 print "--=======================================--"
 print
 
-if options.invertTX :
-        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x1)
-        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP2",0x1)
-else:
-        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP0",0x0)
-        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP2",0x0)
-                
+# set all links to un-inverted                                                                                                                                                                                                                                                    
+for sfp in range(4):
+    writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP%d"%(sfp),0x0)
+    pass
+# invert specified links                                                                                                                                                                                                                                                           
+invertList = [int(x) for x in (options.invertTX).split(',')]
+if len(invertList) :
+    for sfp in invertList:
+        if (sfp > 4 or sfp < 0):
+            print "invalid link specified, not inverting"
+            continue
+        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP%d"%(sfp),0x1)
+        pass
+
 if not options.userOnly:
   #pass
 	getSystemInfo(glib)
