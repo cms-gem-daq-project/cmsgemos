@@ -426,34 +426,32 @@ void gem::hw::glib::GLIBManager::pauseAction()
 
       if (m_scanType.value_ == 2) {
 	uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	INFO("GLIBManager::pauseAction LatencyScan " << (int)updatedLatency);
+	INFO("GLIBManager::pauseAction LatencyScan GLIB " << (slot+1) << " Latency " << (int)updatedLatency);
 
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for GLIB to finish building events");
+          DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
           usleep(100);
         }
-        DEBUG("GLIBManager::pauseAction finished building events, updating run parameter "
+        DEBUG("GLIBManager::pauseAction GLIB " << (slot+1) << " finished building events, updating run parameter "
               << (int)updatedLatency);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,updatedLatency);
-	m_lastLatency = updatedLatency;
       } else if (m_scanType.value_ == 3) {
 	uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
 	uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
-	INFO("GLIBManager::pauseAction ThresholdScan"
+	INFO("GLIBManager::pauseAction ThresholdScan GLIB " << (slot+1) << ""
              << " VT1 " << (int)updatedVT1
              << " VT2 " << (int)updatedVT2);
 
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for GLIB to finish building events");
+          DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
           usleep(100);
         }
-        DEBUG("GLIBManager::pauseAction finished building events, updating VT1 " << (int)updatedVT1
+        DEBUG("GLIBManager::pauseAction finished GLIB " << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
               << " and VT2 " << (int)updatedVT2);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,updatedVT1);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,updatedVT2);
-	m_lastVT1 = updatedVT1;
       }
       // usleep(100); // just for testing the timing of different applications
 
@@ -464,6 +462,17 @@ void gem::hw::glib::GLIBManager::pauseAction()
       XCEPT_RAISE(gem::hw::glib::exception::Exception, "pauseAction failed");
       return;  // no need to return as the exception will exit the block
     }
+  }
+
+  // Update the scan parameters
+  if (m_scanType.value_ == 2) {
+    INFO("GLIBManager::pauseAction LatencyScan old Latency " << (int)m_lastLatency);
+    m_lastLatency += m_stepSize.value_;
+    INFO("GLIBManager::pauseAction LatencyScan new Latency " << (int)m_lastLatency);
+  } else if (m_scanType.value_ == 3) {
+    INFO("GLIBManager::pauseAction ThresholdScan old VT1 " << (int)m_lastVT1);
+    m_lastVT1 += m_stepSize.value_;
+    INFO("GLIBManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
   }
 }
 
