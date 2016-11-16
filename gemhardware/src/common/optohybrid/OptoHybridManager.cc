@@ -548,14 +548,14 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
 	if (m_scanType.value_ == 2) {
 	  uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	  INFO("OptoHybridManager::LatencyScan OptoHybrid on link " << (int)link <<
+	  INFO("OptoHybridManager::LatencyScan OptoHybrid on link " << (int)link
 	       << " GLIB slot " << (slot+1) << " Latency  " << (int)updatedLatency);
 
           optohybrid->broadcastWrite("Latency", updatedLatency, vfatMask);
       } else if (m_scanType.value_ == 3) {
 	  uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
 	  uint8_t VT2 = 0; //std::max(0,(int)m_scanMax.value_);
-	  INFO("OptoHybridManager::ThresholdScan OptoHybrid on link " << (int)link <<
+	  INFO("OptoHybridManager::ThresholdScan OptoHybrid on link " << (int)link
 	       << " GLIB slot " << (slot+1) << " VT1 " << (int)updatedVT1
                << " VT2 " << VT2 << " StepSize " << m_stepSize.value_);
 
