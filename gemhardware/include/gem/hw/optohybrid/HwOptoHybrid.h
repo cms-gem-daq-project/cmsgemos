@@ -3,12 +3,17 @@
 
 #include "gem/hw/GEMHwDevice.h"
 #include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/vfat/HwVFAT2.h"
 
 #include "gem/hw/optohybrid/exception/Exception.h"
 //#include "gem/hw/optohybrid/OptoHybridMonitor.h"
 
 namespace gem {
   namespace hw {
+    /* namespace vfat { */
+    /*   class HwVFAT2; */
+    /* } */
+
     namespace optohybrid {
 
       static const int MAX_VFATS = 24;  ///< maximum number of VFATs that can be connected to an OptoHybrid
@@ -178,7 +183,8 @@ namespace gem {
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI,
                        std::string const& addressTable);
           HwOptoHybrid(std::string const& optohybridDevice, uhal::HwInterface& uhalDevice);
-          HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
+          HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
+                       uint8_t               const& slot);
 
           virtual ~HwOptoHybrid();
 
@@ -231,6 +237,16 @@ namespace gem {
 
 
           /////Specific to the OptoHybrid board
+
+          /**
+           * @brief Get the GEMHwDevice corresponding to the specified VFAT
+           * @param vfat is the VFAT position
+           */
+          gem::hw::vfat::HwVFAT2& getVFATDevice(uint8_t const& vfat) const {
+            // want to pass in the device name to append to it the VFAT
+            // this is almost guaranteed to leak
+            return static_cast<gem::hw::vfat::HwVFAT2&>(*(new gem::hw::vfat::HwVFAT2(*this, vfat))); };
+
           /**
            * Read the link status registers, store the information in a struct
            * @retval _status a struct containing the status bits of the optical link
