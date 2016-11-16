@@ -548,19 +548,19 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
 	if (m_scanType.value_ == 2) {
 	  uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	  INFO("OptoHybridManager::LatencyScan Latency  " << (int)updatedLatency);
+	  INFO("OptoHybridManager::LatencyScan OptoHybrid on link " << (int)link <<
+	       << " GLIB slot " << (slot+1) << " Latency  " << (int)updatedLatency);
 
           optohybrid->broadcastWrite("Latency", updatedLatency, vfatMask);
-	  m_lastLatency = updatedLatency;
       } else if (m_scanType.value_ == 3) {
 	  uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
 	  uint8_t VT2 = 0; //std::max(0,(int)m_scanMax.value_);
-	  INFO("OptoHybridManager::ThresholdScan VT1 " << (int)updatedVT1
+	  INFO("OptoHybridManager::ThresholdScan OptoHybrid on link " << (int)link <<
+	       << " GLIB slot " << (slot+1) << " VT1 " << (int)updatedVT1
                << " VT2 " << VT2 << " StepSize " << m_stepSize.value_);
 
           optohybrid->broadcastWrite("VThreshold1", updatedVT1, vfatMask);
           optohybrid->broadcastWrite("VThreshold2", VT2, vfatMask);
-	  m_lastVT1 = updatedVT1;
 	}
         // what resets to do
       } else {
@@ -571,6 +571,16 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
         //maybe raise exception so as to not continue with other cards?
       }
     }
+  }
+  // Update the scan parameters
+  if (m_scanType.value_ == 2) {
+    INFO("OptoHybridManager::pauseAction LatencyScan old Latency " << (int)m_lastLatency);
+    m_lastLatency += m_stepSize.value_;
+    INFO("OptoHybridManager::pauseAction LatencyScan new Latency " << (int)m_lastLatency);
+  } else if (m_scanType.value_ == 3) {
+    INFO("OptoHybridManager::pauseAction ThresholdScan old VT1 " << (int)m_lastVT1);
+    m_lastVT1 += m_stepSize.value_;
+    INFO("OptoHybridManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
   }
 }
 
