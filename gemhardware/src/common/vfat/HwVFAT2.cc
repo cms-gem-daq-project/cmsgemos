@@ -36,11 +36,11 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }
 
-gem::hw::vfat::HwVFAT2::HwVFAT2(uint8_t const& vfatDevice,
-                                gem::hw::optohybrid::HwOptoHybrid const& ohDevice) :
+gem::hw::vfat::HwVFAT2::HwVFAT2(gem::hw::optohybrid::HwOptoHybrid const& ohDevice,
+                                uint8_t const& vfatDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("%s.VFAT%d",(ohDevice.getLoggerName()).c_str(),(int)vfatDevice),
                                     ohDevice.getOptoHybridHwInterface()),
-  m_slot(-1)
+  m_slot((int)vfatDevice)
 {
   INFO("HwVFAT2 ctor");
   INFO("HwVFAT2 creating VFAT device from OH device " << ohDevice.getLoggerName());

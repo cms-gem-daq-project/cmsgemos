@@ -26,7 +26,7 @@ namespace gem {
     namespace optohybrid {
       class HwOptoHybrid;
     }
-    
+
     namespace vfat {
       //class VFAT2ChannelData;
       //class VFAT2ChannelSettings;
@@ -50,7 +50,8 @@ namespace gem {
           HwVFAT2(std::string const& vfatDevice, std::string const& connectionURI,
                   std::string const& addressTable);
           HwVFAT2(std::string const& vfatDevice, uhal::HwInterface& uhalDevice);
-          HwVFAT2(uint8_t const& vfatDevice, gem::hw::optohybrid::HwOptoHybrid const& ohDevice);
+          HwVFAT2(gem::hw::optohybrid::HwOptoHybrid const& ohDevice,
+                  uint8_t                           const& vfatDevice);
           HwVFAT2(std::string const& vfatDevice="VFAT13");
 
           virtual ~HwVFAT2();

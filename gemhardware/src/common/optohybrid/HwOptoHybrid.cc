@@ -16,7 +16,6 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   //need to know which device this is 0 or 1?
   //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid");
-  //gem::hw::optohybrid::HwOptoHybrid::initDevice();
   //set up which links are active, so that the control can be done without specifying a link
   INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
@@ -61,28 +60,30 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   setDeviceBaseNode(basenode.str());
   INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
-/*
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
-                                                int const& slot) :
-  gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
+
+gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glibDevice,
+                                                uint8_t const& slot) :
+  gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("%s.OptoHybrid_%d",(glibDevice.getLoggerName()).c_str(),(int)slot),
+                                    glibDevice.getGEMHwInterface()),
   //monOptoHybrid_(0),
   b_links({false,false,false}),
   m_controlLink(-1),
-  m_slot(slot)
+  m_slot((int)slot)
 {
+  INFO("HwOptoHybrid creating OptoHybrid device from GLIB device " << glibDevice.getLoggerName());
   //use a connection file and connection manager?
-  setDeviceID(toolbox::toString("%s.optohybrid%02d",glib.getDeviceID().c_str(),slot));
+  setDeviceID(toolbox::toString("%s.optohybrid%02d",glibDevice.getDeviceID().c_str(),slot));
   //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml" );
   p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
   //p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
   //p_gemHW = std::shared_ptr<uhal::HwInterface>(p_gemConnectionManager->getDevice(this->getDeviceID()));
-  //setAddressTableFileName("glib_address_table.xml");
-  //setDeviceIPAddress(toolbox::toString("192.168.0.%d",160+slot));
-  setDeviceBaseNode("OptoHybrid");
-  //gem::hw::optohybrid::HwOptoHybrid::initDevice();
+  std::stringstream basenode;
+  basenode << "GLIB.OptoHybrid_" << (int)slot << ".OptoHybrid";
+  setDeviceBaseNode(basenode.str());
+  INFO("HwOptoHybrid ctor done " << isHwConnected());
 }
-*/
+
 gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 {
   //releaseDevice();
