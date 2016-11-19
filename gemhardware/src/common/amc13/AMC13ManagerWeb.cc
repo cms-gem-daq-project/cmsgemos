@@ -103,9 +103,9 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *o
   if ( currentState != "Initial")
     try {
       if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
-        // amc13_status_ptr s(dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus());
-        // s->SetHTML();
-        // s->Report(level,*out);
+        amc13_status_ptr s(dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus());
+        s->SetHTML();
+        s->Report(level,*out);
       } else {
         std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
         WARN("AMC13ManagerWeb:: " << msg);
@@ -175,9 +175,9 @@ void gem::hw::amc13::AMC13ManagerWeb::updateStatus(xgi::Output *out)
   if ( currentState != "Initial")
     try {
       if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
-        // amc13_status_ptr s(dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus());
-        // s->SetHTML();
-        // s->Report(level,*out);
+        amc13_status_ptr s(dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus());
+        s->SetHTML();
+        s->Report(level,*out);
       } else {
         std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
         WARN("AMC13ManagerWeb:: " << msg);
