@@ -125,6 +125,18 @@ def getTriggerSource(device,gtx):
     """
     return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(gtx))
 
+def setTriggerThrottle(device,gtx,throttle):
+    """
+    Set the trigger throttle
+    """
+    return writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.THROTTLE"%(gtx),throttle)
+
+def getTriggerThrottle(device,gtx):
+    """
+    Get the trigger throttling value
+    """
+    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.THROTTLE"%(gtx))
+
 def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=False):
     """
     Configure the T1 controller
@@ -249,6 +261,14 @@ def setReferenceClock(device,gtx,source,debug=False):
     writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
 
+def getReferenceClock(device,gtx,debug=False):
+    """
+    Get the reference clock source on the OptoHybrid
+    OH:   0=onboard,     1=GTX recovered,  2=external clock
+    V2A only
+    """
+    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx))
+
 def getClockingInfo(device,gtx,debug=False):
     """
     Get the OptoHybrid clocking information
@@ -294,4 +314,54 @@ def calculateLockErrors(device,gtx,register,sampleTime):
     errorCounts = [first,second]
     return errorCounts
 
+def configureScanModule(device, gtx, mode, vfat, channel=0,
+                        scanmin=0x0,scanmax=0xff, stepsize=0x1,
+                        numtrigs=1000,
+                        useUltra=False,debug=False):
+    """
+    Configure the firmware scan controller
+    mode: 0 Threshold scan
+          1 Threshold scan per channel
+          2 Latency scan
+          3 s-curve scan
+          4 Threshold scan with tracking data
+    t1type (only for mode 0, type of T1 signal to send):
+          0 L1A
+          1 CalPulse
+          2 Resync
+          3 BC0
+    delay (only for mode 1), delay between CalPulse and L1A
+    interval (only for mode 0,1), how often to repeat signals
+    number how many signals to send (0 is continuous)
+    """
+    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MODE"%(gtx),mode)
+    if debug:
+        print "configuring the T1 controller for mode 0x%x (0x%x)"%(
+            mode,
+            readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MODE"%(gtx)))
+    if (mode == 0):
+        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TYPE"%(gtx),t1type)
+        if debug:
+            print "configuring the T1 controller for type 0x%x (0x%x)"%(
+                t1type,
+                readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TYPE"%(gtx)))
+    if (mode == 1):
+        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.DELAY"%(gtx),delay)
+        if debug:
+            print "configuring the T1 controller for delay %d (%d)"%(
+                delay,
+                readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.DELAY"%(gtx)))
+    if (mode != 2):
+        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.INTERVAL"%(gtx),interval)
+        if debug:
+            print "configuring the T1 controller for interval %d (%d)"%(
+                interval,
+                readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.INTERVAL"%(gtx)))
+
+    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.NUMBER"%(gtx),number)
+    if debug:
+        print "configuring the T1 controller for nsignals %d (%d)"%(
+            number,
+            readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.NUMBER"%(gtx)))
+    return
 

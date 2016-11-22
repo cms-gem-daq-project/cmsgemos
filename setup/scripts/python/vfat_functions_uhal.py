@@ -80,6 +80,11 @@ def setRunMode(device, gtx, chip, enable, debug=False):
         writeVFAT(device, gtx, chip, "ContReg0", regVal&0xFE)
     return
                         
+def setChannelRegister(device, gtx, chip, channel, mask=0x0, pulse=0x0, trim=0x0, debug=False):
+    chanReg = (pulse << 6)|(mask << 5)|(trim&0x1f)
+    writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),chanReg)
+    return
+                        
 def biasVFAT(device, gtx, chip, enable=True, debug=False):
     if (enable):
         writeVFAT(device, gtx, chip, "ContReg0",    0x37)
@@ -97,10 +102,10 @@ def biasVFAT(device, gtx, chip, enable=True, debug=False):
     writeVFAT(device, gtx, chip, "IShaper",      150)
     writeVFAT(device, gtx, chip, "IShaperFeed",  100)
     writeVFAT(device, gtx, chip, "IComp",         90)
-    writeVFAT(device, gtx, chip, "VCal",         150)
-    writeVFAT(device, gtx, chip, "VThreshold1",   25)
+    # writeVFAT(device, gtx, chip, "VCal",         150)
+    # writeVFAT(device, gtx, chip, "VThreshold1",   25)
     writeVFAT(device, gtx, chip, "VThreshold2", 0x00)
-    writeVFAT(device, gtx, chip, "CalPhase",    0x05)
+    # writeVFAT(device, gtx, chip, "CalPhase",    0x05)
 
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
@@ -126,10 +131,10 @@ def biasAllVFATs(device, gtx, mask, enable=True, debug=False):
     writeAllVFATs(device, gtx, mask, "IShaper",      150)
     writeAllVFATs(device, gtx, mask, "IShaperFeed",  100)
     writeAllVFATs(device, gtx, mask, "IComp",         90)
-    writeAllVFATs(device, gtx, mask, "VCal",         150)
-    writeAllVFATs(device, gtx, mask, "VThreshold1",   25)
+    # writeAllVFATs(device, gtx, mask, "VCal",         150)
+    # writeAllVFATs(device, gtx, mask, "VThreshold1",   25)
     writeAllVFATs(device, gtx, mask, "VThreshold2", 0x00)
-    writeAllVFATs(device, gtx, mask, "CalPhase",    0x05)
+    # writeAllVFATs(device, gtx, mask, "CalPhase",    0x05)
 
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
