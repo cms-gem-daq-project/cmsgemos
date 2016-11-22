@@ -34,6 +34,8 @@ def readAllVFATs(device, gtx, mask, reg, debug=False):
     if (debug and vfatVals):
         for i,val in enumerate(vfatVals):
             print "%d: value = 0x%08x"%(i,vfatVal)
+            pass
+        pass
     ## do check on status, maybe only do the check in the calling code
     #if ((vfatVals >> 26) & 0x1) :
     #    if debug:
@@ -65,6 +67,7 @@ def setupDefaultCRs(device, gtx, chip, sleep=False, debug=False):
         writeVFAT(device, gtx, chip, "ContReg0", 0x36)
     else:
         writeVFAT(device, gtx, chip, "ContReg0", 0x37)
+        pass
     writeVFAT(device, gtx, chip, "ContReg1", 0x00)
     writeVFAT(device, gtx, chip, "ContReg2", 0x30)
     writeVFAT(device, gtx, chip, "ContReg3", 0x00)
@@ -78,13 +81,20 @@ def setRunMode(device, gtx, chip, enable, debug=False):
         writeVFAT(device, gtx, chip, "ContReg0", regVal|0x01)
     else:
         writeVFAT(device, gtx, chip, "ContReg0", regVal&0xFE)
+        pass
     return
-                        
-def setChannelRegister(device, gtx, chip, channel, mask=0x0, pulse=0x0, trim=0x0, debug=False):
+
+def setChannelRegister(device, gtx, chip, chan,
+                       mask=0x0, pulse=0x0, trim=0x0, debug=False):
     chanReg = (pulse << 6)|(mask << 5)|(trim&0x1f)
     writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),chanReg)
     return
-                        
+
+def setVFATThreshold(device, gtx, chip, vt1, vt2=0, debug=False):
+    writeVFAT(device, gtx, chip, "VThreshold1", vt1)
+    writeVFAT(device, gtx, chip, "VThreshold2", vt2)
+    return
+
 def biasVFAT(device, gtx, chip, enable=True, debug=False):
     if (enable):
         writeVFAT(device, gtx, chip, "ContReg0",    0x37)
@@ -92,6 +102,7 @@ def biasVFAT(device, gtx, chip, enable=True, debug=False):
         #what about leaving any other settings?
         #not now, want a reproducible routine
         writeVFAT(device, gtx, chip, "ContReg0",    0x36)
+        pass
     writeVFAT(device, gtx, chip, "ContReg1",    0x00)
     writeVFAT(device, gtx, chip, "ContReg2",    0x30)
     writeVFAT(device, gtx, chip, "ContReg3",    0x00)
@@ -102,10 +113,10 @@ def biasVFAT(device, gtx, chip, enable=True, debug=False):
     writeVFAT(device, gtx, chip, "IShaper",      150)
     writeVFAT(device, gtx, chip, "IShaperFeed",  100)
     writeVFAT(device, gtx, chip, "IComp",         90)
-    # writeVFAT(device, gtx, chip, "VCal",         150)
+    writeVFAT(device, gtx, chip, "VCal",           0)
     # writeVFAT(device, gtx, chip, "VThreshold1",   25)
     writeVFAT(device, gtx, chip, "VThreshold2", 0x00)
-    # writeVFAT(device, gtx, chip, "CalPhase",    0x05)
+    writeVFAT(device, gtx, chip, "CalPhase",    0x00)
 
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
@@ -121,6 +132,7 @@ def biasAllVFATs(device, gtx, mask, enable=True, debug=False):
         #what about leaving any other settings?
         #not now, want a reproducible routine
         writeAllVFATs(device, gtx, mask, "ContReg0",    0x36)
+        pass
     writeAllVFATs(device, gtx, mask, "ContReg1",    0x00)
     writeAllVFATs(device, gtx, mask, "ContReg2",    0x30)
     writeAllVFATs(device, gtx, mask, "ContReg3",    0x00)
@@ -131,10 +143,10 @@ def biasAllVFATs(device, gtx, mask, enable=True, debug=False):
     writeAllVFATs(device, gtx, mask, "IShaper",      150)
     writeAllVFATs(device, gtx, mask, "IShaperFeed",  100)
     writeAllVFATs(device, gtx, mask, "IComp",         90)
-    # writeAllVFATs(device, gtx, mask, "VCal",         150)
+    writeAllVFATs(device, gtx, mask, "VCal",           0)
     # writeAllVFATs(device, gtx, mask, "VThreshold1",   25)
     writeAllVFATs(device, gtx, mask, "VThreshold2", 0x00)
-    # writeAllVFATs(device, gtx, mask, "CalPhase",    0x05)
+    writeAllVFATs(device, gtx, mask, "CalPhase",    0x00)
 
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
@@ -156,7 +168,8 @@ def getChipID(device, gtx, chip, debug=False):
         thechipid |= (readVFAT(device, gtx, chip, "ChipID0") & ebmask)
     else:
         thechipid = 0xdead
-    
+        pass
+
     return thechipid
 
 def getAllChipIDs(device, gtx, mask=0xff000000, debug=False):
@@ -191,7 +204,7 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
 	"VThreshold2",
 	"CalPhase",
         ]
-    
+
     slotmap = map(lambda slotID: perslot%(slotID), regkeys.keys())
     print "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
     chipmap = map(lambda chipID: perchip%(regkeys[chipID]), regkeys.keys())
@@ -201,5 +214,5 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
         regValues = readAllVFATs(device, gtx, mask, reg, debug)
         regmap = map(lambda chip: perreg%(chip&0xff), regValues)
         print "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
-        
-    return    
+        pass
+    return
