@@ -234,6 +234,8 @@ namespace gem {
             m_vfatMapping;
 
 	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
+
+          std::map<int,std::set<int> > m_hwMapping;
         };  // class OptoHybridManager
 
     }  // namespace gem::hw::optohybrid

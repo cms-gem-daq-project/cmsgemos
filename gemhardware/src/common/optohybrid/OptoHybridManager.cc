@@ -356,6 +356,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   DEBUG("OptoHybridManager::configureAction");
+  //std::ofstream of
+
+  std::map<int,std::set<int> > hwMapping;
   //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
@@ -373,6 +376,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
 
       if (optohybrid->isHwConnected()) {
+        hwMapping[slot+1].emplace(link);
 
         DEBUG("OptoHybridManager::configureAction::setting trigger source to 0x"
              << std::hex << info.triggerSource.value_ << std::dec);
