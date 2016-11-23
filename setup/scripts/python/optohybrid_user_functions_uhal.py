@@ -329,8 +329,8 @@ def calculateLockErrors(device,gtx,register,sampleTime):
     return errorCounts
 
 def configureScanModule(device, gtx, mode, vfat, channel=0,
-                        scanmin=0x0,scanmax=0xff, stepsize=0x1,
-                        numtrigs=1000,
+                        scanmin=0x0, scanmax=0xff,
+                        stepsize=0x1, numtrigs=1000,
                         useUltra=False,debug=False):
     """
     Configure the firmware scan controller
@@ -349,6 +349,7 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
     if (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
         print "Scan is already running, not starting a new scan"
         return
+
     if debug:
         print scanBase
         print "FW scan mode       : %d"%(mode)
@@ -423,20 +424,24 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
 def getScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
     while (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
-        if debug:
+        if debug and False:
             print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR"%(scanBase)))
             pass
         time.sleep(0.1)
         pass
 
+    # results = []
+    # results.append(readRegister(device,"%s.RESULTS"%(scanBase)))
+    # print "0x%08x"%(results[0])
+    # results.append(readBlock(device,"%s.RESULTS"%(scanBase),numpoints-1))
+    # print results
     results = readBlock(device,"%s.RESULTS"%(scanBase),numpoints)
-
     return results
 
 def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
     while (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
-        if debug:
+        if debug and False:
             print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR"%(scanBase)))
             pass
         time.sleep(0.1)

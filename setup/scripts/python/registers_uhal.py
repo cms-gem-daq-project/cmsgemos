@@ -23,6 +23,18 @@ def readRegister(device, register, debug=False):
     """
     global gRetries
     nRetries = 0
+    if debug:
+        print """Trying to read register %s (%s)\n
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
+"""%(register,
+   device.getNode(register).getPath(),
+   device.getNode(register).getAddress(),
+   device.getNode(register).getMask(),
+   device.getNode(register).getPermission(),
+   device.getNode(register).getMode(),
+   device.getNode(register).getSize()
+   )
+        pass
     while (nRetries < gMAX_RETRIES):
         try:
             controlChar = device.getNode(register).read()
@@ -55,6 +67,18 @@ def readBlock(device, register, nwords, debug=False):
     """
     global gRetries
     nRetries = 0
+    if debug:
+        print """Trying to read register %s (%s)\n
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
+"""%(register,
+   device.getNode(register).getPath(),
+   device.getNode(register).getAddress(),
+   device.getNode(register).getMask(),
+   device.getNode(register).getPermission(),
+   device.getNode(register).getMode(),
+   device.getNode(register).getSize()
+   )
+        pass
     while (nRetries < gMAX_RETRIES):
         try:
             if (debug):
@@ -92,6 +116,17 @@ def writeRegister(device, register, value, debug=False):
     """
     global gRetries
     nRetries = 0
+    if debug:
+        print """Trying to write register %s (%s)\n
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
+"""%(register,
+   device.getNode(register).getPath(),
+   device.getNode(register).getAddress(),
+   device.getNode(register).getMask(),
+   device.getNode(register).getPermission(),
+   device.getNode(register).getMode(),
+   device.getNode(register).getSize()
+   )
     while (nRetries < gMAX_RETRIES):
         try:
             device.getNode(register).write(0xffffffff&value)
