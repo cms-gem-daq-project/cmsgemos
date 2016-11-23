@@ -1,4 +1,5 @@
 #include <bitset>
+#include <chrono>
 #include <iomanip>
 #include <algorithm>
 #include <functional>
@@ -314,16 +315,24 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
                                                                        uint32_t    const& mask,
                                                                        bool               reset)
 {
+  auto t1 = std::chrono::high_resolution_clock::now();
   if (reset)
     writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
   uint32_t tmp = readReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()));
 
+  while (readReg(getDeviceBaseNode(),"GEB.Broadcast.Running")) {
+    TRACE("HwOptoHybrid::broadcastRead transaction on "
+          << name << " is still running...");
+    usleep(100);
+  }
+  auto t2 = std::chrono::high_resolution_clock::now();
+  TRACE("HwOptoHybrid::broadcastRead transaction on " << name << " lasted "
+        << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() << "ns");
   std::stringstream regName;
   regName << getDeviceBaseNode() << ".GEB.Broadcast.Results";
   std::vector<uint32_t> results;
   //need to compute the number of required reads based on the mask
-  usleep(1000);
   return readBlock(regName.str(),std::bitset<32>(~mask).count());
 }
 
@@ -332,11 +341,19 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
                                                        uint32_t    const& mask,
                                                        bool reset)
 {
+  auto t1 = std::chrono::high_resolution_clock::now();
   if (reset)
     writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()),value);
-  usleep(1000);
+  while (readReg(getDeviceBaseNode(),"GEB.Broadcast.Running")) {
+    TRACE("HwOptoHybrid::broadcastWrite transaction on "
+          << name << " is still running...");
+    usleep(100);
+  }
+  auto t2 = std::chrono::high_resolution_clock::now();
+  TRACE("HwOptoHybrid::broadcastWrite transaction on " << name << " lasted "
+        << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() << "ns");
 }
 
 
