@@ -515,7 +515,7 @@ namespace gem {
            * @param uint32_t mask s-bits coming from specific GEB slots
            */
           void setSBitMask(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK", 0x00ffffff&mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK", mask&0x00ffffff); };
 
           /**
            * Read the S-bit mask
@@ -1045,7 +1045,7 @@ namespace gem {
           void setVFATMask(uint32_t const mask) {
             DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
                   << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
-            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK"),mask); };
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK"),mask&0x00ffffff); };
 
           /**
            * Sends a read request to all (un-masked) VFATs on the same register
