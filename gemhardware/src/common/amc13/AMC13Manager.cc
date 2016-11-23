@@ -405,7 +405,10 @@ void gem::hw::amc13::AMC13Manager::startAction()
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
       if (bchan->bag.channel.value_ > -1) {
         INFO("AMC13Manager::startAction enabling BGO channel " << bchan->bag.channel.value_);
-        p_amc13->enableBGO(bchan->bag.channel.value_);
+	if (bchan->bag.repeat.value_)
+          p_amc13->enableBGORepeat(bchan->bag.channel.value_);
+	else
+          p_amc13->enableBGOSingle(bchan->bag.channel.value_);		
       }
     p_amc13->sendBGO();
   }
@@ -493,7 +496,10 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
       if (bchan->bag.channel.value_ > -1) {
         sendLocalBGO = true;
         DEBUG("AMC13Manager::resumeAction enabling BGO channel " << bchan->bag.channel.value_);
-        p_amc13->enableBGO(bchan->bag.channel.value_);
+	if (bchan->bag.repeat.value_)
+          p_amc13->enableBGORepeat(bchan->bag.channel.value_);
+	else
+          p_amc13->enableBGOSingle(bchan->bag.channel.value_);		
       }
 
     if (sendLocalBGO)

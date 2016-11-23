@@ -3,12 +3,17 @@
 
 #include "gem/hw/GEMHwDevice.h"
 #include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/vfat/HwVFAT2.h"
 
 #include "gem/hw/optohybrid/exception/Exception.h"
 //#include "gem/hw/optohybrid/OptoHybridMonitor.h"
 
 namespace gem {
   namespace hw {
+    /* namespace vfat { */
+    /*   class HwVFAT2; */
+    /* } */
+
     namespace optohybrid {
 
       static const int MAX_VFATS = 24;  ///< maximum number of VFATs that can be connected to an OptoHybrid
@@ -178,7 +183,8 @@ namespace gem {
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI,
                        std::string const& addressTable);
           HwOptoHybrid(std::string const& optohybridDevice, uhal::HwInterface& uhalDevice);
-          HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
+          HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
+                       uint8_t               const& slot);
 
           virtual ~HwOptoHybrid();
 
@@ -231,6 +237,16 @@ namespace gem {
 
 
           /////Specific to the OptoHybrid board
+
+          /**
+           * @brief Get the GEMHwDevice corresponding to the specified VFAT
+           * @param vfat is the VFAT position
+           */
+          gem::hw::vfat::HwVFAT2& getVFATDevice(uint8_t const& vfat) const {
+            // want to pass in the device name to append to it the VFAT
+            // this is almost guaranteed to leak
+            return static_cast<gem::hw::vfat::HwVFAT2&>(*(new gem::hw::vfat::HwVFAT2(*this, vfat))); };
+
           /**
            * Read the link status registers, store the information in a struct
            * @retval _status a struct containing the status bits of the optical link
@@ -435,7 +451,7 @@ namespace gem {
            * @param uint32_t mask which s-bits to forward (maximum 6)
            */
           void setSBitSource(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS",mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS",mask); };
 
           /**
            * Set the S-bit source
@@ -453,28 +469,28 @@ namespace gem {
            * @retval uint32_t which VFAT chips are sending S-bits
            */
           uint32_t getSBitSource() {
-            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS"); };
 
           /**
            * Set the S-bit mode
            * @param uint32_t mode of sending s-bits out the HDMI connector
            */
           void setSBitMode(uint8_t const mode) {
-            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.HDMI_SBIT_MODE", mode); };
+            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBIT_MODE", mode); };
 
           /**
            * Read the S-bit mode
            * @retval uint32_t which mode the OptoHybrid is sending s-bits to the HDMI connector
            */
           uint32_t getSBitMode() {
-            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.HDMI_SBIT_MODE"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBIT_MODE"); };
 
           /**
            * Set the S-bit source
            * @param uint32_t mask which s-bits to forward (maximum 6)
            */
           void setHDMISBitSource(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS",mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS",mask); };
 
           /**
            * Set the S-bit source
@@ -492,21 +508,21 @@ namespace gem {
            * @retval uint32_t which VFAT chips are sending S-bits
            */
           uint32_t getHDMISBitSource() {
-            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS"); };
 
           /**
            * Set the S-bit mask
            * @param uint32_t mask s-bits coming from specific GEB slots
            */
           void setSBitMask(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK", 0x00ffffff&mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK", 0x00ffffff&mask); };
 
           /**
            * Read the S-bit mask
            * @retval uint32_t which slots s-bits are processed
            */
           uint32_t getSBitMask() {
-            return readReg(getDeviceBaseNode(),"CONTROL.SBIT_MASK"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK"); };
 
 
           /**
@@ -1018,7 +1034,7 @@ namespace gem {
            *
            */
           uint32_t getVFATMask() {
-            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK")); };
+            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK")); };
 
           /**
            * Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
@@ -1029,7 +1045,7 @@ namespace gem {
           void setVFATMask(uint32_t const mask) {
             DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
                   << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
-            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK"),mask); };
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK"),mask); };
 
           /**
            * Sends a read request to all (un-masked) VFATs on the same register

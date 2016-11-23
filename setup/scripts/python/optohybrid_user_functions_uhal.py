@@ -31,8 +31,33 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
     if (debug and vfatVals):
         for i,val in enumerate(vfatVals):
             print "%d: value = 0x%08x"%(i,vfatVal)
-    
+
     return bmask
+
+def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
+    """
+    Perform a broadcast I2C write on the VFATs specified by mask
+    """
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
+    writeRegister(device,"%s.Mask"%(baseNode), mask)
+    writeRegister(device,"%s.Request.%s"%(baseNode,register))
+    while (readRegister(device,"%s.Running"%(baseNode))):
+        if (debug):
+            print "broadcast request still running..."
+            pass
+        pass
+    return
+
+def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
+    """
+    Perform a broadcast I2C read on the VFATs specified by mask
+    """
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
+    writeRegister(device,"%s.Mask"%(baseNode), mask)
+    readRegister(device,"%s.Request.%s"%(baseNode,register))
+    return readBlock(device,"%s.Results"%(baseNode,register),24)
 
 def optohybridCounters(device,gtx=0,doReset=False):
     """
@@ -72,7 +97,7 @@ def optohybridCounters(device,gtx=0,doReset=False):
         return
     else:
         counters = {}
-        
+
         counters["WB"] = {}
         counters["WB"]["MASTER"] = {}
         counters["WB"]["SLAVE"]  = {}
@@ -89,7 +114,7 @@ def optohybridCounters(device,gtx=0,doReset=False):
                 counters["WB"]["MASTER"][wbcnt]["I2C%d"%i2c] = readRegister(device,"%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
             for slave in ["ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"]:
                 counters["WB"]["MASTER"][wbcnt][slave] = readRegister(device,"%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
-        
+
         #CRC counters
         counters["CRC"] = {}
         counters["CRC"]["VALID"]     = {}
@@ -124,6 +149,18 @@ def getTriggerSource(device,gtx):
     OH:   0=TTC, 1=FIRMWARE, 2=EXTERNAL, 3=LOOPBACK
     """
     return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(gtx))
+
+def setTriggerThrottle(device,gtx,throttle):
+    """
+    Set the trigger throttle
+    """
+    return writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.THROTTLE"%(gtx),throttle)
+
+def getTriggerThrottle(device,gtx):
+    """
+    Get the trigger throttling value
+    """
+    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.THROTTLE"%(gtx))
 
 def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=False):
     """
@@ -169,6 +206,20 @@ def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=F
         print "configuring the T1 controller for nsignals %d (%d)"%(
             number,
             readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.NUMBER"%(gtx)))
+    return
+
+def resetLocalT1(device,gtx,debug=False):
+    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.RESET"%(gtx),0x1)
+    return
+
+def startLocalT1(device,gtx,debug=False):
+    if not readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
+    return
+
+def stopLocalT1(device,gtx,debug=False):
+    if readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def sendL1A(device,gtx,interval=25,number=0,debug=False):
@@ -246,8 +297,16 @@ def setReferenceClock(device,gtx,source,debug=False):
     OH:   0=onboard,     1=GTX recovered,  2=external clock
     V2A only
     """
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
+    #writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
+
+def getReferenceClock(device,gtx,debug=False):
+    """
+    Get the reference clock source on the OptoHybrid
+    OH:   0=onboard,     1=GTX recovered,  2=external clock
+    V2A only
+    """
+    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx))
 
 def getClockingInfo(device,gtx,debug=False):
     """
@@ -258,7 +317,7 @@ def getClockingInfo(device,gtx,debug=False):
     # v2b only
     clocking["qplllock"]        = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.QPLL_LOCK" %(gtx))
     clocking["qpllfpgaplllock"] = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.QPLL_FPGA_PLL_LOCK"%(gtx))
-    
+
     #v2a only
     clocking["fpgaplllock"] = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.FPGA_PLL_LOCK"%(gtx))
     clocking["extplllock"]  = readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.STATUS.EXT_PLL_LOCK" %(gtx))
@@ -272,15 +331,15 @@ def getVFATsBitMask(device,gtx=0,debug=False):
     """
     Returns the VFAT s-bit mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL"%(gtx)
-    return readRegister(device,"%s.VFAT.SBIT_MASK"%(baseNode))
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT"%(gtx)
+    return readRegister(device,"%s.SBIT_MASK"%(baseNode))
 
 def setVFATsBitMask(device,gtx=0,mask=0x000000,debug=False):
     """
     Set the VFAT s-bit mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL"%(gtx)
-    return writeRegister(device,"%s.VFAT.SBIT_MASK"%(baseNode),mask)
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT"%(gtx)
+    return writeRegister(device,"%s.SBIT_MASK"%(baseNode),mask)
 
 def calculateLockErrors(device,gtx,register,sampleTime):
     baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS"%(gtx)
@@ -294,4 +353,128 @@ def calculateLockErrors(device,gtx,register,sampleTime):
     errorCounts = [first,second]
     return errorCounts
 
+def configureScanModule(device, gtx, mode, vfat, channel=0,
+                        scanmin=0x0, scanmax=0xff,
+                        stepsize=0x1, numtrigs=1000,
+                        useUltra=False,debug=False):
+    """
+    Configure the firmware scan controller
+    mode: 0 Threshold scan
+          1 Threshold scan per channel
+          2 Latency scan
+          3 s-curve scan
+          4 Threshold scan with tracking data
+    """
 
+    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
+    if useUltra:
+        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
+        pass
+
+    if (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
+        print "Scan is already running, not starting a new scan"
+        return
+
+    if debug:
+        print scanBase
+        print "FW scan mode       : %d"%(mode)
+        print "FW scan min        : %d"%(scanmin)
+        print "FW scan max        : %d"%(scanmax)
+        if useUltra:
+            print "Ultra FW scan mask : 0x08x"%(vfat)
+        else:
+            print "FW scan VFAT       : %d"%(vfat)
+            pass
+        print "FW scan channel    : %d"%(channel)
+        print "FW scan step size  : %d"%(stepsize)
+        print "FW scan n_triggers : %d"%(numtrigs)
+        pass
+
+    writeRegister(device,"%s.RESET"%(scanBase), 0x1)
+    writeRegister(device,"%s.MODE"%(scanBase),  mode)
+    writeRegister(device,"%s.MIN"%(scanBase),   scanmin)
+    writeRegister(device,"%s.MAX"%(scanBase),   scanmax)
+    writeRegister(device,"%s.CHAN"%(scanBase),  channel)
+    writeRegister(device,"%s.STEP"%(scanBase),  stepsize)
+    writeRegister(device,"%s.NTRIGS"%(scanBase),numtrigs)
+
+    if useUltra:
+        writeRegister(device,"%s.MASK"%(scanBase),vfat)
+    else:
+        writeRegister(device,"%s.CHIP"%(scanBase),vfat)
+        pass
+
+    return
+
+def printScanConfiguration(device,gtx,useUltra=False,debug=False):
+    """
+    """
+    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
+    if useUltra:
+        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
+        pass
+
+    print scanBase
+    print "FW scan mode       : %d"%(readRegister(device,"%s.MODE"%(scanBase)))
+    print "FW scan min        : %d"%(readRegister(device,"%s.MIN"%(scanBase)))
+    print "FW scan max        : %d"%(readRegister(device,"%s.MAX"%(scanBase)))
+    if useUltra:
+        print "Ultra FW scan mask : 0x08x"%(readRegister(device,"%s.MASK"%(scanBase)))
+    else:
+        print "FW scan VFAT       : %d"%(readRegister(device,"%s.CHIP"%(scanBase)))
+        pass
+    print "FW scan channel    : %d"%(readRegister(device,"%s.CHAN"%(scanBase)))
+    print "FW scan step size  : %d"%(readRegister(device,"%s.STEP"%(scanBase)))
+    print "FW scan n_triggers : %d"%(readRegister(device,"%s.NTRIGS"%(scanBase)))
+    print "FW scan status     : %d"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+
+    return
+
+def startScanModule(device, gtx, useUltra=False,debug=False):
+    """
+    """
+
+    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
+    if useUltra:
+        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
+        pass
+
+    if (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
+        print "Scan is already running, not starting a new scan"
+        return
+
+    writeRegister(device,"%s.START"%(scanBase),0x1)
+    return
+
+def getScanResults(device, gtx, numpoints, debug=False):
+    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
+    while (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
+        if debug and False:
+            print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+            pass
+        time.sleep(0.1)
+        pass
+
+    # results = []
+    # results.append(readRegister(device,"%s.RESULTS"%(scanBase)))
+    # print "0x%08x"%(results[0])
+    # results.append(readBlock(device,"%s.RESULTS"%(scanBase),numpoints-1))
+    # print results
+    results = readBlock(device,"%s.RESULTS"%(scanBase),numpoints)
+    return results
+
+def getUltraScanResults(device, gtx, numpoints, debug=False):
+    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
+    while (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
+        if debug and False:
+            print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+            pass
+        time.sleep(0.1)
+        pass
+
+    results = []
+
+    for chip in range(24):
+        results.append(readBlock(device,"%s.RESULTS"%(scanBase),numpoints))
+
+    return results
