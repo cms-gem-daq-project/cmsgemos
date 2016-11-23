@@ -163,6 +163,13 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
 gem::base::GEMApplication::~GEMApplication()
 {
   DEBUG("GEMApplication::gem::base::GEMApplication destructor called");
+  if (p_gemWebInterface)
+    delete p_gemWebInterface;
+  p_gemWebInterface = NULL;
+
+  if (p_gemMonitor)
+    delete p_gemMonitor;
+  p_gemMonitor = NULL;
 }
 
 std::string gem::base::GEMApplication::getFullURL()

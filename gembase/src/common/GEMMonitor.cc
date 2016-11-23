@@ -211,7 +211,7 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
       std::list<std::pair<std::string, GEMMonitorable> > >::iterator it;
     it = m_monitorableSetsMap.find(setname);
     GEMMonitorable monitem = {monpair.first, monpair.second, infoSpace, type, format};
-    (*it).second.push_back(std::make_pair(monpair.first, monitem));
+    it->second.push_back(std::make_pair(monpair.first, monitem));
   } else {
     ERROR("GEMMonitor::addMonitorable monitorable " << monpair.first << " does not exist in infospace "
            << infoSpaceName << "!");
