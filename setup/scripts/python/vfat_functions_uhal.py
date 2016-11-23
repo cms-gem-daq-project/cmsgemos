@@ -1,8 +1,8 @@
 import sys, os, time, signal, random
-sys.path.append('/opt/gemdaq/firmware/testing/src')
 
 import uhal
 from registers_uhal import *
+from optohybrid_user_functions_uhal import *
 
 def readVFAT(device, gtx, chip, reg, debug=False):
     baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(gtx,chip)
@@ -24,13 +24,7 @@ def readVFAT(device, gtx, chip, reg, debug=False):
         return vfatVal
 
 def readAllVFATs(device, gtx, mask, reg, debug=False):
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
-    writeRegister(device,"%s.Mask"%(baseNode), mask)
-    vfatVal  = readRegister(device,"%s.Request.%s"%(baseNode,reg))
-    if (debug):
-        print "vfatVal = 0x%08x"%(vfatVal)
-    vfatVals = readBlock(device,"%s.Results"%(baseNode),24)
+    vfatVals = broadcastRead(device,gtx,reg,mask)
     if (debug and vfatVals):
         for i,val in enumerate(vfatVals):
             print "%d: value = 0x%08x"%(i,vfatVal)
@@ -58,9 +52,7 @@ def writeVFAT(device, gtx, chip, reg, value, debug=False):
     writeRegister(device,"%s.%s"%(baseNode,reg), value)
 
 def writeAllVFATs(device, gtx, mask, reg, value, debug=False):
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Mask"%(baseNode), mask)
-    writeRegister(device,"%s.Request.%s"%(baseNode,reg), value)
+    broadcastWrite(device,gtx,reg,mask,value)
 
 def setupDefaultCRs(device, gtx, chip, sleep=False, debug=False):
     if not sleep:
