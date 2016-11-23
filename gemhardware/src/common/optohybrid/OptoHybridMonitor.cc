@@ -56,7 +56,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  std::make_pair("SBit_Mask",   "CONTROL.VFAT.SBIT_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitsOut",    "CONTROL.HDIM_OUTPUT.SBITS"),
+                 std::make_pair("SBitsOut",    "CONTROL.HDMI_OUTPUT.SBITS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("SBitOutMode","CONTROL.HDMI_OUTPUT.SBIT_MODE"),
