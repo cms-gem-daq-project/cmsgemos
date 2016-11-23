@@ -272,7 +272,7 @@ def setReferenceClock(device,gtx,source,debug=False):
     OH:   0=onboard,     1=GTX recovered,  2=external clock
     V2A only
     """
-    writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
+    #writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
 
 def getReferenceClock(device,gtx,debug=False):
@@ -306,14 +306,14 @@ def getVFATsBitMask(device,gtx=0,debug=False):
     """
     Returns the VFAT s-bit mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL"%(gtx)
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT"%(gtx)
     return readRegister(device,"%s.SBIT_MASK"%(baseNode))
 
 def setVFATsBitMask(device,gtx=0,mask=0x000000,debug=False):
     """
     Set the VFAT s-bit mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL"%(gtx)
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT"%(gtx)
     return writeRegister(device,"%s.SBIT_MASK"%(baseNode),mask)
 
 def calculateLockErrors(device,gtx,register,sampleTime):
