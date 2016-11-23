@@ -40,25 +40,39 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
             controlChar = device.getNode(register).read()
             device.dispatch()
             return controlChar
-        # want to be able to return nothing in the result of a failed transaction
         except uhal.exception, e:
             nRetries += 1
             gRetries += 1
-            # if ('amount of data' in e):
-            #     print colors.BLUE, "bad header",register, "-> Error : ", e, colors.ENDC
-            # elif ('INFO CODE = 0x4L' in e):
-            #     print colors.CYAN, "read error",register, "-> Error : ", e, colors.ENDC
-            # elif ('INFO CODE = 0x6L' in e or 'timed out' in e):
-            #     print colors.YELLOW, "timed out",register, "-> Error : ", e, colors.ENDC
-            # else:
-            #     print colors.MAGENTA, "other error",register, "-> Error : ", e, colors.ENDC
             if ((nRetries % 10)==0):
                 print colors.MAGENTA,"read error encountered (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),e,colors.ENDC
                 continue
         pass
-    # print colors.RED, "error encountered, retried read operation (%d)"%(nRetries)
     return 0x0
-    # return 0x0
+
+def readRegisterList(device, registers, debug=False):
+    """
+    read registers 'registers' from uhal device 'device'
+    returns values of the registers in a dict
+    """
+    global gRetries
+    nRetries = 0
+    while (nRetries < gMAX_RETRIES):
+        try:
+            results = {}
+            for reg in registers:
+                results[reg] = device.getNode(reg).read()
+                pass
+            device.dispatch()
+            return results
+        except uhal.exception, e:
+            nRetries += 1
+            gRetries += 1
+            if ((nRetries % 10)==0):
+                print colors.MAGENTA,"read error encountered, retrying operation (%d,%d)"%(nRetries,gRetries),e,colors.ENDC
+                continue
+            pass
+        pass
+    return 0x0
 
 def readBlock(device, register, nwords, debug=False):
     """
@@ -150,4 +164,29 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
             continue
         pass
     # print colors.RED, "error encountered, retried test write operation (%d)"%(nRetries)
+    pass
+
+def writeRegisterList(device, regs_with_vals, debug=False):
+    """
+    write value 'value' into register 'register' from uhal device 'device'
+    from an input dict
+    """
+    global gRetries
+    nRetries = 0
+    while (nRetries < gMAX_RETRIES):
+        try:
+            for reg in regs_with_vals.keys:
+                device.getNode(reg).write(0xffffffff&regs_with_vals[reg])
+                pass
+            device.dispatch()
+            return
+        
+        except uhal.exception, e:
+            nRetries += 1
+            gRetries += 1
+            if ((nRetries % 10)==0) and debug:
+                print colors.MAGENTA,"write error encountered (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),e,colors.ENDC
+                pass
+            continue
+        pass
     pass

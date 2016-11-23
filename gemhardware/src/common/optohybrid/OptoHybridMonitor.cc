@@ -41,7 +41,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   // create the values to be monitored in the info space
   addMonitorableSet("Status and Control", "HWMonitoring");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("VFAT_Mask",   "CONTROL.VFAT.MASK"),
+                 std::make_pair("VFAT_Mask",   "CONTROL.VFAT.TRK_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("TrgSource",   "CONTROL.TRIGGER.SOURCE"),
@@ -53,13 +53,13 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  std::make_pair("Ref_clk",     "CONTROL.CLOCK.REF_CLK"),
                  GEMUpdateType::HW32, "bit");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBit_Mask",   "CONTROL.SBIT_MASK"),
+                 std::make_pair("SBit_Mask",   "CONTROL.VFAT.SBIT_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitsOut",    "CONTROL.OUTPUT.SBITS"),
+                 std::make_pair("SBitsOut",    "CONTROL.HDMI_OUTPUT.SBITS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitOutMode","CONTROL.OUTPUT.HDMI_SBIT_MODE"),
+                 std::make_pair("SBitOutMode","CONTROL.HDMI_OUTPUT.SBIT_MODE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("TrgThrottle", "CONTROL.THROTTLE"),

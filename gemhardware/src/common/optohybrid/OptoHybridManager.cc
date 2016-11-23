@@ -376,7 +376,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
 
       if (optohybrid->isHwConnected()) {
-        hwMapping[slot+1].emplace(link);
+        hwMapping[slot+1].insert(link);
 
         DEBUG("OptoHybridManager::configureAction::setting trigger source to 0x"
              << std::hex << info.triggerSource.value_ << std::dec);

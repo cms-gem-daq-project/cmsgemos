@@ -20,19 +20,40 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
     """
     Returns the broadcast I2C mask corresponding to the connected VFATs
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
-    writeRegister(device,"%s.Mask"%(baseNode), 0x0)
-    vfatVal  = readRegister(device,"%s.Request.ChipID0"%(baseNode))
-    if (debug):
-        print "vfatVal = 0x%08x"%(vfatVal)
-    vfatVals = readBlock(device,"%s.Results"%(baseNode),24)
+    vfatVal  = broadcastRead(device,gtx,"ChipID0")
     bmask = 0x0
     if (debug and vfatVals):
         for i,val in enumerate(vfatVals):
             print "%d: value = 0x%08x"%(i,vfatVal)
-
+            pass
+        pass
+    ## bmask is not implemented
     return bmask
+
+def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
+    """
+    Perform a broadcast I2C write on the VFATs specified by mask
+    """
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
+    writeRegister(device,"%s.Mask"%(baseNode), mask)
+    writeRegister(device,"%s.Request.%s"%(baseNode,register),value)
+    while (readRegister(device,"%s.Running"%(baseNode))):
+        if (debug):
+            print "broadcast request still running..."
+            pass
+        pass
+    return
+
+def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
+    """
+    Perform a broadcast I2C read on the VFATs specified by mask
+    """
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
+    writeRegister(device,"%s.Mask"%(baseNode), mask)
+    readRegister(device,"%s.Request.%s"%(baseNode,register))
+    return readBlock(device,"%s.Results"%(baseNode),24)
 
 def optohybridCounters(device,gtx=0,doReset=False):
     """

@@ -116,7 +116,7 @@
                        9: CalOut"/>
     <node id="CHIP"     address="0x2"  mask="0x1f"  permission="rw"
           description="Select which VFAT2 to scan (5 bits [0,23])"/>
-    <node id="MIN"      address="0x3"  mask="0xf"  permission="rw"
+    <node id="MIN"      address="0x3"  mask="0xff"  permission="rw"
           description="Minimum value of the register to scan from (8 bits [0,255])
                        Default: 0x0"/>
     <node id="MAX"      address="0x4"  mask="0xff"  permission="rw"

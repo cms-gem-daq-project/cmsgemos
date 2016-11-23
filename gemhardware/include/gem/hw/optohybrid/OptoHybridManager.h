@@ -4,6 +4,7 @@
 #define GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGER_H
 
 #include <array>
+#include <set>
 
 #include "gem/base/GEMFSMApplication.h"
 // #include "gem/hw/optohybrid/OptoHybridSettings.h"
