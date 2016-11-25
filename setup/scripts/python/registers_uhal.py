@@ -175,7 +175,7 @@ def writeRegisterList(device, regs_with_vals, debug=False):
     nRetries = 0
     while (nRetries < gMAX_RETRIES):
         try:
-            for reg in regs_with_vals.keys:
+            for reg in regs_with_vals.keys():
                 device.getNode(reg).write(0xffffffff&regs_with_vals[reg])
                 pass
             device.dispatch()

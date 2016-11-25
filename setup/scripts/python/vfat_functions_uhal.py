@@ -51,18 +51,37 @@ def writeVFAT(device, gtx, chip, reg, value, debug=False):
     baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(gtx,chip)
     writeRegister(device,"%s.%s"%(baseNode,reg), value)
 
+def writeVFATRegisters(device, gtx, chip, regs_with_values, debug=False):
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(gtx,chip)
+    registers = {}
+    for reg in regs_with_values.keys():
+        registers["%s.%s"%(baseNode,reg)] = regs_with_values[reg]
+        pass
+    writeRegisterList(device,registers)
+
+def readVFATRegisters(device, gtx, chip, regs, debug=False):
+    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(gtx,chip)
+    registers = []
+    for reg in regs:
+        registers.append("%s.%s"%(baseNode,reg))
+        pass
+    return readRegisterList(device,registers)
+
 def writeAllVFATs(device, gtx, mask, reg, value, debug=False):
     broadcastWrite(device,gtx,reg,mask,value)
 
 def setupDefaultCRs(device, gtx, chip, sleep=False, debug=False):
+    registers = {
+        "ContReg1": 0x00,
+        "ContReg2": 0x30,
+        "ContReg3": 0x00
+        }
     if not sleep:
-        writeVFAT(device, gtx, chip, "ContReg0", 0x36)
+        registers["ContReg0"]= 0x36
     else:
-        writeVFAT(device, gtx, chip, "ContReg0", 0x37)
+        registers["ContReg0"]= 0x37
         pass
-    writeVFAT(device, gtx, chip, "ContReg1", 0x00)
-    writeVFAT(device, gtx, chip, "ContReg2", 0x30)
-    writeVFAT(device, gtx, chip, "ContReg3", 0x00)
+    writeVFATRegisters(device, gtx, chip, registers)
     return
 
 def setRunMode(device, gtx, chip, enable, debug=False):
@@ -78,43 +97,71 @@ def setRunMode(device, gtx, chip, enable, debug=False):
 
 def setChannelRegister(device, gtx, chip, chan,
                        mask=0x0, pulse=0x0, trim=0x0, debug=False):
+    if (chan not in range(0,128)):
+        print "Invalid VFAT channel specified %d"%(chan)
+        return
     chanReg = (pulse << 6)|(mask << 5)|(trim&0x1f)
     writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),chanReg)
     return
 
+def getChannelRegister(device, gtx, chip, chan, debug=False):
+    if (chan not in range(0,128)):
+        print "Invalid VFAT channel specified %d"%(chan)
+        return
+    return readVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1))
+
 def setVFATThreshold(device, gtx, chip, vt1, vt2=0, debug=False):
-    writeVFAT(device, gtx, chip, "VThreshold1", vt1)
-    writeVFAT(device, gtx, chip, "VThreshold2", vt2)
+    writeVFATRegisters(device, gtx, chip,
+                       {"VThreshold1": vt1,
+                        "VThreshold2": vt2
+                        })
     return
 
+def getVFATThreshold(device, gtx, chip, vt1, vt2=0, debug=False):
+    thresholds = readVFATRegisters(device, gtx, chip, ["VThreshold1","VThreshold2"])
+    vt1 = 0
+    vt2 = 0
+    for reg in thresholds.keys():
+        if (reg.find("VThreshold1") > 0):
+            vt1 = thresholds[reg]
+        elif (reg.find("VThreshold2") > 0):
+            vt2 = thresholds[reg]
+            pass
+        pass
+    return vt2-v21
+
 def biasVFAT(device, gtx, chip, enable=True, debug=False):
+    registers = {
+        "ContReg1":    0x00,
+        "ContReg2":    0x30,
+        "ContReg3":    0x00,
+        "Latency":      156,
+        "IPreampIn":    168,
+        "IPreampFeed":   80,
+        "IPreampOut":   150,
+        "IShaper":      150,
+        "IShaperFeed":  100,
+        "IComp":         90,
+        "VCal":           0,
+        # "VThreshold1":   25,
+        "VThreshold2": 0x00,
+        "CalPhase":    0x00
+        }
     if (enable):
-        writeVFAT(device, gtx, chip, "ContReg0",    0x37)
+        registers["ContReg0"] = 0x37
     else:
         #what about leaving any other settings?
         #not now, want a reproducible routine
-        writeVFAT(device, gtx, chip, "ContReg0",    0x36)
+        registers["ContReg0"] = 0x36
         pass
-    writeVFAT(device, gtx, chip, "ContReg1",    0x00)
-    writeVFAT(device, gtx, chip, "ContReg2",    0x30)
-    writeVFAT(device, gtx, chip, "ContReg3",    0x00)
-    writeVFAT(device, gtx, chip, "Latency",      156)
-    writeVFAT(device, gtx, chip, "IPreampIn",    168)
-    writeVFAT(device, gtx, chip, "IPreampFeed",   80)
-    writeVFAT(device, gtx, chip, "IPreampOut",   150)
-    writeVFAT(device, gtx, chip, "IShaper",      150)
-    writeVFAT(device, gtx, chip, "IShaperFeed",  100)
-    writeVFAT(device, gtx, chip, "IComp",         90)
-    writeVFAT(device, gtx, chip, "VCal",           0)
-    # writeVFAT(device, gtx, chip, "VThreshold1",   25)
-    writeVFAT(device, gtx, chip, "VThreshold2", 0x00)
-    writeVFAT(device, gtx, chip, "CalPhase",    0x00)
 
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
         #mask no channels, as this seems to affect the output data packets, not just the triggers
         # disable cal pulses to all channels
-        writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),0x00)
+        registers["VFATChannels.ChanReg%d"%(chan+1)] = 0x00
+        pass
+    writeVFATRegisters(device,gtx,chip,registers)
     return
 
 def biasAllVFATs(device, gtx, mask, enable=True, debug=False):

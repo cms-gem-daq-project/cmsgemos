@@ -208,6 +208,9 @@ def resetLocalT1(device,gtx,debug=False):
     writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.RESET"%(gtx),0x1)
     return
 
+def getLocalT1Status(device,gtx,debug=False):
+    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx))
+
 def startLocalT1(device,gtx,debug=False):
     if not readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.MONITOR"%(gtx)):
         writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.T1Controller.TOGGLE"%(gtx),0x1)
@@ -386,20 +389,22 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
         print "FW scan n_triggers : %d"%(numtrigs)
         pass
 
-    writeRegister(device,"%s.RESET"%(scanBase), 0x1)
-    writeRegister(device,"%s.MODE"%(scanBase),  mode)
-    writeRegister(device,"%s.MIN"%(scanBase),   scanmin)
-    writeRegister(device,"%s.MAX"%(scanBase),   scanmax)
-    writeRegister(device,"%s.CHAN"%(scanBase),  channel)
-    writeRegister(device,"%s.STEP"%(scanBase),  stepsize)
-    writeRegister(device,"%s.NTRIGS"%(scanBase),numtrigs)
-
+    writeRegister(device,"%s.RESET"%(scanBase),0x1)
+    regList = {
+        "%s.MODE"%(scanBase):  mode,
+        "%s.MIN"%(scanBase):   scanmin,
+        "%s.MAX"%(scanBase):   scanmax,
+        "%s.CHAN"%(scanBase):  channel,
+        "%s.STEP"%(scanBase):  stepsize,
+        "%s.NTRIGS"%(scanBase):numtrigs
+     }
     if useUltra:
-        writeRegister(device,"%s.MASK"%(scanBase),vfat)
+        regList["%s.MASK"%(scanBase)] = vfat
     else:
-        writeRegister(device,"%s.CHIP"%(scanBase),vfat)
+        regList["%s.CHIP"%(scanBase)] = vfat
         pass
 
+    writeRegisterList(device,regList)
     return
 
 def printScanConfiguration(device,gtx,useUltra=False,debug=False):
@@ -411,17 +416,32 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
         pass
 
     print scanBase
-    print "FW scan mode       : %d"%(readRegister(device,"%s.MODE"%(scanBase)))
-    print "FW scan min        : %d"%(readRegister(device,"%s.MIN"%(scanBase)))
-    print "FW scan max        : %d"%(readRegister(device,"%s.MAX"%(scanBase)))
+    regList = [
+        "%s.MODE"%(scanBase),
+        "%s.MIN"%(scanBase),
+        "%s.MAX"%(scanBase),
+        "%s.CHAN"%(scanBase),
+        "%s.STEP"%(scanBase),
+        "%s.NTRIGS"%(scanBase),
+     ]
     if useUltra:
-        print "Ultra FW scan mask : 0x08x"%(readRegister(device,"%s.MASK"%(scanBase)))
+        regList.append("%s.MASK"%(scanBase))
     else:
-        print "FW scan VFAT       : %d"%(readRegister(device,"%s.CHIP"%(scanBase)))
+        regList.append("%s.CHIP"%(scanBase))
         pass
-    print "FW scan channel    : %d"%(readRegister(device,"%s.CHAN"%(scanBase)))
-    print "FW scan step size  : %d"%(readRegister(device,"%s.STEP"%(scanBase)))
-    print "FW scan n_triggers : %d"%(readRegister(device,"%s.NTRIGS"%(scanBase)))
+
+    regVals = readRegisterList(device,regList)
+    print "FW scan mode       : %d"%(regVals["%s.MODE"%(scanBase)])
+    print "FW scan min        : %d"%(regVals["%s.MIN"%(scanBase)])
+    print "FW scan max        : %d"%(regVals["%s.MAX"%(scanBase)])
+    if useUltra:
+        print "Ultra FW scan mask : 0x08x"%(regVals["%s.MASK"%(scanBase)])
+    else:
+        print "FW scan VFAT       : %d"%(regVals["%s.CHIP"%(scanBase)])
+        pass
+    print "FW scan channel    : %d"%(regVals["%s.CHAN"%(scanBase)])
+    print "FW scan step size  : %d"%(regVals["%s.STEP"%(scanBase)])
+    print "FW scan n_triggers : %d"%(regVals["%s.NTRIGS"%(scanBase)])
     print "FW scan status     : %d"%(readRegister(device,"%s.MONITOR"%(scanBase)))
 
     return
@@ -440,6 +460,10 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
         return
 
     writeRegister(device,"%s.START"%(scanBase),0x1)
+    if not (readRegister(device,"%s.MONITOR"%(scanBase))):
+        print "Scan failed to start, FIFO read 0x%08x"%(readRegister(device,"%s.RESULTS"%(scanBase)))
+        pass
+    print "After start, scan status is: %d"%(readRegister(device,"%s.MONITOR"%(scanBase)))
     return
 
 def getScanResults(device, gtx, numpoints, debug=False):
