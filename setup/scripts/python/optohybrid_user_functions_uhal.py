@@ -430,6 +430,20 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
         regList.append("%s.CHIP"%(scanBase))
         pass
 
+    if debug:
+        regParams = {}
+        for reg in regList:
+            regParams[reg] = {
+                "Path":       "%s"%(device.getNode(reg).getPath()),
+                "Address":    "0x%x"%(device.getNode(reg).getAddress()),
+                "Mask":       "0x%x"%(device.getNode(reg).getMask()),
+                "Permission": "%s"%(device.getNode(reg).getPermission()),
+                "Mode":       "%s"%(device.getNode(reg).getMode()),
+                "Size":       "%s"%(device.getNode(reg).getSize())
+                }
+            print regParams[reg]
+            pass
+        pass
     regVals = readRegisterList(device,regList)
     print "FW scan mode       : %d"%(regVals["%s.MODE"%(scanBase)])
     print "FW scan min        : %d"%(regVals["%s.MIN"%(scanBase)])

@@ -36,8 +36,8 @@
                        8 MSBits hold the threshold/latency value of the point
                        24 LSBits hold the number of events that have fired
                        If no data is present, an error is returned."/>
-    <node id="MONITOR"    address="0x9"  mask="0x3"  permission="rw"
-          description="Status monitor for the threshold/latency scan controller (2 bits):
+    <node id="MONITOR"    address="0x9"  mask="0x7"  permission="rw"
+          description="Status monitor for the threshold/latency scan controller (3 bits):
                        0: nothing running
                        1: Trigger data threshold scan running
                        2: Per channel threshold scan running
@@ -85,7 +85,7 @@
                        8 MSBits hold the threshold/latency value of the point
                        24 LSBits hold the number of events that have fired
                        If no data is present, an error is returned."/>
-    <node id="MONITOR"    address="0x20"  mask="0x3"  permission="rw"
+    <node id="MONITOR"    address="0x20"  mask="0x7"  permission="rw"
           description="Status monitor for the scan controller (3 bits):
                        0: nothing running
                        1: Trigger data threshold scan running
