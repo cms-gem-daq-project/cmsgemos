@@ -477,7 +477,9 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
     if not (readRegister(device,"%s.MONITOR"%(scanBase))):
         print "Scan failed to start, FIFO read 0x%08x"%(readRegister(device,"%s.RESULTS"%(scanBase)))
         pass
-    print "After start, scan status is: %d"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+    if debug:
+        print "After start, scan status is: %d"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+        pass
     return
 
 def getScanResults(device, gtx, numpoints, debug=False):
