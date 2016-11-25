@@ -4,6 +4,7 @@
 #define GEM_HW_OPTOHYBRID_OPTOHYBRIDMANAGER_H
 
 #include <array>
+#include <set>
 
 #include "gem/base/GEMFSMApplication.h"
 // #include "gem/hw/optohybrid/OptoHybridSettings.h"
@@ -234,6 +235,8 @@ namespace gem {
             m_vfatMapping;
 
 	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
+
+          std::map<int,std::set<int> > m_hwMapping;
         };  // class OptoHybridManager
 
     }  // namespace gem::hw::optohybrid
