@@ -808,14 +808,16 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
   is_optohybrid->createUInt32("QPLL_FPGA_PLL_LOCK", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
 
   /** Firmware based scan routines **/
-  std::array<std::string, 2> scans = {{"Threshold/Latency","DAC"}};
+  std::array<std::string, 3> scans = {{"Single VFAT Threshold/Latency/SCurve", "Ultra VFATs Threshold/Latency/SCurve","DAC"}};
   std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
     for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
       if ((*scan) == "DAC" && (*scanreg) == "CHAN")
         continue;
-
-      is_optohybrid->createUInt32((*scan)+(*scanreg), optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+      if (scan->rfind("Ultra") != std::string::npos && (*scanreg) == "CHIP")
+        is_optohybrid->createUInt32((*scan)+"MASK", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+      else
+        is_optohybrid->createUInt32((*scan)+(*scanreg), optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
     }
   }
 }

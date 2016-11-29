@@ -189,7 +189,8 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
 
   /** Firmware based scan routines **/
   addMonitorableSet("Firmware Scan Controller", "HWMonitoring");
-  std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
+  std::array<std::pair<std::string,std::string>, 3> scans = {{std::make_pair("Single VFAT Threshold/Latency/SCurve","THLAT"),
+                                                              std::make_pair("Ultra VFATs Threshold/Latency/SCurve","ULTRA"),
                                                               std::make_pair("DAC","DAC")}};
   std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
@@ -197,10 +198,14 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
     for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
       if (scan->first == "DAC" && (*scanreg) == "CHAN")
         continue;
-
-      addMonitorable("Firmware Scan Controller", "HWMonitoring",
-                     std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
-                     GEMUpdateType::HW32, "hex");
+      if (scan->second == "ULTRA" && (*scanreg) == "CHIP")
+        addMonitorable("Firmware Scan Controller", "HWMonitoring",
+                       std::make_pair(scan->first+"MASK","ScanController."+scan->second+".MASK"),
+                       GEMUpdateType::HW32, "hex");
+      else
+        addMonitorable("Firmware Scan Controller", "HWMonitoring",
+                       std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
+                       GEMUpdateType::HW32, "hex");
     }
   }
 
@@ -664,9 +669,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
   // get the list of pairs of monitorables in the Firmware Scan Controller monset
   auto monset = m_monitorableSetsMap.find("Firmware Scan Controller")->second;
 
-  std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
+  std::array<std::pair<std::string,std::string>, 3> scans = {{std::make_pair("Single VFAT Threshold/Latency/SCurve","THLAT"),
+                                                              std::make_pair("Ultra VFATs Threshold/Latency/SCurve","ULTRA"),
                                                               std::make_pair("DAC","DAC")}};
-  std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
+  // std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
@@ -689,7 +695,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
     for (auto monitem = monset.begin(); monitem != monset.end(); ++monitem) {
       if (scan->first == "DAC" && (monitem->first).rfind("CHAN") != std::string::npos)
         continue;
-
+      std::string regname = monitem->second.regname;
+      // if (scan->second == "ULTRA" && (monitem->first).rfind("CHAN") != std::string::npos)
+      //   regname = "MASK";
+      
       if ((monitem->first).rfind(scan->first) != std::string::npos) {
         *out << "<tr>"    << std::endl;
 
@@ -707,7 +716,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
              << "</td>"   << std::endl;
 
         *out << "<td>"    << std::endl
-             << monitem->second.regname
+             << regname
              << "</td>"   << std::endl;
 
         *out << "<td>"    << std::endl
