@@ -224,7 +224,8 @@ void gem::hw::amc13::AMC13Manager::init()
 {
 }
 
-gem::hw::amc13::amc13_status_ptr gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
+gem::hw::amc13::amc13_status_ptr gem::hw::amc13::AMC13Manager::getHTMLStatus() const
+{
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   return std::shared_ptr< ::amc13::Status>(p_amc13->getStatus());
 }
@@ -238,7 +239,7 @@ void gem::hw::amc13::AMC13Manager::setDisplayLevel(xgi::Input *in, xgi::Output *
 void gem::hw::amc13::AMC13Manager::updateStatus(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  // dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->updateStatus(out);
+  dynamic_cast<AMC13ManagerWeb*>(p_gemWebInterface)->updateStatus(out);
 }
 
 //state transitions
@@ -408,7 +409,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
 	if (bchan->bag.repeat.value_)
           p_amc13->enableBGORepeat(bchan->bag.channel.value_);
 	else
-          p_amc13->enableBGOSingle(bchan->bag.channel.value_);		
+          p_amc13->enableBGOSingle(bchan->bag.channel.value_);
       }
     p_amc13->sendBGO();
   }
@@ -499,7 +500,7 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
 	if (bchan->bag.repeat.value_)
           p_amc13->enableBGORepeat(bchan->bag.channel.value_);
 	else
-          p_amc13->enableBGOSingle(bchan->bag.channel.value_);		
+          p_amc13->enableBGOSingle(bchan->bag.channel.value_);
       }
 
     if (sendLocalBGO)

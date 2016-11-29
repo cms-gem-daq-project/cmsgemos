@@ -341,11 +341,12 @@ void gem::hw::glib::GLIBManager::configureAction()
       }
 
       // should FIFOs be emptied in configure or at start?
-      INFO("GLIBManager::emptying trigger/tracking data FIFOs");
-      for (unsigned gtx = 0; gtx < HwGLIB::N_GTX; ++gtx) {
-        // m_glibs.at(slot)->flushTriggerFIFO(gtx);
-        m_glibs.at(slot)->flushFIFO(gtx);
-      }
+      // should be removed as migration to generic AMC firmware happens
+      // INFO("GLIBManager::emptying trigger/tracking data FIFOs");
+      // for (unsigned gtx = 0; gtx < HwGLIB::N_GTX; ++gtx) {
+      //   // m_glibs.at(slot)->flushTriggerFIFO(gtx);
+      //   m_glibs.at(slot)->flushFIFO(gtx);
+      // }
       // what else is required for configuring the GLIB?
       // need to reset optical links?
       // reset counters?
