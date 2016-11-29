@@ -698,7 +698,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
       std::string regname = monitem->second.regname;
       // if (scan->second == "ULTRA" && (monitem->first).rfind("CHAN") != std::string::npos)
       //   regname = "MASK";
-      
+
       if ((monitem->first).rfind(scan->first) != std::string::npos) {
         *out << "<tr>"    << std::endl;
 
