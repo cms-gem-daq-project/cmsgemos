@@ -124,16 +124,16 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   addMonitorableSet("COUNTERS", "HWMonitoring");
   addMonitorable("COUNTERS", "HWMonitoring",
                  std::make_pair("L1A", "GLIB.COUNTERS.T1.L1A"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("COUNTERS", "HWMonitoring",
                  std::make_pair("CalPulse", "GLIB.COUNTERS.T1.CalPulse"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("COUNTERS", "HWMonitoring",
                  std::make_pair("Resync", "GLIB.COUNTERS.T1.Resync"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("COUNTERS", "HWMonitoring",
                  std::make_pair("BC0", "GLIB.COUNTERS.T1.BC0"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
 
   addMonitorableSet("DAQ", "HWMonitoring");
   addMonitorable("DAQ", "HWMonitoring",
@@ -150,10 +150,10 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("EVT_SENT", "GLIB.DAQ.EXT_STATUS.EVT_SENT"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("L1AID", "GLIB.DAQ.EXT_STATUS.L1AID"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("MAX_DAV_TIMER", "GLIB.DAQ.EXT_STATUS.MAX_DAV_TIMER"),
                  GEMUpdateType::HW32, "hex");
@@ -172,17 +172,17 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("SBIT_RATE", "GLIB.DAQ.SBIT_RATE"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
 
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("GTX0_STATUS", "GLIB.DAQ.GTX0.STATUS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("GTX0_CORRUPT_VFAT_BLK_CNT", "GLIB.DAQ.GTX0.COUNTERS.CORRUPT_VFAT_BLK_CNT"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("GTX0_EVN", "GLIB.DAQ.GTX0.COUNTERS.EVN"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("GTX0_DAV_TIMEOUT", "GLIB.DAQ.GTX0.CONTROL.DAV_TIMEOUT"),
                  GEMUpdateType::HW32, "hex");
@@ -204,10 +204,10 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("GTX1_CORRUPT_VFAT_BLK_CNT", "GLIB.DAQ.GTX1.COUNTERS.CORRUPT_VFAT_BLK_CNT"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("GTX1_EVN", "GLIB.DAQ.GTX1.COUNTERS.EVN"),
-                 GEMUpdateType::HW32, "hex");
+                 GEMUpdateType::HW32, "dec");
   addMonitorable("DAQ", "HWMonitoring",
                  std::make_pair("GTX1_DAV_TIMEOUT", "GLIB.DAQ.GTX1.CONTROL.DAV_TIMEOUT"),
                  GEMUpdateType::HW32, "hex");

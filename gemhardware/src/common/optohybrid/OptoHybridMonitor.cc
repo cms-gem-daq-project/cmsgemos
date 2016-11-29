@@ -95,10 +95,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   for (auto master = wbMasters.begin(); master != wbMasters.end(); ++master) {
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Master:"+(*master)+"Strobe",   "COUNTERS.WB.MASTER.Strobe."+(*master)),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Master:"+(*master)+"Ack",      "COUNTERS.WB.MASTER.Ack."+(*master)),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   for (int i2c = 0; i2c < 6; ++i2c) {
@@ -106,20 +106,20 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
     ss << "I2C" << i2c;
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Slave:"+ss.str()+"Strobe",   "COUNTERS.WB.SLAVE.Strobe."+ss.str()),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Slave:"+ss.str()+"Ack",      "COUNTERS.WB.SLAVE.Ack."+ss.str()),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   std::array<std::string, 8> wbSlaves = {{"ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"}};
   for (auto slave = wbSlaves.begin(); slave != wbSlaves.end(); ++slave) {
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Slave:"+(*slave)+"Strobe",   "COUNTERS.WB.SLAVE.Strobe."+(*slave)),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Slave:"+(*slave)+"Ack",      "COUNTERS.WB.SLAVE.Ack."+(*slave)),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   addMonitorableSet("VFAT CRCs", "HWMonitoring");
@@ -128,10 +128,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
     ss << "VFAT" << vfat;
     addMonitorable("VFAT CRCs", "HWMonitoring",
                    std::make_pair(ss.str()+"_Valid",  "COUNTERS.CRC.VALID."+ss.str()),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("VFAT CRCs", "HWMonitoring",
                    std::make_pair(ss.str()+"_Incorrect","COUNTERS.CRC.INCORRECT."+ss.str()),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   addMonitorableSet("T1 Counters", "HWMonitoring");
@@ -139,16 +139,16 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   for (auto t1src = t1sources.begin(); t1src != t1sources.end(); ++t1src) {
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"L1A",     "COUNTERS.T1."+(*t1src)+".L1A"),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"CalPulse","COUNTERS.T1."+(*t1src)+".CalPulse"),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"Resync",  "COUNTERS.T1."+(*t1src)+".Resync"),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"BC0",     "COUNTERS.T1."+(*t1src)+".BC0"),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   addMonitorableSet("Other Counters", "HWMonitoring");
