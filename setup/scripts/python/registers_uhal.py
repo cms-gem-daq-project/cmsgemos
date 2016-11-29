@@ -131,9 +131,9 @@ def writeRegister(device, register, value, debug=False):
     global gRetries
     nRetries = 0
     if debug:
-        print """Trying to write register %s (%s)\n
+        print """Trying to write value 0x%x to register %s (%s)\n
 address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
-"""%(register,
+"""%(value,register,
    device.getNode(register).getPath(),
    device.getNode(register).getAddress(),
    device.getNode(register).getMask(),
