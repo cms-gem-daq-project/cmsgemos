@@ -1099,7 +1099,7 @@ namespace gem {
                                          toolbox::toString("COUNTERS.CRC.VALID.VFAT%d",    chip));
             uint32_t incorrect = readReg(getDeviceBaseNode(),
                                          toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d",chip));
-            return std::make_pair<uint32_t, uint32_t>(valid,incorrect);
+            return std::make_pair(valid,incorrect);
           };
 
 
