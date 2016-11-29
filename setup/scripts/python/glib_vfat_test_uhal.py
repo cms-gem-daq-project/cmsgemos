@@ -159,7 +159,7 @@ for chip in chips:
  
 controlRegs = {}
 for control in range(4):
-        controls.append(readAllVFATs(glib, options.gtx, 0xf0000000, "ContReg%d"%(control), options.debug))
+        controls.append(readAllVFATs(glib, options.gtx, "ContReg%d"%(control), 0xf0000000, options.debug))
         controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
 
 displayChipInfo(glib, options.gtx, chipids)

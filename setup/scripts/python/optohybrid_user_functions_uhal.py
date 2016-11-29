@@ -35,10 +35,14 @@ def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
     Perform a broadcast I2C write on the VFATs specified by mask
     """
     baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
-    writeRegister(device,"%s.Mask"%(baseNode), mask)
-    writeRegister(device,"%s.Request.%s"%(baseNode,register),value)
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
+    writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
+    writeRegister(device,"%s.Request.%s"%(baseNode,register),value,debug)
+    if debug:
+        readRegister(device,"%s.Running"%(baseNode),debug)
+        pass
     while (readRegister(device,"%s.Running"%(baseNode))):
+        i = 1
         if (debug):
             print "broadcast request still running..."
             pass
@@ -50,9 +54,18 @@ def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
     Perform a broadcast I2C read on the VFATs specified by mask
     """
     baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
-    writeRegister(device,"%s.Mask"%(baseNode), mask)
-    readRegister(device,"%s.Request.%s"%(baseNode,register))
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
+    writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
+    readRegister(device,"%s.Request.%s"%(baseNode,register),debug)
+    if debug:
+        readRegister(device,"%s.Running"%(baseNode),debug)
+        pass
+    while (readRegister(device,"%s.Running"%(baseNode))):
+        i = 1
+        if (debug):
+            print "broadcast request still running..."
+            pass
+        pass
     return readBlock(device,"%s.Results"%(baseNode),24)
 
 def optohybridCounters(device,gtx=0,doReset=False):
