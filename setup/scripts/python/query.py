@@ -7,13 +7,14 @@ from time import sleep
 from ldqm_db.models import *
 from ldqm_db.amcmanager import *
 
-def configure_db(station="TIF",setuptype="teststand",runperiod="2016T"):
+def configure_db(station="TIF",setuptype="teststand",runperiod="2016T",shelf=1):
   amc_list=[1,2,3,4,5,6,7,8,9,10,11,12]
   geb_list=[[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],]
   zlist = zip(amc_list, geb_list)
   a_list = []
   for amcN, gtx_list in zlist:
     print "Trying to connect to AMC # %s\n" %(amcN)
+    # m_AMCmanager = AMCmanager(shelf,connection_file)
     m_AMCmanager = AMCmanager()
     g_list = []
     try:

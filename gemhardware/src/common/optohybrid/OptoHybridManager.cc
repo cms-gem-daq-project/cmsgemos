@@ -309,6 +309,15 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         m_sbitMask.at(slot).at(link)      = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
 
         createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), m_optohybrids.at(slot).at(link));
+        INFO("OptoHybridManager::initializeAction looping over created VFAT devices");
+        for (auto mapit = m_vfatMapping.at(slot).at(link).begin();
+             mapit != m_vfatMapping.at(slot).at(link).end(); ++mapit) {
+          INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
+               << std::hex << (int)mapit->second << std::dec << " (from map)");
+          gem::hw::vfat::HwVFAT2& vfatDevice = m_optohybrids.at(slot).at(link)->getVFATDevice(mapit->first);
+          INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
+               << std::hex << (int)vfatDevice.getChipID() << std::dec << " (from HW device) ");
+        }
 
         m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
         m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
@@ -347,6 +356,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   DEBUG("OptoHybridManager::configureAction");
+  //std::ofstream of
+
+  std::map<int,std::set<int> > hwMapping;
   //will the manager operate for all connected optohybrids, or only those connected to certain GLIBs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
@@ -364,6 +376,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
 
       if (optohybrid->isHwConnected()) {
+        hwMapping[slot+1].insert(link);
 
         DEBUG("OptoHybridManager::configureAction::setting trigger source to 0x"
              << std::hex << info.triggerSource.value_ << std::dec);
@@ -795,14 +808,16 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
   is_optohybrid->createUInt32("QPLL_FPGA_PLL_LOCK", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
 
   /** Firmware based scan routines **/
-  std::array<std::string, 2> scans = {{"Threshold/Latency","DAC"}};
+  std::array<std::string, 3> scans = {{"Single VFAT Threshold/Latency/SCurve", "Ultra VFATs Threshold/Latency/SCurve","DAC"}};
   std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
     for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
       if ((*scan) == "DAC" && (*scanreg) == "CHAN")
         continue;
-
-      is_optohybrid->createUInt32((*scan)+(*scanreg), optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+      if (scan->rfind("Ultra") != std::string::npos && (*scanreg) == "CHIP")
+        is_optohybrid->createUInt32((*scan)+"MASK", optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
+      else
+        is_optohybrid->createUInt32((*scan)+(*scanreg), optohybrid->getFirmware(), NULL, GEMUpdateType::HW32);
     }
   }
 }

@@ -183,8 +183,7 @@ void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::s
     return;
   }
   std::list<std::pair<std::string, GEMMonitorable> > emptySet;
-  m_monitorableSetsMap.insert(std::make_pair<std::string const&,
-                              std::list<std::pair<std::string, GEMMonitorable> > >(setname, emptySet));
+  m_monitorableSetsMap.insert(std::make_pair(setname, emptySet));
 
   m_infoSpaceMonitorableSetMap.find(infoSpaceName)->second.push_back(setname);
 

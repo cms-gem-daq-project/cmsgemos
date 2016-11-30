@@ -99,7 +99,7 @@ if options.v2b:
         print "Sources:  %6s  %7s"%("TrgSrc","SBitSrc")
         print "             0x%x      0x%x"%(
                 readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
-                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.OUTPUT.SBits"%(options.gtx)))
+                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.HDMI_OUTPUT.SBITS"%(options.gtx)))
 
         print "Lock status:  %10s  %13s"%("QPLL","QPLL FPGA PLL")
         print "                     0x%x            0x%x"%(
@@ -121,7 +121,7 @@ else:
         print "Sources:  %6s  %7s  %9s"%("TrgSrc","SBitSrc","RefCLKSrc")
         print "             0x%x      0x%x        0x%x"%(
                 readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
-                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.OUTPUT.SBits"%(options.gtx)),
+                readRegister(optohybrid,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.HDMI_OUTPUT.SBITS"%(options.gtx)),
                 clocking["refclock"])
 
         print "Lock status:  %8s  %7s  %4s  %3s"%("FPGA PLL","EXT PLL","CDCE","GTX")

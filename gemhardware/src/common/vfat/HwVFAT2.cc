@@ -1,5 +1,7 @@
 #include "gem/hw/vfat/HwVFAT2.h"
 
+#include "gem/hw/optohybrid/HwOptoHybrid.h"
+
 gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
                                 std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(vfatDevice, connectionFile),
@@ -29,7 +31,23 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
   m_slot(-1)
 {
   // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
-  setDeviceBaseNode("GLIB.OptoHybrid_0.OptoHybrid.GEB.VFATS."+vfatDevice);
+  setDeviceBaseNode(vfatDevice);
+  m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
+  INFO("HwVFAT2 ctor done " << isHwConnected());
+}
+
+gem::hw::vfat::HwVFAT2::HwVFAT2(gem::hw::optohybrid::HwOptoHybrid const& ohDevice,
+                                uint8_t const& vfatDevice) :
+  gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("%s.VFAT%d",(ohDevice.getLoggerName()).c_str(),(int)vfatDevice),
+                                    ohDevice.getOptoHybridHwInterface()),
+  m_slot((int)vfatDevice)
+{
+  INFO("HwVFAT2 ctor");
+  INFO("HwVFAT2 creating VFAT device from OH device " << ohDevice.getLoggerName());
+  // need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
+  std::stringstream baseNode;
+  baseNode << ohDevice.getDeviceBaseNode() << ".GEB.VFATS.VFAT" << (int)vfatDevice;
+  setDeviceBaseNode(baseNode.str());
   m_slot = (readReg(getDeviceBaseNode(),"ChipID0")>>16)&0xff;
   INFO("HwVFAT2 ctor done " << isHwConnected());
 }

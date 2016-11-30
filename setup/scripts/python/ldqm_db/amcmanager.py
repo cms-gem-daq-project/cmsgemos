@@ -5,18 +5,13 @@ from vfat_functions_uhal import *
 
 class AMCmanager:
   def __init__(self):
+    self.connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
     pass
 
-  def connect(self,sn):
-    self.uTCAslot = 160+int(sn)
-    self.ipaddr= '192.168.0.%d'%(self.uTCAslot)
-    self.address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
-    self.uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(self.ipaddr)
-    #consider all AMCs to be GLIBs
-    #if (int(sn) == 2):
-    #  self.uri = "ipbustcp-2.0://eagle34:70002"
+  def connect(self,sn,shelf=1):
+    manager = uhal.ConnectionManager( self.connection_file )
     print "Open new connection\n"
-    self.glib  = uhal.getDevice( "glib" , self.uri, self.address_table )
+    self.glib  = manager.getDevice( "gem.shelf%02.glib%02d"%(shelf,int(sn)) )
     #check if glib is really connected
     fwv = readRegister(self.glib,"GLIB.SYSTEM.FIRMWARE")
     if fwv == 0x0:
