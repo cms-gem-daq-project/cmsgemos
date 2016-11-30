@@ -118,8 +118,17 @@ void gem::utils::db::GEMDatabaseUtils::configure(const std::string& station,
       << "\",setuptype=\"" << setuptype
       << "\",runperiod=\"" << runperiod
       << "\")" << std::endl;
-  PyRun_SimpleString(cmd.str().c_str());
-  //PyRun_SimpleString("from query import configure_db\n"+cmd.c_str()+")\n");
-  DEBUG("GEMDatabaseUtils::configure_db");
+
+  int retval = PyRun_SimpleString(cmd.str().c_str());
+
+  INFO("GEMDatabaseUtils::configure_db had return value " << retval);
+
+  if (retval) {
+    std::string errMsg = "configure_db call failed";
+    PyErr_Print();
+    ERROR("GEMDatabaseUtils::configure " << errMsg);
+    XCEPT_RAISE(gem::utils::exception::DBPythonError, errMsg);
+  }
+
   Py_Finalize();
 }

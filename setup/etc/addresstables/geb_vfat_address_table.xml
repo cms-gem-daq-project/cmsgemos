@@ -22,7 +22,8 @@
                        If no data is present, an error is returned."/>
     <node id="Reset"    address="0x102"  mask="0x1"  permission="w"
           description="Reset the module"/>
-    
+    <node id="Running"    address="0x103"  mask="0x1"  permission="r"
+          description="Returns 1 while the broadcast is in progress"/>    
   </node>
   
 

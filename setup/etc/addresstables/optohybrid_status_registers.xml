@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <node id="top">
   <node id="FW"  address="0x0"  permission="r"
-	description="Firmware version on the OH"/>
+	description="Firmware version on the OH">
+    <node id="DATE"  address="0x0"  permission="r"
+	  description="Firmware date string on the OH"/>
+    <node id="VERSION"  address="0x3"  permission="r"
+	  description="Firmware version on the OH">
+      <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+      <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+      <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+      <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+    </node>
+  </node>
 
   <!-- registers only in V2A -->
   <node id="FPGA_PLL_LOCK"  address="0x1"  mask="0x1"  permission="r"

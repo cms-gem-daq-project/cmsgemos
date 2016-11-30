@@ -104,8 +104,9 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *o
     try {
       if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
         // amc13_status_ptr s(dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus());
-        // s->SetHTML();
-        // s->Report(level,*out);
+        ::amc13::Status* s(dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus());
+        s->SetHTML();
+        s->Report(level,*out);
       } else {
         std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
         WARN("AMC13ManagerWeb:: " << msg);
@@ -155,15 +156,15 @@ void gem::hw::amc13::AMC13ManagerWeb::setDisplayLevel(xgi::Input *in)
   } catch (const xgi::exception::Exception& e) {
     level = 2;
     WARN("AMC13ManagerWeb::Caught xgi::exception " << e.what());
-    //XCEPT_RAISE(xgi::exception::Exception, e.what());
+    // XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
     level = 2;
     WARN("AMC13ManagerWeb::Caught std::exception " << e.what());
-    //XCEPT_RAISE(xgi::exception::Exception, e.what());
+    // XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (...) {
     level = 2;
     WARN("AMC13ManagerWeb::Caught unknown exception");
-    //XCEPT_RAISE(xgi::exception::Exception, e.what());
+    // XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
 
@@ -176,8 +177,9 @@ void gem::hw::amc13::AMC13ManagerWeb::updateStatus(xgi::Output *out)
     try {
       if (dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()) {
         // amc13_status_ptr s(dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus());
-        // s->SetHTML();
-        // s->Report(level,*out);
+        ::amc13::Status* s(dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getAMC13Device()->getStatus());
+        s->SetHTML();
+        s->Report(level,*out);
       } else {
         std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
         WARN("AMC13ManagerWeb:: " << msg);
