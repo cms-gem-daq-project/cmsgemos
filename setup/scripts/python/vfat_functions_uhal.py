@@ -100,7 +100,7 @@ def setChannelRegister(device, gtx, chip, chan,
     if (chan not in range(0,128)):
         print "Invalid VFAT channel specified %d"%(chan)
         return
-    chanReg = (pulse << 6)|(mask << 5)|(trim&0x1f)
+    chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trim&0x1f)
     writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),chanReg)
     return
 
