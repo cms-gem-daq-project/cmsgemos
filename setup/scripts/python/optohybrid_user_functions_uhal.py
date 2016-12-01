@@ -358,14 +358,14 @@ def getVFATTrackingMask(device,gtx=0,debug=False):
     Returns the VFAT s-bit mask
     """
     baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT"%(gtx)
-    return readRegister(device,"%s.MASK"%(baseNode))
+    return readRegister(device,"%s.TRK_MASK"%(baseNode))
 
 def setVFATTrackingMask(device,gtx=0,mask=0x000000,debug=False):
     """
     Set the VFAT s-bit mask
     """
     baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT"%(gtx)
-    return writeRegister(device,"%s.MASK"%(baseNode),mask)
+    return writeRegister(device,"%s.TRK_MASK"%(baseNode),mask)
 
 def calculateLockErrors(device,gtx,register,sampleTime):
     baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.COUNTERS"%(gtx)
