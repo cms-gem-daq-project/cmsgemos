@@ -50,7 +50,7 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
 
   triggerSource = 0;
   //sbitSource    = 0;
-  refClkSrc     = 1;
+  refClkSrc     = 0;
 
   //vfatClkSrc    = 0;
   //cdceClkSrc    = 0;
