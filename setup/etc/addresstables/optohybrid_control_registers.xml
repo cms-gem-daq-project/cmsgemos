@@ -50,14 +50,12 @@
   <node id="ZS"  address="0x7"  mask="0x00000001"  permission="rw"
 	description="Enable/disable zero-suppression"/>
 
-  <!-- register only in V2A -->
   <node id="CLOCK"  address="0x9"  permission="rw"
-	description="Control on the OptoHybrid related to the clocking">
-    <node id="REF_CLK"  address="0x0"  mask="0x3"  permission="rw"
-          description="Select the reference clock source (3 bits):
-                       0: on board oscillator
-                       1: GTX recovered clock
-                       2: external clock"/>
+        description="Control on the OptoHybrid related to the clocking">
+    <node id="REF_CLK"  address="0x0"  mask="0x1"  permission="rw"
+          description="Select the reference clock source (1 bit):                                                                                                                                                                                                                 
+                       0: QPLL                                                                                                                                                                                                                                                    
+                       1: GBT recovered clock"/>
   </node>
 
 </node> <!-- end top block -->
