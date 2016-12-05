@@ -439,7 +439,7 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
     """
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
     if useUltra:
-        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
+        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
         pass
 
     print scanBase
@@ -493,7 +493,7 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
 
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
     if useUltra:
-        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
+        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
         pass
 
     if (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
@@ -527,7 +527,7 @@ def getScanResults(device, gtx, numpoints, debug=False):
     return results
 
 def getUltraScanResults(device, gtx, numpoints, debug=False):
-    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
+    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
     while (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
         if debug and False:
             print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR"%(scanBase)))
