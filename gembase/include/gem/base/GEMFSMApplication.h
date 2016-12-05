@@ -97,8 +97,7 @@ namespace gem {
       /**
        * @brief
        */
-      void workloopDriver(std::string const& command)
-        throw (toolbox::task::exception::Exception);
+      void workloopDriver(std::string const& command);
 
       // work loop call-back functions
       /**
@@ -162,87 +161,80 @@ namespace gem {
       /**
        * @brief
        */
-      virtual void initializeAction() /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void initializeAction() = 0;
 
       /**
        * @brief
        */
-      virtual void configureAction()  /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void configureAction()  = 0;
 
       /**
        * @brief
        */
-      virtual void startAction()      /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void startAction()      = 0;
 
       /**
        * @brief
        */
-      virtual void pauseAction()      /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void pauseAction()      = 0;
 
       /**
        * @brief
        */
-      virtual void resumeAction()     /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void resumeAction()     = 0;
 
       /**
        * @brief
        */
-      virtual void stopAction()       /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void stopAction()       = 0;
 
       /**
        * @brief
        */
-      virtual void haltAction()       /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void haltAction()       = 0;
 
       /**
        * @brief
        */
-      virtual void resetAction()      /*throw (gem::base::exception::Exception)*/ = 0;
-      // virtual void noAction()         /*throw (gem::base::exception::Exception)*/ = 0;
+      virtual void resetAction()      = 0;
+      // virtual void noAction()         = 0;
 
       /**
        * @brief Responses to xdata::Event
        */
-      void transitionDriver(toolbox::Event::Reference e)
-        throw (toolbox::fsm::exception::Exception);
+      void transitionDriver(toolbox::Event::Reference e);
 
       /**
        * @brief resetAction
        * takes the GEMFSM from a state to the uninitialzed state
        * recovery from a failed transition, or just a reset
        */
-      virtual void resetAction(toolbox::Event::Reference e)
-        throw (toolbox::fsm::exception::Exception);
+      virtual void resetAction(toolbox::Event::Reference e);
 
       /**
        * failAction
        * determines how to handle a failed transition
        *
        virtual void failAction(toolbox::Event::Reference e)
-       throw (toolbox::fsm::exception::Exception);
       */
 
       /**
        * @brief stateChanged
        *
-       *
        */
-      virtual void stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
-        throw (toolbox::fsm::exception::Exception);
+      virtual void stateChanged(toolbox::fsm::FiniteStateMachine &fsm);
 
       /**
        * @brief transitionFailed
        */
-      virtual void transitionFailed(toolbox::Event::Reference event)
-        throw (toolbox::fsm::exception::Exception);
+      virtual void transitionFailed(toolbox::Event::Reference event);
 
       /**
        * @brief fireEvent
        * Forwards a state change to the GEMFSM object
        * @param std::string event name of the event to pass to the GEMFSM
        */
-      virtual void fireEvent(std::string event)
-        throw (toolbox::fsm::exception::Exception);
+      virtual void fireEvent(std::string event);
 
       /**
        * @brief changeState
@@ -276,6 +268,10 @@ namespace gem {
        */
       virtual std::string getCurrentState() {
         return m_stateName.toString();
+      };
+
+      virtual toolbox::fsm::State getCurrentFSMState() {
+        return m_gemfsm.getCurrentFSMState();
       };
 
       /**

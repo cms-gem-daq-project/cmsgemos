@@ -226,7 +226,6 @@ void gem::supervisor::GEMSupervisor::init()
 
 // state transitions
 void gem::supervisor::GEMSupervisor::initializeAction()
-  throw (gem::supervisor::exception::Exception)
 {
   INFO("gem::supervisor::GEMSupervisor::initializeAction Initializing");
 
@@ -258,7 +257,6 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     msg << "GEMSupervisor::initializeAction unable to connect to the database (DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    // can't raise exception in workloop?
     // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
@@ -277,7 +275,6 @@ void gem::supervisor::GEMSupervisor::initializeAction()
 }
 
 void gem::supervisor::GEMSupervisor::configureAction()
-  throw (gem::supervisor::exception::Exception)
 {
   while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Configuring") ||
            (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configuring"))) {
@@ -310,22 +307,29 @@ void gem::supervisor::GEMSupervisor::configureAction()
 
   } catch (gem::supervisor::exception::Exception& e) {
     ERROR("GEMSupervisor::configureAction " << e.what());
-    throw e;
+    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
+    //throw e;
+  } catch (gem::utils::exception::Exception& e) {
+    ERROR("GEMSupervisor::configureAction " << e.what());
+    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
+    //throw e;
   } catch (xcept::Exception& e) {
     ERROR("GEMSupervisor::configureAction " << e.what());
-    throw e;
+    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
+    //throw e;
   } catch (std::exception& e) {
     ERROR("GEMSupervisor::configureAction " << e.what());
-    throw e;
+    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
+    //throw e;
   } catch (...) {
     ERROR("GEMSupervisor::configureAction ");
+    XCEPT_RAISE(gem::utils::exception::Exception,"Unknown exception");
   }
   m_globalState.update();
   INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::startAction()
-  throw (gem::supervisor::exception::Exception)
 {
   while (!(m_globalState.getStateName() == "Configured" && getCurrentState() == "Starting")) {
     INFO("GEMSupervisor::startAction global state not in " << gem::base::STATE_CONFIGURED
@@ -334,7 +338,34 @@ void gem::supervisor::GEMSupervisor::startAction()
     usleep(100);
     m_globalState.update();
   }
-  updateRunNumber();
+
+  try {
+    updateRunNumber();
+  } catch (gem::utils::exception::Exception& e) {
+    ERROR("GEMSupervisor::startAction updateRunNumber failed:" << e.what());
+    m_globalState.update();
+    XCEPT_RAISE(toolbox::task::exception::Exception,e.what());
+    return;
+    //throw e;
+  } catch (xcept::Exception& e) {
+    ERROR("GEMSupervisor::startAction updateRunNumber failed:" << e.what());
+    m_globalState.update();
+    XCEPT_RAISE(toolbox::task::exception::Exception,e.what());
+    return;
+    //throw e;
+  } catch (std::exception& e) {
+    ERROR("GEMSupervisor::startAction updateRunNumber failed:" << e.what());
+    m_globalState.update();
+    XCEPT_RAISE(toolbox::task::exception::Exception,e.what());
+    return;
+    //throw e;
+  } catch (...) {
+    ERROR("GEMSupervisor::startAction updateRunNumber failed: unknown exception");
+    m_globalState.update();
+    XCEPT_RAISE(toolbox::task::exception::Exception,"updateRunNumber: unknown exception");
+    return;
+    //throw e;
+  }
 
   if(m_scanType.value_ == 2 || (m_scanType.value_ == 3)){
     m_scanParameter = m_scanInfo.bag.scanMin.value_;
@@ -355,22 +386,39 @@ void gem::supervisor::GEMSupervisor::startAction()
 
   } catch (gem::supervisor::exception::Exception& e) {
     ERROR("GEMSupervisor::startAction " << e.what());
-    throw e;
+    m_globalState.update();
+    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
+    //    throw e;
+    return;
+  } catch (gem::utils::exception::Exception& e) {
+    ERROR("GEMSupervisor::startAction " << e.what());
+    m_globalState.update();
+    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
+    //    throw e;
+    return;
   } catch (xcept::Exception& e) {
     ERROR("GEMSupervisor::startAction " << e.what());
-    throw e;
+    m_globalState.update();
+    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
+    //    throw e;
+    return;
   } catch (std::exception& e) {
     ERROR("GEMSupervisor::startAction " << e.what());
-    throw e;
+    m_globalState.update();
+    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
+    //    throw e;
+    return;
   } catch (...) {
     ERROR("GEMSupervisor::startAction ");
+    m_globalState.update();
+    XCEPT_RAISE(gem::utils::exception::Exception,"Unknown exception");
+    return;
   }
   m_globalState.update();
   INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::pauseAction()
-  throw (gem::supervisor::exception::Exception)
 {
   while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Pausing")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
@@ -388,7 +436,6 @@ void gem::supervisor::GEMSupervisor::pauseAction()
 }
 
 void gem::supervisor::GEMSupervisor::resumeAction()
-  throw (gem::supervisor::exception::Exception)
 {
   while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Resuming")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
@@ -406,7 +453,6 @@ void gem::supervisor::GEMSupervisor::resumeAction()
 }
 
 void gem::supervisor::GEMSupervisor::stopAction()
-  throw (gem::supervisor::exception::Exception)
 {
   while (!((m_globalState.getStateName() == "Running" && getCurrentState() == "Stopping") ||
            (m_globalState.getStateName() == "Paused"  && getCurrentState() == "Stopping"))) {
@@ -426,7 +472,6 @@ void gem::supervisor::GEMSupervisor::stopAction()
 }
 
 void gem::supervisor::GEMSupervisor::haltAction()
-  throw (gem::supervisor::exception::Exception)
 {
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
     INFO("GEMSupervisor::haltAction Halting " << (*i)->getClassName());
@@ -436,7 +481,6 @@ void gem::supervisor::GEMSupervisor::haltAction()
 }
 
 void gem::supervisor::GEMSupervisor::resetAction()
-  throw (gem::supervisor::exception::Exception)
 {
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
     INFO("GEMSupervisor::resetAction Resetting " << (*i)->getClassName());
@@ -448,19 +492,16 @@ void gem::supervisor::GEMSupervisor::resetAction()
 
 /*
   void gem::supervisor::GEMSupervisor::noAction()
-  throw (gem::supervisor::exception::Exception)
   {
   }
 */
 
 void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
 {
   m_globalState.update();
 }
 
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
 {
   m_globalState.update();
 }
@@ -520,6 +561,7 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
 
 void gem::supervisor::GEMSupervisor::updateRunNumber()
 {
+  INFO("GEMSupervisor::updateRunNumber called");
   // should be able to find the run number from the run number service, or some other source
   // get the last entry
   // query parameter
@@ -549,10 +591,23 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
   std::string    setup = m_setupTag.toString();
   std::string   period = m_runPeriod.toString();
   std::string location = m_setupLocation.toString();
-  p_gemDBHelper->configure(location,setup,period);
-
   try {
-    // if (p_gemDBHelper->connect(m_dbName.toString())) {
+    INFO("GEMSupervisor::updateRunNumber trying to configure the local DB");
+    p_gemDBHelper->configure(location,setup,period);
+  } catch (gem::utils::exception::DBPythonError& e) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::updateRunNumber python DB Configure call failed";
+    ERROR(msg.str());
+    // fireEvent("Fail");
+    XCEPT_RAISE(toolbox::task::exception::Exception, msg.str());
+    // XCEPT_RETHROW(toolbox::task::exception::Exception, msg.str(), e);
+    // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    INFO("GEMSupervisor::updateRunNumber DB configure failed, returning");
+    return;
+  }
+  
+  try {
+    INFO("GEMSupervisor::updateRunNumber trying to connect to the local DB");
     p_gemDBHelper->connect(m_dbName.toString());
 
     std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
@@ -560,14 +615,18 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
 
     try {
+      INFO("GEMSupervisor::updateRunNumber trying to get the latest run number");
       m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
     } catch (gem::utils::exception::DBEmptyQueryResult& e) {
       WARN("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
       // m_runNumber.value_ = 0;
+      XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
     } catch (xcept::Exception& e) {
-      ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+      ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
+      XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
     } catch (std::exception& e) {
       ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+      XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
     }
 
     INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
@@ -580,23 +639,27 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     ERROR(msg.str());
     fireEvent("Fail");
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+    // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   }
+  INFO("GEMSupervisor::updateRunNumber done");
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
-  throw (gem::supervisor::exception::Exception)
+//  throw (xoap::exception::Exception)
 {
   INFO("GEMSupervisor::sendCfgType to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("CfgType", "xsd:string", m_cfgType.toString(),
@@ -604,7 +667,7 @@ void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xda
 }
 
 void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad)
-  throw (gem::supervisor::exception::Exception)
+//  throw (xoap::exception::Exception)
 {
   INFO("GEMSupervisor::sendRunType to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunType", "xsd:string", m_runType.toString(),
@@ -612,7 +675,7 @@ void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xda
 }
 
 void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad)
-  throw (gem::supervisor::exception::Exception)
+//  throw (xoap::exception::Exception)
 {
   INFO("GEMSupervisor::sendRunNumber to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber", "xsd:long",
@@ -621,7 +684,7 @@ void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xda
 }
 
 void gem::supervisor::GEMSupervisor::sendScanParameters(xdaq::ApplicationDescriptor* ad)
-  throw (gem::supervisor::exception::Exception)
+//  throw (xoap::exception::Exception)
 {
 
   INFO("GEMSupervisor::sendScanParameter ScanInfo " << std::endl
@@ -632,7 +695,7 @@ void gem::supervisor::GEMSupervisor::sendScanParameters(xdaq::ApplicationDescrip
 }
 
 xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
+//  throw (xoap::exception::Exception)
 {
   std::string commandName = "EndScanPoint";
 

@@ -276,7 +276,6 @@ void gem::base::GEMFSMApplication::jsonStateUpdate(xgi::Input* in, xgi::Output* 
 
 /**state transitions*/
 void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception)
 {
   // set a transition message to ""
   DEBUG("GEMFSMApplication::transitionDriver(" << event->type() << ")");
@@ -320,7 +319,6 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
 }
 
 void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
-  throw (toolbox::task::exception::Exception)
 {
   DEBUG("GEMFSMApplication::workloopDriver begin");
   try {
@@ -356,7 +354,6 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
 }
 
 void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception)
 {
   // need to ensure that this is called from every derived class?
   DEBUG("GEMFSMApplication::resetAction(" << event->type() << ")");
@@ -381,13 +378,11 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
 
 /*
         void gem::base::GEMFSMApplication::failAction(toolbox::Event::Reference event)
-        throw (toolbox::fsm::exception::Exception)
         {
         }
 */
 
 void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
-  throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSMApplication::stateChanged");
   updateState();
@@ -395,7 +390,6 @@ void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine
 }
 
 void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception)
 {
   WARN("GEMFSMApplication::transitionFailed(" <<event->type() << ")");
   updateState();
@@ -403,7 +397,6 @@ void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference ev
 }
 
 void gem::base::GEMFSMApplication::fireEvent(std::string event)
-  throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSMApplication::fireEvent(" << event << ")");
   try {
@@ -434,7 +427,8 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
   DEBUG("GEMFSMApplication::initialize called, current state: " << m_gemfsm.getCurrentState());
-  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_INITIALIZING)) {  // deal with possible race condition
+  // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_INITIALIZING)) {  // deal with possible race condition
+  while ((m_gemfsm.getCurrentFSMState()) != STATE_INITIALIZING) {  // deal with possible race condition
     DEBUG("GEMFSMApplication::not in " << STATE_INITIALIZING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
     usleep(100);
   }
@@ -554,7 +548,7 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::start caught exception " << ex.what());
+    ERROR("GEMFSMApplication::start caught toolbox::task::exception " << ex.what());
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;

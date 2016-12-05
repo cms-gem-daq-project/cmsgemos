@@ -11,7 +11,7 @@ class AMCmanager:
   def connect(self,sn,shelf=1):
     manager = uhal.ConnectionManager( self.connection_file )
     print "Open new connection\n"
-    self.glib  = manager.getDevice( "gem.shelf%02d.glib%02d"%(shelf,int(sn)) )
+    self.glib  = manager.getDevice( "gem.shelf%02d.fail.glib%02d"%(shelf,int(sn)) )
     #check if glib is really connected
     fwv = readRegister(self.glib,"GLIB.SYSTEM.FIRMWARE")
     if fwv == 0x0:
