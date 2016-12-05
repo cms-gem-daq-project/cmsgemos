@@ -394,10 +394,10 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
 
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
     if useUltra:
-        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"
+        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
         pass
 
-    if (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
+    if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         print "Scan is already running, not starting a new scan"
         return
 
@@ -483,7 +483,7 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
     print "FW scan channel    : %d"%(regVals["%s.CHAN"%(scanBase)])
     print "FW scan step size  : %d"%(regVals["%s.STEP"%(scanBase)])
     print "FW scan n_triggers : %d"%(regVals["%s.NTRIGS"%(scanBase)])
-    print "FW scan status     : %d"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+    print "FW scan status     : %x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
 
     return
 
@@ -496,24 +496,27 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
         scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
         pass
 
-    if (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
+    if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         print "Scan is already running, not starting a new scan"
+        return
+    if (readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) > 0):
+        print "There was an error in the scan configuration, not starting a new scan"
         return
 
     writeRegister(device,"%s.START"%(scanBase),0x1)
-    if not (readRegister(device,"%s.MONITOR"%(scanBase))):
+    if readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) or not (readRegister(device,"%s.MONITOR.STATUS"%(scanBase))):
         print "Scan failed to start, FIFO read 0x%08x"%(readRegister(device,"%s.RESULTS"%(scanBase)))
         pass
     if debug:
-        print "After start, scan status is: %d"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+        print "After start, scan status is: %x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
         pass
     return
 
 def getScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
-    while (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
+    while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         if debug and False:
-            print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+            print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
             pass
         time.sleep(0.1)
         pass
@@ -528,9 +531,9 @@ def getScanResults(device, gtx, numpoints, debug=False):
 
 def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
-    while (readRegister(device,"%s.MONITOR"%(scanBase)) > 0):
+    while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         if debug and False:
-            print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+            print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
             pass
         time.sleep(0.1)
         pass
