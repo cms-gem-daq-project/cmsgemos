@@ -98,9 +98,9 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T",shelf=1):
     nrs = u'%s'%(1)
     pass # ends try/except
   nrs = nrs.zfill(6)
-  t_date = str(datetime.date.today())
+  t_date = str(datetime.datetime.utcnow()).split(' ')[0]
   m_filename = "run"+str(nrs)+""+"_"+setuptype+"_"+station+"_"+t_date
-  newrun = Run(Name=m_filename, Type = setuptype, Number = str(nrs), Date = datetime.date.today(), Period = runperiod, Station = station)
+  newrun = Run(Name=m_filename, Type = setuptype, Number = str(nrs), Date = t_date, Period = runperiod, Station = station)
   newrun.save()
   for a in a_list:
     print "Adding AMC: %s" %(a.BoardID)
