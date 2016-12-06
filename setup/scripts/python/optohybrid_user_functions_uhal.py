@@ -541,6 +541,6 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     results = []
 
     for chip in range(24):
-        results.append(readBlock(device,"%s.RESULTS"%(scanBase),numpoints))
+        results.append(readBlock(device,"%s.RESULTS.VFAT%d"%(scanBase,chip),numpoints))
 
     return results
