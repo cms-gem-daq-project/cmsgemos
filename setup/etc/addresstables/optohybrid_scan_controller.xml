@@ -36,7 +36,6 @@
                        8 MSBits hold the threshold/latency value of the point
                        24 LSBits hold the number of events that have fired
                        If no data is present, an error is returned."/>
-
     <node id="MONITOR"    address="0x9"
           module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_scan_monitor_register.xml"/>
     <node id="RESET"    address="0xa"  mask="0xffffffff"  permission="rw"
