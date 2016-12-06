@@ -398,7 +398,7 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
         pass
 
     if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
-        print "Scan is already running, not starting a new scan"
+        print "Scan is already running (0x%x), not starting a new scan"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
         return
 
     if debug:
@@ -407,7 +407,7 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
         print "FW scan min        : %d"%(scanmin)
         print "FW scan max        : %d"%(scanmax)
         if useUltra:
-            print "Ultra FW scan mask : 0x08x"%(vfat)
+            print "Ultra FW scan mask : 0x%08x"%(vfat)
         else:
             print "FW scan VFAT       : %d"%(vfat)
             pass
@@ -450,6 +450,7 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
         "%s.CHAN"%(scanBase),
         "%s.STEP"%(scanBase),
         "%s.NTRIGS"%(scanBase),
+        "%s.MONITOR"%(scanBase),
      ]
     if useUltra:
         regList.append("%s.MASK"%(scanBase))
@@ -476,14 +477,14 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
     print "FW scan min        : %d"%(regVals["%s.MIN"%(scanBase)])
     print "FW scan max        : %d"%(regVals["%s.MAX"%(scanBase)])
     if useUltra:
-        print "Ultra FW scan mask : 0x08x"%(regVals["%s.MASK"%(scanBase)])
+        print "Ultra FW scan mask : 0x%08x"%(regVals["%s.MASK"%(scanBase)])
     else:
         print "FW scan VFAT       : %d"%(regVals["%s.CHIP"%(scanBase)])
         pass
     print "FW scan channel    : %d"%(regVals["%s.CHAN"%(scanBase)])
     print "FW scan step size  : %d"%(regVals["%s.STEP"%(scanBase)])
     print "FW scan n_triggers : %d"%(regVals["%s.NTRIGS"%(scanBase)])
-    print "FW scan status     : %x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+    print "FW scan status     : 0x%08x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
 
     return
 
@@ -497,7 +498,7 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
         pass
 
     if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
-        print "Scan is already running, not starting a new scan"
+        print "Scan is already running (0x%x), not starting a new scan"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
         return
     if (readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) > 0):
         print "There was an error in the scan configuration, not starting a new scan"
@@ -508,7 +509,7 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
         print "Scan failed to start, FIFO read 0x%08x"%(readRegister(device,"%s.RESULTS"%(scanBase)))
         pass
     if debug:
-        print "After start, scan status is: %x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+        print "After start, scan status is: 0x%08x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
         pass
     return
 
@@ -516,11 +517,14 @@ def getScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         if debug and False:
-            print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+            print "Scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
             pass
         time.sleep(0.1)
         pass
 
+    if debug:
+        print "Scan status (0x%08x)"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+        print "Scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
     # results = []
     # results.append(readRegister(device,"%s.RESULTS"%(scanBase)))
     # print "0x%08x"%(results[0])
@@ -533,11 +537,15 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         if debug and False:
-            print "Scan still running (%d), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+            print "Scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
             pass
         time.sleep(0.1)
         pass
 
+    if debug:
+        print "Scan status (0x%08x)"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+        print "Scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
+        pass
     results = []
 
     for chip in range(24):
