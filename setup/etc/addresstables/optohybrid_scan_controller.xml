@@ -43,7 +43,7 @@
           description="Local reset of the module"/>
   </node>
 
-  <node id="ULTRA"  address="0xA000000"  permission="rw"
+  <node id="ULTRA"  address="0xB000000"  permission="rw"
         description="Control the onboard ultra threshold/latency scan routine">
     <node id="START"  address="0x0"  mask="0x1"  permission="w"
           description="Start the specified scan routine
