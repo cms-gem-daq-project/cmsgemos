@@ -23,7 +23,7 @@ parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
                   help="slot in uTCA crate", metavar="slot", default=10)
 parser.add_option("-g", "--gtx", type="int", dest="gtx",
-                  help="GTX on the GLIB", metavar="gtx", default=0)
+                  help="GTX on the AMC", metavar="gtx", default=0)
 parser.add_option("-c", "--clksrc", type="string", dest="clksrc",
                   help="select the input for the XPoint1 outputs", metavar="clksrc", default="local")
 parser.add_option("-r", "--reset", action="store_true", dest="resetCounters",
@@ -86,7 +86,7 @@ glib  = uhal.getDevice( "glib" , uri, address_table )
 ########################################
 print
 print "--=======================================--"
-print "  Opening GLIB with IP", ipaddr
+print "  Opening AMC with IP", ipaddr
 print "--=======================================--"
 print
 

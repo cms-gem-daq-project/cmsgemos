@@ -239,20 +239,14 @@ void gem::hw::glib::GLIBManager::initializeAction()
     is_glibs.at(slot)->createUInt32("ControlHubPort",    info.controlHubPort.value_   , &(info.controlHubPort),
                                     GEMUpdateType::NOUPDATE);
     is_glibs.at(slot)->createUInt32("IPBusPort",         info.ipBusPort.value_        , &(info.ipBusPort),
-                                    GEMUpdateType::NOUPDATE);
+                                 GEMUpdateType::NOUPDATE);
 
-    DEBUG("GLIBManager::InfoSpace found item: ControlHubAddress "
-          << is_glibs.at(slot)->getString("ControlHubAddress"));
-    DEBUG("GLIBManager::InfoSpace found item: IPBusProtocol "
-          << is_glibs.at(slot)->getString("IPBusProtocol")    );
-    DEBUG("GLIBManager::InfoSpace found item: DeviceIPAddress "
-          << is_glibs.at(slot)->getString("DeviceIPAddress")  );
-    DEBUG("GLIBManager::InfoSpace found item: AddressTable "
-          << is_glibs.at(slot)->getString("AddressTable")     );
-    DEBUG("GLIBManager::InfoSpace found item: ControlHubPort "
-          << is_glibs.at(slot)->getUInt32("ControlHubPort")   );
-    DEBUG("GLIBManager::InfoSpace found item: IPBusPort "
-          << is_glibs.at(slot)->getUInt32("IPBusPort")        );
+    DEBUG("GLIBManager::InfoSpace found item: ControlHubAddress " << is_glibs.at(slot)->getString("ControlHubAddress"));
+    DEBUG("GLIBManager::InfoSpace found item: IPBusProtocol "     << is_glibs.at(slot)->getString("IPBusProtocol")    );
+    DEBUG("GLIBManager::InfoSpace found item: DeviceIPAddress "   << is_glibs.at(slot)->getString("DeviceIPAddress")  );
+    DEBUG("GLIBManager::InfoSpace found item: AddressTable "      << is_glibs.at(slot)->getString("AddressTable")     );
+    DEBUG("GLIBManager::InfoSpace found item: ControlHubPort "    << is_glibs.at(slot)->getUInt32("ControlHubPort")   );
+    DEBUG("GLIBManager::InfoSpace found item: IPBusPort "         << is_glibs.at(slot)->getUInt32("IPBusPort")        );
 
     try {
       DEBUG("GLIBManager::obtaining pointer to HwGLIB");
@@ -339,7 +333,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       m_glibs.at(slot)->resetCalPulseCount();
 
       // reset the DAQ
-      m_glibs.at(slot)->setL1AEnable(0x0);
+      m_glibs.at(slot)->setL1AEnable(false);
       m_glibs.at(slot)->resetDAQLink();
       m_glibs.at(slot)->setDAQLinkRunType(0x0);
       m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
@@ -417,7 +411,7 @@ void gem::hw::glib::GLIBManager::startAction()
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       m_glibs.at(slot)->enableDAQLink(0x4);  //FIXME
-      m_glibs.at(slot)->setL1AEnable(0x1);
+      m_glibs.at(slot)->setL1AEnable(true);
       usleep(100); // just for testing the timing of different applications
     } else {
       std::stringstream msg;
@@ -526,7 +520,7 @@ void gem::hw::glib::GLIBManager::stopAction()
     if (m_glibs[slot]->isHwConnected()) {
       // what is required for stopping the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
-      m_glibs[slot]->setL1AEnable(0x0);
+      m_glibs[slot]->setL1AEnable(false);
     }
   }
   // usleep(100);  // just for testing the timing of different applications

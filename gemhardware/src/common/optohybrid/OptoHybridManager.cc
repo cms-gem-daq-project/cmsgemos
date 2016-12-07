@@ -30,24 +30,25 @@
 XDAQ_INSTANTIATOR_IMPL(gem::hw::optohybrid::OptoHybridManager);
 
 gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo() {
-  present  = false;
-  crateID  = -1;
-  slotID   = -1;
-  linkID   = -1;
+  present = false;
+  crateID = -1;
+  slotID  = -1;
+  linkID  = -1;
+  //  m_RunType = (0x0);
   cardName = "";
+
+  controlHubAddress = "N/A";
+  deviceIPAddress   = "N/A";
+  ipBusProtocol     = "N/A";
+  addressTable      = "N/A";
+  controlHubPort    = 0;
+  ipBusPort         = 0;
 
   vfatBroadcastList = "0-23";
   vfatBroadcastMask = 0xff000000;
 
   vfatSBitList = "0-23";
   vfatSBitMask = 0xff000000;
-
-  controlHubAddress = "";
-  deviceIPAddress   = "";
-  ipBusProtocol     = "";
-  addressTable      = "";
-  controlHubPort    = 0;
-  ipBusPort         = 0;
 
   triggerSource = 0;
   //sbitSource    = 0;

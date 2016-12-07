@@ -498,14 +498,34 @@ bool gem::hw::HwGenericAMC::daqTTCReady()
   return readReg(getDeviceBaseNode(), "DAQ.STATUS.TTC_RDY");
 }
 
+uint8_t gem::hw::HwGenericAMC::daqTTSState()
+{
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.TTS_STATE");
+}
+
 bool gem::hw::HwGenericAMC::daqAlmostFull()
 {
   return readReg(getDeviceBaseNode(), "DAQ.STATUS.DAQ_AFULL");
 }
 
-uint8_t gem::hw::HwGenericAMC::daqTTSState()
+bool gem::hw::HwGenericAMC::l1aFIFOIsEmpty()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.TTS_STATE");
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_EMPTY");
+}
+
+bool gem::hw::HwGenericAMC::l1aFIFOIsAlmostFull()
+{
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_AFULL");
+}
+
+bool gem::hw::HwGenericAMC::l1aFIFOIsFull()
+{
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FULL");
+}
+
+bool gem::hw::HwGenericAMC::l1aFIFOIsUnderflow()
+{
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_UFLOW");
 }
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkEventsSent()
