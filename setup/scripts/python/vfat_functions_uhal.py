@@ -23,7 +23,7 @@ def readVFAT(device, gtx, chip, reg, debug=False):
     else :
         return vfatVal
 
-def readAllVFATs(device, gtx, reg, mask, debug=False):
+def readAllVFATs(device, gtx, reg, mask=0x0, debug=False):
     vfatVals = broadcastRead(device,gtx,reg,mask,debug)
     if (debug and vfatVals):
         for i,val in enumerate(vfatVals):
@@ -67,7 +67,7 @@ def readVFATRegisters(device, gtx, chip, regs, debug=False):
         pass
     return readRegisterList(device,registers)
 
-def writeAllVFATs(device, gtx, reg, value, mask, debug=False):
+def writeAllVFATs(device, gtx, reg, value, mask=0x0, debug=False):
     broadcastWrite(device,gtx,reg,value,mask,debug)
 
 def setupDefaultCRs(device, gtx, chip, sleep=False, debug=False):
