@@ -309,7 +309,7 @@ def setReferenceClock(device,gtx,source,debug=False):
     OH:   0=onboard,     1=GTX recovered,  2=external clock
     V2A only
     """
-    #writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
+    # writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
 
 def getReferenceClock(device,gtx,debug=False):

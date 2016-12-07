@@ -70,33 +70,28 @@ namespace gem {
             throw (xgi::exception::Exception);
 
           //state transitions
-          virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
-          virtual void configureAction()  throw (gem::hw::amc13::exception::Exception);
-          virtual void startAction()      throw (gem::hw::amc13::exception::Exception);
-          virtual void pauseAction()      throw (gem::hw::amc13::exception::Exception);
-          virtual void resumeAction()     throw (gem::hw::amc13::exception::Exception);
-          virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
-          virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
-          virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
+          virtual void initializeAction() ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void configureAction()  ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void startAction()      ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void pauseAction()      ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void resumeAction()     ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void stopAction()       ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void haltAction()       ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void resetAction()      ; // throw (gem::hw::amc13::exception::Exception);
 
-          xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-          xoap::MessageReference enableTriggers(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-          xoap::MessageReference disableTriggers(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
+          xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns);
+          xoap::MessageReference enableTriggers(xoap::MessageReference mns);
+          xoap::MessageReference disableTriggers(xoap::MessageReference mns);
 
-	  void endScanPoint() throw (xgi::exception::Exception);
+	  void endScanPoint();
 
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
 
-          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception);
+          // virtual void noAction();
 
-          virtual void failAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception);
-
-          virtual void resetAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception);
+          virtual void failAction(toolbox::Event::Reference e);
+          
+          virtual void resetAction(toolbox::Event::Reference e);
 
 	  class BGOInfo
 	  {

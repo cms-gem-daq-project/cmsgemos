@@ -10,6 +10,8 @@
 #include "toolbox/task/TimerListener.h"
 #include "toolbox/fsm/FiniteStateMachine.h"
 
+#include "gem/base/GEMState.h"
+
 #include "gem/utils/soap/GEMSOAPToolBox.h"
 #include "gem/utils/Lock.h"
 
@@ -118,6 +120,17 @@ namespace gem {
 	std::string getStateName() const { return m_globalStateName; };
 
         static int getStatePriority(toolbox::fsm::State state);
+
+        /**
+         * @brief Force the globally reported state to the state specified
+         */
+        void forceGlobalState(toolbox::fsm::State state) { m_forceGlobal = state; }
+
+        /**
+         * @brief Reset the globally reported state to STATE_NULL, resulting in allowing the
+         * composite state to be calculated and reported as the global state
+         */
+        void unforceGlobalState() { forceGlobalState(gem::base::STATE_NULL); }
 
       protected:
         typedef std::map<xdaq::ApplicationDescriptor*, GEMApplicationState> ApplicationMap;
