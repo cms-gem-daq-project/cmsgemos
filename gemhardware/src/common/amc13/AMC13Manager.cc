@@ -257,17 +257,25 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
     p_amc13 = std::make_shared< ::amc13::AMC13>(connection, cardname+".T1", cardname+".T2");
   } catch (::amc13::Exception::exBase & e) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught amc13::Exception:" <<  e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+    std::stringstream msg;
+    msg << "AMC13Manager::AMC13::AMC13() failed, caught amc13::Exception: " << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (uhal::exception::exception & e) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+    std::stringstream msg;
+    msg << "AMC13Manager::AMC13::AMC13() failed, caught uhal::exception: " << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (std::exception& e) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception:" << e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+    std::stringstream msg;
+    msg << "AMC13Manager::AMC13::AMC13() failed, caught std::exception: " << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (...) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught ...");
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
+    std::stringstream msg;
+    msg << "AMC13Manager::AMC13::AMC13() failed (unknown exception)";
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   }
 
   DEBUG("AMC13Manager::finished with AMC13::AMC13()");
@@ -321,6 +329,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   // Use local trigger generator if config doc says so
   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   p_amc13->enableLocalL1A(m_enableLocalL1A);
+  p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
 
   // need to ensure that all BGO channels are disabled
   for (int bchan = 0; bchan < 4; ++bchan)
