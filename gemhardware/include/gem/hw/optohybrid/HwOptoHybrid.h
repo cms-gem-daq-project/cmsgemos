@@ -928,37 +928,42 @@ namespace gem {
             if (signal == 0x3)
               t1Signal << "BC0";
 
+            std::stringstream regName;
+            regName << getDeviceBaseNode() << ".COUNTERS.T1";
+            std::vector<std::string> l1aCounterRegisters;
+
             switch(mode) {
             case 0:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 1:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 2:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 3:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 4:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 5:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             default:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             }
+            writeValueToRegs(l1aCounterRegisters, 0x1);
           };
 
           /**
@@ -1094,11 +1099,14 @@ namespace gem {
            */
           std::pair<uint32_t,uint32_t> getVFATCRCCount(uint8_t const& chip) {
             std::stringstream vfatCRC;
-            vfatCRC << "COUNTERS.CRC.";
-            uint32_t valid     = readReg(getDeviceBaseNode(),
-                                         toolbox::toString("COUNTERS.CRC.VALID.VFAT%d",    chip));
-            uint32_t incorrect = readReg(getDeviceBaseNode(),
-                                         toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d",chip));
+            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC.";
+            std::vector<std::pair<std::string,uint32_t> > vfatCRCRegs;
+            uint32_t valid(0x0), incorrect(0x0);
+            vfatCRCRegs.push_back(std::make_pair(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip),
+                                                 valid));
+            vfatCRCRegs.push_back(std::make_pair(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip),
+                                                 incorrect));
+            readRegs(vfatCRCRegs);
             return std::make_pair(valid,incorrect);
           };
 
@@ -1111,11 +1119,27 @@ namespace gem {
            */
           void resetVFATCRCCount(uint8_t const& chip) {
             std::stringstream vfatCRC;
-            vfatCRC << "COUNTERS.CRC.";
-            writeReg(getDeviceBaseNode(),
-                     toolbox::toString("COUNTERS.CRC.VALID.VFAT%d.Reset",    chip),0x1);
-            writeReg(getDeviceBaseNode(),
-                     toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d.Reset",chip),0x1);
+            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC.";
+            std::vector<std::string> vfatCRCRegs;
+            vfatCRCRegs.push_back(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip));
+            vfatCRCRegs.push_back(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip));
+            writeValueToRegs(vfatCRCRegs, 0x1);
+            return;
+          };
+
+          /**
+           * Reset the number of valid/incorrect CRCs performed by the OptoHybrid
+           * on the received data packets from all VFATs
+           */
+          void resetVFATCRCCount() {
+            std::stringstream vfatCRC;
+            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC";
+            std::vector<std::string> vfatCRCRegs;
+            for (int vfat = 0; vfat < 24; ++vfat) {
+              vfatCRCRegs.push_back(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),vfat));
+              vfatCRCRegs.push_back(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),vfat));
+            }
+            writeValueToRegs(vfatCRCRegs, 0x1);
             return;
           };
 
