@@ -150,16 +150,6 @@ namespace gem {
 
 	uint32_t m_scanParameter;
 
-        xdata::Bag<gem::utils::db::GEMDatabaseUtils::GEMDBInfo> m_dbInfo;
-        xdata::String   m_dbName;
-        xdata::String   m_dbHost;
-        xdata::Integer  m_dbPort;
-        xdata::String   m_dbUser;
-        xdata::String   m_dbPass;
-        xdata::String   m_setupTag;
-        xdata::String   m_runPeriod;
-        xdata::String   m_setupLocation;
-
         xdata::Boolean             m_handleTCDS;
         xdata::Boolean             m_useLocalReadout;
         xdata::Boolean             m_useFedKitReadout;
