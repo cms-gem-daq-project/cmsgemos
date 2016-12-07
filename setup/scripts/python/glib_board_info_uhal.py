@@ -46,8 +46,6 @@ parser.add_option("--daq_enable", type="int", dest="daq_enable",
                   help="enable daq output", metavar="daq_enable", default=-1)
 parser.add_option("--rd", type="int", dest="reset_daq",
                   help="reset daq", metavar="reset_daq", default=-1)
-parser.add_option("--ftx0", action="store_true", dest="flipPolarityTX0",
-                  help="flip polarity TX 0", metavar="flipPolarityTX0")
 parser.add_option("--l1a_block", action="store_true", dest="l1a_block",
                   help="Inhibit the L1As at the TTC backplane link", metavar="l1a_block")
 parser.add_option("--short", action="store_true", dest="short",
@@ -70,15 +68,17 @@ if options.debug:
 ipaddr = '192.168.0.%d'%(uTCAslot)
 #ipaddr = '192.168.250.53'
 if options.testbeam:
-        #ipaddr        = '137.138.115.185'
-        ipaddr        = '192.168.2.42'
+    # ipaddr        = '137.138.115.185'
+    ipaddr        = '192.168.2.42'
+    pass
 ## almost definitely better to use a connection file here?
 #address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
 uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 if options.testbeam:
-        uri = "ipbustcp-2.0://192.168.250.42:60002"
-        # uri = "ipbustcp-2.0://eagle45:60002"
+    uri = "ipbustcp-2.0://192.168.250.42:60002"
+    # uri = "ipbustcp-2.0://eagle45:60002"
+    pass
 glib  = uhal.getDevice( "glib" , uri, address_table )
 
 ########################################
@@ -92,7 +92,7 @@ print
 
 # set all links to un-inverted
 for sfp in range(4):
-    writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP%d"%(sfp),0x0)
+    writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x0)
     pass
 # invert specified links
 invertList = []
@@ -107,7 +107,7 @@ if len(invertList) :
         if (sfp > 4 or sfp < 0):
             print "invalid link specified, not inverting"
             continue
-        writeRegister(glib,"GLIB.LINK_CONTROL.TX_Polarity.SFP%d"%(sfp),0x1)
+        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x1)
         pass
     pass
 
@@ -220,15 +220,6 @@ if (options.resetCounters):
     writeRegister(glib,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x1)
     writeRegister(glib,"GEM_AMC.DAQ.CONTROL.DAQ_LINK_RESET",0x0)
 print
-
-if (options.flipPolarityTX0):
-    tx0polarity = readRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY")
-    if tx0polarity == 0x0:
-        print "TX0 polarity %s" %(tx0polarity)
-        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x1)
-    else:
-        print "TX0 polarity %s" %(tx0polarity)
-        writeRegister(glib,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x0)
 
 sys.stdout.flush()
 #for olink in range(NGTX):

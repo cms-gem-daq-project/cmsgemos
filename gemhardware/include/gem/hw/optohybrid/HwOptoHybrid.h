@@ -203,6 +203,13 @@ namespace gem {
           HwOptoHybrid(HwGLIB       const& glibDevice, uint8_t const& olink);
           */
 
+          /*
+          // constructors from existing GEM hardware devices
+          HwOptoHybrid(uhal::HwInterface& device, uint8_t const& slot, uint8_t const& olink, uint8_t const& );
+          HwOptoHybrid(GEMHwDevice  const& gemDevice,  uint8_t const& slot, uint8_t const& olink);
+          HwOptoHybrid(HwGLIB       const& glibDevice, uint8_t const& olink);
+          */
+
           virtual ~HwOptoHybrid();
 
           virtual bool isHwConnected();

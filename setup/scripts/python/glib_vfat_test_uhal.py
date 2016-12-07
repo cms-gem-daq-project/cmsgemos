@@ -159,20 +159,10 @@ msg = chipids
 gemlogger.debug(msg)
 
 if options.debug:
-<<<<<<< HEAD
     msg = chipids
     gemlogger.debug(msg)
     msg = controlRegs
     gemlogger.debug(msg)
-=======
-        msg = chipids
-        gemlogger.debug(msg)
-        msg = controlRegs
-        gemlogger.debug(msg)
-
-if options.biasAll:
-        biasAllVFATs(optohybrid, options.gtx, chipmask)
->>>>>>> updating amcmanager for generic firmware and removing hardcoded bits
 
 if options.biasAll:
     biasAllVFATs(optohybrid, options.gtx, chipmask)
@@ -181,7 +171,6 @@ if options.sleepAll:
     for chip in range(24):
         msg = "sleeping chip %d"%(chip)
         gemlogger.info(msg)
-<<<<<<< HEAD
         setRunMode(optohybrid, options.gtx, chip, False)
         pass
     pass
@@ -190,10 +179,6 @@ for chip in chips:
     gemlogger.info(msg)
     setRunMode(optohybrid, options.gtx, chip, True)
     pass
-=======
-        setRunMode(optohybrid, options.gtx, chip, True)
-
->>>>>>> updating amcmanager for generic firmware and removing hardcoded bits
 controlRegs = {}
 for control in range(4):
     controls.append(readAllVFATs(glib, options.gtx, "ContReg%d"%(control), 0xf0000000, options.debug))
@@ -203,7 +188,6 @@ displayChipInfo(glib, options.gtx, chipids)
 
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
 for chip in chipids.keys():
-<<<<<<< HEAD
     if (int(chip)%8==0):
         print "-------------GEB Column %d-----------------"%(int(chip)/8)
         pass
@@ -214,18 +198,6 @@ for chip in chipids.keys():
                                                                      controlRegs["ctrl2"][chip],
                                                                      controlRegs["ctrl3"][chip])
     pass
-=======
-	if (int(chip)%8==0):
-		print "-------------GEB Column %d-----------------"%(int(chip)/8)
-
-	print "%s%6s%s  %s0x%04x%s   0x%02x   0x%02x   0x%02x   0x%02x"%(colors.GREEN,chip,colors.ENDC,
-									 colors.CYAN,chipids[chip],colors.ENDC,
-                                                                         controlRegs["ctrl0"][chip],
-                                                                         controlRegs["ctrl1"][chip],
-                                                                         controlRegs["ctrl2"][chip],
-                                                                         controlRegs["ctrl3"][chip])
-
->>>>>>> updating amcmanager for generic firmware and removing hardcoded bits
 
 print
 print "--=======================================--"
