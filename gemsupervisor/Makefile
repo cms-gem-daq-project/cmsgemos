@@ -10,7 +10,7 @@ ShortPackage=supervisor
 PackageName=supervisor
 
 GEMSUPERVISOR_VER_MAJOR=0
-GEMSUPERVISOR_VER_MINOR=2
+GEMSUPERVISOR_VER_MINOR=3
 GEMSUPERVISOR_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
