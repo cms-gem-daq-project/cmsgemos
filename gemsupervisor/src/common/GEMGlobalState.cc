@@ -7,7 +7,6 @@
 // #include "xoap/MessageFactory.h"
 
 #include "gem/supervisor/GEMSupervisor.h"
-#include "gem/base/GEMState.h"
 #include "gem/utils/LockGuard.h"
 
 gem::supervisor::GEMApplicationState::GEMApplicationState()
@@ -25,6 +24,7 @@ gem::supervisor::GEMGlobalState::GEMGlobalState(xdaq::ApplicationContext* contex
   p_appContext(context),
   p_srcApp(gemSupervisor->getApplicationDescriptor()),
   m_globalState(gem::base::STATE_INITIAL),
+  m_forceGlobal(gem::base::STATE_NULL),
   m_gemLogger(gemSupervisor->getApplicationLogger()),
   m_mutex(toolbox::BSem::FULL, true)
 {
@@ -110,6 +110,17 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
     int pa = getStatePriority(appState->second.state);
     if (pa < pg)
       m_globalState = appState->second.state;
+  }
+
+  // account for cases where the global state was forced
+  if (m_forceGlobal != gem::base::STATE_NULL) {
+    m_globalState = m_forceGlobal;
+  } else {  // account for cases where the supervisor FSM reported a failure
+    if (p_gemSupervisor->getCurrentFSMState() == gem::base::STATE_FAILED
+        || p_gemSupervisor->getCurrentFSMState()=='f' ) {
+      // || m_globalFailed) {
+      m_globalState = gem::base::STATE_FAILED;
+    }
   }
 }
 

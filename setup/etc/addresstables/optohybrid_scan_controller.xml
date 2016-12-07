@@ -36,19 +36,13 @@
                        8 MSBits hold the threshold/latency value of the point
                        24 LSBits hold the number of events that have fired
                        If no data is present, an error is returned."/>
-    <node id="MONITOR"    address="0x9"  mask="0x7"  permission="rw"
-          description="Status monitor for the threshold/latency scan controller (3 bits):
-                       0: nothing running
-                       1: Trigger data threshold scan running
-                       2: Per channel threshold scan running
-                       3: Latency scan running
-                       4: S-curve scan running
-                       5: Tracking data threshold scan running"/>
+    <node id="MONITOR"    address="0x9"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_scan_monitor_register.xml"/>
     <node id="RESET"    address="0xa"  mask="0xffffffff"  permission="rw"
           description="Local reset of the module"/>
   </node>
 
-  <node id="ULTRA"  address="0xA000000"  permission="rw"
+  <node id="ULTRA"  address="0xB000000"  permission="rw"
         description="Control the onboard ultra threshold/latency scan routine">
     <node id="START"  address="0x0"  mask="0x1"  permission="w"
           description="Start the specified scan routine
@@ -85,14 +79,8 @@
                        8 MSBits hold the threshold/latency value of the point
                        24 LSBits hold the number of events that have fired
                        If no data is present, an error is returned."/>
-    <node id="MONITOR"    address="0x20"  mask="0x7"  permission="rw"
-          description="Status monitor for the scan controller (3 bits):
-                       0: nothing running
-                       1: Trigger data threshold scan running
-                       2: Per channel threshold scan running
-                       3: Latency scan running
-                       4: S-curve scan running
-                       5: Tracking data threshold scan running"/>
+    <node id="MONITOR"    address="0x20"
+          module="file://${GEM_ADDRESS_TABLE_PATH}/optohybrid_scan_monitor_register.xml"/>
     <node id="RESET"    address="0x21"  mask="0xffffffff"  permission="rw"
           description="Local reset of the module"/>
   </node>
@@ -136,7 +124,7 @@
                        24 LSBits hold the mean of the ADC values
                        If no data is present, an error is returned."/>
     <node id="MONITOR"  address="0x8"  mask="0x1"  permission="rw"
-          description="Status monitor for the threshold/latency scan controller (1 bit):
+          description="Status monitor for the DAC scan controller (1 bit):
                        0: nothing running
                        1: scanning a DAC"/>
     <node id="RESET"    address="0x9"  mask="0xffffffff"  permission="rw"

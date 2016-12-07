@@ -11,6 +11,8 @@ namespace amc13 {
   class AMC13;
 }
 
+typedef ::amc13::Exception::exBase amc13Exception;
+
 namespace gem {
   namespace hw {
     namespace amc13 {

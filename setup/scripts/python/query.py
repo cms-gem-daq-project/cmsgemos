@@ -40,8 +40,7 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T",shelf=1):
             pass # ends else (from if t_chipid)
           v_list.append(VFAT.objects.get(ChipID = t_chipid, Slot = chip))
           pass # ends for chip in chipids
-        #t_chamberID = 'OHv2aM'#hard code now, read from HW later when available
-        t_chamberID = 'GTX-'+str(gtx) #use gtx link number now, read from HW later when available
+        t_chamberID = 'GTX-'+str(gtx) # use gtx link number now, read from HW later when available
         print "t_chamberID = %s" %(t_chamberID)
         gebs = GEB.objects.filter(ChamberID=t_chamberID)
         t_flag = False
@@ -59,14 +58,14 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T",shelf=1):
           g.save()
           for v in v_list:
             g.vfats.add(v)
-            g_list.append(g)
             pass # ends for v in v_list
+          g_list.append(g)
           pass # ends else, from if t_flag
         pass # ends if m_AMCmanager
       pass # ends for gtx in gtx_list
 
     t_flag = False
-    t_boardID = "AMC-"+str(amcN)#hard code now, read from HW later when available
+    t_boardID = "AMC-"+str(amcN) # hard code now, read from HW later when available
     amcs = AMC.objects.filter(BoardID = t_boardID)
     for amc in amcs:
       if g_list == list(amc.gebs.all()):
@@ -83,9 +82,9 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T",shelf=1):
       a.save()
       for g in g_list:
         a.gebs.add(g)
-        a_list.append(a)
-        print "Adding to a_list : %s" %(g.ChamberID)
         pass # ends for g in g_list
+      a_list.append(a)
+      print "Adding to a_list : %s" %(a.BoardID)
       pass # ends else (if t_flag)
     pass # ends for amcs in amcs
 
@@ -98,9 +97,9 @@ def configure_db(station="TIF",setuptype="teststand",runperiod="2016T",shelf=1):
     nrs = u'%s'%(1)
     pass # ends try/except
   nrs = nrs.zfill(6)
-  t_date = str(datetime.date.today())
+  t_date = str(datetime.datetime.utcnow()).split(' ')[0]
   m_filename = "run"+str(nrs)+""+"_"+setuptype+"_"+station+"_"+t_date
-  newrun = Run(Name=m_filename, Type = setuptype, Number = str(nrs), Date = datetime.date.today(), Period = runperiod, Station = station)
+  newrun = Run(Name=m_filename, Type = setuptype, Number = str(nrs), Date = t_date, Period = runperiod, Station = station)
   newrun.save()
   for a in a_list:
     print "Adding AMC: %s" %(a.BoardID)

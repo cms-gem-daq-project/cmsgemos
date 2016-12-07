@@ -87,14 +87,14 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
 
   // benefit or disadvantage to setting up the workloop signatures this way?
   // hcal has done a forwarding which may be a clever solution, but to what problem?
-  initSig_   = toolbox::task::bind(this, &GEMFSMApplication::initialize, "initialize");
-  confSig_   = toolbox::task::bind(this, &GEMFSMApplication::configure,  "configure" );
-  startSig_  = toolbox::task::bind(this, &GEMFSMApplication::start,      "start"     );
-  stopSig_   = toolbox::task::bind(this, &GEMFSMApplication::stop,       "stop"      );
-  pauseSig_  = toolbox::task::bind(this, &GEMFSMApplication::pause,      "pause"     );
-  resumeSig_ = toolbox::task::bind(this, &GEMFSMApplication::resume,     "resume"    );
-  haltSig_   = toolbox::task::bind(this, &GEMFSMApplication::halt,       "halt"      );
-  resetSig_  = toolbox::task::bind(this, &GEMFSMApplication::reset,      "reset"     );
+  m_initSig   = toolbox::task::bind(this, &GEMFSMApplication::initialize, "initialize");
+  m_confSig   = toolbox::task::bind(this, &GEMFSMApplication::configure,  "configure" );
+  m_startSig  = toolbox::task::bind(this, &GEMFSMApplication::start,      "start"     );
+  m_stopSig   = toolbox::task::bind(this, &GEMFSMApplication::stop,       "stop"      );
+  m_pauseSig  = toolbox::task::bind(this, &GEMFSMApplication::pause,      "pause"     );
+  m_resumeSig = toolbox::task::bind(this, &GEMFSMApplication::resume,     "resume"    );
+  m_haltSig   = toolbox::task::bind(this, &GEMFSMApplication::halt,       "halt"      );
+  m_resetSig  = toolbox::task::bind(this, &GEMFSMApplication::reset,      "reset"     );
   DEBUG("GEMFSMApplication::Created task bindings");
 
   std::stringstream tmpLoopName;
@@ -276,7 +276,6 @@ void gem::base::GEMFSMApplication::jsonStateUpdate(xgi::Input* in, xgi::Output* 
 
 /**state transitions*/
 void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception)
 {
   // set a transition message to ""
   DEBUG("GEMFSMApplication::transitionDriver(" << event->type() << ")");
@@ -320,7 +319,6 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
 }
 
 void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
-  throw (toolbox::task::exception::Exception)
 {
   DEBUG("GEMFSMApplication::workloopDriver begin");
   try {
@@ -330,14 +328,14 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
     if (!loop->isActive()) loop->activate();
     DEBUG("GEMFSMApplication::Workloop should now be active");
 
-    if      (command == "Initialize") loop->submit(initSig_  );
-    else if (command == "Configure")  loop->submit(confSig_  );
-    else if (command == "Start")      loop->submit(startSig_ );
-    else if (command == "Stop")       loop->submit(stopSig_  );
-    else if (command == "Pause")      loop->submit(pauseSig_ );
-    else if (command == "Resume")     loop->submit(resumeSig_);
-    else if (command == "Halt")       loop->submit(haltSig_  );
-    else if (command == "Reset")      loop->submit(resetSig_ );
+    if      (command == "Initialize") loop->submit(m_initSig  );
+    else if (command == "Configure")  loop->submit(m_confSig  );
+    else if (command == "Start")      loop->submit(m_startSig );
+    else if (command == "Stop")       loop->submit(m_stopSig  );
+    else if (command == "Pause")      loop->submit(m_pauseSig );
+    else if (command == "Resume")     loop->submit(m_resumeSig);
+    else if (command == "Halt")       loop->submit(m_haltSig  );
+    else if (command == "Reset")      loop->submit(m_resetSig );
     DEBUG("GEMFSMApplication::Workloop should now be submitted");
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
@@ -356,7 +354,6 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
 }
 
 void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception)
 {
   // need to ensure that this is called from every derived class?
   DEBUG("GEMFSMApplication::resetAction(" << event->type() << ")");
@@ -381,13 +378,11 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
 
 /*
         void gem::base::GEMFSMApplication::failAction(toolbox::Event::Reference event)
-        throw (toolbox::fsm::exception::Exception)
         {
         }
 */
 
 void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
-  throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSMApplication::stateChanged");
   updateState();
@@ -395,7 +390,6 @@ void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine
 }
 
 void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference event)
-  throw (toolbox::fsm::exception::Exception)
 {
   WARN("GEMFSMApplication::transitionFailed(" <<event->type() << ")");
   updateState();
@@ -403,7 +397,6 @@ void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference ev
 }
 
 void gem::base::GEMFSMApplication::fireEvent(std::string event)
-  throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSMApplication::fireEvent(" << event << ")");
   try {
@@ -434,7 +427,8 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
   DEBUG("GEMFSMApplication::initialize called, current state: " << m_gemfsm.getCurrentState());
-  while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_INITIALIZING)) {  // deal with possible race condition
+  // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_INITIALIZING)) {  // deal with possible race condition
+  while ((m_gemfsm.getCurrentFSMState()) != STATE_INITIALIZING) {  // deal with possible race condition
     DEBUG("GEMFSMApplication::not in " << STATE_INITIALIZING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
     usleep(100);
   }
@@ -554,7 +548,7 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::start caught exception " << ex.what());
+    ERROR("GEMFSMApplication::start caught toolbox::task::exception " << ex.what());
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
