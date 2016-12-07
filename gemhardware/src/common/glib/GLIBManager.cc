@@ -114,17 +114,23 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
   try {
     INFO("GLIBManager::dumpGLIBFIFO Dumping FIFO for specified GLIB card " << glib+1);
     return m_glibs.at(glib)->getTrackingData(0, 24);
-  } catch (gem::hw::glib::exception::Exception const& ex) {
-    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
-          << " FIFO, caught exception " << ex.what());
+  } catch (gem::hw::glib::exception::Exception const& e) {
+    std::stringstream msg;
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+        << " FIFO, caught exception " << e.what();
+    ERROR(msg.str());
     return dump;
-  } catch (std::exception const& ex) {
-    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
-          << " FIFO,  caught exception " << ex.what());
+  } catch (std::exception const& e) {
+    std::stringstream msg;
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+        << " FIFO, caught exception " << e.what();
+    ERROR(msg.str());
     return dump;
   } catch (...) {
-    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
-          << " FIFO");
+    std::stringstream msg;
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+        << " FIFO, caught unknown exception ";
+    ERROR(msg.str());
     return dump;
   }
 }
@@ -256,21 +262,31 @@ void gem::hw::glib::GLIBManager::initializeAction()
         m_glibMonitors.at(slot)->setupHwMonitoring();
         m_glibMonitors.at(slot)->startMonitoring();
       } else {
-        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << slot);
+        std::stringstream msg;
+        msg << "GLIBManager::initializeAction unable to communicate with GLIB in slot " << slot;
+        ERROR(msg.str());
         XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       }
-    } catch (uhalException const& ex) {
-      ERROR("GLIBManager::caught uHAL exception " << ex.what());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-    } catch (gem::hw::glib::exception::Exception const& ex) {
-      ERROR("GLIBManager::caught exception " << ex.what());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-    } catch (toolbox::net::exception::MalformedURN const& ex) {
-      ERROR("GLIBManager::caught exception " << ex.what());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-    } catch (std::exception const& ex) {
-      ERROR("GLIBManager::caught exception " << ex.what());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+    } catch (uhalException const& e) {
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction caught uHAL exception " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    } catch (gem::hw::glib::exception::Exception const& e) {
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction caught exception " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    } catch (toolbox::net::exception::MalformedURN const& e) {
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction caught exception " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    } catch (std::exception const& e) {
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction caught exception " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
     DEBUG("GLIBManager::connected");
     // set the web view to be empty or grey
@@ -287,11 +303,11 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (m_glibs.at(slot)->isHwConnected()) {
       DEBUG("GLIBManager::connected a card in slot " << (slot+1));
     } else {
-      ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction GLIB in slot " << (slot+1) << " is not connected";
+      ERROR(msg.str());
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-      // maybe raise exception so as to not continue with other cards? let's just return for the moment
-      return;
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
   }
   // usleep(100); // just for testing the timing of different applications
@@ -353,10 +369,11 @@ void gem::hw::glib::GLIBManager::configureAction()
       // setup run mode?
       // setup DAQ mode?
     } else {
-      ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
+      std::stringstream msg;
+      msg << "GLIBManager::configureAction GLIB in slot " << (slot+1) << " is not connected";
+      ERROR(msg.str());
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "configureAction failed");
-      // maybe raise exception so as to not continue with other cards?
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
   }
 
@@ -393,11 +410,11 @@ void gem::hw::glib::GLIBManager::startAction()
       m_glibs.at(slot)->setL1AInhibit(0x0);
       // usleep(100); // just for testing the timing of different applications
     } else {
-      ERROR("GLIB in slot " << (slot+1) << " is not connected");
+      std::stringstream msg;
+      msg << "GLIBManager::startAction GLIB in slot " << (slot+1) << " is not connected";
+      ERROR(msg.str());
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "startAction failed");
-      // maybe raise exception so as to not continue with other cards? let's just return for the moment
-      return;
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
 
     /*
@@ -457,11 +474,11 @@ void gem::hw::glib::GLIBManager::pauseAction()
       // usleep(100); // just for testing the timing of different applications
 
     } else {
-      ERROR("GLIBManager::pauseAction: GLIB in slot " << (slot+1) << " is not connected");
+      std::stringstream msg;
+      msg << "GLIBManager::pauseAction GLIB in slot " << (slot+1) << " is not connected";
+      ERROR(msg.str());
       //fireEvent("Fail");
-      // maybe raise exception so as to not continue with other cards? let's just return for the moment
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "pauseAction failed");
-      return;  // no need to return as the exception will exit the block
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
   }
 

@@ -634,7 +634,6 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
         hw.getNode(curReg->first).write(curReg->second);
       hw.dispatch();
       return;
-      //break;
     } catch (uhal::exception::exception const& err) {
       std::string msgBase = "Could not write to register in list:";
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)

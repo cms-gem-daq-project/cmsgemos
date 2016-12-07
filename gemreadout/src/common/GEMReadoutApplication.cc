@@ -272,6 +272,7 @@ int gem::readout::GEMReadoutApplication::readoutTask()
         break;
       }
     }
+
     if (isRunning) {
       data.clear();
       struct timeval start,stop;
@@ -281,7 +282,24 @@ int gem::readout::GEMReadoutApplication::readoutTask()
       try {
         nevtsRead = readout(0,0,data);
       } catch (gem::base::exception::Exception& e) {
-        ERROR(xcept::stdformat_exception_history(e));
+        std::stringstream msg;
+        msg << "GEMReadoutApplication::readoutTask error "
+            << xcept::stdformat_exception_history(e);
+        ERROR(msg.str());
+      } catch (xcept::Exception& e) {
+        std::stringstream msg;
+        msg << "GEMReadoutApplication::readoutTask error "
+            << xcept::stdformat_exception_history(e);
+        ERROR(msg.str());
+      } catch (std::exception& e) {
+        std::stringstream msg;
+        msg << "GEMReadoutApplication::readoutTask error "
+            << e.what();
+        ERROR(msg.str());
+      } catch (...) {
+        std::stringstream msg;
+        msg << "GEMReadoutApplication::readoutTask error (unknown exception)";
+        ERROR(msg.str());
       }
 
       DEBUG("GEMReadoutApplication::readoutTask read " << nevtsRead << " events");
@@ -292,7 +310,6 @@ int gem::readout::GEMReadoutApplication::readoutTask()
       }
       */
       if (nevtsRead > 0) {
-        DEBUG("GEMReadoutApplication::readoutTask read " << nevtsRead << " events");
         gettimeofday(&stop,0);
         m_eventsReadout.value_ = m_eventsReadout.value_ + nevtsRead;
         double deltaU=(stop.tv_sec-start.tv_sec)*1e6+(stop.tv_usec-start.tv_usec);
