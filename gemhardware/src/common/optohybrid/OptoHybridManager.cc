@@ -284,15 +284,21 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
               << " (slot " << slot+1 << ")"
               << " (link " << link   << ")");
         m_optohybrids.at(slot).at(link) = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(deviceName,m_connectionFile.toString()));
-      } catch (gem::hw::optohybrid::exception::Exception const& ex) {
-        ERROR("OptoHybridManager::initializeAction caught exception " << ex.what());
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "initializeAction failed");
-      } catch (toolbox::net::exception::MalformedURN const& ex) {
-        ERROR("OptoHybridManager::initializeAction caught exception " << ex.what());
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "initializeAction failed");
-      } catch (std::exception const& ex) {
-        ERROR("OptoHybridManager::initializeAction caught exception " << ex.what());
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "initializeAction failed");
+      } catch (gem::hw::optohybrid::exception::Exception const& e) {
+        std::stringstream msg;
+        msg << "OptoHybridManager::initializeAction caught exception " << e.what();
+        ERROR(msg.str());
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
+      } catch (toolbox::net::exception::MalformedURN const& e) {
+        std::stringstream msg;
+        msg << "OptoHybridManager::initializeAction caught exception " << e.what();
+        ERROR(msg.str());
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
+      } catch (std::exception const& e) {
+        std::stringstream msg;
+        msg << "OptoHybridManager::initializeAction caught exception " << e.what();
+        ERROR(msg.str());
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
       DEBUG("OptoHybridManager::initializeAction connected");
       // set the web view to be empty or grey
@@ -340,12 +346,12 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         m_optohybrids.at(slot).at(link)->setSBitMask(m_sbitMask.at(slot).at(link));
         // turn off any that are excluded by the additional mask?
       } else {
-        ERROR("OptoHybridManager::initializeAction OptoHybrid connected on link "
-              << link << " to GLIB in slot " << (slot+1) << " is not responding");
+        std::stringstream msg;
+        msg << "OptoHybridManager::initializeAction OptoHybrid connected on link "
+            << link << " to GLIB in slot " << (slot+1) << " is not responding";
+        ERROR(msg.str());
         //fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "initializeAction failed");
-        //maybe raise exception so as to not continue with other cards? let's just return for the moment
-        return;
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
   }
@@ -470,11 +476,12 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         gtxMask |= (0x1<<link);
         optohybrid->writeReg("GLIB.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
       } else {
-        ERROR("configureAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
-              << " is not responding");
+        std::stringstream msg;
+        msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
+            << " to GLIB in slot " << (int)(slot+1) << " is not responding";
+        ERROR(msg.str());
         //fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "configureAction failed");
-        //maybe raise exception so as to not continue with other cards?
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
   }
@@ -512,6 +519,11 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
       if (optohybrid->isHwConnected()) {
         // turn on all VFATs? or should they always be on?
         uint32_t vfatMask = m_broadcastList.at(slot).at(link);
+        // reset counters
+        optohybrid->counterReset();
+        // // reset VFAT counters
+        // optohybrid->resetVFATCRCCount();
+        
         std::vector<uint32_t> res = optohybrid->broadcastRead("ContReg0",vfatMask);
         INFO("ContReg0: vfatMask = " << std::hex << std::setw(8) << std::setfill('0') << vfatMask);
         for (auto r = res.begin(); r != res.end(); ++r)
@@ -526,11 +538,12 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
 
         // what resets to do
       } else {
-        ERROR("startAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
-              << " is not responding");
+        std::stringstream msg;
+        msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << (int)link
+            << " to GLIB in slot " << (int)(slot+1) << " is not responding";
+        ERROR(msg.str());
         //fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "startAction failed");
-        //maybe raise exception so as to not continue with other cards?
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
   }
@@ -577,11 +590,12 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
 	}
         // what resets to do
       } else {
-        ERROR("OptoHybridManager::pauseAction OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
-              << " is not responding");
+        std::stringstream msg;
+        msg << "OptoHybridManager::pauseAction OptoHybrid connected on link " << (int)link
+            << " to GLIB in slot " << (int)(slot+1) << " is not responding";
+        ERROR(msg.str());
         //fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "pauseAction failed");
-        //maybe raise exception so as to not continue with other cards?
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
   }
@@ -647,11 +661,12 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
                                          vfatMask);
         }
       } else {
-        ERROR("stopAction::OptoHybrid connected on link " << (int)link << " to GLIB in slot " << (int)(slot+1)
-              << " is not responding");
+        std::stringstream msg;
+        msg << "OptoHybridManager::stopAction::OptoHybrid connected on link " << (int)link
+            << " to GLIB in slot " << (int)(slot+1) << " is not responding";
+        ERROR(msg.str());
         //fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, "stopAction failed");
-        //maybe raise exception so as to not continue with other cards?
+        XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
   }

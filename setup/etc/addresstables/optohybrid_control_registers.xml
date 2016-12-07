@@ -53,8 +53,8 @@
   <node id="CLOCK"  address="0x9"  permission="rw"
         description="Control on the OptoHybrid related to the clocking">
     <node id="REF_CLK"  address="0x0"  mask="0x1"  permission="rw"
-          description="Select the reference clock source (1 bit):                                                                                                                                                                                                                 
-                       0: QPLL                                                                                                                                                                                                                                                    
+          description="Select the reference clock source (1 bit):
+                       0: QPLL
                        1: GBT recovered clock"/>
   </node>
 

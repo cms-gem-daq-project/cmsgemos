@@ -61,6 +61,11 @@ namespace gem {
         /**
          * @brief
          */
+        toolbox::fsm::State getCurrentFSMState() const;
+
+        /**
+         * @brief
+         */
         std::string getStateName(toolbox::fsm::State const& state) const;
 
         /**
@@ -83,8 +88,7 @@ namespace gem {
         /**
          * @brief
          */
-        void stateChanged(toolbox::fsm::FiniteStateMachine& fsm)
-          throw(toolbox::fsm::exception::Exception);
+        void stateChanged(toolbox::fsm::FiniteStateMachine& fsm);
 
         //void stateChangedWithNotification(toolbox::fsm::FiniteStateMachine& fsm);
 
