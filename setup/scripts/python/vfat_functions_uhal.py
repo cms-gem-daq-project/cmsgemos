@@ -55,7 +55,7 @@ def writeVFAT(device, gtx, chip, reg, value, debug=False):
     writeRegister(device,"%s.%s"%(baseNode,reg), value)
 
 def writeVFATRegisters(device, gtx, chip, regs_with_values, debug=False):
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(gtx,chip)
+    baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
     registers = {}
     for reg in regs_with_values.keys():
         registers["%s.%s"%(baseNode,reg)] = regs_with_values[reg]
@@ -63,7 +63,7 @@ def writeVFATRegisters(device, gtx, chip, regs_with_values, debug=False):
     writeRegisterList(device,registers)
 
 def readVFATRegisters(device, gtx, chip, regs, debug=False):
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.VFAT%d"%(gtx,chip)
+    baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
     registers = []
     for reg in regs:
         registers.append("%s.%s"%(baseNode,reg))

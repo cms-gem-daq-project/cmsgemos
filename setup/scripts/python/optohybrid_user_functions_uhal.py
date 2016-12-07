@@ -45,7 +45,7 @@ def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
     """
     Perform a broadcast I2C write on the VFATs specified by mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
     writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
     writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
     writeRegister(device,"%s.Request.%s"%(baseNode,register),value,debug)
@@ -64,7 +64,7 @@ def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
     """
     Perform a broadcast I2C read on the VFATs specified by mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.GEB.Broadcast"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
     writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
     writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
     readRegister(device,"%s.Request.%s"%(baseNode,register),debug)
@@ -174,13 +174,13 @@ def setTriggerThrottle(device,gtx,throttle):
     """
     Set the trigger throttle
     """
-    return writeRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.THROTTLE"%(gtx),throttle)
+    return writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.THROTTLE"%(gtx),throttle)
 
 def getTriggerThrottle(device,gtx):
     """
     Get the trigger throttling value
     """
-    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.THROTTLE"%(gtx))
+    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.THROTTLE"%(gtx))
 
 def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=False):
     """
@@ -332,7 +332,7 @@ def getReferenceClock(device,gtx,debug=False):
     OH:   0=onboard,     1=GTX recovered,  2=external clock
     V2A only
     """
-    return readRegister(device,"GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.CLOCK.REF_CLK"%(gtx))
+    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx))
 
 def getClockingInfo(device,gtx,debug=False):
     """
@@ -371,14 +371,14 @@ def getVFATTrackingMask(device,gtx=0,debug=False):
     """
     Returns the VFAT s-bit mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d.CONTROL.VFAT"%(gtx)
     return readRegister(device,"%s.TRK_MASK"%(baseNode))
 
 def setVFATTrackingMask(device,gtx=0,mask=0x000000,debug=False):
     """
     Set the VFAT s-bit mask
     """
-    baseNode = "GLIB.OptoHybrid_%d.OptoHybrid.CONTROL.VFAT"%(gtx)
+    baseNode = "GEM_AMC.OH.OH%d.CONTROL.VFAT"%(gtx)
     return writeRegister(device,"%s.TRK_MASK"%(baseNode),mask)
 
 def calculateLockErrors(device,gtx,register,sampleTime):
@@ -406,9 +406,9 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
           4 Threshold scan with tracking data
     """
 
-    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
     if useUltra:
-        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
+        scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
         pass
 
     if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
@@ -451,9 +451,9 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
 def printScanConfiguration(device,gtx,useUltra=False,debug=False):
     """
     """
-    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
     if useUltra:
-        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
+        scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
         pass
 
     print scanBase
@@ -506,9 +506,9 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
     """
     """
 
-    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
     if useUltra:
-        scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
+        scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
         pass
 
     if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
@@ -528,7 +528,7 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
     return
 
 def getScanResults(device, gtx, numpoints, debug=False):
-    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.THLAT"%(gtx)
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         if debug and False:
             print "Scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
@@ -548,7 +548,7 @@ def getScanResults(device, gtx, numpoints, debug=False):
     return results
 
 def getUltraScanResults(device, gtx, numpoints, debug=False):
-    scanBase = "GLIB.OptoHybrid_%d.OptoHybrid.ScanController.ULTRA"%(gtx)
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         if debug and False:
             print "Scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
