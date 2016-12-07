@@ -246,14 +246,14 @@ namespace gem {
 
       std::string workLoopName;
 
-      toolbox::task::ActionSignature* initSig_  ;  ///<
-      toolbox::task::ActionSignature* confSig_  ;  ///<
-      toolbox::task::ActionSignature* startSig_ ;  ///<
-      toolbox::task::ActionSignature* stopSig_  ;  ///<
-      toolbox::task::ActionSignature* pauseSig_ ;  ///<
-      toolbox::task::ActionSignature* resumeSig_;  ///<
-      toolbox::task::ActionSignature* haltSig_  ;  ///<
-      toolbox::task::ActionSignature* resetSig_ ;  ///<
+      toolbox::task::ActionSignature* m_initSig  ;  ///<
+      toolbox::task::ActionSignature* m_confSig  ;  ///<
+      toolbox::task::ActionSignature* m_startSig ;  ///<
+      toolbox::task::ActionSignature* m_stopSig  ;  ///<
+      toolbox::task::ActionSignature* m_pauseSig ;  ///<
+      toolbox::task::ActionSignature* m_resumeSig;  ///<
+      toolbox::task::ActionSignature* m_haltSig  ;  ///<
+      toolbox::task::ActionSignature* m_resetSig ;  ///<
 
     public:
       //is it a problem to make this public?
