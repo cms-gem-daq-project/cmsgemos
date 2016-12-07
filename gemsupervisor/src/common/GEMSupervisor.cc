@@ -257,18 +257,24 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     msg << "GEMSupervisor::initializeAction unable to connect to the database (DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
+    m_globalState.update();
+    // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to connect to the database (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
+    m_globalState.update();
+    // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to connect to the database (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
+    m_globalState.update();
+    // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   }
   m_globalState.update();
@@ -306,24 +312,35 @@ void gem::supervisor::GEMSupervisor::configureAction()
     }
 
   } catch (gem::supervisor::exception::Exception& e) {
-    ERROR("GEMSupervisor::configureAction " << e.what());
-    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
-    //throw e;
+    std::stringstream msg;
+    msg << "GEMSupervisor::configureAction " << e.what();
+    ERROR(msg.str());
+    m_globalState.update();
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (gem::utils::exception::Exception& e) {
-    ERROR("GEMSupervisor::configureAction " << e.what());
-    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
-    //throw e;
+    std::stringstream msg;
+    msg << "GEMSupervisor::configureAction " << e.what();
+    ERROR(msg.str());
+    m_globalState.update();
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (xcept::Exception& e) {
-    ERROR("GEMSupervisor::configureAction " << e.what());
-    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
-    //throw e;
+    std::stringstream msg;
+    msg << "GEMSupervisor::configureAction " << e.what();
+    ERROR(msg.str());
+    m_globalState.update();
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
-    ERROR("GEMSupervisor::configureAction " << e.what());
-    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
-    //throw e;
+    std::stringstream msg;
+    msg << "GEMSupervisor::configureAction " << e.what();
+    ERROR(msg.str());
+    m_globalState.update();
+    XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   } catch (...) {
-    ERROR("GEMSupervisor::configureAction ");
-    XCEPT_RAISE(gem::utils::exception::Exception,"Unknown exception");
+    std::stringstream msg;
+    msg << "GEMSupervisor::configureAction (unknown exception)";
+    ERROR(msg.str());
+    m_globalState.update();
+    XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   }
   m_globalState.update();
   INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName());
@@ -342,29 +359,31 @@ void gem::supervisor::GEMSupervisor::startAction()
   try {
     updateRunNumber();
   } catch (gem::utils::exception::Exception& e) {
-    ERROR("GEMSupervisor::startAction updateRunNumber failed:" << e.what());
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(toolbox::task::exception::Exception,e.what());
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     return;
     //throw e;
   } catch (xcept::Exception& e) {
-    ERROR("GEMSupervisor::startAction updateRunNumber failed:" << e.what());
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(toolbox::task::exception::Exception,e.what());
-    return;
-    //throw e;
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
-    ERROR("GEMSupervisor::startAction updateRunNumber failed:" << e.what());
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(toolbox::task::exception::Exception,e.what());
-    return;
-    //throw e;
+    XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   } catch (...) {
-    ERROR("GEMSupervisor::startAction updateRunNumber failed: unknown exception");
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction updateRunNumber failed: unknown exception";
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(toolbox::task::exception::Exception,"updateRunNumber: unknown exception");
-    return;
-    //throw e;
+    XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   }
 
   if(m_scanType.value_ == 2 || (m_scanType.value_ == 3)){
@@ -385,34 +404,35 @@ void gem::supervisor::GEMSupervisor::startAction()
     }
 
   } catch (gem::supervisor::exception::Exception& e) {
-    ERROR("GEMSupervisor::startAction " << e.what());
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction " << e.what();
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
-    //    throw e;
-    return;
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (gem::utils::exception::Exception& e) {
-    ERROR("GEMSupervisor::startAction " << e.what());
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction " << e.what();
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
-    //    throw e;
-    return;
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (xcept::Exception& e) {
-    ERROR("GEMSupervisor::startAction " << e.what());
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction " << e.what();
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
-    //    throw e;
-    return;
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
-    ERROR("GEMSupervisor::startAction " << e.what());
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction " << e.what();
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(gem::utils::exception::Exception,e.what());
-    //    throw e;
-    return;
+    XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   } catch (...) {
-    ERROR("GEMSupervisor::startAction ");
+    std::stringstream msg;
+    msg << "GEMSupervisor::startAction (unknown exception)";
+    ERROR(msg.str());
     m_globalState.update();
-    XCEPT_RAISE(gem::utils::exception::Exception,"Unknown exception");
-    return;
+    XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   }
   m_globalState.update();
   INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName());
@@ -598,14 +618,11 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     std::stringstream msg;
     msg << "GEMSupervisor::updateRunNumber python DB Configure call failed";
     ERROR(msg.str());
+    m_globalState.update();
     // fireEvent("Fail");
-    XCEPT_RAISE(toolbox::task::exception::Exception, msg.str());
-    // XCEPT_RETHROW(toolbox::task::exception::Exception, msg.str(), e);
-    // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
-    INFO("GEMSupervisor::updateRunNumber DB configure failed, returning");
-    return;
+    XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   }
-  
+
   try {
     INFO("GEMSupervisor::updateRunNumber trying to connect to the local DB");
     p_gemDBHelper->connect(m_dbName.toString());
@@ -618,14 +635,16 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       INFO("GEMSupervisor::updateRunNumber trying to get the latest run number");
       m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
     } catch (gem::utils::exception::DBEmptyQueryResult& e) {
-      WARN("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
-      // m_runNumber.value_ = 0;
+      ERROR("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
+      m_globalState.update();
       XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
     } catch (xcept::Exception& e) {
       ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
+      m_globalState.update();
       XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
     } catch (std::exception& e) {
       ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+      m_globalState.update();
       XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
     }
 
@@ -638,6 +657,8 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
+    m_globalState.update();
+    // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
     // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (xcept::Exception& e) {
@@ -645,6 +666,8 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
+    m_globalState.update();
+    // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
     // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
@@ -652,6 +675,8 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
+    m_globalState.update();
+    // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   }
@@ -767,7 +792,9 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
                          top, toolbox::toString("%s.",msgBase.c_str()), err);
     this->notifyQualified("error", top);
 
+    m_globalState.update();
     XCEPT_RETHROW(xoap::exception::Exception, msgBase, err);
   }
+  m_globalState.update();
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
