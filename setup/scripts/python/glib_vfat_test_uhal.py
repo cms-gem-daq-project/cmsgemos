@@ -38,16 +38,19 @@ if options.enabledChips:
     chips = [int(n) for n in options.enabledChips.split(",")]
     msg = "chips", chips
     gemlogger.info(msg)
+    pass
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
 uTCAslot = 10
 if options.slot:
     uTCAslot = 160+options.slot
+    pass
 msg = options.slot, uTCAslot
 gemlogger.debug(msg)
 ipaddr        = '192.168.0.%d'%(uTCAslot)
 if options.testbeam:
     ipaddr    = '137.138.115.185'
+    pass
 uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 
 address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
@@ -93,7 +96,8 @@ if options.debug:
         ##  xml address file attribute.
         #msg = "Parameters:", node.getParameters()
         #gemlogger.debug(msg)
-
+        pass
+    pass
 
 print
 print "--=======================================--"
@@ -163,23 +167,24 @@ if options.debug:
 
 if options.biasAll:
     biasAllVFATs(optohybrid, options.gtx, chipmask)
-
+    pass
 if options.sleepAll:
     for chip in range(24):
         msg = "sleeping chip %d"%(chip)
         gemlogger.info(msg)
         setRunMode(optohybrid, options.gtx, chip, False)
-
+        pass
+    pass
 for chip in chips:
     msg = "enabling chip %d"%(chip)
     gemlogger.info(msg)
     setRunMode(optohybrid, options.gtx, chip, True)
-
+    pass
 controlRegs = {}
 for control in range(4):
-    controls.append(readAllVFATs(glib, options.gtx, 0xf0000000, "ContReg%d"%(control), options.debug))
+    controls.append(readAllVFATs(glib, options.gtx, "ContReg%d"%(control), 0xf0000000, options.debug))
     controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
-
+    pass
 displayChipInfo(glib, options.gtx, chipids)
 
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
@@ -193,6 +198,7 @@ for chip in chipids.keys():
                                                                      controlRegs["ctrl1"][chip],
                                                                      controlRegs["ctrl2"][chip],
                                                                      controlRegs["ctrl3"][chip])
+    pass
 
 print
 print "--=======================================--"

@@ -118,7 +118,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   throw (xdaq::exception::Exception) :
   gem::base::GEMFSMApplication(stub),
   m_amc13Lock(toolbox::BSem::FULL, true),
-  p_amc13(NULL)
+  p_timer(NULL)
 {
   m_bgoConfig.setSize(4);
 
@@ -155,9 +155,7 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
-  if (p_amc13)
-    delete p_amc13;
-  p_amc13 = NULL;
+  DEBUG("AMC13Manager::dtor called");
 }
 
 // This is the callback used for handling xdata:Event objects
@@ -226,9 +224,10 @@ void gem::hw::amc13::AMC13Manager::init()
 {
 }
 
-::amc13::Status* gem::hw::amc13::AMC13Manager::getHTMLStatus() const {
+gem::hw::amc13::amc13_status_ptr gem::hw::amc13::AMC13Manager::getHTMLStatus() const
+{
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  return p_amc13->getStatus();
+  return std::shared_ptr< ::amc13::Status>(p_amc13->getStatus());
 }
 
 void gem::hw::amc13::AMC13Manager::setDisplayLevel(xgi::Input *in, xgi::Output *out)
@@ -245,7 +244,6 @@ void gem::hw::amc13::AMC13Manager::updateStatus(xgi::Input *in, xgi::Output *out
 
 //state transitions
 void gem::hw::amc13::AMC13Manager::initializeAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   //hcal has a pre-init, what is the reason to not do everything in initialize?
   std::string connection  = "${GEM_ADDRESS_TABLE_PATH}/"+m_connectionFile;
@@ -257,16 +255,27 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
     DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
-    p_amc13 = new ::amc13::AMC13(connection, cardname+".T1", cardname+".T2");
+    p_amc13 = std::make_shared< ::amc13::AMC13>(connection, cardname+".T1", cardname+".T2");
+  } catch (::amc13::Exception::exBase & e) {
+    std::stringstream msg;
+    msg << "AMC13Manager::AMC13::AMC13() failed, caught amc13::Exception: " << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (uhal::exception::exception & e) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception:" <<  e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+    std::stringstream msg;
+    msg << "AMC13Manager::AMC13::AMC13() failed, caught uhal::exception: " << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (std::exception& e) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception:" << e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+    std::stringstream msg;
+    msg << "AMC13Manager::AMC13::AMC13() failed, caught std::exception: " << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (...) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught ...");
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
+    std::stringstream msg;
+    msg << "AMC13Manager::AMC13::AMC13() failed (unknown exception)";
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   }
 
   DEBUG("AMC13Manager::finished with AMC13::AMC13()");
@@ -289,7 +298,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   }
 
   //equivalent to hcal init part
-  if (p_amc13==0)
+  if (!p_amc13)
     return;
 
   //have to set up the initialization of the AMC13 for the desired running situation
@@ -315,11 +324,13 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   // }
 
   // Use local TTC signal if config doc says so
+
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
 
   // Use local trigger generator if config doc says so
   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   p_amc13->enableLocalL1A(m_enableLocalL1A);
+  p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
 
   // need to ensure that all BGO channels are disabled
   for (int bchan = 0; bchan < 4; ++bchan)
@@ -349,7 +360,6 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 }
 
 void gem::hw::amc13::AMC13Manager::configureAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
 
   if (m_enableLocalL1A) {
@@ -387,7 +397,6 @@ void gem::hw::amc13::AMC13Manager::configureAction()
 }
 
 void gem::hw::amc13::AMC13Manager::startAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
   //gem::base::GEMFSMApplication::enable();
@@ -396,6 +405,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   usleep(50);
 
   p_amc13->resetCounters();
+  m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
 
   p_amc13->startRun();
 
@@ -403,7 +413,10 @@ void gem::hw::amc13::AMC13Manager::startAction()
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
       if (bchan->bag.channel.value_ > -1) {
         INFO("AMC13Manager::startAction enabling BGO channel " << bchan->bag.channel.value_);
-        p_amc13->enableBGO(bchan->bag.channel.value_);
+	if (bchan->bag.repeat.value_)
+          p_amc13->enableBGORepeat(bchan->bag.channel.value_);
+	else
+          p_amc13->enableBGOSingle(bchan->bag.channel.value_);
       }
     p_amc13->sendBGO();
   }
@@ -448,7 +461,6 @@ void gem::hw::amc13::AMC13Manager::startAction()
 }
 
 void gem::hw::amc13::AMC13Manager::pauseAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   //what does pause mean here?
   //if local triggers are enabled, do we have a separate trigger application?
@@ -482,7 +494,6 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
 }
 
 void gem::hw::amc13::AMC13Manager::resumeAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   //undo the actions taken in pauseAction
   if (m_enableLocalTTC) {
@@ -491,7 +502,10 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
       if (bchan->bag.channel.value_ > -1) {
         sendLocalBGO = true;
         DEBUG("AMC13Manager::resumeAction enabling BGO channel " << bchan->bag.channel.value_);
-        p_amc13->enableBGO(bchan->bag.channel.value_);
+	if (bchan->bag.repeat.value_)
+          p_amc13->enableBGORepeat(bchan->bag.channel.value_);
+	else
+          p_amc13->enableBGOSingle(bchan->bag.channel.value_);
       }
 
     if (sendLocalBGO)
@@ -531,7 +545,6 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
 }
 
 void gem::hw::amc13::AMC13Manager::stopAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::stopAction()");
   //gem::base::GEMFSMApplication::disable();
@@ -543,7 +556,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   }
 
   if (m_enableLocalL1A) {
-    p_amc13->enableLocalL1A(false);
+    // p_amc13->enableLocalL1A(false);
 
     if (m_enableLEMO)
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
@@ -570,21 +583,25 @@ void gem::hw::amc13::AMC13Manager::stopAction()
 }
 
 void gem::hw::amc13::AMC13Manager::haltAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   //what is necessary for a halt on the AMC13?
  // usleep(50); // just for testing the timing of different applications
 }
 
 void gem::hw::amc13::AMC13Manager::resetAction()
-  throw (gem::hw::amc13::exception::Exception)
 {
   //what is necessary for a reset on the AMC13?
   DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
+
+  if (p_timer) {
+    try {
+      p_timer->stop();
+    } catch (toolbox::task::exception::NotActive const& ex) {
+      WARN("AMC13Manager::start could not stop timer " << ex.what());
+    }
+  }
+
   // maybe ensure triggers are disabled as well as BGO commands?
-  if (p_amc13)
-    delete p_amc13;
-  p_amc13 = NULL;
   usleep(50);
   //gem::base::GEMFSMApplication::resetAction();
 }
@@ -593,18 +610,16 @@ void gem::hw::amc13::AMC13Manager::resetAction()
   unless there is a reason to perform some special action
   for each hardware*/
 void gem::hw::amc13::AMC13Manager::failAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+{
 }
 
 void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception) {
+{
 }
 
 //void gem::hw::amc13::AMC13Manager::sendTriggerBurst()
-//  throw (gem::hw::amc13::exception::Exception)
 
 xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
 {
   //set to send a burst of trigger
   INFO("Entering gem::hw::amc13::AMC13Manager::sendTriggerBurst()");
@@ -652,7 +667,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
 
 
 xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
 {
   DEBUG("AMC13Manager::enableTriggers");
   //gem::base::GEMFSMApplication::disable();
@@ -695,7 +709,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
 }
 
 xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
 {
   DEBUG("AMC13Manager::disableTriggers");
   //gem::base::GEMFSMApplication::disable();
@@ -738,7 +751,6 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
 
 void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
-;
   uint64_t currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount;
 
   DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " << m_nScanTriggers.value_
@@ -747,19 +759,23 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
   if (currentTrigger >=  m_nScanTriggers.value_){
     if (m_enableLocalL1A) {
       if (m_enableLEMO) {
-	p_amc13->enableLocalL1A(false);
 	p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
-      } else
+      } else {
 	p_amc13->stopContinuousL1A();
+      }
+    } else {
+      p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+      p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
     }
+    INFO("AMC13Manager::timeExpried, triggers seen this point = "
+	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
     m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    INFO("AMC13Manager::timeExpried, NTrigger = " << m_updatedL1ACount);
+    INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
     endScanPoint();
   }
 }
 
 void gem::hw::amc13::AMC13Manager::endScanPoint()
-  throw (xgi::exception::Exception)
 {
   INFO("AMC13Manager::endScanPoint");
   gem::utils::soap::GEMSOAPToolBox::sendCommand("EndScanPoint",

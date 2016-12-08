@@ -1,9 +1,10 @@
 import sys, os, time, signal, random
-sys.path.append('/opt/gemdaq/firmware/testing/src')
 
 import uhal
 from registers_uhal import *
+from optohybrid_user_functions_uhal import *
 from gemlogger import GEMLogger
+
 gemlogger = GEMLogger("vfat_functions_uhal").gemlogger
 
 def readVFAT(device, gtx, chip, reg, debug=False):
@@ -25,20 +26,13 @@ def readVFAT(device, gtx, chip, reg, debug=False):
     else :
         return vfatVal
 
-def readAllVFATs(device, gtx, mask, reg, debug=False):
-    if debug:
-        gemlogger.setLevel(GEMLogger.DEBUG)
-    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
-    writeRegister(device,"%s.Mask"%(baseNode), mask)
-    vfatVal  = readRegister(device,"%s.Request.%s"%(baseNode,reg))
-    msg = "vfatVal = 0x%08x"%(vfatVal)
-    gemlogger.debug(msg)
-    vfatVals = readBlock(device,"%s.Results"%(baseNode),24)
-    if (vfatVals):
+def readAllVFATs(device, gtx, reg, mask=0x0, debug=False):
+    vfatVals = broadcastRead(device,gtx,reg,mask,debug)
+    if (debug and vfatVals):
         for i,val in enumerate(vfatVals):
-            msg = "%d: value = 0x%08x"%(i,vfatVal)
-            gemlogger.debug(msg)
+            print "%d: value = 0x%08x"%(i,val)
+            pass
+        pass
     ## do check on status, maybe only do the check in the calling code
     #if ((vfatVals >> 26) & 0x1) :
     #    msg = "error on block VFAT transaction (%s)"%(reg)
@@ -60,19 +54,37 @@ def writeVFAT(device, gtx, chip, reg, value, debug=False):
     baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
     writeRegister(device,"%s.%s"%(baseNode,reg), value)
 
-def writeAllVFATs(device, gtx, mask, reg, value, debug=False):
-    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Mask"%(baseNode), mask)
-    writeRegister(device,"%s.Request.%s"%(baseNode,reg), value)
+def writeVFATRegisters(device, gtx, chip, regs_with_values, debug=False):
+    baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
+    registers = {}
+    for reg in regs_with_values.keys():
+        registers["%s.%s"%(baseNode,reg)] = regs_with_values[reg]
+        pass
+    writeRegisterList(device,registers)
+
+def readVFATRegisters(device, gtx, chip, regs, debug=False):
+    baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
+    registers = []
+    for reg in regs:
+        registers.append("%s.%s"%(baseNode,reg))
+        pass
+    return readRegisterList(device,registers)
+
+def writeAllVFATs(device, gtx, reg, value, mask=0x0, debug=False):
+    broadcastWrite(device,gtx,reg,value,mask,debug)
 
 def setupDefaultCRs(device, gtx, chip, sleep=False, debug=False):
+    registers = {
+        "ContReg1": 0x00,
+        "ContReg2": 0x30,
+        "ContReg3": 0x00
+        }
     if not sleep:
-        writeVFAT(device, gtx, chip, "ContReg0", 0x36)
+        registers["ContReg0"]= 0x36
     else:
-        writeVFAT(device, gtx, chip, "ContReg0", 0x37)
-    writeVFAT(device, gtx, chip, "ContReg1", 0x00)
-    writeVFAT(device, gtx, chip, "ContReg2", 0x30)
-    writeVFAT(device, gtx, chip, "ContReg3", 0x00)
+        registers["ContReg0"]= 0x37
+        pass
+    writeVFATRegisters(device, gtx, chip, registers)
     return
 
 def setRunMode(device, gtx, chip, enable, debug=False):
@@ -83,64 +95,106 @@ def setRunMode(device, gtx, chip, enable, debug=False):
         writeVFAT(device, gtx, chip, "ContReg0", regVal|0x01)
     else:
         writeVFAT(device, gtx, chip, "ContReg0", regVal&0xFE)
+        pass
     return
-                        
+
+def setChannelRegister(device, gtx, chip, chan,
+                       mask=0x0, pulse=0x0, trim=0x0, debug=False):
+    if (chan not in range(0,128)):
+        print "Invalid VFAT channel specified %d"%(chan)
+        return
+    chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trim&0x1f)
+    writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),chanReg)
+    return
+
+def getChannelRegister(device, gtx, chip, chan, debug=False):
+    if (chan not in range(0,128)):
+        print "Invalid VFAT channel specified %d"%(chan)
+        return
+    return readVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1))
+
+def setVFATThreshold(device, gtx, chip, vt1, vt2=0, debug=False):
+    writeVFATRegisters(device, gtx, chip,
+                       {"VThreshold1": vt1,
+                        "VThreshold2": vt2
+                        })
+    return
+
+def getVFATThreshold(device, gtx, chip, vt1, vt2=0, debug=False):
+    thresholds = readVFATRegisters(device, gtx, chip, ["VThreshold1","VThreshold2"])
+    vt1 = 0
+    vt2 = 0
+    for reg in thresholds.keys():
+        if (reg.find("VThreshold1") > 0):
+            vt1 = thresholds[reg]
+        elif (reg.find("VThreshold2") > 0):
+            vt2 = thresholds[reg]
+            pass
+        pass
+    return vt2-v21
+
 def biasVFAT(device, gtx, chip, enable=True, debug=False):
+    registers = {
+        "ContReg1":    0x00,
+        "ContReg2":    0x30,
+        "ContReg3":    0x00,
+        "Latency":      156,
+        "IPreampIn":    168,
+        "IPreampFeed":   80,
+        "IPreampOut":   150,
+        "IShaper":      150,
+        "IShaperFeed":  100,
+        "IComp":         90,
+        "VCal":           0,
+        # "VThreshold1":   25,
+        "VThreshold2": 0x00,
+        "CalPhase":    0x00
+        }
     if (enable):
-        writeVFAT(device, gtx, chip, "ContReg0",    0x37)
+        registers["ContReg0"] = 0x37
     else:
         #what about leaving any other settings?
         #not now, want a reproducible routine
-        writeVFAT(device, gtx, chip, "ContReg0",    0x36)
-    writeVFAT(device, gtx, chip, "ContReg1",    0x00)
-    writeVFAT(device, gtx, chip, "ContReg2",    0x30)
-    writeVFAT(device, gtx, chip, "ContReg3",    0x00)
-    writeVFAT(device, gtx, chip, "Latency",      156)
-    writeVFAT(device, gtx, chip, "IPreampIn",    168)
-    writeVFAT(device, gtx, chip, "IPreampFeed",   80)
-    writeVFAT(device, gtx, chip, "IPreampOut",   150)
-    writeVFAT(device, gtx, chip, "IShaper",      150)
-    writeVFAT(device, gtx, chip, "IShaperFeed",  100)
-    writeVFAT(device, gtx, chip, "IComp",         90)
-    writeVFAT(device, gtx, chip, "VCal",         150)
-    writeVFAT(device, gtx, chip, "VThreshold1",   25)
-    writeVFAT(device, gtx, chip, "VThreshold2", 0x00)
-    writeVFAT(device, gtx, chip, "CalPhase",    0x05)
+        registers["ContReg0"] = 0x36
+        pass
 
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
         #mask no channels, as this seems to affect the output data packets, not just the triggers
         # disable cal pulses to all channels
-        writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),0x00)
+        registers["VFATChannels.ChanReg%d"%(chan+1)] = 0x00
+        pass
+    writeVFATRegisters(device,gtx,chip,registers)
     return
 
 def biasAllVFATs(device, gtx, mask, enable=True, debug=False):
     if (enable):
-        writeAllVFATs(device, gtx, mask, "ContReg0",    0x37)
+        writeAllVFATs(device, gtx, "ContReg0",    0x37, mask)
     else:
         #what about leaving any other settings?
         #not now, want a reproducible routine
-        writeAllVFATs(device, gtx, mask, "ContReg0",    0x36)
-    writeAllVFATs(device, gtx, mask, "ContReg1",    0x00)
-    writeAllVFATs(device, gtx, mask, "ContReg2",    0x30)
-    writeAllVFATs(device, gtx, mask, "ContReg3",    0x00)
-    writeAllVFATs(device, gtx, mask, "Latency",      156)
-    writeAllVFATs(device, gtx, mask, "IPreampIn",    168)
-    writeAllVFATs(device, gtx, mask, "IPreampFeed",   80)
-    writeAllVFATs(device, gtx, mask, "IPreampOut",   150)
-    writeAllVFATs(device, gtx, mask, "IShaper",      150)
-    writeAllVFATs(device, gtx, mask, "IShaperFeed",  100)
-    writeAllVFATs(device, gtx, mask, "IComp",         90)
-    writeAllVFATs(device, gtx, mask, "VCal",         150)
-    writeAllVFATs(device, gtx, mask, "VThreshold1",   25)
-    writeAllVFATs(device, gtx, mask, "VThreshold2", 0x00)
-    writeAllVFATs(device, gtx, mask, "CalPhase",    0x05)
+        writeAllVFATs(device, gtx, "ContReg0",    0x36, mask)
+        pass
+    writeAllVFATs(device, gtx, "ContReg1",    0x00, mask)
+    writeAllVFATs(device, gtx, "ContReg2",    0x30, mask)
+    writeAllVFATs(device, gtx, "ContReg3",    0x00, mask)
+    writeAllVFATs(device, gtx, "Latency",      156, mask)
+    writeAllVFATs(device, gtx, "IPreampIn",    168, mask)
+    writeAllVFATs(device, gtx, "IPreampFeed",   80, mask)
+    writeAllVFATs(device, gtx, "IPreampOut",   150, mask)
+    writeAllVFATs(device, gtx, "IShaper",      150, mask)
+    writeAllVFATs(device, gtx, "IShaperFeed",  100, mask)
+    writeAllVFATs(device, gtx, "IComp",         90, mask)
+    writeAllVFATs(device, gtx, "VCal",           0, mask)
+    # writeAllVFATs(device, gtx, "VThreshold1",   25, mask)
+    writeAllVFATs(device, gtx, "VThreshold2", 0x00, mask)
+    writeAllVFATs(device, gtx, "CalPhase",    0x00, mask)
 
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
         #mask no channels, as this seems to affect the output data packets, not just the triggers
         # disable cal pulses to all channels
-        writeAllVFATs(device, gtx, mask, "VFATChannels.ChanReg%d"%(chan+1),0x00)
+        writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan+1),0x00, mask)
     return
 
 def getChipID(device, gtx, chip, debug=False):
@@ -156,17 +210,16 @@ def getChipID(device, gtx, chip, debug=False):
         thechipid |= (readVFAT(device, gtx, chip, "ChipID0") & ebmask)
     else:
         thechipid = 0xdead
-    
+        pass
+
     return thechipid
 
 def getAllChipIDs(device, gtx, mask=0xff000000, debug=False):
     """Returns a map of slot number to chip ID, for chips enabled in the mask
     Currently does not only return the unmasked values, but all values
     To be fixed in a future version"""
-    if debug:
-        gemlogger.setLevel(GEMLogger.DEBUG)
-    chipID0s = readAllVFATs(device, gtx, mask, "ChipID0", debug)
-    chipID1s = readAllVFATs(device, gtx, mask, "ChipID1", debug)
+    chipID0s = readAllVFATs(device, gtx, "ChipID0", mask, debug)
+    chipID1s = readAllVFATs(device, gtx, "ChipID1", mask, debug)
     ##make unknown chips report 0xdead
     return dict(map(lambda slotID: (slotID, (((chipID1s[slotID])&0xff)<<8)|(chipID0s[slotID]&0xff)
                                     #if (((chipID1s[slotID]>>16)&0xffff) != ((0x050<<4)+(slotID))) else 0xdead),
@@ -193,7 +246,7 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
 	"VThreshold2",
 	"CalPhase",
         ]
-    
+
     slotmap = map(lambda slotID: perslot%(slotID), regkeys.keys())
     msg = "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
     gemlogger.info(msg)
@@ -202,9 +255,9 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
     gemlogger.info(msg)
     for reg in registerList:
         #regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())
-        regValues = readAllVFATs(device, gtx, mask, reg, debug)
+        regValues = readAllVFATs(device, gtx, reg, mask, debug)
         regmap = map(lambda chip: perreg%(chip&0xff), regValues)
         msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
         gemlogger.info(msg)
-        
-    return    
+        pass
+    return

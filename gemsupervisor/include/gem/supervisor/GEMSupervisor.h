@@ -45,24 +45,22 @@ namespace gem {
         /* virtual bool calibrationSequencer(toolbox::task::WorkLoop *wl); */
 
         // state transitions
-        virtual void initializeAction() throw (gem::supervisor::exception::Exception);
-        virtual void configureAction()  throw (gem::supervisor::exception::Exception);
-        virtual void startAction()      throw (gem::supervisor::exception::Exception);
-        virtual void pauseAction()      throw (gem::supervisor::exception::Exception);
-        virtual void resumeAction()     throw (gem::supervisor::exception::Exception);
-        virtual void stopAction()       throw (gem::supervisor::exception::Exception);
-        virtual void haltAction()       throw (gem::supervisor::exception::Exception);
-        virtual void resetAction()      throw (gem::supervisor::exception::Exception);
-        // virtual void noAction()         throw (gem::supervisor::exception::Exception);
+        virtual void initializeAction();
+        virtual void configureAction();
+        virtual void startAction();
+        virtual void pauseAction();
+        virtual void resumeAction();
+        virtual void stopAction();
+        virtual void haltAction();
+        virtual void resetAction();
+        // virtual void noAction();
 
-        virtual void failAction(toolbox::Event::Reference e)
-          throw (toolbox::fsm::exception::Exception);
+        virtual void failAction(toolbox::Event::Reference e);
 
-        virtual void resetAction(toolbox::Event::Reference e)
-          throw (toolbox::fsm::exception::Exception);
+        virtual void resetAction(toolbox::Event::Reference e);
 
-	xoap::MessageReference EndScanPoint(xoap::MessageReference mns)
-	  throw (xoap::exception::Exception);
+	xoap::MessageReference EndScanPoint(xoap::MessageReference mns);
+          // throw (xoap::exception::Exception);
 
         std::vector<xdaq::ApplicationDescriptor*> getSupervisedAppDescriptors() {
           return v_supervisedApps; };
@@ -106,24 +104,24 @@ namespace gem {
          * @param ad is the application descriptor to send the SOAP message to
          * @throws
          */
-        void sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
-          throw (gem::supervisor::exception::Exception);
+        void sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad);
+          // throw (xoap::exception::Exception);
 
         /**
          * @param runType tells the application which type of run to take
          * @param ad is the application descriptor to send the SOAP message to
          * @throws
          */
-        void sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad)
-          throw (gem::supervisor::exception::Exception);
+        void sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad);
+          // throw (xoap::exception::Exception);
 
         /**
          * @param runNumber is the run number
          * @param ad is the application descriptor to send the SOAP message to
          * @throws
          */
-        void sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad)
-          throw (gem::supervisor::exception::Exception);
+        void sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad);
+          // throw (xoap::exception::Exception);
 
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
 
@@ -136,8 +134,7 @@ namespace gem {
          * @throws
          */
 
-	void sendScanParameters(xdaq::ApplicationDescriptor* ad)
-	  throw (gem::supervisor::exception::Exception);
+	void sendScanParameters(xdaq::ApplicationDescriptor* ad);
 
 	GEMGlobalState m_globalState;
 

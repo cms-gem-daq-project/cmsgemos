@@ -5,12 +5,17 @@
 
 #include "gem/hw/GEMHwDevice.h"
 #include "gem/hw/glib/HwGLIB.h"
+#include "gem/hw/vfat/HwVFAT2.h"
 
 #include "gem/hw/optohybrid/exception/Exception.h"
 //#include "gem/hw/optohybrid/OptoHybridMonitor.h"
 
 namespace gem {
   namespace hw {
+    /* namespace vfat { */
+    /*   class HwVFAT2; */
+    /* } */
+
     namespace optohybrid {
 
       static const int MAX_VFATS = 24;  ///< maximum number of VFATs that can be connected to an OptoHybrid
@@ -181,7 +186,22 @@ namespace gem {
           HwOptoHybrid(std::string const& optohybridDevice, std::string const& connectionURI,
                        std::string const& addressTable);
           HwOptoHybrid(std::string const& optohybridDevice, uhal::HwInterface& uhalDevice);
-          HwOptoHybrid(gem::hw::glib::HwGLIB const& glib, int const& slot);
+          HwOptoHybrid(gem::hw::glib::HwGLIB const& glib,
+                       uint8_t               const& slot);
+
+          /*
+          // constructors from existing GEM hardware devices
+          HwOptoHybrid(uhal::HwInterface& device, uint8_t const& slot, uint8_t const& olink, uint8_t const& );
+          HwOptoHybrid(GEMHwDevice  const& gemDevice,  uint8_t const& slot, uint8_t const& olink);
+          HwOptoHybrid(HwGLIB       const& glibDevice, uint8_t const& olink);
+          */
+
+          /*
+          // constructors from existing GEM hardware devices
+          HwOptoHybrid(uhal::HwInterface& device, uint8_t const& slot, uint8_t const& olink, uint8_t const& );
+          HwOptoHybrid(GEMHwDevice  const& gemDevice,  uint8_t const& slot, uint8_t const& olink);
+          HwOptoHybrid(HwGLIB       const& glibDevice, uint8_t const& olink);
+          */
 
           /*
           // constructors from existing GEM hardware devices
@@ -241,6 +261,16 @@ namespace gem {
 
 
           /////Specific to the OptoHybrid board
+
+          /**
+           * @brief Get the GEMHwDevice corresponding to the specified VFAT
+           * @param vfat is the VFAT position
+           */
+          gem::hw::vfat::HwVFAT2& getVFATDevice(uint8_t const& vfat) const {
+            // want to pass in the device name to append to it the VFAT
+            // this is almost guaranteed to leak
+            return static_cast<gem::hw::vfat::HwVFAT2&>(*(new gem::hw::vfat::HwVFAT2(*this, vfat))); };
+
           /**
            * Read the link status registers, store the information in a struct
            * @retval _status a struct containing the status bits of the optical link
@@ -445,7 +475,7 @@ namespace gem {
            * @param uint32_t mask which s-bits to forward (maximum 6)
            */
           void setSBitSource(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS",mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS",mask); };
 
           /**
            * Set the S-bit source
@@ -463,28 +493,28 @@ namespace gem {
            * @retval uint32_t which VFAT chips are sending S-bits
            */
           uint32_t getSBitSource() {
-            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS"); };
 
           /**
            * Set the S-bit mode
            * @param uint32_t mode of sending s-bits out the HDMI connector
            */
           void setSBitMode(uint8_t const mode) {
-            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.HDMI_SBIT_MODE", mode); };
+            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBIT_MODE", mode); };
 
           /**
            * Read the S-bit mode
            * @retval uint32_t which mode the OptoHybrid is sending s-bits to the HDMI connector
            */
           uint32_t getSBitMode() {
-            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.HDMI_SBIT_MODE"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBIT_MODE"); };
 
           /**
            * Set the S-bit source
            * @param uint32_t mask which s-bits to forward (maximum 6)
            */
           void setHDMISBitSource(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS",mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS",mask); };
 
           /**
            * Set the S-bit source
@@ -502,14 +532,14 @@ namespace gem {
            * @retval uint32_t which VFAT chips are sending S-bits
            */
           uint32_t getHDMISBitSource() {
-            return readReg(getDeviceBaseNode(),"CONTROL.OUTPUT.SBITS"); };
+            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS"); };
 
           /**
            * Set the S-bit mask
            * @param uint32_t mask s-bits coming from specific GEB slots
            */
           void setSBitMask(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK",mask); };
+            writeReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK", mask&0x00ffffff); };
 
           /**
            * Read the S-bit mask
@@ -922,37 +952,42 @@ namespace gem {
             if (signal == 0x3)
               t1Signal << "BC0";
 
+            std::stringstream regName;
+            regName << getDeviceBaseNode() << ".COUNTERS.T1";
+            std::vector<std::string> l1aCounterRegisters;
+
             switch(mode) {
             case 0:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 1:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 2:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 3:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 4:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             case 5:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             default:
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s.Reset",     (t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s.Reset",(t1Signal.str()).c_str()),0x1);
-              writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s.Reset",    (t1Signal.str()).c_str()),0x1);
-              return;
+              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+              break;
             }
+            writeValueToRegs(l1aCounterRegisters, 0x1);
           };
 
           /**
@@ -1028,7 +1063,7 @@ namespace gem {
            *
            */
           uint32_t getVFATMask() {
-            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK")); };
+            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK")); };
 
           /**
            * Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
@@ -1039,7 +1074,7 @@ namespace gem {
           void setVFATMask(uint32_t const mask) {
             DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
                   << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
-            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.MASK"),mask); };
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK"),mask&0x00ffffff); };
 
           /**
            * Sends a read request to all (un-masked) VFATs on the same register
@@ -1088,12 +1123,15 @@ namespace gem {
            */
           std::pair<uint32_t,uint32_t> getVFATCRCCount(uint8_t const& chip) {
             std::stringstream vfatCRC;
-            vfatCRC << "COUNTERS.CRC.";
-            uint32_t valid     = readReg(getDeviceBaseNode(),
-                                         toolbox::toString("COUNTERS.CRC.VALID.VFAT%d",    chip));
-            uint32_t incorrect = readReg(getDeviceBaseNode(),
-                                         toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d",chip));
-            return std::make_pair<uint32_t, uint32_t>(valid,incorrect);
+            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC.";
+            std::vector<std::pair<std::string,uint32_t> > vfatCRCRegs;
+            uint32_t valid(0x0), incorrect(0x0);
+            vfatCRCRegs.push_back(std::make_pair(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip),
+                                                 valid));
+            vfatCRCRegs.push_back(std::make_pair(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip),
+                                                 incorrect));
+            readRegs(vfatCRCRegs);
+            return std::make_pair(valid,incorrect);
           };
 
 
@@ -1105,11 +1143,27 @@ namespace gem {
            */
           void resetVFATCRCCount(uint8_t const& chip) {
             std::stringstream vfatCRC;
-            vfatCRC << "COUNTERS.CRC.";
-            writeReg(getDeviceBaseNode(),
-                     toolbox::toString("COUNTERS.CRC.VALID.VFAT%d.Reset",    chip),0x1);
-            writeReg(getDeviceBaseNode(),
-                     toolbox::toString("COUNTERS.CRC.INCORRECT.VFAT%d.Reset",chip),0x1);
+            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC.";
+            std::vector<std::string> vfatCRCRegs;
+            vfatCRCRegs.push_back(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip));
+            vfatCRCRegs.push_back(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip));
+            writeValueToRegs(vfatCRCRegs, 0x1);
+            return;
+          };
+
+          /**
+           * Reset the number of valid/incorrect CRCs performed by the OptoHybrid
+           * on the received data packets from all VFATs
+           */
+          void resetVFATCRCCount() {
+            std::stringstream vfatCRC;
+            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC";
+            std::vector<std::string> vfatCRCRegs;
+            for (int vfat = 0; vfat < 24; ++vfat) {
+              vfatCRCRegs.push_back(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),vfat));
+              vfatCRCRegs.push_back(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),vfat));
+            }
+            writeValueToRegs(vfatCRCRegs, 0x1);
             return;
           };
 

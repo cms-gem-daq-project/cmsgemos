@@ -30,20 +30,54 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
     """
     Returns the broadcast I2C mask corresponding to the connected VFATs
     """
-    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
-    writeRegister(device,"%s.Reset"%(baseNode), 0x1)
-    writeRegister(device,"%s.Mask"%(baseNode), 0x0)
-    vfatVal  = readRegister(device,"%s.Request.ChipID0"%(baseNode))
-    msg = "vfatVal = 0x%08x"%(vfatVal)
-    gemlogger.debug(msg)
-    vfatVals = readBlock(device,"%s.Results"%(baseNode),24)
+    vfatVal  = broadcastRead(device,gtx,"ChipID0")
     bmask = 0x0
     if (vfatVals):
         for i,val in enumerate(vfatVals):
             msg = "%d: value = 0x%08x"%(i,vfatVal)
             gemlogger.debug(msg)
+            pass
+        pass
 
     return bmask
+
+def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
+    """
+    Perform a broadcast I2C write on the VFATs specified by mask
+    """
+    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
+    writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
+    writeRegister(device,"%s.Request.%s"%(baseNode,register),value,debug)
+    if debug:
+        readRegister(device,"%s.Running"%(baseNode),debug)
+        pass
+    while (readRegister(device,"%s.Running"%(baseNode))):
+        i = 1
+        if (debug):
+            print "broadcast request still running..."
+            pass
+        pass
+    return
+
+def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
+    """
+    Perform a broadcast I2C read on the VFATs specified by mask
+    """
+    baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
+    writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
+    writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
+    readRegister(device,"%s.Request.%s"%(baseNode,register),debug)
+    if debug:
+        readRegister(device,"%s.Running"%(baseNode),debug)
+        pass
+    while (readRegister(device,"%s.Running"%(baseNode))):
+        i = 1
+        if (debug):
+            print "broadcast request still running..."
+            pass
+        pass
+    return readBlock(device,"%s.Results"%(baseNode),24)
 
 def optohybridCounters(device,gtx=0,doReset=False):
     """
@@ -136,6 +170,18 @@ def getTriggerSource(device,gtx):
     """
     return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(gtx))
 
+def setTriggerThrottle(device,gtx,throttle):
+    """
+    Set the trigger throttle
+    """
+    return writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.THROTTLE"%(gtx),throttle)
+
+def getTriggerThrottle(device,gtx):
+    """
+    Get the trigger throttling value
+    """
+    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.THROTTLE"%(gtx))
+
 def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=False):
     """
     Configure the T1 controller
@@ -181,6 +227,23 @@ def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=F
         number,
         readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx)))
     gemlogger.debug(msg)
+    return
+
+def resetLocalT1(device,gtx,debug=False):
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
+    return
+
+def getLocalT1Status(device,gtx,debug=False):
+    return readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+
+def startLocalT1(device,gtx,debug=False):
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    return
+
+def stopLocalT1(device,gtx,debug=False):
+    if readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def sendL1A(device,gtx,interval=25,number=0,debug=False):
@@ -260,8 +323,16 @@ def setReferenceClock(device,gtx,source,debug=False):
     OH:   0=onboard,     1=GTX recovered,  2=external clock
     V2A only
     """
-    writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
+    # writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
+
+def getReferenceClock(device,gtx,debug=False):
+    """
+    Get the reference clock source on the OptoHybrid
+    OH:   0=onboard,     1=GTX recovered,  2=external clock
+    V2A only
+    """
+    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx))
 
 def getClockingInfo(device,gtx,debug=False):
     """
@@ -296,6 +367,20 @@ def setVFATsBitMask(device,gtx=0,mask=0x000000,debug=False):
     baseNode = "GEM_AMC.OH.OH%d.CONTROL"%(gtx)
     return writeRegister(device,"%s.VFAT.SBIT_MASK"%(baseNode),mask)
 
+def getVFATTrackingMask(device,gtx=0,debug=False):
+    """
+    Returns the VFAT s-bit mask
+    """
+    baseNode = "GEM_AMC.OH.OH%d.CONTROL.VFAT"%(gtx)
+    return readRegister(device,"%s.TRK_MASK"%(baseNode))
+
+def setVFATTrackingMask(device,gtx=0,mask=0x000000,debug=False):
+    """
+    Set the VFAT s-bit mask
+    """
+    baseNode = "GEM_AMC.OH.OH%d.CONTROL.VFAT"%(gtx)
+    return writeRegister(device,"%s.TRK_MASK"%(baseNode),mask)
+
 def calculateLockErrors(device,gtx,register,sampleTime):
     baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(gtx)
     errorCounts = {}
@@ -308,4 +393,176 @@ def calculateLockErrors(device,gtx,register,sampleTime):
     errorCounts = [first,second]
     return errorCounts
 
+def configureScanModule(device, gtx, mode, vfat, channel=0,
+                        scanmin=0x0, scanmax=0xff,
+                        stepsize=0x1, numtrigs=1000,
+                        useUltra=False,debug=False):
+    """
+    Configure the firmware scan controller
+    mode: 0 Threshold scan
+          1 Threshold scan per channel
+          2 Latency scan
+          3 s-curve scan
+          4 Threshold scan with tracking data
+    """
 
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
+    if useUltra:
+        scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
+        pass
+
+    if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
+        print "Scan is already running (0x%x), not starting a new scan"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        return
+
+    if debug:
+        print scanBase
+        print "FW scan mode       : %d"%(mode)
+        print "FW scan min        : %d"%(scanmin)
+        print "FW scan max        : %d"%(scanmax)
+        if useUltra:
+            print "Ultra FW scan mask : 0x%08x"%(vfat)
+        else:
+            print "FW scan VFAT       : %d"%(vfat)
+            pass
+        print "FW scan channel    : %d"%(channel)
+        print "FW scan step size  : %d"%(stepsize)
+        print "FW scan n_triggers : %d"%(numtrigs)
+        pass
+
+    writeRegister(device,"%s.RESET"%(scanBase),0x1)
+    regList = {
+        "%s.MODE"%(scanBase):  mode,
+        "%s.MIN"%(scanBase):   scanmin,
+        "%s.MAX"%(scanBase):   scanmax,
+        "%s.CHAN"%(scanBase):  channel,
+        "%s.STEP"%(scanBase):  stepsize,
+        "%s.NTRIGS"%(scanBase):numtrigs
+     }
+    if useUltra:
+        regList["%s.MASK"%(scanBase)] = vfat
+    else:
+        regList["%s.CHIP"%(scanBase)] = vfat
+        pass
+
+    writeRegisterList(device,regList)
+    return
+
+def printScanConfiguration(device,gtx,useUltra=False,debug=False):
+    """
+    """
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
+    if useUltra:
+        scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
+        pass
+
+    print scanBase
+    regList = [
+        "%s.MODE"%(scanBase),
+        "%s.MIN"%(scanBase),
+        "%s.MAX"%(scanBase),
+        "%s.CHAN"%(scanBase),
+        "%s.STEP"%(scanBase),
+        "%s.NTRIGS"%(scanBase),
+        "%s.MONITOR"%(scanBase),
+     ]
+    if useUltra:
+        regList.append("%s.MASK"%(scanBase))
+    else:
+        regList.append("%s.CHIP"%(scanBase))
+        pass
+
+    if debug:
+        regParams = {}
+        for reg in regList:
+            regParams[reg] = {
+                "Path":       "%s"%(device.getNode(reg).getPath()),
+                "Address":    "0x%x"%(device.getNode(reg).getAddress()),
+                "Mask":       "0x%x"%(device.getNode(reg).getMask()),
+                "Permission": "%s"%(device.getNode(reg).getPermission()),
+                "Mode":       "%s"%(device.getNode(reg).getMode()),
+                "Size":       "%s"%(device.getNode(reg).getSize())
+                }
+            print regParams[reg]
+            pass
+        pass
+    regVals = readRegisterList(device,regList)
+    print "FW scan mode       : %d"%(regVals["%s.MODE"%(scanBase)])
+    print "FW scan min        : %d"%(regVals["%s.MIN"%(scanBase)])
+    print "FW scan max        : %d"%(regVals["%s.MAX"%(scanBase)])
+    if useUltra:
+        print "Ultra FW scan mask : 0x%08x"%(regVals["%s.MASK"%(scanBase)])
+    else:
+        print "FW scan VFAT       : %d"%(regVals["%s.CHIP"%(scanBase)])
+        pass
+    print "FW scan channel    : %d"%(regVals["%s.CHAN"%(scanBase)])
+    print "FW scan step size  : %d"%(regVals["%s.STEP"%(scanBase)])
+    print "FW scan n_triggers : %d"%(regVals["%s.NTRIGS"%(scanBase)])
+    print "FW scan status     : 0x%08x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+
+    return
+
+def startScanModule(device, gtx, useUltra=False,debug=False):
+    """
+    """
+
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
+    if useUltra:
+        scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
+        pass
+
+    if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
+        print "Scan is already running (0x%x), not starting a new scan"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        return
+    if (readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) > 0):
+        print "There was an error in the scan configuration, not starting a new scan"
+        return
+
+    writeRegister(device,"%s.START"%(scanBase),0x1)
+    if readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) or not (readRegister(device,"%s.MONITOR.STATUS"%(scanBase))):
+        print "Scan failed to start, FIFO read 0x%08x"%(readRegister(device,"%s.RESULTS"%(scanBase)))
+        pass
+    if debug:
+        print "After start, scan status is: 0x%08x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+        pass
+    return
+
+def getScanResults(device, gtx, numpoints, debug=False):
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
+    while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
+        if debug and False:
+            print "Scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+            pass
+        time.sleep(0.1)
+        pass
+
+    if debug:
+        print "Scan status (0x%08x)"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+        print "Scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
+    # results = []
+    # results.append(readRegister(device,"%s.RESULTS"%(scanBase)))
+    # print "0x%08x"%(results[0])
+    # results.append(readBlock(device,"%s.RESULTS"%(scanBase),numpoints-1))
+    # print results
+    results = readBlock(device,"%s.RESULTS"%(scanBase),numpoints)
+    return results
+
+def getUltraScanResults(device, gtx, numpoints, debug=False):
+    scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
+    while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
+        if debug and False:
+            print "Scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+            pass
+        time.sleep(0.1)
+        pass
+
+    if debug:
+        print "Scan status (0x%08x)"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+        print "Scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
+        pass
+    results = []
+
+    for chip in range(24):
+        results.append(readBlock(device,"%s.RESULTS.VFAT%d"%(scanBase,chip),numpoints))
+
+    return results

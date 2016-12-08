@@ -1,0 +1,1 @@
+# This document documents the GEM hardware interface classes.  It is subdivided into the generic IPBus device class, and followed by the 

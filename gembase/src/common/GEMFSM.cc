@@ -222,7 +222,6 @@ void gem::base::GEMFSM::fireEvent(toolbox::Event::Reference const &event)
 };
 
 xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg)
-// throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSM::changeState()");
   if (msg.isNull()) {
@@ -304,6 +303,12 @@ std::string gem::base::GEMFSM::getCurrentState() const
   return p_gemfsm->getStateName(p_gemfsm->getCurrentState());
 }
 
+toolbox::fsm::State gem::base::GEMFSM::getCurrentFSMState() const
+{
+  DEBUG("GEMFSM::getCurrentFSMState()");
+  return p_gemfsm->getCurrentState();
+}
+
 std::string gem::base::GEMFSM::getStateName(toolbox::fsm::State const& state) const
 {
   DEBUG("GEMFSM::getStateName()");
@@ -312,7 +317,6 @@ std::string gem::base::GEMFSM::getStateName(toolbox::fsm::State const& state) co
 
 /* moved into GEMSupervisor, as only the supervisor global state should be reported to RCMS
 void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::string const msg)
-  throw (toolbox::fsm::exception::Exception)
 {
   INFO("GEMFSM::notifyRCMS()");
   // Notify RCMS of a state change.
@@ -335,24 +339,23 @@ void gem::base::GEMFSM::notifyRCMS(toolbox::fsm::FiniteStateMachine &fsm, std::s
 */
 
 void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
-  throw (toolbox::fsm::exception::Exception)
 {
   DEBUG("GEMFSM::stateChanged() begin");
   try {
     m_gemFSMState = fsm.getStateName(fsm.getCurrentState());
     p_gemApp->getAppISToolBox()->setString("FSMState",  m_gemFSMState.toString());
     p_gemApp->getAppISToolBox()->setString("StateName", m_gemFSMState.toString());
+  } catch (toolbox::fsm::exception::Exception & ex) {
+    std::stringstream msg;
+    msg << "Problem updating state after stateChanged " << ex.what();
+    FATAL(msg.str());
+    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
   } catch(xcept::Exception& ex) {
     std::stringstream msg;
     msg << "Problem updating state after stateChanged " << ex.what();
     FATAL(msg.str());
     XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
     p_gemApp->notifyQualified("fatal", top);
-  } catch (toolbox::fsm::exception::Exception & ex) {
-    std::stringstream msg;
-    msg << "Problem updating state after stateChanged " << ex.what();
-    FATAL(msg.str());
-    XCEPT_DECLARE_NESTED(gem::utils::exception::SoftwareProblem, top, msg.str(), ex);
   } catch (std::exception& ex) {
     std::stringstream msg;
     msg << "Problem updating state after stateChanged " << ex.what();
@@ -370,7 +373,6 @@ void gem::base::GEMFSM::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
 
 
 void gem::base::GEMFSM::invalidAction(toolbox::Event::Reference event)
-// throw (toolbox::fsm::exception::Exception)
 {
   /* what's the point of this action?
    * should we go to failed or try to ensure no action is taken and the initial state is preserved?

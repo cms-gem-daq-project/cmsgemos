@@ -56,10 +56,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  std::make_pair("SBit_Mask",   "CONTROL.VFAT.SBIT_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitsOut",    "CONTROL.OUTPUT.SBITS"),
+                 std::make_pair("SBitsOut",    "CONTROL.HDMI_OUTPUT.SBITS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitOutMode","CONTROL.OUTPUT.HDMI_SBIT_MODE"),
+                 std::make_pair("SBitOutMode","CONTROL.HDMI_OUTPUT.SBIT_MODE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("TrgThrottle", "CONTROL.THROTTLE"),
@@ -95,10 +95,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   for (auto master = wbMasters.begin(); master != wbMasters.end(); ++master) {
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Master:"+(*master)+"Strobe",   "COUNTERS.WB.MASTER.Strobe."+(*master)),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Master:"+(*master)+"Ack",      "COUNTERS.WB.MASTER.Ack."+(*master)),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   for (int i2c = 0; i2c < 6; ++i2c) {
@@ -106,20 +106,20 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
     ss << "I2C" << i2c;
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Slave:"+ss.str()+"Strobe",   "COUNTERS.WB.SLAVE.Strobe."+ss.str()),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Slave:"+ss.str()+"Ack",      "COUNTERS.WB.SLAVE.Ack."+ss.str()),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   std::array<std::string, 8> wbSlaves = {{"ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"}};
   for (auto slave = wbSlaves.begin(); slave != wbSlaves.end(); ++slave) {
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Slave:"+(*slave)+"Strobe",   "COUNTERS.WB.SLAVE.Strobe."+(*slave)),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Slave:"+(*slave)+"Ack",      "COUNTERS.WB.SLAVE.Ack."+(*slave)),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   addMonitorableSet("VFAT CRCs", "HWMonitoring");
@@ -128,10 +128,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
     ss << "VFAT" << vfat;
     addMonitorable("VFAT CRCs", "HWMonitoring",
                    std::make_pair(ss.str()+"_Valid",  "COUNTERS.CRC.VALID."+ss.str()),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("VFAT CRCs", "HWMonitoring",
                    std::make_pair(ss.str()+"_Incorrect","COUNTERS.CRC.INCORRECT."+ss.str()),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   addMonitorableSet("T1 Counters", "HWMonitoring");
@@ -139,16 +139,16 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   for (auto t1src = t1sources.begin(); t1src != t1sources.end(); ++t1src) {
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"L1A",     "COUNTERS.T1."+(*t1src)+".L1A"),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"CalPulse","COUNTERS.T1."+(*t1src)+".CalPulse"),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"Resync",  "COUNTERS.T1."+(*t1src)+".Resync"),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"BC0",     "COUNTERS.T1."+(*t1src)+".BC0"),
-                   GEMUpdateType::HW32, "hex");
+                   GEMUpdateType::HW32, "dec");
   }
 
   addMonitorableSet("Other Counters", "HWMonitoring");
@@ -189,7 +189,8 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
 
   /** Firmware based scan routines **/
   addMonitorableSet("Firmware Scan Controller", "HWMonitoring");
-  std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
+  std::array<std::pair<std::string,std::string>, 3> scans = {{std::make_pair("Single VFAT Threshold/Latency/SCurve","THLAT"),
+                                                              std::make_pair("Ultra VFATs Threshold/Latency/SCurve","ULTRA"),
                                                               std::make_pair("DAC","DAC")}};
   std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
@@ -197,10 +198,14 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
     for (auto scanreg = scanregs.begin(); scanreg != scanregs.end(); ++scanreg) {
       if (scan->first == "DAC" && (*scanreg) == "CHAN")
         continue;
-
-      addMonitorable("Firmware Scan Controller", "HWMonitoring",
-                     std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
-                     GEMUpdateType::HW32, "hex");
+      if (scan->second == "ULTRA" && (*scanreg) == "CHIP")
+        addMonitorable("Firmware Scan Controller", "HWMonitoring",
+                       std::make_pair(scan->first+"MASK","ScanController."+scan->second+".MASK"),
+                       GEMUpdateType::HW32, "hex");
+      else
+        addMonitorable("Firmware Scan Controller", "HWMonitoring",
+                       std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
+                       GEMUpdateType::HW32, "hex");
     }
   }
 
@@ -664,9 +669,10 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
   // get the list of pairs of monitorables in the Firmware Scan Controller monset
   auto monset = m_monitorableSetsMap.find("Firmware Scan Controller")->second;
 
-  std::array<std::pair<std::string,std::string>, 2> scans = {{std::make_pair("Threshold/Latency","THLAT"),
+  std::array<std::pair<std::string,std::string>, 3> scans = {{std::make_pair("Single VFAT Threshold/Latency/SCurve","THLAT"),
+                                                              std::make_pair("Ultra VFATs Threshold/Latency/SCurve","ULTRA"),
                                                               std::make_pair("DAC","DAC")}};
-  std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
+  // std::array<std::string, 8> scanregs = {{"MODE","CHIP","CHAN","MIN","MAX","STEP","NTRIGS","MONITOR"}};
 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
@@ -689,6 +695,9 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
     for (auto monitem = monset.begin(); monitem != monset.end(); ++monitem) {
       if (scan->first == "DAC" && (monitem->first).rfind("CHAN") != std::string::npos)
         continue;
+      std::string regname = monitem->second.regname;
+      // if (scan->second == "ULTRA" && (monitem->first).rfind("CHAN") != std::string::npos)
+      //   regname = "MASK";
 
       if ((monitem->first).rfind(scan->first) != std::string::npos) {
         *out << "<tr>"    << std::endl;
@@ -707,7 +716,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
              << "</td>"   << std::endl;
 
         *out << "<td>"    << std::endl
-             << monitem->second.regname
+             << regname
              << "</td>"   << std::endl;
 
         *out << "<td>"    << std::endl

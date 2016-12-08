@@ -7,7 +7,7 @@
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">10</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">8</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
           <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="9"> <!--  position must be slot-1  -->
@@ -15,7 +15,7 @@
             <slot     xsi:type="xsd:integer">10</slot>
             <present  xsi:type="xsd:boolean">true</present>
             <!--CardName xsi:type="xsd:string">gem.shelf01.ctp7-02</CardName-->
-            
+
             <sbitSource    xsi:type="xsd:integer">5</sbitSource>
           </GLIBInfo>
           <!--
@@ -35,18 +35,16 @@
     <xc:Application class="gem::hw::optohybrid::OptoHybridManager" id="50" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
 		  xsi:type="soapenc:Struct">
-	<!--AMCSlots       xsi:type="xsd:string">10</AMCSlots-->
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[24]">
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="18"> <!-- position must be (slot-1)*2+link -->
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="14"> <!-- position must be (slot-1)*2+link -->
             <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">10</slot>
+            <slot    xsi:type="xsd:integer">8</slot>
             <link    xsi:type="xsd:integer">0</link>
             <present xsi:type="xsd:boolean">true</present>
-            <!--CardName xsi:type="xsd:string">gem.shelf01.ctp7-02.optohybrid02</CardName-->
-            
+
             <triggerSource xsi:type="xsd:integer">0</triggerSource>
-            
+
             <SBitConfig xsi:type="soapenc:Struct">
               <Mode       xsi:type="xsd:unsignedShort">1</Mode>
               <Output0Src xsi:type="xsd:unsignedShort">0</Output0Src>
@@ -56,7 +54,7 @@
               <Output4Src xsi:type="xsd:unsignedShort">4</Output4Src>
               <Output5Src xsi:type="xsd:unsignedShort">5</Output5Src>
             </SBitConfig>
-            
+
             <CommonVFATSettings xsi:type="soapenc:Struct">
               <ContReg0    xsi:type="xsd:unsignedShort"> 0x37</ContReg0   >
               <ContReg2    xsi:type="xsd:unsignedShort"> 0x30</ContReg2   >
@@ -66,8 +64,8 @@
               <IShaper     xsi:type="xsd:unsignedShort">  150</IShaper    >
               <IShaperFeed xsi:type="xsd:unsignedShort">  100</IShaperFeed>
               <IComp       xsi:type="xsd:unsignedShort">   75</IComp      >
-              <Latency     xsi:type="xsd:unsignedShort">  157</Latency    >
-              <VThreshold1 xsi:type="xsd:unsignedShort">   25</VThreshold1>
+              <Latency     xsi:type="xsd:unsignedShort">  159</Latency    >
+              <VThreshold1 xsi:type="xsd:unsignedShort">   35</VThreshold1>
               <VThreshold2 xsi:type="xsd:unsignedShort">    0</VThreshold2>
             </CommonVFATSettings>
           </OptoHybridInfo>
@@ -80,10 +78,10 @@
         	  xsi:type="soapenc:Struct">
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
-	  <CardName     xsi:type="xsd:string">gem.shelf01.amc13</CardName>
-          <AMCInputEnableList xsi:type="xsd:string">10</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">0-9,11-15 </AMCIgnoreTTSList>
-          
+	  <CardName           xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+          <AMCInputEnableList xsi:type="xsd:string">8</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">0-7,9-15 </AMCIgnoreTTSList>
+
           <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
@@ -95,17 +93,17 @@
 	  <!-- EXTERNAL TRIGGERS (TTC) = enableLocalL1A = false, LEMO false, EnableLocalTTC false -->
 
           <LocalTriggerConfig xsi:type="soapenc:Struct">
-            <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
-            <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">15000</InternalPeriodicPeriod>
+            <EnableLocalL1A         xsi:type="xsd:boolean">false</EnableLocalL1A>
 	    <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO>
-          
+
+            <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">15000</InternalPeriodicPeriod>
             <L1Aburst               xsi:type="xsd:unsignedInt">1</L1Aburst>
             <L1Amode                xsi:type="xsd:integer">2</L1Amode>
             <L1Arules               xsi:type="xsd:integer">0</L1Arules>
 	    <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
 	    <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont>
           </LocalTriggerConfig>
-          
+
           <BGOConfig xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[4]">
 <!--
             <BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">
@@ -119,7 +117,7 @@
           </BGOConfig>
           <PrescaleFactor xsi:type="xsd:integer">1</PrescaleFactor>
           <BCOffset       xsi:type="xsd:integer">1</BCOffset>
-          
+
           <FEDID    xsi:type="xsd:unsignedInt">1</FEDID>
           <SFPMask  xsi:type="xsd:unsignedInt">1</SFPMask>
           <SlotMask xsi:type="xsd:unsignedInt">1</SlotMask>
@@ -150,25 +148,24 @@
 		  xsi:type="soapenc:Struct">
         <DatabaseInfo xsi:type="soapenc:Struct">
           <dbName xsi:type="xsd:string">ldqm_test_db</dbName>
-          <dbHost xsi:type="xsd:string">gem904daq01.cern.ch</dbHost>
+          <dbHost xsi:type="xsd:string">localhost</dbHost>
           <dbPort xsi:type="xsd:integer">3306</dbPort>
           <dbUser xsi:type="xsd:string">gemdaq</dbUser>
           <dbPass xsi:type="xsd:string">gemdaq</dbPass>
-	  
+
           <setupTag xsi:type="xsd:string">teststand</setupTag>
           <runPeriod xsi:type="xsd:string">2016T</runPeriod>
           <setupLocation xsi:type="xsd:string">CERN904</setupLocation>
         </DatabaseInfo>
-        
+
         <ScanInfo xsi:type="soapenc:Struct">
-          <ScanType   xsi:type="xsd:unsignedInt">3</ScanType>
-          <ScanMin    xsi:type="xsd:unsignedInt">0</ScanMin>
-          <ScanMax    xsi:type="xsd:unsignedInt">30</ScanMax>
-          <StepSize   xsi:type="xsd:unsignedInt">5</StepSize>
-          <NTriggers  xsi:type="xsd:unsignedLong">1500</NTriggers>
+          <!-- <ScanType   xsi:type="xsd:unsignedInt">3</ScanType> -->
+          <!-- <ScanMin    xsi:type="xsd:unsignedInt">0</ScanMin> -->
+          <!-- <ScanMax    xsi:type="xsd:unsignedInt">30</ScanMax> -->
+          <!-- <StepSize   xsi:type="xsd:unsignedInt">5</StepSize> -->
+          <!-- <NTriggers  xsi:type="xsd:unsignedLong">1500</NTriggers> -->
         </ScanInfo>
 
-        <!--dbAccessor xsi:type="xsd:string">mysql://gem904daq01.cern.ch:3306/</dbAccessor-->
 	<rcmsStateListener xsi:type="soapenc:Struct">
           <classname xsi:type="xsd:string">RCMSStateListener</classname>
           <instance  xsi:type="xsd:unsignedInt">0</instance>

@@ -33,12 +33,12 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   present  = false;
   crateID  = -1;
   slotID   = -1;
-  cardName = "";
+  cardName = "N/A";
 
-  controlHubAddress = "";
-  deviceIPAddress   = "";
-  ipBusProtocol     = "";
-  addressTable      = "";
+  controlHubAddress = "N/A";
+  deviceIPAddress   = "N/A";
+  ipBusProtocol     = "N/A";
+  addressTable      = "N/A";
   controlHubPort    = 0;
   ipBusPort         = 0;
 
@@ -117,17 +117,23 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
   try {
     INFO("GLIBManager::dumpGLIBFIFO Dumping FIFO for specified GLIB card " << glib+1);
     return m_glibs.at(glib)->getTrackingData(0, 24);
-  } catch (gem::hw::glib::exception::Exception const& ex) {
-    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
-          << " FIFO, caught exception " << ex.what());
+  } catch (gem::hw::glib::exception::Exception const& e) {
+    std::stringstream msg;
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+        << " FIFO, caught exception " << e.what();
+    ERROR(msg.str());
     return dump;
-  } catch (std::exception const& ex) {
-    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
-          << " FIFO,  caught exception " << ex.what());
+  } catch (std::exception const& e) {
+    std::stringstream msg;
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+        << " FIFO, caught exception " << e.what();
+    ERROR(msg.str());
     return dump;
   } catch (...) {
-    ERROR("GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
-          << " FIFO");
+    std::stringstream msg;
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+        << " FIFO, caught unknown exception ";
+    ERROR(msg.str());
     return dump;
   }
 }
@@ -256,21 +262,31 @@ void gem::hw::glib::GLIBManager::initializeAction()
         m_glibMonitors.at(slot)->setupHwMonitoring();
         m_glibMonitors.at(slot)->startMonitoring();
       } else {
-        ERROR("GLIBManager:: unable to communicate with GLIB in slot " << (slot+1));
-        XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "initializeAction failed");
+        std::stringstream msg;
+        msg << "GLIBManager::initializeAction unable to communicate with GLIB in slot " << slot;
+        ERROR(msg.str());
+        XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       }
-    } catch (uhalException const& ex) {
-      ERROR("GLIBManager::caught uHAL exception " << ex.what());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-    } catch (gem::hw::glib::exception::Exception const& ex) {
-      ERROR("GLIBManager::caught exception " << ex.what());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-    } catch (toolbox::net::exception::MalformedURN const& ex) {
-      ERROR("GLIBManager::caught exception " << ex.what());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
-    } catch (std::exception const& ex) {
-      ERROR("GLIBManager::caught exception " << ex.what());
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
+    } catch (uhalException const& e) {
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction caught uHAL exception " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    } catch (gem::hw::glib::exception::Exception const& e) {
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction caught exception " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    } catch (toolbox::net::exception::MalformedURN const& e) {
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction caught exception " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+    } catch (std::exception const& e) {
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction caught exception " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
     DEBUG("GLIBManager::connected");
     // set the web view to be empty or grey
@@ -289,11 +305,11 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (m_glibs.at(slot)->isHwConnected()) {
       DEBUG("GLIBManager::connected a card in slot " << (slot+1));
     } else {
-      ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
+      std::stringstream msg;
+      msg << "GLIBManager::initializeAction GLIB in slot " << (slot+1) << " is not connected";
+      ERROR(msg.str());
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "initializeAction failed");
-      // maybe raise exception so as to not continue with other cards? let's just return for the moment
-      return;
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
   }
   // usleep(100); // just for testing the timing of different applications
@@ -319,6 +335,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       // reset the DAQ
       m_glibs.at(slot)->setL1AEnable(false);
       m_glibs.at(slot)->resetDAQLink();
+      m_glibs.at(slot)->setDAQLinkRunType(0x0);
+      m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
 
       if (m_scanType.value_ == 2) {
 	//uint32_t ilatency = m_scanMin.value_;
@@ -343,21 +361,23 @@ void gem::hw::glib::GLIBManager::configureAction()
       }
 
       // should FIFOs be emptied in configure or at start?
-      INFO("GLIBManager::emptying trigger/tracking data FIFOs");
-      for (unsigned gtx = 0; gtx < HwGLIB::N_GTX; ++gtx) {
-        // m_glibs.at(slot)->flushTriggerFIFO(gtx);
-        m_glibs.at(slot)->flushFIFO(gtx);
-      }
+      // should be removed as migration to generic AMC firmware happens
+      // INFO("GLIBManager::emptying trigger/tracking data FIFOs");
+      // for (unsigned gtx = 0; gtx < HwGLIB::N_GTX; ++gtx) {
+      //   // m_glibs.at(slot)->flushTriggerFIFO(gtx);
+      //   m_glibs.at(slot)->flushFIFO(gtx);
+      // }
       // what else is required for configuring the GLIB?
       // need to reset optical links?
       // reset counters?
       // setup run mode?
       // setup DAQ mode?
     } else {
-      ERROR("GLIBManager::GLIB in slot " << (slot+1) << " is not connected");
+      std::stringstream msg;
+      msg << "GLIBManager::configureAction GLIB in slot " << (slot+1) << " is not connected";
+      ERROR(msg.str());
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "configureAction failed");
-      // maybe raise exception so as to not continue with other cards?
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
   }
 
@@ -394,11 +414,11 @@ void gem::hw::glib::GLIBManager::startAction()
       m_glibs.at(slot)->setL1AEnable(true);
       usleep(100); // just for testing the timing of different applications
     } else {
-      ERROR("GLIB in slot " << (slot+1) << " is not connected");
+      std::stringstream msg;
+      msg << "GLIBManager::startAction GLIB in slot " << (slot+1) << " is not connected";
+      ERROR(msg.str());
       //fireEvent("Fail");
-      XCEPT_RAISE(gem::hw::glib::exception::HardwareProblem, "startAction failed");
-      // maybe raise exception so as to not continue with other cards? let's just return for the moment
-      return;
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
 
     /*
@@ -428,44 +448,53 @@ void gem::hw::glib::GLIBManager::pauseAction()
 
       if (m_scanType.value_ == 2) {
 	uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	INFO("GLIBManager::pauseAction LatencyScan " << (int)updatedLatency);
+	INFO("GLIBManager::pauseAction LatencyScan GLIB " << (slot+1) << " Latency " << (int)updatedLatency);
 
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for GLIB to finish building events");
+          DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
           usleep(100);
         }
-        DEBUG("GLIBManager::pauseAction finished building events, updating run parameter "
+        DEBUG("GLIBManager::pauseAction GLIB " << (slot+1) << " finished building events, updating run parameter "
               << (int)updatedLatency);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,updatedLatency);
-	m_lastLatency = updatedLatency;
       } else if (m_scanType.value_ == 3) {
 	uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
 	uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
-	INFO("GLIBManager::pauseAction ThresholdScan"
+	INFO("GLIBManager::pauseAction ThresholdScan GLIB " << (slot+1) << ""
              << " VT1 " << (int)updatedVT1
              << " VT2 " << (int)updatedVT2);
 
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for GLIB to finish building events");
+          DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
           usleep(100);
         }
-        DEBUG("GLIBManager::pauseAction finished building events, updating VT1 " << (int)updatedVT1
+        DEBUG("GLIBManager::pauseAction finished GLIB " << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
               << " and VT2 " << (int)updatedVT2);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,updatedVT1);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,updatedVT2);
-	m_lastVT1 = updatedVT1;
       }
       // usleep(100); // just for testing the timing of different applications
 
     } else {
-      ERROR("GLIBManager::pauseAction: GLIB in slot " << (slot+1) << " is not connected");
+      std::stringstream msg;
+      msg << "GLIBManager::pauseAction GLIB in slot " << (slot+1) << " is not connected";
+      ERROR(msg.str());
       //fireEvent("Fail");
-      // maybe raise exception so as to not continue with other cards? let's just return for the moment
-      XCEPT_RAISE(gem::hw::glib::exception::Exception, "pauseAction failed");
-      return;  // no need to return as the exception will exit the block
+      XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
+  }
+
+  // Update the scan parameters
+  if (m_scanType.value_ == 2) {
+    INFO("GLIBManager::pauseAction LatencyScan old Latency " << (int)m_lastLatency);
+    m_lastLatency += m_stepSize.value_;
+    INFO("GLIBManager::pauseAction LatencyScan new Latency " << (int)m_lastLatency);
+  } else if (m_scanType.value_ == 3) {
+    INFO("GLIBManager::pauseAction ThresholdScan old VT1 " << (int)m_lastVT1);
+    m_lastVT1 += m_stepSize.value_;
+    INFO("GLIBManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
   }
 }
 

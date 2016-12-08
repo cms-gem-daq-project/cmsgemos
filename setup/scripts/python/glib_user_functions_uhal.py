@@ -76,7 +76,7 @@ def readTrackingInfo(device,gtx,nBlocks=1):
     read the tracking info from given optical gtx, returning a map
     """
     baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(gtx)
-    data = readBlock(device,"%s.FIFO"%(baseNode,7*nBlocks))
+    data = readBlock(device,"%s.FIFO"%(baseNode),7*nBlocks)
     
     #for word in data:
     #    msg = "%s: 0x%08x"%(word,data)
@@ -88,7 +88,7 @@ def flushTrackingFIFO(device,gtx):
     Flush the tracking FIFO from given optical gtx
     """
     baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(gtx)
-    writeRegister(device,"%s.FLUSH"%(baseNode),0x1)
+    writeRegister(device,"%s.FLUSH"%(baseNode),0)
     return
 
 def readFIFODepth(device,gtx):

@@ -1283,10 +1283,11 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
 	vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(vfat, tmpURI.str(),
                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-	if (tmpVFATDevice->isHwConnected()) {
-          tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
-                                                             confParams_.bag.ohGTXLink.value_,
-                                                             vfat.c_str()));
+
+	if(tmpVFATDevice->isHwConnected()){
+	tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
+							   confParams_.bag.ohGTXLink.value_,
+							   vfat.c_str()));
 
 	  tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
 	  tmpVFATDevice->setRunMode(0);

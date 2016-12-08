@@ -28,6 +28,10 @@ namespace gem {
   namespace hw {
     namespace amc13 {
 
+      typedef std::shared_ptr< ::amc13::Status> amc13_status_ptr;
+      typedef std::shared_ptr< ::amc13::AMC13>  amc13_ptr;
+      typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
+
       class AMC13ManagerWeb;
       /*
       class AMC13ManagerListener :
@@ -56,8 +60,8 @@ namespace gem {
 
           virtual void actionPerformed(xdata::Event& event);
 
-          ::amc13::Status *getHTMLStatus()  const;
-          ::amc13::AMC13  *getAMC13Device() const { return p_amc13; };
+          amc13_status_ptr getHTMLStatus()  const;
+          amc13_ptr        getAMC13Device() const { return p_amc13; };
 
           void setDisplayLevel(xgi::Input *in, xgi::Output *out)
             throw (xgi::exception::Exception);
@@ -66,34 +70,28 @@ namespace gem {
             throw (xgi::exception::Exception);
 
           //state transitions
-          virtual void initializeAction() throw (gem::hw::amc13::exception::Exception);
-          virtual void configureAction()  throw (gem::hw::amc13::exception::Exception);
-          virtual void startAction()      throw (gem::hw::amc13::exception::Exception);
-          virtual void pauseAction()      throw (gem::hw::amc13::exception::Exception);
-          virtual void resumeAction()     throw (gem::hw::amc13::exception::Exception);
-          virtual void stopAction()       throw (gem::hw::amc13::exception::Exception);
-          virtual void haltAction()       throw (gem::hw::amc13::exception::Exception);
-          virtual void resetAction()      throw (gem::hw::amc13::exception::Exception);
+          virtual void initializeAction() ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void configureAction()  ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void startAction()      ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void pauseAction()      ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void resumeAction()     ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void stopAction()       ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void haltAction()       ; // throw (gem::hw::amc13::exception::Exception);
+          virtual void resetAction()      ; // throw (gem::hw::amc13::exception::Exception);
 
-          xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-          xoap::MessageReference enableTriggers(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
-          xoap::MessageReference disableTriggers(xoap::MessageReference mns)
-	    throw (xoap::exception::Exception);
+          xoap::MessageReference sendTriggerBurst(xoap::MessageReference mns);
+          xoap::MessageReference enableTriggers(xoap::MessageReference mns);
+          xoap::MessageReference disableTriggers(xoap::MessageReference mns);
 
-	  void endScanPoint() throw (xgi::exception::Exception);
+	  void endScanPoint();
 
-	  toolbox::task::Timer* p_timer;    // timer for general info space updates
 	  virtual void timeExpired(toolbox::task::TimerEvent& event);
 
-          //virtual void noAction()         throw (gem::hw::amc13::exception::Exception);
+          // virtual void noAction();
 
-          virtual void failAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception);
+          virtual void failAction(toolbox::Event::Reference e);
 
-          virtual void resetAction(toolbox::Event::Reference e)
-            throw (toolbox::fsm::exception::Exception);
+          virtual void resetAction(toolbox::Event::Reference e);
 
 	  class BGOInfo
 	  {
@@ -208,7 +206,9 @@ namespace gem {
         private:
           mutable gem::utils::Lock m_amc13Lock;
 
-          ::amc13::AMC13 *p_amc13;
+          amc13_ptr p_amc13;
+
+	  toolbox::task::Timer* p_timer;    // timer for general info space updates
 
           //paramters taken from hcal::DTCManager (the amc13 manager for hcal)
           xdata::Integer m_crateID, m_slot;

@@ -8,20 +8,13 @@ class AMCmanager:
   from gemlogger import GEMLogger
 
   def __init__(self):
-    self.gemlogger = GEMLogger("AMCmanager").gemlogger
+    self.connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
     pass
 
-  def connect(self,sn):
-    self.uTCAslot = 160+int(sn)
-    self.ipaddr= '192.168.0.%d'%(self.uTCAslot)
-    self.address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
-    self.uri = "chtcp-2.0://localhost:10203?target=%s:50001"%(self.ipaddr)
-    #consider all AMCs to be GLIBs
-    #if (int(sn) == 2):
-    #  self.uri = "ipbustcp-2.0://eagle34:70002"
-    msg = "Open new connection\n"
-    self.gemlogger.info(msg)
-    self.glib  = uhal.getDevice( "glib" , self.uri, self.address_table )
+  def connect(self,sn,shelf=1):
+    manager = uhal.ConnectionManager( self.connection_file )
+    print "Open new connection\n"
+    self.glib  = manager.getDevice( "gem.shelf%02d.glib%02d"%(shelf,int(sn)) )
     #check if glib is really connected
     fwv = getSystemFWRaw(self.glib)
     if fwv == 0x0:

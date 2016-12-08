@@ -6,6 +6,7 @@
  */
 
 #include "amc13/AMC13.hh"
+#include "amc13/Exception.hh"
 
 #include <gem/hw/amc13/AMC13Readout.h>
 #include <gem/utils/soap/GEMSOAPToolBox.h>
@@ -84,14 +85,22 @@ void gem::hw::amc13::AMC13Readout::initializeAction()
     //p_amc13 = new ::amc13::AMC13(connection, cardName+".T1", cardName+".T2");
     p_amc13 = std::make_shared< ::amc13::AMC13>(connection, cardName+".T1", cardName+".T2");
   } catch (uhal::exception::exception & e) {
-    ERROR("AMC13Readout::initializeAction failed, caught uhal::exception:" <<  e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+    std::stringstream msg;
+    msg << "AMC13Readout::initializeAction  failed, caught uhal::exception: "
+        << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,msg.str());
   } catch (std::exception& e) {
-    ERROR("AMC13Readout::initializeAction failed, caught std::exception:" << e.what() );
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create class: ")+e.what());
+    std::stringstream msg;
+    msg << "AMC13Readout::initializeAction  failed, caught std::exception: "
+        << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,msg.str());
   } catch (...) {
-    ERROR("AMC13Readout::initializeAction failed, caught ...");
-    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Unable to create AMC13 connection"));
+    std::stringstream msg;
+    msg << "AMC13Readout::initializeAction  failed (unknown exception)";
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,msg.str());
   }
   DEBUG("AMC13Readout::initializeAction connected");
 
@@ -156,7 +165,24 @@ int gem::hw::amc13::AMC13Readout::readout(unsigned int expected,
                                           unsigned int* eventNumbers,
                                           std::vector< ::toolbox::mem::Reference* >& data)
 {
-  return dumpData();
+  try {
+    return dumpData();
+  } catch (amc13Exception const& e) {
+    std::stringstream msg;
+    msg << "AMC13Readout::readout error " << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+  } catch (std::exception const& e) {
+    std::stringstream msg;
+    msg << "AMC13Readout::readout error" << e.what();
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+  } catch (...) {
+    std::stringstream msg;
+    msg << "AMC13Readout::readout error (unknown exception)";
+    ERROR(msg.str());
+    XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+  }
 }
 
 
@@ -174,17 +200,55 @@ int gem::hw::amc13::AMC13Readout::dumpData()
   DEBUG("File for output open");
   while (true) {
     DEBUG("Get number of events in the buffer");
-    int nevt = p_amc13->read( ::amc13::AMC13Simple::T1, "STATUS.MONITOR_BUFFER.UNREAD_BLOCKS");
+    int nevt = 0;
+    try {
+      nevt = p_amc13->read( ::amc13::AMC13Simple::T1, "STATUS.MONITOR_BUFFER.UNREAD_BLOCKS");
+    } catch (amc13Exception const& e) {
+      std::stringstream msg;
+      msg << "AMC13Readout::dumpData error " << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+    } catch (std::exception const& e) {
+      std::stringstream msg;
+      msg << "AMC13Readout::dumpData error" << e.what();
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+    } catch (...) {
+      std::stringstream msg;
+      msg << "AMC13Readout::dumpData error (unknown exception)";
+      ERROR(msg.str());
+      XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+    }
     DEBUG("Trying to read " << std::dec << nevt << " events" << std::endl);
     if (nevt) {
-      std::ofstream outf((m_outFileName.substr(0,m_outFileName.length()-4)+"_chunk_"+std::to_string(static_cast <long long> (cnt))+".dat").c_str(), std::ios_base::app | std::ios::binary );
+      std::stringstream chunkfilename;
+      chunkfilename << m_outFileName.substr(0,m_outFileName.length()-4)
+                    << "_chunk_" << cnt << ".dat";
+      std::ofstream outf(chunkfilename.str().c_str(),std::ios_base::app | std::ios::binary);
+
       for (int i = 0; i < nevt; i++) {
         if ( (i % 100) == 0)
           DEBUG("calling readEvent " << std::dec << i << "..." << std::endl);
-        pEvt = p_amc13->readEvent(siz, rc);
-
+        try {
+          pEvt = p_amc13->readEvent(siz, rc);
+        } catch (amc13Exception const& e) {
+          std::stringstream msg;
+          msg << "AMC13Readout::readout error " << e.what();
+          ERROR(msg.str());
+          XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+        } catch (std::exception const& e) {
+          std::stringstream msg;
+          msg << "AMC13Readout::readout error" << e.what();
+          ERROR(msg.str());
+          XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+        } catch (...) {
+          std::stringstream msg;
+          msg << "AMC13Readout::readout error (unknown exception)";
+          ERROR(msg.str());
+          XCEPT_RAISE(gem::hw::amc13::exception::ReadoutProblem,msg.str());
+        }
         if (rc == 0 && siz > 0 && pEvt != NULL) {
-          //fwrite(pEvt, sizeof(uint64_t), siz, fp);
+          // fwrite(pEvt, sizeof(uint64_t), siz, fp);
           outf.write((char*)pEvt, siz*sizeof(uint64_t));
           ++nwrote;
           ++nwrote_global;
@@ -197,7 +261,7 @@ int gem::hw::amc13::AMC13Readout::dumpData()
       }
       outf.close();
       m_duration = ( std::clock() - m_start ) / (double) CLOCKS_PER_SEC;
-      if ((nwrote_global/1000 > cnt) || ((cnt > 0) && (m_duration > 10))) {
+      if ((nwrote_global/10000 > cnt) || ((cnt > 0) && (m_duration > 30))) {
         cnt++;
         m_start = std::clock();
       }
@@ -208,7 +272,6 @@ int gem::hw::amc13::AMC13Readout::dumpData()
     }
   }
   DEBUG("Closing file" << std::endl);
-  //fclose(fp);
+  // fclose(fp);
   return nwrote;
 }
-
