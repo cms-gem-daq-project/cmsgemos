@@ -32,7 +32,8 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
-  INFO("HwOptoHybrid ctor done " << isHwConnected());
+  INFO("HwOptoHybrid ctor done (basenode "
+       << basenode.str() << ") " << isHwConnected());
 }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
@@ -47,7 +48,8 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
-  INFO("HwOptoHybrid ctor done " << isHwConnected());
+  INFO("HwOptoHybrid ctor done (basenode "
+       << basenode.str() << ") " << isHwConnected());
 }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
@@ -60,7 +62,8 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
-  INFO("HwOptoHybrid ctor done " << isHwConnected());
+  INFO("HwOptoHybrid ctor done (basenode "
+       << basenode.str() << ") " << isHwConnected());
 }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& glibDevice,
@@ -83,7 +86,8 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   std::stringstream basenode;
   basenode << "GLIB.OptoHybrid_" << (int)slot << ".OptoHybrid";
   setDeviceBaseNode(basenode.str());
-  INFO("HwOptoHybrid ctor done " << isHwConnected());
+  INFO("HwOptoHybrid ctor done (basenode "
+       << basenode.str() << ") " << isHwConnected());
 }
 
 gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
@@ -150,10 +154,12 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection");
 
-    if ((this->getFirmwareDate()).rfind("15") != std::string::npos ||
-        (this->getFirmwareDate()).rfind("16") != std::string::npos) {
+    if ((this->getFirmwareDateString()).rfind("15") != std::string::npos ||
+        (this->getFirmwareDateString()).rfind("16") != std::string::npos) {
       b_is_connected = true;
-      INFO("OptoHybrid present(0x" << std::hex << this->getFirmware() << std::dec << ")");
+      INFO("OptoHybrid present ("
+           << this->getFirmwareVersionString() << "/0x"
+           << std::hex << this->getFirmwareDate() << std::dec << ")");
       return true;
     } else {
       b_is_connected = false;
@@ -483,6 +489,16 @@ void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults(uint8_t  const& vt1,
   broadcastWrite("VThreshold1", vt1,     broadcastMask);
   broadcastWrite("VThreshold2", vt2,     broadcastMask);
   broadcastWrite("Latency",     latency, broadcastMask);
+}
+
+
+void gem::hw::optohybrid::HwOptoHybrid::setVFATsToDefaults(std::map<std::string, uint8_t> const& regvals,
+                                                           uint32_t const& broadcastMask)
+{
+  for (auto reg = regvals.begin(); reg != regvals.end(); ++reg) {
+    // check that reg->first is a valid VFAT register?
+    broadcastWrite(reg->first,   reg->second, broadcastMask);
+  }
 }
 
 

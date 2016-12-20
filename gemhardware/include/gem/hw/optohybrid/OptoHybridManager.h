@@ -242,6 +242,7 @@ namespace gem {
 	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
 
           std::map<int,std::set<int> > m_hwMapping;
+          std::map<std::string, uint8_t > m_vfatSettings;
         };  // class OptoHybridManager
 
     }  // namespace gem::hw::optohybrid
