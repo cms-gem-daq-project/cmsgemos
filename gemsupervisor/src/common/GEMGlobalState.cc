@@ -71,7 +71,8 @@ void gem::supervisor::GEMGlobalState::update()
     p_gemSupervisor->globalStateChanged(before, m_globalState);
 }
 
-void gem::supervisor::GEMGlobalState::startTimer() {
+void gem::supervisor::GEMGlobalState::startTimer()
+{
   if (!p_timer) {
     // p_timer = std::make_shared<toolbox::task::Timer>(toolbox::task::TimerFactory::getInstance()->createTimer("GEMGlobalStateTimer"));
     p_timer = toolbox::task::TimerFactory::getInstance()->createTimer("GEMGlobalStateTimer");
@@ -250,8 +251,26 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
   }
 }
 
+
+toolbox::fsm::State gem::supervisor::GEMGlobalState::compositeState(std::vector<xdaq::ApplicationDescriptor*> const& apps)
+{
+  toolbox::fsm::State compState = gem::base::STATE_NULL;
+  for (auto i = apps.begin(); i != apps.end(); ++i) {
+    toolbox::fsm::State appState = gem::base::STATE_NULL;
+    auto app = m_states.find(*i);
+    if (app != m_states.end())
+      appState = app->second.state;
+    if (appState == gem::base::STATE_UNINIT && compState == gem::base::STATE_COLD)
+      continue; // ignore this priority for the compositeState
+    if (getStatePriority(appState) < getStatePriority(compState))
+      compState = appState;
+  }
+  return compState;
+}
+
 // static functions
-std::string gem::supervisor::GEMGlobalState::getStateName(toolbox::fsm::State state) {
+std::string gem::supervisor::GEMGlobalState::getStateName(toolbox::fsm::State state)
+{
   switch (state) {
   case (gem::base::STATE_UNINIT):
     return "Uninitialized";

@@ -132,6 +132,8 @@ namespace gem {
          */
         void unforceGlobalState() { forceGlobalState(gem::base::STATE_NULL); }
 
+        toolbox::fsm::State compositeState(std::vector<xdaq::ApplicationDescriptor*> const& apps);
+
       protected:
         typedef std::map<xdaq::ApplicationDescriptor*, GEMApplicationState> ApplicationMap;
         typedef ApplicationMap::const_iterator app_state_const_iterator;

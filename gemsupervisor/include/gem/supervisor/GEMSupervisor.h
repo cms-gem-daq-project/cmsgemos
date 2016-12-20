@@ -127,6 +127,7 @@ namespace gem {
 
         mutable gem::utils::Lock m_deviceLock;
         std::vector<xdaq::ApplicationDescriptor*> v_supervisedApps;
+        // std::multimap<int, std::vector<xdaq::ApplicationDescriptor*, std::greater<int>> > m_orderedAppGroups;
         xdaq::ApplicationDescriptor* readoutApp;
 
         /**
@@ -135,6 +136,10 @@ namespace gem {
          */
 
 	void sendScanParameters(xdaq::ApplicationDescriptor* ad);
+
+        std::vector<std::vector<xdaq::ApplicationDescriptor*> > getInitializationOrder();
+        std::vector<std::vector<xdaq::ApplicationDescriptor*> > getEnableOrder();
+        std::vector<std::vector<xdaq::ApplicationDescriptor*> > getDisableOrder();
 
 	GEMGlobalState m_globalState;
 
