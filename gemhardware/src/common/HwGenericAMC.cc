@@ -510,22 +510,22 @@ bool gem::hw::HwGenericAMC::daqAlmostFull()
 
 bool gem::hw::HwGenericAMC::l1aFIFOIsEmpty()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_EMPTY");
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FIFO_IS_EMPTY");
 }
 
 bool gem::hw::HwGenericAMC::l1aFIFOIsAlmostFull()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_AFULL");
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FIFO_IS_NEAR_FULL");
 }
 
 bool gem::hw::HwGenericAMC::l1aFIFOIsFull()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FULL");
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FIFO_IS_FULL");
 }
 
 bool gem::hw::HwGenericAMC::l1aFIFOIsUnderflow()
 {
-  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_UFLOW");
+  return readReg(getDeviceBaseNode(), "DAQ.STATUS.L1A_FIFO_IS_UNDERFLOW");
 }
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkEventsSent()
