@@ -10,7 +10,8 @@ changelog: $(PackageListLoop)
 
 INSTALL_PATH = /opt/cmsgemos
 XDAQ_PATH = /opt/xdaq
-PackagePath  = $(BUILD_HOME)/$(Project)/$(LongPackage)
+ProjectPath  = $(BUILD_HOME)/$(Project)
+PackagePath  = $(ProjectPath)/$(LongPackage)
 PWD          = $(shell pwd)
 
 # copied from mfRPM_hcal.rules to use their directory manipulation
@@ -113,6 +114,10 @@ endif
 .PHONY: makerpm
 makerpm:
 	mkdir -p $(PackagePath)/rpm/RPMBUILD/{RPMS/{$(XDAQ_PLATFORM)},SPECS,BUILD,SOURCES,SRPMS}
+	echo BUILD_VERSION $(BUILD_VERSION)
+	echo PACKAGE_RELEASE $(PACKAGE_RELEASE)
+	echo BUILD_DISTRIBUTION $(BUILD_DISTRIBUTION)
+	echo BUILD_COMPILER $(BUILD_COMPILER)
 	tar -P -X $(XDAQ_ROOT)/config/src.exclude -zcf  $(PackagePath)/rpm/RPMBUILD/SOURCES/$(PackageName)-$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)-$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER).tgz $(PackagePath)
 	rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" $(PackagePath)/rpm/$(LongPackage).spec
 	find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
@@ -123,6 +128,8 @@ spec_update:
 	mkdir -p $(PackagePath)/rpm
 	if [ -e $(PackagePath)/spec.template ]; then \
 		cp $(PackagePath)/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
+	elif [ -e $(ProjectPath)/config/cmsgemos.spec.template ]; then \
+		cp $(ProjectPath)/config/cmsgemos.spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
 	else \
 		cp $(XDAQ_ROOT)/config/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
 	fi
