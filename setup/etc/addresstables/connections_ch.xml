@@ -30,21 +30,26 @@
   <connection id="gem.shelf01.amc13.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.170:50001"
               address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
 
+  <connection id="gem.shelf02.amc13.T1" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.103:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
+  <connection id="gem.shelf02.amc13.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.102:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
+
   <connection id="gem.shelf01.glib01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.161:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib01.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.161:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib01.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.161:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib02" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.162:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib02.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.162:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib02.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.162:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.ctp7-02" uri="ipbustcp-2.0://192.168.250.42:60002"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
@@ -75,78 +80,86 @@
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7.xml" />
 
   <connection id="gem.shelf01.glib03" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.163:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib03.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.163:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib03.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.163:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib04" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib04.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib04.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib05" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.165:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib05.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.165:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib05.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.165:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib06" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.166:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib06.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.166:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib06.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.166:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib07" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.167:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib07.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.167:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib07.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.167:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib08" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.168:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib08.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.168:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib08.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.168:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <connection id="gem.shelf01.glib08.optohybrid02" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.168:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <connection id="gem.shelf01.glib08.optohybrid03" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.168:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib09" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.169:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib09.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.169:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib09.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.169:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib10" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.170:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib10.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.170:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib10.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.170:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <connection id="gem.shelf01.glib10.optohybrid02" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.170:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <connection id="gem.shelf01.glib10.optohybrid03" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.170:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib10-new" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.170:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib11" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.171:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
   <connection id="gem.shelf01.glib11.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.171:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <connection id="gem.shelf01.glib11.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.171:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib12" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.172:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
@@ -157,5 +170,19 @@
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <connection id="gem.shelf01.glib" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.175:50001"
-	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_address_table_2_oh.xml" />
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+
+  <!-- Shelf 02 -->
+  <connection id="gem.shelf02.glib04" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
+  <connection id="gem.shelf02.glib04.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <connection id="gem.shelf02.glib04.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <connection id="gem.shelf02.glib04.optohybrid02" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <connection id="gem.shelf02.glib04.optohybrid03" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+
 </connections>
