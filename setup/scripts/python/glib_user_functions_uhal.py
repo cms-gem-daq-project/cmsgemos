@@ -110,7 +110,7 @@ def setTriggerSBits(isGLIB,device,gtx,source):
     if isGLIB:
         writeRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(gtx),source)
     else:
-        writeRegister(device,"GLIB.OptoHybrid_%d.TRIGGER.TDC.SBits"%(gtx),source)
+        writeRegister(device,"GEM_AMC.OH.OH%d.TRIGGER.TDC.SBits"%(gtx),source)
         sendResync(device,1,1)
     return
 
@@ -121,7 +121,7 @@ def getTriggerSBits(isGLIB,device,gtx):
     if isGLIB:
         return readRegister(device,"GLIB.GLIB_LINKS.LINK%d.TRIGGER.TDC_SBits"%(gtx))
     else:
-        return readRegister(device,"GLIB.OptoHybrid_%d.TRIGGER.TDC.SBits"%(gtx))
+        return readRegister(device,"GEM_AMC.OH.OH%d.TRIGGER.TDC.SBits"%(gtx))
 
 ### DAQ Link functionality
 def resetDAQLink(device):

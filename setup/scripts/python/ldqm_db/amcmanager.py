@@ -13,7 +13,8 @@ class AMCmanager:
 
   def connect(self,sn,shelf=1):
     manager = uhal.ConnectionManager( self.connection_file )
-    print "Open new connection\n"
+    msg = "Open new connection\n"
+    gemlogger.info(msg)
     self.glib  = manager.getDevice( "gem.shelf%02d.glib%02d"%(shelf,int(sn)) )
     #check if glib is really connected
     fwv = getSystemFWRaw(self.glib)
