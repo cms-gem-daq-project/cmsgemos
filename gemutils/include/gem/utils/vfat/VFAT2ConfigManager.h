@@ -60,6 +60,22 @@ namespace gem {
                      */
                     void parseCHheader(xercesc::DOMNode * pNode);
                     /**
+                     *   Parse Header Type in Global XML file
+                     */
+                    void parseGLheaderType(xercesc::DOMNode * pNode);
+                    /**
+                     *   Parse Header Type in Channel XML file
+                     */
+                    void parseCHheaderType(xercesc::DOMNode * pNode);
+                    /**
+                     *   Parse Header Run in Global XML file
+                     */
+                    void parseGLheaderRun(xercesc::DOMNode * pNode);
+                    /**
+                     *   Parse Header Run in Channel XML file
+                     */
+                    void parseCHheaderRun(xercesc::DOMNode * pNode);
+                    /**
                      *   Parse Dataset node in Global XML file
                      */
                     void parseGLdataset(xercesc::DOMNode * pNode);

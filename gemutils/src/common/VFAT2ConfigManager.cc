@@ -122,30 +122,36 @@ void gem::utils::VFAT2ConfigManager::parseXMLFiles()
   xercesc::XMLPlatformUtils::Terminate();
 }
 
-void gem::utils::VFAT2ConfigManager::parseGEMSystem(xercesc::DOMNode* pNode)
+void gem::utils::VFAT2ConfigManager::parseGLheader(xercesc::DOMNode* pNode)
 {
-  INFO("parseGEMSystem");
-  DEBUG("GEM system parsing");
+  INFO("parseGLheader");
+  DEBUG("GEM Global XML file header parsing");
   xercesc::DOMNode* n = pNode->getFirstChild();
-  DEBUG("GEM system parsing: get first child");
+  DEBUG("GEM Global XML file header parsing: get first child");
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-      if (strcmp("uTCACrate", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-        DEBUG("GEM system parsing: uTCA crate found");
+      if (strcmp("TYPE", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
+        DEBUG("GEM Global XML file header parsing: VFAT global header type found");
         if (countChildElementNodes(n)) {
-          DEBUG("GEM system parsing: uTCA crate is not empty");
-          gemCrateProperties* crate = new gemCrateProperties();
-          DEBUG("GEM system parsing: new crate properties object created");
-          crate->setDeviceId(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("CrateId"))->getNodeValue()));
-          p_gemSystem->addSubDeviceRef(crate);
-          p_gemSystem->addSubDeviceId(crate->getDeviceId());
-          DEBUG("GEM system parsing: new crate properties object added to crateRefs");
-          parseCrate(n);
+          DEBUG("GEM system parsing: VFAT global header type is not empty");
+          parseGLheaderType(n);
+        }
+      }
+      if (strcmp("RUN", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
+        DEBUG("GEM Global XML file header parsing: VFAT global header run found");
+        if (countChildElementNodes(n)) {
+          DEBUG("GEM system parsing: VFAT global header run is not empty");
+          parseGLheaderRun(n);
         }
       }
     }
     n = n->getNextSibling();
   }
+}
+
+void gem::utils::VFAT2ConfigManager::parseGLheaderType(xercesc::DOMNode* pNode)
+{
+  
 }
 
 void gem::utils::VFAT2ConfigManager::parseCrate(xercesc::DOMNode* pNode)
