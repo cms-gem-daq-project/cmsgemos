@@ -41,17 +41,16 @@ namespace gem {
 
                     ~VFAT2ConfigManager();
 
-                    void parseXMLFile();
+                    void parseXMLFiles();
 
-		    /**
-		     *   Set Path to Global XML file
-		     */
-		    void setGLfile(const std::string& glxmlFile);
-		    /**
-		     *   Set Path to Channel XML file
-		     */
-		    void setCHfile(const std::string& chxmlFile);
-
+                    /**
+                     *   Set Path to Global XML file
+                     */
+                    void setGLfile(const std::string& glxmlFile);
+                    /**
+                     *   Set Path to Channel XML file
+                     */
+                    void setCHfile(const std::string& chxmlFile);
                     /**
                      *   Parse Header in Global XML file
                      */

@@ -31,9 +31,9 @@ void gem::utils::VFAT2ConfigManager::setCHfile(const std::string& chxmlFile)
   m_chxmlFile = chxmlFile;
 }
 
-void gem::utils::VFAT2ConfigManager::parseXMLFile()
+void gem::utils::VFAT2ConfigManager::parseXMLFiles()
 {
-  INFO("Parsing XML file: " << m_xmlFile);
+  INFO("Parsing Global XML file: " << m_glxmlFile);
 
   //
   /// Initialize XML4C system
@@ -67,7 +67,7 @@ void gem::utils::VFAT2ConfigManager::parseXMLFile()
   //
   bool errorsOccured = false;
   try {
-    parser->parse(m_xmlFile.c_str());
+    parser->parse(m_glxmlFile.c_str());
   } catch (const xercesc::XMLException& e) {
     ERROR("An error occured during parsing" << std::endl
           << "   Message: "
@@ -101,9 +101,15 @@ void gem::utils::VFAT2ConfigManager::parseXMLFile()
       DEBUG("Loop on child nodes");
       if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
         DEBUG("Element node found");
-        if (strcmp("GEMSystem", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-          DEBUG("GEM system found");
-          parseGEMSystem(n);
+        if (strcmp("HEADER", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+        {
+          DEBUG("VFAT Global Header found");
+          parseGLheader(n);
+        }
+        if (strcmp("DATA_SET", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+        {
+          DEBUG("VFAT Global Dataset found");
+          parseGLdataset(n);
         }
       }
       n = n->getNextSibling();
