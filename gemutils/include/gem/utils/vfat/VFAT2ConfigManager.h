@@ -80,13 +80,13 @@ namespace gem {
                     void outputXML(xercesc::DOMDocument* pmyDOMDocument, std::string filePath);
 
                 private:
-                    static void addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat);
+                    static void addProperty(const char* key, const xercesc::DOMNode* n);
 
                     VFAT2ControlParams localParams;
 
                     std::string m_glxmlFile;
                     std::string m_chxmlFile;
-                    gemSystemProperties *p_gemSystem;
+                    //gemSystemProperties *p_gemSystem;
                     log4cplus::Logger m_gemLogger;
             };
         }

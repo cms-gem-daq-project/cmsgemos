@@ -8,11 +8,8 @@
 gem::utils::VFAT2ConfigManager::VFAT2ConfigManager(const std::string& glxmlFile,const std::string& chxmlFile) :
   m_glxmlFile(glxmlFile),
   m_chxmlFile(chxmlFile),
-  p_gemSystem(new gemSystemProperties()),
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:utils:GEMXMLParser")))
 {
-  // op_gemSystem = new gemSystemProperties();
-  p_gemSystem->setDeviceId("GEM");
   m_gemLogger.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
 }
 
@@ -212,43 +209,6 @@ void gem::utils::VFAT2ConfigManager::parseGLIB(xercesc::DOMNode* pNode)
   }
 }
 
-void gem::utils::VFAT2ConfigManager::parseOH(xercesc::DOMNode* pNode)
-{
-  DEBUG("GLIB parsing: start OH parsing");
-  xercesc::DOMNode* n = pNode->getFirstChild();
-  gemOHProperties* oh_ = p_gemSystem->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back();
-  DEBUG("OH parsing: retrieve OH device from the devices parent tree");
-  while (n) {
-    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-      addProperty("TrigSource",   n, oh_);
-      addProperty("TDC_SBits",    n, oh_);
-      addProperty("VFATClock",    n, oh_);
-      addProperty("VFATFallback", n, oh_);
-      addProperty("CDCEClock",    n, oh_);
-      addProperty("CDCEFallback", n, oh_);
-      addProperty("FPGAPLLLock",  n, oh_);
-      addProperty("CDCELock",     n, oh_);
-      addProperty("GTPLock",      n, oh_);
-      addProperty("FW",           n, oh_);
-      if (strcmp("VFATSettings", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-        DEBUG("OH parsing: VFATSettings tag found");
-        if (countChildElementNodes(n)) {
-          gemVFATProperties* vfat = new gemVFATProperties();
-          DEBUG("OH parsing: create new VFATproperties object");
-          vfat->setDeviceId(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("VFATId"))->getNodeValue()));
-          DEBUG("OH parsing: retrieve VFAT device ID");
-          p_gemSystem->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back()->addSubDeviceRef(vfat);
-          DEBUG("OH parsing: add new VFATproperties to the subdevices of the parent device");
-          p_gemSystem->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back()->addSubDeviceId(vfat->getDeviceId());
-          DEBUG("OH parsing: add VFAT device ID to the subdevices of the parent device");
-          parseVFAT2Settings(n);
-        }
-      }
-    }
-    n = n->getNextSibling();
-  }
-}
-
 void gem::utils::VFAT2ConfigManager::parseVFAT2Settings(xercesc::DOMNode* pNode)
 {
   DEBUG("OH parsing: start VFAT parsing");
@@ -288,23 +248,7 @@ void gem::utils::VFAT2ConfigManager::parseVFAT2Settings(xercesc::DOMNode* pNode)
   }
 }
 
-void gem::utils::VFAT2ConfigManager::addProperty(const char* key, const xercesc::DOMNode* n, gemGLIBProperties* glib)
-{
-  if (strcmp(key, xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-    std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-    glib->addDeviceProperty(key, value);
-  }
-}
-
-void gem::utils::VFAT2ConfigManager::addProperty(const char* key, const xercesc::DOMNode* n, gemOHProperties* oh)
-{
-  if (strcmp(key, xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-    std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-    oh->addDeviceProperty(key, value);
-  }
-}
-
-void gem::utils::VFAT2ConfigManager::addProperty(const char* key, const xercesc::DOMNode* n, gemVFATProperties* vfat)
+void gem::utils::VFAT2ConfigManager::addProperty(const char* key, const xercesc::DOMNode* n)
 {
   if (strcmp(key, xercesc::XMLString::transcode(n->getNodeName())) == 0) {
     std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
