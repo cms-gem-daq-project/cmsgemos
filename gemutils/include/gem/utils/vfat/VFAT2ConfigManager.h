@@ -41,7 +41,7 @@ namespace gem {
 
                     ~VFAT2ConfigManager();
 
-                    void parseXMLFile();
+                    void parseXMLFiles();
 
                     /**
                      *   Parse Header in Global XML file
