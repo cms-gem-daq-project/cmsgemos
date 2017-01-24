@@ -43,6 +43,15 @@ namespace gem {
 
                     void parseXMLFile();
 
+		    /**
+		     *   Set Path to Global XML file
+		     */
+		    void setGLfile(const std::string& glxmlFile);
+		    /**
+		     *   Set Path to Channel XML file
+		     */
+		    void setCHfile(const std::string& chxmlFile);
+
                     /**
                      *   Parse Header in Global XML file
                      */
