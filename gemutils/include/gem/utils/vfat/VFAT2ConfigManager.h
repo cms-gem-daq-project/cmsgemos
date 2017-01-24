@@ -98,6 +98,26 @@ namespace gem {
                 private:
                     static void addProperty(const char* key, const xercesc::DOMNode* n);
 
+                    struct Vheader
+                    {
+                        struct Type
+                        {
+                            std::string ETN;
+                            std::string name;
+                        };
+
+                        struct Run
+                        {
+                            std::string runType;
+                            //should keep putting all of the nodes from the xml here
+                        };
+
+                        Type type;
+                        Run run;
+                    };
+
+                    Vheader vhead;
+
                     VFAT2ControlParams localParams;
 
                     std::string m_glxmlFile;

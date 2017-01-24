@@ -122,22 +122,22 @@ void gem::utils::VFAT2ConfigManager::parseXMLFiles()
 void gem::utils::VFAT2ConfigManager::parseGLheader(xercesc::DOMNode* pNode)
 {
   INFO("parseGLheader");
-  DEBUG("GEM Global XML file header parsing");
+  DEBUG("VFAT Global XML file header parsing");
   xercesc::DOMNode* n = pNode->getFirstChild();
-  DEBUG("GEM Global XML file header parsing: get first child");
+  DEBUG("VFAT Global XML file header parsing: get first child");
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
       if (strcmp("TYPE", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-        DEBUG("GEM Global XML file header parsing: VFAT global header type found");
+        DEBUG("VFAT Global XML file header parsing: VFAT global header-type found");
         if (countChildElementNodes(n)) {
-          DEBUG("GEM system parsing: VFAT global header type is not empty");
+          DEBUG("VFAT global header-type is not empty");
           parseGLheaderType(n);
         }
       }
       if (strcmp("RUN", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-        DEBUG("GEM Global XML file header parsing: VFAT global header run found");
+        DEBUG("VFAT Global XML file header parsing: VFAT global header-run found");
         if (countChildElementNodes(n)) {
-          DEBUG("GEM system parsing: VFAT global header run is not empty");
+          DEBUG("VFAT global header-run is not empty");
           parseGLheaderRun(n);
         }
       }
@@ -148,7 +148,26 @@ void gem::utils::VFAT2ConfigManager::parseGLheader(xercesc::DOMNode* pNode)
 
 void gem::utils::VFAT2ConfigManager::parseGLheaderType(xercesc::DOMNode* pNode)
 {
-  
+  INFO("parseGLheaderType");
+  DEBUG("VFAT Global XML file header-type parsing");
+  xercesc::DOMNode* n = pNode->getFirstChild();
+  DEBUG("VFAT Global XML file header-type parsing: get first child");
+  while (n) {
+    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) 
+    {
+      if (strcmp("EXTENSION_TABLE_NAME", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("EXTENSION_TABLE_NAME found in Header-Type");
+        vhead.type.ETN = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+      if (strcmp("NAME", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("NAME found in Header-Type");
+        vhead.type.name = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+    }
+    n = n->getNextSibling();
+  }
 }
 
 void gem::utils::VFAT2ConfigManager::parseCrate(xercesc::DOMNode* pNode)
