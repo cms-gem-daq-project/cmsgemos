@@ -21,6 +21,16 @@ gem::utils::VFAT2ConfigManager::~VFAT2ConfigManager()
   delete p_gemSystem;
 }
 
+void gem::utils::VFAT2ConfigManager::setGLfile(const std::string& glxmlFile)
+{
+  m_glxmlFile = glxmlFile;
+}
+
+void gem::utils::VFAT2ConfigManager::setCHfile(const std::string& chxmlFile)
+{
+  m_chxmlFile = chxmlFile;
+}
+
 void gem::utils::VFAT2ConfigManager::parseXMLFiles()
 {
   INFO("Parsing Global XML file: " << m_glxmlFile);
