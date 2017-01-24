@@ -191,37 +191,6 @@ namespace gem {
         return os;
       };
 
-      class VFAT2Setttings
-      {
-
-      public:
-        void registerFields(xdata::Bag<VFAT2Settings> *vfatbag);
-        void readSettingsFromXML(std::string const& xmlSettings);
-        //void readSettingsFromDB(std::string const& dbTagName);
-        xdata::String vfatLabel_;
-        xdata::UnsignedShort control0_;
-        xdata::UnsignedShort control1_;
-        xdata::UnsignedShort control2_;
-        xdata::UnsignedShort control3_;
-
-        xdata::UnsignedShort latency_;
-
-        xdata::UnsignedShort iPreampIn_;
-        xdata::UnsignedShort iPreampFeed_;
-        xdata::UnsignedShort iPreampOut_;
-        xdata::UnsignedShort iShaper_;
-        xdata::UnsignedShort iShaperFeed_;
-        xdata::UnsignedShort iComp_;
-
-        xdata::UnsignedShort vCal_;
-        xdata::UnsignedShort vThresh1_;
-        xdata::UnsignedShort vThresh2_;
-        xdata::UnsignedShort calPhase_;
-
-        xdata::Vector<xdata::UnsignedShort> channelParams_;
-
-      };
-
     }  // namespace gem::hw::vfat
   }  // namespace gem::hw
 }  // namespace gem
