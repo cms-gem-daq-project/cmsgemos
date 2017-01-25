@@ -5,7 +5,7 @@
 ///////////////////////////////////////////////
 #include <gem/utils/vfat/VFAT2ConfigManager.h>
 
-gem::utils::VFAT2ConfigManager::VFAT2ConfigManager(const std::string& glxmlFile,const std::string& chxmlFile) :
+gem::utils::vfat::VFAT2ConfigManager::VFAT2ConfigManager(const std::string& glxmlFile,const std::string& chxmlFile) :
   m_glxmlFile(glxmlFile),
   m_chxmlFile(chxmlFile),
   m_gemLogger(log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("gem:utils:GEMXMLParser")))
@@ -13,22 +13,21 @@ gem::utils::VFAT2ConfigManager::VFAT2ConfigManager(const std::string& glxmlFile,
   m_gemLogger.setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
 }
 
-gem::utils::VFAT2ConfigManager::~VFAT2ConfigManager()
+gem::utils::vfat::VFAT2ConfigManager::~VFAT2ConfigManager()
 {
-  delete p_gemSystem;
 }
 
-void gem::utils::VFAT2ConfigManager::setGLfile(const std::string& glxmlFile)
+void gem::utils::vfat::VFAT2ConfigManager::setGLfile(const std::string& glxmlFile)
 {
   m_glxmlFile = glxmlFile;
 }
 
-void gem::utils::VFAT2ConfigManager::setCHfile(const std::string& chxmlFile)
+void gem::utils::vfat::VFAT2ConfigManager::setCHfile(const std::string& chxmlFile)
 {
   m_chxmlFile = chxmlFile;
 }
 
-void gem::utils::VFAT2ConfigManager::parseXMLFiles()
+void gem::utils::vfat::VFAT2ConfigManager::parseXMLFiles()
 {
   INFO("Parsing Global XML file: " << m_glxmlFile);
 
@@ -119,7 +118,7 @@ void gem::utils::VFAT2ConfigManager::parseXMLFiles()
   xercesc::XMLPlatformUtils::Terminate();
 }
 
-void gem::utils::VFAT2ConfigManager::parseGLheader(xercesc::DOMNode* pNode)
+void gem::utils::vfat::VFAT2ConfigManager::parseGLheader(xercesc::DOMNode* pNode)
 {
   INFO("parseGLheader");
   DEBUG("VFAT Global XML file header parsing");
@@ -146,7 +145,7 @@ void gem::utils::VFAT2ConfigManager::parseGLheader(xercesc::DOMNode* pNode)
   }
 }
 
-void gem::utils::VFAT2ConfigManager::parseGLheaderType(xercesc::DOMNode* pNode)
+void gem::utils::vfat::VFAT2ConfigManager::parseGLheaderType(xercesc::DOMNode* pNode)
 {
   INFO("parseGLheaderType");
   DEBUG("VFAT Global XML file header-type parsing");
@@ -170,32 +169,92 @@ void gem::utils::VFAT2ConfigManager::parseGLheaderType(xercesc::DOMNode* pNode)
   }
 }
 
-void gem::utils::VFAT2ConfigManager::parseCrate(xercesc::DOMNode* pNode)
+void gem::utils::vfat::VFAT2ConfigManager::parseGLheaderRun(xercesc::DOMNode* pNode)
 {
-  INFO("parseCrate");
-  DEBUG("GEM system parsing: starting parseCrate");
+  INFO("parseGLheaderRun");
+  DEBUG("VFAT Global XML file header-run parsing");
   xercesc::DOMNode* n = pNode->getFirstChild();
-  DEBUG("crate parsing: look for children");
+  DEBUG("VFAT Global XML file header-run parsing: get first child");
   while (n) {
-    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-      if (strcmp("MCH", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-        INFO("parseMCH");
+    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) 
+    {
+      if (strcmp("RUN_TYPE", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("RUN_TYPE found in Header-Run");
+        vhead.run.runType = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
       }
-      if (strcmp("AMC", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-        INFO("parseAMC");
+      if (strcmp("RUN_NUMBER", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("RUN_NUMBER found in Header-Run");
+        vhead.run.runNumber = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
       }
-      if (strcmp("GLIB", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-        INFO("parseGLIB");
-        DEBUG("crate parsing: GLIB found");
-        if (countChildElementNodes(n)) {
-          DEBUG("crate parsing: GLIB is not empty");
-          gemGLIBProperties* glib = new gemGLIBProperties();
-          DEBUG("crate parsing: create new GLIBproperties object");
-          glib->setDeviceId(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("GLIBId"))->getNodeValue()));
-          p_gemSystem->getSubDevicesRefs().back()->addSubDeviceRef(glib);
-          p_gemSystem->getSubDevicesRefs().back()->addSubDeviceId(glib->getDeviceId());
-          DEBUG("crate parsing: Add new GLIBproperties to the subdevices of parent crate");
-          parseGLIB(n);
+      if (strcmp("RUN_BEGIN_TIMESTAMP", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("RUN_BEGIN_TIMESTAMP found in Header-Run");
+        vhead.run.runBtime = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+      if (strcmp("RUN_END_TIMESTAMP", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("RUN_END_TIMESTAMP found in Header-Run");
+        vhead.run.runEtime = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+      if (strcmp("COMMENT_DESCRIPTION", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("COMMENT_DESCRIPTION found in Header-Run");
+        vhead.run.comment = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+      if (strcmp("LOCATION", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("LOCATION found in Header-Run");
+        vhead.run.location = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+      if (strcmp("INITIATED_BY_USER", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("INITIATED_BY_USER found in Header-Run");
+        vhead.run.user = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+    }
+    n = n->getNextSibling();
+  }
+}
+
+
+void gem::utils::vfat::VFAT2ConfigManager::parseGLdataset(xercesc::DOMNode* pNode)
+{
+  INFO("parseGLdataset");
+  DEBUG("VFAT Global XML file dataset parsing");
+  xercesc::DOMNode* n = pNode->getFirstChild();
+  DEBUG("VFAT Global XML file dataset parsing: get first child");
+  while (n) 
+  {
+    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) 
+    {
+      if (strcmp("COMMENT_DESCRIPTION", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("COMMENT_DESCRIPTION found in dataset");
+        metadata.comment = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+      if (strcmp("VERSION", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("VERSION found in dataset");
+        metadata.version = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+      if (strcmp("PART", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("VFAT Global XML file header parsing: VFAT global dataset-part found");
+        if (countChildElementNodes(n)) 
+        {
+          DEBUG("VFAT global dataset-part is not empty");
+          parseGLdatasetPart(n);
+        }
+      }
+      if (strcmp("DATA", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("VFAT Global XML file header parsing: VFAT global dataset-data found");
+        if (countChildElementNodes(n)) 
+        {
+          DEBUG("VFAT global dataset-part is not empty");
+          parseGLdata(n);
         }
       }
     }
@@ -203,96 +262,53 @@ void gem::utils::VFAT2ConfigManager::parseCrate(xercesc::DOMNode* pNode)
   }
 }
 
-
-void gem::utils::VFAT2ConfigManager::parseGLIB(xercesc::DOMNode* pNode)
+void gem::utils::vfat::VFAT2ConfigManager::parseGLdatasetPart(xercesc::DOMNode* pNode)
 {
-  DEBUG("crate parsing: start GLIB parsing");
+  INFO("parseGLdatasetPart");
+  DEBUG("VFAT Global XML file dataset-part parsing");
   xercesc::DOMNode* n = pNode->getFirstChild();
-  gemGLIBProperties* glib_ = p_gemSystem->getSubDevicesRefs().back()->getSubDevicesRefs().back();
-  DEBUG("GLIB parsing: retrieve GLIB device from the devices parent tree");
-  while (n) {
-    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-      addProperty("Station",   n, glib_);
-      addProperty("FW",        n, glib_);
-      addProperty("IP",        n, glib_);
-      addProperty("DEPTH",     n, glib_);
-      addProperty("TDC_SBits", n, glib_);
-      if (strcmp("OH", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-        DEBUG("GLIB parsing: OH found");
-        if (countChildElementNodes(n)) {
-          gemOHProperties* oh = new gemOHProperties();
-          DEBUG("GLIB parsing: create new OHproperties obect");
-          oh->setDeviceId(xercesc::XMLString::transcode(n->getAttributes()->getNamedItem(xercesc::XMLString::transcode("OHId"))->getNodeValue()));
-          p_gemSystem->getSubDevicesRefs().back()->getSubDevicesRefs().back()->addSubDeviceRef(oh);
-          p_gemSystem->getSubDevicesRefs().back()->getSubDevicesRefs().back()->addSubDeviceId(oh->getDeviceId());
-          DEBUG("GLIB parsing: Add new OHproperties to the subdevices of parent device");
-          parseOH(n);
-        }
+  DEBUG("VFAT Global XML file dataset-part parsing: get first child");
+  while (n) 
+  {
+    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) 
+    {
+      if (strcmp("KIND_OF_PART", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("KIND_OF_PART found in dataset-part");
+        metadata.partType = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+      }
+      if (strcmp("SERIAL_NUMBER", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("VERSION found in dataset-part");
+        metadata.serialN = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
       }
     }
     n = n->getNextSibling();
   }
 }
 
-void gem::utils::VFAT2ConfigManager::parseVFAT2Settings(xercesc::DOMNode* pNode)
+void gem::utils::vfat::VFAT2ConfigManager::parseGLdata(xercesc::DOMNode* pNode)//CAMHERE working point
 {
-  DEBUG("OH parsing: start VFAT parsing");
+  INFO("parseGLdata");
+  DEBUG("VFAT Global XML file dataset-data parsing");
   xercesc::DOMNode* n = pNode->getFirstChild();
-  gemVFATProperties* vfat_ = p_gemSystem->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back()->getSubDevicesRefs().back();
-  DEBUG("VFAT parsing: retrieve VFAT device from the devices parent tree");
-  while (n) {
-    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
-      addProperty("CalMode",       n, vfat_);
-      addProperty("CalPolarity",   n, vfat_);
-      addProperty("MSPolarity",    n, vfat_);
-      addProperty("TriggerMode",   n, vfat_);
-      addProperty("RunMode",       n, vfat_);
-      addProperty("ReHitCT",       n, vfat_);
-      addProperty("LVDSPowerSave", n, vfat_);
-      addProperty("ProbeMode",     n, vfat_);
-      addProperty("DACMode",       n, vfat_);
-      addProperty("DigInSel",      n, vfat_);
-      addProperty("MSPulseLength", n, vfat_);
-      addProperty("HitCountMode",  n, vfat_);
-      addProperty("DFTest",        n, vfat_);
-      addProperty("PbBG",          n, vfat_);
-      addProperty("TrimDACRange",  n, vfat_);
-      addProperty("IPreampIn",     n, vfat_);
-      addProperty("IPreampFeed",   n, vfat_);
-      addProperty("IPreampOut",    n, vfat_);
-      addProperty("IShaper",       n, vfat_);
-      addProperty("IShaperFeed",   n, vfat_);
-      addProperty("IComp",         n, vfat_);
-      addProperty("Latency",       n, vfat_);
-      addProperty("VCal",          n, vfat_);
-      addProperty("VThreshold1",   n, vfat_);
-      addProperty("VThreshold2",   n, vfat_);
-      addProperty("CalPhase",      n, vfat_);
+  DEBUG("VFAT Global XML file dataset-data parsing: get first child");
+  while (n) 
+  {
+    if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) 
+    {
+      if (strcmp("CR0_CALMODE", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      {
+        DEBUG("CR0_CALMODE found in dataset-data");
+        std::string strBuf = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        localParams.calibMode = gem::hw::vfat::StringToCalibrationMode.at(boost::to_upper_copy(strBuf));
+      }
     }
     n = n->getNextSibling();
   }
 }
 
-void gem::utils::VFAT2ConfigManager::addProperty(const char* key, const xercesc::DOMNode* n)
-{
-  if (strcmp(key, xercesc::XMLString::transcode(n->getNodeName())) == 0) {
-    std::string value = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-    vfat->addDeviceProperty(key, value);
-  }
-}
-
-int gem::utils::VFAT2ConfigManager::countChildElementNodes(xercesc::DOMNode* pNode) {
-  int count = 0;
-  if (pNode->hasChildNodes()) {
-    xercesc::DOMNode* n = pNode->getFirstChild();
-    while (n) {
-      if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) count++;
-      n = n->getNextSibling();
-    }
-  }
-  return count;
-}
-void gem::utils::VFAT2ConfigManager::outputXML(xercesc::DOMDocument* pmyDOMDocument, std::string filePath)
+void gem::utils::vfat::VFAT2ConfigManager::outputXML(xercesc::DOMDocument* pmyDOMDocument, std::string filePath)
 {
     // Return the first registered implementation that has the desired features. In this case, we are after a DOM implementation that has the LS feature... or Load/Save.
     xercesc::DOMImplementation* implementation = xercesc::DOMImplementationRegistry::getDOMImplementation(xercesc::XMLString::transcode("LS"));

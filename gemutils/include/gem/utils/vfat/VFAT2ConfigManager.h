@@ -28,6 +28,8 @@
 #include <gem/utils/gemComplexDeviceProperties.h>
 
 #include <gem/hw/vfat/VFAT2Settings.h>
+#include <gem/hw/vfat/VFAT2SettingsEnums.h>
+#include <gem/hw/vfat/VFAT2Strings2Enums.h>
 
 namespace gem {
     namespace utils {
@@ -36,7 +38,7 @@ namespace gem {
             {
 
                 public:
-                    VFAT2ConfigManager(VFAT2ControlParams inParams);
+                    //VFAT2ConfigManager(VFAT2ControlParams inParams);
                     VFAT2ConfigManager(const std::string& glxmlFile, const std::string& chxmlFile);
 
                     ~VFAT2ConfigManager();
@@ -80,6 +82,14 @@ namespace gem {
                      */
                     void parseGLdataset(xercesc::DOMNode * pNode);
                     /**
+                     *   Parse Dataset-Part node in Global XML file
+                     */
+                    void parseGLdatasetPart(xercesc::DOMNode * pNode);
+                    /**
+                     *   Parse part node in Global XML file
+                     */
+                    void parseGLpart(xercesc::DOMNode * pNode);
+                    /**
                      *   Parse Dataset node in Channel XML file
                      */
                     void parseCHdataset(xercesc::DOMNode * pNode);
@@ -96,8 +106,6 @@ namespace gem {
                     void outputXML(xercesc::DOMDocument* pmyDOMDocument, std::string filePath);
 
                 private:
-                    static void addProperty(const char* key, const xercesc::DOMNode* n);
-
                     struct Vheader
                     {
                         struct Type
@@ -109,16 +117,30 @@ namespace gem {
                         struct Run
                         {
                             std::string runType;
-                            //should keep putting all of the nodes from the xml here
+                            std::string runNumber;
+                            std::string runBtime;
+                            std::string runEtime;
+                            std::string comment;
+                            std::string location;
+                            std::string user;
                         };
 
                         Type type;
                         Run run;
                     };
 
-                    Vheader vhead;
+                    struct metaData
+                    {
+                        std::string comment;
+                        std::string version;
+                        std::string partType;
+                        std::string serialN;
+                    };
 
-                    VFAT2ControlParams localParams;
+                    Vheader vhead;
+                    metaData metadata;
+
+                    gem::hw::vfat::VFAT2ControlParams localParams;
 
                     std::string m_glxmlFile;
                     std::string m_chxmlFile;
