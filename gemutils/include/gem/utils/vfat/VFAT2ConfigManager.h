@@ -4,6 +4,7 @@
 #define GEM_UTILS_VFAT2CONFIGMANAGER_H
 
 #include <map>
+#include <stdlib.h>
 #include <string>
 
 #include <boost/algorithm/string.hpp>
@@ -43,6 +44,8 @@ namespace gem {
 
                     ~VFAT2ConfigManager();
 
+                    void parseGLXMLFile();
+                    void parseCHXMLFile();
                     void parseXMLFiles();
 
                     /**
@@ -85,6 +88,10 @@ namespace gem {
                      *   Parse Dataset-Part node in Global XML file
                      */
                     void parseGLdatasetPart(xercesc::DOMNode * pNode);
+                    /**
+                     *   Parse Dataset-Part node in Channel XML file
+                     */
+                    void parseCHdatasetPart(xercesc::DOMNode * pNode);
                     /**
                      *   Parse part node in Global XML file
                      */
@@ -137,8 +144,10 @@ namespace gem {
                         std::string serialN;
                     };
 
-                    Vheader vhead;
-                    metaData metadata;
+                    Vheader GLhead;
+                    Vheader CHhead;
+                    metaData glmetadata;
+                    metaData chmetadata;
 
                     gem::hw::vfat::VFAT2ControlParams localParams;
 

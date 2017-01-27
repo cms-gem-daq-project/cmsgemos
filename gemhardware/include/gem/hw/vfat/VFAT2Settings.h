@@ -18,6 +18,13 @@ namespace gem {
         bool    mask;
         bool    calPulse;
         bool    calPulse0;
+        void    buildFullReg()
+        {
+          fullChannelReg = 0;
+          fullChannelReg += fullChannelReg + (trimDAC << VFAT2ChannelBitShifts::TRIMDAC);
+          fullChannelReg += (mask << VFAT2ChannelBitShifts::ISMASKED);
+          fullChannelReg += (int(calPulse) << VFAT2ChannelBitShifts::CHANCAL);
+        }
 
       } VFAT2ChannelParams;
 
