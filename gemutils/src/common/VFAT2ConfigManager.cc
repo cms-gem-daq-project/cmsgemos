@@ -275,25 +275,15 @@ void gem::utils::vfat::VFAT2ConfigManager::parseGLheaderRun(xercesc::DOMNode* pN
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) 
     {
-      if (strcmp("RUN_TYPE", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      if (strcmp("RUN_NAME", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
-        DEBUG("RUN_TYPE found in Header-Run");
-        GLhead.run.runType = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-      }
-      if (strcmp("RUN_NUMBER", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
-      {
-        DEBUG("RUN_NUMBER found in Header-Run");
-        GLhead.run.runNumber = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        DEBUG("RUN_NAME found in Header-Run");
+        GLhead.run.configName = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
       }
       if (strcmp("RUN_BEGIN_TIMESTAMP", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
         DEBUG("RUN_BEGIN_TIMESTAMP found in Header-Run");
-        GLhead.run.runBtime = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-      }
-      if (strcmp("RUN_END_TIMESTAMP", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
-      {
-        DEBUG("RUN_END_TIMESTAMP found in Header-Run");
-        GLhead.run.runEtime = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        GLhead.run.buildTime = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
       }
       if (strcmp("COMMENT_DESCRIPTION", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
@@ -614,25 +604,15 @@ void gem::utils::vfat::VFAT2ConfigManager::parseCHheaderRun(xercesc::DOMNode* pN
   while (n) {
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) 
     {
-      if (strcmp("RUN_TYPE", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
+      if (strcmp("RUN_NAME", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
-        DEBUG("RUN_TYPE found in Header-Run");
-        CHhead.run.runType = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-      }
-      if (strcmp("RUN_NUMBER", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
-      {
-        DEBUG("RUN_NUMBER found in Header-Run");
-        CHhead.run.runNumber = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        DEBUG("RUN_NAME found in Header-Run");
+        CHhead.run.configName = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
       }
       if (strcmp("RUN_BEGIN_TIMESTAMP", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
         DEBUG("RUN_BEGIN_TIMESTAMP found in Header-Run");
-        CHhead.run.runBtime = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
-      }
-      if (strcmp("RUN_END_TIMESTAMP", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
-      {
-        DEBUG("RUN_END_TIMESTAMP found in Header-Run");
-        CHhead.run.runEtime = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        CHhead.run.buildTime = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
       }
       if (strcmp("COMMENT_DESCRIPTION", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {

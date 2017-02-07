@@ -123,10 +123,8 @@ namespace gem {
 
                         struct Run
                         {
-                            std::string runType;
-                            std::string runNumber;
-                            std::string runBtime;
-                            std::string runEtime;
+                            std::string configName;
+                            std::string buildTime;
                             std::string comment;
                             std::string location;
                             std::string user;
