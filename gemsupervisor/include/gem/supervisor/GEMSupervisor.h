@@ -43,7 +43,8 @@ namespace gem {
         /**
          *        * @brief
          *               */
-        void xmlTest(xgi::Input *in, xgi::Output *out);
+        //void xmlTest(xgi::Input *in, xgi::Output *out);
+        void Test(xgi::Input * in, xgi::Output * out);
 
 
       protected:

@@ -112,6 +112,8 @@ namespace gem {
                     int countChildElementNodes(xercesc::DOMNode * pNode);
                     void outputXML(xercesc::DOMDocument* pmyDOMDocument, std::string filePath);
 
+                    gem::hw::vfat::VFAT2ControlParams localParams;
+
                 private:
                     struct Vheader
                     {
@@ -146,8 +148,6 @@ namespace gem {
                     Vheader CHhead;
                     metaData glmetadata;
                     metaData chmetadata;
-
-                    gem::hw::vfat::VFAT2ControlParams localParams;
 
                     std::string m_glxmlFile;
                     std::string m_chxmlFile;

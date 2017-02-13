@@ -97,12 +97,14 @@ void gem::utils::vfat::VFAT2ConfigManager::parseGLXMLFile()
     this->outputXML(parser->getDocument(), "test.xml");
     xercesc::DOMNode* pDoc = parser->getDocument();
     DEBUG("Base node (getDocument) obtained");
-    xercesc::DOMNode* n = pDoc->getFirstChild();
+    xercesc::DOMNode* rNode = pDoc->getFirstChild();
+    xercesc::DOMNode* n = rNode->getFirstChild();
     DEBUG("First child node obtained");
     while (n) {
       DEBUG("Loop on child nodes");
       if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
         DEBUG("Element node found");
+        DEBUG(xercesc::XMLString::transcode(n->getNodeName()));
         if (strcmp("HEADER", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
         {
           DEBUG("VFAT Global Header found");
@@ -160,7 +162,7 @@ void gem::utils::vfat::VFAT2ConfigManager::parseCHXMLFile()
   //
   bool errorsOccured = false;
   try {
-    parser->parse(m_glxmlFile.c_str());
+    parser->parse(m_chxmlFile.c_str());
   } catch (const xercesc::XMLException& e) {
     ERROR("An error occured during parsing" << std::endl
           << "   Message: "
@@ -188,7 +190,8 @@ void gem::utils::vfat::VFAT2ConfigManager::parseCHXMLFile()
     this->outputXML(parser->getDocument(), "test.xml");
     xercesc::DOMNode* pDoc = parser->getDocument();
     DEBUG("Base node (getDocument) obtained");
-    xercesc::DOMNode* n = pDoc->getFirstChild();
+    xercesc::DOMNode* rNode = pDoc->getFirstChild();
+    xercesc::DOMNode* n = rNode->getFirstChild();
     DEBUG("First child node obtained");
     while (n) {
       DEBUG("Loop on child nodes");
@@ -202,7 +205,7 @@ void gem::utils::vfat::VFAT2ConfigManager::parseCHXMLFile()
         if (strcmp("DATA_SET", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
         {
           DEBUG("VFAT Channel Dataset found");
-          //parseCHdataset(n);
+          parseCHdataset(n);
         }
       }
       n = n->getNextSibling();
@@ -225,17 +228,11 @@ void gem::utils::vfat::VFAT2ConfigManager::parseGLheader(xercesc::DOMNode* pNode
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
       if (strcmp("TYPE", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
         DEBUG("VFAT Global XML file header parsing: VFAT global header-type found");
-        if (countChildElementNodes(n)) {
-          DEBUG("VFAT global header-type is not empty");
-          parseGLheaderType(n);
-        }
+        parseGLheaderType(n);
       }
       if (strcmp("RUN", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
         DEBUG("VFAT Global XML file header parsing: VFAT global header-run found");
-        if (countChildElementNodes(n)) {
-          DEBUG("VFAT global header-run is not empty");
-          parseGLheaderRun(n);
-        }
+        parseGLheaderRun(n);
       }
     }
     n = n->getNextSibling();
@@ -328,20 +325,12 @@ void gem::utils::vfat::VFAT2ConfigManager::parseGLdataset(xercesc::DOMNode* pNod
       if (strcmp("PART", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
         DEBUG("VFAT Global XML file header parsing: VFAT global dataset-part found");
-        if (countChildElementNodes(n)) 
-        {
-          DEBUG("VFAT global dataset-part is not empty");
-          parseGLdatasetPart(n);
-        }
+        parseGLdatasetPart(n);
       }
       if (strcmp("DATA", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
         DEBUG("VFAT Global XML file header parsing: VFAT global dataset-data found");
-        if (countChildElementNodes(n)) 
-        {
-          DEBUG("VFAT global dataset-part is not empty");
-          parseGLdata(n);
-        }
+        parseGLdata(n);
       }
     }
     n = n->getNextSibling();
@@ -554,17 +543,11 @@ void gem::utils::vfat::VFAT2ConfigManager::parseCHheader(xercesc::DOMNode* pNode
     if (n->getNodeType() == xercesc::DOMNode::ELEMENT_NODE) {
       if (strcmp("TYPE", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
         DEBUG("VFAT Channel XML file header parsing: VFAT channel header-type found");
-        if (countChildElementNodes(n)) {
-          DEBUG("VFAT channel header-type is not empty");
-          parseCHheaderType(n);
-        }
+        parseCHheaderType(n);
       }
       if (strcmp("RUN", xercesc::XMLString::transcode(n->getNodeName())) == 0) {
         DEBUG("VFAT Channel XML file header parsing: VFAT channel header-run found");
-        if (countChildElementNodes(n)) {
-          DEBUG("VFAT channel header-run is not empty");
-          parseCHheaderRun(n);
-        }
+        parseCHheaderRun(n);
       }
     }
     n = n->getNextSibling();
@@ -656,21 +639,13 @@ void gem::utils::vfat::VFAT2ConfigManager::parseCHdataset(xercesc::DOMNode* pNod
       }
       if (strcmp("PART", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
-        DEBUG("VFAT Global XML file header parsing: VFAT global dataset-part found");
-        if (countChildElementNodes(n)) 
-        {
-          DEBUG("VFAT global dataset-part is not empty");
-          parseCHdatasetPart(n);
-        }
+        DEBUG("VFAT Channel XML file header parsing: VFAT channel dataset-part found");
+        parseCHdatasetPart(n);
       }
       if (strcmp("DATA", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
       {
-        DEBUG("VFAT Global XML file header parsing: VFAT global dataset-data found");
-        if (countChildElementNodes(n)) 
-        {
-          DEBUG("VFAT global dataset-part is not empty");
-          parseCHdata(n);
-        }
+        DEBUG("VFAT Channel XML file header parsing: VFAT channel dataset-data found");
+        parseCHdata(n);
       }
     }
     n = n->getNextSibling();
@@ -738,6 +713,7 @@ void gem::utils::vfat::VFAT2ConfigManager::parseCHdata(xercesc::DOMNode* pNode)
       {
         DEBUG("CHAN_TRIMDAC_VAL found in dataset-data");
         std::string strBuf = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+        DEBUG(strBuf);
         CHtrim = std::atoi(strBuf.c_str());
       }
     }
@@ -750,6 +726,9 @@ void gem::utils::vfat::VFAT2ConfigManager::parseCHdata(xercesc::DOMNode* pNode)
   }
   else
   {
+    std::stringstream msg;
+    msg << "Loading data for Channel " << CHN << "  trim is " << CHtrim;
+    DEBUG(msg.str());
     localParams.channels[CHN-1].calPulse = bool(CHcal);
     localParams.channels[CHN-1].mask = bool(CHmask);
     localParams.channels[CHN-1].trimDAC = CHtrim;
