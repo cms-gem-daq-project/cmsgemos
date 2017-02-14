@@ -5,9 +5,9 @@
 #include "gem/hw/vfat/VFAT2Enums2Strings.h"
 #include "gem/hw/vfat/VFAT2Strings2Enums.h"
 
-#include "xdata/UnsignedShort.h"
-#include "xdata/Vector.h"
-#include "xdata/Bag.h"
+//#include "xdata/UnsignedShort.h"
+//#include "xdata/Vector.h"
+//#include "xdata/Bag.h"
 
 namespace gem {
   namespace hw {
@@ -18,6 +18,13 @@ namespace gem {
         bool    mask;
         bool    calPulse;
         bool    calPulse0;
+        void    buildFullReg()
+        {
+          fullChannelReg = 0;
+          fullChannelReg += fullChannelReg + (trimDAC << VFAT2ChannelBitShifts::TRIMDAC);
+          fullChannelReg += (mask << VFAT2ChannelBitShifts::ISMASKED);
+          fullChannelReg += (int(calPulse) << VFAT2ChannelBitShifts::CHANCAL);
+        }
 
       } VFAT2ChannelParams;
 

@@ -49,3 +49,14 @@ function startUpdate( jsonurl )
     var interval;
     interval = setInterval( "sendrequest( \"" + jsonurl + "\" )" , 5000 );
 };
+
+function xmlTestCommand( command , url )
+{
+    var requestURL = url+"/"+command;
+    var options = {
+        headers: {},
+        url: requestURL,
+        data: null
+    };
+    xdaqAJAX(options,null);
+};

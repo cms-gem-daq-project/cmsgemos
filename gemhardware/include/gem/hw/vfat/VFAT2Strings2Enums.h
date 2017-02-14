@@ -114,10 +114,13 @@ namespace gem {
 
       const stringToLVDSPS StringToLVDSPowerSave = boost::assign::map_list_of
         ("OFF" , VFAT2Settings::LVDSPowerSave::ENABLEALL ) //ENABLEALL
-        ("ON"  , VFAT2Settings::LVDSPowerSave::POWERSAVE );//POWERSAVE
+        ("ON"  , VFAT2Settings::LVDSPowerSave::POWERSAVE ) //POWERSAVE
+        ("ENABLEALL" , VFAT2Settings::LVDSPowerSave::ENABLEALL ) //ENABLEALL
+        ("POWERSAVE"  , VFAT2Settings::LVDSPowerSave::POWERSAVE );//POWERSAVE
 
       const stringToDACMode StringToDACMode = boost::assign::map_list_of
         ("OFF"         , VFAT2Settings::DACMode::NORMAL      )//NORMAL
+        ("NORMAL"      , VFAT2Settings::DACMode::NORMAL      )//NORMAL
         ("IPREAMPIN"   , VFAT2Settings::DACMode::IPREAMPIN   )
         ("IPREAMPFEED" , VFAT2Settings::DACMode::IPREAMPFEED )
         ("IPREAMPOUT"  , VFAT2Settings::DACMode::IPREAMPOUT  )
@@ -136,15 +139,16 @@ namespace gem {
         ("SPARE4"   , VFAT2Settings::DACMode::SPARE4   );
 
       const stringToHitCountMode StringToHitCountMode = boost::assign::map_list_of
-        ("FASTOR" , VFAT2Settings::HitCountMode::FASTOR128 ) //FASTOR128
-        ("S1"     , VFAT2Settings::HitCountMode::COUNTS1   ) //COUNTS1
-        ("S2"     , VFAT2Settings::HitCountMode::COUNTS2   ) //COUNTS2
-        ("S3"     , VFAT2Settings::HitCountMode::COUNTS3   ) //COUNTS3
-        ("S4"     , VFAT2Settings::HitCountMode::COUNTS4   ) //COUNTS4
-        ("S5"     , VFAT2Settings::HitCountMode::COUNTS5   ) //COUNTS5
-        ("S6"     , VFAT2Settings::HitCountMode::COUNTS6   ) //COUNTS6
-        ("S7"     , VFAT2Settings::HitCountMode::COUNTS7   ) //COUNTS7
-        ("S8"     , VFAT2Settings::HitCountMode::COUNTS8   );//COUNTS8
+        ("FASTOR"    , VFAT2Settings::HitCountMode::FASTOR128 ) //FASTOR128
+        ("FASTOR128" , VFAT2Settings::HitCountMode::FASTOR128 ) //FASTOR128
+        ("S1"        , VFAT2Settings::HitCountMode::COUNTS1   ) //COUNTS1
+        ("S2"        , VFAT2Settings::HitCountMode::COUNTS2   ) //COUNTS2
+        ("S3"        , VFAT2Settings::HitCountMode::COUNTS3   ) //COUNTS3
+        ("S4"        , VFAT2Settings::HitCountMode::COUNTS4   ) //COUNTS4
+        ("S5"        , VFAT2Settings::HitCountMode::COUNTS5   ) //COUNTS5
+        ("S6"        , VFAT2Settings::HitCountMode::COUNTS6   ) //COUNTS6
+        ("S7"        , VFAT2Settings::HitCountMode::COUNTS7   ) //COUNTS7
+        ("S8"        , VFAT2Settings::HitCountMode::COUNTS8   ); //COUNTS8
       ////may not need these, as we will never set them explicitly
       //("REDUNDANT0"   , VFAT2Settings::HitCountMode::REDUNDANT0   )
       //("REDUNDANT1"   , VFAT2Settings::HitCountMode::REDUNDANT1   )
@@ -155,6 +159,14 @@ namespace gem {
       //("REDUNDANT6"   , VFAT2Settings::HitCountMode::REDUNDANT6   );
 
       const stringToMSPulseLen StringToMSPulseLength = boost::assign::map_list_of
+        ("CLOCK1" , VFAT2Settings::MSPulseLength::CLOCK1 ) //CLOCK1
+        ("CLOCK2" , VFAT2Settings::MSPulseLength::CLOCK2 ) //CLOCK2
+        ("CLOCK3" , VFAT2Settings::MSPulseLength::CLOCK3 ) //CLOCK3
+        ("CLOCK4" , VFAT2Settings::MSPulseLength::CLOCK4 ) //CLOCK4
+        ("CLOCK5" , VFAT2Settings::MSPulseLength::CLOCK5 ) //CLOCK5
+        ("CLOCK6" , VFAT2Settings::MSPulseLength::CLOCK6 ) //CLOCK6
+        ("CLOCK7" , VFAT2Settings::MSPulseLength::CLOCK7 ) //CLOCK7
+        ("CLOCK8" , VFAT2Settings::MSPulseLength::CLOCK8 ) //CLOCK8
         ("1" , VFAT2Settings::MSPulseLength::CLOCK1 ) //CLOCK1
         ("2" , VFAT2Settings::MSPulseLength::CLOCK2 ) //CLOCK2
         ("3" , VFAT2Settings::MSPulseLength::CLOCK3 ) //CLOCK3
@@ -168,29 +180,40 @@ namespace gem {
         ("6.4MICROSEC" , VFAT2Settings::ReHitCT::CYCLE0 ) //CYCLE0
         ("1.6MILLISEC" , VFAT2Settings::ReHitCT::CYCLE1 ) //CYCLE1
         ("0.4SEC"      , VFAT2Settings::ReHitCT::CYCLE2 ) //CYCLE2
-        ("107SEC"      , VFAT2Settings::ReHitCT::CYCLE3 );//CYCLE3
+        ("107SEC"      , VFAT2Settings::ReHitCT::CYCLE3 ) //CYCLE3
+        ("CYCLE0"      , VFAT2Settings::ReHitCT::CYCLE0 ) //CYCLE0
+        ("CYCLE1"      , VFAT2Settings::ReHitCT::CYCLE1 ) //CYCLE1
+        ("CYCLE2"      , VFAT2Settings::ReHitCT::CYCLE2 ) //CYCLE2
+        ("CYCLE3"      , VFAT2Settings::ReHitCT::CYCLE3 );//CYCLE3
 
       const stringToDigInSel StringToDigInSel = boost::assign::map_list_of
+        ("ANALOG"  , VFAT2Settings::DigInSel::ANALOG  ) //ANALOG
+        ("DIGITAL" , VFAT2Settings::DigInSel::DIGITAL ) //DIGITAL
         ("ANIP"  , VFAT2Settings::DigInSel::ANALOG  ) //ANALOG
         ("DIGIP" , VFAT2Settings::DigInSel::DIGITAL );//DIGITAL
 
       const stringToTrimDACRange StringToTrimDACRange = boost::assign::map_list_of
-        ("0" , VFAT2Settings::TrimDACRange::DEFAULT ) //DEFAULT
-        ("1" , VFAT2Settings::TrimDACRange::VALUE1  ) //VALUE1
-        ("2" , VFAT2Settings::TrimDACRange::VALUE2  ) //VALUE2
-        ("3" , VFAT2Settings::TrimDACRange::VALUE3  ) //VALUE3
-        ("4" , VFAT2Settings::TrimDACRange::VALUE4  ) //VALUE4
-        ("5" , VFAT2Settings::TrimDACRange::VALUE5  ) //VALUE5
-        ("6" , VFAT2Settings::TrimDACRange::VALUE6  ) //VALUE6
-        ("7" , VFAT2Settings::TrimDACRange::VALUE7  );//VALUE7
+        ("DEFAULT" , VFAT2Settings::TrimDACRange::DEFAULT ) //DEFAULT
+        ("0"       , VFAT2Settings::TrimDACRange::DEFAULT ) //DEFAULT
+        ("1"       , VFAT2Settings::TrimDACRange::VALUE1  ) //VALUE1
+        ("2"       , VFAT2Settings::TrimDACRange::VALUE2  ) //VALUE2
+        ("3"       , VFAT2Settings::TrimDACRange::VALUE3  ) //VALUE3
+        ("4"       , VFAT2Settings::TrimDACRange::VALUE4  ) //VALUE4
+        ("5"       , VFAT2Settings::TrimDACRange::VALUE5  ) //VALUE5
+        ("6"       , VFAT2Settings::TrimDACRange::VALUE6  ) //VALUE6
+        ("7"       , VFAT2Settings::TrimDACRange::VALUE7  );//VALUE7
 
       const stringToPbBG StringToPbBG = boost::assign::map_list_of
-        ("OFF" , VFAT2Settings::PbBG::UNCONNECTED ) //UNCONNECTED
-        ("ON"  , VFAT2Settings::PbBG::CONNECTED   );//CONNECTED
+        ("UNCONNECTED" , VFAT2Settings::PbBG::UNCONNECTED ) //UNCONNECTED
+        ("CONNECTED"   , VFAT2Settings::PbBG::CONNECTED   ) //CONNECTED
+        ("OFF"         , VFAT2Settings::PbBG::UNCONNECTED ) //UNCONNECTED
+        ("ON"          , VFAT2Settings::PbBG::CONNECTED   );//CONNECTED
 
       const stringToDFTest StringToDFTestPattern = boost::assign::map_list_of
-        ("OFF" , VFAT2Settings::DFTestPattern::IDLE ) //IDLE
-        ("ON"  , VFAT2Settings::DFTestPattern::SEND );//SEND
+        ("IDLE" , VFAT2Settings::DFTestPattern::IDLE ) //IDLE
+        ("SEND" , VFAT2Settings::DFTestPattern::SEND ) //SEND
+        ("OFF"  , VFAT2Settings::DFTestPattern::IDLE ) //IDLE
+        ("ON"   , VFAT2Settings::DFTestPattern::SEND );//SEND
 
     }  // namespace gem::hw::vfat
   }  // namespace gem::hw

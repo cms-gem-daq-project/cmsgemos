@@ -19,10 +19,12 @@ Sources =version.cc
 Sources+=Lock.cc gemXMLparser.cc GEMRegisterUtils.cc
 Sources+=soap/GEMSOAPToolBox.cc
 Sources+=db/GEMDatabaseUtils.cc
+Sources+=VFAT2ConfigManager.cc
 
 DynamicLibrary=gemutils
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 
 # MySQL Config
 MySQLCFLAGS = $(shell mysql_config --cflags)

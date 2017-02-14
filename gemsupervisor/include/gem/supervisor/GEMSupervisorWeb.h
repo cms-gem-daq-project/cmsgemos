@@ -36,11 +36,17 @@ namespace gem {
         virtual void expertPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
+        virtual void xmlTestPage(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
+
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 
         virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
+
+        //virtual void xmlTest(xgi::Input *in, xgi::Output *out)
+        //  throw (xgi::exception::Exception);
 
         void displayManagedStateTable(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
