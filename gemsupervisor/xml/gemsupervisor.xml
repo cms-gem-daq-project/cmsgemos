@@ -2,32 +2,20 @@
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
-  <xc:Context url="http://gem904daq01:${CHANGEME}">
 
+  <xc:Context url="http://gem904daq01:${CHANGEME}">
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">8</AMCSlots>
+	<AMCSlots       xsi:type="xsd:string">4</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="9"> <!--  position must be slot-1  -->
-            <crateID  xsi:type="xsd:integer">1</crateID>
-            <slot     xsi:type="xsd:integer">10</slot>
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="3"> <!--  position must be slot-1  -->
+            <crateID  xsi:type="xsd:integer">2</crateID>
+            <slot     xsi:type="xsd:integer">4</slot>
             <present  xsi:type="xsd:boolean">true</present>
-            <!--CardName xsi:type="xsd:string">gem.shelf01.ctp7-02</CardName-->
-
             <sbitSource    xsi:type="xsd:integer">5</sbitSource>
           </GLIBInfo>
-          <!--
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="9">
-            <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">10</slot>
-            <present xsi:type="xsd:boolean">true</present>
-            <CardName xsi:type="xsd:string">gem.shelf01.glib10-new</CardName>
-
-            <sbitSource    xsi:type="xsd:integer">5</sbitSource>
-          </GLIBInfo>
-          -->
 	</AllGLIBsInfo>
       </properties>
     </xc:Application>
@@ -36,11 +24,43 @@
       <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
 		  xsi:type="soapenc:Struct">
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
-	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[24]">
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="14"> <!-- position must be (slot-1)*2+link -->
-            <crateID xsi:type="xsd:integer">1</crateID>
-            <slot    xsi:type="xsd:integer">8</slot>
+	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[96]"><!-- MAX_OH_PER_AMC(9) * MAX_AMC_PER_UTCA(12)-->
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="27"> <!-- position must be (slot-1)*MAX_OH_PER_AMC(9)+link -->
+            <crateID xsi:type="xsd:integer">2</crateID>
+            <slot    xsi:type="xsd:integer">4</slot>
             <link    xsi:type="xsd:integer">0</link>
+            <present xsi:type="xsd:boolean">true</present>
+
+            <triggerSource xsi:type="xsd:integer">0</triggerSource>
+
+            <SBitConfig xsi:type="soapenc:Struct">
+              <Mode       xsi:type="xsd:unsignedShort">1</Mode>
+              <Output0Src xsi:type="xsd:unsignedShort">0</Output0Src>
+              <Output1Src xsi:type="xsd:unsignedShort">1</Output1Src>
+              <Output2Src xsi:type="xsd:unsignedShort">2</Output2Src>
+              <Output3Src xsi:type="xsd:unsignedShort">3</Output3Src>
+              <Output4Src xsi:type="xsd:unsignedShort">4</Output4Src>
+              <Output5Src xsi:type="xsd:unsignedShort">5</Output5Src>
+            </SBitConfig>
+
+            <CommonVFATSettings xsi:type="soapenc:Struct">
+              <ContReg0    xsi:type="xsd:unsignedShort"> 0x37</ContReg0   >
+              <ContReg2    xsi:type="xsd:unsignedShort"> 0x30</ContReg2   >
+              <IPreampIn   xsi:type="xsd:unsignedShort">  168</IPreampIn  >
+              <IPreampFeed xsi:type="xsd:unsignedShort">   80</IPreampFeed>
+              <IPreampOut  xsi:type="xsd:unsignedShort">  150</IPreampOut >
+              <IShaper     xsi:type="xsd:unsignedShort">  150</IShaper    >
+              <IShaperFeed xsi:type="xsd:unsignedShort">  100</IShaperFeed>
+              <IComp       xsi:type="xsd:unsignedShort">   75</IComp      >
+              <Latency     xsi:type="xsd:unsignedShort">  159</Latency    >
+              <VThreshold1 xsi:type="xsd:unsignedShort">   35</VThreshold1>
+              <VThreshold2 xsi:type="xsd:unsignedShort">    0</VThreshold2>
+            </CommonVFATSettings>
+          </OptoHybridInfo>
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="28"> <!-- position must be (slot-1)*2+link -->
+            <crateID xsi:type="xsd:integer">2</crateID>
+            <slot    xsi:type="xsd:integer">4</slot>
+            <link    xsi:type="xsd:integer">1</link>
             <present xsi:type="xsd:boolean">true</present>
 
             <triggerSource xsi:type="xsd:integer">0</triggerSource>
@@ -78,9 +98,9 @@
         	  xsi:type="soapenc:Struct">
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
-	  <CardName           xsi:type="xsd:string">gem.shelf01.amc13</CardName>
-          <AMCInputEnableList xsi:type="xsd:string">8</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">0-7,9-15 </AMCIgnoreTTSList>
+	  <CardName           xsi:type="xsd:string">gem.shelf02.amc13</CardName>
+          <AMCInputEnableList xsi:type="xsd:string">4</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">0-3,5-15 </AMCIgnoreTTSList>
 
           <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
@@ -93,10 +113,10 @@
 	  <!-- EXTERNAL TRIGGERS (TTC) = enableLocalL1A = false, LEMO false, EnableLocalTTC false -->
 
           <LocalTriggerConfig xsi:type="soapenc:Struct">
-            <EnableLocalL1A         xsi:type="xsd:boolean">false</EnableLocalL1A>
+            <EnableLocalL1A         xsi:type="xsd:boolean">true</EnableLocalL1A>
 	    <EnableLEMO             xsi:type="xsd:boolean">false</EnableLEMO>
 
-            <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">15000</InternalPeriodicPeriod>
+            <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">1500</InternalPeriodicPeriod>
             <L1Aburst               xsi:type="xsd:unsignedInt">1</L1Aburst>
             <L1Amode                xsi:type="xsd:integer">2</L1Amode>
             <L1Arules               xsi:type="xsd:integer">0</L1Arules>
@@ -130,11 +150,11 @@
 		  xsi:type="soapenc:Struct">
         <ConnectionFile  xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
         <DeviceName      xsi:type="xsd:string">AMC13</DeviceName>
-        <CardName        xsi:type="xsd:string">gem.shelf01.amc13</CardName>
-        <crateID         xsi:type="xsd:integer">1</crateID>
+        <CardName        xsi:type="xsd:string">gem.shelf02.amc13</CardName>
+        <crateID         xsi:type="xsd:integer">2</crateID>
         <slot            xsi:type="xsd:integer">13</slot>
         <ReadoutSettings xsi:type="soapenc:Struct">
-          <runType        xsi:type="xsd:string">teststand</runType>
+          <runType        xsi:type="xsd:string">ThresholdScan</runType>
           <fileName       xsi:type="xsd:string">test</fileName>
           <outputType     xsi:type="xsd:string">BIN</outputType>
           <outputLocation xsi:type="xsd:string">/tmp/</outputLocation>
@@ -153,17 +173,17 @@
           <dbUser xsi:type="xsd:string">gemdaq</dbUser>
           <dbPass xsi:type="xsd:string">gemdaq</dbPass>
 
-          <setupTag xsi:type="xsd:string">teststand</setupTag>
+          <setupTag xsi:type="xsd:string">ThresholdScan</setupTag>
           <runPeriod xsi:type="xsd:string">2016T</runPeriod>
           <setupLocation xsi:type="xsd:string">CERN904</setupLocation>
         </DatabaseInfo>
 
         <ScanInfo xsi:type="soapenc:Struct">
-          <!-- <ScanType   xsi:type="xsd:unsignedInt">3</ScanType> -->
-          <!-- <ScanMin    xsi:type="xsd:unsignedInt">0</ScanMin> -->
-          <!-- <ScanMax    xsi:type="xsd:unsignedInt">30</ScanMax> -->
-          <!-- <StepSize   xsi:type="xsd:unsignedInt">5</StepSize> -->
-          <!-- <NTriggers  xsi:type="xsd:unsignedLong">1500</NTriggers> -->
+          <ScanType   xsi:type="xsd:unsignedInt">3</ScanType>
+          <ScanMin    xsi:type="xsd:unsignedInt">0</ScanMin>
+          <ScanMax    xsi:type="xsd:unsignedInt">101</ScanMax>
+          <StepSize   xsi:type="xsd:unsignedInt">1</StepSize>
+          <NTriggers  xsi:type="xsd:unsignedLong">10000</NTriggers>
         </ScanInfo>
 
 	<rcmsStateListener xsi:type="soapenc:Struct">

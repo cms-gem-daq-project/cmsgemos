@@ -35,7 +35,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
                     this->getApplicationContext())
 {
 
-  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "EndScanPoint",  XDAQ_NS_URI );
+  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "EndScanPoint",  XDAQ_NS_URI);
   // xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
   DEBUG("Creating the GEMSupervisorWeb interface");
@@ -208,7 +208,7 @@ void gem::supervisor::GEMSupervisor::init()
 // state transitions
 void gem::supervisor::GEMSupervisor::initializeAction()
 {
-  INFO("gem::supervisor::GEMSupervisor::initializeAction Initializing");
+  INFO("GEMSupervisor::initializeAction start");
 
   // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(gem::base::STATE_CONFIGURING)) {  // deal with possible race condition
   while (!(m_globalState.getStateName() == "Initial" && getCurrentState() == "Initializing")) {
@@ -276,6 +276,8 @@ void gem::supervisor::GEMSupervisor::initializeAction()
 
 void gem::supervisor::GEMSupervisor::configureAction()
 {
+  INFO("GEMSupervisor::configureAction start");
+
   while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Configuring") ||
            (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configuring"))) {
     INFO("GEMSupervisor::configureAction global state not in " << gem::base::STATE_HALTED
@@ -362,6 +364,8 @@ void gem::supervisor::GEMSupervisor::configureAction()
 
 void gem::supervisor::GEMSupervisor::startAction()
 {
+  INFO("GEMSupervisor::startAction start");
+
   while (!(m_globalState.getStateName() == "Configured" && getCurrentState() == "Starting")) {
     INFO("GEMSupervisor::startAction global state not in " << gem::base::STATE_CONFIGURED
 	 << " sleeping (" << m_globalState.getStateName() << ","
@@ -465,6 +469,8 @@ void gem::supervisor::GEMSupervisor::startAction()
 
 void gem::supervisor::GEMSupervisor::pauseAction()
 {
+  INFO("GEMSupervisor::pauseAction start");
+
   while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Pausing")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
 	 << " sleeping (" << m_globalState.getStateName() << ","
@@ -493,6 +499,8 @@ void gem::supervisor::GEMSupervisor::pauseAction()
 
 void gem::supervisor::GEMSupervisor::resumeAction()
 {
+  INFO("GEMSupervisor::resumeAction start");
+
   while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Resuming")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
 	 << " sleeping (" << m_globalState.getStateName() << ","
@@ -522,6 +530,8 @@ void gem::supervisor::GEMSupervisor::resumeAction()
 
 void gem::supervisor::GEMSupervisor::stopAction()
 {
+  INFO("GEMSupervisor::stopAction start");
+
   while (!((m_globalState.getStateName() == "Running" && getCurrentState() == "Stopping") ||
            (m_globalState.getStateName() == "Paused"  && getCurrentState() == "Stopping"))) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
@@ -552,6 +562,8 @@ void gem::supervisor::GEMSupervisor::stopAction()
 
 void gem::supervisor::GEMSupervisor::haltAction()
 {
+  INFO("GEMSupervisor::haltAction start");
+
   auto disableorder = getDisableOrder();
   for (auto i = disableorder.begin(); i != disableorder.end(); ++i) {
     for (auto j = i->begin(); j != i->end(); ++j) {
@@ -572,6 +584,8 @@ void gem::supervisor::GEMSupervisor::haltAction()
 
 void gem::supervisor::GEMSupervisor::resetAction()
 {
+  INFO("GEMSupervisor::resetAction start");
+
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
     if (((*i)->getClassName()).rfind("tcds::") != std::string::npos)
       continue;  // Don't send reset to TCDS
@@ -922,10 +936,13 @@ public:
 
 std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSupervisor::getInitializationOrder()
 {
-  std::multimap<int, xdaq::ApplicationDescriptor*> tool;
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i)
+  std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO("GEMSupervisor::getInitializationOrder: application "
+         << (*i)->getClassName() << " has priority "
+         << InitCompare::initPriority((*i)->getClassName()));
     tool.insert(std::make_pair(InitCompare::initPriority((*i)->getClassName()), *i));
-
+  }
   std::vector<std::vector<xdaq::ApplicationDescriptor*> > retval;
   int level = -1;
   for (auto j = tool.begin(); j != tool.end(); ++j) {
@@ -976,10 +993,13 @@ public:
 
 std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSupervisor::getEnableOrder()
 {
-  std::multimap<int, xdaq::ApplicationDescriptor*> tool;
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i)
+  std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO("GEMSupervisor::getEnableOrder: application "
+         << (*i)->getClassName() << " has priority "
+         << EnableCompare::enablePriority((*i)->getClassName()));
     tool.insert(std::make_pair(EnableCompare::enablePriority((*i)->getClassName()), *i));
-
+  }
   std::vector<std::vector<xdaq::ApplicationDescriptor*> > retval;
   int level = -1;
   for (auto j = tool.begin(); j != tool.end(); ++j) {
@@ -1043,10 +1063,14 @@ public:
 
 std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSupervisor::getDisableOrder()
 {
-  std::multimap<int, xdaq::ApplicationDescriptor*> tool;
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i)
-    tool.insert(std::make_pair(DisableCompare::disablePriority((*i)->getClassName()), *i));
+  std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO("GEMSupervisor::getDisableOrder: application "
+         << (*i)->getClassName() << " has priority "
+         << DisableCompare::disablePriority((*i)->getClassName()));
 
+    tool.insert(std::make_pair(DisableCompare::disablePriority((*i)->getClassName()), *i));
+  }
   std::vector<std::vector<xdaq::ApplicationDescriptor*> > retval;
   int level = -1;
   for (auto j = tool.begin(); j != tool.end(); ++j) {

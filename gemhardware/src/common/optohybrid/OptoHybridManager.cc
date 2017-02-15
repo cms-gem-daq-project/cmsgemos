@@ -362,7 +362,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       // hardware should be connected, can update ldqm_db for teststand/local runs
     }
   }
-  DEBUG("OptoHybridManager::initializeAction end");
+  INFO("OptoHybridManager::initializeAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::configureAction()
@@ -506,8 +506,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       }
     }
   }
-
-  DEBUG("OptoHybridManager::configureAction end");
+  INFO("OptoHybridManager::configureAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::startAction()
@@ -631,6 +630,7 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
     m_lastVT1 += m_stepSize.value_;
     INFO("OptoHybridManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
   }
+  INFO("OptoHybridManager::pauseAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resumeAction()
@@ -638,6 +638,7 @@ void gem::hw::optohybrid::OptoHybridManager::resumeAction()
 {
   // put all connected VFATs into run mode?
   usleep(100);
+  INFO("OptoHybridManager::resumeAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::stopAction()
@@ -703,8 +704,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
       }
     }
   }
-
-  DEBUG("OptoHybridManager::stopAction end");
+  INFO("OptoHybridManager::stopAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::haltAction()
@@ -712,6 +712,7 @@ void gem::hw::optohybrid::OptoHybridManager::haltAction()
 {
   // put all connected VFATs into sleep mode?
   usleep(100);
+  INFO("OptoHybridManager::haltAction end");
 }
 
 void gem::hw::optohybrid::OptoHybridManager::resetAction()
@@ -774,6 +775,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
       }
     } // end loop on link < MAX_OPTOHYBRIDS_PER_AMC
   } // end loop on slot < MAX_AMCS_PER_CRATE
+  INFO("OptoHybridManager::resetAction end");
 }
 
 /*

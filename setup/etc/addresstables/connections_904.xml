@@ -9,30 +9,9 @@
        Final Byte for Virtex/Kintex Chip (T1) = 255 - 2*SN[6:0].
        z is 1 for SN 0-127 and 2 for SN 128-255 and 3 for SN 256-383.
     -->
-  <connection id="gem.tamu.amc13.T1" uri="chtcp-2.0://gem904daq01:10203?target=192.168.1.89:50001"
-	      address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
-
-  <connection id="gem.tamu.amc13.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.1.88:50001"
-	      address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
-
-  <connection id="gem.amc13-sn7.T1" uri="chtcp-2.0://gem904daq01:10203?target=192.168.1.241:50001"
-              address_table="file://AMC13XG_T1.xml" />
-  <connection id="gem.amc13-sn7.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.1.240:50001"
-              address_table="file://AMC13XG_T2.xml" />
-  
-  <connection id="gem.amc13-sn170.T1" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.171:50001"
-              address_table="file://AMC13XG_T1.xml" />
-  <connection id="gem.amc13-sn170.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.170:50001"
-              address_table="file://AMC13XG_T2.xml" />
-  
   <connection id="gem.shelf01.amc13.T1" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.171:50001"
               address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
   <connection id="gem.shelf01.amc13.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.170:50001"
-              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
-
-  <connection id="gem.shelf02.amc13.T1" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.103:50001"
-              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
-  <connection id="gem.shelf02.amc13.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.102:50001"
               address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
 
   <connection id="gem.shelf01.glib01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.161:50001"
@@ -173,6 +152,11 @@
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
 
   <!-- Shelf 02 -->
+  <connection id="gem.shelf02.amc13.T1" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.103:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
+  <connection id="gem.shelf02.amc13.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.102:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
+
   <connection id="gem.shelf02.glib04" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.164:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
   <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->

@@ -8,6 +8,7 @@ from ldqm_db.models import *
 from ldqm_db.amcmanager import *
 from gemlogger import GEMLogger
 gemlogger = GEMLogger("query").gemlogger
+gemlogger.setLevel(GEMLogger.DEBUG)
 
 def configure_db(station="CERN904",setuptype="teststand",runperiod="2016T",shelf=1):
   amc_list=[1,2,3,4,5,6,7,8,9,10,11,12]
@@ -15,7 +16,8 @@ def configure_db(station="CERN904",setuptype="teststand",runperiod="2016T",shelf
   zlist = zip(amc_list, geb_list)
   a_list = []
   for amcN, gtx_list in zlist:
-    print "Trying to connect to AMC # %s\n" %(amcN)
+    msg = "Trying to connect to AMC # %s\n" %(amcN)
+    gemlogger.info(msg)
     # m_AMCmanager = AMCmanager(shelf,connection_file)
     m_AMCmanager = AMCmanager()
     g_list = []
@@ -31,19 +33,27 @@ def configure_db(station="CERN904",setuptype="teststand",runperiod="2016T",shelf
         vfats = VFAT.objects.all()
         # Check if the VFATs are in DB, add if not
         v_list = []
+        msg = chipids
+        gemlogger.debug(msg)
+        msg = chipids.keys()
+        gemlogger.debug(msg)
         for chip in chipids.keys():
+          msg = chip
+          gemlogger.debug(msg)
           t_chipid = "0x%04x"%(chipids[chip])
           if t_chipid in vfats.filter(Slot=chip).values_list("ChipID", flat=True):
             pass # ends if t_chipid
           else:
-            print "Adding VFAT(ChipID = %s, Slot = %d)"%(t_chipid,chip)
+            msg = "Adding VFAT(ChipID = %s, Slot = %d)"%(t_chipid,chip)
+            gemlogger.info(msg)
             v = VFAT(ChipID = t_chipid, Slot = chip)
             v.save()
             pass # ends else (from if t_chipid)
           v_list.append(VFAT.objects.get(ChipID = t_chipid, Slot = chip))
           pass # ends for chip in chipids
         t_chamberID = 'GTX-'+str(gtx) # use gtx link number now, read from HW later when available
-        print "t_chamberID = %s" %(t_chamberID)
+        msg = "t_chamberID = %s" %(t_chamberID)
+        gemlogger.info(msg)
         gebs = GEB.objects.filter(ChamberID=t_chamberID)
         t_flag = False
         for geb in gebs:
@@ -55,7 +65,8 @@ def configure_db(station="CERN904",setuptype="teststand",runperiod="2016T",shelf
         if t_flag:
           pass # ends if t_flag
         else:
-          print "Update DB"
+          msg = "Update DB"
+          gemlogger.info(msg)
           g = GEB(Type="Long",ChamberID = t_chamberID)
           g.save()
           for v in v_list:
@@ -73,20 +84,23 @@ def configure_db(station="CERN904",setuptype="teststand",runperiod="2016T",shelf
       if g_list == list(amc.gebs.all()):
         t_flag = True
         a_list.append(amc)
-        print "Adding to a_list : %s" %(amc.BoardID)
+        msg = "Adding to a_list : %s" %(amc.BoardID)
+        gemlogger.info(msg)
         pass # ends if g_list
       pass # ends for amc in amcs
     if t_flag:
       pass # ends if t_flag
     else:
-      print "Update DB"
+      msg = "Update DB"
+      gemlogger.info(msg)
       a = AMC(Type="GLIB",BoardID = t_boardID)
       a.save()
       for g in g_list:
         a.gebs.add(g)
         pass # ends for g in g_list
       a_list.append(a)
-      print "Adding to a_list : %s" %(a.BoardID)
+      msg = "Adding to a_list : %s" %(a.BoardID)
+      gemlogger.info(msg)
       pass # ends else (if t_flag)
     pass # ends for amcs in amcs
 
@@ -104,10 +118,12 @@ def configure_db(station="CERN904",setuptype="teststand",runperiod="2016T",shelf
   newrun = Run(Name=m_filename, Type = setuptype, Number = str(nrs), Date = t_date, Period = runperiod, Station = station)
   newrun.save()
   for a in a_list:
-    print "Adding AMC: %s" %(a.BoardID)
+    msg = "Adding AMC: %s" %(a.BoardID)
+    gemlogger.info(msg)
     newrun.amcs.add(a)
     for g in a.gebs.all():
-      print "Adding GEB: %s" %(g.ChamberID)
+      msg = "Adding GEB: %s" %(g.ChamberID)
+      gemlogger.info(msg)
       pass # ends for g in a.gebs.all
     pass # ends for a in a_list
   sleep(0.1) # what is this for?

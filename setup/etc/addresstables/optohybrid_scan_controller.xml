@@ -5,7 +5,7 @@
     <node id="START"  address="0x0"  mask="0x1"  permission="w"
           description="Start the specified scan routine
                        Will also empty the results FIFO from the previous scan"/>
-    <node id="MODE"  address="0x1"  mask="0x7"  permission="rw"
+    <node id="MODE"  address="0x1"  mask="0xf"  permission="rw"
           description="Select the scan mode (4 bits):
                        0: Threshold scan using trigger data
                        1: Threshold scan by channel

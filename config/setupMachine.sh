@@ -55,8 +55,8 @@ install_python27() {
     cd /data/bigdisk/sw/python2.7/
     # setup scripts
     wget https://bootstrap.pypa.io/ez_setup.py
-    wget https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tar.tbz2
-    tar xjf Python-2.7.12.tar.tbz2
+    wget https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tar.xz
+    tar xf Python-2.7.12.tar.xz
     cd Python-2.7.12
     ./configure --prefix=/usr/local --enable-unicode=ucs4 --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
     # clean up in case previously compiled and then compile

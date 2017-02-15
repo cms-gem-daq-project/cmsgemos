@@ -167,7 +167,7 @@ find ./ -type d -exec chmod 755 {} \;
 %{_prefix}/lib
 %{_prefix}/etc
 %{_prefix}/share/%{_package}/xml
-%{_xdaqprefix}/htdocs/%{_project}/%{_package}/images
+#%{_xdaqprefix}/htdocs/%{_project}/%{_package}/images
 %{_xdaqprefix}/htdocs/%{_project}/%{_package}/html
 #%{_xdaqprefix}/htdocs/%{_project}/%{_package}/xml
 

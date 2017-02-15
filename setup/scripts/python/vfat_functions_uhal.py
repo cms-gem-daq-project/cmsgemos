@@ -138,17 +138,17 @@ def biasVFAT(device, gtx, chip, enable=True, debug=False):
         "ContReg1":    0x00,
         "ContReg2":    0x30,
         "ContReg3":    0x00,
-        "Latency":      156,
-        "IPreampIn":    168,
-        "IPreampFeed":   80,
-        "IPreampOut":   150,
-        "IShaper":      150,
-        "IShaperFeed":  100,
-        "IComp":         90,
-        "VCal":           0,
-        # "VThreshold1":   25,
-        "VThreshold2": 0x00,
-        "CalPhase":    0x00
+        # "Latency":      156,
+        # "IPreampIn":    168,
+        # "IPreampFeed":   80,
+        # "IPreampOut":   150,
+        # "IShaper":      150,
+        # "IShaperFeed":  100,
+        # "IComp":         90,
+        # "VCal":           0,
+        # # "VThreshold1":   25,
+        # "VThreshold2": 0x00,
+        # "CalPhase":    0x00
         }
     if (enable):
         registers["ContReg0"] = 0x37
@@ -167,34 +167,36 @@ def biasVFAT(device, gtx, chip, enable=True, debug=False):
     writeVFATRegisters(device,gtx,chip,registers)
     return
 
-def biasAllVFATs(device, gtx, mask, enable=True, debug=False):
+def biasAllVFATs(device, gtx, mask=0x0, enable=True, debug=False):
     if (enable):
-        writeAllVFATs(device, gtx, "ContReg0",    0x37, mask)
+        writeAllVFATs(device, gtx, "ContReg0",    0x37, mask=mask)
     else:
         #what about leaving any other settings?
         #not now, want a reproducible routine
-        writeAllVFATs(device, gtx, "ContReg0",    0x36, mask)
+        writeAllVFATs(device, gtx, "ContReg0",    0x36, mask=mask)
         pass
-    writeAllVFATs(device, gtx, "ContReg1",    0x00, mask)
-    writeAllVFATs(device, gtx, "ContReg2",    0x30, mask)
-    writeAllVFATs(device, gtx, "ContReg3",    0x00, mask)
-    writeAllVFATs(device, gtx, "Latency",      156, mask)
-    writeAllVFATs(device, gtx, "IPreampIn",    168, mask)
-    writeAllVFATs(device, gtx, "IPreampFeed",   80, mask)
-    writeAllVFATs(device, gtx, "IPreampOut",   150, mask)
-    writeAllVFATs(device, gtx, "IShaper",      150, mask)
-    writeAllVFATs(device, gtx, "IShaperFeed",  100, mask)
-    writeAllVFATs(device, gtx, "IComp",         90, mask)
-    writeAllVFATs(device, gtx, "VCal",           0, mask)
-    # writeAllVFATs(device, gtx, "VThreshold1",   25, mask)
-    writeAllVFATs(device, gtx, "VThreshold2", 0x00, mask)
-    writeAllVFATs(device, gtx, "CalPhase",    0x00, mask)
+    writeAllVFATs(device, gtx, "ContReg1",    0x00, mask=mask)
+    writeAllVFATs(device, gtx, "ContReg2",    0x30, mask=mask)
+    writeAllVFATs(device, gtx, "ContReg3",    0x00, mask=mask)
+    writeAllVFATs(device, gtx, "Latency",      156, mask=mask)
+    writeAllVFATs(device, gtx, "IPreampIn",    168, mask=mask)
+    writeAllVFATs(device, gtx, "IPreampFeed",   80, mask=mask)
+    writeAllVFATs(device, gtx, "IPreampOut",   150, mask=mask)
+    writeAllVFATs(device, gtx, "IShaper",      150, mask=mask)
+    writeAllVFATs(device, gtx, "IShaperFeed",  100, mask=mask)
+    writeAllVFATs(device, gtx, "IComp",         90, mask=mask)
+    writeAllVFATs(device, gtx, "VCal",           0, mask=mask)
+    # writeAllVFATs(device, gtx, "VThreshold1",   25, mask=mask)
+    writeAllVFATs(device, gtx, "VThreshold2", 0x00, mask=mask)
+    writeAllVFATs(device, gtx, "CalPhase",    0x00, mask=mask)
 
+    if debug:
+        print "biased VFATs, zeroing channel registers"
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
         #mask no channels, as this seems to affect the output data packets, not just the triggers
         # disable cal pulses to all channels
-        writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan+1),0x00, mask)
+        writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan+1),0x00, mask=mask,debug=debug)
     return
 
 def getChipID(device, gtx, chip, debug=False):
