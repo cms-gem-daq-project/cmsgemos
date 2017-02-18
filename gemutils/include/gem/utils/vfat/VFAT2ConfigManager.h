@@ -32,6 +32,8 @@
 #include <gem/hw/vfat/VFAT2SettingsEnums.h>
 #include <gem/hw/vfat/VFAT2Strings2Enums.h>
 
+XERCES_CPP_NAMESPACE_USE
+
 namespace gem {
     namespace utils {
         namespace vfat {
@@ -47,6 +49,10 @@ namespace gem {
                     void parseGLXMLFile();
                     void parseCHXMLFile();
                     void parseXMLFiles();
+
+                    void writeGLXMLFile();
+                    void writeCHXMLFile();
+                    void writeXMLFiles();
 
                     /**
                      *   Set Path to Global XML file

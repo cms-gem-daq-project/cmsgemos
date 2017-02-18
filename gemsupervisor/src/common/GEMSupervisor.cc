@@ -514,12 +514,14 @@ void gem::supervisor::GEMSupervisor::resetAction()
 
 void gem::supervisor::GEMSupervisor::Test(xgi::Input * in, xgi::Output * out)
 {
-  INFO("GEMSupervisor::Test running Cameron's test code");
-  std::string glFilename = "/afs/cern.ch/user/b/bravo/work/gemcsc/sw/scratch/ForJared/GEM_VFAT2_Configurations_Sample.xml";
-  std::string chFilename = "/afs/cern.ch/user/b/bravo/work/gemcsc/sw/scratch/ForJared/DAQ_VFAT_CHAN_Settings_Sample.xml";
+  INFO("GEMSupervisor::Test running CAM's test code");
+  std::string glFilename = "/afs/cern.ch/user/b/bravo/public/GEM_VFAT2_Configurations_Sample.xml";
+  std::string chFilename = "/afs/cern.ch/user/b/bravo/public/DAQ_VFAT_CHAN_Settings_Sample.xml";
   gem::utils::vfat::VFAT2ConfigManager vfatMan(glFilename,chFilename);
   vfatMan.parseXMLFiles();
   INFO("Parsed the files");
+  vfatMan.writeXMLFiles();
+  INFO("Wrote the files");
   std::stringstream msg;
   msg << "iComp: " << int(vfatMan.localParams.iComp);
   INFO(msg.str());
