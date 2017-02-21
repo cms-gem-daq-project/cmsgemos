@@ -17,7 +17,7 @@ parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="slot in uTCA crate", metavar="slot", default=10)
 parser.add_option("-g", "--gtx", type="int", dest="gtx",
-		  help="GTX on the GLIB", metavar="gtx", default=0)
+		  help="GTX on the AMC", metavar="gtx", default=0)
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
 		  help="print extra debugging information", metavar="debug")
 parser.add_option("-z", "--sleep", action="store_true", dest="sleepAll",
@@ -53,7 +53,7 @@ gemlogger.debug(msg)
 connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
 manager         = uhal.ConnectionManager(connection_file )
 
-amc  = manager.getDevice( "gem.shelf%02d.glib%02d"%(options.shelf,options.slot) )
+amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
 
 ########################################
 # IP address
