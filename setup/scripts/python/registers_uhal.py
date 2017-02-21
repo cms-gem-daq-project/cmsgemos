@@ -60,6 +60,9 @@ def readRegisterList(device, registers, debug=False):
     """
     global gRetries
     nRetries = 0
+    if debug:
+        print registers
+        pass
     while (nRetries < gMAX_RETRIES):
         try:
             results = {}

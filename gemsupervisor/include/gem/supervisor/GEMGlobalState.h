@@ -57,11 +57,35 @@ namespace gem {
      *   - else if any application is in STATE_STOPPING,     global state is STATE_STOPPING
      *   - else if any application is in STATE_STARTING,     global state is STATE_STARTING
      *   - else if any application is in STATE_RESUMING,     global state is STATE_RESUMING
-     *   - else if any application is in STATE_INITIAL,      global state is STATE_INITIAL
-     *   - else if any application is in STATE_HALTED,       global state is STATE_HALTED
-     *   - else if any application is in STATE_PAUSED,       global state is STATE_PAUSED
-     *   - else if any application is in STATE_CONFIGURED,   global state is STATE_CONFIGURED
+     *   - else if all applications are in STATE_INITIAL,    global state is STATE_INITIAL
+     *   - else if all applications are in STATE_HALTED,     global state is STATE_HALTED
+     *   - else if all applications are in STATE_PAUSED,     global state is STATE_PAUSED
+     *   - else if all applications are in STATE_CONFIGURED, global state is STATE_CONFIGURED
      *   - else if all applications are in STATE_RUNNING,    global state is STATE_RUNNING
+     * here it starts to get funky... are we going up or down?
+     * Sequence:
+     *     - Initial -> Halted (via Initialize)
+     *
+     *     - Halted -> Configured (via Configure)
+     *     - Halted -> Initial    (via Reset)
+     *
+     *     - Configured -> Halted  (via Halt)
+     *     - Configured -> Initial (via Reset)
+     *     - Configured -> Running (via Start)
+     *
+     *     - Running -> Configured (via Stop)
+     *     - Running -> Halted     (via Halt)
+     *     - Running -> Paused     (via Pause)
+     *     - Running -> Initial    (via Reset)
+     *
+     *     - Paused -> Configured (via Stop)
+     *     - Paused -> Halted     (via Halt)
+     *     - Paused -> Running    (via Resume)
+     *     - Paused -> Initial    (via Reset)
+     *
+     *   - else if some application are in STATE_INITIAL and some are in STATE_HALTED,     global state is STATE_HALTING
+     *   - else if some application are in STATE_HALTED and some are in STATE_CONFIGURED,  global state is STATE_CONFIGURING
+     *   - else if some application are in STATE_PAUSED and some are in STATE_RUNNING,     global state is STATE_PAUSING/STATE_RESUMING
      */
     class GEMGlobalState : public toolbox::task::TimerListener
       {
@@ -132,6 +156,8 @@ namespace gem {
          */
         void unforceGlobalState() { forceGlobalState(gem::base::STATE_NULL); }
 
+        toolbox::fsm::State compositeState(std::vector<xdaq::ApplicationDescriptor*> const& apps);
+
       protected:
         typedef std::map<xdaq::ApplicationDescriptor*, GEMApplicationState> ApplicationMap;
         typedef ApplicationMap::const_iterator app_state_const_iterator;
@@ -150,6 +176,10 @@ namespace gem {
          * @brief updates the global state based on the individual states of the managed applications
          */
         void calculateGlobals();
+        
+        toolbox::fsm::State getProperCompositeState(toolbox::fsm::State const& initial,
+                                                    toolbox::fsm::State const& final,
+                                                    std::string         const& states);
 
         // std::shared_ptr<toolbox::task::Timer> p_timer;
         // std::shared_ptr<GEMSupervisor>        p_gemSupervisor;

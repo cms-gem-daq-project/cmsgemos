@@ -177,7 +177,12 @@ void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* ou
       DEBUG("GEMFSMApplication::xgiInitialize::Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
+      std::stringstream msg, errmsg;
+      // msg << read in soap fault?
+      m_stateMessage = msg.str();
+      errmsg << "GEMFSMApplication::xgiInitialize Initialize failed: " << msg;
+      ERROR(errmsg.str());
+      XCEPT_RETHROW(xgi::exception::Exception, errmsg.str(), e);
     }
   }
   DEBUG("GEMFSMApplication::xgiInitialize end");

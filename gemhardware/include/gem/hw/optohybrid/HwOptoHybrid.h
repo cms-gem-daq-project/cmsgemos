@@ -221,10 +221,36 @@ namespace gem {
 
           /**
            * Read the firmware register
-           * @returns a hex number corresponding to the build date
+           * @returns a hex number corresponding to the release version
            */
 
-          uint32_t getFirmware() {
+          uint32_t getFirmwareVersion() {
+            uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW.VERSION");
+            TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
+            return fwver;
+          };
+
+          /**
+           * Read the firmware register
+           * @returns a string corresponding to the build version
+           */
+          std::string getFirmwareVersionString() {
+            std::stringstream retval;
+            uint32_t fwver = getFirmwareVersion();
+            retval << std::hex
+                   << ((fwver>>24) & 0xff) << "."
+                   << ((fwver>>16) & 0xff) << "."
+                   << ((fwver>>8)  & 0xff) << "."
+                   << ((fwver)     & 0xff)
+                   << std::dec;
+            return retval.str();
+          };
+
+          /**
+           * Read the firmware register
+           * @returns a hex number corresponding to the build date
+           */
+          uint32_t getFirmwareDate() {
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
             TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
             return fwver;
@@ -234,9 +260,9 @@ namespace gem {
            * Read the firmware register
            * @returns a string corresponding to the build date
            */
-          std::string getFirmwareDate() {
+          std::string getFirmwareDateString() {
             std::stringstream retval;
-            retval << "0x" << std::hex << getFirmware() << std::dec << std::endl;
+            retval << "0x" << std::hex << getFirmwareDate() << std::dec;
             return retval.str();
           };
 
@@ -1174,9 +1200,17 @@ namespace gem {
            * @param uint8_t latency value to write
            * @param uint32_t broadcastMask is the list of VFATs to send the broadcast commands to
            */
-          void setVFATsToDefaults(uint8_t const& vt1,
-                                  uint8_t const& vt2,
-                                  uint8_t const& latency,
+          void setVFATsToDefaults(uint8_t  const& vt1,
+                                  uint8_t  const& vt2,
+                                  uint8_t  const& latency,
+                                  uint32_t const& broadcastMask);
+
+          /**
+           * Sends a write request for all setup registers on each VFAT specified by the mask
+           * @param std::map<std::string,uint8_t> map of VFAT register name to value to broadcast
+           * @param uint32_t broadcastMask is the list of VFATs to send the broadcast commands to
+           */
+          void setVFATsToDefaults(std::map<std::string, uint8_t> const& regvals,
                                   uint32_t const& broadcastMask);
 
 

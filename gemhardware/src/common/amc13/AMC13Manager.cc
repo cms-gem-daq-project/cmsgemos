@@ -357,6 +357,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   //std::cout << p_amc13->getL1AHistory(4) << std::endl;
 
   //unlock the access
+  INFO("AMC13Manager::initializeAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::configureAction()
@@ -389,16 +390,14 @@ void gem::hw::amc13::AMC13Manager::configureAction()
       }
     }
   }
-
-
-  INFO("AMC13 Configured L1ABurst = " << m_L1Aburst);
   //set the settings from the config options
- // usleep(50); // just for testing the timing of different applications
+  // usleep(50); // just for testing the timing of different applications
+  INFO("AMC13Manager::configureAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::startAction()
 {
-  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::startAction()");
+  DEBUG("AMC13Manager::Entering AMC13Manager::startAction()");
   //gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   p_amc13->reset(::amc13::AMC13::T1);
@@ -491,6 +490,8 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   // need to ensure that all BGO channels are disabled, rather than just the ones in the config
   for (int bchan = 0; bchan < 4; ++bchan)
     p_amc13->disableBGO(bchan);
+
+  INFO("AMC13Manager::pauseAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::resumeAction()
@@ -542,11 +543,12 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   //   }
   // }
  // usleep(50);
+  INFO("AMC13Manager::resumeAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::stopAction()
 {
-  DEBUG("AMC13Manager::Entering gem::hw::amc13::AMC13Manager::stopAction()");
+  DEBUG("AMC13Manager::Entering AMC13Manager::stopAction()");
   //gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
@@ -580,18 +582,20 @@ void gem::hw::amc13::AMC13Manager::stopAction()
 
  // usleep(50);
   p_amc13->endRun();
+  INFO("AMC13Manager::stopAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::haltAction()
 {
   //what is necessary for a halt on the AMC13?
- // usleep(50); // just for testing the timing of different applications
+  usleep(50); // just for testing the timing of different applications
+  INFO("AMC13Manager::haltAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::resetAction()
 {
   //what is necessary for a reset on the AMC13?
-  DEBUG("Entering gem::hw::amc13::AMC13Manager::resetAction()");
+  DEBUG("Entering AMC13Manager::resetAction()");
 
   if (p_timer) {
     try {
@@ -604,6 +608,7 @@ void gem::hw::amc13::AMC13Manager::resetAction()
   // maybe ensure triggers are disabled as well as BGO commands?
   usleep(50);
   //gem::base::GEMFSMApplication::resetAction();
+  INFO("AMC13Manager::resetAction end");
 }
 
 /*These should maybe only be implemented in GEMFSMApplication,
@@ -622,7 +627,7 @@ void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
 xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::MessageReference msg)
 {
   //set to send a burst of trigger
-  INFO("Entering gem::hw::amc13::AMC13Manager::sendTriggerBurst()");
+  INFO("Entering AMC13Manager::sendTriggerBurst()");
 
   if (msg.isNull()) {
     XCEPT_RAISE(xoap::exception::Exception,"Null message received!");

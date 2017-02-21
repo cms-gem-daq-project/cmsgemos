@@ -10,6 +10,11 @@
 
 #include <iomanip>
 
+#include <map>
+#include <set>
+#include <vector>
+#include <algorithm>
+
 #include "gem/supervisor/GEMSupervisorWeb.h"
 #include "gem/supervisor/GEMSupervisorMonitor.h"
 
@@ -30,7 +35,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
                     this->getApplicationContext())
 {
 
-  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "EndScanPoint",  XDAQ_NS_URI );
+  xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "EndScanPoint",  XDAQ_NS_URI);
   // xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
   DEBUG("Creating the GEMSupervisorWeb interface");
@@ -203,7 +208,7 @@ void gem::supervisor::GEMSupervisor::init()
 // state transitions
 void gem::supervisor::GEMSupervisor::initializeAction()
 {
-  INFO("gem::supervisor::GEMSupervisor::initializeAction Initializing");
+  INFO("GEMSupervisor::initializeAction start");
 
   // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(gem::base::STATE_CONFIGURING)) {  // deal with possible race condition
   while (!(m_globalState.getStateName() == "Initial" && getCurrentState() == "Initializing")) {
@@ -223,10 +228,22 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     // if (p_gemDBHelper->connect(m_dbName.toString())) {
     p_gemDBHelper->connect(m_dbName.toString());
 
-    // for (std::vector<xdaq::ApplicationDescriptor*>::iterator i=v_supervisedApps.begin(); i!=v_supervisedApps.end(); i++) {
-    for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-      INFO("GEMSupervisor::initializeAction Initializing " << (*i)->getClassName());
-      gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *i);
+    // for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    auto initorder = getInitializationOrder();
+    for (auto i = initorder.begin(); i != initorder.end(); ++i) {
+      for (auto j = i->begin(); j != i->end(); ++j) {
+        if (((*j)->getClassName()).rfind("tcds::") != std::string::npos)
+          continue;  // Skip sending Initialize to TCDS applications
+        INFO("GEMSupervisor::initializeAction Initializing " << (*j)->getClassName());
+        gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *j);
+      }
+      // check that group state of *i has moved to desired state before continuing
+      while (m_globalState.compositeState(*i) != gem::base::STATE_HALTED) {
+        DEBUG("GEMSupervisor::initializeAction waiting for group to reach Halted: "
+              << m_globalState.compositeState(*i));
+        usleep(100);
+        m_globalState.update();
+      }
     }
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
@@ -254,10 +271,13 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
   }
   m_globalState.update();
+  INFO("GEMSupervisor::initializeAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::configureAction()
 {
+  INFO("GEMSupervisor::configureAction start");
+
   while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Configuring") ||
            (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configuring"))) {
     INFO("GEMSupervisor::configureAction global state not in " << gem::base::STATE_HALTED
@@ -274,16 +294,36 @@ void gem::supervisor::GEMSupervisor::configureAction()
       sendRunType("testRunType", (*i));
       sendRunNumber(10254, (*i));
 
+      if (!(isGEMApplication((*i)->getClassName())))
+        continue;
+
       if (m_scanInfo.bag.scanType.value_ == 2 || m_scanInfo.bag.scanType.value_ == 3) {
 	INFO("GEMSupervisor::configureAction Setting ScanParameters " << (*i)->getClassName());
 	sendScanParameters(*i);
       }
+    }
 
-      INFO("GEMSupervisor::configureAction Configuring " << (*i)->getClassName());
-      gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure", p_appContext, p_appDescriptor, *i);
-      if (((*i)->getClassName()).rfind("AMC13") != std::string::npos) {
-        INFO("GEMSupervisor::configureAction Sending AMC13 Parameters to " << (*i)->getClassName());
-        gem::utils::soap::GEMSOAPToolBox::sendAMC13Config(p_appContext, p_appDescriptor, *i);
+    auto configorder = getInitializationOrder();
+    for (auto i = configorder.begin(); i != configorder.end(); ++i) {
+      for (auto j = i->begin(); j != i->end(); ++j) {
+        INFO("GEMSupervisor::configureAction Configuring " << (*j)->getClassName());
+
+        if (((*j)->getClassName()).rfind("tcds::") != std::string::npos)
+          continue;
+
+        if (((*j)->getClassName()).rfind("AMC13") != std::string::npos) {
+          INFO("GEMSupervisor::configureAction Sending AMC13 Parameters to " << (*j)->getClassName());
+          gem::utils::soap::GEMSOAPToolBox::sendAMC13Config(p_appContext, p_appDescriptor, *j);
+        }
+
+        gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure", p_appContext, p_appDescriptor, *j);
+      }
+      // check that group state of *i has moved to desired state before continuing
+      while (m_globalState.compositeState(*i) != gem::base::STATE_CONFIGURED) {
+        DEBUG("GEMSupervisor::configureAction waiting for group to reach Configured: "
+              << m_globalState.compositeState(*i));
+        usleep(100);
+        m_globalState.update();
       }
     }
 
@@ -324,6 +364,8 @@ void gem::supervisor::GEMSupervisor::configureAction()
 
 void gem::supervisor::GEMSupervisor::startAction()
 {
+  INFO("GEMSupervisor::startAction start");
+
   while (!(m_globalState.getStateName() == "Configured" && getCurrentState() == "Starting")) {
     INFO("GEMSupervisor::startAction global state not in " << gem::base::STATE_CONFIGURED
 	 << " sleeping (" << m_globalState.getStateName() << ","
@@ -373,12 +415,23 @@ void gem::supervisor::GEMSupervisor::startAction()
   }
 
   try {
-    for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i)
       sendRunNumber(m_runNumber, (*i));
-      INFO("GEMSupervisor::startAction Starting " << (*i)->getClassName());
-      gem::utils::soap::GEMSOAPToolBox::sendCommand("Start", p_appContext, p_appDescriptor, *i);
-    }
 
+    auto startorder = getEnableOrder();
+    for (auto i = startorder.begin(); i != startorder.end(); ++i) {
+      for (auto j = i->begin(); j != i->end(); ++j) {
+        INFO("GEMSupervisor::startAction Starting " << (*j)->getClassName());
+        gem::utils::soap::GEMSOAPToolBox::sendCommand("Start", p_appContext, p_appDescriptor, *j);
+      }
+      // check that group state of *i has moved to desired state before continuing
+      while (m_globalState.compositeState(*i) != gem::base::STATE_RUNNING) {
+        DEBUG("GEMSupervisor::startAction waiting for group to reach Running: "
+              << m_globalState.compositeState(*i));
+        usleep(100);
+        m_globalState.update();
+      }
+    }
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction " << e.what();
@@ -416,6 +469,8 @@ void gem::supervisor::GEMSupervisor::startAction()
 
 void gem::supervisor::GEMSupervisor::pauseAction()
 {
+  INFO("GEMSupervisor::pauseAction start");
+
   while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Pausing")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
 	 << " sleeping (" << m_globalState.getStateName() << ","
@@ -424,15 +479,28 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     m_globalState.update();
   }
 
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO("GEMSupervisor::pauseAction Pausing " << (*i)->getClassName());
-    gem::utils::soap::GEMSOAPToolBox::sendCommand("Pause", p_appContext, p_appDescriptor, *i);
+  auto disableorder = getDisableOrder();
+  for (auto i = disableorder.begin(); i != disableorder.end(); ++i) {
+    for (auto j = i->begin(); j != i->end(); ++j) {
+      INFO("GEMSupervisor::pauseAction Pausing " << (*j)->getClassName());
+      gem::utils::soap::GEMSOAPToolBox::sendCommand("Pause", p_appContext, p_appDescriptor, *j);
+    }
+    // check that group state of *i has moved to desired state before continuing
+    while (m_globalState.compositeState(*i) != gem::base::STATE_PAUSED) {
+      DEBUG("GEMSupervisor::pauseAction waiting for group to reach Paused: "
+            << m_globalState.compositeState(*i));
+      usleep(100);
+      m_globalState.update();
+    }
   }
   m_globalState.update();
+  INFO("GEMSupervisor::pauseAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::resumeAction()
 {
+  INFO("GEMSupervisor::resumeAction start");
+
   while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Resuming")) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
 	 << " sleeping (" << m_globalState.getStateName() << ","
@@ -441,15 +509,29 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     m_globalState.update();
   }
 
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO("GEMSupervisor::resumeAction Resuming " << (*i)->getClassName());
-    gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume", p_appContext, p_appDescriptor, *i);
+  auto resumeorder = getEnableOrder();
+  for (auto i = resumeorder.begin(); i != resumeorder.end(); ++i) {
+    for (auto j = i->begin(); j != i->end(); ++j) {
+      INFO("GEMSupervisor::resumeAction Resuming " << (*j)->getClassName());
+      gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume", p_appContext, p_appDescriptor, *j);
+    }
+    // check that group state of *i has moved to desired state before continuing
+    while (m_globalState.compositeState(*i) != gem::base::STATE_RUNNING) {
+      DEBUG("GEMSupervisor::resumeAction waiting for group to reach Running: "
+            << m_globalState.compositeState(*i));
+      usleep(100);
+      m_globalState.update();
+      }
   }
+
   m_globalState.update();
+  INFO("GEMSupervisor::resumeAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::stopAction()
 {
+  INFO("GEMSupervisor::stopAction start");
+
   while (!((m_globalState.getStateName() == "Running" && getCurrentState() == "Stopping") ||
            (m_globalState.getStateName() == "Paused"  && getCurrentState() == "Stopping"))) {
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
@@ -460,30 +542,59 @@ void gem::supervisor::GEMSupervisor::stopAction()
     m_globalState.update();
   }
 
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO("GEMSupervisor::stopAction Stopping " << (*i)->getClassName());
-    gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop", p_appContext, p_appDescriptor, *i);
+  auto disableorder = getDisableOrder();
+  for (auto i = disableorder.begin(); i != disableorder.end(); ++i) {
+    for (auto j = i->begin(); j != i->end(); ++j) {
+      INFO("GEMSupervisor::stopAction Stopping " << (*j)->getClassName());
+      gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop", p_appContext, p_appDescriptor, *j);
+    }
+    // check that group state of *i has moved to desired state before continuing
+    while (m_globalState.compositeState(*i) != gem::base::STATE_CONFIGURED) {
+      DEBUG("GEMSupervisor::stopAction waiting for group to reach Configured: "
+            << m_globalState.compositeState(*i));
+      usleep(100);
+      m_globalState.update();
+    }
   }
   m_globalState.update();
+  INFO("GEMSupervisor::stopAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::haltAction()
 {
-  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO("GEMSupervisor::haltAction Halting " << (*i)->getClassName());
-    gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, *i);
+  INFO("GEMSupervisor::haltAction start");
+
+  auto disableorder = getDisableOrder();
+  for (auto i = disableorder.begin(); i != disableorder.end(); ++i) {
+    for (auto j = i->begin(); j != i->end(); ++j) {
+      INFO("GEMSupervisor::haltAction Halting " << (*j)->getClassName());
+      gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, *j);
+    }
+    // check that group state of *i has moved to desired state before continuing
+    while (m_globalState.compositeState(*i) != gem::base::STATE_HALTED) {
+      DEBUG("GEMSupervisor::haltAction waiting for group to reach Halted: "
+            << m_globalState.compositeState(*i));
+      usleep(100);
+      m_globalState.update();
+    }
   }
   m_globalState.update();
+  INFO("GEMSupervisor::haltAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::resetAction()
 {
+  INFO("GEMSupervisor::resetAction start");
+
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    if (((*i)->getClassName()).rfind("tcds::") != std::string::npos)
+      continue;  // Don't send reset to TCDS
     INFO("GEMSupervisor::resetAction Resetting " << (*i)->getClassName());
     gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset", p_appContext, p_appDescriptor, *i);
   }
   // gem::base::GEMFSMApplication::resetAction();
   m_globalState.update();
+  INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName());
 }
 
 /*
@@ -495,17 +606,19 @@ void gem::supervisor::GEMSupervisor::resetAction()
 void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
 {
   m_globalState.update();
+  INFO("GEMSupervisor::failAction GlobalState = " << m_globalState.getStateName());
 }
 
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
 {
   m_globalState.update();
+  INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName());
 }
 
 
 bool gem::supervisor::GEMSupervisor::isGEMApplication(const std::string& classname) const
 {
-  if (classname.find("gem") != std::string::npos)
+  if (classname.find("gem::") != std::string::npos)
     return true;  // handle all GEM applications
   /*
     if (m_otherClassesToSupport.count(classname) != 0)
@@ -522,14 +635,14 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
     if (m_otherClassesToSupport.count(classname) != 0)
     return true;  // include from list
   */
-  if (classname.find("gem") != std::string::npos)
+  if (classname.find("gem::") != std::string::npos)
     return true;  // handle all GEM applications
   if (classname.find("PeerTransport") != std::string::npos)
     return false;  // ignore all peer transports
-  /*
-    if (classname.find("tcds") != std::string::npos && m_handleTCDS.value_)
+
+  if (classname.find("tcds::") != std::string::npos && m_handleTCDS.value_)
     return true;
-  */
+
   // if using uFedKit readout, following applications:
   if ((classname == "evb::EVM" || classname == "evb::BU" ||
        classname == "pt::blit::Application" || classname == "ferol::FerolController")
@@ -781,3 +894,202 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
   m_globalState.update();
   XCEPT_RAISE(xoap::exception::Exception,"command not found");
 }
+
+/////////////////////////////////////////
+//* Order of transition operations*//
+/*
+ - Initialize - Connect to hardware, set up some defaults?
+    - TCDS applications DO NOTHING as per prescription, but maybe what we call Initialize is not what they call Initialize
+    - GEM applications
+    - Trigger applications
+      - AMC13Manager
+
+ - Configure (same as Initialize? maybe eventually remove Initialize?)
+    -
+*/
+// Strongly "borrowed" from HCAL
+class InitCompare {
+public:
+  bool operator()(xdaq::ApplicationDescriptor* a, xdaq::ApplicationDescriptor* b) const
+  {
+    return initPriority(a->getClassName()) > initPriority(b->getClassName());
+  }
+
+  // higher priority -- initialize first
+  static int initPriority(const std::string& classname)
+  {
+    int priority = 50; // default
+    if      (classname == "gemCrate")                               priority = 200; // very first to check the crate connections
+    else if (classname == "tcds::lpm::LPMController")               priority = 102; // must be first of TCDS!
+    else if (classname == "tcds::ici::ICIController")               priority = 101; // must be second of TCDS!
+    else if (classname == "tcds::pi::PIController")                 priority = 100; // must be first!?
+    else if (classname == "gem::hw::glib::GLIBManager")             priority =  90; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  90; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::AMCManager")                    priority =  90; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  90; // after (or simultaneous with) AMC managers and before  AMC13
+    else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  35; // after AMCManagers but not last
+    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  30; // after AMC13Manager but not last
+    else if (classname == "gem::hw::gemPartitionViewer")            priority =  10; //
+    return priority;
+  }
+};
+
+std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSupervisor::getInitializationOrder()
+{
+  std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO("GEMSupervisor::getInitializationOrder: application "
+         << (*i)->getClassName() << " has priority "
+         << InitCompare::initPriority((*i)->getClassName()));
+    tool.insert(std::make_pair(InitCompare::initPriority((*i)->getClassName()), *i));
+  }
+  std::vector<std::vector<xdaq::ApplicationDescriptor*> > retval;
+  int level = -1;
+  for (auto j = tool.begin(); j != tool.end(); ++j) {
+    if (j->first < 0)
+      continue;
+    if (j->first != level) {
+      retval.push_back(std::vector<xdaq::ApplicationDescriptor*>());
+      level = j->first;
+    }
+    retval.back().push_back(j->second);
+  }
+  return retval;
+}
+
+/*
+    - Start
+    - GEM applications first
+    - Trigger applications
+      - AMC13Manager
+    - TCDS applications
+      - CPMController/LPMController
+      - PIController next
+      - ICIController (APVEController) last
+*/
+class EnableCompare {
+public:
+  bool operator()(xdaq::ApplicationDescriptor* a, xdaq::ApplicationDescriptor* b) const
+  {
+    return enablePriority(a->getClassName()) > enablePriority(b->getClassName());
+  }
+
+  // higher priority -- enable first
+  static int enablePriority(const std::string& classname)
+  {
+    int priority = 50; // default
+    if      (classname == "gem::hw::glib::GLIBManager")             priority = 100; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority = 100; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::AMCManager")                    priority = 100; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority = 100; // after (or simultaneous with) AMC managers and before  AMC13
+    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  90; // before AMC13Manager
+    else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  35; // after AMCManagers but not last
+    else if (classname == "tcds::lpm::LPMController")               priority =  12; // must be first of TCDS!
+    else if (classname == "tcds::pi::PIController")                 priority =  11; // must be before ICI!?
+    else if (classname == "tcds::ici::ICIController")               priority =  10; // must be last of TCDS!
+    return priority;
+  }
+};
+
+std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSupervisor::getEnableOrder()
+{
+  std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO("GEMSupervisor::getEnableOrder: application "
+         << (*i)->getClassName() << " has priority "
+         << EnableCompare::enablePriority((*i)->getClassName()));
+    tool.insert(std::make_pair(EnableCompare::enablePriority((*i)->getClassName()), *i));
+  }
+  std::vector<std::vector<xdaq::ApplicationDescriptor*> > retval;
+  int level = -1;
+  for (auto j = tool.begin(); j != tool.end(); ++j) {
+    if (j->first < 0)
+      continue;
+    if (j->first != level) {
+      retval.push_back(std::vector<xdaq::ApplicationDescriptor*>());
+      level = j->first;
+    }
+    retval.back().push_back(j->second);
+  }
+  return retval;
+}
+
+
+/*
+ - Pause
+    - TCDS applications
+      - CPMController/LPMController
+      - ICIController (APVEController) first
+      - PIController next
+    - Trigger applications
+      - AMC13Manager
+    - GEM applications
+
+ - Stop (same order as Pause, except Pause TCDS first, then Stop TCDS at the end)
+    - Stop TCDS applications? this removes clock?
+      - CPMController/LPMController
+
+ - Resume (same as Start)
+
+ - Halt (same order as pause)
+    - TCDS applications
+      - ICIController (APVEController) first
+      - PIController next
+*/
+// Strongly "borrowed" from HCAL
+class DisableCompare {
+public:
+  bool operator()(xdaq::ApplicationDescriptor* a, xdaq::ApplicationDescriptor* b) const
+  {
+    return disablePriority(a->getClassName()) > disablePriority(b->getClassName());
+  }
+
+  // higher priority -- disable first
+  static int disablePriority(const std::string& classname)
+  {
+    int priority = 50; // default
+    if      (classname == "tcds::lpm::LPMController")               priority = 102; // must be first of TCDS!
+    else if (classname == "tcds::ici::ICIController")               priority = 101; // must be second of TCDS!
+    else if (classname == "tcds::pi::PIController")                 priority = 100; // must be first!?
+    else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  95; // after AMCManagers but not last
+    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  90; // after AMC13Manager but not last
+    else if (classname == "gem::hw::glib::GLIBManager")             priority =  70; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  70; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::AMCManager")                    priority =  70; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  70; // after (or simultaneous with) AMC managers and before  AMC13
+    return priority;
+  }
+};
+
+std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSupervisor::getDisableOrder()
+{
+  std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
+  for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
+    INFO("GEMSupervisor::getDisableOrder: application "
+         << (*i)->getClassName() << " has priority "
+         << DisableCompare::disablePriority((*i)->getClassName()));
+
+    tool.insert(std::make_pair(DisableCompare::disablePriority((*i)->getClassName()), *i));
+  }
+  std::vector<std::vector<xdaq::ApplicationDescriptor*> > retval;
+  int level = -1;
+  for (auto j = tool.begin(); j != tool.end(); ++j) {
+    if (j->first < 0)
+      continue;
+    if (j->first != level) {
+      retval.push_back(std::vector<xdaq::ApplicationDescriptor*>());
+      level = j->first;
+    }
+    retval.back().push_back(j->second);
+  }
+  return retval;
+}
+
+
+/*
+
+ - Reset
+
+ - Fix
+
+ */

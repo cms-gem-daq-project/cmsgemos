@@ -33,7 +33,7 @@ gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
   present  = false;
   crateID  = -1;
   slotID   = -1;
-  cardName = "N/A";
+  cardName = "";
 
   controlHubAddress = "N/A";
   deviceIPAddress   = "N/A";
@@ -313,7 +313,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     }
   }
   // usleep(100); // just for testing the timing of different applications
-  DEBUG("GLIBManager::initializeAction end");
+  INFO("GLIBManager::initializeAction end");
 }
 
 void gem::hw::glib::GLIBManager::configureAction()
@@ -381,7 +381,7 @@ void gem::hw::glib::GLIBManager::configureAction()
     }
   }
 
-  DEBUG("GLIBManager::configureAction end");
+  INFO("GLIBManager::configureAction end");
 }
 
 void gem::hw::glib::GLIBManager::startAction()
@@ -397,7 +397,7 @@ void gem::hw::glib::GLIBManager::startAction()
     m_lastVT1 = m_scanMin.value_;
   }
 
-  INFO("gem::hw::glib::GLIBManager::startAction begin");
+  INFO("GLIBManager::startAction begin");
   // what is required for starting the GLIB?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(50);
@@ -428,7 +428,7 @@ void gem::hw::glib::GLIBManager::startAction()
     */
   }
   // usleep(100);
-  INFO("gem::hw::glib::GLIBManager::startAction end");
+  INFO("GLIBManager::startAction end");
 }
 
 void gem::hw::glib::GLIBManager::pauseAction()
@@ -496,6 +496,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
     m_lastVT1 += m_stepSize.value_;
     INFO("GLIBManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
   }
+  INFO("GLIBManager::pauseAction end");
 }
 
 void gem::hw::glib::GLIBManager::resumeAction()
@@ -503,12 +504,13 @@ void gem::hw::glib::GLIBManager::resumeAction()
 {
   // what is required for resuming the GLIB?
   usleep(100);  // just for testing the timing of different applications
+  INFO("GLIBManager::resumeAction end");
 }
 
 void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("gem::hw::glib::GLIBManager::stopAction begin");
+  INFO("GLIBManager::stopAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(50);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -523,7 +525,8 @@ void gem::hw::glib::GLIBManager::stopAction()
       m_glibs[slot]->setL1AEnable(false);
     }
   }
-  // usleep(100);  // just for testing the timing of different applications
+  usleep(100);  // just for testing the timing of different applications
+  INFO("GLIBManager::stopAction end");
 }
 
 void gem::hw::glib::GLIBManager::haltAction()
@@ -531,6 +534,7 @@ void gem::hw::glib::GLIBManager::haltAction()
 {
   // what is required for halting the GLIB?
   usleep(100);  // just for testing the timing of different applications
+  INFO("GLIBManager::haltAction end");
 }
 
 void gem::hw::glib::GLIBManager::resetAction()
@@ -587,6 +591,7 @@ void gem::hw::glib::GLIBManager::resetAction()
     }
   }
   // gem::base::GEMFSMApplication::resetAction();
+  INFO("GLIBManager::resetAction end");
 }
 
 /*
@@ -610,8 +615,10 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   // system registers
   is_glib->createUInt32("BOARD_ID",      glib->getBoardIDRaw(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
   is_glib->createUInt32("SYSTEM_ID",     glib->getSystemIDRaw(),     NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_glib->createUInt32("FIRMWARE_ID",   glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
+  is_glib->createUInt32("FIRMWARE_VERSION",glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
   is_glib->createUInt32("FIRMWARE_DATE", glib->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
+  is_glib->createUInt32("AMC_FIRMWARE_VERSION",glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwverglib");
+  is_glib->createUInt32("AMC_FIRMWARE_DATE", glib->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "dateoh");
   is_glib->createUInt32("IP_ADDRESS",    glib->getIPAddressRaw(),    NULL, GEMUpdateType::NOUPDATE, "docstring", "ip");
   is_glib->createUInt64("MAC_ADDRESS",   glib->getMACAddressRaw(),   NULL, GEMUpdateType::NOUPDATE, "docstring", "mac");
   is_glib->createUInt32("SFP1_STATUS",   glib->SFPStatus(1),         NULL, GEMUpdateType::HW32);
@@ -645,27 +652,6 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("RUN_TYPE",          glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("RUN_PARAMS",        glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
 
-  is_glib->createUInt32("OH0_STATUS",               glib->getDAQLinkStatus(0),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH0_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(0, 0), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH0_EVN",                  glib->getDAQLinkCounters(0, 1), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH0_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH0_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH0_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
-
-  is_glib->createUInt32("OH1_STATUS",               glib->getDAQLinkStatus(1),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH1_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(1, 0), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH1_EVN",                  glib->getDAQLinkCounters(1, 1), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH1_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH1_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH1_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
-
-  is_glib->createUInt32("OH2_STATUS",               glib->getDAQLinkStatus(2),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH2_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(2, 0), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH2_EVN",                  glib->getDAQLinkCounters(2, 1), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH2_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH2_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("OH2_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(2),    NULL, GEMUpdateType::HW32);
-
   /* not yet implemented
   // request counters
   is_glib->createUInt64("OptoHybrid_0", 0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
@@ -690,6 +676,12 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   for (int oh = 0; oh < 4; ++oh) {
     std::stringstream ohname;
     ohname << "OH" << oh;
+    is_glib->createUInt32(ohname.str()+"_STATUS",               glib->getDAQLinkStatus(oh),      NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(oh, 0), NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_EVN",                  glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(oh),    NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
     for (int cluster = 0; cluster < 8; ++cluster) {
       std::stringstream cluname;
       cluname << "CLUSTER_" << cluster;

@@ -41,11 +41,17 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("SYSTEM_ID", "GLIB_SYSTEM.SYSTEM.SYSTEM_ID"),
                  GEMUpdateType::NOUPDATE, "id");
   addMonitorable("SYSTEM", "HWMonitoring",
-                 std::make_pair("FIRMWARE_ID", "GLIB_SYSTEM.SYSTEM.FIRMWARE.ID"),
-                 GEMUpdateType::NOUPDATE, "fwver");
+                 std::make_pair("FIRMWARE_VERSION", "GLIB_SYSTEM.SYSTEM.FIRMWARE.ID"),
+                 GEMUpdateType::NOUPDATE, "fwverglib");
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("FIRMWARE_DATE", "GLIB_SYSTEM.SYSTEM.FIRMWARE.DATE"),
-                 GEMUpdateType::NOUPDATE, "date");
+                 GEMUpdateType::NOUPDATE, "dateglib");
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("AMC_FIRMWARE_VERSION", "GEM_SYSTEM.RELEASE"),
+                 GEMUpdateType::NOUPDATE, "fwverglib");
+  addMonitorable("SYSTEM", "HWMonitoring",
+                 std::make_pair("AMC_FIRMWARE_DATE", "GEM_SYSTEM.RELEASE.DATE"),
+                 GEMUpdateType::NOUPDATE, "dateoh");
   addMonitorable("SYSTEM", "HWMonitoring",
                  std::make_pair("IP_ADDRESS", "GLIB_SYSTEM.SYSTEM.IP_INFO"),
                  GEMUpdateType::NOUPDATE, "ip");
@@ -135,93 +141,36 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("BC0", "TTC.CMD_COUNTERS.BC0"),
                  GEMUpdateType::HW32, "dec");
 
-  addMonitorableSet("DAQ", "HWMonitoring");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorableSet("DAQ Status", "HWMonitoring");
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("CONTROL", "DAQ.CONTROL"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("STATUS", "DAQ.STATUS"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("NOTINTABLE_ERR", "DAQ.EXT_STATUS.NOTINTABLE_ERR"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("DISPER_ERR", "DAQ.EXT_STATUS.DISPER_ERR"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("EVT_SENT", "DAQ.EXT_STATUS.EVT_SENT"),
                  GEMUpdateType::HW32, "dec");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("L1AID", "DAQ.EXT_STATUS.L1AID"),
                  GEMUpdateType::HW32, "dec");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("MAX_DAV_TIMER", "DAQ.EXT_STATUS.MAX_DAV_TIMER"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("LAST_DAV_TIMER", "DAQ.EXT_STATUS.LAST_DAV_TIMER"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("RUN_TYPE", "DAQ.EXT_CONTROL.RUN_TYPE"),
                  GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("RUN_PARAMS", "DAQ.EXT_CONTROL.RUN_PARAMS"),
-                 GEMUpdateType::HW32, "hex");
-
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH0_STATUS", "DAQ.OH0.STATUS"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH0_CORRUPT_VFAT_BLK_CNT", "DAQ.OH0.COUNTERS.CORRUPT_VFAT_BLK_CNT"),
-                 GEMUpdateType::HW32, "dec");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH0_EVN", "DAQ.OH0.COUNTERS.EVN"),
-                 GEMUpdateType::HW32, "dec");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH0_EOE_TIMEOUT", "DAQ.OH0.CONTROL.EOE_TIMEOUT"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH0_MAX_EOE_TIMER", "DAQ.OH0.COUNTERS.MAX_EOE_TIMER"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH0_LAST_EOE_TIMER", "DAQ.OH0.COUNTERS.LAST_EOE_TIMER"),
-                 GEMUpdateType::HW32, "hex");
-
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH1_STATUS", "DAQ.OH1.STATUS"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH1_CORRUPT_VFAT_BLK_CNT", "DAQ.OH1.COUNTERS.CORRUPT_VFAT_BLK_CNT"),
-                 GEMUpdateType::HW32, "dec");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH1_EVN", "DAQ.OH1.COUNTERS.EVN"),
-                 GEMUpdateType::HW32, "dec");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH1_EOE_TIMEOUT", "DAQ.OH1.CONTROL.EOE_TIMEOUT"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH1_MAX_EOE_TIMER", "DAQ.OH1.COUNTERS.MAX_EOE_TIMER"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH1_LAST_EOE_TIMER", "DAQ.OH1.COUNTERS.LAST_EOE_TIMER"),
-                 GEMUpdateType::HW32, "hex");
-
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH2_STATUS", "DAQ.OH2.STATUS"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH2_CORRUPT_VFAT_BLK_CNT", "DAQ.OH2.COUNTERS.CORRUPT_VFAT_BLK_CNT"),
-                 GEMUpdateType::HW32, "dec");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH2_EVN", "DAQ.OH2.COUNTERS.EVN"),
-                 GEMUpdateType::HW32, "dec");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH2_EOE_TIMEOUT", "DAQ.OH2.CONTROL.EOE_TIMEOUT"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH2_MAX_EOE_TIMER", "DAQ.OH2.COUNTERS.MAX_EOE_TIMER"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("DAQ", "HWMonitoring",
-                 std::make_pair("OH2_LAST_EOE_TIMER", "DAQ.OH2.COUNTERS.LAST_EOE_TIMER"),
                  GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("TTC", "HWMonitoring");
@@ -236,6 +185,24 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   for (int oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" << oh;
+    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+                   std::make_pair(ohname.str()+"_STATUS", "DAQ."+ohname.str()+".STATUS"),
+                   GEMUpdateType::HW32, "hex");
+    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+                   std::make_pair(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", "DAQ."+ohname.str()+".COUNTERS.CORRUPT_VFAT_BLK_CNT"),
+                   GEMUpdateType::HW32, "dec");
+    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+                   std::make_pair(ohname.str()+"_EVN", "DAQ."+ohname.str()+".COUNTERS.EVN"),
+                   GEMUpdateType::HW32, "dec");
+    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+                   std::make_pair(ohname.str()+"_EOE_TIMEOUT", "DAQ."+ohname.str()+".CONTROL.EOE_TIMEOUT"),
+                   GEMUpdateType::HW32, "hex");
+    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+                   std::make_pair(ohname.str()+"_MAX_EOE_TIMER", "DAQ."+ohname.str()+".COUNTERS.MAX_EOE_TIMER"),
+                   GEMUpdateType::HW32, "hex");
+    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+                   std::make_pair(ohname.str()+"_LAST_EOE_TIMER", "DAQ."+ohname.str()+".COUNTERS.LAST_EOE_TIMER"),
+                   GEMUpdateType::HW32, "hex");
     for (int cluster = 0; cluster < 8; ++cluster) {
       std::stringstream cluname;
       cluname << "CLUSTER_" << cluster;

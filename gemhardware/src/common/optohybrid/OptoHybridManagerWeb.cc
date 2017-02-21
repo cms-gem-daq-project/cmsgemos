@@ -115,4 +115,3 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::jsonUpdate(xgi::Input* in, xgi::
   }
   *out << " } " << std::endl;
 }
-

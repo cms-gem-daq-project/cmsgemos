@@ -30,11 +30,11 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
     """
     Returns the broadcast I2C mask corresponding to the connected VFATs
     """
-    vfatVal  = broadcastRead(device,gtx,"ChipID0")
+    vfatVals  = broadcastRead(device,gtx,"ChipID0")
     bmask = 0x0
     if (vfatVals):
         for i,val in enumerate(vfatVals):
-            msg = "%d: value = 0x%08x"%(i,vfatVal)
+            msg = "%d: value = 0x%08x"%(i,val)
             gemlogger.debug(msg)
             pass
         pass
@@ -519,8 +519,11 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
         return
 
     writeRegister(device,"%s.START"%(scanBase),0x1)
-    if readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) or not (readRegister(device,"%s.MONITOR.STATUS"%(scanBase))):
-        print "Scan failed to start, FIFO read 0x%08x"%(readRegister(device,"%s.RESULTS"%(scanBase)))
+    if readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) or not readRegister(device,"%s.MONITOR.STATUS"%(scanBase)):
+        print "Scan failed to start"#, FIFO read 0x%08x"%(readRegister(device,"%s.RESULTS"%(scanBase)))
+        print "ERROR  %d"%(readRegister(device,"%s.MONITOR.ERROR"%(scanBase)))
+        print "STATUS %d"%(not readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        raw_input("enter to continue")
         pass
     if debug:
         print "After start, scan status is: 0x%08x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
@@ -551,14 +554,14 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         if debug and False:
-            print "Scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+            print "Ultra scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
             pass
         time.sleep(0.1)
         pass
 
     if debug:
-        print "Scan status (0x%08x)"%(readRegister(device,"%s.MONITOR"%(scanBase)))
-        print "Scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
+        print "Ultra scan status (0x%08x)"%(           readRegister(device,"%s.MONITOR"%(      scanBase)))
+        print "Ultra scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
         pass
     results = []
 

@@ -1,0 +1,201 @@
+%define _package __package__
+%define _packagename __packagename__
+%define _longpackage __longpackage__
+%define _longpackagename __longpackagename__
+%define _version __version__
+%define _release __release__
+%define _prefix  __prefix__
+%define _xdaqprefix  __xdaqprefix__
+%define _tmppath /tmp
+%define _packagedir __packagedir__
+%define _os __os__
+%define _platform __platform__
+%define _project __project__
+%define _author __author__
+%define _summary __summary__
+%define _url __url__
+%define _buildarch __buildarch__
+%define _includedirs __includedirs__
+
+%define _unpackaged_files_terminate_build 0
+
+#
+# Binary RPM specified attributed (lib and bin)
+#
+Summary: %{_summary}
+Name: %{_project}-%{_longpackagename}
+Version: %{_version}
+Release: %{_release}
+Packager: %{_author}
+#BuildArch: %{_buildarch}
+License: BSD
+Group: Applications/XDAQ
+## let's get the specific tag from git and put it here somehow?
+#Source: https://gitlab.cern.ch/cms-gem-daq-project/cmsgemos/tags/v0.3.1
+## github.io site, probably best to make this better documented
+URL: %{_url}
+BuildRoot: %{_tmppath}/%{_packagename}-%{_version}-%{_release}-buildroot
+Prefix: %{_prefix}
+
+%if 0%{?_requires}
+Requires: __requires__
+%endif
+
+#requires: gem-base, gem-calib, gem-hw, gem-supervisor, gem-utils, gem-readout, gem-HwMonitor, gem-calib
+
+%description
+__description__
+
+#
+# Devel RPM specified attributes (extension to binary rpm with include files)
+#
+%package -n %{_project}-%{_longpackagename}-devel
+Summary:  Development package for %{_summary}
+Group:    Applications/XDAQ
+
+%description -n %{_project}-%{_longpackagename}-devel
+__description__
+
+#
+# Debuginfo RPM specified attributes (extension to binary rpm with include files)
+#
+%package -n %{_project}-%{_longpackagename}-debuginfo
+Summary:  Debuginfo package for %{_summary}
+Group:    Applications/XDAQ
+
+%description -n %{_project}-%{_longpackagename}-debuginfo
+__description__
+
+#%prep
+
+#%setup 
+
+#%build
+
+#
+# Prepare the list of files that are the input to the binary and devel RPMs
+#
+%install
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/var%{_prefix}/%{_package}
+mkdir -p $RPM_BUILD_ROOT%{_prefix}/{bin,lib,include,etc}
+mkdir -p $RPM_BUILD_ROOT%{_prefix}/include/%{_package}/linux
+mkdir -p $RPM_BUILD_ROOT%{_prefix}/share/%{_package}/xml
+mkdir -p $RPM_BUILD_ROOT/%{_xdaqprefix}/htdocs/%{_project}/%{_package}/html
+mkdir -p $RPM_BUILD_ROOT/usr/lib/debug%{_prefix}/{bin,lib}
+mkdir -p $RPM_BUILD_ROOT/usr/src/debug%/{_project}/%{_longpackagename}-%{_version}/
+mkdir -p $RPM_BUILD_ROOT/etc%{_prefix}.d/
+# mkdir -p $RPM_BUILD_ROOT%{_prefix}/{scripts}/%{_package}
+
+if [ -d %{_packagedir}/bin/%{_os}/%{_platform} ]; then
+	cd %{_packagedir}/bin/%{_os}/%{_platform}; \
+	find ./ -name ".svn" -prune -o -exec ${XDAQ_ROOT}/config/install.sh {} %{_prefix}/bin/{} 755 $RPM_BUILD_ROOT %{_packagedir} %{_project}-%{_packagename} %{_version} %{_prefix}/include '%{_includedirs}' \;
+fi
+if [ -d %{_packagedir}/lib/%{_os}/%{_platform} ]; then
+	cd %{_packagedir}/lib/%{_os}/%{_platform}; \
+	find ./ -name ".svn" -prune -o -exec ${XDAQ_ROOT}/config/install.sh {} %{_prefix}/lib/{} 655 $RPM_BUILD_ROOT %{_packagedir} %{_project}-%{_packagename} %{_version} %{_prefix}/include '%{_includedirs}' \;
+fi
+if [ -d %{_packagedir}/include ]; then
+	cd %{_packagedir}/include; \
+	find ./ \( -name "*.[hi]" -o -name "*.hpp" -o -name "*.hh" -o -name "*.hxx" \) -exec install -D -m 655 {} $RPM_BUILD_ROOT%{_prefix}/include/{} \;
+fi
+if [ -d %{_packagedir}/scripts ]; then
+	cd %{_packagedir}/scripts
+	find ./ -name ".svn" -prune -o -name "*" -exec install -D -m 755 {} $RPM_BUILD_ROOT%{_prefix}/bin/{} \;
+fi
+if [ -d %{_packagedir}/etc ]; then
+	cd %{_packagedir}/etc; \
+	find ./ -name ".svn" -prune -o -name "*" -exec install -D -m 655 {} $RPM_BUILD_ROOT%{_prefix}/etc/{} \;
+fi
+if [ -d %{_packagedir}/xml ]; then
+	cd %{_packagedir}/xml; \
+	find ./ -name ".svn" -prune -o -name "*" -exec install -D -m 655 {} $RPM_BUILD_ROOT%{_prefix}/share/%{_package}/xml/{} \;
+fi
+if [ -d %{_packagedir}/html ]; then
+	cd %{_packagedir}/html; \
+	find ./ -name ".svn" -prune -o -name "*" -exec install -D -m 655 {} $RPM_BUILD_ROOT/%{_xdaqprefix}/htdocs/%{_project}/%{_package}/html/{} \;
+fi
+
+if [ -e %{_packagedir}/ChangeLog ]; then
+	install -m 655 %{_packagedir}/ChangeLog %{_packagedir}/rpm/RPMBUILD/BUILD/ChangeLog
+else
+	touch %{_packagedir}/rpm/RPMBUILD/BUILD/ChangeLog
+fi
+
+if [ -e %{_packagedir}/README ]; then
+	install -m 655 %{_packagedir}/README %{_packagedir}/rpm/RPMBUILD/BUILD/README
+else
+	touch %{_packagedir}/rpm/RPMBUILD/BUILD/README
+fi
+
+if [ -e %{_packagedir}/MAINTAINER ]; then
+	install -m 655 %{_packagedir}/MAINTAINER %{_packagedir}/rpm/RPMBUILD/BUILD/MAINTAINER
+else
+	touch %{_packagedir}/rpm/RPMBUILD/BUILD/MAINTAINER
+fi
+
+#create debug.source - SLC6 beardy wierdo "feature"
+cd %{_packagedir}
+find include -name '*.h' -fprintf rpm/debug.include "%p\0"
+find src -name '*.cc' -fprintf rpm/debug.source "%p\0"
+#find src include -name '*.h' -print > rpm/debug.source -o -name '*.cc' -print > rpm/debug.source
+
+# Copy all sources and include files for debug RPMs
+cat %{_packagedir}/rpm/debug.source | sort -z -u | egrep -v -z '(<internal>|<built-in>)$' | ( cpio -pd0mL --quiet "$RPM_BUILD_ROOT/usr/src/debug/%{_project}/%{_longpackagename}-%{_version}" )
+cat %{_packagedir}/rpm/debug.include | sort -z -u | egrep -v -z '(<internal>|<built-in>)$' | ( cpio -pd0mL --quiet "$RPM_BUILD_ROOT/usr/src/debug/%{_project}/%{_longpackagename}-%{_version}" )
+# correct permissions on the created directories
+cd "$RPM_BUILD_ROOT/usr/src/debug/"
+find ./ -type d -exec chmod 755 {} \;
+
+%clean
+#rm -rf $RPM_BUILD_ROOT
+
+#
+# Files that go in the binary RPM
+#
+%files
+%defattr(-,root,root,-)
+
+# 
+# Files required by Quattor
+#
+%doc MAINTAINER ChangeLog README
+
+%dir
+/var%{_prefix}/%{_package}
+%{_prefix}/bin
+%{_prefix}/lib
+%{_prefix}/etc
+%{_prefix}/share/%{_package}/xml
+#%{_xdaqprefix}/htdocs/%{_project}/%{_package}/images
+%{_xdaqprefix}/htdocs/%{_project}/%{_package}/html
+#%{_xdaqprefix}/htdocs/%{_project}/%{_package}/xml
+
+#
+# Files that go in the devel RPM
+#
+%files -n %{_project}-%{_longpackagename}-devel
+%defattr(-,root,root,-)
+%{_prefix}/include
+
+#%changelog
+
+# 
+# Files required by Quattor
+#
+%doc MAINTAINER ChangeLog README
+
+#
+# Files that go in the debuginfo RPM
+#
+%files -n %{_project}-%{_longpackagename}-debuginfo
+%defattr(-,root,root,-)
+/usr/lib/debug
+/usr/src/debug
+
+#%changelog
+
+# 
+# Files required by Quattor
+#
+%doc MAINTAINER ChangeLog README

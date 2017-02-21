@@ -41,7 +41,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   // create the values to be monitored in the info space
   addMonitorableSet("Status and Control", "HWMonitoring");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("VFAT_Mask",   "CONTROL.VFAT.MASK"),
+                 std::make_pair("VFAT_Mask",   "CONTROL.VFAT.TRK_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("TrgSource",   "CONTROL.TRIGGER.SOURCE"),
@@ -69,8 +69,11 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "bit");
 
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("FIRMWARE_ID",  "STATUS.FW"),
-                 GEMUpdateType::HW32, "hex");
+                 std::make_pair("FIRMWARE_DATE",  "STATUS.FW.DATE"),
+                 GEMUpdateType::HW32, "dateoh");
+  addMonitorable("Status and Control", "HWMonitoring",
+                 std::make_pair("FIRMWARE_VERSION",  "STATUS.FW.VERSION"),
+                 GEMUpdateType::HW32, "fwveroh");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("FPGA_PLL_IS_LOCKED","STATUS.FPGA_PLL_LOCK"),
                  GEMUpdateType::HW32, "bit");
