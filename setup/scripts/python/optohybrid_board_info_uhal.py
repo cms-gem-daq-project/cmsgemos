@@ -17,7 +17,7 @@ parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="slot in uTCA crate", metavar="slot", default=10)
 parser.add_option("-g", "--gtx", type="int", dest="gtx",
-		  help="GTX on the GLIB", metavar="gtx", default=0)
+		  help="GTX on the AMC", metavar="gtx", default=0)
 parser.add_option("-r", "--reset", action="store_true", dest="resetCounters",
 		  help="reset link error counters", metavar="resetCounters")
 parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
@@ -50,10 +50,10 @@ gemlogger.setLevel(GEMLogger.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
+connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
 manager         = uhal.ConnectionManager(connection_file )
 
-amc  = manager.getDevice( "gem.shelf%02d.glib%02d"%(options.shelf,options.slot) )
+amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
 
 SAMPLE_TIME = 1.
 
