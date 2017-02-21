@@ -60,7 +60,7 @@ gemlogger.setLevel(GEMLogger.INFO)
 connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
 manager         = uhal.ConnectionManager(connection_file )
 
-amc  = manager.getDevice( "gem.shelf%02d.glib%02d"%(options.shelf,options.slot) )
+amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
 
 ########################################
 # IP address
