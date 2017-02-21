@@ -30,6 +30,8 @@ parser.add_option("--testbeam", action="store_true", dest="testbeam",
 		  help="fixed IP address for testbeam", metavar="testbeam")
 parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
 		  help="Testing the I2C lines (select I2C line 0-5, or 6 for all", metavar="testi2c")
+parser.add_option("--shelf", type="int", dest="shelf",default=1,
+		  help="uTCA shelf to access", metavar="shelf")
 
 (options, args) = parser.parse_args()
 
