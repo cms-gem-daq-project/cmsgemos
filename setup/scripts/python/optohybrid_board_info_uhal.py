@@ -17,7 +17,7 @@ parser = OptionParser()
 parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="slot in uTCA crate", metavar="slot", default=10)
 parser.add_option("-g", "--gtx", type="int", dest="gtx",
-		  help="GTX on the GLIB", metavar="gtx", default=0)
+		  help="GTX on the AMC", metavar="gtx", default=0)
 parser.add_option("-r", "--reset", action="store_true", dest="resetCounters",
 		  help="reset link error counters", metavar="resetCounters")
 parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
@@ -50,10 +50,10 @@ gemlogger.setLevel(GEMLogger.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
+connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
 manager         = uhal.ConnectionManager(connection_file )
 
-amc  = manager.getDevice( "gem.shelf%02d.glib%02d"%(options.shelf,options.slot) )
+amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
 
 SAMPLE_TIME = 1.
 
@@ -115,7 +115,6 @@ if options.v2b:
     qrates = getErrorRate(errorCounts["QPLL"],SAMPLE_TIME)
     frates = getErrorRate(errorCounts["FPGA"],SAMPLE_TIME)
     print "Unlock count: 0x%08x     0x%08x"%(qrates[0],frates[0])
-    0x00000107
     print "Unlock rate:%10sHz   %10sHz"%("%2.2f%s"%(qrates[1],qrates[2]),"%2.2f%s"%(frates[1],frates[2]))
 else:
     print "Sources:  %6s  %7s  %9s"%("TrgSrc","SBitSrc","RefCLKSrc")
