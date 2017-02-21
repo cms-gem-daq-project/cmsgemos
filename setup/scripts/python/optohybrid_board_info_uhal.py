@@ -115,7 +115,6 @@ if options.v2b:
     qrates = getErrorRate(errorCounts["QPLL"],SAMPLE_TIME)
     frates = getErrorRate(errorCounts["FPGA"],SAMPLE_TIME)
     print "Unlock count: 0x%08x     0x%08x"%(qrates[0],frates[0])
-    0x00000107
     print "Unlock rate:%10sHz   %10sHz"%("%2.2f%s"%(qrates[1],qrates[2]),"%2.2f%s"%(frates[1],frates[2]))
 else:
     print "Sources:  %6s  %7s  %9s"%("TrgSrc","SBitSrc","RefCLKSrc")
