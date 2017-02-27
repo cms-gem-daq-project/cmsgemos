@@ -569,3 +569,41 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
         results.append(readBlock(device,"%s.RESULTS.VFAT%d"%(scanBase,chip),numpoints))
 
     return results
+
+def getADCValue(device, gtx, adc, debug=False):
+    adcBase = "GEM_AMC.OH.OH%d.ADC"%(gtx)
+    adcinfo = readRegister(device,"%s.%s"%(adcBase,adc))
+    return adcinfo
+
+def getADCTemperature(device, gtx, debug=False):
+    return getADCValue(device,gtx,"TEMP",debug)
+
+def getADCVCCInt(device, gtx, debug=False):
+    return getADCValue(device,gtx,"VCCINT",debug)
+
+def getADCVCCAux(device, gtx, debug=False):
+    return getADCValue(device,gtx,"VCCAUX",debug)
+
+def printSysmonInfo(device, gtx, debug=False):
+    adcBase = "GEM_AMC.OH.OH%d.ADC"%(gtx)
+
+    regList = ["TEMP", "VCCINT", "VCCAUX",
+               "TEMP_MAX", "VCCINT_MAX", "VCCAUX_MAX",
+               "TEMP_MIN", "VCCINT_MIN", "VCCAUX_MIN"]
+    regs = []
+    for reg in regList:
+        regs.append("%s.%s"%(adcBase,reg))
+        pass
+    readRegisterList(device,regs)
+    print "OptoHybrid ADC sysmon"
+    print "        %8s  %8s  %8s"%("Temp", "VCCINT", "VCCAUX")
+    print "Current:%2.6f  %2.6f  %2.6f"%(res["%s.TEMP"%(adcBase)],
+                                         res["%s.VCCINT"%(adcBase)],
+                                         res["%s.VCCAUX"%(adcBase)])
+    print "Max:    %2.6f  %2.6f  %2.6f"%(res["%s.TEMP_MAX"%(adcBase)],
+                                         res["%s.VCCINT_MAX"%(adcBase)],
+                                         res["%s.VCCAUX_MAX"%(adcBase)])
+    print "Min:    %2.6f  %2.6f  %2.6f"%(res["%s.TEMP_MIN"%(adcBase)],
+                                         res["%s.VCCINT_MIN"%(adcBase)],
+                                         res["%s.VCCAUX_MIN"%(adcBase)])
+    return
