@@ -1532,7 +1532,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -1540,10 +1540,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -1552,13 +1549,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -1574,19 +1582,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -1595,22 +1603,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -1618,13 +1704,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
@@ -5916,7 +6050,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -5924,10 +6058,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -5936,13 +6067,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -5958,19 +6100,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -5979,22 +6121,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -6002,13 +6222,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
@@ -10300,7 +10568,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -10308,10 +10576,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -10320,13 +10585,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -10342,19 +10618,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -10363,22 +10639,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -10386,13 +10740,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
@@ -14684,7 +15086,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -14692,10 +15094,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -14704,13 +15103,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -14726,19 +15136,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -14747,22 +15157,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -14770,13 +15258,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
@@ -19068,7 +19604,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -19076,10 +19612,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -19088,13 +19621,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -19110,19 +19654,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -19131,22 +19675,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -19154,13 +19776,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
@@ -23452,7 +24122,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -23460,10 +24130,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -23472,13 +24139,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -23494,19 +24172,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -23515,22 +24193,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -23538,13 +24294,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
@@ -27836,7 +28640,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -27844,10 +28648,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -27856,13 +28657,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -27878,19 +28690,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -27899,22 +28711,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -27922,13 +28812,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
@@ -32220,7 +33158,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -32228,10 +33166,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -32240,13 +33175,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -32262,19 +33208,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -32283,22 +33229,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -32306,13 +33330,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
@@ -36604,7 +37676,7 @@
         </node>
         <node id="CONTROL" address="0x0000b000" >
           <node id="VFAT" address="0x00000000" permission="rw" >
-            <node id="MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
+            <node id="TRK_MASK" address="0x00000000" permission="rw" mask="0xffffffff"/>
             <node id="SBIT_MASK" address="0x00000004" permission="rw" mask="0xffffffff"/>
             <node id="RESET" address="0x00000003" permission="w" mask="0x00000001"/>
           </node>
@@ -36612,10 +37684,7 @@
             <node id="SOURCE" address="0x00000000" permission="rw" mask="0x00000007"/>
             <node id="LOOPBACK" address="0x00000001" permission="rw" mask="0x0000001f"/>
           </node>
-          <node id="CLOCK" address="0x00000004" permission="rw" >
-            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
-          </node>
-          <node id="OUTPUT" address="0x00000005" permission="rw" >
+          <node id="HDMI_OUTPUT" address="0x00000005" permission="rw" >
             <node id="SBITS" address="0x00000000" permission="rw" >
               <node id="OUT0" address="0x00000000" permission="rw" mask="0x0000001f"/>
               <node id="OUT1" address="0x00000000" permission="rw" mask="0x000003e0"/>
@@ -36624,13 +37693,24 @@
               <node id="OUT4" address="0x00000000" permission="rw" mask="0x001f0000"/>
               <node id="OUT5" address="0x00000000" permission="rw" mask="0x03e00000"/>
             </node>
-            <node id="HDMI_SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
+            <node id="SBIT_MODE" address="0x00000003" permission="rw" mask="0x00000003"/>
           </node>
           <node id="THROTTLE" address="0x00000006" permission="rw" mask="0xffffffff"/>
           <node id="ZS" address="0x00000007" permission="rw" mask="0x00000001"/>
+          <node id="CLOCK" address="0x00000009" permission="rw" >
+            <node id="REF_CLK" address="0x00000000" permission="rw" mask="0x00000003"/>
+          </node>
         </node>
         <node id="STATUS" address="0x0000c000" >
-          <node id="FW" address="0x00000000" permission="r" />
+          <node id="FW" address="0x00000000" >
+            <node id="DATE"  address="0x0"  permission="r"/>
+            <node id="VERSION"  address="0x3"  permission="r">
+              <node id="MAJOR"  mask="0xff000000"    permission="r"/>
+              <node id="MINOR"  mask="0x00ff0000"    permission="r"/>
+              <node id="BUILD"  mask="0x0000ff00"    permission="r"/>
+              <node id="PATCH"  mask="0x000000ff"    permission="r"/>
+            </node>
+          </node>
           <node id="FPGA_PLL_LOCK" address="0x00000001" permission="r" mask="0x00000001"/>
           <node id="EXT_PLL_LOCK" address="0x00000002" permission="r" mask="0x00000001"/>
           <node id="CDCE_LOCK" address="0x00000003" permission="r" mask="0x00000001"/>
@@ -36646,19 +37726,19 @@
           <node id="INTERVAL" address="0x00000004" permission="rw" mask="0xffffffff"/>
           <node id="DELAY" address="0x00000005" permission="rw" mask="0xffffffff"/>
           <node id="Sequence" address="0x00000006" permission="rw" >
-            <node id="L1A" address="0x00000001" permission="rw" >
+            <node id="L1A" address="0x00000000" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="CalPulse" address="0x00000008" permission="rw" >
+            <node id="CalPulse" address="0x00000002" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="Resync" address="0x0000000a" permission="rw" >
+            <node id="Resync" address="0x00000004" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
-            <node id="BC0" address="0x0000000c" permission="rw" >
+            <node id="BC0" address="0x00000006" permission="rw" >
               <node id="LSB" address="0x00000000" permission="rw" mask="0xffffffff"/>
               <node id="MSB" address="0x00000001" permission="rw" mask="0xffffffff"/>
             </node>
@@ -36667,22 +37747,100 @@
           <node id="RESET" address="0x0000000f" permission="rw" mask="0xffffffff"/>
         </node>
         <node id="ADC" address="0x00008000" >
-          <node id="ADC0" address="0x00000000" permission="r" />
-          <node id="ADC1" address="0x00000001" permission="r" />
-          <node id="ADC2" address="0x00000002" permission="r" />
-          <node id="ADC3" address="0x00000003" permission="r" />
-          <node id="ADC4" address="0x00000004" permission="r" />
-          <node id="ADC5" address="0x00000005" permission="r" />
-          <node id="ADC6" address="0x00000006" permission="r" />
-          <node id="ADC7" address="0x00000007" permission="r" />
-          <node id="ADC8" address="0x00000008" permission="r" />
-          <node id="ADC9" address="0x00000009" permission="r" />
-          <node id="ADC10" address="0x0000000a" permission="r" />
-          <node id="ADC11" address="0x0000000b" permission="r" />
-          <node id="ADC12" address="0x0000000c" permission="r" />
-          <node id="ADC13" address="0x0000000d" permission="r" />
-          <node id="ADC14" address="0x0000000e" permission="r" />
-          <node id="ADC15" address="0x0000000f" permission="r" />
+          <node id="TEMP"  address="0x0"  permission="r"
+                description="Returns the value from the ADC for channel 0"/>
+          <node id="VCCINT"  address="0x1"  permission="r"
+                description="Returns the value from the ADC for channel 1"/>
+          <node id="VCCAUX"  address="0x2"  permission="r"
+                description="Returns the value from the ADC for channel 2"/>
+          <node id="VPVN"  address="0x3"  permission="r"
+                description="Returns the value from the ADC for channel 3"/>
+          <node id="VAUX"  address="0x10"
+                description="Returns the value from the ADC for VAUX[0:15]">
+            <node id="VAL_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 0"/>
+            <node id="VAL_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 1"/>
+            <node id="VAL_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 2"/>
+            <node id="VAL_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 3"/>
+            <node id="VAL_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 4"/>
+            <node id="VAL_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 5"/>
+            <node id="VAL_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 6"/>
+            <node id="VAL_7"  address="0x7"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 7"/>
+            <node id="VAL_8"  address="0x8"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 8"/>
+            <node id="VAL_9"  address="0x9"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 9"/>
+            <node id="VAL_10"  address="0xa"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 10"/>
+            <node id="VAL_11"  address="0xb"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 11"/>
+            <node id="VAL_12"  address="0xc"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 12"/>
+            <node id="VAL_13"  address="0xd"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 13"/>
+            <node id="VAL_14"  address="0xe"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 14"/>
+            <node id="VAL_15"  address="0xf"  permission="r"
+                  description="Returns the value from the ADC VAUX channel 15"/>
+          </node>
+          <node id="TEMP_MAX"    address="0x20"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCINT_MAX"  address="0x21"  permission="r"
+                description="Returns the value from the ADC for channel 5"/>
+          <node id="VCCAUX_MAX"  address="0x22"  permission="r"
+                description="Returns the value from the ADC for channel 6"/>
+          <node id="TEMP_MIN"    address="0x24"  permission="r"
+                description="Returns the value from the ADC for channel 7"/>
+          <node id="VCCINT_MIN"  address="0x25"  permission="r"
+                description="Returns the value from the ADC for channel 8"/>
+          <node id="VCCAUX_MIN"  address="0x26"  permission="r"
+                description="Returns the value from the ADC for channel 9"/>
+          <node id="CONTROL"     address="0x40"
+                description="Returns the value from the ADC for channel 10">
+            <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC control register 0"/>
+            <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC control register 1"/>
+            <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC control register 2"/>
+          </node>
+          <node id="TEST"        address="0x43"
+                description="Returns the value from the ADC for channel 10">
+            <node id="TEST_REGISTER_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC test register 0"/>
+            <node id="TEST_REGISTER_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC test register 1"/>
+            <node id="TEST_REGISTER_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC test register 2"/>
+            <node id="TEST_REGISTER_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC test register 3"/>
+            <node id="TEST_REGISTER_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC test register 4"/>
+          </node>
+          <node id="SEQUENCER"   address="0x48"
+                description="Returns the value from the ADC for channel 10">
+            <node id="SEQ_0"  address="0x0"  permission="r"
+                  description="Returns the value from the ADC sequencer register 0"/>
+            <node id="SEQ_1"  address="0x1"  permission="r"
+                  description="Returns the value from the ADC sequencer register 1"/>
+            <node id="SEQ_2"  address="0x2"  permission="r"
+                  description="Returns the value from the ADC sequencer register 2"/>
+            <node id="SEQ_3"  address="0x3"  permission="r"
+                  description="Returns the value from the ADC sequencer register 3"/>
+            <node id="SEQ_4"  address="0x4"  permission="r"
+                  description="Returns the value from the ADC sequencer register 4"/>
+            <node id="SEQ_5"  address="0x5"  permission="r"
+                  description="Returns the value from the ADC sequencer register 5"/>
+            <node id="SEQ_6"  address="0x6"  permission="r"
+                  description="Returns the value from the ADC sequencer register 6"/>
+          </node>
         </node>
         <node id="ScanController" address="0x00002000" >
           <node id="THLAT" address="0x00000000" permission="rw" >
@@ -36690,13 +37848,61 @@
             <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
             <node id="CHIP" address="0x00000002" permission="rw" mask="0x0000001f"/>
             <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
-            <node id="MIN" address="0x00000004" permission="rw" mask="0x0000000f"/>
-            <node id="MAX" address="0x00000005" permission="rw" mask="0x0000000f"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
             <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
             <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
             <node id="RESULTS" address="0x00000008" permission="r" mode="non-incremental"/>
-            <node id="MONITOR" address="0x00000009" permission="rw" mask="0x00000003"/>
+            <node id="MONITOR" address="0x00000009" >
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
             <node id="RESET" address="0x0000000a" permission="rw" mask="0xffffffff"/>
+          </node>
+          <node id="ULTRA" address="0x0000B000" permission="rw" >
+            <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
+            <node id="MODE" address="0x00000001" permission="rw" mask="0x0000000f"/>
+            <node id="MASK" address="0x00000002" permission="rw" mask="0x00ffffff"/>
+            <node id="CHAN" address="0x00000003" permission="rw" mask="0x000000ff"/>
+            <node id="MIN" address="0x00000004" permission="rw" mask="0x000000ff"/>
+            <node id="MAX" address="0x00000005" permission="rw" mask="0x000000ff"/>
+            <node id="STEP" address="0x00000006" permission="rw" mask="0x000000ff"/>
+            <node id="NTRIGS" address="0x00000007" permission="rw" mask="0x00ffffff"/>
+            <node id="RESULTS" address="0x00000008">
+              <node id="VFAT0"  address="0x0"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT1"  address="0x1"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT2"  address="0x2"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT3"  address="0x3"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT4"  address="0x4"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT5"  address="0x5"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT6"  address="0x6"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT7"  address="0x7"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT8"  address="0x8"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT9"  address="0x9"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT10"  address="0xa"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT11"  address="0xb"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT12"  address="0xc"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT13"  address="0xd"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT14"  address="0xe"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT15"  address="0xf"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT16"  address="0x10"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT17"  address="0x11"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT18"  address="0x12"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT19"  address="0x13"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT20"  address="0x14"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT21"  address="0x15"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT22"  address="0x16"    mode="non-incremental"  permission="r"/>
+              <node id="VFAT23"  address="0x17"    mode="non-incremental"  permission="r"/>
+            </node>
+            <node id="MONITOR" address="0x00000020">
+              <node id="STATUS"  address="0x0"  mask="0x000000f"  permission="r"/>
+              <node id="ERROR"  address="0x0"  mask="0x00000010"  permission="r"/>
+              <node id="READY"  address="0x0"  mask="0x00000020"  permission="r"/>
+              <node id="MASK"   address="0x0"  mask="0xffffff00"   permission="r"/>
+            </node>
+            <node id="RESET" address="0x00000021" permission="rw" mask="0xffffffff"/>
           </node>
           <node id="DAC" address="0x00002000" permission="rw" >
             <node id="START" address="0x00000000" permission="w" mask="0x00000001"/>
