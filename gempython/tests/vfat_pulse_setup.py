@@ -4,15 +4,13 @@ import sys, re, time, datetime, os
 
 sys.path.append('${GEM_PYTHON_PATH}')
 
-import uhal
-from registers_uhal import *
-from glib_system_info_uhal import *
-from vfat_functions_uhal import *
-from rate_calculator import errorRate
-from glib_user_functions_uhal import *
+from gempython.tools.glib_system_info_uhal import *
+from gempython.tools.vfat_functions_uhal import *
+from gempython.tools.glib_user_functions_uhal import *
+from gempython.utils.rate_calculator import errorRate
 
-from optparse import OptionParser
-parser = OptionParser()
+from gempython.utils.standardopts import parser
+
 parser.add_option("-s", "--slot", type="int", dest="slot",
 		  help="AMC slot in uTCA crate", metavar="slot", default=10)
 parser.add_option("-g", "--gtx", type="int", dest="gtx",
@@ -28,16 +26,15 @@ parser.add_option("--vcal", type="int", dest="vcal", default=250,
 
 (options, args) = parser.parse_args()
 
+gemlogger = GEMLogger("vfat_pulse_setup").gemlogger
+gemlogger.setLevel(GEMLogger.INFO)
+
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-uTCAslot = 10
-if options.slot:
-    uTCAslot = 160+options.slot
-print options.slot, uTCAslot
-ipaddr        = '192.168.0.%d'%(uTCAslot)
-uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
-address_table = "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"
-amc           = uhal.getDevice( "amc"       , uri, address_table )
+connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
+manager         = uhal.ConnectionManager(connection_file )
+
+amc  = manager.getDevice( "gem.shelf%02d.glib%02d"%(options.shelf,options.slot) )
 
 print
 print "--==============Low Word 0x%08x =========================--"%(options.lowword)

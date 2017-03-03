@@ -4,9 +4,11 @@ import django
 django.setup()
 import datetime
 from time import sleep
-from ldqm_db.models import *
-from ldqm_db.amcmanager import *
-from gemlogger import GEMLogger
+from gempython.tools.ldqm_db.models import *
+from gempython.tools.ldqm_db.amcmanager import *
+
+from gempython.utils.gemlogger import GEMLogger
+
 gemlogger = GEMLogger("query").gemlogger
 gemlogger.setLevel(GEMLogger.DEBUG)
 

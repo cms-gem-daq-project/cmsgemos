@@ -1,26 +1,39 @@
 #!/bin/env python
 
-import sys, re
+import sys, re, signal
 import time, datetime, os
 
 sys.path.append('${GEM_PYTHON_PATH}')
 
 NGTX = 2
 
-import uhal
-from registers_uhal import *
-from glib_system_info_uhal import *
-from rate_calculator import rateConverter,errorRate
-from glib_user_functions_uhal import *
+from gempython.tools.glib_system_info_uhal import *
+from gempython.utils.rate_calculator import rateConverter,errorRate
+from gempython.tools.glib_user_functions_uhal import *
 
-from standardopts import parser
+from gempython.utils.standardopts import parser
+
+parser.add_option("--daq_enable", type="int", dest="daq_enable",
+                  help="enable daq output", metavar="daq_enable", default=-1)
+parser.add_option("--rd", type="int", dest="reset_daq",
+                  help="reset daq", metavar="reset_daq", default=-1)
+parser.add_option("--l1a_block", action="store_true", dest="l1a_block",
+                  help="Inhibit the L1As at the TTC backplane link", metavar="l1a_block")
+parser.add_option("--short", action="store_true", dest="short",
+                  help="Skip extended information", metavar="short")
+parser.add_option("--invertTX", type="string", dest="invertTX",default="",
+                  help="Flip polarity for SFPs in list", metavar="invertTX")
+parser.add_option("-u", "--user", action="store_true", dest="userOnly",
+                  help="print user information only", metavar="userOnly")
+parser.add_option("-t", "--ttc", type="int", dest="gemttc", default=2,
+                  help="choose the TTC encoding (gem/csc=0, amc13=1,default=2 meaning no modification)", metavar="gemttc")
 
 (options, args) = parser.parse_args()
 
-uhal.setLogLevelTo( uhal.LogLevel.FATAL )
-from gemlogger import GEMLogger
 gemlogger = GEMLogger("glib_board_info_uhal").gemlogger
 gemlogger.setLevel(GEMLogger.INFO)
+
+uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
 connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
 manager         = uhal.ConnectionManager(connection_file )

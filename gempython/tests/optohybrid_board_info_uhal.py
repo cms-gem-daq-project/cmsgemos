@@ -5,18 +5,23 @@ import time, datetime, os
 
 sys.path.append('${GEM_PYTHON_PATH}')
 
-import uhal
-from registers_uhal import *
-from glib_user_functions_uhal import *
-from optohybrid_user_functions_uhal import *
-from rate_calculator import getErrorRate,errorRate
+from gempython.tools.glib_user_functions_uhal import *
+from gempython.tools.optohybrid_user_functions_uhal import *
+from gempython.utils.rate_calculator import getErrorRate,errorRate
 
-from standardopts import parser
+from gempython.utils.standardopts import parser
+
+parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
+		  help="which reference clock to use on OH", metavar="clkSrc")
+parser.add_option("-l", "--localT1", action="store_true", dest="localT1",
+		  help="enable the localT1 controller", metavar="localT1")
+parser.add_option("--v2b", action="store_true", dest="v2b",
+		  help="Specific functionality only in v2b", metavar="v2b")
+parser.add_option("--sbitmask", type="int", dest="sbitmask",default=0x0,
+		  help="use s-bit mask", metavar="sbitmask")
 
 (options, args) = parser.parse_args()
 
-uhal.setLogLevelTo( uhal.LogLevel.FATAL )
-from gemlogger import GEMLogger
 gemlogger = GEMLogger("optohybrid_board_info_uhal").gemlogger
 gemlogger.setLevel(GEMLogger.INFO)
 

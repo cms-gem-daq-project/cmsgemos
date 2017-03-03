@@ -4,34 +4,29 @@ import sys, re, time, datetime, os
 
 sys.path.append('${GEM_PYTHON_PATH}')
 
-import uhal
-from registers_uhal import *
-from glib_system_info_uhal import *
-from vfat_functions_uhal import *
-from rate_calculator import errorRate
-from glib_user_functions_uhal import *
-from optohybrid_user_functions_uhal import *
+from gempython.tools.glib_system_info_uhal import *
+from gempython.tools.vfat_functions_uhal import *
+from gempython.tools.glib_user_functions_uhal import *
+from gempython.tools.optohybrid_user_functions_uhal import *
+from gempython.utils.rate_calculator import errorRate
 
-from optparse import OptionParser
-parser = OptionParser()
-parser.add_option("-s", "--slot", type="int", dest="slot",
-		  help="slot in uTCA crate", metavar="slot", default=10)
-parser.add_option("-g", "--gtx", type="int", dest="gtx",
-		  help="GTX on the GLIB", metavar="gtx", default=0)
-parser.add_option("-d", "--debug", action="store_true", dest="debug",
-		  help="print extra debugging information", metavar="debug")
+from gempython.utils.standardopts import parser
+
 parser.add_option("-z", "--sleep", action="store_true", dest="sleepAll",
 		  help="set all chips into sleep mode", metavar="sleepAll")
 parser.add_option("-b", "--bias", action="store_true", dest="biasAll",
 		  help="set all chips with default bias parameters", metavar="biasAll")
 parser.add_option("-e", "--enable", type="string", dest="enabledChips",
 		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
-parser.add_option("--testbeam", action="store_true", dest="testbeam",
-		  help="fixed IP address for testbeam", metavar="testbeam")
 parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
 		  help="Testing the I2C lines (select I2C line 0-5, or 6 for all", metavar="testi2c")
 
 (options, args) = parser.parse_args()
+
+gemlogger = GEMLogger("glib_vfat_test_uhal").gemlogger
+gemlogger.setLevel(GEMLogger.INFO)
+
+uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
 chips = []
 if options.enabledChips:
@@ -39,25 +34,14 @@ if options.enabledChips:
     msg = "chips", chips
     gemlogger.info(msg)
     pass
-uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-uTCAslot = 10
-if options.slot:
-    uTCAslot = 160+options.slot
-    pass
 msg = options.slot, uTCAslot
 gemlogger.debug(msg)
-ipaddr        = '192.168.0.%d'%(uTCAslot)
-if options.testbeam:
-    ipaddr    = '137.138.115.185'
-    pass
-uri           = "chtcp-2.0://localhost:10203?target=%s:50001"%(ipaddr)
 
-address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
-optohybrid    = uhal.getDevice( "optohybrid" , uri, address_table )
+connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
+manager         = uhal.ConnectionManager(connection_file )
 
-address_table = "file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml"
-glib          = uhal.getDevice( "glib"       , uri, address_table )
+amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
 
 ########################################
 # IP address
@@ -65,15 +49,15 @@ glib          = uhal.getDevice( "glib"       , uri, address_table )
 if options.debug:
     print
     print "--=======================================--"
-    print "  Opening GLIB with IP", ipaddr
+    print "  Opening AMC with IP", ipaddr
     print "--=======================================--"
-    getSystemInfo(glib)
+    getSystemInfo(amc)
     msg = "The nodes within GEM_AMC are:"
     gemlogger.debug(msg)
-    for inode in glib.getNode("GEM_AMC").getNodes():
+    for inode in amc.getNode("GEM_AMC").getNodes():
         msg = inode, "attributes ..."
         gemlogger.debug(msg)
-        node = glib.getNode("GEM_AMC."+inode)
+        node = amc.getNode("GEM_AMC."+inode)
         msg = "Address:0x%08x"%(node.getAddress())
         gemlogger.debug(msg)
         # Bit-mask of node
@@ -113,8 +97,8 @@ for gebslot in range(24):
 emptyMask = 0xFFFF
 thechipid = 0x0000
 
-print "GLIB FW: %s"%(getSystemFWDate(glib))
-print "OH   FW: 0x%08x"%(getFirmwareVersionRaw(optohybrid,options.gtx))
+print "AMC FW: %s"%(getSystemFWDate(amc))
+print "OH  FW: 0x%08x"%(getFirmwareVersionRaw(amc,options.gtx))
 
 controls = []
 chipmask = 0xff000000
@@ -132,20 +116,20 @@ if options.testi2c > -1:
                     # 4 16-19
                     # 5 20-23
                     if (idx%8) > 3:
-                        print "VFAT%02d: 0x%08x"%(idx,getChipID(glib,options.gtx,idx))
+                        print "VFAT%02d: 0x%08x"%(idx,getChipID(amc,options.gtx,idx))
                         pass
                     pass
                 else:
                     if (idx%8) < 4:
-                        print "VFAT%02d: 0x%08x"%(idx,getChipID(glib,options.gtx,idx))
+                        print "VFAT%02d: 0x%08x"%(idx,getChipID(amc,options.gtx,idx))
                     pass
                 pass
             pass
         else:
-            print getAllChipIDs(glib, options.gtx, chipmask)
+            print getAllChipIDs(amc, options.gtx, chipmask)
             for idx in range(24):
                 # if (idx%8) > 3:
-                print "VFAT%02d: 0x%08x"%(idx,getChipID(glib,options.gtx,idx))
+                print "VFAT%02d: 0x%08x"%(idx,getChipID(amc,options.gtx,idx))
                 # pass
                 pass
             pass
@@ -155,7 +139,7 @@ if options.testi2c > -1:
 msg = "Trying to do a block read on all VFATs chipID0"
 gemlogger.debug(msg)
 
-chipids = getAllChipIDs(glib, options.gtx, chipmask,options.debug)
+chipids = getAllChipIDs(amc, options.gtx, chipmask,options.debug)
 msg = chipids
 gemlogger.debug(msg)
 
@@ -166,26 +150,26 @@ if options.debug:
     gemlogger.debug(msg)
 
 if options.biasAll:
-    biasAllVFATs(optohybrid, options.gtx, chipmask)
+    biasAllVFATs(amc, options.gtx, chipmask)
     pass
 if options.sleepAll:
     for chip in range(24):
         msg = "sleeping chip %d"%(chip)
         gemlogger.info(msg)
-        setRunMode(optohybrid, options.gtx, chip, False)
+        setRunMode(amc, options.gtx, chip, False)
         pass
     pass
 for chip in chips:
     msg = "enabling chip %d"%(chip)
     gemlogger.info(msg)
-    setRunMode(optohybrid, options.gtx, chip, True)
+    setRunMode(amc, options.gtx, chip, True)
     pass
 controlRegs = {}
 for control in range(4):
-    controls.append(readAllVFATs(glib, options.gtx, "ContReg%d"%(control), 0xf0000000, options.debug))
+    controls.append(readAllVFATs(amc, options.gtx, "ContReg%d"%(control), 0xf0000000, options.debug))
     controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
     pass
-displayChipInfo(glib, options.gtx, chipids)
+displayChipInfo(amc, options.gtx, chipids)
 
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
 for chip in chipids.keys():

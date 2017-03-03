@@ -1,9 +1,7 @@
-import sys, os, time, signal, random
+import signal
 
-import uhal
-from registers_uhal import *
-from optohybrid_user_functions_uhal import *
-from gemlogger import GEMLogger
+from gempython.utils.registers_uhal import *
+from gempython.tools.optohybrid_user_functions_uhal import *
 
 gemlogger = GEMLogger("vfat_functions_uhal").gemlogger
 

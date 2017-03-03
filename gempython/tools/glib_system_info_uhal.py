@@ -1,8 +1,7 @@
-import sys, os, time, signal, random
+import sys, signal
 sys.path.append('${GEM_PYTHON_PATH}')
 
-import uhal
-from registers_uhal import *
+from gempython.utils.registers_uhal import *
 
 def getBoardID(glib,debug=False):
     reg_list = [

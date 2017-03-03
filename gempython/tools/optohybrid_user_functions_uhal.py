@@ -1,9 +1,8 @@
-import sys, os, time, signal, random
+import sys, time, signal
 sys.path.append('${GEM_PYTHON_PATH}')
 
-import uhal
-from registers_uhal import *
-from gemlogger import GEMLogger
+from gempython.utils.registers_uhal import *
+
 gemlogger = GEMLogger("optohybrid_user_functions").gemlogger
 
 def getFirmwareVersionRaw(device,gtx=0):

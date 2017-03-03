@@ -1,9 +1,7 @@
-import sys, os, time, signal, random
+import sys, time
 sys.path.append('${GEM_PYTHON_PATH}')
 
-import uhal
-from registers_uhal import *
-from gemlogger import GEMLogger
+from gempython.utils.registers_uhal import *
 
 gemlogger = GEMLogger("glib_user_functions").gemlogger
 
