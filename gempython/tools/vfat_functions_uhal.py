@@ -3,7 +3,7 @@ import signal
 from gempython.utils.registers_uhal import *
 from gempython.tools.optohybrid_user_functions_uhal import *
 
-gemlogger = GEMLogger("vfat_functions_uhal").gemlogger
+gemlogger = getGEMLogger(logclassname="vfat_functions_uhal")
 
 def readVFAT(device, gtx, chip, reg, debug=False):
     baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
@@ -102,14 +102,46 @@ def setChannelRegister(device, gtx, chip, chan,
         print "Invalid VFAT channel specified %d"%(chan)
         return
     chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trim&0x1f)
-    writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1),chanReg)
+    writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan),chanReg)
+    return
+
+def setChannelRegister(device, gtx, chip, chan,
+                       chanreg, debug=False):
+    if (chan not in range(0,128)):
+        print "Invalid VFAT channel specified %d"%(chan)
+        return
+    writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan),chanreg)
     return
 
 def getChannelRegister(device, gtx, chip, chan, debug=False):
     if (chan not in range(0,128)):
         print "Invalid VFAT channel specified %d"%(chan)
         return
-    return readVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan+1))
+    return readVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan))
+
+def setAllChannelRegisters(device, gtx, chan,
+                           mask=0x0, pulse=0x0, trim=0x0,
+                           chipmask=0x0, debug=False):
+    if (chan not in range(0,128)):
+        print "Invalid VFAT channel specified %d"%(chan)
+        return
+    chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trim&0x1f)
+    writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan), chanReg, mask, debug)
+    return
+
+def setAllChannelRegisters(device, gtx, chan, chanreg,
+                           chipmask=0x0, debug=False):
+    if (chan not in range(0,128)):
+        print "Invalid VFAT channel specified %d"%(chan)
+        return
+    writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan), chanreg, chipmask, debug)
+    return
+
+def getAllChannelRegisters(device, gtx, chan, mask=0x0, debug=False):
+    if (chan not in range(0,128)):
+        print "Invalid VFAT channel specified %d"%(chan)
+        return
+    return readAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan), mask, debug)
 
 def setVFATThreshold(device, gtx, chip, vt1, vt2=0, debug=False):
     writeVFATRegisters(device, gtx, chip,
@@ -157,10 +189,10 @@ def biasVFAT(device, gtx, chip, enable=True, debug=False):
         pass
 
     for chan in range(128):
-        #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
+        #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan),0x40)
         #mask no channels, as this seems to affect the output data packets, not just the triggers
         # disable cal pulses to all channels
-        registers["VFATChannels.ChanReg%d"%(chan+1)] = 0x00
+        registers["VFATChannels.ChanReg%d"%(chan)] = 0x00
         pass
     writeVFATRegisters(device,gtx,chip,registers)
     return
@@ -191,10 +223,10 @@ def biasAllVFATs(device, gtx, mask=0x0, enable=True, debug=False):
     if debug:
         print "biased VFATs, zeroing channel registers"
     for chan in range(128):
-        #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan+1),0x40)
+        #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan),0x40)
         #mask no channels, as this seems to affect the output data packets, not just the triggers
         # disable cal pulses to all channels
-        writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan+1),0x00, mask=mask,debug=debug)
+        writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan),0x00, mask=mask,debug=debug)
     return
 
 def getChipID(device, gtx, chip, debug=False):
@@ -250,14 +282,17 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
     slotmap = map(lambda slotID: perslot%(slotID), regkeys.keys())
     msg = "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
     gemlogger.info(msg)
+    print msg
     chipmap = map(lambda chipID: perchip%(regkeys[chipID]), regkeys.keys())
     msg = "%s%s%s%s"%(base,colors.CYAN,' '.join(map(str, chipmap)),colors.ENDC)
     gemlogger.info(msg)
+    print msg
     for reg in registerList:
         #regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())
         regValues = readAllVFATs(device, gtx, reg, mask, debug)
         regmap = map(lambda chip: perreg%(chip&0xff), regValues)
         msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
         gemlogger.info(msg)
+        print msg
         pass
     return

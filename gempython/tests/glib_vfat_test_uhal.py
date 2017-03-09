@@ -11,20 +11,22 @@ from gempython.tools.optohybrid_user_functions_uhal import *
 from gempython.utils.rate_calculator import errorRate
 
 from gempython.utils.standardopts import parser
+import logging
+from gempython.utils.gemlogger import colors,getGEMLogger
 
 parser.add_option("-z", "--sleep", action="store_true", dest="sleepAll",
 		  help="set all chips into sleep mode", metavar="sleepAll")
-parser.add_option("-b", "--bias", action="store_true", dest="biasAll",
+parser.add_option("--bias", action="store_true", dest="biasAll",
 		  help="set all chips with default bias parameters", metavar="biasAll")
-parser.add_option("-e", "--enable", type="string", dest="enabledChips",
+parser.add_option("--enable", type="string", dest="enabledChips",
 		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
 parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
 		  help="Testing the I2C lines (select I2C line 0-5, or 6 for all", metavar="testi2c")
 
 (options, args) = parser.parse_args()
 
-gemlogger = GEMLogger("glib_vfat_test_uhal").gemlogger
-gemlogger.setLevel(GEMLogger.INFO)
+gemlogger = getGEMLogger("glib_vfat_test_uhal")
+gemlogger.setLevel(logging.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
@@ -35,10 +37,7 @@ if options.enabledChips:
     gemlogger.info(msg)
     pass
 
-msg = options.slot, uTCAslot
-gemlogger.debug(msg)
-
-connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
+connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
 manager         = uhal.ConnectionManager(connection_file )
 
 amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )

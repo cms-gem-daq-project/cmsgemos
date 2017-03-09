@@ -3,22 +3,12 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 
-from gemlogger import GEMLogger
-gemlogger = GEMLogger("registers_uhal").gemlogger
+from gempython.utils.gemlogger import colors, getGEMLogger
+# gemlogger = GEMLogger("registers_uhal").gemlogger
+gemlogger = getGEMLogger(logclassname="registers_uhal")
 
 gMAX_RETRIES = 5
 gRetries = 0
-
-class colors:
-    WHITE   = '\033[97m'
-    CYAN    = '\033[96m'
-    MAGENTA = '\033[95m'
-    BLUE    = '\033[94m'
-    YELLOW  = '\033[93m'
-    GREEN   = '\033[92m'
-    RED     = '\033[91m'
-    ENDC    = '\033[0m'
-
 
 def readRegister(device, register, debug=False):
     """
@@ -28,16 +18,17 @@ def readRegister(device, register, debug=False):
     global gRetries
     nRetries = 0
     if debug:
-        print """Trying to read register %s (%s)\n
-address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
-"""%(register,
-   device.getNode(register).getPath(),
-   device.getNode(register).getAddress(),
-   device.getNode(register).getMask(),
-   device.getNode(register).getPermission(),
-   device.getNode(register).getMode(),
-   device.getNode(register).getSize()
-   )
+        print """%sTrying to read register %s (%s)
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(colors.CYAN,
+                                                                           register,
+                                                                           device.getNode(register).getPath(),
+                                                                           device.getNode(register).getAddress(),
+                                                                           device.getNode(register).getMask(),
+                                                                           device.getNode(register).getPermission(),
+                                                                           device.getNode(register).getMode(),
+                                                                           device.getNode(register).getSize(),
+                                                                           colors.ENDC
+                                                                           )
         pass
     while (nRetries < gMAX_RETRIES):
         try:
@@ -89,16 +80,17 @@ def readBlock(device, register, nwords, debug=False):
     global gRetries
     nRetries = 0
     if debug:
-        print """Trying to read register %s (%s)\n
-address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
-"""%(register,
-   device.getNode(register).getPath(),
-   device.getNode(register).getAddress(),
-   device.getNode(register).getMask(),
-   device.getNode(register).getPermission(),
-   device.getNode(register).getMode(),
-   device.getNode(register).getSize()
-   )
+        print """%sTrying to read register %s (%s)
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(colors.CYAN,
+                                                                           register,
+                                                                           device.getNode(register).getPath(),
+                                                                           device.getNode(register).getAddress(),
+                                                                           device.getNode(register).getMask(),
+                                                                           device.getNode(register).getPermission(),
+                                                                           device.getNode(register).getMode(),
+                                                                           device.getNode(register).getSize(),
+                                                                           colors.ENDC
+                                                                           )
         pass
     while (nRetries < gMAX_RETRIES):
         try:
@@ -138,16 +130,18 @@ def writeRegister(device, register, value, debug=False):
     global gRetries
     nRetries = 0
     if debug:
-        print """Trying to write value 0x%x to register %s (%s)\n
-address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x \n
-"""%(value,register,
-   device.getNode(register).getPath(),
-   device.getNode(register).getAddress(),
-   device.getNode(register).getMask(),
-   device.getNode(register).getPermission(),
-   device.getNode(register).getMode(),
-   device.getNode(register).getSize()
-   )
+        print """%sTrying to write value 0x%x to register %s (%s)
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(colors.CYAN,
+                                                                           value,
+                                                                           register,
+                                                                           device.getNode(register).getPath(),
+                                                                           device.getNode(register).getAddress(),
+                                                                           device.getNode(register).getMask(),
+                                                                           device.getNode(register).getPermission(),
+                                                                           device.getNode(register).getMode(),
+                                                                           device.getNode(register).getSize(),
+                                                                           colors.ENDC
+                                                                           )
     while (nRetries < gMAX_RETRIES):
         try:
             device.getNode(register).write(0xffffffff&value)

@@ -12,11 +12,11 @@ parser.add_option("-r", "--reset", action="store_true", dest="resetCounters",
                   help="reset link error counters", metavar="resetCounters")
 parser.add_option("-x", "--external", type="int", dest="trgSrc",
                   help="change trigger source", metavar="trgSrc")
-parser.add_option("-b", "--sbitout", type="int", dest="sbitSrc",
+parser.add_option("--sbitout", type="int", dest="sbitSrc",
                   help="use s-bit from VFAT <num>", metavar="sbitSrc")
 parser.add_option("-d", "--debug", action="store_true", dest="debug",
                   help="print extra debugging information", metavar="debug")
-parser.add_option("-e", "--errors", type="int", dest="errorRate", default=1,
+parser.add_option("--errors", type="int", dest="errorRate", default=1,
                   help="calculate link error rates for N seconds", metavar="errorRate")
 parser.add_option("--testbeam", action="store_true", dest="testbeam",
                   help="fixed IP address for testbeam", metavar="testbeam")

@@ -10,6 +10,8 @@ from gempython.tools.optohybrid_user_functions_uhal import *
 from gempython.utils.rate_calculator import getErrorRate,errorRate
 
 from gempython.utils.standardopts import parser
+import logging
+from gempython.utils.gemlogger import colors,getGEMLogger
 
 parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
 		  help="which reference clock to use on OH", metavar="clkSrc")
@@ -22,15 +24,15 @@ parser.add_option("--sbitmask", type="int", dest="sbitmask",default=0x0,
 
 (options, args) = parser.parse_args()
 
-gemlogger = GEMLogger("optohybrid_board_info_uhal").gemlogger
-gemlogger.setLevel(GEMLogger.INFO)
+gemlogger = getGEMLogger(logclassname="optohybrid_board_info_uhal")
+gemlogger.setLevel(logging.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
+connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
 manager         = uhal.ConnectionManager(connection_file )
 
-amc  = manager.getDevice( "gem.shelf%02d.glib%02d"%(options.shelf,options.slot) )
+amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
 
 SAMPLE_TIME = 1.
 
@@ -42,11 +44,17 @@ print "-> -----------------"
 print "-> OPTOHYBRID STATUS     "
 print "-> -----------------"
 
-fwver = getFirmwareVersion(amc,options.gtx)
-date = '%02x/%02x/%04x'%(fwver["d"],fwver["m"],fwver["y"])
-print "-> oh fw date : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
+fwver  = getFirmwareVersion(amc,options.gtx)
+# ver    = '%02x.%02x.%02x.%02x'%(fwver["major"],fwver["minor"],fwver["version"],fwver["patch"])
+fwdate    = getFirmwareDate(amc,options.gtx)
+fwdateold = getFirmwareDateOld(amc,options.gtx)
+date      = '%02x/%02x/%04x'%(fwdate["d"],fwdate["m"],fwdate["y"])
+dateold   = '%02x/%02x/%04x'%(fwdateold["d"],fwdateold["m"],fwdateold["y"])
+print "-> oh fw date(old): %s%s%s"%(colors.YELLOW,dateold,colors.ENDC)
+print "-> oh fw date     : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
+print "-> oh fw version  : %s%s%s"%(colors.YELLOW,fwver,colors.ENDC)
 print
-printSysmonInfo(amc,options.gtx)
+#printSysmonInfo(amc,options.gtx)
 print
 print "Connected VFATs mask: 0x%08x"%(getConnectedVFATsMask(amc,options.gtx,options.debug))
 print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(amc,options.gtx,options.debug))

@@ -3,7 +3,8 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.registers_uhal import *
 
-gemlogger = GEMLogger("glib_user_functions").gemlogger
+#gemlogger = GEMLogger("glib_user_functions").gemlogger
+gemlogger = getGEMLogger(logclassname="glib_user_functions")
 
 NGTX = 2
 

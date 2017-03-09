@@ -3,26 +3,89 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.registers_uhal import *
 
-gemlogger = GEMLogger("optohybrid_user_functions").gemlogger
+# gemlogger = GEMLogger("optohybrid_user_functions").gemlogger
+gemlogger = getGEMLogger(logclassname="optohybrid_user_functions")
 
-def getFirmwareVersionRaw(device,gtx=0):
+class scanmode:
+    THRESHTRG = 0 # Threshold scan
+    THRESHCH  = 1 # Threshold scan per channel
+    LATENCY   = 2 # Latency scan
+    SCURVE    = 3 # s-curve scan
+    THRESHTRK = 4 # Threshold scan with tracking data
+    pass
+
+class triggermode:
+    pass
+
+class triggersrc:
+    DAQTTC   = 0
+    INTERNAL = 1
+    EXTERNAL = 2
+    LOOPBACK = 3
+    LOGICOR  = 4
+    GBTTTC   = 5
+    pass
+
+class clocksrc:
+    # as of 2.2.b.b
+    GBTCLK  = 0 # FW default
+    HDMICLK = 1
+    pass
+
+class dacmode:
+    IPREAMPIN   = 0
+    IPREAMPFEED = 1
+    IPREAMPOUT  = 2
+    ISHAPER     = 3
+    ISHAPERFEED = 4
+    ICOMP       = 5
+    VTHRESHOLD1 = 6
+    VTHRESHOLD2 = 7
+    VCAL        = 8
+    CALOUT      = 9
+    pass
+
+
+def getFirmwareVersionRaw(device,gtx=0,debug=False):
     """
     Returns the raw OH firmware date
     """
     baseNode = "GEM_AMC.OH.OH%d"%(gtx)
-    fwver = readRegister(device,"%s.STATUS.FW"%(baseNode))
+    fwver = readRegister(device,"%s.STATUS.FW"%(baseNode),debug)
     return fwver
 
-def getFirmwareVersion(device,gtx=0):
+def getFirmwareVersion(device,gtx=0,debug=False):
     """
     Returns the OH firmware date as a map (day, month, year)
     """
     baseNode = "GEM_AMC.OH.OH%d"%(gtx)
-    fwver = readRegister(device,"%s.STATUS.FW"%(baseNode))
+    fwver = readRegister(device,"%s.STATUS.FW.VERSION"%(baseNode),debug)
+    ver = "%x.%x.%x.%x"%(0xff&(fwver>>24),0xff&(fwver>>16),0xff&(fwver>>8),0xff&fwver)
+    return ver
+    #return date
+
+def getFirmwareDate(device,gtx=0,debug=False):
+    """
+    Returns the OH firmware date as a map (day, month, year)
+    """
+    baseNode = "GEM_AMC.OH.OH%d"%(gtx)
+    fwdate = readRegister(device,"%s.STATUS.FW.DATE"%(baseNode),debug)
     date = {}
-    date["d"] = fwver&0xff
-    date["m"] = (fwver>>8)&0xff
-    date["y"] = (fwver>>16)&0xffff
+    date["d"] = fwdate&0xff
+    date["m"] = (fwdate>>8)&0xff
+    date["y"] = (fwdate>>16)&0xffff
+    return date
+
+def getFirmwareDateOld(device,gtx=0,debug=False):
+    """
+    Returns the OH firmware date as a map (day, month, year)
+    """
+    baseNode = "GEM_AMC.OH.OH%d"%(gtx)
+    fwdate = readRegister(device,"%s.STATUS.FW_DATE"%(baseNode),debug)
+    date = {}
+    date["d"] = fwdate&0xff
+    date["m"] = (fwdate>>8)&0xff
+    date["y"] = (fwdate>>16)&0xffff
     return date
 
 def getConnectedVFATsMask(device,gtx=0,debug=False):
@@ -43,6 +106,7 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
 def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
     """
     Perform a broadcast I2C write on the VFATs specified by mask
+    Will return when operation has completed
     """
     baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
     writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
@@ -62,6 +126,7 @@ def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
 def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
     """
     Perform a broadcast I2C read on the VFATs specified by mask
+    Will return data when operation has completed
     """
     baseNode = "GEM_AMC.OH.OH%d.GEB.Broadcast"%(gtx)
     writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
@@ -78,7 +143,7 @@ def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
         pass
     return readBlock(device,"%s.Results"%(baseNode),24)
 
-def optohybridCounters(device,gtx=0,doReset=False):
+def optohybridCounters(device,gtx=0,doReset=False,debug=False):
     """
     read the optical link counters, returning a map
     if doReset is true, just send the reset command and pass
@@ -155,19 +220,29 @@ def optohybridCounters(device,gtx=0,doReset=False):
         counters["GTX"]["DATA_Packets"] = readRegister(device,"%s.GTX.DATA_Packets"%(baseNode))
         return counters
 
-def setTriggerSource(device,gtx,source):
+def setTriggerSource(device,gtx,source,debug=False):
     """
     Set the trigger source
-    OH:   0=TTC, 1=FIRMWARE, 2=EXTERNAL, 3=LOOPBACK
+    OH:   0 = TTC over GTX
+          1 = FIRMWARE
+          2 = EXTERNAL
+          3 = LOOPBACK
+          4 = LOGICAL OR
+          5 = TTC over GBT
     """
-    return writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(gtx),source)
+    return writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(gtx),source,debug)
 
-def getTriggerSource(device,gtx):
+def getTriggerSource(device,gtx,debug=False):
     """
     Get the trigger source
-    OH:   0=TTC, 1=FIRMWARE, 2=EXTERNAL, 3=LOOPBACK
+    OH:   0 = TTC over GTX
+          1 = FIRMWARE
+          2 = EXTERNAL
+          3 = LOOPBACK
+          4 = LOGICAL OR
+          5 = TTC over GBT
     """
-    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(gtx))
+    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(gtx),debug)
 
 def setTriggerThrottle(device,gtx,throttle):
     """
@@ -196,35 +271,38 @@ def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=F
     interval (only for mode 0,1), how often to repeat signals
     number how many signals to send (0 is continuous)
     """
-    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx),mode)
+    ## may be necessary, seems to help
+    resetLocalT1(device,gtx,debug)
+
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx),mode,debug)
     msg = "configuring the T1 controller for mode 0x%x (0x%x)"%(
         mode,
-        readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx)))
+        readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx),debug))
     gemlogger.debug(msg)
 
     if (mode == 0):
-        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx),t1type)
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx),t1type,debug)
         msg = "configuring the T1 controller for type 0x%x (0x%x)"%(
             t1type,
-            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx)))
+            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx),debug))
         gemlogger.debug(msg)
     if (mode == 1):
-        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx),delay)
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx),delay,debug)
         msg = "configuring the T1 controller for delay %d (%d)"%(
             delay,
-            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx)))
+            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx),debug))
         gemlogger.debug(msg)
     if (mode != 2):
-        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx),interval)
+        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx),interval,debug)
         msg = "configuring the T1 controller for interval %d (%d)"%(
             interval,
-            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx)))
+            readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx),debug))
         gemlogger.debug(msg)
 
-    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx),number)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx),number,debug)
     msg = "configuring the T1 controller for nsignals %d (%d)"%(
         number,
-        readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx)))
+        readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx),debug))
     gemlogger.debug(msg)
     return
 
@@ -257,15 +335,20 @@ def sendL1A(device,gtx,interval=25,number=0,debug=False):
     if debug:
         msg = "resetting the T1 controller"
         gemlogger.debug(msg)
-    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
+    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1,debug)
     if debug:
         msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
         gemlogger.debug(msg)
-    configureLocalT1(device,gtx,0x0,0x0,0x0,interval,number)
+    configureLocalT1(device,gtx,0x0,0x0,0x0,interval,number,debug)
+    msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    gemlogger.debug(msg)
+    startLocalT1(device,gtx,debug)
+    # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)        
     #if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
     #    msg = "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
     #    msg = "toggling T1Controller for sending L1A"
-    writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    # writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1,debug)
     #msg = "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
     return
 
@@ -284,8 +367,11 @@ def sendL1ACalPulse(device,gtx,delay,interval=25,number=0,debug=False):
     msg = "configuring the T1 controller for mode 0x1, delay %d, interval %d, nsignals %d"%(delay,interval,number)
     gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x1,0x0,delay,interval,number)
-    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    gemlogger.debug(msg)
+    startLocalT1(device,gtx,debug)
+    # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)        
     return
 
 def sendResync(device,gtx,interval=25,number=1,debug=False):
@@ -298,8 +384,9 @@ def sendResync(device,gtx,interval=25,number=1,debug=False):
     configureLocalT1(device,gtx,0x0,0x2,0x0,interval,number)
     msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
     gemlogger.debug(msg)
-    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    startLocalT1(device,gtx,debug)
+    # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)        
     return
 
 def sendBC0(device,gtx,interval=25,number=1,debug=False):
@@ -312,8 +399,9 @@ def sendBC0(device,gtx,interval=25,number=1,debug=False):
     configureLocalT1(device,gtx,0x0,0x3,0x0,interval,number)
     msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
     gemlogger.debug(msg)
-    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-        writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    startLocalT1(device,gtx,debug)
+    # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)        
     return
 
 def setReferenceClock(device,gtx,source,debug=False):

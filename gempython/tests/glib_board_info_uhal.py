@@ -12,6 +12,8 @@ from gempython.utils.rate_calculator import rateConverter,errorRate
 from gempython.tools.glib_user_functions_uhal import *
 
 from gempython.utils.standardopts import parser
+import logging
+from gempython.utils.gemlogger import colors,getGEMLogger
 
 parser.add_option("--daq_enable", type="int", dest="daq_enable",
                   help="enable daq output", metavar="daq_enable", default=-1)
@@ -30,15 +32,15 @@ parser.add_option("-t", "--ttc", type="int", dest="gemttc", default=2,
 
 (options, args) = parser.parse_args()
 
-gemlogger = GEMLogger("glib_board_info_uhal").gemlogger
-gemlogger.setLevel(GEMLogger.INFO)
+gemlogger = getGEMLogger(logclassname="glib_board_info_uhal")
+gemlogger.setLevel(logging.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
+connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
 manager         = uhal.ConnectionManager(connection_file )
 
-amc  = manager.getDevice( "gem.shelf%02d.glib%02d"%(options.shelf,options.slot) )
+amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
 
 ########################################
 # IP address
