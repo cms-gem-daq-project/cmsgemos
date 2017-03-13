@@ -2,6 +2,7 @@ import signal
 
 from gempython.utils.registers_uhal import *
 from gempython.tools.optohybrid_user_functions_uhal import *
+from collections import defaultdict as cdict
 
 gemlogger = getGEMLogger(logclassname="vfat_functions_uhal")
 
@@ -54,7 +55,7 @@ def writeVFAT(device, gtx, chip, reg, value, debug=False):
 
 def writeVFATRegisters(device, gtx, chip, regs_with_values, debug=False):
     baseNode = "GEM_AMC.OH.OH%d.GEB.VFATS.VFAT%d"%(gtx,chip)
-    registers = {}
+    registers = cdict(dict)
     for reg in regs_with_values.keys():
         registers["%s.%s"%(baseNode,reg)] = regs_with_values[reg]
         pass

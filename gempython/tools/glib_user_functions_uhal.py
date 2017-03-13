@@ -3,14 +3,28 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.registers_uhal import *
 
-#gemlogger = GEMLogger("glib_user_functions").gemlogger
+from collections import defaultdict as cdict
+
 gemlogger = getGEMLogger(logclassname="glib_user_functions")
 
 NGTX = 2
 
+def getAMCObject(slot,shelf,debug=False):
+    connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
+    manager         = uhal.ConnectionManager(connection_file )
+    amc             = manager.getDevice( "gem.shelf%02d.amc%02d"%(shelf,slot) )
+    if checkAMCBoard(amc):
+        return amc
+    else:
+        raise Exception
+
+def checkAMCBoard(device,debug=False):
+    # TO BE IMPLEMENTED
+    return True
+
 def calculateLinkErrors(isGLIB,device,gtx,sampleTime):
     baseNode = "GEM_AMC.OH_LINKS"
-    errorCounts = {}
+    errorCounts = cdict(dict)
     if not isGLIB:
         baseNode = "GEM_AMC.OH_LINKS"
 
@@ -48,22 +62,22 @@ def glibCounters(device,gtx,doReset=False):
         writeRegister(device,"%s.GTX%d.DATA_Packets.Reset"%(baseNode, gtx), 0x1)
         return
     else:
-        counters = {}
+        counters = cdict(dict)
         
-        counters["IPBus"] = {}
+        # counters["IPBus"] = {}
         for ipbcnt in ["Strobe","Ack"]:
-            counters["IPBus"][ipbcnt] = {}
+            # counters["IPBus"][ipbcnt] = {}
             for ipb in ["OptoHybrid","TRK"]:
                 counters["IPBus"][ipbcnt][ipb] = readRegister(device,"%s.IPBus.%s.%s_%d"%(   baseNode, ipbcnt,ipb,gtx))
             counters["IPBus"][ipbcnt]["Counters"] = readRegister(device,"%s.IPBus.%s.Counters"%(baseNode, ipbcnt))
 
 
         #T1 counters
-        counters["T1"] = {}
+        # counters["T1"] = {}
         for t1 in ["L1A", "CalPulse","Resync","BC0"]:
             counters["T1"][t1] = readRegister(device,"%s.T1.%s"%(baseNode, t1))
 
-        counters["GTX%d"%(gtx)] = {}
+        # counters["GTX%d"%(gtx)] = {}
         counters["GTX%d"%(gtx)]["TRK_ERR"]      = readRegister(device,"%s.GTX%d.TRK_ERR"%(baseNode,gtx))
         counters["GTX%d"%(gtx)]["TRG_ERR"]      = readRegister(device,"%s.GTX%d.TRG_ERR"%(baseNode,gtx))
         counters["GTX%d"%(gtx)]["DATA_Packets"] = readRegister(device,"%s.GTX%d.DATA_Packets"%(baseNode,gtx))
@@ -96,7 +110,7 @@ def readFIFODepth(device,gtx):
     """
     baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(gtx)
 
-    data = {}
+    data = cdict(dict)
     data["isFULL"]    = readRegister(device,"%s.ISFULL"%(baseNode))
     data["isEMPTY"]   = readRegister(device,"%s.ISEMPTY"%(baseNode))
     data["Occupancy"] = readRegister(device,"%s.DEPTH"%(baseNode))

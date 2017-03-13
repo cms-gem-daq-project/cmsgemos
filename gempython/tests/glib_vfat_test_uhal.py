@@ -37,10 +37,8 @@ if options.enabledChips:
     gemlogger.info(msg)
     pass
 
-connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
-manager         = uhal.ConnectionManager(connection_file )
-
-amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
+amc     = getAMCObject(options.slot,options.shelf,options.debug)
+ohboard = getOHObject(options.slot,options.shelf,options.gtx,options.debug)
 
 ########################################
 # IP address
@@ -97,7 +95,7 @@ emptyMask = 0xFFFF
 thechipid = 0x0000
 
 print "AMC FW: %s"%(getSystemFWDate(amc))
-print "OH  FW: 0x%08x"%(getFirmwareVersionRaw(amc,options.gtx))
+print "OH  FW: 0x%08x"%(getFirmwareVersionRaw(ohboard,options.gtx))
 
 controls = []
 chipmask = 0xff000000
@@ -115,20 +113,20 @@ if options.testi2c > -1:
                     # 4 16-19
                     # 5 20-23
                     if (idx%8) > 3:
-                        print "VFAT%02d: 0x%08x"%(idx,getChipID(amc,options.gtx,idx))
+                        print "VFAT%02d: 0x%08x"%(idx,getChipID(ohboard,options.gtx,idx))
                         pass
                     pass
                 else:
                     if (idx%8) < 4:
-                        print "VFAT%02d: 0x%08x"%(idx,getChipID(amc,options.gtx,idx))
+                        print "VFAT%02d: 0x%08x"%(idx,getChipID(ohboard,options.gtx,idx))
                     pass
                 pass
             pass
         else:
-            print getAllChipIDs(amc, options.gtx, chipmask)
+            print getAllChipIDs(ohboard, options.gtx, chipmask)
             for idx in range(24):
                 # if (idx%8) > 3:
-                print "VFAT%02d: 0x%08x"%(idx,getChipID(amc,options.gtx,idx))
+                print "VFAT%02d: 0x%08x"%(idx,getChipID(ohboard,options.gtx,idx))
                 # pass
                 pass
             pass
@@ -138,7 +136,7 @@ if options.testi2c > -1:
 msg = "Trying to do a block read on all VFATs chipID0"
 gemlogger.debug(msg)
 
-chipids = getAllChipIDs(amc, options.gtx, chipmask,options.debug)
+chipids = getAllChipIDs(ohboard, options.gtx, chipmask,options.debug)
 msg = chipids
 gemlogger.debug(msg)
 
@@ -149,26 +147,26 @@ if options.debug:
     gemlogger.debug(msg)
 
 if options.biasAll:
-    biasAllVFATs(amc, options.gtx, chipmask)
+    biasAllVFATs(ohboard, options.gtx, chipmask)
     pass
 if options.sleepAll:
     for chip in range(24):
         msg = "sleeping chip %d"%(chip)
         gemlogger.info(msg)
-        setRunMode(amc, options.gtx, chip, False)
+        setRunMode(ohboard, options.gtx, chip, False)
         pass
     pass
 for chip in chips:
     msg = "enabling chip %d"%(chip)
     gemlogger.info(msg)
-    setRunMode(amc, options.gtx, chip, True)
+    setRunMode(ohboard, options.gtx, chip, True)
     pass
 controlRegs = {}
 for control in range(4):
-    controls.append(readAllVFATs(amc, options.gtx, "ContReg%d"%(control), 0xf0000000, options.debug))
+    controls.append(readAllVFATs(ohboard, options.gtx, "ContReg%d"%(control), 0xf0000000, options.debug))
     controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))
     pass
-displayChipInfo(amc, options.gtx, chipids)
+displayChipInfo(ohboard, options.gtx, chipids)
 
 print "%6s  %6s  %02s  %02s  %02s  %02s"%("chip", "ID", "ctrl0", "ctrl1", "ctrl2", "ctrl3")
 for chip in chipids.keys():

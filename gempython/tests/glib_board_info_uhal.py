@@ -32,15 +32,12 @@ parser.add_option("-t", "--ttc", type="int", dest="gemttc", default=2,
 
 (options, args) = parser.parse_args()
 
-gemlogger = getGEMLogger(logclassname="glib_board_info_uhal")
+gemlogger = getGEMLogger(logclassname="glib_user_functions")
 gemlogger.setLevel(logging.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
-manager         = uhal.ConnectionManager(connection_file )
-
-amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(options.shelf,options.slot) )
+amc = getAMCObject(options.slot,options.shelf,options.debug)
 
 ########################################
 # IP address
@@ -51,26 +48,26 @@ print "  Opening AMC with ID", amc
 print "--=======================================--"
 print
 
-# set all links to un-inverted
-for sfp in range(4):
-    writeRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x0)
-    pass
-# invert specified links
-invertList = []
-try:
-    invertList = map(int, (options.invertTX).split(','))
-except ValueError:
-    print "Cannot convert %s to list of ints"%(options.invertTX)
-    pass
+# # set all links to un-inverted
+# for sfp in range(4):
+#     writeRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x0)
+#     pass
+# # invert specified links
+# invertList = []
+# try:
+#     invertList = map(int, (options.invertTX).split(','))
+# except ValueError:
+#     print "Cannot convert %s to list of ints"%(options.invertTX)
+#     pass
 
-if len(invertList) :
-    for sfp in invertList:
-        if (sfp > 4 or sfp < 0):
-            print "invalid link specified, not inverting"
-            continue
-        writeRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x1)
-        pass
-    pass
+# if len(invertList) :
+#     for sfp in invertList:
+#         if (sfp > 4 or sfp < 0):
+#             print "invalid link specified, not inverting"
+#             continue
+#         writeRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY",0x1)
+#         pass
+#     pass
 
 if not options.userOnly:
 	getSystemInfo(amc)

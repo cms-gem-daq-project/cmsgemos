@@ -3,6 +3,8 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 
+from collections import defaultdict as cdict
+
 from gempython.utils.gemlogger import colors, getGEMLogger
 # gemlogger = GEMLogger("registers_uhal").gemlogger
 gemlogger = getGEMLogger(logclassname="registers_uhal")
@@ -56,20 +58,26 @@ def readRegisterList(device, registers, debug=False):
         pass
     while (nRetries < gMAX_RETRIES):
         try:
-            results = {}
+            results = cdict(dict)
             for reg in registers:
                 results[reg] = device.getNode(reg).read()
                 pass
+            if (debug):
+                print results
             device.dispatch()
+            time.sleep(0.1)
+            if (debug):
+                print results
             return results
         except uhal.exception, e:
+            print colors.MAGENTA,"read error encountered, retrying operation (%d,%d)"%(nRetries,gRetries),e,colors.ENDC
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10)==0):
-                print colors.MAGENTA,"read error encountered, retrying operation (%d,%d)"%(nRetries,gRetries),e,colors.ENDC
                 continue
             pass
         pass
+    print colors.MAGENTA,"Failed to readRegisterList",colors.ENDC
     return 0x0
 
 def readBlock(device, register, nwords, debug=False):
@@ -183,10 +191,10 @@ def writeRegisterList(device, regs_with_vals, debug=False):
             return
 
         except uhal.exception, e:
+            print colors.MAGENTA,"write error encountered ",regs_with_vals,", retrying operation (%d,%d)"%(nRetries,gRetries),e,colors.ENDC
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10)==0) and debug:
-                print colors.MAGENTA,"write error encountered (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),e,colors.ENDC
                 pass
             continue
         pass

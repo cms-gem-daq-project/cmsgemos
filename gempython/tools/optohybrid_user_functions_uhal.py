@@ -1,6 +1,7 @@
 import sys, time, signal
 sys.path.append('${GEM_PYTHON_PATH}')
 
+from collections import defaultdict as cdict
 from gempython.utils.registers_uhal import *
 
 # gemlogger = GEMLogger("optohybrid_user_functions").gemlogger
@@ -45,6 +46,18 @@ class dacmode:
     CALOUT      = 9
     pass
 
+def getOHObject(slot,shelf,link,debug=False):
+    connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
+    manager         = uhal.ConnectionManager(connection_file )
+    ohboard         = manager.getDevice( "gem.shelf%02d.amc%02d.optohybrid%02d"%(shelf,slot,link) )
+    if checkOHBoard(ohboard):
+        return ohboard
+    else:
+        raise Exception
+
+def checkOHBoard(device,gtx=0,debug=False):
+    # TO BE IMPLEMENTED
+    return True
 
 def getFirmwareVersionRaw(device,gtx=0,debug=False):
     """
@@ -70,7 +83,7 @@ def getFirmwareDate(device,gtx=0,debug=False):
     """
     baseNode = "GEM_AMC.OH.OH%d"%(gtx)
     fwdate = readRegister(device,"%s.STATUS.FW.DATE"%(baseNode),debug)
-    date = {}
+    date = cdict(dict)
     date["d"] = fwdate&0xff
     date["m"] = (fwdate>>8)&0xff
     date["y"] = (fwdate>>16)&0xffff
@@ -82,7 +95,7 @@ def getFirmwareDateOld(device,gtx=0,debug=False):
     """
     baseNode = "GEM_AMC.OH.OH%d"%(gtx)
     fwdate = readRegister(device,"%s.STATUS.FW_DATE"%(baseNode),debug)
-    date = {}
+    date = cdict(dict)
     date["d"] = fwdate&0xff
     date["m"] = (fwdate>>8)&0xff
     date["y"] = (fwdate>>16)&0xffff
@@ -155,69 +168,89 @@ def optohybridCounters(device,gtx=0,doReset=False,debug=False):
     baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(gtx)
 
     if doReset:
+        reg_list = cdict(dict)
         for wbcnt in ["Strobe","Ack"]:
-            writeRegister(device,"%s.WB.MASTER.%s.GTX.Reset"%(   baseNode, wbcnt),0x1)
-            writeRegister(device,"%s.WB.MASTER.%s.ExtI2C.Reset"%(baseNode, wbcnt),0x1)
-            writeRegister(device,"%s.WB.MASTER.%s.Scan.Reset"%(  baseNode, wbcnt),0x1)
-            writeRegister(device,"%s.WB.MASTER.%s.DAC.Reset"%(   baseNode, wbcnt),0x1)
+
+            reg_list["%s.WB.MASTER.%s.GTX.Reset"%(   baseNode, wbcnt)] = 0x1
+            reg_list["%s.WB.MASTER.%s.ExtI2C.Reset"%(baseNode, wbcnt)] = 0x1
+            reg_list["%s.WB.MASTER.%s.Scan.Reset"%(  baseNode, wbcnt)] = 0x1
+            reg_list["%s.WB.MASTER.%s.DAC.Reset"%(   baseNode, wbcnt)] = 0x1
             # wishbone slaves
             for i2c in range(6):
-                writeRegister(device,"%s.WB.SLAVE.%s.I2C%d.Reset"%(baseNode, wbcnt, i2c),0x1)
+                reg_list["%s.WB.SLAVE.%s.I2C%d.Reset"%(baseNode, wbcnt, i2c)] = 0x1
             for slave in ["ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"]:
-                writeRegister(device,"%s.WB.SLAVE.%s.%s.Reset"%(baseNode, wbcnt, slave),0x1)
+                reg_list["%s.WB.SLAVE.%s.%s.Reset"%(baseNode, wbcnt, slave)] = 0x1
         #CRC counters
         for vfat in range(24):
-            writeRegister(device,"%s.CRC.VALID.VFAT%d.Reset"%(    baseNode, vfat),0x1)
-            writeRegister(device,"%s.CRC.INCORRECT.VFAT%d.Reset"%(baseNode, vfat),0x1)
+            reg_list["%s.CRC.VALID.VFAT%d.Reset"%(    baseNode, vfat)] = 0x1
+            reg_list["%s.CRC.INCORRECT.VFAT%d.Reset"%(baseNode, vfat)] = 0x1
 
         #T1 counters
         for t1src in ["TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
             for t1 in ["L1A", "CalPulse","Resync","BC0"]:
-                writeRegister(device,"%s.T1.%s.%s.Reset"%(baseNode, t1src, t1),0x1)
+                reg_list["%s.T1.%s.%s.Reset"%(baseNode, t1src, t1)] = 0x1
 
-        writeRegister(device,"%s.GTX.TRK_ERR.Reset"%(     baseNode), 0x1)
-        writeRegister(device,"%s.GTX.TRG_ERR.Reset"%(     baseNode), 0x1)
-        writeRegister(device,"%s.GTX.DATA_Packets.Reset"%(baseNode), 0x1)
+        reg_list["%s.GTX.TRK_ERR.Reset"%(     baseNode)] = 0x1
+        reg_list["%s.GTX.TRG_ERR.Reset"%(     baseNode)] = 0x1
+        reg_list["%s.GTX.DATA_Packets.Reset"%(baseNode)] = 0x1
+
+        writeRegisterList(device,reg_list,debug)
         return
     else:
-        counters = {}
+        counters = cdict(dict)
 
-        counters["WB"] = {}
-        counters["WB"]["MASTER"] = {}
-        counters["WB"]["SLAVE"]  = {}
+        # counters["WB"] = {}
+        # counters["WB"]["MASTER"] = {}
+        # counters["WB"]["SLAVE"]  = {}
+        reg_list = []
         for wbcnt in ["Strobe","Ack"]:
-            counters["WB"]["MASTER"][wbcnt] = {}
-            counters["WB"]["MASTER"][wbcnt]["GTX"] = readRegister(device,"%s.WB.MASTER.%s.GTX"%(   baseNode, wbcnt))
-            counters["WB"]["MASTER"][wbcnt]["ExtI2C"] = readRegister(device,"%s.WB.MASTER.%s.ExtI2C"%(baseNode, wbcnt))
-            counters["WB"]["MASTER"][wbcnt]["Scan"] = readRegister(device,"%s.WB.MASTER.%s.Scan"%(  baseNode, wbcnt))
-            counters["WB"]["MASTER"][wbcnt]["DAC"] = readRegister(device,"%s.WB.MASTER.%s.DAC"%(   baseNode, wbcnt))
+            # counters["WB"]["MASTER"][wbcnt] = {}
+            reg_list.append("%s.WB.MASTER.%s.GTX"%(   baseNode, wbcnt))
+            reg_list.append("%s.WB.MASTER.%s.ExtI2C"%(baseNode, wbcnt))
+            reg_list.append("%s.WB.MASTER.%s.Scan"%(  baseNode, wbcnt))
+            reg_list.append("%s.WB.MASTER.%s.DAC"%(   baseNode, wbcnt))
+            # counters["WB"]["MASTER"][wbcnt]["GTX"]    = readRegister(device,"%s.WB.MASTER.%s.GTX"%(   baseNode, wbcnt))
+            # counters["WB"]["MASTER"][wbcnt]["ExtI2C"] = readRegister(device,"%s.WB.MASTER.%s.ExtI2C"%(baseNode, wbcnt))
+            # counters["WB"]["MASTER"][wbcnt]["Scan"]   = readRegister(device,"%s.WB.MASTER.%s.Scan"%(  baseNode, wbcnt))
+            # counters["WB"]["MASTER"][wbcnt]["DAC"]    = readRegister(device,"%s.WB.MASTER.%s.DAC"%(   baseNode, wbcnt))
 
             # wishbone slaves
-            counters["WB"]["SLAVE"][wbcnt]  = {}
+            # counters["WB"]["SLAVE"][wbcnt]  = {}
             for i2c in range(6):
-                counters["WB"]["MASTER"][wbcnt]["I2C%d"%i2c] = readRegister(device,"%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
+                reg_list.append("%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
+                # counters["WB"]["MASTER"][wbcnt]["I2C%d"%i2c] = readRegister(device,"%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
             for slave in ["ExtI2C","Scan","T1","DAC","ADC","Clocking","Counters","System"]:
-                counters["WB"]["MASTER"][wbcnt][slave] = readRegister(device,"%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
+                reg_list.append("%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
+                # counters["WB"]["MASTER"][wbcnt][slave]       = readRegister(device,"%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
 
         #CRC counters
-        counters["CRC"] = {}
-        counters["CRC"]["VALID"]     = {}
-        counters["CRC"]["INCORRECT"] = {}
+        # counters["CRC"] = {}
+        # counters["CRC"]["VALID"]     = {}
+        # counters["CRC"]["INCORRECT"] = {}
         for vfat in range(24):
-            counters["CRC"]["VALID"]["VFAT%d"%vfat]     = readRegister(device,"%s.CRC.VALID.VFAT%d"%(    baseNode, vfat))
-            counters["CRC"]["INCORRECT"]["VFAT%d"%vfat] = readRegister(device,"%s.CRC.INCORRECT.VFAT%d"%(baseNode, vfat))
+            reg_list.append("%s.CRC.VALID.VFAT%d"%(    baseNode, vfat))
+            reg_list.append("%s.CRC.INCORRECT.VFAT%d"%(baseNode, vfat))
+            # counters["CRC"]["VALID"]["VFAT%d"%vfat]     = readRegister(device,"%s.CRC.VALID.VFAT%d"%(    baseNode, vfat))
+            # counters["CRC"]["INCORRECT"]["VFAT%d"%vfat] = readRegister(device,"%s.CRC.INCORRECT.VFAT%d"%(baseNode, vfat))
 
         #T1 counters
-        counters["T1"] = {}
+        # counters["T1"] = {}
         for t1src in ["TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
-            counters["T1"][t1src] = {}
+            # counters["T1"][t1src] = {}
             for t1 in ["L1A", "CalPulse","Resync","BC0"]:
-                counters["T1"][t1src][t1] = readRegister(device,"%s.T1.%s.%s"%(baseNode, t1src, t1))
+                reg_list.append("%s.T1.%s.%s"%(baseNode, t1src, t1))
+                # counters["T1"][t1src][t1] = readRegister(device,"%s.T1.%s.%s"%(baseNode, t1src, t1))
 
-        counters["GTX"] = {}
-        counters["GTX"]["TRK_ERR"] = readRegister(device,"%s.GTX.TRK_ERR"%(baseNode))
-        counters["GTX"]["TRG_ERR"] = readRegister(device,"%s.GTX.TRG_ERR"%(baseNode))
-        counters["GTX"]["DATA_Packets"] = readRegister(device,"%s.GTX.DATA_Packets"%(baseNode))
+        # counters["GTX"] = {}
+        reg_list.append("%s.GTX.TRK_ERR"%(baseNode))
+        reg_list.append("%s.GTX.TRG_ERR"%(baseNode))
+        reg_list.append("%s.GTX.DATA_Packets"%(baseNode))
+        # counters["GTX"]["TRK_ERR"]      = readRegister(device,"%s.GTX.TRK_ERR"%(baseNode))
+        # counters["GTX"]["TRG_ERR"]      = readRegister(device,"%s.GTX.TRG_ERR"%(baseNode))
+        # counters["GTX"]["DATA_Packets"] = readRegister(device,"%s.GTX.DATA_Packets"%(baseNode))
+
+        reg_vals = readRegisterList(device,reg_list,debug)
+
         return counters
 
 def setTriggerSource(device,gtx,source,debug=False):
@@ -340,11 +373,11 @@ def sendL1A(device,gtx,interval=25,number=0,debug=False):
         msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
         gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x0,0x0,0x0,interval,number,debug)
-    msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    msg = "current T1 status",readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
     gemlogger.debug(msg)
     startLocalT1(device,gtx,debug)
     # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)        
+    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     #if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
     #    msg = "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
     #    msg = "toggling T1Controller for sending L1A"
@@ -367,11 +400,11 @@ def sendL1ACalPulse(device,gtx,delay,interval=25,number=0,debug=False):
     msg = "configuring the T1 controller for mode 0x1, delay %d, interval %d, nsignals %d"%(delay,interval,number)
     gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x1,0x0,delay,interval,number)
-    msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    msg = "current T1 status",readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
     gemlogger.debug(msg)
     startLocalT1(device,gtx,debug)
     # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)        
+    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def sendResync(device,gtx,interval=25,number=1,debug=False):
@@ -382,11 +415,11 @@ def sendResync(device,gtx,interval=25,number=1,debug=False):
     msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
     gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x0,0x2,0x0,interval,number)
-    msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    msg = "current T1 status",readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
     gemlogger.debug(msg)
     startLocalT1(device,gtx,debug)
     # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)        
+    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def sendBC0(device,gtx,interval=25,number=1,debug=False):
@@ -397,11 +430,11 @@ def sendBC0(device,gtx,interval=25,number=1,debug=False):
     msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
     gemlogger.debug(msg)
     configureLocalT1(device,gtx,0x0,0x3,0x0,interval,number)
-    msg = "current T1 status"%(gtx),readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
+    msg = "current T1 status",readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
     gemlogger.debug(msg)
     startLocalT1(device,gtx,debug)
     # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)        
+    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
     return
 
 def setReferenceClock(device,gtx,source,debug=False):
@@ -425,7 +458,7 @@ def getClockingInfo(device,gtx,debug=False):
     """
     Get the OptoHybrid clocking information
     """
-    clocking = {}
+    clocking = cdict(dict)
 
     # v2b only
     clocking["qplllock"]        = readRegister(device,"GEM_AMC.OH.OH%d.STATUS.QPLL_LOCK" %(gtx))
@@ -470,7 +503,7 @@ def setVFATTrackingMask(device,gtx=0,mask=0x000000,debug=False):
 
 def calculateLockErrors(device,gtx,register,sampleTime):
     baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(gtx)
-    errorCounts = {}
+    errorCounts = cdict(dict)
 
     #for link in ("QPLL_LOCK","QPLL_FPGA_PLL_LOCK"):
     writeRegister(device,"%s.%s_LOCK.Reset"%(baseNode,register),0x1)
@@ -560,7 +593,7 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
         pass
 
     if debug:
-        regParams = {}
+        regParams = cdict(dict)
         for reg in regList:
             regParams[reg] = {
                 "Path":       "%s"%(device.getNode(reg).getPath()),
@@ -694,3 +727,15 @@ def printSysmonInfo(device, gtx, debug=False):
                                          res["%s.VCCINT_MIN"%(adcBase)],
                                          res["%s.VCCAUX_MIN"%(adcBase)])
     return
+
+def calculateLinkErrors(device,gtx,sampleTime):
+    baseNode = "GEM_AMC.OH_LINKS"
+    errorCounts = cdict(dict)
+
+    for link in ("TRK","TRG"):
+        writeRegister(device,"%s.CTRL.CNT_RESET"%(baseNode),0x1)
+        first = readRegister(device,"%s.OH%d.TRACK_LINK_ERROR_CNT"%(baseNode,gtx))
+        time.sleep(sampleTime)
+        second = readRegister(device,"%s.OH%d.TRACK_LINK_ERROR_CNT"%(baseNode,gtx))
+        errorCounts[link] = [first,second]
+    return errorCounts
