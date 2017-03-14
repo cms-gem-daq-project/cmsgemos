@@ -1,0 +1,187 @@
+## redefined from /opt/xdaq/config/mfRPM.rules
+#  and
+## amc13/config/mfPythonRPMRules.mk
+
+rpm: $(PackageListLoop)
+
+installrpm: $(PackageListLoop)
+
+cleanrpm: $(PackageListLoop)
+
+changelog: $(PackageListLoop)
+
+INSTALL_PATH = /opt/cmsgemos
+XDAQ_PATH = /opt/xdaq
+ProjectPath  = $(BUILD_HOME)/$(Project)
+PackagePath  = $(ProjectPath)/$(LongPackage)
+PWD          = $(shell pwd)
+
+ifndef PythonModules
+	$(error Python module names missing "PythonModules")
+endif
+
+# copied from mfRPM_hcal.rules to use their directory manipulation
+ifdef Package
+
+ifndef PackageName
+PackageName=$(shell awk -F'"' 'BEGIN{IGNORECASE=1} /package[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/Makefile)
+endif
+
+# convert long package name to all upper case
+LongPackageLoc=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
+#LongPackageLoc=$(shell echo "$(LongPackage)" | awk '{print toupper($0)}') ## not working... why not?
+ifndef PACKAGE_VER_MAJOR
+PACKAGE_VER_MAJOR=$($(LongPackageLoc)_VER_MAJOR)
+endif
+
+ifndef PACKAGE_VER_MINOR
+PACKAGE_VER_MINOR=$($(LongPackageLoc)_VER_MINOR)
+endif
+
+ifndef PACKAGE_VER_PATCH
+PACKAGE_VER_PATCH=$($(LongPackageLoc)_VER_PATCH)
+endif
+
+ifndef PACKAGE_RELEASE
+include  $(XDAQ_ROOT)/config/mfRPM.release
+endif
+
+ifndef BUILD_VERSION
+BUILD_VERSION=1
+endif
+
+ifndef BUILD_COMPILER
+#BUILD_COMPILER :=$(shell $(CC) --version | grep GCC |sed -e 's/-.*//g')$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
+BUILD_COMPILER :=$(CC)$(shell $(CC) -dumpversion | sed -e 's/\./_/g')
+endif
+
+ifndef BUILD_DISTRIBUTION
+BUILD_DISTRIBUTION := $(shell $(XDAQ_ROOT)/config/checkos.sh)
+endif
+
+VER_EXISTS=no
+ifneq ($(PACKAGE_VER_MAJOR),)
+ifneq ($(PACKAGE_VER_MINOR),)
+ifneq ($(PACKAGE_VER_PATCH),)
+VER_EXISTS=yes
+endif
+endif
+endif
+
+
+REQUIRES_LIST=0
+ifneq ($(PACKAGE_REQUIRED_PACKAGE_LIST),)
+REQUIRES_LIST=1
+endif
+
+
+#
+# Extract summary, description and authors
+#
+ifndef Description
+Description = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /description[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/Makefile)
+endif
+
+ifndef Summary
+Summary = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /summary[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/Makefile)
+endif
+
+#ifndef Authors
+# Authors defined in mfDefs.linux as $(shell id -un)
+Authors = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /authors[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/Makefile)
+#endif
+
+ifndef Link
+Link = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /link[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/Makefile)
+endif
+
+
+.PHONY: _rpmall
+
+ifeq ($(VER_EXISTS),no)
+_rpmall: fail
+fail:
+	$(error Error (rpmall) could not extract version information from Makefile in package '$(Package)')
+else
+_rpmall: setup_update makerpm
+endif
+
+
+# if for package makefile only if endif
+#else
+#_rpmall:
+#	@echo "*** "$(Package) I am in the elese
+endif
+
+# 	rpmbuild  -bb -bl --target $(XDAQ_PLATFORM) --define  "_topdir $(PackagePath)/rpm/RPMBUILD"  $(PackagePath)/rpm/$(LongPackage).spec
+
+
+.PHONY: makerpm
+makerpm:
+	# Change directory into pkg and copy everything into rpm/pkg
+	cd pkg && \
+	find . -name "*" -exec install -D \{\} $(PackagePath)/rpm/\{\} \;
+	# Add a manifest file
+	echo "include */*.so" > $(PackagePath)/rpm/MANIFEST.in
+	# Change into rpm/pkg to finally run the customized setup.py
+	cd $(PackagePath)/rpm && python $(LongPackage).setup.py bdist_rpm \
+	--release ${PACKAGE_RELEASE}.${XDAQ_OS}.python${PYTHON_VERSION} \
+	--binary-only --force-arch=`uname -m`
+	# Harvest the crop
+	find rpm -name "*.rpm" -exec cp -a \{\} rpm/ \;
+
+.PHONY: setup_update
+setup_update:
+	$(info "Executing GEM specific setup_update")
+	@mkdir -p $(PackagePath)/rpm
+	if [ -e $(PackagePath)/setupg.py ]; then \
+		echo $(PackagePath) found setup.py; \
+		cp $(PackagePath)/setup.py $(PackagePath)/rpm/$(LongPackage).setup.py; \
+	elif [ -e $(ProjectPath)/config/build/cmsgemos.setupTemplate.py ]; then \
+		echo $(ProjectPath)/config found cmsgemos.setupTemplate.py; \
+		cp $(ProjectPath)/config/build/cmsgemos.setupTemplate.py $(PackagePath)/rpm/$(LongPackage).setup.py; \
+	else \
+		echo "Error (setup_update) could not find a valid setup.py template for package '$(Package)'"; \
+	fi
+
+	sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__python_packages__#${PythonModules}#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__package__#${Package}#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__packagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__packagename__#${PackageName}#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__longpackage__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__longpackagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__longpackagename__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__release__#${PACKAGE_RELEASE}.${XDAQ_OS}#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__os__#${XDAQ_OS}#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__platform__#None#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__project__#${Project}#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__author__#${Packager}#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__summary__#$(Summary)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__description__#$(Description)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__url__#$(Link)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	##%%//sed -i 's#__summary__#None#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	##%%//sed -i 's#__description__#None#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	##%%//sed -i 's#__url__#None#' $(PackagePath)/rpm/$(LongPackage).setup.py
+
+
+.PHONY: _cleanrpmall
+_cleanrpmall:
+	-rm -rf $(PackagePath)/rpm
+
+
+.PHONY: _installrpmall
+_installrpmall:
+	mkdir -p $(INSTALL_PREFIX)/rpm
+	cp $(PackagePath)/rpm/*.rpm $(INSTALL_PREFIX)/rpm
+
+
+.PHONY: _changelogall
+_changelogall:
+	cd $(PackagePath);\
+	git log --full-diff --decorate=full < ChangeLog
+
