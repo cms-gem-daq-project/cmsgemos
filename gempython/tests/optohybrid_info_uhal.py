@@ -15,6 +15,10 @@ parser.add_option("--v2b", action="store_true", dest="v2b",
 		  help="Specific functionality only in v2b", metavar="v2b")
 parser.add_option("--sbitmask", type="int", dest="sbitmask",default=0x0,
 		  help="use s-bit mask", metavar="sbitmask")
+parser.add_option("--sbitout", type="int", dest="sbitSrc",
+                  help="use s-bit from VFAT <num>", metavar="sbitSrc")
+parser.add_option("-x", "--external", type="int", dest="trgSrc",
+                  help="change trigger source", metavar="trgSrc")
 
 (options, args) = parser.parse_args()
 
@@ -23,7 +27,7 @@ gemlogger.setLevel(logging.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
-ohboard = getOHObject(options.slot,options.shelf,options.gtx,options.debug)
+ohboard = getOHObject(options.slot,options.gtx,options.shelf,options.debug)
 
 SAMPLE_TIME = 1.
 

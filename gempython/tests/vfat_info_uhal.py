@@ -5,9 +5,10 @@ from gempython.tools.vfat_user_functions_uhal import *
 from gempython.tools.amc_user_functions_uhal import *
 from gempython.utils.rate_calculator import errorRate
 
-from gempython.utils.standardopts import parser
 import logging
 from gempython.utils.gemlogger import colors,getGEMLogger
+
+from gempython.utils.standardopts import parser
 
 parser.add_option("-z", "--sleep", action="store_true", dest="sleepAll",
 		  help="set all chips into sleep mode", metavar="sleepAll")
@@ -17,8 +18,6 @@ parser.add_option("--enable", type="string", dest="enabledChips",
 		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
 parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
 		  help="Testing the I2C lines (select I2C line 0-5, or 6 for all", metavar="testi2c")
-parser.add_option("--shelf", type="int", dest="shelf",default=1,
-		  help="uTCA shelf to access", metavar="shelf")
 
 (options, args) = parser.parse_args()
 
@@ -35,7 +34,7 @@ if options.enabledChips:
     pass
 
 amc     = getAMCObject(options.slot,options.shelf,options.debug)
-ohboard = getOHObject(options.slot,options.shelf,options.gtx,options.debug)
+ohboard = getOHObject(options.slot,options.gtx,options.shelf,options.debug)
 
 ########################################
 # IP address
