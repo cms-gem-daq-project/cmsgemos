@@ -127,7 +127,7 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
     m_globalState = tmpGlobalState;
   else
     m_globalState = intermediateGlobalState;
-  
+
   // account for cases where the global state was forced
   if (m_forceGlobal != gem::base::STATE_NULL) {
     m_globalState = m_forceGlobal;
