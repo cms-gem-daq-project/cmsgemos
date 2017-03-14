@@ -6,7 +6,7 @@ from gempython.utils.registers_uhal import *
 
 gemlogger = getGEMLogger(logclassname="glib_user_functions")
 
-def getAMCObject(slot,shelf,debug=False):
+def getAMCObject(slot,shelf=1,debug=False):
     connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
     manager         = uhal.ConnectionManager(connection_file )
     amc             = manager.getDevice( "gem.shelf%02d.amc%02d"%(shelf,slot) )

@@ -45,7 +45,7 @@ class dacmode:
     CALOUT      = 9
     pass
 
-def getOHObject(slot,shelf,link,debug=False):
+def getOHObject(slot,link,shelf=1,debug=False):
     connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
     manager         = uhal.ConnectionManager(connection_file )
     ohboard         = manager.getDevice( "gem.shelf%02d.amc%02d.optohybrid%02d"%(shelf,slot,link) )
