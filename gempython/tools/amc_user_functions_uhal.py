@@ -1,13 +1,10 @@
-import sys, time
+import sys, time, signal
 sys.path.append('${GEM_PYTHON_PATH}')
 
+from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
 
-from collections import defaultdict as cdict
-
 gemlogger = getGEMLogger(logclassname="glib_user_functions")
-
-NGTX = 2
 
 def getAMCObject(slot,shelf,debug=False):
     connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
@@ -24,7 +21,7 @@ def checkAMCBoard(device,debug=False):
 
 def calculateLinkErrors(isGLIB,device,gtx,sampleTime):
     baseNode = "GEM_AMC.OH_LINKS"
-    errorCounts = cdict(dict)
+    errorCounts = nesteddict()
     if not isGLIB:
         baseNode = "GEM_AMC.OH_LINKS"
 
@@ -62,7 +59,7 @@ def glibCounters(device,gtx,doReset=False):
         writeRegister(device,"%s.GTX%d.DATA_Packets.Reset"%(baseNode, gtx), 0x1)
         return
     else:
-        counters = cdict(dict)
+        counters = nesteddict()
         
         # counters["IPBus"] = {}
         for ipbcnt in ["Strobe","Ack"]:
@@ -110,7 +107,7 @@ def readFIFODepth(device,gtx):
     """
     baseNode = "GLIB.TRK_DATA.OptoHybrid_%d"%(gtx)
 
-    data = cdict(dict)
+    data = nesteddict()
     data["isFULL"]    = readRegister(device,"%s.ISFULL"%(baseNode))
     data["isEMPTY"]   = readRegister(device,"%s.ISEMPTY"%(baseNode))
     data["Occupancy"] = readRegister(device,"%s.DEPTH"%(baseNode))

@@ -1,17 +1,12 @@
 #!/bin/env python
 
-import sys, re
-import time, datetime, os
-
-sys.path.append('${GEM_PYTHON_PATH}')
-
 from gempython.tools.optohybrid_user_functions_uhal import *
 from gempython.utils.rate_calculator import getErrorRate,errorRate
 
-from gempython.utils.standardopts import parser
 import logging
 from gempython.utils.gemlogger import colors,getGEMLogger
 
+from gempython.utils.standardopts import parser
 parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
 		  help="which reference clock to use on OH", metavar="clkSrc")
 parser.add_option("-l", "--localT1", action="store_true", dest="localT1",
@@ -37,12 +32,9 @@ print "-> -----------------"
 print "-> OPTOHYBRID STATUS     "
 print "-> -----------------"
 
-fwver  = getFirmwareVersion(ohboard,options.gtx)
-# ver    = '%02x.%02x.%02x.%02x'%(fwver["major"],fwver["minor"],fwver["version"],fwver["patch"])
-fwdate    = getFirmwareDate(ohboard,options.gtx)
-fwdateold = getFirmwareDateOld(ohboard,options.gtx)
-date      = '%02x/%02x/%04x'%(fwdate["d"],fwdate["m"],fwdate["y"])
-dateold   = '%02x/%02x/%04x'%(fwdateold["d"],fwdateold["m"],fwdateold["y"])
+fwver   = getFirmwareVersion(ohboard,options.gtx)
+date    = getFirmwareDateString(ohboard,options.gtx)
+dateold = getFirmwareDateString(ohboard,options.gtx,old=True)
 print "-> oh fw date(old): %s%s%s"%(colors.YELLOW,dateold,colors.ENDC)
 print "-> oh fw date     : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
 print "-> oh fw version  : %s%s%s"%(colors.YELLOW,fwver,colors.ENDC)

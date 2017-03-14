@@ -1,8 +1,8 @@
-import signal
+import sys, time, signal
 
+from collections import defaultdict as cdict
 from gempython.utils.registers_uhal import *
 from gempython.tools.optohybrid_user_functions_uhal import *
-from collections import defaultdict as cdict
 
 gemlogger = getGEMLogger(logclassname="vfat_functions_uhal")
 

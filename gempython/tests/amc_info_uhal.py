@@ -1,20 +1,13 @@
 #!/bin/env python
 
-import sys, re, signal
-import time, datetime, os
-
-sys.path.append('${GEM_PYTHON_PATH}')
-
-NGTX = 2
-
 from gempython.tools.glib_system_info_uhal import *
-from gempython.utils.rate_calculator import rateConverter,errorRate
 from gempython.tools.glib_user_functions_uhal import *
+from gempython.utils.rate_calculator import rateConverter,errorRate
 
-from gempython.utils.standardopts import parser
 import logging
 from gempython.utils.gemlogger import colors,getGEMLogger
 
+from gempython.utils.standardopts import parser
 parser.add_option("--daq_enable", type="int", dest="daq_enable",
                   help="enable daq output", metavar="daq_enable", default=-1)
 parser.add_option("--rd", type="int", dest="reset_daq",
@@ -25,9 +18,11 @@ parser.add_option("--short", action="store_true", dest="short",
                   help="Skip extended information", metavar="short")
 parser.add_option("--invertTX", type="string", dest="invertTX",default="",
                   help="Flip polarity for SFPs in list", metavar="invertTX")
-parser.add_option("-u", "--user", action="store_true", dest="userOnly",
+parser.add_option("--user", action="store_true", dest="userOnly",
                   help="print user information only", metavar="userOnly")
-parser.add_option("-t", "--ttc", type="int", dest="gemttc", default=2,
+parser.add_option("--ngtx", type="int", dest="ngtx", default=2,
+                  help="Number of GTX links supported in the firmware (default is 2)", metavar="ngtx")
+parser.add_option("--ttc", type="int", dest="gemttc", default=2,
                   help="choose the TTC encoding (gem/csc=0, amc13=1,default=2 meaning no modification)", metavar="gemttc")
 
 (options, args) = parser.parse_args()
@@ -39,9 +34,6 @@ uhal.setLogLevelTo( uhal.LogLevel.FATAL )
 
 amc = getAMCObject(options.slot,options.shelf,options.debug)
 
-########################################
-# IP address
-########################################
 print
 print "--=======================================--"
 print "  Opening AMC with ID", amc
@@ -131,7 +123,7 @@ print "-> SSSSSSSSSSSSSSSSSSSSSSBITSSSSSSSSSSSSSS"
 print "--=======================================--"
 print "-> TRIGGER_RATE:%d %sHz"%(rateConverter(int(readRegister(amc,"GEM_AMC.TRIGGER.STATUS.OR_TRIGGER_RATE"))))
 print
-for olink in range(NGTX):
+for olink in range(options.ngtx):
     print "-> DAQ OH%d clusters 0:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_0_RATE"%(olink)))
     print "-> DAQ OH%d clusters 1:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_1_RATE"%(olink)))
     print "-> DAQ OH%d clusters 2:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_2_RATE"%(olink)))
@@ -149,7 +141,7 @@ if options.short:
 print "--=======================================--"
 print "-> DAQ GTX INFO"
 print "--=======================================--"
-for olink in range(NGTX):
+for olink in range(options.ngtx):
     print "-------------------------================--"
     print "----------> DAQ OH%d INFO <---------------"%(olink)
     print "-------------------------================--"
@@ -180,7 +172,7 @@ if (options.resetCounters):
 print
 
 sys.stdout.flush()
-#for olink in range(NGTX):
+#for olink in range(options.ngtx):
 #        print "--=====OH%d==============================--"%(olink)
 #        errorCounts = []
 #        SAMPLE_TIME = 1.

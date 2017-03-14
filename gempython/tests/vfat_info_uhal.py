@@ -1,13 +1,8 @@
 #!/bin/env python
 
-import sys, re, time, datetime, os
-
-sys.path.append('${GEM_PYTHON_PATH}')
-
-from gempython.tools.glib_system_info_uhal import *
-from gempython.tools.vfat_functions_uhal import *
-from gempython.tools.glib_user_functions_uhal import *
-from gempython.tools.optohybrid_user_functions_uhal import *
+from gempython.tools.glib_system_info_uhal import getSystemFWVer,getSystemFWDate
+from gempython.tools.vfat_user_functions_uhal import *
+from gempython.tools.amc_user_functions_uhal import *
 from gempython.utils.rate_calculator import errorRate
 
 from gempython.utils.standardopts import parser
@@ -94,8 +89,10 @@ for gebslot in range(24):
 emptyMask = 0xFFFF
 thechipid = 0x0000
 
-print "AMC FW: %s"%(getSystemFWDate(amc))
-print "OH  FW: 0x%08x"%(getFirmwareVersionRaw(ohboard,options.gtx))
+print "Firmware:  %10s  %10s"%("Version","Date")
+print "AMC     :  %10s  %10s"%(getSystemFWVer(amc),getSystemFWDate(amc))
+print "OH      :  %10s  %10s"%(getFirmwareVersion(ohboard,options.gtx),
+                               getFirmwareDateString(ohboard,options.gtx))
 
 controls = []
 chipmask = 0xff000000

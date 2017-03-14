@@ -1,12 +1,12 @@
-import sys, signal
+import sys, re, signal
+import time, datetime, os
 sys.path.append('${GEM_PYTHON_PATH}')
 
 import uhal
 
-from collections import defaultdict as cdict
+from gempython.utils.nesteddict import nesteddict
 
 from gempython.utils.gemlogger import colors, getGEMLogger
-# gemlogger = GEMLogger("registers_uhal").gemlogger
 gemlogger = getGEMLogger(logclassname="registers_uhal")
 
 gMAX_RETRIES = 5
@@ -58,7 +58,7 @@ def readRegisterList(device, registers, debug=False):
         pass
     while (nRetries < gMAX_RETRIES):
         try:
-            results = cdict(dict)
+            results = nesteddict()
             for reg in registers:
                 results[reg] = device.getNode(reg).read()
                 pass
