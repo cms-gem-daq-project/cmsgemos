@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="top">
+  <node id="ALARM_0"  address="0x0"  permission="r"
+        description="Returns the value from the ADC alarm threshold register 0"/>
+  <node id="ALARM_1"  address="0x1"  permission="r"
+        description="Returns the value from the ADC alarm threshold register 1"/>
+  <node id="ALARM_2"  address="0x2"  permission="r"
+        description="Returns the value from the ADC alarm threshold register 2"/>
+  <node id="ALARM_3"  address="0x3"  permission="r"
+        description="Returns the value from the ADC alarm threshold register 3"/>
+  <node id="ALARM_4"  address="0x4"  permission="r"
+        description="Returns the value from the ADC alarm threshold register 4"/>
+  <node id="ALARM_5"  address="0x5"  permission="r"
+        description="Returns the value from the ADC alarm threshold register 5"/>
+  <node id="ALARM_6"  address="0x6"  permission="r"
+        description="Returns the value from the ADC alarm threshold register 6"/>
+  <node id="ALARM_7"  address="0x7"  permission="r"
+        description="Returns the value from the ADC alarm threshold register 7"/>
+</node>
