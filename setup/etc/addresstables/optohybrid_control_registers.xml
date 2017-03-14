@@ -14,7 +14,7 @@
 
   <node id="TRIGGER" address="0x1" permission="rw"
         description="Trigger options for the OptoHybrid">
-    <node id="SOURCE"  address="0x0"  mask="0x7"  permission="rw"
+    <node id="SOURCE"  address="0x0"  mask="0xf"  permission="rw"
           description="Selects the source of T1 signals sent to the GEB (3 bits [0,5]:
                        0: T1 from GLIB TTC decoder over backplane (GTX, AMC13)
                        1: T1 from OptoHybrid firmware
