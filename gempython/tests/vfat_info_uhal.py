@@ -17,6 +17,8 @@ parser.add_option("--enable", type="string", dest="enabledChips",
 		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
 parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
 		  help="Testing the I2C lines (select I2C line 0-5, or 6 for all", metavar="testi2c")
+parser.add_option("--shelf", type="int", dest="shelf",default=1,
+		  help="uTCA shelf to access", metavar="shelf")
 
 (options, args) = parser.parse_args()
 
@@ -41,7 +43,8 @@ ohboard = getOHObject(options.slot,options.shelf,options.gtx,options.debug)
 if options.debug:
     print
     print "--=======================================--"
-    print "  Opening AMC with IP", ipaddr
+    print "  Using AMC ", amc
+    print "  Using OH ", ohboard
     print "--=======================================--"
     getSystemInfo(amc)
     msg = "The nodes within GEM_AMC are:"

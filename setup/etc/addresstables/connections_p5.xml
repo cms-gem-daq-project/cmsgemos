@@ -43,5 +43,4 @@
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
   <connection id="gem.shelf01.amc07.optohybrid01" uri="chtcp-2.0://bridge-s2e01-23:10203?target=amc-s2e01-23-07:50001"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml" />
-
 </connections>
