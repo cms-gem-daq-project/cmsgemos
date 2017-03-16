@@ -5,9 +5,10 @@ from gempython.tools.vfat_user_functions_uhal import *
 from gempython.tools.amc_user_functions_uhal import *
 from gempython.utils.rate_calculator import errorRate
 
-from gempython.utils.standardopts import parser
 import logging
 from gempython.utils.gemlogger import colors,getGEMLogger
+
+from gempython.utils.standardopts import parser
 
 parser.add_option("-z", "--sleep", action="store_true", dest="sleepAll",
 		  help="set all chips into sleep mode", metavar="sleepAll")
@@ -33,7 +34,7 @@ if options.enabledChips:
     pass
 
 amc     = getAMCObject(options.slot,options.shelf,options.debug)
-ohboard = getOHObject(options.slot,options.shelf,options.gtx,options.debug)
+ohboard = getOHObject(options.slot,options.gtx,options.shelf,options.debug)
 
 ########################################
 # IP address
@@ -41,7 +42,8 @@ ohboard = getOHObject(options.slot,options.shelf,options.gtx,options.debug)
 if options.debug:
     print
     print "--=======================================--"
-    print "  Opening AMC with IP", ipaddr
+    print "  Using AMC ", amc
+    print "  Using OH ", ohboard
     print "--=======================================--"
     getSystemInfo(amc)
     msg = "The nodes within GEM_AMC are:"

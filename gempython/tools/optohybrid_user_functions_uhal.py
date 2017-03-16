@@ -45,7 +45,7 @@ class dacmode:
     CALOUT      = 9
     pass
 
-def getOHObject(slot,shelf,link,debug=False):
+def getOHObject(slot,link,shelf=1,debug=False):
     connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
     manager         = uhal.ConnectionManager(connection_file )
     ohboard         = manager.getDevice( "gem.shelf%02d.amc%02d.optohybrid%02d"%(shelf,slot,link) )
@@ -709,6 +709,12 @@ def getADCVCCInt(device, gtx, debug=False):
 def getADCVCCAux(device, gtx, debug=False):
     return getADCValue(device,gtx,"VCCAUX",debug)
 
+def getVFATADCVoltage(device, gtx, column, debug=False):
+    return getADCValue(device,gtx,"VCCINT",debug)
+
+def getVFATADCCurrent(device, gtx, column, debug=False):
+    return getADCValue(device,gtx,"VCCAUX",debug)
+
 def printSysmonInfo(device, gtx, debug=False):
     adcBase = "GEM_AMC.OH.OH%d.ADC"%(gtx)
 
@@ -719,7 +725,7 @@ def printSysmonInfo(device, gtx, debug=False):
     for reg in regList:
         regs.append("%s.%s"%(adcBase,reg))
         pass
-    readRegisterList(device,regs)
+    res = readRegisterList(device,regs)
     print "OptoHybrid ADC sysmon"
     print "        %8s  %8s  %8s"%("Temp", "VCCINT", "VCCAUX")
     print "Current:%2.6f  %2.6f  %2.6f"%(res["%s.TEMP"%(adcBase)],

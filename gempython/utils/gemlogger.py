@@ -51,15 +51,16 @@ class colors:
     pass
 
 def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN):
+    import sys,os
     logfmt  = '%(asctime)s.%(msecs)03d [%(thread)d] %(levelname)s:%(levelno)d  '
     logfmt += '%(module)s::%(funcName)s <> - '
     logfmt += '%(message)s'
     datefmt = '%d %b %Y %H:%M:%S'
 
-    file_handler = logging.FileHandler("/tmp/sturdy/python_log_file.txt")
+    file_handler = logging.FileHandler("/tmp/%s/python_log_file.txt"%(os.getenv("USER")))
     file_handler.setLevel(logging.DEBUG)
     
-    logging.basicConfig(filename="/tmp/sturdy/python_log_file.txt",
+    logging.basicConfig(filename="/tmp/%s/python_log_file.txt"%(os.getenv("USER")),
                         level=loglevel,
                         format=logfmt,
                         datefmt=datefmt)
