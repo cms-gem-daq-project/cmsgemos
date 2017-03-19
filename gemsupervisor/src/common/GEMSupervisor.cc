@@ -515,21 +515,24 @@ void gem::supervisor::GEMSupervisor::resetAction()
 void gem::supervisor::GEMSupervisor::Test(xgi::Input * in, xgi::Output * out)
 {
   INFO("GEMSupervisor::Test running CAM's test code");
-  std::string glFilename = "/afs/cern.ch/user/b/bravo/public/GEM_VFAT2_Configurations_Sample.xml";
-  std::string chFilename = "/afs/cern.ch/user/b/bravo/public/DAQ_VFAT_CHAN_Settings_Sample.xml";
-  gem::utils::vfat::VFAT2ConfigManager vfatMan(glFilename,chFilename);
+  std::string glFilenameIn = "/afs/cern.ch/user/c/chmclean/public/testGLfile.xml";
+  std::string glFilenameOut = "/afs/cern.ch/user/c/chmclean/public/testGLfile_out.xml";
+  std::string chFilenameIn = "/afs/cern.ch/user/b/bravo/public/DAQ_VFAT_CHAN_Settings_Sample.xml";
+  
+  gem::utils::vfat::VFAT2ConfigManager vfatMan(glFilenameIn,chFilenameIn);
   vfatMan.parseXMLFiles();
   INFO("Parsed the files");
-  vfatMan.writeXMLFiles();
-  INFO("Wrote the files");
+
   std::stringstream msg;
-  msg << "iComp: " << int(vfatMan.localParams.iComp);
+  msg << "calibMode: " << (vfatMan.localParams.calibMode);
   INFO(msg.str());
   msg.str("");
   msg << "channel 46 trim: " << int(vfatMan.localParams.channels[46].trimDAC);
   INFO(msg.str());
-
   
+  vfatMan.setGLfile(glFilenameOut.c_str());
+  vfatMan.writeXMLFiles();
+  INFO("Wrote the files");
 }
 
 /*

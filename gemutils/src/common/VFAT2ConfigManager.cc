@@ -380,6 +380,7 @@ void gem::utils::vfat::VFAT2ConfigManager::parseGLdata(xercesc::DOMNode* pNode)/
       {
         DEBUG("CR0_CALMODE found in dataset-data");
         std::string strBuf = (std::string)xercesc::XMLString::transcode(n->getFirstChild()->getNodeValue());
+	DEBUG(strBuf.c_str());
         localParams.calibMode = gem::hw::vfat::StringToCalibrationMode.at(boost::to_upper_copy(strBuf));
       }
       if (strcmp("CR0_CALPOLARITY", xercesc::XMLString::transcode(n->getNodeName())) == 0) 
@@ -786,7 +787,8 @@ void gem::utils::vfat::VFAT2ConfigManager::writeGLXMLFile()
 
     // Convert the path into Xerces compatible XMLCh*.
     // xercesc::XMLCh* tempFilePath = xercesc::XMLString::transcode(filePath.c_str());
-    XMLCh* tempFilePath = xercesc::XMLString::transcode("testGLfile.xml");
+    std::string filePath = (std::string) m_glxmlFile.c_str();
+    XMLCh* tempFilePath = xercesc::XMLString::transcode(filePath.c_str());
 
     DEBUG("Successfully set file path");
 
@@ -819,15 +821,618 @@ void gem::utils::vfat::VFAT2ConfigManager::writeGLXMLFile()
 
     DEBUG("Successfully added root node");
 
+    //`7MMF'  `7MMF'                     `7MM                  
+    //  MM      MM                         MM                  
+    //  MM      MM  .gP"Ya   ,6"Yb.   ,M""bMM  .gP"Ya `7Mb,od8 
+    //  MMmmmmmmMM ,M'   Yb 8)   MM ,AP    MM ,M'   Yb  MM' "' 
+    //  MM      MM 8M""""""  ,pm9MM 8MI    MM 8M""""""  MM     
+    //  MM      MM YM.    , 8M   MM `Mb    MM YM.    ,  MM     
+    //.JMML.  .JMML.`Mbmmd' `Moo9^Yo.`Wbmd"MML.`Mbmmd'.JMML. 
+
     //Adding the header node
     XMLString::transcode("HEADER", tempStr, 99);
     DOMElement*   n_header = p_DOMDocument->createElement(tempStr);
     root->appendChild(n_header);
 
+    DEBUG("Successfully added header node");
+
+    ////////////////////////////////////
+    //Adding type node (header subnode)
+    ////////////////////////////////////
+    XMLString::transcode("TYPE", tempStr, 99);
+    DOMElement* n_type = p_DOMDocument->createElement(tempStr);
+    n_header->appendChild(n_type);
+
+    DEBUG("Successfully added header-type node");
+    
+    //Adding extension table name node (header-type subnode)
+    XMLString::transcode("EXTENSION_TABLE_NAME", tempStr, 99);
+    DOMElement* n_etn = p_DOMDocument->createElement(tempStr);
+    n_type->appendChild(n_etn);
+
+    DEBUG("Successfully added header-type-etn node");    
+
+    //Adding extension table name text
+    XMLString::transcode(GLhead.type.ETN.c_str(), tempStr, 99);
+    DOMText* ntxt_etn = p_DOMDocument->createTextNode(tempStr);
+    n_etn->appendChild(ntxt_etn);
+
+    DEBUG("Successfully added header-type-etn text");
+
+    //Adding name node (header-type subnode)
+    XMLString::transcode("NAME", tempStr, 99);
+    DOMElement* n_name = p_DOMDocument->createElement(tempStr);
+    n_type->appendChild(n_name);
+
+    DEBUG("Successfully added header-type-name node");    
+
+    //Adding name text
+    XMLString::transcode(GLhead.type.name.c_str(), tempStr, 99);
+    DOMText* ntxt_name = p_DOMDocument->createTextNode(tempStr);
+    n_name->appendChild(ntxt_name);
+
+    DEBUG("Successfully added header-type-name text");
+
+    ////////////////////////////////////
+    //Adding run node (header subnode)
+    ////////////////////////////////////
+    XMLString::transcode("RUN", tempStr, 99);
+    DOMElement* n_run = p_DOMDocument->createElement(tempStr);
+    n_header->appendChild(n_run);
+
+    DEBUG("Successfully added header-run node");
+    
+    //Adding config name node (header-run subnode)
+    XMLString::transcode("RUN_NAME", tempStr, 99);
+    DOMElement* n_configName = p_DOMDocument->createElement(tempStr);
+    n_run->appendChild(n_configName);
+
+    DEBUG("Successfully added header-run-configName node");    
+
+    //Adding config name text
+    XMLString::transcode(GLhead.run.configName.c_str(), tempStr, 99);
+    DOMText* ntxt_configName = p_DOMDocument->createTextNode(tempStr);
+    n_configName->appendChild(ntxt_configName);
+
+    DEBUG("Successfully added header-run-configName text");
+    
+    //Adding build timestamp node (header-run subnode)
+    XMLString::transcode("RUN_BEGIN_TIMESTAMP", tempStr, 99);
+    DOMElement* n_buildTime = p_DOMDocument->createElement(tempStr);
+    n_run->appendChild(n_buildTime);
+
+    DEBUG("Successfully added header-run-buildTime node");    
+
+    //Adding build timestamp text
+    XMLString::transcode(GLhead.run.buildTime.c_str(), tempStr, 99);
+    DOMText* ntxt_buildTime = p_DOMDocument->createTextNode(tempStr);
+    n_buildTime->appendChild(ntxt_buildTime);
+
+    DEBUG("Successfully added header-run-buildTime text");
+    
+    //Adding comment node (header-run subnode)
+    XMLString::transcode("COMMENT_DESCRIPTION", tempStr, 99);
+    DOMElement* n_comment = p_DOMDocument->createElement(tempStr);
+    n_run->appendChild(n_comment);
+
+    DEBUG("Successfully added header-run-comment node");    
+
+    //Adding comment text
+    XMLString::transcode(GLhead.run.comment.c_str(), tempStr, 99);
+    DOMText* ntxt_comment = p_DOMDocument->createTextNode(tempStr);
+    n_comment->appendChild(ntxt_comment);
+
+    DEBUG("Successfully added header-run-comment text");
+    
+    //Adding location node (header-run subnode)
+    XMLString::transcode("LOCATION", tempStr, 99);
+    DOMElement* n_location = p_DOMDocument->createElement(tempStr);
+    n_run->appendChild(n_location);
+
+    DEBUG("Successfully added header-run-location node");    
+
+    //Adding location text
+    XMLString::transcode(GLhead.run.location.c_str(), tempStr, 99);
+    DOMText* ntxt_location = p_DOMDocument->createTextNode(tempStr);
+    n_location->appendChild(ntxt_location);
+
+    DEBUG("Successfully added header-run-location text");
+    
+    //Adding user node (header-run subnode)
+    XMLString::transcode("INITIATED_BY_USER", tempStr, 99);
+    DOMElement* n_user = p_DOMDocument->createElement(tempStr);
+    n_run->appendChild(n_user);
+
+    DEBUG("Successfully added header-run-user node");    
+
+    //Adding user text
+    XMLString::transcode(GLhead.run.user.c_str(), tempStr, 99);
+    DOMText* ntxt_user = p_DOMDocument->createTextNode(tempStr);
+    n_user->appendChild(ntxt_user);
+
+    DEBUG("Successfully added header-run-user text");
+
+    //`7MM"""Yb.            mm            
+    //  MM    `Yb.          MM            
+    //  MM     `Mb  ,6"Yb.mmMMmm  ,6"Yb.  
+    //  MM      MM 8)   MM  MM   8)   MM  
+    //  MM     ,MP  ,pm9MM  MM    ,pm9MM  
+    //  MM    ,dP' 8M   MM  MM   8M   MM  
+    //.JMMmmmdP'   `Moo9^Yo.`Mbmo`Moo9^Yo.
+
     //Adding the data set node
     XMLString::transcode("DATA_SET", tempStr, 99);
-    DOMElement*   n_ds = p_DOMDocument->createElement(tempStr);
-    root->appendChild(n_ds);
+    DOMElement*   n_dataSet = p_DOMDocument->createElement(tempStr);
+    root->appendChild(n_dataSet);
+
+    ////////////////////////////////////
+    //Adding comment node (dataSet subnode)
+    ////////////////////////////////////
+    XMLString::transcode("COMMENT_DESCRIPTION", tempStr, 99);
+    DOMElement* n_dsComment = p_DOMDocument->createElement(tempStr);
+    n_dataSet->appendChild(n_dsComment);
+
+    DEBUG("Successfully added dataSet-comment node");
+
+    //Adding comment text
+    XMLString::transcode(glmetadata.comment.c_str(), tempStr, 99);
+    DOMText* ntxt_dsComment = p_DOMDocument->createTextNode(tempStr);
+    n_dsComment->appendChild(ntxt_dsComment);
+
+    DEBUG("Successfully added dataSet-comment text");
+
+    ////////////////////////////////////
+    //Adding version node (dataSet subnode)
+    ////////////////////////////////////
+    XMLString::transcode("VERSION", tempStr, 99);
+    DOMElement* n_version = p_DOMDocument->createElement(tempStr);
+    n_dataSet->appendChild(n_version);
+
+    DEBUG("Successfully added dataSet-version node");
+
+    //Adding version text
+    XMLString::transcode(glmetadata.version.c_str(), tempStr, 99);
+    DOMText* ntxt_version = p_DOMDocument->createTextNode(tempStr);
+    n_version->appendChild(ntxt_version);
+
+    DEBUG("Successfully added dataSet-version text");
+    
+    ////////////////////////////////////
+    //Adding part node (dataSet subnode)
+    ////////////////////////////////////
+    XMLString::transcode("PART", tempStr, 99);
+    DOMElement* n_part = p_DOMDocument->createElement(tempStr);
+    n_dataSet->appendChild(n_part);
+
+    DEBUG("Successfully added dataSet-part node");
+    
+    //Adding part type node (dataSet-part subnode)
+    XMLString::transcode("KIND_OF_PART", tempStr, 99);
+    DOMElement* n_partType = p_DOMDocument->createElement(tempStr);
+    n_part->appendChild(n_partType);
+
+    DEBUG("Successfully added dataSet-part-partType node");    
+
+    //Adding part type text
+    XMLString::transcode(glmetadata.partType.c_str(), tempStr, 99);
+    DOMText* ntxt_partType = p_DOMDocument->createTextNode(tempStr);
+    n_partType->appendChild(ntxt_partType);
+
+    DEBUG("Successfully added dataSet-part-partType text");
+    
+    //Adding serial number node (dataSet-part subnode)
+    XMLString::transcode("PART_BEGIN_TIMESTAMP", tempStr, 99);
+    DOMElement* n_serialN = p_DOMDocument->createElement(tempStr);
+    n_part->appendChild(n_serialN);
+
+    DEBUG("Successfully added dataSet-part-serialN node");    
+
+    //Adding serial number text
+    XMLString::transcode(glmetadata.serialN.c_str(), tempStr, 99);
+    DOMText* ntxt_serialN = p_DOMDocument->createTextNode(tempStr);
+    n_serialN->appendChild(ntxt_serialN);
+
+    DEBUG("Successfully added dataSet-part-serialN text");
+
+    ////////////////////////////////////
+    //Adding data node (dataSet subnode)
+    ////////////////////////////////////
+    XMLString::transcode("DATA", tempStr, 99);
+    DOMElement* n_data = p_DOMDocument->createElement(tempStr);
+    n_dataSet->appendChild(n_data);
+
+    DEBUG("Successfully added dataSet-data node");
+        
+    //Adding calibMode node (dataSet-part subnode)
+    XMLString::transcode("CR0_CALMODE", tempStr, 99);
+    DOMElement* n_calibMode = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_calibMode);
+
+    DEBUG("Successfully added dataSet-data-calibMode node");    
+
+    //Adding calibMode text
+    
+    std::string s_calibMode = gem::hw::vfat::CalibrationModeToString.at(localParams.calibMode);
+    XMLString::transcode(s_calibMode.c_str(), tempStr, 99);
+    DOMText* ntxt_calibMode = p_DOMDocument->createTextNode(tempStr);
+    n_calibMode->appendChild(ntxt_calibMode);
+
+    DEBUG("Successfully added dataSet-data-calibMode text");
+
+    //Adding calPol node (dataSet-data subnode)
+    XMLString::transcode("CR0_CALPOLARITY", tempStr, 99);
+    DOMElement* n_calPol = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_calPol);
+
+    DEBUG("Successfully added dataSet-data-calPol node");    
+
+    //Adding calPol text
+    std::string s_calPol = gem::hw::vfat::CalPolarityToString.at(localParams.calPol);
+    XMLString::transcode(s_calPol.c_str(), tempStr, 99);
+    DOMText* ntxt_calPol = p_DOMDocument->createTextNode(tempStr);
+    n_calPol->appendChild(ntxt_calPol);
+
+    DEBUG("Successfully added dataSet-data-calPol text");
+
+    //Adding msPol node (dataSet-data subnode)
+    XMLString::transcode("CR0_MSPOLARITY", tempStr, 99);
+    DOMElement* n_msPol = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_msPol);
+
+    DEBUG("Successfully added dataSet-data-msPol node");    
+
+    //Adding msPol text
+    std::string s_msPol = gem::hw::vfat::MSPolarityToString.at(localParams.msPol);
+    XMLString::transcode(s_msPol.c_str(), tempStr, 99);
+    DOMText* ntxt_msPol = p_DOMDocument->createTextNode(tempStr);
+    n_msPol->appendChild(ntxt_msPol);
+
+    DEBUG("Successfully added dataSet-data-msPol text");
+
+    //Adding trigMode node (dataSet-data subnode)
+    XMLString::transcode("CR0_TRGMODE", tempStr, 99);
+    DOMElement* n_trigMode = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_trigMode);
+
+    DEBUG("Successfully added dataSet-data-trigMode node");    
+
+    //Adding trigMode text
+    std::string s_trigMode = gem::hw::vfat::TriggerModeToString.at(localParams.trigMode);
+    XMLString::transcode(s_trigMode.c_str(), tempStr, 99);
+    DOMText* ntxt_trigMode = p_DOMDocument->createTextNode(tempStr);
+    n_trigMode->appendChild(ntxt_trigMode);
+
+    DEBUG("Successfully added dataSet-data-trigMode text");
+
+    //Adding runMode node (dataSet-data subnode)
+    XMLString::transcode("CR0_RUNMODE", tempStr, 99);
+    DOMElement* n_runMode = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_runMode);
+
+    DEBUG("Successfully added dataSet-data-runMode node");    
+
+    //Adding runMode text
+    std::string s_runMode = gem::hw::vfat::RunModeToString.at(localParams.runMode);
+    XMLString::transcode(s_runMode.c_str(), tempStr, 99);
+    DOMText* ntxt_runMode = p_DOMDocument->createTextNode(tempStr);
+    n_runMode->appendChild(ntxt_runMode);
+
+    DEBUG("Successfully added dataSet-data-runMode text");
+
+    //Adding reHitCT node (dataSet-data subnode)
+    XMLString::transcode("CR1_REHITCT", tempStr, 99);
+    DOMElement* n_reHitCT = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_reHitCT);
+
+    DEBUG("Successfully added dataSet-data-reHitCT node");    
+
+    //Adding reHitCT text
+    std::string s_reHitCT = gem::hw::vfat::ReHitCTToString.at(localParams.reHitCT);
+    XMLString::transcode(s_reHitCT.c_str(), tempStr, 99);
+    DOMText* ntxt_reHitCT = p_DOMDocument->createTextNode(tempStr);
+    n_reHitCT->appendChild(ntxt_reHitCT);
+
+    DEBUG("Successfully added dataSet-data-reHitCT text");
+
+    //Adding lvdsMode node (dataSet-data subnode)
+    XMLString::transcode("CR1_LVDSPWRSAV", tempStr, 99);
+    DOMElement* n_lvdsMode = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_lvdsMode);
+
+    DEBUG("Successfully added dataSet-data-lvdsMode node");    
+
+    //Adding lvdsMode text
+    std::string s_lvdsMode = gem::hw::vfat::LVDSPowerSaveToString.at(localParams.lvdsMode);
+    XMLString::transcode(s_lvdsMode.c_str(), tempStr, 99);
+    DOMText* ntxt_lvdsMode = p_DOMDocument->createTextNode(tempStr);
+    n_lvdsMode->appendChild(ntxt_lvdsMode);
+
+    DEBUG("Successfully added dataSet-data-lvdsMode text");
+
+    //Adding probeMode node (dataSet-data subnode)
+    XMLString::transcode("CR1_PROBEMODE", tempStr, 99);
+    DOMElement* n_probeMode = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_probeMode);
+
+    DEBUG("Successfully added dataSet-data-probeMode node");    
+
+    //Adding probeMode text
+    std::string s_probeMode = gem::hw::vfat::ProbeModeToString.at(localParams.probeMode);
+    XMLString::transcode(s_probeMode.c_str(), tempStr, 99);
+    DOMText* ntxt_probeMode = p_DOMDocument->createTextNode(tempStr);
+    n_probeMode->appendChild(ntxt_probeMode);
+
+    DEBUG("Successfully added dataSet-data-probeMode text");
+
+    //Adding dacMode node (dataSet-data subnode)
+    XMLString::transcode("CR1_DACSELECT", tempStr, 99);
+    DOMElement* n_dacMode = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_dacMode);
+
+    DEBUG("Successfully added dataSet-data-dacMode node");    
+
+    //Adding dacMode text
+    std::string s_dacMode = gem::hw::vfat::DACModeToString.at(localParams.dacMode);
+    XMLString::transcode(s_dacMode.c_str(), tempStr, 99);
+    DOMText* ntxt_dacMode = p_DOMDocument->createTextNode(tempStr);
+    n_dacMode->appendChild(ntxt_dacMode);
+
+    DEBUG("Successfully added dataSet-data-dacMode text");
+
+    //Adding digInSel node (dataSet-data subnode)
+    XMLString::transcode("CR2_DIGINSEL", tempStr, 99);
+    DOMElement* n_digInSel = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_digInSel);
+
+    DEBUG("Successfully added dataSet-data-digInSel node");    
+
+    //Adding digInSel text
+    std::string s_digInSel = gem::hw::vfat::DigInSelToString.at(localParams.digInSel);
+    XMLString::transcode(s_digInSel.c_str(), tempStr, 99);
+    DOMText* ntxt_digInSel = p_DOMDocument->createTextNode(tempStr);
+    n_digInSel->appendChild(ntxt_digInSel);
+
+    DEBUG("Successfully added dataSet-data-digInSel text");
+
+    //Adding msPulseLen node (dataSet-data subnode)
+    XMLString::transcode("CR2_MSPLSLEN", tempStr, 99);
+    DOMElement* n_msPulseLen = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_msPulseLen);
+
+    DEBUG("Successfully added dataSet-data-msPulseLen node");    
+
+    //Adding msPulseLen text
+    std::string s_msPulseLen = gem::hw::vfat::MSPulseLengthToString.at(localParams.msPulseLen);
+    XMLString::transcode(s_msPulseLen.c_str(), tempStr, 99);
+    DOMText* ntxt_msPulseLen = p_DOMDocument->createTextNode(tempStr);
+    n_msPulseLen->appendChild(ntxt_msPulseLen);
+
+    DEBUG("Successfully added dataSet-data-msPulseLen text");
+
+    //Adding hitCountMode node (dataSet-data subnode)
+    XMLString::transcode("CR2_HITCNTSEL", tempStr, 99);
+    DOMElement* n_hitCountMode = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_hitCountMode);
+
+    DEBUG("Successfully added dataSet-data-hitCountMode node");    
+
+    //Adding hitCountMode text
+    std::string s_hitCountMode = gem::hw::vfat::HitCountModeToString.at(localParams.hitCountMode);
+    XMLString::transcode(s_hitCountMode.c_str(), tempStr, 99);
+    DOMText* ntxt_hitCountMode = p_DOMDocument->createTextNode(tempStr);
+    n_hitCountMode->appendChild(ntxt_hitCountMode);
+
+    DEBUG("Successfully added dataSet-data-hitCountMode text");
+
+    //Adding sendTestPattern node (dataSet-data subnode)
+    XMLString::transcode("CR3_DFTST", tempStr, 99);
+    DOMElement* n_sendTestPattern = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_sendTestPattern);
+
+    DEBUG("Successfully added dataSet-data-sendTestPattern node");    
+
+    //Adding sendTestPattern text
+    std::string s_sendTestPattern = gem::hw::vfat::DFTestPatternToString.at(localParams.sendTestPattern);
+    XMLString::transcode(s_sendTestPattern.c_str(), tempStr, 99);
+    DOMText* ntxt_sendTestPattern = p_DOMDocument->createTextNode(tempStr);
+    n_sendTestPattern->appendChild(ntxt_sendTestPattern);
+
+    DEBUG("Successfully added dataSet-data-sendTestPattern text");
+
+    //Adding padBandGap node (dataSet-data subnode)
+    XMLString::transcode("CR3_PB_BNDGAP", tempStr, 99);
+    DOMElement* n_padBandGap = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_padBandGap);
+
+    DEBUG("Successfully added dataSet-data-padBandGap node");    
+
+    //Adding padBandGap text
+    std::string s_padBandGap = gem::hw::vfat::PbBGToString.at(localParams.padBandGap);
+    XMLString::transcode(s_padBandGap.c_str(), tempStr, 99);
+    DOMText* ntxt_padBandGap = p_DOMDocument->createTextNode(tempStr);
+    n_padBandGap->appendChild(ntxt_padBandGap);
+
+    DEBUG("Successfully added dataSet-data-padBandGap text");
+
+    //Adding trimDACRange node (dataSet-data subnode)
+    XMLString::transcode("CR3_TRIMDACRNG", tempStr, 99);
+    DOMElement* n_trimDACRange = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_trimDACRange);
+
+    DEBUG("Successfully added dataSet-data-trimDACRange node");    
+
+    //Adding trimDACRange text
+    std::string s_trimDACRange = gem::hw::vfat::TrimDACRangeToString.at(localParams.trimDACRange);
+    XMLString::transcode(s_trimDACRange.c_str(), tempStr, 99);
+    DOMText* ntxt_trimDACRange = p_DOMDocument->createTextNode(tempStr);
+    n_trimDACRange->appendChild(ntxt_trimDACRange);
+
+    DEBUG("Successfully added dataSet-data-trimDACRange text");
+    
+    //Adding iPreampIn node (dataSet-data subnode)
+    XMLString::transcode("BIAS_IPREAMPIN", tempStr, 99);
+    DOMElement* n_iPreampIn = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_iPreampIn);
+
+    DEBUG("Successfully added dataSet-data-iPreampIn node");    
+    
+    //Adding iPreampIn text
+    std::string s_iPreampIn = std::to_string((long long int)localParams.iPreampIn);
+    XMLString::transcode(s_iPreampIn.c_str(), tempStr, 99);
+    DOMText* ntxt_iPreampIn = p_DOMDocument->createTextNode(tempStr);
+    n_iPreampIn->appendChild(ntxt_iPreampIn);
+
+    DEBUG("Successfully added dataSet-data-iPreampIn text");
+    
+    //Adding iPreampFeed node (dataSet-data subnode)
+    XMLString::transcode("BIAS_IPREAMPFEED", tempStr, 99);
+    DOMElement* n_iPreampFeed = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_iPreampFeed);
+
+    DEBUG("Successfully added dataSet-data-iPreampFeed node");    
+
+    //Adding iPreampFeed text
+    std::string s_iPreampFeed = std::to_string((long long int)localParams.iPreampFeed);
+    XMLString::transcode(s_iPreampFeed.c_str(), tempStr, 99);
+    DOMText* ntxt_iPreampFeed = p_DOMDocument->createTextNode(tempStr);
+    n_iPreampFeed->appendChild(ntxt_iPreampFeed);
+
+    DEBUG("Successfully added dataSet-data-iPreampFeed text");
+
+    //Adding iPreampOut node (dataSet-data subnode)
+    XMLString::transcode("BIAS_IPREAMPOUT", tempStr, 99);
+    DOMElement* n_iPreampOut = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_iPreampOut);
+
+    DEBUG("Successfully added dataSet-data-iPreampOut node");    
+
+    //Adding iPreampOut text
+    std::string s_iPreampOut = std::to_string((long long int)localParams.iPreampOut);
+    XMLString::transcode(s_iPreampOut.c_str(), tempStr, 99);
+    DOMText* ntxt_iPreampOut = p_DOMDocument->createTextNode(tempStr);
+    n_iPreampOut->appendChild(ntxt_iPreampOut);
+
+    DEBUG("Successfully added dataSet-data-iPreampOut text");
+
+    //Adding iShaper node (dataSet-data subnode)
+    XMLString::transcode("BIAS_ISHAPER", tempStr, 99);
+    DOMElement* n_iShaper = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_iShaper);
+
+    DEBUG("Successfully added dataSet-data-iShaper node");    
+
+    //Adding iShaper text
+    std::string s_iShaper = std::to_string((long long int)localParams.iShaper);
+    XMLString::transcode(s_iShaper.c_str(), tempStr, 99);
+    DOMText* ntxt_iShaper = p_DOMDocument->createTextNode(tempStr);
+    n_iShaper->appendChild(ntxt_iShaper);
+
+    DEBUG("Successfully added dataSet-data-iShaper text");
+
+    //Adding iShaperFeed node (dataSet-data subnode)
+    XMLString::transcode("BIAS_ISHAPERFEED", tempStr, 99);
+    DOMElement* n_iShaperFeed = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_iShaperFeed);
+
+    DEBUG("Successfully added dataSet-data-iShaperFeed node");    
+
+    //Adding iShaperFeed text
+    std::string s_iShaperFeed = std::to_string((long long int)localParams.iShaperFeed);
+    XMLString::transcode(s_iShaperFeed.c_str(), tempStr, 99);
+    DOMText* ntxt_iShaperFeed = p_DOMDocument->createTextNode(tempStr);
+    n_iShaperFeed->appendChild(ntxt_iShaperFeed);
+
+    DEBUG("Successfully added dataSet-data-iShaperFeed text");
+
+    //Adding iComp node (dataSet-data subnode)
+    XMLString::transcode("BIAS_ICOMP", tempStr, 99);
+    DOMElement* n_iComp = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_iComp);
+
+    DEBUG("Successfully added dataSet-data-iComp node");    
+
+    //Adding iComp text
+    std::string s_iComp = std::to_string((long long int)localParams.iComp);
+    XMLString::transcode(s_iComp.c_str(), tempStr, 99);
+    DOMText* ntxt_iComp = p_DOMDocument->createTextNode(tempStr);
+    n_iComp->appendChild(ntxt_iComp);
+
+    DEBUG("Successfully added dataSet-data-iComp text");
+
+    //Adding latency node (dataSet-data subnode)
+    XMLString::transcode("BIAS_LATENCY", tempStr, 99);
+    DOMElement* n_latency = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_latency);
+
+    DEBUG("Successfully added dataSet-data-latency node");    
+
+    //Adding latency text
+    std::string s_latency = std::to_string((long long int)localParams.latency);
+    XMLString::transcode(s_latency.c_str(), tempStr, 99);
+    DOMText* ntxt_latency = p_DOMDocument->createTextNode(tempStr);
+    n_latency->appendChild(ntxt_latency);
+
+    DEBUG("Successfully added dataSet-data-latency text");
+
+    //Adding vCal node (dataSet-data subnode)
+    XMLString::transcode("BIAS_VCAL", tempStr, 99);
+    DOMElement* n_vCal = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_vCal);
+
+    DEBUG("Successfully added dataSet-data-vCal node");    
+
+    //Adding vCal text
+    std::string s_vCal = std::to_string((long long int)localParams.vCal);
+    XMLString::transcode(s_vCal.c_str(), tempStr, 99);
+    DOMText* ntxt_vCal = p_DOMDocument->createTextNode(tempStr);
+    n_vCal->appendChild(ntxt_vCal);
+
+    DEBUG("Successfully added dataSet-data-vCal text");
+
+    //Adding vThresh1 node (dataSet-data subnode)
+    XMLString::transcode("BIAS_VTHRESHOLD1", tempStr, 99);
+    DOMElement* n_vThresh1 = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_vThresh1);
+
+    DEBUG("Successfully added dataSet-data-vThresh1 node");    
+
+    //Adding vThresh1 text
+    std::string s_vThresh1 = std::to_string((long long int)localParams.vThresh1);
+    XMLString::transcode(s_vThresh1.c_str(), tempStr, 99);
+    DOMText* ntxt_vThresh1 = p_DOMDocument->createTextNode(tempStr);
+    n_vThresh1->appendChild(ntxt_vThresh1);
+
+    DEBUG("Successfully added dataSet-data-vThresh1 text");
+
+    //Adding vThresh2 node (dataSet-data subnode)
+    XMLString::transcode("BIAS_VTHRESHOLD2", tempStr, 99);
+    DOMElement* n_vThresh2 = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_vThresh2);
+
+    DEBUG("Successfully added dataSet-data-vThresh2 node");    
+
+    //Adding vThresh2 text
+    std::string s_vThresh2 = std::to_string((long long int)localParams.vThresh2);
+    XMLString::transcode(s_vThresh2.c_str(), tempStr, 99);
+    DOMText* ntxt_vThresh2 = p_DOMDocument->createTextNode(tempStr);
+    n_vThresh2->appendChild(ntxt_vThresh2);
+
+    DEBUG("Successfully added dataSet-data-vThresh2 text");
+
+    //Adding calPhase node (dataSet-data subnode)
+    XMLString::transcode("BIAS_CALPHASE", tempStr, 99);
+    DOMElement* n_calPhase = p_DOMDocument->createElement(tempStr);
+    n_data->appendChild(n_calPhase);
+
+    DEBUG("Successfully added dataSet-data-calPhase node");    
+
+    //Adding calPhase text
+    std::string s_calPhase = std::to_string((long long int)localParams.calPhase);
+    XMLString::transcode(s_calPhase.c_str(), tempStr, 99);
+    DOMText* ntxt_calPhase = p_DOMDocument->createTextNode(tempStr);
+    n_calPhase->appendChild(ntxt_calPhase);
+
+    DEBUG("Successfully added dataSet-data-calPhase text");
 
     // optionally, call release() to release the resource associated with the range after done
     DOMRange* range = p_DOMDocument->createRange();

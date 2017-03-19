@@ -6,6 +6,7 @@
 #include <map>
 #include <stdlib.h>
 #include <string>
+#include <iostream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -31,6 +32,7 @@
 #include <gem/hw/vfat/VFAT2Settings.h>
 #include <gem/hw/vfat/VFAT2SettingsEnums.h>
 #include <gem/hw/vfat/VFAT2Strings2Enums.h>
+#include <gem/hw/vfat/VFAT2Enums2Strings.h>
 
 XERCES_CPP_NAMESPACE_USE
 
