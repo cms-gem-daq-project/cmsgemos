@@ -31,6 +31,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(color
                                                                            device.getNode(register).getSize(),
                                                                            colors.ENDC
                                                                            )
+        sys.stdout.flush()
         pass
     while (nRetries < gMAX_RETRIES):
         try:
@@ -99,6 +100,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(color
                                                                            device.getNode(register).getSize(),
                                                                            colors.ENDC
                                                                            )
+        sys.stdout.flush()
         pass
     while (nRetries < gMAX_RETRIES):
         try:
@@ -150,6 +152,9 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(color
                                                                            device.getNode(register).getSize(),
                                                                            colors.ENDC
                                                                            )
+        sys.stdout.flush()
+        pass
+
     while (nRetries < gMAX_RETRIES):
         try:
             device.getNode(register).write(0xffffffff&value)

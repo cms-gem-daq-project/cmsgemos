@@ -1,3 +1,5 @@
+from gempython.utils.nesteddict import nesteddict
+
 def rateConverter(rate):
     modifier = ""
     if rate > 1000000000:
@@ -19,8 +21,8 @@ def getErrorRate(errorCounts,sampleTime):
     pair1 = [first, second]
     returns a pair which is the rate (averaged over the number of trials) and the modifier string (k, M, G)
     """
-    rates = {}
-    modifier = {}
+    rates    = nesteddict()
+    modifier = nesteddict()
     rate = 0
     lastCount = 0
     for trial in errorCounts:
@@ -41,9 +43,9 @@ def errorRate(errorCounts,sampleTime):
     pair1 = [first, second]
     returns a pair which is the rate (averaged over the number of trials) and the modifier string (k, M, G)
     """
-    rates = {}
-    modifier = {}
-    for link in ("TRK","TRG"):
+    rates    = nesteddict()
+    modifier = nesteddict()
+    for link in ("LINK","GTX","GBT"):
         rate = 0
         lastCount = 0
         for trial in errorCounts:
