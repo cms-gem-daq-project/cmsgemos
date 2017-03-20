@@ -60,7 +60,7 @@ def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN):
     file_handler = logging.FileHandler("/tmp/%s/python_log_file.txt"%(os.getenv("USER")))
     file_handler.setLevel(logging.DEBUG)
     
-    logging.basicConfig(filename="/tmp/%s/python_log_file.txt"%(os.getenv("USER")),
+    logging.basicConfig(#filename="/tmp/%s/python_log_file.txt"%(os.getenv("USER")),
                         level=loglevel,
                         format=logfmt,
                         datefmt=datefmt)
