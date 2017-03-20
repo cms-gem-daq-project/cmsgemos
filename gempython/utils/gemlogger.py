@@ -50,20 +50,33 @@ class colors:
 
     pass
 
-def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN):
+def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN,
+                 logfile=None,logfilelevel=logging.DEBUG):
+    """
+    Extend a logger object, add a file handler, if specified, with a specific log level
+    """
     import sys,os
     logfmt  = '%(asctime)s.%(msecs)03d [%(thread)d] %(levelname)s:%(levelno)d  '
     logfmt += '%(module)s::%(funcName)s <> - '
     logfmt += '%(message)s'
     datefmt = '%d %b %Y %H:%M:%S'
 
-    file_handler = logging.FileHandler("/tmp/%s/python_log_file.txt"%(os.getenv("USER")))
-    file_handler.setLevel(logging.DEBUG)
+    if not logfile:
+        file_handler = logging.FileHandler("/tmp/%s/python_log_file.txt"%(os.getenv("USER")))
+    else
+        file_handler = logging.FileHandler("%s"%(logfile))
+
+    file_handler.setLevel(logfilelevel)
     
-    logging.basicConfig(#filename="/tmp/%s/python_log_file.txt"%(os.getenv("USER")),
-                        level=loglevel,
-                        format=logfmt,
-                        datefmt=datefmt)
+    if not logfile:
+        logging.basicConfig(level=loglevel,
+                            format=logfmt,
+                            datefmt=datefmt)
+    else:
+        logging.basicConfig(filename=logfile,
+                            level=loglevel,
+                            format=logfmt,
+                            datefmt=datefmt)
     logger = logging.getLogger(logclassname)
     return logger
 
