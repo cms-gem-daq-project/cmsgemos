@@ -1,11 +1,11 @@
 #!/bin/env python
 
 from gempython.tools.glib_system_info_uhal import *
-from gempython.tools.glib_user_functions_uhal import *
+from gempython.tools.amc_user_functions_uhal import *
 from gempython.utils.rate_calculator import rateConverter,errorRate
 
 import logging
-from gempython.utils.gemlogger import colors,getGEMLogger
+from gempython.utils.gemlogger import colors,getGEMLogger,gemdebug,geminfo,gemwarning,gemerror,gemfatal,gemcritical
 
 from gempython.utils.standardopts import parser
 parser.add_option("--daq_enable", type="int", dest="daq_enable",
@@ -27,7 +27,7 @@ parser.add_option("--ttc", type="int", dest="gemttc", default=2,
 
 (options, args) = parser.parse_args()
 
-gemlogger = getGEMLogger(logclassname="glib_user_functions")
+gemlogger = getGEMLogger(__name__)
 gemlogger.setLevel(logging.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )

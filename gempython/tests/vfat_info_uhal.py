@@ -6,8 +6,9 @@ from gempython.tools.amc_user_functions_uhal import *
 from gempython.utils.rate_calculator import errorRate
 
 import logging
-from gempython.utils.gemlogger import colors,getGEMLogger
+from gempython.utils.gemlogger import colors,getGEMLogger,gemdebug,geminfo,gemwarning,gemerror,gemfatal,gemcritical
 
+from gempython.utils.nesteddict import nesteddict
 from gempython.utils.standardopts import parser
 
 parser.add_option("-z", "--sleep", action="store_true", dest="sleepAll",
@@ -18,10 +19,12 @@ parser.add_option("--enable", type="string", dest="enabledChips",
 		  help="list of chips to enable, comma separated", metavar="enabledChips", default=[])
 parser.add_option("--testi2c", type="int", dest="testi2c", default=-1,
 		  help="Testing the I2C lines (select I2C line 0-5, or 6 for all", metavar="testi2c")
+parser.add_option("--testsingle", action="store_true", dest="testsingle",
+		  help="Testing single VFAT transactions (turn on every other VFAT)", metavar="testsingle")
 
 (options, args) = parser.parse_args()
 
-gemlogger = getGEMLogger("glib_vfat_test_uhal")
+gemlogger = getGEMLogger(__name__)
 gemlogger.setLevel(logging.INFO)
 
 uhal.setLogLevelTo( uhal.LogLevel.FATAL )
@@ -30,16 +33,18 @@ chips = []
 if options.enabledChips:
     chips = [int(n) for n in options.enabledChips.split(",")]
     msg = "chips", chips
-    gemlogger.info(msg)
+    geminfo(gemlogger,msg)
     pass
 
 amc     = getAMCObject(options.slot,options.shelf,options.debug)
 ohboard = getOHObject(options.slot,options.gtx,options.shelf,options.debug)
-
+setOHLogLevel(logging.INFO)
+setAMCLogLevel(logging.INFO)
+setVFATLogLevel(logging.INFO)
 ########################################
 # IP address
 ########################################
-if options.debug:
+if options.debug and False:
     print
     print "--=======================================--"
     print "  Using AMC ", amc
@@ -142,8 +147,8 @@ gemlogger.debug(msg)
 if options.debug:
     msg = chipids
     gemlogger.debug(msg)
-    msg = controlRegs
-    gemlogger.debug(msg)
+    # msg = controlRegs
+    # gemlogger.debug(msg)
 
 if options.biasAll:
     biasAllVFATs(ohboard, options.gtx, chipmask)
@@ -151,16 +156,29 @@ if options.biasAll:
 if options.sleepAll:
     for chip in range(24):
         msg = "sleeping chip %d"%(chip)
-        gemlogger.info(msg)
+        geminfo(gemlogger,msg)
         setRunMode(ohboard, options.gtx, chip, False)
         pass
     pass
 for chip in chips:
     msg = "enabling chip %d"%(chip)
-    gemlogger.info(msg)
+    geminfo(gemlogger,msg)
     setRunMode(ohboard, options.gtx, chip, True)
     pass
-controlRegs = {}
+
+if options.testsingle:
+    print "Testing single VFAT transactions"
+    for vfat in range(24):
+        # if (vfat%2 == 0):
+        setRunMode(ohboard, options.gtx, chip=vfat, enable=False,debug=True)
+        # setRunMode(ohboard, options.gtx, chip=vfat, enable=True,debug=True)
+        # else:
+        #     setRunMode(ohboard, options.gtx, chip=vfat, enable=False,debug=True)
+        #     pass
+        pass
+    pass
+
+controlRegs = nesteddict()
 for control in range(4):
     controls.append(readAllVFATs(ohboard, options.gtx, "ContReg%d"%(control), 0xf0000000, options.debug))
     controlRegs["ctrl%d"%control] = dict(map(lambda chip: (chip, controls[control][chip]&0xff), range(0,24)))

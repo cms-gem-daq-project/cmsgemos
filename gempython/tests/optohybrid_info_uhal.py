@@ -4,15 +4,15 @@ from gempython.tools.optohybrid_user_functions_uhal import *
 from gempython.utils.rate_calculator import getErrorRate,errorRate
 
 import logging
-from gempython.utils.gemlogger import colors,getGEMLogger
+from gempython.utils.gemlogger import colors,getGEMLogger,gemdebug,geminfo,gemwarning,gemerror,gemfatal,gemcritical
 
 from gempython.utils.standardopts import parser
 parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
 		  help="which reference clock to use on OH", metavar="clkSrc")
 parser.add_option("-l", "--localT1", action="store_true", dest="localT1",
 		  help="enable the localT1 controller", metavar="localT1")
-parser.add_option("--v2b", action="store_true", dest="v2b",
-		  help="Specific functionality only in v2b", metavar="v2b")
+parser.add_option("--v2a", action="store_true", dest="v2a",
+		  help="Specific functionality only in v2a", metavar="v2a")
 parser.add_option("--sbitmask", type="int", dest="sbitmask",default=0x0,
 		  help="use s-bit mask", metavar="sbitmask")
 parser.add_option("--sbitout", type="int", dest="sbitSrc",
@@ -22,31 +22,34 @@ parser.add_option("-x", "--external", type="int", dest="trgSrc",
 
 (options, args) = parser.parse_args()
 
-gemlogger = getGEMLogger(logclassname="optohybrid_board_info_uhal")
+gemlogger = getGEMLogger(__name__)
 gemlogger.setLevel(logging.INFO)
 
-uhal.setLogLevelTo( uhal.LogLevel.FATAL )
+uhal.setLogLevelTo( uhal.LogLevel.WARNING )
 
 ohboard = getOHObject(options.slot,options.gtx,options.shelf,options.debug)
+setOHLogLevel(logging.INFO)
+if options.debug:
+    setOHLogLevel(logging.DEBUG)
 
 SAMPLE_TIME = 1.
 
 print
-print "-> -----------------"
-print "-> OPTOHYBRID STATUS     "
-print "-> -----------------"
+print "-> --------------------------"
+print "->     OPTOHYBRID STATUS     "
+print "-> --------------------------"
 
 fwver   = getFirmwareVersion(ohboard,options.gtx)
 date    = getFirmwareDateString(ohboard,options.gtx)
-dateold = getFirmwareDateString(ohboard,options.gtx,old=True)
-print "-> oh fw date(old): %s%s%s"%(colors.YELLOW,dateold,colors.ENDC)
+# dateold = getFirmwareDateString(ohboard,options.gtx,old=True)
+# print "-> oh fw date(old): %s%s%s"%(colors.YELLOW,dateold,colors.ENDC)
 print "-> oh fw date     : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
 print "-> oh fw version  : %s%s%s"%(colors.YELLOW,fwver,colors.ENDC)
 print
 #printSysmonInfo(ohboard,options.gtx)
 print
 print "Connected VFATs mask: 0x%08x"%(getConnectedVFATsMask(ohboard,options.gtx,options.debug))
-print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(ohboard,options.gtx,options.debug))
+# print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(ohboard,options.gtx,options.debug))
 setVFATsBitMask(ohboard,options.gtx,options.sbitmask,options.debug)
 print "VFATs s-bit mask:     0x%08x"%(getVFATsBitMask(ohboard,options.gtx,options.debug))
 print
@@ -71,33 +74,11 @@ if options.sbitSrc in [1,2,3,4,5,6]:
 clocking = getClockingInfo(ohboard,options.gtx)
 #OH:  TrgSrc  SBitSrc  FPGA PLL    EXT PLL    CDCE     GTX  RefCLKSrc
 #->:     0x0      0x0       0x0       0x0      0x1     0x1        0x1
-if options.v2b:
-    print "Sources:  %6s  %7s"%("TrgSrc","SBitSrc")
-    print "             0x%x      0x%x"%(
-            readRegister(ohboard,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
-            readRegister(ohboard,"GEM_AMC.OH.OH%d.CONTROL.HDMI_OUTPUT.SBITS"%(options.gtx)))
-
-    print "Lock status:  %10s  %13s"%("QPLL","QPLL FPGA PLL")
-    print "                     0x%x            0x%x"%(
-            clocking["qplllock"],
-            clocking["qpllfpgaplllock"])
-    errorCounts = {}
-    errorCounts["QPLL"] = []
-    errorCounts["FPGA"] = []
-    for trial in range(options.errorRate):
-        errorCounts["QPLL"].append(calculateLockErrors(ohboard,options.gtx,"QPLL",SAMPLE_TIME))
-        errorCounts["FPGA"].append(calculateLockErrors(ohboard,options.gtx,"QPLL_FPGA_PLL",SAMPLE_TIME))
-        pass
-    qrates = getErrorRate(errorCounts["QPLL"],SAMPLE_TIME)
-    frates = getErrorRate(errorCounts["FPGA"],SAMPLE_TIME)
-    print "Unlock count: 0x%08x     0x%08x"%(qrates[0],frates[0])
-    0x00000107
-    print "Unlock rate:%10sHz   %10sHz"%("%2.2f%s"%(qrates[1],qrates[2]),"%2.2f%s"%(frates[1],frates[2]))
-else:
+if options.v2a:
     print "Sources:  %6s  %7s  %9s"%("TrgSrc","SBitSrc","RefCLKSrc")
     print "             0x%x      0x%x        0x%x"%(
             readRegister(ohboard,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
-            readRegister(ohboard,"GEM_AMC.OH.OH%d.CONTROL.OUTPUT.SBITS"%(options.gtx)),
+            readRegister(ohboard,"GEM_AMC.OH.OH%d.CONTROL.HDMI_OUTPUT.SBITS"%(options.gtx)),
             clocking["refclock"])
 
     print "Lock status:  %8s  %7s  %4s  %3s"%("FPGA PLL","EXT PLL","CDCE","GTX")
@@ -107,6 +88,28 @@ else:
             clocking["cdcelock"],
             clocking["gtxreclock"])
     pass
+else:
+    print "Sources:  %6s  %7s  %9s"%("TrgSrc","SBitSrc","RefCLKSrc")
+    print "             0x%x      0x%x        0x%x"%(
+            readRegister(ohboard,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(options.gtx)),
+            readRegister(ohboard,"GEM_AMC.OH.OH%d.CONTROL.HDMI_OUTPUT.SBITS"%(options.gtx)),
+            clocking["refclock"])
+
+    print "Lock status:  %10s  %13s"%("QPLL","QPLL FPGA PLL")
+    print "                     0x%x            0x%x"%(
+            clocking["qplllock"],
+            clocking["qpllfpgaplllock"])
+    errorCounts = nesteddict()
+    errorCounts["QPLL"] = []
+    errorCounts["FPGA"] = []
+    for trial in range(options.errorRate):
+        errorCounts["QPLL"].append(calculateLockErrors(ohboard,options.gtx,"QPLL",SAMPLE_TIME))
+        errorCounts["FPGA"].append(calculateLockErrors(ohboard,options.gtx,"QPLL_FPGA_PLL",SAMPLE_TIME))
+        pass
+    qrates = getErrorRate(errorCounts["QPLL"],SAMPLE_TIME)
+    frates = getErrorRate(errorCounts["FPGA"],SAMPLE_TIME)
+    print "Unlock count: 0x%08x     0x%08x"%(qrates[0],frates[0])
+    print "Unlock rate:%10sHz   %10sHz"%("%2.2f%s"%(qrates[1],qrates[2]),"%2.2f%s"%(frates[1],frates[2]))
 print
 #print "-> OH Clocking (src, bkp):     VFAT         CDCE"
 #print "-> %22s%d       (0x%x  0x%x)   (0x%x  0x%x)"%("link",links[link],
@@ -139,8 +142,9 @@ sys.stdout.flush()
 
 rates = errorRate(errorCounts,SAMPLE_TIME)
 #counters = optohybridCounters(ohboard,options.gtx)
-print "-> TRK: 0x%08x  (%6.2f%1sHz)"%(rates["TRK"][0],rates["TRK"][1],rates["TRK"][2])
-print "-> TRG: 0x%08x  (%6.2f%1sHz)"%(rates["TRG"][0],rates["TRG"][1],rates["TRG"][2])
+print "-> LINK: %8d  (%6.2f%1sHz)"%(rates["LINK"][0],rates["LINK"][1],rates["LINK"][2])
+print "-> GTX:  %8d  (%6.2f%1sHz)"%(rates["GTX"][0],rates["GTX"][1],rates["GTX"][2])
+print "-> GBT:  %8d  (%6.2f%1sHz)"%(rates["GBT"][0],rates["GBT"][1],rates["GBT"][2])
 
 print
 print "--=======================================--"

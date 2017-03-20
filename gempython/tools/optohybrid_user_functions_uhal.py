@@ -4,6 +4,8 @@ sys.path.append('${GEM_PYTHON_PATH}')
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
 
+from gempython.utils.gemlogger import gemdebug,geminfo,gemwarning,gemerror,gemfatal,gemcritical
+
 import logging
 ohlogger = logging.getLogger(__name__)
 
@@ -59,7 +61,7 @@ def getOHObject(slot,link,shelf=1,debug=False):
     ohboard         = manager.getDevice( "gem.shelf%02d.amc%02d.optohybrid%02d"%(shelf,slot,link) )
     if checkOHBoard(ohboard):
         msg = "%s: Success!"%(ohboard)
-        ohlogger.info(msg)
+        geminfo(ohlogger,msg)
         return ohboard
     else:
         msg = "%s: Failed to create OptoHybrid object"%(ohboard)
@@ -161,7 +163,7 @@ def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
     writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
     readRegister(device,"%s.Request.%s"%(baseNode,register),debug)
 
-    msg ="%s: broadcast write request status 0x%x"%(readRegister(device,"%s.Running"%(baseNode),debug))
+    msg = "%s: broadcast write request status 0x%x"%(device,readRegister(device,"%s.Running"%(baseNode),debug))
     ohlogger.debug(msg)
 
     while (readRegister(device,"%s.Running"%(baseNode))):

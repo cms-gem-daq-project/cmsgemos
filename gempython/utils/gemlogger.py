@@ -63,7 +63,7 @@ def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN,
 
     if not logfile:
         file_handler = logging.FileHandler("/tmp/%s/python_log_file.txt"%(os.getenv("USER")))
-    else
+    else:
         file_handler = logging.FileHandler("%s"%(logfile))
 
     file_handler.setLevel(logfilelevel)
@@ -159,3 +159,27 @@ def printmsg(msg, foreground, background):
 # printmsg("NOTSET",  logging.NOTSET)
 # printmsg("OK",      logging.INFO, printonly=True)
 # printmsg("ALT",     logging.DEBUG,printonly=True)
+
+def gemdebug(logger,msg):
+    msg = colormsg(msg,loglevel=logging.DEBUG)
+    logger.debug(msg)
+
+def geminfo(logger,msg):
+    msg = colormsg(msg,loglevel=logging.INFO)
+    logger.info(msg)
+
+def gemwarning(logger,msg):
+    msg = colormsg(msg,loglevel=logging.WARNING)
+    logger.warning(msg)
+
+def gemerror(logger,msg):
+    msg = colormsg(msg,loglevel=logging.ERROR)
+    logger.error(msg)
+
+def gemfatal(logger,msg):
+    msg = colormsg(msg,loglevel=logging.FATAL)
+    logger.fatal(msg)
+
+def gemcritical(logger,msg):
+    msg = colormsg(msg,loglevel=logging.CRITICAL)
+    logger.critical(msg)

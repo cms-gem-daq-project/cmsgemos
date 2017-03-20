@@ -6,11 +6,20 @@ import uhal
 
 from gempython.utils.nesteddict import nesteddict
 
-from gempython.utils.gemlogger import colors, getGEMLogger
-gemlogger = getGEMLogger(logclassname="registers_uhal")
+from gempython.utils.gemlogger import colors,gemdebug,geminfo,gemwarning,gemerror,gemfatal,gemcritical
+
+import logging
+reglogger = logging.getLogger(__name__)
+
+def setRegisterLogLevel(level):
+    reglogger.setLevel(level)
+    pass
 
 gMAX_RETRIES = 5
 gRetries = 0
+
+class GEMUHALRegisterException(Exception):
+    pass
 
 def readRegister(device, register, debug=False):
     """
@@ -19,20 +28,19 @@ def readRegister(device, register, debug=False):
     """
     global gRetries
     nRetries = 0
-    if debug:
-        print """%sTrying to read register %s (%s)
-address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(colors.CYAN,
-                                                                           register,
-                                                                           device.getNode(register).getPath(),
-                                                                           device.getNode(register).getAddress(),
-                                                                           device.getNode(register).getMask(),
-                                                                           device.getNode(register).getPermission(),
-                                                                           device.getNode(register).getMode(),
-                                                                           device.getNode(register).getSize(),
-                                                                           colors.ENDC
-                                                                           )
-        sys.stdout.flush()
-        pass
+    msg = """%s: Trying to read register %s (%s)
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
+"""%(device,
+     register,
+     device.getNode(register).getPath(),
+     device.getNode(register).getAddress(),
+     device.getNode(register).getMask(),
+     device.getNode(register).getPermission(),
+     device.getNode(register).getMode(),
+     device.getNode(register).getSize()
+     )
+    gemdebug(reglogger,msg)
+
     while (nRetries < gMAX_RETRIES):
         try:
             controlChar = device.getNode(register).read()
@@ -42,9 +50,15 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(color
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10)==0):
-                print colors.MAGENTA,"read error encountered (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),e,colors.ENDC
+                msg = "%s: read error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
+                msg+= e
+                gemwarning(reglogger,msg)
                 continue
         pass
+
+    msg ="%s: Failed to readRegister %s"%(device,register)
+    gemerror(reglogger,msg)
+
     return 0x0
 
 def readRegisterList(device, registers, debug=False):
@@ -54,31 +68,55 @@ def readRegisterList(device, registers, debug=False):
     """
     global gRetries
     nRetries = 0
+    msg = "%s\n"%(device)
     if debug:
-        print registers
+        for reg in registers:
+            msg+= "%s\n"%(reg)
+            pass
         pass
+    gemdebug(reglogger,msg)
+
     while (nRetries < gMAX_RETRIES):
         try:
             results = nesteddict()
             for reg in registers:
                 results[reg] = device.getNode(reg).read()
                 pass
+            msg = "%s\n"%(device)
             if (debug):
-                print results
+                for reg in results.keys():
+                    msg+= "%s: 0x%x"%(reg,results[reg])
+                    pass
+                pass
+            gemdebug(reglogger,msg)
+
             device.dispatch()
             time.sleep(0.1)
+
+            msg = "%s\n"%(device)
             if (debug):
-                print results
+                for reg in results.keys():
+                    msg+= "%s: 0x%x"%(reg,results[reg])
+                    pass
+                pass
+            gemdebug(reglogger,msg)
+
             return results
+
         except uhal.exception, e:
-            print colors.MAGENTA,"read error encountered, retrying operation (%d,%d)"%(nRetries,gRetries),e,colors.ENDC
+            msg ="%s: read error encountered, retrying operation (%d,%d)"%(device,nRetries,gRetries),
+            msg+= e
+            gemwarning(reglogger,msg)
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10)==0):
                 continue
             pass
         pass
-    print colors.MAGENTA,"Failed to readRegisterList",colors.ENDC
+
+    msg ="%s: Failed to readRegisterList"%(device)
+    gemerror(reglogger,msg)
+
     return 0x0
 
 def readBlock(device, register, nwords, debug=False):
@@ -88,30 +126,34 @@ def readBlock(device, register, nwords, debug=False):
     """
     global gRetries
     nRetries = 0
-    if debug:
-        print """%sTrying to read register %s (%s)
-address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(colors.CYAN,
-                                                                           register,
-                                                                           device.getNode(register).getPath(),
-                                                                           device.getNode(register).getAddress(),
-                                                                           device.getNode(register).getMask(),
-                                                                           device.getNode(register).getPermission(),
-                                                                           device.getNode(register).getMode(),
-                                                                           device.getNode(register).getSize(),
-                                                                           colors.ENDC
-                                                                           )
-        sys.stdout.flush()
-        pass
+    msg = """%s: Trying to read register %s (%s)
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
+"""%(device,
+     register,
+     device.getNode(register).getPath(),
+     device.getNode(register).getAddress(),
+     device.getNode(register).getMask(),
+     device.getNode(register).getPermission(),
+     device.getNode(register).getMode(),
+     device.getNode(register).getSize()
+     )
+    gemdebug(reglogger,msg)
+
     while (nRetries < gMAX_RETRIES):
         try:
-            if (debug):
-                print "reading %d words from register %s"%(nwords,register)
-                pass
+            msg = "%s: reading %d words from register %s"%(device,nwords,register)
+            gemdebug(reglogger,msg)
             words = device.getNode(register).readBlock(nwords)
             device.dispatch()
+
+            msg = "%s: readBlock"%(device)
             if (debug):
-                print words
+                for word in words:
+                    msg+= "0x%x"%(word)
+                    pass
                 pass
+            gemdebug(reglogger,msg)
+
             return words
         # want to be able to return nothing in the result of a failed transaction
         except uhal.exception, e:
@@ -126,12 +168,15 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(color
             # else:
             #     print colors.MAGENTA, "other error",register, "-> Error : ", e, colors.ENDC
             if ((nRetries % 10)==0):
-                print colors.MAGENTA,"read error encountered (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),e,colors.ENDC
+                msg = "%s: read error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
+                msg+= e
+                gemwarning(reglogger,msg)
             continue
         pass
-    # print colors.RED, "error encountered, retried read operation (%d)"%(nRetries)
+    msg = "%s: error encountered, retried read operation (%d)"%(device,nRetries)
+    gemerror(reglogger,msg)
+    
     return []
-    # return 0x0
 
 def writeRegister(device, register, value, debug=False):
     """
@@ -139,21 +184,19 @@ def writeRegister(device, register, value, debug=False):
     """
     global gRetries
     nRetries = 0
-    if debug:
-        print """%sTrying to write value 0x%x to register %s (%s)
-address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(colors.CYAN,
-                                                                           value,
-                                                                           register,
-                                                                           device.getNode(register).getPath(),
-                                                                           device.getNode(register).getAddress(),
-                                                                           device.getNode(register).getMask(),
-                                                                           device.getNode(register).getPermission(),
-                                                                           device.getNode(register).getMode(),
-                                                                           device.getNode(register).getSize(),
-                                                                           colors.ENDC
-                                                                           )
-        sys.stdout.flush()
-        pass
+    msg = """%s: Trying to write value 0x%x to register %s (%s)
+address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
+"""%(device,
+     value,
+     register,
+     device.getNode(register).getPath(),
+     device.getNode(register).getAddress(),
+     device.getNode(register).getMask(),
+     device.getNode(register).getPermission(),
+     device.getNode(register).getMode(),
+     device.getNode(register).getSize(),
+     )
+    gemdebug(reglogger,msg)
 
     while (nRetries < gMAX_RETRIES):
         try:
@@ -173,11 +216,16 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x%s"""%(color
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10)==0) and debug:
-                print colors.MAGENTA,"write error encountered (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),e,colors.ENDC
+                msg = "%s: write error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
+                msg+= e
+                gemwarning(reglogger,msg)
                 pass
             continue
         pass
-    # print colors.RED, "error encountered, retried test write operation (%d)"%(nRetries)
+
+    msg = "%s: error encountered, retried test write operation (%d)"%(device,nRetries)
+    gemerror(reglogger,msg)
+
     pass
 
 def writeRegisterList(device, regs_with_vals, debug=False):
@@ -196,11 +244,18 @@ def writeRegisterList(device, regs_with_vals, debug=False):
             return
 
         except uhal.exception, e:
-            print colors.MAGENTA,"write error encountered ",regs_with_vals,", retrying operation (%d,%d)"%(nRetries,gRetries),e,colors.ENDC
+            msg = "%s: write error encountered ["%(device)
+            for reg in regs_with_vals:
+                msg+= "%s:0x%x,"%(reg,regs_with_vals[reg])
+            msg+= "], retrying operation (%d,%d)"%(nRetries,gRetries)
+            msg+= e
+            gemwarning(reglogger,msg)
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10)==0) and debug:
                 pass
             continue
         pass
+    msg = "%s: write error encountered, retried operation (%d)"%(nRetries)
+    gemerror(reglogger,msg)
     pass

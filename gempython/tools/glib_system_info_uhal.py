@@ -143,7 +143,6 @@ def getAllSFPInfo(amc,debug=False):
 
 def getBasicSystemInfo(amc,debug=False):
 
-    #chipsLog.setLevel(logging.DEBUG)    # Verbose logging (see packets being sent and received)
     print
     print "--=======================================--"
     print "-> BOARD SYSTEM INFORMATION"

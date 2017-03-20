@@ -7,7 +7,7 @@ from gempython.tools.optohybrid_user_functions_uhal import *
 import logging
 vfatlogger = logging.getLogger(__name__)
 
-def setOHLogLevel(level):
+def setVFATLogLevel(level):
     vfatlogger.setLevel(level)
     pass
 
@@ -56,7 +56,7 @@ def readAllVFATs(device, gtx, reg, mask=0x0, debug=False):
     if vfatVals:
         msg = "%s: readAllVFATs"%(device)
         for i,val in enumerate(vfatVals):
-            msg+= "%d: value = 0x%08x\n"%(device,i,val)
+            msg+= "%d: value = 0x%08x\n"%(i,val)
             pass
         vfatlogger.debug(msg)
         pass
@@ -307,18 +307,18 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
 
     slotmap = map(lambda slotID: perslot%(slotID), regkeys.keys())
     msg = "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
-    vfatlogger.info(msg)
+    # vfatlogger.info(msg)
     print msg
     chipmap = map(lambda chipID: perchip%(regkeys[chipID]), regkeys.keys())
     msg = "%s%s%s%s"%(base,colors.CYAN,' '.join(map(str, chipmap)),colors.ENDC)
-    vfatlogger.info(msg)
+    # vfatlogger.info(msg)
     print msg
     for reg in registerList:
         # regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())
         regValues = readAllVFATs(device, gtx, reg, mask, debug)
         regmap = map(lambda chip: perreg%(chip&0xff), regValues)
         msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
-        vfatlogger.info(msg)
+        # vfatlogger.info(msg)
         print msg
         pass
     return
