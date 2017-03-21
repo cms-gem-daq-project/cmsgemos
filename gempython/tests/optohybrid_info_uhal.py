@@ -41,10 +41,9 @@ print "-> --------------------------"
 
 fwver   = getFirmwareVersion(ohboard,options.gtx)
 date    = getFirmwareDateString(ohboard,options.gtx)
-# dateold = getFirmwareDateString(ohboard,options.gtx,old=True)
-# print "-> oh fw date(old): %s%s%s"%(colors.YELLOW,dateold,colors.ENDC)
-print "-> oh fw date     : %s%s%s"%(colors.YELLOW,date,colors.ENDC)
-print "-> oh fw version  : %s%s%s"%(colors.YELLOW,fwver,colors.ENDC)
+print "-> OH FW %10s  %10s"%("Version","Date")
+print "  ->     %s%10s%s  %s%10s%s"%(colors.YELLOW,date,colors.ENDC,
+                                     colors.YELLOW,fwver,colors.ENDC)
 print
 #printSysmonInfo(ohboard,options.gtx)
 print

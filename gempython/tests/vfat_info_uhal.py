@@ -39,6 +39,7 @@ if options.enabledChips:
 amc     = getAMCObject(options.slot,options.shelf,options.debug)
 ohboard = getOHObject(options.slot,options.gtx,options.shelf,options.debug)
 setOHLogLevel(logging.INFO)
+setOHLogLevel(logging.INFO)
 setAMCLogLevel(logging.INFO)
 setVFATLogLevel(logging.INFO)
 ########################################

@@ -3,6 +3,7 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
+from gempython.utils.gemlogger import colormsg
 
 import logging
 amclogger = logging.getLogger(__name__)
@@ -94,7 +95,7 @@ def readTrackingInfo(device,gtx,nBlocks=1):
     
     #for word in data:
     #    msg = "%s: 0x%08x"%(word,data)
-    #    amclogger.info(msg)
+    #    amclogger.info(colormsg(msg,logging.INFO))
     return data
 
 def flushTrackingFIFO(device,gtx):
@@ -152,7 +153,8 @@ def enableDAQLinkMask(linkno, linkEnableMask=0x0):
     return linkEnableMask
 
 def enableDAQLink(device, linkEnableMask=0x1, doReset=False):
-    amclogger.info("Reset daq_enable: %i"%(1))
+    msg = "%s: Reset daq_enable: %i"%(device,1)
+    amclogger.info(colormsg(msg,logging.INFO))
     if (doReset):
         resetDAQLink(device)
         

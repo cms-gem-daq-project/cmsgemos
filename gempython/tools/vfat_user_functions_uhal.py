@@ -3,6 +3,7 @@ import sys, time, signal
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
 from gempython.tools.optohybrid_user_functions_uhal import *
+from gempython.utils.gemlogger import colors,colormsg
 
 import logging
 vfatlogger = logging.getLogger(__name__)
@@ -38,16 +39,16 @@ def readVFAT(device, gtx, chip, reg, debug=False):
     # do check on status
     if ((vfatVal >> 26) & 0x1) :
         msg = "%s: error on VFAT transaction (chip %d, %s)"%(device,chip, reg)
-        vfatlogger.warning(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     elif ((vfatVal >> 25) & 0x0):
         msg = "%s: invalid VFAT transaction (chip %d, %s)"%(device,chip, reg)
-        vfatlogger.warn(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     elif ((vfatVal >> 24) & 0x0):
         msg = "%s: wrong type of VFAT transaction (chip %d, %s)"%(device,chip, reg)
-        vfatlogger.warn(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     else :
         return vfatVal
 
@@ -58,20 +59,20 @@ def readAllVFATs(device, gtx, reg, mask=0x0, debug=False):
         for i,val in enumerate(vfatVals):
             msg+= "%d: value = 0x%08x\n"%(i,val)
             pass
-        vfatlogger.debug(msg)
+        vfatlogger.debug(colormsg(msg,logging.DEBUG))
         pass
     ## do check on status, maybe only do the check in the calling code
     #if ((vfatVals >> 26) & 0x1) :
     #    msg = "error on block VFAT transaction (%s)"%(reg)
-    #    vfatlogger.debug(msg)
+    #    vfatlogger.debug(colormsg(msg,logging.DEBUG))
     #    return -1
     #elif ((vfatVals >> 25) & 0x0):
     #    msg = "invalid block VFAT transaction (%s)"%(reg)
-    #    vfatlogger.debug(msg)
+    #    vfatlogger.debug(colormsg(msg,logging.DEBUG))
     #    return -1
     #elif ((vfatVals >> 24) & 0x0):
     #    msg = "wrong type of block VFAT transaction (%s)"%(reg)
-    #    vfatlogger.debug(msg)
+    #    vfatlogger.debug(colormsg(msg,logging.DEBUG))
     #    return -1
     #else :
     #    return vfatVals
@@ -118,24 +119,24 @@ def setRunMode(device, gtx, chip, enable, debug=False):
     regVal = readVFAT(device, gtx, chip, "ContReg0",debug)
     if (enable):
         msg = "%s: Enabling VFAT%02d - Current CR0 value 0x%02x setting to 0x%02x"%(device,chip,regVal,((0xff&regVal)|0x1))
-        vfatlogger.debug(msg)
+        vfatlogger.debug(colormsg(msg,logging.DEBUG))
         writeVFAT(device, gtx, chip, "ContReg0", ((0xff&regVal)|0x01),debug)
     else:
         msg = "%s: Disabling VFAT%02d - Current CR0 value 0x%02x setting to 0x%02x"%(device,chip,regVal,((0xff&regVal)&0xfe))
-        vfatlogger.debug(msg)
+        vfatlogger.debug(colormsg(msg,logging.DEBUG))
         writeVFAT(device, gtx, chip, "ContReg0", ((0xff&regVal)&0xfe),debug)
         pass
 
     msg = "%s: VFAT%02d CR0 is now 0x%02x"%(device,chip,readVFAT(device, gtx, chip, "ContReg0",debug))
-    vfatlogger.debug(msg)
+    vfatlogger.debug(colormsg(msg,logging.DEBUG))
     return
 
 def setChannelRegister(device, gtx, chip, chan,
                        mask=0x0, pulse=0x0, trim=0x0, debug=False):
     if (chan not in range(0,128)):
         msg = "%s: Invalid VFAT channel specified %d"%(device,chan)
-        vfatlogger.warning(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trim&0x1f)
     writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan),chanReg)
     return
@@ -144,16 +145,16 @@ def setChannelRegister(device, gtx, chip, chan,
                        chanreg, debug=False):
     if (chan not in range(0,128)):
         msg = "%s: Invalid VFAT channel specified %d"%(device,chan)
-        vfatlogger.warning(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan),chanreg)
     return
 
 def getChannelRegister(device, gtx, chip, chan, debug=False):
     if (chan not in range(0,128)):
         msg = "%s: Invalid VFAT channel specified %d"%(device,chan)
-        vfatlogger.warning(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     return readVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan))
 
 def setAllChannelRegisters(device, gtx, chan,
@@ -161,8 +162,8 @@ def setAllChannelRegisters(device, gtx, chan,
                            chipmask=0x0, debug=False):
     if (chan not in range(0,128)):
         msg = "%s: Invalid VFAT channel specified %d"%(device,chan)
-        vfatlogger.warning(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trim&0x1f)
     writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan), chanReg, mask, debug)
     return
@@ -171,16 +172,16 @@ def setAllChannelRegisters(device, gtx, chan, chanreg,
                            chipmask=0x0, debug=False):
     if (chan not in range(0,128)):
         msg = "%s: Invalid VFAT channel specified %d"%(device,chan)
-        vfatlogger.warning(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     writeAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan), chanreg, chipmask, debug)
     return
 
 def getAllChannelRegisters(device, gtx, chan, mask=0x0, debug=False):
     if (chan not in range(0,128)):
         msg = "%s: Invalid VFAT channel specified %d"%(device,chan)
-        vfatlogger.warning(msg)
-        raise VFATException(msg)
+        vfatlogger.warning(colormsg(msg,logging.WARNING))
+        raise VFATException(colormsg(msg,logging.FATAL))
     return readAllVFATs(device, gtx, "VFATChannels.ChanReg%d"%(chan), mask, debug)
 
 def setVFATThreshold(device, gtx, chip, vt1, vt2=0, debug=False):
@@ -247,7 +248,7 @@ def biasAllVFATs(device, gtx, mask=0x0, enable=True, debug=False):
     writeAllVFATs(device, gtx, "CalPhase",    parameters.defaultValues["CalPhase"   ], mask=mask)
 
     msg = "%s: biased VFATs, zeroing channel registers"%(device)
-    vfatlogger(msg)
+    vfatlogger.debug(colormsg(msg,logging.DEBUG))
     for chan in range(128):
         #writeRegister(device,"%s.VFATChannels.ChanReg%d"%(baseNode,chan),0x40)
         #mask no channels, as this seems to affect the output data packets, not just the triggers
@@ -307,18 +308,18 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
 
     slotmap = map(lambda slotID: perslot%(slotID), regkeys.keys())
     msg = "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
-    # vfatlogger.info(msg)
+    # vfatlogger.info(colormsg(msg,logging.INFO))
     print msg
     chipmap = map(lambda chipID: perchip%(regkeys[chipID]), regkeys.keys())
     msg = "%s%s%s%s"%(base,colors.CYAN,' '.join(map(str, chipmap)),colors.ENDC)
-    # vfatlogger.info(msg)
+    # vfatlogger.info(colormsg(msg,logging.INFO))
     print msg
     for reg in registerList:
         # regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())
         regValues = readAllVFATs(device, gtx, reg, mask, debug)
         regmap = map(lambda chip: perreg%(chip&0xff), regValues)
         msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
-        # vfatlogger.info(msg)
+        # vfatlogger.info(colormsg(msg,logging.INFO))
         print msg
         pass
     return
