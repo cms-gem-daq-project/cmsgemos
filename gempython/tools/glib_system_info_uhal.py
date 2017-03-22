@@ -2,6 +2,7 @@ import sys, time, signal
 sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.registers_uhal import *
+from gempython.utils.gemlogger import colors
 
 def getBoardID(amc,debug=False):
     reg_list = [
@@ -143,7 +144,6 @@ def getAllSFPInfo(amc,debug=False):
 
 def getBasicSystemInfo(amc,debug=False):
 
-    #chipsLog.setLevel(logging.DEBUG)    # Verbose logging (see packets being sent and received)
     print
     print "--=======================================--"
     print "-> BOARD SYSTEM INFORMATION"

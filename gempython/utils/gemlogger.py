@@ -1,4 +1,5 @@
 import logging
+import logging.config
 
 class colors:
     class foreground:
@@ -48,55 +49,137 @@ class colors:
     # resets
     ENDC      = '\033[0m'
 
+    # log levels
+    colorlevels = {
+        "FATAL"   :"%s%s%s"%(background.RED,style.BRIGHT,YELLOW),
+        "CRITICAL":"%s%s%s"%(background.RED,style.BRIGHT,YELLOW),
+        "ERROR"   :"%s%s"%(style.BRIGHT,RED),
+        "WARNING" :"%s%s"%(style.BRIGHT,YELLOW),
+        "WARN"    :"%s%s"%(style.BRIGHT,YELLOW),
+        "INFO"    :"%s%s"%(style.BRIGHT,GREEN),
+        "DEBUG"   :"%s%s"%(style.BRIGHT,MAGENTA),
+        "NOTSET"  :ENDC
+        }
+
     pass
 
-def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN):
-    import sys,os
-    logfmt  = '%(asctime)s.%(msecs)03d [%(thread)d] %(levelname)s:%(levelno)d  '
-    logfmt += '%(module)s::%(funcName)s <> - '
-    logfmt += '%(message)s'
-    datefmt = '%d %b %Y %H:%M:%S'
+# from https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output#384125
+class ColoredFormatter(logging.Formatter):
+    def __init__(self, fmt=None, datefmt=None, use_color=True):
+        logging.Formatter.__init__(self, fmt=fmt, datefmt=datefmt)
+        self.use_color = use_color
 
-    file_handler = logging.FileHandler("/tmp/%s/python_log_file.txt"%(os.getenv("USER")))
-    file_handler.setLevel(logging.DEBUG)
+    def format(self, record):
+        orig = logging.Formatter.format(self, record)
+        levelname = record.levelname
+        if self.use_color and levelname in colors.colorlevels.keys():
+            orig = "%s%s%s"%(colors.colorlevels[levelname],orig,colors.colorlevels["NOTSET"])
+        return orig
+
+dictLogConfig = {
+    ## doesn't work in python26
+    "version":1,
+    "handlers":{
+        "file":{
+            "class":"logging.FileHandler",
+            "formatter":"nocolor",
+            "filename":"gemlogger.log"
+            },
+        "console":{
+            "class":"logging.StreamHandler",
+            "formatter":"color",
+            }
+        },        
+    "loggers":{
+        "root":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            },
+        "gempython.tools.amc_user_functions_uhal":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            },
+        "gempython.tools.optohybrid_user_functions_uhal":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            },
+        "gempython.tools.vfat_user_functions_uhal":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            },
+        "gempython.tools.scan_utils_uhal":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            },
+        "gempython.utils.registers_uhal":{
+            "handlers":["console","file"],
+            "level":"WARNING",
+            },
+        "gempython.tests.amc_info_uhal":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            },
+        "gempython.tests.optohybrid_info_uhal":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            },
+        "gempython.tests.vfat_info_uhal":{
+            "handlers":["console","file"],
+            "level":"INFO",
+            },
+        },
     
-    logging.basicConfig(filename="/tmp/%s/python_log_file.txt"%(os.getenv("USER")),
-                        level=loglevel,
-                        format=logfmt,
-                        datefmt=datefmt)
+    "formatters":{
+        "nocolor":{
+            ():"gempython.utils.gemlogger.ColoredFormatter",
+            "format": '%(asctime)s.%(msecs)03d [%(thread)x] %(levelname)s - %(module)s::%(funcName)s <> - %(message)s',
+            "datefmt":'%d %b %Y %H:%M:%S',
+            "use_color":"False"
+            },
+        "color":{
+            ():"gempython.utils.gemlogger.ColoredFormatter",
+            "format": '%(asctime)s.%(msecs)03d [%(thread)x] %(levelname)s - %(module)s::%(funcName)s <> - %(message)s',
+            "datefmt":'%d %b %Y %H:%M:%S',
+            "use_color":"True"
+            },
+        }
+    }
+ 
+def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN,
+                 logfile=None,logfilelevel=logging.DEBUG):
+    """
+    Extend a logger object, add a file handler, if specified, with a specific log level
+    """
+    import sys,os
+    # # logfmt  = '%(asctime)s.%(msecs)03d [%(thread)x] %(levelname)s:%(levelno)d  '
+    # logfmt  = '%(asctime)s.%(msecs)03d [%(thread)x] %(levelname)s - '
+    # logfmt += '%(module)s::%(funcName)s <> - '
+    # logfmt += '%(message)s'
+    # datefmt = '%d %b %Y %H:%M:%S'
+
+    # nocolor_formatter = ColoredFormatter(fmt=logfmt,datefmt=datefmt,use_color=False)
+    # file_handler = None
+    # if not logfile:
+    #     file_handler = logging.FileHandler("/tmp/%s/python_log_file.txt"%(os.getenv("USER")))
+    # else:
+    #     file_handler = logging.FileHandler("%s"%(logfile))
+
+    # file_handler.setLevel(logfilelevel)
+    # file_handler.setFormatter(nocolor_formatter)
+
+    # # improve colorized logging
+    # color_formatter = ColoredFormatter(fmt=logfmt,datefmt=datefmt,use_color=True)
+    # stream_handler  = logging.StreamHandler()
+    # stream_handler.setLevel(loglevel)
+    # stream_handler.setFormatter(color_formatter)
+
+    # logging.config.dictConfig(dictLogConfig)
+    logging.config.fileConfig("%s/gempython/utils/gemlogging_config.cfg"%(os.getenv("GEM_PYTHON_PATH")))
+
     logger = logging.getLogger(logclassname)
+
     return logger
 
-# class GEMLogger(logging.getLoggerClass()):
-
-#     # def __init__(self,logclassname=logging.getLoggerClass(), loglevel=logging.WARN):
-#     def __init__(self):
-#         self.loglevel     = loglevel
-#         self.logclassname = logclassname
-
-#         logfmt  = '%(asctime)s.%(msecs)03d [%(thread)d] %(levelname)s:%(levelno)d  '
-#         logfmt += '%(module)s::%(funcName)s <> - '
-#         logfmt += '%(message)s'
-#         datefmt = '%d %b %Y %H:%M:%S'
-
-#         logging.basicConfig(level=self.loglevel,
-#                             format=logfmt,
-#                             datefmt=datefmt)
-
-#         # self.gemlogger = logging.getLogger(self.logclassname)
-#         # logging.setLoggerClass(GEMLogger)
-#         pass
-
-#     # CRITICAL = logging.CRITICAL # 50
-#     # FATAL    = logging.CRITICAL # 50
-#     # ERROR    = logging.ERROR    # 40
-#     # WARNING  = logging.WARNING  # 30
-#     # WARN     = logging.WARNING  # 30
-#     # INFO     = logging.INFO     # 20
-#     # DEBUG    = logging.DEBUG    # 10
-#     # NOTSET   = logging.NOTSET   #  0
-
-# @staticmethod
 def colormsg(msg, loglevel=logging.NOTSET,printonly=False):
     openfmt = colors.ENDC
     if loglevel == logging.CRITICAL or loglevel == logging.FATAL:
@@ -125,7 +208,6 @@ def colormsg(msg, loglevel=logging.NOTSET,printonly=False):
         pass
     return "%s%s%s"%(openfmt,msg,colors.ENDC)
 
-# @staticmethod
 def printmsg(msg, loglevel=logging.NOTSET,printonly=False):
     print colormsg(msg,loglevel,printonly)
     pass
@@ -135,14 +217,28 @@ def printmsg(msg, foreground, background):
     print "%s%s%s%s"%(background,foreground,msg,colors.ENDC)
     pass
 
-# pass
-# printmsg("CRITICAL",logging.CRITICAL)
-# printmsg("FATAL",   logging.FATAL)
-# printmsg("ERROR",   logging.ERROR)
-# printmsg("WARNING", logging.WARNING)
-# printmsg("WARN",    logging.WARN)
-# printmsg("INFO",    logging.INFO)
-# printmsg("DEBUG",   logging.DEBUG)
-# printmsg("NOTSET",  logging.NOTSET)
-# printmsg("OK",      logging.INFO, printonly=True)
-# printmsg("ALT",     logging.DEBUG,printonly=True)
+# will modify the source of the logger message, so not super helpful
+# better to get the colorized formatter working properly
+def gemdebug(loclogger,msg):
+    msg = colormsg(msg,loglevel=logging.DEBUG)
+    loclogger.debug(msg)
+
+def geminfo(loclogger,msg):
+    msg = colormsg(msg,loglevel=logging.INFO)
+    loclogger.info(msg)
+
+def gemwarning(loclogger,msg):
+    msg = colormsg(msg,loglevel=logging.WARNING)
+    loclogger.warning(msg)
+
+def gemerror(loclogger,msg):
+    msg = colormsg(msg,loglevel=logging.ERROR)
+    loclogger.error(msg)
+
+def gemfatal(loclogger,msg):
+    msg = colormsg(msg,loglevel=logging.FATAL)
+    loclogger.fatal(msg)
+
+def gemcritical(loclogger,msg):
+    msg = colormsg(msg,loglevel=logging.CRITICAL)
+    loclogger.critical(msg)

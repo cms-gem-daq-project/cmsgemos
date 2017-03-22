@@ -3,8 +3,14 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
+from gempython.utils.gemlogger import colormsg
 
-gemlogger = getGEMLogger(logclassname="optohybrid_user_functions")
+import logging
+ohlogger = logging.getLogger(__name__)
+
+def setOHLogLevel(level):
+    ohlogger.setLevel(level)
+    pass
 
 class scanmode:
     THRESHTRG = 0 # Threshold scan
@@ -45,14 +51,20 @@ class dacmode:
     CALOUT      = 9
     pass
 
+class OptoHybridException(Exception):
+    pass
+
 def getOHObject(slot,link,shelf=1,debug=False):
     connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
     manager         = uhal.ConnectionManager(connection_file )
     ohboard         = manager.getDevice( "gem.shelf%02d.amc%02d.optohybrid%02d"%(shelf,slot,link) )
     if checkOHBoard(ohboard):
+        msg = "%s: Success!"%(ohboard)
+        ohlogger.info(colormsg(msg,logging.INFO))
         return ohboard
     else:
-        raise Exception
+        msg = "%s: Failed to create OptoHybrid object"%(ohboard)
+        raise OptoHybridException(colormsg(msg,logging.FATAL))
 
 def checkOHBoard(device,gtx=0,debug=False):
     # TO BE IMPLEMENTED
@@ -115,7 +127,7 @@ def getConnectedVFATsMask(device,gtx=0,debug=False):
     if (vfatVals):
         for i,val in enumerate(vfatVals):
             msg = "%d: value = 0x%08x"%(i,val)
-            gemlogger.debug(msg)
+            ohlogger.debug(colormsg(msg,logging.DEBUG))
             pass
         pass
 
@@ -130,16 +142,15 @@ def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
     writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
     writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
     writeRegister(device,"%s.Request.%s"%(baseNode,register),value,debug)
-    if debug:
-        readRegister(device,"%s.Running"%(baseNode),debug)
-        pass
+
+    msg ="%s: broadcast read request status 0x%x"%(readRegister(device,"%s.Running"%(baseNode),debug))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
+
     while (readRegister(device,"%s.Running"%(baseNode))):
-        i = 1
-        if (debug):
-            print "broadcast request still running..."
-            pass
+        msg ="%s: broadcast read request still running..."%(device)
+        ohlogger.debug(colormsg(msg,logging.DEBUG))
+        time.sleep(0.1)
         pass
-    return
 
 def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
     """
@@ -150,15 +161,16 @@ def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
     writeRegister(device,"%s.Reset"%(baseNode), 0x1,debug)
     writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
     readRegister(device,"%s.Request.%s"%(baseNode,register),debug)
-    if debug:
-        readRegister(device,"%s.Running"%(baseNode),debug)
-        pass
+
+    msg = "%s: broadcast write request status 0x%x"%(device,readRegister(device,"%s.Running"%(baseNode),debug))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
+
     while (readRegister(device,"%s.Running"%(baseNode))):
-        i = 1
-        if (debug):
-            print "broadcast request still running..."
-            pass
+        msg ="%s: broadcast write request still running..."%(device)
+        ohlogger.debug(colormsg(msg,logging.DEBUG))
+        time.sleep(0.1)
         pass
+
     return readBlock(device,"%s.Results"%(baseNode),24)
 
 def optohybridCounters(device,gtx=0,doReset=False,debug=False):
@@ -167,8 +179,9 @@ def optohybridCounters(device,gtx=0,doReset=False,debug=False):
     if doReset is true, just send the reset command and pass
     WB:MASTER,SLAVE
     CRC:VALID,INCORRECT
-    T1:TTC,INTERNAL,EXTERNAL,LOOPBACK,SENT
+    T1:GTX_TTC,GBT_TTC,INTERNAL,EXTERNAL,LOOPBACK,SENT
     GTX
+    GBT
     """
     baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(gtx)
 
@@ -177,6 +190,7 @@ def optohybridCounters(device,gtx=0,doReset=False,debug=False):
         for wbcnt in ["Strobe","Ack"]:
 
             reg_list["%s.WB.MASTER.%s.GTX.Reset"%(   baseNode, wbcnt)] = 0x1
+            reg_list["%s.WB.MASTER.%s.GBT.Reset"%(   baseNode, wbcnt)] = 0x1
             reg_list["%s.WB.MASTER.%s.ExtI2C.Reset"%(baseNode, wbcnt)] = 0x1
             reg_list["%s.WB.MASTER.%s.Scan.Reset"%(  baseNode, wbcnt)] = 0x1
             reg_list["%s.WB.MASTER.%s.DAC.Reset"%(   baseNode, wbcnt)] = 0x1
@@ -191,36 +205,35 @@ def optohybridCounters(device,gtx=0,doReset=False,debug=False):
             reg_list["%s.CRC.INCORRECT.VFAT%d.Reset"%(baseNode, vfat)] = 0x1
 
         #T1 counters
-        for t1src in ["TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
+        for t1src in ["GTX_TTC", "GBT_TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
             for t1 in ["L1A", "CalPulse","Resync","BC0"]:
                 reg_list["%s.T1.%s.%s.Reset"%(baseNode, t1src, t1)] = 0x1
 
-        reg_list["%s.GTX.TRK_ERR.Reset"%(     baseNode)] = 0x1
-        reg_list["%s.GTX.TRG_ERR.Reset"%(     baseNode)] = 0x1
-        reg_list["%s.GTX.DATA_Packets.Reset"%(baseNode)] = 0x1
+        reg_list["%s.GTX_LINK.TRK_ERR.Reset"%(     baseNode)] = 0x1
+        # reg_list["%s.GTX_LINK.TRG_ERR.Reset"%(   baseNode)] = 0x1
+        reg_list["%s.GTX_LINK.DATA_Packets.Reset"%(baseNode)] = 0x1
+        reg_list["%s.GBT_LINK.TRK_ERR.Reset"%(     baseNode)] = 0x1
+        reg_list["%s.GBT_LINK.DATA_Packets.Reset"%(baseNode)] = 0x1
 
         writeRegisterList(device,reg_list,debug)
         return
     else:
         counters = nesteddict()
 
-        # counters["WB"] = {}
-        # counters["WB"]["MASTER"] = {}
-        # counters["WB"]["SLAVE"]  = {}
         reg_list = []
         for wbcnt in ["Strobe","Ack"]:
-            # counters["WB"]["MASTER"][wbcnt] = {}
             # reg_list.append("%s.WB.MASTER.%s.GTX"%(   baseNode, wbcnt))
+            # reg_list.append("%s.WB.MASTER.%s.GBT"%(   baseNode, wbcnt))
             # reg_list.append("%s.WB.MASTER.%s.ExtI2C"%(baseNode, wbcnt))
             # reg_list.append("%s.WB.MASTER.%s.Scan"%(  baseNode, wbcnt))
             # reg_list.append("%s.WB.MASTER.%s.DAC"%(   baseNode, wbcnt))
             counters["WB"]["MASTER"][wbcnt]["GTX"]    = readRegister(device,"%s.WB.MASTER.%s.GTX"%(   baseNode, wbcnt))
+            counters["WB"]["MASTER"][wbcnt]["GBT"]    = readRegister(device,"%s.WB.MASTER.%s.GBT"%(   baseNode, wbcnt))
             counters["WB"]["MASTER"][wbcnt]["ExtI2C"] = readRegister(device,"%s.WB.MASTER.%s.ExtI2C"%(baseNode, wbcnt))
             counters["WB"]["MASTER"][wbcnt]["Scan"]   = readRegister(device,"%s.WB.MASTER.%s.Scan"%(  baseNode, wbcnt))
             counters["WB"]["MASTER"][wbcnt]["DAC"]    = readRegister(device,"%s.WB.MASTER.%s.DAC"%(   baseNode, wbcnt))
 
             # wishbone slaves
-            # counters["WB"]["SLAVE"][wbcnt]  = {}
             for i2c in range(6):
                 # reg_list.append("%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
                 counters["WB"]["MASTER"][wbcnt]["I2C%d"%i2c] = readRegister(device,"%s.WB.SLAVE.%s.I2C%d"%(baseNode, wbcnt, i2c))
@@ -229,9 +242,6 @@ def optohybridCounters(device,gtx=0,doReset=False,debug=False):
                 counters["WB"]["MASTER"][wbcnt][slave]       = readRegister(device,"%s.WB.SLAVE.%s.%s"%(baseNode, wbcnt, slave))
 
         #CRC counters
-        # counters["CRC"] = {}
-        # counters["CRC"]["VALID"]     = {}
-        # counters["CRC"]["INCORRECT"] = {}
         for vfat in range(24):
             # reg_list.append("%s.CRC.VALID.VFAT%d"%(    baseNode, vfat))
             # reg_list.append("%s.CRC.INCORRECT.VFAT%d"%(baseNode, vfat))
@@ -239,20 +249,18 @@ def optohybridCounters(device,gtx=0,doReset=False,debug=False):
             counters["CRC"]["INCORRECT"]["VFAT%d"%vfat] = readRegister(device,"%s.CRC.INCORRECT.VFAT%d"%(baseNode, vfat))
 
         #T1 counters
-        # counters["T1"] = {}
-        for t1src in ["TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
-            # counters["T1"][t1src] = {}
+        for t1src in ["GTX_TTC", "GBT_TTC", "INTERNAL","EXTERNAL","LOOPBACK","SENT"]:
             for t1 in ["L1A", "CalPulse","Resync","BC0"]:
                 # reg_list.append("%s.T1.%s.%s"%(baseNode, t1src, t1))
                 counters["T1"][t1src][t1] = readRegister(device,"%s.T1.%s.%s"%(baseNode, t1src, t1))
 
-        # counters["GTX"] = {}
         # reg_list.append("%s.GTX.TRK_ERR"%(baseNode))
         # reg_list.append("%s.GTX.TRG_ERR"%(baseNode))
         # reg_list.append("%s.GTX.DATA_Packets"%(baseNode))
-        counters["GTX"]["TRK_ERR"]      = readRegister(device,"%s.GTX.TRK_ERR"%(baseNode))
-        counters["GTX"]["TRG_ERR"]      = readRegister(device,"%s.GTX.TRG_ERR"%(baseNode))
-        counters["GTX"]["DATA_Packets"] = readRegister(device,"%s.GTX.DATA_Packets"%(baseNode))
+        counters["GTX"]["TRK_ERR"]      = readRegister(device,"%s.GTX_LINK.TRK_ERR"%(baseNode))
+        counters["GTX"]["DATA_Packets"] = readRegister(device,"%s.GTX_LINK.DATA_Packets"%(baseNode))
+        counters["GBT"]["TRK_ERR"]      = readRegister(device,"%s.GBT_LINK.TRK_ERR"%(baseNode))
+        counters["GBT"]["DATA_Packets"] = readRegister(device,"%s.GBT_LINK.DATA_Packets"%(baseNode))
 
         # reg_vals = readRegisterList(device,reg_list,debug)
 
@@ -316,32 +324,32 @@ def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=F
     msg = "configuring the T1 controller for mode 0x%x (0x%x)"%(
         mode,
         readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MODE"%(gtx),debug))
-    gemlogger.debug(msg)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
 
     if (mode == 0):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx),t1type,debug)
         msg = "configuring the T1 controller for type 0x%x (0x%x)"%(
             t1type,
             readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TYPE"%(gtx),debug))
-        gemlogger.debug(msg)
+        ohlogger.debug(colormsg(msg,logging.DEBUG))
     if (mode == 1):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx),delay,debug)
         msg = "configuring the T1 controller for delay %d (%d)"%(
             delay,
             readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.DELAY"%(gtx),debug))
-        gemlogger.debug(msg)
+        ohlogger.debug(colormsg(msg,logging.DEBUG))
     if (mode != 2):
         writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx),interval,debug)
         msg = "configuring the T1 controller for interval %d (%d)"%(
             interval,
             readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.INTERVAL"%(gtx),debug))
-        gemlogger.debug(msg)
+        ohlogger.debug(colormsg(msg,logging.DEBUG))
 
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx),number,debug)
     msg = "configuring the T1 controller for nsignals %d (%d)"%(
         number,
         readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.NUMBER"%(gtx),debug))
-    gemlogger.debug(msg)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     return
 
 def resetLocalT1(device,gtx,debug=False):
@@ -370,24 +378,20 @@ def sendL1A(device,gtx,interval=25,number=0,debug=False):
     interval only for mode 0,1, how often to repeat signals
     number how many signals to send (0 is continuous
     """
-    if debug:
-        msg = "resetting the T1 controller"
-        gemlogger.debug(msg)
+    msg = "%s: resetting the T1 controller"%(device)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1,debug)
-    if debug:
-        msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
-        gemlogger.debug(msg)
+    msg = "%s: configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(device,interval,number)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     configureLocalT1(device,gtx,0x0,0x0,0x0,interval,number,debug)
-    msg = "current T1 status",readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
-    gemlogger.debug(msg)
+    msg = "%s: current T1 status 0x%x"%(device,readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     startLocalT1(device,gtx,debug)
-    # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
-    #if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #    msg = "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
-    #    msg = "toggling T1Controller for sending L1A"
-    # writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1,debug)
-    #msg = "status: 0x%x"%(readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        msg = "%s: T1Controller failed to start: status: 0x%x"%(device,
+                                                                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+        ohlogger.warning(colormsg(msg,logging.WARNING))
+        raise OptoHybridException(colormsg(msg,logging.FATAL))
     return
 
 def sendL1ACalPulse(device,gtx,delay,interval=25,number=0,debug=False):
@@ -399,54 +403,69 @@ def sendL1ACalPulse(device,gtx,delay,interval=25,number=0,debug=False):
     interval only for mode 0,1, how often to repeat signals
     number how many signals to send (0 is continuous
     """
-    msg = "resetting the T1 controller"
-    gemlogger.debug(msg)
+    msg = "%s: resetting the T1 controller"%(device)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
-    msg = "configuring the T1 controller for mode 0x1, delay %d, interval %d, nsignals %d"%(delay,interval,number)
-    gemlogger.debug(msg)
+    msg = "%s: configuring the T1 controller for mode 0x1, delay %d, interval %d, nsignals %d"%(device,delay,interval,number)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     configureLocalT1(device,gtx,0x1,0x0,delay,interval,number)
-    msg = "current T1 status",readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
-    gemlogger.debug(msg)
+    msg = "%s: current T1 status 0x%x"%(device,readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     startLocalT1(device,gtx,debug)
-    # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        msg = "%s: T1Controller failed to start: status: 0x%x"%(device,
+                                                                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+        ohlogger.warning(colormsg(msg,logging.WARNING))
+        raise OptoHybridException(colormsg(msg,logging.FATAL))
     return
 
 def sendResync(device,gtx,interval=25,number=1,debug=False):
     """
     Send a Resync signal
     """
+    msg = "%s: resetting the T1 controller"%(device)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
-    msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
-    gemlogger.debug(msg)
+    msg = "%s: configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(device,interval,number)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     configureLocalT1(device,gtx,0x0,0x2,0x0,interval,number)
-    msg = "current T1 status",readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
-    gemlogger.debug(msg)
+    msg = "%s: current T1 status 0x%x"%(device,readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     startLocalT1(device,gtx,debug)
-    # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        msg = "%s: T1Controller failed to start: status: 0x%x"%(device,
+                                                                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+        ohlogger.warning(colormsg(msg,logging.WARNING))
+        raise OptoHybridException(colormsg(msg,logging.FATAL))
     return
 
 def sendBC0(device,gtx,interval=25,number=1,debug=False):
     """
     Send a BC0 signal
     """
+    msg = "%s: resetting the T1 controller"%(device)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.RESET"%(gtx),0x1)
-    msg = "configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(interval,number)
-    gemlogger.debug(msg)
+    msg = "%s: configuring the T1 controller for mode 0x0, interval %d, nsignals %d"%(device,interval,number)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     configureLocalT1(device,gtx,0x0,0x3,0x0,interval,number)
-    msg = "current T1 status",readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx))
-    gemlogger.debug(msg)
+    msg = "%s: current T1 status 0x%x"%(device,readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     startLocalT1(device,gtx,debug)
-    # if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
-    #     writeRegister(device,"GEM_AMC.OH.OH%d.T1Controller.TOGGLE"%(gtx),0x1)
+    if not readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)):
+        msg = "%s: T1Controller failed to start: status: 0x%x"%(device,
+                                                                readRegister(device,"GEM_AMC.OH.OH%d.T1Controller.MONITOR"%(gtx)))
+        ohlogger.warning(colormsg(msg,logging.WARNING))
+        raise OptoHybridException(colormsg(msg,logging.FATAL))
     return
 
 def setReferenceClock(device,gtx,source,debug=False):
     """
     Set the reference clock source on the OptoHybrid
-    OH:   0=onboard,     1=GTX recovered,  2=external clock
-    V2A only
+    V2A:   0=onboard, 1=GTX recovered,  2=external clock
+    V2B:   0=GBT,     1=CCB HDMI
+
+    (Currently disabled for stability reasons)
     """
     # writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
@@ -454,8 +473,8 @@ def setReferenceClock(device,gtx,source,debug=False):
 def getReferenceClock(device,gtx,debug=False):
     """
     Get the reference clock source on the OptoHybrid
-    OH:   0=onboard,     1=GTX recovered,  2=external clock
-    V2A only
+    V2A:   0=onboard, 1=GTX recovered,  2=external clock
+    V2B:   0=GBT,     1=CCB HDMI
     """
     return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx))
 
@@ -529,6 +548,8 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
           2 Latency scan
           3 s-curve scan
           4 Threshold scan with tracking data
+    vfat: for single VFAT scan, specify the VFAT number
+          for ULTRA scan, specify the VFAT mask
     """
 
     scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
@@ -537,23 +558,24 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
         pass
 
     if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
-        print "Scan is already running (0x%x), not starting a new scan"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        msg = "%s: Scan is already running (0x%x), not starting a new scan"%(device,
+                                                                             readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        ohlogger.warning(colormsg(msg,logging.WARNING))
         return
 
-    if debug:
-        print scanBase
-        print "FW scan mode       : %d"%(mode)
-        print "FW scan min        : %d"%(scanmin)
-        print "FW scan max        : %d"%(scanmax)
-        if useUltra:
-            print "Ultra FW scan mask : 0x%08x"%(vfat)
-        else:
-            print "FW scan VFAT       : %d"%(vfat)
-            pass
-        print "FW scan channel    : %d"%(channel)
-        print "FW scan step size  : %d"%(stepsize)
-        print "FW scan n_triggers : %d"%(numtrigs)
+    msg = "%s: %s\n"%(device,scanBase)
+    msg+= "FW scan mode       : %d\n"%(mode)
+    msg+= "FW scan min        : %d\n"%(scanmin)
+    msg+= "FW scan max        : %d\n"%(scanmax)
+    if useUltra:
+        msg+= "Ultra FW scan mask : 0x%08x"%(vfat)
+    else:
+        msg+= "FW scan VFAT       : %d\n"%(vfat)
         pass
+    msg+= "FW scan channel    : %d\n"%(channel)
+    msg+= "FW scan step size  : %d\n"%(stepsize)
+    msg+= "FW scan n_triggers : %d\n"%(numtrigs)
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
 
     writeRegister(device,"%s.RESET"%(scanBase),0x1)
     regList = {
@@ -583,12 +605,12 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
 
     print scanBase
     regList = [
-        "%s.MODE"%(scanBase),
-        "%s.MIN"%(scanBase),
-        "%s.MAX"%(scanBase),
-        "%s.CHAN"%(scanBase),
-        "%s.STEP"%(scanBase),
-        "%s.NTRIGS"%(scanBase),
+        "%s.MODE"%(   scanBase),
+        "%s.MIN"%(    scanBase),
+        "%s.MAX"%(    scanBase),
+        "%s.CHAN"%(   scanBase),
+        "%s.STEP"%(   scanBase),
+        "%s.NTRIGS"%( scanBase),
         "%s.MONITOR"%(scanBase),
      ]
     if useUltra:
@@ -601,12 +623,12 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
         regParams = nesteddict()
         for reg in regList:
             regParams[reg] = {
-                "Path":       "%s"%(device.getNode(reg).getPath()),
+                "Path":       "%s"%(  device.getNode(reg).getPath()),
                 "Address":    "0x%x"%(device.getNode(reg).getAddress()),
                 "Mask":       "0x%x"%(device.getNode(reg).getMask()),
-                "Permission": "%s"%(device.getNode(reg).getPermission()),
-                "Mode":       "%s"%(device.getNode(reg).getMode()),
-                "Size":       "%s"%(device.getNode(reg).getSize())
+                "Permission": "%s"%(  device.getNode(reg).getPermission()),
+                "Mode":       "%s"%(  device.getNode(reg).getMode()),
+                "Size":       "%s"%(  device.getNode(reg).getSize())
                 }
             print regParams[reg]
             pass
@@ -637,57 +659,56 @@ def startScanModule(device, gtx, useUltra=False,debug=False):
         pass
 
     if (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
-        print "Scan is already running (0x%x), not starting a new scan"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        msg = "%s: Scan is already running (0x%x), not starting a new scan"%(device,
+                                                                             readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        ohlogger.warning(colormsg(msg,logging.WARNING))
         return
     if (readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) > 0):
-        print "There was an error in the scan configuration, not starting a new scan"
-        return
+        msg = "%s: There was an error in the scan configuration, not starting a new scan"%(device)
+        ohlogger.warning(colormsg(msg,logging.WARNING))
+        raise OptoHybridException(colormsg(msg,logging.FATAL))
 
     writeRegister(device,"%s.START"%(scanBase),0x1)
     if readRegister(device,"%s.MONITOR.ERROR"%(scanBase)) or not readRegister(device,"%s.MONITOR.STATUS"%(scanBase)):
-        print "Scan failed to start"#, FIFO read 0x%08x"%(readRegister(device,"%s.RESULTS"%(scanBase)))
-        print "ERROR  %d"%(readRegister(device,"%s.MONITOR.ERROR"%(scanBase)))
-        print "STATUS %d"%(not readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
-        raw_input("enter to continue")
-        pass
-    if debug:
-        print "After start, scan status is: 0x%08x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
-        pass
+        msg = "%s: Scan failed to start"%(device)
+        msg += "ERROR  %d"%(readRegister(device,"%s.MONITOR.ERROR"%(scanBase)))
+        msg += "STATUS %d"%(not readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        raise OptoHybridException(colormsg(msg,logging.FATAL))
+    msg = "%s: After start, scan status is: 0x%08x"%(device,readRegister(device,"%s.MONITOR"%(scanBase)))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
     return
 
 def getScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GEM_AMC.OH.OH%d.ScanController.THLAT"%(gtx)
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
-        if debug and False:
-            print "Scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
-            pass
+        msg = "%s: Scan still running (0x%x), not returning results"%(device,readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        ohlogger.debug(colormsg(msg,logging.DEBUG))
         time.sleep(0.1)
         pass
 
-    if debug:
-        print "Scan status (0x%08x)"%(readRegister(device,"%s.MONITOR"%(scanBase)))
-        print "Scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
-    # results = []
-    # results.append(readRegister(device,"%s.RESULTS"%(scanBase)))
-    # print "0x%08x"%(results[0])
-    # results.append(readBlock(device,"%s.RESULTS"%(scanBase),numpoints-1))
-    # print results
+    msg = "%s::getScanResults\n"%(device)
+    msg+= "Scan status (0x%08x)\n"%(readRegister(device,"%s.MONITOR"%(scanBase)))
+    msg+= "Scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
+
     results = readBlock(device,"%s.RESULTS"%(scanBase),numpoints)
+
     return results
 
 def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
-        if debug and False:
-            print "Ultra scan still running (0x%x), not returning results"%(readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
-            pass
+        msg = "%s: Ultra scan still running (0x%x), not returning results"%(device,
+                                                                            readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
+        ohlogger.debug(colormsg(msg,logging.DEBUG))
         time.sleep(0.1)
         pass
 
-    if debug:
-        print "Ultra scan status (0x%08x)"%(           readRegister(device,"%s.MONITOR"%(      scanBase)))
-        print "Ultra scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
-        pass
+    msg = "%s::getScanResults\n"%(device)
+    msg = "Ultra scan status (0x%08x)\n"%(         readRegister(device,"%s.MONITOR"%(      scanBase)))
+    msg+= "Ultra scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
+    ohlogger.debug(colormsg(msg,logging.DEBUG))
+
     results = []
 
     for chip in range(24):
@@ -743,10 +764,17 @@ def calculateLinkErrors(device,gtx,sampleTime):
     baseNode = "GEM_AMC.OH_LINKS"
     errorCounts = nesteddict()
 
-    for link in ("TRK","TRG"):
-        writeRegister(device,"%s.CTRL.CNT_RESET"%(baseNode),0x1)
-        first = readRegister(device,"%s.OH%d.TRACK_LINK_ERROR_CNT"%(baseNode,gtx))
+    # writeRegister(device,"%s.CTRL.CNT_RESET"%(baseNode),0x1)
+    first  = readRegister(device,"%s.OH%d.TRACK_LINK_ERROR_CNT"%(baseNode,gtx))
+    time.sleep(sampleTime)
+    second = readRegister(device,"%s.OH%d.TRACK_LINK_ERROR_CNT"%(baseNode,gtx))
+    errorCounts["LINK"] = [first,second]
+
+    baseNode = "GEM_AMC.OH"
+    for link in ("GBT","GTX"):
+        writeRegister(device,"%s.OH%d.COUNTERS.%s_LINK.TRK_ERR.Reset"%(baseNode,gtx,link),0x1)
+        first = readRegister(device,"%s.OH%d.COUNTERS.%s_LINK.TRK_ERR"%(baseNode,gtx,link))
         time.sleep(sampleTime)
-        second = readRegister(device,"%s.OH%d.TRACK_LINK_ERROR_CNT"%(baseNode,gtx))
+        second = readRegister(device,"%s.OH%d.COUNTERS.%s_LINK.TRK_ERR"%(baseNode,gtx,link))
         errorCounts[link] = [first,second]
     return errorCounts

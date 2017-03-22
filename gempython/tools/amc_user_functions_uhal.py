@@ -3,8 +3,17 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
+from gempython.utils.gemlogger import colormsg
 
-gemlogger = getGEMLogger(logclassname="glib_user_functions")
+import logging
+amclogger = logging.getLogger(__name__)
+
+def setAMCLogLevel(level):
+    amclogger.setLevel(level)
+    pass
+
+class AMCException(Exception):
+    pass
 
 def getAMCObject(slot,shelf=1,debug=False):
     connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
@@ -61,20 +70,16 @@ def glibCounters(device,gtx,doReset=False):
     else:
         counters = nesteddict()
         
-        # counters["IPBus"] = {}
         for ipbcnt in ["Strobe","Ack"]:
-            # counters["IPBus"][ipbcnt] = {}
             for ipb in ["OptoHybrid","TRK"]:
                 counters["IPBus"][ipbcnt][ipb] = readRegister(device,"%s.IPBus.%s.%s_%d"%(   baseNode, ipbcnt,ipb,gtx))
             counters["IPBus"][ipbcnt]["Counters"] = readRegister(device,"%s.IPBus.%s.Counters"%(baseNode, ipbcnt))
 
 
         #T1 counters
-        # counters["T1"] = {}
         for t1 in ["L1A", "CalPulse","Resync","BC0"]:
             counters["T1"][t1] = readRegister(device,"%s.T1.%s"%(baseNode, t1))
 
-        # counters["GTX%d"%(gtx)] = {}
         counters["GTX%d"%(gtx)]["TRK_ERR"]      = readRegister(device,"%s.GTX%d.TRK_ERR"%(baseNode,gtx))
         counters["GTX%d"%(gtx)]["TRG_ERR"]      = readRegister(device,"%s.GTX%d.TRG_ERR"%(baseNode,gtx))
         counters["GTX%d"%(gtx)]["DATA_Packets"] = readRegister(device,"%s.GTX%d.DATA_Packets"%(baseNode,gtx))
@@ -90,7 +95,7 @@ def readTrackingInfo(device,gtx,nBlocks=1):
     
     #for word in data:
     #    msg = "%s: 0x%08x"%(word,data)
-    #    gemlogger.info(msg)
+    #    amclogger.info(colormsg(msg,logging.INFO))
     return data
 
 def flushTrackingFIFO(device,gtx):
@@ -148,7 +153,8 @@ def enableDAQLinkMask(linkno, linkEnableMask=0x0):
     return linkEnableMask
 
 def enableDAQLink(device, linkEnableMask=0x1, doReset=False):
-    gemlogger.info("Reset daq_enable: %i"%(1))
+    msg = "%s: Reset daq_enable: %i"%(device,1)
+    amclogger.info(colormsg(msg,logging.INFO))
     if (doReset):
         resetDAQLink(device)
         

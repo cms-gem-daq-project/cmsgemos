@@ -1,6 +1,11 @@
 import gempython.tools.optohybrid_user_functions_uhal as optofuncs
 import gempython.tools.vfat_functions_uhal as vfatfuncs
 
+from gempython.utils.gemlogger import colormsg
+
+import logging
+scanlogger = logging.getLogger(__name__)
+
 def checkScanParams(vfat,scanmin,scanmax,stepsize,channel=None):
     if vfat not in range(24):
         raise ValueError
@@ -35,8 +40,11 @@ def scanThresholdByVFAT(device,gtx,vfat,
     optofuncs.startScanModule(device,gtx)
     if (debug):
         optofuncs.printScanConfiguration(device,gtx)
-        print "LocalT1Controller status %d"%(optofuncs.getLocalT1Status(device,gtx))
         pass
+
+    msg = "LocalT1Controller status %d"%(optofuncs.getLocalT1Status(device,gtx))
+    scanlogger.debug(colormsg(msg,logging.DEBUG))
+
     data_threshold = optofuncs.getScanResults(device,gtx,scanmax-scanmin,debug=debug)
     
     return data_threshold
@@ -53,7 +61,8 @@ def scanThresholdByChannel(device,gtx,vfat,channel,
     try:
         checkScanParams(vfat,scanmin,scanmax,stepsize)
     except ValueError:
-        print "Invalid scan configuration specified"
+        msg = "Invalid scan configuration specified"
+        scanlogger.error(colormsg(msg,logging.ERROR))
         return None
         
     optofuncs.configureScanModule(device,gtx,
@@ -64,8 +73,11 @@ def scanThresholdByChannel(device,gtx,vfat,channel,
     optofuncs.startScanModule(device,gtx)
     if (debug):
         optofuncs.printScanConfiguration(device,gtx)
-        print "LocalT1Controller status %d"%(optofuncs.getLocalT1Status(device,gtx))
         pass
+
+    msg = "LocalT1Controller status %d"%(optofuncs.getLocalT1Status(device,gtx))
+    scanlogger.debug(colormsg(msg,logging.DEBUG))
+
     data_threshold = optofuncs.getScanResults(device,gtx,scanmax-scanmin,debug=debug)
     
     return data_threshold
@@ -83,7 +95,8 @@ def scanLatencyByVFAT(device,gtx,vfat,
     try:
         checkScanParams(vfat,scanmin,scanmax,stepsize)
     except ValueError:
-        print "Invalid scan configuration specified"
+        msg = "Invalid scan configuration specified"
+        scanlogger.error(colormsg(msg,logging.ERROR))
         return None
         
     channel = 10
@@ -103,8 +116,11 @@ def scanLatencyByVFAT(device,gtx,vfat,
     optofuncs.startScanModule(device,gtx)
     if (debug):
         optofuncs.printScanConfiguration(device,gtx)
-        print "LocalT1Controller status %d"%(optofuncs.getLocalT1Status(device,gtx))
         pass
+
+    msg = "LocalT1Controller status %d"%(optofuncs.getLocalT1Status(device,gtx))
+    scanlogger.debug(colormsg(msg,logging.DEBUG))
+
     data_latency = optofuncs.getScanResults(device,gtx,scanmax-scanmin,debug=debug)
     
     # return settings to start
@@ -133,16 +149,18 @@ def scanVCalByVFAT(device,gtx,vfat,channel,trim,
     try:
         checkScanParams(vfat,scanmin,scanmax,stepsize)
     except ValueError:
-        print "Invalid scan configuration specified"
+        msg = "Invalid scan configuration specified"
+        scanlogger.error(colormsg(msg,logging.ERROR))
         return None
         
     originalChannel = vfatfuncs.getChannelRegister(device,gtx,vfat,channel)
 
     vfatfuncs.setChannelRegister(device,gtx,vfat,channel,
                                  mask=0x0,pulse=0x1,trim=trim)
-    if debug:
-        print "Channel %d register 0x%08x"%(channel,getChannelRegister(device,gtx,vfat,channel))
-        pass
+    
+    msg = "Channel %d register 0x%08x"%(channel,getChannelRegister(device,gtx,vfat,channel))
+    scanlogger.debug(colormsg(msg,logging.DEBUG))
+
     optofuncs.configureScanModule(device,gtx,
                                   optofuncs.scanmode.SCURVE,
                                   vfat,
@@ -153,10 +171,14 @@ def scanVCalByVFAT(device,gtx,vfat,channel,trim,
                                   numtrigs=numtrigs,
                                   debug=debug)
     optofuncs.startScanModule(device,gtx)
+
     if (debug):
         optofuncs.printScanConfiguration(device,gtx)
-        print "LocalT1Controller status %d"%(optofuncs.getLocalT1Status(device,gtx))
         pass
+
+    msg = "LocalT1Controller status %d"%(optofuncs.getLocalT1Status(device,gtx))
+    scanlogger.debug(colormsg(msg,logging.DEBUG))
+
     data_scurve = optofuncs.getScanResults(device,gtx,
                                            scanmax-scanmin,
                                            debug=debug)
@@ -169,9 +191,10 @@ def scanVCalByVFAT(device,gtx,vfat,channel,trim,
     vfatfuncs.setChannelRegister(device,gtx,vfat,channel,
                                  mask=mask,pulse=pulse,trim=trim,
                                  debug=debug)
-    if debug:
-        print "Channel %d register 0x%08x"%(channel,vfatfuncs.getChannelRegister(device,gtx,vfat,channel))
-        pass
+
+    msg = "Channel %d register 0x%08x"%(channel,vfatfuncs.getChannelRegister(device,gtx,vfat,channel))
+    scanlogger.debug(colormsg(msg,logging.DEBUG))
+
     return data_scurve
 
 ### ULTRA scan mode
