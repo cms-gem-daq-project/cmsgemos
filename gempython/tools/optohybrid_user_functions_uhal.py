@@ -143,7 +143,7 @@ def broadcastWrite(device,gtx,register,value,mask=0xff000000,debug=False):
     writeRegister(device,"%s.Mask"%(baseNode), mask,debug)
     writeRegister(device,"%s.Request.%s"%(baseNode,register),value,debug)
 
-    msg ="%s: broadcast read request status 0x%x"%(readRegister(device,"%s.Running"%(baseNode),debug))
+    msg ="%s: broadcast read request status 0x%x"%(device,readRegister(device,"%s.Running"%(baseNode),debug))
     ohlogger.debug(colormsg(msg,logging.DEBUG))
 
     while (readRegister(device,"%s.Running"%(baseNode))):
