@@ -5,7 +5,7 @@ from gempython.tools.amc_user_functions_uhal import *
 from gempython.utils.rate_calculator import rateConverter,errorRate
 
 import logging
-from gempython.utils.gemlogger import colors,getGEMLogger,gemdebug,geminfo,gemwarning,gemerror,gemfatal,gemcritical
+from gempython.utils.gemlogger import getGEMLogger
 
 from gempython.utils.standardopts import parser
 parser.add_option("--daq_enable", type="int", dest="daq_enable",

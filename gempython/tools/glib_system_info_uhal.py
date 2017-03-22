@@ -2,6 +2,7 @@ import sys, time, signal
 sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.registers_uhal import *
+from gempython.utils.gemlogger import colors
 
 def getBoardID(amc,debug=False):
     reg_list = [
