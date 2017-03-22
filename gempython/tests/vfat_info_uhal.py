@@ -33,7 +33,7 @@ chips = []
 if options.enabledChips:
     chips = [int(n) for n in options.enabledChips.split(",")]
     msg = "chips", chips
-    geminfo(gemlogger,msg)
+    gemlogger.info(msg)
     pass
 
 amc     = getAMCObject(options.slot,options.shelf,options.debug)
@@ -154,13 +154,13 @@ if options.biasAll:
 if options.sleepAll:
     for chip in range(24):
         msg = "sleeping chip %d"%(chip)
-        geminfo(gemlogger,msg)
+        gemlogger.info(msg)
         setRunMode(ohboard, options.gtx, chip, False)
         pass
     pass
 for chip in chips:
     msg = "enabling chip %d"%(chip)
-    geminfo(gemlogger,msg)
+    gemlogger.info(msg)
     setRunMode(ohboard, options.gtx, chip, True)
     pass
 
