@@ -6,7 +6,7 @@ from gempython.tools.amc_user_functions_uhal import *
 from gempython.utils.rate_calculator import errorRate
 
 import logging
-from gempython.utils.gemlogger import colors,getGEMLogger,gemdebug,geminfo,gemwarning,gemerror,gemfatal,gemcritical
+from gempython.utils.gemlogger import colors,getGEMLogger
 
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.standardopts import parser
