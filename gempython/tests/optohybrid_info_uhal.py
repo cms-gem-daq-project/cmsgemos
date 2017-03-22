@@ -4,7 +4,7 @@ from gempython.tools.optohybrid_user_functions_uhal import *
 from gempython.utils.rate_calculator import getErrorRate,errorRate
 
 import logging
-from gempython.utils.gemlogger import colors,getGEMLogger,gemdebug,geminfo,gemwarning,gemerror,gemfatal,gemcritical
+from gempython.utils.gemlogger import colors,getGEMLogger
 
 from gempython.utils.standardopts import parser
 parser.add_option("-k", "--clkSrc", type="int", dest="clkSrc",
