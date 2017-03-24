@@ -254,7 +254,7 @@ def biasAllVFATs(device, gtx, mask=0x0, enable=True, zeroChannels=False, debug=F
         pass
     return
 
-def zeroAllVFATChannels(device,gtx,mask=mask,debug=False):
+def zeroAllVFATChannels(device,gtx,mask=0x0,debug=False):
     msg = "%s: Zeroing channel registers on all VFATs"%(device)
     vfatlogger.debug(colormsg(msg,logging.DEBUG))
     for chan in range(128):
