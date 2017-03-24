@@ -254,7 +254,7 @@ def biasAllVFATs(device, gtx, mask=0x0, enable=True, zeroChannels=False, debug=F
         pass
     return
 
-def zeroAllVFATChannels(device,gtx,mask=mask,debug=False):
+def zeroAllVFATChannels(device,gtx,mask=0x0,debug=False):
     msg = "%s: Zeroing channel registers on all VFATs"%(device)
     vfatlogger.debug(colormsg(msg,logging.DEBUG))
     for chan in range(128):
@@ -269,7 +269,7 @@ def zeroAllChannels(device,gtx,chip,debug=False):
     for chan in range(128):
         # mask no channels, as this seems to affect the output data packets, not just the triggers
         # disable cal pulses to all channels
-        writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan), 0x00, mask=mask,debug=debug)
+        writeVFAT(device, gtx, chip, "VFATChannels.ChanReg%d"%(chan), 0x00, debug=debug)
     return
 
 def getChipID(device, gtx, chip, debug=False):
