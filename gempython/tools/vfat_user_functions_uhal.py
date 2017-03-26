@@ -236,7 +236,8 @@ def biasAllVFATs(device, gtx, mask=0x0, enable=True, zeroChannels=False, debug=F
         pass
     writeAllVFATs(device, gtx, "ContReg1",    parameters.defaultValues["ContReg1"   ], mask=mask)
     writeAllVFATs(device, gtx, "ContReg2",    parameters.defaultValues["ContReg2"   ], mask=mask)
-    writeAllVFATs(device, gtx, "ContReg3",    parameters.defaultValues["ContReg3"   ], mask=mask)
+    # ContReg3 contains the trimDAC range, so will be different from VFAT2 to VFAT2
+    # writeAllVFATs(device, gtx, "ContReg3",    parameters.defaultValues["ContReg3"   ], mask=mask)
     writeAllVFATs(device, gtx, "Latency",     parameters.defaultValues["Latency"    ], mask=mask)
     writeAllVFATs(device, gtx, "IPreampIn",   parameters.defaultValues["IPreampIn"  ], mask=mask)
     writeAllVFATs(device, gtx, "IPreampFeed", parameters.defaultValues["IPreampFeed"], mask=mask)
