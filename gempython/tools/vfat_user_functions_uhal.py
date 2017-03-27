@@ -259,7 +259,7 @@ def zeroAllVFATChannels(device,gtx,mask=0x0,debug=False):
     msg = "%s: Zeroing channel registers on all VFATs"%(device)
     vfatlogger.debug(colormsg(msg,logging.DEBUG))
     for chan in range(128):
-        setAllChannelRegisters(device,gtx,chip,chan,chanreg=0x0,chipmask=mask,debug=debug)
+        setAllChannelRegisters(device,gtx,chan,chanreg=0x0,chipmask=mask,debug=debug)
     return
 
 def zeroAllChannels(device,gtx,chip,debug=False):
