@@ -44,6 +44,7 @@ namespace gem {
            */
           typedef struct OptoHybridWBMasterCounters {
             std::pair<uint32_t,uint32_t> GTX   ;
+            std::pair<uint32_t,uint32_t> GBT   ;
             std::pair<uint32_t,uint32_t> ExtI2C;
             std::pair<uint32_t,uint32_t> Scan  ;
             std::pair<uint32_t,uint32_t> DAC   ;
@@ -54,8 +55,14 @@ namespace gem {
               Scan(std::make_pair(0,0)),
               DAC(std::make_pair(0,0)) {};
 
+            GBT(std::make_pair(0,0)),
+              ExtI2C(std::make_pair(0,0)),
+              Scan(std::make_pair(0,0)),
+              DAC(std::make_pair(0,0)) {};
+
             void reset() {
               GTX=std::make_pair(0,0);
+              GBT=std::make_pair(0,0);
               ExtI2C=std::make_pair(0,0);
               Scan=std::make_pair(0,0);
               DAC=std::make_pair(0,0);
@@ -131,8 +138,10 @@ namespace gem {
           /**
            * @struct OptoHybridT1Counters
            * @brief This struct stores retrieved counters related to the OptoHybrid T1 signals
-           * @var OptoHybridT1Counters::AMC13
-           * AMC13 contains the counters for T1 signals received from the GLIB TTC decder
+           * @var OptoHybridT1Counters::GTX_TTC
+           * GTX_TTC contains the counters for T1 signals received from the AMC TTC decder, sent along the 8b10b GTX link
+           * @var OptoHybridT1Counters::GBT_TTC
+           * GBT_TTC contains the counters for T1 signals received from the AMC TTC decder, sent along the GBT link
            * @var OptoHybridT1Counters::Firmware
            * Firmware contains the counters for T1 signals generated in the firmware module
            * @var OptoHybridT1Counters::External
@@ -143,16 +152,18 @@ namespace gem {
            * Sent contains the counters for T1 signals sent by the OptoHybrid to the GEB
            */
           typedef struct OptoHybridT1Counters {
-            std::vector<uint32_t> AMC13   ;
+            std::vector<uint32_t> GTX_TTC ;
+            std::vector<uint32_t> GBT_TTC ;
             std::vector<uint32_t> Firmware;
             std::vector<uint32_t> External;
             std::vector<uint32_t> Loopback;
             std::vector<uint32_t> Sent    ;
 
           OptoHybridT1Counters() :
-            AMC13(4, 0),Firmware(4, 0),External(4, 0),Loopback(4, 0),Sent(4, 0) {};
+            GTX_TTC(4, 0),GBT_TTC(4, 0),Firmware(4, 0),External(4, 0),Loopback(4, 0),Sent(4, 0) {};
             void reset() {
-              std::fill(AMC13.begin(),    AMC13.end(),    0);
+              std::fill(GTX_TTC.begin(),  GTX_TTC.end(),  0);
+              std::fill(GBT_TTC.begin(),  GBT_TTC.end(),  0);
               std::fill(Firmware.begin(), Firmware.end(), 0);
               std::fill(External.begin(), External.end(), 0);
               std::fill(Loopback.begin(), Loopback.end(), 0);
@@ -251,18 +262,21 @@ namespace gem {
            * @returns a hex number corresponding to the build date
            */
           uint32_t getFirmwareDate() {
-            uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
-            TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
+            uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW.DATE");
+            TRACE("OH has firmware date 0x" << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 
           /**
            * Read the firmware register
-           * @returns a string corresponding to the build date
+           * @returns a string corresponding to the build date in the format dd/mm/yyyy
            */
           std::string getFirmwareDateString() {
             std::stringstream retval;
-            retval << "0x" << std::hex << getFirmwareDate() << std::dec;
+            uint32_t rawDate = getFirmwareDate();
+            retval << std::setw(2) << std::setfill('0') << std::hex << (rawDate)&0xff       << "/"
+                   << std::setw(2) << std::setfill('0') << std::hex << (rawDate>>8)&0xff    << "/"
+                   << std::setw(4) << std::setfill('0') << std::hex << (rawDate>>16)&0xffff;
             return retval.str();
           };
 
@@ -270,17 +284,17 @@ namespace gem {
 
           /////Inherited from GEMHwDevice
           /**
-           * @brief performs a general reset of the GLIB
+           * @brief performs a general reset of the AMC
            */
           virtual void generalReset();
 
           /**
-           * @brief performs a reset of the GLIB counters
+           * @brief performs a reset of the AMC counters
            */
           virtual void counterReset();
 
           /**
-           * @brief performs a reset of the GLIB link
+           * @brief performs a reset of the AMC link
            * @param link is the link to perform the reset on
            */
           virtual void linkReset(uint8_t const& link);
@@ -306,9 +320,11 @@ namespace gem {
           /**
            * Reset the link status registers
            * @param uint8_t resets control which bits to reset
-           * bit 1 - TRK_ErrCnt         0x1
-           * bit 2 - TRG_ErrCnt         0x2
-           * bit 3 - Data_Rec           0x4
+           * bit 1 - GBT_TRK_ErrCnt         0x01
+           * bit 2 - GBT_TRG_ErrCnt         0x02
+           * bit 3 - GBT_Data_Rec           0x04
+           * bit 4 - GTX_TRK_ErrCnt         0x08
+           * bit 5 - GTX_Data_Rec           0x10
            */
           void LinkReset(uint8_t const& resets);
 
@@ -331,16 +347,47 @@ namespace gem {
            */
           //uint32_t readTriggerData();
 
+          /**
+           * OptoHybrid STATUS module
+           * Functions realted to the registers in the STATUS block
+           * in the OptoHybrid firmware
+           **/
+          // FW
+
+          /**
+           * @returns wheter the QPLL is locked
+           */
+          bool isQPLLLocked() { return readReg(getDeviceBaseNode,"STATUS.QPLL_LOCK"); };
+
+          /**
+           * @returns wheter the QPLL read by the FPGA PLL is locked
+           */
+          bool isQPLLFPGAPLLLocked() { return readReg(getDeviceBaseNode,"STATUS.QPLL_FPGA_PLL_LOCK"); };
+
+          /**
+           * @returns wheter there is a critical error detected due to SEU
+           */
+          bool hasSEUError() { return readReg(getDeviceBaseNode,"STATUS.SEU"); };
+
+
+          /**
+           * OptoHybrid CONTROL module
+           * Functions realted to the registers in the CONTROL block
+           * in the OptoHybrid firmware
+           **/
           //Clocking
           /**
            * Setup the OptoHybrid clock
            * @param uint8_t source
+           * in V2B switch between GBT clock and HDMI clock
            * 0x0 on board oscillator
+           * 0x1 GBT recovered clock
+           * ***in V2A only***
            * 0x1 GTX recovered clock
-           * 0x2 external clock
+           * 0x2 external clock from LEMO expansion module
            */
           void setReferenceClock(uint8_t const& source) {
-            writeReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK"  ,(uint32_t)source  );
+            writeReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK", (uint32_t)source);
           };
 
           /**
@@ -455,11 +502,12 @@ namespace gem {
           /**
            * Set the Trigger source
            * @param uint8_t mode
-           * 0 from GLIB TTC decoder
+           * 0 from AMC TTC decoder over GTX
            * 1 from OptoHybrid firmware (T1 module)
            * 2 from external source (LEMO)
            * 3 Internal loopback of s-bits
            * 4 from all
+           * 5 from AMC TTC decoder over GBT
            */
           void setTrigSource(uint8_t const& mode) {
             switch (mode) {
@@ -478,6 +526,9 @@ namespace gem {
             case(4):
               writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
               return;
+            case(5):
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
+              return;
             default:
               writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",0x0);
               return;
@@ -487,11 +538,12 @@ namespace gem {
           /**
            * Read the Trigger source
            * @retval uint8_t
-           * 0 from GLIB TTC decoder
+           * 0 from AMC TTC decoder over GTX
            * 1 from OptoHybrid firmware (T1 module)
            * 2 from external source (LEMO)
            * 3 Internal loopback of s-bits
            * 4 from all
+           * 5 from AMC TTC decoder over GBT
            */
           uint8_t getTrigSource() {
             return readReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE"); };
@@ -590,29 +642,32 @@ namespace gem {
           /**
            * @brief This function controls the firmware module that runs any of the scans
            * @param uint8_t mode can be any of
-           *  - 0 Threshold scan per VFAT
-           *  - 1 Threshold scan per channel
+           *  - 0 Threshold scan per VFAT with trigger data
+           *  - 1 Threshold scan per channel using tracking data
            *  - 2 Latency scan per VFAT
            *  - 3 S-curve scan per channel
+           *  - 4 Threshold scan per VFAT with tracking data
            * @param uint8_t min is the minimum value to start the scan at (depending on the mode selected)
            *  - 0 VT1
            *  - 1 VT1
            *  - 2 Latency
            *  - 3 VCal
+           *  - 4 VT1
            * @param uint8_t max is the maximum value to start the scan at (depending on the mode selected)
            *  - 0 VT1
            *  - 1 VT1
            *  - 2 Latency
            *  - 3 VCal
+           *  - 4 VT1
            * @param uint8_t step is the size of the step between successive points
            * @param uint8_t chip is the VFAT to run the scan on
            * @param uint8_t channel is the channel to run the scan on (for modes 1 and 3 only)
            * @param bool reset says whether to reset the module or not
            */
-          void configureScanGenerator(uint8_t const& mode, uint8_t const& min, uint8_t const& max,
-                                      uint8_t const& step,
-                                      uint8_t const& chip, uint8_t const& channel,
-                                      bool reset) {
+          void configureScanModule(uint8_t const& mode, uint8_t const& min, uint8_t const& max,
+                                   uint8_t const& step,
+                                   uint8_t const& chip, uint8_t const& channel,
+                                   bool reset) {
             if (reset)
               writeReg(getDeviceBaseNode(),"ScanController.THLAT.RESET",0x1);
 
@@ -637,33 +692,33 @@ namespace gem {
            * @brief Start the Scan controller (must be configured first or have a configuration already loaded)
            * @param uint32_t ntrigs number of signals to send before stopping (0 will send continuously)
            */
-          void startScanGenerator(uint32_t const& ntrigs) {
+          void startScanModule(uint32_t const& ntrigs) {
 
             writeReg(getDeviceBaseNode(),"ScanController.THLAT.NTRIGS"  ,ntrigs  );
 
-            //don't toggle off if the generator is currently running
-            if (!statusScanGenerator())
+            //don't toggle off if the module is currently running
+            if (!statusScanModule())
               writeReg(getDeviceBaseNode(),"ScanController.THLAT.START",0x1);
           };
 
           /**
-           * @brief Stop the Scan generator
+           * @brief Stop the Scan module
            * @param bool reset tells whether to reset the state of the module
            */
-          void stopScanGenerator(bool reset) {
-            //don't toggle on if the generator is currently not running
-            //if (statusScanGenerator())
+          void stopScanModule(bool reset) {
+            //don't toggle on if the module is currently not running
+            //if (statusScanModule())
             //  writeReg(getDeviceBaseNode(),"ScanController.THLAT.TOGGLE",0x1);
             if (reset)
               writeReg(getDeviceBaseNode(),"ScanController.THLAT.RESET",0x1);
           };
 
           /**
-           * @brief Status of the Scan generator
-           * @returns uint8_t the status of the Scan generator, telling which mode is running
+           * @brief Status of the Scan module
+           * @returns uint8_t the status of the Scan module, telling which mode is running
            * (0 is nothing running)
            */
-          uint8_t statusScanGenerator() {
+          uint8_t statusScanModule() {
             return readReg(getDeviceBaseNode(),"ScanController.THLAT.MONITOR");
           };
 
@@ -802,8 +857,8 @@ namespace gem {
            * @param uint32_t rate, rate at which signals will be generated
            */
           void sendResync(uint32_t const& nresync=1,uint32_t const& rate=1) {
-            writeReg(getDeviceBaseNode(), "CONTROL.TRIGGER.SOURCE",0x0);
-            writeReg(getDeviceBaseNode(), "CONTROL.CLOCK.REF_CLK",0x1);
+            // OBSOLETE writeReg(getDeviceBaseNode(), "CONTROL.TRIGGER.SOURCE",0x0);
+            // OBSOLETE writeReg(getDeviceBaseNode(), "CONTROL.CLOCK.REF_CLK",0x1);
             T1Sequence sequence;
             configureT1Generator(0x0, 0x2, sequence, true);
             startT1Generator(nresync, rate, 0); };
@@ -862,11 +917,12 @@ namespace gem {
            *  - 2 Resync
            *  - 3 BC0
            * @param mode specifies which T1 counter to read
-           *  - 0 from the TTC decoder on the GLIB
+           *  - 0 from AMC TTC decoder over GTX
            *  - 1 from the T1 generator in the firmware
            *  - 2 from an external source
            *  - 3 from looping back the sbits
            *  - 4 sent along the GEB
+           *  - 5 from AMC TTC decoder over GBT
            */
           uint32_t getT1Count(uint8_t const& signal, uint8_t const& mode) {
             std::stringstream t1Signal;
@@ -898,11 +954,12 @@ namespace gem {
           /**
            * Get the recorded number of L1A signals
            * @param mode specifies which L1A counter to read
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
+           * 5 from AMC TTC decoder over GBT
            */
           uint32_t getL1ACount(uint8_t const& mode) {
             return getT1Count(0x0, mode); };
@@ -910,11 +967,12 @@ namespace gem {
           /**
            * Get the recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to read
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
+           * 5 from AMC TTC decoder over GBT
            */
           uint32_t getCalPulseCount(uint8_t const& mode) {
             return getT1Count(0x1, mode); };
@@ -922,11 +980,12 @@ namespace gem {
           /**
            * Get the recorded number of Resync signals
            * @param mode specifies which L1A counter to read
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
+           * 5 from AMC TTC decoder over GBT
            */
           uint32_t getResyncCount(uint8_t const& mode=0x0) {
             return getT1Count(0x2, mode); };
@@ -934,11 +993,12 @@ namespace gem {
           /**
            * Get the recorded number of BC0 signals
            * @param mode specifies which L1A counter to read
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
+           * 5 from AMC TTC decoder over GBT
            */
           uint32_t getBC0Count(uint8_t const& mode=0x0) {
             return getT1Count(0x3, mode); };
@@ -960,12 +1020,13 @@ namespace gem {
           /**
            * Get the recorded number of T1 signals
            * @param mode specifies which T1 counter to read
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
-           * 5 all
+           * 5 from AMC TTC decoder over GBT
+           * 6 all
            */
           void resetT1Count(uint8_t const& signal, uint8_t const& mode=0x5) {
             std::stringstream t1Signal;
@@ -1019,12 +1080,13 @@ namespace gem {
           /**
            * Reset recorded number of L1A signals
            * @param mode specifies which L1A counter to reset
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
-           * 5 all
+           * 5 from AMC TTC decoder over GBT
+           * 6 all
            */
           void resetL1ACount(uint8_t const& mode=0x5) {
             resetT1Count(0x0,mode);
@@ -1033,12 +1095,13 @@ namespace gem {
           /**
            * Reset recorded number of CalPulse signals
            * @param mode specifies which CalPulse counter to reset
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
-           * 5 all
+           * 5 from AMC TTC decoder over GBT
+           * 6 all
            */
           void resetCalPulseCount(uint8_t const& mode=0x5) {
             return resetT1Count(0x1, mode); };
@@ -1046,12 +1109,13 @@ namespace gem {
           /**
            * Reset recorded number of Resync signals
            * @param mode specifies which CalPulse counter to reset
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
-           * 5 all
+           * 5 from AMC TTC decoder over GBT
+           * 6 all
            */
           void resetResyncCount(uint8_t const& mode=0x5) {
             return resetT1Count(0x2, mode); };
@@ -1059,12 +1123,13 @@ namespace gem {
           /**
            * Reset recorded number of BC0 signals
            * @param mode specifies which CalPulse counter to reset
-           * 0 from the TTC decoder on the GLIB
+           * 0 from AMC TTC decoder over GTX
            * 1 from the T1 generator in the firmware
            * 2 from an external source
            * 3 from looping back the sbits
            * 4 sent along the GEB
-           * 5 all
+           * 5 from AMC TTC decoder over GBT
+           * 6 all
            */
           void resetBC0Count(uint8_t const& mode=0x5) {
             return resetT1Count(0x3, mode); };
@@ -1085,7 +1150,7 @@ namespace gem {
 
           /**
            * Returns the VFAT tracking data mask that the OptoHybrid uses to determine which data
-           * packets to send to the GLIB
+           * packets to send to the AMC
            *
            */
           uint32_t getVFATMask() {
@@ -1093,14 +1158,31 @@ namespace gem {
 
           /**
            * Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
-           *  packets to send to the GLIB
-           *  a 0 means the VFAT will NOT be masked, and it's data packets will go to the GLIB
-           *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the GLIB
+           *  packets to send to the AMC
+           *  a 0 means the VFAT will NOT be masked, and it's data packets will go to the AMC
+           *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the AMC
            */
           void setVFATMask(uint32_t const mask) {
             DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
                   << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK"),mask&0x00ffffff); };
+
+          /**
+           * Returns whether data with a bad CRC will be dropped at the OptoHybrid
+           * and not passed on to the AMC
+           */
+          uint32_t getDropBadCRCStatus() {
+            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.DROP_BAD_CRC")); };
+
+          /**
+           * Set whether the OptoHybrid will drop VFAT data packets received with a bad CRC
+           *  a 0 means the OptoHybrid will NOT drop bad packets
+           *  a 1 means the OptoHybrid WILL drop bad packets
+           */
+          void setDropBadCRCStatus(bool const drop) {
+            DEBUG("HwOptoHybrid::setVFATMask setting DROP_BAD_CRC to "
+                  << std::hex << drop << std::dec);
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.DROP_BAD_CRC"),drop); };
 
           /**
            * Sends a read request to all (un-masked) VFATs on the same register

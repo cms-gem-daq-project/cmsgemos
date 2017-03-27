@@ -13,7 +13,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
   m_controlLink(-1)
 {
   setDeviceID("OptoHybridHw");
-  setAddressTableFileName("uhal_gem_amc_glib.xml");
+  setAddressTableFileName("uhal_gem_amc_glib_link00.xml");
   //need to know which device this is 0 or 1?
   //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
   setDeviceBaseNode("GEM_AMC.OH.OH0");
@@ -44,7 +44,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   b_links({false,false,false}),
   m_controlLink(-1)
 {
-  setAddressTableFileName("uhal_gem_amc_glib.xml");
+  setAddressTableFileName(toolbox::toString("uhal_gem_amc_glib_link%02d.xml",*optohybridDevice.rbegin()));
   std::stringstream basenode;
   basenode << "GEM_AMC.OH.OH" << *optohybridDevice.rbegin();
   setDeviceBaseNode(basenode.str());
@@ -78,13 +78,13 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   INFO("HwOptoHybrid creating OptoHybrid device from GLIB device " << glibDevice.getLoggerName());
   //use a connection file and connection manager?
   setDeviceID(toolbox::toString("%s.optohybrid%02d",glibDevice.getDeviceID().c_str(),slot));
-  //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml" );
-  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  //uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml" );
+  p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"));
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
-  //p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
+  //p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"));
   //p_gemHW = std::shared_ptr<uhal::HwInterface>(p_gemConnectionManager->getDevice(this->getDeviceID()));
   std::stringstream basenode;
-  basenode << "GLIB.OptoHybrid_" << (int)slot << ".OptoHybrid";
+  basenode << "GEM_AMC.OH.OH" << (int)slot;
   setDeviceBaseNode(basenode.str());
   INFO("HwOptoHybrid ctor done (basenode "
        << basenode.str() << ") " << isHwConnected());
@@ -178,9 +178,11 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::optohybrid::HwOptoHybrid::LinkS
 {
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
 
-  linkStatus.TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRK_ERR"));
-  linkStatus.TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRG_ERR"));
-  linkStatus.Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.DATA_Packets"));
+  linkStatus.GTX_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX_LINK.TRK_ERR"));
+  linkStatus.GTX_TRG_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX_LINK.TRG_ERR"));
+  linkStatus.GTX_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX_LINK.DATA_Packets"));
+  linkStatus.GBT_TRK_Errors   = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GBT_LINK.TRK_ERR"));
+  linkStatus.GBT_Data_Packets = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GBT_LINK.DATA_Packets"));
   return linkStatus;
 }
 
@@ -207,6 +209,10 @@ void gem::hw::optohybrid::HwOptoHybrid::updateWBMasterCounters()
                                              m_wbMasterCounters.GTX.first));
   wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.GTX"      ,regName.str().c_str()),
                                              m_wbMasterCounters.GTX.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.GBT"   ,regName.str().c_str()),
+                                             m_wbMasterCounters.GBT.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.GBT"      ,regName.str().c_str()),
+                                             m_wbMasterCounters.GBT.second));
   wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.ExtI2C",regName.str().c_str()),
                                              m_wbMasterCounters.ExtI2C.first));
   wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.ExtI2C"   ,regName.str().c_str()),
@@ -229,6 +235,8 @@ void gem::hw::optohybrid::HwOptoHybrid::resetWBMasterCounters()
   std::vector<std::string> wishboneRegisters;
   wishboneRegisters.push_back(toolbox::toString("%s.Strobe.GTX.Reset"   ,regName.str().c_str()));
   wishboneRegisters.push_back(toolbox::toString("%s.Ack.GTX.Reset"      ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.GBT.Reset"   ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.GBT.Reset"      ,regName.str().c_str()));
   wishboneRegisters.push_back(toolbox::toString("%s.Strobe.ExtI2C.Reset",regName.str().c_str()));
   wishboneRegisters.push_back(toolbox::toString("%s.Ack.ExtI2C.Reset"   ,regName.str().c_str()));
   wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Scan.Reset"  ,regName.str().c_str()));
@@ -317,7 +325,8 @@ void gem::hw::optohybrid::HwOptoHybrid::resetWBSlaveCounters()
 void gem::hw::optohybrid::HwOptoHybrid::updateT1Counters()
 {
   for (unsigned signal = 0; signal < 4; ++signal) {
-    m_t1Counters.AMC13.at(   signal) = getT1Count(signal, 0x0);
+    m_t1Counters.GTX_TTC.at(signal)  = getT1Count(signal, 0x0);
+    m_t1Counters.GBT_TTC.at(signal)  = getT1Count(signal, 0x0);
     m_t1Counters.Firmware.at(signal) = getT1Count(signal, 0x1);
     m_t1Counters.External.at(signal) = getT1Count(signal, 0x2);
     m_t1Counters.Loopback.at(signal) = getT1Count(signal, 0x3);
@@ -520,4 +529,3 @@ void gem::hw::optohybrid::HwOptoHybrid::linkReset(uint8_t const& link)
 {
   return;
 }
-
