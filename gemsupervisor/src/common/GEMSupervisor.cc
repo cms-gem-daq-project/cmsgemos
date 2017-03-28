@@ -9,6 +9,7 @@
 #include "gem/supervisor/GEMSupervisor.h"
 
 #include <iomanip>
+#include <ctime>
 
 #include "gem/supervisor/GEMSupervisorWeb.h"
 #include "gem/supervisor/GEMSupervisorMonitor.h"
@@ -17,6 +18,8 @@
 #include "gem/utils/exception/Exception.h"
 #include "gem/utils/vfat/VFAT2ConfigManager.h"
 
+
+using namespace std;
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 XDAQ_INSTANTIATOR_IMPL(gem::supervisor::GEMSupervisor);
@@ -515,14 +518,19 @@ void gem::supervisor::GEMSupervisor::resetAction()
 void gem::supervisor::GEMSupervisor::Test(xgi::Input * in, xgi::Output * out)
 {
   INFO("GEMSupervisor::Test running CAM's test code");
+  //std::string glFilenameIn = "/afs/cern.ch/user/b/bravo/public/GEM_VFAT2_Configurations_Sample.xml";
   std::string glFilenameIn = "/afs/cern.ch/user/c/chmclean/public/testGLfile.xml";
   std::string glFilenameOut = "/afs/cern.ch/user/c/chmclean/public/testGLfile_out.xml";
-  std::string chFilenameIn = "/afs/cern.ch/user/b/bravo/public/DAQ_VFAT_CHAN_Settings_Sample.xml";
+  //std::string chFilenameIn = "/afs/cern.ch/user/b/bravo/public/DAQ_VFAT_CHAN_Settings_Sample.xml";
+  std::string chFilenameIn = "/afs/cern.ch/user/c/chmclean/public/testCHfile.xml";
+  std::string chFilenameOut = "/afs/cern.ch/user/c/chmclean/public/testCHfile_out.xml";
   
+  //parse XML files
   gem::utils::vfat::VFAT2ConfigManager vfatMan(glFilenameIn,chFilenameIn);
   vfatMan.parseXMLFiles();
   INFO("Parsed the files");
 
+  //print some of the saved VFAT parameters
   std::stringstream msg;
   msg << "calibMode: " << (vfatMan.localParams.calibMode);
   INFO(msg.str());
@@ -530,7 +538,27 @@ void gem::supervisor::GEMSupervisor::Test(xgi::Input * in, xgi::Output * out)
   msg << "channel 46 trim: " << int(vfatMan.localParams.channels[46].trimDAC);
   INFO(msg.str());
   
+  //save the current time
+  time_t rawtime;
+  struct tm * timeinfo;
+  char buffer [80];
+
+  time (&rawtime);
+  timeinfo = localtime (&rawtime);
+
+  strftime (buffer,80,"%F %T",timeinfo);
+  string s_time(buffer);
+  vfatMan.setTime(s_time.c_str());
+
+  //save the user's name
+  string s_user;
+  cout << "Please enter your name: ";
+  cin >> s_user;
+  vfatMan.setUser(s_user);
+
+  //write XML files
   vfatMan.setGLfile(glFilenameOut.c_str());
+  vfatMan.setCHfile(chFilenameOut.c_str());
   vfatMan.writeXMLFiles();
   INFO("Wrote the files");
 }

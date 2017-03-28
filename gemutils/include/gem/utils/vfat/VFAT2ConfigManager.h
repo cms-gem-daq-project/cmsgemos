@@ -34,6 +34,8 @@
 #include <gem/hw/vfat/VFAT2Strings2Enums.h>
 #include <gem/hw/vfat/VFAT2Enums2Strings.h>
 
+using namespace std;
+
 XERCES_CPP_NAMESPACE_USE
 
 namespace gem {
@@ -116,9 +118,16 @@ namespace gem {
                      *   Parse Data node in Channel XML file
                      */
                     void parseCHdata(xercesc::DOMNode * pNode);
+                    /**
+                     *   Set Timestamp in Global and Channel XML file
+                     */
+                    void setTime(const std::string& currentTime);
+                    /**
+                     *   Set User in Global and Channel XML file
+                     */
+                    void setUser(const std::string& xmlUser);
 
                     int countChildElementNodes(xercesc::DOMNode * pNode);
-                    void outputXML(xercesc::DOMDocument* pmyDOMDocument, std::string filePath);
 
                     gem::hw::vfat::VFAT2ControlParams localParams;
 
