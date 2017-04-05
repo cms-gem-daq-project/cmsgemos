@@ -32,6 +32,7 @@ def runCommand(cmd,log=None):
     return returncode
 
 def envCheck(envVar):
+    import os
     if os.getenv(envVar) == None or os.getenv(envVar) == '':
         print 'You must source the environment properly, %s is not set'%envVar
         exit(0)
