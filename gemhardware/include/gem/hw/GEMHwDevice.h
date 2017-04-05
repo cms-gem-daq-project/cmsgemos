@@ -64,23 +64,38 @@ namespace gem {
 
       /**
        * @struct OpticalLinkStatus
-       * @brief This structure stores retrieved counters related to the GTX link
-       * @var OpticalLinkStatus::TRK_Errors
-       * TRK_Errors is a counter for the number of errors on the tracking data link
-       * @var OpticalLinkStatus::TRG_Errors
-       * TRG_Errors is a counter for the number of errors on the trigger data link
-       * @var OpticalLinkStatus::Data_Packets
-       * Data_Packets is a counter for the number of data packets transferred on the tracking data link
+       * @brief This structure stores retrieved counters related to the optical links
+       * @var OpticalLinkStatus::GTX_TRK_Errors
+       * GTX_TRK_Errors is a counter for the number of errors on the 8b10b tracking data link
+       * @var OpticalLinkStatus::GTX_TRG_Errors
+       * GTX_TRG_Errors is a counter for the number of errors on the 8b10b trigger data link
+       * @var OpticalLinkStatus::GTX_Data_Packets
+       * GTX_Data_Packets is a counter for the number of data packets transferred on the 8b10b tracking data link
+       * @var OpticalLinkStatus::GBT_TRK_Errors
+       * GBT_TRK_Errors is a counter for the number of errors on the GBT tracking data link
+       * @var OpticalLinkStatus::GBT_Data_Packets
+       * GBT_Data_Packets is a counter for the number of data packets transferred on the GBT tracking data link
        */
       typedef struct OpticalLinkStatus {
-        uint32_t TRK_Errors  ;
-        uint32_t TRG_Errors  ;
-        uint32_t Data_Packets;
+        uint32_t GTX_TRK_Errors  ;
+        uint32_t GTX_TRG_Errors  ;
+        uint32_t GTX_Data_Packets;
+        uint32_t GBT_TRK_Errors  ;
+        uint32_t GBT_Data_Packets;
 
       OpticalLinkStatus() :
-        TRK_Errors(0),TRG_Errors(0),Data_Packets(0) {};
+        GTX_TRK_Errors(0),
+          GTX_TRG_Errors(0),
+          GTX_Data_Packets(0),
+          GBT_TRK_Errors(0),
+          GBT_Data_Packets(0) {};
+
         void reset() {
-          TRK_Errors=0; TRG_Errors=0;Data_Packets=0;
+          GTX_TRK_Errors=0;
+          GTX_TRG_Errors=0;
+          GTX_Data_Packets=0;
+          GBT_TRK_Errors=0;
+          GBT_Data_Packets=0;
           return; };
       } OpticalLinkStatus;
 

@@ -414,7 +414,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         */
 
         DEBUG("OptoHybridManager::configureAction Setting output s-bit configuration parameters");
-        optohybrid->setSBitMode(info.sbitConfig.bag.Mode.value_);
+        optohybrid->setHDMISBitMode(info.sbitConfig.bag.Mode.value_);
 
         std::array<uint8_t, 6> sbitSources = {{
             static_cast<uint8_t>(info.sbitConfig.bag.Output0Src.value_ & 0x1f),
@@ -799,14 +799,14 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
   // system registers
   is_optohybrid->createUInt32("VFAT_Mask",    optohybrid->getVFATMask(),        NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("TrgSource",    optohybrid->getTrigSource(),      NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("SBitLoopback", optohybrid->getFirmwareVersion(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("SBitLoopback", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("Ref_clk",      optohybrid->getReferenceClock(),  NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("SBit_Mask",    optohybrid->getSBitMask(),        NULL, GEMUpdateType::HW32);
   // probably want this to be a set of 6
-  is_optohybrid->createUInt32("SBitsOut",     optohybrid->getSBitSource(),      NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("SBitOutMode",  optohybrid->getSBitMode(),        NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("TrgThrottle",  optohybrid->getFirmwareVersion(),        NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("ZS",           optohybrid->getFirmwareVersion(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("HDMI SBitsOut", optohybrid->getHDMISBitSource(),  NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("HDMI SBitMode", optohybrid->getHDMISBitMode(),    NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("TrgThrottle",   optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("ZS",            optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
 
   is_optohybrid->createUInt32("FIRMWARE_DATE", optohybrid->getFirmwareDate(),
                               NULL, GEMUpdateType::PROCESS, "docstring", "fwdateoh");

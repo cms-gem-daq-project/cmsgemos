@@ -194,168 +194,16 @@ void gem::hw::optohybrid::HwOptoHybrid::LinkReset(uint8_t const& resets)
     writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRG_ERR.Reset"),0x1);
   if (resets&0x4)
     writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.DATA_Packets.Reset"),0x1);
+  if (resets&0x8)
+    writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GTX.TRK_ERR.Reset"),0x1);
+  if (resets&0x10)
+    writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.GBT.DATA_Packets.Reset"),0x1);
 }
 
 //uint32_t gem::hw::optohybrid::HwOptoHybrid::readTriggerData() {
 //  return uint32_t value;
 //}
 
-void gem::hw::optohybrid::HwOptoHybrid::updateWBMasterCounters()
-{
-  std::stringstream regName;
-  regName << getDeviceBaseNode() << ".COUNTERS.WB.MASTER";
-  std::vector<std::pair<std::string,uint32_t> > wishboneRegisters;
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.GTX"   ,regName.str().c_str()),
-                                             m_wbMasterCounters.GTX.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.GTX"      ,regName.str().c_str()),
-                                             m_wbMasterCounters.GTX.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.GBT"   ,regName.str().c_str()),
-                                             m_wbMasterCounters.GBT.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.GBT"      ,regName.str().c_str()),
-                                             m_wbMasterCounters.GBT.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.ExtI2C",regName.str().c_str()),
-                                             m_wbMasterCounters.ExtI2C.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.ExtI2C"   ,regName.str().c_str()),
-                                             m_wbMasterCounters.ExtI2C.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.Scan"  ,regName.str().c_str()),
-                                             m_wbMasterCounters.Scan.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.Scan"     ,regName.str().c_str()),
-                                             m_wbMasterCounters.Scan.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.DAC"   ,regName.str().c_str()),
-                                             m_wbMasterCounters.DAC.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.DAC"      ,regName.str().c_str()),
-                                             m_wbMasterCounters.DAC.second));
-  readRegs(wishboneRegisters);
-}
-
-void gem::hw::optohybrid::HwOptoHybrid::resetWBMasterCounters()
-{
-  std::stringstream regName;
-  regName << getDeviceBaseNode() << ".COUNTERS.WB.MASTER";
-  std::vector<std::string> wishboneRegisters;
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.GTX.Reset"   ,regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.GTX.Reset"      ,regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.GBT.Reset"   ,regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.GBT.Reset"      ,regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.ExtI2C.Reset",regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.ExtI2C.Reset"   ,regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Scan.Reset"  ,regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.Scan.Reset"     ,regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.DAC.Reset"   ,regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.DAC.Reset"      ,regName.str().c_str()));
-  writeValueToRegs(wishboneRegisters, 0x1);
-  m_wbMasterCounters.reset();
-}
-
-void gem::hw::optohybrid::HwOptoHybrid::updateWBSlaveCounters()
-{
-  std::stringstream regName;
-  regName << getDeviceBaseNode() << ".COUNTERS.WB.SLAVE";
-  std::vector<std::pair<std::string,uint32_t> > wishboneRegisters;
-  for (unsigned i2c = 0; i2c < 6; ++i2c) {
-    wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.I2C%d.Reset",regName.str().c_str(),i2c),
-                                               m_wbSlaveCounters.I2C.at(i2c).first));
-    wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.I2C%d.Reset",   regName.str().c_str(),i2c),
-                                               m_wbSlaveCounters.I2C.at(i2c).second));
-  }
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.ExtI2C"  ,regName.str().c_str()),
-                                             m_wbSlaveCounters.ExtI2C.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.ExtI2C"     ,regName.str().c_str()),
-                                             m_wbSlaveCounters.ExtI2C.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.Scan"    ,regName.str().c_str()),
-                                             m_wbSlaveCounters.Scan.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.Scan"       ,regName.str().c_str()),
-                                             m_wbSlaveCounters.Scan.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.T1"      ,regName.str().c_str()),
-                                             m_wbSlaveCounters.T1.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.T1"         ,regName.str().c_str()),
-                                             m_wbSlaveCounters.T1.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.DAC"     ,regName.str().c_str()),
-                                             m_wbSlaveCounters.DAC.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.DAC"        ,regName.str().c_str()),
-                                             m_wbSlaveCounters.DAC.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.ADC"     ,regName.str().c_str()),
-                                             m_wbSlaveCounters.ADC.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.ADC"        ,regName.str().c_str()),
-                                             m_wbSlaveCounters.ADC.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.Clocking",regName.str().c_str()),
-                                             m_wbSlaveCounters.Clocking.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.Clocking"   ,regName.str().c_str()),
-                                             m_wbSlaveCounters.Clocking.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.Counters",regName.str().c_str()),
-                                             m_wbSlaveCounters.Counters.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.Counters"   ,regName.str().c_str()),
-                                             m_wbSlaveCounters.Counters.second));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.System"  ,regName.str().c_str()),
-                                             m_wbSlaveCounters.System.first));
-  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.System"     ,regName.str().c_str()),
-                                             m_wbSlaveCounters.System.second));
-}
-
-void gem::hw::optohybrid::HwOptoHybrid::resetWBSlaveCounters()
-{
-  std::stringstream regName;
-  regName << getDeviceBaseNode() << ".COUNTERS.WB.SLAVE";
-  std::vector<std::string> wishboneRegisters;
-  for (unsigned i2c = 0; i2c < 6; ++i2c) {
-    wishboneRegisters.push_back(toolbox::toString("%s.Strobe.I2C%d.Reset",regName.str().c_str(),i2c));
-    wishboneRegisters.push_back(toolbox::toString("%s.Ack.I2C%d.Reset",   regName.str().c_str(),i2c));
-  }
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.ExtI2C.Reset",  regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.ExtI2C.Reset",     regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Scan.Reset",    regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.Scan.Reset",       regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.T1.Reset",      regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.T1.Reset",         regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.DAC.Reset",     regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.DAC.Reset",        regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.ADC.Reset",     regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.ADC.Reset",        regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Clocking.Reset",regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.Clocking.Reset",   regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Counters.Reset",regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.Counters.Reset",   regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.System.Reset",  regName.str().c_str()));
-  wishboneRegisters.push_back(toolbox::toString("%s.Ack.System.Reset",     regName.str().c_str()));
-  writeValueToRegs(wishboneRegisters, 0x1);
-  m_wbSlaveCounters.reset();
-}
-
-
-void gem::hw::optohybrid::HwOptoHybrid::updateT1Counters()
-{
-  for (unsigned signal = 0; signal < 4; ++signal) {
-    m_t1Counters.GTX_TTC.at(signal)  = getT1Count(signal, 0x0);
-    m_t1Counters.GBT_TTC.at(signal)  = getT1Count(signal, 0x0);
-    m_t1Counters.Firmware.at(signal) = getT1Count(signal, 0x1);
-    m_t1Counters.External.at(signal) = getT1Count(signal, 0x2);
-    m_t1Counters.Loopback.at(signal) = getT1Count(signal, 0x3);
-    m_t1Counters.Sent.at(    signal) = getT1Count(signal, 0x4);
-  }
-}
-
-void gem::hw::optohybrid::HwOptoHybrid::resetT1Counters()
-{
-  resetT1Count(0x0, 0x5); //reset all L1A counters
-  resetT1Count(0x1, 0x5); //reset all CalPulse counters
-  resetT1Count(0x2, 0x5); //reset all Resync counters
-  resetT1Count(0x3, 0x5); //reset all BC0 counters
-  m_t1Counters.reset();
-}
-
-void gem::hw::optohybrid::HwOptoHybrid::updateVFATCRCCounters()
-{
-  for (unsigned slot = 0; slot < 24; ++slot)
-    m_vfatCRCCounters.CRCCounters.at(slot) = getVFATCRCCount(slot);
-}
-
-void gem::hw::optohybrid::HwOptoHybrid::resetVFATCRCCounters()
-{
-  resetVFATCRCCount();
-  // for (unsigned slot = 0; slot < 24; ++slot)
-  //   resetVFATCRCCount(slot);
-  m_vfatCRCCounters.reset();
-}
 
 std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::string const& name,
                                                                        uint32_t    const& mask,
@@ -365,7 +213,7 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
   if (reset)
     writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Reset"),0x1);
   writeReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Mask"),mask);
-  uint32_t tmp = readReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()));
+  readReg(getDeviceBaseNode(),toolbox::toString("GEB.Broadcast.Request.%s", name.c_str()));
 
   while (readReg(getDeviceBaseNode(),"GEB.Broadcast.Running")) {
     TRACE("HwOptoHybrid::broadcastRead transaction on "
@@ -528,4 +376,528 @@ void gem::hw::optohybrid::HwOptoHybrid::counterReset()
 void gem::hw::optohybrid::HwOptoHybrid::linkReset(uint8_t const& link)
 {
   return;
+}
+
+//////// T1 Controller Module \\\\\\\\*
+void gem::hw::optohybrid::HwOptoHybrid::configureT1Generator(uint8_t const& mode, uint8_t const& type,
+                                                             T1Sequence sequence, bool reset)
+{
+  if (reset)
+    resetT1Generator();
+
+  writeReg(getDeviceBaseNode(),"T1Controller.MODE",mode);
+  if (mode == 0x0) {
+    writeReg(getDeviceBaseNode(),"T1Controller.TYPE",type);
+  } else if (mode == 0x2) {
+    writeReg(getDeviceBaseNode(),"T1Controller.Sequence.L1A.MSB",     sequence.l1a_seq>>32);
+    writeReg(getDeviceBaseNode(),"T1Controller.Sequence.L1A.LSB",     sequence.l1a_seq&0xffffffff);
+    writeReg(getDeviceBaseNode(),"T1Controller.Sequence.CalPulse.MSB",sequence.cal_seq>>32);
+    writeReg(getDeviceBaseNode(),"T1Controller.Sequence.CalPulse.LSB",sequence.cal_seq&0xffffffff);
+    writeReg(getDeviceBaseNode(),"T1Controller.Sequence.Resync.MSB",  sequence.rsy_seq>>32);
+    writeReg(getDeviceBaseNode(),"T1Controller.Sequence.Resync.LSB",  sequence.rsy_seq&0xffffffff);
+    writeReg(getDeviceBaseNode(),"T1Controller.Sequence.BCO.MSB",     sequence.bc0_seq>>32);
+    writeReg(getDeviceBaseNode(),"T1Controller.Sequence.BC0.LSB",     sequence.bc0_seq&0xffffffff);
+  }
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::startT1Generator(uint32_t const& ntrigs, uint32_t const& rate, uint32_t const& delay)
+{
+  uint32_t interval = 1/(rate*0.000000025);
+
+  writeReg(getDeviceBaseNode(),"T1Controller.NUMBER"  ,ntrigs  );
+  writeReg(getDeviceBaseNode(),"T1Controller.INTERVAL",interval);
+  writeReg(getDeviceBaseNode(),"T1Controller.DELAY"   ,delay   );
+
+  //don't toggle off if the generator is currently running
+  if (!getT1GeneratorStatus())
+    writeReg(getDeviceBaseNode(),"T1Controller.TOGGLE",0x1);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::stopT1Generator(bool reset)
+{
+  //don't toggle on if the generator is currently not running
+  if (getT1GeneratorStatus())
+    writeReg(getDeviceBaseNode(),"T1Controller.TOGGLE",0x1);
+  if (reset)
+    resetT1Generator();
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::sendL1A(uint32_t const& ntrigs, uint32_t const& rate)
+{
+  T1Sequence sequence;
+  configureT1Generator(0x0, 0x0, sequence, true);
+  startT1Generator(ntrigs,rate, 0);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::sendCalPulse(uint32_t const& npulse, uint32_t const& rate)
+{
+  T1Sequence sequence;
+  configureT1Generator(0x0, 0x1, sequence, true);
+  startT1Generator(npulse, rate, 0);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::sendL1ACalPulse(uint32_t const& npulse, uint32_t const& delay, uint32_t const& rate)
+{
+  T1Sequence sequence;
+  configureT1Generator(0x1, 0x0, sequence, true);
+  startT1Generator(npulse,rate, delay);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::sendResync(uint32_t const& nresync, uint32_t const& rate)
+{
+  // OBSOLETE writeReg(getDeviceBaseNode(), "CONTROL.TRIGGER.SOURCE",0x0);
+  // OBSOLETE writeReg(getDeviceBaseNode(), "CONTROL.CLOCK.REF_CLK",0x1);
+  T1Sequence sequence;
+  configureT1Generator(0x0, 0x2, sequence, true);
+  startT1Generator(nresync, rate, 0);
+}
+
+
+void gem::hw::optohybrid::HwOptoHybrid::sendBC0(uint32_t const& nbc0, uint32_t const& rate)
+{
+  T1Sequence sequence;
+  configureT1Generator(0x0, 0x3, sequence, true);
+  startT1Generator(nbc0, rate, 0);
+}
+
+//////// Optohybrid ADC Interface \\\\\\\\*
+uint32_t gem::hw::optohybrid::HwOptoHybrid::getADCVAUX(uint8_t const& vaux)
+{
+  if (vaux > 15) {
+    std::string msg = toolbox::toString("Invalid VAUX requested (%d): outside expectation (0-15)",int(vaux));
+    ERROR(msg);
+    XCEPT_RAISE(gem::hw::optohybrid::exception::ValueError,msg);
+  }
+  std::stringstream vauxInput;
+  vauxInput << "ADC.VAUX.VAL_" << int(vaux);
+  return readReg(getDeviceBaseNode(),vauxInput.str());
+}
+
+uint32_t gem::hw::optohybrid::HwOptoHybrid::getVFATDACOutV(uint8_t const& column)
+{
+  if (column > 2) {
+    std::string msg = toolbox::toString("Invalid column requested (%d): outside expectation (0-2)",int(column));
+    ERROR(msg);
+    XCEPT_RAISE(gem::hw::optohybrid::exception::ValueError,msg);
+  }
+
+  std::stringstream vauxInput;
+  switch(column) {
+  case(0):
+    vauxInput << "ADC.VAUX.VAL_1";
+  case(1):
+    vauxInput << "ADC.VAUX.VAL_5";
+  case(2):
+    vauxInput << "ADC.VPVN";
+  default:
+    std::string msg = toolbox::toString("Invalid column requested (%d): outside expectation (0-2)",int(column));
+    ERROR(msg);
+    return 0;
+  }
+  return readReg(getDeviceBaseNode(),vauxInput.str());
+}
+
+uint32_t gem::hw::optohybrid::HwOptoHybrid::getVFATDACOutI(uint8_t const& column)
+{
+  if (column > 2) {
+    std::string msg = toolbox::toString("Invalid column requested (%d): outside expectation (0-2)",int(column));
+    ERROR(msg);
+    XCEPT_RAISE(gem::hw::optohybrid::exception::ValueError,msg);
+  }
+
+  std::stringstream vauxInput;
+  switch(column) {
+  case(0):
+    vauxInput << "ADC.VAUX.VAL_4";
+  case(1):
+    vauxInput << "ADC.VAUX.VAL_6";
+  case(2):
+    vauxInput << "ADC.VAUX.VAL_13";
+  default:
+    std::string msg = toolbox::toString("Invalid column requested (%d): outside expectation (0-2)",int(column));
+    ERROR(msg);
+    return 0;
+  }
+  return readReg(getDeviceBaseNode(),vauxInput.str());
+}
+
+//////// Scan Modules \\\\\\\\*
+void gem::hw::optohybrid::HwOptoHybrid::configureScanModule(uint8_t const& mode, uint8_t const& chip, uint8_t const& channel,
+                                                            uint8_t const& min,  uint8_t const& max,
+                                                            uint8_t const& step, uint32_t const& nevts,
+                                                            bool useUltra, bool reset)
+{
+  std::stringstream scanBase;
+  scanBase << "ScanController";
+  if (useUltra)
+    scanBase << ".ULTRA";
+  else
+    scanBase << ".THLAT";
+
+  if (reset)
+    writeReg(getDeviceBaseNode(),scanBase.str()+".RESET",0x1);
+
+  writeReg(getDeviceBaseNode(),scanBase.str()+".MODE", mode);
+  writeReg(getDeviceBaseNode(),scanBase.str()+".MIN",  min);
+  writeReg(getDeviceBaseNode(),scanBase.str()+".MAX",  max);
+  writeReg(getDeviceBaseNode(),scanBase.str()+".STEP", step);
+
+  // need also to enable this chip and disable all others, use a broadcast write?
+  if (useUltra)
+    writeReg(getDeviceBaseNode(),scanBase.str()+".MASK", chip);
+  else
+    writeReg(getDeviceBaseNode(),scanBase.str()+".CHIP", chip);
+  if (mode == 0x1 || mode == 0x3) {
+    // protect for non-existent channels?
+    // need also to enable this channel and disable all others
+    writeReg(getDeviceBaseNode(),scanBase.str()+".CHAN",channel);
+    if (mode == 0x3) {
+      // need also to enable cal pulse to this channel and disable all others
+    }
+  }
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::startScanModule(uint32_t const& nevts, bool useUltra)
+{
+  std::stringstream scanBase;
+  scanBase << "ScanController";
+  if (useUltra)
+    scanBase << ".ULTRA";
+  else
+    scanBase << ".THLAT";
+
+  writeReg(getDeviceBaseNode(),scanBase.str()+".NTRIGS", nevts);
+
+  //don't toggle off if the module is currently running
+  if (!getScanStatus())
+    writeReg(getDeviceBaseNode(),scanBase.str()+".START",0x1);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::stopScanModule(bool useUltra, bool reset)
+{
+  std::stringstream scanBase;
+  scanBase << "ScanController";
+  if (useUltra)
+    scanBase << ".ULTRA";
+  else
+    scanBase << ".THLAT";
+
+  //don't toggle on if the module is currently not running
+  //if (getScanStatus())
+  //  writeReg(getDeviceBaseNode(),scanBase.str()+".TOGGLE",0x1);
+  if (reset)
+    writeReg(getDeviceBaseNode(),scanBase.str()+".RESET",0x1);
+}
+
+uint8_t gem::hw::optohybrid::HwOptoHybrid::getScanStatus(bool useUltra)
+{
+  std::stringstream scanBase;
+  scanBase << "ScanController";
+  if (useUltra)
+    scanBase << ".ULTRA";
+  else
+    scanBase << ".THLAT";
+  return readReg(getDeviceBaseNode(),scanBase.str()+".MONITOR.STATUS");
+}
+
+std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::getScanResults(uint32_t const& npoints)
+{
+  while (readReg(getDeviceBaseNode(),"ScanController.THLAT.MONITOR.STATUS") > 0) {
+    INFO("Scan still running, not returning results");
+    usleep(10);
+  }
+  std::stringstream regname;
+  regname << getDeviceBaseNode() << ".ScanController.THLAT.RESULTS";
+  return readBlock(regname.str(), npoints);
+}
+
+std::vector<std::vector<uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getUltraScanResults(uint32_t const& npoints)
+{
+  while (readReg(getDeviceBaseNode(),"ScanController.ULTRA.MONITOR.STATUS") > 0) {
+    INFO("Scan still running, not returning results");
+    usleep(10);
+  }
+  std::vector<std::vector<uint32_t> > results;
+  for (int vfat = 0; vfat < 24; ++vfat) {
+    std::stringstream regname;
+    regname << getDeviceBaseNode() << ".ScanController.ULTRA.RESULTS.VFAT" << vfat;
+    results.push_back(readBlock(regname.str(), npoints));
+  }
+  return results;
+}
+
+
+//////// Counters \\\\\\\\*
+void gem::hw::optohybrid::HwOptoHybrid::updateWBMasterCounters()
+{
+  std::stringstream regName;
+  regName << getDeviceBaseNode() << ".COUNTERS.WB.MASTER";
+  std::vector<std::pair<std::string,uint32_t> > wishboneRegisters;
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.GTX"   ,regName.str().c_str()),
+                                             m_wbMasterCounters.GTX.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.GTX"      ,regName.str().c_str()),
+                                             m_wbMasterCounters.GTX.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.GBT"   ,regName.str().c_str()),
+                                             m_wbMasterCounters.GBT.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.GBT"      ,regName.str().c_str()),
+                                             m_wbMasterCounters.GBT.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.ExtI2C",regName.str().c_str()),
+                                             m_wbMasterCounters.ExtI2C.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.ExtI2C"   ,regName.str().c_str()),
+                                             m_wbMasterCounters.ExtI2C.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.Scan"  ,regName.str().c_str()),
+                                             m_wbMasterCounters.Scan.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.Scan"     ,regName.str().c_str()),
+                                             m_wbMasterCounters.Scan.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.DAC"   ,regName.str().c_str()),
+                                             m_wbMasterCounters.DAC.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.DAC"      ,regName.str().c_str()),
+                                             m_wbMasterCounters.DAC.second));
+  readRegs(wishboneRegisters);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::resetWBMasterCounters()
+{
+  std::stringstream regName;
+  regName << getDeviceBaseNode() << ".COUNTERS.WB.MASTER";
+  std::vector<std::string> wishboneRegisters;
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.GTX.Reset"   ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.GTX.Reset"      ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.GBT.Reset"   ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.GBT.Reset"      ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.ExtI2C.Reset",regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.ExtI2C.Reset"   ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Scan.Reset"  ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.Scan.Reset"     ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.DAC.Reset"   ,regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.DAC.Reset"      ,regName.str().c_str()));
+  writeValueToRegs(wishboneRegisters, 0x1);
+  m_wbMasterCounters.reset();
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::updateWBSlaveCounters()
+{
+  std::stringstream regName;
+  regName << getDeviceBaseNode() << ".COUNTERS.WB.SLAVE";
+  std::vector<std::pair<std::string,uint32_t> > wishboneRegisters;
+  for (unsigned i2c = 0; i2c < 6; ++i2c) {
+    wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.I2C%d.Reset",regName.str().c_str(),i2c),
+                                               m_wbSlaveCounters.I2C.at(i2c).first));
+    wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.I2C%d.Reset",   regName.str().c_str(),i2c),
+                                               m_wbSlaveCounters.I2C.at(i2c).second));
+  }
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.ExtI2C"  ,regName.str().c_str()),
+                                             m_wbSlaveCounters.ExtI2C.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.ExtI2C"     ,regName.str().c_str()),
+                                             m_wbSlaveCounters.ExtI2C.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.Scan"    ,regName.str().c_str()),
+                                             m_wbSlaveCounters.Scan.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.Scan"       ,regName.str().c_str()),
+                                             m_wbSlaveCounters.Scan.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.T1"      ,regName.str().c_str()),
+                                             m_wbSlaveCounters.T1.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.T1"         ,regName.str().c_str()),
+                                             m_wbSlaveCounters.T1.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.DAC"     ,regName.str().c_str()),
+                                             m_wbSlaveCounters.DAC.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.DAC"        ,regName.str().c_str()),
+                                             m_wbSlaveCounters.DAC.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.ADC"     ,regName.str().c_str()),
+                                             m_wbSlaveCounters.ADC.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.ADC"        ,regName.str().c_str()),
+                                             m_wbSlaveCounters.ADC.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.Clocking",regName.str().c_str()),
+                                             m_wbSlaveCounters.Clocking.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.Clocking"   ,regName.str().c_str()),
+                                             m_wbSlaveCounters.Clocking.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.Counters",regName.str().c_str()),
+                                             m_wbSlaveCounters.Counters.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.Counters"   ,regName.str().c_str()),
+                                             m_wbSlaveCounters.Counters.second));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Strobe.System"  ,regName.str().c_str()),
+                                             m_wbSlaveCounters.System.first));
+  wishboneRegisters.push_back(std::make_pair(toolbox::toString("%s.Ack.System"     ,regName.str().c_str()),
+                                             m_wbSlaveCounters.System.second));
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::resetWBSlaveCounters()
+{
+  std::stringstream regName;
+  regName << getDeviceBaseNode() << ".COUNTERS.WB.SLAVE";
+  std::vector<std::string> wishboneRegisters;
+  for (unsigned i2c = 0; i2c < 6; ++i2c) {
+    wishboneRegisters.push_back(toolbox::toString("%s.Strobe.I2C%d.Reset",regName.str().c_str(),i2c));
+    wishboneRegisters.push_back(toolbox::toString("%s.Ack.I2C%d.Reset",   regName.str().c_str(),i2c));
+  }
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.ExtI2C.Reset",  regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.ExtI2C.Reset",     regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Scan.Reset",    regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.Scan.Reset",       regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.T1.Reset",      regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.T1.Reset",         regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.DAC.Reset",     regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.DAC.Reset",        regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.ADC.Reset",     regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.ADC.Reset",        regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Clocking.Reset",regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.Clocking.Reset",   regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.Counters.Reset",regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.Counters.Reset",   regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Strobe.System.Reset",  regName.str().c_str()));
+  wishboneRegisters.push_back(toolbox::toString("%s.Ack.System.Reset",     regName.str().c_str()));
+  writeValueToRegs(wishboneRegisters, 0x1);
+  m_wbSlaveCounters.reset();
+}
+
+std::pair<uint32_t,uint32_t> gem::hw::optohybrid::HwOptoHybrid::getVFATCRCCount(uint8_t const& chip)
+{
+  std::stringstream vfatCRC;
+  vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC.";
+  std::vector<std::pair<std::string,uint32_t> > vfatCRCRegs;
+  uint32_t valid(0x0), incorrect(0x0);
+  vfatCRCRegs.push_back(std::make_pair(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip),
+                                       valid));
+  vfatCRCRegs.push_back(std::make_pair(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip),
+                                       incorrect));
+  readRegs(vfatCRCRegs);
+  return std::make_pair(valid,incorrect);
+}
+
+
+void gem::hw::optohybrid::HwOptoHybrid::resetVFATCRCCount(uint8_t const& chip)
+{
+  std::stringstream vfatCRC;
+  vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC.";
+  std::vector<std::string> vfatCRCRegs;
+  vfatCRCRegs.push_back(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip));
+  vfatCRCRegs.push_back(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip));
+  writeValueToRegs(vfatCRCRegs, 0x1);
+  return;
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::resetVFATCRCCount()
+{
+  std::stringstream vfatCRC;
+  vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC";
+  std::vector<std::string> vfatCRCRegs;
+  for (int vfat = 0; vfat < 24; ++vfat) {
+    vfatCRCRegs.push_back(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),vfat));
+    vfatCRCRegs.push_back(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),vfat));
+  }
+  writeValueToRegs(vfatCRCRegs, 0x1);
+  return;
+}
+
+//// T1 Counters \\\\*
+void gem::hw::optohybrid::HwOptoHybrid::updateT1Counters()
+{
+  for (unsigned signal = 0; signal < 4; ++signal) {
+    m_t1Counters.GTX_TTC.at(signal)  = getT1Count(signal, 0x0);
+    m_t1Counters.GBT_TTC.at(signal)  = getT1Count(signal, 0x0);
+    m_t1Counters.Firmware.at(signal) = getT1Count(signal, 0x1);
+    m_t1Counters.External.at(signal) = getT1Count(signal, 0x2);
+    m_t1Counters.Loopback.at(signal) = getT1Count(signal, 0x3);
+    m_t1Counters.Sent.at(    signal) = getT1Count(signal, 0x4);
+  }
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::resetT1Counters()
+{
+  resetT1Count(0x0, 0x5); //reset all L1A counters
+  resetT1Count(0x1, 0x5); //reset all CalPulse counters
+  resetT1Count(0x2, 0x5); //reset all Resync counters
+  resetT1Count(0x3, 0x5); //reset all BC0 counters
+  m_t1Counters.reset();
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::updateVFATCRCCounters()
+{
+  for (unsigned slot = 0; slot < 24; ++slot)
+    m_vfatCRCCounters.CRCCounters.at(slot) = getVFATCRCCount(slot);
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::resetVFATCRCCounters()
+{
+  resetVFATCRCCount();
+  // for (unsigned slot = 0; slot < 24; ++slot)
+  //   resetVFATCRCCount(slot);
+  m_vfatCRCCounters.reset();
+}
+
+uint32_t gem::hw::optohybrid::HwOptoHybrid::getT1Count(uint8_t const& signal, uint8_t const& mode)
+{
+  std::stringstream t1Signal;
+  if (signal == 0x0)
+    t1Signal << "L1A";
+  if (signal == 0x1)
+    t1Signal << "CalPulse";
+  if (signal == 0x2)
+    t1Signal << "Resync";
+  if (signal == 0x3)
+    t1Signal << "BC0";
+  
+  switch(mode) {
+  case 0:
+    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s",     (t1Signal.str()).c_str()));
+  case 1:
+    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s",(t1Signal.str()).c_str()));
+  case 2:
+    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s",(t1Signal.str()).c_str()));
+  case 3:
+    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s",(t1Signal.str()).c_str()));
+  case 4:
+    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
+  default:
+    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
+  }
+}
+
+void gem::hw::optohybrid::HwOptoHybrid::resetT1Count(uint8_t const& signal, uint8_t const& mode)
+{
+  std::stringstream t1Signal;
+  if (signal == 0x0)
+    t1Signal << "L1A";
+  if (signal == 0x1)
+    t1Signal << "CalPulse";
+  if (signal == 0x2)
+    t1Signal << "Resync";
+  if (signal == 0x3)
+    t1Signal << "BC0";
+
+  std::stringstream regName;
+  regName << getDeviceBaseNode() << ".COUNTERS.T1";
+  std::vector<std::string> l1aCounterRegisters;
+
+  switch(mode) {
+  case 0:
+    l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+    break;
+  case 1:
+    l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    break;
+  case 2:
+    l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    break;
+  case 3:
+    l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    break;
+  case 4:
+    l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+    break;
+  case 5:
+    l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+    break;
+  default:
+    l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+    break;
+  }
+  writeValueToRegs(l1aCounterRegisters, 0x1);
 }
