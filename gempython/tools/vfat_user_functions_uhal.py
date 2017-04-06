@@ -236,7 +236,8 @@ def biasAllVFATs(device, gtx, mask=0x0, enable=True, zeroChannels=False, debug=F
         pass
     writeAllVFATs(device, gtx, "ContReg1",    parameters.defaultValues["ContReg1"   ], mask=mask)
     writeAllVFATs(device, gtx, "ContReg2",    parameters.defaultValues["ContReg2"   ], mask=mask)
-    writeAllVFATs(device, gtx, "ContReg3",    parameters.defaultValues["ContReg3"   ], mask=mask)
+    # ContReg3 contains the trimDAC range, so will be different from VFAT2 to VFAT2
+    # writeAllVFATs(device, gtx, "ContReg3",    parameters.defaultValues["ContReg3"   ], mask=mask)
     writeAllVFATs(device, gtx, "Latency",     parameters.defaultValues["Latency"    ], mask=mask)
     writeAllVFATs(device, gtx, "IPreampIn",   parameters.defaultValues["IPreampIn"  ], mask=mask)
     writeAllVFATs(device, gtx, "IPreampFeed", parameters.defaultValues["IPreampFeed"], mask=mask)
@@ -258,7 +259,7 @@ def zeroAllVFATChannels(device,gtx,mask=0x0,debug=False):
     msg = "%s: Zeroing channel registers on all VFATs"%(device)
     vfatlogger.debug(colormsg(msg,logging.DEBUG))
     for chan in range(128):
-        setAllChannelRegisters(device,gtx,chip,chan,chanreg=0x0,chipmask=mask,debug=debug)
+        setAllChannelRegisters(device,gtx,chan,chanreg=0x0,chipmask=mask,debug=debug)
     return
 
 def zeroAllChannels(device,gtx,chip,debug=False):
