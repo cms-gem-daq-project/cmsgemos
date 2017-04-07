@@ -608,17 +608,17 @@ namespace gem {
 
           //// PLL Status \\\\*
           /**
-           * @returns wheter the QPLL is locked
+           * @returns whether the QPLL is locked
            */
           bool isQPLLLocked() { return readReg(getDeviceBaseNode(),"STATUS.QPLL_LOCK"); };
 
           /**
-           * @returns wheter the QPLL read by the FPGA PLL is locked
+           * @returns whether the QPLL read by the FPGA PLL is locked
            */
           bool isQPLLFPGAPLLLocked() { return readReg(getDeviceBaseNode(),"STATUS.QPLL_FPGA_PLL_LOCK"); };
 
           /**
-           * @returns wheter there is a critical error detected due to SEU
+           * @returns whether there is a critical error detected due to SEU
            */
           bool hasSEUError() { return readReg(getDeviceBaseNode(),"STATUS.SEU"); };
 
@@ -722,7 +722,7 @@ namespace gem {
           void sendBC0(uint32_t const& nbc0=1, uint32_t const& rate=1);
           /** @} */ // end of t1generator
 
-          
+
           /** @defgroup adcinterface Optohybrid ADC Interface
            *  Functions related to the OptoHybrid ADC interface
            *  @{
@@ -819,7 +819,7 @@ namespace gem {
            */
           uint32_t getVFATDACOutI(uint8_t const& column);
           /** @} */ // end of adcinterface
-          
+
 
           /** @defgroup scanmodule Scan Modules
            *  Functions related to the OptoHybrid firmware scan modules
@@ -900,7 +900,7 @@ namespace gem {
            */
           std::vector<std::vector<uint32_t> > getUltraScanResults(uint32_t const& npoints);
           /** @} */ // end of scanmodule
-          
+
 
           /**
            * @defgroup ohcounters OptoHybrid Counters
@@ -968,7 +968,7 @@ namespace gem {
            * on the received data packets from all VFATs
            */
           void resetVFATCRCCount();
-          
+
           /** @defgroup t1counters T1 Counters
            *  Functions related to the various T1 counters on the OptoHybrid
            *  @ingroup ohcounters
@@ -1056,6 +1056,21 @@ namespace gem {
           void resetBXCount() { return; };
 
           /** @} */ // end of t1counters
+
+          /**
+           * @ingroup ohcounters
+           * @returns uint32_t showing the number of times the QPLL unlocked and re-locked
+           */
+          uint32_t getQPLLUnlockCount() { return readReg(getDeviceBaseNode(),"COUNTERS.QPLL_LOCK"); };
+          void resetQPLLUnlockCount() { writeReg(getDeviceBaseNode(),"COUNTERS.QPLL_LOCK.Reset", 0x1); };
+
+          /**
+           * @ingroup ohcounters
+           * @returns uint32_t showing the number of times the QPLL FPGA PLL unlocked and re-locked
+           */
+          uint32_t getQPLLFPGAPLLUnlockCount() { return readReg(getDeviceBaseNode(),"COUNTERS.QPLL_FPGA_PLL_LOCK"); };
+          void resetQPLLFPGAPLLUnlockCount() { writeReg(getDeviceBaseNode(),"COUNTERS.QPLL_FPGA_PLL_LOCK.Reset", 0x1); };
+
 
           //////// UNCATEGORIZED/OBSOLETE? \\\\\\\\*
           /**

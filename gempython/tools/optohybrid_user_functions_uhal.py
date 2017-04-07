@@ -740,24 +740,30 @@ def printSysmonInfo(device, gtx, debug=False):
     adcBase = "GEM_AMC.OH.OH%d.ADC"%(gtx)
 
     regList = ["TEMP", "VCCINT", "VCCAUX",
-               "TEMP_MAX", "VCCINT_MAX", "VCCAUX_MAX",
-               "TEMP_MIN", "VCCINT_MIN", "VCCAUX_MIN"]
+               "TEMP.MAX", "VCCINT.MAX", "VCCAUX.MAX",
+               "TEMP.MIN", "VCCINT.MIN", "VCCAUX.MIN"]
     regs = []
     for reg in regList:
         regs.append("%s.%s"%(adcBase,reg))
         pass
     res = readRegisterList(device,regs)
+
+    def TEMP_CONV(daccode):
+        return daccode*0.49-273.15
+    def VCC_CONV(daccode):
+        return daccode*2.93/1000
+
     print "OptoHybrid ADC sysmon"
-    print "        %8s  %8s  %8s"%("Temp", "VCCINT", "VCCAUX")
-    print "Current:%2.6f  %2.6f  %2.6f"%(res["%s.TEMP"%(adcBase)],
-                                         res["%s.VCCINT"%(adcBase)],
-                                         res["%s.VCCAUX"%(adcBase)])
-    print "Max:    %2.6f  %2.6f  %2.6f"%(res["%s.TEMP_MAX"%(adcBase)],
-                                         res["%s.VCCINT_MAX"%(adcBase)],
-                                         res["%s.VCCAUX_MAX"%(adcBase)])
-    print "Min:    %2.6f  %2.6f  %2.6f"%(res["%s.TEMP_MIN"%(adcBase)],
-                                         res["%s.VCCINT_MIN"%(adcBase)],
-                                         res["%s.VCCAUX_MIN"%(adcBase)])
+    print "         %7s  %8s  %8s"%("Temp", "VCCINT", "VCCAUX")
+    print "Current: %3.2f C  %1.4f V  %1.4f V"%(TEMP_CONV((res["%s.TEMP"%(adcBase)     ]>>6)&0x3ff),
+                                               VCC_CONV((res["%s.VCCINT"%(adcBase)    ]>>6)&0x3ff),
+                                               VCC_CONV((res["%s.VCCAUX"%(adcBase)    ]>>6)&0x3ff))
+    print "Max:     %3.2f C  %1.4f V  %1.4f V"%(TEMP_CONV((res["%s.TEMP.MAX"%(adcBase) ]>>6)&0x3ff),
+                                               VCC_CONV((res["%s.VCCINT.MAX"%(adcBase)]>>6)&0x3ff),
+                                               VCC_CONV((res["%s.VCCAUX.MAX"%(adcBase)]>>6)&0x3ff))
+    print "Min:     %3.2f C  %1.4f V  %1.4f V"%(TEMP_CONV((res["%s.TEMP.MIN"%(adcBase) ]>>6)&0x3ff),
+                                               VCC_CONV((res["%s.VCCINT.MIN"%(adcBase)]>>6)&0x3ff),
+                                               VCC_CONV((res["%s.VCCAUX.MIN"%(adcBase)]>>6)&0x3ff))
     return
 
 def calculateLinkErrors(device,gtx,sampleTime):
