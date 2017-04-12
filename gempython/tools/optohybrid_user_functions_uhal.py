@@ -575,7 +575,7 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
     msg+= "FW scan channel    : %d\n"%(channel)
     msg+= "FW scan step size  : %d\n"%(stepsize)
     msg+= "FW scan n_triggers : %d\n"%(numtrigs)
-    ohlogger.debug(colormsg(msg,logging.DEBUG))
+    ohlogger.info(colormsg(msg,logging.DEBUG))
 
     writeRegister(device,"%s.RESET"%(scanBase),0x1)
     regList = {
