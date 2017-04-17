@@ -238,7 +238,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
             << link << " to AMC in slot " << (slot+1));
       std::string deviceName = info.cardName.toString();
       if (deviceName.empty())
-        deviceName = toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+        deviceName = toolbox::toString("gem.shelf%02d.amc%02d.optohybrid%02d",
                                        info.crateID.value_,
                                        info.slotID.value_,
                                        info.linkID.value_);
@@ -741,7 +741,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
 
       DEBUG("OptoHybridManager::revoking hwCfgInfoSpace items for board connected on link "
             << link << " to AMC in slot " << (slot+1));
-      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d.optohybrid%02d",
+      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.amc%02d.optohybrid%02d",
                                                                  info.crateID.value_,
                                                                  info.slotID.value_,
                                                                  info.linkID.value_));

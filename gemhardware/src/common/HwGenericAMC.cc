@@ -126,7 +126,7 @@ bool gem::hw::HwGenericAMC::isHwConnected()
     if ((this->getBoardID()).rfind("GLIB") != std::string::npos ) {
       INFO("HwGenericAMC found boardID");
       for (unsigned int gtx = 0; gtx < this->getSupportedOptoHybrids(); ++gtx) {
-        // somehow need to actually check that the specified link is present
+        // FIXME!!! somehow need to actually check that the specified link is present
         b_links[gtx] = true;
         INFO("m_links 0x" << std::hex << std::setw(8) << std::setfill('0')
              << m_links

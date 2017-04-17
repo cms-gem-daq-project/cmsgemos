@@ -209,7 +209,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // create the cfgInfoSpace object (qualified vs non?)
     std::string deviceName = info.cardName.toString();
     if (deviceName.empty())
-      deviceName = toolbox::toString("gem.shelf%02d.glib%02d",
+      deviceName = toolbox::toString("gem.shelf%02d.amc%02d",
                                      info.crateID.value_,
                                      info.slotID.value_);
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
@@ -557,7 +557,7 @@ void gem::hw::glib::GLIBManager::resetAction()
       m_glibMonitors.at(slot)->reset();
 
     DEBUG("GLIBManager::looking for hwCfgInfoSpace items for GLIB in slot " << (slot+1));
-    toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.glib%02d",
+    toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.amc%02d",
                                                                info.crateID.value_,
                                                                info.slotID.value_));
 
