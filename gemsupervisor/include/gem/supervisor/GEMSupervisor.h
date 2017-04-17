@@ -155,6 +155,7 @@ namespace gem {
 
 	uint32_t m_scanParameter;
 
+        xdata::Boolean             m_useLocalDBInstance;
         xdata::Boolean             m_handleTCDS;
         xdata::Boolean             m_useLocalReadout;
         xdata::Boolean             m_useFedKitReadout;
