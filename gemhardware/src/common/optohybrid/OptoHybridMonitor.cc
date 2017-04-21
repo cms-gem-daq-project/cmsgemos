@@ -679,6 +679,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
+  // for (auto const& scan : scans) {
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
     *out << "<div class=\"xdaq-tab\" title=\""  << scan->first << "\" >" << std::endl;
 
@@ -706,9 +707,9 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
         *out << "<tr>"    << std::endl;
 
         std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
-
+        std::string monname = monitem->first;
         *out << "<td>"    << std::endl
-             << (monitem->first).erase(0,scan->first.length())
+             << monname.erase(0,scan->first.length())
              << "</td>"   << std::endl;
 
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to " << formatted);
