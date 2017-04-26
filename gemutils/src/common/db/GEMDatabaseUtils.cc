@@ -62,7 +62,7 @@ bool gem::utils::db::GEMDatabaseUtils::connect(std::string const& database)
     p_db = 0;
     ERROR(message);
     XCEPT_RAISE(gem::utils::exception::DBConnectionError,message);
-    return false;
+    // return false;
   }
   return true;
 }
