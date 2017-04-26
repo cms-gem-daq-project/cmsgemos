@@ -271,8 +271,8 @@ void gem::supervisor::GEMSupervisor::initializeAction()
         if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
           INFO("GEMSupervisor::initializeAction Halting " << (*j)->getClassName()
                << " in case it is not in 'Halted'");
+          // need to ensure leases are properly respected
           gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, *j);
-          // continue;  // Skip sending Initialize to TCDS applications
         } else {
           INFO("GEMSupervisor::initializeAction Initializing " << (*j)->getClassName());
           gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *j);
@@ -290,43 +290,43 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     // should make this uniform, or was it due to wanting to fail on DB errors?
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
-    msg << "GEMSupervisor::initializeAction unable to initialize (gem::supervisor::exception) " << e.what();
+    msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
-    msg << "GEMSupervisor::initializeAction unable to initialize (gem::utils::exception::SOAPException)" << e.what();
+    msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
-    msg << "GEMSupervisor::initializeAction unable to initialize (gem::utils::exception::DBConnectionError)" << e.what();
+    msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
-    msg << "GEMSupervisor::initializeAction unable to initialize (gem::utils::exception)" << e.what();
+    msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
-    msg << "GEMSupervisor::initializeAction unable to initialize (xcept)" << e.what();
+    msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
-    msg << "GEMSupervisor::initializeAction unable to initialize (std)" << e.what();
+    msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
-    msg << "GEMSupervisor::initializeAction unable to initialize (unknown exception)";
+    msg << "GEMSupervisor::initializeAction unable to initialize";
     ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
