@@ -58,9 +58,9 @@ namespace gem {
          * as the IP address and address table can be managed there, rather than hard coded
          * Constrution from crateID and slotID uses this constructor as the back end
          */
-        HwGenericAMC();
-        HwGenericAMC(std::string const& amcDevice);
-        HwGenericAMC(std::string const& amcDevice, int const& crate, int const& slot);
+        /* HwGenericAMC(); */
+        /* HwGenericAMC(std::string const& amcDevice); */
+        /* HwGenericAMC(std::string const& amcDevice, int const& crate, int const& slot); */
         HwGenericAMC(std::string const& amcDevice, std::string const& connectionFile);
         HwGenericAMC(std::string const& amcDevice, std::string const& connectionURI,
                      std::string const& addressTable);

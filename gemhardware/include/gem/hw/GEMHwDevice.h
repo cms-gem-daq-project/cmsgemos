@@ -128,7 +128,7 @@ namespace gem {
        * GEMHwDevice constructor
        * @param deviceName string to put into the logger
        */
-      GEMHwDevice(std::string const& deviceName);
+      /* GEMHwDevice(std::string const& deviceName); */
 
       GEMHwDevice(std::string const& deviceName,
                   std::string const& connectionFile);
@@ -419,7 +419,7 @@ namespace gem {
 
       mutable gem::utils::Lock m_hwLock;
 
-      void setParametersFromInfoSpace();
+      /* void setParametersFromInfoSpace(); */
       void setup(std::string const& deviceName);
 
     private:
