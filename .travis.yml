@@ -1,0 +1,9 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker pull gitlab-registry.cern.ch/ci-tools/ci-worker:slc6
+  - docker ps -a
+  - ls -lshtar
