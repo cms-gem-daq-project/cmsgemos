@@ -16,7 +16,6 @@ before_install:
   - sudo apt-get update
   - echo 'DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock -s devicemapper"' | sudo tee /etc/default/docker > /dev/null
   - sudo service docker restart
-<<<<<<< dcb6440cae32f37e9e3b4f2a34464d77e2783bfd
   - sleep 1
   - docker pull $DOCKER_IMAGE
   - docker ps -al
