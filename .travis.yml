@@ -21,3 +21,5 @@ before_install:
 script:
   - uname -a
   - ls -lshtar
+  - which yum
+#  - yum list installed
