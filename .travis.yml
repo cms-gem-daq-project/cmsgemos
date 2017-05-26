@@ -14,7 +14,7 @@ before_install:
   - sudo apt-get update
   - echo 'DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock -s devicemapper"' | sudo tee /etc/default/docker > /dev/null
   - sudo service docker restart
-  - sleep 5
+  - sleep 1
   - docker pull gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
   - docker ps -al
 #  - sudo docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash
@@ -22,7 +22,6 @@ before_install:
 script:
   - uname -a
   - ls -lshtar
-  - sudo docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash
-  - sudo docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash uname -a
-  - sudo docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash which yum
+  - docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash -c uname -a
+  - docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash -c which yum
 #  - yum list installed
