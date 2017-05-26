@@ -1,9 +1,16 @@
 sudo: required
 
+language: cpp
+
+env:
+  matrix:
+    - OS_TYPE=centos OS_VERSION=6
+#    - OS_TYPE=centos OS_VERSION=7
+
 services:
   - docker
 
 before_install:
-  - docker pull gitlab-registry.cern.ch/ci-tools/ci-worker:slc6
+  - docker pull gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
   - docker ps -a
   - ls -lshtar
