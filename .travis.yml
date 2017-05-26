@@ -23,6 +23,6 @@ script:
   - uname -a
   - ls -lshtar
   - sudo docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash
-  - uname -a
-  - which yum
+  - sudo docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash uname -a
+  - sudo docker run gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6 bash which yum
 #  - yum list installed
