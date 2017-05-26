@@ -18,6 +18,6 @@ before_install:
   - docker pull gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
   - docker ps -a
 
-script
+script:
   - uname -a
   - ls -lshtar
