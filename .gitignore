@@ -4,6 +4,9 @@
 !*/
 # Ignore RPM directories
 */rpm
+# Don't ignore documentation files, etc
+!*.rst
+!*.md
 # Don't ignore source files, etc
 !*.gitignore
 !*.cc
