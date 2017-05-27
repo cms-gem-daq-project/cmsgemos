@@ -19,4 +19,4 @@ before_install:
   - docker ps -al
   
 script:
- - ./.travis/travis.sh
+ - ./.travis/travis.sh ${OS_VERSION}
