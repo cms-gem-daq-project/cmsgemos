@@ -2,7 +2,7 @@
 *
 # Don't ignore subdirectories
 !*/
-# Don't ignore
+# Don't ignore source files, etc
 !*.gitignore
 !*.rst
 !*.md
