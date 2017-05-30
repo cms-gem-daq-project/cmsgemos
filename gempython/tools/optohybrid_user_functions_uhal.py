@@ -465,9 +465,10 @@ def setReferenceClock(device,gtx,source,debug=False):
     V2A:   0=onboard, 1=GTX recovered,  2=external clock
     V2B:   0=GBT,     1=CCB HDMI
 
-    (Currently disabled for stability reasons)
+    (Documentation above suspect, current OH FW has GBT and CCB switched,
+    but as a hack)
     """
-    # writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
+    writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
 
 def getReferenceClock(device,gtx,debug=False):
