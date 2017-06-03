@@ -179,15 +179,18 @@ void gem::supervisor::GEMSupervisor::init()
     DEBUG("GEMSupervisor::init::xDAQ group: " << *i
           << "getApplicationGroup() " << p_appZone->getApplicationGroup(*i)->getName());
 
-    xdaq::ApplicationGroup* ag = p_appZone->getApplicationGroup(*i);
+    xdaq::ApplicationGroup* ag = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup(*i));
+#ifdef x86_64_centos7
+    std::set<const xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
+#else
     std::set<xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
-
+#endif
     DEBUG("GEMSupervisor::init::getApplicationDescriptors() " << allApps.size());
     for (auto j = allApps.begin(); j != allApps.end(); ++j) {
       std::string classname = (*j)->getClassName();
       DEBUG("GEMSupervisor::init::xDAQ application descriptor " << *j << " " << classname << " we are " << p_appDescriptor);
 
-      if (used.find(*j) != used.end())
+      if (used.find(const_cast<xdaq::ApplicationDescriptor*>(*j)) != used.end())
         continue;  // no duplicates
       if ((*j) == p_appDescriptor )
         continue;  // don't fire the command into the GEMSupervisor again
@@ -198,7 +201,7 @@ void gem::supervisor::GEMSupervisor::init()
       // if (isGEMSupervised(*j))
       if (manageApplication(classname)) {
         INFO("GEMSupervisor::init::pushing " << classname << "(" << *j << ") to list of supervised applications");
-        v_supervisedApps.push_back(*j);
+        v_supervisedApps.push_back(const_cast<xdaq::ApplicationDescriptor*>(*j));
         std::stringstream managedAppStateName;
         managedAppStateName << classname << ":lid:" << (*j)->getLocalId();
         std::stringstream managedAppStateURN;
@@ -206,7 +209,7 @@ void gem::supervisor::GEMSupervisor::init()
         // have to figure out what we want here, with change to pointers
         p_appStateInfoSpaceToolBox->createString(managedAppStateName.str(), managedAppStateURN.str(), NULL);
 
-        m_globalState.addApplication(*j);
+        m_globalState.addApplication(const_cast<xdaq::ApplicationDescriptor*>(*j));
       }
       DEBUG("done");
     }  // done iterating over applications in group
