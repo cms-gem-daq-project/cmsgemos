@@ -776,8 +776,8 @@ void gem::hw::amc13::AMC13Manager::endScanPoint()
 {
   INFO("AMC13Manager::endScanPoint");
   gem::utils::soap::GEMSOAPToolBox::sendCommand("EndScanPoint",
-                                                getApplicationContext(),this->getApplicationDescriptor(),
-                                                getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::supervisor::GEMSupervisor", 0));  // this should not be hard coded
+                                                p_appContext,p_appDescriptor,//getApplicationContext(),this->getApplicationDescriptor(),
+                                                const_cast<xdaq::ApplicationDescriptor*>(p_appZone->getApplicationDescriptor("gem::supervisor::GEMSupervisor", 0)));  // this should not be hard coded
 }
 
 

@@ -62,10 +62,10 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
 
   try {
     p_appInfoSpace  = getApplicationInfoSpace();
-    p_appDescriptor = getApplicationDescriptor();
+    p_appDescriptor = const_cast<xdaq::ApplicationDescriptor*>(getApplicationDescriptor());  // temporary for slc6/cc7 compatibility
     p_appContext    = getApplicationContext();
-    p_appZone       = p_appContext->getDefaultZone();
-    p_appGroup      = p_appZone->getApplicationGroup("default");
+    p_appZone       = const_cast<xdaq::Zone*>(p_appContext->getDefaultZone());  // temporary for slc6/cc7 compatibility
+    p_appGroup      = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup("default"));  // temporary for slc6/cc7 compatibility
     m_xmlClass      = p_appDescriptor->getClassName();
     m_instance      = p_appDescriptor->getInstance();
     m_urn           = p_appDescriptor->getURN();

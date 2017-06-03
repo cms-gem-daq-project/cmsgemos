@@ -22,7 +22,7 @@ gem::supervisor::GEMGlobalState::GEMGlobalState(xdaq::ApplicationContext* contex
   p_timer(NULL),
   p_gemSupervisor(gemSupervisor),
   p_appContext(context),
-  p_srcApp(gemSupervisor->getApplicationDescriptor()),
+  p_srcApp(const_cast<xdaq::ApplicationDescriptor*>(gemSupervisor->getApplicationDescriptor())),
   m_globalState(gem::base::STATE_INITIAL),
   m_forceGlobal(gem::base::STATE_NULL),
   m_gemLogger(gemSupervisor->getApplicationLogger()),
