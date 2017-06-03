@@ -76,74 +76,74 @@ class ColoredFormatter(logging.Formatter):
             orig = "%s%s%s"%(colors.colorlevels[levelname],orig,colors.colorlevels["NOTSET"])
         return orig
 
-dictLogConfig = {
-    ## doesn't work in python26
-    "version":1,
-    "handlers":{
-        "file":{
-            "class":"logging.FileHandler",
-            "formatter":"nocolor",
-            "filename":"gemlogger.log"
-            },
-        "console":{
-            "class":"logging.StreamHandler",
-            "formatter":"color",
-            }
-        },        
-    "loggers":{
-        "root":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            },
-        "gempython.tools.amc_user_functions_uhal":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            },
-        "gempython.tools.optohybrid_user_functions_uhal":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            },
-        "gempython.tools.vfat_user_functions_uhal":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            },
-        "gempython.tools.scan_utils_uhal":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            },
-        "gempython.utils.registers_uhal":{
-            "handlers":["console","file"],
-            "level":"WARNING",
-            },
-        "gempython.tests.amc_info_uhal":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            },
-        "gempython.tests.optohybrid_info_uhal":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            },
-        "gempython.tests.vfat_info_uhal":{
-            "handlers":["console","file"],
-            "level":"INFO",
-            },
-        },
+# dictLogConfig = {
+#     ## doesn't work in python26
+#     "version":1,
+#     "handlers":{
+#         "file":{
+#             "class":"logging.FileHandler",
+#             "formatter":"nocolor",
+#             "filename":"gemlogger.log"
+#             },
+#         "console":{
+#             "class":"logging.StreamHandler",
+#             "formatter":"color",
+#             }
+#         },        
+#     "loggers":{
+#         "root":{
+#             "handlers":["console","file"],
+#             "level":"INFO",
+#             },
+#         "gempython.tools.amc_user_functions_uhal":{
+#             "handlers":["console","file"],
+#             "level":"INFO",
+#             },
+#         "gempython.tools.optohybrid_user_functions_uhal":{
+#             "handlers":["console","file"],
+#             "level":"INFO",
+#             },
+#         "gempython.tools.vfat_user_functions_uhal":{
+#             "handlers":["console","file"],
+#             "level":"INFO",
+#             },
+#         "gempython.tools.scan_utils_uhal":{
+#             "handlers":["console","file"],
+#             "level":"INFO",
+#             },
+#         "gempython.utils.registers_uhal":{
+#             "handlers":["console","file"],
+#             "level":"WARNING",
+#             },
+#         "gempython.tests.amc_info_uhal":{
+#             "handlers":["console","file"],
+#             "level":"INFO",
+#             },
+#         "gempython.tests.optohybrid_info_uhal":{
+#             "handlers":["console","file"],
+#             "level":"INFO",
+#             },
+#         "gempython.tests.vfat_info_uhal":{
+#             "handlers":["console","file"],
+#             "level":"INFO",
+#             },
+#         },
     
-    "formatters":{
-        "nocolor":{
-            ():"gempython.utils.gemlogger.ColoredFormatter",
-            "format": '%(asctime)s.%(msecs)03d [%(thread)x] %(levelname)s - %(module)s::%(funcName)s <> - %(message)s',
-            "datefmt":'%d %b %Y %H:%M:%S',
-            "use_color":"False"
-            },
-        "color":{
-            ():"gempython.utils.gemlogger.ColoredFormatter",
-            "format": '%(asctime)s.%(msecs)03d [%(thread)x] %(levelname)s - %(module)s::%(funcName)s <> - %(message)s',
-            "datefmt":'%d %b %Y %H:%M:%S',
-            "use_color":"True"
-            },
-        }
-    }
+#     "formatters":{
+#         "nocolor":{
+#             ():"gempython.utils.gemlogger.ColoredFormatter",
+#             "format": '%(asctime)s.%(msecs)03d [%(thread)x] %(levelname)s - %(module)s::%(funcName)s <> - %(message)s',
+#             "datefmt":'%d %b %Y %H:%M:%S',
+#             "use_color":"False"
+#             },
+#         "color":{
+#             ():"gempython.utils.gemlogger.ColoredFormatter",
+#             "format": '%(asctime)s.%(msecs)03d [%(thread)x] %(levelname)s - %(module)s::%(funcName)s <> - %(message)s',
+#             "datefmt":'%d %b %Y %H:%M:%S',
+#             "use_color":"True"
+#             },
+#         }
+#     }
  
 def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN,
                  logfile=None,logfilelevel=logging.DEBUG):
@@ -174,7 +174,8 @@ def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN,
     # stream_handler.setFormatter(color_formatter)
 
     # logging.config.dictConfig(dictLogConfig)
-    logging.config.fileConfig("%s/gempython/utils/gemlogging_config.cfg"%(os.getenv("GEM_PYTHON_PATH")))
+    logcfg = "%s/gempython/utils/gemlogging_config.cfg"%(os.getenv("GEM_PYTHON_PATH"))
+    logging.config.fileConfig(logcfg)
 
     logger = logging.getLogger(logclassname)
 

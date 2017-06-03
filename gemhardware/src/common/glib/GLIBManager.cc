@@ -599,39 +599,34 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("RUN_TYPE",          glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("RUN_PARAMS",        glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
 
-  /* not yet implemented
-  // request counters
-  is_glib->createUInt64("OptoHybrid_0", 0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
-  is_glib->createUInt64("OptoHybrid_1", 0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
-  is_glib->createUInt64("TRK_0",        0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
-  is_glib->createUInt64("TRK_1",        0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
-  is_glib->createUInt64("Counters",     0, NULL, GEMUpdateType::I2CSTAT, "docstring", "i2c/hex");
-
-  // link status registers
-  is_glib->createUInt32("GTX0_TRG_ERR",      0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
-  is_glib->createUInt32("GTX0_TRK_ERR",      0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
-  is_glib->createUInt32("GTX0_DATA_Packets", 0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
-  is_glib->createUInt32("GTX1_TRG_ERR",      0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
-  is_glib->createUInt32("GTX1_TRK_ERR",      0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
-  is_glib->createUInt32("GTX1_DATA_Packets", 0, NULL, GEMUpdateType::PROCESS, "docstring", "raw/rate");
-  */
   // TTC registers
   // is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);
 
   // TRIGGER registers
-  for (int oh = 0; oh < 4; ++oh) {
+  for (int oh = 0; oh < glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" << oh;
     is_glib->createUInt32(ohname.str()+"_STATUS",               glib->getDAQLinkStatus(oh),      NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(oh, 0), NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_EVN",                  glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_EOE_TIMEOUT",          glib->getDAQLinkDAVTimer(oh),    NULL, GEMUpdateType::HW32);
-    is_glib->createUInt32(ohname.str()+"_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),    NULL, GEMUpdateType::HW32);
-    is_glib->createUInt32(ohname.str()+"_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),    NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_MAX_EOE_TIMER",        glib->getDAQLinkDAVTimer(0),     NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_LAST_EOE_TIMER",       glib->getDAQLinkDAVTimer(1),     NULL, GEMUpdateType::HW32);
+
+    is_glib->createUInt32(ohname.str()+"_TRIGGER_CNT",          glib->getDAQLinkDAVTimer(0),     NULL, GEMUpdateType::HW32);
+    is_glib->createUInt32(ohname.str()+"_TRIGGER_RATE",         glib->getDAQLinkDAVTimer(0),     NULL, GEMUpdateType::HW32);
+
     for (int cluster = 0; cluster < 8; ++cluster) {
       std::stringstream cluname;
-      cluname << "CLUSTER_" << cluster;
+      cluname << "CLUSTER_SIZE_" << cluster;
+      is_glib->createUInt32(ohname.str()+"_"+cluname.str()+"_RATE",
+                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+      is_glib->createUInt32(ohname.str()+"_"+cluname.str()+"_CNT",
+                            glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
+      cluname.str("");
+      cluname.clear();
+      cluname << "DEBUG_LAST_CLUSTER_" << cluster;
       is_glib->createUInt32(ohname.str()+"_"+cluname.str(),
                             glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
     }

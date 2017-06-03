@@ -16,7 +16,9 @@ GEMUTILS_VER_PATCH=1
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 
 Sources =version.cc
-Sources+=Lock.cc gemXMLparser.cc GEMRegisterUtils.cc
+Sources+=Lock.cc
+# Sources+=gemXMLparser.cc
+Sources+=GEMRegisterUtils.cc
 Sources+=soap/GEMSOAPToolBox.cc
 Sources+=db/GEMDatabaseUtils.cc
 
