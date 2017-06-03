@@ -467,7 +467,7 @@ def setReferenceClock(device,gtx,source,debug=False):
 
     (Currently disabled for stability reasons)
     """
-    # writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
+    writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
 
 def getReferenceClock(device,gtx,debug=False):

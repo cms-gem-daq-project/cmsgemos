@@ -89,7 +89,7 @@ class ColoredFormatter(logging.Formatter):
 #             "class":"logging.StreamHandler",
 #             "formatter":"color",
 #             }
-#         },        
+#         },
 #     "loggers":{
 #         "root":{
 #             "handlers":["console","file"],
@@ -128,7 +128,7 @@ class ColoredFormatter(logging.Formatter):
 #             "level":"INFO",
 #             },
 #         },
-    
+
 #     "formatters":{
 #         "nocolor":{
 #             ():"gempython.utils.gemlogger.ColoredFormatter",
@@ -144,7 +144,7 @@ class ColoredFormatter(logging.Formatter):
 #             },
 #         }
 #     }
- 
+
 def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN,
                  logfile=None,logfilelevel=logging.DEBUG):
     """
