@@ -94,7 +94,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "bit");
 
   addMonitorableSet("Wishbone Counters", "HWMonitoring");
-  std::array<std::string, 4> wbMasters = {{"GTX","GBT","ExtI2C","Scan","DAC"}};
+  std::array<std::string, 5> wbMasters = {{"GTX","GBT","ExtI2C","Scan","DAC"}};
   for (auto master = wbMasters.begin(); master != wbMasters.end(); ++master) {
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Master:"+(*master)+"Strobe",   "COUNTERS.WB.MASTER.Strobe."+(*master)),

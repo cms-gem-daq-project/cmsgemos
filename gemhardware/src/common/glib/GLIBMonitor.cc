@@ -150,7 +150,7 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("Trigger", "HWMonitoring");
-  for (int oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
+  for (uint8_t oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" << oh;
     addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",

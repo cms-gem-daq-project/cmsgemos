@@ -812,5 +812,3 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
     }
   }
 }
-
-
