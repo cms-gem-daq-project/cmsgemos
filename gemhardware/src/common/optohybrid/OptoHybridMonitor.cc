@@ -53,13 +53,13 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  std::make_pair("Ref_clk",     "CONTROL.CLOCK.REF_CLK"),
                  GEMUpdateType::HW32, "bit");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBit_Mask",   "CONTROL.VFAT.SBIT_MASK"),
+                 std::make_pair("HDMI SBit_Mask",   "CONTROL.VFAT.SBIT_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitsOut",    "CONTROL.HDMI_OUTPUT.SBITS"),
+                 std::make_pair("HDMI SBitsOut",    "CONTROL.HDMI_OUTPUT.SBITS"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitOutMode","CONTROL.HDMI_OUTPUT.SBIT_MODE"),
+                 std::make_pair("HDMI SBitMode","CONTROL.HDMI_OUTPUT.SBIT_MODE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("TrgThrottle", "CONTROL.THROTTLE"),
@@ -679,6 +679,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
+  // for (auto const& scan : scans) {
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
     *out << "<div class=\"xdaq-tab\" title=\""  << scan->first << "\" >" << std::endl;
 
@@ -706,9 +707,9 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
         *out << "<tr>"    << std::endl;
 
         std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
-
+        std::string monname = monitem->first;
         *out << "<td>"    << std::endl
-             << (monitem->first).erase(0,scan->first.length())
+             << monname.erase(0,scan->first.length())
              << "</td>"   << std::endl;
 
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to " << formatted);

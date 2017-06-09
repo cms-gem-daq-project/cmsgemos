@@ -44,18 +44,21 @@ namespace gem {
            */
           typedef struct OptoHybridWBMasterCounters {
             std::pair<uint32_t,uint32_t> GTX   ;
+            std::pair<uint32_t,uint32_t> GBT   ;
             std::pair<uint32_t,uint32_t> ExtI2C;
             std::pair<uint32_t,uint32_t> Scan  ;
             std::pair<uint32_t,uint32_t> DAC   ;
 
           OptoHybridWBMasterCounters() :
             GTX(std::make_pair(0,0)),
+              GBT(std::make_pair(0,0)),
               ExtI2C(std::make_pair(0,0)),
               Scan(std::make_pair(0,0)),
               DAC(std::make_pair(0,0)) {};
 
             void reset() {
               GTX=std::make_pair(0,0);
+              GBT=std::make_pair(0,0);
               ExtI2C=std::make_pair(0,0);
               Scan=std::make_pair(0,0);
               DAC=std::make_pair(0,0);
@@ -131,8 +134,10 @@ namespace gem {
           /**
            * @struct OptoHybridT1Counters
            * @brief This struct stores retrieved counters related to the OptoHybrid T1 signals
-           * @var OptoHybridT1Counters::AMC13
-           * AMC13 contains the counters for T1 signals received from the GLIB TTC decder
+           * @var OptoHybridT1Counters::GTX_TTC
+           * GTX_TTC contains the counters for T1 signals received from the AMC TTC decder, sent along the 8b10b GTX link
+           * @var OptoHybridT1Counters::GBT_TTC
+           * GBT_TTC contains the counters for T1 signals received from the AMC TTC decder, sent along the GBT link
            * @var OptoHybridT1Counters::Firmware
            * Firmware contains the counters for T1 signals generated in the firmware module
            * @var OptoHybridT1Counters::External
@@ -143,16 +148,18 @@ namespace gem {
            * Sent contains the counters for T1 signals sent by the OptoHybrid to the GEB
            */
           typedef struct OptoHybridT1Counters {
-            std::vector<uint32_t> AMC13   ;
+            std::vector<uint32_t> GTX_TTC ;
+            std::vector<uint32_t> GBT_TTC ;
             std::vector<uint32_t> Firmware;
             std::vector<uint32_t> External;
             std::vector<uint32_t> Loopback;
             std::vector<uint32_t> Sent    ;
 
           OptoHybridT1Counters() :
-            AMC13(4, 0),Firmware(4, 0),External(4, 0),Loopback(4, 0),Sent(4, 0) {};
+            GTX_TTC(4, 0),GBT_TTC(4, 0),Firmware(4, 0),External(4, 0),Loopback(4, 0),Sent(4, 0) {};
             void reset() {
-              std::fill(AMC13.begin(),    AMC13.end(),    0);
+              std::fill(GTX_TTC.begin(),  GTX_TTC.end(),  0);
+              std::fill(GBT_TTC.begin(),  GBT_TTC.end(),  0);
               std::fill(Firmware.begin(), Firmware.end(), 0);
               std::fill(External.begin(), External.end(), 0);
               std::fill(Loopback.begin(), Loopback.end(), 0);
@@ -232,7 +239,7 @@ namespace gem {
 
           /**
            * Read the firmware register
-           * @returns a string corresponding to the build version
+           * @returns a string corresponding to the firmware maj.min.ver.patch
            */
           std::string getFirmwareVersionString() {
             std::stringstream retval;
@@ -251,18 +258,21 @@ namespace gem {
            * @returns a hex number corresponding to the build date
            */
           uint32_t getFirmwareDate() {
-            uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW");
-            TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
+            uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW.DATE");
+            TRACE("OH has firmware date 0x" << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 
           /**
            * Read the firmware register
-           * @returns a string corresponding to the build date
+           * @returns a string corresponding to the build date in the format dd/mm/yyyy
            */
           std::string getFirmwareDateString() {
             std::stringstream retval;
-            retval << "0x" << std::hex << getFirmwareDate() << std::dec;
+            uint32_t rawDate = getFirmwareDate();
+            retval << std::hex << std::setw(2) << std::setfill('0') << ((rawDate)&0xff)       << std::dec << "/"
+                   << std::hex << std::setw(2) << std::setfill('0') << ((rawDate>>8)&0xff)    << std::dec << "/"
+                   << std::hex << std::setw(4) << std::setfill('0') << ((rawDate>>16)&0xffff) << std::dec;
             return retval.str();
           };
 
@@ -270,23 +280,23 @@ namespace gem {
 
           /////Inherited from GEMHwDevice
           /**
-           * @brief performs a general reset of the GLIB
+           * @brief performs a general reset of the AMC
            */
           virtual void generalReset();
 
           /**
-           * @brief performs a reset of the GLIB counters
+           * @brief performs a reset of the AMC counters
            */
           virtual void counterReset();
 
           /**
-           * @brief performs a reset of the GLIB link
+           * @brief performs a reset of the AMC link
            * @param link is the link to perform the reset on
            */
           virtual void linkReset(uint8_t const& link);
 
 
-          /////Specific to the OptoHybrid board
+          /////////  Specific to the OptoHybrid board  \\\\\\\\\\\*
 
           /**
            * @brief Get the GEMHwDevice corresponding to the specified VFAT
@@ -306,9 +316,11 @@ namespace gem {
           /**
            * Reset the link status registers
            * @param uint8_t resets control which bits to reset
-           * bit 1 - TRK_ErrCnt         0x1
-           * bit 2 - TRG_ErrCnt         0x2
-           * bit 3 - Data_Rec           0x4
+           * bit 1 - GBT_TRK_ErrCnt         0x01
+           * bit 2 - GBT_TRG_ErrCnt         0x02
+           * bit 3 - GBT_Data_Rec           0x04
+           * bit 4 - GTX_TRK_ErrCnt         0x08
+           * bit 5 - GTX_Data_Rec           0x10
            */
           void LinkReset(uint8_t const& resets);
 
@@ -325,35 +337,742 @@ namespace gem {
             */
           };
 
-          /**
-           * Read the trigger data
-           * @retval uint32_t returns 32 bits 6 bits for s-bits and 26 for bunch countrr
-           */
-          //uint32_t readTriggerData();
 
-          //Clocking
           /**
-           * Setup the OptoHybrid clock
-           * @param uint8_t source
-           * 0x0 on board oscillator
-           * 0x1 GTX recovered clock
-           * 0x2 external clock
+           * OptoHybrid CONTROL module
+           * Functions realted to the registers in the CONTROL block
+           * in the OptoHybrid firmware
+           **/
+
+          //// VFAT \\\\*
+          /**
+           * Returns the VFAT tracking data mask that the OptoHybrid uses to determine which data
+           * packets to send to the AMC
+           *
            */
-          void setReferenceClock(uint8_t const& source) {
-            writeReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK"  ,(uint32_t)source  );
+          uint32_t getVFATMask() {
+            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK")); };
+
+          /**
+           * Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
+           *  packets to send to the AMC
+           *  a 0 means the VFAT will NOT be masked, and it's data packets will go to the AMC
+           *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the AMC
+           */
+          void setVFATMask(uint32_t const mask) {
+            DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
+                  << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK"),mask&0x00ffffff); };
+
+          /**
+           * Returns VFATs to the 0 run mode
+           *
+           */
+          void resetVFATs() {
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.RESET"),0x1); };
+
+          /**
+           * Set the S-bit mask
+           * @param uint32_t mask s-bits coming from specific GEB slots
+           */
+          void setSBitMask(uint32_t const mask) {
+            writeReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK", mask&0x00ffffff); };
+
+          /**
+           * Read the S-bit mask
+           * @retval uint32_t which slots s-bits are processed
+           */
+          uint32_t getSBitMask() {
+            return readReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK"); };
+
+          /**
+           * Returns whether data with a bad CRC will be dropped at the OptoHybrid
+           * and not passed on to the AMC
+           */
+          uint32_t getDropBadCRCStatus() {
+            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.DROP_BAD_CRC")); };
+
+          /**
+           * Set whether the OptoHybrid will drop VFAT data packets received with a bad CRC
+           *  a 0 means the OptoHybrid will NOT drop bad packets
+           *  a 1 means the OptoHybrid WILL drop bad packets
+           */
+          void setDropBadCRCStatus(bool const drop) {
+            DEBUG("HwOptoHybrid::setVFATMask setting DROP_BAD_CRC to "
+                  << std::hex << drop << std::dec);
+            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.DROP_BAD_CRC"),drop); };
+
+          //// TRIGGER \\\\*
+          /**
+           * Set the Trigger source
+           * @param uint8_t mode
+           * 0 from AMC TTC decoder over GTX
+           * 1 from OptoHybrid firmware (T1 module)
+           * 2 from external source (LEMO)
+           * 3 Internal loopback of s-bits
+           * 4 from all
+           * 5 from AMC TTC decoder over GBT
+           */
+          void setTrigSource(uint8_t const& mode) {
+            switch (mode) {
+            case(0):
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
+              return;
+            case(1):
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
+              return;
+            case(2):
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
+              return;
+            case(3):
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
+              return;
+            case(4):
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
+              return;
+            case(5):
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
+              return;
+            default:
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",0x0);
+              return;
+            }
           };
 
           /**
-           * Setup the VFAT clock
-           * @returns uint32_t clock source
+           * Read the Trigger source
+           * @retval uint8_t
+           * 0 from AMC TTC decoder over GTX
+           * 1 from OptoHybrid firmware (T1 module)
+           * 2 from external source (LEMO)
+           * 3 Internal loopback of s-bits
+           * 4 from all
+           * 5 from AMC TTC decoder over GBT
+           */
+          uint8_t getTrigSource() {
+            return readReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE"); };
+
+          /**
+           * Set the s-bit signal to loopback as a trigger source
+           * @param uint8_t which s-bit to loopback
+           */
+          void setLoopbackSBitSource(uint8_t const& sbit) {
+            writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.LOOPBACK",sbit); };
+
+          /**
+           * Get the s-bit signal loopedback as a trigger source
+           * @returns uint8_t which s-bit is currently being loopedback
+           */
+          uint8_t getLoopbackSBitSource() {
+            return readReg(getDeviceBaseNode(),"CONTROL.TRIGGER.LOOPBACK"); };
+
+          /**
+           * Set the trigger throttle on the OptoHyrbid
+           * @param uint32_t how often to throttle the trigger
+           */
+          void setTriggerThrottle(uint32_t const& throttle) {
+            writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.THROTTLE",throttle); };
+
+          /**
+           * Get current trigger throttling parameter
+           * @returns uint32_t trigger throttling parameter
+           */
+          uint8_t getTriggerThrottle() {
+            return readReg(getDeviceBaseNode(),"CONTROL.TRIGGER.THROTTLE"); };
+
+          //// HDMI_OUTPUT \\\\*
+          /**
+           * Set the S-bit source
+           * @param uint32_t mask which s-bits to forward (maximum 6)
+           */
+          void setHDMISBitSource(uint32_t const mask) {
+            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS",mask); };
+
+          /**
+           * Set the S-bit source
+           * @param std::array<uint8_t, 6> which s-bits to forward (maximum 6)
+           */
+          void setHDMISBitSource(std::array<uint8_t, 6> const sources) {
+            uint32_t mask = 0x0;
+            for (int i = 0; i < 6; ++i)
+              mask |= (sources[i] << (5*i));
+            setHDMISBitSource(mask);
+          };
+
+          /**
+           * Read the S-bit source
+           * @retval uint32_t which VFAT chips are sending S-bits
+           */
+          uint32_t getHDMISBitSource() {
+            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS"); };
+
+          /* /\** */
+          /*  * Set the S-bit source */
+          /*  * @param uint32_t mask which s-bits to forward (maximum 6, depending on the mode) */
+          /*  * OBSOLETE: replaced by setHDMISBitSource */
+          /*  *\/ */
+          /* void setSBitSource(uint32_t const mask) { */
+          /*   writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS",mask); }; */
+
+          /* /\** */
+          /*  * Set the S-bit source */
+          /*  * @param std::array<uint8_t, 6> which s-bits to forward (maximum 6) */
+          /*  * OBSOLETE: replaced by setHDMISBitSource */
+          /*  *\/ */
+          /* void setSBitSource(std::array<uint8_t, 6> const sources) { */
+          /*   uint32_t mask = 0x0; */
+          /*   for (int i = 0; i < 6; ++i) */
+          /*     mask |= (sources[i] << (5*i)); */
+          /*   setSBitSource(mask); */
+          /* }; */
+
+          /* /\** */
+          /*  * Read the S-bit source */
+          /*  * @retval uint32_t which VFAT chips are sending S-bits */
+          /*  * OBSOLETE: replaced by getHDMISBitSource */
+          /*  *\/ */
+          /* uint32_t getSBitSource() { */
+          /*   return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS"); }; */
+
+          /**
+           * Set the S-bit mode
+           * @param uint32_t mode of sending s-bits out the HDMI connector
+           *        if mode is 0 - the SBITS parameter will correspond to a given VFAT [0-23]
+           *        if mode is 1 - the SBITS parameter will correspond to a given iEta sector [0-7]
+           *        if mode is 2 - the output sbits will correspond to the I2C sector
+           *        if mode is 3 - the output sbits will be constant 0's
+           */
+          void setHDMISBitMode(uint8_t const mode) {
+            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBIT_MODE", mode); };
+
+          /**
+           * Read the S-bit mode
+           * @retval uint32_t which mode the OptoHybrid is sending s-bits to the HDMI connector
+           */
+          uint32_t getHDMISBitMode() {
+            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBIT_MODE"); };
+
+          //// Zero Suppression \\\\*
+          /**
+           * Turn the zero-suppression on or off
+           * @param bool whether or not ZS is turned on in the OptoHybrid
+           */
+          void setZS(bool const& on) {
+            writeReg(getDeviceBaseNode(),"CONTROL.ZS", uint32_t(on)); };
+
+          /**
+           * Read the zero-suppression mode
+           * @retval bool whether or not the OptoHybrid is zero-suppressing the data
+           */
+          uint32_t getZSStatus() {
+            return readReg(getDeviceBaseNode(),"CONTROL.ZS"); };
+
+          //// Clocking \\\\*
+          /**
+           * Setup the OptoHybrid clock
+           * @param uint8_t source
+           * in V2B switch between GBT clock and HDMI clock
+           * 0x0 on board oscillator
+           * 0x1 GBT recovered clock
+           * ***in V2A only***
            * 0x0 on board oscillator
            * 0x1 GTX recovered clock
-           * 0x2 external clock
+           * 0x2 external clock from LEMO expansion module
+           */
+          void setReferenceClock(uint8_t const& source) {
+            writeReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK", (uint32_t)source);
+          };
+
+          /**
+           * Get is the current clock source
+           * @returns uint32_t clock source
+           * in V2B switch between GBT clock and HDMI clock
+           * 0x0 on board oscillator
+           * 0x1 GBT recovered clock
+           * ***in V2A only***
+           * 0x0 on board oscillator
+           * 0x1 GTX recovered clock
+           * 0x2 external clock from LEMO expansion module
            */
           uint32_t getReferenceClock() {
             return readReg(getDeviceBaseNode(),"CONTROL.CLOCK.REF_CLK");
           };
 
+          /**
+           * OptoHybrid STATUS module
+           * Functions realted to the registers in the STATUS block
+           * in the OptoHybrid firmware
+           **/
+          // FW
+
+
+          //// PLL Status \\\\*
+          /**
+           * @returns whether the QPLL is locked
+           */
+          bool isQPLLLocked() { return readReg(getDeviceBaseNode(),"STATUS.QPLL_LOCK"); };
+
+          /**
+           * @returns whether the QPLL read by the FPGA PLL is locked
+           */
+          bool isQPLLFPGAPLLLocked() { return readReg(getDeviceBaseNode(),"STATUS.QPLL_FPGA_PLL_LOCK"); };
+
+          /**
+           * @returns whether there is a critical error detected due to SEU
+           */
+          bool hasSEUError() { return readReg(getDeviceBaseNode(),"STATUS.SEU"); };
+
+
+          /** @defgroup t1generator Optohybrid T1 Command Generator
+           *  Functions related to the OptoHybrid T1 controller module
+           *  @{
+           */
+
+          /**
+           * @brief the T1 module is very different between V1/1.5 and V2
+           * One must select the mode
+           * One must select the signal
+           */
+          typedef struct T1Sequence {
+            uint64_t l1a_seq;
+            uint64_t cal_seq;
+            uint64_t rsy_seq;
+            uint64_t bc0_seq;
+          } T1Sequence;
+
+          /**
+           * @brief the T1 module is very different between V1/1.5 and V2
+           * @param uint8_t mode can be any of
+           *  - 0 Single command
+           *  - 1 CalPulse followed by L1A
+           *  - 2 Follow the sequence specified
+           * @param uint8_t type is the type of command to send for mode 0
+           *  - 0 L1A
+           *  - 1 CalPulse
+           *  - 2 Resync
+           *  - 3 BC0
+           * @param T1Sequence sequence is a sequence of T1 signals to generate
+           * @param bool reset says whether to reset the module or not
+           */
+          void configureT1Generator(uint8_t const& mode, uint8_t const& type,
+                                    T1Sequence sequence, bool reset);
+
+          /**
+           * @brief Start the T1 generator (must be configured first or have a configuration already loaded)
+           * @param uint32_t ntrigs number of signals to send before stopping (0 will send continuously)
+           * @param uint32_t rate rate at which to repeat the sending
+           * @param uint32_t delay delay between CalPulse and L1A (only for T1 mode 1)
+           */
+          void startT1Generator(uint32_t const& ntrigs, uint32_t const& rate, uint32_t const& delay);
+
+          /**
+           * @brief Stop the T1 generator
+           * @param bool reset tells whether to reset the state of the module
+           */
+          void stopT1Generator(bool reset);
+
+          /**
+           * @brief Reset the T1 generator firmware module
+           */
+          void resetT1Generator() { writeReg(getDeviceBaseNode(), "T1Controller.RESET", 0x1); };
+
+          /**
+           * @brief Status of the T1 generator
+           * @returns uint8_t the status of the T1 generator, telling which mode is running
+           * (0 is nothing running)
+           */
+          uint8_t getT1GeneratorStatus() {
+            return readReg(getDeviceBaseNode(),"T1Controller.MONITOR");
+          };
+
+          /**
+           * Send an internal L1A
+           * @param uint32_t ntrigs, how many L1As to send
+           * @param uint32_t rate, rate at which signals will be generated
+           */
+          void sendL1A(uint32_t const& ntrigs, uint32_t const& rate=1);
+
+          /**
+           * Send an internal CalPulse
+           * @param uint32_t npulse, how many CalPulses to send
+           * @param uint32_t rate, rate at which signals will be generated
+           */
+          void sendCalPulse(uint32_t const& npulse, uint32_t const& rate=1);
+
+          /**
+           * Send a CalPulse followed by an L1A
+           * @param uint32_t npulse, how many pairs to send
+           * @param uint32_t delay, how long between L1A and CalPulse
+           * @param uint32_t rate, rate at which signals will be generated
+           */
+          void sendL1ACalPulse(uint32_t const& npulse, uint32_t const& delay, uint32_t const& rate=1);
+
+          /**
+           * Send an internal Resync
+           * @param uint32_t nresync, total number of resync signals to send
+           * @param uint32_t rate, rate at which signals will be generated
+           */
+          void sendResync(uint32_t const& nresync=1, uint32_t const& rate=1);
+
+          /**
+           * Send an internal BC0
+           * @param uint32_t nbc0, total number of BC0 signals to send
+           * @param uint32_t rate, rate at which signals will be generated
+           */
+          void sendBC0(uint32_t const& nbc0=1, uint32_t const& rate=1);
+          /** @} */ // end of t1generator
+
+
+          /** @defgroup adcinterface Optohybrid ADC Interface
+           *  Functions related to the OptoHybrid ADC interface
+           *  @{
+           */
+
+          /**
+           * Read the FPGA temperature from the ADC
+           * @returns uint32_t raw ADC temperature value from FPGA
+           */
+          uint32_t getFPGATemp() {
+            return readReg(getDeviceBaseNode(),"ADC.TEMP"); };
+
+          /**
+           * Read the maximum FPGA temperature from the ADC
+           * @returns uint32_t raw ADC maximum temperature value from FPGA
+           */
+          uint32_t getFPGAMaxTemp() {
+            return readReg(getDeviceBaseNode(),"ADC.TEMP.MAX"); };
+
+          /**
+           * Read the minimum FPGA temperature from the ADC
+           * @returns uint32_t raw ADC minimum temperature value from FPGA
+           */
+          uint32_t getFPGAMinTemp() {
+            return readReg(getDeviceBaseNode(),"ADC.TEMP.MIN"); };
+
+          /**
+           * Read the FPGA Vcc int from the ADC
+           * @returns uint32_t raw ADC internal Vcc value from FPGA
+           */
+          uint32_t getFPGAVccInt() {
+            return readReg(getDeviceBaseNode(),"ADC.VCCINT"); };
+
+          /**
+           * Read the maximum FPGA Vcc int from the ADC
+           * @returns uint32_t raw ADC maximum internal Vcc value from FPGA
+           */
+          uint32_t getFPGAMaxVccInt() {
+            return readReg(getDeviceBaseNode(),"ADC.VCCINT.MAX"); };
+
+          /**
+           * Read the minimum FPGA Vcc int from the ADC
+           * @returns uint32_t raw ADC minimum internal Vcc value from FPGA
+           */
+          uint32_t getFPGAMinVccInt() {
+            return readReg(getDeviceBaseNode(),"ADC.VCCINT.MIN"); };
+
+          /**
+           * Read the FPGA Vcc aux from the ADC
+           * @returns uint32_t raw ADC auxiliary Vcc value from FPGA
+           */
+          uint32_t getFPGAVccAux() {
+            return readReg(getDeviceBaseNode(),"ADC.VCCAUX"); };
+
+          /**
+           * Read the maximum FPGA Vcc aux from the ADC
+           * @returns uint32_t raw ADC maximum auxiliary Vcc value from FPGA
+           */
+          uint32_t getFPGAMaxVccAux() {
+            return readReg(getDeviceBaseNode(),"ADC.VCCAUX.MAX"); };
+
+          /**
+           * Read the minimum FPGA Vcc aux from the ADC
+           * @returns uint32_t raw ADC minimum auxiliary Vcc value from FPGA
+           */
+          uint32_t getFPGAMinVccAux() {
+            return readReg(getDeviceBaseNode(),"ADC.VCCAUX.MIN"); };
+
+          /**
+           * Read the VP/VN from the ADC
+           * @returns uint32_t raw ADC VP/VN value
+           */
+          uint32_t getADCVPVN() {
+            return readReg(getDeviceBaseNode(),"ADC.VPVN"); };
+
+          /**
+           * Read the VAUX input specified from the ADC
+           * @param uint8_t specify the VAUX input to read
+           * @returns uint32_t raw ADC VAUX value
+           */
+          uint32_t getADCVAUX(uint8_t const& vaux);
+
+          /**
+           * Read the DAC output voltage value from the VFAT on the specified column
+           * @param uint8_t specify the column
+           * @returns uint32_t raw VFAT DACo-V value
+           */
+          uint32_t getVFATDACOutV(uint8_t const& column);
+
+          /**
+           * Read the DAC output current value from the VFAT on the specified column
+           * @param uint8_t specify the column
+           * @returns uint32_t raw VFAT DACo-I value
+           */
+          uint32_t getVFATDACOutI(uint8_t const& column);
+          /** @} */ // end of adcinterface
+
+
+          /** @defgroup scanmodule Scan Modules
+           *  Functions related to the OptoHybrid firmware scan modules
+           *  @{
+           */
+          /**
+           * @brief This function controls the firmware module that runs any of the scans
+           * @param uint8_t mode can be any of
+           *  - 0 Threshold scan per VFAT with trigger data
+           *  - 1 Threshold scan per channel using tracking data
+           *  - 2 Latency scan per VFAT
+           *  - 3 S-curve scan per channel
+           *  - 4 Threshold scan per VFAT with tracking data
+           * @param uint8_t min is the minimum value to start the scan at (depending on the mode selected)
+           *  - 0 VT1
+           *  - 1 VT1
+           *  - 2 Latency
+           *  - 3 VCal
+           *  - 4 VT1
+           * @param uint8_t max is the maximum value to start the scan at (depending on the mode selected)
+           *  - 0 VT1
+           *  - 1 VT1
+           *  - 2 Latency
+           *  - 3 VCal
+           *  - 4 VT1
+           * @param uint8_t step is the size of the step between successive points
+           * @param uint8_t chip is the VFAT to run the scan on (if useUltra is true, this will be the mask)
+           * @param uint8_t channel is the channel to run the scan on (for modes 1 and 3 only)
+           * @param uint8_t min is the minimum value of the parameter to scan from
+           * @param uint8_t max is the maximum value of the paramter to scan to (must be greater than min)
+           * @param uint8_t step is the step size between successive scan points
+           * @param uint32_t nevts number of events to process before moving to the next scan point
+           * @param bool useUltra says whether to use the 24 VFATs in parallel mode (default is true)
+           * @param bool reset says whether to reset the module or not (default is false)
+           */
+          void configureScanModule(uint8_t const& mode, uint8_t const& chip, uint8_t const& channel,
+                                   uint8_t const& min,  uint8_t const& max,
+                                   uint8_t const& step, uint32_t const& nevts,
+                                   bool useUltra=true, bool reset=false);
+
+          /**
+           * @brief Start the Scan controller (must be configured first or have a configuration already loaded)
+           * @param uint32_t evts number of events to process before moving to the next scan point
+           * @param bool useUltra says whether to use the 24 VFATs in parallel mode (default is true)
+           */
+          void startScanModule(uint32_t const& nevts, bool useUltra=true);
+
+          /**
+           * @brief Stop the Scan module
+           * @param bool useUltra says whether to use the 24 VFATs in parallel mode (default is true)
+           * @param bool reset tells whether to reset the state of the module
+           */
+          void stopScanModule(bool useUltra=true, bool reset=false);
+
+          /**
+           * @brief Status of the Scan module
+           * @returns uint8_t the status of the Scan module, telling which mode is running
+           * (0 is nothing running)
+           */
+          uint8_t getScanStatus(bool useUltra=true);
+
+          /**
+           * @brief Get the results of the Scan controller
+           * @returns std::vector<uint32_t> the data from the scan
+           *          data format is 0xYYZZZZZZ where
+           *          YY is the scan parameter value
+           *          ZZZZZZ is the number of events seen at that point
+           */
+          std::vector<uint32_t> getScanResults(uint32_t const& npoints);
+
+          /**
+           * @brief Get the results of the ULTRA Scan controller
+           * @returns std::vector<std::vector<uint32_t> > the data from the scan
+           *          one set of results for each VFAT
+           *          data format is 0xYYZZZZZZ where
+           *          YY is the scan parameter value
+           *          ZZZZZZ is the number of events seen at that point
+           */
+          std::vector<std::vector<uint32_t> > getUltraScanResults(uint32_t const& npoints);
+          /** @} */ // end of scanmodule
+
+
+          /**
+           * @defgroup ohcounters OptoHybrid Counters
+           * Functions related to the various counters on the OptoHybrid
+           */
+
+          /**
+           * @ingroup ohcounters
+           * Get the recorded number of signals sent/received by the OptoHybrid wishbone master
+           * @returns OptoHybridWBMasterCounters struct, with updated values
+           */
+          OptoHybridWBMasterCounters getWBMasterCounters() { return m_wbMasterCounters; };
+          void updateWBMasterCounters();
+          void resetWBMasterCounters();
+
+          /**
+           * @ingroup ohcounters
+           * Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
+           * @returns OptoHybridWBSlaveCounters struct, with updated values
+           */
+          OptoHybridWBSlaveCounters getWBSlaveCounters() { return m_wbSlaveCounters; };
+          void updateWBSlaveCounters();
+          void resetWBSlaveCounters();
+
+          /**
+           * @ingroup ohcounters
+           * Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
+           * @returns OptoHybridT1Counters struct, with updated values
+           */
+          OptoHybridT1Counters getT1Counters() { return m_t1Counters; };
+          void updateT1Counters();
+          void resetT1Counters();
+
+          /**
+           * @ingroup ohcounters
+           * Get the recorded number of valid/incorrect CRCs performed by the OptoHybrid
+           *  on the data packets received from the VFATs
+           * @returns OptoHybridT1Counters struct, with updated values
+           */
+          OptoHybridVFATCRCCounters getVFATCRCCounters() { return m_vfatCRCCounters; };
+          void updateVFATCRCCounters();
+          void resetVFATCRCCounters();
+
+          /**
+           * @ingroup ohcounters
+           * Get the number of valid/incorrect CRCs performed by the OptoHybrid
+           * on the received data packets from a given VFAT
+           * @param slot specifies which VFAT counters to read
+           * 0-23
+           */
+          std::pair<uint32_t,uint32_t> getVFATCRCCount(uint8_t const& chip);
+
+          /**
+           * @ingroup ohcounters
+           * Reset the number of valid/incorrect CRCs performed by the OptoHybrid
+           * on the received data packets from a given VFAT
+           * @param slot specifies which VFAT counters to read
+           * 0-23
+           */
+          void resetVFATCRCCount(uint8_t const& chip);
+
+          /**
+           * @ingroup ohcounters
+           * Reset the number of valid/incorrect CRCs performed by the OptoHybrid
+           * on the received data packets from all VFATs
+           */
+          void resetVFATCRCCount();
+
+          /** @defgroup t1counters T1 Counters
+           *  Functions related to the various T1 counters on the OptoHybrid
+           *  @ingroup ohcounters
+           * @param signal specifies which T1 signal counter to read
+           *  - 0 L1A
+           *  - 1 CalPulse
+           *  - 2 Resync
+           *  - 3 BC0
+           * @param mode specifies which T1 counter to read
+           *  - 0 from AMC TTC decoder over GTX
+           *  - 1 from the T1 generator in the firmware
+           *  - 2 from an external source
+           *  - 3 from looping back the sbits
+           *  - 4 sent along the GEB
+           *  - 5 from AMC TTC decoder over GBT
+           *  - 6 all (reset only)
+           * @returns uint32_t the requested counter value
+           *  @{
+           */
+          /**
+           * Get the recorded number of T1 signals
+           */
+          uint32_t getT1Count(uint8_t const& signal, uint8_t const& mode);
+
+          /**
+           * Get the recorded number of L1A signals
+           */
+          uint32_t getL1ACount(uint8_t const& mode) { return getT1Count(0x0, mode); };
+
+          /**
+           * Get the recorded number of CalPulse signals
+           */
+          uint32_t getCalPulseCount(uint8_t const& mode) { return getT1Count(0x1, mode); };
+
+          /**
+           * Get the recorded number of Resync signals
+           */
+          uint32_t getResyncCount(uint8_t const& mode=0x0) { return getT1Count(0x2, mode); };
+
+          /**
+           * Get the recorded number of BC0 signals
+           */
+          uint32_t getBC0Count(uint8_t const& mode=0x0) { return getT1Count(0x3, mode); };
+
+          /**
+           * Get the recorded number of BXCount signals
+           * OBSOLETE in V2 firmware
+           */
+          uint32_t getBXCountCount() { return 0x0; };
+
+          /**
+           * Reset the recorded number of T1 signals
+           */
+          void resetT1Count(uint8_t const& signal, uint8_t const& mode=0x5);
+
+          /**
+           * Reset recorded number of L1A signals
+           */
+          void resetL1ACount(uint8_t const& mode=0x5) {
+            resetT1Count(0x0,mode);
+          };
+
+          /**
+           * Reset recorded number of CalPulse signals
+           */
+          void resetCalPulseCount(uint8_t const& mode=0x5) {
+            return resetT1Count(0x1, mode); };
+
+          /**
+           * Reset recorded number of Resync signals
+           */
+          void resetResyncCount(uint8_t const& mode=0x5) {
+            return resetT1Count(0x2, mode); };
+
+          /**
+           * Reset recorded number of BC0 signals
+           */
+          void resetBC0Count(uint8_t const& mode=0x5) {
+            return resetT1Count(0x3, mode); };
+
+          /**
+           * Reset recorded number of BXCount signals
+           * OBSOLETE in V2 firmawre
+           */
+          void resetBXCount() { return; };
+
+          /** @} */ // end of t1counters
+
+          /**
+           * @ingroup ohcounters
+           * @returns uint32_t showing the number of times the QPLL unlocked and re-locked
+           */
+          uint32_t getQPLLUnlockCount() { return readReg(getDeviceBaseNode(),"COUNTERS.QPLL_LOCK"); };
+          void resetQPLLUnlockCount() { writeReg(getDeviceBaseNode(),"COUNTERS.QPLL_LOCK.Reset", 0x1); };
+
+          /**
+           * @ingroup ohcounters
+           * @returns uint32_t showing the number of times the QPLL FPGA PLL unlocked and re-locked
+           */
+          uint32_t getQPLLFPGAPLLUnlockCount() { return readReg(getDeviceBaseNode(),"COUNTERS.QPLL_FPGA_PLL_LOCK"); };
+          void resetQPLLFPGAPLLUnlockCount() { writeReg(getDeviceBaseNode(),"COUNTERS.QPLL_FPGA_PLL_LOCK.Reset", 0x1); };
+
+
+          //////// UNCATEGORIZED/OBSOLETE? \\\\\\\\*
           /**
            * Setup the VFAT clock
            * @param bool source true uses the external clock, false uses the onboard clock
@@ -451,656 +1170,7 @@ namespace gem {
           // */
           //bool getCDCEFallback();
 
-
-          /**
-           * Set the Trigger source
-           * @param uint8_t mode
-           * 0 from GLIB TTC decoder
-           * 1 from OptoHybrid firmware (T1 module)
-           * 2 from external source (LEMO)
-           * 3 Internal loopback of s-bits
-           * 4 from all
-           */
-          void setTrigSource(uint8_t const& mode) {
-            switch (mode) {
-            case(0):
-              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
-              return;
-            case(1):
-              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
-              return;
-            case(2):
-              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
-              return;
-            case(3):
-              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
-              return;
-            case(4):
-              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
-              return;
-            default:
-              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",0x0);
-              return;
-            }
-          };
-
-          /**
-           * Read the Trigger source
-           * @retval uint8_t
-           * 0 from GLIB TTC decoder
-           * 1 from OptoHybrid firmware (T1 module)
-           * 2 from external source (LEMO)
-           * 3 Internal loopback of s-bits
-           * 4 from all
-           */
-          uint8_t getTrigSource() {
-            return readReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE"); };
-
-          /**
-           * Set the S-bit source
-           * @param uint32_t mask which s-bits to forward (maximum 6)
-           */
-          void setSBitSource(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS",mask); };
-
-          /**
-           * Set the S-bit source
-           * @param std::array<uint8_t, 6> which s-bits to forward (maximum 6)
-           */
-          void setSBitSource(std::array<uint8_t, 6> const sources) {
-            uint32_t mask = 0x0;
-            for (int i = 0; i < 6; ++i)
-              mask |= (sources[i] << (5*i));
-            setSBitSource(mask);
-          };
-
-          /**
-           * Read the S-bit source
-           * @retval uint32_t which VFAT chips are sending S-bits
-           */
-          uint32_t getSBitSource() {
-            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS"); };
-
-          /**
-           * Set the S-bit mode
-           * @param uint32_t mode of sending s-bits out the HDMI connector
-           */
-          void setSBitMode(uint8_t const mode) {
-            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBIT_MODE", mode); };
-
-          /**
-           * Read the S-bit mode
-           * @retval uint32_t which mode the OptoHybrid is sending s-bits to the HDMI connector
-           */
-          uint32_t getSBitMode() {
-            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBIT_MODE"); };
-
-          /**
-           * Set the S-bit source
-           * @param uint32_t mask which s-bits to forward (maximum 6)
-           */
-          void setHDMISBitSource(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS",mask); };
-
-          /**
-           * Set the S-bit source
-           * @param std::array<uint8_t, 6> which s-bits to forward (maximum 6)
-           */
-          void setHDMISBitSource(std::array<uint8_t, 6> const sources) {
-            uint32_t mask = 0x0;
-            for (int i = 0; i < 6; ++i)
-              mask |= (sources[i] << (5*i));
-            setHDMISBitSource(mask);
-          };
-
-          /**
-           * Read the S-bit source
-           * @retval uint32_t which VFAT chips are sending S-bits
-           */
-          uint32_t getHDMISBitSource() {
-            return readReg(getDeviceBaseNode(),"CONTROL.HDMI_OUTPUT.SBITS"); };
-
-          /**
-           * Set the S-bit mask
-           * @param uint32_t mask s-bits coming from specific GEB slots
-           */
-          void setSBitMask(uint32_t const mask) {
-            writeReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK", mask&0x00ffffff); };
-
-          /**
-           * Read the S-bit mask
-           * @retval uint32_t which slots s-bits are processed
-           */
-          uint32_t getSBitMask() {
-            return readReg(getDeviceBaseNode(),"CONTROL.VFAT.SBIT_MASK"); };
-
-
-          /**
-           * @brief the Scan module is very different between V1/1.5 and V2
-           * One must select the mode
-           * One must select the signal
-           typedef struct ScanSequence {
-           uint64_t l1a_seq;
-           uint64_t cal_seq;
-           uint64_t rsy_seq;
-           uint64_t bc0_seq;
-           } ScanSequence;
-          */
-
-          /**
-           * @brief This function controls the firmware module that runs any of the scans
-           * @param uint8_t mode can be any of
-           *  - 0 Threshold scan per VFAT
-           *  - 1 Threshold scan per channel
-           *  - 2 Latency scan per VFAT
-           *  - 3 S-curve scan per channel
-           * @param uint8_t min is the minimum value to start the scan at (depending on the mode selected)
-           *  - 0 VT1
-           *  - 1 VT1
-           *  - 2 Latency
-           *  - 3 VCal
-           * @param uint8_t max is the maximum value to start the scan at (depending on the mode selected)
-           *  - 0 VT1
-           *  - 1 VT1
-           *  - 2 Latency
-           *  - 3 VCal
-           * @param uint8_t step is the size of the step between successive points
-           * @param uint8_t chip is the VFAT to run the scan on
-           * @param uint8_t channel is the channel to run the scan on (for modes 1 and 3 only)
-           * @param bool reset says whether to reset the module or not
-           */
-          void configureScanGenerator(uint8_t const& mode, uint8_t const& min, uint8_t const& max,
-                                      uint8_t const& step,
-                                      uint8_t const& chip, uint8_t const& channel,
-                                      bool reset) {
-            if (reset)
-              writeReg(getDeviceBaseNode(),"ScanController.THLAT.RESET",0x1);
-
-            writeReg(getDeviceBaseNode(),"ScanController.THLAT.MODE", mode);
-            writeReg(getDeviceBaseNode(),"ScanController.THLAT.MIN",  min);
-            writeReg(getDeviceBaseNode(),"ScanController.THLAT.MAX",  max);
-            writeReg(getDeviceBaseNode(),"ScanController.THLAT.STEP", step);
-
-            // need also to enable this chip and disable all others, use a broadcast write?
-            writeReg(getDeviceBaseNode(),"ScanController.THLAT.CHIP", chip);
-            if (mode == 0x1 || mode == 0x3) {
-              // protect for non-existent channels?
-              // need also to enable this channel and disable all others
-              writeReg(getDeviceBaseNode(),"ScanController.THLAT.CHAN",channel);
-              if (mode == 0x3) {
-                // need also to enable cal pulse to this channel and disable all others
-              }
-            }
-          };
-
-          /**
-           * @brief Start the Scan controller (must be configured first or have a configuration already loaded)
-           * @param uint32_t ntrigs number of signals to send before stopping (0 will send continuously)
-           */
-          void startScanGenerator(uint32_t const& ntrigs) {
-
-            writeReg(getDeviceBaseNode(),"ScanController.THLAT.NTRIGS"  ,ntrigs  );
-
-            //don't toggle off if the generator is currently running
-            if (!statusScanGenerator())
-              writeReg(getDeviceBaseNode(),"ScanController.THLAT.START",0x1);
-          };
-
-          /**
-           * @brief Stop the Scan generator
-           * @param bool reset tells whether to reset the state of the module
-           */
-          void stopScanGenerator(bool reset) {
-            //don't toggle on if the generator is currently not running
-            //if (statusScanGenerator())
-            //  writeReg(getDeviceBaseNode(),"ScanController.THLAT.TOGGLE",0x1);
-            if (reset)
-              writeReg(getDeviceBaseNode(),"ScanController.THLAT.RESET",0x1);
-          };
-
-          /**
-           * @brief Status of the Scan generator
-           * @returns uint8_t the status of the Scan generator, telling which mode is running
-           * (0 is nothing running)
-           */
-          uint8_t statusScanGenerator() {
-            return readReg(getDeviceBaseNode(),"ScanController.THLAT.MONITOR");
-          };
-
-          /**
-           * @brief Get the results of the Scan controller
-           * @returns uint8_t the status of the Scan controller, telling which mode is running
-           * (0 is nothing running)
-           */
-          uint32_t getScanResults() {
-            return readReg(getDeviceBaseNode(),"ScanController.THLAT.RESULTS");
-          };
-
-          /**
-           * @brief the T1 module is very different between V1/1.5 and V2
-           * One must select the mode
-           * One must select the signal
-           */
-          typedef struct T1Sequence {
-            uint64_t l1a_seq;
-            uint64_t cal_seq;
-            uint64_t rsy_seq;
-            uint64_t bc0_seq;
-          } T1Sequence;
-
-          /**
-           * @brief the T1 module is very different between V1/1.5 and V2
-           * @param uint8_t mode can be any of
-           *  - 0 Single command
-           *  - 1 CalPulse followed by L1A
-           *  - 2 Follow the sequence specified
-           * @param uint8_t type is the type of command to send for mode 0
-           *  - 0 L1A
-           *  - 1 CalPulse
-           *  - 2 Resync
-           *  - 3 BC0
-           * @param T1Sequence sequence is a sequence of T1 signals to generate
-           * @param bool reset says whether to reset the module or not
-           */
-          void configureT1Generator(uint8_t const& mode, uint8_t const& type,
-                                    T1Sequence sequence,
-                                    bool reset) {
-            if (reset)
-              writeReg(getDeviceBaseNode(),"T1Controller.RESET",0x1);
-
-            writeReg(getDeviceBaseNode(),"T1Controller.MODE",mode);
-            if (mode == 0x0) {
-              writeReg(getDeviceBaseNode(),"T1Controller.TYPE",type);
-            } else if (mode == 0x2) {
-              writeReg(getDeviceBaseNode(),"T1Controller.Sequence.L1A.MSB",     sequence.l1a_seq>>32);
-              writeReg(getDeviceBaseNode(),"T1Controller.Sequence.L1A.LSB",     sequence.l1a_seq&0xffffffff);
-              writeReg(getDeviceBaseNode(),"T1Controller.Sequence.CalPulse.MSB",sequence.cal_seq>>32);
-              writeReg(getDeviceBaseNode(),"T1Controller.Sequence.CalPulse.LSB",sequence.cal_seq&0xffffffff);
-              writeReg(getDeviceBaseNode(),"T1Controller.Sequence.Resync.MSB",  sequence.rsy_seq>>32);
-              writeReg(getDeviceBaseNode(),"T1Controller.Sequence.Resync.LSB",  sequence.rsy_seq&0xffffffff);
-              writeReg(getDeviceBaseNode(),"T1Controller.Sequence.BCO.MSB",     sequence.bc0_seq>>32);
-              writeReg(getDeviceBaseNode(),"T1Controller.Sequence.BC0.LSB",     sequence.bc0_seq&0xffffffff);
-            }
-          };
-
-          /**
-           * @brief Start the T1 generator (must be configured first or have a configuration already loaded)
-           * @param uint32_t ntrigs number of signals to send before stopping (0 will send continuously)
-           * @param uint32_t rate rate at which to repeat the sending
-           * @param uint32_t delay delay between CalPulse and L1A (only for T1 mode 1)
-           */
-          void startT1Generator(uint32_t const& ntrigs, uint32_t const& rate, uint32_t const& delay) {
-            uint32_t interval = 1/(rate*0.000000025);
-
-            writeReg(getDeviceBaseNode(),"T1Controller.NUMBER"  ,ntrigs  );
-            writeReg(getDeviceBaseNode(),"T1Controller.INTERVAL",interval);
-            writeReg(getDeviceBaseNode(),"T1Controller.DELAY"   ,delay   );
-
-            //don't toggle off if the generator is currently running
-            if (!statusT1Generator())
-              writeReg(getDeviceBaseNode(),"T1Controller.TOGGLE",0x1);
-          };
-
-          /**
-           * @brief Stop the T1 generator
-           * @param bool reset tells whether to reset the state of the module
-           */
-          void stopT1Generator(bool reset) {
-            //don't toggle on if the generator is currently not running
-            if (statusT1Generator())
-              writeReg(getDeviceBaseNode(),"T1Controller.TOGGLE",0x1);
-            if (reset)
-              writeReg(getDeviceBaseNode(),"T1Controller.RESET",0x1);
-          };
-
-          /**
-           * @brief Status of the T1 generator
-           * @returns uint8_t the status of the T1 generator, telling which mode is running
-           * (0 is nothing running)
-           */
-          uint8_t statusT1Generator() {
-            return readReg(getDeviceBaseNode(),"T1Controller.MONITOR");
-          };
-
-          /**
-           * Send an internal L1A
-           * @param uint32_t ntrigs, how many L1As to send
-           * @param uint32_t rate, rate at which signals will be generated
-           */
-          void sendL1A(uint32_t const& ntrigs, uint32_t const& rate=1) {
-            T1Sequence sequence;
-            configureT1Generator(0x0, 0x0, sequence, true);
-            startT1Generator(ntrigs,rate, 0);
-          };
-
-          /**
-           * Send an internal CalPulse
-           * @param uint32_t npulse, how many CalPulses to send
-           * @param uint32_t rate, rate at which signals will be generated
-           */
-          void sendCalPulse(uint32_t const& npulse, uint32_t const& rate=1) {
-            T1Sequence sequence;
-            configureT1Generator(0x0, 0x1, sequence, true);
-            startT1Generator(npulse, rate, 0);
-          };
-
-          /**
-           * Send a CalPulse followed by an L1A
-           * @param uint32_t npulse, how many pairs to send
-           * @param uint32_t delay, how long between L1A and CalPulse
-           * @param uint32_t rate, rate at which signals will be generated
-           */
-          void sendL1ACal(uint32_t const& npulse, uint32_t const& delay, uint32_t const& rate=1) {
-            T1Sequence sequence;
-            configureT1Generator(0x1, 0x0, sequence, true);
-            startT1Generator(npulse,rate, delay);
-          };
-
-          /**
-           * Send an internal Resync
-           * @param uint32_t nresync, total number of resync signals to send
-           * @param uint32_t rate, rate at which signals will be generated
-           */
-          void sendResync(uint32_t const& nresync=1,uint32_t const& rate=1) {
-            writeReg(getDeviceBaseNode(), "CONTROL.TRIGGER.SOURCE",0x0);
-            writeReg(getDeviceBaseNode(), "CONTROL.CLOCK.REF_CLK",0x1);
-            T1Sequence sequence;
-            configureT1Generator(0x0, 0x2, sequence, true);
-            startT1Generator(nresync, rate, 0); };
-
-
-          /**
-           * Send an internal BC0
-           * @param uint32_t nbc0, total number of BC0 signals to send
-           * @param uint32_t rate, rate at which signals will be generated
-           */
-          void sendBC0(uint32_t const& nbc0=1, uint32_t const& rate=1) {
-            T1Sequence sequence;
-            configureT1Generator(0x0, 0x3, sequence, true);
-            startT1Generator(nbc0, rate, 0); };
-
-          ///Counters
-
-          /**
-           * Get the recorded number of signals sent/received by the OptoHybrid wishbone master
-           * @returns OptoHybridWBMasterCounters struct, with updated values
-           */
-          OptoHybridWBMasterCounters getWBMasterCounters() { return m_wbMasterCounters; };
-          void updateWBMasterCounters();
-          void resetWBMasterCounters();
-
-          /**
-           * Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
-           * @returns OptoHybridWBSlaveCounters struct, with updated values
-           */
-          OptoHybridWBSlaveCounters getWBSlaveCounters() { return m_wbSlaveCounters; };
-          void updateWBSlaveCounters();
-          void resetWBSlaveCounters();
-
-          /**
-           * Get the recorded number of signals sent/received by the OptoHybrid wishbone slave
-           * @returns OptoHybridT1Counters struct, with updated values
-           */
-          OptoHybridT1Counters getT1Counters() { return m_t1Counters; };
-          void updateT1Counters();
-          void resetT1Counters();
-
-          /**
-           * Get the recorded number of valid/incorrect CRCs performed by the OptoHybrid
-           *  on the data packets received from the VFATs
-           * @returns OptoHybridT1Counters struct, with updated values
-           */
-          OptoHybridVFATCRCCounters getVFATCRCCounters() { return m_vfatCRCCounters; };
-          void updateVFATCRCCounters();
-          void resetVFATCRCCounters();
-
-          /**
-           * Get the recorded number of T1 signals
-           * @param signal specifies which T1 signal counter to read
-           *  - 0 L1A
-           *  - 1 CalPulse
-           *  - 2 Resync
-           *  - 3 BC0
-           * @param mode specifies which T1 counter to read
-           *  - 0 from the TTC decoder on the GLIB
-           *  - 1 from the T1 generator in the firmware
-           *  - 2 from an external source
-           *  - 3 from looping back the sbits
-           *  - 4 sent along the GEB
-           */
-          uint32_t getT1Count(uint8_t const& signal, uint8_t const& mode) {
-            std::stringstream t1Signal;
-            if (signal == 0x0)
-              t1Signal << "L1A";
-            if (signal == 0x1)
-              t1Signal << "CalPulse";
-            if (signal == 0x2)
-              t1Signal << "Resync";
-            if (signal == 0x3)
-              t1Signal << "BC0";
-
-            switch(mode) {
-            case 0:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s",     (t1Signal.str()).c_str()));
-            case 1:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s",(t1Signal.str()).c_str()));
-            case 2:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s",(t1Signal.str()).c_str()));
-            case 3:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s",(t1Signal.str()).c_str()));
-            case 4:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
-            default:
-              return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
-            }
-          };
-
-          /**
-           * Get the recorded number of L1A signals
-           * @param mode specifies which L1A counter to read
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           */
-          uint32_t getL1ACount(uint8_t const& mode) {
-            return getT1Count(0x0, mode); };
-
-          /**
-           * Get the recorded number of CalPulse signals
-           * @param mode specifies which CalPulse counter to read
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           */
-          uint32_t getCalPulseCount(uint8_t const& mode) {
-            return getT1Count(0x1, mode); };
-
-          /**
-           * Get the recorded number of Resync signals
-           * @param mode specifies which L1A counter to read
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           */
-          uint32_t getResyncCount(uint8_t const& mode=0x0) {
-            return getT1Count(0x2, mode); };
-
-          /**
-           * Get the recorded number of BC0 signals
-           * @param mode specifies which L1A counter to read
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           */
-          uint32_t getBC0Count(uint8_t const& mode=0x0) {
-            return getT1Count(0x3, mode); };
-
-          /**
-           * Get the recorded number of BXCount signals
-           * OBSOLETE in V2 firmware
-           */
-          uint32_t getBXCountCount() {
-            return 0x0;
-            /*
-              std::stringstream regName;
-              regName << "OptoHybrid_LINKS.LINK" << (int)m_controlLink;
-              return readReg(getDeviceBaseNode(),regName.str()+".COUNTERS.BXCount");
-            */
-          };
-
-          ///Resets
-          /**
-           * Get the recorded number of T1 signals
-           * @param mode specifies which T1 counter to read
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           * 5 all
-           */
-          void resetT1Count(uint8_t const& signal, uint8_t const& mode=0x5) {
-            std::stringstream t1Signal;
-            if (signal == 0x0)
-              t1Signal << "L1A";
-            if (signal == 0x1)
-              t1Signal << "CalPulse";
-            if (signal == 0x2)
-              t1Signal << "Resync";
-            if (signal == 0x3)
-              t1Signal << "BC0";
-
-            std::stringstream regName;
-            regName << getDeviceBaseNode() << ".COUNTERS.T1";
-            std::vector<std::string> l1aCounterRegisters;
-
-            switch(mode) {
-            case 0:
-              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
-              break;
-            case 1:
-              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              break;
-            case 2:
-              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              break;
-            case 3:
-              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              break;
-            case 4:
-              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
-              break;
-            case 5:
-              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
-              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
-              break;
-            default:
-              l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
-              l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
-              l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
-              break;
-            }
-            writeValueToRegs(l1aCounterRegisters, 0x1);
-          };
-
-          /**
-           * Reset recorded number of L1A signals
-           * @param mode specifies which L1A counter to reset
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           * 5 all
-           */
-          void resetL1ACount(uint8_t const& mode=0x5) {
-            resetT1Count(0x0,mode);
-          };
-
-          /**
-           * Reset recorded number of CalPulse signals
-           * @param mode specifies which CalPulse counter to reset
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           * 5 all
-           */
-          void resetCalPulseCount(uint8_t const& mode=0x5) {
-            return resetT1Count(0x1, mode); };
-
-          /**
-           * Reset recorded number of Resync signals
-           * @param mode specifies which CalPulse counter to reset
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           * 5 all
-           */
-          void resetResyncCount(uint8_t const& mode=0x5) {
-            return resetT1Count(0x2, mode); };
-
-          /**
-           * Reset recorded number of BC0 signals
-           * @param mode specifies which CalPulse counter to reset
-           * 0 from the TTC decoder on the GLIB
-           * 1 from the T1 generator in the firmware
-           * 2 from an external source
-           * 3 from looping back the sbits
-           * 4 sent along the GEB
-           * 5 all
-           */
-          void resetBC0Count(uint8_t const& mode=0x5) {
-            return resetT1Count(0x3, mode); };
-
-          /**
-           * Reset recorded number of BXCount signals
-           * OBSOLETE in V2 firmawre
-           */
-          void resetBXCount() { return; };
-
-          //pertaining to VFATs
-          /**
-           * Returns VFATs to the 0 run mode
-           *
-           */
-          void resetVFATs() {
-            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.RESET"),0x1); };
-
-          /**
-           * Returns the VFAT tracking data mask that the OptoHybrid uses to determine which data
-           * packets to send to the GLIB
-           *
-           */
-          uint32_t getVFATMask() {
-            return readReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK")); };
-
-          /**
-           * Sets the VFAT tracking data mask that the OptoHybrid uses to determine which data
-           *  packets to send to the GLIB
-           *  a 0 means the VFAT will NOT be masked, and it's data packets will go to the GLIB
-           *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the GLIB
-           */
-          void setVFATMask(uint32_t const mask) {
-            DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
-                  << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
-            return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK"),mask&0x00ffffff); };
+          ////// pertaining to VFATs \\\\\\*
 
           /**
            * Sends a read request to all (un-masked) VFATs on the same register
@@ -1140,58 +1210,6 @@ namespace gem {
            * The mask has a 1 for VFATs whose tracking data will be ignored
            */
           uint32_t getConnectedVFATMask();
-
-          /**
-           * Get the number of valid/incorrect CRCs performed by the OptoHybrid
-           * on the received data packets from a given VFAT
-           * @param slot specifies which VFAT counters to read
-           * 0-23
-           */
-          std::pair<uint32_t,uint32_t> getVFATCRCCount(uint8_t const& chip) {
-            std::stringstream vfatCRC;
-            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC.";
-            std::vector<std::pair<std::string,uint32_t> > vfatCRCRegs;
-            uint32_t valid(0x0), incorrect(0x0);
-            vfatCRCRegs.push_back(std::make_pair(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip),
-                                                 valid));
-            vfatCRCRegs.push_back(std::make_pair(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip),
-                                                 incorrect));
-            readRegs(vfatCRCRegs);
-            return std::make_pair(valid,incorrect);
-          };
-
-
-          /**
-           * Reset the number of valid/incorrect CRCs performed by the OptoHybrid
-           * on the received data packets from a given VFAT
-           * @param slot specifies which VFAT counters to read
-           * 0-23
-           */
-          void resetVFATCRCCount(uint8_t const& chip) {
-            std::stringstream vfatCRC;
-            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC.";
-            std::vector<std::string> vfatCRCRegs;
-            vfatCRCRegs.push_back(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip));
-            vfatCRCRegs.push_back(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),(int)chip));
-            writeValueToRegs(vfatCRCRegs, 0x1);
-            return;
-          };
-
-          /**
-           * Reset the number of valid/incorrect CRCs performed by the OptoHybrid
-           * on the received data packets from all VFATs
-           */
-          void resetVFATCRCCount() {
-            std::stringstream vfatCRC;
-            vfatCRC << getDeviceBaseNode() << ".COUNTERS.CRC";
-            std::vector<std::string> vfatCRCRegs;
-            for (int vfat = 0; vfat < 24; ++vfat) {
-              vfatCRCRegs.push_back(toolbox::toString("%s.VALID.VFAT%d.Reset",vfatCRC.str().c_str(),vfat));
-              vfatCRCRegs.push_back(toolbox::toString("%s.INCORRECT.VFAT%d.Reset",vfatCRC.str().c_str(),vfat));
-            }
-            writeValueToRegs(vfatCRCRegs, 0x1);
-            return;
-          };
 
           /**
            * Sends a write request for all setup registers on each VFAT specified by the mask

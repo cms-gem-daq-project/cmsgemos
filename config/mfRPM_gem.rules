@@ -128,13 +128,13 @@ spec_update:
 	$(info "Executing GEM specific spec_update")
 	@mkdir -p $(PackagePath)/rpm
 	if [ -e $(PackagePath)/spec.template ]; then \
-		echo $(PackagePath) found spec.template \
+		echo $(PackagePath) found spec.template; \
 		cp $(PackagePath)/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
-	elif [ -e $(ProjectPath)/config/cmsgemos.spec.template ]; then \
-		echo $(ProjectPath)/config found cmsgemos.spec.template \
-		cp $(ProjectPath)/config/cmsgemos.spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
+	elif [ -e $(ProjectPath)/config/build/cmsgemos.spec.template ]; then \
+		echo $(ProjectPath)/config found cmsgemos.spec.template; \
+		cp $(ProjectPath)/config/build/cmsgemos.spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
 	else \
-		echo $(XDAQ_ROOT)/config found spec.template \
+		echo $(XDAQ_ROOT)/config found spec.template; \
 		cp $(XDAQ_ROOT)/config/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
 	fi
 	sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).spec

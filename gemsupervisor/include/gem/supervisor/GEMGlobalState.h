@@ -176,7 +176,7 @@ namespace gem {
          * @brief updates the global state based on the individual states of the managed applications
          */
         void calculateGlobals();
-        
+
         toolbox::fsm::State getProperCompositeState(toolbox::fsm::State const& initial,
                                                     toolbox::fsm::State const& final,
                                                     std::string         const& states);
