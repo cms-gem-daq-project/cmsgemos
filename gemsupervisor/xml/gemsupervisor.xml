@@ -3,16 +3,16 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-  <xc:Context url="http://gem904daq01:${CHANGEME}">
+  <xc:Context url="http://gem904daq01:5050">
     <xc:Application class="gem::hw::glib::GLIBManager" id="30" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::glib::GLIBManager"
 		  xsi:type="soapenc:Struct">
-	<AMCSlots       xsi:type="xsd:string">4</AMCSlots>
-	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
+	<AMCSlots       xsi:type="xsd:string">2</AMCSlots>
+	<ConnectionFile xsi:type="xsd:string">connections.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
-          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="3"> <!--  position must be slot-1  -->
-            <crateID  xsi:type="xsd:integer">2</crateID>
-            <slot     xsi:type="xsd:integer">4</slot>
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!--  position must be slot-1  -->
+            <crateID  xsi:type="xsd:integer">1</crateID>
+            <slot     xsi:type="xsd:integer">2</slot>
             <present  xsi:type="xsd:boolean">true</present>
             <sbitSource    xsi:type="xsd:integer">5</sbitSource>
           </GLIBInfo>
@@ -23,12 +23,12 @@
     <xc:Application class="gem::hw::optohybrid::OptoHybridManager" id="50" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::optohybrid::OptoHybridManager"
 		  xsi:type="soapenc:Struct">
-	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
-	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[96]"><!-- MAX_OH_PER_AMC(9) * MAX_AMC_PER_UTCA(12)-->
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="27"> <!-- position must be (slot-1)*MAX_OH_PER_AMC(9)+link -->
-            <crateID xsi:type="xsd:integer">2</crateID>
-            <slot    xsi:type="xsd:integer">4</slot>
-            <link    xsi:type="xsd:integer">0</link>
+	<ConnectionFile xsi:type="xsd:string">connections.xml</ConnectionFile>
+	<AllOptoHybridsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[144]"><!-- MAX_OH_PER_AMC(12) * MAX_AMC_PER_UTCA(12)-->
+          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="14"> <!-- position must be (slot-1)*MAX_OH_PER_AMC(12)+link -->
+            <crateID xsi:type="xsd:integer">1</crateID>
+            <slot    xsi:type="xsd:integer">2</slot>
+            <link    xsi:type="xsd:integer">2</link>
             <present xsi:type="xsd:boolean">true</present>
 
             <triggerSource xsi:type="xsd:integer">0</triggerSource>
@@ -57,38 +57,38 @@
               <VThreshold2 xsi:type="xsd:unsignedShort">    0</VThreshold2>
             </CommonVFATSettings>
           </OptoHybridInfo>
-          <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="28"> <!-- position must be (slot-1)*2+link -->
-            <crateID xsi:type="xsd:integer">2</crateID>
-            <slot    xsi:type="xsd:integer">4</slot>
-            <link    xsi:type="xsd:integer">1</link>
-            <present xsi:type="xsd:boolean">true</present>
+          <!-- <OptoHybridInfo   xsi:type="soapenc:Struct" soapenc:position="28"> <\!-\- position must be (slot-1)*2+link -\-> -->
+          <!--   <crateID xsi:type="xsd:integer">2</crateID> -->
+          <!--   <slot    xsi:type="xsd:integer">4</slot> -->
+          <!--   <link    xsi:type="xsd:integer">1</link> -->
+          <!--   <present xsi:type="xsd:boolean">true</present> -->
 
-            <triggerSource xsi:type="xsd:integer">0</triggerSource>
+          <!--   <triggerSource xsi:type="xsd:integer">0</triggerSource> -->
 
-            <SBitConfig xsi:type="soapenc:Struct">
-              <Mode       xsi:type="xsd:unsignedShort">1</Mode>
-              <Output0Src xsi:type="xsd:unsignedShort">0</Output0Src>
-              <Output1Src xsi:type="xsd:unsignedShort">1</Output1Src>
-              <Output2Src xsi:type="xsd:unsignedShort">2</Output2Src>
-              <Output3Src xsi:type="xsd:unsignedShort">3</Output3Src>
-              <Output4Src xsi:type="xsd:unsignedShort">4</Output4Src>
-              <Output5Src xsi:type="xsd:unsignedShort">5</Output5Src>
-            </SBitConfig>
+          <!--   <SBitConfig xsi:type="soapenc:Struct"> -->
+          <!--     <Mode       xsi:type="xsd:unsignedShort">1</Mode> -->
+          <!--     <Output0Src xsi:type="xsd:unsignedShort">0</Output0Src> -->
+          <!--     <Output1Src xsi:type="xsd:unsignedShort">1</Output1Src> -->
+          <!--     <Output2Src xsi:type="xsd:unsignedShort">2</Output2Src> -->
+          <!--     <Output3Src xsi:type="xsd:unsignedShort">3</Output3Src> -->
+          <!--     <Output4Src xsi:type="xsd:unsignedShort">4</Output4Src> -->
+          <!--     <Output5Src xsi:type="xsd:unsignedShort">5</Output5Src> -->
+          <!--   </SBitConfig> -->
 
-            <CommonVFATSettings xsi:type="soapenc:Struct">
-              <ContReg0    xsi:type="xsd:unsignedShort"> 0x37</ContReg0   >
-              <ContReg2    xsi:type="xsd:unsignedShort"> 0x30</ContReg2   >
-              <IPreampIn   xsi:type="xsd:unsignedShort">  168</IPreampIn  >
-              <IPreampFeed xsi:type="xsd:unsignedShort">   80</IPreampFeed>
-              <IPreampOut  xsi:type="xsd:unsignedShort">  150</IPreampOut >
-              <IShaper     xsi:type="xsd:unsignedShort">  150</IShaper    >
-              <IShaperFeed xsi:type="xsd:unsignedShort">  100</IShaperFeed>
-              <IComp       xsi:type="xsd:unsignedShort">   75</IComp      >
-              <Latency     xsi:type="xsd:unsignedShort">  159</Latency    >
-              <VThreshold1 xsi:type="xsd:unsignedShort">   35</VThreshold1>
-              <VThreshold2 xsi:type="xsd:unsignedShort">    0</VThreshold2>
-            </CommonVFATSettings>
-          </OptoHybridInfo>
+          <!--   <CommonVFATSettings xsi:type="soapenc:Struct"> -->
+          <!--     <ContReg0    xsi:type="xsd:unsignedShort"> 0x37</ContReg0   > -->
+          <!--     <ContReg2    xsi:type="xsd:unsignedShort"> 0x30</ContReg2   > -->
+          <!--     <IPreampIn   xsi:type="xsd:unsignedShort">  168</IPreampIn  > -->
+          <!--     <IPreampFeed xsi:type="xsd:unsignedShort">   80</IPreampFeed> -->
+          <!--     <IPreampOut  xsi:type="xsd:unsignedShort">  150</IPreampOut > -->
+          <!--     <IShaper     xsi:type="xsd:unsignedShort">  150</IShaper    > -->
+          <!--     <IShaperFeed xsi:type="xsd:unsignedShort">  100</IShaperFeed> -->
+          <!--     <IComp       xsi:type="xsd:unsignedShort">   75</IComp      > -->
+          <!--     <Latency     xsi:type="xsd:unsignedShort">  159</Latency    > -->
+          <!--     <VThreshold1 xsi:type="xsd:unsignedShort">   35</VThreshold1> -->
+          <!--     <VThreshold2 xsi:type="xsd:unsignedShort">    0</VThreshold2> -->
+          <!--   </CommonVFATSettings> -->
+          <!-- </OptoHybridInfo> -->
 	</AllOptoHybridsInfo>
       </properties>
     </xc:Application>
@@ -97,10 +97,10 @@
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Manager"
         	  xsi:type="soapenc:Struct">
         <amc13ConfigParams xsi:type="soapenc:Struct">
-          <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
-	  <CardName           xsi:type="xsd:string">gem.shelf02.amc13</CardName>
-          <AMCInputEnableList xsi:type="xsd:string">4</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">0-3,5-15 </AMCIgnoreTTSList>
+          <ConnectionFile     xsi:type="xsd:string">connections.xml</ConnectionFile>
+	  <CardName           xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+          <AMCInputEnableList xsi:type="xsd:string">2</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">0-1,3-15 </AMCIgnoreTTSList>
 
           <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
@@ -148,10 +148,10 @@
     <xc:Application class="gem::hw::amc13::AMC13Readout" id="260" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:gem::hw::amc13::AMC13Readout"
 		  xsi:type="soapenc:Struct">
-        <ConnectionFile  xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
+        <ConnectionFile  xsi:type="xsd:string">connections.xml</ConnectionFile>
         <DeviceName      xsi:type="xsd:string">AMC13</DeviceName>
-        <CardName        xsi:type="xsd:string">gem.shelf02.amc13</CardName>
-        <crateID         xsi:type="xsd:integer">2</crateID>
+        <CardName        xsi:type="xsd:string">gem.shelf01.amc13</CardName>
+        <crateID         xsi:type="xsd:integer">1</crateID>
         <slot            xsi:type="xsd:integer">13</slot>
         <ReadoutSettings xsi:type="soapenc:Struct">
           <runType        xsi:type="xsd:string">ThresholdScan</runType>
@@ -166,6 +166,11 @@
     <xc:Application class="gem::supervisor::GEMSupervisor" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:GEMSupervisor"
 		  xsi:type="soapenc:Struct">
+        <UseLocalDB        xsi:type="xsd:boolean">false</UseLocalDB>
+        <HandleTCDS        xsi:type="xsd:boolean">false</HandleTCDS>
+        <UseLocalReadout   xsi:type="xsd:boolean">true</UseLocalReadout>
+        <UseFedKitReadout  xsi:type="xsd:boolean">false</UseFedKitReadout>
+
         <DatabaseInfo xsi:type="soapenc:Struct">
           <dbName xsi:type="xsd:string">ldqm_test_db</dbName>
           <dbHost xsi:type="xsd:string">localhost</dbHost>
@@ -206,6 +211,14 @@
   <xc:Context url="http://gem904daq01:10000/rcms">
     <xc:Application class="RCMSStateListener" id="50" instance="0" network="local" path="/services/replycommandreceiver" />
     <xc:Module>${XDAQ_ROOT}/lib/libxdaq2rc.so</xc:Module>
+  </xc:Context>
+
+  <xc:Context url="http://tcds-control-904.cms904:2107">
+    <xc:Application class="tcds::ici::ICIController" id="303" instance="0" network="local" >
+    </Application>
+
+    <xc:Application class="tcds::pi::PIController"   id="503" instance="0" network="local" >
+    </Application>
   </xc:Context>
 
 </xc:Partition>

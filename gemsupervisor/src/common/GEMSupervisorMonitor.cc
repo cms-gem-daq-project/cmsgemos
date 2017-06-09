@@ -28,7 +28,8 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
   DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring");
   // create the values to be monitored in the info space
   addMonitorableSet("AppStates", "AppStateMonitoring");
-  
+
+  // IMPROVEMENT make the tables dynamically with something like angular/react
   // auto monlist = m_monitorableSetsMap.find("AppStates");
   // loop over all supervised applications and
   std::vector<xdaq::ApplicationDescriptor*> managedApps =

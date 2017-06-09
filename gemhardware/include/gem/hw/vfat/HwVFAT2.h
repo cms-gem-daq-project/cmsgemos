@@ -54,7 +54,7 @@ namespace gem {
           HwVFAT2(std::string const& vfatDevice, uhal::HwInterface& uhalDevice);
           HwVFAT2(gem::hw::optohybrid::HwOptoHybrid const& ohDevice,
                   uint8_t                           const& vfatDevice);
-          HwVFAT2(std::string const& vfatDevice="VFAT13");
+          /* HwVFAT2(std::string const& vfatDevice="VFAT13"); */
 
           /*
           // constructors from existing GEM hardware devices

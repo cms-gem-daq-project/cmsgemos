@@ -32,7 +32,7 @@ setOHLogLevel(logging.INFO)
 if options.debug:
     setOHLogLevel(logging.DEBUG)
 
-SAMPLE_TIME = 1.
+SAMPLE_TIME = 0.25
 
 print
 print "-> --------------------------"

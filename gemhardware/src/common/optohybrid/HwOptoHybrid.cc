@@ -6,21 +6,21 @@
 
 #include "gem/hw/optohybrid/HwOptoHybrid.h"
 
-gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
-  gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
-  //monOptoHybrid_(0)
-  b_links({false,false,false}),
-  m_controlLink(-1)
-{
-  setDeviceID("OptoHybridHw");
-  setAddressTableFileName("uhal_gem_amc_glib_link00.xml");
-  //need to know which device this is 0 or 1?
-  //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
-  setDeviceBaseNode("GEM_AMC.OH.OH0");
-  //gem::hw::optohybrid::HwOptoHybrid::initDevice();
-  //set up which links are active, so that the control can be done without specifying a link
-  INFO("HwOptoHybrid ctor done " << isHwConnected());
-}
+// gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
+//   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
+//   //monOptoHybrid_(0)
+//   b_links({false,false,false}),
+//   m_controlLink(-1)
+// {
+//   setDeviceID("OptoHybridHw");
+//   setAddressTableFileName("uhal_gem_amc_glib_link00.xml");
+//   //need to know which device this is 0 or 1?
+//   //need to fix the hard coded '0', how to get it in from the constructor in a sensible way? /**JS Oct 8**/
+//   setDeviceBaseNode("GEM_AMC.OH.OH0");
+//   //gem::hw::optohybrid::HwOptoHybrid::initDevice();
+//   //set up which links are active, so that the control can be done without specifying a link
+//   INFO("HwOptoHybrid ctor done " << isHwConnected());
+// }
 
 gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDevice,
                                                 std::string const& connectionFile) :
@@ -835,7 +835,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getT1Count(uint8_t const& signal, ui
     t1Signal << "Resync";
   if (signal == 0x3)
     t1Signal << "BC0";
-  
+
   switch(mode) {
   case 0:
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s",     (t1Signal.str()).c_str()));
