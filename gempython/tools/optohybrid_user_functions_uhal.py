@@ -465,7 +465,8 @@ def setReferenceClock(device,gtx,source,debug=False):
     V2A:   0=onboard, 1=GTX recovered,  2=external clock
     V2B:   0=GBT,     1=CCB HDMI
 
-    (Currently disabled for stability reasons)
+    (Documentation above suspect, current OH FW has GBT and CCB switched,
+    but as a hack)
     """
     writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.CLOCK.REF_CLK"%(gtx),source)
     return
@@ -756,14 +757,14 @@ def printSysmonInfo(device, gtx, debug=False):
     print "OptoHybrid ADC sysmon"
     print "         %7s  %8s  %8s"%("Temp", "VCCINT", "VCCAUX")
     print "Current: %3.2f C  %1.4f V  %1.4f V"%(TEMP_CONV((res["%s.TEMP"%(adcBase)     ]>>6)&0x3ff),
-                                               VCC_CONV((res["%s.VCCINT"%(adcBase)    ]>>6)&0x3ff),
-                                               VCC_CONV((res["%s.VCCAUX"%(adcBase)    ]>>6)&0x3ff))
+                                                VCC_CONV((res["%s.VCCINT"%(adcBase)    ]>>6)&0x3ff),
+                                                VCC_CONV((res["%s.VCCAUX"%(adcBase)    ]>>6)&0x3ff))
     print "Max:     %3.2f C  %1.4f V  %1.4f V"%(TEMP_CONV((res["%s.TEMP.MAX"%(adcBase) ]>>6)&0x3ff),
-                                               VCC_CONV((res["%s.VCCINT.MAX"%(adcBase)]>>6)&0x3ff),
-                                               VCC_CONV((res["%s.VCCAUX.MAX"%(adcBase)]>>6)&0x3ff))
+                                                VCC_CONV((res["%s.VCCINT.MAX"%(adcBase)]>>6)&0x3ff),
+                                                VCC_CONV((res["%s.VCCAUX.MAX"%(adcBase)]>>6)&0x3ff))
     print "Min:     %3.2f C  %1.4f V  %1.4f V"%(TEMP_CONV((res["%s.TEMP.MIN"%(adcBase) ]>>6)&0x3ff),
-                                               VCC_CONV((res["%s.VCCINT.MIN"%(adcBase)]>>6)&0x3ff),
-                                               VCC_CONV((res["%s.VCCAUX.MIN"%(adcBase)]>>6)&0x3ff))
+                                                VCC_CONV((res["%s.VCCINT.MIN"%(adcBase)]>>6)&0x3ff),
+                                                VCC_CONV((res["%s.VCCAUX.MIN"%(adcBase)]>>6)&0x3ff))
     return
 
 def calculateLinkErrors(device,gtx,sampleTime):
