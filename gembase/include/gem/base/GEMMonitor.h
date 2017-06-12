@@ -192,7 +192,8 @@ namespace gem {
 
         // map between monitorable set name, and the list of monitorables in each set
         std::unordered_map<std::string,
-          std::list<std::pair<std::string, GEMMonitorable> > > m_monitorableSetsMap;
+          std::unordered_map<std::string, GEMMonitorable> > m_monitorableSetsMap;
+          /* std::list<std::pair<std::string, GEMMonitorable> > > m_monitorableSetsMap; */
 
         // std::shared_ptr<GEMApplication> p_gemApp;
         GEMApplication* p_gemApp;

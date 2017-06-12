@@ -1156,7 +1156,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
       hw_semaphore_.take();
       optohybridDevice_->sendResync();
       for (unsigned int com = 0; com < 15; ++com)
-	optohybridDevice_->sendL1ACal(10, delay,1);
+	optohybridDevice_->sendL1ACalPulse(10, delay,1);
 	hw_semaphore_.give();
     }
 

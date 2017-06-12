@@ -175,9 +175,11 @@ namespace gem {
          * Reset the gtx status registers
          * @param uint8_t gtx is the number of the gtx to query
          * @param uint8_t resets control which bits to reset
-         * bit 1 - TRK_ErrCnt         0x1
-         * bit 2 - TRG_ErrCnt         0x2
-         * bit 3 - Data_Rec           0x4
+         * bit 1 - GTX_TRK_ErrCnt         0x1
+         * bit 2 - GTX_TRG_ErrCnt         0x2
+         * bit 3 - GTX_Data_Rec           0x4
+         * bit 4 - GBT_TRK_ErrCnt         0x8
+         * bit 5 - GBT_Data_Rec           0x10
          * @throws gem::hw::exception::InvalidLink if the gtx number is outside of 0-N_GTX
          */
         virtual void LinkReset(uint8_t const& gtx, uint8_t const& resets);
