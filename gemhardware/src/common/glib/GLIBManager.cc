@@ -604,7 +604,7 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);
 
   // TRIGGER registers
-  for (int oh = 0; oh < glib->getSupportedOptoHybrids(); ++oh) {
+  for (uint8_t oh = 0; oh < glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" << oh;
     is_glib->createUInt32(ohname.str()+"_STATUS",               glib->getDAQLinkStatus(oh),      NULL, GEMUpdateType::HW32);

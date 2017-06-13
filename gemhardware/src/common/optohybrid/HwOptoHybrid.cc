@@ -9,7 +9,7 @@
 // gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid() :
 //   gem::hw::GEMHwDevice::GEMHwDevice("HwOptoHybrid"),
 //   //monOptoHybrid_(0)
-//   b_links({false,false,false}),
+//   b_links{false,false,false},
 //   m_controlLink(-1)
 // {
 //   setDeviceID("OptoHybridHw");
@@ -26,7 +26,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
                                                 std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionFile),
   //monOptoHybrid_(0)
-  b_links({false,false,false}),
+  b_links{false,false,false},
   m_controlLink(-1)
 {
   std::stringstream basenode;
@@ -41,7 +41,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
                                                 std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionURI, addressTable),
   //monOptoHybrid_(0)
-  b_links({false,false,false}),
+  b_links{false,false,false},
   m_controlLink(-1)
 {
   setAddressTableFileName(toolbox::toString("uhal_gem_amc_glib_link%02d.xml",*optohybridDevice.rbegin()));
@@ -56,7 +56,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
                                                 uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice,uhalDevice),
   //monOptoHybrid_(0)
-  b_links({false,false,false}),
+  b_links{false,false,false},
   m_controlLink(-1)
 {
   std::stringstream basenode;
@@ -71,7 +71,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
   gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("%s.OptoHybrid_%d",(glibDevice.getLoggerName()).c_str(),(int)slot),
                                     glibDevice.getGEMHwInterface()),
   //monOptoHybrid_(0),
-  b_links({false,false,false}),
+  b_links{false,false,false},
   m_controlLink(-1),
   m_slot((int)slot)
 {
@@ -263,7 +263,7 @@ std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::get
 
   std::transform(chips1.begin(), chips1.end(), chips0.begin(),
                  std::back_inserter(chipPairs),
-                 std::make_pair<uint32_t,uint32_t>);
+                 std::make_pair<const uint32_t&, const uint32_t&>);
 
   for (auto chip = chipPairs.begin(); chip != chipPairs.end(); ++chip) {
     if (((chip->first) >> 16) != 0x3) {
