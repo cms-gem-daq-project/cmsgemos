@@ -204,7 +204,7 @@ namespace gem {
           };
         };
 
-          // should these be protected?
+          // should these be protected/const?
         /**
          * various application properties
          */

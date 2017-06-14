@@ -23,12 +23,12 @@ namespace gem {
            * as the IP address and address table can be managed there, rather than hard coded
            * Constrution from crateID and slotID uses this constructor as the back end
            */
-          HwGLIB();
+          /* HwGLIB(); */
           HwGLIB(std::string const& glibDevice, std::string const& connectionFile);
           HwGLIB(std::string const& glibDevice, std::string const& connectionURI,
                  std::string const& addressTable);
           HwGLIB(std::string const& glibDevice, uhal::HwInterface& uhalDevice);
-          HwGLIB(int const& crate, int const& slot);
+          /* HwGLIB(int const& crate, int const& slot); */
 
           virtual ~HwGLIB();
 

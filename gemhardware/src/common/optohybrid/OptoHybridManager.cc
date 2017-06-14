@@ -37,13 +37,6 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo()
   linkID   = -1;
   cardName = "";
 
-  controlHubAddress = "N/A";
-  deviceIPAddress   = "N/A";
-  ipBusProtocol     = "N/A";
-  addressTable      = "N/A";
-  controlHubPort    = 0;
-  ipBusPort         = 0;
-
   vfatBroadcastList = "0-23";
   vfatBroadcastMask = 0xff000000;
 
@@ -51,11 +44,11 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::OptoHybridInfo()
   vfatSBitMask = 0xff000000;
 
   triggerSource = 0;
-  //sbitSource    = 0;
+  // sbitSource    = 0;
   refClkSrc     = 0;
 
-  //vfatClkSrc    = 0;
-  //cdceClkSrc    = 0;
+  // vfatClkSrc    = 0;
+  // cdceClkSrc    = 0;
 }
 
 void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdata::Bag<gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo>* bag) {
@@ -65,13 +58,6 @@ void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdat
   bag->addField("present",  &present);
   bag->addField("CardName", &cardName);
 
-  bag->addField("ControlHubAddress", &controlHubAddress);
-  bag->addField("DeviceIPAddress",   &deviceIPAddress);
-  bag->addField("IPBusProtocol",     &ipBusProtocol);
-  bag->addField("AddressTable",      &addressTable);
-  bag->addField("ControlHubPort",    &controlHubPort);
-  bag->addField("IPBusPort",         &ipBusPort);
-
   bag->addField("VFATBroadcastList", &vfatBroadcastList);
   bag->addField("VFATBroadcastMask", &vfatBroadcastMask);
 
@@ -79,10 +65,10 @@ void gem::hw::optohybrid::OptoHybridManager::OptoHybridInfo::registerFields(xdat
   bag->addField("VFATSBitMask", &vfatSBitMask);
 
   bag->addField("triggerSource", &triggerSource);
-  //bag->addField("sbitSource",    &sbitSource);
+  // bag->addField("sbitSource",    &sbitSource);
   bag->addField("refClkSrc",     &refClkSrc);
-  //bag->addField("vfatClkSrc",    &vfatClkSrc);
-  //bag->addField("cdceClkSrc",    &cdceClkSrc);
+  // bag->addField("vfatClkSrc",    &vfatClkSrc);
+  // bag->addField("cdceClkSrc",    &cdceClkSrc);
 
   bag->addField("SBitConfig",         &sbitConfig);
   bag->addField("CommonVFATSettings", &commonVFATSettings);
@@ -162,20 +148,20 @@ gem::hw::optohybrid::OptoHybridManager::OptoHybridManager(xdaq::ApplicationStub*
   // p_appInfoSpace->addItemChangedListener( "AMCSlots",           this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile",     this);
 
-  //initialize the OptoHybrid application objects
+  // initialize the OptoHybrid application objects
   DEBUG("OptoHybridManager::Connecting to the OptoHybridManagerWeb interface");
   p_gemWebInterface = new gem::hw::optohybrid::OptoHybridManagerWeb(this);
-  //p_gemMonitor      = new gem::hw::optohybrid::OptoHybridHwMonitor(this);
+  // p_gemMonitor      = new gem::hw::optohybrid::OptoHybridHwMonitor(this);
   DEBUG("OptoHybridManager::done");
 
-  //set up the info hwCfgInfoSpace
+  // set up the info hwCfgInfoSpace
   init();
 
-  //getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/optohybrid/OptoHybridManager.png");
+  // getApplicationDescriptor()->setAttribute("icon","/gemdaq/gemhardware/images/optohybrid/OptoHybridManager.png");
 }
 
 gem::hw::optohybrid::OptoHybridManager::~OptoHybridManager() {
-  //memory management, maybe not necessary here?
+  // memory management, maybe not necessary here?
 }
 
 // This is the callback used for handling xdata:Event objects
@@ -185,7 +171,7 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
     DEBUG("OptoHybridManager::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
 
-    //how to handle passing in various values nested in a vector in a bag
+    // how to handle passing in various values nested in a vector in a bag
     for (auto board = m_optohybridInfo.begin(); board != m_optohybridInfo.end(); ++board) {
       // if (board->bag.present.value_) {
       if (board->bag.crateID.value_ > -1) {
@@ -195,7 +181,7 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
         INFO("OptoHybridManager::Parsed vfatBroadcastList = " << board->bag.vfatBroadcastList.toString()
              << " to broadcastMask 0x" << std::hex << tmpBroadcastMask << std::dec);
         board->bag.vfatBroadcastMask = tmpBroadcastMask;
-        //board->bag.vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()));
+        // board->bag.vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()));
 
         uint32_t tmpSBitMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatSBitList.toString());
         INFO("OptoHybridManager::Parsed vfatSBitList = " << board->bag.vfatSBitList.toString()
@@ -203,7 +189,7 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
         board->bag.vfatSBitMask = tmpSBitMask;
       }
     }
-    //p_gemMonitor->startMonitoring();
+    // p_gemMonitor->startMonitoring();
   }
   // update monitoring variables
   gem::base::GEMApplication::actionPerformed(event);
@@ -213,7 +199,7 @@ void gem::hw::optohybrid::OptoHybridManager::init()
 {
 }
 
-//state transitions
+// state transitions
 void gem::hw::optohybrid::OptoHybridManager::initializeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
@@ -256,33 +242,6 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
                                                                                                     hwCfgURN.toString(),
                                                                                                     true));
       }
-
-      DEBUG("OptoHybridManager::initializeAction exporting config parameters into infospace");
-      is_optohybrids.at(slot).at(link)->createString("ControlHubAddress", info.controlHubAddress.value_, &(info.controlHubAddress),
-                                                     GEMUpdateType::NOUPDATE);
-      is_optohybrids.at(slot).at(link)->createString("IPBusProtocol",     info.ipBusProtocol.value_    , &(info.ipBusProtocol),
-                                                     GEMUpdateType::NOUPDATE);
-      is_optohybrids.at(slot).at(link)->createString("DeviceIPAddress",   info.deviceIPAddress.value_  , &(info.deviceIPAddress),
-                                                     GEMUpdateType::NOUPDATE);
-      is_optohybrids.at(slot).at(link)->createString("AddressTable",      info.addressTable.value_     , &(info.addressTable),
-                                                     GEMUpdateType::NOUPDATE);
-      is_optohybrids.at(slot).at(link)->createUInt32("ControlHubPort",    info.controlHubPort.value_   , &(info.controlHubPort),
-                                                     GEMUpdateType::NOUPDATE);
-      is_optohybrids.at(slot).at(link)->createUInt32("IPBusPort",         info.ipBusPort.value_        , &(info.ipBusPort),
-                                                     GEMUpdateType::NOUPDATE);
-
-      DEBUG("OptoHybridManager::initializeAction InfoSpace found item: ControlHubAddress "
-            << is_optohybrids.at(slot).at(link)->getString("ControlHubAddress"));
-      DEBUG("OptoHybridManager::initializeAction InfoSpace found item: IPBusProtocol "
-            << is_optohybrids.at(slot).at(link)->getString("IPBusProtocol")    );
-      DEBUG("OptoHybridManager::initializeAction InfoSpace found item: DeviceIPAddress "
-            << is_optohybrids.at(slot).at(link)->getString("DeviceIPAddress")  );
-      DEBUG("OptoHybridManager::initializeAction InfoSpace found item: AddressTable "
-            << is_optohybrids.at(slot).at(link)->getString("AddressTable")     );
-      DEBUG("OptoHybridManager::initializeAction InfoSpace found item: ControlHubPort "
-            << is_optohybrids.at(slot).at(link)->getUInt32("ControlHubPort")   );
-      DEBUG("OptoHybridManager::initializeAction InfoSpace found item: IPBusPort "
-            << is_optohybrids.at(slot).at(link)->getUInt32("IPBusPort")        );
 
       try {
         DEBUG("OptoHybridManager::initializeAction obtaining pointer to HwOptoHybrid " << deviceName
@@ -355,7 +314,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         msg << "OptoHybridManager::initializeAction OptoHybrid connected on link "
             << link << " to AMC in slot " << (slot+1) << " is not responding";
         ERROR(msg.str());
-        //fireEvent("Fail");
+        // fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
       // FOR MISHA
@@ -369,10 +328,10 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   DEBUG("OptoHybridManager::configureAction");
-  //std::ofstream of
+  // std::ofstream of
 
   std::map<int,std::set<int> > hwMapping;
-  //will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
+  // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -467,7 +426,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
           // optohybrid->broadcastWrite("VCal",                    0xaf, vfatMask);
 	} else if (m_scanType.value_ == 3) {
 	  uint32_t initialVT1 = m_scanMin.value_;
-	  //	  uint32_t VT1 = (m_scanMax.value_ - m_scanMin.value_);
+	  // uint32_t VT1 = (m_scanMax.value_ - m_scanMin.value_);
 	  uint32_t initialVT2 = 0; //std::max(0,(uint32_t)m_scanMax.value_);
 	  INFO("OptoHybridManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
           vfatSettings["VThreshold1"] = (uint8_t)(initialVT1&0xff);
@@ -490,9 +449,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
           }
         }
 
-        //what else is required for configuring the OptoHybrid?
-        //need to reset optical links?
-        //reset counters?
+        // what else is required for configuring the OptoHybrid?
+        // need to reset optical links?
+        // reset counters?
         uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
         gtxMask |= (0x1<<link);
         optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
@@ -501,7 +460,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " is not responding";
         ERROR(msg.str());
-        //fireEvent("Fail");
+        // fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
@@ -521,7 +480,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
   }
 
   DEBUG("OptoHybridManager::startAction");
-  //will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
+  // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -563,7 +522,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " is not responding";
         ERROR(msg.str());
-        //fireEvent("Fail");
+        // fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
@@ -575,7 +534,6 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into sleep mode?
-
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -601,7 +559,7 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
           optohybrid->broadcastWrite("Latency", updatedLatency, vfatMask);
       } else if (m_scanType.value_ == 3) {
 	  uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
-	  uint8_t VT2 = 0; //std::max(0,(int)m_scanMax.value_);
+	  uint8_t VT2 = 0;  // std::max(0,(int)m_scanMax.value_);
 	  INFO("OptoHybridManager::ThresholdScan OptoHybrid on link " << (int)link
 	       << " AMC slot " << (slot+1) << " VT1 " << (int)updatedVT1
                << " VT2 " << VT2 << " StepSize " << m_stepSize.value_);
@@ -615,7 +573,7 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
         msg << "OptoHybridManager::pauseAction OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " is not responding";
         ERROR(msg.str());
-        //fireEvent("Fail");
+        // fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
@@ -645,7 +603,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   DEBUG("OptoHybridManager::stopAction");
-  //will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
+  // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -699,7 +657,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         msg << "OptoHybridManager::stopAction::OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " is not responding";
         ERROR(msg.str());
-        //fireEvent("Fail");
+        // fireEvent("Fail");
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
@@ -718,7 +676,7 @@ void gem::hw::optohybrid::OptoHybridManager::haltAction()
 void gem::hw::optohybrid::OptoHybridManager::resetAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
-  //unregister listeners and items in info spaces
+  // unregister listeners and items in info spaces
   DEBUG("OptoHybridManager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(100);
@@ -750,31 +708,12 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
 
         // reset the hw infospace toolbox
         is_optohybrids.at(slot).at(link)->reset();
-
-        // these should now be gone from the reset call..., holdover from the old way
-        if (is_optohybrids.at(slot).at(link)->getInfoSpace()->hasItem("ControlHubAddress"))
-          is_optohybrids.at(slot).at(link)->getInfoSpace()->fireItemRevoked("ControlHubAddress");
-
-        if (is_optohybrids.at(slot).at(link)->getInfoSpace()->hasItem("IPBusProtocol"))
-          is_optohybrids.at(slot).at(link)->getInfoSpace()->fireItemRevoked("IPBusProtocol");
-
-        if (is_optohybrids.at(slot).at(link)->getInfoSpace()->hasItem("DeviceIPAddress"))
-          is_optohybrids.at(slot).at(link)->getInfoSpace()->fireItemRevoked("DeviceIPAddress");
-
-        if (is_optohybrids.at(slot).at(link)->getInfoSpace()->hasItem("AddressTable"))
-          is_optohybrids.at(slot).at(link)->getInfoSpace()->fireItemRevoked("AddressTable");
-
-        if (is_optohybrids.at(slot).at(link)->getInfoSpace()->hasItem("ControlHubPort"))
-          is_optohybrids.at(slot).at(link)->getInfoSpace()->fireItemRevoked("ControlHubPort");
-
-        if (is_optohybrids.at(slot).at(link)->getInfoSpace()->hasItem("IPBusPort"))
-          is_optohybrids.at(slot).at(link)->getInfoSpace()->fireItemRevoked("IPBusPort");
       } else {
         DEBUG("OptoHybridManager::resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
         continue;
       }
-    } // end loop on link < MAX_OPTOHYBRIDS_PER_AMC
-  } // end loop on slot < MAX_AMCS_PER_CRATE
+    }  // end loop on link < MAX_OPTOHYBRIDS_PER_AMC
+  }  // end loop on slot < MAX_AMCS_PER_CRATE
   INFO("OptoHybridManager::resetAction end");
 }
 
@@ -873,5 +812,3 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
     }
   }
 }
-
-

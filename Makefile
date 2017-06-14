@@ -8,7 +8,7 @@ SUBPACKAGES := \
         gemhardware \
         gemreadout \
         gemsupervisor \
-        gemHwMonitor \
+        # gemHwMonitor \
 
 SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
 SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})

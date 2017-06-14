@@ -2,58 +2,58 @@
 
 #include <iomanip>
 
-gem::hw::HwGenericAMC::HwGenericAMC() :
-  gem::hw::GEMHwDevice::GEMHwDevice("HwGenericAMC"),
-  m_links(0),
-  m_crate(-1),
-  m_slot(-1)
-{
-  INFO("HwGenericAMC ctor");
+// gem::hw::HwGenericAMC::HwGenericAMC() :
+//   gem::hw::GEMHwDevice::GEMHwDevice("HwGenericAMC"),
+//   m_links(0),
+//   m_crate(-1),
+//   m_slot(-1)
+// {
+//   INFO("HwGenericAMC ctor");
 
-  for (unsigned li = 0; li < N_GTX; ++li) {
-    b_links[li] = false;
-    AMCIPBusCounters tmpGTXCounter;
-    m_ipBusCounters.push_back(tmpGTXCounter);
-  }
+//   for (unsigned li = 0; li < N_GTX; ++li) {
+//     b_links[li] = false;
+//     AMCIPBusCounters tmpGTXCounter;
+//     m_ipBusCounters.push_back(tmpGTXCounter);
+//   }
 
-  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
-}
+//   INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+// }
 
-gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
-  gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
-  m_links(0),
-  m_crate(-1),
-  m_slot(-1)
-{
-  INFO("HwGenericAMC ctor");
+// gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
+//   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
+//   m_links(0),
+//   m_crate(-1),
+//   m_slot(-1)
+// {
+//   INFO("HwGenericAMC ctor");
 
-  for (unsigned li = 0; li < N_GTX; ++li) {
-    b_links[li] = false;
-    AMCIPBusCounters tmpGTXCounter;
-    m_ipBusCounters.push_back(tmpGTXCounter);
-  }
+//   for (unsigned li = 0; li < N_GTX; ++li) {
+//     b_links[li] = false;
+//     AMCIPBusCounters tmpGTXCounter;
+//     m_ipBusCounters.push_back(tmpGTXCounter);
+//   }
 
-  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
-}
+//   INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+// }
 
-gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
-                                    int const& crate,
-                                    int const& slot) :
-  gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
-  m_links(0),
-  m_crate(crate),
-  m_slot(slot)
-{
-  INFO("HwGenericAMC ctor");
+// gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
+//                                     int const& crate,
+//                                     int const& slot) :
+//   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
+//   m_links(0),
+//   m_crate(crate),
+//   m_slot(slot)
+// {
+//   INFO("HwGenericAMC ctor");
 
-  for (unsigned li = 0; li < N_GTX; ++li) {
-    b_links[li] = false;
-    AMCIPBusCounters tmpGTXCounter;
-    m_ipBusCounters.push_back(tmpGTXCounter);
-  }
+//   for (unsigned li = 0; li < N_GTX; ++li) {
+//     b_links[li] = false;
+//     AMCIPBusCounters tmpGTXCounter;
+//     m_ipBusCounters.push_back(tmpGTXCounter);
+//   }
 
-  INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
-}
+//   INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+// }
 
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& connectionFile) :

@@ -90,42 +90,10 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
 
   /*
-  addMonitorableSet("IPBus", "HWMonitoring");
-  addMonitorable("IPBus", "HWMonitoring",
-                 std::make_pair("OptoHybrid_0", "GLIB.COUNTERS.IPBus"),
-                 GEMUpdateType::I2CSTAT, "i2c/hex");
-  addMonitorable("IPBus", "HWMonitoring",
-                 std::make_pair("OptoHybrid_1", "GLIB.COUNTERS.IPBus"),
-                 GEMUpdateType::I2CSTAT, "i2c/hex");
-  addMonitorable("IPBus", "HWMonitoring",
-                 std::make_pair("TRK_0", "GLIB.COUNTERS.IPBus"),
-                 GEMUpdateType::I2CSTAT, "i2c/hex");
-  addMonitorable("IPBus", "HWMonitoring",
-                 std::make_pair("TRK_1", "GLIB.COUNTERS.IPBus"),
-                 GEMUpdateType::I2CSTAT, "i2c/hex");
-  addMonitorable("IPBus", "HWMonitoring",
-                 std::make_pair("Counters", "GLIB.COUNTERS.IPBus"),
-                 GEMUpdateType::I2CSTAT, "i2c/hex");
-
+   * not present in generic firmware
+  addMonitorableSet("IPBus",     "HWMonitoring");
   addMonitorableSet("GTX_LINKS", "HWMonitoring");
-  addMonitorable("GTX_LINKS", "HWMonitoring",
-                 std::make_pair("GTX0_TRK_ERR", "GLIB.COUNTERS.GTX0.TRK_ERR"),
-                 GEMUpdateType::PROCESS, "raw/rate");
-  addMonitorable("GTX_LINKS", "HWMonitoring",
-                 std::make_pair("GTX0_TRG_ERR", "GLIB.COUNTERS.GTX0.TRG_ERR"),
-                 GEMUpdateType::PROCESS, "raw/rate");
-  addMonitorable("GTX_LINKS", "HWMonitoring",
-                 std::make_pair("GTX0_DATA_Packets", "GLIB.COUNTERS.GTX0.DATA_Packets"),
-                 GEMUpdateType::PROCESS, "raw/rate");
-  addMonitorable("GTX_LINKS", "HWMonitoring",
-                 std::make_pair("GTX1_TRK_ERR", "GLIB.COUNTERS.GTX1.TRK_ERR"),
-                 GEMUpdateType::PROCESS, "raw/rate");
-  addMonitorable("GTX_LINKS", "HWMonitoring",
-                 std::make_pair("GTX1_TRG_ERR", "GLIB.COUNTERS.GTX1.TRG_ERR"),
-                 GEMUpdateType::PROCESS, "raw/rate");
-  addMonitorable("GTX_LINKS", "HWMonitoring",
-                 std::make_pair("GTX1_DATA_Packets", "GLIB.COUNTERS.GTX1.DATA_Packets"),
-                 GEMUpdateType::PROCESS, "raw/rate");
+  addMonitorableSet("GBT_LINKS", "HWMonitoring");
   */
   addMonitorableSet("COUNTERS", "HWMonitoring");
   addMonitorable("COUNTERS", "HWMonitoring",
@@ -182,7 +150,7 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("Trigger", "HWMonitoring");
-  for (int oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
+  for (uint8_t oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
     ohname << "OH" << oh;
     addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
@@ -203,9 +171,26 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
     addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_LAST_EOE_TIMER", "DAQ."+ohname.str()+".COUNTERS.LAST_EOE_TIMER"),
                    GEMUpdateType::HW32, "hex");
+
+    addMonitorable("Trigger", "HWMonitoring",
+                   std::make_pair(ohname.str()+"_TRIGGER_RATE", "TRIGGER."+ohname.str()+".TRIGGER_RATE"),
+                   GEMUpdateType::HW32, "hex");
+    addMonitorable("Trigger", "HWMonitoring",
+                   std::make_pair(ohname.str()+"_TRIGGER_CNT", "TRIGGER."+ohname.str()+".TRIGGER_CNT"),
+                   GEMUpdateType::HW32, "hex");
+
     for (int cluster = 0; cluster < 8; ++cluster) {
       std::stringstream cluname;
-      cluname << "CLUSTER_" << cluster;
+      cluname << "CLUSTER_SIZE_" << cluster;
+      addMonitorable("Trigger", "HWMonitoring",
+                     std::make_pair(ohname.str()+"_"+cluname.str()+"_RATE", "TRIGGER."+ohname.str()+"."+cluname.str()+"_RATE"),
+                     GEMUpdateType::HW32, "hex");
+      addMonitorable("Trigger", "HWMonitoring",
+                     std::make_pair(ohname.str()+"_"+cluname.str()+"_CNT", "TRIGGER."+ohname.str()+"."+cluname.str()+"_CNT"),
+                     GEMUpdateType::HW32, "hex");
+      cluname.str("");
+      cluname.clear();
+      cluname << "DEBUG_LAST_CLUSTER_" << cluster;
       addMonitorable("Trigger", "HWMonitoring",
                      std::make_pair(ohname.str()+"_"+cluname.str(), "TRIGGER."+ohname.str()+".DEBUG_LAST_"+cluname.str()),
                      GEMUpdateType::HW32, "hex");
@@ -285,6 +270,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
+  // IMPROVEMENT make the tables dynamically with something like angular/react
   // loop over the list of monitor sets and grab the monitorables from each one
   // create a div tab for each set, and a table for each set of values
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
@@ -292,12 +278,12 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
     *out << "<div class=\"xdaq-tab\" title=\""  << *monset << "\" >"  << std::endl;
     *out << "<table class=\"xdaq-table\" id=\"" << *monset << "_table\">" << std::endl
          << cgicc::thead() << std::endl
-         << cgicc::tr()    << std::endl //open
+         << cgicc::tr()    << std::endl // open
          << cgicc::th()    << "Register name"    << cgicc::th() << std::endl
          << cgicc::th()    << "Value"            << cgicc::th() << std::endl
          << cgicc::th()    << "Register address" << cgicc::th() << std::endl
          << cgicc::th()    << "Description"      << cgicc::th() << std::endl
-         << cgicc::tr()    << std::endl //close
+         << cgicc::tr()    << std::endl // close
          << cgicc::thead() << std::endl
          << "<tbody>" << std::endl;
 
@@ -311,7 +297,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
 
       DEBUG("GLIBMonitor::" << monitem->first << " formatted to "
             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
-      //this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
+      // this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
       *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
            << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
            << "</td>"   << std::endl;
@@ -336,7 +322,7 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
 
 void gem::hw::glib::GLIBMonitor::reset()
 {
-  //have to get rid of the timer
+  // have to get rid of the timer
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
     DEBUG("GLIBMonitor::reset removing " << infoSpace->first << " from p_timer");
