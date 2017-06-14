@@ -258,14 +258,17 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     m_globalState.update();
   }
 
-  p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>(m_dbHost.toString(),
-                                                                     m_dbPort.value_,
-                                                                     m_dbUser.toString(),
-                                                                     m_dbPass.toString());
+
+  if (m_useLocalDBInstance)
+    p_gemDBHelper = std::make_shared<gem::utils::db::GEMDatabaseUtils>(m_dbHost.toString(),
+                                                                       m_dbPort.value_,
+                                                                       m_dbUser.toString(),
+                                                                       m_dbPass.toString());
 
   try {
     // if (p_gemDBHelper->connect(m_dbName.toString())) {
-    p_gemDBHelper->connect(m_dbName.toString());
+    if (m_useLocalDBInstance)
+      p_gemDBHelper->connect(m_dbName.toString());
 
     // for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
     auto initorder = getInitializationOrder();
