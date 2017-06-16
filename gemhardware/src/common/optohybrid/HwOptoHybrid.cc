@@ -154,8 +154,10 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     DEBUG("Checking hardware connection");
 
+    // FIXME IN FIRMWARE, need better check of connectivity...
     if ((this->getFirmwareDateString()).rfind("15") != std::string::npos ||
-        (this->getFirmwareDateString()).rfind("16") != std::string::npos) {
+        (this->getFirmwareDateString()).rfind("16") != std::string::npos ||
+        (this->getFirmwareDateString()).rfind("17") != std::string::npos) {
       b_is_connected = true;
       INFO("OptoHybrid present ("
            << this->getFirmwareVersionString() << "/0x"
@@ -793,20 +795,20 @@ void gem::hw::optohybrid::HwOptoHybrid::updateT1Counters()
 {
   for (unsigned signal = 0; signal < 4; ++signal) {
     m_t1Counters.GTX_TTC.at(signal)  = getT1Count(signal, 0x0);
-    m_t1Counters.GBT_TTC.at(signal)  = getT1Count(signal, 0x0);
     m_t1Counters.Firmware.at(signal) = getT1Count(signal, 0x1);
     m_t1Counters.External.at(signal) = getT1Count(signal, 0x2);
     m_t1Counters.Loopback.at(signal) = getT1Count(signal, 0x3);
     m_t1Counters.Sent.at(    signal) = getT1Count(signal, 0x4);
+    m_t1Counters.GBT_TTC.at(signal)  = getT1Count(signal, 0x5);
   }
 }
 
 void gem::hw::optohybrid::HwOptoHybrid::resetT1Counters()
 {
-  resetT1Count(0x0, 0x5); //reset all L1A counters
-  resetT1Count(0x1, 0x5); //reset all CalPulse counters
-  resetT1Count(0x2, 0x5); //reset all Resync counters
-  resetT1Count(0x3, 0x5); //reset all BC0 counters
+  resetT1Count(0x0, 0x6); //reset all L1A counters
+  resetT1Count(0x1, 0x6); //reset all CalPulse counters
+  resetT1Count(0x2, 0x6); //reset all Resync counters
+  resetT1Count(0x3, 0x6); //reset all BC0 counters
   m_t1Counters.reset();
 }
 
@@ -838,7 +840,7 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getT1Count(uint8_t const& signal, ui
 
   switch(mode) {
   case 0:
-    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.TTC.%s",     (t1Signal.str()).c_str()));
+    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.GTX_TTC.%s", (t1Signal.str()).c_str()));
   case 1:
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s",(t1Signal.str()).c_str()));
   case 2:
@@ -847,6 +849,8 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getT1Count(uint8_t const& signal, ui
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s",(t1Signal.str()).c_str()));
   case 4:
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
+  case 5:
+    return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.GBT_TTC.%s", (t1Signal.str()).c_str()));
   default:
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
   }
@@ -870,7 +874,7 @@ void gem::hw::optohybrid::HwOptoHybrid::resetT1Count(uint8_t const& signal, uint
 
   switch(mode) {
   case 0:
-    l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.GTX_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
     break;
   case 1:
     l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
@@ -885,18 +889,23 @@ void gem::hw::optohybrid::HwOptoHybrid::resetT1Count(uint8_t const& signal, uint
     l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
     break;
   case 5:
-    l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.GBT_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
+    break;
+  case 6:
+    l1aCounterRegisters.push_back(toolbox::toString("%s.GTX_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.GBT_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
     break;
   default:
-    l1aCounterRegisters.push_back(toolbox::toString("%s.TTC.%s.Reset",     regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.GTX_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
+    l1aCounterRegisters.push_back(toolbox::toString("%s.GBT_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
     break;
   }
   writeValueToRegs(l1aCounterRegisters, 0x1);

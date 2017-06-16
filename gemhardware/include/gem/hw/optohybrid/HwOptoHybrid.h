@@ -973,11 +973,13 @@ namespace gem {
            *  Functions related to the various T1 counters on the OptoHybrid
            *  @ingroup ohcounters
            * @param signal specifies which T1 signal counter to read
+           * ** FIXME MAKE THESE ENUMS **
            *  - 0 L1A
            *  - 1 CalPulse
            *  - 2 Resync
            *  - 3 BC0
            * @param mode specifies which T1 counter to read
+           * ** FIXME MAKE THESE ENUMS **
            *  - 0 from AMC TTC decoder over GTX
            *  - 1 from the T1 generator in the firmware
            *  - 2 from an external source
