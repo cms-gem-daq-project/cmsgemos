@@ -606,7 +606,7 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   // TRIGGER registers
   for (uint8_t oh = 0; oh < glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
-    ohname << "OH" << oh;
+    ohname << "OH" << (int)oh;
     is_glib->createUInt32(ohname.str()+"_STATUS",               glib->getDAQLinkStatus(oh),      NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", glib->getDAQLinkCounters(oh, 0), NULL, GEMUpdateType::HW32);
     is_glib->createUInt32(ohname.str()+"_EVN",                  glib->getDAQLinkCounters(oh, 1), NULL, GEMUpdateType::HW32);
