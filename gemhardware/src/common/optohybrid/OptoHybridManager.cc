@@ -284,9 +284,9 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
              mapit != m_vfatMapping.at(slot).at(link).end(); ++mapit) {
           INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
                << std::hex << (int)mapit->second << std::dec << " (from map)");
-          gem::hw::vfat::HwVFAT2& vfatDevice = m_optohybrids.at(slot).at(link)->getVFATDevice(mapit->first);
-          INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
-               << std::hex << (int)vfatDevice.getChipID() << std::dec << " (from HW device) ");
+          // gem::hw::vfat::HwVFAT2& vfatDevice = m_optohybrids.at(slot).at(link)->getVFATDevice(mapit->first);
+          // INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
+          //      << std::hex << (int)vfatDevice.getChipID() << std::dec << " (from HW device) ");
         }
 
         m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
@@ -333,9 +333,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   std::map<int,std::set<int> > hwMapping;
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100); // just for testing the timing of different applications
+      // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -482,9 +482,9 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
   DEBUG("OptoHybridManager::startAction");
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100); // just for testing the timing of different applications
+      // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -535,9 +535,9 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
 {
   // put all connected VFATs into sleep mode?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100); // just for testing the timing of different applications
+      // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -595,7 +595,7 @@ void gem::hw::optohybrid::OptoHybridManager::resumeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into run mode?
-  usleep(100);
+  usleep(10);
   INFO("OptoHybridManager::resumeAction end");
 }
 
@@ -605,9 +605,9 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   DEBUG("OptoHybridManager::stopAction");
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100); // just for testing the timing of different applications
+      // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -669,7 +669,7 @@ void gem::hw::optohybrid::OptoHybridManager::haltAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into sleep mode?
-  usleep(100);
+  usleep(10);
   INFO("OptoHybridManager::haltAction end");
 }
 
@@ -679,10 +679,10 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
   // unregister listeners and items in info spaces
   DEBUG("OptoHybridManager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100);
+    // usleep(10);
     DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100);
+      // usleep(10);
       DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);

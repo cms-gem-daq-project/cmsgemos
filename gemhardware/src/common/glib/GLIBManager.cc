@@ -279,7 +279,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
   }
-  // usleep(100); // just for testing the timing of different applications
+  // usleep(10); // just for testing the timing of different applications
   INFO("GLIBManager::initializeAction end");
 }
 
@@ -289,7 +289,7 @@ void gem::hw::glib::GLIBManager::configureAction()
   DEBUG("GLIBManager::configureAction");
 
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(50); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -366,7 +366,7 @@ void gem::hw::glib::GLIBManager::startAction()
   INFO("GLIBManager::startAction begin");
   // what is required for starting the GLIB?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(50);
+    // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -378,7 +378,7 @@ void gem::hw::glib::GLIBManager::startAction()
       // enable the DAQ
       m_glibs.at(slot)->enableDAQLink(0x4);  //FIXME
       m_glibs.at(slot)->setL1AEnable(true);
-      usleep(100); // just for testing the timing of different applications
+      usleep(10); // just for testing the timing of different applications
     } else {
       std::stringstream msg;
       msg << "GLIBManager::startAction GLIB in slot " << (slot+1) << " is not connected";
@@ -393,7 +393,7 @@ void gem::hw::glib::GLIBManager::startAction()
     m_glibMonitors.at(slot)->reset();
     */
   }
-  // usleep(100);
+  // usleep(10);
   INFO("GLIBManager::startAction end");
 }
 
@@ -402,7 +402,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
 {
   // what is required for pausing the GLIB?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(50);
+    // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -419,7 +419,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
           DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
-          usleep(100);
+          usleep(10);
         }
         DEBUG("GLIBManager::pauseAction GLIB " << (slot+1) << " finished building events, updating run parameter "
               << (int)updatedLatency);
@@ -434,7 +434,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
           DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
-          usleep(100);
+          usleep(10);
         }
         DEBUG("GLIBManager::pauseAction finished GLIB " << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
               << " and VT2 " << (int)updatedVT2);
@@ -469,7 +469,7 @@ void gem::hw::glib::GLIBManager::resumeAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for resuming the GLIB?
-  usleep(100);  // just for testing the timing of different applications
+  usleep(10);  // just for testing the timing of different applications
   INFO("GLIBManager::resumeAction end");
 }
 
@@ -478,7 +478,7 @@ void gem::hw::glib::GLIBManager::stopAction()
 {
   INFO("GLIBManager::stopAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(50);
+    // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -491,7 +491,7 @@ void gem::hw::glib::GLIBManager::stopAction()
       m_glibs[slot]->setL1AEnable(false);
     }
   }
-  usleep(100);  // just for testing the timing of different applications
+  usleep(10);  // just for testing the timing of different applications
   INFO("GLIBManager::stopAction end");
 }
 
@@ -499,7 +499,7 @@ void gem::hw::glib::GLIBManager::haltAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for halting the GLIB?
-  usleep(100);  // just for testing the timing of different applications
+  usleep(10);  // just for testing the timing of different applications
   INFO("GLIBManager::haltAction end");
 }
 
@@ -511,7 +511,7 @@ void gem::hw::glib::GLIBManager::resetAction()
 
   DEBUG("GLIBManager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(50);  // just for testing the timing of different applications
+    // usleep(10);  // just for testing the timing of different applications
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 

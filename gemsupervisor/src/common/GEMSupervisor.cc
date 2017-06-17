@@ -288,7 +288,7 @@ void gem::supervisor::GEMSupervisor::initializeAction()
       while (m_globalState.compositeState(*i) != gem::base::STATE_HALTED) {
         DEBUG("GEMSupervisor::initializeAction waiting for group to reach Halted: "
               << m_globalState.compositeState(*i));
-        usleep(100);
+        usleep(10);
         m_globalState.update();
       }
     }
@@ -395,7 +395,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
 	 << " or "  << gem::base::STATE_CONFIGURED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
-    usleep(100);
+    usleep(10);
     m_globalState.update();
   }
 
@@ -479,7 +479,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
       while (m_globalState.compositeState(*i) != gem::base::STATE_CONFIGURED) {
         DEBUG("GEMSupervisor::configureAction waiting for group to reach Configured: "
               << m_globalState.compositeState(*i));
-        usleep(100);
+        usleep(10);
         m_globalState.update();
       }
     }
@@ -577,7 +577,7 @@ void gem::supervisor::GEMSupervisor::startAction()
     INFO("GEMSupervisor::startAction global state not in " << gem::base::STATE_CONFIGURED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
-    usleep(100);
+    usleep(10);
     m_globalState.update();
   }
 
@@ -643,7 +643,7 @@ void gem::supervisor::GEMSupervisor::startAction()
       while (m_globalState.compositeState(*i) != gem::base::STATE_RUNNING) {
         DEBUG("GEMSupervisor::startAction waiting for group to reach Running: "
               << m_globalState.compositeState(*i));
-        usleep(100);
+        usleep(10);
         m_globalState.update();
       }
     }
@@ -740,7 +740,7 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
-    usleep(100);
+    usleep(10);
     m_globalState.update();
   }
 
@@ -755,7 +755,7 @@ void gem::supervisor::GEMSupervisor::pauseAction()
       while (m_globalState.compositeState(*i) != gem::base::STATE_PAUSED) {
         DEBUG("GEMSupervisor::pauseAction waiting for group to reach Paused: "
               << m_globalState.compositeState(*i));
-        usleep(100);
+        usleep(10);
         m_globalState.update();
       }
     }
@@ -852,7 +852,7 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
-    usleep(100);
+    usleep(10);
     m_globalState.update();
   }
 
@@ -867,7 +867,7 @@ void gem::supervisor::GEMSupervisor::resumeAction()
       while (m_globalState.compositeState(*i) != gem::base::STATE_RUNNING) {
         DEBUG("GEMSupervisor::resumeAction waiting for group to reach Running: "
               << m_globalState.compositeState(*i));
-        usleep(100);
+        usleep(10);
         m_globalState.update();
       }
     }
@@ -930,7 +930,7 @@ void gem::supervisor::GEMSupervisor::stopAction()
 	 << " or " << gem::base::STATE_PAUSED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
-    usleep(100);
+    usleep(10);
     m_globalState.update();
   }
 
@@ -945,7 +945,7 @@ void gem::supervisor::GEMSupervisor::stopAction()
       while (m_globalState.compositeState(*i) != gem::base::STATE_CONFIGURED) {
         DEBUG("GEMSupervisor::stopAction waiting for group to reach Configured: "
               << m_globalState.compositeState(*i));
-        usleep(100);
+        usleep(10);
         m_globalState.update();
       }
     }
@@ -1012,7 +1012,7 @@ void gem::supervisor::GEMSupervisor::haltAction()
       while (m_globalState.compositeState(*i) != gem::base::STATE_HALTED) {
         DEBUG("GEMSupervisor::haltAction waiting for group to reach Halted: "
               << m_globalState.compositeState(*i));
-        usleep(100);
+        usleep(10);
         m_globalState.update();
       }
     }
@@ -1453,7 +1453,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
     while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
       TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	    << " FSM state " << getCurrentState());
-      usleep(100);
+      usleep(10);
       m_globalState.update();
     }
 
@@ -1465,7 +1465,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
     while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Paused")) {
       TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	    << " FSM state " << getCurrentState());
-      usleep(100);
+      usleep(10);
       m_globalState.update();
     }
 
@@ -1478,7 +1478,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
     while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
       TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	    << " FSM state " << getCurrentState());
-      usleep(100);
+      usleep(10);
       m_globalState.update();
     }
   } else {
@@ -1488,7 +1488,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
           << " calling stopAction");
 
     fireEvent("Stop");
-    usleep(1000);
+    usleep(100);
   }
 
   try {

@@ -220,7 +220,7 @@ std::vector<uint32_t> gem::hw::optohybrid::HwOptoHybrid::broadcastRead(std::stri
   while (readReg(getDeviceBaseNode(),"GEB.Broadcast.Running")) {
     TRACE("HwOptoHybrid::broadcastRead transaction on "
           << name << " is still running...");
-    usleep(100);
+    usleep(10);
   }
   auto t2 = std::chrono::high_resolution_clock::now();
   TRACE("HwOptoHybrid::broadcastRead transaction on " << name << " lasted "
@@ -245,7 +245,7 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
   while (readReg(getDeviceBaseNode(),"GEB.Broadcast.Running")) {
     TRACE("HwOptoHybrid::broadcastWrite transaction on "
           << name << " is still running...");
-    usleep(100);
+    usleep(10);
   }
   auto t2 = std::chrono::high_resolution_clock::now();
   TRACE("HwOptoHybrid::broadcastWrite transaction on " << name << " lasted "
@@ -799,7 +799,7 @@ void gem::hw::optohybrid::HwOptoHybrid::updateT1Counters()
     m_t1Counters.External.at(signal) = getT1Count(signal, 0x2);
     m_t1Counters.Loopback.at(signal) = getT1Count(signal, 0x3);
     m_t1Counters.Sent.at(    signal) = getT1Count(signal, 0x4);
-    m_t1Counters.GBT_TTC.at(signal)  = getT1Count(signal, 0x5);
+    m_t1Counters.GBT_TTC.at( signal) = getT1Count(signal, 0x5);
   }
 }
 
@@ -839,17 +839,17 @@ uint32_t gem::hw::optohybrid::HwOptoHybrid::getT1Count(uint8_t const& signal, ui
     t1Signal << "BC0";
 
   switch(mode) {
-  case 0:
+  case(OptoHybridTTCMode::GTX_TTC):
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.GTX_TTC.%s", (t1Signal.str()).c_str()));
-  case 1:
+  case(OptoHybridTTCMode::INTERNAL):
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.INTERNAL.%s",(t1Signal.str()).c_str()));
-  case 2:
+  case(OptoHybridTTCMode::EXTERNAL):
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.EXTERNAL.%s",(t1Signal.str()).c_str()));
-  case 3:
+  case(OptoHybridTTCMode::LOOPBACK):
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.LOOPBACK.%s",(t1Signal.str()).c_str()));
-  case 4:
+  case(OptoHybridTTCMode::SENT):
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
-  case 5:
+  case(OptoHybridTTCMode::GBT_TTC):
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.GBT_TTC.%s", (t1Signal.str()).c_str()));
   default:
     return readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.T1.SENT.%s",    (t1Signal.str()).c_str()));
@@ -873,25 +873,25 @@ void gem::hw::optohybrid::HwOptoHybrid::resetT1Count(uint8_t const& signal, uint
   std::vector<std::string> l1aCounterRegisters;
 
   switch(mode) {
-  case 0:
+  case(OptoHybridTTCMode::GTX_TTC):
     l1aCounterRegisters.push_back(toolbox::toString("%s.GTX_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
     break;
-  case 1:
+  case(OptoHybridTTCMode::INTERNAL):
     l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     break;
-  case 2:
+  case(OptoHybridTTCMode::EXTERNAL):
     l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     break;
-  case 3:
+ case(OptoHybridTTCMode::LOOPBACK):
     l1aCounterRegisters.push_back(toolbox::toString("%s.LOOPBACK.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     break;
-  case 4:
+  case(OptoHybridTTCMode::SENT):
     l1aCounterRegisters.push_back(toolbox::toString("%s.SENT.%s.Reset",    regName.str().c_str(),t1Signal.str().c_str()));
     break;
-  case 5:
+  case(OptoHybridTTCMode::GBT_TTC):
     l1aCounterRegisters.push_back(toolbox::toString("%s.GBT_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
     break;
-  case 6:
+  case(OptoHybridTTCMode::RESET):
     l1aCounterRegisters.push_back(toolbox::toString("%s.GTX_TTC.%s.Reset", regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.INTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
     l1aCounterRegisters.push_back(toolbox::toString("%s.EXTERNAL.%s.Reset",regName.str().c_str(),t1Signal.str().c_str()));
