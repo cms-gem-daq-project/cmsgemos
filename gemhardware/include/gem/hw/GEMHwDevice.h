@@ -147,7 +147,7 @@ namespace gem {
       /**
        * Generic read/write functions or IPBus devices
        * operation will be the same for the GLIB, MP7, VFAT2/3,
-       * and AMC13 ( we should use the already defined AMC13, rather than write our own,
+       * and AMC13 (we should use the already defined AMC13, rather than write our own,
        * unless there are GEM specific functions we need to implement)
        */
 
@@ -156,14 +156,14 @@ namespace gem {
        * @param regName name of the register to read
        * @retval returns the 32 bit unsigned value in the register
        */
-      uint32_t readReg( std::string const& regName);
+      uint32_t readReg(std::string const& regName);
 
       /**
        * readReg(uint32_t const& regAddr)
        * @param regAddr address of the register to read
        * @retval returns the 32 bit unsigned value in the register
        */
-      uint32_t readReg( uint32_t const& regAddr);
+      uint32_t readReg(uint32_t const& regAddr);
 
       /**
        * readReg(uint32_t const& regAddr)
@@ -171,7 +171,7 @@ namespace gem {
        * @param regMask mask of the register to read
        * @retval returns the 32 bit unsigned value in the register
        */
-      uint32_t readReg( uint32_t const& regAddr, uint32_t const& regMask);
+      uint32_t readReg(uint32_t const& regAddr, uint32_t const& regMask);
 
       /**
        * readReg(std::string const& regPrefix, std::string const& regName)
@@ -179,8 +179,8 @@ namespace gem {
        * @param regName name of the register to read from the address table
        * @retval returns the 32 bit unsigned value
        */
-      uint32_t readReg( const std::string &regPrefix,
-                        const std::string &regName) {
+      uint32_t readReg(const std::string &regPrefix,
+                       const std::string &regName) {
         return readReg(regPrefix+"."+regName); };
 
       /**
@@ -188,45 +188,48 @@ namespace gem {
        * @param regName name of the register to read
        * @retval returns the 32 bit unsigned value in the register
        */
-      uint32_t readMaskedAddress( std::string const& regName);
+      uint32_t readMaskedAddress(std::string const& regName);
 
       /**
-       * readRegs( register_pair_list &regList)
+       * readRegs(register_pair_list &regList)
        * read list of registers in a single transaction (one dispatch call)
        * into the supplied vector regList
        * @param regList list of register name and uint32_t value to store the result
+       * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     readRegs( register_pair_list &regList);
+      void     readRegs(register_pair_list &regList, int const& freq=8);
 
       /**
-       * readRegs( addressed_register_pair_list &regList)
+       * readRegs(addressed_register_pair_list &regList)
        * read list of registers in a single transaction (one dispatch call)
        * into the supplied vector regList
        * @param regList list of register address and uint32_t value to store the result
+       * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     readRegs( addressed_register_pair_list &regList);
+      void     readRegs(addressed_register_pair_list &regList, int const& freq=8);
 
       /**
-       * readRegs( masked_register_pair_list &regList)
+       * readRegs(masked_register_pair_list &regList)
        * read list of registers in a single transaction (one dispatch call)
        * into the supplied vector regList
        * @param regList list of register address/mask pair and uint32_t value to store the result
+       * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     readRegs( masked_register_pair_list &regList);
+      void     readRegs(masked_register_pair_list &regList, int const& freq=8);
 
       /**
        * writeReg(std::string const& regName, uint32_t const val)
        * @param regName name of the register to read
        * @param val value to write to the register
        */
-      void     writeReg( std::string const& regName, uint32_t const val);
+      void     writeReg(std::string const& regName, uint32_t const val);
 
       /**
        * writeReg(uint32_t const& regAddr, uint32_t const val)
        * @param regAddr address of the register to read
        * @param val value to write to the register
        */
-      void     writeReg( uint32_t const& regAddr, uint32_t const val);
+      void     writeReg(uint32_t const& regAddr, uint32_t const val);
 
       /**
        * writeReg(std::string const& regPrefux, std::string const& regName, uint32_t const val)
@@ -234,9 +237,9 @@ namespace gem {
        * @param regName name of the register to write to
        * @param val value to write to the register
        */
-      void     writeReg( const std::string &regPrefix,
-                         const std::string &regName,
-                         uint32_t const val) {
+      void     writeReg(const std::string &regPrefix,
+                        const std::string &regName,
+                        uint32_t const val) {
         return writeReg(regPrefix+"."+regName, val); };
 
       /**
@@ -244,8 +247,9 @@ namespace gem {
        * write list of registers in a single transaction (one dispatch call)
        * using the supplied vector regList
        * @param regList std::vector of a pairs of register names and values to write
+       * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     writeRegs(register_pair_list const& regList);
+      void     writeRegs(register_pair_list const& regList, int const& freq=8);
 
       /**
        * writeRegs(register_pair_list const& regList)
@@ -253,15 +257,18 @@ namespace gem {
        * (one dispatch call) using the supplied vector regList
        * @param regList list of registers to write a value to
        * @param regValue uint32_t value to write to the list of registers
+       * @param freq integer number of transactions to bundle (-1 for all)
        */
-      void     writeValueToRegs(std::vector<std::string> const& regList, uint32_t const& regValue);
+      void     writeValueToRegs(std::vector<std::string> const& regList,
+                                uint32_t                 const& regValue,
+                                int                      const& freq=8);
 
       /**
        * zeroReg(std::string const& regName)
        * write zero to a single register
        * @param regName register to zero
        */
-      void     zeroReg(  std::string const& regName) { writeReg(regName,0); };
+      void     zeroReg( std::string const& regName) { writeReg(regName,0); };
 
       /**
        * zeroRegs(std::vector<std::string> const& regNames)
@@ -269,14 +276,14 @@ namespace gem {
        * using the supplied vector regNames
        * @param regNames registers to zero
        */
-      void     zeroRegs( std::vector<std::string> const& regNames);
+      void     zeroRegs(std::vector<std::string> const& regNames, int const& freq=8);
 
       /**
        * readBlock(std::string const& regName)
        * read from a memory block
        * @param regName fixed size memory block to read from
        */
-      std::vector<uint32_t> readBlock( std::string const& regName);
+      std::vector<uint32_t> readBlock(std::string const& regName);
 
       /**
        * readBlock(std::string const& regName, size_t const nWords)
@@ -285,8 +292,8 @@ namespace gem {
        * @param nWords size of the memory block to read
        * @retval returns a vector of 32 bit unsigned value
        */
-      std::vector<uint32_t> readBlock( std::string const& regName,
-                                       size_t      const& nWords);
+      std::vector<uint32_t> readBlock(std::string const& regName,
+                                      size_t      const& nWords);
 
       uint32_t readBlock(std::string const& regName, uint32_t* buffer, size_t const& nWords);
       uint32_t readBlock(std::string const& regName, std::vector<toolbox::mem::Reference*>& buffer,
@@ -302,19 +309,19 @@ namespace gem {
                       std::vector<uint32_t> const values);
 
       /**
-       * zeroBlock( std::string const& regName)
+       * zeroBlock(std::string const& regName)
        * write zeros to a block of memory
        * @param regName block or memory to zero
        */
-      void zeroBlock( std::string const& regName);
+      void zeroBlock(std::string const& regName);
 
       /**
        * readFIFO(std::string const& regName)
        * read from a FIFO
        * @param regName fixed size memory block to read from
        */
-      std::vector<uint32_t> readFIFO( std::string const& regName);
-      //size_t readFIFO( std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
+      std::vector<uint32_t> readFIFO(std::string const& regName);
+      //size_t readFIFO(std::string const& regName, size_t nWords, uint32_t* buffer); /*hcal style */
 
       /**
        * readFIFO(std::string const& regName, size_t const nWords)
@@ -323,8 +330,8 @@ namespace gem {
        * @param nWords number of words to read from the FIFO
        * @retval returns a vector of 32 bit unsigned value
        */
-      std::vector<uint32_t> readFIFO( std::string const& regName,
-                                      size_t      const& nWords);
+      std::vector<uint32_t> readFIFO(std::string const& regName,
+                                     size_t      const& nWords);
 
       /**
        * writeFIFO(std::string const& regName, std::vector<uint32_t> const values)
@@ -336,11 +343,11 @@ namespace gem {
                      std::vector<uint32_t> const values);
 
       /**
-       * zeroFIFO( std::string const& regName)
+       * zeroFIFO(std::string const& regName)
        * reset a FIFO
        * @param regName FIFO to zero
        */
-      void zeroFIFO( std::string const& regName);
+      void zeroFIFO(std::string const& regName);
 
 
       // These methods provide access to the member variables
