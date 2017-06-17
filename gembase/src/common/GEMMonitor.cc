@@ -164,7 +164,7 @@ void gem::base::GEMMonitor::addInfoSpace(std::string const& name,
     std::pair<std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>,
     toolbox::TimeInterval> >::const_iterator it = m_infoSpaceMap.find(name);
   if (it != m_infoSpaceMap.end()) {
-    INFO("GEMMonitor::addInfoSpace infospace " << name << " already exists in monitor!");
+    DEBUG("GEMMonitor::addInfoSpace infospace " << name << " already exists in monitor!");
     return;
   }
   DEBUG("GEMMonitor::addInfoSpace adding infospace " << name);
@@ -181,7 +181,7 @@ void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::s
   // it = m_monitorableSetsMap.find(setname);
   // if (it != m_monitorableSetsMap.end()) {
   if (m_monitorableSetsMap.count(setname)) {
-    INFO("GEMMonitor::addMonitorableSet monitorable set '" << setname << "' already exists in monitor!");
+    DEBUG("GEMMonitor::addMonitorableSet monitorable set '" << setname << "' already exists in monitor!");
     return;
   }
 
