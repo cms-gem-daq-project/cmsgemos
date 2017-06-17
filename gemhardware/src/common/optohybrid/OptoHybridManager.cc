@@ -416,7 +416,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 	if (m_scanType.value_ == 2) {
 	  INFO("OptoHybridManager::configureAction configureAction: FIRST Latency  " << m_scanMin.value_);
           vfatSettings["Latency"    ] = (uint8_t)(m_scanMin.value_);
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
           // HACK
           // have to enable the pulse to the channel if using cal pulse latency scan
           // but shouldn't mess with other settings... not possible here, so just a hack
@@ -431,9 +431,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 	  INFO("OptoHybridManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
           vfatSettings["VThreshold1"] = (uint8_t)(initialVT1&0xff);
           vfatSettings["VThreshold2"] = (uint8_t)(initialVT2&0xff);
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
 	} else {
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
 	}
 
 	std::array<std::string, 11> setupregs = {{"ContReg0", "ContReg2", "IPreampIn", "IPreampFeed", "IPreampOut",
@@ -641,7 +641,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         vfatSettings["Latency"    ] = (uint8_t)(info.commonVFATSettings.bag.Latency.value_);
 
 	if (m_scanType.value_ == 2) {
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
           // HACK
           // have to disable the pulse to the channel if using cal pulse latency scan
           // but shouldn't mess with other settings... not possible here, so just a hack
@@ -650,7 +650,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
           // optohybrid->broadcastWrite("VFATChannels.ChanReg65",  0x00, vfatMask);
           // optohybrid->broadcastWrite("VCal",                    0x00, vfatMask);
 	} else if (m_scanType.value_ == 3) {
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
         }
       } else {
         std::stringstream msg;
