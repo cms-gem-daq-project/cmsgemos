@@ -783,5 +783,3 @@ void gem::hw::amc13::AMC13Manager::endScanPoint()
                                                 p_appContext,p_appDescriptor,//getApplicationContext(),this->getApplicationDescriptor(),
                                                 const_cast<xdaq::ApplicationDescriptor*>(p_appZone->getApplicationDescriptor("gem::supervisor::GEMSupervisor", 0)));  // this should not be hard coded
 }
-
-
