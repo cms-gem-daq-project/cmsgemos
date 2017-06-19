@@ -162,6 +162,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
   throw (gem::hw::glib::exception::Exception)
 {
   DEBUG("GLIBManager::initializeAction begin");
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     GLIBInfo& info = m_glibInfo[slot].bag;
@@ -187,6 +188,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     }
   }
 
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -263,6 +265,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // hardware should be connected, can update ldqm_db for teststand/local runs
   }
 
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -288,6 +291,7 @@ void gem::hw::glib::GLIBManager::configureAction()
 {
   DEBUG("GLIBManager::configureAction");
 
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     GLIBInfo& info = m_glibInfo[slot].bag;
@@ -365,6 +369,7 @@ void gem::hw::glib::GLIBManager::startAction()
 
   INFO("GLIBManager::startAction begin");
   // what is required for starting the GLIB?
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -376,7 +381,7 @@ void gem::hw::glib::GLIBManager::startAction()
     if (m_glibs.at(slot)->isHwConnected()) {
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
-      m_glibs.at(slot)->enableDAQLink(0x4);  //FIXME
+      m_glibs.at(slot)->enableDAQLink(0x4);  // FIXME
       m_glibs.at(slot)->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
     } else {
@@ -401,6 +406,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for pausing the GLIB?
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -477,6 +483,7 @@ void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
   INFO("GLIBManager::stopAction begin");
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -510,6 +517,7 @@ void gem::hw::glib::GLIBManager::resetAction()
   // unregister listeners and items in info spaces
 
   DEBUG("GLIBManager::resetAction begin");
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);  // just for testing the timing of different applications
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
