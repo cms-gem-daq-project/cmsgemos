@@ -204,6 +204,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   DEBUG("OptoHybridManager::initializeAction begin");
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     DEBUG("OptoHybridManager::initializeAction looping over slots(" << (slot+1) << ") and finding expected cards");
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -332,6 +333,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 
   std::map<int,std::set<int> > hwMapping;
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -452,6 +454,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         // what else is required for configuring the OptoHybrid?
         // need to reset optical links?
         // reset counters?
+        // FIXME, should not be here or done like this
         uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
         gtxMask |= (0x1<<link);
         optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
@@ -481,6 +484,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
 
   DEBUG("OptoHybridManager::startAction");
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -534,6 +538,7 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into sleep mode?
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -604,6 +609,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
 {
   DEBUG("OptoHybridManager::stopAction");
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
@@ -678,6 +684,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
 {
   // unregister listeners and items in info spaces
   DEBUG("OptoHybridManager::resetAction begin");
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
     DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
