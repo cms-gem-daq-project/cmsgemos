@@ -315,14 +315,15 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
   // enable SFP outputs based on mask configuration
   p_amc13->sfpOutputEnable(m_sfpMask);
-  /*
+
   // ignore AMC tts state per mask
-  if (m_ignoreAmcTts) {
-    p_amc13->write(amc13::AMC13Simple::T1, "CONF.AMC.TTS_DISABLE_MASK", 0xfff);
+  m_ignoreAMCTTS = p_amc13->parseInputEnableList(m_amcIgnoreTTSList,true);
+  if (m_ignoreAMCTTS) {
+    p_amc13->write(::amc13::AMC13Simple::T1, "CONF.AMC.TTS_DISABLE_MASK", m_ignoreAMCTTS);
   } else {
-    p_amc13->write(amc13::AMC13Simple::T1, "CONF.AMC.TTS_DISABLE_MASK", 0x0);
+    p_amc13->write(::amc13::AMC13Simple::T1, "CONF.AMC.TTS_DISABLE_MASK", 0x0);
   }
-  */
+
   // Use local TTC signal if config says to
   p_amc13->localTtcSignalEnable(m_enableLocalTTC);
 
