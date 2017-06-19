@@ -278,7 +278,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   }
 
-  DEBUG("AMC13Manager::finished with AMC13::AMC13()");
+  DEBUG("AMC13Manager::initializeAction finished with AMC13::AMC13()");
 
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
@@ -307,7 +307,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   // enable daq link (if SFP mask is non-zero
-  DEBUG("Enabling DAQLink with settings: fake data:" << m_enableFakeData
+  DEBUG("AMC13Manager::initializeAction Enabling DAQLink with settings: fake data:" << m_enableFakeData
         << ", sfpMask:" << m_sfpMask);
 
   p_amc13->fakeDataEnable(m_enableFakeData);
@@ -317,6 +317,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->sfpOutputEnable(m_sfpMask);
 
   // ignore AMC tts state per mask
+  INFO("AMC13Manager::initializeAction m_amcIgnoreTTSList " << m_amcIgnoreTTSList);
   m_ignoreAMCTTS = p_amc13->parseInputEnableList(m_amcIgnoreTTSList,true);
   INFO("AMC13Manager::initializeAction m_amcIgnoreTTSList " << m_amcIgnoreTTSList
        << " parsed as m_ignoreAMCTTS: " << std::hex << m_ignoreAMCTTS << std::dec);
