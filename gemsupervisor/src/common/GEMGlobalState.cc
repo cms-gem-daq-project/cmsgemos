@@ -113,9 +113,9 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
       if (initialGlobalState == gem::base::STATE_INITIAL ||
           initialGlobalState == gem::base::STATE_INITIALIZING ||
           initialGlobalState == gem::base::STATE_RESETTING) {
-        INFO("GEMGlobalState::calculateGlobalState: ignoring " << classname
-             << " in state '" << appState->second.state << "'"
-             << " for initial global state '" << initialGlobalState << "'");
+        DEBUG("GEMGlobalState::calculateGlobalState: ignoring " << classname
+              << " in state '" << appState->second.state << "'"
+              << " for initial global state '" << initialGlobalState << "'");
         continue;
       }
     }
@@ -385,8 +385,8 @@ toolbox::fsm::State gem::supervisor::GEMGlobalState::compositeState(std::vector<
       continue; // ignore this priority for the compositeState
 
     std::string classname = app->first->getClassName().c_str();
-    INFO("GEMGlobalState::compositeState: " << classname << " is in state '" << appState
-         << "' for composite state '" << compState << "'");
+    DEBUG("GEMGlobalState::compositeState: " << classname << " is in state '" << appState
+          << "' for composite state '" << compState << "'");
 
     if (getStatePriority(appState) < getStatePriority(compState))
       compState = appState;
