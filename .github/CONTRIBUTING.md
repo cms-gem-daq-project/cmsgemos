@@ -29,7 +29,7 @@ in the title so that the maintainers can apply the appropriate label easily.
 | Label name | `cms-gem-daq-project/cmsgemos` :mag_right: | `cms-gem-daq-project` :mag_right: | Description |
 | ---------- |:------------------------------------------ |:--------------------------------- |:----------- |
 | `Type: Bug` | search [repo][search-cmsgemos-repo-label-bug] for issues | search [organization][search-cms-gem-daq-project-label-bug] for issues | Issue reports a `bug`, and supplementary information, i.e., how to reproduce, useful debugging info, etc. |
-| `Type: Bugfixfix` | search [repo][search-cmsgemos-repo-label-bugfix] for issues | search [organization][search-cms-gem-daq-project-label-bugfix] for issues | Issue reports a `bugfix`, and references the bug issue |
+| `Type: Bugfix` | search [repo][search-cmsgemos-repo-label-bugfix] for issues | search [organization][search-cms-gem-daq-project-label-bugfix] for issues | Issue reports a `bugfix`, and references the bug issue |
 | `Type: Duplicate` | search [repo][search-cmsgemos-repo-label-duplicate] for issues | search [organization][search-cms-gem-daq-project-label-duplicate] for issues | Issue will be tagged as `duplicate`, and a reference to the initial issue will be added|
 | `Type: Enhancement` | search [repo][search-cmsgemos-repo-label-enhancement] for issues | search [organization][search-cms-gem-daq-project-label-enhancement] for issues | Issue reports an `enhancement` |
 | `Type: Feature Request` | search [repo][search-cmsgemos-repo-label-feature-request] for issues | search [organization][search-cms-gem-daq-project-label-feature-request] for issues | Issue contains a `feature-request` |
