@@ -2,12 +2,12 @@
 The following are a set of guidelines to help you in contributing to the ```cmsgemos``` code base.
 
 ## How to start developing
-Start by forking the main (```cmsgemos```)[https://github.com/cms-gem-daq-project/cmsgemos] repository.
+Start by forking the main [```cmsgemos```](https://github.com/cms-gem-daq-project/cmsgemos) repository.
 Once you have your fork, then you can check it out to where you will be developing.
 
 
 ### Workflow
-We have been utilizing a very helpful guideline for our development process outlined (here)[http://nvie.com/posts/a-successful-git-branching-model/]
+We have been utilizing a very helpful guideline for our development process outlined [here](http://nvie.com/posts/a-successful-git-branching-model/)
 The basic idea is, create a branch to develop your particular feature, or hotfix, once that feature is completed, create a pull request.
 Commit messages should be short, but descriptive.  If they reference an issue or PR, please include that information.
 
@@ -66,6 +66,8 @@ Maintainers will (hopefully) properly migrate issues and pull requests through t
 | `Status: In Progress` | [search][search-cmsgemos-repo-status-in-progress] | [search][search-cms-gem-daq-project-status-in-progress] | Issue/PR `in-progress`:  actively being worked on |
 | `Status: Review Needed` | [search][search-cmsgemos-repo-status-review-needed] | [search][search-cms-gem-daq-project-status-review-needed] | Issue/PR `review-needed`: ready for inclusion, needs review |
 
+###### Acknowledgements
+* Much style and syntax of this was borrowed heavily from the [atom](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) repository
 
 [search-cmsgemos-repo-label-bug]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+repo%3cms-gem-daq-project%2cmsgemos+user%3Acms-gem-daq-project+label%3A%22Type%3A+Bug%22
 [search-cms-gem-daq-project-label-bug]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+user%3Acms-gem-daq-project+label%3A%22Type%3A+Bug%22
