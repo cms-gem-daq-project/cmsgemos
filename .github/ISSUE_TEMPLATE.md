@@ -4,9 +4,7 @@
 
 ### Types of issue
 <!--- Propsed labels (see CONTRIBUTING.md) to help maintainers label your issue: -->
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to change)
+- [ ] Bug report (report an issue with the code)
 - [ ] Feature request (request for change which adds functionality)
 
 ## Expected Behavior
