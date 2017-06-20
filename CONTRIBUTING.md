@@ -30,11 +30,12 @@ in the title so that the maintainers can apply the appropriate label easily.
 | `Type: Bug`         | [search][search-cmsgemos-repo-label-bug]         | [search][search-cms-gem-daq-project-label-bug]         | Issue reports a `bug`, and supplementary information, i.e., how to reproduce, useful debugging info, etc. |
 | `Type: Bugfixfix`   | [search][search-cmsgemos-repo-label-bugfix]      | [search][search-cms-gem-daq-project-label-bugfix]      | Issue reports a `bugfix`, and references the bug issue |
 | `Type: Duplicate`   | [search][search-cmsgemos-repo-label-duplicate]   | [search][search-cms-gem-daq-project-label-duplicate]   | Issue will be tagged as `duplicate`, and a reference to the initial issue will be added|
-| `Type: Enhancement` | [search][search-cmsgemos-repo-label-enhancement] | [search][search-cms-gem-daq-project-label-enhancement] | Issue reports an `enhancement`or `enhancement` request |
-| `Type: Maintenance` | [search][search-cmsgemos-repo-label-maintenance] | [search][search-cms-gem-daq-project-label-maintenance] | Issue reports a `maintenance` or `maintenance` request |
-| `Type: New Tag`     | [search][search-cmsgemos-repo-label-new-tag]     | [search][search-cms-gem-daq-project-label-new-tag]     | Issue reports a bug, and supplementary information, i.e., how to reproduce, useful debugging info, etc. |
-| `Type: Question`    | [search][search-cmsgemos-repo-label-question]    | [search][search-cms-gem-daq-project-label-question]    | Issue raises a question, though it will generally be better to contact on mattermost |
-| `Type: Answer`      | [search][search-cmsgemos-repo-label-answer]      | [search][search-cms-gem-daq-project-label-answer]      | Issue will answer a previously referenced question|
+| `Type: Enhancement` | [search][search-cmsgemos-repo-label-enhancement] | [search][search-cms-gem-daq-project-label-enhancement] | Issue reports an `enhancement` |
+| `Type: Feature Request` | [search][search-cmsgemos-repo-label-feature-request] | [search][search-cms-gem-daq-project-label-feature-request] | Issue contains a `feature-request` |
+| `Type: Maintenance` | [search][search-cmsgemos-repo-label-maintenance] | [search][search-cms-gem-daq-project-label-maintenance]     | Issue reports a `maintenance` or `maintenance` request |
+| `Type: New Tag`     | [search][search-cmsgemos-repo-label-new-tag]     | [search][search-cms-gem-daq-project-label-new-tag]         | Issue reports a bug, and supplementary information, i.e., how to reproduce, useful debugging info, etc. |
+| `Type: Question`    | [search][search-cmsgemos-repo-label-question]    | [search][search-cms-gem-daq-project-label-question]        | Issue raises a question, though it will generally be better to contact on mattermost |
+| `Type: Answer`      | [search][search-cmsgemos-repo-label-answer]      | [search][search-cms-gem-daq-project-label-answer]          | Issue will answer a previously referenced question|
 
 #### Issue and Pull Request Labels
 Maintainers will (hopefully) attach a priority based on the information given in the issue/PR.
@@ -71,6 +72,8 @@ Maintainers will (hopefully) properly migrate issues and pull requests through t
 [search-cms-gem-daq-project-label-duplicate]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+user%3Acms-gem-daq-project+label%3A%22Type%3A+Duplicate%22
 [search-cmsgemos-repo-label-enhancement]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+repo%3cms-gem-daq-project%2cmsgemos+user%3Acms-gem-daq-project+label%3A%22Type%3A+Enhancement%22
 [search-cms-gem-daq-project-label-enhancement]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+user%3Acms-gem-daq-project+label%3A%22Type%3A+Enhancement%22
+[search-cmsgemos-repo-label-feature-request]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+repo%3cms-gem-daq-project%2cmsgemos+user%3Acms-gem-daq-project+label%3A%22Type%3A+Feature+Request%22
+[search-cms-gem-daq-project-label-feature-request]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+user%3Acms-gem-daq-project+label%3A%22Type%3A+Feature+Request%22
 [search-cmsgemos-repo-label-maintenance]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+repo%3cms-gem-daq-project%2cmsgemos+user%3Acms-gem-daq-project+label%3A%22Type%3A+Maintenance%22
 [search-cms-gem-daq-project-label-maintenance]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+user%3Acms-gem-daq-project+label%3A%22Type%3A+Maintenance%22
 [search-cmsgemos-repo-label-question]: https://github.com/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+repo%3cms-gem-daq-project%2cmsgemos+user%3Acms-gem-daq-project+label%3A%22Type%3A+Question%22
