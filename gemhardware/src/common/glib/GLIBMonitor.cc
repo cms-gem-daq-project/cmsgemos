@@ -149,50 +149,50 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("TTC_SPY", "TTC.TTC_SPY_BUFFER"),
                  GEMUpdateType::HW32, "hex");
 
-  addMonitorableSet("Trigger", "HWMonitoring");
+  addMonitorableSet("Trigger Status", "HWMonitoring");
   for (uint8_t oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
-    ohname << "OH" << (int)oh;
-    addMonitorableSet(ohname.str() + " DAQ Status", "HWMonitoring");
-    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+    ohname << "OH" <<  (int)oh;
+    addMonitorableSet("DAQ Status", "HWMonitoring");
+    addMonitorable("DAQ Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_STATUS", "DAQ."+ohname.str()+".STATUS"),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+    addMonitorable("DAQ Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_CORRUPT_VFAT_BLK_CNT", "DAQ."+ohname.str()+".COUNTERS.CORRUPT_VFAT_BLK_CNT"),
                    GEMUpdateType::HW32, "dec");
-    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+    addMonitorable("DAQ Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_EVN", "DAQ."+ohname.str()+".COUNTERS.EVN"),
                    GEMUpdateType::HW32, "dec");
-    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+    addMonitorable("DAQ Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_EOE_TIMEOUT", "DAQ."+ohname.str()+".CONTROL.EOE_TIMEOUT"),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+    addMonitorable("DAQ Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_MAX_EOE_TIMER", "DAQ."+ohname.str()+".COUNTERS.MAX_EOE_TIMER"),
                    GEMUpdateType::HW32, "hex");
-    addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
+    addMonitorable("DAQ Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_LAST_EOE_TIMER", "DAQ."+ohname.str()+".COUNTERS.LAST_EOE_TIMER"),
                    GEMUpdateType::HW32, "hex");
 
-    addMonitorable("Trigger", "HWMonitoring",
+    addMonitorable("Trigger Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_TRIGGER_RATE", "TRIGGER."+ohname.str()+".TRIGGER_RATE"),
-                   GEMUpdateType::HW32, "hex");
-    addMonitorable("Trigger", "HWMonitoring",
+                   GEMUpdateType::HW32, "dec");
+    addMonitorable("Trigger Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_TRIGGER_CNT", "TRIGGER."+ohname.str()+".TRIGGER_CNT"),
                    GEMUpdateType::HW32, "hex");
 
     for (int cluster = 0; cluster < 8; ++cluster) {
       std::stringstream cluname;
       cluname << "CLUSTER_SIZE_" << cluster;
-      addMonitorable("Trigger", "HWMonitoring",
+      addMonitorable("Trigger Status", "HWMonitoring",
                      std::make_pair(ohname.str()+"_"+cluname.str()+"_RATE", "TRIGGER."+ohname.str()+"."+cluname.str()+"_RATE"),
-                     GEMUpdateType::HW32, "hex");
-      addMonitorable("Trigger", "HWMonitoring",
+                     GEMUpdateType::HW32, "dec");
+      addMonitorable("Trigger Status", "HWMonitoring",
                      std::make_pair(ohname.str()+"_"+cluname.str()+"_CNT", "TRIGGER."+ohname.str()+"."+cluname.str()+"_CNT"),
                      GEMUpdateType::HW32, "hex");
       cluname.str("");
       cluname.clear();
       cluname << "DEBUG_LAST_CLUSTER_" << cluster;
-      addMonitorable("Trigger", "HWMonitoring",
+      addMonitorable("Trigger Status", "HWMonitoring",
                      std::make_pair(ohname.str()+"_"+cluname.str(), "TRIGGER."+ohname.str()+"."+cluname.str()),
                      GEMUpdateType::HW32, "hex");
     }
@@ -276,35 +276,106 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
   // create a div tab for each set, and a table for each set of values
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (auto monset = monsets.begin(); monset != monsets.end(); ++monset) {
-    *out << "<div class=\"xdaq-tab\" title=\""  << *monset << "\" >"  << std::endl;
-    *out << "<table class=\"xdaq-table\" id=\"" << *monset << "_table\">" << std::endl
-         << cgicc::thead() << std::endl
-         << cgicc::tr()    << std::endl // open
-         << cgicc::th()    << "Register name"    << cgicc::th() << std::endl
-         << cgicc::th()    << "Value"            << cgicc::th() << std::endl
-         << cgicc::th()    << "Register address" << cgicc::th() << std::endl
-         << cgicc::th()    << "Description"      << cgicc::th() << std::endl
-         << cgicc::tr()    << std::endl // close
-         << cgicc::thead() << std::endl
-         << "<tbody>" << std::endl;
+    if ((*monset).rfind("DAQ Status") != std::string::npos) {
+      buildDAQStatusTable(out);
+    } else if ((*monset).rfind("Trigger Status") != std::string::npos) {
+      buildTriggerStatusTable(out);
+    } else {
+      DEBUG("GLIBMonitor::buildMonitorPage building table " << *monset);
+      *out << "<div class=\"xdaq-tab\" title=\""  << *monset << "\" >"  << std::endl
+           << "<table class=\"xdaq-table\" id=\"" << *monset << "_table\">" << std::endl
+           << cgicc::thead() << std::endl
+           << cgicc::tr()    << std::endl // open
+           << cgicc::th()    << "Register name"    << cgicc::th() << std::endl
+           << cgicc::th()    << "Value"            << cgicc::th() << std::endl
+           << cgicc::th()    << "Register address" << cgicc::th() << std::endl
+           << cgicc::th()    << "Description"      << cgicc::th() << std::endl
+           << cgicc::tr()    << std::endl // close
+           << cgicc::thead() << std::endl
+           << "<tbody>" << std::endl;
 
-    for (auto monitem = m_monitorableSetsMap.find(*monset)->second.begin();
-         monitem != m_monitorableSetsMap.find(*monset)->second.end(); ++monitem) {
+      for (auto monitem = m_monitorableSetsMap.find(*monset)->second.begin();
+           monitem != m_monitorableSetsMap.find(*monset)->second.end(); ++monitem) {
+        *out << "<tr>"    << std::endl;
+
+        *out << "<td>"    << std::endl
+             << monitem->first
+             << "</td>"   << std::endl;
+
+        DEBUG("GLIBMonitor::" << monitem->first << " formatted to "
+              << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+        // this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
+        *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
+             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+             << "</td>"   << std::endl;
+
+        *out << "<td>"    << std::endl
+             << monitem->second.regname
+             << "</td>"   << std::endl;
+
+        *out << "<td>"    << std::endl
+             << "description"
+             << "</td>"   << std::endl;
+
+        *out << "</tr>"   << std::endl;
+      }
+      *out << "</tbody>"  << std::endl
+           << "</table>"  << std::endl
+           << "</div>"    << std::endl;  // closes monset tab
+    }
+  }
+  *out << "</div>"  << std::endl;  // closes cardPage tab wrapper
+}
+
+void gem::hw::glib::GLIBMonitor::buildDAQStatusTable(xgi::Output* out)
+{
+  DEBUG("GLIBMonitor::buildDAQStatusTable");
+  if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
+    WARN("Unable to find item set HWMonitoring in monitor");
+    return;
+  }
+
+  auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
+
+  if (std::find(monsets.begin(),monsets.end(),"DAQ Status") == monsets.end()) {
+    WARN("Unable to find item set 'DAQ Status' in list of HWMonitoring monitor sets");
+    return;
+  }
+
+  auto monset = m_monitorableSetsMap.find("DAQ Status")->second;
+  DEBUG("GLIBMonitor::buildDAQStatusTable building DAQ Status table");
+  *out << "<div class=\"xdaq-tab\" title=\"DAQ Status\">" << std::endl
+       << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
+
+  DEBUG("GLIBMonitor::buildDAQStatusTable building Common DAQ Status table");
+  *out << "<div class=\"xdaq-tab\" title=\"" << "Common DAQ Status" << "\">" << std::endl
+       << "<table class=\"xdaq-table\" id=\"CommonDAQStatus_table\">" << std::endl
+       << cgicc::thead() << std::endl
+       << cgicc::tr()    << std::endl // open
+       << cgicc::th()    << "Register name"    << cgicc::th() << std::endl
+       << cgicc::th()    << "Value"            << cgicc::th() << std::endl
+       << cgicc::th()    << "Register address" << cgicc::th() << std::endl
+       << cgicc::th()    << "Description"      << cgicc::th() << std::endl
+       << cgicc::tr()    << std::endl // close
+       << cgicc::thead() << std::endl
+       << "<tbody>" << std::endl;
+  for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
+    if (monpair->first.find("OH") == std::string::npos) {
       *out << "<tr>"    << std::endl;
 
       *out << "<td>"    << std::endl
-           << monitem->first
+           << monpair->first
            << "</td>"   << std::endl;
 
-      DEBUG("GLIBMonitor::" << monitem->first << " formatted to "
-            << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
+      INFO("GLIBMonitor::" << monpair->first << " formatted to "
+            << (monpair->second.infoSpace)->getFormattedItem(monpair->first,monpair->second.format));
       // this will be repeated for every GLIBMonitor in the GLIBManager..., need a better unique ID
-      *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
-           << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format)
+      *out << "<td id=\"" << monpair->second.infoSpace->name() << "-" << monpair->first << "\">" << std::endl
+           << (monpair->second.infoSpace)->getFormattedItem(monpair->first,monpair->second.format)
            << "</td>"   << std::endl;
 
       *out << "<td>"    << std::endl
-           << monitem->second.regname
+           << monpair->second.regname
            << "</td>"   << std::endl;
 
       *out << "<td>"    << std::endl
@@ -313,12 +384,201 @@ void gem::hw::glib::GLIBMonitor::buildMonitorPage(xgi::Output* out)
 
       *out << "</tr>"   << std::endl;
     }
-    *out << "</tbody>"  << std::endl
-         << "</table>"  << std::endl
-         << "</div>"    << std::endl;
   }
-  *out << "</div>"  << std::endl;
+  *out << "</tbody>" << std::endl;
+  *out << "</table>" << std::endl;
+  *out << "</div>"   << std::endl;  // closes Common DAQ Status tab
 
+  INFO("GLIBMonitor::buildDAQStatusTable building Per-link DAQ Status table");
+  *out << "<div class=\"xdaq-tab\" title=\""  << "Per-link DAQ Status" << "\" >" << std::endl
+       << "<table class=\"xdaq-table\" id=\"Per-linkDAQStatus_table\">" << std::endl
+       << cgicc::thead() << std::endl
+       << cgicc::tr()    << std::endl // open
+       << cgicc::th()    << "Register name"    << cgicc::th() << std::endl;
+  for (int i = 0; i < 12; ++i)
+    *out << cgicc::th() << "Link " << std::setw(2) << std::setfill(' ') << i << cgicc::th() << std::endl;
+
+  *out << cgicc::th()    << "Register address" << cgicc::th() << std::endl
+       << cgicc::th()    << "Description"      << cgicc::th() << std::endl
+       << cgicc::tr()    << std::endl // close
+       << cgicc::thead() << std::endl
+       << "<tbody>" << std::endl;
+  for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
+    if (monpair->first.find("OH0_STATUS") != std::string::npos) {
+      INFO("GLIBMonitor::buildDAQStatusTable " << monpair->first << " found, building per-link structure");
+      std::array<std::string, 6> linkarray = {{"STATUS",
+                                               "EVN",
+                                               "EOE_TIMEOUT",
+                                               "MAX_EOE_TIMER",
+                                               "LAST_EOE_TIMER",
+                                               "CORRUPT_VFAT_BLK_CNT"}};
+      for (auto regname = linkarray.begin(); regname != linkarray.end(); ++regname) {
+        // std::string regname = monpair->first;
+        // regname.erase(regname.rfind("OH0_"),4);
+        *out << "<tr>"    << std::endl
+             << "<td>"    << std::endl
+             << *regname
+             << "</td>"   << std::endl;
+
+        for (int i = 0; i < 12; ++i) {
+          INFO("GLIBMonitor::buildDAQStatusTable creating OH" << i << " table header");
+          std::stringstream substr;
+          substr << "OH" << i;
+          *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << *regname  << "\">" << std::endl
+               << "N/A"
+               << "</td>"   << std::endl;
+        }
+        *out << "<td>"    << std::endl
+             << "add"
+             << "</td>"   << std::endl
+             << "<td>"    << std::endl
+             << "desc"
+             << "</td>"   << std::endl
+             << "</tr>"   << std::endl;
+      }
+      break;
+    }
+  }
+  *out << "</tbody>" << std::endl
+       << "</table>" << std::endl
+       << "</div>"   << std::endl  // closes Per-link DAQ Status tab
+       << "</div>"   << std::endl  // closes DAQ Status tab
+       << "</div>"   << std::endl;  // closes DAQ Status tab-wrapper
+}
+
+void gem::hw::glib::GLIBMonitor::buildTriggerStatusTable(xgi::Output* out)
+{
+  if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
+    WARN("Unable to find item set HWMonitoring in monitor");
+    return;
+  }
+
+  auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
+
+  if (std::find(monsets.begin(),monsets.end(),"Trigger Status") == monsets.end()) {
+    WARN("Unable to find item set 'Trigger Status' in list of HWMonitoring monitor sets");
+    return;
+  }
+
+  auto monset = m_monitorableSetsMap.find("Trigger Status")->second;
+
+  INFO("GLIBMonitor::buildTriggerStatusTable building Trigger Status table");
+  *out << "<div class=\"xdaq-tab\" title=\""  << "Trigger Status" << "\" >" << std::endl
+       << "<table class=\"xdaq-table\" id=\"TriggerStatus_table\">" << std::endl
+       << cgicc::thead() << std::endl
+       << cgicc::tr()    << std::endl // open
+       << cgicc::th()    << "Register name" << cgicc::th() << std::endl;
+  for (int i = 0; i < 12; ++i)
+    *out << cgicc::th() << "Link " << std::setw(2) << std::setfill(' ') << i << cgicc::th() << std::endl;
+
+  *out << cgicc::th()    << "Register address" << cgicc::th() << std::endl
+       << cgicc::th()    << "Description"      << cgicc::th() << std::endl
+       << cgicc::tr()    << std::endl // close
+       << cgicc::thead() << std::endl
+       << "<tbody>" << std::endl;
+  for (auto monpair = monset.begin(); monpair != monset.end(); ++monpair) {
+    if (monpair->first.find("OH0_TRIGGER_RATE") != std::string::npos) {
+      std::array<std::string, 2> linkarray = {{"TRIGGER_RATE", "TRIGGER_CNT"}};
+      for (auto regname = linkarray.begin(); regname != linkarray.end(); ++regname) {
+        INFO("GLIBMonitor::buildTriggerStatusTable " << monpair->first << " found, building per-link structure");
+        *out << "<tr>"    << std::endl
+             << "<td>"    << std::endl
+             << *regname
+             << "</td>"   << std::endl;
+
+        for (int i = 0; i < 12; ++i) {
+          INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << *regname << "\">" << std::endl
+               << "N/A"
+               << "</td>"   << std::endl;
+        }
+        *out << "<td>"    << std::endl
+             << "add"
+             << "</td>"   << std::endl
+             << "<td>"    << std::endl
+             << "desc"
+             << "</td>"   << std::endl
+             << "</tr>"   << std::endl;
+      }
+
+      // std::array<std::string, 2> linkarray = {{"CLUSTER_SIZE", "DEBUG_LAST_CLUSTER"}};
+      std::string regname = "CLUSTER_SIZE";
+      for (int j = 0; j < 8; ++j) {
+        std::stringstream specregname;
+        specregname << regname << "_" << j << "_CNT";
+        *out << "<tr>"    << std::endl
+             << "<td>"    << std::endl
+             << specregname.str()
+             << "</td>"   << std::endl;
+
+        for (int i = 0; i < 12; ++i) {
+          INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
+               << "N/A"
+               << "</td>"   << std::endl;
+        }
+        *out << "<td>"    << std::endl
+             << "add"
+             << "</td>"   << std::endl
+             << "<td>"    << std::endl
+             << "desc"
+             << "</td>"   << std::endl
+             << "</tr>"   << std::endl;
+      }
+
+      regname = "CLUSTER_SIZE";
+      for (int j = 0; j < 8; ++j) {
+        std::stringstream specregname;
+        specregname << regname << "_" << j << "_RATE";
+        *out << "<tr>"    << std::endl
+             << "<td>"    << std::endl
+             << specregname.str()
+             << "</td>"   << std::endl;
+
+        for (int i = 0; i < 12; ++i) {
+          INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
+               << "N/A"
+               << "</td>"   << std::endl;
+        }
+        *out << "<td>"    << std::endl
+             << "add"
+             << "</td>"   << std::endl
+             << "<td>"    << std::endl
+             << "desc"
+             << "</td>"   << std::endl
+             << "</tr>"   << std::endl;
+      }
+
+      regname = "DEBUG_LAST_CLUSTER";
+      for (int j = 0; j < 8; ++j) {
+        std::stringstream specregname;
+        specregname << regname << "_" << j;
+        *out << "<tr>"    << std::endl
+             << "<td>"    << std::endl
+             << specregname.str()
+             << "</td>"   << std::endl;
+
+        for (int i = 0; i < 12; ++i) {
+          INFO("GLIBMonitor::buildTriggerStatusTable creating OH" << i << " table header");
+          *out << "<td id=\"" << monpair->second.infoSpace->name() << "-OH" << i << "_" << specregname.str() << "\">" << std::endl
+               << "N/A"
+               << "</td>"   << std::endl;
+        }
+        *out << "<td>"    << std::endl
+             << "add"
+             << "</td>"   << std::endl
+             << "<td>"    << std::endl
+             << "desc"
+             << "</td>"   << std::endl
+             << "</tr>"   << std::endl;
+      }
+      break;
+    }
+  }
+  *out << "</tbody>" << std::endl
+       << "</table>" << std::endl
+       << "</div>"   << std::endl;  // closes Trigger Status tab
 }
 
 void gem::hw::glib::GLIBMonitor::reset()
