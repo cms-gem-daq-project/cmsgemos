@@ -109,7 +109,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
                                                    // log4cplus::Logger* logger,
                                                    // std::string const& param
                                                    )
-  throw (gem::utils::exception::Exception)
+  throw (gem::utils::exception::SOAPException)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
@@ -137,6 +137,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
     // xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
     msg->writeTo(tool);
     DEBUG("::sendCommand '" << cmd << "': SOAP " << tool);
+    // BUG FIXME: if this throws, we get a terminate, why???
     xoap::MessageReference reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
     tool.clear();
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
@@ -165,7 +166,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendTCDSCommand(std::string const& cmd,
                                                        // log4cplus::Logger* logger,
                                                        // std::string const& param
                                                        )
-  throw (gem::utils::exception::Exception)
+  throw (gem::utils::exception::SOAPException)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
@@ -218,7 +219,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendParameter(std::vector<std::string> co
                                                      xdaq::ApplicationDescriptor* destDsc
                                                      // log4cplus::Logger* logger
                                                      )
-  throw (gem::utils::exception::Exception)
+  throw (gem::utils::exception::SOAPException)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   if (parameter.size() != 3)
@@ -294,7 +295,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameter(std::string cons
                                                                 xdaq::ApplicationDescriptor* srcDsc,
                                                                 xdaq::ApplicationDescriptor* destDsc
                                                                 )
-  throw (gem::utils::exception::Exception)
+  throw (gem::utils::exception::SOAPException)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
@@ -333,7 +334,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag(std::string c
                                                                    xdaq::ApplicationDescriptor* srcDsc,
                                                                    xdaq::ApplicationDescriptor* destDsc
                                                                    )
-  throw (gem::utils::exception::Exception) {
+  throw (gem::utils::exception::SOAPException) {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
     xoap::MessageReference msg = xoap::createMessage(), reply;
@@ -422,7 +423,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter(std::string cons
                                                                 xdaq::ApplicationDescriptor* srcDsc,
                                                                 xdaq::ApplicationDescriptor* destDsc
                                                                 )
-  throw (gem::utils::exception::Exception)
+  throw (gem::utils::exception::SOAPException)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
   try {
@@ -476,7 +477,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter(std::string cons
 //                                                                    xdaq::ApplicationDescriptor* srcDsc,
 //                                                                    xdaq::ApplicationDescriptor* destDsc
 //                                                                    )
-//   throw (gem::utils::exception::Exception)
+//   throw (gem::utils::exception::SOAPException)
 // {
 //   try {
 //     xoap::MessageReference msg = xoap::createMessage(), reply;
