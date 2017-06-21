@@ -1412,10 +1412,12 @@ void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xda
 void gem::supervisor::GEMSupervisor::renewTCDSLease()
 //  throw (xoap::exception::Exception)
 {
-  gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_tcdsLock);
-  for (auto tcdsApp = v_leasedTCDSApps.begin(); tcdsApp != v_leasedTCDSApps.end(); ++tcdsApp) {
-    INFO("GEMSupervisor::renewTCDSLease renewing lease for " <<  (*tcdsApp)->getClassName());
-    gem::utils::soap::GEMSOAPToolBox::sendCommand("RenewHardwareLease", p_appContext, p_appDescriptor, *tcdsApp);
+  if (m_handleTCDS) {
+    gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_tcdsLock);
+    for (auto tcdsApp = v_leasedTCDSApps.begin(); tcdsApp != v_leasedTCDSApps.end(); ++tcdsApp) {
+      DEBUG("GEMSupervisor::renewTCDSLease renewing lease for " <<  (*tcdsApp)->getClassName());
+      gem::utils::soap::GEMSOAPToolBox::sendCommand("RenewHardwareLease", p_appContext, p_appDescriptor, *tcdsApp);
+    }
   }
 }
 
