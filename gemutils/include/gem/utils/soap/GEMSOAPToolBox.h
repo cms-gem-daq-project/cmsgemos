@@ -63,7 +63,7 @@ namespace gem {
                                 xdaq::ApplicationDescriptor* destDsc
                                 // log4cplus::Logger* logger
                                 )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
 
         /**
          * @param cmd command to send to a TCDS application (which requires a special header)
@@ -79,7 +79,7 @@ namespace gem {
                                     xdaq::ApplicationDescriptor* destDsc
                                     // log4cplus::Logger* logger
                                     )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
 
         /**
          * @param parameter is a vector of strings, contaning the parameter name, value, and the xsd type for the SOAP transaction
@@ -97,7 +97,7 @@ namespace gem {
                                   // log4cplus::Logger* logger,
                                   // std::string const& param
                                   )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
 
         static std::pair<std::string,std::string> extractCommandWithParameter(xoap::MessageReference const& msg);
 
@@ -114,7 +114,7 @@ namespace gem {
                                              xdaq::ApplicationDescriptor* srcDsc,
                                              xdaq::ApplicationDescriptor* destDsc
                                              )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
 
          /**
          * @param cmd Name of the Command to send to the destination application
@@ -130,7 +130,7 @@ namespace gem {
                                                 xdaq::ApplicationDescriptor* srcDsc,
                                                 xdaq::ApplicationDescriptor* destDsc
                                                 )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
 
          /**
          * @param parName Name of the parameter in the destination application info space
@@ -148,7 +148,7 @@ namespace gem {
                                              xdaq::ApplicationDescriptor* srcDsc,
                                              xdaq::ApplicationDescriptor* destDsc
                                              )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
 
          /**
          * @param bagName Name of the parameter bag in the destination application info space
@@ -165,7 +165,7 @@ namespace gem {
                                                   xdaq::ApplicationDescriptor* srcDsc,
                                                   xdaq::ApplicationDescriptor* destDsc
                                                   )
-          throw (gem::utils::exception::Exception) {
+          throw (gem::utils::exception::SOAPException) {
           log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
           try {
             xoap::MessageReference msg = xoap::createMessage(), answer;
