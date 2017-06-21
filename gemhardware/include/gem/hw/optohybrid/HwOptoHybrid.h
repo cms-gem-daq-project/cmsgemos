@@ -8,6 +8,7 @@
 #include "gem/hw/vfat/HwVFAT2.h"
 
 #include "gem/hw/optohybrid/exception/Exception.h"
+#include "gem/hw/optohybrid/OptoHybridSettingsEnums.h"
 //#include "gem/hw/optohybrid/OptoHybridMonitor.h"
 
 namespace gem {
@@ -415,26 +416,26 @@ namespace gem {
            */
           void setTrigSource(uint8_t const& mode) {
             switch (mode) {
-            case(0):
+            case(OptoHybridTrigSrc::GTX_TTC):
               writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
               return;
-            case(1):
+            case(OptoHybridTrigSrc::INTERNAL):
               writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
               return;
-            case(2):
+            case(OptoHybridTrigSrc::EXTERNAL):
               writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
               return;
-            case(3):
+            case(OptoHybridTrigSrc::LOOPBACK):
               writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
               return;
-            case(4):
+            case(OptoHybridTrigSrc::GBT_TTC):
               writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
               return;
-            case(5):
+            case(OptoHybridTrigSrc::ALL):
               writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",mode);
               return;
             default:
-              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE",0x0);
+              writeReg(getDeviceBaseNode(),"CONTROL.TRIGGER.SOURCE", OptoHybridTrigSrc::GBT_TTC);
               return;
             }
           };
@@ -973,11 +974,13 @@ namespace gem {
            *  Functions related to the various T1 counters on the OptoHybrid
            *  @ingroup ohcounters
            * @param signal specifies which T1 signal counter to read
+           * ** FIXME MAKE THESE ENUMS **
            *  - 0 L1A
            *  - 1 CalPulse
            *  - 2 Resync
            *  - 3 BC0
            * @param mode specifies which T1 counter to read
+           * ** FIXME MAKE THESE ENUMS **
            *  - 0 from AMC TTC decoder over GTX
            *  - 1 from the T1 generator in the firmware
            *  - 2 from an external source

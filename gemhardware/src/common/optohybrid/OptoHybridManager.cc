@@ -284,9 +284,9 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
              mapit != m_vfatMapping.at(slot).at(link).end(); ++mapit) {
           INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
                << std::hex << (int)mapit->second << std::dec << " (from map)");
-          gem::hw::vfat::HwVFAT2& vfatDevice = m_optohybrids.at(slot).at(link)->getVFATDevice(mapit->first);
-          INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
-               << std::hex << (int)vfatDevice.getChipID() << std::dec << " (from HW device) ");
+          // gem::hw::vfat::HwVFAT2& vfatDevice = m_optohybrids.at(slot).at(link)->getVFATDevice(mapit->first);
+          // INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
+          //      << std::hex << (int)vfatDevice.getChipID() << std::dec << " (from HW device) ");
         }
 
         m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
@@ -333,9 +333,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   std::map<int,std::set<int> > hwMapping;
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100); // just for testing the timing of different applications
+      // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -416,7 +416,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 	if (m_scanType.value_ == 2) {
 	  INFO("OptoHybridManager::configureAction configureAction: FIRST Latency  " << m_scanMin.value_);
           vfatSettings["Latency"    ] = (uint8_t)(m_scanMin.value_);
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
           // HACK
           // have to enable the pulse to the channel if using cal pulse latency scan
           // but shouldn't mess with other settings... not possible here, so just a hack
@@ -431,9 +431,9 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 	  INFO("OptoHybridManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
           vfatSettings["VThreshold1"] = (uint8_t)(initialVT1&0xff);
           vfatSettings["VThreshold2"] = (uint8_t)(initialVT2&0xff);
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
 	} else {
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
 	}
 
 	std::array<std::string, 11> setupregs = {{"ContReg0", "ContReg2", "IPreampIn", "IPreampFeed", "IPreampOut",
@@ -482,9 +482,9 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
   DEBUG("OptoHybridManager::startAction");
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100); // just for testing the timing of different applications
+      // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -535,9 +535,9 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
 {
   // put all connected VFATs into sleep mode?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100); // just for testing the timing of different applications
+      // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -595,7 +595,7 @@ void gem::hw::optohybrid::OptoHybridManager::resumeAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into run mode?
-  usleep(100);
+  usleep(10);
   INFO("OptoHybridManager::resumeAction end");
 }
 
@@ -605,9 +605,9 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   DEBUG("OptoHybridManager::stopAction");
   // will the manager operate for all connected optohybrids, or only those connected to certain AMCs?
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100); // just for testing the timing of different applications
+    // usleep(10); // just for testing the timing of different applications
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100); // just for testing the timing of different applications
+      // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
       OptoHybridInfo& info = m_optohybridInfo[index].bag;
@@ -641,7 +641,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         vfatSettings["Latency"    ] = (uint8_t)(info.commonVFATSettings.bag.Latency.value_);
 
 	if (m_scanType.value_ == 2) {
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
           // HACK
           // have to disable the pulse to the channel if using cal pulse latency scan
           // but shouldn't mess with other settings... not possible here, so just a hack
@@ -650,7 +650,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
           // optohybrid->broadcastWrite("VFATChannels.ChanReg65",  0x00, vfatMask);
           // optohybrid->broadcastWrite("VCal",                    0x00, vfatMask);
 	} else if (m_scanType.value_ == 3) {
-	  optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
         }
       } else {
         std::stringstream msg;
@@ -669,7 +669,7 @@ void gem::hw::optohybrid::OptoHybridManager::haltAction()
   throw (gem::hw::optohybrid::exception::Exception)
 {
   // put all connected VFATs into sleep mode?
-  usleep(100);
+  usleep(10);
   INFO("OptoHybridManager::haltAction end");
 }
 
@@ -679,10 +679,10 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
   // unregister listeners and items in info spaces
   DEBUG("OptoHybridManager::resetAction begin");
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    // usleep(100);
+    // usleep(10);
     DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
-      // usleep(100);
+      // usleep(10);
       DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
       DEBUG("OptoHybridManager::index = " << index);
@@ -737,15 +737,16 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
 {
   // system registers
   is_optohybrid->createUInt32("VFAT_Mask",    optohybrid->getVFATMask(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("SBit_Mask",    optohybrid->getSBitMask(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("Drop Bad CRC", optohybrid->getTrigSource(),      NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("TrgSource",    optohybrid->getTrigSource(),      NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("SBitLoopback", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("Ref_clk",      optohybrid->getReferenceClock(),  NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("SBit_Mask",    optohybrid->getSBitMask(),        NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("TrgThrottle",  optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   // probably want this to be a set of 6
   is_optohybrid->createUInt32("HDMI SBitsOut", optohybrid->getHDMISBitSource(),  NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("HDMI SBitMode", optohybrid->getHDMISBitMode(),    NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("TrgThrottle",   optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("ZS",            optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("REF_CLK",       optohybrid->getReferenceClock(),  NULL, GEMUpdateType::HW32);
 
   is_optohybrid->createUInt32("FIRMWARE_DATE", optohybrid->getFirmwareDate(),
                               NULL, GEMUpdateType::PROCESS, "docstring", "fwdateoh");
@@ -758,7 +759,7 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
   is_optohybrid->createUInt32("QPLL_IS_LOCKED",          optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   is_optohybrid->createUInt32("QPLL_FPGA_PLL_IS_LOCKED", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
 
-  std::array<std::string, 4> wbMasters = {{"GTX","ExtI2C","Scan","DAC"}};
+  std::array<std::string, 5> wbMasters = {{"GTX","GBT","ExtI2C","Scan","DAC"}};
   for (auto master = wbMasters.begin(); master != wbMasters.end(); ++master) {
     is_optohybrid->createUInt32("Master:"+(*master)+"Strobe", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
     is_optohybrid->createUInt32("Master:"+(*master)+"Ack",    optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
@@ -784,7 +785,7 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
     is_optohybrid->createUInt32(ss.str()+"_Valid",     optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   }
 
-  std::array<std::string, 5> t1sources = {{"TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT"}};
+  std::array<std::string, 6> t1sources = {{"GTX_TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT","GBT_TTC"}};
   for (auto t1src = t1sources.begin(); t1src != t1sources.end(); ++t1src) {
     is_optohybrid->createUInt32((*t1src)+"L1A",      optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
     is_optohybrid->createUInt32((*t1src)+"CalPulse", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
@@ -792,11 +793,13 @@ void gem::hw::optohybrid::OptoHybridManager::createOptoHybridInfoSpaceItems(is_t
     is_optohybrid->createUInt32((*t1src)+"BC0",      optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
   }
 
-  is_optohybrid->createUInt32("TrackingLinkErrors", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("TriggerLinkErrors",  optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("DataPackets",        optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("QPLL_LOCK",          optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
-  is_optohybrid->createUInt32("QPLL_FPGA_PLL_LOCK", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("GTX_TrackingLinkErrors", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("GTX_TriggerLinkErrors",  optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("GTX_DataPackets",        optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("GBT_TrackingLinkErrors", optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("GBT_DataPackets",        optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("QPLL_LOCK",              optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
+  is_optohybrid->createUInt32("QPLL_FPGA_PLL_LOCK",     optohybrid->getFirmwareVersion(), NULL, GEMUpdateType::HW32);
 
   /** Firmware based scan routines **/
   std::array<std::string, 3> scans = {{"Single VFAT Threshold/Latency/SCurve", "Ultra VFATs Threshold/Latency/SCurve","DAC"}};

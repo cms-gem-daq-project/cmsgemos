@@ -41,8 +41,13 @@ UserStaticLinkFlags  =
 UserDynamicLinkFlags =
 
 IncludeDirs+=$(XDAQ_ROOT)/include
-IncludeDirs+=/usr/local/include/python2.7
-IncludeDirs+=/usr/include/python2.7
+
+## Python
+PYTHON_VERSION ?= $(shell python -c "import distutils.sysconfig;print distutils.sysconfig.get_python_version()")
+PYTHON_INCLUDE_PREFIX ?= $(shell python -c "import distutils.sysconfig;print distutils.sysconfig.get_python_inc()")
+
+IncludeDirs+=${PYTHON_INCLUDE_PREFIX}
+# IncludeDirs+=/usr/include/python2.7
 
 LibraryDirs+=$(XDAQ_ROOT)/lib
 LibraryDirs+=/usr/local/lib
@@ -52,7 +57,7 @@ DependentLibraryDirs+=/usr/local/lib
 
 DependentLibraries+=asyncresolv boost_system config log4cplus
 DependentLibraries+=numa toolbox uuid xcept xdaq2rc xerces-c
-DependentLibraries+=python2.7
+DependentLibraries+=python${PYTHON_VERSION}
 
 #Libraries+= log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
 

@@ -383,7 +383,7 @@ void gem::hw::amc13::AMC13Manager::configureAction()
     }
   }
   // set the settings from the config options
-  // usleep(50); // just for testing the timing of different applications
+  // usleep(10); // just for testing the timing of different applications
   INFO("AMC13Manager::configureAction end");
 }
 
@@ -393,7 +393,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   // gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
   p_amc13->reset(::amc13::AMC13::T1);
-  usleep(50);
+  usleep(10);
 
   p_amc13->resetCounters();
   m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
@@ -534,7 +534,7 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   //     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   //   }
   // }
-  // usleep(50);
+  // usleep(10);
   INFO("AMC13Manager::resumeAction end");
 }
 
@@ -572,7 +572,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   for (int bchan = 0; bchan < 4; ++bchan)
     p_amc13->disableBGO(bchan);
 
- // usleep(50);
+ // usleep(10);
   p_amc13->endRun();
   INFO("AMC13Manager::stopAction end");
 }
@@ -580,7 +580,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
 void gem::hw::amc13::AMC13Manager::haltAction()
 {
   // what is necessary for a halt on the AMC13?
-  usleep(50);  // just for testing the timing of different applications
+  usleep(10);  // just for testing the timing of different applications
   INFO("AMC13Manager::haltAction end");
 }
 
@@ -598,7 +598,7 @@ void gem::hw::amc13::AMC13Manager::resetAction()
   }
 
   // maybe ensure triggers are disabled as well as BGO commands?
-  usleep(50);
+  usleep(10);
   // gem::base::GEMFSMApplication::resetAction();
   INFO("AMC13Manager::resetAction end");
 }

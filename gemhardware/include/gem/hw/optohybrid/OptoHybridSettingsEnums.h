@@ -33,75 +33,40 @@ namespace gem {
       class OptoHybridSettings {
       public:
 
-        //what are these for the OptoHybrid??
-        struct ContRegBitMasks {
-          enum EContRegBitMasks {
-            //Control Register 0
-            RUNMODE       = 0x01,
-            TRIGMODE      = 0x0e,
-            MSPOL         = 0x10,
-            CALPOL        = 0x20,
-            CALMODE       = 0xc0,
-          } ContRegBitMasks;
+        struct TTCMode { //TTC mode count settings
+          enum ETTCMode { //TTC mode count settings
+            GTX_TTC  = 0x0, // TTC signals coming from the 8b10b link
+            INTERNAL = 0x1, // TTC signals generated in the firmware
+            EXTERNAL = 0x2, // TTC signals coming external input (HDMI board/LEMO)
+            LOOPBACK = 0x3, // TTC signals coming from the VFATs (only s-bits)
+            SENT     = 0x4, // TTC signals sent along the GEB
+            GBT_TTC  = 0x5, // TTC signals coming from the GBT link
+            RESET    = 0x6, // RESET
+          } TTCMode;
         };
 
-        struct ContRegBitShifts {
-          enum EContRegBitShifts {
-            //Control Register 0
-            RUNMODE       = 0,
-            TRIGMODE      = 1,
-            MSPOL         = 4,
-            CALPOL        = 5,
-            CALMODE       = 6,
-          } ContRegBitShifts;
-        };
-
-        struct RunMode { //defines the run mode
-          enum ERunMode { //defines the run mode
-            SLEEP = 0x0, //sleep (default)
-            RUN   = 0x1  //running
-          } RunMode;
-        };
-
-        struct TriggerMode { //Trigger mode settings
-          enum ETriggerMode { //Trigger mode settings
-            GLIB     = 0x0, //Take the triggers coming from the GLIB
-            FIRMWARE = 0x1, //Take the triggers coming from the firmware module
-            EXTERNAL = 0x2, //Use the triggers coming from the LEMO connector
-            LOOPBACK = 0x3, //Use looped back s-bits
-            ALL      = 0x4, //Use all sources of triggers
-          } TriggerMode;
-        };
-
-        struct L1ACountMode { //L1A mode count settings
-          enum EL1ACountMode { //L1A mode count settings
-            EXTERNAL = 0x0, //Count the triggers coming from the LEMO connector
-            INTERNAL = 0x1, //Count the triggers coming from the GLIB
-            DELAYED  = 0x2, //Count the delayed triggers
-            TOTAL    = 0x3, //Count triggers from all sources
-          } L1ACountMode;
-        };
-
-        struct CalPulseCountMode { //CalPulse mode settings
-          enum ECalPulseCountMode { //CalPulse mode settings
-            EXTERNAL = 0x0, //Take the triggers coming from the GLIB
-            INTERNAL = 0x1, //Use the triggers coming from the LEMO connector
-            DELAYED  = 0x2, //Use all sources of triggers
-            TOTAL    = 0x3, //Use all sources of triggers
-          } CalPulseCountMode;
+        struct TriggerSource { // Trigger source settings
+          enum ETriggerSource { // Trigger source settings
+            GTX_TTC  = 0x0, // L1As coming from the 8b10b link
+            INTERNAL = 0x1, // L1As generated in the firmware
+            EXTERNAL = 0x2, // L1As coming external input (HDMI board/LEMO)
+            LOOPBACK = 0x3, // L1As coming from the VFATs (only s-bits)
+            ALL      = 0x4, // OR of all sources of L1As
+            GBT_TTC  = 0x5, // L1As coming from the GBT link
+          } TriggerSource;
         };
 
       };  // class OptoHybridSettings
     }  // namespace gem::hw::optohybrid
   }  // namespace gem::hw
 
-  //typedef the struct for access to the members via struct::VALUE
+  // typedef the struct for access to the members via struct::VALUE
   typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitMasks   OptoHybridLinkBitMasks;
   typedef gem::hw::optohybrid::OptoHybridLinkSettings::LinkBitShifts  OptoHybridLinkBitShifts;
 
-  //typedef the enum for casting and access
-  typedef gem::hw::optohybrid::OptoHybridSettings::RunMode::ERunMode         OptoHybridRunMode;
-  typedef gem::hw::optohybrid::OptoHybridSettings::TriggerMode::ETriggerMode OptoHybridTrigMode;
+  // typedef the enum for casting and access
+  typedef gem::hw::optohybrid::OptoHybridSettings::TTCMode::ETTCMode             OptoHybridTTCMode;
+  typedef gem::hw::optohybrid::OptoHybridSettings::TriggerSource::ETriggerSource OptoHybridTrigSrc;
 
 }  // namespace gem
 

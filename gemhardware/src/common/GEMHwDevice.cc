@@ -405,7 +405,7 @@ uint32_t gem::hw::GEMHwDevice::readMaskedAddress(std::string const& name)
   return readReg(address,mask);
 }
 
-void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
+void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -416,10 +416,22 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
     try {
       std::vector<std::pair<std::string,uhal::ValWord<uint32_t> > > vals;
       // vals.reserve(regList.size());
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
+      int counter{0}, dispatchcounter{0};
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
         vals.push_back(std::make_pair(curReg->first,hw.getNode(curReg->first).read()));
-      hw.dispatch();
+        ++counter;
+        if (freq > 0 && counter%freq == 0) {
+          hw.dispatch();
+          ++dispatchcounter;
+        }
+      }
+      if (freq < 0 || counter%freq != 0) {
+        hw.dispatch();
+          ++dispatchcounter;
+      }
 
+      INFO("GEMHwDevice::writeRegs dispatched " << dispatchcounter
+           << " calls for " << counter << " registers");
       // would like to have these local to the loop, how to do...?
       auto curVal = vals.begin();
       auto curReg = regList.begin();
@@ -453,7 +465,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList)
   // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
-void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
+void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int const& freq)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -464,10 +476,23 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
     try {
       std::vector<std::pair<uint32_t, uhal::ValWord<uint32_t> > > vals;
       // vals.reserve(regList.size());
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
+      int counter{0}, dispatchcounter{0};
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
         vals.push_back(std::make_pair(curReg->first,hw.getClient().read(curReg->first)));
-      hw.dispatch();
+        ++counter;
+        ++counter;
+        if (freq > 0 && counter%freq == 0) {
+          hw.dispatch();
+          ++dispatchcounter;
+        }
+      }
+      if (freq < 0 || counter%freq != 0) {
+        hw.dispatch();
+          ++dispatchcounter;
+      }
 
+      INFO("GEMHwDevice::writeRegs dispatched " << dispatchcounter
+           << " calls for " << counter << " registers");
       // would like to have these local to the loop, how to do...?
       auto curVal = vals.begin();
       auto curReg = regList.begin();
@@ -501,7 +526,7 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList)
   // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
-void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
+void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int const& freq)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -512,11 +537,23 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList)
     try {
       std::vector<std::pair<std::pair<uint32_t,uint32_t>,uhal::ValWord<uint32_t> > > vals;
       // vals.reserve(regList.size());
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
+      int counter{0}, dispatchcounter{0};
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
         vals.push_back(std::make_pair(std::make_pair(curReg->first.first,curReg->first.second),
                                       hw.getClient().read(curReg->first.first,curReg->second)));
-      hw.dispatch();
+        ++counter;
+        if (freq > 0 && counter%freq == 0) {
+          hw.dispatch();
+          ++dispatchcounter;
+        }
+      }
+      if (freq < 0 || counter%freq != 0) {
+        hw.dispatch();
+          ++dispatchcounter;
+      }
 
+      INFO("GEMHwDevice::writeRegs dispatched " << dispatchcounter
+           << " calls for " << counter << " registers");
       // would like to have these local to the loop, how to do...?
       auto curVal = vals.begin();
       auto curReg = regList.begin();
@@ -630,7 +667,7 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
   // XCEPT_RAISE(gem::hw::exception::HardwareProblem, msg);
 }
 
-void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
+void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList, int const& freq)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
   uhal::HwInterface& hw = getGEMHwInterface();
@@ -638,9 +675,21 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
-      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg)
+      int counter{0}, dispatchcounter{0};
+      for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
         hw.getNode(curReg->first).write(curReg->second);
-      hw.dispatch();
+        ++counter;
+        if (freq > 0 && counter%freq == 0) {
+          hw.dispatch();
+          ++dispatchcounter;
+        }
+      }
+      if (freq < 0 || counter%freq != 0) {
+        hw.dispatch();
+          ++dispatchcounter;
+      }
+      INFO("GEMHwDevice::writeRegs dispatched " << dispatchcounter
+           << " calls for " << counter << " registers");
       return;
     } catch (uhal::exception::exception const& err) {
       std::string msgBase = "Could not write to register in list:";
@@ -666,12 +715,12 @@ void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList)
   }
 }
 
-void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regNames, uint32_t const& regValue)
+void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regNames, uint32_t const& regValue, int const& freq)
 {
   register_pair_list regsToWrite;
   for (auto curReg = regNames.begin(); curReg != regNames.end(); ++curReg)
     regsToWrite.push_back(std::make_pair(*curReg,regValue));
-  writeRegs(regsToWrite);
+  writeRegs(regsToWrite,freq);
 }
 
 /*
@@ -681,12 +730,12 @@ void gem::hw::GEMHwDevice::writeValueToRegs(std::vector<std::string> const& regN
   }
 */
 
-void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames)
+void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames, int const& freq)
 {
   register_pair_list regsToZero;
   for (auto curReg = regNames.begin(); curReg != regNames.end(); ++curReg)
     regsToZero.push_back(std::make_pair(*curReg,0x0));
-  writeRegs(regsToZero);
+  writeRegs(regsToZero,freq);
 }
 
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)

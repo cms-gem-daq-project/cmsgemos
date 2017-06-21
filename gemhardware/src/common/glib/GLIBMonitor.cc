@@ -152,7 +152,8 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   addMonitorableSet("Trigger", "HWMonitoring");
   for (uint8_t oh = 0; oh < p_glib->getSupportedOptoHybrids(); ++oh) {
     std::stringstream ohname;
-    ohname << "OH" << oh;
+    ohname << "OH" << (int)oh;
+    addMonitorableSet(ohname.str() + " DAQ Status", "HWMonitoring");
     addMonitorable(ohname.str()+ " DAQ Link Status", "HWMonitoring",
                    std::make_pair(ohname.str()+"_STATUS", "DAQ."+ohname.str()+".STATUS"),
                    GEMUpdateType::HW32, "hex");
@@ -192,7 +193,7 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
       cluname.clear();
       cluname << "DEBUG_LAST_CLUSTER_" << cluster;
       addMonitorable("Trigger", "HWMonitoring",
-                     std::make_pair(ohname.str()+"_"+cluname.str(), "TRIGGER."+ohname.str()+".DEBUG_LAST_"+cluname.str()),
+                     std::make_pair(ohname.str()+"_"+cluname.str(), "TRIGGER."+ohname.str()+"."+cluname.str()),
                      GEMUpdateType::HW32, "hex");
     }
   }
