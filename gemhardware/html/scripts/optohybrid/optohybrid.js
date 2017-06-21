@@ -37,10 +37,10 @@ function sendrequest( jsonurl )
     }
 };
 
-function updateOptoHybridMonitorables( glibjson )
+function updateOptoHybridMonitorables( ohjson )
 {
-    for ( var glib in glibjson ) {
-        var monitorset = glibjson[glib];
+    for ( var oh in ohjson ) {
+        var monitorset = ohjson[oh];
         for ( var monitem in monitorset ) {
             var arr = monitorset[monitem];
             for( var i = 0; i < arr.length; ++i ) {
@@ -60,11 +60,11 @@ function startUpdate( jsonurl )
     // here has to be optohybrid web specific
     var interval;
     interval = setInterval( "sendrequest( \"" + jsonurl + "\" )" , 1000 );
-    
+
 };
 
 function optohybridWebCommand( command )
-{   
+{
     // here has to be optohybrid web specific
     $("input#command").val( command );
     pdebug( "setting command to " + command );
@@ -73,7 +73,7 @@ function optohybridWebCommand( command )
 };
 
 function expandedDescription( description )
-{   
+{
     //console.log( description );
     // anchor text box to cursor position
     // get selected td and modify contents?
@@ -85,7 +85,7 @@ function expandedDescription( description )
             var tooltipY = event.pageY + 8;
             $('div.tooltip').css({top: tooltipY, left: tooltipX});
         };
-        
+
         var showTooltip = function(event) {
             console.log("showTooltip called");
             $('div.description').remove();
@@ -93,12 +93,12 @@ function expandedDescription( description )
             .appendTo('body');
             changeTooltipPosition(event);
         };
-        
+
         var hideTooltip = function() {
             console.log("hideTooltip called");
             $('div.description').remove();
         };
-        
+
         $("td#description").bind({
             mousemove  : changeTooltipPosition,
             mouseenter : showTooltip,
@@ -107,7 +107,7 @@ function expandedDescription( description )
     });
 };
 
-/* copied from glib/glib.js
+/* copied from oh/oh.js
 function pad( width, string, padding )
 {
     console.log(width + " - " + string + " - " + padding );
