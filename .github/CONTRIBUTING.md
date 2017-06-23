@@ -8,13 +8,19 @@ Once you have your fork, then you can check it out to where you will be developi
 
 ### Workflow
 We have been utilizing a very helpful guideline for our development model outlined here: [```git-flow```](http://nvie.com/posts/a-successful-git-branching-model/)
-The basic idea is, fork, , create a branch to develop your particular feature, or hotfix, once that feature is completed, create a pull request.
+The basic idea is the following:
+* fork
+* create a branch to develop your particular feature (based off of ```develop```, or in some cases, the current ```release``` branch)
+* ```hotfix``` may be created from ```master```
+* once that feature is completed, create a pull request
+* ```master``` should *always``` be stable
+
 Commit messages should be short, but descriptive.  If they reference an issue or PR, please include that information.
 
 * Some generally good guidelines(though this post recommends *not* using the ```git-flow``` model[](https://juliansimioni.com/blog/three-git-commands-you-should-never-use/)
- * *Never* use ```git commit -a```
- * *Avoid* ```git commit -m``` over ```git commit -p``` or ```git commit```, as it will force you to think about your commit message
- * *Prefer* ```git rebase``` over ```git pull```
+  * *Never* use ```git commit -a```
+  * *Avoid* ```git commit -m``` over ```git commit -p``` or ```git commit```, as it will force you to think about your commit message
+  * *Prefer* ```git rebase``` over ```git pull```
 
 ### Coding Style
 * Avoid using ```tab```s, use an editor that is smart enough to convert all ```tab```s to ```space```s
