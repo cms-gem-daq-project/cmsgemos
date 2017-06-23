@@ -7,15 +7,21 @@ Once you have your fork, then you can check it out to where you will be developi
 
 
 ### Workflow
-We have been utilizing a very helpful guideline for our development process outlined [here](http://nvie.com/posts/a-successful-git-branching-model/)
-The basic idea is, create a branch to develop your particular feature, or hotfix, once that feature is completed, create a pull request.
+We have been utilizing a very helpful guideline for our development model outlined here: [```git-flow```](http://nvie.com/posts/a-successful-git-branching-model/)
+The basic idea is, fork, , create a branch to develop your particular feature, or hotfix, once that feature is completed, create a pull request.
 Commit messages should be short, but descriptive.  If they reference an issue or PR, please include that information.
 
+* Some generally good guidelines(though this post recommends *not* using the ```git-flow``` model[](https://juliansimioni.com/blog/three-git-commands-you-should-never-use/)
+ * *Never* use ```git commit -a```
+ * *Avoid* ```git commit -m``` over ```git commit -p``` or ```git commit```, as it will force you to think about your commit message
+ * *Prefer* ```git rebase``` over ```git pull```
+
 ### Coding Style
-To be filled in
+* Avoid using ```tab```s, use an editor that is smart enough to convert all ```tab```s to ```space```s
 
 ### Testing
 To be filled in
+* Some automatic tests are being set up to use some continuous integration tests
 
 ## Making a pull request
 Once you have tested your code, you are ready to make a pull request.  If it references an issue or another pull request, make sure to include that information.
