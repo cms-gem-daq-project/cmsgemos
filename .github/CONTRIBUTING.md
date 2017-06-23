@@ -11,10 +11,10 @@ We have been utilizing a very helpful guideline for our development model outlin
 The basic idea is the following:
 * fork from cms-gem-daq-project/cmsgemos
 * create a branch to develop your particular feature (based off of ```develop```, or in some cases, the current ```release``` branch)
-* ```hotfix``` may be created from ```master```
-* once that feature is completed, create a pull request
-* ```master``` should *always``` be stable
-* Do *not* commit directly onto ```master``` or ```develop```, and ensure that your ```master``` and ```develop``` are up-to-date with ```cms-gem-daq-project``` before starting new developments
+  * ```hotfix``` may be created from ```master```
+  * once that feature is completed, create a pull request
+* ```master``` should *always* be stable
+  * Do *not* commit directly onto ```master``` or ```develop```, and ensure that your ```master``` and ```develop``` are up-to-date with ```cms-gem-daq-project``` before starting new developments
 
 * Some generally good guidelines(though this post recommends *not* using the ```git-flow``` model[](https://juliansimioni.com/blog/three-git-commands-you-should-never-use/)
   * *Never* use ```git commit -a```
