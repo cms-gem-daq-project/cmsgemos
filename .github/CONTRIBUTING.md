@@ -1,29 +1,30 @@
-# Contribuging to ```cmsgemos```
+# Contributing to ```cmsgemos```
 The following are a set of guidelines to help you in contributing to the ```cmsgemos``` code base.
 
 ## How to start developing
-Start by forking the main [```cmsgemos```](https://github.com/cms-gem-daq-project/cmsgemos) repository.
-Once you have your fork, then you can check it out to where you will be developing.
+Start by forking the central [```cmsgemos```](https://github.com/cms-gem-daq-project/cmsgemos) repository.
+Once you have your fork, then you can check it out to wherever you will be developing.
 
 
 ### Workflow
 We have been utilizing a very helpful guideline for our development model outlined here: [```git-flow```](http://nvie.com/posts/a-successful-git-branching-model/)
 The basic idea is the following:
-* fork
+* fork from cms-gem-daq-project/cmsgemos
 * create a branch to develop your particular feature (based off of ```develop```, or in some cases, the current ```release``` branch)
 * ```hotfix``` may be created from ```master```
 * once that feature is completed, create a pull request
 * ```master``` should *always``` be stable
-
-Commit messages should be short, but descriptive.  If they reference an issue or PR, please include that information.
+* Do *not* commit directly onto ```master``` or ```develop```, and ensure that your ```master``` and ```develop``` are up-to-date with ```cms-gem-daq-project``` before starting new developments
 
 * Some generally good guidelines(though this post recommends *not* using the ```git-flow``` model[](https://juliansimioni.com/blog/three-git-commands-you-should-never-use/)
   * *Never* use ```git commit -a```
   * *Avoid* ```git commit -m``` over ```git commit -p``` or ```git commit```, as it will force you to think about your commit message
+    * Speaking of... dommit messages should be descriptive, not like a novel, but concise and complete.  If they reference an issue or PR, please include that information.
   * *Prefer* ```git rebase``` over ```git pull```
 
 ### Coding Style
 * Avoid using ```tab```s, use an editor that is smart enough to convert all ```tab```s to ```space```s
+* Current convention is 4 ```space```s per ```tab``` for ```python``` and ```c++``` code
 
 ### Testing
 To be filled in
