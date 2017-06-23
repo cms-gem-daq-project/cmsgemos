@@ -294,13 +294,13 @@ def setTriggerThrottle(device,gtx,throttle):
     """
     Set the trigger throttle
     """
-    return writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.THROTTLE"%(gtx),throttle)
+    return writeRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.THROTTLE"%(gtx),throttle)
 
 def getTriggerThrottle(device,gtx):
     """
     Get the trigger throttling value
     """
-    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.THROTTLE"%(gtx))
+    return readRegister(device,"GEM_AMC.OH.OH%d.CONTROL.TRIGGER.THROTTLE"%(gtx))
 
 def configureLocalT1(device, gtx, mode, t1type, delay, interval, number, debug=False):
     """
