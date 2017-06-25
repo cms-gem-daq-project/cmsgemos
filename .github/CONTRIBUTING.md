@@ -9,7 +9,7 @@ Once you have your fork, then you can check it out to wherever you will be devel
 ### Workflow
 We have been utilizing a very helpful guideline for our development model outlined here: [```git-flow```](http://nvie.com/posts/a-successful-git-branching-model/)
 The basic idea is the following:
-* fork from cms-gem-daq-project/cmsgemos
+* fork from [cms-gem-daq-project/cmsgemos](https://github.com/cms-gem-daq-project/cmsgemos)
 * create a branch to develop your particular feature (based off of ```develop```, or in some cases, the current ```release``` branch)
   * ```hotfix``` may be created from ```master```
   * once that feature is completed, create a pull request
@@ -19,7 +19,7 @@ The basic idea is the following:
 * Some generally good guidelines(though this post recommends *not* using the ```git-flow``` model[](https://juliansimioni.com/blog/three-git-commands-you-should-never-use/)
   * *Never* use ```git commit -a```
   * *Avoid* ```git commit -m``` over ```git commit -p``` or ```git commit```, as it will force you to think about your commit message
-    * Speaking of... dommit messages should be descriptive, not like a novel, but concise and complete.  If they reference an issue or PR, please include that information.
+    * Speaking of... commit messages should be descriptive, not like a novel, but concise and complete.  If they reference an issue or PR, please include that information.
   * *Prefer* ```git rebase``` over ```git pull```
 
 ### Coding Style
