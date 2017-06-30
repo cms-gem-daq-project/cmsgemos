@@ -2,6 +2,9 @@
 *
 # Don't ignore subdirectories
 !*/
+# don't ignore special files
+!*.md
+!*.rst
 # Ignore RPM directories
 */rpm
 # Don't ignore source files, etc
