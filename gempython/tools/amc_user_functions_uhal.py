@@ -168,7 +168,7 @@ def enableDAQLink(device, linkEnableMask=0x1, doReset=False):
         writeRegister(device,"GEM_AMC.DAQ.OH%d.CONTROL.EOE_TIMEOUT"%(olink),0x30D4)
 
 def blockL1A(device):
-    writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
+    writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
 
 def enableL1A(device):
-    writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
+    writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
