@@ -24,6 +24,7 @@ class parameters:
         "IShaper":      130,
         "IShaperFeed":   87,
         "IComp":        101,
+        "VCal":           0,
         # ["VThreshold1":   25,
         "VThreshold2": 0x00,
         "CalPhase":    0x00
