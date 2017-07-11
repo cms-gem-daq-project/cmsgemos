@@ -177,5 +177,5 @@ def getAMCL1Acount(device):
     return readRegister(device, "GEM_AMC.TTC.L1A_ID")
                                                                                           
 def getLinkL1Acount(device,link):
-    return readRegister(device, "GEM_AMC.DAQ.OH%s.COUNTERS.EVN"%(link))
+    return readRegister(device, "GEM_AMC.OH.OH0.COUNTERS.T1.SENT.L1A"%(link))
 
