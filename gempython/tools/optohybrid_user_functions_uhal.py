@@ -594,6 +594,10 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
         pass
 
     writeRegisterList(device,regList)
+    
+    regList = dict.fromkeys(["GEM_AMC.OH.OH%d.COUNTERS.CRC.INCORRECT.VFAT%d.Reset"%(gtx,i) for i in range(24)],1)
+    writeRegisterList(device,regList)
+
     return
 
 def printScanConfiguration(device,gtx,useUltra=False,debug=False):
@@ -696,12 +700,20 @@ def getScanResults(device, gtx, numpoints, debug=False):
 
     return results
 
-def getUltraScanResults(device, gtx, numpoints, debug=False):
+def getUltraScanResults(device, gtx, numpoints, debug=False, numtrigs=1000, isLatency=False):
     scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
+    ohnL1A_0 = getLinkL1Acount(device,gtx)
+    ohnL1A = getLinkL1Acount(device,gtx)
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         msg = "%s: Ultra scan still running (0x%x), not returning results"%(device,
                                                                             readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
         ohlogger.debug(colormsg(msg,logging.DEBUG))
+        if (isLatency):
+            if ((getLinkL1Acount(device,gtx)-ohnL1A) > numtrigs):
+                print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getLinkL1Acount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getLinkL1Acount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
+                ohnL1A = getLinkL1Acount(device,gtx)
+        else:
+            pass
         time.sleep(0.1)
         pass
 
