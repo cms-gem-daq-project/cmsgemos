@@ -174,8 +174,8 @@ def enableL1A(device):
     writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
 
 def getAMCL1Acount(device):
-    return readRegister(device, "GEM_AMC.TTC.L1A_ID")
+    return readRegister(device, "GEM_AMC.TTC.COUNTERS.L1A")
                                                                                           
 def getLinkL1Acount(device,link):
-    return readRegister(device, "GEM_AMC.OH.OH0.COUNTERS.T1.SENT.L1A"%(link))
+    return readRegister(device, "GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(link))
 
