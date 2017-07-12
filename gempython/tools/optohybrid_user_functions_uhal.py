@@ -595,8 +595,11 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
 
     writeRegisterList(device,regList)
     
-    regList = dict.fromkeys(["GEM_AMC.OH.OH%d.COUNTERS.CRC.INCORRECT.VFAT%d.Reset"%(gtx,i) for i in range(24)],1)
-    writeRegisterList(device,regList)
+    #regList = dict.fromkeys(["GEM_AMC.OH.OH%d.COUNTERS.CRC.INCORRECT.VFAT%d.Reset"%(gtx,i) for i in range(24)],1)
+    #writeRegisterList(device,regList)
+    # for some reason the code above doesn't work and triggers ipbus transaction errors... The code below works!
+    for i in range(24):
+      writeRegister(device,"GEM_AMC.OH.OH%d.COUNTERS.CRC.INCORRECT.VFAT%d.Reset"%(gtx,i), 1)
 
     return
 
