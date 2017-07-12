@@ -797,3 +797,6 @@ def calculateLinkErrors(device,gtx,sampleTime):
         second = readRegister(device,"%s.OH%d.COUNTERS.%s_LINK.TRK_ERR"%(baseNode,gtx,link))
         errorCounts[link] = [first,second]
     return errorCounts
+                                                                                      
+def getLinkL1Acount(device,link):
+    return readRegister(device, "GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(link))
