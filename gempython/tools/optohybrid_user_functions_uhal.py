@@ -703,10 +703,16 @@ def getScanResults(device, gtx, numpoints, debug=False):
 
     return results
 
-def getUltraScanResults(device, gtx, numpoints, debug=False, numtrigs=1000, isLatency=False):
+def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
     ohnL1A_0 = getLinkL1Acount(device,gtx)
     ohnL1A = getLinkL1Acount(device,gtx)
+    numtrigs = readRegister(device,"%s.NTRIGS"%(scanBase))
+    if (readRegister(device,"%s.MODE"%(scanBase))==2):
+        isLatency = True
+        print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getLinkL1Acount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getLinkL1Acount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
+    else:
+        isLatency = False    
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
         msg = "%s: Ultra scan still running (0x%x), not returning results"%(device,
                                                                             readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
