@@ -807,5 +807,5 @@ def calculateLinkErrors(device,gtx,sampleTime):
         errorCounts[link] = [first,second]
     return errorCounts
                                                                                       
-def getLinkL1Acount(device,link):
+def getL1ACount(device,link):
     return readRegister(device, "GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(link))
