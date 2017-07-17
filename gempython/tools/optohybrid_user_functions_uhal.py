@@ -600,6 +600,7 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
     # for some reason the code above doesn't work and triggers ipbus transaction errors... The code below works!
     for i in range(24):
       writeRegister(device,"GEM_AMC.OH.OH%d.COUNTERS.CRC.INCORRECT.VFAT%d.Reset"%(gtx,i), 1)
+      writeRegister(device,"GEM_AMC.OH.OH%d.COUNTERS.CRC.VALID.VFAT%d.Reset"%(gtx,i), 1)
 
     return
 
@@ -705,12 +706,12 @@ def getScanResults(device, gtx, numpoints, debug=False):
 
 def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
-    ohnL1A_0 = getLinkL1Acount(device,gtx)
-    ohnL1A = getLinkL1Acount(device,gtx)
+    ohnL1A_0 = getL1ACount(device,gtx)
+    ohnL1A = getL1ACount(device,gtx)
     numtrigs = readRegister(device,"%s.NTRIGS"%(scanBase))
     if (readRegister(device,"%s.MODE"%(scanBase))==2):
         isLatency = True
-        print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getLinkL1Acount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getLinkL1Acount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
+        print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getL1ACount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getL1ACount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
     else:
         isLatency = False    
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
@@ -718,9 +719,9 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
                                                                             readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
         ohlogger.debug(colormsg(msg,logging.DEBUG))
         if (isLatency):
-            if ((getLinkL1Acount(device,gtx)-ohnL1A) > numtrigs):
-                print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getLinkL1Acount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getLinkL1Acount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
-                ohnL1A = getLinkL1Acount(device,gtx)
+            if ((getL1ACount(device,gtx)-ohnL1A) > numtrigs):
+                print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getL1ACount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getL1ACount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
+                ohnL1A = getL1ACount(device,gtx)
         else:
             pass
         time.sleep(0.1)
