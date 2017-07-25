@@ -1,18 +1,18 @@
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "db.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gempython.utils.db.settings")
 import django
 django.setup()
 import datetime
 from time import sleep
-from gempython.tools.ldqm_db.models import *
-from gempython.tools.ldqm_db.amcmanager import *
+from gempython.utils.ldqm_db.models import *
+from gempython.utils.ldqm_db.amcmanager import *
 
-from gempython.utils.gemlogger import GEMLogger
+import gempython.utils.gemlogger as GEMLogger
 
-gemlogger = GEMLogger("query").gemlogger
-gemlogger.setLevel(GEMLogger.DEBUG)
+gemlogger = GEMLogger.getGEMLogger(__name__)
+#gemlogger.setLevel(GEMLogger.DEBUG)
 
-def configure_db(station="CERN904",setuptype="teststand",runperiod="2016T",shelf=1):
+def configure_db(station="TIF",setuptype="teststand",runperiod="2016T",shelf=2):
   amc_list=[1,2,3,4,5,6,7,8,9,10,11,12]
   geb_list=[[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],]
   zlist = zip(amc_list, geb_list)

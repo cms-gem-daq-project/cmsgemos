@@ -1,19 +1,21 @@
 from gempython.tools.glib_system_info_uhal import *
-from gempython.tools.glib_user_functions_uhal import *
+from gempython.tools.amc_user_functions_uhal import *
 from gempython.tools.optohybrid_user_functions_uhal import *
-from gempython.tools.vfat_functions_uhal import *
+from gempython.tools.vfat_user_functions_uhal import *
 
 class AMCmanager:
-  from gempython.utils.gemlogger import GEMLogger
+  #from gempython.utils.gemlogger import GEMLogger
 
   def __init__(self):
     self.connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"
+    import gempython.utils.gemlogger as GEMLogger
+    self.gemlogger = GEMLogger.getGEMLogger(__name__)
     pass
 
   def connect(self,sn,shelf=1):
     manager = uhal.ConnectionManager( self.connection_file )
     msg = "Open new connection\n"
-    gemlogger.info(msg)
+    self.gemlogger.info(msg)
     self.amc  = manager.getDevice( "gem.shelf%02d.amc%02d"%(shelf,int(sn)) )
     #check if amc is really connected
     fwv = getSystemFWRaw(self.amc)

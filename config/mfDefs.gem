@@ -43,8 +43,8 @@ UserDynamicLinkFlags =
 IncludeDirs+=$(XDAQ_ROOT)/include
 
 ## Python
-PYTHON_VERSION ?= $(shell python -c "import distutils.sysconfig;print distutils.sysconfig.get_python_version()")
-PYTHON_INCLUDE_PREFIX ?= $(shell python -c "import distutils.sysconfig;print distutils.sysconfig.get_python_inc()")
+PYTHON_VERSION ?= $(shell python2.7 -c "import distutils.sysconfig;print distutils.sysconfig.get_python_version()")
+PYTHON_INCLUDE_PREFIX ?= $(shell python2.7 -c "import distutils.sysconfig;print distutils.sysconfig.get_python_inc()")
 
 IncludeDirs+=${PYTHON_INCLUDE_PREFIX}
 # IncludeDirs+=/usr/include/python2.7
