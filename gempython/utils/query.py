@@ -4,8 +4,8 @@ import django
 django.setup()
 import datetime
 from time import sleep
-from gempython.utils.ldqm_db.models import *
-from gempython.utils.ldqm_db.amcmanager import *
+from gempython.utils.db.ldqm_db.models import *
+from gempython.utils.db.ldqm_db.amcmanager import *
 
 import gempython.utils.gemlogger as GEMLogger
 
