@@ -463,7 +463,7 @@ void gem::hw::HwGenericAMC::disableDAQLink()
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE",        0x0);
 }
 
-void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO)
+void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& ttsOverride=0x0)
 {
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x1);
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x0);
@@ -472,7 +472,7 @@ void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO)
   // set each link input timeout to 0x30d4 (160MHz clock cycles, 0xc35 40MHz clock cycles)
   setDAQLinkInputTimeout(0x30d4);
   // setDAQLinkInputTimeout(davTO);
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.TTS_OVERRIDE", 0x8);/*HACK to be fixed?*/
+  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.TTS_OVERRIDE", ttsOverride);/*HACK to be fixed?*/
 }
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkControl()
