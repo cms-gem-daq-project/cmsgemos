@@ -379,8 +379,9 @@ namespace gem {
         /**
          * @brief reset the DAQ link and write the DAV timout
          * @param davTO value to use for the DAV timeout
+         * @param ttsOverride value to use for the TTS override
          */
-        virtual void resetDAQLink(uint32_t const& davTO=0x3d090);
+        virtual void resetDAQLink(uint32_t const& davTO=0x3d090, uint32_t const& ttsOverride=0x0);
 
         /**
          * @returns Returns the 32 bit word corresponding to the DAQ link control register
