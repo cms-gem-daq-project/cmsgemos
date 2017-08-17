@@ -8,10 +8,10 @@ INSTALLED_APPS = [
 DATABASES = {
     'default': {
         'ENGINE':  'django.db.backends.mysql',
-        'NAME':     'ldqm_tif_qc8_db',
-        'PORT':     3306,
-        'HOST':     'cosmicstandtif',
-        'USER':     'gemdaq',
+        'NAME':     'ldqm_test_db',		
+        'PORT':     3306,		
+        'HOST':     'gem904daq01',		
+        'USER':     'gemdaq',		
         'PASSWORD': 'gemdaq',
     }
 }
