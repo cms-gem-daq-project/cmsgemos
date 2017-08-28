@@ -6,8 +6,8 @@ env:
   matrix:
     - OS_TYPE=centos OS_VERSION=6 DOCKER_IMAGE=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
     - OS_TYPE=centos OS_VERSION=7 DOCKER_IMAGE=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:cc7
-    # - OS_TYPE=centos OS_VERSION=6
-    # - OS_TYPE=centos OS_VERSION=7
+    # - OS_TYPE=centos OS_VERSION=6 DOCKER_IMAGE=cern/slc6-base
+    # - OS_TYPE=centos OS_VERSION=7 DOCKER_IMAGE=cern/cc7-base
 
 services:
   - docker
