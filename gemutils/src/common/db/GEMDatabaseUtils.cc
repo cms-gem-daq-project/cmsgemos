@@ -113,7 +113,7 @@ void gem::utils::db::GEMDatabaseUtils::configure(const std::string& station,
 {
   Py_Initialize();
   std::stringstream cmd;
-  cmd << "from query import configure_db" << std::endl;
+  cmd << "from gempython.utils.db.query import configure_db" << std::endl;
   cmd << "configure_db(station=\"" << station
       << "\",setuptype=\"" << setuptype
       << "\",runperiod=\"" << runperiod
