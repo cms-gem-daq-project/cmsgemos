@@ -5,8 +5,6 @@
 
 OS_VERSION=$1
 
-ls -l /home
-
 # Clean the yum cache
 yum -y clean all
 yum -y clean expire-cache
