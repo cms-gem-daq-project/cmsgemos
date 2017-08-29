@@ -17,7 +17,7 @@ then
 elif [ "$el_version" == "7" ]
 then
     echo "Running CC7 custom docker image"
-    docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
+    docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:cc7
     # docker_image=cern/cc7-base
     docker run --privileged -d -ti -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup $docker_image /usr/sbin/init
     DOCKER_CONTAINER_ID=$(docker ps | grep centos | awk '{print $1}')
