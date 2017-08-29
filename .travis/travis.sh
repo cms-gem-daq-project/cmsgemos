@@ -13,7 +13,7 @@ then
     echo "Running SLC6 GEM DAQ custom docker image"
     docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
     # docker_image=cern/slc6-base
-    sudo docker run --entrypoint="" ${docker_image} /bin/bash -c "bash -xe pwd;
+    sudo docker run --entrypoint="/bin/bash" ${docker_image} -c "bash -xe pwd;
   ls -l;
   ./.travis/docker.sh ${OS_VERSION};
   echo -ne \"------\nEND CMSGEMOS TESTS\n\";"
