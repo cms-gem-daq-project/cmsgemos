@@ -13,5 +13,4 @@ yum -y clean expire-cache
 
 uname -a
 
-make -j4
-
+make debug -j4
