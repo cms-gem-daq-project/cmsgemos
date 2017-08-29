@@ -5,15 +5,15 @@
 
 OS_VERSION=$1
 
-# $PYTHON_VERSON
-
-ls -l $PWD
-
 # Clean the yum cache
 yum -y clean all
 yum -y clean expire-cache
 
 uname -a
+
+# $PYTHON_VERSON
+
+# ls -l $PWD
 
 export BUILD_HOME=$PWD
 
