@@ -8,13 +8,13 @@
 el_version=$1
 
 # Run tests in Container
-if [ "$el_version" == "6" ]
+if [ "$el_version" = "6" ]
 then
     echo "Running SLC6 custom docker image"
     docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
     # docker_image=cern/slc6-base
     sudo docker run --entrypoint="" ${docker_image} /bin/bash -c "bash -xe ./.travis/docker.sh ${OS_VERSION}"
-elif [ "$el_version" == "7" ]
+elif [ "$el_version" = "7" ]
 then
     echo "Running CC7 custom docker image"
     docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:cc7
