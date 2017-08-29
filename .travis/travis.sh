@@ -14,10 +14,10 @@ then
     docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
     # docker_image=cern/slc6-base
     ls -l
-    sudo docker run --rm=true -v `pwd` --entrypoint="/bin/bash" ${docker_image} -xec "pwd;
+    sudo docker run --rm=true -v `pwd`:/cmsgemos:rw --entrypoint="/bin/bash" ${docker_image} -xec "pwd;
   ls -l;
   find . -iname docker.sh;
-  ./.travis/docker.sh ${OS_VERSION};
+  /cmsgemos/.travis/docker.sh ${OS_VERSION};
   echo -ne \"------\nEND CMSGEMOS TESTS\n\";"
 elif [ "$el_version" = "7" ]
 then
@@ -25,13 +25,13 @@ then
     docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:cc7
     # docker_image=cern/cc7-base
     ls -l
-    docker run --privileged -d -ti -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup $docker_image /usr/sbin/init
+    docker run --privileged -d -ti -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup -v `tmp`:/cmsgemos:rw $docker_image /usr/sbin/init
     DOCKER_CONTAINER_ID=$(docker ps | grep "gemdaq_ci_worker:cc7" | awk '{print $1}')
     docker logs $DOCKER_CONTAINER_ID
     docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -xec "pwd;
   ls -l;
   find . -iname docker.sh;
-  ./.travis/docker.sh ${OS_VERSION};
+  /cmsgemos/.travis/docker.sh ${OS_VERSION};
   echo -ne \"------\nEND CMSGEMOS TESTS\n\";"
     docker ps -a
     docker stop $DOCKER_CONTAINER_ID
