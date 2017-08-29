@@ -8,7 +8,7 @@
 el_version=$1
 # need a varaible to point to the .travis directory
 # Run tests in Container
-if [ "$el_version" == "6" ]
+if [ "$el_version" = "6" ]
 then
     echo "Running SLC6 GEM DAQ custom docker image"
     docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
