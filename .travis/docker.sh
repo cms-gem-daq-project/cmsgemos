@@ -5,12 +5,21 @@
 
 OS_VERSION=$1
 
-ls -l /home
+# $PYTHON_VERSON
+
+ls -l $PWD
 
 # Clean the yum cache
 yum -y clean all
 yum -y clean expire-cache
 
 uname -a
+
+export BUILD_HOME=$PWD
+
+cd ${BUILD_HOME}/cmsgemos
+
+. setup/etc/profile.d/xdaqenv.sh
+. setup/paths.sh
 
 make debug -j4
