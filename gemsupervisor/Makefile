@@ -50,6 +50,7 @@ print-env:
 	@echo XDAQ_ROOT     $(XDAQ_ROOT)
 	@echo XDAQ_OS       $(XDAQ_OS)
 	@echo XDAQ_PLATFORM $(XDAQ_PLATFORM)
+	@echo PYTHON_VERSION $(PYTHON_VERSION)
 	@echo LIBDIR        $(LIBDIR)
 	@echo ROOTCFLAGS    $(ROOTCFLAGS)
 	@echo ROOTLIBS      $(ROOTLIBS)
