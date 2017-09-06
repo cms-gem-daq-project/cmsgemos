@@ -24,4 +24,3 @@ setup(name=_name,
       package_dir      = {'' : ''},
       package_data     = dict((pkg,['*.so']) for pkg in _packages)
       )
-

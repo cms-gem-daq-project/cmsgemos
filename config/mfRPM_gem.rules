@@ -171,4 +171,3 @@ _installrpmall:
 _changelogall:
 	cd $(PackagePath);\
 	git log --full-diff --decorate=full < ChangeLog
-

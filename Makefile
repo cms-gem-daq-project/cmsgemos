@@ -130,3 +130,4 @@ print-env:
 	@echo RANLIB        $(RANLIB)
 	@echo GCCVERSION    $(GCCVERSION)
 	@echo CLANGVERSION  $(CLANGVERSION)
+	@echo DependentLibraryDirs  $(DependentLibraryDirs)
