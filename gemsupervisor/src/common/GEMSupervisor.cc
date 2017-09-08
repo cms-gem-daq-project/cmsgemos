@@ -107,12 +107,18 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
                                       &m_rcmsStateListenerUrl,
                                       GEMUpdateType::PROCESS);
 
+  p_appInfoSpaceToolBox->createBool("ReportStateToRCMS", m_reportToRCMS.value_,
+                                    &m_reportToRCMS,
+                                    GEMUpdateType::PROCESS);
+
   p_appInfoSpace->addItemRetrieveListener("rcmsStateListener",      this);
   p_appInfoSpace->addItemRetrieveListener("foundRcmsStateListener", this);
   p_appInfoSpace->addItemRetrieveListener("RCMSStateListenerURL",   this);
+  p_appInfoSpace->addItemRetrieveListener("ReportStateToRCMS",      this);
   p_appInfoSpace->addItemChangedListener( "rcmsStateListener",      this);
   p_appInfoSpace->addItemChangedListener( "foundRcmsStateListener", this);
   p_appInfoSpace->addItemChangedListener( "RCMSStateListenerURL",   this);
+  p_appInfoSpace->addItemChangedListener( "ReportStateToRCMS",      this);
 }
 
 gem::supervisor::GEMSupervisor::~GEMSupervisor()
