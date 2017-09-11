@@ -239,7 +239,7 @@ void gem::supervisor::GEMSupervisor::init()
   dynamic_cast<gem::supervisor::GEMSupervisorMonitor*>(p_gemMonitor)->setupAppStateMonitoring();
   p_gemMonitor->startMonitoring();
   m_globalState.startTimer();
-};
+}
 
 // state transitions
 void gem::supervisor::GEMSupervisor::initializeAction()
@@ -276,18 +276,23 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     if (m_useLocalDBInstance)
       p_gemDBHelper->connect(m_dbName.toString());
 
+    // do this only when RCMS is not present
     // for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
     auto initorder = getInitializationOrder();
     for (auto i = initorder.begin(); i != initorder.end(); ++i) {
-      for (auto j = i->begin(); j != i->end(); ++j) {
-        if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
-          INFO("GEMSupervisor::initializeAction Halting " << (*j)->getClassName()
-               << " in case it is not in 'Halted'");
-          // need to ensure leases are properly respected
-          gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, *j);
-        } else {
-          INFO("GEMSupervisor::initializeAction Initializing " << (*j)->getClassName());
-          gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *j);
+      // if (!m_gemRCMSNotifier.getFoundRcmsStateListenerParameter()) {
+      if (true) {
+        INFO("GEMSupervisor::initializeAction No RCMS state listener found, continuing to initialize children ");
+        for (auto j = i->begin(); j != i->end(); ++j) {
+          if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
+            INFO("GEMSupervisor::initializeAction Halting " << (*j)->getClassName()
+                 << " in case it is not in 'Halted'");
+            // need to ensure leases are properly respected
+            gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, *j);
+          } else {
+            INFO("GEMSupervisor::initializeAction Initializing " << (*j)->getClassName());
+            gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *j);
+          }
         }
       }
       // check that group state of *i has moved to desired state before continuing
