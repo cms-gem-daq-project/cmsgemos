@@ -136,6 +136,9 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
       tmpGlobalState = appState->second.state;
 
     statesString << appState->second.state;
+
+    DEBUG("GEMGlobalState::calculateGlobalState: Current global state is " << tmpGlobalState
+          << " and current statesString is " << statesString.str());
   }
 
   // now get the actual global state based on the initial state, the state string, and the tmp global state
@@ -170,7 +173,11 @@ toolbox::fsm::State gem::supervisor::GEMGlobalState::getProperCompositeState(too
                                                                              toolbox::fsm::State const& final,
                                                                              std::string         const& states)
 {
-  if (initial == gem::base::STATE_INITIALIZING || initial == gem::base::STATE_INITIAL) {
+  // need the failed condition here...
+  if ((states.rfind(gem::base::STATE_FAILED) != std::string::npos) &&
+      (initial != (gem::base::STATE_RESETTING))) {
+    return gem::base::STATE_FAILED;
+  } else if (initial == gem::base::STATE_INITIALIZING || initial == gem::base::STATE_INITIAL) {
     if ((states.rfind(gem::base::STATE_INITIAL) != std::string::npos) &&
         (states.rfind(gem::base::STATE_HALTED) != std::string::npos))
       return gem::base::STATE_INITIALIZING;
