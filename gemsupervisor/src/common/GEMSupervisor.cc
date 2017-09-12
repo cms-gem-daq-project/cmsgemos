@@ -1274,8 +1274,7 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   m_stateName = GEMGlobalState::getStateName(after);
 
   if (m_stateName == "Error") {
-    fireEvent("Fail");
-    m_globalState.update();
+    XCEPT_RAISE(gem::supervisor::exception::TransitionProblem, "Composite state is 'Error'");
   }
   
   try {
