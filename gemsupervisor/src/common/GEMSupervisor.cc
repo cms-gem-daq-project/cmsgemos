@@ -1273,11 +1273,6 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   // Notify RCMS of a state change.
   m_stateName = GEMGlobalState::getStateName(after);
 
-  if (m_stateName == "Error") {
-    fireEvent("Fail");
-    m_globalState.update();
-  }
-  
   try {
     if (m_reportToRCMS)
       m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed");
@@ -1289,6 +1284,13 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
     notifyQualified("error", top);
   }
 
+  // ensure that the supervisor FSM goes to error if the composite state is error
+  // May want to also disable the updating of the state until a reset is issued...
+  if (m_stateName == "Error") {
+    fireEvent("Fail");
+    m_globalState.update();
+  }
+  
   // if (m_stateName == "Error") {
   //   XCEPT_RAISE(gem::supervisor::exception::TransitionProblem, "Composite state is 'Error'");
   // }
