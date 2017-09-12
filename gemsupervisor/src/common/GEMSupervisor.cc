@@ -1275,6 +1275,7 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
 
   try {
     if (m_reportToRCMS)
+      INFO("GEMSupervisor::globalStateChanged::Notifying RCMS of state change");
       m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed");
   } catch(xcept::Exception& err) {
     ERROR("GEMSupervisor::globalStateChanged::Failed to notify RCMS of state change: "
