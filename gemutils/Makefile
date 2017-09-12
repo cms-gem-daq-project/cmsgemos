@@ -26,11 +26,6 @@ DynamicLibrary=gemutils
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
-# MySQL Config
-MySQLCFLAGS = $(shell mysql_config --cflags)
-MySQLLIBS   = $(shell mysql_config --libs)
-MySQLGLIBS  = $(shell mysql_config --glibs)
-
 UserCFlags  +=$(MySQLCFLAGS)
 UserCCFlags +=$(MySQLCFLAGS)
 
@@ -41,6 +36,7 @@ UserDynamicLinkFlags+=$(MySQLLIBS)
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
