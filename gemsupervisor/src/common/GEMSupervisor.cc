@@ -1274,7 +1274,8 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   m_stateName = GEMGlobalState::getStateName(after);
 
   if (m_stateName == "Error") {
-    XCEPT_RAISE(gem::supervisor::exception::TransitionProblem, "Composite state is 'Error'");
+    fireEvent("Fail");
+    m_globalState.update();
   }
   
   try {
@@ -1287,6 +1288,10 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
                          "Failed to notify RCMS of state change.", err);
     notifyQualified("error", top);
   }
+
+  // if (m_stateName == "Error") {
+  //   XCEPT_RAISE(gem::supervisor::exception::TransitionProblem, "Composite state is 'Error'");
+  // }
 }
 
 void gem::supervisor::GEMSupervisor::updateRunNumber()
