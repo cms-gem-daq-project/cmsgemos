@@ -476,8 +476,13 @@ int gem::supervisor::GEMGlobalState::getStatePriority(toolbox::fsm::State state)
     gem::base::STATE_RUNNING,
     gem::base::STATE_NULL
   };
-  int i;
+
+  int i = -1;
   for (i = 0; statePriority[i] != state && statePriority[i] != gem::base::STATE_NULL; ++i)
     {}
+
+  log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMGlobalState"));
+  DEBUG("GEMGlobalState::getStatePriority state " << state << " has priority " << i);
+
   return i;
 };
