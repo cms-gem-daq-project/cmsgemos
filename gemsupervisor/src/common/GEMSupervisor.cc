@@ -15,6 +15,8 @@
 #include <vector>
 #include <algorithm>
 
+#include <boost/algorithm/string.hpp>
+
 #include "gem/supervisor/GEMSupervisorWeb.h"
 #include "gem/supervisor/GEMSupervisorMonitor.h"
 
@@ -71,8 +73,10 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->fireItemAvailable("TCDSConfig",  &m_tcdsConfig);
 
   p_appInfoSpace->addItemRetrieveListener("DatabaseInfo", this);
+  p_appInfoSpace->addItemRetrieveListener("TCDSConfig",   this);
 
   p_appInfoSpace->addItemChangedListener("DatabaseInfo", this);
+  p_appInfoSpace->addItemChangedListener("TCDSConfig",   this);
 
   p_appInfoSpaceToolBox->createBool("UseLocalDB",       m_useLocalDBInstance.value_, &m_useLocalDBInstance, GEMUpdateType::PROCESS);
   p_appInfoSpaceToolBox->createBool("HandleTCDS",       m_handleTCDS.value_,         &m_handleTCDS,         GEMUpdateType::PROCESS);
@@ -213,7 +217,12 @@ void gem::supervisor::GEMSupervisor::init()
         std::stringstream managedAppStateURN;
         managedAppStateURN << (*j)->getURN();
         // have to figure out what we want here, with change to pointers
-        p_appStateInfoSpaceToolBox->createString(managedAppStateName.str(), managedAppStateURN.str(), NULL);
+        std::string appNameKey = managedAppStateName.str();
+        appNameKey = appNameKey.substr(appNameKey.rfind("::")+2);
+        boost::replace_all(appNameKey, ":", "-");
+        p_appStateInfoSpaceToolBox->createString(appNameKey,
+                                                 // appNameKey, NULL);
+                                                 managedAppStateURN.str(), NULL);
 
         m_globalState.addApplication(const_cast<xdaq::ApplicationDescriptor*>(*j));
       }
@@ -1291,7 +1300,7 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
     fireEvent("Fail");
     m_globalState.update();
   }
-  
+
   // if (m_stateName == "Error") {
   //   XCEPT_RAISE(gem::supervisor::exception::TransitionProblem, "Composite state is 'Error'");
   // }
