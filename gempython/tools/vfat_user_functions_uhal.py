@@ -307,41 +307,36 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
     perchip  = "0x%04x"
     perreg   = "0x%02x"
     perset   = "%4d"
-    registerList = ["ContReg0","ContReg1","ContReg2","ContReg3"]
-    settingList = [
-	"Latency",
-	"IPreampIn","IPreampFeed","IPreampOut",
-	"IShaper","IShaperFeed",
-	"IComp",
-	"VCal",
-	"VThreshold1",
-	"VThreshold2",
-	"CalPhase",
-        ]
+    registerList = {perreg: ["ContReg0","ContReg1","ContReg2","ContReg3"],
+                    perset: [
+            "Latency",
+            "IPreampIn","IPreampFeed","IPreampOut",
+            "IShaper","IShaperFeed",
+            "IComp",
+            "VCal",
+            "VThreshold1",
+            "VThreshold2",
+            "CalPhase",
+            ]
+                    }
 
     slotmap = map(lambda slotID: perslot%(slotID), regkeys.keys())
     msg = "%s   %s%s%s"%(slotbase,colors.GREEN,'    '.join(map(str, slotmap)),colors.ENDC)
     # vfatlogger.info(colormsg(msg,logging.INFO))
-    print msg
+    print(msg)
     chipmap = map(lambda chipID: perchip%(regkeys[chipID]), regkeys.keys())
     msg = "%s%s%s%s"%(base,colors.CYAN,' '.join(map(str, chipmap)),colors.ENDC)
     # vfatlogger.info(colormsg(msg,logging.INFO))
-    print msg
-    for reg in registerList:
-        # regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())
-        regValues = readAllVFATs(device, gtx, reg, mask, debug)
-        regmap = map(lambda chip: perreg%(chip&0xff), regValues)
-        msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
-        # vfatlogger.info(colormsg(msg,logging.INFO))
-        print msg
-        pass
+    print(msg)
 
-    for setting in settingList:
-        # setmap = map(lambda chip: perset%(readVFAT(device, gtx, chip, setting)&0xff), regkeys.keys())
-        settingValues = readAllVFATs(device, gtx, setting, mask, debug)
-        setmap = map(lambda chip: perset%(chip&0xff), settingValues)
-        msg = "%11s::  %s"%(setting, '   '.join(map(str, setmap)))
-        # vfatlogger.info(colormsg(msg,logging.INFO))
-        print msg
+    for key in registerList:
+        for reg in registerList[key]:
+            # regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())                                                                                                                                                                            
+            regValues = readAllVFATs(device, gtx, reg, mask, debug)
+            regmap = map(lambda chip: key%(chip&0xff), regValues)
+            msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
+            # vfatlogger.info(colormsg(msg,logging.INFO))                                                                                                                                                                                                                         
+            print msg
+            pass
         pass
     return
