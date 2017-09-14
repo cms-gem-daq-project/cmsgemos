@@ -306,8 +306,9 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
     perslot  = "%3d"
     perchip  = "0x%04x"
     perreg   = "0x%02x"
-    registerList = [
-	"ContReg0","ContReg1","ContReg2","ContReg3",
+    perset   = "%4d"
+    registerList = ["ContReg0","ContReg1","ContReg2","ContReg3"]
+    settingList = [
 	"Latency",
 	"IPreampIn","IPreampFeed","IPreampOut",
 	"IShaper","IShaperFeed",
@@ -331,6 +332,15 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
         regValues = readAllVFATs(device, gtx, reg, mask, debug)
         regmap = map(lambda chip: perreg%(chip&0xff), regValues)
         msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
+        # vfatlogger.info(colormsg(msg,logging.INFO))
+        print msg
+        pass
+
+    for setting in settingList:
+        # setmap = map(lambda chip: perset%(readVFAT(device, gtx, chip, setting)&0xff), regkeys.keys())
+        settingValues = readAllVFATs(device, gtx, setting, mask, debug)
+        setmap = map(lambda chip: perset%(chip&0xff), settingValues)
+        msg = "%11s::  %s"%(setting, '   '.join(map(str, setmap)))
         # vfatlogger.info(colormsg(msg,logging.INFO))
         print msg
         pass
