@@ -49,7 +49,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
         except uhal.exception, e:
             nRetries += 1
             gRetries += 1
-            if ((nRetries % 10)==0):
+            if ((nRetries % 10) == 1):
                 msg = "%s: read error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
                 msg+= str(e)
                 reglogger.warning(msg)
@@ -109,7 +109,7 @@ def readRegisterList(device, registers, debug=False):
             reglogger.warning(msg)
             nRetries += 1
             gRetries += 1
-            if ((nRetries % 10)==0):
+            if ((nRetries % 10) == 1):
                 continue
             pass
         pass
@@ -167,7 +167,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             #     print colors.YELLOW, "timed out",register, "-> Error : ", e, colors.ENDC
             # else:
             #     print colors.MAGENTA, "other error",register, "-> Error : ", e, colors.ENDC
-            if ((nRetries % 10)==0):
+            if ((nRetries % 10) == 1):
                 msg = "%s: read error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
                 msg+= str(e)
                 reglogger.warning(msg)
@@ -215,7 +215,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             #     print colors.MAGENTA, "other error",register, "-> Error : ", e, colors.ENDC
             nRetries += 1
             gRetries += 1
-            if ((nRetries % 10)==0) and debug:
+            if ((nRetries % 10) == 1) and debug:
                 msg = "%s: write error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
                 msg+= str(e)
                 reglogger.warning(msg)
@@ -253,7 +253,7 @@ def writeRegisterList(device, regs_with_vals, debug=False):
             reglogger.warning(msg)
             nRetries += 1
             gRetries += 1
-            if ((nRetries % 10)==0) and debug:
+            if ((nRetries % 10) == 1) and debug:
                 pass
             continue
         pass
