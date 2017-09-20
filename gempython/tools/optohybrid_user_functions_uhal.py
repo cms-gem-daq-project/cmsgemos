@@ -171,7 +171,9 @@ def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
         time.sleep(0.1)
         pass
 
-    return readBlock(device,"%s.Results"%(baseNode),24)
+    # bitcount = bits not set in mask
+    bitcount = 24
+    return readBlock(device,"%s.Results"%(baseNode),bitcount)
 
 def optohybridCounters(device,gtx=0,doReset=False,debug=False):
     """
