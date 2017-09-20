@@ -721,7 +721,7 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
         if (readRegister(device,"%s.MONITOR.READY"%(scanBase)) > 0):
             foundResults += 1
             for chip in range(24):
-                results[chip].append(readRegister(device,"%s.READY.VFAT%d"%(scanBase,chip)))
+                results[chip].append(readRegister(device,"%s.RESULTS.VFAT%d"%(scanBase,chip)))
             print("found %d results so far, still looping..."%(foundResults))
         msg = "%s: Ultra scan still running (0x%x), not returning results"%(device,
                                                                             readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
@@ -747,7 +747,7 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     while (readRegister(device,"%s.MONITOR.READY"%(scanBase)) > 0):
         foundResults += 1
         for chip in range(24):
-            results[chip].append(readRegister(device,"%s.READY.VFAT%d"%(scanBase,chip)))
+            results[chip].append(readRegister(device,"%s.RESULTS.VFAT%d"%(scanBase,chip)))
 
     print("found %d total results, was this expected?"%(foundResults))
     return results
