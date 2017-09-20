@@ -718,7 +718,7 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     results = [[] for x in range(24)]
     foundResults = 0
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
-        if (readRegister(device,"%s.MONITOR.RESULTS"%(scanBase)) > 0):
+        if (readRegister(device,"%s.MONITOR.READY"%(scanBase)) > 0):
             foundResults += 1
             for chip in range(24):
                 results[chip].append(read(device,"%s.READY.VFAT%d"%(scanBase,chip)))
@@ -747,7 +747,7 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     while (readRegister(device,"%s.MONITOR.READY"%(scanBase)) > 0):
         foundResults += 1
         for chip in range(24):
-            results[chip].append(read(device,"%s.RESULTS.VFAT%d"%(scanBase,chip)))
+            results[chip].append(read(device,"%s.READY.VFAT%d"%(scanBase,chip)))
 
     print("found %d total results, was this expected?"%(foundResults))
     return results
