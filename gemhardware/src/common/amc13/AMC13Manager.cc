@@ -322,9 +322,9 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   INFO("AMC13Manager::initializeAction m_amcIgnoreTTSList " << m_amcIgnoreTTSList
        << " parsed as m_ignoreAMCTTS: " << std::hex << m_ignoreAMCTTS << std::dec);
   if (m_ignoreAMCTTS) {
-    p_amc13->write(::amc13::AMC13Simple::T1, "CONF.AMC.TTS_DISABLE_MASK", m_ignoreAMCTTS);
+    p_amc13->ttsDisableMask(m_ignoreAMCTTS);
   } else {
-    p_amc13->write(::amc13::AMC13Simple::T1, "CONF.AMC.TTS_DISABLE_MASK", 0x0);
+    p_amc13->ttsDisableMask(0x0);
   }
 
   // Use local TTC signal if config says to

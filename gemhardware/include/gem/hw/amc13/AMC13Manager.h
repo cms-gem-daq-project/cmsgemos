@@ -223,14 +223,15 @@ namespace gem {
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A,
+          bool m_enableLocalTTC, m_enableLocalL1A,
             m_sendL1ATriburst, m_startL1ATricont, // need to remove
 	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
 	  uint8_t m_bgoCMD;
 	  uint16_t m_bgoBX, m_bgoPrescale;
-          uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
+          uint32_t m_ignoreAMCTTS, m_fedID, m_sfpMask, m_slotMask,
+            m_internalPeriodicPeriod, m_L1Aburst;
           //uint64_t m_localL1AMask;
 	  uint64_t m_updatedL1ACount;
           ////counters
