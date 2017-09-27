@@ -28,12 +28,12 @@ fi
 
 if [ "$PYTHONPATH" != "0" ]; then
     if [ "$PYTHONPATH" != "" ]; then
-	export PYTHONPATH=$PYTHONPATH:/data/sources/glib_v3/sw/PyChips/src
+	export PYTHONPATH=$PYTHONPATH
     else
-	export PYTHONPATH=/data/sources/glib_v3/sw/PyChips/src
+	export PYTHONPATH=
     fi
 else
-    export PYTHONPATH=/data/sources/glib_v3/sw/PyChips/src
+    export PYTHONPATH=
 fi
 
 if [[ -n "$XDAQ_OS" ]]; then
