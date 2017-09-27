@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!--  The tags attribute is a free test attribute which meaning is defined by the uHAL user -->
-<node id="optohybrid_v1"
-      address="0x40050000"
-      module="file://${GLIBTEST}/data/optohybrid_v1_slaves.xml"
-      description="Optohybrid V1 registers controled by the GLIB user registers"/>
