@@ -116,9 +116,9 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
         // appNameID << (*app)->getClassName() << ":lid:" << (*app)->getLocalId();
         if (appNameID.str().find(monitem->first) != std::string::npos) {
           try {
-            INFO("GEMSupervisorMonitor::updateApplicationStates trying to get application state via SOAP for application: "
-                 << (*app)->getClassName() << " with URN "
-                 << (*app)->getURN());
+            DEBUG("GEMSupervisorMonitor::updateApplicationStates trying to get application state via SOAP for application: "
+                  << (*app)->getClassName() << " with URN "
+                  << (*app)->getURN());
             state = gem::utils::soap::GEMSOAPToolBox::getApplicationState(superContext, superDesc, &(**app));
           } catch(xcept::Exception e) {
             ERROR("GEMSupervisorMonitor::updateApplicationStates caught xcept::Exception: "
