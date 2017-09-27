@@ -1,0 +1,76 @@
+#----------------------------------------------------------------------
+# GEM904 PI configuration
+#----------------------------------------------------------------------
+
+#----------------------------------------
+# Force the TTS output (to the LPM) to DISCONNECTED should the PI somehow not be enabled
+#----------------------------------------
+tts_output_control.tts_out_disabled_value                    0x00000000
+
+#----------------------------------------------------------------------
+# Configuration of the TTCSpy in the PI
+#  See https://twiki.cern.ch/twiki/bin/view/CMS/TcdsCookBookPi
+#----------------------------------------------------------------------
+# ***** The OC0 bcommand data word sent for each OC0. It is used to recognise an OC0.
+ttcspy.logging_control.oc0_val                               0x00000008
+# ***** The B-command data word sent for each BC0. It is used by the TTCSpy to recognise a BC0
+ttcspy.logging_control.bc0_val                               0x00000001
+# ***** The expected BC0 BX is the assigned BX in which the above BC0 broadcast command is received
+ttcspy.logging_control.expected_bc0_bx                       0x00000dd4
+
+#----------------------------------------
+# The logging mode. Choice between:
+#  0 -> LogOnly: Log only the TTC traffic matching the trigger conditions
+#  1 -> LogAllExcept: Log all TTC traffic except that matching the trigger conditions
+#----------------------------------------
+ttcspy.logging_control.logging_mode                          0x00000001
+
+# The combination operator used to combine the individual trigger terms
+# - 0: OR
+# - 1: AND
+ttcspy.logging_control.trigger_combination_operator          0x00000000
+
+#----------------------------------------
+# Individual trigger terms: 0 -> trigger, 1 -> ignore
+#----------------------------------------
+# ***** Trigger on all L1As
+ttcspy.trigger_mask.l1a                                      0x00000001
+# ***** Trigger on addressed/long B-commands
+# ***** all addressed/long B-commands
+ttcspy.trigger_mask.add_all                                  0x00000000
+# ***** Trigger on addressed/long B-commands with 0x0 data payload
+ttcspy.trigger_mask.adr_zero_data                            0x00000000
+# ***** Trigger on broadcast/long B-commands
+# ***** all broadcast/short B-commands
+ttcspy.trigger_mask.brc_all                                  0x00000000
+# ***** all broadcast/short B-commands with 0x0 data payload
+ttcspy.trigger_mask.brc_zero_data                            0x00000000
+# ***** all broadcast B-commands with the BC0 bit (bit 0) set
+ttcspy.trigger_mask.brc_bc0                                  0x00000000
+# ***** all broadcast B-commands with the EC0 bit (bit 1) set
+ttcspy.trigger_mask.brc_ec0                                  0x00000000
+# ***** all broadcast commands with the given user-data (bits [5:2]) payload value
+ttcspy.trigger_mask.brc_dddd                                 0x00000001
+# ***** broadcast commands with non-zero user-data (bits [5:2]) payload value
+ttcspy.trigger_mask.brc_dddd_all                             0x00000000
+# ***** all broadcast commands with the given test-data (bits [7:6]) payload value
+ttcspy.trigger_mask.brc_tt                                   0x00000000
+# ***** all broadcast commands with non-zero test-data (bits [7:6]) payload value
+ttcspy.trigger_mask.brc_tt_all                               0x00000000
+# ***** all broadcast commands with the given data (bits [7:0]) payload value (six versions)
+# NOTE: The value 0x0 is ignored. See above for a dedicated trigger
+# ttcspy.trigger_mask.brc_val[[0-5]] 0x00000000
+ttcspy.trigger_mask.brc_val0                                 0x00000000
+ttcspy.trigger_mask.brc_val1                                 0x00000000
+ttcspy.trigger_mask.brc_val2                                 0x00000000
+ttcspy.trigger_mask.brc_val3                                 0x00000000
+ttcspy.trigger_mask.brc_val4                                 0x00000000
+ttcspy.trigger_mask.brc_val5                                 0x00000000
+# ***** Trigger on single-bit Hamming errors
+# ttcspy.trigger_mask.err_sng                                0x00000001 # v1.0
+# ***** Trigger on double-bit Hamming errors
+# ttcspy.trigger_mask.err_dbl                                0x00000001 # v1.0
+# ***** Trigger on all communication errors
+ttcspy.trigger_mask.err_com                                  0x00000001
+
+#----------------------------------------------------------------------
