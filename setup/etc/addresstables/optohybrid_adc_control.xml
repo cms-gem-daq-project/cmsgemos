@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<node id="top">
-  <node id="CONTROL_REGISTER_0"  address="0x0"  permission="r"
-        description="Returns the value from the ADC control register 0"/>
-  <node id="CONTROL_REGISTER_1"  address="0x1"  permission="r"
-        description="Returns the value from the ADC control register 1"/>
-  <node id="CONTROL_REGISTER_2"  address="0x2"  permission="r"
-        description="Returns the value from the ADC control register 2"/>
-</node>
