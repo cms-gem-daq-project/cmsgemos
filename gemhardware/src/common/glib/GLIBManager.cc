@@ -107,19 +107,19 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
     return m_glibs.at(glib)->getTrackingData(0, 24);
   } catch (gem::hw::glib::exception::Exception const& e) {
     std::stringstream msg;
-    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught exception " << e.what();
     ERROR(msg.str());
     return dump;
   } catch (std::exception const& e) {
     std::stringstream msg;
-    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught exception " << e.what();
     ERROR(msg.str());
     return dump;
   } catch (...) {
     std::stringstream msg;
-    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught unknown exception ";
     ERROR(msg.str());
     return dump;
@@ -420,29 +420,29 @@ void gem::hw::glib::GLIBManager::pauseAction()
 
       if (m_scanType.value_ == 2) {
 	uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	INFO("GLIBManager::pauseAction LatencyScan GLIB " << (slot+1) << " Latency " << (int)updatedLatency);
+	INFO("GLIBManager::pauseAction LatencyScan AMC" << (slot+1) << " Latency " << (int)updatedLatency);
 
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
+          DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
           usleep(10);
         }
-        DEBUG("GLIBManager::pauseAction GLIB " << (slot+1) << " finished building events, updating run parameter "
+        DEBUG("GLIBManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
               << (int)updatedLatency);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,updatedLatency);
       } else if (m_scanType.value_ == 3) {
 	uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
 	uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
-	INFO("GLIBManager::pauseAction ThresholdScan GLIB " << (slot+1) << ""
+	INFO("GLIBManager::pauseAction ThresholdScan AMC" << (slot+1) << ""
              << " VT1 " << (int)updatedVT1
              << " VT2 " << (int)updatedVT2);
 
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
+          DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
           usleep(10);
         }
-        DEBUG("GLIBManager::pauseAction finished GLIB " << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
+        DEBUG("GLIBManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
               << " and VT2 " << (int)updatedVT2);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,updatedVT1);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,updatedVT2);
