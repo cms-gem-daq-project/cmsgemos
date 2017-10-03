@@ -879,9 +879,14 @@ void gem::supervisor::GEMSupervisor::resumeAction()
   }
 
   try {
+#ifdef x86_64_centos7
+    for (auto const &i : getEnableOrder()) {
+      for (auto const &j : i) {
+#else
     auto resumeorder = getEnableOrder();
     for (auto i = resumeorder.begin(); i != resumeorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
+#endif
         INFO("GEMSupervisor::resumeAction Resuming " << (*j)->getClassName());
         gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume", p_appContext, p_appDescriptor, *j);
       }
@@ -1287,8 +1292,8 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   try {
     if (m_reportToRCMS)
       INFO("GEMSupervisor::globalStateChanged::Notifying RCMS of state change");
-      m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed:"
-                                     << m_globalState.getStateMessage());
+      m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed: "
+                                     + (m_globalState.getStateMessage()));
   } catch(xcept::Exception& err) {
     ERROR("GEMSupervisor::globalStateChanged::Failed to notify RCMS of state change: "
           << xcept::stdformat_exception_history(err));
