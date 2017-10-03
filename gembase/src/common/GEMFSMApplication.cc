@@ -431,7 +431,7 @@ xoap::MessageReference gem::base::GEMFSMApplication::changeState(xoap::MessageRe
 bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::initialize called, current state: " << m_gemfsm.getCurrentState());
+  INFO("GEMFSMApplication::initialize called, current state: " << m_gemfsm.getCurrentState());
   // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_INITIALIZING)) {  // deal with possible race condition
   while ((m_gemfsm.getCurrentFSMState()) != STATE_INITIALIZING) {  // deal with possible race condition
     DEBUG("GEMFSMApplication::not in " << STATE_INITIALIZING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
@@ -493,7 +493,7 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
 bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::configure called, current state: " << m_gemfsm.getCurrentState());
+  INFO("GEMFSMApplication::configure called, current state: " << m_gemfsm.getCurrentState());
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_CONFIGURING)) {  // deal with possible race condition
     DEBUG("GEMFSMApplication::not in " << STATE_CONFIGURING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
     usleep(10);
@@ -536,7 +536,7 @@ bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
 bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::start called, current state: " << m_gemfsm.getCurrentState());
+  INFO("GEMFSMApplication::start called, current state: " << m_gemfsm.getCurrentState());
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_STARTING)) {  // deal with possible race condition
     usleep(10);
   }
@@ -578,7 +578,7 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
 bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::pause called, current state: " << m_gemfsm.getCurrentState());
+  INFO("GEMFSMApplication::pause called, current state: " << m_gemfsm.getCurrentState());
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_PAUSING)) {  // deal with possible race condition
     usleep(10);
   }
@@ -620,7 +620,7 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
 bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::resume called, current state: " << m_gemfsm.getCurrentState());
+  INFO("GEMFSMApplication::resume called, current state: " << m_gemfsm.getCurrentState());
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_RESUMING)) {  // deal with possible race condition
     usleep(10);
   }
@@ -662,7 +662,7 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
 bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::stop called, current state: " << m_gemfsm.getCurrentState());
+  INFO("GEMFSMApplication::stop called, current state: " << m_gemfsm.getCurrentState());
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_STOPPING)) {  // deal with possible race condition
     usleep(10);
   }
@@ -704,7 +704,7 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
 bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::halt called, current state: " << m_gemfsm.getCurrentState());
+  INFO("GEMFSMApplication::halt called, current state: " << m_gemfsm.getCurrentState());
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_HALTING)) {  // deal with possible race condition
     usleep(10);
   }
@@ -746,7 +746,7 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
 bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
 {
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::reset called, current state: " << m_gemfsm.getCurrentState());
+  INFO("GEMFSMApplication::reset called, current state: " << m_gemfsm.getCurrentState());
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_RESETTING)) {  // deal with possible race condition
     usleep(10);
   }
