@@ -143,6 +143,8 @@ namespace gem {
 
 	std::string getStateName() const { return m_globalStateName; };
 
+	std::string getStateMessage() const { return m_globalStateMessage; };
+
         static int getStatePriority(toolbox::fsm::State state);
 
         /**

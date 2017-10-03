@@ -239,7 +239,9 @@ void gem::supervisor::GEMSupervisor::init()
     m_gemRCMSNotifier.findRcmsStateListener();
     std::string classname = m_gemRCMSNotifier.getRcmsStateListenerParameter()->bag.classname.value_;
     int instance          = m_gemRCMSNotifier.getRcmsStateListenerParameter()->bag.instance.value_;
-    m_rcmsStateListenerUrl = getApplicationContext()->getDefaultZone()->getApplicationDescriptor(classname, instance)->getContextDescriptor()->getURL();
+    m_rcmsStateListenerUrl = getApplicationContext()->getDefaultZone()
+      ->getApplicationDescriptor(classname, instance)
+      ->getContextDescriptor()->getURL();
     INFO("RCMSStateListener found with url: " << m_rcmsStateListenerUrl.toString());
   }
 
@@ -1285,7 +1287,8 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   try {
     if (m_reportToRCMS)
       INFO("GEMSupervisor::globalStateChanged::Notifying RCMS of state change");
-      m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed");
+      m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed:"
+                                     << m_globalState.getStateMessage());
   } catch(xcept::Exception& err) {
     ERROR("GEMSupervisor::globalStateChanged::Failed to notify RCMS of state change: "
           << xcept::stdformat_exception_history(err));
