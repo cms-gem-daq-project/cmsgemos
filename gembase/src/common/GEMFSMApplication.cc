@@ -448,27 +448,42 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
     DEBUG("GEMFSMApplication::Finished initializeAction");
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in initialize gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::initialize caught gem::utils::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::initialize caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::initialize caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in initialize, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::initialize malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in initialize, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::initialize caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (...) {
-    ERROR("GEMFSMApplication::Error in initialize, unknown exception");
+    std::stringstream msg;
+    msg << "GEMFSMApplication::initialize caught other exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
@@ -483,7 +498,10 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
       WARN("Unable to start monitoring " << ex.what());
     }
   }
-  INFO("GEMFSMApplication::Firing 'IsHalted' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::initialize Firing 'IsHalted' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   m_progress = 1.0;
   fireEvent("IsHalted");
   m_wl_semaphore.give();
@@ -506,28 +524,51 @@ bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in configure gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::configure gem::utils::exception " << ex:.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::configure caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::configure caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in configure, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::configure malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in configure, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::configure caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::configure caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsConfigured' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::configure Firing 'IsConfigured' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsConfigured");
   m_wl_semaphore.give();
   return false;
@@ -548,28 +589,51 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in start gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start caught gem::utils::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::start caught toolbox::task::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in start, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in start, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsRunning' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::start Firing 'IsRunning' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsRunning");
   m_wl_semaphore.give();
   return false;
@@ -590,28 +654,51 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in pause gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause gem::utils::exception " << ex:.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::pause caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in pause, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in pause, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsPaused' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::pause Firing 'IsPaused' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsPaused");
   m_wl_semaphore.give();
   return false;
@@ -632,28 +719,51 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in resume gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume gem::utils::exception " << ex:.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::resume caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in resume, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in resume, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsRunning' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::resume Firing 'IsRunning' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsRunning");
   m_wl_semaphore.give();
   return false;
@@ -674,28 +784,51 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in stop gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop gem::utils::exception " << ex:.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::stop caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in stop, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in stop, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsConfigured' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::stop Firing 'IsConfigured' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsConfigured");
   m_wl_semaphore.give();
   return false;
@@ -716,28 +849,51 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in halt gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt gem::utils::exception " << ex:.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::halt caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in halt, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in halt, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsHalted' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::halt Firing 'IsHalted' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsHalted");
   m_wl_semaphore.give();
   return false;
@@ -781,28 +937,50 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in reset gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset gem::utils::exception " << ex:.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::reset caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in reset, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in reset, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsInitial' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::reset Firing 'IsInitial' into the FSM";
+  INFO(msg.str());
   fireEvent("IsInitial");
   // maybe do a m_gemfsm.reset()?
   m_wl_semaphore.give();
