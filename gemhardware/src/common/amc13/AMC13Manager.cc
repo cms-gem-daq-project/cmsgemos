@@ -468,8 +468,12 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   // what does pause mean here?
   // if local triggers are enabled, do we have a separate trigger application?
   // we can just disable them here maybe?
-  if (m_scanType.value_ == 2 || m_scanType.value_ == 3)
-    INFO("AMC13Manager::pauseAction disabling triggers for scan");
+  if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
+    INFO("AMC13Manager::pauseAction disabling triggers for scan, triggers seen this point = "
+	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
+    m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
+    INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
+  }
 
   if (m_enableLocalL1A) {
     if (m_enableLEMO)
@@ -781,13 +785,18 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 	p_amc13->stopContinuousL1A();
       }
     } else {
+      /*
+      // HACK
+      // when using external triggers, they should be stopped upstream of the AMC13 with a stop
+      // how do I hate thee? let me count the ways...
       p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
       p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
+      */
     }
     INFO("AMC13Manager::timeExpried, triggers seen this point = "
 	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
-    m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
+    // m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
+    // INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
     endScanPoint();
   }
 }
