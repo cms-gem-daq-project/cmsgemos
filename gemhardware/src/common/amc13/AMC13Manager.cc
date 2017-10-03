@@ -332,7 +332,8 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
   // Use local trigger generator if config says to
   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
-  p_amc13->enableLocalL1A(m_enableLocalL1A);
+  // probably shouldn't enable until we're running? CHECKME
+  // p_amc13->enableLocalL1A(m_enableLocalL1A);
   p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0);
 
   // need to ensure that all BGO channels are disabled
@@ -360,13 +361,16 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
 void gem::hw::amc13::AMC13Manager::configureAction()
 {
-
+  /* REDUNDANT?
   if (m_enableLocalL1A) {
     m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   } else {
     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
   }
+  */
+  m_L1Aburst = m_localTriggerConfig.bag.l1Aburst.value_;
+  p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
 
   if (m_enableLocalTTC) {
     DEBUG("AMC13Manager::configureAction configuring BGO channels "
@@ -424,7 +428,11 @@ void gem::hw::amc13::AMC13Manager::startAction()
       p_amc13->startContinuousL1A();
     }
   } else {
+    /*
+    // HACK
+    // when using TTC triggers, they should be enabled upstream of the AMC13 with start
     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+    */
   }
 
   if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
@@ -470,10 +478,12 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
       // what if using both local triggers and LEMO triggers?
       p_amc13->stopContinuousL1A();
   } else {
+    /*
     // HACK
     // when using external triggers, they should be stopped upstream of the AMC13 with a pause
     p_amc13->configureLocalL1A(true, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
     p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
+    */
   }
 
   if (m_enableLocalTTC)
@@ -518,9 +528,11 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
     else
       p_amc13->startContinuousL1A();  // only if we want to send triggers continuously
   } else {
+    /*
     // HACK
     // when using external triggers, they should be enabled upstream of the AMC13 with a resume
     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
+    */
   }
 
   // if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
@@ -561,8 +573,12 @@ void gem::hw::amc13::AMC13Manager::stopAction()
     else
       p_amc13->stopContinuousL1A();
   } else {
+    /*
+    // HACK
+    // when using external triggers, they should be stopped upstream of the AMC13 with a stop
     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
     p_amc13->enableLocalL1A(true);
+    */
   }
 
   if (m_enableLocalTTC)
