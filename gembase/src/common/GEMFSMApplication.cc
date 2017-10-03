@@ -525,7 +525,7 @@ bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     std::stringstream msg;
-    msg << "GEMFSMApplication::configure gem::utils::exception " << ex:.what();
+    msg << "GEMFSMApplication::configure gem::utils::exception: " << ex.what();
     ERROR(msg.str());
     m_stateMessage = msg.str();
     fireEvent("Fail");
@@ -655,7 +655,7 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     std::stringstream msg;
-    msg << "GEMFSMApplication::pause gem::utils::exception " << ex:.what();
+    msg << "GEMFSMApplication::pause gem::utils::exception " << ex.what();
     ERROR(msg.str());
     m_stateMessage = msg.str();
     fireEvent("Fail");
@@ -720,7 +720,7 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     std::stringstream msg;
-    msg << "GEMFSMApplication::resume gem::utils::exception " << ex:.what();
+    msg << "GEMFSMApplication::resume gem::utils::exception " << ex.what();
     ERROR(msg.str());
     m_stateMessage = msg.str();
     fireEvent("Fail");
@@ -785,7 +785,7 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     std::stringstream msg;
-    msg << "GEMFSMApplication::stop gem::utils::exception " << ex:.what();
+    msg << "GEMFSMApplication::stop gem::utils::exception " << ex.what();
     ERROR(msg.str());
     m_stateMessage = msg.str();
     fireEvent("Fail");
@@ -850,7 +850,7 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     std::stringstream msg;
-    msg << "GEMFSMApplication::halt gem::utils::exception " << ex:.what();
+    msg << "GEMFSMApplication::halt gem::utils::exception " << ex.what();
     ERROR(msg.str());
     m_stateMessage = msg.str();
     fireEvent("Fail");
@@ -938,7 +938,7 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
     std::stringstream msg;
-    msg << "GEMFSMApplication::reset gem::utils::exception " << ex:.what();
+    msg << "GEMFSMApplication::reset gem::utils::exception " << ex.what();
     ERROR(msg.str());
     m_stateMessage = msg.str();
     fireEvent("Fail");
