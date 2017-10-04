@@ -404,7 +404,8 @@ void gem::supervisor::GEMSupervisor::initializeAction()
   //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   // }
   m_globalState.update();
-  INFO("GEMSupervisor::initializeAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::initializeAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::configureAction()
@@ -588,7 +589,8 @@ void gem::supervisor::GEMSupervisor::configureAction()
   //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   // }
   m_globalState.update();
-  INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::startAction()
@@ -751,7 +753,8 @@ void gem::supervisor::GEMSupervisor::startAction()
   //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   // }
   m_globalState.update();
-  INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::pauseAction()
@@ -863,7 +866,8 @@ void gem::supervisor::GEMSupervisor::pauseAction()
   //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   // }
   m_globalState.update();
-  INFO("GEMSupervisor::pauseAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::pauseAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::resumeAction()
@@ -944,7 +948,8 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     // this way is causing applications to crash on failed SOAP messages (probably other failures)
 
   m_globalState.update();
-  INFO("GEMSupervisor::resumeAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::resumeAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::stopAction()
@@ -1021,7 +1026,8 @@ void gem::supervisor::GEMSupervisor::stopAction()
   }
     // this way is causing applications to crash on failed SOAP messages (probably other failures)
   m_globalState.update();
-  INFO("GEMSupervisor::stopAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::stopAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::haltAction()
@@ -1125,7 +1131,8 @@ void gem::supervisor::GEMSupervisor::haltAction()
   //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   // }
   m_globalState.update();
-  INFO("GEMSupervisor::haltAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::haltAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::resetAction()
@@ -1222,7 +1229,8 @@ void gem::supervisor::GEMSupervisor::resetAction()
   //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   // }
   m_globalState.update();
-  INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 /*
@@ -1234,13 +1242,15 @@ void gem::supervisor::GEMSupervisor::resetAction()
 void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
 {
   m_globalState.update();
-  INFO("GEMSupervisor::failAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::failAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
 {
   m_globalState.update();
-  INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName());
+  INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName()
+       << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 
@@ -1483,6 +1493,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
   uint32_t updatedParameter = m_scanParameter + m_stepSize.value_;
 
   INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
+       << " GlobalStateMessage  = " << m_globalState.getStateName()  << std::endl
        << " m_scanParameter  = " << m_scanParameter  << std::endl
        << " updatedParameter = " << updatedParameter << std::endl
        << " m_scanMax.value_ = " << m_scanMax.value_ << std::endl
