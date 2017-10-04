@@ -23,6 +23,8 @@ gem::supervisor::GEMGlobalState::GEMGlobalState(xdaq::ApplicationContext* contex
   p_gemSupervisor(gemSupervisor),
   p_appContext(context),
   p_srcApp(const_cast<xdaq::ApplicationDescriptor*>(gemSupervisor->getApplicationDescriptor())),
+  m_globalStateName("N/A"),
+  m_globalStateMessage("N/A"),
   m_globalState(gem::base::STATE_INITIAL),
   m_forceGlobal(gem::base::STATE_NULL),
   m_gemLogger(gemSupervisor->getApplicationLogger()),
@@ -300,7 +302,22 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
   }
 
   // parse answer here
-  std::string    appUrn = "urn:xdaq-application:" + app->getClassName();
+  std::string       appUrn = "urn:xdaq-application:" + app->getClassName();
+
+  if (appUrn.find("tcds") == std::string::npos) {
+    std::string responseName = "StateMessage";
+    xoap::SOAPName stateReply(responseName, nstag, appUrn);
+
+    xoap::SOAPElement props = answer->getSOAPPart().getEnvelope().getBody().getChildElements()[0].getChildElements()[0];
+    std::vector<xoap::SOAPElement> basic = props.getChildElements(stateReply);
+    if (basic.size() == 1) {
+      std::string stateMessage = basic[0].getValue();
+      DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
+            << " returned state message " << stateMessage);
+      i->second.stateMessage = stateMessage;
+    }
+  }
+
   std::string responseName = "StateName";
   if (appUrn.find("tcds") != std::string::npos)
     responseName = "stateName";
