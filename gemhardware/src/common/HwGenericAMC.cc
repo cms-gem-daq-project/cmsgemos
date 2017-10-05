@@ -648,6 +648,10 @@ void gem::hw::HwGenericAMC::setDAQLinkRunParameter(uint8_t const& parameter, uin
   writeReg(getDeviceBaseNode(),regBase.str(),value);
 }
 
+/********************************/
+/** TTC module information **/
+/********************************/
+
 /** TTC module functions **/
 void gem::hw::HwGenericAMC::ttcReset()
 {
@@ -738,6 +742,16 @@ uint32_t gem::hw::HwGenericAMC::getL1AID()
 uint32_t gem::hw::HwGenericAMC::getTTCSpyBuffer()
 {
   return readReg(getDeviceBaseNode(), "TTC.TTC_SPY_BUFFER");
+}
+
+/********************************/
+/** SLOW_CONTROL module information **/
+/********************************/
+
+/*** SCA submodule ***/
+void gem::hw::HwGenericAMC::scaHardResetEnable(bool const& en)
+{
+  writeReg(getDeviceBaseNode(), "SLOW_CONTROL.SCA.CTRL.TTC_HARD_RESET_EN", uint32_t(en));
 }
 
 /********************************/
