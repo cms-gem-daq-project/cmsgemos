@@ -82,5 +82,13 @@
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link10.xml" />
   <connection id="gem.shelf03.amc02.optohybrid11" uri="ipbustcp-2.0://192.168.1.42:60002"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link11.xml" />
+      
+  <connection id="gem.shelf03.amc05" uri="ipbustcp-2.0://192.168.250.60:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_amc.xml" />
+  <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
+  <connection id="gem.shelf03.amc05.optohybrid00" uri="ipbustcp-2.0://192.168.250.60:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link00.xml" />
+  <connection id="gem.shelf03.amc05.optohybrid01" uri="ipbustcp-2.0://192.168.250.60:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link01.xml" />
 
 </connections>
