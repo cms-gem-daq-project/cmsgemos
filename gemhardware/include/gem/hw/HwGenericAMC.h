@@ -619,6 +619,17 @@ namespace gem {
          */
         virtual uint32_t getTTCSpyBuffer();
 
+        /**************************/
+        /** CLOW_CONTROL module information **/
+        /**************************/
+
+        /*** SCA submodule ***/
+        /**
+         * @brief Enable the SCA to forward HardReset to the OptoHybrid
+         * @param bool switches on/off the HardReset forwarding (default is false)
+         */
+        virtual void scaHardResetEnable(bool const& en=false);
+
         /********************************/
         /** TRIGGER module information **/
         /********************************/
