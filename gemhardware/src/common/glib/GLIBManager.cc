@@ -601,6 +601,14 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("RUN_TYPE",          glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("RUN_PARAMS",        glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
 
+  is_glib->createUInt32("L1A_FIFO_DATA_CNT",      glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("DAQ_FIFO_DATA_CNT",      glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("L1A_FIFO_NEAR_FULL_CNT", glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("DAQ_FIFO_NEAR_FULL_CNT", glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("DAQ_ALMOST_FULL_CNT",    glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTS_WARN_CNT",           glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("DAQ_WORD_RATE",          glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  
   // TTC registers
   // is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);

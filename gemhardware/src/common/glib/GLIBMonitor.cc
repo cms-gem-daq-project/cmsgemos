@@ -135,6 +135,30 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("LAST_DAV_TIMER", "DAQ.EXT_STATUS.LAST_DAV_TIMER"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("DAQ Status", "HWMonitoring",
+                 std::make_pair("L1A_FIFO_DATA_CNT", "DAQ.EXT_CONTROL.L1A_FIFO_DATA_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ Status", "HWMonitoring",
+                 std::make_pair("DAQ_FIFO_DATA_CNT", "DAQ.EXT_CONTROL.DAQ_FIFO_DATA_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ Status", "HWMonitoring",
+                 std::make_pair("L1A_FIFO_NEAR_FULL_CNT", "DAQ.EXT_CONTROL.L1A_FIFO_NEAR_FULL_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ Status", "HWMonitoring",
+                 std::make_pair("DAQ_FIFO_NEAR_FULL_CNT", "DAQ.EXT_CONTROL.DAQ_FIFO_NEAR_FULL_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ Status", "HWMonitoring",
+                 std::make_pair("DAQ_ALMOST_FULL_CNT", "DAQ.EXT_CONTROL.DAQ_ALMOST_FULL_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ Status", "HWMonitoring",
+                 std::make_pair("DAQ_ALMOST_FULL_CNT", "DAQ.EXT_CONTROL.DAQ_ALMOST_FULL_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ Status", "HWMonitoring",
+                 std::make_pair("TTS_WARN_CNT", "DAQ.EXT_CONTROL.TTS_WARN_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ Status", "HWMonitoring",
+                 std::make_pair("DAQ_WORD_RATE", "DAQ.EXT_CONTROL.DAQ_WORD_RATE"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("DAQ Status", "HWMonitoring",
                  std::make_pair("RUN_TYPE", "DAQ.EXT_CONTROL.RUN_TYPE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("DAQ Status", "HWMonitoring",
