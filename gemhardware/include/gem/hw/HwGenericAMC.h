@@ -378,10 +378,15 @@ namespace gem {
 
         /**
          * @brief reset the DAQ link and write the DAV timout
+         *        - assert RESET and then release
+         *        - disable DAQ link
+         *        - set each link EOE_TIMEOUT to default value
+         *        - set DAV_TIMEOUT  to supplied value
+         *        - set TTS_OVERRIDE to supplied value
          * @param davTO value to use for the DAV timeout
          * @param ttsOverride value to use for the TTS override
          */
-        virtual void resetDAQLink(uint32_t const& davTO=0x3d090, uint32_t const& ttsOverride=0x0);
+        virtual void resetDAQLink(uint32_t const& davTO=0x500, uint32_t const& ttsOverride=0x0);
 
         /**
          * @returns Returns the 32 bit word corresponding to the DAQ link control register
@@ -521,8 +526,9 @@ namespace gem {
          * @brief Set DAQ link timeout
          * @param value is the number of clock cycles to wait after receipt of last L1A and
          *        last packet received from the optical link before closing an "event"
+         *        (in units of 160MHz clock cycles, value/4 for 40MHz clock cycles)
          */
-        virtual void setDAQLinkInputTimeout(uint32_t const& value);
+        virtual void setDAQLinkInputTimeout(uint32_t const& value=0x100);
 
         /**
          * @brief Special run type to be written into data stream
