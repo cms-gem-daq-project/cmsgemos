@@ -82,6 +82,11 @@ print "--=======================================--"
 print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
+
+printSystemTTCInfo(amc)
+
+printSystemSCAInfo(amc)
+
 if (options.l1a_block):
     blockL1A(amc)
 else:
