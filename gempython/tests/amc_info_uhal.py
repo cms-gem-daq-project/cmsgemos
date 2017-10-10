@@ -82,6 +82,11 @@ print "--=======================================--"
 print "-> DAQ INFORMATION"
 print "--=======================================--"
 print
+
+printSystemTTCInfo(amc)
+
+printSystemSCAInfo(amc)
+
 if (options.l1a_block):
     blockL1A(amc)
 else:
@@ -117,31 +122,14 @@ print
 print "-> RX Link Control :0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_RX_POLARITY"))
 print "-> TX Link Control :0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY"))
 
-print
-print "--=======================================--"
-print "-> SSSSSSSSSSSSSSSSSSSSSSBITSSSSSSSSSSSSSS"
-print "--=======================================--"
-print "-> TRIGGER_RATE:%d %sHz"%(rateConverter(int(readRegister(amc,"GEM_AMC.TRIGGER.STATUS.OR_TRIGGER_RATE"))))
-print
-for olink in range(options.ngtx):
-    print "-> DAQ OH%d clusters 0:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_0_RATE"%(olink)))
-    print "-> DAQ OH%d clusters 1:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_1_RATE"%(olink)))
-    print "-> DAQ OH%d clusters 2:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_2_RATE"%(olink)))
-    print "-> DAQ OH%d clusters 3:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_3_RATE"%(olink)))
-    print "-> DAQ OH%d clusters 4:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_4_RATE"%(olink)))
-    print "-> DAQ OH%d clusters 5:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_5_RATE"%(olink)))
-    print "-> DAQ OH%d clusters 6:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_6_RATE"%(olink)))
-    print "-> DAQ OH%d clusters 7:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_7_RATE"%(olink)))
-    print "-> DAQ OH%d clusters 8:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_8_RATE"%(olink)))
-    print
-
 if options.short:
     exit(0)
 
+nOHs = readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
 print "--=======================================--"
 print "-> DAQ GTX INFO"
 print "--=======================================--"
-for olink in range(options.ngtx):
+for olink in range(nOHs):
     print "-------------------------================--"
     print "----------> DAQ OH%d INFO <---------------"%(olink)
     print "-------------------------================--"
@@ -172,7 +160,27 @@ if (options.resetCounters):
 print
 
 sys.stdout.flush()
-#for olink in range(options.ngtx):
+
+print
+print "--=======================================--"
+print "-> SSSSSSSSSSSSSSSSSSSSSSBITSSSSSSSSSSSSSS"
+print "--=======================================--"
+print "-> TRIGGER_RATE:%d %sHz"%(rateConverter(int(readRegister(amc,"GEM_AMC.TRIGGER.STATUS.OR_TRIGGER_RATE"))))
+print
+
+for olink in range(nOHs):
+    print "-> DAQ OH%d clusters 0:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_0_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 1:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_1_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 2:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_2_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 3:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_3_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 4:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_4_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 5:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_5_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 6:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_6_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 7:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_7_RATE"%(olink)))
+    print "-> DAQ OH%d clusters 8:0x%08x"%(olink,readRegister(amc,"GEM_AMC.TRIGGER.OH%d.CLUSTER_SIZE_8_RATE"%(olink)))
+    print
+
+#for olink in range(nOHs):
 #        print "--=====OH%d==============================--"%(olink)
 #        errorCounts = []
 #        SAMPLE_TIME = 1.
