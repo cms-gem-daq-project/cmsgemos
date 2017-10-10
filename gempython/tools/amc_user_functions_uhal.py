@@ -3,8 +3,7 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
-from gempython.utils.gemlogger import colormsg
-from gempython.utils.gemlogger import colors
+from gempython.utils.gemlogger import colormsg,colors
 
 import logging
 amclogger = logging.getLogger(__name__)
