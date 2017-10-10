@@ -3,7 +3,7 @@ sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.nesteddict import nesteddict
 from gempython.utils.registers_uhal import *
-from gempython.utils.gemlogger import colormsg
+from gempython.utils.gemlogger import colormsg,colors
 
 import logging
 amclogger = logging.getLogger(__name__)
@@ -175,3 +175,37 @@ def enableL1A(device):
 
 def getL1ACount(device):
     return readRegister(device, "GEM_AMC.TTC.CMD_COUNTERS.L1A")
+
+def printSystemTTCInfo(amc,debug=False):
+    print "--=======================================--"
+    print "-> GEM SYSTEM TTC INFORMATION"
+    print "--=======================================--"
+    print
+    mmcmLck     = readRegister(amc,"GEM_AMC.TTC.STATUS.MMCM_LOCKED")
+    mmcmULckCnt = readRegister(amc,"GEM_AMC.TTC.STATUS.MMCM_UNLOCK_CNT")
+    print("MMCM_LOCKED          %s0x%08x%s"%(colors.GREEN if mmcmLck else colors.RED,mmcmLck,colors.ENDC))
+    print("MMCM_UNLOCK_CNT      %s0x%08x%s"%(colors.RED if mmcmULckCnt > 0 else colors.GREEN,mmcmULckCnt,colors.ENDC))
+    print("TTC_SINGLE_ERROR_CNT %s0x%08x%s"%(colors.MAGENTA,readRegister(amc,"GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT"),colors.ENDC))
+    print("TTC_DOUBLE_ERROR_CNT %s0x%08x%s"%(colors.MAGENTA,readRegister(amc,"GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT"),colors.ENDC))
+    bc0Lck     = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.LOCKED")
+    bc0ULckCnt = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT")
+    print("BC0.LOCKED           %s0x%08x%s"%(colors.GREEN if bc0Lck else colors.RED,bc0Lck,colors.ENDC))
+    print("BC0.UNLOCK_CNT       %s0x%08x%s"%(colors.RED if bc0ULckCnt > 0 else colors.GREEN,bc0ULckCnt,colors.ENDC))
+    print("BC0.OVERFLOW_CNT     %s0x%08x%s"%(colors.BLUE,readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.OVERFLOW_CNT"),colors.ENDC))
+    print("BC0.UNDERFLOW_CNT    %s0x%08x%s"%(colors.BLUE,readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.UNDERFLOW_CNT"),colors.ENDC))
+    print
+    pass
+
+def printSystemSCAInfo(amc,debug=False):
+    print "--=======================================--"
+    print "-> GEM SYSTEM SCA INFORMATION"
+    print "--=======================================--"
+    print
+    nOHs = readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
+    scaRdy  = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
+    scaCErr = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.CRITICAL_ERROR")
+    print("READY             %s0x%08x%s"%(colors.BLUE,scaRdy,colors.ENDC))
+    print("CRITICAL_ERROR    %s0x%08x%s"%(colors.RED if scaCErr else colors.GREEN,scaCErr,colors.ENDC))
+    for li in range(nOHs):
+        print("NOT_READY_CNT_OH0 %s0x%08x%s"%(colors.GREEN,readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.NOT_READY_CNT_OH%d"%(li)),colors.ENDC))
+    pass

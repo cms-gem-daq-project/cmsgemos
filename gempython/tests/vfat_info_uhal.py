@@ -203,7 +203,7 @@ print
 print "--===== Last BX Latency Counter =========--"
 print
 counts = []
-writeAllVFATs(ohboard, options.gtx, "VThreshold1", 100)
+# writeAllVFATs(ohboard, options.gtx, "VThreshold1", 100)
 for i in range(24):
     baseNode = "GEM_AMC.OH.OH%d.COUNTERS"%(options.gtx)
     writeRegister(ohboard,"%s.VFAT%d_LAT_BX.RESET"%(baseNode,i),0x1)
