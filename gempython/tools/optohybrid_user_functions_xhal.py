@@ -1,16 +1,24 @@
-import os, sys, time, signal
+import os, signal, sys, time
 sys.path.append('${GEM_PYTHON_PATH}')
 
-from gempython.tools.amc_user_functions_uhal import getAMCObject
-from gempython.tools.amc_user_functions_xhal import ctp7Params
-from gempython.tools.glib_system_info_uhal import getSystemFWVer
+#from gempython.tools.amc_user_functions_uhal import getAMCObject
+from gempython.tools.amc_user_functions_xhal import *
+#from gempython.tools.glib_system_info_uhal import getSystemFWVer
 from gempython.utils.gemlogger import colormsg
 from gempython.utils.nesteddict import nesteddict
-from gempython.utils.registers_uhal import *
-from gempython.utils.registers_xhal import *
+#from gempython.utils.registers_uhal import *
+#from gempython.utils.registers_xhal import *
 
 import logging
-ohlogger = logging.getLogger(__name__)
+#ohlogger = logging.getLogger(__name__)
+
+class scanmode:
+    THRESHTRG = 0 # Threshold scan
+    THRESHCH  = 1 # Threshold scan per channel
+    LATENCY   = 2 # Latency scan
+    SCURVE    = 3 # s-curve scan
+    THRESHTRK = 4 # Threshold scan with tracking data
+    pass
 
 class HwOptoHybrid:
     def __init__(self, slot, link, shelf=1, debug=False):
@@ -23,72 +31,75 @@ class HwOptoHybrid:
         # Logger
         self.ohlogger = logging.getLogger(__name__)
 
-        # Check v2b/v3 behavior
-        amc = getAMCObject(slot,shelf,debug)
-        
         # Store HW info
         self.link = link
-        self.parentAmc = ctp7Params.cardLocation[(shelf,slot)]
-        self.parentAmcFwVersion = getSystemFWVer(amc,debug)
-        self.parentShelf = shelf
-        self.parentSlot = slot
+        self.nVFATs = 24
+        self.parentAMC = HwAMC(slot, shelf, debug)
 
-        # Open RPC Connection
-        print "Initializing OH"
-        self.rpc = rpcService()
-        self.rpc.connect(self.parentAmc)
-        
-        #if(int(self.parentAmcFwVersion.split(".")[0]) > 2):
-        #    print "Initializing OHv3"
-        #    self.ohboard = rpcService()
-        #    self.ohboard.connect(self.parentAmc)
-        #else:
-        #    print "Initializing OHv2b"
-        #    # For Now IPBus stuff
-        #    connection_file = "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"
-        #    manager         = uhal.ConnectionManager(connection_file )
-        #    self.ohboard    = manager.getDevice( "gem.shelf%02d.amc%02d.optohybrid%02d"%(shelf,slot,link) )
-        #    if self.checkOHBoard():
-        #        msg = "%s: Success!"%(self.ohboard)
-        #        self.ohlogger.info(colormsg(msg,logging.INFO))
-        #    else:
-        #        msg = "%s: Failed to create OptoHybrid object"%(ohboard)
-        #        raise OptoHybridException(colormsg(msg,logging.FATAL))
-    
+        # Define broadcast read
+        self.bRead = self.parentAMC.lib.broadcastRead
+        self.bRead.argtypes = [c_uint, c_char_p, c_uint, POINTER(c_uint32)]
+        self.bRead.restype = c_uint
+
+        # Define broadcast write
+        self.bWrite = self.parentAMC.lib.broadcastWrite
+        self.bWrite.argtypes = [c_uint, c_char_p, c_uint, c_uint]
+        self.bWrite.restype = c_uint
+       
+        # Define the v3 scan module
+        self.genScan = self.parentAMC.lib.genScan
+        self.genScan.restype = c_uint
+        self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32)]
+
         return
 
-    def checkOHBoard(self):
-        # TO BE IMPLEMENTED
-        return True
+    #def checkOHBoard(self):
+    #    # TO BE IMPLEMENTED
+    #    return True
         
     #def getBoard(self):
     #    return self.ohboard
-
-    def broadcastRead(register,value,mask=0xff000000):
-        """
-        Perform a broadcast RPC write on the VFATs specified by mask
-        Will return when operation has completed
-        """
-        try:
-            retCode = rpc.broadcastRead(self.link, register, mask)
-        except Exception as e:
-            print e
-
-        return retCode
     
-    def broadcastWrite(register,value,mask=0xff000000):
+    def broadcastRead(self,register,mask=0xff000000):
+        """
+        Perform a broadcast RPC read on the VFATs specified by mask
+        Will return when operation has completed
+        """
+        outData = (c_uint32 * self.nVFATs)()
+
+        try:
+            if 0 != self.bRead(self.link, register, mask, outData):
+                print("broadcastRead failed for device %i; reg: %s; with mask %x"%(self.link,register,mask))
+                sys.exit(os.EX_SOFTWARE)
+        except Exception as e:
+            print e
+
+        return outData
+    
+    def broadcastWrite(self,register,value,mask=0xff000000):
         """
         Perform a broadcast RPC write on the VFATs specified by mask
         Will return when operation has completed
         """
+        
+        rpcResp = 0
+
         try:
-            retCode = rpc.broadcastWrite(self.link, register, value, mask)
+            rpcResp = self.bWrite(self.link, register, value, mask)
+
+            if 0 != rpcResp:
+                print("broadcastWrite failed for device %i; reg: %s; with mask %x"%(self.link,register,mask))
+                sys.exit(os.EX_SOFTWARE)
         except Exception as e:
             print e
 
-        return retCode
+        return rpcResp
 
-def getOHObject(slot,link,shelf=1,debug=False):
-    hwOH = HwOptoHybrid(slot, link, shelf, debug)
-    #return hwOH.getBoard()
-    return hwOH
+    def setDebug(self, debug):
+        self.debug = debug
+        return
+
+#def getOHObject(slot,link,shelf=1,debug=False):
+#    hwOH = HwOptoHybrid(slot, link, shelf, debug)
+#    #return hwOH.getBoard()
+#    return hwOH
