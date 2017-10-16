@@ -119,10 +119,10 @@ class HwVFAT:
 
         # Write registers
         if self.parentOH.parentAMC.fwVersion > 2:
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ARM_TRIM_AMPLITUDE"%(chan+1), trimARM)
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.CALPULSE_ENABLE"%(chan+1), pulse)
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.MASK"%(chan+1), mask)
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_AMPLITUDE"%(chan+1), trimZCC)
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ARM_TRIM_AMPLITUDE"%(chan), trimARM)
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.CALPULSE_ENABLE"%(chan), pulse)
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.MASK"%(chan), mask)
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_AMPLITUDE"%(chan), trimZCC)
         else:
             chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trim&0x1f)
             self.writeVFAT(chip, "VFATChannels.ChanReg%d"%(chan+1),chanReg)
