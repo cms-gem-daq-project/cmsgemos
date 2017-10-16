@@ -42,6 +42,7 @@ class rpcService:
         return
 
     def connect(self, amc="eagle26"):
+        print("opening connection to %s"%(amc))
         try:
             if 0 != self.rpc_connect(amc):
                 print("Failed to open RPC connection for device %s"%(amc))
