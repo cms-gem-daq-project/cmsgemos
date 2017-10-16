@@ -2,50 +2,130 @@ from ctypes import *
 from gempython.utils.wrappers import envCheck
 
 import os, sys
+import xml.etree.ElementTree as xml
 sys.path.append('${GEM_PYTHON_PATH}')
 
-class rpcService:
+class Node:
+    name = ''
+    description = ''
+    vhdlname = ''
+    address = 0x0
+    real_address = 0x0
+    permission = ''  
+    mask = 0x0
+    isModule = False
+    parent = None
+    level = 0
+    warn_min_value = None
+    error_min_value = None
+
     def __init__(self):
-        envCheck("XHAL_ROOT")
+        self.children = []
 
-        # Define the connection
-        self.lib = CDLL(os.getenv("XHAL_ROOT")+"/lib/x86_64/librpcman.so")
-        self.rpc_connect = self.lib.init
-        self.rpc_connect.argtypes = [c_char_p]
-        self.rpc_connect.restype = c_uint
+    def addChild(self, child):
+        self.children.append(child)
 
-        # Define broadcast read
-        self.broadcastRead = self.lib.broadcastRead
-        self.broadcastRead.argtypes = [c_uint, c_char_p, c_uint, POINTER(c_uint32)]
-        self.broadcastRead.restype = c_uint
+    def getVhdlName(self):
+        return self.name.replace(TOP_NODE_NAME + '.', '').replace('.', '_')
 
-        # Define broadcast write
-        self.broadcastWrite = self.lib.broadcastWrite
-        self.broadcastWrite.argtypes = [c_uint, c_char_p, c_uint, c_uint]
-        self.broadcastWrite.restype = c_uint
+    def output(self):
+        print 'Name:',self.name
+        print 'Description:',self.description
+        print 'Address:','{0:#010x}'.format(self.address)
+        print 'Permission:',self.permission
+        if self.mask is not None: print 'Mask:','{0:#010x}'.format(self.mask)
+        print 'Module:',self.isModule
+        print 'Parent:',self.parent.name
 
-        # Define VFAT3 Configuration
-        #configureVFAT3s = lib.configureVFAT3s
-        #configureVFAT3s.argTypes = [ c_uint, c_uint ]
-        #configureVFAT3s.restype = c_uint
-        
-        # Define TTC Configuration
-        ttcGenConf = self.lib.ttcGenConf
-        ttcGenConf.restype = c_uint
-        ttcGenConf.argtypes = [c_uint, c_uint]
+def parseXML(addrTable):
+    print 'Parsing',addrTable,'...'
+    tree = xml.parse(addrTable)
+    root = tree.getroot()[0]
+    nodes = {}
+    vars = {}
+    makeTree(root,'',0x0,nodes,None,vars,False)
+    return nodes
 
-        # Define v3 scan module
-        #genScan = lib.genScan
-        #genScan.restype = c_uint
-        #genScan.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32)]
-
+def makeTree(node,baseName,baseAddress,nodes,parentNode,vars,isGenerated):
+    
+    if (isGenerated == None or isGenerated == False) and node.get('generate') is not None and node.get('generate') == 'true':
+        generateSize = parseInt(node.get('generate_size'))
+        generateAddressStep = parseInt(node.get('generate_address_step'))
+        generateIdxVar = node.get('generate_idx_var')
+        for i in range(0, generateSize):
+            vars[generateIdxVar] = i
+            makeTree(node, baseName, baseAddress + generateAddressStep * i, nodes, parentNode, vars, True)
         return
+    newNode = Node()
+    name = baseName
+    if baseName != '': name += '.'
+    name += node.get('id')
+    name = substituteVars(name, vars)
+    newNode.name = name
+    if node.get('description') is not None:
+        newNode.description = node.get('description')
+    address = baseAddress
+    if node.get('address') is not None:
+        address = baseAddress + parseInt(node.get('address'))
+    newNode.address = address
+    newNode.real_address = (address<<2)+0x64000000
+    newNode.permission = node.get('permission')
+    newNode.mask = parseInt(node.get('mask'))
+    newNode.isModule = node.get('fw_is_module') is not None and node.get('fw_is_module') == 'true'
+    if node.get('sw_monitor_warn_min_threshold') is not None:
+        newNode.warn_min_value = node.get('sw_monitor_warn_min_threshold') 
+    if node.get('sw_monitor_error_min_threshold') is not None:
+        newNode.error_min_value = node.get('sw_monitor_error_min_threshold') 
+    #nodes.append(newNode)
+    nodes[name] = newNode
+    if parentNode is not None:
+        parentNode.addChild(newNode)
+        newNode.parent = parentNode
+        newNode.level = parentNode.level+1
+    for child in node:
+        makeTree(child,name,address,nodes,newNode,vars,False)
 
-    def connect(self, amc="eagle26"):
-        print("opening connection to %s"%(amc))
-        try:
-            if 0 != self.rpc_connect(amc):
-                print("Failed to open RPC connection for device %s"%(amc))
-                sys.exit(os.EX_SOFTWARE)
-        except Exception as e:
-            print e
+def parseInt(s):
+    if s is None:
+        return None
+    string = str(s)
+    if string.startswith('0x'):
+        return int(string, 16)
+    elif string.startswith('0b'):
+        return int(string, 2)
+    else:
+        return int(string)
+
+def substituteVars(string, vars):
+    if string is None:
+        return string
+    ret = string
+    for varKey in vars.keys():
+        ret = ret.replace('${' + varKey + '}', str(vars[varKey]))
+    return ret
+
+#class rpcService:
+#    def __init__(self):
+#        envCheck("XHAL_ROOT")
+#
+#        # Define the connection
+#        self.lib = CDLL(os.getenv("XHAL_ROOT")+"/lib/x86_64/librpcman.so")
+#        self.rpc_connect = self.lib.init
+#        self.rpc_connect.argtypes = [c_char_p]
+#        self.rpc_connect.restype = c_uint
+#        
+#        # Define TTC Configuration
+#        ttcGenConf = self.lib.ttcGenConf
+#        ttcGenConf.restype = c_uint
+#        ttcGenConf.argtypes = [c_uint, c_uint]
+#
+#        return
+#
+#    def connect(self, amc="eagle26"):
+#        print("opening connection to %s"%(amc))
+#        try:
+#            if 0 != self.rpc_connect(amc):
+#                print("Failed to open RPC connection for device %s"%(amc))
+#                sys.exit(os.EX_SOFTWARE)
+#        except Exception as e:
+#            print e
