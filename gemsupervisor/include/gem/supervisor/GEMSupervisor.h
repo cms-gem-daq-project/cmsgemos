@@ -204,6 +204,7 @@ namespace gem {
 	uint32_t m_scanParameter;
 
         xdata::Boolean             m_useLocalDBInstance;
+        xdata::Boolean             m_useLocalRunNumber;
         xdata::Boolean             m_handleTCDS;
         xdata::Bag<TCDSConfig>     m_tcdsConfig;
         xdata::Boolean             m_useLocalReadout;

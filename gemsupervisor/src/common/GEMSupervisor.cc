@@ -79,6 +79,7 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->addItemChangedListener("TCDSConfig",   this);
 
   p_appInfoSpaceToolBox->createBool("UseLocalDB",       m_useLocalDBInstance.value_, &m_useLocalDBInstance, GEMUpdateType::PROCESS);
+  p_appInfoSpaceToolBox->createBool("UseLocalRunNumber",m_useLocalRunNumber.value_,  &m_useLocalRunNumber,  GEMUpdateType::PROCESS);
   p_appInfoSpaceToolBox->createBool("HandleTCDS",       m_handleTCDS.value_,         &m_handleTCDS,         GEMUpdateType::PROCESS);
   p_appInfoSpaceToolBox->createBool("UseLocalReadout",  m_useLocalReadout.value_,    &m_useLocalReadout,    GEMUpdateType::PROCESS);
   p_appInfoSpaceToolBox->createBool("UseFedKitReadout", m_useFedKitReadout.value_,   &m_useFedKitReadout,   GEMUpdateType::PROCESS);
@@ -283,7 +284,6 @@ void gem::supervisor::GEMSupervisor::initializeAction()
                                                                        m_dbPass.toString());
 
   try {
-    // if (p_gemDBHelper->connect(m_dbName.toString())) {
     if (m_useLocalDBInstance)
       p_gemDBHelper->connect(m_dbName.toString());
 
@@ -1361,7 +1361,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     std::string location = m_setupLocation.toString();
     try {
       INFO("GEMSupervisor::updateRunNumber trying to configure the local DB");
-      p_gemDBHelper->configure(location,setup,period);
+      p_gemDBHelper->configure(location,setup,period, m_runNumber.value_);
     } catch (gem::utils::exception::DBPythonError& e) {
       std::stringstream msg;
       msg << "GEMSupervisor::updateRunNumber python DB Configure call failed";
@@ -1371,62 +1371,64 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     }
 
-    try {
-      INFO("GEMSupervisor::updateRunNumber trying to connect to the local DB");
-      p_gemDBHelper->connect(m_dbName.toString());
-
-      std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
-      lastRunNumberQuery += location;
-      lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
-
+    if (m_useLocalRunNumber) {
       try {
-        INFO("GEMSupervisor::updateRunNumber trying to get the latest run number");
-        m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
-      } catch (gem::utils::exception::DBEmptyQueryResult& e) {
-        ERROR("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
-        m_globalState.update();
-        XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
-      } catch (xcept::Exception& e) {
-        ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
-        m_globalState.update();
-        XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
-      } catch (std::exception& e) {
-        ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
-        m_globalState.update();
-        XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
-      }
+        INFO("GEMSupervisor::updateRunNumber trying to connect to the local DB");
+        p_gemDBHelper->connect(m_dbName.toString());
 
-      INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
-      //parse and increment by 1, if it is a new station, start at 1
-      //m_runNumber.value_ += 1;
-      INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
-    } catch (gem::utils::exception::DBConnectionError& e) {
-      std::stringstream msg;
-      msg << "GEMSupervisor::updateRunNumber unable to connect to the database (DBConnectionError)" << e.what();
-      ERROR(msg.str());
-      fireEvent("Fail");
-      m_globalState.update();
-      // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-      // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
-      // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
-    } catch (xcept::Exception& e) {
-      std::stringstream msg;
-      msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
-      ERROR(msg.str());
-      fireEvent("Fail");
-      m_globalState.update();
-      // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-      // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
-      // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
-    } catch (std::exception& e) {
-      std::stringstream msg;
-      msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
-      ERROR(msg.str());
-      fireEvent("Fail");
-      m_globalState.update();
-      // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-      // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
-      // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+        std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
+        lastRunNumberQuery += location;
+        lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
+
+        try {
+          INFO("GEMSupervisor::updateRunNumber trying to get the latest run number");
+          m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
+        } catch (gem::utils::exception::DBEmptyQueryResult& e) {
+          ERROR("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
+          m_globalState.update();
+          XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
+        } catch (xcept::Exception& e) {
+          ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
+          m_globalState.update();
+          XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
+        } catch (std::exception& e) {
+          ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+          m_globalState.update();
+          XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
+        }
+
+        INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
+        //parse and increment by 1, if it is a new station, start at 1
+        //m_runNumber.value_ += 1;
+        INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
+      } catch (gem::utils::exception::DBConnectionError& e) {
+        std::stringstream msg;
+        msg << "GEMSupervisor::updateRunNumber unable to connect to the database (DBConnectionError)" << e.what();
+        ERROR(msg.str());
+        fireEvent("Fail");
+        m_globalState.update();
+        // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
+        // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+        // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
+      } catch (xcept::Exception& e) {
+        std::stringstream msg;
+        msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
+        ERROR(msg.str());
+        fireEvent("Fail");
+        m_globalState.update();
+        // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
+        // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+        // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
+      } catch (std::exception& e) {
+        std::stringstream msg;
+        msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
+        ERROR(msg.str());
+        fireEvent("Fail");
+        m_globalState.update();
+        // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
+        // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
+      }
     }
   }
   INFO("GEMSupervisor::updateRunNumber done");
