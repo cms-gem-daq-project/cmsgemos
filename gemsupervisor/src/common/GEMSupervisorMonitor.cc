@@ -105,8 +105,8 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
         return;
       }
     } else if (monitem->second.updatetype == GEMUpdateType::SOAP) {
-      xdaq::ApplicationContext*    superContext = p_gemApp->getApplicationContext();
-      xdaq::ApplicationDescriptor* superDesc    = p_gemApp->getApplicationDescriptor();
+      xdaq::ApplicationContext*    superContext = const_cast<xdaq::ApplicationContext*   >(p_gemApp->getApplicationContext());
+      xdaq::ApplicationDescriptor* superDesc    = const_cast<xdaq::ApplicationDescriptor*>(p_gemApp->getApplicationDescriptor());
       std::vector<xdaq::ApplicationDescriptor*> managedApps =
         dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemApp)->getSupervisedAppDescriptors();
       for (auto app = managedApps.begin(); app != managedApps.end(); ++app) {
