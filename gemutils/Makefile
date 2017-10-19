@@ -29,10 +29,18 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 UserCFlags  +=$(MySQLCFLAGS)
 UserCCFlags +=$(MySQLCFLAGS)
 
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
+
 LibraryDirs+=$(MySQLLIBS)
 LibraryDirs+=$(MySQLGLIBS)
 
+LibraryDirs+=$(PYTHONLIBS)
+LibraryDirs+=$(PYTHONGLIBS)
+
 UserDynamicLinkFlags+=$(MySQLLIBS)
+
+UserDynamicLinkFlags+=$(PYTHONLIBS)
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
