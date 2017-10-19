@@ -883,14 +883,9 @@ void gem::supervisor::GEMSupervisor::resumeAction()
   }
 
   try {
-#ifdef x86_64_centos7
-    for (auto const &i : getEnableOrder()) {
-      for (auto const &j : i) {
-#else
     auto resumeorder = getEnableOrder();
     for (auto i = resumeorder.begin(); i != resumeorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
-#endif
         INFO("GEMSupervisor::resumeAction Resuming " << (*j)->getClassName());
         gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume", p_appContext, p_appDescriptor, *j);
       }
