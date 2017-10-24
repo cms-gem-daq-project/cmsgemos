@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!-- Junk Exception List: is used to discard exceptions according filter rules. Any matching exception  will be dropped and will not stored in the spotligh database -->
+<sn:jel xmlns:sn="http://xdaq.web.cern.ch/xdaq/xsd/2010/spotlight">
+  <!--rule dateTime=".*" function=".*" identifier=".*" line="" message="" module="" notifier="" qualifiedErrorSchemURI="" sessionID="" severity="" tag="" class="" context="" group="" id="" instance="" service="" zone=""/ -->
+  <!-- sn:rule class="MyApplication" /-->
+  <!-- sn:rule tag="fedlink" identifier="toolbox::exception::Another"/-->
+  <!-- sn:rule class="YourApplication" /-->
+</sn:jel>
+

@@ -1,0 +1,23 @@
+<?xml version='1.0'?>
+<!-- Order of specification will determine the sequence of installation. all modules are loaded prior instantiation of plugins -->
+<xp:Profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+            xmlns:xp="http://xdaq.web.cern.ch/xdaq/xsd/2005/XMLProfile-11">
+
+  #include "extension/settings.include"
+
+  #include "module/executive.module"
+  #include "module/peertransport.module"
+  #include "module/modules.module"
+
+
+  <!-- define your service, this is an example with Jobcontrol application -->
+  <xp:Application heartbeat="true"
+                  class="HelloWorld"
+                  service="myservice"
+                  group="mygroup"
+                  network="local"
+                  id=SLIM_MACRO_TOSTR(SLIM_MACRO_MYSERVICE_LID) />
+  <xp:Module>[workingcopy]/trunk/daq/examples/lib/linux/x86_64_centos7/libHelloWorld.so</xp:Module>
+
+</xp:Profile>

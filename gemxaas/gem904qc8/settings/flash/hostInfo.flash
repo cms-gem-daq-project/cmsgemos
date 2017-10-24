@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:hostInfo" version="$Revision: 15125 $" key="timestamp,context">
+	<xmas:item name="sessionid" function="session()" type="string"/>
+		<xmas:item name="timestamp" function="systime()" type="time"/>
+		<xmas:item name="context" function="context()" type="string" />
+		<xmas:item name="cpuUsage" infospace="urn:executive-sysinfo:" source="totalCpuUsage" type="double" />
+</xmas:flash>

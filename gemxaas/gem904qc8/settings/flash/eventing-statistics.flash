@@ -1,0 +1,32 @@
+<?xml version='1.0'?>
+<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:eventing-statistics" version="$Revision: 15125 $" key="uniqueid">
+	<xmas:item name="uniqueid" function="uuid()" type="string"/>
+	<xmas:item name="context" function="context()" type="string" />
+	<xmas:item name="timestamp" function="systime()" type="time"/>
+	<xmas:item name="lid" infospace="urn:eventing-statistics" source="$id" type="string" />
+	<xmas:item name="service" infospace="urn:eventing-statistics" source="$service" type="string" />
+	<xmas:item name="classname" infospace="urn:eventing-statistics" source="$className" type="string" />
+	<xmas:item name="url" infospace="urn:eventing-statistics" type="string" />
+	<xmas:item name="group" infospace="urn:eventing-statistics" type="string" />
+	<xmas:item name="load" infospace="urn:eventing-statistics" type="double" />
+	<xmas:item name="components" infospace="urn:eventing-statistics" type="table">
+		<xmas:item name="name" type="string"/>
+		<xmas:item name="servicetime" type="double"/>
+		<xmas:item name="load" type="double"/>
+	</xmas:item>
+	<xmas:item name="systemtime" infospace="urn:eventing-statistics" type="double" />
+	<xmas:item name="messagecount" infospace="urn:eventing-statistics" type="unsigned int 32" />
+	<xmas:item name="datacount" infospace="urn:eventing-statistics" type="unsigned int 32" />
+	<xmas:item name="lostmessagecount" infospace="urn:eventing-statistics" type="unsigned int 32" />
+	<xmas:item name="lostdatacount" infospace="urn:eventing-statistics" type="unsigned int 32" />
+	<xmas:item name="messagesizehisto" infospace="urn:eventing-statistics" type="vector unsigned int 32" />
+	<xmas:item name="messagecounthisto" infospace="urn:eventing-statistics" type="vector unsigned int 32" />
+	<xmas:item name="lostmessagecounthisto" infospace="urn:eventing-statistics" type="vector unsigned int 32" />
+	<xmas:item name="datacounthisto" infospace="urn:eventing-statistics" type="vector unsigned int 32" />
+	<xmas:item name="lostdatacounthisto" infospace="urn:eventing-statistics" type="vector unsigned int 32" />
+	<xmas:item name="clients" infospace="urn:eventing-statistics" type="unsigned int 32" />
+	<xmas:item name="cpuusage" infospace="urn:eventing-statistics" type="double" />
+	<xmas:item name="rsize" infospace="urn:eventing-statistics" type="unsigned int 32" />
+	<xmas:item name="vsize" infospace="urn:eventing-statistics" type="unsigned int 32"/>
+</xmas:flash>	
+
