@@ -10,6 +10,6 @@
 ## directory service must be first in the list
 gem-dqm01.cms:myservice
 gemvm-daqcc7.cms:myservice
-gem-dac01.cms:myservice
+gem-daq01.cms:myservice
 ##
 ##-----------------------------------------------------------------------------------------------------
