@@ -47,7 +47,7 @@ _all: all
 default: all
 
 all:
-    make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName)
+	make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName)
 _installall: install
 
 install:
@@ -55,20 +55,20 @@ install:
 _cleanall: clean
 
 clean:
-    make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName) clean
+	make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName) clean
 
 _rpmall: rpm
 
 rpm:
-    make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
+	make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
 
 
 _installrpmall: installrpm
 
 installrpm:
-    make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName) installrpm
+	make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName) installrpm
 
 _cleanrpmall: cleanrpm
 
 cleanrpm:
-    make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName) cleanrpm
+	make -f $(TEMPLATEDIR)/service.makefile ZONE_NAME=$(PackageName) cleanrpm
