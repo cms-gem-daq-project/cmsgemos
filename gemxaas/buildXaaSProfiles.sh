@@ -1,10 +1,10 @@
 #!/bin/sh
 
 xdaqver=""
-if [ $XDAQ_PLATFORM="x86_64_slc6" ]
+if [ "$XDAQ_PLATFORM" == "x86_64_slc6" ]
 then
     xdaqver="13"
-elif [ $XDAQ_PLATFORM="x86_64_centos7" ]
+elif [ "$XDAQ_PLATFORM" == "x86_64_centos7" ]
 then
     xdaqver="14"
 fi
