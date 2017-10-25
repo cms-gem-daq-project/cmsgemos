@@ -2,21 +2,19 @@
 
 #########################################################################
 # XDAQ Components for Distributed Data Acquisition                      #
-# Copyright (C) 2000-2015, CERN.			                            #
+# Copyright (C) 2000-2015, CERN.                                        #
 # All rights reserved.                                                  #
-# Authors: L. Orsini and D. Simelevicius				                #
+# Authors: L. Orsini and D. Simelevicius                                #
 #                                                                       #
-# For the licensing terms see LICENSE.		                            #
-# For the list of contributors see CREDITS.   			                #
+# For the licensing terms see LICENSE.                                  #
+# For the list of contributors see CREDITS.                             #
 #########################################################################
 
-
 ##
 #
-# This is the zone for Slim makefile
+# Makefile for GEM P5 development zone
 #
 ##
-
 
 #
 # Packages to be built
@@ -49,31 +47,29 @@ _all: all
 
 default: all
 
-all: 
-	make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType)
+all:
+    make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType)
 _installall: install
 
-install: 
+install:
 
 _cleanall: clean
 
 clean:
-	make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) clean
+    make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) clean
 
 _rpmall: rpm
 
 rpm:
-	make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
+    make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
 
 
 _installrpmall: installrpm
 
 installrpm:
-	make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType)  installrpm
+    make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType)  installrpm
 
 _cleanrpmall: cleanrpm
 
 cleanrpm:
-	make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) cleanrpm
-
-
+    make -f $(TEMPLATEDIR)/zone.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) cleanrpm
