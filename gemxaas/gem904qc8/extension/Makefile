@@ -48,7 +48,7 @@ _all: all
 default: all
 
 all:
-    make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType)
+	make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType)
 _installall: install
 
 install:
@@ -56,20 +56,20 @@ install:
 _cleanall: clean
 
 clean:
-    make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) clean
+	make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) clean
 
 _rpmall: rpm
 
 rpm:
-    make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
+	make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
 
 
 _installrpmall: installrpm
 
 installrpm:
-    make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType)  installrpm
+	make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType)  installrpm
 
 _cleanrpmall: cleanrpm
 
 cleanrpm:
-    make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) cleanrpm
+	make -f $(TEMPLATEDIR)/extension.makefile ZONE_NAME=$(PackageName) PACKAGE_TYPE=$(PackageType) cleanrpm
