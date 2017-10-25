@@ -1,21 +1,20 @@
-# $Id: Makefile,v 1.22 2009/03/04 10:44:22 lorsini Exp $
+# $Id$
 
 #########################################################################
 # XDAQ Components for Distributed Data Acquisition                      #
-# Copyright (C) 2000-2014, CERN.			                #
+# Copyright (C) 2000-2014, CERN.                                        #
 # All rights reserved.                                                  #
-# Authors: L. Orsini and A.petrucci					#
+# Authors: L. Orsini and A.petrucci                                     #
 #                                                                       #
-# For the licensing terms see LICENSE.		                        #
-# For the list of contributors see CREDITS.   			        #
+# For the licensing terms see LICENSE.                                  #
+# For the list of contributors see CREDITS.                             #
 #########################################################################
 
 ##
 #
-# Makefile example for Slim settings 
+# Makefile for GEM P5 production settings
 #
 ##
-
 
 #
 # Packages to be built
@@ -47,31 +46,29 @@ _all: all
 
 default: all
 
-all: 
-	make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName)
+all:
+    make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName)
 _installall: install
 
-install: 
+install:
 
 _cleanall: clean
 
 clean:
-	make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName) clean
+    make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName) clean
 
 _rpmall: rpm
 
 rpm:
-	make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
+    make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
 
 
 _installrpmall: installrpm
 
 installrpm:
-	make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName) installrpm
+    make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName) installrpm
 
 _cleanrpmall: cleanrpm
 
 cleanrpm:
-	make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName) cleanrpm
-
-
+    make -f $(TEMPLATEDIR)/settings.makefile ZONE_NAME=$(PackageName) cleanrpm
