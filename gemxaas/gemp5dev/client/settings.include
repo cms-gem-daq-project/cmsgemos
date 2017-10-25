@@ -1,0 +1,14 @@
+#define SLIM_MACRO_USE_XAAD
+#include "client/defaultsettings.include"
+
+#undef SLIM_MACRO_BRIDGE_FLASHLIST
+#define SLIM_MACRO_BRIDGE_FLASHLIST urn:xdaq-flashlist:test1,urn:xdaq-flashlist:test2,urn:xdaq-flashlist:test3
+
+#undef SLIM_MACRO_HEARTBEATD_URL
+#define SLIM_MACRO_HEARTBEATD_URL utcp:@@localhost:SLIM_MACRO_XAAD_ENDPOINT_PORT
+#undef SLIM_MACRO_SENSORD_URL
+#define SLIM_MACRO_SENSORD_URL 	  utcp:@@localhost:SLIM_MACRO_XAAD_ENDPOINT_PORT
+#undef SLIM_MACRO_SENTINELD_URL
+#define SLIM_MACRO_SENTINELD_URL  utcp:@@localhost:SLIM_MACRO_XAAD_ENDPOINT_PORT
+#undef SLIM_MACRO_TRACERD_URL
+#define SLIM_MACRO_TRACERD_URL 	  utcp:@@localhost:SLIM_MACRO_XAAD_ENDPOINT_PORT

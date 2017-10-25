@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+<!-- Order of specification will determine the sequence of installation. all modules are loaded prior instantiation of plugins -->
+<xp:Profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xp="http://xdaq.web.cern.ch/xdaq/xsd/2005/XMLProfile-11">
+
+#include "addon/settings.include"
+
+#include "module/executive.module"
+#include "module/peertransport.module"
+#include "module/modules.module"
+#include "module/discovery.module"
+#include "module/probesep.module"
+#include "module/heartbeatprobe.module"
+#include "module/sensorprobe.module"
+#include "module/sentinelprobe.module"
+<!-- include "module/access.module" -->
+
+#include "module/slimnetendpoint.module"
+
+    <xp:Application heartbeat="true" class="sentinel::spotlightocci::Application" id=SLIM_MACRO_TOSTR(SLIM_MACRO_SPOTLIGHTOCCI_LID) network="slimnet"  group="sentinel" service="sentinelspotlightocci">
+        <properties xmlns="urn:xdaq-application:sentinel::spotlightocci::Application" xsi:type="soapenc:Struct">
+            <subscribeGroup xsi:type="xsd:string">sentinel</subscribeGroup>
+            <databaseUser xsi:type="xsd:string">dbuser</databaseUser>
+            <databasePassword xsi:type="xsd:string">dbpassword</databasePassword>
+            <databaseTnsName xsi:type="xsd:string">dbtns</databaseTnsName>
+            <jelFileName xsi:type="xsd:string">/opt/xdaq/share/SLIM_MACRO_ZONE/etc/jel.xml</jelFileName>
+            <oclFileName xsi:type="xsd:string">XAAS_MACRO_SERVICE_CUSTOM_ETC_DIRECTORY/ocl.xml</oclFileName>
+        </properties>
+    </xp:Application>
+    <xp:Module>${XDAQ_ROOT}/lib/libsqlite3.so</xp:Module>
+    <xp:Module>${XDAQ_ROOT}/lib/libb2inutils.so</xp:Module>
+    <xp:Module>${XDAQ_ROOT}/lib/libsentinelutils.so</xp:Module>
+    <xp:Module>${XDAQ_ROOT}/lib/libsentinelspotlightocci.so</xp:Module>
+
+</xp:Profile>

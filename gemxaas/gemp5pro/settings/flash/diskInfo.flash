@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<xmas:flash  xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:diskInfo" version="$Revision: 15125 $" key="uniqueid">
+	<xmas:item name="sessionid" function="session()" type="string"/>
+	<xmas:item name="context" function="context()" type="string" />
+	<xmas:item name="timestamp" function="systime()" type="time"/>
+        <xmas:item name="uniqueid" function="uuid()" type="string" />
+        <xmas:item name="diskUsage" infospace="urn:executive-sysinfo:" type="table">
+                <xmas:item name="fileSystem"  type="string"/>
+                <xmas:item name="totalMB"     type="double"/>
+                <xmas:item name="usePercent"  type="double"/>
+                <xmas:item name="sampleTime"  type="time"/>
+                <xmas:item name="state"       type="string"/>
+        </xmas:item>
+
+</xmas:flash>
+
