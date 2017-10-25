@@ -1,0 +1,25 @@
+#define SLIM_MACRO_USE_ALTERNATE_PORT_ASSIGNMENT
+
+#include "service/defaultsettings.include"
+
+#undef SLIM_MACRO_SERVICE_HOST
+#define SLIM_MACRO_SERVICE_HOST	gemvm-daqcc7
+#undef SLIM_MACRO_DOMAINNAME
+#define SLIM_MACRO_DOMAINNAME cms
+#undef SLIM_MACRO_SUBNET
+#define SLIM_MACRO_SUBNET "10.176.0.0"
+
+#undef SLIM_MACRO_SERVICE_LIST
+#define SLIM_MACRO_SERVICE_LIST directory-service b2in-eventing heartbeat xmas-slash2g bridge2g-xmas bridge2g-sentinel xmas-admin timeline
+
+#undef SLIM_MACRO_JOBCONTROL_HTTP_PORT
+#define SLIM_MACRO_JOBCONTROL_HTTP_PORT 39999
+
+#undef SLIM_MACRO_BRIDGE_FLASHLIST
+#define SLIM_MACRO_BRIDGE_FLASHLIST urn:xdaq-flashlist:levelZeroFM_dynamic,urn:xdaq-flashlist:levelZeroFM_static,urn:xdaq-flashlist:subsystemStatus,urn:xdaq-flashlist:test,urn:xdaq-flashlist:levelZeroFM_subsys
+
+#ifndef SLIM_MACRO_USE_WITH_CLIENT_RPM
+#define SLIM_MACRO_USE_WITH_CLIENT_RPM
+#endif
+
+#undef SLIM_MACRO_USE_WITH_CLIENT_RPM

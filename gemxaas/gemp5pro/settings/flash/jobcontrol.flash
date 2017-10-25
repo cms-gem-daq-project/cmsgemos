@@ -1,0 +1,26 @@
+<?xml version='1.0'?>
+<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:jobcontrol" version="$Revision: 15125 $" key="uniqueid">
+	<xmas:item name="sessionid" function="session()" type="string"/>
+	<xmas:item name="uniqueid" function="uuid()" type="string"/>
+	<xmas:item name="context" function="context()" type="string"/>
+	<xmas:item name="timestamp" function="systime()" type="time"/>
+	<xmas:item name="home" function="$XDAQ_ROOT" type="string"/>
+	<xmas:item name="machtype" function="$MACHTYPE" type="string"/>
+	<xmas:item name="ostype" function="$OSTYPE" type="string"/>
+	<xmas:item name="hostname" function="$HOSTNAME" type="string"/>
+	<xmas:item name="stateName" infospace="urn:jobcontrol" type="string"/>
+	<xmas:item name="jobTable" infospace="urn:jobcontrol" type="table">
+		<xmas:item name="jid" type="string"/>
+		<xmas:item name="userName" type="string"/>
+		<xmas:item name="userId" type="unsigned int"/>
+		<xmas:item name="execPath" type="string"/>
+		<xmas:item name="execNotifierUrl" type="string"/>
+		<xmas:item name="pid" type="unsigned int"/>
+		<xmas:item name="status" type="string"/>
+		<xmas:item name="state" type="string"/>
+		<xmas:item name="startTime" type="string"/>
+		<xmas:item name="vsize" type="unsigned long"/>
+		<xmas:item name="tag" type="string"/>
+	</xmas:item>
+</xmas:flash>
+
