@@ -1,4 +1,4 @@
-x#include "addon/defaultsettings.include"
+#include "addon/defaultsettings.include"
 #include "service/settings.include"
 
 #undef SLIM_MACRO_TSTORE_HTTP_PORT
