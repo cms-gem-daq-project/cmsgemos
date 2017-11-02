@@ -29,6 +29,7 @@ class ctp7Params:
     cardLocation = { 
             (3,2):"eagle26", #QC8
             (3,5):"eagle60",
+            #(?,?):"eagle61",
             (1,3):"eagle33", #P5
             (1,2):"eagle34"} #Coffin
             #(1,?):"eagle64"}
@@ -116,8 +117,7 @@ class HwAMC:
         number how many signals to send (0 is continuous)
         """
 
-        self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, bRun)
-        return
+        return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, bRun)
 
     def getNode(self,nodeName):
         #return next((node for node in self.nodes if node.name == nodeName),None)
@@ -214,8 +214,7 @@ class HwAMC:
         TTC generator (Local T1 Controller) for v3 (v2b) electronics
         """
 
-        self.ttcGenToggle(ohN, bRun)
-        return
+        return self.ttcGenToggle(ohN, bRun)
 
     def writeReg(self, reg, value):
         address = reg.real_address
