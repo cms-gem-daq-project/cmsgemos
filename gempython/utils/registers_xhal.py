@@ -103,29 +103,3 @@ def substituteVars(string, vars):
     for varKey in vars.keys():
         ret = ret.replace('${' + varKey + '}', str(vars[varKey]))
     return ret
-
-#class rpcService:
-#    def __init__(self):
-#        envCheck("XHAL_ROOT")
-#
-#        # Define the connection
-#        self.lib = CDLL(os.getenv("XHAL_ROOT")+"/lib/x86_64/librpcman.so")
-#        self.rpc_connect = self.lib.init
-#        self.rpc_connect.argtypes = [c_char_p]
-#        self.rpc_connect.restype = c_uint
-#        
-#        # Define TTC Configuration
-#        ttcGenConf = self.lib.ttcGenConf
-#        ttcGenConf.restype = c_uint
-#        ttcGenConf.argtypes = [c_uint, c_uint]
-#
-#        return
-#
-#    def connect(self, amc="eagle26"):
-#        print("opening connection to %s"%(amc))
-#        try:
-#            if 0 != self.rpc_connect(amc):
-#                print("Failed to open RPC connection for device %s"%(amc))
-#                sys.exit(os.EX_SOFTWARE)
-#        except Exception as e:
-#            print e
