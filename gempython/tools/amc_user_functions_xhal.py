@@ -72,10 +72,14 @@ class HwAMC:
         self.wReg = self.lib.putReg
         self.wReg.argtypes=[c_uint,c_uint]
 
-        # Define TTC Configuration
+        # Define TTC Functions
         self.ttcGenConf = self.lib.ttcGenConf
         self.ttcGenConf.restype = c_uint
-        self.ttcGenConf.argtypes = [c_uint, c_uint]
+        self.ttcGenConf.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_bool]
+
+        self.ttcGenToggle = self.lib.ttcGenToggle
+        self.ttcGenToggle.restype = c_uint
+        self.ttcGenToggle.argtypes = [c_uint, c_bool]
 
         # Parse XML
         self.nodes = parseXML(self.addrTable)
@@ -85,6 +89,34 @@ class HwAMC:
         self.rpc_connect(self.name)
         self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR") 
 
+        return
+
+    def configureTTC(self, pulseDelay, L1Ainterval, ohN=0, mode=0, t1type=0,  nPulses=0, bRun=True):
+        """
+        Default values reflects v3 electronics behavior
+
+        ====V3 Electronics Behavior====
+
+        pulseDelay - delay between CalPulse and L1A
+        L1Ainterval - how often to repeat signals
+        bRun - start (stop) sending pulses if true (false).
+
+        ====V2b Electronics Behavior====
+        Configure the T1 controller
+        mode: 0 (Single T1 signal),
+              1 (CalPulse followed by L1A),
+              2 (pattern)
+        t1type (only for mode 0, type of T1 signal to send):
+              0 L1A
+              1 CalPulse
+              2 Resync
+              3 BC0
+        delay (only for mode 1), delay between CalPulse and L1A
+        interval (only for mode 0,1), how often to repeat signals
+        number how many signals to send (0 is continuous)
+        """
+
+        self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, bRun)
         return
 
     def getNode(self,nodeName):
@@ -175,6 +207,15 @@ class HwAMC:
                 if debug: print "Read register result: %s" %(fin_res)
                 return fin_res
         return 0xdeaddead
+
+    def toggleTTC(self, ohN, bRun):
+        """
+        Start (bRun = True) or stop (bRun = True) the 
+        TTC generator (Local T1 Controller) for v3 (v2b) electronics
+        """
+
+        self.ttcGenToggle(ohN, bRun)
+        return
 
     def writeReg(self, reg, value):
         address = reg.real_address
