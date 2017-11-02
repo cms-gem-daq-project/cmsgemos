@@ -25,7 +25,12 @@ class HwVFAT:
         self.confVFAT3s = self.parentOH.parentAMC.lib.configureVFAT3s
         self.confVFAT3s.argTypes = [ c_uint, c_uint ]
         self.confVFAT3s.restype = c_uint
-    
+
+        # Turn off calpulses
+        self.stopCalPulses = self.parentOH.parentAMC.lib.stopCalPulse2AllChannels
+        self.stopCalPulses.argTypes = [ c_uint, c_uint, c_uint, c_uint ]
+        self.stopCalPulses.restype = c_uint
+
         # Set default parameters
         self.paramsDefVals = {}
         if self.parentOH.parentAMC.fwVersion < 3:
@@ -148,11 +153,35 @@ class HwVFAT:
                 pass
         return
 
+    def stopCalPulses(self, mask=0x0, chanMin=0, chanMax=127):
+        """
+        Turns the cal pulse off for [chanMin, chanMax] for all vfats not in mask
+        v2b electronics only
+        """
+
+        return self.stopCalPulses(self.parentOH.link, mask, chanMin, chanMax)
+
+    def setVFATCalPhase(self, chip, phase, debug=False):
+        if self.parentOH.parentAMC.fwVersion > 2:
+            self.writeVFATRegisters(chip,{"CFG_CAL_PHI": phase})
+        else:
+            self.writeVFATRegisters(chip,{"CalPhase": phase})
+            pass
+        return
+
+    def setVFATCalPhaseAll(self, mask=0x0, phase=0, debug=False):
+        if self.parentOH.parentAMC.fwVersion > 2:
+            self.writeAllVFATs("CFG_CAL_PHI", phase, mask)
+        else:
+            self.writeAllVFATs("CalPhase", phase, mask)
+            pass
+        return
+    
     def setVFATLatency(self, chip, lat, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
-            writeVFATRegisters(chip,{"CFG_LATENCY": lat})
+            self.writeVFATRegisters(chip,{"CFG_LATENCY": lat})
         else:
-            writeVFATRegisters(chip,{"Latency": lat})
+            self.writeVFATRegisters(chip,{"Latency": lat})
             pass
         return
 
