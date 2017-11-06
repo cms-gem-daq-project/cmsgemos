@@ -27,9 +27,9 @@ class HwVFAT:
         self.confVFAT3s.restype = c_uint
 
         # Turn off calpulses
-        self.stopCalPulses = self.parentOH.parentAMC.lib.stopCalPulse2AllChannels
-        self.stopCalPulses.argTypes = [ c_uint, c_uint, c_uint, c_uint ]
-        self.stopCalPulses.restype = c_uint
+        self.stopCalPulses2AllChannels = self.parentOH.parentAMC.lib.stopCalPulse2AllChannels
+        self.stopCalPulses2AllChannels.argTypes = [ c_uint, c_uint, c_uint, c_uint ]
+        self.stopCalPulses2AllChannels.restype = c_uint
 
         # Set default parameters
         self.paramsDefVals = {}
@@ -153,13 +153,13 @@ class HwVFAT:
                 pass
         return
 
-    def stopCalPulses(self, mask=0x0, chanMin=0, chanMax=127):
+    def stopCalPulses(self, mask=0x0, chanMin=0, chanMax=128):
         """
         Turns the cal pulse off for [chanMin, chanMax] for all vfats not in mask
         v2b electronics only
         """
 
-        return self.stopCalPulses(self.parentOH.link, mask, chanMin, chanMax)
+        return self.stopCalPulses2AllChannels(self.parentOH.link, mask, chanMin, chanMax)
 
     def setVFATCalPhase(self, chip, phase, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
