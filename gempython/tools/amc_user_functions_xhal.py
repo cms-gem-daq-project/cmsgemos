@@ -89,6 +89,7 @@ class HwAMC:
         print "Initializing AMC"
         self.rpc_connect(self.name)
         self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR") 
+        print "My FW release major = ", self.fwVersion
 
         return
 
@@ -118,6 +119,9 @@ class HwAMC:
         """
 
         return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, bRun)
+
+    def getL1ACount(device):
+        return self.readRegister("GEM_AMC.TTC.CMD_COUNTERS.L1A")
 
     def getNode(self,nodeName):
         #return next((node for node in self.nodes if node.name == nodeName),None)
