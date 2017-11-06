@@ -472,8 +472,10 @@ void gem::supervisor::GEMSupervisor::configureAction()
       INFO("GEMSupervisor::configureAction running confAllChambers for P5 setup");
       std::stringstream confcmd;
       // FIXME hard coded for now, but super hacky garbage
-      confcmd << "sudo -u gempro -i confAllChambers.py -s"
-              << 3 << " --ztrim=" << 4.0 << " --config --vt1bump=" << 10 << " --run";
+      confcmd << "confAllChambers.py -s" << 3
+              << " --ztrim=" << 4.0
+              << " --vt1bump=" << 10
+              << " --config --run";
       int retval = std::system(confcmd.str().c_str());
       if (retval) {
         std::stringstream msg;
@@ -1114,7 +1116,7 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   // May want to also disable the updating of the state until a reset is issued...
   if (m_stateName == "Error") {
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
 
   // if (m_stateName == "Error") {
