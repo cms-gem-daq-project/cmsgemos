@@ -8,6 +8,7 @@
 
 #include "gem/supervisor/GEMSupervisor.h"
 
+#include <cstdlib>
 #include <iomanip>
 
 #include <map>
@@ -441,7 +442,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
     for (auto i = configorder.begin(); i != configorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
         INFO("GEMSupervisor::configureAction Configuring " << (*j)->getClassName());
-
+        m_globalState.setGlobalStateMessage("Configuring " + (*j)->getClassName());
         if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
           // if (tcdsState() == gem::base::STATE_CONFIGURED)
           //   command = "Reconfigure";
@@ -504,6 +505,23 @@ void gem::supervisor::GEMSupervisor::configureAction()
               << m_globalState.compositeState(*i));
         usleep(10);
         m_globalState.update();
+      }
+    }
+
+    // temp workaround, call confAllChambers python script?
+    // if P5 config?
+    if (m_setupLocation.toString().rfind("P5") != std::string::npos) {
+      INFO("GEMSupervisor::configureAction running confAllChambers for P5 setup");
+      std::stringstream confcmd;
+      // FIXME hard coded for now, but super hacky garbage
+      confcmd << "sudo -u gempro -i confAllChambers.py -s"
+              << 3 << " --ztrim=" << 4.0 << " --config --vt1bump=" << 10 << " --run";
+      int retval = std::system(confcmd.str().c_str());
+      if (retval) {
+        std::stringstream msg;
+        msg << "GEMSupervisor::configureAction unable to configure chambers: " << retval;
+        WARN(msg.str());
+        XCEPT_RAISE(gem::supervisor::exception::ConfigurationProblem, msg.str());
       }
     }
 
@@ -1294,19 +1312,23 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   // Notify RCMS of a state change.
   m_stateName = GEMGlobalState::getStateName(after);
 
-  try {
-    if (m_reportToRCMS)
-      INFO("GEMSupervisor::globalStateChanged::Notifying RCMS of state change: ("
-           << before << "," << after << "), "
-           << m_globalState.getStateMessage());
+  // if state is terminal only?
+  // ignore Initial? (only after after Reset?)
+  if (std::string("UBHCEPF").rfind(after) != std::string::npos) {
+    try {
+      if (m_reportToRCMS)
+        INFO("GEMSupervisor::globalStateChanged::Notifying RCMS of state change: ("
+             << before << "," << after << "), "
+             << m_globalState.getStateMessage());
       m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed: "
                                      + (m_globalState.getStateMessage()));
-  } catch(xcept::Exception& err) {
-    ERROR("GEMSupervisor::globalStateChanged::Failed to notify RCMS of state change: "
-          << xcept::stdformat_exception_history(err));
-    XCEPT_DECLARE_NESTED(gem::base::utils::exception::RCMSNotificationError, top,
-                         "Failed to notify RCMS of state change.", err);
-    notifyQualified("error", top);
+    } catch(xcept::Exception& err) {
+      ERROR("GEMSupervisor::globalStateChanged::Failed to notify RCMS of state change: "
+            << xcept::stdformat_exception_history(err));
+      XCEPT_DECLARE_NESTED(gem::base::utils::exception::RCMSNotificationError, top,
+                           "Failed to notify RCMS of state change.", err);
+      notifyQualified("error", top);
+    }
   }
 
   // ensure that the supervisor FSM goes to error if the composite state is error
