@@ -93,7 +93,7 @@ class HwOptoHybrid:
 
         return rpcResp
 
-    def performCalibrationScan(ohN, chan, scanReg, outData, enableCal=1, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True):
+    def performCalibrationScan(self, ohN, chan, scanReg, outData, enableCal=1, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True):
         """
         Performs either a v2b ultra scan or a v3 generic scan
 
