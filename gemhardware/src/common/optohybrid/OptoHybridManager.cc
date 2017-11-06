@@ -468,6 +468,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
       }
     }
   }
+
   INFO("OptoHybridManager::configureAction end");
 }
 
