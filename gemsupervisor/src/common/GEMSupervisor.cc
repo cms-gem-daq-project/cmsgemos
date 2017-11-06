@@ -322,89 +322,47 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize";
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
-    // this way is causing applications to crash on failed SOAP messages (probably other failures)
-  // } catch (gem::supervisor::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::initializeAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::SOAPException& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::initializeAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::DBConnectionError& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::initializeAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::initializeAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (xcept::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::initializeAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (std::exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::initializeAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // } catch (...) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::initializeAction (unknown exception)";
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // }
-  m_globalState.update();
+
+  // SHOULD ONLY REPORT "INITIALIZED" TO RCMS HERE
+  m_globalState.update(true);
   INFO("GEMSupervisor::initializeAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -530,83 +488,47 @@ void gem::supervisor::GEMSupervisor::configureAction()
     msg << "GEMSupervisor::configureAction unable to configure (gem::supervisor::exception) " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (gem::utils::exception::SOAPException)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (gem::utils::exception::DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (gem::utils::exception)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (unknown exception)";
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
-    // this way is causing applications to crash on failed SOAP messages (probably other failures)
-  // } catch (gem::supervisor::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::configureAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::SOAPException& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::configureAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::configureAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (xcept::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::configureAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (std::exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::configureAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // } catch (...) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::configureAction (unknown exception)";
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // }
-  m_globalState.update();
+
+  // SHOULD ONLY REPORT "CONFIGURED" TO RCMS HERE
+  m_globalState.update(true);
   INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -629,7 +551,7 @@ void gem::supervisor::GEMSupervisor::startAction()
     std::stringstream msg;
     msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
     ERROR(msg.str());
-    m_globalState.update();
+    m_globalState.update(true);
     XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     return;
     //throw e;
@@ -637,19 +559,19 @@ void gem::supervisor::GEMSupervisor::startAction()
     std::stringstream msg;
     msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
     ERROR(msg.str());
-    m_globalState.update();
+    m_globalState.update(true);
     XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
     ERROR(msg.str());
-    m_globalState.update();
+    m_globalState.update(true);
     XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction updateRunNumber failed: unknown exception";
     ERROR(msg.str());
-    m_globalState.update();
+    m_globalState.update(true);
     XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   }
 
@@ -694,83 +616,47 @@ void gem::supervisor::GEMSupervisor::startAction()
     msg << "GEMSupervisor::startAction unable to start (gem::supervisor::exception) " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (gem::utils::exception::SOAPException)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (gem::utils::exception::DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (gem::utils::exception)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (unknown exception)";
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
-    // this way is causing applications to crash on failed SOAP messages (probably other failures)
-  // } catch (gem::supervisor::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::startAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::SOAPException& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::startAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::startAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (xcept::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::startAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (std::exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::startAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // } catch (...) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::startAction (unknown exception)";
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // }
-  m_globalState.update();
+
+  // SHOULD ONLY REPORT "RUNNING" TO RCMS HERE
+  m_globalState.update(true);
   INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -807,83 +693,47 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     msg << "GEMSupervisor::pauseAction unable to pause (gem::supervisor::exception) " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (gem::utils::exception::SOAPException)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (gem::utils::exception::DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (gem::utils::exception)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (unknown exception)";
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
-    // this way is causing applications to crash on failed SOAP messages (probably other failures)
-  // } catch (gem::supervisor::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::pauseAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::SOAPException& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::pauseAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::pauseAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (xcept::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::pauseAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (std::exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::pauseAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // } catch (...) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::pauseAction (unknown exception)";
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // }
-  m_globalState.update();
+
+  // SHOULD ONLY REPORT "PAUSED" TO RCMS HERE
+  m_globalState.update(true);
   INFO("GEMSupervisor::pauseAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -920,47 +770,47 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     msg << "GEMSupervisor::resumeAction unable to resume (gem::supervisor::exception) " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (gem::utils::exception::SOAPException)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (gem::utils::exception::DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (gem::utils::exception)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (unknown exception)";
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
-    // this way is causing applications to crash on failed SOAP messages (probably other failures)
 
-  m_globalState.update();
+  // SHOULD ONLY REPORT "RUNNING" TO RCMS HERE
+  m_globalState.update(true);
   INFO("GEMSupervisor::resumeAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -999,46 +849,47 @@ void gem::supervisor::GEMSupervisor::stopAction()
     msg << "GEMSupervisor::stopAction unable to stop (gem::supervisor::exception) " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (gem::utils::exception::SOAPException)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (gem::utils::exception::DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (gem::utils::exception)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (unknown exception)";
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
-    // this way is causing applications to crash on failed SOAP messages (probably other failures)
-  m_globalState.update();
+
+  // SHOULD ONLY REPORT "CONFIGURED" TO RCMS HERE
+  m_globalState.update(true);
   INFO("GEMSupervisor::stopAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -1067,83 +918,47 @@ void gem::supervisor::GEMSupervisor::haltAction()
     msg << "GEMSupervisor::haltAction unable to halt (gem::supervisor::exception) " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (gem::utils::exception::SOAPException)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (gem::utils::exception::DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (gem::utils::exception)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (unknown exception)";
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
-    // this way is causing applications to crash on failed SOAP messages (probably other failures)
-  // } catch (gem::supervisor::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::haltAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::SOAPException& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::haltAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::haltAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (xcept::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::haltAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (std::exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::haltAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // } catch (...) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::haltAction (unknown exception)";
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // }
-  m_globalState.update();
+
+  // SHOULD ONLY REPORT "HALTED" TO RCMS HERE
+  m_globalState.update(true);
   INFO("GEMSupervisor::haltAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -1165,83 +980,47 @@ void gem::supervisor::GEMSupervisor::resetAction()
     msg << "GEMSupervisor::resetAction unable to reset (gem::supervisor::exception) " << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (gem::utils::exception::SOAPException)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (gem::utils::exception::DBConnectionError)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (gem::utils::exception)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (xcept)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (std)" << e.what();
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (unknown exception)";
     ERROR(msg.str());
     fireEvent("Fail");
-    m_globalState.update();
+    m_globalState.update(true);
   }
-    // this way is causing applications to crash on failed SOAP messages (probably other failures)
-  // } catch (gem::supervisor::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::resetAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::SOAPException& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::resetAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (gem::utils::exception::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::resetAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (xcept::Exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::resetAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
-  // } catch (std::exception& e) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::resetAction " << e.what();
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // } catch (...) {
-  //   std::stringstream msg;
-  //   msg << "GEMSupervisor::resetAction (unknown exception)";
-  //   ERROR(msg.str());
-  //   m_globalState.update();
-  //   XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
-  // }
-  m_globalState.update();
+
+  // SHOULD ONLY REPORT "INITIAL" TO RCMS HERE
+  m_globalState.update(true);
   INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -1254,14 +1033,14 @@ void gem::supervisor::GEMSupervisor::resetAction()
 
 void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
 {
-  m_globalState.update();
+  m_globalState.update(true);
   INFO("GEMSupervisor::failAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
 {
-  m_globalState.update();
+  m_globalState.update(true);
   INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
@@ -1305,7 +1084,7 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
   return false;  // assume not ok.
 }
 
-void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after)
+void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after, bool final)
 {
   INFO("GEMSupervisor::globalStateChanged(" << before << "," << after << ")");
 
@@ -1314,7 +1093,7 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
 
   // if state is terminal only?
   // ignore Initial? (only after after Reset?)
-  if (std::string("UBHCEPF").rfind(after) != std::string::npos) {
+  if (std::string("UBHCEPF").rfind(after) != std::string::npos && final) {
     try {
       if (m_reportToRCMS)
         INFO("GEMSupervisor::globalStateChanged::Notifying RCMS of state change: ("
@@ -1383,7 +1162,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       std::stringstream msg;
       msg << "GEMSupervisor::updateRunNumber python DB Configure call failed";
       ERROR(msg.str());
-      m_globalState.update();
+      m_globalState.update(true);
       // fireEvent("Fail");
       XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     }
@@ -1402,15 +1181,15 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
           m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
         } catch (gem::utils::exception::DBEmptyQueryResult& e) {
           ERROR("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
-          m_globalState.update();
+          m_globalState.update(true);
           XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
         } catch (xcept::Exception& e) {
           ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
-          m_globalState.update();
+          m_globalState.update(true);
           XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
         } catch (std::exception& e) {
           ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
-          m_globalState.update();
+          m_globalState.update(true);
           XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
         }
 
@@ -1423,7 +1202,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
         msg << "GEMSupervisor::updateRunNumber unable to connect to the database (DBConnectionError)" << e.what();
         ERROR(msg.str());
         fireEvent("Fail");
-        m_globalState.update();
+        m_globalState.update(true);
         // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
         // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
         // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
@@ -1432,7 +1211,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
         msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
         ERROR(msg.str());
         fireEvent("Fail");
-        m_globalState.update();
+        m_globalState.update(true);
         // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
         // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
         // XCEPT_RETHROW(gem::utils::exception::Exception, msg.str(), e);
@@ -1441,7 +1220,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
         msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
         ERROR(msg.str());
         fireEvent("Fail");
-        m_globalState.update();
+        m_globalState.update(true);
         // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
         // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::utils::exception::Exception, msg.str());

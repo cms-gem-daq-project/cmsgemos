@@ -61,7 +61,7 @@ void gem::supervisor::GEMGlobalState::clear()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_mutex);
 }
 
-void gem::supervisor::GEMGlobalState::update()
+void gem::supervisor::GEMGlobalState::update(bool final)
 {
   DEBUG("GEMGlobalState::update");
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_mutex);
@@ -73,7 +73,7 @@ void gem::supervisor::GEMGlobalState::update()
   m_globalStateName = getStateName(m_globalState);
   DEBUG("GEMGlobalState::update before=" << before << " after=" << m_globalState);
   if (before != m_globalState) {
-    p_gemSupervisor->globalStateChanged(before, m_globalState);
+    p_gemSupervisor->globalStateChanged(before, m_globalState, final);
     setGlobalStateMessage("Reached terminal state: " + m_globalState);
   }
 }

@@ -90,9 +90,10 @@ namespace gem {
          * @brief Sets global supervisor state and optionally sends to RCMS
          * @param before state before the update
          * @param after state after the update
+         * @param final is a final state and ready to report to RCMS
          * @throws
          */
-        void globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after);
+        void globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after, bool final=false);
 
         /**
          * @brief gets new run number in the case of a run transistion stop/start
