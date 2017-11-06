@@ -72,8 +72,10 @@ void gem::supervisor::GEMGlobalState::update()
   calculateGlobals();
   m_globalStateName = getStateName(m_globalState);
   DEBUG("GEMGlobalState::update before=" << before << " after=" << m_globalState);
-  if (before != m_globalState)
+  if (before != m_globalState) {
     p_gemSupervisor->globalStateChanged(before, m_globalState);
+    setGlobalStateMessage("Reached terminal state: " + m_globalState);
+  }
 }
 
 void gem::supervisor::GEMGlobalState::startTimer()
@@ -121,6 +123,18 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
         continue;
       }
     }
+    // if (appState->second.state == gem::base::STATE_INITIALIZING ||
+    //     appState->second.state == gem::base::STATE_RESETTING ||
+    //     appState->second.state == gem::base::STATE_HALTING ||
+    //     appState->second.state == gem::base::STATE_RESUMING ||
+    //     appState->second.state == gem::base::STATE_STOPPING ||
+    //     appState->second.state == gem::base::STATE_STARTING ||
+    //     appState->second.state == gem::base::STATE_CONFIGURING ||
+    //     appState->second.state == gem::base::STATE_PAUSING)
+    m_globalStateMessage += toolbox::toString(" (%s:%d) : %s ",
+                                              classname.c_str(),
+                                              appState->first->getInstance(),
+                                              appState->second.stateMessage.c_str());
     DEBUG("GEMGlobalState::calculateGlobalState:" << classname << ":"
           << appState->first->getInstance() << " has state message '"
           << appState->second.stateMessage.c_str() << "' and state: '"
