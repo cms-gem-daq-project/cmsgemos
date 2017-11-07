@@ -93,6 +93,16 @@ class HwOptoHybrid:
 
         return rpcResp
 
+    def getL1ACount(device,link):
+        if self.parentAMC.fwVersion < 3:
+            return readRegister(device, "GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(self.link))
+        else:
+            print("HwOptoHybrid.getL1ACount(): Presently the CTP7 <-> OHv3 communication is not present")
+            print("\tAt the moment the OHv3 FPGA doesn't receive L1As")
+            print("\tThis count is meaningless, exiting")
+            #return -1
+            sys.exit(os.EX_USAGE)
+
     def performCalibrationScan(self, ohN, chan, scanReg, outData, enableCal=1, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True):
         """
         Performs either a v2b ultra scan or a v3 generic scan
