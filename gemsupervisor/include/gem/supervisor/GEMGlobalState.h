@@ -109,9 +109,8 @@ namespace gem {
 
         /**
          * @brief updates the global state based on the individual states of the managed applications
-         * @param final have reached the final update and are ready to report to RCMS
          */
-        void update(bool final=false);
+        void update();
 
         /**
          * @brief starts the update timer

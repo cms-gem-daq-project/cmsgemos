@@ -61,7 +61,7 @@ void gem::supervisor::GEMGlobalState::clear()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_mutex);
 }
 
-void gem::supervisor::GEMGlobalState::update(bool final)
+void gem::supervisor::GEMGlobalState::update()
 {
   DEBUG("GEMGlobalState::update");
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_mutex);
@@ -73,7 +73,7 @@ void gem::supervisor::GEMGlobalState::update(bool final)
   m_globalStateName = getStateName(m_globalState);
   DEBUG("GEMGlobalState::update before=" << before << " after=" << m_globalState);
   if (before != m_globalState) {
-    p_gemSupervisor->globalStateChanged(before, m_globalState, final);
+    p_gemSupervisor->globalStateChanged(before, m_globalState);
     setGlobalStateMessage("Reached terminal state: " + m_globalState);
   }
 }
@@ -157,6 +157,9 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
           << " and current statesString is " << statesString.str());
   }
 
+  // take into account the FSM state of the supervisor
+  statesString << p_gemSupervisor->getCurrentFSMState();
+
   // now get the actual global state based on the initial state, the state string, and the tmp global state
   toolbox::fsm::State intermediateGlobalState = getProperCompositeState(initialGlobalState,tmpGlobalState,statesString.str());
   if (intermediateGlobalState == gem::base::STATE_NULL)
@@ -177,12 +180,13 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
 
   // statesString << ":" << m_globalState;
   TRACE("GEMGlobalState::calculateGlobals statesString is '"
-       << initialGlobalState << ":"
-       << statesString.str().c_str() << ":"
-       << tmpGlobalState << ":"
-       << intermediateGlobalState << ":"
-       << m_globalState
-       << "'");
+        << initialGlobalState << ":"
+        << statesString.str().c_str() << ":"
+        << tmpGlobalState << ":"
+        << intermediateGlobalState << ":"
+        << m_globalState << ":"
+        << p_gemSupervisor->getCurrentFSMState()
+        << "'");
 }
 
 toolbox::fsm::State gem::supervisor::GEMGlobalState::getProperCompositeState(toolbox::fsm::State const& initial,
