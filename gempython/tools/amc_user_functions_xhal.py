@@ -93,34 +93,39 @@ class HwAMC:
 
         return
 
-    def configureTTC(self, pulseDelay, L1Ainterval, ohN=0, mode=0, t1type=0,  nPulses=0, bRun=True):
+    def blockL1A(device):
+        if self.fwVersion < 3:
+            writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
+        else:
+
+
+    def configureTTC(self, pulseDelay, L1Ainterval, ohN=0, mode=0, t1type=0,  nPulses=0, enable=True):
         """
         Default values reflects v3 electronics behavior
 
-        ====V3 Electronics Behavior====
-
-        pulseDelay - delay between CalPulse and L1A
-        L1Ainterval - how often to repeat signals
-        bRun - start (stop) sending pulses if true (false).
-
-        ====V2b Electronics Behavior====
-        Configure the T1 controller
-        mode: 0 (Single T1 signal),
-              1 (CalPulse followed by L1A),
-              2 (pattern)
-        t1type (only for mode 0, type of T1 signal to send):
-              0 L1A
-              1 CalPulse
-              2 Resync
-              3 BC0
-        delay (only for mode 1), delay between CalPulse and L1A
-        interval (only for mode 0,1), how often to repeat signals
-        number how many signals to send (0 is continuous)
+        =======v3 electronics Behavior=======
+             pulseDelay (only for enable = true), delay between CalPulse and L1A
+             L1Ainterval (only for enable = true), how often to repeat signals
+             enable = true (false) ignore (take) ttc commands from backplane for this AMC (affects all links)
+        =======v2b electronics behavior=======
+             Configure the T1 controller
+             mode: 0 (Single T1 signal),
+                   1 (CalPulse followed by L1A),
+                   2 (pattern)
+             type (only for mode 0, type of T1 signal to send):
+                   0 L1A
+                   1 CalPulse
+                   2 Resync
+                   3 BC0
+             pulseDelay (only for mode 1), delay between CalPulse and L1A
+             L1Ainterval (only for mode 0,1), how often to repeat signals
+             nPulses how many signals to send (0 is continuous)
+             enable = true (false) start (stop) the T1Controller for link ohN
         """
 
-        return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, bRun)
+        return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, enable)
 
-    def getL1ACount(device):
+    def getL1ACount(self):
         return self.readRegister("GEM_AMC.TTC.CMD_COUNTERS.L1A")
 
     def getNode(self,nodeName):
@@ -212,13 +217,13 @@ class HwAMC:
                 return fin_res
         return 0xdeaddead
 
-    def toggleTTC(self, ohN, bRun):
+    def toggleTTC(self, ohN, enable):
         """
-        Start (bRun = True) or stop (bRun = True) the 
-        TTC generator (Local T1 Controller) for v3 (v2b) electronics
+        v3  electronics: enable = true (false) ignore (take) ttc commands from backplane for this AMC
+        v2b electronics: enable = true (false) start (stop) the T1Controller for link ohN
         """
 
-        return self.ttcGenToggle(ohN, bRun)
+        return self.ttcGenToggle(ohN, enable)
 
     def writeReg(self, reg, value):
         address = reg.real_address
