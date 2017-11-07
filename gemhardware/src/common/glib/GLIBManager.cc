@@ -336,26 +336,6 @@ void gem::hw::glib::GLIBManager::configureAction()
       // reset counters?
       // setup run mode?
       // setup DAQ mode?
-      // temp workaround, call confAllChambers python script?
-      // if P5 config?
-      // if (m_setupLocation.toString().rfind("P5") != std::string::npos) {
-      INFO("GLIBManager::configureAction running confAllChambers for P5 setup");
-      std::stringstream confcmd;
-      // FIXME hard coded for now, but super hacky garbage
-      confcmd << "confAllChambers.py -s" << slot
-              << " --ztrim=" << 4.0
-              << " --vt1bump=" << 10
-              << " --config --run";
-      int retval = std::system(confcmd.str().c_str());
-      if (retval) {
-        std::stringstream msg;
-        msg << "GLIBManager::configureAction unable to configure chambers: " << retval;
-        WARN(msg.str());
-        // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
-      }
-      // }
     } else {
       std::stringstream msg;
       msg << "GLIBManager::configureAction GLIB in slot " << (slot+1) << " is not connected";
