@@ -93,7 +93,7 @@ class HwOptoHybrid:
 
         return rpcResp
 
-    def getL1ACount(device,link):
+    def getL1ACount(self):
         if self.parentAMC.fwVersion < 3:
             return readRegister(device, "GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(self.link))
         else:
@@ -103,11 +103,28 @@ class HwOptoHybrid:
             #return -1
             sys.exit(os.EX_USAGE)
 
-    def performCalibrationScan(self, ohN, chan, scanReg, outData, enableCal=1, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True):
+    def getTriggerSource(self):
+        """
+        v2b electronics only
+        Get the trigger source
+        OH:   0 = TTC over GTX
+              1 = FIRMWARE
+              2 = EXTERNAL
+              3 = LOOPBACK
+              4 = LOGICAL OR
+              5 = TTC over GBT
+        """
+
+        if self.parentAMC.fwVersion < 3:
+            return self.parentAMC.readRegister("GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(self.link))
+        else:
+            print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
+            sys.exit(os.EX_USAGE)
+    
+    def performCalibrationScan(self, chan, scanReg, outData, enableCal=1, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True):
         """
         Performs either a v2b ultra scan or a v3 generic scan
 
-        ohN         - Optohybrid number (e.g. link)
         chan        - VFAT channel to be scanned
         scanReg     - Name of register to be scanned.  For v3
                       electronics consult the address table.
@@ -142,8 +159,26 @@ class HwOptoHybrid:
             if "CFG_" in scanReg:
                 scanReg = str.replace("CFG_","")
 
-        return self.genScan(nevts, ohN, dacMin, dacMax, stepSize, chan, enableCal, mask, scanReg, useUltra, outData)
+        return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, mask, scanReg, useUltra, outData)
 
     def setDebug(self, debug):
         self.debug = debug
         return
+
+    def setTriggerSource(self,source):
+        """
+        v2b electronics only
+        Set the trigger source
+        OH:   0 = TTC over GTX
+              1 = FIRMWARE
+              2 = EXTERNAL
+              3 = LOOPBACK
+              4 = LOGICAL OR
+              5 = TTC over GBT
+        """
+
+        if self.parentAMC.fwVersion < 3:
+            return self.parentAMC.writeRegister("GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(self.link),source)
+        else:
+            print("HwOptoHybrid.setTriggerSource() - No support for v3 electronics, exiting")
+            sys.exit(os.EX_USAGE)
