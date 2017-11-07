@@ -93,11 +93,17 @@ class HwAMC:
 
         return
 
-    def blockL1A(device):
+    def blockL1A(self):
+        """
+        v3  electronics: blocks all real ttc commands from backplane for this AMC
+        v2b electronics: blocks L1A's being sent to this AMC's OH's
+        """
+        
         if self.fwVersion < 3:
-            writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
+            self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
         else:
-
+            self.toggleTTC(ohN=-1,enable=True)
+        return
 
     def configureTTC(self, pulseDelay, L1Ainterval, ohN=0, mode=0, t1type=0,  nPulses=0, enable=True):
         """
@@ -124,6 +130,19 @@ class HwAMC:
         """
 
         return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, enable)
+
+    def enableL1A(self):
+        """
+        v3  electronics: enables real ttc commands from backplane for this AMC
+        v2b electronics: enables L1A's being sent to this AMC's OH's
+        """
+        
+        if self.fwVersion < 3:
+            self.writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
+        else:
+            #Yes False, this turns OFF the TTC Generator which suppresses ttc cmds from backplane
+            self.toggleTTC(ohN=-1,enable=False) 
+        return
 
     def getL1ACount(self):
         return self.readRegister("GEM_AMC.TTC.CMD_COUNTERS.L1A")
