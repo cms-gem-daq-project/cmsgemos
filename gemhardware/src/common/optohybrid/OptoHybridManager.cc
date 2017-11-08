@@ -455,27 +455,6 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         // need to reset optical links?
         // reset counters?
 
-        // temp workaround, call confAllChambers python script?
-        // if P5 config?
-        // if (m_setupLocation.toString().rfind("P5") != std::string::npos) {
-        INFO("OptoHybridManager::configureAction running confAllChambers for P5 setup");
-        std::stringstream confcmd;
-        // FIXME hard coded for now, but super hacky garbage
-        confcmd << "confAllChambers.py -s" << (slot+1)
-                << " --ztrim=" << 4.0
-                << " --vt1bump=" << 10
-                << " --config --run";
-        int retval = std::system(confcmd.str().c_str());
-        if (retval) {
-          std::stringstream msg;
-          msg << "OptoHybridManager::configureAction unable to configure chambers: " << retval;
-          WARN(msg.str());
-          // fireEvent("Fail");
-          XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
-          // XCEPT_RAISE(gem::hw::optohybrid::exception::ConfigurationProblem, msg.str());
-        }
-        // }
-
         // FIXME, should not be here or done like this
         uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
         gtxMask |= (0x1<<link);
