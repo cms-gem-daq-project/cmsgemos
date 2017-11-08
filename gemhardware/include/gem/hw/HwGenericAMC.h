@@ -345,7 +345,7 @@ namespace gem {
         // * get the tracking data, have to do this intelligently, as IPBus transactions are expensive
         // * and need to pack all events together
         // * @param uint8_t gtx is the number of the GTX tracking data to read
-        // * @param size_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
+        // * @param sizeo_t nBlocks is the number of VFAT data blocks (7*32bit words) to read
         // * @retval std::vector<uint32_t> returns the 7*nBlocks data words in the buffer
         // */
         //std::vector<uint32_t> getTrackingData(uint8_t const& gtx, size_t const& nBlocks=1);
@@ -375,6 +375,17 @@ namespace gem {
          * @brief Set the DAQ link off and disable all inputs
          */
         virtual void disableDAQLink();
+
+        /**
+         * @brief Set the zero suppression mode
+         * @param enable true means any VFAT data packet with all 0's will be suppressed
+         */
+        virtual void enableZeroSuppression(bool enable=true);
+
+        /**
+         * @brief Disable zero suppression of VFAT data
+         */
+        virtual void disableZeroSuppression();
 
         /**
          * @brief reset the DAQ link and write the DAV timout
