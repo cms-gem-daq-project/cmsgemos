@@ -61,8 +61,10 @@ class HwVFAT:
 
             # Run mode
             if(enable):
+                #self.parentOH.parentAMC.writeRegister("GEM_AMC.GEM_SYSTEM.VFAT3.VFAT3_RUN_MODE",0x1) #Doesn't seem to work
                 self.writeAllVFATs("CFG_RUN",0x1,mask)
             else:
+                #self.parentOH.parentAMC.writeRegister("GEM_AMC.GEM_SYSTEM.VFAT3.VFAT3_RUN_MODE",0x0) #Doesn't seem to work
                 self.writeAllVFATs("CFG_RUN",0x0,mask)
                 pass
         else:
@@ -117,6 +119,15 @@ class HwVFAT:
             return vfatVal
 
     def setChannelRegister(self, chip, chan, mask=0x0, pulse=0x0, trimARM=0x0, trimZCC=0x0, debug=False):
+        """
+        chip - VFAT to write
+        chan - channel on vfat
+        mask - channel mask
+        pulse - cal pulse enabled
+        trimARM - v2b (v3) electronics trimDAC (arm comparator trim)
+        trimZCC - v3 electronics only, zero crossing comparator trim
+        """
+
         # Invalid channel check
         if (chan not in range(0,128)):
             print "Invalid VFAT channel specified %d"%(chan)
@@ -129,8 +140,14 @@ class HwVFAT:
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.MASK"%(chan), mask)
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_AMPLITUDE"%(chan), trimZCC)
         else:
-            chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trim&0x1f)
-            self.writeVFAT(chip, "VFATChannels.ChanReg%d"%(chan+1),chanReg)
+            chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trimARM&0x1f)
+            self.writeVFAT(chip, "VFATChannels.ChanReg%d"%(chan),chanReg)
+        return
+
+    def setChannelRegisterAll(self, chan, chMask=0x0, pulse=0x0, trimARM=0x0, trimZCC=0x0, vfatMask=0x0, debug=False):
+        for vfat in range(0,self.parentOH.nVFATs):
+            if (vfatMask >> vfat) & 0x1: continue
+            self.setChannelRegister(vfat, chan, chMask, pulse, trimARM, trimZCC, debug)
         return
 
     def setDebug(self, debug):
@@ -160,6 +177,20 @@ class HwVFAT:
         """
 
         return self.stopCalPulses2AllChannels(self.parentOH.link, mask, chanMin, chanMax)
+
+    def setVFATCalHeight(self, chip, height, debug=False):
+        if self.parentOH.parentAMC.fwVersion > 2:
+            self.writeVFATRegisters(chip,{"CFG_CAL_DAC": (255 - height)})
+        else:
+            self.writeVFATRegisters(chip,{"VCal": height})
+        return
+
+    def setVFATCalHeightAll(self, mask=0x0, height=256, debug=False):
+        if self.parentOH.parentAMC.fwVersion > 2:
+            self.writeAllVFATs("CFG_CAL_DAC", (256 - height), mask)
+        else:
+            self.writeAllVFATs("VCal", height, mask)
+        return
 
     def setVFATCalPhase(self, chip, phase, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:

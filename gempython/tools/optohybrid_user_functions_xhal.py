@@ -95,7 +95,7 @@ class HwOptoHybrid:
 
     def getL1ACount(self):
         if self.parentAMC.fwVersion < 3:
-            return readRegister(device, "GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(self.link))
+            return self.parentAMC.readRegister("GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(self.link))
         else:
             print("HwOptoHybrid.getL1ACount(): Presently the CTP7 <-> OHv3 communication is not present")
             print("\tAt the moment the OHv3 FPGA doesn't receive L1As")
@@ -121,7 +121,7 @@ class HwOptoHybrid:
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
     
-    def performCalibrationScan(self, chan, scanReg, outData, enableCal=1, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True):
+    def performCalibrationScan(self, chan, scanReg, outData, enableCal=True, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True):
         """
         Performs either a v2b ultra scan or a v3 generic scan
 
@@ -181,4 +181,15 @@ class HwOptoHybrid:
             return self.parentAMC.writeRegister("GEM_AMC.OH.OH%d.CONTROL.TRIGGER.SOURCE"%(self.link),source)
         else:
             print("HwOptoHybrid.setTriggerSource() - No support for v3 electronics, exiting")
+            sys.exit(os.EX_USAGE)
+
+    def setTriggerThrottle(self,throttle):
+        """
+        Set the trigger throttle
+        """
+       
+        if self.parentAMC.fwVersion < 3:
+            return self.parentAMC.writeRegister("GEM_AMC.OH.OH%d.CONTROL.TRIGGER.THROTTLE"%(self.link),throttle)
+        else:
+            print("HwOptoHybrid.setTriggerThrottle() - There is no way to presecale the L1As being sent in v3 electronics, exiting")
             sys.exit(os.EX_USAGE)

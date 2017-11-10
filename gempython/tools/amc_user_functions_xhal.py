@@ -138,9 +138,9 @@ class HwAMC:
         """
         
         if self.fwVersion < 3:
-            self.writeRegister(device, "GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
+            self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
         else:
-            #Yes False, this turns OFF the TTC Generator which suppresses ttc cmds from backplane
+            #Yes False, this turns OFF the TTC Generator, ttc cmds from backplane will then be fowarded to the front-ends
             self.toggleTTC(ohN=-1,enable=False) 
         return
 
@@ -155,13 +155,36 @@ class HwAMC:
             print "Node %s not found" %(nodeName)
             return None
 
+    def getTTCStatus(self, ohN, display=False):
+        running = 0xdeaddead
+        if self.fwVersion < 3:
+            contBase = "GEM_AMC.OH.OH%i.T1Controller"%(ohN)
+            running = self.readRegister("%s.MONITOR"%(contBase))
+            if display:
+                print("Info for %s"%(contBase))
+                print("\tDELAY:\t\t%i"%(self.readRegister("%s.DELAY"%(contBase))))
+                print("\tINTERVAL:\t%i"%(self.readRegister("%s.INTERVAL"%(contBase))))
+                print("\tMODE:\t\t%i"%(self.readRegister("%s.MODE"%(contBase))))
+                print("\tMONITOR:\t%i"%(running))
+                print("\tNUMBER:\t\t%i"%(self.readRegister("%s.NUMBER"%(contBase))))
+                print("\tTYPE:\t\t%i"%(self.readRegister("%s.TYPE"%(contBase))))
+        else:
+            contBase = "GEM_AMC.TTC.GENERATOR"
+            running = self.readRegister("%s.ENABLE"%(contBase))
+            if display:
+                print("Info for %s"%(contBase))
+                print("\tCYCLIC_L1A_GAP: \t%i"%(self.readRegister("%s.CYCLIC_L1A_GAP"%(contBase))))
+                print("\tCYCLIC_CALPULSE_TO_L1A_GAP: \t%i"%(self.readRegister("%s.CYCLIC_CALPULSE_TO_L1A_GAP"%(contBase))))
+                print("\tENABLE: \t%i"%(running))
+        return running
+
     def readAddress(self,address):
         output = self.rReg(address) 
         return '{0:#010x}'.format(parseInt(str(output)))
 
     def readBlock(register, nwords, debug=False):
         """
-        read block 'register' from uhal device 'device'
+        read block 'register'
         returns 'nwords' values in the register
         """
         global gRetries
@@ -248,8 +271,11 @@ class HwAMC:
         address = reg.real_address
         if 'w' not in reg.permission:
             return 'No write permission!'
+        
+        if self.debug:
+            print "Initial value to write: %s, register %s"% (value,reg.name)
+        
         # Apply Mask if applicable
-        print "Initial value to write: %s, register %s"% (value,reg.name)
         if reg.mask is not None:
             shift_amount=0
             for bit in reversed('{0:b}'.format(reg.mask)):
