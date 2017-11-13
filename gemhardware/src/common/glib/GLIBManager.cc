@@ -397,6 +397,8 @@ void gem::hw::glib::GLIBManager::startAction()
     if (m_glibs.at(slot)->isHwConnected()) {
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
+      m_glibs.at(slot)->ttcReset();
+      m_glibs.at(slot)->enableZeroSuppression(0x1);
       m_glibs.at(slot)->enableDAQLink(0x4);  // FIXME
       m_glibs.at(slot)->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
