@@ -27,6 +27,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionFile),
   //monOptoHybrid_(0)
   b_links{false,false,false},
+  b_is_initial(true),
   m_controlLink(-1)
 {
   std::stringstream basenode;
@@ -42,6 +43,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice, connectionURI, addressTable),
   //monOptoHybrid_(0)
   b_links{false,false,false},
+  b_is_initial(true),
   m_controlLink(-1)
 {
   setAddressTableFileName(toolbox::toString("uhal_gem_amc_glib_link%02d.xml",*optohybridDevice.rbegin()));
@@ -57,6 +59,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(std::string const& optohybridDev
   gem::hw::GEMHwDevice::GEMHwDevice(optohybridDevice,uhalDevice),
   //monOptoHybrid_(0)
   b_links{false,false,false},
+  b_is_initial(true),
   m_controlLink(-1)
 {
   std::stringstream basenode;
@@ -72,6 +75,7 @@ gem::hw::optohybrid::HwOptoHybrid::HwOptoHybrid(gem::hw::glib::HwGLIB const& gli
                                     glibDevice.getGEMHwInterface()),
   //monOptoHybrid_(0),
   b_links{false,false,false},
+  b_is_initial(true),
   m_controlLink(-1),
   m_slot((int)slot)
 {
@@ -148,7 +152,7 @@ gem::hw::optohybrid::HwOptoHybrid::~HwOptoHybrid()
 
 bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
 {
-  if ( b_is_connected ) {
+  if (b_is_connected) {
     DEBUG("HwOptoHybrid connection good");
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
@@ -253,70 +257,78 @@ void gem::hw::optohybrid::HwOptoHybrid::broadcastWrite(std::string const& name,
 }
 
 
-std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATs()
+std::vector<std::pair<uint8_t,uint32_t> > gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATs(bool update)
 {
-  std::vector<uint32_t> chips0 = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK,false);
-  std::vector<uint32_t> chips1 = broadcastRead("ChipID1",ALL_VFATS_BCAST_MASK,false);
-  DEBUG("HwOptoHybrid::getConnectedVFATs chips0 size:" << chips0.size() <<  ", chips1 size:" << chips1.size());
+  if (update || b_is_initial) {
+    std::vector<uint32_t> chips0 = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK,false);
+    std::vector<uint32_t> chips1 = broadcastRead("ChipID1",ALL_VFATS_BCAST_MASK,false);
+    DEBUG("HwOptoHybrid::getConnectedVFATs chips0 size:" << chips0.size() <<  ", chips1 size:" << chips1.size());
 
-  std::vector<std::pair<uint8_t, uint32_t> > chipIDs;
-  std::vector<std::pair<uint32_t,uint32_t> > chipPairs;
-  chipPairs.reserve(chips0.size());
+    std::vector<std::pair<uint8_t, uint32_t> > chipIDs;
+    std::vector<std::pair<uint32_t,uint32_t> > chipPairs;
+    chipPairs.reserve(chips0.size());
 
-  std::transform(chips1.begin(), chips1.end(), chips0.begin(),
-                 std::back_inserter(chipPairs),
-                 std::make_pair<const uint32_t&, const uint32_t&>);
+    std::transform(chips1.begin(), chips1.end(), chips0.begin(),
+                   std::back_inserter(chipPairs),
+                   std::make_pair<const uint32_t&, const uint32_t&>);
 
-  for (auto chip = chipPairs.begin(); chip != chipPairs.end(); ++chip) {
-    if (((chip->first) >> 16) != 0x3) {
-      uint8_t slot = ((chip->first)>>8)&0xff;
-      uint32_t chipID = (((chip->first)&0xff)<<8)+((chip->second)&0xff);
-      DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << (int)slot
-            << ", chipID1: 0x" << std::hex << chip->first   << std::dec
-            << ", chipID2: 0x" << std::hex << chip->second  << std::dec
-            << ", chipID: 0x"  << std::hex << chipID        << std::dec);
-      chipIDs.push_back(std::make_pair(slot,chipID));
+    for (auto chip = chipPairs.begin(); chip != chipPairs.end(); ++chip) {
+      if (((chip->first) >> 16) != 0x3) {
+        uint8_t slot = ((chip->first)>>8)&0xff;
+        uint32_t chipID = (((chip->first)&0xff)<<8)+((chip->second)&0xff);
+        DEBUG("HwOptoHybrid::getConnectedVFATs GEB slot: " << (int)slot
+              << ", chipID1: 0x" << std::hex << chip->first   << std::dec
+              << ", chipID2: 0x" << std::hex << chip->second  << std::dec
+              << ", chipID: 0x"  << std::hex << chipID        << std::dec);
+        chipIDs.push_back(std::make_pair(slot,chipID));
+      }
     }
+    m_chipIDs = chipIDs;
+    b_is_initial = false;
   }
-  return chipIDs;
+  return m_chipIDs;
 }
 
 
-uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask()
+uint32_t gem::hw::optohybrid::HwOptoHybrid::getConnectedVFATMask(bool update)
 {
-  std::vector<uint32_t> allChips = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK);
-  uint32_t connectedMask = 0x0; // high means don't broadcast
-  uint32_t disabledMask  = 0x0; // high means ignore data
-  DEBUG("HwOptoHybrid::getConnectedVFATMask Reading ChipID0 from all possible slots");
-  for (auto id = allChips.begin(); id != allChips.end(); ++id) {
-    // 0x00XXYYZZ
-    // XX = status (00000EVR)
-    // YY = chip number
-    // ZZ = register contents
-    INFO("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
-    // bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
+  if (update || b_is_initial) {
+    std::vector<uint32_t> allChips = broadcastRead("ChipID0",ALL_VFATS_BCAST_MASK);
+    uint32_t connectedMask = 0x0; // high means don't broadcast
+    uint32_t disabledMask  = 0x0; // high means ignore data
+    DEBUG("HwOptoHybrid::getConnectedVFATMask Reading ChipID0 from all possible slots");
+    for (auto id = allChips.begin(); id != allChips.end(); ++id) {
+      // 0x00XXYYZZ
+      // XX = status (00000EVR)
+      // YY = chip number
+      // ZZ = register contents
+      INFO("HwOptoHybrid::getConnectedVFATMask result 0x" << std::setw(8) << std::setfill('0') << std::hex << *id << std::dec);
+      // bool e_bit(((*id)>>18)&0x1),v_bit(((*id)>>17)&0x1),r_bit(((*id)>>16)&0x1);
 
-    // if (v_bit && !e_bit) {
-    if (((*id) >> 16) != 0x3) {
-      uint8_t shift = ((*id)>>8)&0xff;
-      connectedMask |= (0x1 << shift);
-      disabledMask  |= (0x1 << shift);
-    }
-    DEBUG("HwOptoHybrid::getConnectedVFATMask mask is " << std::hex << connectedMask << std::dec);
+      // if (v_bit && !e_bit) {
+      if (((*id) >> 16) != 0x3) {
+        uint8_t shift = ((*id)>>8)&0xff;
+        connectedMask |= (0x1 << shift);
+        disabledMask  |= (0x1 << shift);
+      }
+      DEBUG("HwOptoHybrid::getConnectedVFATMask mask is " << std::hex << connectedMask << std::dec);
   }
 
-  DEBUG("HwOptoHybrid::getConnectedVFATMask previous mask is 0x" << std::setw(8) << std::setfill('0')
-        << std::hex << connectedMask << std::dec);
-  connectedMask = ~connectedMask;
-  disabledMask  = ~disabledMask ;
-  DEBUG("HwOptoHybrid::getConnectedVFATMask intermediate mask is 0x" << std::setw(8) << std::setfill('0')
-        << std::hex << connectedMask << std::dec);
-  connectedMask |= ALL_VFATS_BCAST_MASK;
-  disabledMask  |= ALL_VFATS_BCAST_MASK;
-  DEBUG("HwOptoHybrid::getConnectedVFATMask final mask is 0x" << std::setw(8) << std::setfill('0')
-        << std::hex << connectedMask << std::dec);
+    DEBUG("HwOptoHybrid::getConnectedVFATMask previous mask is 0x" << std::setw(8) << std::setfill('0')
+          << std::hex << connectedMask << std::dec);
+    connectedMask = ~connectedMask;
+    disabledMask  = ~disabledMask ;
+    DEBUG("HwOptoHybrid::getConnectedVFATMask intermediate mask is 0x" << std::setw(8) << std::setfill('0')
+          << std::hex << connectedMask << std::dec);
+    connectedMask |= ALL_VFATS_BCAST_MASK;
+    disabledMask  |= ALL_VFATS_BCAST_MASK;
+    DEBUG("HwOptoHybrid::getConnectedVFATMask final mask is 0x" << std::setw(8) << std::setfill('0')
+          << std::hex << connectedMask << std::dec);
 
-  return connectedMask;
+     m_disabledMask  = connectedMask;
+     m_connectedMask = disabledMask;
+  }
+  return m_connectedMask;
 }
 
 

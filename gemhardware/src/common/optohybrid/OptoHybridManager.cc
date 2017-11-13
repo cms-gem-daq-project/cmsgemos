@@ -275,9 +275,17 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       if (m_optohybrids.at(slot).at(link)->isHwConnected()) {
         // get connected VFATs
         m_vfatMapping.at(slot).at(link)   = m_optohybrids.at(slot).at(link)->getConnectedVFATs();
+        INFO("OptoHybridManager::initializeAction Obtained vfatMapping");
+        // all the rest of these are related to the first by bitwise logic, can avoid doing the 4 calls
+        // m_trackingMask.at(slot).at(link)  = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
         m_trackingMask.at(slot).at(link)  = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
-        m_broadcastList.at(slot).at(link) = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
-        m_sbitMask.at(slot).at(link)      = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
+        INFO("OptoHybridManager::initializeAction Obtained trackingMask");
+        // m_broadcastList.at(slot).at(link) = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
+        m_broadcastList.at(slot).at(link) = m_trackingMask.at(slot).at(link);
+        INFO("OptoHybridManager::initializeAction Obtained broadcastList");
+        // m_sbitMask.at(slot).at(link)      = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
+        m_sbitMask.at(slot).at(link) = m_trackingMask.at(slot).at(link);
+        INFO("OptoHybridManager::initializeAction Obtained sbitMask");
 
         createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), m_optohybrids.at(slot).at(link));
         INFO("OptoHybridManager::initializeAction looping over created VFAT devices");
