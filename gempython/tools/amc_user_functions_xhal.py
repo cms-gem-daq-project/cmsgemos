@@ -173,9 +173,9 @@ class HwAMC:
             running = self.readRegister("%s.ENABLE"%(contBase))
             if display:
                 print("Info for %s"%(contBase))
-                print("\tCYCLIC_L1A_GAP: \t%i"%(self.readRegister("%s.CYCLIC_L1A_GAP"%(contBase))))
+                print("\tCYCLIC_L1A_GAP: \t\t%i"%(self.readRegister("%s.CYCLIC_L1A_GAP"%(contBase))))
                 print("\tCYCLIC_CALPULSE_TO_L1A_GAP: \t%i"%(self.readRegister("%s.CYCLIC_CALPULSE_TO_L1A_GAP"%(contBase))))
-                print("\tENABLE: \t%i"%(running))
+                print("\tENABLE: \t\t\t%i"%(running))
         return running
 
     def readAddress(self,address):
