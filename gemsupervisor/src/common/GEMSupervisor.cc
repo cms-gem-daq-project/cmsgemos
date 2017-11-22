@@ -578,7 +578,7 @@ void gem::supervisor::GEMSupervisor::startAction()
     XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   }
 
-  if(m_scanType.value_ == 2 || (m_scanType.value_ == 3)){
+  if (m_scanType.value_ == 2 || (m_scanType.value_ == 3)){
     m_scanParameter = m_scanInfo.bag.scanMin.value_;
     INFO("GEMSupervisor::startAction Scan");
     if (m_scanType.value_ == 2) {
@@ -598,8 +598,10 @@ void gem::supervisor::GEMSupervisor::startAction()
         INFO("GEMSupervisor::startAction Starting " << (*j)->getClassName());
         if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
           std::unordered_map<std::string, xdata::Serializable*> tcdsParams;
-          xdata::UnsignedInteger tcdsRunNumber;
-          tcdsRunNumber.value_ = m_runNumber.value_;
+          xdata::UnsignedInteger tcdsRunNumber(m_runNumber);
+          DEBUG("GEMSupervisor::startAction sending TCDS application " << (*j)->getClassName()
+                << " run number: " << m_runNumber.value_ << "(" << m_runNumber.toString() << ")"
+                << " as: " << tcdsRunNumber.value_ << "(" << tcdsRunNumber.toString() << ")");
           tcdsParams.insert(std::make_pair("runNumber", &(tcdsRunNumber)));
           gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag("Enable", tcdsParams, p_appContext, p_appDescriptor, *j);
         } else {
@@ -1252,7 +1254,7 @@ void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xda
 void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad)
 //  throw (xoap::exception::Exception)
 {
-  INFO("GEMSupervisor::sendRunNumber to " << ad->getClassName());
+  INFO("GEMSupervisor::sendRunNumber " << m_runNumber.toString() << " to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber", "xsd:long",
                                                              m_runNumber.toString(),
                                                              p_appContext, p_appDescriptor, ad);
