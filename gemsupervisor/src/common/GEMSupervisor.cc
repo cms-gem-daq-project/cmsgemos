@@ -600,6 +600,9 @@ void gem::supervisor::GEMSupervisor::startAction()
           std::unordered_map<std::string, xdata::Serializable*> tcdsParams;
           xdata::UnsignedInteger tcdsRunNumber;
           tcdsRunNumber.value_ = m_runNumber.value_;
+          INFO("GEMSupervisor::startAction sending TCDS application " << (*j)->getClassName()
+               << " run number: " << m_runNumber.value_ << "(" << m_runNumber.toString() << ")"
+               << " as: " << tcdsRunNumber.value_ << "(" << tcdsRunNumber.toString() << ")");
           tcdsParams.insert(std::make_pair("runNumber", &(tcdsRunNumber)));
           gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag("Enable", tcdsParams, p_appContext, p_appDescriptor, *j);
         } else {
