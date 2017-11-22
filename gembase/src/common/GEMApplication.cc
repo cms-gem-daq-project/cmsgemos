@@ -202,7 +202,7 @@ void gem::base::GEMApplication::actionPerformed(xdata::Event& event)
   // item is changed, update it
   if (event.type() == "ItemChangedEvent" ||
       event.type() == "urn:xdata-event:ItemChangedEvent") {
-    DEBUG("GEMApplication::actionPerformed() ItemChangedEvent"
+    INFO("GEMApplication::actionPerformed() ItemChangedEvent"
           << "m_runNumber:" << m_runNumber
           << " getInteger64(\"RunNumber\"):" << p_appInfoSpaceToolBox->getInteger64("RunNumber"));
 
