@@ -598,8 +598,8 @@ void gem::supervisor::GEMSupervisor::startAction()
         INFO("GEMSupervisor::startAction Starting " << (*j)->getClassName());
         if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
           std::unordered_map<std::string, xdata::Serializable*> tcdsParams;
-          xdata::UnsignedInteger tcdsRunNumber;
-          tcdsRunNumber.value_ = m_runNumber.value_;
+          xdata::UnsignedInteger tcdsRunNumber(m_runNumber);
+          // tcdsRunNumber.value_ = m_runNumber.value_;
           INFO("GEMSupervisor::startAction sending TCDS application " << (*j)->getClassName()
                << " run number: " << m_runNumber.value_ << "(" << m_runNumber.toString() << ")"
                << " as: " << tcdsRunNumber.value_ << "(" << tcdsRunNumber.toString() << ")");
