@@ -551,20 +551,20 @@ void gem::hw::optohybrid::HwOptoHybrid::configureScanModule(uint8_t const& mode,
   if (reset)
     writeReg(getDeviceBaseNode(),scanBase.str()+".RESET",0x1);
 
-  writeReg(getDeviceBaseNode(),scanBase.str()+".MODE", mode);
-  writeReg(getDeviceBaseNode(),scanBase.str()+".MIN",  min);
-  writeReg(getDeviceBaseNode(),scanBase.str()+".MAX",  max);
-  writeReg(getDeviceBaseNode(),scanBase.str()+".STEP", step);
+  writeReg(getDeviceBaseNode(),scanBase.str()+".CONF.MODE", mode);
+  writeReg(getDeviceBaseNode(),scanBase.str()+".CONF.MIN",  min);
+  writeReg(getDeviceBaseNode(),scanBase.str()+".CONF.MAX",  max);
+  writeReg(getDeviceBaseNode(),scanBase.str()+".CONF.STEP", step);
 
   // need also to enable this chip and disable all others, use a broadcast write?
   if (useUltra)
-    writeReg(getDeviceBaseNode(),scanBase.str()+".MASK", chip);
+    writeReg(getDeviceBaseNode(),scanBase.str()+".CONF.MASK", chip);
   else
-    writeReg(getDeviceBaseNode(),scanBase.str()+".CHIP", chip);
+    writeReg(getDeviceBaseNode(),scanBase.str()+".CONF.CHIP", chip);
   if (mode == 0x1 || mode == 0x3) {
     // protect for non-existent channels?
     // need also to enable this channel and disable all others
-    writeReg(getDeviceBaseNode(),scanBase.str()+".CHAN",channel);
+    writeReg(getDeviceBaseNode(),scanBase.str()+".CONF.CHAN",channel);
     if (mode == 0x3) {
       // need also to enable cal pulse to this channel and disable all others
     }
@@ -580,7 +580,7 @@ void gem::hw::optohybrid::HwOptoHybrid::startScanModule(uint32_t const& nevts, b
   else
     scanBase << ".THLAT";
 
-  writeReg(getDeviceBaseNode(),scanBase.str()+".NTRIGS", nevts);
+  writeReg(getDeviceBaseNode(),scanBase.str()+".CONF.NTRIGS", nevts);
 
   //don't toggle off if the module is currently running
   if (!getScanStatus())
