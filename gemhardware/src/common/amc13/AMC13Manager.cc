@@ -288,6 +288,13 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
     m_slotMask = p_amc13->parseInputEnableList(m_amcInputEnableList,true);
     p_amc13->AMCInputEnable(m_slotMask);
 
+    // Re-map AMC13 Resync and OCR to match TCDS and CTP7 expectation
+    // NOT FINAL FIXME
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.CMD",  0x04);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.MASK", 0x01);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_COMMAND", 0x08);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_MASK",    0x01);
+
     p_amc13->enableAllTTC();
   } catch (uhal::exception::exception & e) {
     ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception " << e.what());
