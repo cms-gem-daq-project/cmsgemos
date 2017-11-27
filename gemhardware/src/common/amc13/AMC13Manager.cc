@@ -62,6 +62,22 @@ void gem::hw::amc13::AMC13Manager::L1AInfo::registerFields(xdata::Bag<L1AInfo> *
   l1Abag->addField("EnableLEMO",             &enableLEMO );
 }
 
+gem::hw::amc13::AMC13Manager::TTCInfo::TTCInfo()
+{
+  resyncCommand = 0x04;
+  resyncMask    = 0x01;
+  oc0Command    = 0x08;
+  oc0Mask       = 0x01;
+}
+
+void gem::hw::amc13::AMC13Manager::TTCInfo::registerFields(xdata::Bag<TTCInfo> *ttcbag)
+{
+  ttcbag->addField("RESYNC_CMD",  &resyncCommand);
+  ttcbag->addField("RESYNC_MASK", &resyncMask   );
+  ttcbag->addField("OC0_CMD",     &oc0Command   );
+  ttcbag->addField("OC0_MASK",    &oc0Mask      );
+}
+
 gem::hw::amc13::AMC13Manager::AMC13Info::AMC13Info()
 {
   connectionFile     = "N/A";
@@ -96,6 +112,7 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
 
   bag->addField("AMCInputEnableList", &amcInputEnableList);
   bag->addField("AMCIgnoreTTSList",   &amcIgnoreTTSList  );
+  bag->addField("AMC13TTCConfig",     &amc13TTCConfig    );
 
   bag->addField("EnableDAQLink",       &enableDAQLink  );
   bag->addField("EnableFakeData",      &enableFakeData );
@@ -174,6 +191,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
     m_enableFakeData     = m_amc13Params.bag.enableFakeData.value_;
     m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
     m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
+    m_amc13TTCConfig     = m_amc13Params.bag.amc13TTCConfig;
 
     m_localTriggerConfig     = m_amc13Params.bag.localTriggerConfig;
     m_enableLocalL1A         = m_localTriggerConfig.bag.enableLocalL1A.value_;
@@ -290,10 +308,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
     // Re-map AMC13 Resync and OCR to match TCDS and CTP7 expectation
     // NOT FINAL FIXME
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.COMMAND", 0x04);
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.MASK",    0x01);
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_COMMAND",    0x08);
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_MASK",       0x01);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.COMMAND", m_amc13TTCConfig.bag.resyncCommand.value_);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.MASK",    m_amc13TTCConfig.bag.resyncMask.value_);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_COMMAND",    m_amc13TTCConfig.bag.oc0Command.value_);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_MASK",       m_amc13TTCConfig.bag.oc0Mask.value_);
 
     p_amc13->enableAllTTC();
   } catch (uhal::exception::exception & e) {
