@@ -710,8 +710,8 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
     ohnL1A_0 = getL1ACount(device,gtx)
     ohnL1A = getL1ACount(device,gtx)
-    numtrigs = readRegister(device,"%s.NTRIGS"%(scanBase))
-    if (readRegister(device,"%s.MODE"%(scanBase))==2):
+    numtrigs = readRegister(device,"%s.CONF.NTRIGS"%(scanBase))
+    if (readRegister(device,"%s.CONF.MODE"%(scanBase))==2):
         isLatency = True
         print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getL1ACount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getL1ACount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
     else:
