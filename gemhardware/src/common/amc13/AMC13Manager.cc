@@ -290,10 +290,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
     // Re-map AMC13 Resync and OCR to match TCDS and CTP7 expectation
     // NOT FINAL FIXME
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.CMD",  0x04);
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.MASK", 0x01);
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_COMMAND", 0x08);
-    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_MASK",    0x01);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.COMMAND", 0x04);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.RESYNC.MASK",    0x01);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_COMMAND",    0x08);
+    p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.OCR_MASK",       0x01);
 
     p_amc13->enableAllTTC();
   } catch (uhal::exception::exception & e) {
