@@ -1,15 +1,11 @@
 # export BUILD_HOME=<your path>/cmsgemos/../
-if [[ -n "$GEM_OS_PROJECT" ]]; then
-    ; # echo GEM_OS_PROJECT $GEM_OS_PROJECT
-else
+if [ -z "$GEM_OS_PROJECT" ]
+then
     echo "GEM_OS_PROJECT not set, setting to 'cmsgemos'"
     export GEM_OS_PROJECT=cmsgemos
-    ; # echo GEM_OS_PROJECT $GEM_OS_PROJECT
 fi
 
-if [[ -n "$BUILD_HOME" ]]; then
-    ; #echo BUILD_HOME $BUILD_HOME
-else
+if [[ -z "$BUILD_HOME" ]]; then
     echo "BUILD_HOME not set, please set BUILD_HOME to the directory above the root of your repository"
     echo " (export BUILD_HOME=<your path>/cmsgemos/../) and then rerun this script"
     return
@@ -18,22 +14,17 @@ fi
 # The OS is not set in environment. We assume we are not cross-compiling, and try
 # to guess the OS
 
-if [[ -n "$XDAQ_OS" ]]; then
-    ; # echo XDAQ_OS $XDAQ_OS
-else
+if [[ -z "$XDAQ_OS" ]]; then
     if [[ $(uname -s) = "Linux" ]]; then
         XDAQ_OS=linux
     elif [[ $(uname -s) = "Darwin" ]]; then
         XDAQ_OS=macosx
     fi
-    ; # echo XDAQ_OS $XDAQ_OS
     export XDAQ_OS
 fi
 
 ## The platform is not set. Let's guess it
-if [[ -n "$XDAQ_PLATFORM" ]]; then
-    ; # echo XDAQ_PLATFORM $XDAQ_PLATFORM
-else
+if [[ -z "$XDAQ_PLATFORM" ]]; then
     if [[ $(uname -m) = "i386" ]]; then
         XDAQ_PLATFORM=x86
     elif [[ $(uname -m) = "i486" ]]; then
@@ -50,7 +41,6 @@ else
         XDAQ_PLATFORM=ppc
     fi
     XDAQ_PLATFORM=${XDAQ_PLATFORM}_$(source $XDAQ_ROOT/config/checkos.sh)
-    ; # echo XDAQ_PLATFORM $XDAQ_PLATFORM
     export XDAQ_PLATFORM
 fi
 
