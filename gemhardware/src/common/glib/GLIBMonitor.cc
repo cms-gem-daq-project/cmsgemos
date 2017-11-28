@@ -106,7 +106,7 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("EC0", "TTC.CMD_COUNTERS.EC0"),
                  GEMUpdateType::HW32, "dec");
   addMonitorable("COUNTERS", "HWMonitoring",
-                 std::make_pair("Resync", "TTC.CMD_COUNTERS.RESYNC"),
+                 std::make_pair("RESYNC", "TTC.CMD_COUNTERS.RESYNC"),
                  GEMUpdateType::HW32, "dec");
   addMonitorable("COUNTERS", "HWMonitoring",
                  std::make_pair("OC0", "TTC.CMD_COUNTERS.OC0"),
