@@ -100,13 +100,31 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("L1A", "TTC.CMD_COUNTERS.L1A"),
                  GEMUpdateType::HW32, "dec");
   addMonitorable("COUNTERS", "HWMonitoring",
-                 std::make_pair("CalPulse", "TTC.CMD_COUNTERS.CALPULSE"),
+                 std::make_pair("BC0", "TTC.CMD_COUNTERS.BC0"),
+                 GEMUpdateType::HW32, "dec");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("EC0", "TTC.CMD_COUNTERS.EC0"),
                  GEMUpdateType::HW32, "dec");
   addMonitorable("COUNTERS", "HWMonitoring",
                  std::make_pair("Resync", "TTC.CMD_COUNTERS.RESYNC"),
                  GEMUpdateType::HW32, "dec");
   addMonitorable("COUNTERS", "HWMonitoring",
-                 std::make_pair("BC0", "TTC.CMD_COUNTERS.BC0"),
+                 std::make_pair("OC0", "TTC.CMD_COUNTERS.OC0"),
+                 GEMUpdateType::HW32, "dec");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("HARD_RESET", "TTC.CMD_COUNTERS.HARD_RESET"),
+                 GEMUpdateType::HW32, "dec");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("CalPulse", "TTC.CMD_COUNTERS.CALPULSE"),
+                 GEMUpdateType::HW32, "dec");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("START", "TTC.CMD_COUNTERS.START"),
+                 GEMUpdateType::HW32, "dec");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("STOP", "TTC.CMD_COUNTERS.STOP"),
+                 GEMUpdateType::HW32, "dec");
+  addMonitorable("COUNTERS", "HWMonitoring",
+                 std::make_pair("TEST_SYNC", "TTC.CMD_COUNTERS.TEST_SYNC"),
                  GEMUpdateType::HW32, "dec");
 
   addMonitorableSet("DAQ Status", "HWMonitoring");
@@ -171,6 +189,33 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   //               GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
                  std::make_pair("TTC_SPY", "TTC.TTC_SPY_BUFFER"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("BC0_CMD", "TTC.CONFIG.CMD_BC0"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("EC0_CMD", "TTC.CONFIG.CMD_EC0"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("RESYNC_CMD", "TTC.CONFIG.CMD_RESYNC"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("OC0_CMD", "TTC.CONFIG.CMD_OC0"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("HARD_RESET_CMD", "TTC.CONFIG.CMD_HARD_RESET"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("CALPULSE_CMD", "TTC.CONFIG.CMD_CALPULSE"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("START_CMD", "TTC.CONFIG.CMD_START"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("STOP_CMD", "TTC.CONFIG.CMD_STOP"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("TEST_SYNC_CMD", "TTC.CONFIG.CMD_TEST_SYNC"),
                  GEMUpdateType::HW32, "hex");
 
   addMonitorableSet("Trigger Status", "HWMonitoring");

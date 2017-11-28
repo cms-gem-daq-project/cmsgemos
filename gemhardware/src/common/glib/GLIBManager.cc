@@ -606,10 +606,20 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("CPLD_LOCK",     glib->CDCELockStatus(),     NULL, GEMUpdateType::HW32);
 
   // ttc registers
-  is_glib->createUInt32("L1A",      glib->getL1ACount(),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("CalPulse", glib->getCalPulseCount(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("Resync",   glib->getResyncCount(),   NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("BC0",      glib->getBC0Count(),      NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("L1A",      glib->getL1ACount(),      NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("CalPulse", glib->getCalPulseCount(), NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("Resync",   glib->getResyncCount(),   NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("BC0",      glib->getBC0Count(),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("L1A"       , glib->getTTCCounter(AMCTTCCommand::TTC_L1A),        NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0"       , glib->getTTCCounter(AMCTTCCommand::TTC_BC0),        NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("EC0"       , glib->getTTCCounter(AMCTTCCommand::TTC_EC0),        NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("RESYNC"    , glib->getTTCCounter(AMCTTCCommand::TTC_RESYNC),     NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OC0"       , glib->getTTCCounter(AMCTTCCommand::TTC_OC0),        NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("HARD_RESET", glib->getTTCCounter(AMCTTCCommand::TTC_HARD_RESET), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("CALPULSE"  , glib->getTTCCounter(AMCTTCCommand::TTC_CALPULSE),   NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("START"     , glib->getTTCCounter(AMCTTCCommand::TTC_START),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("STOP"      , glib->getTTCCounter(AMCTTCCommand::TTC_STOP),       NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TEST_SYNC" , glib->getTTCCounter(AMCTTCCommand::TTC_TEST_SYNC),  NULL, GEMUpdateType::HW32);
 
   // DAQ link registers
   is_glib->createUInt32("CONTROL",           glib->getDAQLinkControl(),               NULL, GEMUpdateType::HW32);
@@ -635,7 +645,16 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
 
   // TTC registers
   // is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_SPY",        glib->getTTCSpyBuffer(),                           NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_BC0),        NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("EC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_EC0),        NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("RESYNC_CMD"    , glib->getTTCConfig(AMCTTCCommand::TTC_RESYNC),     NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("OC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_OC0),        NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("HARD_RESET_CMD", glib->getTTCConfig(AMCTTCCommand::TTC_HARD_RESET), NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("CALPULSE_CMD"  , glib->getTTCConfig(AMCTTCCommand::TTC_CALPULSE),   NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("START_CMD"     , glib->getTTCConfig(AMCTTCCommand::TTC_START),      NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("STOP_CMD"      , glib->getTTCConfig(AMCTTCCommand::TTC_STOP),       NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("TEST_SYNC_CMD" , glib->getTTCConfig(AMCTTCCommand::TTC_TEST_SYNC),  NULL, GEMUpdateType::NOUPDATE);
 
   // TRIGGER registers
   for (uint8_t oh = 0; oh < glib->getSupportedOptoHybrids(); ++oh) {
