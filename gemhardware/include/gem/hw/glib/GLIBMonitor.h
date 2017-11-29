@@ -31,6 +31,8 @@ namespace gem {
         virtual void reset();
         void setupHwMonitoring();
         void buildMonitorPage(xgi::Output* out);
+        void buildDAQStatusTable(xgi::Output* out);
+        void buildTriggerStatusTable(xgi::Output* out);
         std::string getDeviceID() { return p_glib->getDeviceID(); }
 
       private:

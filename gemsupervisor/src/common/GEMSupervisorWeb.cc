@@ -1,4 +1,7 @@
 #include "gem/supervisor/GEMSupervisorWeb.h"
+
+#include <boost/algorithm/string.hpp>
+
 #include "gem/supervisor/GEMSupervisor.h"
 #include "gem/supervisor/GEMSupervisorMonitor.h"
 #include "gem/base/GEMMonitor.h"
@@ -137,11 +140,14 @@ void gem::supervisor::GEMSupervisorWeb::displayManagedStateTable(xgi::Input * in
            << "<td>"      << std::endl
            << cgicc::h3();
 
-      DEBUG("GEMSupervisorWeb::trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
+      INFO("GEMSupervisorWeb::trying to get the FSM class object for object " << std::hex << *managedApp << std::dec);
+      std::string appStateURN = (*managedApp)->getURN();
+      // appStateURN = appStateURN.substr(appStateURN.rfind("::")+2);
+      // boost::replace_all(appStateURN, ":", "-");
       std::string classstate
-        = gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get((*managedApp)->getURN()), "StateName");
+        = gem::base::utils::GEMInfoSpaceToolBox::getString(xdata::getInfoSpaceFactory()->get(appStateURN), "StateName");
       *out << classstate;
-      DEBUG("GEMSupervisorWeb::managed class FSM state is " << classstate);
+      INFO("GEMSupervisorWeb::managed class FSM state is " << classstate);
       *out << cgicc::h3() << std::endl
            << "</td>"     << std::endl
            << "</tr>"     << std::endl;

@@ -328,15 +328,14 @@ def displayChipInfo(device, gtx, regkeys, mask=0xff000000, debug=False):
     msg = "%s%s%s%s"%(base,colors.CYAN,' '.join(map(str, chipmap)),colors.ENDC)
     # vfatlogger.info(colormsg(msg,logging.INFO))
     print(msg)
-
     for key in registerList:
         for reg in registerList[key]:
-            # regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())                                                                                                                                                                            
+            # regmap = map(lambda chip: perreg%(readVFAT(device, gtx, chip,reg)&0xff), regkeys.keys())
             regValues = readAllVFATs(device, gtx, reg, mask, debug)
             regmap = map(lambda chip: key%(chip&0xff), regValues)
             msg = "%11s::  %s"%(reg, '   '.join(map(str, regmap)))
-            # vfatlogger.info(colormsg(msg,logging.INFO))                                                                                                                                                                                                                         
-            print msg
+            # vfatlogger.info(colormsg(msg,logging.INFO))
+            print(msg)
             pass
         pass
     return

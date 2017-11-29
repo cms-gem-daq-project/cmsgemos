@@ -2,7 +2,7 @@
 *
 # Don't ignore subdirectories
 !*/
-# don't ignore special files
+# Don't ignore special files
 !*.md
 !*.rst
 # Ignore RPM directories
@@ -22,7 +22,7 @@ __init__.py
 !setup/etc/profile.d/*sh
 !setup/etc/yum.repos.d/*.repo
 !*.rules
-# don't ignore CSS/JS etc
+# Don't ignore CSS/JS etc
 !*.js
 !*.css
 *.#*

@@ -1203,16 +1203,17 @@ namespace gem {
            * Returns the slot number and chip IDs for connected VFATs
            * @returns a std::vector of pairs of uint8_t and uint32_t words, one response for each VFAT
            */
-          std::vector<std::pair<uint8_t,uint32_t> > getConnectedVFATs();
+          std::vector<std::pair<uint8_t,uint32_t> > getConnectedVFATs(bool update=false);
 
           /**
            * Uses a broadcast read to determine which slots are occupied and returns the
            * corresponding broadcast mask
+           * @param bool whether to use the stored result or to update the stored result
            * @returns uint32_t 24 bit mask
            * The mask has a 1 for VFATs that will not receive a broadcast request
            * The mask has a 1 for VFATs whose tracking data will be ignored
            */
-          uint32_t getConnectedVFATMask();
+          uint32_t getConnectedVFATMask(bool update=false);
 
           /**
            * Sends a write request for all setup registers on each VFAT specified by the mask
@@ -1254,8 +1255,12 @@ namespace gem {
           std::vector<linkStatus> v_activeLinks;
 
         private:
-          uint8_t m_controlLink;
-          int m_slot;
+          bool b_is_initial;  ///<
+          std::vector<std::pair<uint8_t,uint32_t> > m_chipIDs;
+          uint32_t m_disabledMask;   ///<
+          uint32_t m_connectedMask;  ///<
+          uint8_t m_controlLink;     ///<
+          int m_slot;                ///<
 
         };  // class HwOptoHybrid
     }  // namespace gem::hw::glib

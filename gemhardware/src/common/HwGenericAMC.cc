@@ -463,14 +463,23 @@ void gem::hw::HwGenericAMC::disableDAQLink()
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE",        0x0);
 }
 
+void gem::hw::HwGenericAMC::enableZeroSuppression(bool en)
+{
+  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.ZERO_SUPPRESSION_EN", uint32_t(en));
+}
+
+void gem::hw::HwGenericAMC::disableZeroSuppression()
+{
+  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.ZERO_SUPPRESSION_EN", 0x0);
+}
+
 void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& ttsOverride)
 {
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x1);
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x0);
   disableDAQLink();
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAV_TIMEOUT", davTO);
-  // set each link input timeout to 0x30d4 (160MHz clock cycles, 0xc35 40MHz clock cycles)
-  setDAQLinkInputTimeout(0x30d4);
+  setDAQLinkInputTimeout();  // default value is 0x100
   // setDAQLinkInputTimeout(davTO);
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.TTS_OVERRIDE", ttsOverride);/*HACK to be fixed?*/
 }
@@ -596,6 +605,7 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkLastBlock(uint8_t const& gtx)
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkInputTimeout()
 {
+  // OBSOLETE, but will likely be recovered post 1.11.3
   return readReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.INPUT_TIMEOUT");
 }
 
@@ -618,9 +628,8 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkRunParameter(uint8_t const& parameter)
 
 void gem::hw::HwGenericAMC::setDAQLinkInputTimeout(uint32_t const& value)
 {
-  // set each link input timeout to 0x30d4 (160MHz clock cycles, 0xc35 40MHz clock cycles)
   for (unsigned li = 0; li < this->getSupportedOptoHybrids(); ++li) {
-    writeReg(getDeviceBaseNode(), toolbox::toString("DAQ.OH%d.CONTROL.EOE_TIMEOUT", li), 0x30D4);
+    writeReg(getDeviceBaseNode(), toolbox::toString("DAQ.OH%d.CONTROL.EOE_TIMEOUT", li), value);
   }
   // return writeReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.INPUT_TIMEOUT",value);
 }
@@ -647,6 +656,10 @@ void gem::hw::HwGenericAMC::setDAQLinkRunParameter(uint8_t const& parameter, uin
   regBase << "DAQ.EXT_CONTROL.RUN_PARAM" << (int) parameter;
   writeReg(getDeviceBaseNode(),regBase.str(),value);
 }
+
+/********************************/
+/** TTC module information **/
+/********************************/
 
 /** TTC module functions **/
 void gem::hw::HwGenericAMC::ttcReset()
@@ -738,6 +751,16 @@ uint32_t gem::hw::HwGenericAMC::getL1AID()
 uint32_t gem::hw::HwGenericAMC::getTTCSpyBuffer()
 {
   return readReg(getDeviceBaseNode(), "TTC.TTC_SPY_BUFFER");
+}
+
+/********************************/
+/** SLOW_CONTROL module information **/
+/********************************/
+
+/*** SCA submodule ***/
+void gem::hw::HwGenericAMC::scaHardResetEnable(bool const& en)
+{
+  writeReg(getDeviceBaseNode(), "SLOW_CONTROL.SCA.CTRL.TTC_HARD_RESET_EN", uint32_t(en));
 }
 
 /********************************/
