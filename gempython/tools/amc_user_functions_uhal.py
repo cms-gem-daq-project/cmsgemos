@@ -207,5 +207,8 @@ def printSystemSCAInfo(amc,debug=False):
     print("READY             %s0x%08x%s"%(colors.BLUE,scaRdy,colors.ENDC))
     print("CRITICAL_ERROR    %s0x%08x%s"%(colors.RED if scaCErr else colors.GREEN,scaCErr,colors.ENDC))
     for li in range(nOHs):
-        print("NOT_READY_CNT_OH0 %s0x%08x%s"%(colors.GREEN,readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.NOT_READY_CNT_OH%d"%(li)),colors.ENDC))
+        print("NOT_READY_CNT_OH%02d %s0x%08x%s"%(li,
+                                                 colors.GREEN,
+                                                 readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.NOT_READY_CNT_OH%d"%(li)),
+                                                 colors.ENDC))
     pass
