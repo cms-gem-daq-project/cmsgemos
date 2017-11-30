@@ -171,7 +171,9 @@ def broadcastRead(device,gtx,register,mask=0xff000000,debug=False):
         time.sleep(0.1)
         pass
 
-    return readBlock(device,"%s.Results"%(baseNode),24)
+    # bitcount = bits not set in mask
+    bitcount = 24
+    return readBlock(device,"%s.Results"%(baseNode),bitcount)
 
 def optohybridCounters(device,gtx=0,doReset=False,debug=False):
     """
@@ -580,17 +582,17 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
 
     writeRegister(device,"%s.RESET"%(scanBase),0x1)
     regList = {
-        "%s.MODE"%(scanBase):  mode,
-        "%s.MIN"%(scanBase):   scanmin,
-        "%s.MAX"%(scanBase):   scanmax,
-        "%s.CHAN"%(scanBase):  channel,
-        "%s.STEP"%(scanBase):  stepsize,
-        "%s.NTRIGS"%(scanBase):numtrigs
+        "%s.CONF.MODE"%(scanBase):  mode,
+        "%s.CONF.MIN"%(scanBase):   scanmin,
+        "%s.CONF.MAX"%(scanBase):   scanmax,
+        "%s.CONF.CHAN"%(scanBase):  channel,
+        "%s.CONF.STEP"%(scanBase):  stepsize,
+        "%s.CONF.NTRIGS"%(scanBase):numtrigs
      }
     if useUltra:
-        regList["%s.MASK"%(scanBase)] = vfat
+        regList["%s.CONF.MASK"%(scanBase)] = vfat
     else:
-        regList["%s.CHIP"%(scanBase)] = vfat
+        regList["%s.CONF.CHIP"%(scanBase)] = vfat
         pass
 
     writeRegisterList(device,regList)
@@ -599,8 +601,8 @@ def configureScanModule(device, gtx, mode, vfat, channel=0,
     #writeRegisterList(device,regList)
     # for some reason the code above doesn't work and triggers ipbus transaction errors... The code below works!
     for i in range(24):
-      writeRegister(device,"GEM_AMC.OH.OH%d.COUNTERS.CRC.INCORRECT.VFAT%d.Reset"%(gtx,i), 1)
-      writeRegister(device,"GEM_AMC.OH.OH%d.COUNTERS.CRC.VALID.VFAT%d.Reset"%(gtx,i), 1)
+        writeRegister(device,"GEM_AMC.OH.OH%d.COUNTERS.CRC.INCORRECT.VFAT%d.Reset"%(gtx,i), 1)
+        writeRegister(device,"GEM_AMC.OH.OH%d.COUNTERS.CRC.VALID.VFAT%d.Reset"%(gtx,i), 1)
 
     return
 
@@ -614,18 +616,18 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
 
     print scanBase
     regList = [
-        "%s.MODE"%(   scanBase),
-        "%s.MIN"%(    scanBase),
-        "%s.MAX"%(    scanBase),
-        "%s.CHAN"%(   scanBase),
-        "%s.STEP"%(   scanBase),
-        "%s.NTRIGS"%( scanBase),
-        "%s.MONITOR"%(scanBase),
+        "%s.CONF.MODE"%(  scanBase),
+        "%s.CONF.MIN"%(   scanBase),
+        "%s.CONF.MAX"%(   scanBase),
+        "%s.CONF.CHAN"%(  scanBase),
+        "%s.CONF.STEP"%(  scanBase),
+        "%s.CONF.NTRIGS"%(scanBase),
+        "%s.MONITOR"%(    scanBase),
      ]
     if useUltra:
-        regList.append("%s.MASK"%(scanBase))
+        regList.append("%s.CONF.MASK"%(scanBase))
     else:
-        regList.append("%s.CHIP"%(scanBase))
+        regList.append("%s.CONF.CHIP"%(scanBase))
         pass
 
     if debug:
@@ -643,17 +645,17 @@ def printScanConfiguration(device,gtx,useUltra=False,debug=False):
             pass
         pass
     regVals = readRegisterList(device,regList)
-    print "FW scan mode       : %d"%(regVals["%s.MODE"%(scanBase)])
-    print "FW scan min        : %d"%(regVals["%s.MIN"%(scanBase)])
-    print "FW scan max        : %d"%(regVals["%s.MAX"%(scanBase)])
+    print "FW scan mode       : %d"%(regVals["%s.CONF.MODE"%(scanBase)])
+    print "FW scan min        : %d"%(regVals["%s.CONF.MIN"%(scanBase)])
+    print "FW scan max        : %d"%(regVals["%s.CONF.MAX"%(scanBase)])
     if useUltra:
-        print "Ultra FW scan mask : 0x%08x"%(regVals["%s.MASK"%(scanBase)])
+        print "Ultra FW scan mask : 0x%08x"%(regVals["%s.CONF.MASK"%(scanBase)])
     else:
-        print "FW scan VFAT       : %d"%(regVals["%s.CHIP"%(scanBase)])
+        print "FW scan VFAT       : %d"%(regVals["%s.CONF.CHIP"%(scanBase)])
         pass
-    print "FW scan channel    : %d"%(regVals["%s.CHAN"%(scanBase)])
-    print "FW scan step size  : %d"%(regVals["%s.STEP"%(scanBase)])
-    print "FW scan n_triggers : %d"%(regVals["%s.NTRIGS"%(scanBase)])
+    print "FW scan channel    : %d"%(regVals["%s.CONF.CHAN"%(scanBase)])
+    print "FW scan step size  : %d"%(regVals["%s.CONF.STEP"%(scanBase)])
+    print "FW scan n_triggers : %d"%(regVals["%s.CONF.NTRIGS"%(scanBase)])
     print "FW scan status     : 0x%08x"%(readRegister(device,"%s.MONITOR"%(scanBase)))
 
     return
@@ -708,8 +710,8 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     scanBase = "GEM_AMC.OH.OH%d.ScanController.ULTRA"%(gtx)
     ohnL1A_0 = getL1ACount(device,gtx)
     ohnL1A = getL1ACount(device,gtx)
-    numtrigs = readRegister(device,"%s.NTRIGS"%(scanBase))
-    if (readRegister(device,"%s.MODE"%(scanBase))==2):
+    numtrigs = readRegister(device,"%s.CONF.NTRIGS"%(scanBase))
+    if (readRegister(device,"%s.CONF.MODE"%(scanBase))==2):
         isLatency = True
         print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getL1ACount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getL1ACount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
     else:

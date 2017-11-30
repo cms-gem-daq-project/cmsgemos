@@ -93,6 +93,13 @@
 	    <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont>
           </LocalTriggerConfig>
 
+          <AMC13TTCConfig xsi:type="soapenc:Struct">
+            <RESYNC_CMD  xsi:type="xsd:unsignedInt">0x04</RESYNC_CMD>
+            <RESYNC_MASK xsi:type="xsd:unsignedInt">0x01</RESYNC_MASK>
+            <OC0_CMD     xsi:type="xsd:unsignedInt">0x08</OC0_CMD>
+            <OC0_MASK    xsi:type="xsd:unsignedInt">0x01</OC0_MASK>
+          </AMC13TTCConfig>
+
           <BGOConfig xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[4]">
 <!--
             <BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">

@@ -35,7 +35,8 @@ namespace gem {
         // hacky hack mc hackerton
         void configure(const std::string& station="CERN904",
                        const std::string& setuptype="teststand",
-                       const std::string& runperiod="2016T");
+                       const std::string& runperiod="2016T",
+                       const int& runnumber=-1);
 
         unsigned int query(const std::string& query);
 

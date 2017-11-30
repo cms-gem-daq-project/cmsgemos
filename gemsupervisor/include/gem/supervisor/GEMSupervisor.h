@@ -124,8 +124,8 @@ namespace gem {
           // throw (xoap::exception::Exception);
 
         // TCDS configuration
-        class TCDSConfig
-        {
+        class TCDSConfig {
+
         public:
           TCDSConfig();
           void registerFields(xdata::Bag<GEMSupervisor::TCDSConfig>* bag);
@@ -204,12 +204,14 @@ namespace gem {
 	uint32_t m_scanParameter;
 
         xdata::Boolean             m_useLocalDBInstance;
+        xdata::Boolean             m_useLocalRunNumber;
         xdata::Boolean             m_handleTCDS;
         xdata::Bag<TCDSConfig>     m_tcdsConfig;
         xdata::Boolean             m_useLocalReadout;
         xdata::Boolean             m_useFedKitReadout;
         xdata::Boolean             m_reportToRCMS;
         xdata::String              m_rcmsStateListenerUrl;
+
         xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
 
       };

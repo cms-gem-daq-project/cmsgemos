@@ -107,19 +107,19 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
     return m_glibs.at(glib)->getTrackingData(0, 24);
   } catch (gem::hw::glib::exception::Exception const& e) {
     std::stringstream msg;
-    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught exception " << e.what();
     ERROR(msg.str());
     return dump;
   } catch (std::exception const& e) {
     std::stringstream msg;
-    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught exception " << e.what();
     ERROR(msg.str());
     return dump;
   } catch (...) {
     std::stringstream msg;
-    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from GLIB " << glib+1
+    msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught unknown exception ";
     ERROR(msg.str());
     return dump;
@@ -162,6 +162,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
   throw (gem::hw::glib::exception::Exception)
 {
   DEBUG("GLIBManager::initializeAction begin");
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     GLIBInfo& info = m_glibInfo[slot].bag;
@@ -187,6 +188,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     }
   }
 
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -263,6 +265,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // hardware should be connected, can update ldqm_db for teststand/local runs
   }
 
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     GLIBInfo& info = m_glibInfo[slot].bag;
 
@@ -288,6 +291,7 @@ void gem::hw::glib::GLIBManager::configureAction()
 {
   DEBUG("GLIBManager::configureAction");
 
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     GLIBInfo& info = m_glibInfo[slot].bag;
@@ -296,12 +300,14 @@ void gem::hw::glib::GLIBManager::configureAction()
       continue;
 
     if (m_glibs.at(slot)->isHwConnected()) {
+      m_glibs.at(slot)->scaHardResetEnable(false);
       m_glibs.at(slot)->resetL1ACount();
       m_glibs.at(slot)->resetCalPulseCount();
 
-      // reset the DAQ
+      // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
       m_glibs.at(slot)->setL1AEnable(false);
       m_glibs.at(slot)->resetDAQLink();
+      m_glibs.at(slot)->enableZeroSuppression(0x1);
       m_glibs.at(slot)->setDAQLinkRunType(0x0);
       m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
 
@@ -326,18 +332,32 @@ void gem::hw::glib::GLIBManager::configureAction()
 	m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
       }
 
-      // should FIFOs be emptied in configure or at start?
-      // should be removed as migration to generic AMC firmware happens
-      // INFO("GLIBManager::emptying trigger/tracking data FIFOs");
-      // for (unsigned gtx = 0; gtx < HwGLIB::N_GTX; ++gtx) {
-      //   // m_glibs.at(slot)->flushTriggerFIFO(gtx);
-      //   m_glibs.at(slot)->flushFIFO(gtx);
-      // }
       // what else is required for configuring the GLIB?
       // need to reset optical links?
       // reset counters?
       // setup run mode?
       // setup DAQ mode?
+
+      // temp workaround, call confAllChambers python script?
+      // if P5 config?
+      // if (m_setupLocation.toString().rfind("P5") != std::string::npos) {
+      INFO("GLIBManager::configureAction running confAllChambers for P5 setup");
+      std::stringstream confcmd;
+      // FIXME hard coded for now, but super hacky garbage
+      confcmd << "confAllChambers.py -s" << (slot+1)
+              << " --ztrim=" << 4.0
+              << " --vt1bump=" << 10
+              << " --config --run";
+      int retval = std::system(confcmd.str().c_str());
+      if (retval) {
+        std::stringstream msg;
+        msg << "GLIBManager::configureAction unable to configure chambers: " << retval;
+        WARN(msg.str());
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+      }
+      // }
     } else {
       std::stringstream msg;
       msg << "GLIBManager::configureAction GLIB in slot " << (slot+1) << " is not connected";
@@ -365,6 +385,7 @@ void gem::hw::glib::GLIBManager::startAction()
 
   INFO("GLIBManager::startAction begin");
   // what is required for starting the GLIB?
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -376,7 +397,9 @@ void gem::hw::glib::GLIBManager::startAction()
     if (m_glibs.at(slot)->isHwConnected()) {
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
-      m_glibs.at(slot)->enableDAQLink(0x4);  //FIXME
+      m_glibs.at(slot)->ttcReset();
+      m_glibs.at(slot)->enableZeroSuppression(0x1);
+      m_glibs.at(slot)->enableDAQLink(0x4);  // FIXME
       m_glibs.at(slot)->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
     } else {
@@ -401,6 +424,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for pausing the GLIB?
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -414,29 +438,29 @@ void gem::hw::glib::GLIBManager::pauseAction()
 
       if (m_scanType.value_ == 2) {
 	uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	INFO("GLIBManager::pauseAction LatencyScan GLIB " << (slot+1) << " Latency " << (int)updatedLatency);
+	INFO("GLIBManager::pauseAction LatencyScan AMC" << (slot+1) << " Latency " << (int)updatedLatency);
 
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
+          DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
           usleep(10);
         }
-        DEBUG("GLIBManager::pauseAction GLIB " << (slot+1) << " finished building events, updating run parameter "
+        DEBUG("GLIBManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
               << (int)updatedLatency);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,updatedLatency);
       } else if (m_scanType.value_ == 3) {
 	uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
 	uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
-	INFO("GLIBManager::pauseAction ThresholdScan GLIB " << (slot+1) << ""
+	INFO("GLIBManager::pauseAction ThresholdScan AMC" << (slot+1) << ""
              << " VT1 " << (int)updatedVT1
              << " VT2 " << (int)updatedVT2);
 
         // wait for events to finish building
         while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for GLIB " << (slot+1) << " to finish building events");
+          DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
           usleep(10);
         }
-        DEBUG("GLIBManager::pauseAction finished GLIB " << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
+        DEBUG("GLIBManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
               << " and VT2 " << (int)updatedVT2);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,updatedVT1);
 	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,updatedVT2);
@@ -477,6 +501,7 @@ void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
   INFO("GLIBManager::stopAction begin");
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -510,6 +535,7 @@ void gem::hw::glib::GLIBManager::resetAction()
   // unregister listeners and items in info spaces
 
   DEBUG("GLIBManager::resetAction begin");
+  // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);  // just for testing the timing of different applications
     DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
@@ -580,10 +606,20 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("CPLD_LOCK",     glib->CDCELockStatus(),     NULL, GEMUpdateType::HW32);
 
   // ttc registers
-  is_glib->createUInt32("L1A",      glib->getL1ACount(),      NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("CalPulse", glib->getCalPulseCount(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("Resync",   glib->getResyncCount(),   NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("BC0",      glib->getBC0Count(),      NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("L1A",      glib->getL1ACount(),      NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("CalPulse", glib->getCalPulseCount(), NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("Resync",   glib->getResyncCount(),   NULL, GEMUpdateType::HW32);
+  // is_glib->createUInt32("BC0",      glib->getBC0Count(),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("L1A"       , glib->getTTCCounter(AMCTTCCommand::TTC_L1A),        NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0"       , glib->getTTCCounter(AMCTTCCommand::TTC_BC0),        NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("EC0"       , glib->getTTCCounter(AMCTTCCommand::TTC_EC0),        NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("RESYNC"    , glib->getTTCCounter(AMCTTCCommand::TTC_RESYNC),     NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("OC0"       , glib->getTTCCounter(AMCTTCCommand::TTC_OC0),        NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("HARD_RESET", glib->getTTCCounter(AMCTTCCommand::TTC_HARD_RESET), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("CALPULSE"  , glib->getTTCCounter(AMCTTCCommand::TTC_CALPULSE),   NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("START"     , glib->getTTCCounter(AMCTTCCommand::TTC_START),      NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("STOP"      , glib->getTTCCounter(AMCTTCCommand::TTC_STOP),       NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TEST_SYNC" , glib->getTTCCounter(AMCTTCCommand::TTC_TEST_SYNC),  NULL, GEMUpdateType::HW32);
 
   // DAQ link registers
   is_glib->createUInt32("CONTROL",           glib->getDAQLinkControl(),               NULL, GEMUpdateType::HW32);
@@ -599,9 +635,26 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("RUN_TYPE",          glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("RUN_PARAMS",        glib->getDAQLinkL1AID(),                 NULL, GEMUpdateType::HW32);
 
+  is_glib->createUInt32("L1A_FIFO_DATA_CNT",      glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("DAQ_FIFO_DATA_CNT",      glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("L1A_FIFO_NEAR_FULL_CNT", glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("DAQ_FIFO_NEAR_FULL_CNT", glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("DAQ_ALMOST_FULL_CNT",    glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTS_WARN_CNT",           glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("DAQ_WORD_RATE",          glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+
   // TTC registers
   // is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_SPY",     glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_SPY",        glib->getTTCSpyBuffer(),                           NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_BC0),        NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("EC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_EC0),        NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("RESYNC_CMD"    , glib->getTTCConfig(AMCTTCCommand::TTC_RESYNC),     NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("OC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_OC0),        NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("HARD_RESET_CMD", glib->getTTCConfig(AMCTTCCommand::TTC_HARD_RESET), NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("CALPULSE_CMD"  , glib->getTTCConfig(AMCTTCCommand::TTC_CALPULSE),   NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("START_CMD"     , glib->getTTCConfig(AMCTTCCommand::TTC_START),      NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("STOP_CMD"      , glib->getTTCConfig(AMCTTCCommand::TTC_STOP),       NULL, GEMUpdateType::NOUPDATE);
+  is_glib->createUInt32("TEST_SYNC_CMD" , glib->getTTCConfig(AMCTTCCommand::TTC_TEST_SYNC),  NULL, GEMUpdateType::NOUPDATE);
 
   // TRIGGER registers
   for (uint8_t oh = 0; oh < glib->getSupportedOptoHybrids(); ++oh) {

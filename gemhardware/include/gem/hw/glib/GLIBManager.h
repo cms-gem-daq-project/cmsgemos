@@ -81,6 +81,7 @@ namespace gem {
           public:
             GLIBInfo();
             void registerFields(xdata::Bag<GLIBManager::GLIBInfo>* bag);
+
             //monitoring information
             xdata::Boolean present;
             xdata::Integer crateID;

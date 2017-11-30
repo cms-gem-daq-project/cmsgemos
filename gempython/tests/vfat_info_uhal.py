@@ -145,9 +145,6 @@ chipids = getAllChipIDs(ohboard, options.gtx, chipmask,options.debug)
 msg = chipids
 gemlogger.debug(msg)
 
-msg = chipids
-gemlogger.debug(msg)
-
 if options.biasAll:
     biasAllVFATs(ohboard, options.gtx, chipmask)
     pass

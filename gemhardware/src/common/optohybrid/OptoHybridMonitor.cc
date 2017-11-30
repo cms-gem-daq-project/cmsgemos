@@ -214,11 +214,15 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
         continue;
       if (scan->second == "ULTRA" && (*scanreg) == "CHIP")
         addMonitorable("Firmware Scan Controller", "HWMonitoring",
-                       std::make_pair(scan->first+"MASK","ScanController."+scan->second+".MASK"),
+                       std::make_pair(scan->first+"MASK","ScanController."+scan->second+".CONF.MASK"),
+                       GEMUpdateType::HW32, "hex");
+      else if (*scanreg == "MONITOR")
+        addMonitorable("Firmware Scan Controller", "HWMonitoring",
+                       std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
                        GEMUpdateType::HW32, "hex");
       else
         addMonitorable("Firmware Scan Controller", "HWMonitoring",
-                       std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
+                       std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+".CONF."+(*scanreg)),
                        GEMUpdateType::HW32, "hex");
     }
   }
