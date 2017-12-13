@@ -46,7 +46,7 @@ class HwOptoHybrid:
         self.genScan.restype = c_uint
         self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint, 
                                  c_uint, c_uint, c_uint, c_uint, 
-                                 c_char_p, c_bool, POINTER(c_uint32)]
+                                 c_char_p, c_bool, c_bool, POINTER(c_uint32)]
 
         self.KnownV2bElScanRegs = [
                     "Latency",
@@ -121,7 +121,7 @@ class HwOptoHybrid:
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
     
-    def performCalibrationScan(self, chan, scanReg, outData, enableCal=True, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True):
+    def performCalibrationScan(self, chan, scanReg, outData, enableCal=True, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True, useExtTrig=False):
         """
         Performs either a v2b ultra scan or a v3 generic scan
 
@@ -146,6 +146,7 @@ class HwOptoHybrid:
                       instead of a FW scan.  Note if false the VFAT
                       to be scanned is taken as the first non-masked
                       VFAT defined in mask
+        useExtTrig  - Scan is performed using L1A's from backplane
         """
 
         if self.parentAMC.fwVersion < 3:
@@ -159,7 +160,7 @@ class HwOptoHybrid:
             if "CFG_" in scanReg:
                 scanReg = str.replace("CFG_","")
 
-        return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, mask, scanReg, useUltra, outData)
+        return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, mask, scanReg, useUltra, useExtTrig, outData)
 
     def setDebug(self, debug):
         self.debug = debug
