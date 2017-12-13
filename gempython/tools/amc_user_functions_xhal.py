@@ -95,14 +95,10 @@ class HwAMC:
 
     def blockL1A(self):
         """
-        v3  electronics: blocks all real ttc commands from backplane for this AMC
-        v2b electronics: blocks L1A's being sent to this AMC's OH's
+        blocks L1A's from backplane for this AMC
         """
-        
-        if self.fwVersion < 3:
-            self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
-        else:
-            self.toggleTTC(ohN=-1,enable=True)
+       
+        self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x0)
         return
 
     def configureTTC(self, pulseDelay, L1Ainterval, ohN=0, mode=0, t1type=0,  nPulses=0, enable=True):
@@ -133,15 +129,10 @@ class HwAMC:
 
     def enableL1A(self):
         """
-        v3  electronics: enables real ttc commands from backplane for this AMC
-        v2b electronics: enables L1A's being sent to this AMC's OH's
+        enables L1A's from backplane for this AMC
         """
         
-        if self.fwVersion < 3:
-            self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
-        else:
-            #Yes False, this turns OFF the TTC Generator, ttc cmds from backplane will then be fowarded to the front-ends
-            self.toggleTTC(ohN=-1,enable=False) 
+        self.writeRegister("GEM_AMC.TTC.CTRL.L1A_ENABLE", 0x1)
         return
 
     def getL1ACount(self):
@@ -259,7 +250,7 @@ class HwAMC:
                 return fin_res
         return 0xdeaddead
 
-    def toggleTTC(self, ohN, enable):
+    def toggleTTCGen(self, ohN, enable):
         """
         v3  electronics: enable = true (false) ignore (take) ttc commands from backplane for this AMC
         v2b electronics: enable = true (false) start (stop) the T1Controller for link ohN
