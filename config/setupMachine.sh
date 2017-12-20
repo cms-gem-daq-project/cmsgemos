@@ -6,6 +6,7 @@ slc_version=`expr $(uname -r) : '.*el\([0-9]\)'`
 
 ### copied from HCAL setup scripts
 install_xdaq() {
+    ## should manage this in puppet
     # option 'x'
     echo Installing XDAQ...
     # generic XDAQ
@@ -20,6 +21,7 @@ install_xdaq() {
 }
 
 install_misc_rpms() {
+    ## should manage this in puppet
     # option 'm'
     echo Installing miscellaneous RPMS...
     yum install -y libuuid-devel e2fsprogs-devel readline-devel ncurses-devel curl-devel boost-devel \
@@ -27,17 +29,23 @@ install_misc_rpms() {
 }
 
 install_cactus() {
+    ## should manage this in puppet
     # option 'c'
     echo Installing cactus...
     yum -y groupinstall cactus
     yum -y groupinstall amc13
 
+    ## SLC6
     chkconfig --level 35 controlhub on
     #ln -s /etc/rc.d/init.d/controlhub /etc/rc.d/rc3.d/S89controlhub
     #ln -s /etc/rc.d/init.d/controlhub /etc/rc.d/rc5.d/S89controlhub
+
+    ## CC7
+    sysconfig enable controlhub.service
 }
 
 install_sysmgr() {
+    ## should manage this in puppet
     # option 'S'
     echo Installing UW sysmgr RPMS...
     yum install -y freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel
@@ -46,6 +54,7 @@ install_sysmgr() {
 }
 
 install_python27() {
+    ## should manage this in puppet
     # option 'p'
     echo Installing python2.7
     # install dependencies
@@ -63,19 +72,19 @@ install_python27() {
     make clean && make -j5
     # do the installation
     make altinstall
-    
+
     cd /data/bigdisk/sw/python2.7/
     /usr/local/bin/python2.7 ez_setup.py
     /usr/local/bin/easy_install-2.7 pip
-    
+
     # add links to the python26 packages we'll need
     ln -s /usr/lib/python2.6/site-packages/uhal /usr/local/lib/python2.7/site-packages/uhal
-    
+
     ln -s /usr/lib/python2.6/site-packages/cactusboards_amc13_python-1.1.10-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactusboards_amc13_python-1.1.10-py2.6.egg-info
     ln -s /usr/lib/python2.6/site-packages/cactuscore_tsxdaqclient-2.6.3-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactuscore_tsxdaqclient-2.6.3-py2.6.egg-info
     ln -s /usr/lib/python2.6/site-packages/cactuscore_uhal_gui-2.3.0-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactuscore_uhal_gui-2.3.0-py2.6.egg-info
     ln -s /usr/lib/python2.6/site-packages/cactuscore_uhal_pycohal-2.4.0-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactuscore_uhal_pycohal-2.4.0-py2.6.egg-info
-    
+
     ln -s /usr/lib/python2.6/site-packages/amc13 /usr/local/lib/python2.7/site-packages/amc13
     ln -s /usr/lib64/python2.6/site-packages/ROOT.py /usr/local/lib/python2.7/site-packages/ROOT.py
     ln -s /usr/lib64/python2.6/site-packages/ROOTwriter.py /usr/local/lib/python2.7/site-packages/ROOTwriter.py
@@ -83,6 +92,7 @@ install_python27() {
 }
 
 setup_ctp7() {
+    ## should manage this in puppet
     # option 'C'
     echo Setting up for CTP7 usage...
     # Updated /etc/sysmgr/sysmgr.conf to enable the GenericUW configuration module to support "WISC CTP-7" cards.
@@ -95,7 +105,7 @@ setup_ctp7() {
 
     # create /etc/rsyslog.d/ctp7.conf
     # Created /etc/logrotate.d/ctp7 with configuration to rotate these logs.
-    
+
     # Created configuration file /etc/dnsmasq.d/ctp7 which I hope will work correctly.
 
     # /etc/hosts has been updated with CTP7-related dns names
@@ -113,6 +123,7 @@ create_accounts() {
     # may want LDAP users/groups to manage these as well
     # or even 'service' accounts, but better to have them tied to egroups
     # so one can log in with NICE credentials, a la cchcal
+
     ### generic gemuser group for running tests
     useradd gemuser
     usermod -u 1030 gemuser
@@ -120,7 +131,7 @@ create_accounts() {
     passwd gemuser
     chmod og+rx /home/gemuser
 
-    ### gempro (production) account for running the system as an expert
+    ### gempro (production) account for running the system installed tools
     useradd gempro
     usermod -u 1050 gempro
     groupmod -g 1050 gempro
@@ -132,11 +143,17 @@ create_accounts() {
     groupmod -g 1055 gemdev
     passwd gemdev
 
-    ### daqbuild account for building the releases
+    ### daqbuild account for building releases
     useradd daqbuild
     usermod -u 2050 daqbuild
     groupmod -g 2050 daqbuild
     passwd daqbuild
+
+    ### daqpro account for DAQ expert tasks
+    useradd daqpro
+    usermod -u 2055 daqpro
+    groupmod -g 2055 daqpro
+    passwd daqpro
 
     ### gemdaqadmins group for administering the system
     groupadd gemdaqadmins
@@ -149,23 +166,15 @@ add_cern_users() {
     # or better yet, an LDAP group!
     sudo $HOME/newcernuser.sh archie
     sudo $HOME/newcernuser.sh bravo
-    sudo $HOME/newcernuser.sh castaned
-    sudo $HOME/newcernuser.sh cfgonzal
-    sudo $HOME/newcernuser.sh chmclean
     sudo $HOME/newcernuser.sh dldecker
     sudo $HOME/newcernuser.sh dorney
     sudo $HOME/newcernuser.sh evka
     sudo $HOME/newcernuser.sh gechen
     sudo $HOME/newcernuser.sh hamd
     sudo $HOME/newcernuser.sh ivai
-    sudo $HOME/newcernuser.sh jpilot
-    sudo $HOME/newcernuser.sh jruizalv
     sudo $HOME/newcernuser.sh kingr
     sudo $HOME/newcernuser.sh mdalchen
-    sudo $HOME/newcernuser.sh qhassan
     sudo $HOME/newcernuser.sh szaleski
-    sudo $HOME/newcernuser.sh tlenzi
-    sudo $HOME/newcernuser.sh waqar
 }
 
 while getopts "xayruscwmSAp" opt; do
