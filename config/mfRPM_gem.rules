@@ -10,6 +10,10 @@ changelog: $(PackageListLoop)
 
 INSTALL_PATH = /opt/cmsgemos
 XDAQ_PATH = /opt/xdaq
+GROUP_NAME = gempro
+USER_NAME = $(GROUP_NAME)
+GID = 1050
+UID = $(GID)
 ProjectPath  = $(BUILD_HOME)/$(Project)
 PackagePath  = $(ProjectPath)/$(LongPackage)
 PWD          = $(shell pwd)
@@ -155,6 +159,11 @@ spec_update:
 	sed -i 's#__description__#$(Description)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__url__#$(Link)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).spec
+	# sed -i 's#__datadir__#$(DATA_DIR)#' $(PackagePath)/rpm/$(LongPackage).spec
+	sed -i 's#__username__#$(USER_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
+	sed -i 's#__groupname__#$(GROUP_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
+	sed -i 's#__uid__#$(UID)#' $(PackagePath)/rpm/$(LongPackage).spec
+	sed -i 's#__gid__#$(GID)#' $(PackagePath)/rpm/$(LongPackage).spec
 
 .PHONY: _cleanrpmall
 _cleanrpmall:
@@ -171,3 +180,4 @@ _installrpmall:
 _changelogall:
 	cd $(PackagePath);\
 	git log --full-diff --decorate=full < ChangeLog
+
