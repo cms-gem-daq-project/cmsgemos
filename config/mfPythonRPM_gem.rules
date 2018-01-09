@@ -123,6 +123,7 @@ endif
 
 .PHONY: makerpm
 makerpm:
+        # use python pbr to set up and do the building of the python packages
 	# Change directory into pkg and copy everything into rpm/pkg/
 	cd pkg/$(Package) && \
 	find . -name "*" -exec install -D \{\} $(PackagePath)/rpm/\{\} \;
