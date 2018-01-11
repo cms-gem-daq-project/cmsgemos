@@ -1,7 +1,7 @@
 #!/bin/bash
 
 arch=`uname -i`
-setup_version=2.7.2-1.cmsos12
+# setup_version=2.7.2-1.cmsos12
 osver=`expr $(uname -r) : '.*el\([0-9]\)'`
 ostype=centos
 if [ "${osver}" = "6" ]
@@ -21,20 +21,99 @@ prompt_confirm() {
     done
 }
 
-### copied from HCAL setup scripts
+new_service() {
+    if [ -z "$2" ] || [[ ! "$2" =~ ^("on"|"off") ]]
+    then
+        echo "Please specify a service to configure, and whether it should be enabled ('on') or not ('off')"
+        return 1
+    fi
+
+    newserv=${1}
+    status=${2}
+    
+    if [ "${osver}" = "6" ]
+    then
+        # for slc6 machines
+        chkconfig --level 345 $1 ${status}
+        if [ "${status}" = "on" ]
+        then
+           service ${newserv} restart
+        else
+           service ${newserv} stop
+        fi
+    elif [ "${osver}" = "7" ]
+    then
+        # for cc7 machines
+        if [ "${status}" = "on" ]
+        then
+            svsta="enable"
+            svcmd="restart"
+        else
+            svsta="disable"
+            svcmd="stop"
+        fi
+        systemctl ${svsta} ${newserv}.service
+        systemctl daemon-reload
+        systemctl ${svcmd} ${newserv}.service
+    fi
+}
+            ### copied from HCAL setup scripts
 install_xdaq() {
     # option 'x'
-    wget https://svnweb.cern.ch/trac/cactus/export/HEAD/trunk/scripts/release/xdaq.${ostype}${osver}.x86_64.repo -O /etc/yum.repos.d/xdaq.repo
+    # doesn't include SRPMS
+    wget https://svnweb.cern.ch/trac/cactus/export/HEAD/trunk/scripts/release/xdaq.${ostype}${osver}.x86_64.repo \
+         -O /etc/yum.repos.d/xdaq.repo
+    perl -pi -e 's|# ||g' /etc/yum.repos.d/xdaq.repo
+
     echo Installing XDAQ...
+
     # generic XDAQ
+    yum -y remove openslp
     yum -y groupinstall extern_coretools coretools extern_powerpack powerpack
+
     # add-on packages
     yum --skip-broken -y groupinstall database_worksuite general_worksuite dcs_worksuite hardware_worksuite
+
     # for fedKit
-    yum -y groupinstall daq_kernel_modules
+    prompt_confirm "Install kernel modules for uFEDKIT?"
+    if [ "$?" = "0" ]
+    then
+        yum -y groupinstall daq_kernel_modules
+    fi
+
     # debug modules
-    yum -y groupinstall exetern_coretools_debuginfo coretools_debuginfo extern_powerpack_debuginfo powerpack_debuginfo \
-        database_worksuite_debuginfo general_worksuite_debuginfo dcs_worksuite_debuginfo hardware_worksuite_debuginfo
+    prompt_confirm "Install xdaq debuginfo modules?"
+    if [ "$?" = "0" ]
+    then
+        yum -y groupinstall exetern_coretools_debuginfo coretools_debuginfo extern_powerpack_debuginfo powerpack_debuginfo \
+            database_worksuite_debuginfo general_worksuite_debuginfo dcs_worksuite_debuginfo hardware_worksuite_debuginfo
+    fi
+}
+
+update_xpci_driver() {
+    curdir=$PWD
+    mkdir -p /tmp/xpci_update
+    cd /tmp/xpci_update
+    yumdownloader --source daq-xpcidrv
+
+    if [ ! "$?" = "0" ]
+    then
+        echo "Failed to download daq-xpcidrv sources"
+        return 1
+    fi
+
+    sudo yum-builddep -y daq-xpcidrv-*.src.rpm
+    rpm -ihv daq-xpcidrv-*.src.rpm
+    cd ~/rpmbuild
+    mkdir -p RPMS/x86_64/old
+    mv RPMS/x86_64/*.rpm RPMS/x86_64/old
+    rpmbuild -bb SPECS/daq-xpcidrv.x86_64_slc6.spec
+    cd RPMS/x86_64
+    sudo yum remove daq-xpcidrv daq-xpcidrv-debuginfo daq-xpcidrv-devel
+    sudo yum install kernel-module-daq-xpcidrv-*.rpm
+    sudo yum install daq-xpcidrv-*.rpm
+    sudo /sbin/lsmod|fgrep xpc
+    cd ${curdir}
 }
 
 install_misc_rpms() {
@@ -56,6 +135,13 @@ install_developer_tools() {
        yum install -y rh-git29*
     fi
 
+    prompt_confirm "Install git-lfs?"
+    if [ "$?" = "0" ]
+    then
+        curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh|bash
+        yum install git-lfs
+    fi
+    
     rubyvers=( rh-ruby22 rh-ruby23 rh-ruby24 )
     for rver in "${rubyvers[@]}"
     do
@@ -83,7 +169,18 @@ install_developer_tools() {
 
 setup_nas() {
     # option 'n'
-    echo Connecting to the NAS
+
+    read -r -p "Please specify the hostname of the NAS you'd like to setup: " nashost
+
+    ping -c 5 -i 0.01 ${nashost}
+
+    if [ ! "$?" = "0" ]
+    then
+        echo Unable to ping ${nashost}, are you sure the hostname is correct or the NAS is on?
+        return 1
+    fi
+    
+    echo Connecting to the NAS at ${nashost}
     cat <<EOF>/etc/auto.nas
 GEMDAQ_Documentation    -context="system_u:object_r:nfs_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,noexec,acl               gem904nas01:/share/gemdata/GEMDAQ_Documentation
 GEM-Data-Taking         -context="system_u:object_r:httpd_sys_content_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,noexec,acl gem904nas01:/share/gemdata/GEM-Data-Taking
@@ -93,7 +190,11 @@ users                   -context="system_u:object_r:nfs_t:s0",nosharecache,auto,
 EOF
     if [ -f /etc/auto.master ]
     then
-        echo "/data/bigdisk   /etc/auto.nas   --timeout=360" >> /etc/auto.master
+        nascfg=$(fgrep auto.nas /etc/auto.master)
+        if [ ! "$?" = "0" ]
+        then
+            echo "/data/bigdisk   /etc/auto.nas  --timeout=600 --ghost --verbose" >> /etc/auto.master
+        fi
     else
         cat <<EOF>/etc/auto.master
 +auto.master
@@ -101,17 +202,63 @@ EOF
 EOF
     fi
 
-    if [ "${osver}" = "6" ]
+    new_service autofs on
+}
+
+install_mellanox_driver() {
+    # option '-M'
+    lspci -v | grep Mellanox
+    if [ ! "$?" = "0" ]
     then
-        # for slc6 machines
-        chkconfig --level 345 autofs on
-        /etc/init.d/autofs restart
-    elif [ "${osver}" = "7" ]
-    then
-        # for cc7 machines
-        systemctl enable autofs.service
-        systemctl restart autofs.service
+        echo "No Mellanox device detected, are you sure you have the interface installed?"
+        return 1
     fi
+    crel=$(cat /etc/system-release)
+    ncrel=${crel//[!0-9.]/}
+    sncrel=${ncrel%${ncrel:3}}
+    mlnxver=4.2-1.0.1.0
+    drvfile=mlnx-en-${mlnxver}-rhel${sncrel}-x86_64.tgz
+    curdir=$PWD
+    cd /tmp/
+
+    wget http://www.mellanox.com/downloads/ofed/MLNX_EN-${mlnxver}/${drvfile} -O ${drvfile}
+    if [ ! "$?" = "0" ]
+    then
+        echo "Unable to download Mellanox driver, trying NAS installed version..."
+        if [ -e /data/bigdisk/sw/${drvfile} ]
+        then
+            cp /data/bigdisk/sw/${drvfile} .
+        else
+            echo "${drvfile} not found, exiting"
+            cd $curdir
+            return 1
+        fi
+    fi
+
+    # Unpack the downloaded tarball
+    tar xzvf ${drvfile}
+    # Change the working directory.
+    cd mlnx-en-${mlnxver}-rhel${sncrel}-x86_64
+
+    # # Run the installation script, failing to get the init script...
+    # ./install
+    
+    # RPM with YUM
+    rpm --import RPM-GPG-KEY-Mellanox
+    cat <<EOF > /etc/yum.repos.d/mellanox.repo
+[mlnx_en]
+name=MLNX_EN Repository
+baseurl=file://${PWD}/RPMS_ETH
+enabled=0
+gpgkey=file://${PWD}/RPM-GPG-KEY-Mellanox
+gpgcheck=1
+EOF
+    yum install mlnx-en-eth-only --disablerepo=* --enablerepo=mlnx_en
+    
+    # Load the driver.
+    echo new_service mlnx-en.d on
+    cd $curdir
+    return 0
 }
 
 configure_interface() {
@@ -245,30 +392,9 @@ install_cactus() {
         prompt_confirm "Setup machine as controlhub?"
         if [ "$?" = "0" ]
         then
-            if [ "${osver}" = "6" ]
-            then
-                # for slc6 machines
-                chkconfig --level 345 controlhub on
-                service controlhub restart
-            elif [ "${osver}" = "7" ]
-            then
-                # for cc7 machines
-                systemctl enable controlhub.service
-                systemctl daemon-reload
-                systemctl start controlhub.service
-            fi
+            new_service controlhub on
         else
-            if [ "${osver}" = "6" ]
-            then
-                # for slc6 machines
-                chkconfig --level 0123456 controlhub off
-                service controlhub stop
-            elif [ "${osver}" = "7" ]
-            then
-                # for cc7 machines
-                systemctl disable controlhub.service
-                systemctl stop controlhub.service
-            fi
+            new_service controlhub off
         fi
     fi
 
@@ -287,21 +413,12 @@ install_sysmgr() {
     yum install -y freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel
     yum install -y sysmgr
 
-    if [ "${osver}" = "6" ]
+    prompt_confirm "Setup machine to communicate directly to a CTP7?"
+    if [ "$?" = "0" ]
     then
-        # for slc6 machines
-        chkconfig --level 0123456 sysmgr off
-        echo "If this is a mchine that needs to communicate directly to a CTP7, please execute with privileges:"
-        echo "chkconfig --level 345 sysmgr on"
-        echo "service sysmgr start"
-    elif [ "${osver}" = "7" ]
-    then
-        # for cc7 machines
-        systemctl disable sysmgr.service
-        echo "If this is a mchine that needs to communicate directly to a CTP7, please execute with privileges:"
-        echo "systemctl enable sysmgr.service"
-        echo "systemctl daemon-reload"
-        echo "systemctl start sysmgr.service"
+        new_service sysmgr on
+    else
+        new_service sysmgr off
     fi
 }
 
@@ -327,21 +444,34 @@ install_python() {
         fi
     done
 
-    echo Installing python2.7 from source
     return
+
+    if [ ! -z "${1}" ]
+    then
+        echo No python version specified
+        return 1
+    fi
+
+    pyver=${1}
+    echo "Installing python2.7 (${pyver}) from source, no longer best option probably!"
+
     # install dependencies
     yum install -y tcl-devel tk-devel
+
     # common source directory, may already exist
     mkdir -p /data/bigdisk/sw/python2.7/
     cd /data/bigdisk/sw/python2.7/
+
     # setup scripts
     wget https://bootstrap.pypa.io/ez_setup.py
-    wget https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tar.xz
-    tar xf Python-2.7.12.tar.xz
-    cd Python-2.7.12
+    wget https://www.python.org/ftp/python/${pyver}/Python-${pyver}.tar.xz
+    tar xf Python-${pyver}.tar.xz
+    cd Python-${pyver}
     ./configure --prefix=/usr/local --enable-unicode=ucs4 --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
+
     # clean up in case previously compiled and then compile
     make clean && make -j5
+
     # do the installation
     make altinstall
     
@@ -349,7 +479,7 @@ install_python() {
     /usr/local/bin/python2.7 ez_setup.py
     /usr/local/bin/easy_install-2.7 pip
     
-    # add links to the python26 packages we'll need
+    # add links to the python26 packages we'll need, how to do this generally
     ln -s /usr/lib/python2.6/site-packages/uhal /usr/local/lib/python2.7/site-packages/uhal
     
     ln -s /usr/lib/python2.6/site-packages/cactusboards_amc13_python-1.1.10-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactusboards_amc13_python-1.1.10-py2.6.egg-info
@@ -365,7 +495,7 @@ install_python() {
 
 setup_ctp7() {
     # option 'C'
-    echo Setting up for CTP7 usage...
+    echo "Setting up for ${hostname} for CTP7 usage"
     # Updated /etc/sysmgr/sysmgr.conf to enable the GenericUW configuration module to support "WISC CTP-7" cards.
 
     # Created /etc/sysmgr/ipconfig.xml to map geographic address assignments for crates 1 and 2 matching the /24
@@ -386,7 +516,7 @@ setup_ctp7() {
 
 install_root() {
     echo Installing root...
-    yum install -y root root\* numpy root-numpy
+    yum install -y root root-\*
 }
 
 create_accounts() {
@@ -475,13 +605,16 @@ usage() {
          "    -p Install additional python versions\n" \
          "    -u <file> Add accounts of NICE users (specified in file)\n" \
          "    -C Create common users and groups\n" \
+         "    -N Set up network interfaces\n" \
+         "    -M Install Mellanox 10GbE drivers for uFEDKIT\n" \
+         "    -X Install/update xpci drivers\n" \
          "    -S Install UW system manager\n" \
          "\n" \
          "Plese report bugs to\n" \
          "https://github.com/cms-gem-daq-project/cmsgemos\n"
 }
 
-while getopts "aidcxynruswmpSANh" opt
+while getopts "aidcxynruswmpSANMXh" opt
 do
     case $opt in
         a)
@@ -512,8 +645,6 @@ do
             ;;
         n)
             setup_nas ;;
-        N)
-            setup_network ;;
         r)
             install_root ;;
         s)
@@ -532,6 +663,12 @@ do
             install_sysmgr ;;
         A)
             create_accounts ;;
+        N)
+            setup_network ;;
+        M)
+            install_mellanox_driver ;;
+        X)
+            update_xpci_driver ;;
         h)
             echo >&2 ; usage ; exit 1 ;;
         \?)
