@@ -216,6 +216,31 @@ install_xdaq() {
         yum -y groupinstall exetern_coretools_debuginfo coretools_debuginfo extern_powerpack_debuginfo powerpack_debuginfo \
             database_worksuite_debuginfo general_worksuite_debuginfo dcs_worksuite_debuginfo hardware_worksuite_debuginfo
     fi
+
+    # Unpack the downloaded tarball
+    tar xzvf ${drvfile}
+    # Change the working directory.
+    cd mlnx-en-${mlnxver}-rhel${sncrel}-x86_64
+
+    # # Run the installation script, failing to get the init script...
+    # ./install
+    
+    # RPM with YUM
+    rpm --import RPM-GPG-KEY-Mellanox
+    cat <<EOF > /etc/yum.repos.d/mellanox.repo
+[mlnx_en]
+name=MLNX_EN Repository
+baseurl=file://${PWD}/RPMS_ETH
+enabled=0
+gpgkey=file://${PWD}/RPM-GPG-KEY-Mellanox
+gpgcheck=1
+EOF
+    yum install mlnx-en-eth-only --disablerepo=* --enablerepo=mlnx_en
+    
+    # Load the driver.
+    echo new_service mlnx-en.d on
+    cd $curdir
+    return 0
 }
 
 configure_interface() {
