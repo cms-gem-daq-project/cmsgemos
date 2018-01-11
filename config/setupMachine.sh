@@ -218,6 +218,124 @@ install_xdaq() {
     fi
 }
 
+configure_interface() {
+    if [ -z "$2" ] || [[ ! "$2" =~ ^("uTCA"|"uFEDKIT") ]]
+    then
+        echo -e \
+             "Usage: configure_interface <device> <type>\n" \
+             "   device must be listed in /sys/class/net\n" \
+             "   type myst be one of:\n" \
+             "     uTCA for uTCA on local network\n" \
+             "     uFEDKIT for uFEDKIT on 10GbE\n"
+        return 1
+    fi
+
+    netdev=$1
+    type=$2
+
+    ipaddr=10.0.0.5
+    netmask=255.255.255.0
+    network=10.0.0.0
+    if [ $type = "uTCA" ]
+    then
+        read -r -p "Please specify desired IP address: " ipaddr
+        read -r -p "Please specify desired network: " network
+        read -r -p "Please specify correct netmask: " netmask
+    fi
+
+    cfgbase="/etc/sysconfig/network-scripts"
+    cfgfile="ifcfg-${netdev}"
+    if [ -e ${cfgbase}/${cfgfile} ]
+    then
+        echo "Old config file is:"
+        cat ${cfgbase}/${cfgfile}
+        mv ${cfgbase}/${cfgfile} ${cfgbase}/.${cfgfile}.backup
+        while IFS='' read -r line || [[ -n "$line" ]]
+        do
+            if [[ "${line}" =~ ^("IPADDR"|"NETWORK"|"NETMASK") ]]
+            then
+                #skip
+                :
+            elif [[ "${line}" =~ ^("IPV6"|"NM_CON") ]]
+            then
+                echo "#${line}" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("BOOTPROTO") ]]
+            then
+                echo "BOOTPROTO=none" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("DEFROUTE") ]]
+            then
+                echo "DEFROUTE=no" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("USERCTL") ]]
+            then
+                echo "USERCTL=no" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("ONBOOT") ]]
+            then
+                echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
+            else
+                echo "${line}" >> ${cfgbase}/${cfgfile}
+            fi
+        done < ${cfgbase}/.${cfgfile}.backup
+    else
+        echo "No config file exists, creating..."
+        echo "TYPE=Ethernet" >> ${cfgbase}/${cfgfile}
+        echo "NM_CONTROLLED=no" >> ${cfgbase}/${cfgfile}
+        echo "BOOTPROTO=none" >> ${cfgbase}/${cfgfile}
+        echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
+        echo "DEFROUTE=no" >> ${cfgbase}/${cfgfile}
+    fi
+
+    echo "IPADDR=${ipaddr}" >> ${cfgbase}/${cfgfile}
+    echo "NETWORK=${network}" >> ${cfgbase}/${cfgfile}
+    echo "NETMASK=${netmask}" >> ${cfgbase}/${cfgfile}
+
+    echo "New config file is:"
+    cat ${cfgbase}/${cfgfile}    
+}
+
+setup_network() {
+    #list devices:
+    #ls /sys/class/net
+    # loop over devices and ask to configure
+    # if yes, enter configure loop
+    # only necessary for extra GBE local network and 10G uFEDKIT network, maybe have options for these specific types?
+    netdevs=( $(ls /sys/class/net |egrep -v "virb|lo") )
+    for netdev in "${netdevs[@]}"
+    do
+        prompt_confirm "Configure network device: ${netdev}?"
+        if [ "$?" = "0" ]
+        then
+            echo "Current configuration for ${netdev} is:"
+            ifconfig ${netdev}
+            while true
+            do
+                read -r -n 1 -p "Select interface type: local uTCA (1) or uFEDKIT (2) " REPLY
+                case $REPLY in
+                    [1]) echo "Configuring ${netdev} for local uTCA network..."
+                         configure_interface ${netdev} uTCA
+                         return 0
+                         ;;
+                    [2]) echo "Configuring ${netdev} for uFEDKIT..."
+                         configure_interface ${netdev} uFEDKIT
+                         return 0
+                         ;;
+                    [qQ]) echo "Quitting..." ; return 0 ;;
+                    *) printf "\033[31m %s \n\033[0m" "Invalid choice, please specify an interface type, or press q(Q) to quit";;
+                esac
+            done
+        fi
+    done
+    # ## for local net
+    # ifconfig $iface $addr
+    # ifconfig $iface broadcast 192.168.255.255
+    # ifconfig $iface netmask 255.255.0.0
+
+    # ## for uFEDKIT net
+    # ifconfig $iface 10.0.0.5
+    # ifconfig $iface broadcast 10.0.0.255
+    # ifconfig $iface netmask 255.255.255.0
+    return 0    
+}
+
 install_cactus() {
     # Option 'c'
     echo Installing cactus packages...
