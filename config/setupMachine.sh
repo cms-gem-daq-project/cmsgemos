@@ -10,12 +10,12 @@ then
 fi
 
 prompt_confirm() {
-    while true; do
+    while true
+    do
         read -r -n 1 -p "${1:-Continue?} [y/n]: " REPLY
         case $REPLY in
             [yY]) echo ; return 0 ;;
             [nN]) echo ; return 1 ;;
-            # *) printf " \033[31m %s \n\033[0m" "invalid input"
             *) echo ; return 1 ;;
         esac
     done
@@ -114,31 +114,169 @@ EOF
     fi
 }
 
+configure_interface() {
+    if [ -z "$2" ] || [[ ! "$2" =~ ^("uTCA"|"uFEDKIT") ]]
+    then
+        echo -e \
+             "Usage: configure_interface <device> <type>\n" \
+             "   device must be listed in /sys/class/net\n" \
+             "   type myst be one of:\n" \
+             "     uTCA for uTCA on local network\n" \
+             "     uFEDKIT for uFEDKIT on 10GbE\n"
+        return 1
+    fi
+
+    netdev=$1
+    type=$2
+
+    ipaddr=10.0.0.5
+    netmask=255.255.255.0
+    network=10.0.0.0
+    if [ $type = "uTCA" ]
+    then
+        read -r -p "Please specify desired IP address: " ipaddr
+        read -r -p "Please specify desired network: " network
+        read -r -p "Please specify correct netmask: " netmask
+    fi
+
+    cfgbase="/etc/sysconfig/network-scripts"
+    cfgfile="ifcfg-${netdev}"
+    if [ -e ${cfgbase}/${cfgfile} ]
+    then
+        echo "Old config file is:"
+        cat ${cfgbase}/${cfgfile}
+        mv ${cfgbase}/${cfgfile} ${cfgbase}/.${cfgfile}.backup
+        while IFS='' read -r line || [[ -n "$line" ]]
+        do
+            if [[ "${line}" =~ ^("IPADDR"|"NETWORK"|"NETMASK") ]]
+            then
+                #skip
+                :
+            elif [[ "${line}" =~ ^("IPV6"|"NM_CON") ]]
+            then
+                echo "#${line}" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("BOOTPROTO") ]]
+            then
+                echo "BOOTPROTO=none" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("DEFROUTE") ]]
+            then
+                echo "DEFROUTE=no" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("USERCTL") ]]
+            then
+                echo "USERCTL=no" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("ONBOOT") ]]
+            then
+                echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
+            else
+                echo "${line}" >> ${cfgbase}/${cfgfile}
+            fi
+        done < ${cfgbase}/.${cfgfile}.backup
+    else
+        echo "No config file exists, creating..."
+        echo "TYPE=Ethernet" >> ${cfgbase}/${cfgfile}
+        echo "NM_CONTROLLED=no" >> ${cfgbase}/${cfgfile}
+        echo "BOOTPROTO=none" >> ${cfgbase}/${cfgfile}
+        echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
+        echo "DEFROUTE=no" >> ${cfgbase}/${cfgfile}
+    fi
+
+    echo "IPADDR=${ipaddr}" >> ${cfgbase}/${cfgfile}
+    echo "NETWORK=${network}" >> ${cfgbase}/${cfgfile}
+    echo "NETMASK=${netmask}" >> ${cfgbase}/${cfgfile}
+
+    echo "New config file is:"
+    cat ${cfgbase}/${cfgfile}    
+}
+
+setup_network() {
+    #list devices:
+    #ls /sys/class/net
+    # loop over devices and ask to configure
+    # if yes, enter configure loop
+    # only necessary for extra GBE local network and 10G uFEDKIT network, maybe have options for these specific types?
+    netdevs=( $(ls /sys/class/net |egrep -v "virb|lo") )
+    for netdev in "${netdevs[@]}"
+    do
+        prompt_confirm "Configure network device: ${netdev}?"
+        if [ "$?" = "0" ]
+        then
+            echo "Current configuration for ${netdev} is:"
+            ifconfig ${netdev}
+            while true
+            do
+                read -r -n 1 -p "Select interface type: local uTCA (1) or uFEDKIT (2) " REPLY
+                case $REPLY in
+                    [1]) echo "Configuring ${netdev} for local uTCA network..."
+                         configure_interface ${netdev} uTCA
+                         return 0
+                         ;;
+                    [2]) echo "Configuring ${netdev} for uFEDKIT..."
+                         configure_interface ${netdev} uFEDKIT
+                         return 0
+                         ;;
+                    [qQ]) echo "Quitting..." ; return 0 ;;
+                    *) printf "\033[31m %s \n\033[0m" "Invalid choice, please specify an interface type, or press q(Q) to quit";;
+                esac
+            done
+        fi
+    done
+    # ## for local net
+    # ifconfig $iface $addr
+    # ifconfig $iface broadcast 192.168.255.255
+    # ifconfig $iface netmask 255.255.0.0
+
+    # ## for uFEDKIT net
+    # ifconfig $iface 10.0.0.5
+    # ifconfig $iface broadcast 10.0.0.255
+    # ifconfig $iface netmask 255.255.255.0
+    return 0    
+}
+
 install_cactus() {
     # option 'c'
     echo Installing cactus packages...
 
-    wget https://ipbus.web.cern.ch/ipbus/doc/user/html/_downloads/ipbus-sw.${ostype}${osver}.x86_64.repo -O /etc/yum.repos.d/ipbus-sw.repo
-    yum -y groupinstall uhal
-
-    wget https://svnweb.cern.ch/trac/cactus/export/HEAD/trunk/scripts/release/cactus-amc13.${ostype}${osver}.x86_64.repo -O /etc/yum.repos.d/cactus-amc13.repo
-    yum -y groupinstall amc13
-
-    if [ "${osver}" = "6" ]
+    prompt_confirm "Install uHAL?"
+    if [ "$?" = "0" ]
     then
-        # for slc6 machines
-        chkconfig --level 0123456 controlhub off
-        echo "If this is a controlhub machine, please execute with privileges:"
-        echo "chkconfig --level 345 controlhub on"
-        echo "service controlhub start"
-    elif [ "${osver}" = "7" ]
+        wget https://ipbus.web.cern.ch/ipbus/doc/user/html/_downloads/ipbus-sw.${ostype}${osver}.x86_64.repo -O /etc/yum.repos.d/ipbus-sw.repo
+        yum -y groupinstall uhal
+
+        prompt_confirm "Setup machine as controlhub?"
+        if [ "$?" = "0" ]
+        then
+            if [ "${osver}" = "6" ]
+            then
+                # for slc6 machines
+                chkconfig --level 345 controlhub on
+                service controlhub restart
+            elif [ "${osver}" = "7" ]
+            then
+                # for cc7 machines
+                systemctl enable controlhub.service
+                systemctl daemon-reload
+                systemctl start controlhub.service
+            fi
+        else
+            if [ "${osver}" = "6" ]
+            then
+                # for slc6 machines
+                chkconfig --level 0123456 controlhub off
+                service controlhub stop
+            elif [ "${osver}" = "7" ]
+            then
+                # for cc7 machines
+                systemctl disable controlhub.service
+                systemctl stop controlhub.service
+            fi
+        fi
+    fi
+
+    prompt_confirm "Install amc13 libraries?"
+    if [ "$?" = "0" ]
     then
-        # for cc7 machines
-        systemctl disable controlhub.service
-        echo "If this is a controlhub machine, please execute with privileges:"
-        echo "systemctl enable controlhub.service"
-        echo "systemctl daemon-reload"
-        echo "systemctl start controlhub.service"
+        wget https://svnweb.cern.ch/trac/cactus/export/HEAD/trunk/scripts/release/cactus-amc13.${ostype}${osver}.x86_64.repo -O /etc/yum.repos.d/cactus-amc13.repo
+        yum -y groupinstall amc13
     fi
 }
 
@@ -302,41 +440,52 @@ add_cern_users() {
     # option 'u'
     ### probably better to have a list of users that is imported from a text file/db
     # or better yet, an LDAP group!
-    users=( amagnani bravo dldecker dorney evka huangh \
-                     hyunyong ivai jlt mdalchen mgruchal \
-                     mmaggi rband sturdy szaleski
-          )
-
-    for user in "${users[@]}"
+    while true
     do
-        sudo newcernuser.sh ${user}
+        read -r -p "Please specify text file with NICE users to add: " REPLY
+        if [ -e "$REPLY" ]
+        then
+            while IFS='' read -r user || [[ -n "$user" ]]
+            do
+                echo "Adding NICE user $user"
+                echo newcernuser.sh ${user}
+            done < "$REPLY"
+            return 0
+        else
+            case $REPLY in
+                [qQ]) echo "Quitting..." ; return 0 ;;
+                *) printf "\033[31m %s \n\033[0m" "File does not exist, please specify a file, or press q(Q) to quit";;
+            esac
+        fi
     done
 }
 
 usage() {
-echo -e "Usage: $0 [options]\n" \
-" Options:\n" \
-"    -a Setup new system with defaults for DAQ with accounts (implies -iCu)\n" \
-"    -i Install only software (implies -xcmrS\n" \
-"    -d Install developer tools\n" \
-"    -c Install cactus tools (uhal and amc13)\n" \
-"    -x install xdaq software\n" \
-"    -y CTP7 Uptime\n" \
-"    -n Setup mounting of NAS\n" \
-"    -r Install root\n" \
-"    -p Install additional python versions\n" \
-"    -u <file> Add accounts of NICE users (specified in file)\n" \
-"    -C Create common users and groups\n" \
-"    -S Install UW system manager\n" \
-"\n" \
-"Plese report bugs to\n" \
-"https://github.com/cms-gem-daq-project/cmsgemos\n"
+    echo -e \
+         "Usage: $0 [options]\n" \
+         " Options:\n" \
+         "    -a Setup new system with defaults for DAQ with accounts (implies -iCu)\n" \
+         "    -i Install only software (implies -xcmrS\n" \
+         "    -d Install developer tools\n" \
+         "    -c Install cactus tools (uhal and amc13)\n" \
+         "    -x install xdaq software\n" \
+         "    -y CTP7 Uptime\n" \
+         "    -n Setup mounting of NAS\n" \
+         "    -r Install root\n" \
+         "    -p Install additional python versions\n" \
+         "    -u <file> Add accounts of NICE users (specified in file)\n" \
+         "    -C Create common users and groups\n" \
+         "    -S Install UW system manager\n" \
+         "\n" \
+         "Plese report bugs to\n" \
+         "https://github.com/cms-gem-daq-project/cmsgemos\n"
 }
 
-while getopts "aidxynruscwmpSAh" opt; do
+while getopts "aidcxynruswmpSANh" opt
+do
     case $opt in
         a)
-            echo "Doing all steps"
+            echo "Doing all steps necessary for new machine"
             install_xdaq
             install_cactus
             install_root
@@ -344,6 +493,8 @@ while getopts "aidxynruscwmpSAh" opt; do
             install_misc_rpms
             add_cern_users
             create_accounts
+            setup_nas
+            setup_network
             ;;
         i)
             echo "Installing necessary packages"
@@ -354,55 +505,38 @@ while getopts "aidxynruscwmpSAh" opt; do
             install_misc_rpms
             ;;
         d)
-            install_developer_tools
-            ;;
+            install_developer_tools ;;
         x)
-            install_xdaq
-            ;;
+            install_xdaq ;;
         y)
             ;;
         n)
-            setup_nas
-            ;;
+            setup_nas ;;
+        N)
+            setup_network ;;
         r)
-            install_root
-            ;;
+            install_root ;;
         s)
             ;;
         c)
-            install_cactus
-            ;;
+            install_cactus ;;
         w)
             ;;
         m)
-            install_misc_rpms
-            ;;
+            install_misc_rpms ;;
         p)
-            install_python
-            ;;
+            install_python ;;
         u)
-            add_cern_users
-            ;;
+            add_cern_users ;;
         S)
-            install_sysmgr
-            ;;
+            install_sysmgr ;;
         A)
-            create_accounts
-            ;;
+            create_accounts ;;
         h)
-            echo >&2
-            usage
-            exit 1;;
+            echo >&2 ; usage ; exit 1 ;;
         \?)
-            echo "Invalid option: -$OPTARG" >&2
-            usage
-            exit 1;;
+            echo "Invalid option: -$OPTARG" >&2 ; usage ; exit 1 ;;
         [?])
-            echo >&2
-            usage
-            exit 1;;
-        # \?)
-        #     echo "Invalid option: -$OPTARG" >&2
-        #     ;;
+            echo >&2 ; usage ; exit 1 ;;
     esac
 done
