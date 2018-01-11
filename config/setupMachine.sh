@@ -235,94 +235,44 @@ enabled=0
 gpgkey=file://${PWD}/RPM-GPG-KEY-Mellanox
 gpgcheck=1
 EOF
-    yum install mlnx-en-eth-only --disablerepo=* --enablerepo=mlnx_en
+    yum -y install mlnx-en-eth-only --disablerepo=* --enablerepo=mlnx_en
     
     # Load the driver.
-    echo new_service mlnx-en.d on
+    new_service mlnx-en.d on
     cd $curdir
     return 0
 }
 
-configure_interface() {
-    if [ -z "$2" ] || [[ ! "$2" =~ ^("uTCA"|"uFEDKIT") ]]
+update_xpci_driver() {
+    # option 'X'
+    curdir=$PWD
+    mkdir -p /tmp/xpci_update
+    cd /tmp/xpci_update
+    yumdownloader --source daq-xpcidrv
+
+    if [ ! "$?" = "0" ]
     then
-        echo -e \
-             "Usage: configure_interface <device> <type>\n" \
-             "   device must be listed in /sys/class/net\n" \
-             "   type myst be one of:\n" \
-             "     uTCA for uTCA on local network\n" \
-             "     uFEDKIT for uFEDKIT on 10GbE\n"
+        echo "Failed to download daq-xpcidrv sources"
         return 1
     fi
 
-    netdev=$1
-    type=$2
-
-    ipaddr=10.0.0.5
-    netmask=255.255.255.0
-    network=10.0.0.0
-    if [ $type = "uTCA" ]
-    then
-        read -r -p "Please specify desired IP address: " ipaddr
-        read -r -p "Please specify desired network: " network
-        read -r -p "Please specify correct netmask: " netmask
-    fi
-
-    cfgbase="/etc/sysconfig/network-scripts"
-    cfgfile="ifcfg-${netdev}"
-    if [ -e ${cfgbase}/${cfgfile} ]
-    then
-        echo "Old config file is:"
-        cat ${cfgbase}/${cfgfile}
-        mv ${cfgbase}/${cfgfile} ${cfgbase}/.${cfgfile}.backup
-        while IFS='' read -r line || [[ -n "$line" ]]
-        do
-            if [[ "${line}" =~ ^("IPADDR"|"NETWORK"|"NETMASK") ]]
-            then
-                #skip
-                :
-            elif [[ "${line}" =~ ^("IPV6"|"NM_CON") ]]
-            then
-                echo "#${line}" >> ${cfgbase}/${cfgfile}
-            elif [[ "${line}" =~ ^("BOOTPROTO") ]]
-            then
-                echo "BOOTPROTO=none" >> ${cfgbase}/${cfgfile}
-            elif [[ "${line}" =~ ^("DEFROUTE") ]]
-            then
-                echo "DEFROUTE=no" >> ${cfgbase}/${cfgfile}
-            elif [[ "${line}" =~ ^("USERCTL") ]]
-            then
-                echo "USERCTL=no" >> ${cfgbase}/${cfgfile}
-            elif [[ "${line}" =~ ^("ONBOOT") ]]
-            then
-                echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
-            else
-                echo "${line}" >> ${cfgbase}/${cfgfile}
-            fi
-        done < ${cfgbase}/.${cfgfile}.backup
-    else
-        echo "No config file exists, creating..."
-        echo "TYPE=Ethernet" >> ${cfgbase}/${cfgfile}
-        echo "NM_CONTROLLED=no" >> ${cfgbase}/${cfgfile}
-        echo "BOOTPROTO=none" >> ${cfgbase}/${cfgfile}
-        echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
-        echo "DEFROUTE=no" >> ${cfgbase}/${cfgfile}
-    fi
-
-    echo "IPADDR=${ipaddr}" >> ${cfgbase}/${cfgfile}
-    echo "NETWORK=${network}" >> ${cfgbase}/${cfgfile}
-    echo "NETMASK=${netmask}" >> ${cfgbase}/${cfgfile}
-
-    echo "New config file is:"
-    cat ${cfgbase}/${cfgfile}    
+    yum-builddep -y daq-xpcidrv-*.src.rpm
+    rpm -ihv daq-xpcidrv-*.src.rpm
+    cd ~/rpmbuild
+    mkdir -p RPMS/x86_64/old
+    mv RPMS/x86_64/*.rpm RPMS/x86_64/old
+    rpmbuild -bb SPECS/daq-xpcidrv.x86_64_slc6.spec
+    cd RPMS/x86_64
+    yum remove daq-xpcidrv daq-xpcidrv-debuginfo daq-xpcidrv-devel
+    yum install kernel-module-daq-xpcidrv-*.rpm
+    yum install daq-xpcidrv-*.rpm
+    lsmod|fgrep xpc
+    cd ${curdir}
 }
 
+#### Networking for certain devices ####
 setup_network() {
-    #list devices:
-    #ls /sys/class/net
-    # loop over devices and ask to configure
-    # if yes, enter configure loop
-    # only necessary for extra GBE local network and 10G uFEDKIT network, maybe have options for these specific types?
+    # Option 'N'
     netdevs=( $(ls /sys/class/net |egrep -v "virb|lo") )
     for netdev in "${netdevs[@]}"
     do
@@ -337,28 +287,19 @@ setup_network() {
                 case $REPLY in
                     [1]) echo "Configuring ${netdev} for local uTCA network..."
                          configure_interface ${netdev} uTCA
-                         return 0
+                         break
                          ;;
                     [2]) echo "Configuring ${netdev} for uFEDKIT..."
                          configure_interface ${netdev} uFEDKIT
-                         return 0
+                         break
                          ;;
+                    [sS]) echo "Skipping $REPLY..." ; break ;;
                     [qQ]) echo "Quitting..." ; return 0 ;;
-                    *) printf "\033[31m %s \n\033[0m" "Invalid choice, please specify an interface type, or press q(Q) to quit";;
+                    *) printf "\033[31m %s \n\033[0m" "Invalid choice, please specify an interface type, or press s(S) to skip, or q(Q) to quit";;
                 esac
             done
         fi
     done
-    # ## for local net
-    # ifconfig $iface $addr
-    # ifconfig $iface broadcast 192.168.255.255
-    # ifconfig $iface netmask 255.255.0.0
-
-    # ## for uFEDKIT net
-    # ifconfig $iface 10.0.0.5
-    # ifconfig $iface broadcast 10.0.0.255
-    # ifconfig $iface netmask 255.255.255.0
-    return 0    
 }
 
 install_cactus() {
