@@ -13,13 +13,13 @@ fi
 prompt_confirm() {
     while true
     do
-        read -r -n 1 -p "${1:-Continue?} [y/n]: " REPLY
+        read -u 3 -r -n 1 -p "${1:-Continue?} [y/n]: " REPLY
         case $REPLY in
             [yY]) echo ; return 0 ;;
             [nN]) echo ; return 1 ;;
             *) echo ; return 1 ;;
         esac
-    done
+    done 3<&0
 }
 
 new_service() {
@@ -91,7 +91,7 @@ configure_interface() {
         echo "Old config file is:"
         cat ${cfgbase}/${cfgfile}
         mv ${cfgbase}/${cfgfile} ${cfgbase}/.${cfgfile}.backup
-        while IFS='' read -r line || [[ -n "$line" ]]
+        while IFS='' read -r line <&4 || [[ -n "$line" ]]
         do
             if [[ "${line}" =~ ^("IPADDR"|"NETWORK"|"NETMASK") ]]
             then
@@ -115,7 +115,7 @@ configure_interface() {
             else
                 echo "${line}" >> ${cfgbase}/${cfgfile}
             fi
-        done < ${cfgbase}/.${cfgfile}.backup
+        done 4< ${cfgbase}/.${cfgfile}.backup
     else
         echo "No config file exists, creating..."
         echo "TYPE=Ethernet" >> ${cfgbase}/${cfgfile}
@@ -580,11 +580,35 @@ add_cern_users() {
         read -r -p "Please specify text file with NICE users to add: " REPLY
         if [ -e "$REPLY" ]
         then
-            while IFS='' read -r user || [[ -n "$user" ]]
+            while IFS='' read -r user <&4 || [[ -n "$user" ]]
             do
-                echo "Adding NICE user $user"
-                ./newcernuser.sh ${user}
-            done < "$REPLY"
+                prompt_confirm "Add ${user} to machine $HOST?"
+                if [ "$?" = "0" ]
+                then
+                    if [ ! "$(fgrep ${user} /etc/passwd)" ]
+                    then
+                        echo "Adding NICE user $user"
+                        ./newcernuser.sh ${user}
+                    fi
+
+                    groups=( gempro gemdev daqpro gemdaq gemsudoers )
+                    for gr in "${groups[@]}"
+                    do
+                        if [ "$(fgrep ${gr} /etc/group)" ] && [ ! "$(fgrep ${1} /etc/group|fgrep ${gr})" ]
+                        then
+                            prompt_confirm "Add ${user} to ${gr} group?"
+                            if [ "$?" = "0" ]
+                            then
+                                echo "Adding ${user} to ${gr} group"
+                                usermod -aG ${gr} ${user}
+                            fi
+                        else
+                            echo "Unable to find '${gr}' group, have you created the standard users and groups on this machine yet?"
+                        fi
+                    done
+                fi
+                echo done with $user
+            done 4< "$REPLY"
             return 0
         else
             case $REPLY in
