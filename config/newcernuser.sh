@@ -5,7 +5,7 @@ then
     /usr/sbin/addusercern $1
 fi
 
-if [ "$(fgrep gemuser /etc/group)" ] && [ ! "$(fgrep ${1} /etc/group|fgrep gemuser)" ]
+if [ "$(fgrep gemuser /etc/group)" ]
 then
     usermod -aG gemuser ${1}
 else

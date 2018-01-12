@@ -575,6 +575,7 @@ add_cern_users() {
     # Cption 'u'
     ### probably better to have a list of users that is imported from a text file/db
     # or better yet, an LDAP group!
+    groups=( gempro gemdev daqpro gemdaq gemsudoers )
     while true
     do
         read -r -p "Please specify text file with NICE users to add: " REPLY
@@ -591,10 +592,9 @@ add_cern_users() {
                         ./newcernuser.sh ${user}
                     fi
 
-                    groups=( gempro gemdev daqpro gemdaq gemsudoers )
                     for gr in "${groups[@]}"
                     do
-                        if [ "$(fgrep ${gr} /etc/group)" ] && [ ! "$(fgrep ${1} /etc/group|fgrep ${gr})" ]
+                        if [ "$(fgrep ${gr} /etc/group)" ]
                         then
                             prompt_confirm "Add ${user} to ${gr} group?"
                             if [ "$?" = "0" ]
