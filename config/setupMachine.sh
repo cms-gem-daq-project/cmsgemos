@@ -13,7 +13,7 @@ fi
 prompt_confirm() {
     while true
     do
-        read -u 3 -r -n 1 -p "${1:-Continue?} [y/n]: " REPLY
+        read -u 3 -r -n 1 -p $'\e[1;35m'"${1:-Continue?}"$' [y/n]:\033[0m ' REPLY
         case $REPLY in
             [yY]) echo ; return 0 ;;
             [nN]) echo ; return 1 ;;
@@ -25,7 +25,7 @@ prompt_confirm() {
 new_service() {
     if [ -z "$2" ] || [[ ! "$2" =~ ^("on"|"off") ]]
     then
-        echo "Please specify a service to configure, and whether it should be enabled ('on') or not ('off')"
+        echo -e "\033[1;33mPlease specify a service to configure, and whether it should be enabled ('on') or not ('off')\033[0m"
         return 1
     fi
 
@@ -79,9 +79,9 @@ configure_interface() {
     network=10.0.0.0
     if [ $type = "uTCA" ]
     then
-        read -r -p "Please specify desired IP address: " ipaddr
-        read -r -p "Please specify desired network: " network
-        read -r -p "Please specify correct netmask: " netmask
+        read -r -p $'\e[1;32mPlease specify desired IP address:\033[0m ' ipaddr
+        read -r -p $'\e[1;32mPlease specify desired network:\033[0m ' network
+        read -r -p $'\e[1;32mPlease specify correct netmask:\033[0m ' netmask
     fi
 
     cfgbase="/etc/sysconfig/network-scripts"
@@ -198,9 +198,19 @@ install_misc_rpms() {
     # Option 'm'
     echo Installing miscellaneous RPMS...
     yum install -y libuuid-devel e2fsprogs-devel readline-devel ncurses-devel curl-devel boost-devel \
-        mysql-devel mysql-server numactl-devel freeipmi-devel arp-scan \
-        libusb libusbx libusb-devel libusbx-devel
-    yum install -y centos-release-scl
+        numactl-devel freeipmi-devel arp-scan libusb libusbx libusb-devel libusbx-devel
+
+    if [ "${osver}" = "6" ]
+    then
+        yum install -y mysql-devel mysql-server 
+        yum install -y sl-release-scl
+    elif [ "${osver}" = "7" ]
+    then
+        yum install -y mariadb-devel mariadb-server 
+        yum install -y centos-release-scl
+    else
+        echo "Unknown release ${osver}"
+    fi
 }
 
 install_sysmgr() {
@@ -340,7 +350,7 @@ install_developer_tools() {
 
 setup_nas() {
     # Option 'n'
-    read -r -p "Please specify the hostname of the NAS you'd like to setup: " nashost
+    read -r -p $'\e[1;33mPlease specify the hostname of the NAS to set up:\033[0m ' nashost
 
     ping -c 5 -i 0.01 ${nashost}
 
@@ -352,10 +362,10 @@ setup_nas() {
     
     echo Connecting to the NAS at ${nashost}
     cat <<EOF>/etc/auto.nas
-GEMDAQ_Documentation    -context="system_u:object_r:nfs_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,noexec,acl               gem904nas01:/share/gemdata/GEMDAQ_Documentation
-GEM-Data-Taking         -context="system_u:object_r:httpd_sys_content_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,noexec,acl gem904nas01:/share/gemdata/GEM-Data-Taking
-sw                      -context="system_u:object_r:nfs_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid                          gem904nas01:/share/gemdata/sw
-users                   -context="system_u:object_r:nfs_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,acl                      gem904nas01:/share/gemdata/users
+GEMDAQ_Documentation    -context="system_u:object_r:nfs_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,noexec,acl               ${nashost}:/share/gemdata/GEMDAQ_Documentation
+GEM-Data-Taking         -context="system_u:object_r:httpd_sys_content_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,noexec,acl ${nashost}:/share/gemdata/GEM-Data-Taking
+sw                      -context="system_u:object_r:nfs_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid                          ${nashost}:/share/gemdata/sw
+users                   -context="system_u:object_r:nfs_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,acl                      ${nashost}:/share/gemdata/users
 +auto.nas
 EOF
     if [ -f /etc/auto.master ]
@@ -381,7 +391,7 @@ install_mellanox_driver() {
     lspci -v | grep Mellanox
     if [ ! "$?" = "0" ]
     then
-        echo "No Mellanox device detected, are you sure you have the interface installed?"
+        echo -e "\033[1;31mNo Mellanox device detected, are you sure you have the interface installed?\033[0m"
         return 1
     fi
     crel=$(cat /etc/system-release)
@@ -395,12 +405,12 @@ install_mellanox_driver() {
     wget http://www.mellanox.com/downloads/ofed/MLNX_EN-${mlnxver}/${drvfile} -O ${drvfile}
     if [ ! "$?" = "0" ]
     then
-        echo "Unable to download Mellanox driver, trying NAS installed version..."
+        echo -e "\033[1;31mUnable to download Mellanox driver, trying NAS installed version...\033[0m"
         if [ -e /data/bigdisk/sw/${drvfile} ]
         then
             cp /data/bigdisk/sw/${drvfile} .
         else
-            echo "${drvfile} not found, exiting"
+            echo -e "\033[1;31m${drvfile} not found, exiting\033[0m"
             cd $curdir
             return 1
         fi
@@ -441,7 +451,7 @@ update_xpci_driver() {
 
     if [ ! "$?" = "0" ]
     then
-        echo "Failed to download daq-xpcidrv sources"
+        echo -e "\033[1;31mFailed to download daq-xpcidrv sources\033[0m"
         return 1
     fi
 
@@ -468,23 +478,23 @@ setup_network() {
         prompt_confirm "Configure network device: ${netdev}?"
         if [ "$?" = "0" ]
         then
-            echo "Current configuration for ${netdev} is:"
+            echo -e "\033[1;36mCurrent configuration for ${netdev} is:\033[0m"
             ifconfig ${netdev}
             while true
             do
-                read -r -n 1 -p "Select interface type: local uTCA (1) or uFEDKIT (2) " REPLY
+                read -r -n 1 -p $'\e[1;34m Select interface type: local uTCA (1) or uFEDKIT (2)\033[0m ' REPLY
                 case $REPLY in
-                    [1]) echo "Configuring ${netdev} for local uTCA network..."
+                    [1]) echo -e "\033[1;36mConfiguring ${netdev} for local uTCA network...\033[0m"
                          configure_interface ${netdev} uTCA
                          break
                          ;;
-                    [2]) echo "Configuring ${netdev} for uFEDKIT..."
+                    [2]) echo -e "\033[1;36mConfiguring ${netdev} for uFEDKIT...\033[0m"
                          configure_interface ${netdev} uFEDKIT
                          break
                          ;;
-                    [sS]) echo "Skipping $REPLY..." ; break ;;
-                    [qQ]) echo "Quitting..." ; return 0 ;;
-                    *) printf "\033[31m %s \n\033[0m" "Invalid choice, please specify an interface type, or press s(S) to skip, or q(Q) to quit";;
+                    [sS]) echo -e "\033[1;33mSkipping $REPLY...\033[0m" ; break ;;
+                    [qQ]) echo -e "\033[1;34mQuitting...\033[0m" ; return 0 ;;
+                    *) printf "\033[1;31m %s \n\033[0m" "Invalid choice, please specify an interface type, or press s(S) to skip, or q(Q) to quit";;
                 esac
             done
         fi
@@ -494,7 +504,7 @@ setup_network() {
 #### Compatibility with CTP7 (NEEDS TO BE WRITTEN)
 connect_ctp7s() {
     # Option 'C'
-    echo "Setting up for ${hostname} for CTP7 usage"
+    echo -e "\033[1;32mSetting up for ${hostname} for CTP7 usage\033[0m"
     # Updated /etc/sysmgr/sysmgr.conf to enable the GenericUW configuration module to support "WISC CTP-7" cards.
 
     # Created /etc/sysmgr/ipconfig.xml to map geographic address assignments for crates 1 and 2 matching the /24
@@ -520,7 +530,7 @@ create_accounts() {
     # or even 'service' accounts, but better to have them tied to egroups
     # so one can log in with NICE credentials, a la cchcal
     ### generic gemuser group for running tests
-    echo "Creating user gemuser"
+    echo -e "\033[1;32mCreating user gemuser\033[0m"
     useradd gemuser
     usermod -u 5030 gemuser
     groupmod -g 5030 gemuser
@@ -528,7 +538,7 @@ create_accounts() {
     chmod og+rx /home/gemuser
 
     ### gempro (production) account for running the system as an expert
-    echo "Creating user gempro"
+    echo -e "\033[1;32mCreating user gempro\033[0m"
     useradd gempro
     usermod -u 5050 gempro
     groupmod -g 5050 gempro
@@ -536,7 +546,7 @@ create_accounts() {
     chmod g+rx /home/gempro
 
     ### gemdev (development) account for running tests
-    echo "Creating user gemdev"
+    echo -e "\033[1;32mCreating user gemdev\033[0m"
     useradd gemdev
     usermod -u 5055 gemdev
     groupmod -g 5055 gemdev
@@ -544,9 +554,10 @@ create_accounts() {
     chmod g+rx /home/gemdev
 
     ### daqbuild account for building the releases
-    prompt_confirm "Create user daqbuild?"
+    prompt_confirm "\033[1;32mCreate user daqbuild?"
     if [ "$?" =  "0" ]
     then
+        echo -e "\033[1;32mCreating user daqbuild\033[0m"
         useradd daqbuild
         usermod -u 2050 daqbuild
         groupmod -g 2050 daqbuild
@@ -554,31 +565,31 @@ create_accounts() {
     fi
 
     ### daqpro account for building the releases
-    echo "Creating user daqpro"
+    echo -e "\033[1;32mCreating user daqpro\033[0m"
     useradd daqpro
     usermod -u 2055 daqpro
     groupmod -g 2055 daqpro
     passwd daqpro
 
     ### gemdaq group for DAQ pro tasks on the system
-    echo "Creating group gemdaq"
+    echo -e "\033[1;32mCreating group gemdaq\033[0m"
     groupadd gemdaq
     groupmod -g 2075 gemdaq
 
     ### gemsudoers group for administering the system
-    echo "Creating group gemsudoers"
+    echo -e "\033[1;32mCreating group gemsudoers\033[0m"
     groupadd gemsudoers
     groupmod -g 1075 gemsudoers
 }
 
 add_cern_users() {
-    # Cption 'u'
+    # Option 'u'
     ### probably better to have a list of users that is imported from a text file/db
     # or better yet, an LDAP group!
     groups=( gempro gemdev daqpro gemdaq gemsudoers )
     while true
     do
-        read -r -p "Please specify text file with NICE users to add: " REPLY
+        read -r -p $'\e[1;34mPlease specify text file with NICE users to add:\033[0m ' REPLY
         if [ -e "$REPLY" ]
         then
             while IFS='' read -r user <&4 || [[ -n "$user" ]]
@@ -603,17 +614,17 @@ add_cern_users() {
                                 usermod -aG ${gr} ${user}
                             fi
                         else
-                            echo "Unable to find '${gr}' group, have you created the standard users and groups on this machine yet?"
+                            echo -e "\033[1;31mUnable to find '${gr}' group, have you created the standard users and groups on this machine yet?\033[0m"
                         fi
                     done
                 fi
-                echo done with $user
+                echo -e "\033[1;35mDone setting up $user\033[0m"
             done 4< "$REPLY"
             return 0
         else
             case $REPLY in
-                [qQ]) echo "Quitting..." ; return 0 ;;
-                *) printf "\033[31m %s \n\033[0m" "File does not exist, please specify a file, or press q(Q) to quit";;
+                [qQ]) echo -e "\033[1;34mQuitting...\033[0m" ; return 0 ;;
+                *) printf "\033[1;31m %s \n\033[0m" "File does not exist, please specify a file, or press q(Q) to quit";;
             esac
         fi
     done
@@ -623,7 +634,7 @@ usage() {
     echo -e \
          "Usage: $0 [options]\n" \
          " Options:\n" \
-         "    -a Setup new system with defaults for DAQ with accounts (implies -iCu)\n" \
+         "    -a Setup new system with defaults for DAQ with accounts (implies -iAN)\n" \
          "    -i Install only software (implies -xcmrS\n" \
          "    -x install xdaq software\n" \
          "    -c Install cactus tools (uhal and amc13)\n" \
@@ -640,6 +651,10 @@ usage() {
          "    -A Create common users and groups\n" \
          "    -u <file> Add accounts of NICE users (specified in file)\n" \
          "\n" \
+         " Examples:\n" \
+         "   Set up newly installed machine and add CERN NICE users: ${0} -au\n" \
+         "   Set up newly installed machine and add uFEDKIT support: ${0} -aM\n" \
+         "\n" \
          "Plese report bugs to\n" \
          "https://github.com/cms-gem-daq-project/cmsgemos\n"
 }
@@ -648,19 +663,17 @@ while getopts "aixcmSrpdnNCMXAuh" opt
 do
     case $opt in
         a)
-            echo "Doing all steps necessary for new machine"
+            echo -e "\033[1;34mDoing all steps necessary for new machine\033[0m"
             install_xdaq
             install_cactus
             install_root
             install_sysmgr
             install_misc_rpms
-            add_cern_users
             create_accounts
-            setup_nas
             setup_network
             ;;
         i)
-            echo "Installing necessary packages"
+            echo -e "\033[1;33mInstalling necessary packages\033[0m"
             install_xdaq
             install_cactus
             install_root
@@ -698,7 +711,7 @@ do
         h)
             echo >&2 ; usage ; exit 1 ;;
         \?)
-            echo "Invalid option: -$OPTARG" >&2 ; usage ; exit 1 ;;
+            echo -e "\033[1;31mInvalid option: -$OPTARG\033[0m" >&2 ; usage ; exit 1 ;;
         [?])
             echo >&2 ; usage ; exit 1 ;;
     esac
