@@ -809,7 +809,7 @@ create_accounts() {
     chmod g+rx /home/gemdev
 
     ### daqbuild account for building the releases
-    prompt_confirm "\033[1;32mCreate user daqbuild?"
+    prompt_confirm "Create user daqbuild?"
     if [ "$?" =  "0" ]
     then
         new_system_user daqbuild 2050 2050
