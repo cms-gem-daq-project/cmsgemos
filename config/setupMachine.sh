@@ -31,7 +31,7 @@ new_service() {
 
     newserv=${1}
     status=${2}
-    
+
     if [ "${osver}" = "6" ]
     then
         # for slc6 machines
@@ -57,6 +57,56 @@ new_service() {
         systemctl daemon-reload
         systemctl ${svcmd} ${newserv}.service
     fi
+}
+
+new_system_group() {
+    if [ -z "$2" ]
+    then
+        echo -e "$0 $1 $2 $3"
+        echo -e "\033[1;33mUsage: new_system_group <groupname> <gid>\033[0m"
+        return 1
+    fi
+
+    echo -e "\033[1;32mCreating group $1 with gid $2\033[0m"
+    groupadd $1
+    groupmod -g $2 $1
+}
+
+new_system_user() {
+    if [ -z "$3" ]
+    then
+        echo -e "$0 $1 $2 $3 $4"
+        echo -e "\033[1;33mUsage: new_system_user <username> <uid> <primary gid>\033[0m"
+        return 1
+    fi
+
+    echo -e "\033[1;32mCreating user $1 with uid $2 in primary group $3\033[0m"
+    useradd $1
+    usermod -u $2 $1
+    groupmod -g $3 $1
+
+    # machine local directory
+    if [ ! -d /home/$1 ]
+    then
+        mkdir --context=system_u:object_r:user_home_dir_t:s0 /home/$1
+    else
+        echo "changing conditions for $1 home directory"
+        mkdir --context=system_u:object_r:user_home_dir_t:s0 /tmp/testcons
+        chcon --reference=/tmp/testcons /home/$1
+        rm -rf /tmp/testcons
+    fi
+
+    # chmod a+rx /home/$1
+    chown $1:$3 -R /home/$1
+
+    prompt_confirm "Create directory for $1 on connected NAS?"
+    if [ "$?" = "0" ]
+    then
+        mkdir -p --context=system_u:object_r:nfs_t:s0 /data/bigdisk/users/$1
+        chown -R $1:zh /data/bigdisk/users/$1
+    fi
+
+    passwd $1
 }
 
 configure_interface() {
@@ -130,7 +180,7 @@ configure_interface() {
     echo "NETMASK=${netmask}" >> ${cfgbase}/${cfgfile}
 
     echo "New config file is:"
-    cat ${cfgbase}/${cfgfile}    
+    cat ${cfgbase}/${cfgfile}
 }
 
 ###### Main functions #####
@@ -197,19 +247,31 @@ install_cactus() {
 install_misc_rpms() {
     # Option 'm'
     echo Installing miscellaneous RPMS...
-    yum install -y libuuid-devel e2fsprogs-devel readline-devel ncurses-devel curl-devel boost-devel \
-        numactl-devel freeipmi-devel arp-scan libusb libusbx libusb-devel libusbx-devel
+    yum -y install telnet htop arp-scan
+
+    yum -y install libuuid-devel e2fsprogs-devel readline-devel ncurses-devel curl-devel boost-devel \
+        numactl-devel freeipmi-devel libusb libusbx libusb-devel libusbx-devel
 
     if [ "${osver}" = "6" ]
     then
-        yum install -y mysql-devel mysql-server 
-        yum install -y sl-release-scl
+        yum -y install mysql-devel mysql-server
+        yum -y install sl-release-scl
     elif [ "${osver}" = "7" ]
     then
-        yum install -y mariadb-devel mariadb-server 
-        yum install -y centos-release-scl
+        yum -y install mariadb-devel mariadb-server
+        yum -y install centos-release-scl
     else
         echo "Unknown release ${osver}"
+    fi
+
+    prompt_confirm "Install updated emacs?"
+    if [ "$?" = "0" ]
+    then
+        wget http://pj.freefaculty.org/EL/pjku.repo -O /etc/yum.repos.d/pjku.repo
+        rpm --import http://pj.freefaculty.org/EL/PaulJohnson-BinaryPackageSigningKey
+        yum -y install emacs --disablerepo=* --enablerepo=pjku
+        yum -y install emacs emacs-auctex emacs-common emacs-filesystem emacs-git \
+            emacs-git-el emacs-gnuplot emacs-gnuplot-el emacs-rpm-spec-mode emacs-yaml-mode
     fi
 }
 
@@ -217,8 +279,8 @@ install_sysmgr() {
     # Option 'S'
     echo Installing UW sysmgr RPMS...
     wget https://www.hep.wisc.edu/uwcms-repos/el${osver}/release/uwcms.repo -O /etc/yum.repos.d/uwcms.repo
-    yum install -y freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel
-    yum install -y sysmgr
+    yum -y install freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel
+    yum -y install sysmgr
 
     prompt_confirm "Setup machine to communicate directly to a CTP7?"
     if [ "$?" = "0" ]
@@ -232,7 +294,7 @@ install_sysmgr() {
 install_root() {
     # Option 'r'
     echo Installing root...
-    yum install -y root root-\*
+    yum -y install root root-\*
 }
 
 install_python() {
@@ -243,7 +305,7 @@ install_python() {
         prompt_confirm "Install ${sclpy}?"
         if [ "$?" = "0" ]
         then
-            eval yum install -y ${sclpy}*
+            eval yum -y install ${sclpy}*
         fi
     done
 
@@ -253,7 +315,7 @@ install_python() {
         prompt_confirm "Install ${rhpy}?"
         if [ "$?" = "0" ]
         then
-            eval yum install -y ${rhpy}*
+            eval yum -y install ${rhpy}*
         fi
     done
 
@@ -269,7 +331,7 @@ install_python() {
     echo "Installing python2.7 (${pyver}) from source, no longer best option probably!"
 
     # install dependencies
-    yum install -y tcl-devel tk-devel
+    yum -y install tcl-devel tk-devel
 
     # common source directory, may already exist
     mkdir -p /data/bigdisk/sw/python2.7/
@@ -287,19 +349,19 @@ install_python() {
 
     # do the installation
     make altinstall
-    
+
     cd /data/bigdisk/sw/python2.7/
     /usr/local/bin/python2.7 ez_setup.py
     /usr/local/bin/easy_install-2.7 pip
-    
+
     # add links to the python26 packages we'll need, how to do this generally
     ln -s /usr/lib/python2.6/site-packages/uhal /usr/local/lib/python2.7/site-packages/uhal
-    
+
     ln -s /usr/lib/python2.6/site-packages/cactusboards_amc13_python-1.1.10-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactusboards_amc13_python-1.1.10-py2.6.egg-info
     ln -s /usr/lib/python2.6/site-packages/cactuscore_tsxdaqclient-2.6.3-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactuscore_tsxdaqclient-2.6.3-py2.6.egg-info
     ln -s /usr/lib/python2.6/site-packages/cactuscore_uhal_gui-2.3.0-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactuscore_uhal_gui-2.3.0-py2.6.egg-info
     ln -s /usr/lib/python2.6/site-packages/cactuscore_uhal_pycohal-2.4.0-py2.6.egg-info /usr/local/lib/python2.7/site-packages/cactuscore_uhal_pycohal-2.4.0-py2.6.egg-info
-    
+
     ln -s /usr/lib/python2.6/site-packages/amc13 /usr/local/lib/python2.7/site-packages/amc13
     ln -s /usr/lib64/python2.6/site-packages/ROOT.py /usr/local/lib/python2.7/site-packages/ROOT.py
     ln -s /usr/lib64/python2.6/site-packages/ROOTwriter.py /usr/local/lib/python2.7/site-packages/ROOTwriter.py
@@ -313,23 +375,23 @@ install_developer_tools() {
     prompt_confirm "Install rh-git29?"
     if [ "$?" = "0" ]
     then
-       yum install -y rh-git29*
+       yum -y install rh-git29*
     fi
 
     prompt_confirm "Install git-lfs?"
     if [ "$?" = "0" ]
     then
         curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh|bash
-        yum install git-lfs
+        yum -y install git-lfs
     fi
-    
+
     rubyvers=( rh-ruby22 rh-ruby23 rh-ruby24 )
     for rver in "${rubyvers[@]}"
     do
         prompt_confirm "Install ${rver}?"
         if [ "$?" = "0" ]
         then
-            yum install -y ${rver}*
+            yum -y install ${rver}*
         fi
     done
 
@@ -342,7 +404,7 @@ install_developer_tools() {
             prompt_confirm "Install ${dtool}-${tool}?"
             if [ "$?" = "0" ]
             then
-                eval yum install -y ${dtool}-${tool}*
+                eval yum -y install ${dtool}-${tool}*
             fi
         done
     done
@@ -359,7 +421,7 @@ setup_nas() {
         echo Unable to ping ${nashost}, are you sure the hostname is correct or the NAS is on?
         return 1
     fi
-    
+
     echo Connecting to the NAS at ${nashost}
     cat <<EOF>/etc/auto.nas
 GEMDAQ_Documentation    -context="system_u:object_r:nfs_t:s0",nosharecache,auto,rw,async,timeo=14,intr,rsize=32768,wsize=32768,tcp,nosuid,noexec,acl               ${nashost}:/share/gemdata/GEMDAQ_Documentation
@@ -423,7 +485,7 @@ install_mellanox_driver() {
 
     # # Run the installation script, failing to get the init script...
     # ./install
-    
+
     # RPM with YUM
     rpm --import RPM-GPG-KEY-Mellanox
     cat <<EOF > /etc/yum.repos.d/mellanox.repo
@@ -435,7 +497,7 @@ gpgkey=file://${PWD}/RPM-GPG-KEY-Mellanox
 gpgcheck=1
 EOF
     yum -y install mlnx-en-eth-only --disablerepo=* --enablerepo=mlnx_en
-    
+
     # Load the driver.
     new_service mlnx-en.d on
     cd $curdir
@@ -447,7 +509,7 @@ update_xpci_driver() {
     curdir=$PWD
     mkdir -p /tmp/xpci_update
     cd /tmp/xpci_update
-    yumdownloader --source daq-xpcidrv
+    yumdownloader --source daq-xpcidrv --enablerepo=xdaq-sources
 
     if [ ! "$?" = "0" ]
     then
@@ -456,16 +518,26 @@ update_xpci_driver() {
     fi
 
     yum-builddep -y daq-xpcidrv-*.src.rpm
-    rpm -ihv daq-xpcidrv-*.src.rpm
-    cd ~/rpmbuild
-    mkdir -p RPMS/x86_64/old
-    mv RPMS/x86_64/*.rpm RPMS/x86_64/old
-    rpmbuild -bb SPECS/daq-xpcidrv.x86_64_slc6.spec
-    cd RPMS/x86_64
-    yum remove daq-xpcidrv daq-xpcidrv-debuginfo daq-xpcidrv-devel
-    yum install kernel-module-daq-xpcidrv-*.rpm
-    yum install daq-xpcidrv-*.rpm
-    lsmod|fgrep xpc
+
+    # this part should be run as non-root
+    echo "Entering user subshell"
+    sudo -u gemuser echo "Entered user subshell"
+    sudo -u gemuser rpm -ihv daq-xpcidrv-*.src.rpm
+    sudo -u gemuser mkdir -p ~gemuser/rpmbuild/RPMS/x86_64/old
+    sudo -u gemuser mv ~gemuser/rpmbuild/RPMS/x86_64/*.rpm ~gemuser/rpmbuild/RPMS/x86_64/old
+    sudo -u gemuser rpmbuild -bb ~gemuser/rpmbuild/SPECS/daq-xpcidrv.x86_64*.spec
+    sudo -u gemuser echo "Leaving user subshell"
+
+    # should be run with elevated privileges
+    yum -y remove daq-xpcidrv daq-xpcidrv-debuginfo daq-xpcidrv-devel
+    yum -y install ~gemuser/rpmbuild/RPMS/x86_64/kernel-module-daq-xpcidrv-*.rpm
+    yum -y install ~gemuser/rpmbuild/RPMS/x86_64/daq-xpcidrv-*.rpm
+
+    lsmod|fgrep xpci
+    if [ ! "$?" = "0" ]
+    then
+        modprobe xpci
+    fi
     cd ${curdir}
 }
 
@@ -515,7 +587,7 @@ connect_ctp7s() {
 
     # create /etc/rsyslog.d/ctp7.conf
     # Created /etc/logrotate.d/ctp7 with configuration to rotate these logs.
-    
+
     # Created configuration file /etc/dnsmasq.d/ctp7 which I hope will work correctly.
 
     # /etc/hosts has been updated with CTP7-related dns names
@@ -530,56 +602,35 @@ create_accounts() {
     # or even 'service' accounts, but better to have them tied to egroups
     # so one can log in with NICE credentials, a la cchcal
     ### generic gemuser group for running tests
-    echo -e "\033[1;32mCreating user gemuser\033[0m"
-    useradd gemuser
-    usermod -u 5030 gemuser
-    groupmod -g 5030 gemuser
-    passwd gemuser
-    chmod og+rx /home/gemuser
+    new_system_user gemuser 5075 5075
+    chmod a+rx /home/gemuser
 
     ### gempro (production) account for running the system as an expert
-    echo -e "\033[1;32mCreating user gempro\033[0m"
-    useradd gempro
-    usermod -u 5050 gempro
-    groupmod -g 5050 gempro
-    passwd gempro
+    new_system_user gempro 5060 5060
     chmod g+rx /home/gempro
 
     ### gemdev (development) account for running tests
-    echo -e "\033[1;32mCreating user gemdev\033[0m"
-    useradd gemdev
-    usermod -u 5055 gemdev
-    groupmod -g 5055 gemdev
-    passwd gemdev
+    new_system_user gemdev 5050 5050
     chmod g+rx /home/gemdev
 
     ### daqbuild account for building the releases
-    prompt_confirm "\033[1;32mCreate user daqbuild?"
+    prompt_confirm "Create user daqbuild?"
     if [ "$?" =  "0" ]
     then
-        echo -e "\033[1;32mCreating user daqbuild\033[0m"
-        useradd daqbuild
-        usermod -u 2050 daqbuild
-        groupmod -g 2050 daqbuild
-        passwd daqbuild
+        new_system_user daqbuild 2050 2050
+        # chmod g+rx /home/daqbuild
     fi
 
     ### daqpro account for building the releases
-    echo -e "\033[1;32mCreating user daqpro\033[0m"
-    useradd daqpro
-    usermod -u 2055 daqpro
-    groupmod -g 2055 daqpro
-    passwd daqpro
+    new_system_user daqpro 2055 2055
+    chmod g+rx /home/daqpro
 
+    # Groups for sudo rules only
     ### gemdaq group for DAQ pro tasks on the system
-    echo -e "\033[1;32mCreating group gemdaq\033[0m"
-    groupadd gemdaq
-    groupmod -g 2075 gemdaq
+    new_system_group gemdaq 2075
 
     ### gemsudoers group for administering the system
-    echo -e "\033[1;32mCreating group gemsudoers\033[0m"
-    groupadd gemsudoers
-    groupmod -g 1075 gemsudoers
+    new_system_group gemsudoers 1075
 }
 
 add_cern_users() {

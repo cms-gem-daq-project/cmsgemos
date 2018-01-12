@@ -14,16 +14,27 @@ fi
 
 if [ ! -d /home/$1 ]
 then
-    mkdir -Z system_u:object_r:user_home_dir_t:s0 /home/$1
+    mkdir --context=system_u:object_r:user_home_dir_t:s0 /home/$1
     chown $1:zh -R /home/$1
     echo "To set the home directory for $1 to /home/$1, execute"
     echo "usermod -d /home/$1 $1"
+else
+    echo "changing conditions for $user home directory"
+    mkdir --context=system_u:object_r:user_home_dir_t:s0 /tmp/testconditions
+    chcon --reference=/tmp/testconditions /home/$1
+    rm -rf /tmp/testconditions
 fi
 
 if [ ! -d /data/xdaq/$1 ]
 then
-    mkdir -p -Z system_u:object_r:usr_t:s0 /data/xdaq/$1/gemdaq
+    mkdir -p --context=system_u:object_r:usr_t:s0 /data/xdaq/$1/gemdaq
+else
+    echo "changing conditions for $user data directory"
+    mkdir --context=system_u:object_r:usr_t:s0 /tmp/testconditions
+    chcon --reference=/tmp/testconditions /data/xdaq/$1/gemdaq
+    rm -rf /tmp/testconditions
 fi
+
 unlink /data/xdaq/$1/*
 ln -sn /opt/xdaq/htdocs/* /data/xdaq/$1/
 chown $1:zh -R /data/xdaq/$1
@@ -32,6 +43,6 @@ chown root:root -R /opt/xdaq/htdocs
 
 if [ ! -d /data/bigdisk/users/$1 ]
 then
-    mkdir -p -Z system_u:object_r:nfs_t:s0 /data/bigdisk/users/$1
+    mkdir -p --context=system_u:object_r:nfs_t:s0 /data/bigdisk/users/$1
     chown -R $1:zh /data/bigdisk/users/$1
 fi
