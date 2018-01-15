@@ -51,7 +51,7 @@ class HwOptoHybrid:
         # Define the trigger rate scan module
         self.sbitRateScan = self.parentAMC.lib.sbitRateScan
         self.sbitRateScan.restype = c_uint
-        self.sbitRateScan.argtypes = [uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, c_char_p, POINTER(c_uint32), POINTER(c_uint32)]
+        self.sbitRateScan.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32)]
 
         # Define the known V2b electronics scan registers
         self.KnownV2bElScanRegs = [
@@ -192,11 +192,25 @@ class HwOptoHybrid:
             print("Only implemented for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
 
-        return self.sbitRateScan(self.link, dacMin, dacMax, dacStep, chan, maskOh, scanReg, outDataDacVal, outDataTrigRate)
+        return self.sbitRateScan(self.link, dacMin, dacMax, stepSize, chan, maskOh, scanReg, outDataDacVal, outDataTrigRate)
 
     def setDebug(self, debug):
         self.debug = debug
         return
+
+    def setSBitMask(self, sbitMask):
+        """
+        v3 electronics only
+
+        Sets the sbit mask in the OH FPGA
+        """
+        
+        if self.parentAMC.fwVersion < 3:
+            print("Parent AMC Major FW Version: %i"%(self.parentAMC.fwVersion))
+            print("Only implemented for v3 electronics, exiting")
+            sys.exit(os.EX_USAGE)
+
+        return self.parentAMC.writeRegister("GEM_AMC.OH.OH%i.TRIG.CTRL.VFAT_MASK"%(self.link),sbitMask)
 
     def setTriggerSource(self,source):
         """
