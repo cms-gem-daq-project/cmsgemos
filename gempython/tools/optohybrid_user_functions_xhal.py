@@ -48,6 +48,12 @@ class HwOptoHybrid:
                                  c_uint, c_uint, c_uint, c_uint, 
                                  c_char_p, c_bool, c_bool, POINTER(c_uint32)]
 
+        # Define the trigger rate scan module
+        self.sbitRateScan = self.parentAMC.lib.sbitRateScan
+        self.sbitRateScan.restype = c_uint
+        self.sbitRateScan.argtypes = [uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, c_char_p, POINTER(c_uint32), POINTER(c_uint32)]
+
+        # Define the known V2b electronics scan registers
         self.KnownV2bElScanRegs = [
                     "Latency",
                     "VCal",
@@ -161,6 +167,32 @@ class HwOptoHybrid:
                 scanReg = str.replace("CFG_","")
 
         return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, mask, scanReg, useUltra, useExtTrig, outData)
+
+    def performSBitRateScan(self, maskOh, outDataDacVal, outDataTrigRate, dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC"):
+        """
+        Measures the rate of sbits sent by the VFAT defined in maskOh
+
+        
+        chan            - VFAT channel to be considered, for all channels 
+                          set to 128
+        scanReg         - Name of register to be scanned.
+        outDataDacVal   - Array of type c_uint32, array size must be:
+                          ((dacMax - dacMin + 1) / stepSize)
+                          The i^th position here is the DAC value that 
+                          the i^th rate in outDataTrigRate was obtained at
+        outDataTrigRate - As outDataDacVal but for trigger rate
+        dacMin          - Starting dac value of the scan
+        dacMax          - Ending dac value of the scan
+        stepSize        - Step size for moving from dacMin to dacMax
+
+        """
+
+        if self.parentAMC.fwVersion < 3:
+            print("Parent AMC Major FW Version: %i"%(self.parentAMC.fwVersion))
+            print("Only implemented for v3 electronics, exiting")
+            sys.exit(os.EX_USAGE)
+
+        return self.sbitRateScan(self.link, dacMin, dacMax, dacStep, chan, maskOh, scanReg, outDataDacVal, outDataTrigRate)
 
     def setDebug(self, debug):
         self.debug = debug
