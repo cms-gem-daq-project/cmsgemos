@@ -51,7 +51,7 @@ class HwOptoHybrid:
         # Define the trigger rate scan module
         self.sbitRateScan = self.parentAMC.lib.sbitRateScan
         self.sbitRateScan.restype = c_uint
-        self.sbitRateScan.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, POINTER(c_uint32), POINTER(c_uint32)]
+        self.sbitRateScan.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_char_p, c_uint, POINTER(c_uint32), POINTER(c_uint32)]
 
         # Define the known V2b electronics scan registers
         self.KnownV2bElScanRegs = [
@@ -168,7 +168,7 @@ class HwOptoHybrid:
 
         return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, mask, scanReg, useUltra, useExtTrig, outData)
 
-    def performSBitRateScan(self, maskOh, outDataDacVal, outDataTrigRate, dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC"):
+    def performSBitRateScan(self, vfat, maskOh, outDataDacVal, outDataTrigRate, dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC", time=2000):
         """
         Measures the rate of sbits sent by the VFAT defined in maskOh
 
@@ -184,6 +184,7 @@ class HwOptoHybrid:
         dacMin          - Starting dac value of the scan
         dacMax          - Ending dac value of the scan
         stepSize        - Step size for moving from dacMin to dacMax
+        time            - Time to wait for each point in milliseconds
 
         """
 
@@ -192,7 +193,7 @@ class HwOptoHybrid:
             print("Only implemented for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
 
-        return self.sbitRateScan(self.link, dacMin, dacMax, stepSize, chan, maskOh, scanReg, outDataDacVal, outDataTrigRate)
+        return self.sbitRateScan(self.link, vfat, dacMin, dacMax, stepSize, chan, maskOh, scanReg, time, outDataDacVal, outDataTrigRate)
 
     def setDebug(self, debug):
         self.debug = debug
