@@ -38,8 +38,8 @@ UserDynamicLinkFlags =
 IncludeDirs+=$(XDAQ_ROOT)/include
 
 ## Python
-PYTHON_VERSION ?= $(shell python -c "import distutils.sysconfig;print distutils.sysconfig.get_python_version()")
-PYTHON_INCLUDE_PREFIX ?= $(shell python -c "import distutils.sysconfig;print distutils.sysconfig.get_python_inc()")
+PYTHON_VERSION ?= $(shell python -c "import distutils.sysconfig;print(distutils.sysconfig.get_python_version())")
+PYTHON_INCLUDE_PREFIX ?= $(shell python -c "import distutils.sysconfig;print(distutils.sysconfig.get_python_inc())")
 # Python Config
 PYTHONCFLAGS = $(shell pkg-config python --cflags)
 PYTHONLIBS   = $(shell pkg-config python --libs)

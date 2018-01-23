@@ -130,11 +130,14 @@ makerpm:
 	# # Add a manifest file
 	# echo "include */*.so" > $(PackagePath)/rpm/MANIFEST.in
 	# Change into rpm/pkg to finally run the customized setup.py
-	cd $(PackagePath)/rpm && python $(LongPackage).setup.py bdist_rpm \
+	cd $(PackagePath)/rpm && python $(LongPackage).setup.py \
+        egg_info --tag-date --tag-build=DEV \
+        bdist_rpm \
 	--release ${PACKAGE_RELEASE}.${XDAQ_OS}.python${PYTHON_VERSION} \
 	--binary-only --force-arch=`uname -m`
 	# Harvest the crop
 	find rpm -name "*.rpm" -exec cp -a \{\} rpm/ \;
+        # for building a nightly, egg_info --tag-date --tag-build=DEV
 
 .PHONY: setup_update
 setup_update:
@@ -180,6 +183,51 @@ setup_update:
 	sed -i 's#__groupname__#$(GROUP_NAME)#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__uid__#$(UID)#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__gid__#$(GID)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+
+        ## for pbr setup.cfg, maybe replace the previous... in any event, the setup.cfg takes precedence
+	if [ -e $(PackagePath)/setup.cfg ]; then \
+		echo $(PackagePath) found setup.cfg; \
+		cp $(PackagePath)/setup.cfg $(PackagePath)/rpm/$(LongPackage).setup.cfg; \
+	elif [ -e $(ProjectPath)/config/build/cmsgemos.setupTemplate.cfg ]; then \
+		echo $(ProjectPath)/config found cmsgemos.setupTemplate.cfg; \
+		cp $(ProjectPath)/config/build/cmsgemos.setupTemplate.cfg $(PackagePath)/rpm/$(LongPackage).setup.cfg; \
+	else \
+		echo "Error (setup_update) could not find a valid setup.cfg template for package '$(Package)'"; \
+	fi
+
+	sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__python_packages__#${PythonModules}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__package__#${Package}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__packagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__packagename__#${PackageName}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__longpackage__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__longpackagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__longpackagename__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__release__#${PACKAGE_RELEASE}.${XDAQ_OS}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__os__#${XDAQ_OS}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__platform__#None#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__project__#${Project}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__author__#${Packager}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	# sed -i 's#__summary__#$(Summary)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__summary__#None#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	# sed -i 's#__description__#$(Description)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__description__#None#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	# sed -i 's#__long_description__#$(LongDescription)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__long_description__#None#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	# sed -i 's#__url__#$(Link)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__url__#None#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	# sed -i 's#__datadir__#$(DATA_DIR)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__username__#$(USER_NAME)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__groupname__#$(GROUP_NAME)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__uid__#$(UID)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__gid__#$(GID)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+
+	ln -sf $(LongPackage).setup.py $(PackagePath)/rpm/setup.py
+	ln -sf $(LongPackage).setup.cfg $(PackagePath)/rpm/setup.cfg
 
 
 .PHONY: _cleanrpmall

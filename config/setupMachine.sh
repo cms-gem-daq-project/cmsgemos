@@ -13,10 +13,11 @@ fi
 prompt_confirm() {
     while true
     do
-        read -u 3 -r -n 1 -p $'\e[1;35m'"${1:-Continue?}"$' [y/n]:\033[0m ' REPLY
+        read -u 3 -r -n 1 -p $'\e[1;35m'"${1:-Continue?}"$' [y/N/q]:\033[0m ' REPLY
         case $REPLY in
             [yY]) echo ; return 0 ;;
             [nN]) echo ; return 1 ;;
+            [qQ]) echo ; exit 1 ;;
             *) echo ; return 1 ;;
         esac
     done 3<&0
@@ -247,10 +248,11 @@ install_cactus() {
 install_misc_rpms() {
     # Option 'm'
     echo Installing miscellaneous RPMS...
-    yum -y install telnet htop arp-scan
+    yum -y install telnet htop arp-scan screen tmux
 
     yum -y install libuuid-devel e2fsprogs-devel readline-devel ncurses-devel curl-devel boost-devel \
-        numactl-devel freeipmi-devel libusb libusbx libusb-devel libusbx-devel
+        numactl-devel freeipmi-devel libusb libusbx libusb-devel libusbx-devel \
+        protobuf-devel protobuf-lite-devel
 
     if [ "${osver}" = "6" ]
     then
@@ -267,7 +269,13 @@ install_misc_rpms() {
     prompt_confirm "Install updated emacs?"
     if [ "$?" = "0" ]
     then
-        wget http://pj.freefaculty.org/EL/pjku.repo -O /etc/yum.repos.d/pjku.repo
+        if [ "${osver}" = "6" ]
+        then
+            wget http://pj.freefaculty.org/EL/pjku-EL6.repo -O /etc/yum.repos.d/pjku.repo
+        elif [ "${osver}" = "7" ]
+        then
+            wget http://pj.freefaculty.org/EL/pjku.repo -O /etc/yum.repos.d/pjku.repo
+        fi
         rpm --import http://pj.freefaculty.org/EL/PaulJohnson-BinaryPackageSigningKey
         yum -y install emacs --disablerepo=* --enablerepo=pjku
         yum -y install emacs emacs-auctex emacs-common emacs-filesystem emacs-git \
@@ -279,15 +287,18 @@ install_sysmgr() {
     # Option 'S'
     echo Installing UW sysmgr RPMS...
     wget https://www.hep.wisc.edu/uwcms-repos/el${osver}/release/uwcms.repo -O /etc/yum.repos.d/uwcms.repo
-    yum -y install freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel
-    yum -y install sysmgr
+    yum -y install freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel xinetd
+    yum -y install sysmgr-complete
+    # yum -y install sysmgr
 
     prompt_confirm "Setup machine to communicate directly to a CTP7?"
     if [ "$?" = "0" ]
     then
         new_service sysmgr on
+        new_service xinetd on
     else
         new_service sysmgr off
+        new_service xinetd off
     fi
 }
 
@@ -578,11 +589,110 @@ connect_ctp7s() {
     # Option 'C'
     echo -e "\033[1;32mSetting up for ${hostname} for CTP7 usage\033[0m"
     # Updated /etc/sysmgr/sysmgr.conf to enable the GenericUW configuration module to support "WISC CTP-7" cards.
+    if [ -e /etc/sysmgr/sysmgr.conf ]
+    then
+        mv /etc/sysmgr/sysmgr.conf.bak
+    fi
+
+    authkey="Aij8kpjf"
+
+    cat <<EOF > /etc/sysmgr/sysmgr.conf
+socket_port = 4681
+
+# If ratelimit_delay is set, it defines the number of microseconds that the
+# system manager will sleep after sending a command to a crate on behalf of a
+# client application.  This can be used to avoid session timeouts due to
+# excessive rates of requests.
+#
+# Note that this will suspend only the individual crate thread, and other
+# crates will remain unaffected, as will any operation that does not access an
+# individual crate.  The default, 0, is no delay.
+ratelimit_delay = 100000
+
+# If true, the system manager will run as a daemon, and send stdout to syslog.
+daemonize = true
+
+authentication {
+	raw = { "${authkey}" }
+	manage = { }
+	read = { "" }
+}
+
+cardmodule {
+	module = "GenericUW.so"
+	config = {
+		"ivtable=ipconfig.xml",
+ 		"poll_count=12",
+ 		"poll_delay=15"
+	}
+}
+
+cardmodule {
+        module = "GenericUW.so"
+        config = {
+                "ivtable=ipconfig.xml",
+                # "poll_count=27448000",
+                "poll_count=52596000",
+                "poll_delay=30",
+                "support=WISC CTP-6",
+                "support=WISC CIOX",
+                # "support=WISC CIOZ",
+                "support=BU AMC13"
+        }
+}
+
+cardmodule {
+	module = "UWDirect.so"
+	config = {
+		"ivtable=ipconfig.xml",
+                # "poll_count=27448000",
+		"poll_count=105192000",
+		"poll_delay=15",
+		"support=WISC CTP-7#19",
+		"support=WISC CIOZ#14"
+	}
+}
+EOF
+
+    # add crates
+
+    cat <<EOF
+crate {
+	host = "${ipaddr}"
+	mch = "${type}"
+	username = ""
+	password = ""
+	authtype = none
+	description = "${desc}"
+}
+EOF
+
 
     # Created /etc/sysmgr/ipconfig.xml to map geographic address assignments for crates 1 and 2 matching the /24
     # subnets associated with the MCHs listed for them in /etc/sysmgr/sysmgr.conf.  These addresses will occupy
     # 192.168.*.40 to 192.168.*.52 which nmap confirms are not in use.
+    if [ -e /etc/sysmgr/ipconfig.xml ]
+    then
+        mv /etc/sysmgr/ipconfig.xml.bak
+    fi
 
+    authkey="Aij8kpjf"
+
+    cat <<EOF > /etc/sysmgr/ipconfig.xml
+<IVTable>
+    <Crate number="1">
+        <Slot number="1">
+            <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} ${slot} 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
+        </Slot>
+    </Crate>
+
+    <Crate number="2">
+        <Slot number="1">
+            <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} ${slot} 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
+        </Slot>
+    </Crate>
+</IVTable>
+EOF
     # time-stream xinetd service was enabled by editing /etc/xinetd.d/time-stream and restarting xinetd via init script.
 
     # create /etc/rsyslog.d/ctp7.conf
@@ -701,6 +811,10 @@ usage() {
          "    -M Install Mellanox 10GbE drivers for uFEDKIT\n" \
          "    -X Install/update xpci drivers\n" \
          "    -A Create common users and groups\n" \
+         # "    -Z Install Xilinx USB drivers\n" \
+         # "    -V Install Xilinx Vivado\n" \
+         # "    -I Install Xilinx ISE\n" \
+         # "    -L Install Xilinx LabTools\n" \
          "    -u <file> Add accounts of NICE users (specified in file)\n" \
          "\n" \
          " Examples:\n" \
@@ -711,7 +825,7 @@ usage() {
          "https://github.com/cms-gem-daq-project/cmsgemos\n"
 }
 
-while getopts "aixcmSrpdnNCMXAuh" opt
+while getopts "aixcmSrpdnNCMXAZVILuh" opt
 do
     case $opt in
         a)
@@ -758,6 +872,14 @@ do
             update_xpci_driver ;;
         A)
             create_accounts ;;
+        Z)
+            : ;;
+        V)
+            : ;;
+        I)
+            : ;;
+        L)
+            : ;;
         u)
             add_cern_users ;;
         h)

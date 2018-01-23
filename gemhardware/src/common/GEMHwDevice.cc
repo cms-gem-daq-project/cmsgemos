@@ -930,4 +930,3 @@ void gem::hw::GEMHwDevice::linkReset(uint8_t const& link)
 {
   return;
 }
-
