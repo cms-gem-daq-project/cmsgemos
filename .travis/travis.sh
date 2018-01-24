@@ -32,4 +32,7 @@ then
     docker ps -a
     docker stop $DOCKER_CONTAINER_ID
     docker rm -v $DOCKER_CONTAINER_ID
+elif [ "$el_version" = "8" ]
+then
+    echo "Running CC8 GEM DAQ custom docker image"
 fi
