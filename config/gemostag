@@ -6,7 +6,7 @@ use autodie;
 use Cwd;
 use Git::Wrapper;
 use Getopt::Lucid qw/:all/;
- 
+
 # copied from cmshcos and http://www.dagolden.com/index.php/998/how-to-script-git-with-perl-and-gitwrapper/
 @specs=(
     Param('--package|p')->anycase(),
@@ -14,6 +14,7 @@ use Getopt::Lucid qw/:all/;
     #Param('--reltype|r')->anycase()->valid('qr/(major|minor|patch|maj|min|pat)/'),
     Param('--reltype|r')->anycase(),
     Switch('--help|h')->anycase(),
+    Switch('--diff|d')->anycase(),
     );
 
 my $opts=Getopt::Lucid->getopt(\@specs);
@@ -34,10 +35,6 @@ if ($opts->get_help) {
     exit(0);
 }
 
-# Now ensure required arguments are specified
-$opts->validate( {'requires' => ['package']} );
-$opts->validate( {'requires' => ['message']} );
-
 # Get a wrapper for the current directory
 my $git=Git::Wrapper->new(".");
 my $pwd=cwd();
@@ -45,14 +42,30 @@ my $pwd=cwd();
 $wd=$pwd;
 $gemosbase="cmsgemos";
 # Check that this is a valid directory
-if (!($wd=~/${gemosbase}/)) {
+if (!($wd=~/${gemosbase}$/)) {
     print "${wd}\n";
     print "You must run tag script in the base directory of the \ncmsgemos repository', i.e., ${gemosbase}\n";
     print "Guru meditation: '$wd'\n";
     exit(1);
 }
 
-@gemospackages = ('all', 'base', 'hardware', 'calibration', 'HwMonitor', 'rcms', 'readout', 'supervisor', 'utils');
+@gemospackages = ('all', 'base', 'calibration', 'hardware', 'HwMonitor', 'python', 'readout', 'supervisor', 'tests', 'utils', 'xaas');
+
+if ($opts->get_diff) {
+    foreach (@gemospackages) {
+        if ( !( "all" ~~ "$_" ) ) {
+            print "Looking for changes in gem$_: ";
+            $status=$git->status("gem$_");
+            print $status->is_dirty, "\n"
+        }
+    }
+    exit(0);
+}
+
+# Now ensure required arguments are specified
+$opts->validate( {'requires' => ['package']} );
+$opts->validate( {'requires' => ['message']} );
+
 $packname=$opts->get_package;
 print "packname=${packname}\n";
 if ( !(grep( $packname, @gemospackages ) ) ) {
@@ -131,7 +144,7 @@ if ($packname eq "all" ) {
     print "The tag '$uptag' is being created for gem${packname}.\n";
 }
 exit(0);
-    
+
 # if this one of the "special" packages, make sure the sub-tags match
 #gembase
 #gemcalibration
@@ -143,7 +156,7 @@ exit(0);
 #gemutils
 
 # need to understand dependencies
-if ($packname eq "db") {    
+if ($packname eq "db") {
     print "REMINDER! Implementation changes may require updating tags for package!\n";
 } elsif ($packname eq "HwMonitor") {
     print "REMINDER! Implementation changes may require updating tags for package!\n";

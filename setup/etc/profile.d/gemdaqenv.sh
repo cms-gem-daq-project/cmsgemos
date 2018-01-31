@@ -77,3 +77,11 @@ export PATH=$PATH:$uHALROOT/bin/amc13
 export AMC13_ADDRESS_TABLE_PATH=${uHALROOT}/etc/amc13/
 export GEMHOST=`hostname --short`
 export GEM_OS_PROJECT=cmsgemos
+
+echo "PATH=${PATH}"
+echo "AMC13_ADDRESS_TABLE_PATH=${AMC13_ADDRESS_TABLE_PATH}"
+echo "GEMHOST=${GEMHOST}"
+echo "GEM_OS_PROJECT=${GEM_OS_PROJECT=}"
+echo "XDAQ_DOCUMENT_ROOT=${XDAQ_DOCUMENT_ROOT}"
+echo "uHALROOT=${uHALROOT}"
+echo "System setup done"
