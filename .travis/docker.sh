@@ -19,13 +19,15 @@ uname -a
 id
 whoami
 pwd
-ls -lZ .
 
 # $PYTHON_VERSON
 
-# ls -l $PWD
+ls -lZ $PWD
+ls -lZ /data
+ls -lZ /home/daqbuild
 
 export BUILD_HOME=$PWD
+export BUILD_HOME=/home/daqbuild
 
 cd ${BUILD_HOME}/cmsgemos
 
