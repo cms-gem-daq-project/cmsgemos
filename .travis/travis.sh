@@ -25,7 +25,7 @@ then
     # docker_image=cern/cc7-base
     ls -lZ
     docker run --privileged -d -ti -e "container=docker" -v /sys/fs/cgroup:/sys/fs/cgroup \
-           -v `pwd`:/cmsgemos:rw $docker_image /usr/sbin/init
+           -v `pwd`:/home/daqbuild/cmsgemos:rw $docker_image /usr/sbin/init
     DOCKER_CONTAINER_ID=$(docker ps | grep "gemdaq_ci_worker:cc7" | awk '{print $1}')
     docker logs $DOCKER_CONTAINER_ID
     docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -xec "echo Testing build on cc7;
