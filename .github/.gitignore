@@ -1,0 +1,8 @@
+# Ignore everything
+*
+# Don't ignore subdirectories
+!*/
+# Don't ignore
+!*.gitignore
+!*.rst
+!*.md
