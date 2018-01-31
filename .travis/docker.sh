@@ -16,6 +16,10 @@ yum -y clean all
 yum -y clean expire-cache
 
 uname -a
+id
+whoami
+pwd
+ls -lZ .
 
 # $PYTHON_VERSON
 
@@ -29,4 +33,4 @@ cd ${BUILD_HOME}/cmsgemos
 . setup/paths.sh
 
 ## drive the different options here, passed in from the parent?
-make debug -j4
+# make debug -j4

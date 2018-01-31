@@ -30,9 +30,12 @@ before_install:
   - sudo apt-get update
   - echo 'DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock -s devicemapper"' | sudo tee /etc/default/docker > /dev/null
   - sudo service docker restart
-  - sleep 1
+  - sleep 2
   - docker pull $DOCKER_IMAGE
   - docker ps -al
+  - whoami
+  - ls -lZ
+  - id
 
 # stages:
 #   - compile
@@ -74,7 +77,7 @@ before_install:
 
 script:
  - ./.travis/travis.sh ${OS_VERSION}
- - ./.travis/travis.sh ${OS_VERSION}
+# - ./.travis/travis.sh ${OS_VERSION}
 
 after_success:
   bash <(curl -s https://codecov.io/bash) &&

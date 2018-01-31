@@ -13,8 +13,8 @@ then
     echo "Running SLC6 GEM DAQ custom docker image"
     docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:slc6
     # docker_image=cern/slc6-base
-    ls -l
-    sudo docker run --rm=true -v `pwd`:/cmsgemos:rw --entrypoint="/bin/bash" ${docker_image} -xec "echo Testing build on slc6;
+    ls -lZ
+    sudo docker run --rm=true -v `pwd`:/home/daqbuild/cmsgemos:rw --entrypoint="/bin/bash" ${docker_image} -xec "echo Testing build on slc6;
   . /cmsgemos/.travis/docker.sh ${OS_VERSION};
   echo -ne \"------\nEND CMSGEMOS TESTS\n\";"
 elif [ "$el_version" = "7" ]
@@ -23,7 +23,7 @@ then
     docker_image=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker:cc7
     # docker_image=cern/cc7-base
     ls -l
-    docker run --privileged -d -ti -e "container=docker"  -v /sys/fs/cgroup:/sys/fs/cgroup -v `pwd`:/cmsgemos:rw $docker_image /usr/sbin/init
+    docker run --privileged -d -ti -e "container=docker" -v /sys/fs/cgroup:/sys/fs/cgroup -v `pwd`:/cmsgemos:rw $docker_image /usr/sbin/init
     DOCKER_CONTAINER_ID=$(docker ps | grep "gemdaq_ci_worker:cc7" | awk '{print $1}')
     docker logs $DOCKER_CONTAINER_ID
     docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -xec "echo Testing build on cc7;
