@@ -16,17 +16,9 @@ yum -y clean all
 yum -y clean expire-cache
 
 uname -a
-id
-whoami
-pwd
 
 # $PYTHON_VERSON
 
-ls -lZ $PWD
-ls -lZ /data
-ls -lZ /home/daqbuild
-
-export BUILD_HOME=$PWD
 export BUILD_HOME=/home/daqbuild
 
 cd ${BUILD_HOME}/cmsgemos
@@ -35,4 +27,4 @@ cd ${BUILD_HOME}/cmsgemos
 . setup/paths.sh
 
 ## drive the different options here, passed in from the parent?
-# make debug -j4
+make debug -j4
