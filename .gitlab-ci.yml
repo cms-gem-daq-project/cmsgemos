@@ -25,6 +25,7 @@ build:slc6:
   only:
     - /^issue-.*$/
     - /^.*.hotfix.*$/
+    - /^release.*$/
     - master
     - tags
   tags:
