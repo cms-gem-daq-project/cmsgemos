@@ -33,9 +33,11 @@ before_install:
   - sleep 2
   - docker pull $DOCKER_IMAGE
   - docker ps -al
-  - whoami
-  - ls -lZ
-  - id
+  ## Uncomment in the future for potential deployment tasks
+  # - openssl aes-256-cbc -K $encrypted_8a96a0c3dc4a_key -iv $encrypted_8a96a0c3dc4a_iv -in .travis/cmsgemos-deploy-key.enc -out ~\/.ssh/cmsgemos-deploy-key -d
+  # - chmod 600 deploy-key
+  # - eval `ssh-agent -s`
+  # - ssh-add deploy-key
 
 # stages:
 #   - compile

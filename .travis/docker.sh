@@ -27,4 +27,5 @@ cd ${BUILD_HOME}/cmsgemos
 . setup/paths.sh
 
 ## drive the different options here, passed in from the parent?
+# setBuildEnv.sh -p ${PYTHON_VERSION} -c ${COMPILER_VERSION}
 make debug -j4
