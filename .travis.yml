@@ -34,6 +34,7 @@ before_install:
   - docker pull $DOCKER_IMAGE
   - docker ps -al
   ## Uncomment in the future for potential deployment tasks
+  ## Thanks to: https://djw8605.github.io/2017/02/08/deploying-docs-on-github-with-travisci/
   # - openssl aes-256-cbc -K $encrypted_8a96a0c3dc4a_key -iv $encrypted_8a96a0c3dc4a_iv -in .travis/cmsgemos-deploy-key.enc -out ~\/.ssh/cmsgemos-deploy-key -d
   # - chmod 600 deploy-key
   # - eval `ssh-agent -s`
