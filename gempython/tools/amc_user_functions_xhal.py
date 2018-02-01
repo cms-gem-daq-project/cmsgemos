@@ -86,7 +86,7 @@ class HwAMC:
         self.nodes = parseXML(self.addrTable)
 
         # Open RPC Connection
-        print "Initializing AMC"
+        print "Initializing AMC", self.name
         self.rpc_connect(self.name)
         self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR") 
         print "My FW release major = ", self.fwVersion
