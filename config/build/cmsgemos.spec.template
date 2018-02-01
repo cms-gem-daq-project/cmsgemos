@@ -4,6 +4,8 @@
 %define _longpackagename __longpackagename__
 %define _version __version__
 %define _release __release__
+%define _gitrev __gitrev__
+%define _builddate __builddate__
 %define _prefix  __prefix__
 %define _xdaqprefix  __xdaqprefix__
 %define _tmppath /tmp
@@ -30,13 +32,15 @@
 Summary: %{_summary}
 Name: %{_project}-%{_longpackagename}
 Version: %{_version}
-Release: %{_release}
+# Release: %{_release}
+Release: 0.git%{_gitrev}
 Packager: %{_author}
-#BuildArch: %{_buildarch}
-License: BSD
-Group: Applications/XDAQ
+Vendor: CMS GEM Online Software Group
+# BuildArch: %{_buildarch}
+License: MIT
+Group: Applications/DAQ
 ## let's get the specific tag from git and put it here somehow?
-#Source: https://gitlab.cern.ch/cms-gem-daq-project/cmsgemos/tags/v0.3.1
+Source: https://gitlab.cern.ch/cms-gem-daq-project/cmsgemos/tags/%{_packagename}-v%{_version}/v%{_version}-%{release}.tbz2
 ## github.io site, probably best to make this better documented
 URL: %{_url}
 BuildRoot: %{_tmppath}/%{_packagename}-%{_version}-%{_release}-buildroot
@@ -56,7 +60,7 @@ __description__
 #
 %package -n %{_project}-%{_longpackagename}-devel
 Summary:  Development package for %{_summary}
-Group:    Applications/XDAQ
+Group:    Applications/DAQ
 
 %description -n %{_project}-%{_longpackagename}-devel
 __description__
@@ -66,7 +70,7 @@ __description__
 #
 %package -n %{_project}-%{_longpackagename}-debuginfo
 Summary:  Debuginfo package for %{_summary}
-Group:    Applications/XDAQ
+Group:    Applications/DAQ
 
 %description -n %{_project}-%{_longpackagename}-debuginfo
 __description__
