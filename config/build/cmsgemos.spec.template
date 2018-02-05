@@ -40,7 +40,8 @@ Vendor: CMS GEM Online Software Group
 License: MIT
 Group: Applications/DAQ
 ## let's get the specific tag from git and put it here somehow?
-Source: https://gitlab.cern.ch/cms-gem-daq-project/cmsgemos/tags/%{_packagename}-v%{_version}/v%{_version}-%{release}.tbz2
+## need to disentangle the tagname from the version of the package
+Source: https://gitlab.cern.ch/cms-gem-daq-project/cmsgemos/tags/v%{_version}/%{_packagename}-v%{_version}-%{release}.tbz2
 ## github.io site, probably best to make this better documented
 URL: %{_url}
 BuildRoot: %{_tmppath}/%{_packagename}-%{_version}-%{_release}-buildroot
