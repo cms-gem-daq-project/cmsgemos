@@ -1,0 +1,6 @@
+
+#Python include path  
+PYTHON_INCLUDE_PREFIX ?= $(shell python -c "import distutils.sysconfig; print distutils.sysconfig.get_python_inc()")
+PYTHON_LIB_PREFIX     ?= $(shell python -c "from distutils.sysconfig import get_python_lib; import os.path; print os.path.split(get_python_lib(standard_lib=True))[0]")
+PYTHON_VERSION ?= $(shell python -c "import sys; sys.stdout.write(sys.version[:3])")
+PYTHON_LIB     ?= python${PYTHON_VERSION}
