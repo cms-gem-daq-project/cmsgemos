@@ -149,6 +149,28 @@ namespace gem {
             };
 	  };
 
+	  class TTCInfo
+	  {
+	  public:
+            TTCInfo();
+	    void registerFields(xdata::Bag<TTCInfo> *bag);
+
+	    xdata::UnsignedInteger32 resyncCommand;
+	    xdata::UnsignedInteger32 resyncMask;
+	    xdata::UnsignedInteger32 oc0Command;
+	    xdata::UnsignedInteger32 oc0Mask;
+
+            inline std::string toString() {
+              std::stringstream os;
+              os << "resyncCommand: " << std::hex << resyncCommand.value_ << std::endl
+                 << "resyncMask:    " << std::hex << resyncMask.value_    << std::endl
+                 << "oc0Command:    " << std::hex << oc0Command.value_    << std::endl
+                 << "oc0Mask:       " << std::hex << oc0Mask.value_       << std::endl
+                 << std::endl;
+              return os.str();
+            };
+	  };
+
           class AMC13Info
           {
           public:
@@ -166,6 +188,7 @@ namespace gem {
             xdata::Boolean enableLocalTTC;
 
 	    xdata::Bag<L1AInfo> localTriggerConfig;
+	    xdata::Bag<TTCInfo> amc13TTCConfig;
 
 	    // can configure up to 4 BGO channels
             xdata::Vector<xdata::Bag<BGOInfo> > bgoConfig;
@@ -189,7 +212,8 @@ namespace gem {
                  << "enableFakeData:     " << enableFakeData.toString()         << std::endl
                  << "monBackPressure:    " << monBackPressure.toString()        << std::endl
                  << "enableLocalTTC:     " << enableLocalTTC.toString()         << std::endl
-                 << "localTriggerConfig: " << localTriggerConfig.bag.toString() << std::endl;
+                 << "localTriggerConfig: " << localTriggerConfig.bag.toString() << std::endl
+                 << "amc13TTCConfig:     " << amc13TTCConfig.bag.toString()     << std::endl;
               // can configure up to 4 BGO channels
                for (auto bgo = bgoConfig.begin(); bgo != bgoConfig.end(); ++bgo)
                  os << "bgoConfig: " << bgo->bag.toString() << std::endl;
@@ -216,6 +240,7 @@ namespace gem {
           xdata::Bag<AMC13Info>               m_amc13Params;
           xdata::Vector<xdata::Bag<BGOInfo> > m_bgoConfig;
 	  xdata::Bag<L1AInfo>                 m_localTriggerConfig;
+	  xdata::Bag<TTCInfo>                 m_amc13TTCConfig;
 
 
           //seems that we've duplicated the members of the m_amc13Params as class variables themselves
@@ -223,14 +248,15 @@ namespace gem {
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_ignoreAMCTTS, m_enableLocalL1A,
+          bool m_enableLocalTTC, m_enableLocalL1A,
             m_sendL1ATriburst, m_startL1ATricont, // need to remove
 	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;
           int m_prescaleFactor, m_bcOffset, m_bgoChannel;
 	  uint8_t m_bgoCMD;
 	  uint16_t m_bgoBX, m_bgoPrescale;
-          uint32_t m_fedID, m_sfpMask, m_slotMask, m_internalPeriodicPeriod, m_L1Aburst;
+          uint32_t m_ignoreAMCTTS, m_fedID, m_sfpMask, m_slotMask,
+            m_internalPeriodicPeriod, m_L1Aburst;
           //uint64_t m_localL1AMask;
 	  uint64_t m_updatedL1ACount;
           ////counters

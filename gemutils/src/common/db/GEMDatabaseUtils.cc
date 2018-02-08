@@ -109,7 +109,8 @@ unsigned int gem::utils::db::GEMDatabaseUtils::query(const std::string& query)
 
 void gem::utils::db::GEMDatabaseUtils::configure(const std::string& station,
                                                  const std::string& setuptype,
-                                                 const std::string& runperiod)
+                                                 const std::string& runperiod,
+                                                 const int& runnumber)
 {
   Py_Initialize();
   std::stringstream cmd;
@@ -117,6 +118,7 @@ void gem::utils::db::GEMDatabaseUtils::configure(const std::string& station,
   cmd << "configure_db(station=\"" << station
       << "\",setuptype=\"" << setuptype
       << "\",runperiod=\"" << runperiod
+      << "\",runnumber=\"" << runnumber
       << "\")" << std::endl;
 
   int retval = PyRun_SimpleString(cmd.str().c_str());

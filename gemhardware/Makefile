@@ -48,9 +48,6 @@ LibraryDirs+=$(uHALROOT)/lib
 DependentLibraries+=cactus_uhal_uhal cactus_amc13_tools
 DependentLibraries+=gemutils gembase gemreadout
 
-include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
-
 #test#hwbase:
 #test#	Sources=GEMHwDevice.cc 
 #test#	##version.cc
@@ -99,6 +96,10 @@ include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
 #test#	#Sources+=mp7/version.cc
 #test#
 #test#	DynamicLibrary=gem_hw_mp7
+
+include $(XDAQ_ROOT)/config/Makefile.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

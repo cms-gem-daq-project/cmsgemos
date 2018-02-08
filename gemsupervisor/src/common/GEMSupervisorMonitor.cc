@@ -36,7 +36,10 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
     dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemApp)->getSupervisedAppDescriptors();
   for (auto managedApp = managedApps.begin(); managedApp != managedApps.end(); ++managedApp) {
     std::stringstream appNameID;
-    appNameID << (*managedApp)->getClassName() << ":lid:" << (*managedApp)->getLocalId();
+    // appNameID << (*managedApp)->getClassName() << ":lid:" << (*managedApp)->getLocalId();
+    appNameID << ((*managedApp)->getClassName()).substr(((*managedApp)->getClassName()).rfind("::")+2)
+              << "-lid-" << (*managedApp)->getLocalId();
+    // boost::replace_all(appNameID, ":", "-");
     std::stringstream appURN;
     appURN << (*managedApp)->getURN();
 
@@ -47,14 +50,17 @@ void gem::supervisor::GEMSupervisorMonitor::setupAppStateMonitoring()
     DEBUG("GEMSupervisorMonitor::setupAppStateMonitoring adding monitored app '"
           << appNameID.str() << "' with source URN '" << appURN.str() << "' to 'AppStates' in info space 'AppStateMonitoring'");
 
-    if (appNameID.str().find("tcds") != std::string::npos) {
+    if (appNameID.str().find("tcds")          != std::string::npos ||
+        appNameID.str().find("ICIController") != std::string::npos ||
+        appNameID.str().find("PIController")  != std::string::npos
+        ) {
       addMonitorable("AppStates", "AppStateMonitoring",
                      std::make_pair(appNameID.str(), appURN.str()),
                      GEMUpdateType::SOAP, "");
     } else {
       addMonitorable("AppStates", "AppStateMonitoring",
                      std::make_pair(appNameID.str(), appURN.str()),
-                     GEMUpdateType::PROCESS, "");
+                     GEMUpdateType::SOAP, "");
     }
   }
 }
@@ -99,17 +105,33 @@ void gem::supervisor::GEMSupervisorMonitor::updateApplicationStates()
         return;
       }
     } else if (monitem->second.updatetype == GEMUpdateType::SOAP) {
+      xdaq::ApplicationContext*    superContext = const_cast<xdaq::ApplicationContext*   >(p_gemApp->getApplicationContext());
+      xdaq::ApplicationDescriptor* superDesc    = const_cast<xdaq::ApplicationDescriptor*>(p_gemApp->getApplicationDescriptor());
       std::vector<xdaq::ApplicationDescriptor*> managedApps =
         dynamic_cast<gem::supervisor::GEMSupervisor*>(p_gemApp)->getSupervisedAppDescriptors();
       for (auto app = managedApps.begin(); app != managedApps.end(); ++app) {
         std::stringstream appNameID;
-        appNameID << (*app)->getClassName() << ":lid:" << (*app)->getLocalId();
+        appNameID << ((*app)->getClassName()).substr(((*app)->getClassName()).rfind("::")+2)
+                  << "-lid-" << (*app)->getLocalId();
+        // appNameID << (*app)->getClassName() << ":lid:" << (*app)->getLocalId();
         if (appNameID.str().find(monitem->first) != std::string::npos) {
-          // try {
-          //   state = gem::utils::soap::GEMSOAPToolBox::getApplicationState((*app)->getContextDescriptor(), *app, *app);
-          // } catch {
-          // }
-          state = "TCDS STATE HERE";
+          try {
+            DEBUG("GEMSupervisorMonitor::updateApplicationStates trying to get application state via SOAP for application: "
+                  << (*app)->getClassName() << " with URN "
+                  << (*app)->getURN());
+            state = gem::utils::soap::GEMSOAPToolBox::getApplicationState(superContext, superDesc, &(**app));
+          } catch(xcept::Exception e) {
+            ERROR("GEMSupervisorMonitor::updateApplicationStates caught xcept::Exception: "
+                  << e.what());
+            state = e.what();
+          } catch(std::exception e) {
+            ERROR("GEMSupervisorMonitor::updateApplicationStates caught std::exception: "
+                  << e.what());
+            state = e.what();
+          } catch (...) {
+            ERROR("GEMSupervisorMonitor::updateApplicationStates caught exception");
+            state = "SOAP update failed";
+          }
         }
       }
     }
