@@ -4,9 +4,10 @@ sys.path.append('${GEM_PYTHON_PATH}')
 from ctypes import *
 from gempython.utils.gemlogger import colormsg
 from gempython.utils.nesteddict import nesteddict
-from gempython.utils.registers_xhal import *
 from gempython.utils.wrappers import envCheck
 from time import sleep
+
+from rw_reg import Node, parseInt, parseXML
 
 import logging
 
@@ -40,7 +41,7 @@ class HwAMC:
         Initialize the HW board an open an RPC connection
         """
         envCheck("XHAL_ROOT")
-        self.addrTable = os.getenv("XHAL_ROOT")+'/etc/gem_amc_top.xml'
+        #self.addrTable = os.getenv("XHAL_ROOT")+'/etc/gem_amc_top.xml'
         
         # Debug flag
         self.debug = debug
@@ -83,7 +84,8 @@ class HwAMC:
         self.ttcGenToggle.argtypes = [c_uint, c_bool]
 
         # Parse XML
-        self.nodes = parseXML(self.addrTable)
+        #self.nodes = parseXML(self.addrTable)
+        self.nodes = parseXML()
 
         # Open RPC Connection
         print "Initializing AMC", self.name
