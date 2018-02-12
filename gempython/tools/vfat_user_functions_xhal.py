@@ -180,14 +180,16 @@ class HwVFAT:
 
     def setVFATCalHeight(self, chip, height, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
-            self.writeVFATRegisters(chip,{"CFG_CAL_DAC": (255 - height)})
+            #self.writeVFATRegisters(chip,{"CFG_CAL_DAC": (256 - height)})
+            self.writeVFATRegisters(chip,{"CFG_CAL_DAC": (height)})
         else:
             self.writeVFATRegisters(chip,{"VCal": height})
         return
 
     def setVFATCalHeightAll(self, mask=0x0, height=256, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
-            self.writeAllVFATs("CFG_CAL_DAC", (256 - height), mask)
+            #self.writeAllVFATs("CFG_CAL_DAC", (256 - height), mask)
+            self.writeAllVFATs("CFG_CAL_DAC", (height), mask)
         else:
             self.writeAllVFATs("VCal", height, mask)
         return
