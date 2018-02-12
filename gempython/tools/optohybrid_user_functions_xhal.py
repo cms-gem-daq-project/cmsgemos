@@ -45,7 +45,7 @@ class HwOptoHybrid:
         self.genScan = self.parentAMC.lib.genScan
         self.genScan.restype = c_uint
         self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint, 
-                                 c_uint, c_uint, c_uint, c_uint, 
+                                 c_uint, c_uint, c_bool, c_bool, c_uint, 
                                  c_char_p, c_bool, c_bool, POINTER(c_uint32)]
 
         # Define the trigger rate scan module
@@ -129,7 +129,7 @@ class HwOptoHybrid:
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
     
-    def performCalibrationScan(self, chan, scanReg, outData, enableCal=True, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True, useExtTrig=False):
+    def performCalibrationScan(self, chan, scanReg, outData, enableCal=True, currentPulse=True, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True, useExtTrig=False):
         """
         Performs either a v2b ultra scan or a v3 generic scan
 
@@ -168,7 +168,7 @@ class HwOptoHybrid:
             if "CFG_" in scanReg:
                 scanReg = str.replace("CFG_","")
 
-        return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, mask, scanReg, useUltra, useExtTrig, outData)
+        return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, mask, scanReg, useUltra, useExtTrig, outData)
 
     def performSBitRateScan(self, maskOh, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT,
                             dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC", time=1000, 
