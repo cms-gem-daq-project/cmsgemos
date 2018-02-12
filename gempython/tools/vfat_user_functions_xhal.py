@@ -178,18 +178,22 @@ class HwVFAT:
 
         return self.stopCalPulses2AllChannels(self.parentOH.link, mask, chanMin, chanMax)
 
-    def setVFATCalHeight(self, chip, height, debug=False):
+    def setVFATCalHeight(self, chip, height, currentPulse=True, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
-            #self.writeVFATRegisters(chip,{"CFG_CAL_DAC": (256 - height)})
-            self.writeVFATRegisters(chip,{"CFG_CAL_DAC": (height)})
+            if currentPulse: #Current pulse, high CFG_CAL_DAC is a high injected charge amount
+                self.writeVFATRegisters(chip,{"CFG_CAL_DAC": (height)})
+            else: # Voltage pulse, low CFG_CAL_DAC is a high injected charge amount
+                self.writeVFATRegisters(chip,{"CFG_CAL_DAC": (256 - height)})
         else:
             self.writeVFATRegisters(chip,{"VCal": height})
         return
 
-    def setVFATCalHeightAll(self, mask=0x0, height=256, debug=False):
+    def setVFATCalHeightAll(self, mask=0x0, height=256, currentPulse=True, debug=False):
         if self.parentOH.parentAMC.fwVersion > 2:
-            #self.writeAllVFATs("CFG_CAL_DAC", (256 - height), mask)
-            self.writeAllVFATs("CFG_CAL_DAC", (height), mask)
+            if currentPulse: #Current pulse, high CFG_CAL_DAC is a high injected charge amount
+                self.writeAllVFATs("CFG_CAL_DAC", (height), mask)
+            else: # Voltage pulse, low CFG_CAL_DAC is a high injected charge amount
+                self.writeAllVFATs("CFG_CAL_DAC", (256 - height), mask)
         else:
             self.writeAllVFATs("VCal", height, mask)
         return
