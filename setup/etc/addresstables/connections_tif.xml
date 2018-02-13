@@ -50,9 +50,9 @@
   <connection id="gem.shelf01.amc02.optohybrid11" uri="ipbustcp-2.0://192.168.2.42:60002"
 	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link11.xml" />
 
-  <connection id="gem.shelf03.amc13.T1" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.2.105:50001"
+  <connection id="gem.shelf03.amc13.T1" uri="chtcp-2.0://gem904qc8daq:10203?target=192.168.2.105:50001"
               address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
-  <connection id="gem.shelf03.amc13.T2" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.2.104:50001"
+  <connection id="gem.shelf03.amc13.T2" uri="chtcp-2.0://gem904qc8daq:10203?target=192.168.2.104:50001"
               address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
 
   <connection id="gem.shelf03.amc02" uri="ipbustcp-2.0://192.168.1.42:60002"
