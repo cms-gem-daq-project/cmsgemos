@@ -45,7 +45,7 @@ class HwOptoHybrid:
         self.genScan = self.parentAMC.lib.genScan
         self.genScan.restype = c_uint
         self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint, 
-                                 c_uint, c_uint, c_bool, c_bool, c_uint, 
+                                 c_uint, c_uint, c_bool, c_bool, c_uint, c_uint, 
                                  c_char_p, c_bool, c_bool, POINTER(c_uint32)]
 
         # Define the trigger rate scan module
@@ -129,7 +129,7 @@ class HwOptoHybrid:
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
     
-    def performCalibrationScan(self, chan, scanReg, outData, enableCal=True, currentPulse=True, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True, useExtTrig=False):
+    def performCalibrationScan(self, chan, scanReg, outData, enableCal=True, currentPulse=True, calSF=0x0, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True, useExtTrig=False):
         """
         Performs either a v2b ultra scan or a v3 generic scan
 
@@ -145,6 +145,12 @@ class HwOptoHybrid:
                       etc...  If a VFAT is masked entries in the array
                       are still allocated but assigned a 0 value.
         enableCal   - V3 electronics only. Enable cal pulse
+        currentPulse- V3 electronics only. The calibration module uses 
+                      the current pulse mode rather than the voltage
+                      pulse mode.
+        calSF       - V3 electronics only.  The value of the 
+                      CFG_CAL_FS register to be used when operating in
+                      current pulse mode.
         nevts       - Number of events for each dac value in scan
         dacMin      - Starting dac value of the scan
         dacMax      - Ending dac value of the scan
@@ -168,7 +174,7 @@ class HwOptoHybrid:
             if "CFG_" in scanReg:
                 scanReg = str.replace("CFG_","")
 
-        return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, mask, scanReg, useUltra, useExtTrig, outData)
+        return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, outData)
 
     def performSBitRateScan(self, maskOh, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT,
                             dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC", time=1000, 
