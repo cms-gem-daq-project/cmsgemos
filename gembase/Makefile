@@ -14,6 +14,7 @@ GEMBASE_VER_MINOR=3
 GEMBASE_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
 
 Sources =version.cc
 Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc

@@ -14,6 +14,7 @@ GEMREADOUT_VER_MINOR=3
 GEMREADOUT_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
 
 Sources =version.cc
 #Sources+=GEMDataParker.cc

@@ -14,6 +14,7 @@ GEMSUPERVISOR_VER_MINOR=3
 GEMSUPERVISOR_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
 
 Sources =version.cc
 Sources+=tbutils/VFAT2XMLParser.cc
