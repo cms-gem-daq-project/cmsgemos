@@ -27,6 +27,10 @@ ifndef PackageName
 PackageName=$(shell awk -F'"' 'BEGIN{IGNORECASE=1} /package[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
+# convert long package name to all upper case
+LongPackageLoc=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
+#LongPackageLoc=$(shell echo "$(LongPackage)" | awk '{print toupper($0)}') ## not working... why not?
+
 ifndef PACKAGE_VER_MAJOR
 PACKAGE_VER_MAJOR=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MAJOR/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
@@ -42,7 +46,6 @@ endif
 ifndef PACKAGE_REQUIRED_PACKAGE_LIST
 PACKAGE_REQUIRED_PACKAGE_LIST=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
-
 
 ifndef PACKAGE_RELEASE
 include  $(XDAQ_ROOT)/config/mfRPM.release
@@ -69,7 +72,6 @@ VER_EXISTS=yes
 endif
 endif
 endif
-
 
 ifndef PACKAGE_FULL_VERSION
 PACKAGE_FULL_VERSION = $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
@@ -128,14 +130,15 @@ endif
 
 .PHONY: makerpm
 makerpm:
-	mkdir -p $(PackagePath)/rpm/RPMBUILD/{RPMS/{$(XDAQ_PLATFORM)},SPECS,BUILD,SOURCES,SRPMS}
+	mkdir -p $(PackagePath)/rpm/RPMBUILD/{RPMS/$(XDAQ_PLATFORM),SPECS,BUILD,SOURCES,SRPMS}
 	echo BUILD_VERSION $(BUILD_VERSION)
 	echo PACKAGE_FULL_VERSION $(PACKAGE_FULL_VERSION)
 	echo PACKAGE_RELEASE $(PACKAGE_RELEASE)
 	echo PACKAGE_FULL_RELEASE $(PACKAGE_FULL_RELEASE)
 	echo BUILD_DISTRIBUTION $(BUILD_DISTRIBUTION)
 	echo BUILD_COMPILER $(BUILD_COMPILER)
-	tar -P -X $(XDAQ_ROOT)/config/src.exclude -jcf  $(PackagePath)/rpm/RPMBUILD/SOURCES/$(PackageName)-v$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 $(PackagePath)
+	echo PackagePath $(PackagePath)
+	tar -P -X $(XDAQ_ROOT)/config/src.exclude --exclude="*.tbz2" -jcf  $(PackagePath)/rpm/RPMBUILD/SOURCES/$(Project)-$(PackageName)-v$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 $(PackagePath)
 	rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" $(PackagePath)/rpm/$(LongPackage).spec
 	find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
 
@@ -155,7 +158,8 @@ spec_update:
 	fi
 	sed -i 's#__gitrev__#$(GITREV)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__builddate__#$(BUILD_DATE)#' $(PackagePath)/rpm/$(LongPackage).spec
-	sed -i 's#__release__#$(BUILD_FULL_RELEASE)#' $(PackagePath)/rpm/$(LongPackage).spec
+	# sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).spec
+	sed -i 's#__release__#$(PACKAGE_FULL_RELEASE)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__version__#$(PACKAGE_FULL_VERSION)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__xdaqprefix__#$(XDAQ_ROOT)#' $(PackagePath)/rpm/$(LongPackage).spec

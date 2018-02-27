@@ -19,6 +19,8 @@ UID = $(GID)
 ProjectPath  = $(BUILD_HOME)/$(Project)
 PackagePath  = $(ProjectPath)/$(LongPackage)
 PWD          = $(shell pwd)
+GITREV       = $(shell git rev-parse --short HEAD)
+BUILD_DATE   = $(shell date -u +"%d%m%Y")
 
 ifndef PythonModules
 	$(error Python module names missing "PythonModules")
@@ -73,6 +75,13 @@ endif
 endif
 endif
 
+ifndef PACKAGE_FULL_VERSION
+PACKAGE_FULL_VERSION = $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
+endif
+
+ifndef PACKAGE_FULL_RELEASE
+PACKAGE_FULL_RELEASE = $(BUILD_VERSION).git$(GITREV).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)
+endif
 
 REQUIRES_LIST=0
 ifneq ($(PACKAGE_REQUIRED_PACKAGE_LIST),)
@@ -121,8 +130,8 @@ endif
 # 	rpmbuild  -bb -bl --target $(XDAQ_PLATFORM) --define  "_topdir $(PackagePath)/rpm/RPMBUILD"  $(PackagePath)/rpm/$(LongPackage).spec
 
 
-.PHONY: makerpm
-makerpm:
+.PHONY: makedevrpm
+makedevrpm: setup_update
         # use python pbr to set up and do the building of the python packages
 	# Change directory into pkg and copy everything into rpm/pkg/
 	cd pkg/$(Package) && \
@@ -130,10 +139,43 @@ makerpm:
 	# # Add a manifest file
 	# echo "include */*.so" > $(PackagePath)/rpm/MANIFEST.in
 	# Change into rpm/pkg to finally run the customized setup.py
+        # for building a nightly, egg_info --tag-date --tag-build=DEV
 	cd $(PackagePath)/rpm && python $(LongPackage).setup.py \
-        egg_info --tag-date --tag-build=DEV \
-        bdist_rpm \
-	--release ${PACKAGE_RELEASE}.${XDAQ_OS}.python${PYTHON_VERSION} \
+	egg_info --tag-date --tag-build=DEV \
+	bdist_rpm \
+	--release ${PACKAGE_RELEASE}.${XDAQ_PLATFORM}.python${PYTHON_VERSION} \
+	--binary-only --force-arch=`uname -m`
+	# Harvest the crop
+	find rpm -name "*.rpm" -exec cp -a \{\} rpm/ \;
+
+.PHONY: makerpm
+makerpm: build_rpm
+
+.PHONY: prep_rpm
+prep_rpm: setup_update
+        # use python pbr to set up and do the building of the python packages
+	# Copy files into pkg
+	cp README.md pkg; \
+	find lib -iname '_cmsgemos_gempython.so' -exec cp \{\} pkg/gempython \;
+	# cp -rfp tests tools utils pkg/gempython; \;
+	find tests -name "*.py" -exec install -D \{\} $(PackagePath)/pkg/\{\} \;
+	find tools -name "*.py" -exec install -D \{\} $(PackagePath)/pkg/\{\} \;
+	find utils -name "*.py" -exec install -D \{\} $(PackagePath)/pkg/\{\} \;
+	# Change directory into pkg and copy everything into rpm/pkg/
+	# cd pkg/$(Package) && 
+	cd pkg && \
+	find . -name "*" -exec install -D \{\} $(PackagePath)/rpm/\{\} \;
+	# # Add a manifest file
+	echo "include */*.so" > $(PackagePath)/rpm/MANIFEST.in
+
+.PHONY: build_rpm
+build_rpm: prep_rpm
+	# Change into rpm/pkg to finally run the customized setup.py
+	# egg_info --tag-date --tag-build=DEV \#
+	cd $(PackagePath)/rpm && python $(LongPackage).setup.py \
+	egg_info --tag-date \
+	bdist_rpm \
+	--release ${PACKAGE_RELEASE}.${XDAQ_PLATFORM}.python${PYTHON_VERSION} \
 	--binary-only --force-arch=`uname -m`
 	# Harvest the crop
 	find rpm -name "*.rpm" -exec cp -a \{\} rpm/ \;
@@ -153,7 +195,10 @@ setup_update:
 		echo "Error (setup_update) could not find a valid setup.py template for package '$(Package)'"; \
 	fi
 
-	sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__gitrev__#$(GITREV)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__builddate__#$(BUILD_DATE)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	# sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).setup.py
+	sed -i 's#__release__#${PACKAGE_FULL_RELEASE}#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__python_packages__#${PythonModules}#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__package__#${Package}#' $(PackagePath)/rpm/$(LongPackage).setup.py
@@ -162,8 +207,6 @@ setup_update:
 	sed -i 's#__longpackage__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__longpackagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__longpackagename__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).setup.py
-	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).setup.py
-	sed -i 's#__release__#${PACKAGE_RELEASE}.${XDAQ_OS}#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__os__#${XDAQ_OS}#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__platform__#None#' $(PackagePath)/rpm/$(LongPackage).setup.py
@@ -195,7 +238,10 @@ setup_update:
 		echo "Error (setup_update) could not find a valid setup.cfg template for package '$(Package)'"; \
 	fi
 
-	sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__gitrev__#$(GITREV)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__builddate__#$(BUILD_DATE)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	# sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
+	sed -i 's#__release__#${PACKAGE_FULL_RELEASE}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__python_packages__#${PythonModules}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__package__#${Package}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
@@ -204,8 +250,6 @@ setup_update:
 	sed -i 's#__longpackage__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__longpackagedir__#$(PackagePath)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__longpackagename__#$(LongPackage)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
-	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
-	sed -i 's#__release__#${PACKAGE_RELEASE}.${XDAQ_OS}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__os__#${XDAQ_OS}#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__platform__#None#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
@@ -226,8 +270,10 @@ setup_update:
 	sed -i 's#__uid__#$(UID)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 	sed -i 's#__gid__#$(GID)#' $(PackagePath)/rpm/$(LongPackage).setup.cfg
 
-	ln -sf $(LongPackage).setup.py $(PackagePath)/rpm/setup.py
-	ln -sf $(LongPackage).setup.cfg $(PackagePath)/rpm/setup.cfg
+	# ln -sf $(LongPackage).setup.py $(PackagePath)/rpm/setup.py
+	# ln -sf $(LongPackage).setup.cfg $(PackagePath)/rpm/setup.cfg
+	cp $(PackagePath)/rpm/$(LongPackage).setup.py $(PackagePath)/rpm/setup.py
+	cp $(PackagePath)/rpm/$(LongPackage).setup.cfg $(PackagePath)/rpm/setup.cfg
 
 
 .PHONY: _cleanrpmall

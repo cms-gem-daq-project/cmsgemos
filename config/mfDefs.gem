@@ -1,7 +1,7 @@
 include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
-BUILD_HOME:=$(shell pwd)/../..
+BUILD_HOME:=$(shell cd $(BUILD_HOME); pwd)
 
 GIT_VERSION  := $(shell git describe --abbrev=4 --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
@@ -12,6 +12,8 @@ ShortProject=gem
 # Debugging and profiling flags
 DEBUG_CFlags    = -O0 -g3 -fno-inline
 DEBUG_CCFlags   = ${DEBUG_CFlags}
+
+COVERAGE_Flags   = -gcov -coverage
 
 PROFILING_Flags   = -pg
 PROFILING_LDFlags = ${PROFILING_Flags}
@@ -26,7 +28,7 @@ GCC49Flags = -std=c++17 -std=gnu++17
 # User C and CC flags
 UserCFlags  =-DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
 UserCFlags+=${GCC44Flags}
-#UserCFlags+=${GCC47Flags}
+UserCFlags+=${GCC47Flags}
 #UserCFlags+=${GCC48Flags}
 #UserCFlags+=${GCC49Flags}
 UserCCFlags =${UserCFlags}
@@ -36,14 +38,6 @@ UserStaticLinkFlags  =
 UserDynamicLinkFlags =
 
 IncludeDirs+=$(XDAQ_ROOT)/include
-
-## Python
-PYTHON_VERSION ?= $(shell python -c "import distutils.sysconfig;print(distutils.sysconfig.get_python_version())")
-PYTHON_INCLUDE_PREFIX ?= $(shell python -c "import distutils.sysconfig;print(distutils.sysconfig.get_python_inc())")
-# Python Config
-PYTHONCFLAGS = $(shell pkg-config python --cflags)
-PYTHONLIBS   = $(shell pkg-config python --libs)
-PYTHONGLIBS  = $(shell pkg-config python --glibs)
 
 # ROOT Config
 ROOTCFLAGS = $(shell root-config --cflags)
@@ -55,21 +49,27 @@ MySQLCFLAGS = $(shell mysql_config --cflags)
 MySQLLIBS   = $(shell mysql_config --libs)
 MySQLGLIBS  = $(shell mysql_config --glibs)
 
-IncludeDirs+=${PYTHON_INCLUDE_PREFIX}
-# IncludeDirs+=/usr/include/python2.7
-
 LibraryDirs+=$(XDAQ_ROOT)/lib
 # LibraryDirs+=/usr/local/lib
 
 DependentLibraryDirs+=$(XDAQ_ROOT)/lib
 # DependentLibraryDirs+=/usr/local/lib
 
-# Let's clean this up and only link against the requried libs
-DependentLibraries+=asyncresolv boost_system config log4cplus
-DependentLibraries+=numa toolbox uuid xcept xdaq2rc xerces-c
-# DependentLibraries+=python${PYTHON_VERSION}
+# Let's clean this up and only link against the requried libs, may require moving non-xdaq dependencies out of certain build chains
+DependentLibraries+= log4cplus xcept
+DependentLibraries+= config toolbox
+DependentLibraries+= boost_system
+DependentLibraries+= asyncresolv
+DependentLibraries+= uuid
+# DependentLibraries+= numa uuid
+# DependentLibraries+= xdaq2rc
+DependentLibraries+= xerces-c
 
-#Libraries+= log4cplus config xcept xerces-c numa toolbox asyncresolv uuid
+# Libraries+=config xcept
+# Libraries+=log4cplus toolbox
+# Libraries+=asyncresolv uuid
+# Libraries+=xerces-c
+# Libraries+=numa
 
 #UserExecutableLinkFlags+=-Wl,-rpath-link ${XDAQ_ROOT}/lib -Wl,-rpath-link $(uHALROOT)/lib
 #UserExecutableLinkFlags+=-Wl,-rpath-link ${HCAL_XDAQ_ROOT}/lib

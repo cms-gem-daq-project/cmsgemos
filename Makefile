@@ -103,6 +103,9 @@ gemHwMonitor: gemutils gembase gemhardware
 
 gemhardware: gemutils gembase gemreadout
 
+## only gemhardware.devices... how to fix this?
+gempython: gemhardware
+
 gembase: gemutils
 
 gemsupervisor: gemutils gembase gemhardware gemreadout

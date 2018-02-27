@@ -811,10 +811,10 @@ usage() {
          "    -M Install Mellanox 10GbE drivers for uFEDKIT\n" \
          "    -X Install/update xpci drivers\n" \
          "    -A Create common users and groups\n" \
-         # "    -Z Install Xilinx USB drivers\n" \
-         # "    -V Install Xilinx Vivado\n" \
-         # "    -I Install Xilinx ISE\n" \
-         # "    -L Install Xilinx LabTools\n" \
+         "    -Z Install Xilinx USB drivers\n" \
+         "    -V Install Xilinx Vivado\n" \
+         "    -I Install Xilinx ISE\n" \
+         "    -L Install Xilinx LabTools\n" \
          "    -u <file> Add accounts of NICE users (specified in file)\n" \
          "\n" \
          " Examples:\n" \
