@@ -16,12 +16,12 @@ GEMUTILS_VER_PATCH=1
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
 
-Sources =version.cc
-Sources+=Lock.cc
+#Sources =version.cc
+Sources = Lock.cc
 # Sources+=gemXMLparser.cc
 Sources+=GEMRegisterUtils.cc
-Sources+=soap/GEMSOAPToolBox.cc
-Sources+=db/GEMDatabaseUtils.cc
+# Sources+=soap/GEMSOAPToolBox.cc
+# Sources+=db/GEMDatabaseUtils.cc
 
 DynamicLibrary=gemutils
 
