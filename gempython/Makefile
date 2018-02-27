@@ -20,21 +20,47 @@ GEMPYTHON_VER_PATCH=1
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
 
+UserCFlags += \
+	-ftemplate-depth-128 \
+	-O0 -rdynamic -finline-functions \
+	-Wno-inline -DNDEBUG
+UserCCFlags=$(UserCFlags)
+
+# The leading undescore is meant to be there
+DynamicLibrary = _cmsgemos_gempython
+# Changing some defaults from $XDAQ_ROOT/config/mfDefs
+LibraryPrefix =
+## Not being respected, probably due to automatic calculation later in the process...
+PackageLibDir = $(PackageDir)
+
+Sources = src/common/cmsgemos_gempython.cc
+
+IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
+IncludeDirs+=$(uHALROOT)/include
+
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+DependentLibraryDirs+=$(uHALROOT)/lib
+
+LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+LibraryDirs+=$(uHALROOT)/lib
+
+DependentLibraries+=boost_python cactus_uhal_uhal gemhardware_devices gemutils
+### UGGH, I WANT TO BE FREE, minimal gemutils works with this, and in this order
+# remove dependencies on xdata and things will be better
+DependentLibraries+=xdata mimetic xoap
+#DependentLibraries+=xoap xdata mimetic xdaq
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfPythonRPM_gem.rules
 
-# The leading undescore is meant to be there
-Library = cmsgemos_python
-LibraryTarget = $(PackageDir)/_gempython.so
-
-# BINDINGS_SOURCES = $(wildcard src/common/*.cpp)
-# BINDINGS_OBJECT_FILES = $(patsubst src/common/%.cpp,obj/%.o,${BINDINGS_SOURCES})
-# BINDINGS_LIB = ${PackageDir}/_core.so
-
 # need to ensure that the python only stuff is packaged into RPMs
 .PHONY: preprpm
 preprpm:
+	cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)
 	cp -rfp utils tools tests LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)
 	cp -rfp gempython.md $(PackageDir)/README.md
 
@@ -42,10 +68,10 @@ clean:
 	rm -rf $(PackageDir)/utils
 	rm -rf $(PackageDir)/tools
 	rm -rf $(PackageDir)/tests
-	rm  $(PackageDir)/LICENSE.txt
-	rm  $(PackageDir)/MANIFEST.in
-	rm  $(PackageDir)/requirements.txt
-	rm  $(PackageDir)/README.md
+	# rm  $(PackageDir)/LICENSE.txt
+	# rm  $(PackageDir)/MANIFEST.in
+	# rm  $(PackageDir)/requirements.txt
+	# rm  $(PackageDir)/README.md
 
 rpm: preprpm _rpmall
 # rpmall: ${BINDINGS_LIB}
@@ -73,3 +99,7 @@ print-env:
 	@echo RANLIB         $(RANLIB)
 	@echo GCCVERSION     $(GCCVERSION)
 	@echo CLANGVERSION   $(CLANGVERSION)
+	@echo IncludeDirs    $(IncludeDirs)
+	@echo LibraryDirs    $(LibraryDirs)
+	@echo DependentLibraryDirs $(DependentLibraryDirs)
+	@echo DependentLibraries $(DependentLibraries)
