@@ -22,15 +22,65 @@ PROFILING_LIBS    = profiler tcmalloc
 # Modern compiler support, when available
 GCC44Flags = -std=c++0x -std=gnu++0x
 GCC47Flags = -std=c++11 -std=gnu++11
-GCC48Flags = -std=c++14 -std=gnu++14
-GCC49Flags = -std=c++17 -std=gnu++17
+GCC48Flags = -std=c++1y -std=gnu++1y
+GCC49Flags = -std=c++1z -std=gnu++1z
+GCC50Flags = -std=c++17 -std=gnu++17
+GCC51Flags = -std=c++17 -std=gnu++17
+GCC60Flags = -std=c++17 -std=gnu++17
+GCC70Flags = -std=c++17 -std=gnu++17
 
 # User C and CC flags
-UserCFlags  =-DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
-UserCFlags+=${GCC44Flags}
+UserCFlags =-DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
+
+## want to pick the best options based on gcc/clang version
+# CLANGNUM := $(shell clang -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$/&00/')
+# GCCNUM   := $(shell gcc   -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g' -e 's/^[0-9]\{3,4\}$/&00/')
+CLANGNUM := $(shell clang -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g')
+GCCNUM   := $(shell gcc   -dumpversion|sed -e 's/\.\([0-9][0-9]\)/\1/g' -e 's/\.\([0-9]\)/0\1/g')
+
+$(info Trying to to determine flags for gcc($(GCCNUM))/clang($(CLANGNUM)))
+GCCGT440 := $(shell expr ${GCCNUM} \>= 40400)
+GCCGT470 := $(shell expr ${GCCNUM} \>= 40700)
+GCCGT480 := $(shell expr ${GCCNUM} \>= 40800)
+GCCGT490 := $(shell expr ${GCCNUM} \>= 40900)
+GCCGT500 := $(shell expr ${GCCNUM} \>= 50000)
+GCCGT510 := $(shell expr ${GCCNUM} \>= 50100)
+GCCGT600 := $(shell expr ${GCCNUM} \>= 60000)
+GCCGT700 := $(shell expr ${GCCNUM} \>= 70000)
+
+CLANGGT330 := $(shell expr ${CLANGNUM} \>= 30300)
+CLANGGT340 := $(shell expr ${CLANGNUM} \>= 30400)
+CLANGGT400 := $(shell expr ${CLANGNUM} \>= 40000)
+CLANGGT500 := $(shell expr ${CLANGNUM} \>= 50000)
+
+ifeq ($(GCCGT700), 1)
+$(info Using GCC70Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC70Flags}
+else ifeq ($(GCCGT600), 1)
+$(info Using GCC60Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC60Flags}
+else ifeq ($(GCCGT510), 1)
+$(info Using GCC51Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC51Flags}
+else ifeq ($(GCCGT500), 1)
+$(info Using GCC50Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC50Flags}
+else ifeq ($(GCCGT490), 1)
+$(info Using GCC49Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC49Flags}
+else ifeq ($(GCCGT480), 1)
+$(info Using GCC48Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC48Flags}
+else ifeq ($(GCCGT470), 1)
+$(info Using GCC47Flags for GCC $(GCCNUM))
 UserCFlags+=${GCC47Flags}
-#UserCFlags+=${GCC48Flags}
-#UserCFlags+=${GCC49Flags}
+else ifeq ($(GCCGT440), 1)
+$(info Using GCC44Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC44Flags}
+else
+$(info Unable to determine flags for gcc($(GCCNUM))/clang($(CLANGNUM)))
+endif
+
 UserCCFlags =${UserCFlags}
 #UserCCFlags =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
 
@@ -107,7 +157,8 @@ DependentLibraries+= xerces-c
 #UserDynamicLinkFlags+=-Wl,-rpath -Wl,${LIBDIR}'
 #UserExecutableLinkFlags+=-Wl,-rpath -Wl,${LIBDIR}'
 
-GCCVERSION = $(shell $(CXX) --version | awk '/gcc /{print $0;exit 0;}')
+# GCCVERSION = $(shell $(CC) --version | awk '/gcc /{print $0;exit 0;}')
+GCCVERSION = $(shell $(CC) -dumpversion)
 
 ## Choose the version of Clang that we want to use
 ##CLANG_VERSION = 3.4.2
@@ -118,4 +169,7 @@ GCCVERSION = $(shell $(CXX) --version | awk '/gcc /{print $0;exit 0;}')
 #AR     = llvm-ar
 #NM     = llvm-nm
 #RANLIB = llvm-ranlib
-CLANGVERSION = $(shell $(CXX) --version | awk '/clang /{print $0;exit 0;}')
+# CLANGVERSION = $(shell $(CC) --version | awk '/clang /{print $0;exit 0;}')
+CLANGVERSION = $(shell $(CC) -dumpversion)
+
+CCVERSION = $(shell $(CC) -dumpversion)
