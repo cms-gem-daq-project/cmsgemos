@@ -14,6 +14,7 @@ GEMHARDWARE_VER_MINOR=3
 GEMHARDWARE_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
 
 Sources =version.cc
 Sources+=utils/GEMCrateUtils.cc

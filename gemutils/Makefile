@@ -14,6 +14,7 @@ GEMUTILS_VER_MINOR=2
 GEMUTILS_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
 
 Sources =version.cc
 Sources+=Lock.cc
