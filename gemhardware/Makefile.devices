@@ -1,46 +1,50 @@
 #
-# Makefile for gemsupervisor package
+# Makefile for gemhardware package
 #
 
 Project=cmsgemos
 ShortProject=gem
-Package=gemsupervisor
-LongPackage=gemsupervisor
-ShortPackage=supervisor
-PackageName=supervisor
+Package=gemhardware
+LongPackage=gemhardware
+ShortPackage=hw
+PackageName=hw
 
-GEMSUPERVISOR_VER_MAJOR=0
-GEMSUPERVISOR_VER_MINOR=3
-GEMSUPERVISOR_VER_PATCH=1
+GEMHARDWARE_VER_MAJOR=0
+GEMHARDWARE_VER_MINOR=3
+GEMHARDWARE_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
 
-Sources =version.cc
-Sources+=tbutils/VFAT2XMLParser.cc
-# Sources+=tbutils/GEMTBUtil.cc tbutils/ThresholdScan.cc tbutils/LatencyScan.cc
-Sources+=GEMSupervisor.cc GEMSupervisorWeb.cc GEMSupervisorMonitor.cc GEMGlobalState.cc
-#Sources+=tbutils/ADCScan.cc
-#Sources+=GEMGLIBSupervisorWeb.cc
+# Sources =version.cc
+Sources = utils/GEMCrateUtils.cc
+Sources+=GEMHwDevice.cc HwGenericAMC.cc
+Sources+=vfat/HwVFAT2.cc
+Sources+=glib/HwGLIB.cc
+Sources+=optohybrid/HwOptoHybrid.cc
 
-DynamicLibrary=gemsupervisor
+DynamicLibrary=gemhardware_devices
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
-IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
+# IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
+# IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
 IncludeDirs+=$(uHALROOT)/include
 
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
-DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+# DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+# DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
 
+LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+# LibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+# LibraryDirs+=$(BUILD_HOME)/$(Project)/gemreadout/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
 
-DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
-DependentLibraries+=gemutils gemhardware_managers gemhardware_devices gemreadout
+DependentLibraries+=cactus_uhal_uhal
+# DependentLibraries+=cactus_amc13_tools
+DependentLibraries+=gemutils
+# DependentLibraries+=gembase gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
@@ -51,7 +55,6 @@ print-env:
 	@echo XDAQ_ROOT     $(XDAQ_ROOT)
 	@echo XDAQ_OS       $(XDAQ_OS)
 	@echo XDAQ_PLATFORM $(XDAQ_PLATFORM)
-	@echo PYTHON_VERSION $(PYTHON_VERSION)
 	@echo LIBDIR        $(LIBDIR)
 	@echo ROOTCFLAGS    $(ROOTCFLAGS)
 	@echo ROOTLIBS      $(ROOTLIBS)
