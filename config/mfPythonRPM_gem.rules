@@ -132,14 +132,14 @@ endif
 
 .PHONY: makedevrpm
 makedevrpm: setup_update
-        # use python pbr to set up and do the building of the python packages
+	# use python pbr to set up and do the building of the python packages
 	# Change directory into pkg and copy everything into rpm/pkg/
 	cd pkg/$(Package) && \
 	find . -name "*" -exec install -D \{\} $(PackagePath)/rpm/\{\} \;
 	# # Add a manifest file
 	# echo "include */*.so" > $(PackagePath)/rpm/MANIFEST.in
 	# Change into rpm/pkg to finally run the customized setup.py
-        # for building a nightly, egg_info --tag-date --tag-build=DEV
+	# for building a nightly, egg_info --tag-date --tag-build=DEV
 	cd $(PackagePath)/rpm && python $(LongPackage).setup.py \
 	egg_info --tag-date --tag-build=DEV \
 	bdist_rpm \
@@ -153,14 +153,14 @@ makerpm: build_rpm
 
 .PHONY: prep_rpm
 prep_rpm: setup_update
-        # use python pbr to set up and do the building of the python packages
+	# use python pbr to set up and do the building of the python packages
 	# Copy files into pkg
 	cp README.md pkg; \
 	find lib -iname '_cmsgemos_gempython.so' -exec cp \{\} pkg/gempython \;
 	# cp -rfp tests tools utils pkg/gempython; \;
 	find tests -name "*.py" -exec install -D \{\} $(PackagePath)/pkg/\{\} \;
-	find tools -name "*.py" -exec install -D \{\} $(PackagePath)/pkg/\{\} \;
-	find utils -name "*.py" -exec install -D \{\} $(PackagePath)/pkg/\{\} \;
+	# find tools -name "*.py" -exec install -D \{\} $(PackagePath)/pkg/\{\} \;
+	# find utils -name "*.py" -exec install -D \{\} $(PackagePath)/pkg/\{\} \;
 	# Change directory into pkg and copy everything into rpm/pkg/
 	# cd pkg/$(Package) && 
 	cd pkg && \
@@ -179,7 +179,7 @@ build_rpm: prep_rpm
 	--binary-only --force-arch=`uname -m`
 	# Harvest the crop
 	find rpm -name "*.rpm" -exec cp -a \{\} rpm/ \;
-        # for building a nightly, egg_info --tag-date --tag-build=DEV
+	# for building a nightly, egg_info --tag-date --tag-build=DEV
 
 .PHONY: setup_update
 setup_update:
@@ -227,7 +227,7 @@ setup_update:
 	sed -i 's#__uid__#$(UID)#' $(PackagePath)/rpm/$(LongPackage).setup.py
 	sed -i 's#__gid__#$(GID)#' $(PackagePath)/rpm/$(LongPackage).setup.py
 
-        ## for pbr setup.cfg, maybe replace the previous... in any event, the setup.cfg takes precedence
+	## for pbr setup.cfg, maybe replace the previous... in any event, the setup.cfg takes precedence
 	if [ -e $(PackagePath)/setup.cfg ]; then \
 		echo $(PackagePath) found setup.cfg; \
 		cp $(PackagePath)/setup.cfg $(PackagePath)/rpm/$(LongPackage).setup.cfg; \

@@ -68,10 +68,14 @@ clean:
 	rm -rf $(PackageDir)/utils
 	rm -rf $(PackageDir)/tools
 	rm -rf $(PackageDir)/tests
-	# rm  $(PackageDir)/LICENSE.txt
-	# rm  $(PackageDir)/MANIFEST.in
-	# rm  $(PackageDir)/requirements.txt
-	# rm  $(PackageDir)/README.md
+	rm -rf pkg/utils
+	rm -rf pkg/tools
+	rm -rf pkg/tests
+	rm -f $(PackageDir)/LICENSE.txt
+	rm -f $(PackageDir)/MANIFEST.in
+	rm -f $(PackageDir)/requirements.txt
+	rm -f $(PackageDir)/_cmsgemos_gempython.so
+	rm -f $(PackageDir)/README.md
 
 rpm: preprpm _rpmall
 # rpmall: ${BINDINGS_LIB}
