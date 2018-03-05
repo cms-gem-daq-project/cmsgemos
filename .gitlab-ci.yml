@@ -32,7 +32,7 @@ build:slc6:
   before_script:
     # - ${BUILD_HOME}/config/build/setupMachine.sh
     # - . /etc/profile/xdaq.sh
-    - . ${BUILD_HOME}/cmsgemos/etc/profile.d/xdaqenv.sh
+    - . ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
     - . ${BUILD_HOME}/cmsgemos/setup/paths.sh
   script:
     - make all -j8
