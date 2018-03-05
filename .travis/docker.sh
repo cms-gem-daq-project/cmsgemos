@@ -23,7 +23,7 @@ export BUILD_HOME=/home/daqbuild
 
 cd ${BUILD_HOME}/cmsgemos
 
-. setup/etc/profile.d/xdaqenv.sh
+. setup/etc/profile.d/gemdaqenv.sh
 . setup/paths.sh
 
 ## drive the different options here, passed in from the parent?

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!--  The tags attribute is a free test attribute which meaning is defined by the uHAL user -->
-<node id="top">
-  <node id="VFATs"  address="0x40010000"
-        module="file://${GEM_ADDRESS_TABLE_PATH}/vfatslaves.xml"
-        description="VFAT registers controled by the GLIB user registers">
-  </node>
-</node>
