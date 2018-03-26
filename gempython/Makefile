@@ -10,7 +10,11 @@ ShortPackage=python
 PackageName=python
 PackageDir=pkg/gempython
 
-PythonModules = ["gempython"]
+PythonModules = ["gempython.core", \
+                 "gempython.core.tools", \
+                 "gempython.core.utils" \
+
+]
 $(info PythonModules=${PythonModules})
 
 GEMPYTHON_VER_MAJOR=0
@@ -59,6 +63,13 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonRPM_gem.rules
 
 # need to ensure that the python only stuff is packaged into RPMs
 .PHONY: preprpm
+default:
+	$(MakeDir) $(PackageDir)
+	cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)
+	cp -rfp utils tools tests LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)
+	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
+	@cp -rfp __init__.py $(PackageDir)
+
 preprpm:
 	cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)
 	cp -rfp utils tools tests LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)

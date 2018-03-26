@@ -3,7 +3,7 @@ include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
 BUILD_HOME:=$(shell cd $(BUILD_HOME); pwd)
 
-GIT_VERSION  := $(shell git describe --abbrev=4 --dirty --always --tags)
+GIT_VERSION  := $(shell git describe --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
 
 Project=cmsgemos
