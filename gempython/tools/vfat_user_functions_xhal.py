@@ -118,14 +118,16 @@ class HwVFAT:
         else:
             return vfatVal
 
-    def setChannelRegister(self, chip, chan, mask=0x0, pulse=0x0, trimARM=0x0, trimZCC=0x0, debug=False):
+    def setChannelRegister(self, chip, chan, mask=0x0, pulse=0x0, trimARM=0x0, trimARMPol=0x0, trimZCC=0x0, trimZCCPol=0x0, debug=False):
         """
         chip - VFAT to write
         chan - channel on vfat
         mask - channel mask
         pulse - cal pulse enabled
         trimARM - v2b (v3) electronics trimDAC (arm comparator trim)
+        trimARMPol - v3 electroncis only, polarity of the trimDAC for the arming comparator
         trimZCC - v3 electronics only, zero crossing comparator trim
+        trimZZPol - as trimARMPol but for the zero crossing comparator
         """
 
         # Invalid channel check
@@ -136,9 +138,11 @@ class HwVFAT:
         # Write registers
         if self.parentOH.parentAMC.fwVersion > 2:
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ARM_TRIM_AMPLITUDE"%(chan), trimARM)
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ARM_TRIM_POLARITY"%(chan), trimARMPol)
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.CALPULSE_ENABLE"%(chan), pulse)
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.MASK"%(chan), mask)
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_AMPLITUDE"%(chan), trimZCC)
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_POLARITY"%(chan), trimZCCPol)
         else:
             chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trimARM&0x1f)
             self.writeVFAT(chip, "VFATChannels.ChanReg%d"%(chan),chanReg)
