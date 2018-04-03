@@ -148,10 +148,10 @@ class HwVFAT:
             self.writeVFAT(chip, "VFATChannels.ChanReg%d"%(chan),chanReg)
         return
 
-    def setChannelRegisterAll(self, chan, chMask=0x0, pulse=0x0, trimARM=0x0, trimZCC=0x0, vfatMask=0x0, debug=False):
+    def setChannelRegisterAll(self, chan, chMask=0x0, pulse=0x0, trimARM=0x0, trimARMPol=0x0, trimZCC=0x0, trimZCCPol=0x0, vfatMask=0x0, debug=False):
         for vfat in range(0,self.parentOH.nVFATs):
             if (vfatMask >> vfat) & 0x1: continue
-            self.setChannelRegister(vfat, chan, chMask, pulse, trimARM, trimZCC, debug)
+            self.setChannelRegister(vfat, chan, chMask, pulse, trimARM, trimARMPol, trimZCC, trimZCCPol, debug)
         return
 
     def setDebug(self, debug):
