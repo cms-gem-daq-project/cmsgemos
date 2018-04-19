@@ -2,14 +2,15 @@
 # Makefile for gempython package
 #
 
-Project=cmsgemos
-ShortProject=gem
-Namespace=gempython
-Package=gempython
-LongPackage=gempython
-ShortPackage=gempython
-PackageName=gempython-cmsgemos
-PackageDir=pkg/gempython
+Project      := cmsgemos
+ShortProject := gem
+Namespace    := gempython
+Package      := gempython
+LongPackage  := gempython
+ShortPackage := gempython
+PackageName  := gempython-cmsgemos
+PackageDir   := pkg/$(Namespace)
+ScriptDir    := pkg/$(Namespace)/scripts
 
 PythonModules = ["gempython.core", \
                  "gempython.tools", \
@@ -68,7 +69,7 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
 # 	$(info "Running default target")
 # 	$(MakeDir) $(PackageDir)/core
 # 	@cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
-# 	@cp -rfp utils tools LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)
+# 	@cp -rfp utils tools LICENSE MANIFEST.in requirements.txt $(PackageDir)
 # 	$(MakeDir) $(PackageDir)/bin
 # 	@cp -rfp tests/*.py $(PackageDir)/bin
 # 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
@@ -81,30 +82,38 @@ _rpmprep: _all
 	$(info "Running preprpm")
 	$(MakeDir) $(PackageDir)/core
 	@cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
-	@cp -rfp utils tools LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)
-	$(MakeDir) $(PackageDir)/bin
-	@cp -rfp tests/*.py $(PackageDir)/bin
-	@cp -rfp gempython.md $(PackageDir)/README.md
+	@cp -rfp gempython.md README.md
+	@cp -rfp utils tools $(PackageDir)
+	$(MakeDir) $(ScriptDir)
+	@cp -rfp tests/*.py $(ScriptDir)
+	-cp -rfp README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt $(PackageDir)
+	-cp -rfp README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt pkg
+	# @touch $(ScriptDir)/__init__.py
 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
-	@echo "include */*.so" > $(PackageDir)/MANIFEST.in
+#	@echo "include */*.so" > $(PackageDir)/MANIFEST.in
 
 clean:
 	$(info "Running clean target")
-	@rm -rf $(PackageDir)/core
-	@rm -rf $(PackageDir)/utils
-	@rm -rf $(PackageDir)/tools
-	@rm -rf $(PackageDir)/bin
-	@rm -rf $(PackageDir)/tests
-	@rm -rf pkg/core
-	@rm -rf pkg/utils
-	@rm -rf pkg/tools
-	@rm -rf pkg/bin
-	@rm -rf pkg/tests
-	@rm -f $(PackageDir)/LICENSE.txt
-	@rm -f $(PackageDir)/MANIFEST.in
-	@rm -f $(PackageDir)/requirements.txt
-	@rm -f $(PackageDir)/_cmsgemos_gempython.so
-	@rm -f $(PackageDir)/README.md
+	-rm -rf $(PackageDir)/core
+	-rm -rf $(PackageDir)/utils
+	-rm -rf $(PackageDir)/tools
+	-rm -rf $(ScriptDir)
+	# -rm -rf $(PackageDir)/tests
+	-rm -f  $(PackageDir)/README.md
+	-rm -f  $(PackageDir)/LICENSE
+	-rm -f  $(PackageDir)/MANIFEST.in
+	-rm -f  $(PackageDir)/CHANGELOG.md
+	-rm -f  $(PackageDir)/requirements.txt
+	-rm -f  $(PackageDir)/_cmsgemos_gempython.so
+	-rm -f  pkg/README.md
+	-rm -f  pkg/LICENSE
+	-rm -f  pkg/MANIFEST.in
+	-rm -f  pkg/CHANGELOG.md
+	-rm -f  pkg/requirements.txt
+	# -rm -rf pkg/core
+	# -rm -rf pkg/utils
+	# -rm -rf pkg/tools
+	# -rm -rf pkg/bin
 
 rpm: _rpmbuild
 	$(info "Running overridden rpm target")
