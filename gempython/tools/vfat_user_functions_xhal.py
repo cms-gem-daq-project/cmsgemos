@@ -31,6 +31,11 @@ class HwVFAT:
         self.stopCalPulses2AllChannels.argTypes = [ c_uint, c_uint, c_uint, c_uint ]
         self.stopCalPulses2AllChannels.restype = c_uint
 
+        # Write all channel regs
+        self.setChannelRegistersVFAT3 = self.parentOH.parentAMC.lib.setChannelRegistersVFAT3
+        self.setChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32), POINTER(c_uint32) ]
+        self.setChannelRegistersVFAT3.restype = c_uint
+
         # Set default parameters
         self.paramsDefVals = {}
         if self.parentOH.parentAMC.fwVersion < 3:
@@ -118,14 +123,16 @@ class HwVFAT:
         else:
             return vfatVal
 
-    def setChannelRegister(self, chip, chan, mask=0x0, pulse=0x0, trimARM=0x0, trimZCC=0x0, debug=False):
+    def setChannelRegister(self, chip, chan, mask=0x0, pulse=0x0, trimARM=0x0, trimARMPol=0x0, trimZCC=0x0, trimZCCPol=0x0, debug=False):
         """
         chip - VFAT to write
         chan - channel on vfat
         mask - channel mask
         pulse - cal pulse enabled
         trimARM - v2b (v3) electronics trimDAC (arm comparator trim)
+        trimARMPol - v3 electroncis only, polarity of the trimDAC for the arming comparator
         trimZCC - v3 electronics only, zero crossing comparator trim
+        trimZCCPol - as trimARMPol but for the zero crossing comparator
         """
 
         # Invalid channel check
@@ -136,19 +143,56 @@ class HwVFAT:
         # Write registers
         if self.parentOH.parentAMC.fwVersion > 2:
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ARM_TRIM_AMPLITUDE"%(chan), trimARM)
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ARM_TRIM_POLARITY"%(chan), trimARMPol)
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.CALPULSE_ENABLE"%(chan), pulse)
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.MASK"%(chan), mask)
             self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_AMPLITUDE"%(chan), trimZCC)
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_POLARITY"%(chan), trimZCCPol)
         else:
             chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trimARM&0x1f)
             self.writeVFAT(chip, "VFATChannels.ChanReg%d"%(chan),chanReg)
         return
 
-    def setChannelRegisterAll(self, chan, chMask=0x0, pulse=0x0, trimARM=0x0, trimZCC=0x0, vfatMask=0x0, debug=False):
+    def setSpecificChannelAllRegisters(self, chan, chMask=0x0, pulse=0x0, trimARM=0x0, trimARMPol=0x0, trimZCC=0x0, trimZCCPol=0x0, vfatMask=0x0, debug=False):
         for vfat in range(0,self.parentOH.nVFATs):
             if (vfatMask >> vfat) & 0x1: continue
-            self.setChannelRegister(vfat, chan, chMask, pulse, trimARM, trimZCC, debug)
+            self.setChannelRegister(vfat, chan, chMask, pulse, trimARM, trimARMPol, trimZCC, trimZCCPol, debug)
         return
+
+    def setAllChannelRegisters(self, chMask=None, pulse=None, trimARM=None, trimARMPol=None, trimZCC=None, trimZCCPol=None, vfatMask=0x0, debug=False):
+        """
+        Sets all channel registers for all VFAT3s on the detector
+
+        chMask - array with size 3072, storing channel MASK values, index goes as: idx = vfatN*128 + chan
+        pulse - as chMask but for CALPULSE_ENABLE values
+        trimARM - as chMask but for ARM_TRIM_AMPLITUDE values
+        trimARMPol - as chMask but for ARM_TRIM_POLARITY values
+        trimZCC - as chMask but for ZCC_TRIM_AMPLITUDE values
+        trimZCCPol - as chMask but for ZCC_TRIM_POLARITY values
+        vfatMask - 24 bit number indicating vfats to mask (n^th bit==1 means n^th VFAT ignored)
+        debug - print debug information
+        """
+
+        if chMask is None:
+            chMask = (c_uint32 * 3072)()
+            pass
+        if pulse is None:
+            pulse = (c_uint32 * 3072)()
+            pass
+        if trimARM is None:
+            trimARM = (c_uint32 * 3072)()
+            pass
+        if trimARMPol is None:
+            trimARMPol = (c_uint32 * 3072)()
+            pass
+        if trimZCC is None:
+            trimZCC = (c_uint32 * 3072)()
+            pass
+        if trimZCCPol is None:
+            trimZCCPol = (c_uint32 * 3072)()
+            pass
+
+        return self.setChannelRegistersVFAT3(self.parentOH.link, vfatMask, pulse, chMask, trimARM, trimARMPol, trimZCC, trimZCCPol)
 
     def setDebug(self, debug):
         self.debug = debug
