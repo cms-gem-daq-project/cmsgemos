@@ -4,16 +4,16 @@
 
 Project=cmsgemos
 ShortProject=gem
+Namespace=gempython
 Package=gempython
 LongPackage=gempython
-ShortPackage=python
-PackageName=python
+ShortPackage=gempython
+PackageName=gempython-cmsgemos
 PackageDir=pkg/gempython
 
 PythonModules = ["gempython.core", \
-                 "gempython.core.tools", \
-                 "gempython.core.utils" \
-
+                 "gempython.tools", \
+                 "gempython.utils" \
 ]
 $(info PythonModules=${PythonModules})
 
@@ -59,36 +59,55 @@ DependentLibraries+=xdata mimetic xoap
 #DependentLibraries+=xoap xdata mimetic xdaq
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfPythonRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
+#include $(BUILD_HOME)/$(Project)/config/mfPythonRPM_gem.rules
 
 # need to ensure that the python only stuff is packaged into RPMs
-.PHONY: preprpm
-default:
-	$(MakeDir) $(PackageDir)
-	cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)
-	cp -rfp utils tools tests LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)
-	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
-	@cp -rfp __init__.py $(PackageDir)
+#.PHONY: default
+# default:
+# 	$(info "Running default target")
+# 	$(MakeDir) $(PackageDir)/core
+# 	@cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
+# 	@cp -rfp utils tools LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)
+# 	$(MakeDir) $(PackageDir)/bin
+# 	@cp -rfp tests/*.py $(PackageDir)/bin
+# 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
+# 	@cp -rfp __init__.py $(PackageDir)
 
-preprpm:
-	cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)
-	cp -rfp utils tools tests LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)
-	cp -rfp gempython.md $(PackageDir)/README.md
+.PHONY: clean preprpm
+#_rpmprep: preprpm
+# prep_rpm: default
+_rpmprep: _all
+	$(info "Running preprpm")
+	$(MakeDir) $(PackageDir)/core
+	@cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
+	@cp -rfp utils tools LICENSE.txt MANIFEST.in requirements.txt $(PackageDir)
+	$(MakeDir) $(PackageDir)/bin
+	@cp -rfp tests/*.py $(PackageDir)/bin
+	@cp -rfp gempython.md $(PackageDir)/README.md
+	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
+	@echo "include */*.so" > $(PackageDir)/MANIFEST.in
 
 clean:
-	rm -rf $(PackageDir)/utils
-	rm -rf $(PackageDir)/tools
-	rm -rf $(PackageDir)/tests
-	rm -rf pkg/utils
-	rm -rf pkg/tools
-	rm -rf pkg/tests
-	rm -f $(PackageDir)/LICENSE.txt
-	rm -f $(PackageDir)/MANIFEST.in
-	rm -f $(PackageDir)/requirements.txt
-	rm -f $(PackageDir)/_cmsgemos_gempython.so
-	rm -f $(PackageDir)/README.md
+	$(info "Running clean target")
+	@rm -rf $(PackageDir)/core
+	@rm -rf $(PackageDir)/utils
+	@rm -rf $(PackageDir)/tools
+	@rm -rf $(PackageDir)/bin
+	@rm -rf $(PackageDir)/tests
+	@rm -rf pkg/core
+	@rm -rf pkg/utils
+	@rm -rf pkg/tools
+	@rm -rf pkg/bin
+	@rm -rf pkg/tests
+	@rm -f $(PackageDir)/LICENSE.txt
+	@rm -f $(PackageDir)/MANIFEST.in
+	@rm -f $(PackageDir)/requirements.txt
+	@rm -f $(PackageDir)/_cmsgemos_gempython.so
+	@rm -f $(PackageDir)/README.md
 
-rpm: preprpm _rpmall
+rpm: _rpmbuild
+	$(info "Running overridden rpm target")
 # rpmall: ${BINDINGS_LIB}
 # 	rm -rf /var/tmp/cactus*
 # 	python setup.py bdist_rpm --release ${PACKAGE_RELEASE}.${XDAQ_OS}.python${PYTHON_VERSION} --binary-only --force-arch=`uname -m`

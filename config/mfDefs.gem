@@ -9,6 +9,20 @@ GEMDEVELOPER := $(shell id --user --name)
 Project=cmsgemos
 ShortProject=gem
 
+## Version variables from Makefile and ShortPackage
+ShortPackageLoc    = $(shell echo "$(ShortPackage)" | tr '[:lower:]' '[:upper:]')
+PACKAGE_VER_MAJOR ?= $($(ShortPackageLoc)_VER_MAJOR)
+PACKAGE_VER_MINOR ?= $($(ShortPackageLoc)_VER_MINOR)
+PACKAGE_VER_PATCH ?= $($(ShortPackageLoc)_VER_PATCH)
+
+BUILD_VERSION ?= 1
+
+PACKAGE_FULL_VERSION ?= $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
+PACKAGE_FULL_RELEASE ?= $(BUILD_VERSION).git$(GITREV).$(CMSGEMOS_OS)
+
+# Tools
+MakeDir=mkdir -p
+
 # Debugging and profiling flags
 DEBUG_CFlags    = -O0 -g3 -fno-inline
 DEBUG_CCFlags   = ${DEBUG_CFlags}

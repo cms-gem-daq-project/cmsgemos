@@ -3,12 +3,21 @@
 ## amc13/config/mfPythonRPMRules.mk
 
 rpm: $(PackageListLoop)
+	$(info "PackageListLoop: $(PackageListLoop)")
+	cat $(PackageListLoop) | tee mymakelog.log
+	$(info "Running rpm target")
 
 installrpm: $(PackageListLoop)
+	$(info "PackageListLoop: $(PackageListLoop)")
+	$(info "Running installrpm target")
 
 cleanrpm: $(PackageListLoop)
+	$(info "PackageListLoop: $(PackageListLoop)")
+	$(info "Running cleanrpm target")
 
 changelog: $(PackageListLoop)
+	$(info "PackageListLoop: $(PackageListLoop)")
+	$(info "Running changelog target")
 
 INSTALL_PATH = /opt/cmsgemos
 XDAQ_PATH = /opt/xdaq
@@ -117,14 +126,15 @@ _rpmall: fail
 fail:
 	$(error Error (rpmall) could not extract version information from Makefile in package '$(Package)')
 else
-_rpmall: setup_update makerpm
+_rpmall: makerpm
+	$(info "Running _rpmall target")
 endif
 
 
 # if for package makefile only if endif
 #else
 #_rpmall:
-#	@echo "*** "$(Package) I am in the elese
+#	$(info "*** "$(Package) I am in the else)
 endif
 
 # 	rpmbuild  -bb -bl --target $(XDAQ_PLATFORM) --define  "_topdir $(PackagePath)/rpm/RPMBUILD"  $(PackagePath)/rpm/$(LongPackage).spec
@@ -135,7 +145,7 @@ makedevrpm: setup_update
 	# use python pbr to set up and do the building of the python packages
 	# Change directory into pkg and copy everything into rpm/pkg/
 	cd pkg/$(Package) && \
-	find . -name "*" -exec install -D \{\} $(PackagePath)/rpm/\{\} \;
+	find . -iname 'setup.*' -prune -o -name "*" -exec install -D \{\} $(PackagePath)/rpm/\{\} \;
 	# # Add a manifest file
 	# echo "include */*.so" > $(PackagePath)/rpm/MANIFEST.in
 	# Change into rpm/pkg to finally run the customized setup.py
@@ -146,13 +156,18 @@ makedevrpm: setup_update
 	--release ${PACKAGE_RELEASE}.${XDAQ_PLATFORM}.python${PYTHON_VERSION} \
 	--binary-only --force-arch=`uname -m`
 	# Harvest the crop
-	find rpm -name "*.rpm" -exec cp -a \{\} rpm/ \;
+	find rpm -name "*.rpm"    -exec cp -a \{\} rpm/ \;
+	find rpm -name "*.tar.gz" -exec cp -a \{\} rpm/ \;
+	find rpm -name "*.tgz"    -exec cp -a \{\} rpm/ \;
+	find rpm -name "*.tbz2"   -exec cp -a \{\} rpm/ \;
 
 .PHONY: makerpm
 makerpm: build_rpm
+	$(info "Running makerpm target")
 
 .PHONY: prep_rpm
 prep_rpm: setup_update
+	$(info "Running prep_rpm target")
 	# use python pbr to set up and do the building of the python packages
 	# Copy files into pkg
 	cp README.md pkg; \
@@ -164,12 +179,13 @@ prep_rpm: setup_update
 	# Change directory into pkg and copy everything into rpm/pkg/
 	# cd pkg/$(Package) && 
 	cd pkg && \
-	find . -name "*" -exec install -D \{\} $(PackagePath)/rpm/\{\} \;
+	find . -iname 'setup.*' -prune -o -name "*" -exec install -D \{\} $(PackagePath)/rpm/\{\} \;
 	# # Add a manifest file
 	echo "include */*.so" > $(PackagePath)/rpm/MANIFEST.in
 
 .PHONY: build_rpm
 build_rpm: prep_rpm
+	$(info "Running build_rpm target")
 	# Change into rpm/pkg to finally run the customized setup.py
 	# egg_info --tag-date --tag-build=DEV \#
 	cd $(PackagePath)/rpm && python setup.py \
@@ -178,14 +194,21 @@ build_rpm: prep_rpm
 	--release ${PACKAGE_RELEASE}.${XDAQ_PLATFORM}.python${PYTHON_VERSION} \
 	--binary-only --force-arch=`uname -m`
 	# Harvest the crop
-	find rpm -name "*.rpm" -exec cp -a \{\} rpm/ \;
+	find rpm -name "*.rpm"    -exec cp -a \{\} rpm/ \;
+	find rpm -name "*.tar.gz" -exec cp -a \{\} rpm/ \;
+	find rpm -name "*.tgz"    -exec cp -a \{\} rpm/ \;
+	find rpm -name "*.tbz2"   -exec cp -a \{\} rpm/ \;
 	# for building a nightly, egg_info --tag-date --tag-build=DEV
 
 .PHONY: setup_update
 setup_update:
+	$(info "Running setup_update target")
 	$(info "Executing GEM specific setup_update")
 	@mkdir -p $(PackagePath)/rpm
-	if [ -e $(PackagePath)/setup.py ]; then \
+	if [ -e $(PackagePath)/pkg/setup.py ]; then \
+		echo Found $(PackagePath)/pkg/setup.py; \
+		cp $(PackagePath)/pkg/setup.py $(PackagePath)/rpm/setup.py; \
+	elif [ -e $(PackagePath)/setup.py ]; then \
 		echo $(PackagePath) found setup.py; \
 		cp $(PackagePath)/setup.py $(PackagePath)/rpm/setup.py; \
 	elif [ -e $(ProjectPath)/config/build/cmsgemos.setupTemplate.py ]; then \
@@ -201,6 +224,7 @@ setup_update:
 	sed -i 's#__release__#${PACKAGE_FULL_RELEASE}#' $(PackagePath)/rpm/setup.py
 	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/setup.py
 	sed -i 's#__python_packages__#${PythonModules}#' $(PackagePath)/rpm/setup.py
+	sed -i 's#__pythonmodules__#${PythonModules}#' $(PackagePath)/rpm/setup.py
 	sed -i 's#__package__#${Package}#' $(PackagePath)/rpm/setup.py
 	sed -i 's#__packagedir__#$(PackagePath)#' $(PackagePath)/rpm/setup.py
 	sed -i 's#__packagename__#${PackageName}#' $(PackagePath)/rpm/setup.py
@@ -228,7 +252,10 @@ setup_update:
 	sed -i 's#__gid__#$(GID)#' $(PackagePath)/rpm/setup.py
 
 	## for pbr setup.cfg, maybe replace the previous... in any event, the setup.cfg takes precedence
-	if [ -e $(PackagePath)/setup.cfg ]; then \
+	if [ -e $(PackagePath)/pkg/setup.cfg ]; then \
+		echo Found $(PackagePath)/pkg/setup.cfg; \
+		cp $(PackagePath)/pkg/setup.cfg $(PackagePath)/rpm/setup.cfg; \
+	elif [ -e $(PackagePath)/setup.cfg ]; then \
 		echo $(PackagePath) found setup.cfg; \
 		cp $(PackagePath)/setup.cfg $(PackagePath)/rpm/setup.cfg; \
 	elif [ -e $(ProjectPath)/config/build/cmsgemos.setupTemplate.cfg ]; then \
@@ -244,6 +271,7 @@ setup_update:
 	sed -i 's#__release__#${PACKAGE_FULL_RELEASE}#' $(PackagePath)/rpm/setup.cfg
 	sed -i 's#__version__#$(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)#' $(PackagePath)/rpm/setup.cfg
 	sed -i 's#__python_packages__#${PythonModules}#' $(PackagePath)/rpm/setup.cfg
+	sed -i 's#__pythonmodules__#${PythonModules}#' $(PackagePath)/rpm/setup.cfg
 	sed -i 's#__package__#${Package}#' $(PackagePath)/rpm/setup.cfg
 	sed -i 's#__packagedir__#$(PackagePath)#' $(PackagePath)/rpm/setup.cfg
 	sed -i 's#__packagename__#${PackageName}#' $(PackagePath)/rpm/setup.cfg
