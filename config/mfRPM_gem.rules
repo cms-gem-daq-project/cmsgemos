@@ -24,7 +24,8 @@ BUILD_DATE   = $(shell date -u +"%d%m%Y")
 ifdef Package
 
 ifndef PackageName
-PackageName=$(shell awk -F'"' 'BEGIN{IGNORECASE=1} /package[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PackageName=$(shell awk -F'"' 'BEGIN{IGNORECASE=1} /package[ \t\r\f\v]*=/ {print $$2;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 # convert long package name to all upper case
@@ -32,25 +33,29 @@ LongPackageLoc=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
 #LongPackageLoc=$(shell echo "$(LongPackage)" | awk '{print toupper($0)}') ## not working... why not?
 
 ifndef PACKAGE_VER_MAJOR
-PACKAGE_VER_MAJOR:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MAJOR/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PACKAGE_VER_MAJOR:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MAJOR/ {print $$3;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 else
 $(info mfRPM_gem.rules PACKAGE_VER_MAJOR is already set to $(PACKAGE_VER_MAJOR))
 endif
 
 ifndef PACKAGE_VER_MINOR
-PACKAGE_VER_MINOR:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MINOR/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PACKAGE_VER_MINOR:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MINOR/ {print $$3;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 else
 $(info mfRPM_gem.rules PACKAGE_VER_MINOR is already set to $(PACKAGE_VER_MINOR))
 endif
 
 ifndef PACKAGE_VER_PATCH
-PACKAGE_VER_PATCH:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_PATCH/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PACKAGE_VER_PATCH:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_PATCH/ {print $$3;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 else
 $(info mfRPM_gem.rules PACKAGE_VER_PATCH is already set to $(PACKAGE_VER_PATCH))
 endif
 
 ifndef PACKAGE_REQUIRED_PACKAGE_LIST
-PACKAGE_REQUIRED_PACKAGE_LIST:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PACKAGE_REQUIRED_PACKAGE_LIST:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 ifndef PACKAGE_RELEASE
@@ -88,20 +93,24 @@ endif
 # Extract summary, description and authors
 #
 ifndef Description
-Description = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /description[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+Description = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /description[ \t\r\f\v]*=/ {print $$2;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 ifndef Summary
-Summary = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /summary[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+Summary = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /summary[ \t\r\f\v]*=/ {print $$2;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 #ifndef Authors
 # Authors defined in mfDefs.linux as $(shell id -un)
-Authors = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /authors[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+Authors = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /authors[ \t\r\f\v]*=/ {print $$2;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 #endif
 
 ifndef Link
-Link = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /link[ \t\r\f\v]*=/ {print $$2;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+Link = $(shell awk -F'"' 'BEGIN{IGNORECASE=1} /link[ \t\r\f\v]*=/ {print $$2;}' \
+	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 
@@ -119,10 +128,11 @@ endif
 # if for package makefile only if endif
 #else
 #_rpmall:
-#	@echo "*** "$(Package) I am in the elese
+#	@echo "*** "$(Package) I am in the else
 endif
 
-# 	rpmbuild  -bb -bl --target $(XDAQ_PLATFORM) --define  "_topdir $(PackagePath)/rpm/RPMBUILD"  $(PackagePath)/rpm/$(LongPackage).spec
+# 	rpmbuild  -bb -bl --target $(XDAQ_PLATFORM) --define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
+	$(PackagePath)/rpm/$(LongPackage).spec
 
 
 .PHONY: makerpm
@@ -135,8 +145,11 @@ makerpm:
 	echo BUILD_DISTRIBUTION $(BUILD_DISTRIBUTION)
 	echo BUILD_COMPILER $(BUILD_COMPILER)
 	echo PackagePath $(PackagePath)
-	tar -P -X $(XDAQ_ROOT)/config/src.exclude --exclude="*.tbz2" -jcf  $(PackagePath)/rpm/RPMBUILD/SOURCES/$(Project)-$(PackageName)-v$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 $(PackagePath)
-	rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" $(PackagePath)/rpm/$(LongPackage).spec
+	tar -P -X $(XDAQ_ROOT)/config/src.exclude --exclude="*.tbz2" -jcf \
+		$(PackagePath)/rpm/RPMBUILD/SOURCES/$(Project)-$(PackageName)-$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 \
+		$(PackagePath)
+	rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
+		$(PackagePath)/rpm/$(LongPackage).spec
 	find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
 
 .PHONY: spec_update
@@ -155,7 +168,6 @@ spec_update:
 	fi
 	sed -i 's#__gitrev__#$(GITREV)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__builddate__#$(BUILD_DATE)#' $(PackagePath)/rpm/$(LongPackage).spec
-	# sed -i 's#__release__#$(BUILD_VERSION).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__release__#$(PACKAGE_FULL_RELEASE)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__version__#$(PACKAGE_FULL_VERSION)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__prefix__#$(INSTALL_PATH)#' $(PackagePath)/rpm/$(LongPackage).spec
@@ -174,7 +186,7 @@ spec_update:
 	sed -i 's#__description__#$(Description)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__url__#$(Link)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__buildarch__#$(XDAQ_PLATFORM)#' $(PackagePath)/rpm/$(LongPackage).spec
-	# sed -i 's#__datadir__#$(DATA_DIR)#' $(PackagePath)/rpm/$(LongPackage).spec
+#	sed -i 's#__datadir__#$(DATA_DIR)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__username__#$(USER_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__groupname__#$(GROUP_NAME)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__uid__#$(UID)#' $(PackagePath)/rpm/$(LongPackage).spec

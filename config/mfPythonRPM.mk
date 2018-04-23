@@ -2,38 +2,13 @@
 ## amc13/config/mfPythonRPMRules.mk
 
 INSTALL_PATH = /opt/cmsgemos
-ProjectPath  ?= $(BUILD_HOME)/$(Project)
-PackagePath  ?= $(BUILD_HOME)/$(Project)/$(Package)
+ProjectPath  = $(BUILD_HOME)/$(Project)
+PackagePath  = $(BUILD_HOME)/$(Project)/$(Package)
 RPMBUILD_DIR = $(PackagePath)/rpm
-# 
 CMSGEMOS_OS ?= $(XDAQ_OS)
 
 ## Version variables from Makefile and ShortPackage
 ShortPackageLoc   := $(shell echo "$(ShortPackage)" | tr '[:lower:]' '[:upper:]')
-
-# ifndef PACKAGE_VER_MAJOR
-# PACKAGE_VER_MAJOR := $($(ShortPackageLoc)_VER_MAJOR)
-# else
-# $(info mfDefs.gem PACKAGE_VER_MAJOR is already set to $(PACKAGE_VER_MAJOR))
-# endif
-# ifndef PACKAGE_VER_MINOR
-# PACKAGE_VER_MINOR := $($(ShortPackageLoc)_VER_MINOR)
-# else
-# $(info mfDefs.gem PACKAGE_VER_MINOR is already set to $(PACKAGE_VER_MINOR))
-# endif
-# ifndef PACKAGE_VER_MINOR
-# PACKAGE_VER_PATCH := $($(ShortPackageLoc)_VER_PATCH)
-# else
-# $(info mfDefs.gem PACKAGE_VER_PATCH is already set to $(PACKAGE_VER_PATCH))
-# endif
-
-# ifndef BUILD_VERSION
-# BUILD_VERSION=1
-# endif
-
-# ifndef PACKAGE_FULL_VERSION
-# PACKAGE_FULL_VERSION = $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
-# endif
 
 ifndef PACKAGE_FULL_RELEASE
 PACKAGE_FULL_RELEASE = $(BUILD_VERSION).git$(GITREV).$(CMSGEMOS_OS)
@@ -121,7 +96,6 @@ _setup_update:
 	sed -i 's#__os__#$(CMSGEMOS_OS)#'                 $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__platform__#$(CMSGEMOS_PLATFORM)#'     $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__description__#None#'                  $(RPMBUILD_DIR)/setup.py
-#	cat $(RPMBUILD_DIR)/setup.py
 
 	if [ -e $(PackagePath)/pkg/setup.cfg ]; then \
 		echo Found $(PackagePath)/pkg/setup.cfg; \
