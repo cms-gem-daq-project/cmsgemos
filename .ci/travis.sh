@@ -4,20 +4,12 @@
 # https://github.com/opensciencegrid/htcondor-ce/tree/master/tests
 
 OS_VERSION=$1
-PYTHON_VERSION=""
+PYTHON_VERSION=$2
 GCC_VERSION=""
 CLANG_VERSION=""
 COMPILER=""
 COMPILER_OPTIONS=""
 LIBC_VERSION=""
-
-# Clean the yum cache
-yum -y clean all
-yum -y clean expire-cache
-
-uname -a
-
-# $PYTHON_VERSON
 
 export BUILD_HOME=/home/daqbuild
 
