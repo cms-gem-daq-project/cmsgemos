@@ -59,13 +59,10 @@ then
     docker exec -ti ${DOCKER_CONTAINER_ID} /bin/bash -ec 'python -c "import pkg_resources; print(pkg_resources.get_distribution('\''importlib'\''))"'
     docker exec -ti ${DOCKER_CONTAINER_ID} /bin/bash -ec 'python -c "import pkg_resources; print(pkg_resources.get_distribution('\''pip'\''))"'
     docker exec -ti ${DOCKER_CONTAINER_ID} /bin/bash -ec 'python -c "import pkg_resources; print(pkg_resources.get_distribution('\''setuptools'\''))"'
-    docker exec -ti ${DOCKER_CONTAINER_ID} /bin/bash -ec 'export BUILD_HOME=/home/daqbuild'
-    docker exec -ti ${DOCKER_CONTAINER_ID} /bin/bash -ec 'cd ${BUILD_HOME}/cmsgemos; . setup/etc/profile.d/gemdaqenv.sh; . setup/paths.sh'
-
 else
     DOCKER_CONTAINER_ID=$(docker ps | grep ${DOCKER_IMAGE} | awk '{print $1}')
     docker logs $DOCKER_CONTAINER_ID
-    
+
     if [ "${COMMAND}" = "stop" ]
     then
         docker exec -ti ${DOCKER_CONTAINER_ID} /bin/bash -ec "echo -ne \"------\nEND ${REPO_NAME} TESTS\n\";"
