@@ -18,6 +18,7 @@ endif
 
 ifndef PACKAGE_VER_MINOR
 PACKAGE_VER_MINOR = $($(ShortPackageLoc)_VER_MINOR)
+endif
 
 ifndef PACKAGE_VER_PATCH
 PACKAGE_VER_PATCH = $($(ShortPackageLoc)_VER_PATCH)
