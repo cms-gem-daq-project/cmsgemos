@@ -43,19 +43,35 @@ PackageName=$(shell awk -F'"' 'BEGIN{IGNORECASE=1} /package[ \t\r\f\v]*=/ {print
 endif
 
 # convert long package name to all upper case
-LongPackageLoc=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
-#LongPackageLoc=$(shell echo "$(LongPackage)" | awk '{print toupper($0)}') ## not working... why not?
+LongPackageLoc:=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
+#LongPackageLoc:=$(shell echo "$(LongPackage)" | awk '{print toupper($0)}') ## not working... why not?
+
+# ifndef PACKAGE_VER_MAJOR
+# PACKAGE_VER_MAJOR := $($(LongPackageLoc)_VER_MAJOR)
+# else
+# $(info mfPythonRPM_gem.rules PACKAGE_VER_MAJOR is already set to $(PACKAGE_VER_MAJOR))
+# endif
+# ifndef PACKAGE_VER_MINOR
+# PACKAGE_VER_MINOR := $($(LongPackageLoc)_VER_MINOR)
+# else
+# $(info mfPythonRPM_gem.rules PACKAGE_VER_MINOR is already set to $(PACKAGE_VER_MINOR))
+# endif
+# ifndef PACKAGE_VER_MINOR
+# PACKAGE_VER_PATCH := $($(LongPackageLoc)_VER_PATCH)
+# else
+# $(info mfPythonRPM_gem.rules PACKAGE_VER_PATCH is already set to $(PACKAGE_VER_PATCH))
+# endif
 
 ifndef PACKAGE_VER_MAJOR
-PACKAGE_VER_MAJOR=$($(LongPackageLoc)_VER_MAJOR)
+PACKAGE_VER_MAJOR:=$($(LongPackageLoc)_VER_MAJOR)
 endif
 
 ifndef PACKAGE_VER_MINOR
-PACKAGE_VER_MINOR=$($(LongPackageLoc)_VER_MINOR)
+PACKAGE_VER_MINOR:=$($(LongPackageLoc)_VER_MINOR)
 endif
 
 ifndef PACKAGE_VER_PATCH
-PACKAGE_VER_PATCH=$($(LongPackageLoc)_VER_PATCH)
+PACKAGE_VER_PATCH:=$($(LongPackageLoc)_VER_PATCH)
 endif
 
 ifndef PACKAGE_RELEASE

@@ -8,6 +8,37 @@ RPMBUILD_DIR = $(PackagePath)/rpm
 # 
 CMSGEMOS_OS ?= $(XDAQ_OS)
 
+## Version variables from Makefile and ShortPackage
+ShortPackageLoc   := $(shell echo "$(ShortPackage)" | tr '[:lower:]' '[:upper:]')
+
+# ifndef PACKAGE_VER_MAJOR
+# PACKAGE_VER_MAJOR := $($(ShortPackageLoc)_VER_MAJOR)
+# else
+# $(info mfDefs.gem PACKAGE_VER_MAJOR is already set to $(PACKAGE_VER_MAJOR))
+# endif
+# ifndef PACKAGE_VER_MINOR
+# PACKAGE_VER_MINOR := $($(ShortPackageLoc)_VER_MINOR)
+# else
+# $(info mfDefs.gem PACKAGE_VER_MINOR is already set to $(PACKAGE_VER_MINOR))
+# endif
+# ifndef PACKAGE_VER_MINOR
+# PACKAGE_VER_PATCH := $($(ShortPackageLoc)_VER_PATCH)
+# else
+# $(info mfDefs.gem PACKAGE_VER_PATCH is already set to $(PACKAGE_VER_PATCH))
+# endif
+
+# ifndef BUILD_VERSION
+# BUILD_VERSION=1
+# endif
+
+# ifndef PACKAGE_FULL_VERSION
+# PACKAGE_FULL_VERSION = $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
+# endif
+
+ifndef PACKAGE_FULL_RELEASE
+PACKAGE_FULL_RELEASE = $(BUILD_VERSION).git$(GITREV).$(CMSGEMOS_OS)
+endif
+
 ifndef PythonModules
 	$(error Python module names missing "PythonModules")
 endif

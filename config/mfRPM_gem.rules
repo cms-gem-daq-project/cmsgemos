@@ -32,27 +32,29 @@ LongPackageLoc=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
 #LongPackageLoc=$(shell echo "$(LongPackage)" | awk '{print toupper($0)}') ## not working... why not?
 
 ifndef PACKAGE_VER_MAJOR
-PACKAGE_VER_MAJOR=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MAJOR/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PACKAGE_VER_MAJOR:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MAJOR/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+else
+$(info mfRPM_gem.rules PACKAGE_VER_MAJOR is already set to $(PACKAGE_VER_MAJOR))
 endif
 
 ifndef PACKAGE_VER_MINOR
-PACKAGE_VER_MINOR=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MINOR/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PACKAGE_VER_MINOR:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MINOR/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+else
+$(info mfRPM_gem.rules PACKAGE_VER_MINOR is already set to $(PACKAGE_VER_MINOR))
 endif
 
 ifndef PACKAGE_VER_PATCH
-PACKAGE_VER_PATCH=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_PATCH/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PACKAGE_VER_PATCH:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_PATCH/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+else
+$(info mfRPM_gem.rules PACKAGE_VER_PATCH is already set to $(PACKAGE_VER_PATCH))
 endif
 
 ifndef PACKAGE_REQUIRED_PACKAGE_LIST
-PACKAGE_REQUIRED_PACKAGE_LIST=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
+PACKAGE_REQUIRED_PACKAGE_LIST:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' $(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
 ifndef PACKAGE_RELEASE
 include  $(XDAQ_ROOT)/config/mfRPM.release
-endif
-
-ifndef BUILD_VERSION
-BUILD_VERSION=1
 endif
 
 ifndef BUILD_COMPILER
@@ -73,10 +75,6 @@ endif
 endif
 endif
 
-ifndef PACKAGE_FULL_VERSION
-PACKAGE_FULL_VERSION = $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
-endif
-
 ifndef PACKAGE_FULL_RELEASE
 PACKAGE_FULL_RELEASE = $(BUILD_VERSION).git$(GITREV).$(PACKAGE_RELEASE).$(BUILD_DISTRIBUTION).$(BUILD_COMPILER)
 endif
@@ -85,7 +83,6 @@ REQUIRES_LIST=0
 ifneq ($(PACKAGE_REQUIRED_PACKAGE_LIST),)
 REQUIRES_LIST=1
 endif
-
 
 #
 # Extract summary, description and authors
