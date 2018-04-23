@@ -5,15 +5,17 @@
 # https://github.com/opensciencegrid/htcondor-ce/tree/master/tests
 
 # Version of CentOS/RHEL
-COMMAND=$2
+COMMAND=$1
 DOCKER_IMAGE=$2
 OS_VERSION=$3
 REPO_NAME=${TRAVIS_REPO_SLUG#?*/}
+REPO_NAME=cmsgemos
 
 # need a varaible to point to the .travis directory
 # Run tests in Container
 if [ "${COMMAND}" = "setup" ]
 then
+    echo "Setting up system for docker image"
     sudo usermod -aG docker $USER
     sudo groupadd daqbuild -g 2055
     sudo useradd daqbuild -g 2055 -u 2055
@@ -33,22 +35,25 @@ then
     sudo chown :daqbuild -R .
 elif [ "${COMMAND}" = "start" ]
 then
-    if [[ "${DOCKER_IMAGE}" =~ "slc6$" ]]
+    if [[ "${DOCKER_IMAGE}" =~ slc6$ ]]
     then
         echo "Running SLC6 GEM DAQ custom docker image"
         # docker run -d --user daqbuild --rm=true -v `pwd`:/home/daqbuild/${REPO_NAME}:rw,z --entrypoint="/bin/bash" \
         docker run --user daqbuild --privileged=true -d -ti -e "container=docker" \
                -v `pwd`:/home/daqbuild/${REPO_NAME}:rw,z \
                ${DOCKER_IMAGE} /bin/bash
-    elif [[ "${DOCKER_IMAGE}" =~ "cc7" ]]
+    elif [[ "${DOCKER_IMAGE}" =~ cc7$ ]]
     then
         docker run --user daqbuild --privileged=true -d -ti -e "container=docker" \
                -v /sys/fs/cgroup:/sys/fs/cgroup \
                -v `pwd`:/home/daqbuild/${REPO_NAME}:rw,z \
                ${DOCKER_IMAGE} /usr/sbin/init
-    elif [[ "${DOCKER_IMAGE}" =~ "cc8" ]]
+    elif [[ "${DOCKER_IMAGE}" =~ cc8$ ]]
     then
         echo "Starting CC8 GEM DAQ custom docker image"
+    else
+        echo "Unknown docker image specified"
+        exit 1
     fi
 
     DOCKER_CONTAINER_ID=$(docker ps | grep ${DOCKER_IMAGE} | awk '{print $1}')
