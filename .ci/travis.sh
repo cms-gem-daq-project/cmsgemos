@@ -15,8 +15,8 @@ export BUILD_HOME=/home/daqbuild
 
 cd ${BUILD_HOME}/cmsgemos
 
-. ${BUILD_HOME}/cmsgemossetup/etc/profile.d/gemdaqenv.sh
-. ${BUILD_HOME}/cmsgemossetup/paths.sh
+. ${BUILD_HOME}/cmsgemos/setup/etc/profile.d/gemdaqenv.sh
+. ${BUILD_HOME}/cmsgemos/setup/paths.sh
 
 ## drive the different options here, passed in from the parent?
 # setBuildEnv.sh -p ${PYTHON_VERSION} -c ${COMPILER_VERSION}
