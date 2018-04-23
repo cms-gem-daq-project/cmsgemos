@@ -1,7 +1,7 @@
 include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
-BUILD_HOME:=$(shell cd $(BUILD_HOME); pwd)
+BUILD_HOME := $(shell cd $(BUILD_HOME); pwd)
 
 GIT_VERSION  := $(shell git describe --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
@@ -9,19 +9,19 @@ GEMDEVELOPER := $(shell id --user --name)
 Project=cmsgemos
 ShortProject=gem
 
-## Version variables from Makefile and ShortPackage
-ShortPackageLoc = $(shell echo "$(ShortPackage)" | tr '[:lower:]' '[:upper:]')
+## Version variables from Makefile and LongPackage
+LongPackageLoc=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
 
 ifndef PACKAGE_VER_MAJOR
-PACKAGE_VER_MAJOR = $($(ShortPackageLoc)_VER_MAJOR)
+PACKAGE_VER_MAJOR := $($(LongPackageLoc)_VER_MAJOR)
 endif
 
 ifndef PACKAGE_VER_MINOR
-PACKAGE_VER_MINOR = $($(ShortPackageLoc)_VER_MINOR)
+PACKAGE_VER_MINOR := $($(LongPackageLoc)_VER_MINOR)
 endif
 
 ifndef PACKAGE_VER_PATCH
-PACKAGE_VER_PATCH = $($(ShortPackageLoc)_VER_PATCH)
+PACKAGE_VER_PATCH := $($(LongPackageLoc)_VER_PATCH)
 endif
 
 ifndef BUILD_VERSION
@@ -40,6 +40,12 @@ VER_EXISTS=yes
 endif
 endif
 endif
+
+$(info VER_EXISTS $(VER_EXISTS))
+$(info PACKAGE_VER_MAJOR $(PACKAGE_VER_MAJOR))
+$(info PACKAGE_VER_MINOR $(PACKAGE_VER_MINOR))
+$(info PACKAGE_VER_PATCH $(PACKAGE_VER_PATCH))
+$(info LongPackageLoc $(LongPackageLoc))
 
 # Tools
 MakeDir=mkdir -p

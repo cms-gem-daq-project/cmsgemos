@@ -48,7 +48,7 @@ PACKAGE_VER_PATCH := $(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VER
 endif
 
 ifndef PACKAGE_REQUIRED_PACKAGE_LIST
-PACKAGE_REQUIRED_PACKAGE_LIST:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' \
+PACKAGE_REQUIRED_PACKAGE_LIST :=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_REQUIRED_PACKAGE_LIST/ {print $$3;}' \
 	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
 endif
 
