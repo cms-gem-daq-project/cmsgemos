@@ -20,4 +20,4 @@ cd ${BUILD_HOME}/cmsgemos
 
 ## drive the different options here, passed in from the parent?
 # setBuildEnv.sh -p ${PYTHON_VERSION} -c ${COMPILER_VERSION}
-# make debug -j4
+eval "$1"

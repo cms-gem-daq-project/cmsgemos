@@ -97,13 +97,10 @@ after_script: skip
     - gem install github_changelog_generator
   script:
     - echo 'Running build stage on docker container $DOCKER_CONTAINER_ID'
-    - set -e
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh; make -j8"
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh; make rpm"
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'make -j8'"
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'make rpm'"
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/cmsgemos/rpm/*.rpm"
-    - ls -laZ rpm
     - find ./rpm -iname '*.rpm' -o -iname '*.tar.gz' -o -iname '*.tbz2'
-    - set +e
   after_success:
     - echo "Testing the installation of the package"
     - virtualenv building -p python --system-site-packages
