@@ -7,12 +7,18 @@ PackagePath  = $(BUILD_HOME)/$(Project)/$(Package)
 RPMBUILD_DIR = $(PackagePath)/rpm
 CMSGEMOS_OS ?= $(XDAQ_OS)
 
-## Version variables from Makefile and ShortPackage
-ShortPackageLoc   := $(shell echo "$(ShortPackage)" | tr '[:lower:]' '[:upper:]')
-
 ifndef PACKAGE_FULL_RELEASE
 PACKAGE_FULL_RELEASE = $(BUILD_VERSION).git$(GITREV).$(CMSGEMOS_OS)
 endif
+
+# ifeq ($(VER_EXISTS),no)
+# _rpmall: fail
+# fail:
+# 	$(error Unable to extract a valid version X.Y.Z from Makefile in package '$(Package)')
+# else
+# _rpmall: _all _rpmbuild
+# 	@echo "Running _rpmall target"
+# endif
 
 ifndef PythonModules
 	$(error Python module names missing "PythonModules")

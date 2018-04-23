@@ -13,8 +13,8 @@ GEMBASE_VER_MAJOR=0
 GEMBASE_VER_MINOR=3
 GEMBASE_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=GEMApplication.cc GEMFSMApplication.cc GEMFSM.cc
@@ -31,7 +31,7 @@ DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PL
 DependentLibraries+=gemutils
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
 
 print-env:

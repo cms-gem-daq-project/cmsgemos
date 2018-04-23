@@ -22,8 +22,8 @@ GEMPYTHON_VER_MAJOR=0
 GEMPYTHON_VER_MINOR=3
 GEMPYTHON_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 UserCFlags += \
 	-ftemplate-depth-128 \
@@ -61,7 +61,7 @@ DependentLibraries+=xdata mimetic xoap
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
-#include $(BUILD_HOME)/$(Project)/config/mfPythonRPM_gem.rules
+#include $(BUILD_HOME)/$(Project)/config/mfPythonRPMGEM.mk
 
 # need to ensure that the python only stuff is packaged into RPMs
 #.PHONY: default

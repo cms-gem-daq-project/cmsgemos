@@ -13,8 +13,8 @@ GEMSUPERVISOR_VER_MAJOR=0
 GEMSUPERVISOR_VER_MINOR=3
 GEMSUPERVISOR_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=tbutils/VFAT2XMLParser.cc
@@ -43,7 +43,7 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
 DependentLibraries+=gemutils gemhardware_managers gemhardware_devices gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
 
 print-env:

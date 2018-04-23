@@ -10,22 +10,17 @@ Project=cmsgemos
 ShortProject=gem
 
 ## Version variables from Makefile and ShortPackage
-ShortPackageLoc   := $(shell echo "$(ShortPackage)" | tr '[:lower:]' '[:upper:]')
+ShortPackageLoc = $(shell echo "$(ShortPackage)" | tr '[:lower:]' '[:upper:]')
 
 ifndef PACKAGE_VER_MAJOR
-PACKAGE_VER_MAJOR := $($(ShortPackageLoc)_VER_MAJOR)
-else
-$(info mfDefs.gem PACKAGE_VER_MAJOR is already set to $(PACKAGE_VER_MAJOR))
+PACKAGE_VER_MAJOR = $($(ShortPackageLoc)_VER_MAJOR)
 endif
+
 ifndef PACKAGE_VER_MINOR
-PACKAGE_VER_MINOR := $($(ShortPackageLoc)_VER_MINOR)
-else
-$(info mfDefs.gem PACKAGE_VER_MINOR is already set to $(PACKAGE_VER_MINOR))
-endif
-ifndef PACKAGE_VER_MINOR
-PACKAGE_VER_PATCH := $($(ShortPackageLoc)_VER_PATCH)
-else
-$(info mfDefs.gem PACKAGE_VER_PATCH is already set to $(PACKAGE_VER_PATCH))
+PACKAGE_VER_MINOR = $($(ShortPackageLoc)_VER_MINOR)
+
+ifndef PACKAGE_VER_PATCH
+PACKAGE_VER_PATCH = $($(ShortPackageLoc)_VER_PATCH)
 endif
 
 ifndef BUILD_VERSION
@@ -34,6 +29,15 @@ endif
 
 ifndef PACKAGE_FULL_VERSION
 PACKAGE_FULL_VERSION = $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
+endif
+
+VER_EXISTS=no
+ifneq ($(PACKAGE_VER_MAJOR),)
+ifneq ($(PACKAGE_VER_MINOR),)
+ifneq ($(PACKAGE_VER_PATCH),)
+VER_EXISTS=yes
+endif
+endif
 endif
 
 # Tools

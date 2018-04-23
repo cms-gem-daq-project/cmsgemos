@@ -13,11 +13,11 @@ GEMHARDWARE_VER_MAJOR=0
 GEMHARDWARE_VER_MINOR=3
 GEMHARDWARE_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
 .PHONY: devices managers _hackery
 

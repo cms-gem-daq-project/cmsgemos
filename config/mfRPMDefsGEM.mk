@@ -29,28 +29,22 @@ PackageName=$(shell awk -F'"' 'BEGIN{IGNORECASE=1} /package[ \t\r\f\v]*=/ {print
 endif
 
 # convert long package name to all upper case
-LongPackageLoc=$(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
+LongPackageLoc = $(shell echo "$(LongPackage)" | tr '[:lower:]' '[:upper:]')
 #LongPackageLoc=$(shell echo "$(LongPackage)" | awk '{print toupper($0)}') ## not working... why not?
 
 ifndef PACKAGE_VER_MAJOR
-PACKAGE_VER_MAJOR:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MAJOR/ {print $$3;}' \
+PACKAGE_VER_MAJOR := $(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MAJOR/ {print $$3;}' \
 	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
-else
-$(info mfRPM_gem.rules PACKAGE_VER_MAJOR is already set to $(PACKAGE_VER_MAJOR))
 endif
 
 ifndef PACKAGE_VER_MINOR
-PACKAGE_VER_MINOR:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MINOR/ {print $$3;}' \
+PACKAGE_VER_MINOR := $(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_MINOR/ {print $$3;}' \
 	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
-else
-$(info mfRPM_gem.rules PACKAGE_VER_MINOR is already set to $(PACKAGE_VER_MINOR))
 endif
 
 ifndef PACKAGE_VER_PATCH
-PACKAGE_VER_PATCH:=$(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_PATCH/ {print $$3;}' \
+PACKAGE_VER_PATCH := $(shell awk 'BEGIN{IGNORECASE=1} /define $(LongPackage)_VERSION_PATCH/ {print $$3;}' \
 	$(PackagePath)/include/$(ShortProject)/$(ShortPackage)/version.h)
-else
-$(info mfRPM_gem.rules PACKAGE_VER_PATCH is already set to $(PACKAGE_VER_PATCH))
 endif
 
 ifndef PACKAGE_REQUIRED_PACKAGE_LIST
@@ -69,15 +63,6 @@ endif
 
 ifndef BUILD_DISTRIBUTION
 BUILD_DISTRIBUTION := $(shell $(XDAQ_ROOT)/config/checkos.sh)
-endif
-
-VER_EXISTS=no
-ifneq ($(PACKAGE_VER_MAJOR),)
-ifneq ($(PACKAGE_VER_MINOR),)
-ifneq ($(PACKAGE_VER_PATCH),)
-VER_EXISTS=yes
-endif
-endif
 endif
 
 ifndef PACKAGE_FULL_RELEASE
@@ -119,7 +104,7 @@ endif
 ifeq ($(VER_EXISTS),no)
 _rpmall: fail
 fail:
-	$(error Error could not find a valid version.h in package '$(Package)')
+	$(error Unable to extract a valid version X.Y.Z from Makefile or version.h in package '$(Package)')
 else
 _rpmall: spec_update makerpm
 endif
@@ -137,20 +122,20 @@ endif
 
 .PHONY: makerpm
 makerpm:
-	mkdir -p $(PackagePath)/rpm/RPMBUILD/{RPMS/$(XDAQ_PLATFORM),SPECS,BUILD,SOURCES,SRPMS}
-	echo BUILD_VERSION $(BUILD_VERSION)
-	echo PACKAGE_FULL_VERSION $(PACKAGE_FULL_VERSION)
-	echo PACKAGE_RELEASE $(PACKAGE_RELEASE)
-	echo PACKAGE_FULL_RELEASE $(PACKAGE_FULL_RELEASE)
-	echo BUILD_DISTRIBUTION $(BUILD_DISTRIBUTION)
-	echo BUILD_COMPILER $(BUILD_COMPILER)
-	echo PackagePath $(PackagePath)
-	tar -P -X $(XDAQ_ROOT)/config/src.exclude --exclude="*.tbz2" -jcf \
+	$(MakeDir) $(PackagePath)/rpm/RPMBUILD/{RPMS/$(XDAQ_PLATFORM),SPECS,BUILD,SOURCES,SRPMS}
+	@echo BUILD_VERSION $(BUILD_VERSION)
+	@echo PACKAGE_FULL_VERSION $(PACKAGE_FULL_VERSION)
+	@echo PACKAGE_RELEASE $(PACKAGE_RELEASE)
+	@echo PACKAGE_FULL_RELEASE $(PACKAGE_FULL_RELEASE)
+	@echo BUILD_DISTRIBUTION $(BUILD_DISTRIBUTION)
+	@echo BUILD_COMPILER $(BUILD_COMPILER)
+	@echo PackagePath $(PackagePath)
+	@tar -P -X $(XDAQ_ROOT)/config/src.exclude --exclude="*.tbz2" -jcf \
 		$(PackagePath)/rpm/RPMBUILD/SOURCES/$(Project)-$(PackageName)-$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 \
 		$(PackagePath)
-	rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
+	@rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
 		$(PackagePath)/rpm/$(LongPackage).spec
-	find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
+	@find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
 
 .PHONY: spec_update
 spec_update:
@@ -166,6 +151,7 @@ spec_update:
 		echo $(XDAQ_ROOT)/config found spec.template; \
 		cp $(XDAQ_ROOT)/config/spec.template $(PackagePath)/rpm/$(LongPackage).spec; \
 	fi
+
 	sed -i 's#__gitrev__#$(GITREV)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__builddate__#$(BUILD_DATE)#' $(PackagePath)/rpm/$(LongPackage).spec
 	sed -i 's#__release__#$(PACKAGE_FULL_RELEASE)#' $(PackagePath)/rpm/$(LongPackage).spec

@@ -13,8 +13,8 @@ GEMUTILS_VER_MAJOR=0
 GEMUTILS_VER_MINOR=2
 GEMUTILS_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 #Sources =version.cc
 Sources = Lock.cc
@@ -44,7 +44,7 @@ UserDynamicLinkFlags+=$(MySQLLIBS)
 UserDynamicLinkFlags+=$(PYTHONLIBS)
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
 
 print-env:
