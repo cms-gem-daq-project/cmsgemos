@@ -77,7 +77,7 @@ before_install:
 
 script:
   - echo 'Running test stage on docker container $DOCKER_CONTAINER_ID'
-  - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec ". /home/daqbuild/cmsgemos/.ci/travis.sh ${OS_VERSION} ${PY_VER} ${ROOT_VER}"
+  # - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec ". /home/daqbuild/cmsgemos/.ci/travis.sh ${OS_VERSION} ${PY_VER} ${ROOT_VER}"
 
 ## Defaults, applied to the 'test' stage
 after_success:

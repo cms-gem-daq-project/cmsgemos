@@ -20,4 +20,7 @@ cd ${BUILD_HOME}/cmsgemos
 
 ## drive the different options here, passed in from the parent?
 # setBuildEnv.sh -p ${PYTHON_VERSION} -c ${COMPILER_VERSION}
-eval "$1"
+if [ -z ${1+x} ]
+then
+    eval "$1"
+fi
