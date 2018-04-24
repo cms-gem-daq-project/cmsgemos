@@ -90,6 +90,8 @@ after_script: skip
 # How to link the environments/outputs from above with the jobs below?
 .rpmbuild: &rpmbuild_template
   before_install:
+    - ls -l `which bash`
+    - ls -l `which sh`
     - ./.ci/docker.sh setup ${DOCKER_IMAGE}
     - sleep 2
     - ./.ci/docker.sh start ${DOCKER_IMAGE}
