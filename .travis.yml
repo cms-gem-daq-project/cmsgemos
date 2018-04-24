@@ -67,6 +67,8 @@ services:
   - docker
 
 before_install:
+  - ls -l `which bash`
+  - ls -l `which sh`
   - ./.ci/docker.sh setup ${DOCKER_IMAGE}
   - sleep 2
   - ./.ci/docker.sh start ${DOCKER_IMAGE}
