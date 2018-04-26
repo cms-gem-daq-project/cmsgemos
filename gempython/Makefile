@@ -8,7 +8,7 @@ Namespace    := gempython
 Package      := gempython
 LongPackage  := gempython
 ShortPackage := gempython
-PackageName  := gempython-cmsgemos
+PackageName  := $(Project)_$(ShortPackage)
 PackageDir   := pkg/$(Namespace)
 ScriptDir    := pkg/$(Namespace)/scripts
 

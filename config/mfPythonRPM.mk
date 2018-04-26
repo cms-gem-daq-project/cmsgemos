@@ -28,19 +28,16 @@ endif
 .PHONY: rpm _rpmall _rpmprep _setup_update _rpmbuild _rpmdevbuild _rpmsetup
 rpm: _rpmbuild
 	@echo "Running rpm target"
-#	cat $(RPMBUILD_DIR)/setup.py
 
 #_rpmall: _all _rpmprep _setup_update _rpmsetup _rpmbuild
 _rpm: _all _rpmbuild
 	@echo "Running _rpmall target"
-#	cat $(RPMBUILD_DIR)/setup.py
 # Copy the package skeleton
 # Ensure the existence of the module directory
 # Copy the libraries into python module
 _rpmsetup: _rpmprep _setup_update
 # Change directory into pkg and copy everything into rpm build dir
 	@echo "Running _rpmsetup target"
-#	cat $(RPMBUILD_DIR)/setup.py
 	cd pkg && \
 	find . -iname 'setup.*' -prune -o -name "*" -exec install -D \{\} $(RPMBUILD_DIR)/\{\} \;
 # Add a manifest file (may not be necessary
@@ -48,11 +45,10 @@ _rpmsetup: _rpmprep _setup_update
 
 _rpmbuild: _rpmsetup
 	@echo "Running _rpmbuild target"
-#	cat $(RPMBUILD_DIR)/setup.py
 	cd $(RPMBUILD_DIR) && python setup.py bdist_rpm \
 	--release python$(PYTHON_VERSION) \
-#	--release $(CMSGEMOS_OS).python$(PYTHON_VERSION)
 	--binary-only --force-arch=`uname -m`
+#	--release $(CMSGEMOS_OS).python$(PYTHON_VERSION)
 # Harvest the crop
 	find rpm -name "*.rpm"    -exec cp -a \{\} rpm/ \;
 	find rpm -name "*.tar.gz" -exec cp -a \{\} rpm/ \;
