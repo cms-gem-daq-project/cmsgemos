@@ -28,7 +28,7 @@ def getpkgdata():
     return data
 
 def getreqs():
-    with open('gempython/requirements.txt') as f:
+    with open('requirements.txt') as f:
         reqs = f.readlines()
         return [x.strip() for x in reqs]
     pass
@@ -44,10 +44,6 @@ setup(name             = '__packagename__',
       author_email     = 'cms-gem-online-sw@cern.ch',
       # url              = __url__,
       url              = 'https://cms-gem-daq-project.github.io/gem-plotting-tools',
-      # install_requires = getreqs(),
-      # install_requires = ['numpy>=1.7', 'root_numpy>=4.7'],
-      # scripts          = getscripts(),
-      # build_requires   = '__build_requires__',
       # namespace_package = "gempython",
       # packages         = __pythonmodules__, # for PEP420 native namespace util
       packages           = find_packages(), # for pkgutil namespace method
@@ -56,9 +52,9 @@ setup(name             = '__packagename__',
       package_data     = getpkgdata(),
       # dependency_links   = ['http://cmsgemos.web.cern.ch/cmsgemos/repo/tarball/master#egg=package-1.0']
       zip_safe         = False,
-      data_files       = [('/opt/cmsgemos/bin', ['{0:s}/{1:s}'.format(scriptdir,x) for x in scripts if isfile(join(scriptdir,x))])],
-                          # ('gempython/scripts', ['{0:s}/{1:s}'.format(scriptdir,x) for x in scripts if isfile(join(scriptdir,x))])],
-      build_requires   = ['importlib; python_version=="2.6"','setuptools>=25.0','setuptools_scm'],
-      setup_requires   = ['importlib; python_version=="2.6"','setuptools>=25.0'],
+      setup_requires   = [
+          'setuptools>=25.0'
+      ],
+      install_requires = getreqs(),
       license          = 'MIT',
 )
