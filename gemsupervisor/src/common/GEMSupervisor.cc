@@ -1397,10 +1397,10 @@ public:
     else if (classname == "tcds::lpm::LPMController")               priority = 102; // must be first of TCDS!
     else if (classname == "tcds::ici::ICIController")               priority = 101; // must be second of TCDS!
     else if (classname == "tcds::pi::PIController")                 priority = 100; // must be first!?
+    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  95; // before AMC managers and before  AMC13
     else if (classname == "gem::hw::glib::GLIBManager")             priority =  90; // before (or simultaneous with) OH manager and before  AMC13
     else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  90; // before (or simultaneous with) OH manager and before  AMC13
     else if (classname == "gem::hw::AMCManager")                    priority =  90; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  90; // after (or simultaneous with) AMC managers and before  AMC13
     else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  35; // after AMCManagers but not last
     else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  30; // after AMC13Manager but not last
     else if (classname == "gem::hw::gemPartitionViewer")            priority =  10; //
@@ -1480,10 +1480,10 @@ public:
   static int enablePriority(const std::string& classname)
   {
     int priority = 50; // default
-    if      (classname == "gem::hw::glib::GLIBManager")             priority = 100; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority = 100; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::AMCManager")                    priority = 100; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority = 100; // after (or simultaneous with) AMC managers and before  AMC13
+    if      (classname == "gem::hw::optohybrid::OptoHybridManager") priority = 105; // before AMC managers
+    else if (classname == "gem::hw::glib::GLIBManager")             priority = 100; // after OH manager and before  AMC13
+    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority = 100; // after OH manager and before  AMC13
+    else if (classname == "gem::hw::AMCManager")                    priority = 100; // after OH manager and before  AMC13
     else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  90; // before AMC13Manager
     else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  35; // after AMCManagers but not last
     else if (classname == "tcds::lpm::LPMController")               priority =  12; // must be first of TCDS!
@@ -1554,11 +1554,11 @@ public:
     else if (classname == "tcds::ici::ICIController")               priority = 101; // must be second of TCDS!
     else if (classname == "tcds::pi::PIController")                 priority = 100; // must be first!?
     else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  95; // after AMCManagers but not last
-    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  90; // after AMC13Manager but not last
     else if (classname == "gem::hw::glib::GLIBManager")             priority =  70; // before (or simultaneous with) OH manager and before  AMC13
     else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  70; // before (or simultaneous with) OH manager and before  AMC13
     else if (classname == "gem::hw::AMCManager")                    priority =  70; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  70; // after (or simultaneous with) AMC managers and before  AMC13
+    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  65; // after (or simultaneous with) AMC managers and before  AMC13
+    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  60; // after AMC13Manager but not last
     return priority;
   }
 };
