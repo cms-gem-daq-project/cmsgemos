@@ -13,7 +13,8 @@ GEMSUPERVISOR_VER_MAJOR=0
 GEMSUPERVISOR_VER_MINOR=3
 GEMSUPERVISOR_VER_PATCH=1
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 Sources+=tbutils/VFAT2XMLParser.cc
@@ -39,10 +40,10 @@ DependentLibraryDirs+=$(uHALROOT)/lib
 LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
-DependentLibraries+=gemhardware gemutils gemreadout
+DependentLibraries+=gemutils gemhardware_managers gemhardware_devices gemreadout
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
 
 print-env:
@@ -50,6 +51,7 @@ print-env:
 	@echo XDAQ_ROOT     $(XDAQ_ROOT)
 	@echo XDAQ_OS       $(XDAQ_OS)
 	@echo XDAQ_PLATFORM $(XDAQ_PLATFORM)
+	@echo PYTHON_VERSION $(PYTHON_VERSION)
 	@echo LIBDIR        $(LIBDIR)
 	@echo ROOTCFLAGS    $(ROOTCFLAGS)
 	@echo ROOTLIBS      $(ROOTLIBS)

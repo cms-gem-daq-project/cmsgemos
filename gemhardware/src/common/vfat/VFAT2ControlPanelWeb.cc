@@ -862,4 +862,3 @@ void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::saveCurrentParametersAsX
 void gem::hw::vfat::VFAT2Manager::VFAT2ControlPanelWeb::setParametersByXML( ) {
 
 }
-
