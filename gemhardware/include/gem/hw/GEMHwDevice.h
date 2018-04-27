@@ -7,7 +7,7 @@
 #include <memory>
 
 //#include "xdata/InfoSpace.h"
-#include "xdata/InfoSpaceFactory.h"
+/* #include "xdata/InfoSpaceFactory.h" */
 
 #include "xdata/String.h"
 #include "xdata/UnsignedLong.h"
@@ -17,7 +17,9 @@
 #include "toolbox/mem/Pool.h"
 
 #include "uhal/uhal.hpp"
-#include "uhal/Utilities.hpp"
+#include "uhal/Utilities.hpp"  /* removed in 2.5 or 2.6 */
+/* #include "uhal/utilities/bits.hpp" */
+/* #include "uhal/utilities/files.hpp" */
 
 #include "gem/utils/GEMLogging.h"
 #include "gem/utils/GEMRegisterUtils.h"
@@ -414,13 +416,13 @@ namespace gem {
 
       bool b_is_connected;
 
-      xdata::InfoSpace* getHwInfoSpace() { return p_hwCfgInfoSpace; };
+      /* xdata::InfoSpace* getHwInfoSpace() { return p_hwCfgInfoSpace; }; */
 
     protected:
       std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager;
       std::shared_ptr<uhal::HwInterface> p_gemHW;
 
-      xdata::InfoSpace *p_hwCfgInfoSpace;       /* Infospace for configuration values */
+      /* xdata::InfoSpace *p_hwCfgInfoSpace;       /\* Infospace for configuration values *\/ */
 
       log4cplus::Logger m_gemLogger;
 
@@ -430,6 +432,14 @@ namespace gem {
       void setup(std::string const& deviceName);
 
     private:
+      // Do Not use default constructor. GEMHwDevice object should only be made using
+      // either connection file method or with a list of URIs and Address Tables
+      GEMHwDevice();
+
+      // Prevent copying of GEMHwDevice objects
+      GEMHwDevice( const GEMHwDevice& other) ; // prevents construction-copy
+      GEMHwDevice& operator=( const GEMHwDevice&) ; // prevents copying
+
       std::string m_controlHubIPAddress;
       std::string m_addressTable;
       std::string m_ipBusProtocol;

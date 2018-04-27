@@ -10,10 +10,10 @@ ShortPackage=hwMonitor
 PackageName=hwMonitor
 
 GEMHWMONITOR_VER_MAJOR=0
-GEMHWMONITOR_VER_MINOR=1
-GEMHWMONITOR_VER_PATCH=1
+GEMHWMONITOR_VER_MINOR=2
+GEMHWMONITOR_VER_PATCH=0
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
 Sources =version.cc
 Sources+=gemHwMonitorWeb.cc gemHwMonitorBase.cc
@@ -43,7 +43,7 @@ DependentLibraries+=cactus_uhal_uhal cactus_amc13_amc13
 DependentLibraries+=gemutils gembase gemhardware
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
 
 print-env:

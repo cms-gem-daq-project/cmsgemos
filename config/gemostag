@@ -13,6 +13,7 @@ use Getopt::Lucid qw/:all/;
     Param('--message|m')->anycase(),
     #Param('--reltype|r')->anycase()->valid('qr/(major|minor|patch|maj|min|pat)/'),
     Param('--reltype|r')->anycase(),
+    Param('--prereltype')->anycase(),
     Switch('--help|h')->anycase(),
     Switch('--diff|d')->anycase(),
     );
@@ -26,6 +27,8 @@ if ($opts->get_help) {
     print "    MSG      -- tag message (REQUIRED)\n";
     print "    RELTYPE  -- if changing the code base, will update the package version file depending on the type of release\n";
     print "                Valid options are (case insensitive): major (maj), minor (min), patch (pat) (OPTIONAL)\n";
+    print "    PRERELTYPE  -- add extra to the tag name to indicate pre-release, alpha, beta status (will be added as '_type')\n";
+    print "                Valid options are (case insensitive): alpha, beta, dev, pre (OPTIONAL)\n";
     print "\n";
     print "EXAMPLE: config/gemostag -p hardware will extract the value in the gemhardware/include/gem/hw/version.h\n";
     print "                                     file and create the tag\n";
@@ -120,7 +123,11 @@ $reltype=$opts->get_reltype;
 if (($reltype eq "maj") || ($reltype eq "major") ||
     ($reltype eq "min") || ($reltype eq "minor") ||
     ($reltype eq "pat") || ($reltype eq "patch")) {
-    $uptag=update_tag($packname,$reltype);
+    $uptag=update_tag(${packname},${reltype});
+    # if ()
+    #     $uptag=update_tag(${packname},${reltype},"_${prereltype}");
+    # else
+    #     $uptag=update_tag(${packname},${reltype},"");
 }
 
 # Check that this tag doesn't exist already

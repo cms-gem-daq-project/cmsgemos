@@ -271,5 +271,3 @@ void gem::supervisor::tbutils::VFAT2XMLParser::parseVFAT(xercesc::DOMNode * pNod
     n = n->getNextSibling();
   }
 }
-
-

@@ -1255,6 +1255,14 @@ namespace gem {
           std::vector<linkStatus> v_activeLinks;
 
         private:
+          // Do Not use default constructor. HwOptoHybrid object should only be made using
+          // either connection file method or with a list of URIs and Address Tables
+          HwOptoHybrid();
+
+          // Prevent copying of HwOptoHybrid objects
+          HwOptoHybrid( const HwOptoHybrid& other) ; // prevents construction-copy
+          HwOptoHybrid& operator=( const HwOptoHybrid&) ; // prevents copying
+
           bool b_is_initial;  ///<
           std::vector<std::pair<uint8_t,uint32_t> > m_chipIDs;
           uint32_t m_disabledMask;   ///<

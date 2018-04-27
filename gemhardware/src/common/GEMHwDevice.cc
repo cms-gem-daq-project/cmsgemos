@@ -6,7 +6,7 @@
 
 #include "toolbox/net/URN.h"
 
-#include "gem/base/utils/GEMInfoSpaceToolBox.h"
+// #include "gem/base/utils/GEMInfoSpaceToolBox.h"
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionFile) :
@@ -930,4 +930,3 @@ void gem::hw::GEMHwDevice::linkReset(uint8_t const& link)
 {
   return;
 }
-

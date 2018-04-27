@@ -785,6 +785,13 @@ namespace gem {
         int m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
       private:
+        // Do Not use default constructor. HwGenericAMC object should only be made using
+        // either connection file method or with a list of URIs and Address Tables
+        HwGenericAMC();
+
+        // Prevent copying of HwGenericAMC objects
+        HwGenericAMC( const HwGenericAMC& other) ; // prevents construction-copy
+        HwGenericAMC& operator=( const HwGenericAMC&) ; // prevents copying
 
       };  // class HwGenericAMC
   }  // namespace gem::hw

@@ -8,6 +8,7 @@ SUBPACKAGES := \
         gemhardware \
         gemreadout \
         gemsupervisor \
+        gempython \
         # gemHwMonitor \
 
 SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
@@ -98,9 +99,20 @@ $(SUBPACKAGES.CLEAN):
 .PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN)
 
 
-gemHwMonitor: gemutils gembase gemhardware
+.phony: gemhwmanagers gemhwdevices
 
-gemhardware: gemutils gembase gemreadout
+gemhwdevices: gemutils
+	$(MAKE) -C $(BUILD_HOME)/cmsgemos/gemhardware -f Makefile devices
+
+gemhwmanagers: gemutils gembase gemreadout gemhwdevices
+	$(MAKE) -C $(BUILD_HOME)/cmsgemos/gemhardware -f Makefile managers
+
+gemhardware: gemhwdevices gemhwmanagers
+
+gemHwMonitor: gemutils gembase gemhwdevices
+
+## only gemhardware.devices... how to fix this?
+gempython: gemhwdevices
 
 gembase: gemutils
 
@@ -108,7 +120,7 @@ gemsupervisor: gemutils gembase gemhardware gemreadout
 
 gemutils:
 
-gemreadout: gemutils gembase
+gemreadout: gemutils gembase gemhwdevices
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
@@ -130,3 +142,4 @@ print-env:
 	@echo RANLIB        $(RANLIB)
 	@echo GCCVERSION    $(GCCVERSION)
 	@echo CLANGVERSION  $(CLANGVERSION)
+	@echo DependentLibraryDirs  $(DependentLibraryDirs)

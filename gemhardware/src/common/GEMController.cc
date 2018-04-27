@@ -1461,4 +1461,3 @@ void gem::hw::vfat::GEMController::actionPerformed(xdata::Event& event)
   LOG4CPLUS_INFO(this->getApplicationLogger(),"GEMController::GEMController::6 device_ = " << device_.toString() << std::endl);
 
 }
-
