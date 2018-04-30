@@ -1,0 +1,98 @@
+#----------------------------------------------------------------------
+# GEM904 iCI configuration.
+#----------------------------------------------------------------------
+
+#----------------------------------------
+# Enable/Disable inputs.
+#----------------------------------------
+# ***** Triggers/B-gos from the internal iCI cyclic generators
+main.inselect.combined_cyclic_bgo_enable                     0x00000000
+main.inselect.combined_cyclic_trigger_enable                 0x00000000
+# ***** Triggers from the two LPM front*panel trigger inputs
+main.inselect.combined_l1a_in0_trigger_enable                0x00000001
+main.inselect.combined_l1a_in1_trigger_enable                0x00000000
+# ***** IPbus triggered triggers/B-gos
+main.inselect.combined_software_bgo_enable                   0x00000001
+main.inselect.combined_software_trigger_enable               0x00000001
+# ***** Triggers via the A-channel
+main.inselect.combined_achannel_trigger_enable               0x00000000
+# ***** Triggers via the B-channel
+main.inselect.combined_bchannel_trigger_enable               0x00000000
+# ***** Triggers via the internal iCI trigger generator
+main.inselect.combined_trigger_generator_trigger_enable      0x00000000
+main.inselect.sequence_trigger_generator_enable              0x00000000
+# ***** Exclusive triggers/B-gos from the CPM
+main.inselect.exclusive_cpm_bgo_enable                       0x00000000
+main.inselect.exclusive_cpm_trigger_enable                   0x00000000
+# ***** Exclusive triggers/B-gos from the LPM
+main.inselect.exclusive_lpm_bgo_enable                       0x00000001
+main.inselect.exclusive_lpm_trigger_enable                   0x00000001
+# ***** Select orbit synchronization source
+main.inselect.cpm_orbit_select                               0x00000000
+main.inselect.lpm_orbit_select                               0x00000001
+main.inselect.lpm2_orbit_select                              0x00000000
+main.inselect.lemo_orbit_select                              0x00000000
+
+#----------------------------------------
+# BGO definitions
+#----------------------------------------
+# ***** B-channel 1: BC0
+bchannels.bchannel1.configuration.single                     0x00000001
+bchannels.bchannel1.configuration.bx_or_delay                0x0000001a
+bchannels.bchannel1.configuration.repeat_cycle               0x00000001
+bchannels.bchannel1.ram                                      0x00000001 0x00000000
+bchannels.bchannel1.ram                                      0x00000000 0x00000006
+# ***** B-channel 3: PrivateGap
+bchannels.bchannel3.configuration.single                     0x00000001
+bchannels.bchannel3.configuration.bx_or_delay                0x00000001
+bchannels.bchannel3.configuration.repeat_cycle               0x00000001
+bchannels.bchannel3.ram                                      0x00000024 0x00000000
+bchannels.bchannel3.ram                                      0x00000000 0x00000006
+# ***** B-channel 4: PrivateOrbit
+bchannels.bchannel4.configuration.single                     0x00000001
+bchannels.bchannel4.configuration.bx_or_delay                0x00000001
+bchannels.bchannel4.configuration.repeat_cycle               0x00000001
+bchannels.bchannel4.ram                                      0x00000028 0x00000000
+bchannels.bchannel4.ram                                      0x00000000 0x00000006
+# ***** B-channel 5: Resync
+bchannels.bchannel5.configuration.single                     0x00000001
+bchannels.bchannel5.configuration.bx_or_delay                0x00000001
+bchannels.bchannel5.configuration.repeat_cycle               0x00000001
+bchannels.bchannel5.ram                                      0x00000004 0x00000000
+bchannels.bchannel5.ram                                      0x00000000 0x00000006
+# ***** B-channel 6: HardReset
+bchannels.bchannel6.configuration.single                     0x00000001
+bchannels.bchannel6.configuration.bx_or_delay                0x00000001
+bchannels.bchannel6.configuration.repeat_cycle               0x00000001
+bchannels.bchannel6.ram                                      0x00000010 0x00000000
+bchannels.bchannel6.ram                                      0x00000000 0x00000006
+# ***** B-channel 7: EC0
+bchannels.bchannel7.configuration.single                     0x00000001
+bchannels.bchannel7.configuration.bx_or_delay                0x00000001
+bchannels.bchannel7.configuration.repeat_cycle               0x00000001
+bchannels.bchannel7.ram                                      0x00000002 0x00000000
+bchannels.bchannel7.ram                                      0x00000000 0x00000006
+# ***** B-channel 8: OC0
+bchannels.bchannel8.configuration.single                     0x00000000
+bchannels.bchannel8.configuration.double                     0x00000000
+bchannels.bchannel8.configuration.block                      0x00000000
+bchannels.bchannel8.configuration.bx_or_delay                0x00000000
+bchannels.bchannel8.configuration.bx_sync                    0x00000000
+bchannels.bchannel8.configuration.double_bcommand_delay      0x00000000
+bchannels.bchannel8.configuration.repeat_cycle               0x00000000
+bchannels.bchannel8.configuration.prescale                   0x00000000
+bchannels.bchannel8.configuration.initial_prescale           0x00000000
+bchannels.bchannel8.configuration.postscale                  0x00000000
+bchannels.bchannel8.ram                                      0x00000000 0x00000006
+# ***** B-channel 9: Start
+bchannels.bchannel9.configuration.single                     0x00000001
+bchannels.bchannel9.configuration.bx_or_delay                0x00000001
+bchannels.bchannel9.configuration.repeat_cycle               0x00000001
+bchannels.bchannel9.ram                                      0x00000018 0x00000000
+bchannels.bchannel9.ram                                      0x00000000 0x00000006
+# ***** B-channel 10: Stop
+bchannels.bchannel10.configuration.single                    0x00000001
+bchannels.bchannel10.configuration.bx_or_delay               0x00000001
+bchannels.bchannel10.configuration.repeat_cycle              0x00000001
+bchannels.bchannel10.ram                                     0x0000001c 0x00000000
+bchannels.bchannel10.ram                                     0x00000000 0x00000006

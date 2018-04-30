@@ -68,7 +68,7 @@ class GEMTestbeamDAQConfig:
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgem_supervisor.so</xc:Module>
 
   </xc:Context>
-        """ % {'xdaqHost':xdaqHost,'xdaqPort':xdaqPort,'chipLines':chipLines
+        """ % {'xdaqHost':xdaqHost,'xdaqPort':xdaqPort,'chipLines':chipLines,
                'dataSource':dataSource,'operationMode':operationMode}
 
 
@@ -162,8 +162,7 @@ class GEMTestbeamDAQConfig:
     def getConfiguration(self,runNumber,dataSource,fedId,xdaqPort,ferolSourceIP,ferolDestIP,ferolDestPort,writeData,useDummyFEROL):
         hostname = socket.gethostbyaddr(socket.gethostname())[0]
 
-        config =
-        """<?xml version='1.0'?>
+        config = """<?xml version='1.0'?>
 <xc:Partition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">

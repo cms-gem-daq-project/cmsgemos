@@ -344,6 +344,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
+    uint32_t inputMask = 0x0;
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -423,10 +424,10 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         vfatSettings["VThreshold2"] = (uint8_t)(info.commonVFATSettings.bag.VThreshold2.value_);
         vfatSettings["Latency"    ] = (uint8_t)(info.commonVFATSettings.bag.Latency.value_);
 
-	if (m_scanType.value_ == 2) {
-	  INFO("OptoHybridManager::configureAction configureAction: FIRST Latency  " << m_scanMin.value_);
+        if (m_scanType.value_ == 2) {
+          INFO("OptoHybridManager::configureAction configureAction: FIRST Latency  " << m_scanMin.value_);
           vfatSettings["Latency"    ] = (uint8_t)(m_scanMin.value_);
-	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+          // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
           // HACK
           // have to enable the pulse to the channel if using cal pulse latency scan
           // but shouldn't mess with other settings... not possible here, so just a hack
@@ -434,21 +435,21 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
           // optohybrid->broadcastWrite("VFATChannels.ChanReg124", 0x40, vfatMask);
           // optohybrid->broadcastWrite("VFATChannels.ChanReg65",  0x40, vfatMask);
           // optohybrid->broadcastWrite("VCal",                    0xaf, vfatMask);
-	} else if (m_scanType.value_ == 3) {
-	  uint32_t initialVT1 = m_scanMin.value_;
-	  // uint32_t VT1 = (m_scanMax.value_ - m_scanMin.value_);
-	  uint32_t initialVT2 = 0; //std::max(0,(uint32_t)m_scanMax.value_);
-	  INFO("OptoHybridManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
+        } else if (m_scanType.value_ == 3) {
+          uint32_t initialVT1 = m_scanMin.value_;
+          // uint32_t VT1 = (m_scanMax.value_ - m_scanMin.value_);
+          uint32_t initialVT2 = 0; //std::max(0,(uint32_t)m_scanMax.value_);
+          INFO("OptoHybridManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
           vfatSettings["VThreshold1"] = (uint8_t)(initialVT1&0xff);
           vfatSettings["VThreshold2"] = (uint8_t)(initialVT2&0xff);
-	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
-	} else {
-	  // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
-	}
+          // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+        } else {
+          // FIXME optohybrid->setVFATsToDefaults(vfatSettings, vfatMask);
+        }
 
-	std::array<std::string, 11> setupregs = {{"ContReg0", "ContReg2", "IPreampIn", "IPreampFeed", "IPreampOut",
-						  "IShaper", "IShaperFeed", "IComp", "Latency",
-						  "VThreshold1", "VThreshold2"}};
+        std::array<std::string, 11> setupregs = {{"ContReg0", "ContReg2", "IPreampIn", "IPreampFeed", "IPreampOut",
+                                                  "IShaper", "IShaperFeed", "IComp", "Latency",
+                                                  "VThreshold1", "VThreshold2"}};
 
         INFO("Reading back values after setting defaults:");
         for (auto reg = setupregs.begin(); reg != setupregs.end(); ++reg) {
@@ -465,8 +466,16 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
 
         // FIXME, should not be here or done like this
         uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
+        std::stringstream msg;
+        msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
+            << " to AMC in slot " << (int)(slot+1) << " found, INPUT_ENABLE_MASK changed from "
+            << std::hex << gtxMask << std::dec;
         gtxMask |= (0x1<<link);
+        inputMask |= (0x1<<link);
         optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
+        optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", inputMask);
+        msg << " to " << std::hex << inputMask  << std::dec << std::endl;
+        INFO(msg.str());
       } else {
         std::stringstream msg;
         msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
@@ -530,6 +539,12 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         for (auto r = res.begin(); r != res.end(); ++r)
           INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
 
+        uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
+        std::stringstream msg;
+        msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << (int)link
+            << " to AMC in slot " << (int)(slot+1) << " found, starting run with INPUT_ENABLE_MASK "
+	    << std::hex << gtxMask << std::dec;
+	INFO(msg.str());
         // what resets to do
       } else {
         std::stringstream msg;
