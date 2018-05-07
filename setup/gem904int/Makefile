@@ -12,8 +12,8 @@
 
 ##
 #
-# 
-# 
+#
+#
 #
 ##
 
@@ -25,19 +25,20 @@
 include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
-PackageName=hcal904
-Project=daq
+PackageName=gem904int
+Project=cmsgemos
+ShortProject=gem
 Package=setup/${PackageName}
 
-PACKAGE_VER_MAJOR=11
-PACKAGE_VER_MINOR=4
+PACKAGE_VER_MAJOR=0
+PACKAGE_VER_MINOR=0
 PACKAGE_VER_PATCH=0
 
-Summary=Setup data for the HCAL 904 subcluster
+Summary=Setup data for the GEM 904 integration setup
 
-Description=HCAL Subcluster setup 904
+Description=GEM integration setup 904
 
-Authors=Jeremiah Mans and Dragoslav Lazic
+Authors=Jared Sturdy
 
 Link=http://xdaqwiki.cern.ch
 
@@ -46,25 +47,25 @@ _all: basic
 default: basic
 
 all:
-	echo ${PACKAGE_VER_MAJOR}_${PACKAGE_VER_MINOR}_${PACKAGE_VER_PATCH} > conf/hcal.release
-	rm -rf $(BUILD_HOME)/${Project}/setup
-	mkdir -p $(BUILD_HOME)/${Project}/setup
-	cp -rf $(BUILD_HOME)/hcal/setup/${PackageName} $(BUILD_HOME)/${Project}/setup/.
+	echo ${PACKAGE_VER_MAJOR}_${PACKAGE_VER_MINOR}_${PACKAGE_VER_PATCH} > conf/$(PackageName).release
+	# rm -rf $(BUILD_HOME)/${Project}/setup
+	# mkdir -p $(BUILD_HOME)/${Project}/setup
+	# cp -rf $(BUILD_HOME)/$(Project)/setup/${PackageName} $(BUILD_HOME)/${Project}/setup/.
 	mkdir -p etc/cron.d
-	touch etc/cron.d/hcal.cron 
+	touch etc/cron.d/$(PackageName).cron
 
 basic:
-	echo ${PACKAGE_VER_MAJOR}_${PACKAGE_VER_MINOR}_${PACKAGE_VER_PATCH} > conf/hcal.release
-	rm -rf $(BUILD_HOME)/${Project}/setup
-	mkdir -p $(BUILD_HOME)/${Project}/setup
-	cp -rf $(BUILD_HOME)/hcal/setup/${PackageName} $(BUILD_HOME)/${Project}/setup/.
+	echo ${PACKAGE_VER_MAJOR}_${PACKAGE_VER_MINOR}_${PACKAGE_VER_PATCH} > conf/$(PackageName).release
+	# rm -rf $(BUILD_HOME)/${Project}/setup
+	# mkdir -p $(BUILD_HOME)/${Project}/setup
+	# cp -rf $(BUILD_HOME)/gem/setup/${PackageName} $(BUILD_HOME)/${Project}/setup/.
 	mkdir -p etc/cron.d
-	touch etc/cron.d/hcal.cron 
+	touch etc/cron.d/$(PackageName).cron
 
 _cleanall: clean
 
 clean:
-	-rm -f conf/hcal.release
-	-rm -rf $(BUILD_HOME)/${Project}/setup
+	-rm -f conf/$(PackageName).release
+	# -rm -rf $(BUILD_HOME)/${Project}/setup
 
 include $(XDAQ_ROOT)/config/mfSetupRPM.rules
