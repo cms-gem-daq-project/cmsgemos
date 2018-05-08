@@ -12,20 +12,20 @@ else
 fi
 
 XAAS_DIR=/tmp/${USER}/daq/xaas
-echo svn co -N svn+ssh://sturdy@svn.cern.ch/reps/cmsos/releases/baseline${xdaqver}/trunk/daq/xaas ${XAAS_DIR}
+svn co -N svn+ssh://sturdy@svn.cern.ch/reps/cmsos/releases/baseline${xdaqver}/trunk/daq/xaas ${XAAS_DIR}
 
-echo svn up ${XAAS_DIR}/template
-echo svn up -N ${XAAS_DIR}/slim
+svn up ${XAAS_DIR}/template
+svn up -N ${XAAS_DIR}/slim
 
 if [[ ${xdaqver} =~ 13 ]]
 then
-    echo svn up ${XAAS_DIR}/slim/template
+    svn up ${XAAS_DIR}/slim/template
 fi
 
-echo cp -rfp ${BUILD_HOME}/${GEM_OS_PROJECT}/gemxaas/gem* ${XAAS_DIR}/slim/
-echo cp -rfp ${BUILD_HOME}/${GEM_OS_PROJECT}/gemxaas/Makefile ${XAAS_DIR}/slim
+cp -rfp ${BUILD_HOME}/${GEM_OS_PROJECT}/gemxaas/gem* ${XAAS_DIR}/slim/
+cp -rfp ${BUILD_HOME}/${GEM_OS_PROJECT}/gemxaas/Makefile ${XAAS_DIR}/slim
 
-echo cd ${XAAS_DIR}/slim
+cd ${XAAS_DIR}/slim
 
-echo make
-echo make rpm
+make
+make rpm
