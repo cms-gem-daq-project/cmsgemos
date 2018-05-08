@@ -38,8 +38,8 @@ env:
   global:
     ## Encrypted variables:
     ##  * CHANGELOG_GITHUB_TOKEN: for running github_changelog_generator without API rate limits
-    secure: "cWz6NmAZFtp30xIO8ieP10x7M8RLjjh1xNlu5qEgqrb9YhQLFxdIIObBw+3DcbaFBfwp0pzm4omZe8y2Lmda30ESBOrL2pX60r550Rx/JgqydFGfryRuKPLhtGyzQ3duVKIjRlKrKLUAoBzDhgM4v8rtGLaoiOrlK5JVgicrye3AgH7voOYys5sOJ/+TpAwa44690F+LCDLCOredryXMYmOo1ZNFRyq9HrEVSBeQ+1unBC6voY7NPtvGZYk8z0PeDOOX32nkZP5AEEOnQk4rl6CCALpnC5Y7ypBDi3AkFqCocomocmZUr4/m3QpERFxsZiYQD9uV93YHyqfCeDA/jA4Pgh6PiPdOvr7409z3H/CZWENInqtMMnvOPFxzO8CUxrtUamyuAgihq6VP6nKO++fX6ZfvwqxtJs8pqE0MorfIZo8vAFQ+SeiaIAEq1njL3b4/8hrQifb912KNB3ePnQSzDnxefYeu0dotK/ACUrkLxGl5Qa9USrpy6r7cVTVH8DJfqk10xIVX2tLlc6ydekLCtNnMFAAg0+PvEb9r/g+Hc1civfUg4mDGVji6N4kqkHuBUZfw+c4uSztSdNDNqQnQDYdrbJR1K2TkQhSP5ShWsfmz42lFiYbVbvmwojV1fH2RXARBy4f6IfMCbrGQec3O0VIPGl8MmW9ThfEfuqY="
-    secure: "TZ1l7ZB/nCsCm3HjzoVvQVm6nvN0NvvDVfCUvAkaZVdLtDARzkFAow8kXpcfm/dNBC/XtJaqHiRx3uJPiMdLYw48UpKfkAceWvumoiwyZf4YaymhA0W0lwX/Lqg1kNURv9nC0Zh+kKGMQrgSAYvuKpWrkspxOGbu7F7r1ZuDPS9MKPEgInLwgSZqyrzdxdw1IWQenSPoIbNs72S2avdOTsR7uuATKNyJCAreqyRBbJnqvl8omMd2ZNaz5w2meK07RyaQouIIFqhihbK+cR/CSKE98aEXTdYVNb/wM+LjelnXSUYSRT8FTcXFQ4y6xoSXybhJrrIZ/m2d1Ac9dP3wbYt1sljlbyefp93cOJtTXgCfwiBKCS0whC1MrSq9irgWJwRVctosrUIHtwDMYH6AKzdOhHGrCbL5nwG8CmeulN0GtRChjKk1REWxvwpMMxKSGlgCiSElkhNw7v2xCaWQDCd+N2HU7asuJtAOoTvpRqxYzzXywWgmDiEw7V2RHqNTGo/hrctIqwMdIS7sZWZZ0wC7GUC6dcTGqFlIqf7wH4pVhpBZzDwxItmJ3AXJuv3xmZBXNXhXJorBpOyBio3LcoWVaLBfXfX1rgYMR2IJOPx8en9GhEhpDkTyhymkyy+NOEIJBnfJh5zvzEX7Nz3WbEj3Bfp0mOAj85Jx4h7uko0="
+    - secure: "cWz6NmAZFtp30xIO8ieP10x7M8RLjjh1xNlu5qEgqrb9YhQLFxdIIObBw+3DcbaFBfwp0pzm4omZe8y2Lmda30ESBOrL2pX60r550Rx/JgqydFGfryRuKPLhtGyzQ3duVKIjRlKrKLUAoBzDhgM4v8rtGLaoiOrlK5JVgicrye3AgH7voOYys5sOJ/+TpAwa44690F+LCDLCOredryXMYmOo1ZNFRyq9HrEVSBeQ+1unBC6voY7NPtvGZYk8z0PeDOOX32nkZP5AEEOnQk4rl6CCALpnC5Y7ypBDi3AkFqCocomocmZUr4/m3QpERFxsZiYQD9uV93YHyqfCeDA/jA4Pgh6PiPdOvr7409z3H/CZWENInqtMMnvOPFxzO8CUxrtUamyuAgihq6VP6nKO++fX6ZfvwqxtJs8pqE0MorfIZo8vAFQ+SeiaIAEq1njL3b4/8hrQifb912KNB3ePnQSzDnxefYeu0dotK/ACUrkLxGl5Qa9USrpy6r7cVTVH8DJfqk10xIVX2tLlc6ydekLCtNnMFAAg0+PvEb9r/g+Hc1civfUg4mDGVji6N4kqkHuBUZfw+c4uSztSdNDNqQnQDYdrbJR1K2TkQhSP5ShWsfmz42lFiYbVbvmwojV1fH2RXARBy4f6IfMCbrGQec3O0VIPGl8MmW9ThfEfuqY="
+    - secure: "TZ1l7ZB/nCsCm3HjzoVvQVm6nvN0NvvDVfCUvAkaZVdLtDARzkFAow8kXpcfm/dNBC/XtJaqHiRx3uJPiMdLYw48UpKfkAceWvumoiwyZf4YaymhA0W0lwX/Lqg1kNURv9nC0Zh+kKGMQrgSAYvuKpWrkspxOGbu7F7r1ZuDPS9MKPEgInLwgSZqyrzdxdw1IWQenSPoIbNs72S2avdOTsR7uuATKNyJCAreqyRBbJnqvl8omMd2ZNaz5w2meK07RyaQouIIFqhihbK+cR/CSKE98aEXTdYVNb/wM+LjelnXSUYSRT8FTcXFQ4y6xoSXybhJrrIZ/m2d1Ac9dP3wbYt1sljlbyefp93cOJtTXgCfwiBKCS0whC1MrSq9irgWJwRVctosrUIHtwDMYH6AKzdOhHGrCbL5nwG8CmeulN0GtRChjKk1REWxvwpMMxKSGlgCiSElkhNw7v2xCaWQDCd+N2HU7asuJtAOoTvpRqxYzzXywWgmDiEw7V2RHqNTGo/hrctIqwMdIS7sZWZZ0wC7GUC6dcTGqFlIqf7wH4pVhpBZzDwxItmJ3AXJuv3xmZBXNXhXJorBpOyBio3LcoWVaLBfXfX1rgYMR2IJOPx8en9GhEhpDkTyhymkyy+NOEIJBnfJh5zvzEX7Nz3WbEj3Bfp0mOAj85Jx4h7uko0="
       
   matrix:
     # what are the realistic things we want to test against?
@@ -59,9 +59,9 @@ env:
       # CLANG_VERSON
       # GCC_VERSON
       # COMPILER = CLANG/GCC
-    - OS_TYPE=centos OS_VERSION=6 DOCKER_IMAGE=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker/base:slc6
-    - OS_TYPE=centos OS_VERSION=7 DOCKER_IMAGE=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker/base:cc7
-    # - OS_TYPE=centos OS_VERSION=8 DOCKER_IMAGE=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker/base:cc8
+    - OS_TYPE=centos OS_VERSION=6 DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:slc6
+    - OS_TYPE=centos OS_VERSION=7 DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7
+    # - OS_TYPE=centos OS_VERSION=8 DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8
 
 services:
   - docker
@@ -119,7 +119,8 @@ after_script: skip
   # publish to Github releases
   provider: releases
   api_key:
-    secure: ""
+    secure: "eVEjtiOHnYtH+I2+9bOI8SjffkV1EZ/dqJGvUEjVsX9QfC9yWd7Hb1sOJsMGBa94c2ua7qn97uyfeNnan/evz/LjH7sm/sQ6uwk4M6GavRjxp3Glz2NfR0cUMbwcVSkc2jowZ4MtxlNtneCO3k02kWdxkZM/s+8DAzbX63YhR/hcGyJqwrX5xYToYht+i2uNYe32+thxrVk2bz8XOfE6+PedFEDgMTxc4ofIs7jixHeN7zlLXuSoE5Kba9Lr1T/fTwC+Z644fkf+s9Gpv+Rb4gRYBNVZ9s1aj5jx0wwC5K9+IBtj/yG9zGSK+MphK0N3eFOps4DUHttbXtJVY2egbhENcb12Ke3GBHaMnIljPKcLWZ/babh890yXvBbPad6C9sz+HP2xLQiOQjTsjBZBVWnjM5G9MBrvDxGxBnaaTn/CBiqCsgGDE4i+w+CtlkKIq8NBOhu3AipTEGoGKVNMAwz1wAg4vgQnA5hWa+niMDYB6gRWhhBv3aAtR4zq93lUMSWPMD01fmoO0dDuBqgEtxkWxXGfW+M5vPFI2EjDEfGvLd6aInFMB/9bTxbshejDArrG5ofXmkuFM3Izq3QT1pQFr5IIiQaoo12F1ISNSF4HIdIveaVqKUwMr9/5Eapq4zoTKUBE1TYcJMplWZ+HQv5lHloiLP7YyydBPI4hkkw="
+    secure: "UQMwFoXiMOEBXbr0Woh/PXOAuiZa7/R3Y6QvqX6q/beMRjgMlMFNAtbQTGCU7MDXzbtGZAviRnQgMaSG70DOjGptSg517lck7bBJ7qDg353uShMFejH4RddD26QWgPOb4rjYbStGbNOcCvAhW2mVBEoiz3k5I4Bi91PgoSnuH/yYc6eEdeRi5EjRntCFG5Rkle1ojpiW/YdIUg+5h22ujrhhWUrU8tf9Y8EfbaiEauih8gOx3wjYCV+E8lOinjIPcyNPWbJiQ5/nB3AinIb+uyRsrnPdJ8syIRpPCnbtI1vbnOeWHt380MgdPrCFNSJpeo22up2XTgrey3T3s9IfPVTvejukLwdLsZRPbTTO234ZYOfH7x+Q3kGEvZfp6vlmn0WXJV2dUCDWMXRt4Hd6tq4/2DXwT0HThZguuPD3gEqbIR7Ru9FPOekiqoxt33p3r436IUj6KW5QXCNrcutpYFC5o33Sa4IhIKgaRSJtCrkowBnn1XyLwYupproe0JgL666ahnXPPNh+nD895icHdRgshAfgiCdSPnVTiBFdE4YKiLYGtIIaMGllCom8A4CIatL2u18Ucc5ShmogqoO9uwkHwW2dITBujM7/2QWHCiNMiUgWN76VA8CgsrEu94DX2SqExPS5LAYqeVnsU9aj5UJh58RIs/cRUS/2vROasOw="
   file_glob: true
   file:
     - LICENSE
@@ -160,7 +161,7 @@ jobs:
         - OS_TYPE=centos
         - PY_VER=python
         - OS_VERSION=6
-        - DOCKER_IMAGE=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker/extrapy/withroot:slc6
+        - DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:slc6
       <<: *rpmbuild_template
 
     - stage: buildrpm
@@ -168,7 +169,7 @@ jobs:
         - OS_TYPE=centos
         - PY_VER=python
         - OS_VERSION=7
-        - DOCKER_IMAGE=gitlab-registry.cern.ch/sturdy/gemdaq_ci_worker/extrapy/withroot:cc7
+        - DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7
       <<: *rpmbuild_template
 
     - stage: docs

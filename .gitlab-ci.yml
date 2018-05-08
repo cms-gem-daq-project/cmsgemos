@@ -11,7 +11,7 @@ after_script:
   LD_LIBRARY_PATH: /opt/xdaq/lib
 
 .slc6setup: &slc6setup
-  image: gitlab-registry.cern.ch/cms-gem-daq-project/custom_ci_worker:slc6
+  image: gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker:slc6
   variables: *common_variables
 
 .cc7setup: &cc7setup
