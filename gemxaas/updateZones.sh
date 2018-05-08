@@ -51,7 +51,10 @@ do
     done
     modifier="${modifiers[$idx]}"
     perl -pi -e "s|for generic GEM setup|${modifier}|g" ./*/Makefile
+
     cp ../setup/etc/addresstables/linkuhaltables.sh $zone/config/scripts/
     cp ../setup/etc/profile.d/gemdaqenv.sh $zone/config/scripts/
+    cp $TCDS_CONFIG_PATH/${zone}/*.txt $zone/config/tcds/
+
     let "idx++"
 done
