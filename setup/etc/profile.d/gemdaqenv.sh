@@ -7,23 +7,27 @@ fi
 if [ "$XDAQ_ROOT" != "0" ]; then
     echo "executing gem daq setup"
     export XDAQ_ROOT=/opt/xdaq
-    # export XDAQ_DOCUMENT_ROOT=$XDAQ_ROOT/htdocs
+    export XDAQ_DOCUMENT_ROOT=$XDAQ_ROOT/htdocs
     # only do this for regular users
-    export XDAQ_DOCUMENT_ROOT=/data/xdaq/${USER}
+    # export XDAQ_DOCUMENT_ROOT=/data/xdaq/${USER}
     export uHALROOT=/opt/cactus
+    export CMSGEMOS_ROOT=/opt/cmsgemos
 fi
 
 if [ "$LD_LIBRARY_PATH" != "0" ]; then
     if [ "$LD_LIBRARY_PATH" != "" ]; then
 	export LD_LIBRARY_PATH=${XDAQ_ROOT}/lib:${LD_LIBRARY_PATH}
 	export LD_LIBRARY_PATH=${uHALROOT}/lib:${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH=${CMSGEMOS_ROOT}/lib:${LD_LIBRARY_PATH}
     else
 	export LD_LIBRARY_PATH=${XDAQ_ROOT}/lib
 	export LD_LIBRARY_PATH=${uHALROOT}/lib:${LD_LIBRARY_PATH}
+	export LD_LIBRARY_PATH=${CMSGEMOS_ROOT}/lib:${LD_LIBRARY_PATH}
     fi
 else
     export LD_LIBRARY_PATH=${XDAQ_ROOT}/lib
-    export LD_LIBRARY_PATH=$uHALROOT/lib:${LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${uHALROOT}/lib:${LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${CMSGEMOS_ROOT}/lib:${LD_LIBRARY_PATH}
 fi
 
 if [ "$PYTHONPATH" != "0" ]; then
@@ -71,17 +75,21 @@ else
     export XDAQ_PLATFORM
 fi
 
+export PATH=$PATH:$CMSGEMOS_ROOT/bin
 export PATH=$PATH:$XDAQ_ROOT/bin
 export PATH=$PATH:$uHALROOT/bin
 export PATH=$PATH:$uHALROOT/bin/amc13
 export AMC13_ADDRESS_TABLE_PATH=${uHALROOT}/etc/amc13/
+export GEM_ADDRESS_TABLE_PATH=${CMSGEMOS_ROOT}/etc/maps/
 export GEMHOST=`hostname --short`
 export GEM_OS_PROJECT=cmsgemos
 
 echo "PATH=${PATH}"
 echo "AMC13_ADDRESS_TABLE_PATH=${AMC13_ADDRESS_TABLE_PATH}"
+echo "GEM_ADDRESS_TABLE_PATH=${GEM_ADDRESS_TABLE_PATH}"
 echo "GEMHOST=${GEMHOST}"
 echo "GEM_OS_PROJECT=${GEM_OS_PROJECT=}"
 echo "XDAQ_DOCUMENT_ROOT=${XDAQ_DOCUMENT_ROOT}"
 echo "uHALROOT=${uHALROOT}"
+echo "CMSGEMOS_ROOT=${CMSGEMOS_ROOT}"
 echo "System setup done"
