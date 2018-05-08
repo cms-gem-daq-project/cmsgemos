@@ -12,7 +12,7 @@
 
 ##
 #
-# Makefile generic GEM P5 .cms client
+# Makefile generic GEM setup xaas client
 #
 ##
 
@@ -21,22 +21,11 @@
 #
 BUILD_HOME:=$(shell pwd)/../../../../..
 
-include $(XDAQ_ROOT)/config/mfAutoconf.rules
-include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
-
-Project=daq
-PackageName=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-1]}')
-Package=xaas/slim/$(PackageName)
-
-ifndef BUILD_VERSION
-BUILD_VERSION=1
-endif
-
 PACKAGE_VER_MAJOR=1
 PACKAGE_VER_MINOR=0
 PACKAGE_VER_PATCH=0
 
-TEMPLATEDIR=$(BUILD_HOME)/$(Project)/xaas/slim/template/client
+include $(CMSGEMOS_ROOT)/config/mfXaaSDefs.mk
 
 build: _buildall
 
@@ -47,7 +36,7 @@ _all: all
 default: all
 
 all:
-	make -f $(TEMPLATEDIR)/client.makefile ZONE_NAME=$(PackageName)
+	make -f $(TEMPLATEDIR)/client.makefile PROJECT_NAME=$(Project) ZONE_NAME=$(PackageName)
 _installall: install
 
 install:
@@ -55,20 +44,20 @@ install:
 _cleanall: clean
 
 clean:
-	make -f $(TEMPLATEDIR)/client.makefile ZONE_NAME=$(PackageName) clean
+	make -f $(TEMPLATEDIR)/client.makefile PROJECT_NAME=$(Project) ZONE_NAME=$(PackageName) clean
 
 _rpmall: rpm
 
 rpm:
-	make -f $(TEMPLATEDIR)/client.makefile ZONE_NAME=$(PackageName) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
+	make -f $(TEMPLATEDIR)/client.makefile PROJECT_NAME=$(Project) ZONE_NAME=$(PackageName) BUILD_VERSION=$(BUILD_VERSION) PACKAGE_VER_MAJOR=$(PACKAGE_VER_MAJOR) PACKAGE_VER_MINOR=$(PACKAGE_VER_MINOR) PACKAGE_VER_PATCH=$(PACKAGE_VER_PATCH) rpm
 
 
 _installrpmall: installrpm
 
 installrpm:
-	make -f $(TEMPLATEDIR)/client.makefile ZONE_NAME=$(PackageName) installrpm
+	make -f $(TEMPLATEDIR)/client.makefile PROJECT_NAME=$(Project) ZONE_NAME=$(PackageName) installrpm
 
 _cleanrpmall: cleanrpm
 
 cleanrpm:
-	make -f $(TEMPLATEDIR)/client.makefile ZONE_NAME=$(PackageName) cleanrpm
+	make -f $(TEMPLATEDIR)/client.makefile PROJECT_NAME=$(Project) ZONE_NAME=$(PackageName) cleanrpm

@@ -1,32 +1,51 @@
 # Ignore everything
 *
+
 # Don't ignore subdirectories
 !*/
+
 # Don't ignore special files
-!*.md
-!*.rst
+!*.gitignore
+!*.gitmodules
+!*.gitattributes
+
+# Don't ignore Makefiles and templates
+!Makefile
+!*.rules
+!*.mk
+!*spec.template
+!*setup.py
+!*setup.cfg
+!*setupTemplate.py
+!*setupTemplate.cfg
+
 # Ignore RPM directories
 */rpm
+
 # Don't ignore documentation files, etc
 !*.rst
 !*.md
 !*.in
+
 # Don't ignore source files, etc
-!*.gitignore
 !*.cc
 !*.h
 !*.py
-# ignore __init__.py files
+
+# Ignore __init__.py files
 __init__.py
+
+# Don't ignore CSS/JS etc
 !*.js
 !*.jsp
 !*.css
+
+# Don't ignore other setup files
 !setup/etc/addresstables/*.xml
 !setup/paths.sh
 !setup/etc/profile.d/*sh
 !setup/etc/yum.repos.d/*.repo
-!*.rules
-# Don't ignore CSS/JS etc
-!*.js
-!*.css
+
+# Ignore garbage files
+*~
 *.#*
