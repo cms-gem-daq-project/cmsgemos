@@ -104,6 +104,7 @@ after_script: skip
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'make -j8'" || travis_terminate
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'make rpm'" || travis_terminate
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/cmsgemos/rpm/*.rpm" || travis_terminate
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate
     - find ./rpm -iname '*.rpm' -o -iname '*.tar.gz' -o -iname '*.tbz2'
   after_success:
     - echo "Testing the installation of the package"

@@ -14,8 +14,12 @@
 # else
 #     echo Set modifier to  $modifier
 #fi
+#scriptdir=$()
+
+cd $(dirname "$0")
 
 zones=(
+    gembase
     gem904
     gem904int
     gem904qc8
@@ -42,15 +46,28 @@ dirs=(
     zone
 )
 
+basedir=$PWD
+
 idx=0
 for zone in "${zones[@]}"
 do
-    for dir in "${dirs[@]}"
-    do
-        cp gembase/$dir/Makefile $zone/$dir/
-    done
-    modifier="${modifiers[$idx]}"
-    perl -pi -e "s|for generic GEM setup|${modifier}|g" ./*/Makefile
+    if ! [ ${zone} = "gembase" ]
+    then
+        for dir in "${dirs[@]}"
+        do
+            cp gembase/$dir/Makefile $zone/$dir/
+        done
+        modifier="${modifiers[$idx]}"
+        perl -pi -e "s|for generic GEM setup|${modifier}|g" ./*/Makefile
+    fi
 
+    cd $zone/config
+    make clean && make cleanrpm && make
+    make rpm
+    cd $basedir
+    
     let "idx++"
 done
+
+mkdir -p $basedir/rpm
+find . -iname '*.rpm' -print0 -exec mv {} $basedir/rpm \;
