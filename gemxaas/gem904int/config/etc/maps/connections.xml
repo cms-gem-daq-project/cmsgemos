@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<connections>
+  <!-- AMC13 connections -->
+    <!-- Without any MMC changes, T1 IP address should be one higher in the last octet than the T2
+       This scheme acts as the "backup" plan, using the jumper connections on T2 to assign IP addresses to both tongues
+       The address is 192.168.z.x
+       Final Byte for Spartan Chip (T2) = 254 - 2*SN[6:0]
+       Final Byte for Virtex/Kintex Chip (T1) = 255 - 2*SN[6:0].
+       z is 1 for SN 0-127 and 2 for SN 128-255 and 3 for SN 256-383.
+    -->
+  <connection id="gem.shelf01.amc13.T1" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.171:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
+  <connection id="gem.shelf01.amc13.T2" uri="chtcp-2.0://gem904daq01:10203?target=192.168.2.170:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
+
+  <connection id="gem.shelf01.amc01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.161:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
+  <connection id="gem.shelf01.amc01.optohybrid00" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.161:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+  <connection id="gem.shelf01.amc01.optohybrid01" uri="chtcp-2.0://gem904daq01:10203?target=192.168.0.161:50001"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_glib.xml" />
+
+  <connection id="gem.shelf01.amc02" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_amc.xml" />
+  <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
+  <connection id="gem.shelf01.amc02.optohybrid00" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link00.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid01" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link01.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid02" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link02.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid03" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link03.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid04" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link04.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid05" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link05.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid06" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link06.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid07" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link07.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid08" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link08.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid09" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link09.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid10" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link10.xml" />
+  <connection id="gem.shelf01.amc02.optohybrid11" uri="ipbustcp-2.0://192.168.2.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link11.xml" />
+
+  <connection id="gem.shelf03.amc13.T1" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.2.105:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
+  <connection id="gem.shelf03.amc13.T2" uri="chtcp-2.0://cosmicstandtif:10203?target=192.168.2.104:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
+
+  <connection id="gem.shelf03.amc02" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_amc.xml" />
+  <!-- now address tables have to be aware of  which optohybrid is where, link related, so should be programmable-->
+  <connection id="gem.shelf03.amc02.optohybrid00" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link00.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid01" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link01.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid02" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link02.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid03" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link03.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid04" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link04.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid05" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link05.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid06" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link06.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid07" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link07.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid08" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link08.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid09" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link09.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid10" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link10.xml" />
+  <connection id="gem.shelf03.amc02.optohybrid11" uri="ipbustcp-2.0://192.168.1.42:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link11.xml" />
+
+</connections>
