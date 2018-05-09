@@ -16,17 +16,17 @@ REPO_NAME=cmsgemos
 if [ "${COMMAND}" = "setup" ]
 then
     echo "Setting up system for docker image"
+    sudo apt-get update
     sudo usermod -aG docker $USER
     sudo groupadd daqbuild -g 2055
     sudo useradd daqbuild -g 2055 -u 2055
     sudo usermod -aG daqbuild $USER
     groups
     sudo chmod g+s -R $HOME
-    sudo apt-get install acl
+    sudo apt-get install acl acl2
     sudo setfacl -Rdm u::rwX,g::rwX,o::rX $HOME
     sudo setfacl -Rm  u::rwX,g::rwX,o::rX $HOME
 
-    sudo apt-get update
     echo 'DOCKER_OPTS="-H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock -s devicemapper"' | \
         sudo tee /etc/default/docker > /dev/null
     sudo service docker restart
