@@ -118,13 +118,13 @@ after_script: skip
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'make -j8'" || travis_terminate 1
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'make rpm'" || travis_terminate 1
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/cmsgemos/rpm/*.rpm"
-    - find ./rpm -iname '*.rpm' -o -iname '*.tar.gz' -o -iname '*.tbz2'
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/cmsgemos/gem*/rpm/*.rpm"
+    - find ./gem*/rpm -iname '*.rpm' -o -iname '*.tar.gz' -o -iname '*.tbz2'
   after_success:
     - echo "Testing the installation of the package"
     - virtualenv building -p python --system-site-packages
     - . building/bin/activate
-    - pip install rpm/*.zip
+    - pip install gempython/rpm/*.zip
     - echo "Install the dependencies"
     - echo "Run the predefined test"
     - ./.ci/docker.sh stop ${DOCKER_IMAGE}
@@ -141,10 +141,10 @@ after_script: skip
     - LICENSE
     - README.md
     - CHANGELOG.md
-    - "./rpm/*.tar.gz"
-    - "./rpm/*.tgz"
-    - "./rpm/*.tbz2"
-    - "./rpm/*.rpm"
+    - "./gem*/rpm/*.tar.gz"
+    - "./gem*/rpm/*.tgz"
+    - "./gem*/rpm/*.tbz2"
+    - "./gem*/rpm/*.rpm"
   ## pre-releases and draft releases for tags with pre/alpha/dev/gitHASH in the name
   # draft: true # for tags with dev/alpha in the name, or
   # prerelease: true # for tags with pre in the name
