@@ -68,12 +68,12 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
 # default:
 # 	$(info "Running default target")
 # 	$(MakeDir) $(PackageDir)/core
-# 	@cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
-# 	@cp -rfp utils tools LICENSE MANIFEST.in requirements.txt $(PackageDir)
+# 	@cp -rf $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
+# 	@cp -rf utils tools LICENSE MANIFEST.in requirements.txt $(PackageDir)
 # 	$(MakeDir) $(PackageDir)/bin
-# 	@cp -rfp tests/*.py $(PackageDir)/bin
+# 	@cp -rf tests/*.py $(PackageDir)/bin
 # 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
-# 	@cp -rfp __init__.py $(PackageDir)
+# 	@cp -rf __init__.py $(PackageDir)
 
 .PHONY: clean preprpm
 #_rpmprep: preprpm
@@ -81,13 +81,13 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
 _rpmprep: _all
 	$(info "Running preprpm")
 	$(MakeDir) $(PackageDir)/core
-	@cp -rfp $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
-	@cp -rfp gempython.md README.md
-	@cp -rfp utils tools $(PackageDir)
+	@cp -rf $(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)/*.so $(PackageDir)/core
+	@cp -rf gempython.md README.md
+	@cp -rf utils tools $(PackageDir)
 	$(MakeDir) $(ScriptDir)
-	@cp -rfp tests/*.py $(ScriptDir)
-	-cp -rfp README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt $(PackageDir)
-	-cp -rfp README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt pkg
+	@cp -rf tests/*.py $(ScriptDir)
+	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt $(PackageDir)
+	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt pkg
 	# @touch $(ScriptDir)/__init__.py
 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
 #	@echo "include */*.so" > $(PackageDir)/MANIFEST.in
