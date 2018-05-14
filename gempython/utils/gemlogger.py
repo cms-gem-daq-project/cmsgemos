@@ -174,7 +174,9 @@ def getGEMLogger(logclassname=logging.getLoggerClass(), loglevel=logging.WARN,
     # stream_handler.setFormatter(color_formatter)
 
     # logging.config.dictConfig(dictLogConfig)
-    logcfg = "%s/gempython/utils/gemlogging_config.cfg"%(os.getenv("GEM_PYTHON_PATH"))
+    import pkg_resources
+    LOGCONFIG_PATH = pkg_resources.resource_filename('gempython.utils', '')
+    logcfg = "%s/gemlogging_config.cfg"%(LOGCONFIG_PATH)
     logging.config.fileConfig(logcfg, disable_existing_loggers=False)
 
     logger = logging.getLogger(logclassname)
