@@ -470,7 +470,7 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " found, INPUT_ENABLE_MASK changed from "
             << std::hex << gtxMask << std::dec;
-        gtxMask |= (0x1<<link);
+        gtxMask   |= (0x1<<link);
         inputMask |= (0x1<<link);
         optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
         optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", inputMask);
@@ -506,6 +506,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
+    uint32_t inputMask = 0x0;
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -539,7 +540,16 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         for (auto r = res.begin(); r != res.end(); ++r)
           INFO(" 0x" << std::hex << std::setw(8) << std::setfill('0') << *r << std::dec);
 
+        // FIXME, should not be here or done like this
         uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
+        std::stringstream msg;
+        msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
+            << " to AMC in slot " << (int)(slot+1) << " found, INPUT_ENABLE_MASK changed from "
+            << std::hex << gtxMask << std::dec;
+        gtxMask   |= (0x1<<link);
+        inputMask |= (0x1<<link);
+        optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
+        optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", inputMask);
         std::stringstream msg;
         msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " found, starting run with INPUT_ENABLE_MASK "
@@ -637,6 +647,7 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
+    uint32_t inputMask = 0x0;
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -713,6 +724,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
     DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
+    uint32_t inputMask = 0x0;
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10);
       DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");

@@ -223,6 +223,9 @@ void gem::hw::glib::GLIBManager::initializeAction()
       m_glibs.at(slot) = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
       if (m_glibs.at(slot)->isHwConnected()) {
         DEBUG("GLIBManager::Creating InfoSpace items for GLIB device " << deviceName);
+
+        m_glibs.at(slot)->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+
         // maybe better to raise exception here and fail if not connected, as we expected the card to be here?
         createGLIBInfoSpaceItems(is_glibs.at(slot), m_glibs.at(slot));
 
@@ -514,6 +517,7 @@ void gem::hw::glib::GLIBManager::stopAction()
       // what is required for stopping the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
       m_glibs[slot]->setL1AEnable(false);
+      m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
     }
   }
   usleep(10);  // just for testing the timing of different applications
