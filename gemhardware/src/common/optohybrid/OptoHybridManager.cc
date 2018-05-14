@@ -550,10 +550,11 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         inputMask |= (0x1<<link);
         optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", gtxMask);
         optohybrid->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", inputMask);
-        std::stringstream msg;
+        msg.str("");
+        msg.clear();
         msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " found, starting run with INPUT_ENABLE_MASK "
-	    << std::hex << gtxMask << std::dec;
+	    << std::hex << inputMask << std::dec;
 	INFO(msg.str());
         // what resets to do
       } else {
