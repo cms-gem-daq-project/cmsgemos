@@ -36,6 +36,7 @@ stages:
 
 env:
   global:
+    - REPO_NAME=${TRAVIS_REPO_SLUG#?*/}
     ## Encrypted variables:
     ##  * CHANGELOG_GITHUB_TOKEN: for running github_changelog_generator without API rate limits
     - secure: "cWz6NmAZFtp30xIO8ieP10x7M8RLjjh1xNlu5qEgqrb9YhQLFxdIIObBw+3DcbaFBfwp0pzm4omZe8y2Lmda30ESBOrL2pX60r550Rx/JgqydFGfryRuKPLhtGyzQ3duVKIjRlKrKLUAoBzDhgM4v8rtGLaoiOrlK5JVgicrye3AgH7voOYys5sOJ/+TpAwa44690F+LCDLCOredryXMYmOo1ZNFRyq9HrEVSBeQ+1unBC6voY7NPtvGZYk8z0PeDOOX32nkZP5AEEOnQk4rl6CCALpnC5Y7ypBDi3AkFqCocomocmZUr4/m3QpERFxsZiYQD9uV93YHyqfCeDA/jA4Pgh6PiPdOvr7409z3H/CZWENInqtMMnvOPFxzO8CUxrtUamyuAgihq6VP6nKO++fX6ZfvwqxtJs8pqE0MorfIZo8vAFQ+SeiaIAEq1njL3b4/8hrQifb912KNB3ePnQSzDnxefYeu0dotK/ACUrkLxGl5Qa9USrpy6r7cVTVH8DJfqk10xIVX2tLlc6ydekLCtNnMFAAg0+PvEb9r/g+Hc1civfUg4mDGVji6N4kqkHuBUZfw+c4uSztSdNDNqQnQDYdrbJR1K2TkQhSP5ShWsfmz42lFiYbVbvmwojV1fH2RXARBy4f6IfMCbrGQec3O0VIPGl8MmW9ThfEfuqY="
@@ -77,7 +78,7 @@ before_install:
 
 script:
   - echo 'Running test stage on docker container $DOCKER_CONTAINER_ID'
-  # - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec ". /home/daqbuild/cmsgemos/.ci/travis.sh ${OS_VERSION} ${PY_VER} ${ROOT_VER}"
+  # - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec ". /home/daqbuild/${REPO_NAME}/.ci/travis.sh ${OS_VERSION} ${PY_VER} ${ROOT_VER}"
 
 ## Defaults, applied to the 'test' stage
 after_success:
@@ -115,10 +116,10 @@ after_script: skip
     - gem install github_changelog_generator
   script:
     - echo 'Running build stage on docker container $DOCKER_CONTAINER_ID'
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'make -j8'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'make rpm'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/cmsgemos/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/cmsgemos/gem*/rpm/*.rpm"
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make -j8'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make rpm'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/${REPO_NAME}/gem*/rpm/*.rpm"
     - find ./gem*/rpm -iname '*.rpm' -o -iname '*.tar.gz' -o -iname '*.tbz2'
   after_success:
     - echo "Testing the installation of the package"
@@ -161,7 +162,7 @@ after_script: skip
   #     - git config --local user.email "YOUR GIT USER EMAIL"
   #     # ?create the changelog
   #     # ?update release notes
-  #     # ?run our cmsgemostag script instead?
+  #     # ?run our gemostag script instead?
   #     # Sign the tags
   #   # - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
   after_deploy: skip
