@@ -9,9 +9,8 @@ COMMAND=$1
 DOCKER_IMAGE=$2
 OS_VERSION=$3
 REPO_NAME=${TRAVIS_REPO_SLUG#?*/}
-REPO_NAME=cmsgemos
 
-# need a varaible to point to the .travis directory
+# need a varaible to point to the .ci directory
 # Run tests in Container
 if [ "${COMMAND}" = "setup" ]
 then
@@ -37,13 +36,13 @@ elif [ "${COMMAND}" = "start" ]
 then
     if [[ "${DOCKER_IMAGE}" =~ slc6$ ]]
     then
-        echo "Running SLC6 GEM DAQ custom docker image"
-        # docker run -d --user daqbuild --rm=true -v `pwd`:/home/daqbuild/${REPO_NAME}:rw,z --entrypoint="/bin/bash" \
+        echo "Starting SLC6 GEM DAQ custom docker image"
         docker run --user daqbuild --privileged=true -d -ti -e "container=docker" \
                -v `pwd`:/home/daqbuild/${REPO_NAME}:rw,z \
                ${DOCKER_IMAGE} /bin/bash
     elif [[ "${DOCKER_IMAGE}" =~ cc7$ ]]
     then
+        echo "Starting CC7 GEM DAQ custom docker image"
         docker run --user daqbuild --privileged=true -d -ti -e "container=docker" \
                -v /sys/fs/cgroup:/sys/fs/cgroup \
                -v `pwd`:/home/daqbuild/${REPO_NAME}:rw,z \
@@ -84,3 +83,7 @@ else
         fi
     fi
 fi
+
+docker ps -a
+
+exit 0
