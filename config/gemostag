@@ -14,9 +14,9 @@ use Getopt::Lucid qw/:all/;
     # Param('--reltype|r')->anycase()->valid('qr/(major|minor|patch|maj|min|pat)/'),
     Param('--reltype|r')->anycase(),
     Param('--prereltype')->anycase(),
+    Param('--tagdiff|t')->anycase(),
     Switch('--help|h')->anycase(),
     Switch('--diff|d')->anycase(),
-    # Switch('--tagdiff|t')->anycase(),
     );
 
 my $opts=Getopt::Lucid->getopt(\@specs);
@@ -33,8 +33,8 @@ if ($opts->get_help) {
     print "\n";
     print "EXAMPLE: config/gemostag -h will print this menu\n";
     print "EXAMPLE: config/gemostag -d will show you which subpackages have uncommitted changes\n";
-    # print "EXAMPLE: config/gemostag --tagdiff <tag> will show you which subpackages have differences\n";
-    # print "                                         with respect to the specified tag\n";
+    print "EXAMPLE: config/gemostag --tagdiff <tag> will show you which subpackages have differences\n";
+    print "                                         with respect to the specified tag\n";
     print "EXAMPLE: config/gemostag -p hardware will extract the value in the gemhardware/Makefile\n";
     print "                                     and create the tag\n";
     print "EXAMPLE: config/gemostag -p hardware -r min will extract the value in the gemhardware/Makefile\n";
@@ -58,7 +58,7 @@ if (!($wd=~/${gemosbase}$/)) {
     exit(1);
 }
 
-@gemospackages = ('all', 'base', 'calibration', 'hardware', 'HwMonitor', 'python', 'readout', 'supervisor', 'tests', 'utils', 'xaas');
+@gemospackages = ('all', 'base', 'calibration', 'hardware', 'HwMonitor', 'python', 'readout', 'supervisor', 'tests', 'utils');
 
 if ($opts->get_diff) {
     foreach (@gemospackages) {
@@ -71,17 +71,21 @@ if ($opts->get_diff) {
     exit(0);
 }
 
-# if ($opts->get_tagdiff) {
-#     $difftag=$opts->get_tagdiff;
-#     foreach (@gemospackages) {
-#         if ( !( "all" ~~ "$_" ) ) {
-#             print "Looking for differences wrt $difftag in gem$_: ";
-#             $status=$git->diff("--stat", "..$difftag", "gem$_");
-#             print $status->is_dirty, "\n"
-#         }
-#     }
-#     exit(0);
-# }
+if ($opts->get_tagdiff) {
+    $difftag=$opts->get_tagdiff;
+    foreach (@gemospackages) {
+        if ( !( "all" ~~ "$_" ) ) {
+            print "Looking for differences wrt $difftag in gem$_: ";
+            $status=$git->diff("--stat", "$difftag..", "gem$_");
+            if ($status) {
+                print "yes\n"
+            } else {
+                print "no\n"
+            }
+        }
+    }
+    exit(0);
+}
 
 # Now ensure required arguments are specified
 $opts->validate( {'requires' => ['package']} );
