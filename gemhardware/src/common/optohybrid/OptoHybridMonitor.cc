@@ -142,7 +142,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   }
 
   addMonitorableSet("T1 Counters", "HWMonitoring");
-  std::array<std::string, 6> t1sources = {{"GTX_TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT","GBT_TTC"}};
+  std::array<std::string, 6> t1sources = {{"SENT","GBT_TTC","GTX_TTC","INTERNAL","EXTERNAL","LOOPBACK"}};
   for (auto t1src = t1sources.begin(); t1src != t1sources.end(); ++t1src) {
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"L1A",     "COUNTERS.T1."+(*t1src)+".L1A"),
@@ -322,12 +322,12 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
         *out << cgicc::th() << "Valid"   << cgicc::th() << std::endl
              << cgicc::th() << "Incorrect" << cgicc::th() << std::endl;
       } else if ((*monset).rfind("T1 Counters") != std::string::npos) {
-        *out << cgicc::th() << "GTX_TTC"  << cgicc::th() << std::endl
-             << cgicc::th() << "GBT_TTC"  << cgicc::th() << std::endl
-             << cgicc::th() << "Internal" << cgicc::th() << std::endl
-             << cgicc::th() << "External" << cgicc::th() << std::endl
-             << cgicc::th() << "Loopback" << cgicc::th() << std::endl
-             << cgicc::th() << "Sent"     << cgicc::th() << std::endl;
+        * out << cgicc::th() << "Sent"     << cgicc::th() << std::endl
+              << cgicc::th() << "GBT_TTC"  << cgicc::th() << std::endl
+              << cgicc::th() << "GTX_TTC"  << cgicc::th() << std::endl
+              << cgicc::th() << "Internal" << cgicc::th() << std::endl
+              << cgicc::th() << "External" << cgicc::th() << std::endl
+              << cgicc::th() << "Loopback" << cgicc::th() << std::endl;
       } else if ((*monset).rfind("Other Counters") != std::string::npos) {
         *out << cgicc::th() << "Count" << cgicc::th() << std::endl
              << cgicc::th() << "Rate"  << cgicc::th() << std::endl;
@@ -576,7 +576,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
   // get the list of pairs of monitorables in the T1 Counters monset
   auto monset = m_monitorableSetsMap.find("T1 Counters")->second;
 
-  std::array<std::string, 6> t1sources = {{"GTX_TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT","GBT_TTC"}};
+  std::array<std::string, 6> t1sources = {{"SENT","GBT_TTC","GTX_TTC","INTERNAL","EXTERNAL","LOOPBACK"}};
   std::array<std::string, 4> t1signals = {{"L1A","CalPulse","Resync","BC0"}};
 
   for (auto t1signal = t1signals.begin(); t1signal != t1signals.end(); ++t1signal) {
