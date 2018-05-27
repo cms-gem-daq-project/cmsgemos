@@ -56,6 +56,11 @@ do
         for dir in "${dirs[@]}"
         do
             cp gembase/$dir/Makefile $zone/$dir/
+            cp gembase/$dir/spec.template $zone/$dir/
+            if [ $dir = "config" ]
+            then
+                mkdir -p $zone/$dir/etc/profile.d
+            fi
         done
         modifier="${modifiers[$idx]}"
         perl -pi -e "s|for generic GEM setup|${modifier}|g" ./*/Makefile
