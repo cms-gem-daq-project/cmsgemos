@@ -361,6 +361,19 @@ void gem::hw::glib::GLIBManager::configureAction()
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
       // }
+      INFO("GLIBManager::configureAction running amc_info_uhal after configuration");
+      std::stringstream statuscmd;
+      // FIXME hard coded for now, but super hacky garbage
+      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      retval = std::system(statuscmd.str().c_str());
+      if (retval) {
+        std::stringstream msg;
+        msg << "GLIBManager::configureAction unable to check AMC status: " << retval;
+        WARN(msg.str());
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+      }
     } else {
       std::stringstream msg;
       msg << "GLIBManager::configureAction GLIB in slot " << (slot+1) << " is not connected";
@@ -405,6 +418,20 @@ void gem::hw::glib::GLIBManager::startAction()
       m_glibs.at(slot)->enableDAQLink(0x4);  // FIXME
       m_glibs.at(slot)->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
+
+      INFO("GLIBManager::startAction running amc_info_uhal after configuration");
+      std::stringstream statuscmd;
+      // FIXME hard coded for now, but super hacky garbage
+      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      int retval = std::system(statuscmd.str().c_str());
+      if (retval) {
+        std::stringstream msg;
+        msg << "GLIBManager::startAction unable to check AMC status: " << retval;
+        WARN(msg.str());
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+      }
     } else {
       std::stringstream msg;
       msg << "GLIBManager::startAction GLIB in slot " << (slot+1) << " is not connected";
@@ -518,6 +545,20 @@ void gem::hw::glib::GLIBManager::stopAction()
       // FIXME temporarily inhibit triggers at the GLIB
       m_glibs[slot]->setL1AEnable(false);
       m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+
+      INFO("GLIBManager::stopAction running amc_info_uhal after configuration");
+      std::stringstream statuscmd;
+      // FIXME hard coded for now, but super hacky garbage
+      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      int retval = std::system(statuscmd.str().c_str());
+      if (retval) {
+        std::stringstream msg;
+        msg << "GLIBManager::stopAction unable to check AMC status: " << retval;
+        WARN(msg.str());
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+      }
     }
   }
   usleep(10);  // just for testing the timing of different applications
@@ -548,6 +589,26 @@ void gem::hw::glib::GLIBManager::resetAction()
     if (!info.present)
       continue;
 
+    if (m_glibs[slot]->isHwConnected()) {
+      // what is required for resetting the GLIB?
+      // FIXME temporarily inhibit triggers at the GLIB
+      m_glibs[slot]->setL1AEnable(false);
+      m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+
+      INFO("GLIBManager::resetAction running amc_info_uhal after configuration");
+      std::stringstream statuscmd;
+      // FIXME hard coded for now, but super hacky garbage
+      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      int retval = std::system(statuscmd.str().c_str());
+      if (retval) {
+        std::stringstream msg;
+        msg << "GLIBManager::resetAction unable to check AMC status: " << retval;
+        WARN(msg.str());
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+      }
+    }
     // reset the hw monitor
     if (m_glibMonitors.at(slot))
       m_glibMonitors.at(slot)->reset();
