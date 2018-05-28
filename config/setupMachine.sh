@@ -773,7 +773,7 @@ crate {
 	description = "${desc}"
 }
 EOF
-            nShelves=$(($nShelves+1))
+            nShelves=$((nShelves+1))
         elif [ "$?" = "1" ]
         then
             echo -e "\n\033[1;36mDone adding ${nShelves} shelves, now moving on to configs\033[0m"
@@ -857,11 +857,11 @@ EOF
         do
             cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
         <Slot number="${slot}">
-            <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} $((${slot}+40)) 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
+            <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} $((slot+40)) 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
         </Slot>
 EOF
     cat <<EOF >> /tmp/sturdy/etc/hosts
-192.168.1.$((${slot}+40)) s$slot.c$crate.utca
+192.168.1.$((slot+40)) s$slot.c$crate.utca
 EOF
         done
         cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
@@ -1019,7 +1019,7 @@ EOF
     for bird in {1..6}
     do
         cat <<EOF >> /tmp/sturdy/etc/hosts
-192.168.250.$((2+$bird)) raven$bird raven$bird.utca
+192.168.250.$((2+bird)) raven$bird raven$bird.utca
 EOF
     done
 
@@ -1030,7 +1030,7 @@ EOF
     for bird in {1..65}
     do
         cat <<EOF >> /tmp/sturdy/etc/hosts
-192.168.250.$((9+$bird)) eagle$bird eagle$bird.utca
+192.168.250.$((9+bird)) eagle$bird eagle$bird.utca
 EOF
     done
 }
