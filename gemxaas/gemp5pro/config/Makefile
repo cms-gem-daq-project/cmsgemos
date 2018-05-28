@@ -59,6 +59,7 @@ all:
 	@echo PackageType $(PackageType)
 	@echo Package $(Package)
 	@cp $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh ./scripts/
+	@mkdir -p ./etc/profile.d
 	@cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./etc/profile.d/
 	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./etc/tcds/
 
