@@ -23,6 +23,7 @@ zones=(
     gem904
     gem904int
     gem904qc8
+    gem
     gemp5
     gemp5dev
     gemp5pro
@@ -32,6 +33,7 @@ modifiers=(
     "for 904 .cms904 setup"
     "for 904 integration setup"
     "for 904 QC8 setup"
+    "for GEM P5 .cms setup"
     "for GEM P5 .cms setup"
     "for GEM P5 development setup"
     "for GEM P5 production setup"
