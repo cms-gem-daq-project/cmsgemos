@@ -6,6 +6,7 @@ SUBPACKAGES := \
 	gem904 \
 	gem904int \
 	gem904qc8 \
+	gem \
 	gemp5 \
 	gemp5pro \
 	gemp5dev
