@@ -133,6 +133,7 @@ configure_interface() {
         read -r -p $'\e[1;32mPlease specify desired IP address:\033[0m ' ipaddr
         read -r -p $'\e[1;32mPlease specify desired network:\033[0m ' network
         read -r -p $'\e[1;32mPlease specify correct netmask:\033[0m ' netmask
+        
     fi
 
     cfgbase="/etc/sysconfig/network-scripts"
@@ -224,7 +225,7 @@ install_xdaq() {
 
     # # Run the installation script, failing to get the init script...
     # ./install
-    
+
     # RPM with YUM
     rpm --import RPM-GPG-KEY-Mellanox
     cat <<EOF > /etc/yum.repos.d/mellanox.repo
@@ -236,80 +237,55 @@ gpgkey=file://${PWD}/RPM-GPG-KEY-Mellanox
 gpgcheck=1
 EOF
     yum -y install mlnx-en-eth-only --disablerepo=* --enablerepo=mlnx_en
-    
+
     # Load the driver.
     new_service mlnx-en.d on
     cd $curdir
     return 0
 }
 
-update_xpci_driver() {
-    # option 'X'
-    curdir=$PWD
-    mkdir -p /tmp/xpci_update
-    cd /tmp/xpci_update
-    yumdownloader --source daq-xpcidrv
-
-    if [ ! "$?" = "0" ]
-    then
-        echo "Failed to download daq-xpcidrv sources"
-        return 1
-    fi
-
-    yum-builddep -y daq-xpcidrv-*.src.rpm
-    rpm -ihv daq-xpcidrv-*.src.rpm
-    cd ~/rpmbuild
-    mkdir -p RPMS/x86_64/old
-    mv RPMS/x86_64/*.rpm RPMS/x86_64/old
-    rpmbuild -bb SPECS/daq-xpcidrv.x86_64_slc6.spec
-    cd RPMS/x86_64
-    yum remove daq-xpcidrv daq-xpcidrv-debuginfo daq-xpcidrv-devel
-    yum install kernel-module-daq-xpcidrv-*.rpm
-    yum install daq-xpcidrv-*.rpm
-    lsmod|fgrep xpc
-    cd ${curdir}
-}
-
-#### Networking for certain devices ####
-setup_network() {
-    # Option 'N'
-    netdevs=( $(ls /sys/class/net |egrep -v "virb|lo") )
-    for netdev in "${netdevs[@]}"
-    do
-        prompt_confirm "Configure network device: ${netdev}?"
-        if [ "$?" = "0" ]
-        then
-            echo "Current configuration for ${netdev} is:"
-            ifconfig ${netdev}
-            while true
-            do
-                read -r -n 1 -p "Select interface type: local uTCA (1) or uFEDKIT (2) " REPLY
-                case $REPLY in
-                    [1]) echo "Configuring ${netdev} for local uTCA network..."
-                         configure_interface ${netdev} uTCA
-                         break
-                         ;;
-                    [2]) echo "Configuring ${netdev} for uFEDKIT..."
-                         configure_interface ${netdev} uFEDKIT
-                         break
-                         ;;
-                    [sS]) echo "Skipping $REPLY..." ; break ;;
-                    [qQ]) echo "Quitting..." ; return 0 ;;
-                    *) printf "\033[31m %s \n\033[0m" "Invalid choice, please specify an interface type, or press s(S) to skip, or q(Q) to quit";;
-                esac
-            done
-        fi
-    done
-}
-
 install_cactus() {
     # Option 'c'
     echo Installing cactus packages...
-
+    uhalVersion="2.6"
+    useUHAL25=0
     prompt_confirm "Install uHAL?"
     if [ "$?" = "0" ]
     then
-        wget https://ipbus.web.cern.ch/ipbus/doc/user/html/_downloads/ipbus-sw.${ostype}${osver}.x86_64.repo -O /etc/yum.repos.d/ipbus-sw.repo
+        while true
+        do
+            read -r -n 1 -p "Select uhal version: 2.5 (1), 2.6 (2) " REPLY
+            case $REPLY in
+                [1]) echo "Installing ipbus uhal version 2.5"
+                     uhalVersion="2.5"
+                     useUHAL25=1
+                     break
+                     ;;
+                [2]) echo "Installing ipbus uhal version 2.6"
+                     uhalVersion="2.6/repos"
+                     useUHAL25=0
+                     break
+                     ;;
+                [sS]) echo "Skipping $REPLY..." ; break ;;
+                [qQ]) echo "Quitting..." ; return 0 ;;
+                *) printf "\033[31m %s \n\033[0m" "Invalid choice, please specify a uhal version, press s(S) to skip, or q(Q) to quit";;
+            esac
+        done
+
+        cat <<EOF > /etc/yum.repos.d/ipbus-sw.repo
+[ipbus-sw-base]
+name=CACTUS Project Software Repository
+baseurl=http://www.cern.ch/ipbus/sw/release/${uhalVersion}/${ostype}${osver}_x86_64/base/RPMS
+enabled=1
+gpgcheck=0
+
+[ipbus-sw-updates]
+name=CACTUS Project Software Repository Updates
+baseurl=http://www.cern.ch/ipbus/sw/release/${uhalVersion}/${ostype}${osver}_x86_64/updates/RPMS
+enabled=1
+gpgcheck=0
+EOF
+
         yum -y groupinstall uhal
 
         prompt_confirm "Setup machine as controlhub?"
@@ -324,7 +300,30 @@ install_cactus() {
     prompt_confirm "Install amc13 libraries?"
     if [ "$?" = "0" ]
     then
-        wget https://svnweb.cern.ch/trac/cactus/export/HEAD/trunk/scripts/release/cactus-amc13.${ostype}${osver}.x86_64.repo -O /etc/yum.repos.d/cactus-amc13.repo
+        if [ ${osver} = "6" ] && [ $useUHAL25 = "0" ]
+        then
+            echo "AMC13 libraries on ${ostype}${osver} are incompatible with uhal 2.6"
+            continue
+        elif [ ${osver} = "6" ]
+        then
+            amc13Version="1.2"
+        elif [ ${useUHAL25} = "0" ]
+        then
+            amc13Version="1.2/uhal2.6"
+        fi
+        cat <<EOF > /etc/yum.repos.d/amc13-sw.repo
+[cactus-amc13-base]
+name=CACTUS Project Software Repository for amc13 packages
+baseurl=http://www.cern.ch/cactus/release/amc13/${amc13Version}/${ostype}${osver}_x86_64/base/RPMS
+enabled=1
+gpgcheck=0
+
+[cactus-updates]
+name=CACTUS Project Software Repository Updates for amc13 packages
+baseurl=http://www.cern.ch/cactus/release/amc13/${amc13Version}/${ostype}${osver}_x86_64/updates/RPMS
+enabled=1
+gpgcheck=0
+EOF
         yum -y groupinstall amc13
     fi
 }
@@ -332,7 +331,7 @@ install_cactus() {
 install_misc_rpms() {
     # Option 'm'
     echo Installing miscellaneous RPMS...
-    yum -y install telnet htop arp-scan screen tmux
+    yum -y install tree telnet htop arp-scan screen tmux
 
     yum -y install libuuid-devel e2fsprogs-devel readline-devel ncurses-devel curl-devel boost-devel \
         numactl-devel freeipmi-devel libusb libusbx libusb-devel libusbx-devel \
@@ -371,18 +370,21 @@ install_sysmgr() {
     # Option 'S'
     echo Installing UW sysmgr RPMS...
     wget https://www.hep.wisc.edu/uwcms-repos/el${osver}/release/uwcms.repo -O /etc/yum.repos.d/uwcms.repo
-    yum -y install freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel xinetd
+    yum -y install freeipmi libxml++ libxml++-devel libconfuse libconfuse-devel xinetd dnsmasq
     yum -y install sysmgr-complete
     # yum -y install sysmgr
 
     prompt_confirm "Setup machine to communicate directly to a CTP7?"
     if [ "$?" = "0" ]
     then
+        connect_ctp7s
         new_service sysmgr on
         new_service xinetd on
+        new_service dnsmasq on
     else
         new_service sysmgr off
         new_service xinetd off
+        new_service dnsmasq off
     fi
 }
 
@@ -642,26 +644,33 @@ setup_network() {
     netdevs=( $(ls /sys/class/net |egrep -v "virb|lo") )
     for netdev in "${netdevs[@]}"
     do
+        echo -e "\n\033[1;36mCurrent configuration for ${netdev} is:\033[0m"
+        ifconfig ${netdev}
         prompt_confirm "Configure network device: ${netdev}?"
         if [ "$?" = "0" ]
         then
-            echo -e "\033[1;36mCurrent configuration for ${netdev} is:\033[0m"
-            ifconfig ${netdev}
             while true
             do
-                read -r -n 1 -p $'\e[1;34m Select interface type: local uTCA (1) or uFEDKIT (2)\033[0m ' REPLY
+                read -r -n 1 -p $'\e[1;34m Select interface type: local uTCA (1) or uFEDKIT (2) or dnsmasq (3)\033[0m ' REPLY
                 case $REPLY in
-                    [1]) echo -e "\033[1;36mConfiguring ${netdev} for local uTCA network...\033[0m"
+                    [1]) echo -e "\n\033[1;36mConfiguring ${netdev} for local uTCA network...\033[0m"
                          configure_interface ${netdev} uTCA
                          break
                          ;;
-                    [2]) echo -e "\033[1;36mConfiguring ${netdev} for uFEDKIT...\033[0m"
+                    [2]) echo -e "\n\033[1;36mConfiguring ${netdev} for uFEDKIT...\033[0m"
                          configure_interface ${netdev} uFEDKIT
+                         break
+                         ;;
+                    [3]) echo -e "\n\033[1;36mConfiguring ${netdev} for dnsmasq...\033[0m"
+                         cat <<EOF > /tmp/sturdy/etc/dnsmasq.d/ctp7
+interface=${netdev}
+EOF
+                         
                          break
                          ;;
                     [sS]) echo -e "\033[1;33mSkipping $REPLY...\033[0m" ; break ;;
                     [qQ]) echo -e "\033[1;34mQuitting...\033[0m" ; return 0 ;;
-                    *) printf "\033[1;31m %s \n\033[0m" "Invalid choice, please specify an interface type, or press s(S) to skip, or q(Q) to quit";;
+                    *) printf "\033[1;31m %s \n\033[0m" "Invalid choice, please specify an interface type, press s(S) to skip, or q(Q) to quit";;
                 esac
             done
         fi
@@ -672,15 +681,15 @@ setup_network() {
 connect_ctp7s() {
     # Option 'C'
     echo -e "\033[1;32mSetting up for ${hostname} for CTP7 usage\033[0m"
-    # Updated /etc/sysmgr/sysmgr.conf to enable the GenericUW configuration module to support "WISC CTP-7" cards.
-    if [ -e /etc/sysmgr/sysmgr.conf ]
+    # Updated /tmp/sturdy/etc/sysmgr/sysmgr.conf to enable the GenericUW configuration module to support "WISC CTP-7" cards.
+    if [ -e /tmp/sturdy/etc/sysmgr/sysmgr.conf ]
     then
-        mv /etc/sysmgr/sysmgr.conf.bak
+        mv /tmp/sturdy/etc/sysmgr/sysmgr.conf /tmp/sturdy/etc/sysmgr/sysmgr.conf.bak
     fi
 
     authkey="Aij8kpjf"
 
-    cat <<EOF > /etc/sysmgr/sysmgr.conf
+    cat <<EOF > /tmp/sturdy/etc/sysmgr/sysmgr.conf
 socket_port = 4681
 
 # If ratelimit_delay is set, it defines the number of microseconds that the
@@ -701,6 +710,84 @@ authentication {
 	manage = { }
 	read = { "" }
 }
+
+EOF
+
+    # add crates
+    # take input from prompt for ipaddress, type, password, and description
+    nShelves=0
+    while true
+    do
+        prompt_confirm "Add uTCA shelf to sysmgr config?"
+        if [ "$?" = "0" ]
+        then
+            while true
+            do
+                read -r -n 1 -p $'\e[1;34m Add uTCA shelf with MCH of type: VadaTech (1) or NAT (2)\033[0m ' REPLY
+                case $REPLY in
+                    [1]) echo -e "\n\033[1;36mAdding uTCA shelf with VadaTech MCH...\033[0m"
+                         type="VadaTech"
+                         password="vadatech"
+                         break
+                         ;;
+                    [2]) echo -e "\n\033[1;36mAdding uTCA shelf with NAT MCH...\033[0m"
+                         type="NAT"
+                         password=""
+                         break
+                         ;;
+                    [sS]) echo -e "\033[1;33mSkipping $REPLY...\033[0m" ; break ;;
+                    [qQ]) echo -e "\033[1;34mQuitting...\033[0m" ; return 0 ;;
+                    *) printf "\033[1;31m %s \n\033[0m" "Invalid choice, please specify an MCH type, press s(S) to skip, or q(Q) to quit";;
+                esac
+            done
+
+            while true
+            do
+                read -r -p $'\e[1;34mPlease specify the IP address of the MCH:\033[0m ' REPLY
+                rx='([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])'
+                oct='(0[0-7]{0,2})|([1-9][0-9])|(1[0-9][0-9])|(2[0-4][0-9])|(25[0-5])'
+                rex="^$oct.$ot.$oct.$oct$"
+                re1="^([0-9]{1,3}\.){3}(\.?[0-9]{1,3})$"
+                re2="^([0-9]{1,3}.){3}(.?[0-9]{1,3})$"
+                re3='^([0-9]{1,3}.){3}(.?[0-9]{1,3})$'
+                # if ! [[ "$REPLY" =~ $re1 ]]
+                # if ! [[ "$REPLY" =~ $re2 ]]
+                if ! [[ "$REPLY" =~ $re3 ]]
+                then
+                    printf "\033[1;31m %s \n\033[0m" "Invalid IP address ${REPLY} specified"
+                    continue
+                fi
+                ipaddr=$REPLY
+                break
+            done
+
+            read -r -p $'\e[1;34mPlease enter a description for this uTCA shelf:\033[0m ' REPLY
+            desc=$REPLY
+            cat <<EOF >> /tmp/sturdy/etc/sysmgr/sysmgr.conf
+crate {
+	host = "${ipaddr}"
+	mch = "${type}"
+	username = ""
+	password = "${password}"
+	authtype = none
+	description = "${desc}"
+}
+EOF
+            nShelves=$(($nShelves+1))
+        elif [ "$?" = "1" ]
+        then
+            echo -e "\n\033[1;36mDone adding ${nShelves} shelves, now moving on to configs\033[0m"
+            break
+        fi
+    done
+
+    cat <<EOF >> /tmp/sturdy/etc/sysmgr/sysmgr.conf
+# *** Modules ***
+#
+# These modules will be loaded in the order specified here.  When a new card is
+# detected, they will be checked in reverse order to determine which module
+# will service that card.  If no module claims a card, it will be serviced by
+# the system manager with no special functionality.
 
 cardmodule {
 	module = "GenericUW.so"
@@ -736,57 +823,216 @@ cardmodule {
 		"support=WISC CIOZ#14"
 	}
 }
+
 EOF
 
-    # add crates
-
-    cat <<EOF
-crate {
-	host = "${ipaddr}"
-	mch = "${type}"
-	username = ""
-	password = ""
-	authtype = none
-	description = "${desc}"
-}
-EOF
-
-
-    # Created /etc/sysmgr/ipconfig.xml to map geographic address assignments for crates 1 and 2 matching the /24
-    # subnets associated with the MCHs listed for them in /etc/sysmgr/sysmgr.conf.  These addresses will occupy
+    # Created /tmp/sturdy/etc/sysmgr/ipconfig.xml to map geographic address assignments for crates 1 and 2 matching the /24
+    # subnets associated with the MCHs listed for them in /tmp/sturdy/etc/sysmgr/sysmgr.conf.  These addresses will occupy
     # 192.168.*.40 to 192.168.*.52 which nmap confirms are not in use.
-    if [ -e /etc/sysmgr/ipconfig.xml ]
+    if [ -e /tmp/sturdy/etc/sysmgr/ipconfig.xml ]
     then
-        mv /etc/sysmgr/ipconfig.xml.bak
+        mv /tmp/sturdy/etc/sysmgr/ipconfig.xml /tmp/sturdy/etc/sysmgr/ipconfig.xml.bak
     fi
 
+    echo -e "\033[1;32mCreating ipconfig.xml assuming a 'local' network topology and only CTP7s, if this is not appropriate for your use case, please modify the resulting file found at /etc/sysmgr/ipconfig.xml\033[0m"
     authkey="Aij8kpjf"
 
-    cat <<EOF > /etc/sysmgr/ipconfig.xml
+    cat <<EOF > /tmp/sturdy/etc/sysmgr/ipconfig.xml
 <IVTable>
-    <Crate number="1">
-        <Slot number="1">
-            <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} ${slot} 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
-        </Slot>
-    </Crate>
+EOF
+    if [ $nShelves = "0" ]
+    then
+        nShelves=1
+    fi
 
-    <Crate number="2">
-        <Slot number="1">
-            <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} ${slot} 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
+    for crate in $(eval echo "{1..$nShelves}")
+    do
+        cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
+    <Crate number="$crate">
+EOF
+    cat <<EOF >> /tmp/sturdy/etc/hosts
+
+EOF
+        for slot in {1..12}
+        do
+            cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
+        <Slot number="${slot}">
+            <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} $((${slot}+40)) 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
         </Slot>
+EOF
+    cat <<EOF >> /tmp/sturdy/etc/hosts
+192.168.1.$((${slot}+40)) s$slot.c$crate.utca
+EOF
+        done
+        cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
     </Crate>
+EOF
+    done
+    cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
 </IVTable>
 EOF
-    # time-stream xinetd service was enabled by editing /etc/xinetd.d/time-stream and restarting xinetd via init script.
 
-    # create /etc/rsyslog.d/ctp7.conf
-    # Created /etc/logrotate.d/ctp7 with configuration to rotate these logs.
+    ## Set up host machine to act as time server
+    if [ -e /tmp/sturdy/etc/xinetd.d/time-stream ]
+    then
+        line=$(sed -n '/disable/=' /tmp/sturdy/etc/xinetd.d/time-stream)
+        cp /tmp/sturdy/etc/xinetd.d/{time-stream,time-stream.bak}
+        sed -i "$line s|yes|no|g" /tmp/sturdy/etc/xinetd.d/time-stream
+        ## restart xinetd
+        # new_service xinetd on
+    fi
 
-    # Created configuration file /etc/dnsmasq.d/ctp7 which I hope will work correctly.
+    ## Set up rsyslog
+    cat <<EOF > /tmp/sturdy/etc/logrotate.d/ctp7
+$ModLoad imudp
 
-    # /etc/hosts has been updated with CTP7-related dns names
-    # local= entry has been added to /etc/dnsmasq.d/ctp7 to allow serving requests for *.utca names.
+$UDPServerAddress 192.168.0.180
+$UDPServerRun 514
 
+$template RemoteLog,"/var/log/remote/%HOSTNAME%/messages.log"
+:fromhost-ip, startswith, "192.168." ?RemoteLog
+EOF
+
+    ## Configure logrotate to rotate ctp7 logs
+    cat <<\EOF > /tmp/sturdy/etc/logrotate.d/ctp7
+/var/log/remote/*/messages.log {
+        sharedscripts
+        missingok
+        create 0644 root wheel
+        compress
+        dateext
+        weekly
+        rotate 4
+        lastaction
+                /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+                /bin/kill -HUP `cat /var/run/rsyslogd.pid 2> /dev/null` 2> /dev/null || true
+        endscript
+}
+
+EOF
+    ## Restart rsyslog
+    # new_service rsyslog on
+
+    ## Set up dnsmasq
+    # Create configuration file /tmp/sturdy/etc/dnsmasq.d/ctp7, needs interface name
+    setup_network
+    cat <<EOF >> /tmp/sturdy/etc/dnsmasq.d/ctp7
+bind-interfaces
+dhcp-range=192.168.249.1,192.168.249.254,1h
+dhcp-option=option:ntp-server,0.0.0.0 # autotranslated to server ip
+domain=utca
+local=/utca/
+
+dhcp-host=00:04:a3:a4:a1:8e,192.168.250.1  # falcon1
+dhcp-host=00:04:a3:62:9f:d9,192.168.250.2  # falcon2
+dhcp-host=00:04:a3:a4:dc:c1,192.168.250.3  # raven1
+dhcp-host=00:04:a3:a4:bc:54,192.168.250.4  # raven2
+dhcp-host=00:04:a3:a4:60:b2,192.168.250.5  # raven3
+dhcp-host=00:04:a3:a4:d7:40,192.168.250.6  # raven4
+dhcp-host=00:04:a3:a4:67:56,192.168.250.7  # raven5
+dhcp-host=00:04:a3:a4:bf:e7,192.168.250.8  # raven6
+dhcp-host=00:1e:c0:85:ef:ad,192.168.250.9  # eagle1
+dhcp-host=00:1e:c0:85:ef:96,192.168.250.10 # eagle2
+dhcp-host=00:1e:c0:86:2a:b8,192.168.250.11 # eagle3
+dhcp-host=00:1e:c0:85:a2:36,192.168.250.12 # eagle4
+dhcp-host=00:1e:c0:85:73:6c,192.168.250.13 # eagle5
+dhcp-host=00:1e:c0:85:b1:99,192.168.250.14 # eagle6
+dhcp-host=00:1e:c0:85:c3:16,192.168.250.15 # eagle7
+dhcp-host=00:1e:c0:85:ad:48,192.168.250.16 # eagle8
+dhcp-host=00:1e:c0:86:34:7f,192.168.250.17 # eagle9
+dhcp-host=00:1e:c0:85:96:42,192.168.250.18 # eagle10
+dhcp-host=00:1e:c0:85:de:4b,192.168.250.19 # eagle11
+dhcp-host=00:1e:c0:86:35:fb,192.168.250.20 # eagle12
+dhcp-host=00:1e:c0:86:22:7a,192.168.250.21 # eagle13
+dhcp-host=00:1e:c0:85:94:66,192.168.250.22 # eagle14
+dhcp-host=00:1e:c0:85:af:b3,192.168.250.23 # eagle15
+dhcp-host=00:1e:c0:85:88:79,192.168.250.24 # eagle16
+dhcp-host=00:1e:c0:85:af:a2,192.168.250.25 # eagle17
+dhcp-host=00:1e:c0:86:0c:91,192.168.250.26 # eagle18
+dhcp-host=00:1e:c0:86:16:d1,192.168.250.27 # eagle19
+dhcp-host=00:1e:c0:86:36:97,192.168.250.28 # eagle20
+dhcp-host=00:1e:c0:86:0c:30,192.168.250.29 # eagle21
+dhcp-host=00:1e:c0:86:14:9a,192.168.250.30 # eagle22
+dhcp-host=00:1e:c0:85:f9:ea,192.168.250.31 # eagle23
+dhcp-host=00:1e:c0:85:73:9d,192.168.250.32 # eagle24
+dhcp-host=00:1e:c0:85:bf:5a,192.168.250.33 # eagle25
+dhcp-host=00:1e:c0:85:ec:45,192.168.250.34 # eagle26
+dhcp-host=00:1e:c0:85:bd:62,192.168.250.35 # eagle27
+dhcp-host=00:1e:c0:86:16:f9,192.168.250.36 # eagle28
+dhcp-host=00:1e:c0:86:26:17,192.168.250.37 # eagle29
+dhcp-host=00:1e:c0:85:96:06,192.168.250.38 # eagle30
+dhcp-host=00:1e:c0:85:96:14,192.168.250.39 # eagle31
+dhcp-host=00:1e:c0:86:2b:3f,192.168.250.40 # eagle32
+dhcp-host=00:1e:c0:85:7d:24,192.168.250.41 # eagle33
+dhcp-host=00:1e:c0:86:2d:9d,192.168.250.42 # eagle34
+dhcp-host=00:1e:c0:85:c2:a7,192.168.250.43 # eagle35
+dhcp-host=00:1e:c0:85:a1:70,192.168.250.44 # eagle36
+dhcp-host=00:1e:c0:85:73:cb,192.168.250.45 # eagle37
+dhcp-host=00:1e:c0:85:7f:bd,192.168.250.46 # eagle38
+dhcp-host=00:1e:c0:86:17:92,192.168.250.47 # eagle39
+dhcp-host=00:1e:c0:85:ec:3a,192.168.250.48 # eagle40
+dhcp-host=00:1e:c0:85:b0:78,192.168.250.49 # eagle41
+dhcp-host=00:1e:c0:85:74:01,192.168.250.50 # eagle42
+dhcp-host=00:1e:c0:85:b2:60,192.168.250.51 # eagle43
+dhcp-host=00:1e:c0:85:a4:54,192.168.250.52 # eagle44
+dhcp-host=00:1e:c0:85:d0:da,192.168.250.53 # eagle45
+dhcp-host=00:1e:c0:86:2b:6b,192.168.250.54 # eagle46
+dhcp-host=00:1e:c0:85:73:7b,192.168.250.55 # eagle47
+dhcp-host=00:1e:c0:85:9f:30,192.168.250.56 # eagle48
+dhcp-host=00:1e:c0:85:96:fc,192.168.250.57 # eagle49
+dhcp-host=00:1e:c0:85:ee:b1,192.168.250.58 # eagle50
+dhcp-host=00:1e:c0:86:0c:7d,192.168.250.59 # eagle51
+dhcp-host=00:1e:c0:85:86:5c,192.168.250.60 # eagle52
+dhcp-host=00:1e:c0:85:bc:ca,192.168.250.61 # eagle53
+dhcp-host=00:1e:c0:85:73:b3,192.168.250.62 # eagle54
+dhcp-host=00:1e:c0:85:97:3a,192.168.250.63 # eagle55
+dhcp-host=00:1e:c0:85:bc:8a,192.168.250.64 # eagle56
+dhcp-host=00:1e:c0:86:34:00,192.168.250.65 # eagle57
+dhcp-host=00:1e:c0:86:0c:05,192.168.250.66 # eagle58
+dhcp-host=00:1e:c0:85:bc:f4,192.168.250.67 # eagle59
+dhcp-host=00:1e:c0:86:2b:5f,192.168.250.68 # eagle60
+dhcp-host=00:1e:c0:85:f9:ed,192.168.250.69 # eagle61
+dhcp-host=00:1e:c0:85:e1:b4,192.168.250.70 # eagle62
+dhcp-host=00:1e:c0:85:72:c9,192.168.250.71 # eagle63
+dhcp-host=00:1e:c0:86:2a:7e,192.168.250.72 # eagle64
+dhcp-host=00:1e:c0:85:ca:01,192.168.250.73 # eagle65
+EOF
+    ## Restart dnsmasq
+    # new_service dnsmasq on
+
+    ## Update /tmp/sturdy/etc/hosts with CTP7-related dns (bird) names
+    cat <<EOF >> /tmp/sturdy/etc/hosts
+
+# falcons
+EOF
+    for bird in {1..2}
+    do
+        cat <<EOF >> /tmp/sturdy/etc/hosts
+192.168.250.$bird falcon$bird falcon$bird.utca
+EOF
+    done
+
+    cat <<EOF >> /tmp/sturdy/etc/hosts
+
+# ravens
+EOF
+    for bird in {1..6}
+    do
+        cat <<EOF >> /tmp/sturdy/etc/hosts
+192.168.250.$((2+$bird)) raven$bird raven$bird.utca
+EOF
+    done
+
+    cat <<EOF >> /tmp/sturdy/etc/hosts
+
+# eagles
+EOF
+    for bird in {1..65}
+    do
+        cat <<EOF >> /tmp/sturdy/etc/hosts
+192.168.250.$((9+$bird)) eagle$bird eagle$bird.utca
+EOF
+    done
 }
 
 #### Accounts and NICE users
