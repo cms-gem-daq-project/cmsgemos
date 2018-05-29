@@ -62,12 +62,15 @@ all:
 	@mkdir -p ./etc/profile.d
 	@cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./etc/profile.d/
 	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./etc/tcds/
+	perl -p -i -e 's#__zonename__#$(ZONE_NAME)#' spec.template
 
 basic:
 	echo ${PACKAGE_VER_MAJOR}_${PACKAGE_VER_MINOR}_${PACKAGE_VER_PATCH} > $(PackageName).release
 	@cp $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh ./scripts/
+	@mkdir -p ./etc/profile.d
 	@cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./etc/profile.d/
 	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./etc/tcds/
+	perl -p -i -e 's#__zonename__#$(ZONE_NAME)#' spec.template
 
 _cleanall: clean
 
