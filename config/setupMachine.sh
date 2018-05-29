@@ -187,6 +187,15 @@ configure_interface() {
 
     echo "New config file is:"
     cat ${cfgbase}/${cfgfile}
+
+    # Configure firewall:
+    ## cc7
+    # firewall-cmd
+    # zone trusted
+    # sources 192.168.2.0/24
+
+    ## slc6
+    # iptables
 }
 
 ###### Main functions #####
