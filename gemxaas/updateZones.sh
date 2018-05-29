@@ -58,9 +58,9 @@ do
         for dir in "${dirs[@]}"
         do
             cp gembase/$dir/Makefile $zone/$dir/
-            cp gembase/$dir/spec.template $zone/$dir/
             if [ $dir = "config" ]
             then
+                cp gembase/$dir/spec.template $zone/$dir/
                 mkdir -p $zone/$dir/etc/profile.d
             fi
         done
@@ -69,7 +69,8 @@ do
     fi
 
     cd $zone/config
-    make clean && make cleanrpm && make
+    make clean && make cleanrpm
+    make
     make rpm
     cd $basedir
     
