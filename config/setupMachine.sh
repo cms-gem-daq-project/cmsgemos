@@ -133,7 +133,7 @@ configure_interface() {
         read -r -p $'\e[1;32mPlease specify desired IP address:\033[0m ' ipaddr
         read -r -p $'\e[1;32mPlease specify desired network:\033[0m ' network
         read -r -p $'\e[1;32mPlease specify correct netmask:\033[0m ' netmask
-        
+
     fi
 
     cfgbase="/etc/sysconfig/network-scripts"
@@ -164,6 +164,9 @@ configure_interface() {
             elif [[ "${line}" =~ ^("ONBOOT") ]]
             then
                 echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
+            elif [[ "${line}" =~ ^("ZONE") ]]
+            then
+                echo "ZONE=trusted" >> ${cfgbase}/${cfgfile}
             else
                 echo "${line}" >> ${cfgbase}/${cfgfile}
             fi
@@ -175,6 +178,7 @@ configure_interface() {
         echo "BOOTPROTO=none" >> ${cfgbase}/${cfgfile}
         echo "ONBOOT=yes" >> ${cfgbase}/${cfgfile}
         echo "DEFROUTE=no" >> ${cfgbase}/${cfgfile}
+        echo "ZONE=trusted" >> ${cfgbase}/${cfgfile}
     fi
 
     echo "IPADDR=${ipaddr}" >> ${cfgbase}/${cfgfile}
@@ -662,10 +666,10 @@ setup_network() {
                          break
                          ;;
                     [3]) echo -e "\n\033[1;36mConfiguring ${netdev} for dnsmasq...\033[0m"
-                         cat <<EOF > /tmp/sturdy/etc/dnsmasq.d/ctp7
+                         cat <<EOF > /etc/dnsmasq.d/ctp7
 interface=${netdev}
 EOF
-                         
+
                          break
                          ;;
                     [sS]) echo -e "\033[1;33mSkipping $REPLY...\033[0m" ; break ;;
@@ -681,15 +685,15 @@ EOF
 connect_ctp7s() {
     # Option 'C'
     echo -e "\033[1;32mSetting up for ${hostname} for CTP7 usage\033[0m"
-    # Updated /tmp/sturdy/etc/sysmgr/sysmgr.conf to enable the GenericUW configuration module to support "WISC CTP-7" cards.
-    if [ -e /tmp/sturdy/etc/sysmgr/sysmgr.conf ]
+    # Updated /etc/sysmgr/sysmgr.conf to enable the GenericUW configuration module to support "WISC CTP-7" cards.
+    if [ -e /etc/sysmgr/sysmgr.conf ]
     then
-        mv /tmp/sturdy/etc/sysmgr/sysmgr.conf /tmp/sturdy/etc/sysmgr/sysmgr.conf.bak
+        mv /etc/sysmgr/sysmgr.conf /etc/sysmgr/sysmgr.conf.bak
     fi
 
     authkey="Aij8kpjf"
 
-    cat <<EOF > /tmp/sturdy/etc/sysmgr/sysmgr.conf
+    cat <<EOF > /etc/sysmgr/sysmgr.conf
 socket_port = 4681
 
 # If ratelimit_delay is set, it defines the number of microseconds that the
@@ -763,7 +767,7 @@ EOF
 
             read -r -p $'\e[1;34mPlease enter a description for this uTCA shelf:\033[0m ' REPLY
             desc=$REPLY
-            cat <<EOF >> /tmp/sturdy/etc/sysmgr/sysmgr.conf
+            cat <<EOF >> /etc/sysmgr/sysmgr.conf
 crate {
 	host = "${ipaddr}"
 	mch = "${type}"
@@ -781,7 +785,7 @@ EOF
         fi
     done
 
-    cat <<EOF >> /tmp/sturdy/etc/sysmgr/sysmgr.conf
+    cat <<EOF >> /etc/sysmgr/sysmgr.conf
 # *** Modules ***
 #
 # These modules will be loaded in the order specified here.  When a new card is
@@ -826,18 +830,18 @@ cardmodule {
 
 EOF
 
-    # Created /tmp/sturdy/etc/sysmgr/ipconfig.xml to map geographic address assignments for crates 1 and 2 matching the /24
-    # subnets associated with the MCHs listed for them in /tmp/sturdy/etc/sysmgr/sysmgr.conf.  These addresses will occupy
+    # Created /etc/sysmgr/ipconfig.xml to map geographic address assignments for crates 1 and 2 matching the /24
+    # subnets associated with the MCHs listed for them in /etc/sysmgr/sysmgr.conf.  These addresses will occupy
     # 192.168.*.40 to 192.168.*.52 which nmap confirms are not in use.
-    if [ -e /tmp/sturdy/etc/sysmgr/ipconfig.xml ]
+    if [ -e /etc/sysmgr/ipconfig.xml ]
     then
-        mv /tmp/sturdy/etc/sysmgr/ipconfig.xml /tmp/sturdy/etc/sysmgr/ipconfig.xml.bak
+        mv /etc/sysmgr/ipconfig.xml /etc/sysmgr/ipconfig.xml.bak
     fi
 
     echo -e "\033[1;32mCreating ipconfig.xml assuming a 'local' network topology and only CTP7s, if this is not appropriate for your use case, please modify the resulting file found at /etc/sysmgr/ipconfig.xml\033[0m"
     authkey="Aij8kpjf"
 
-    cat <<EOF > /tmp/sturdy/etc/sysmgr/ipconfig.xml
+    cat <<EOF > /etc/sysmgr/ipconfig.xml
 <IVTable>
 EOF
     if [ $nShelves = "0" ]
@@ -847,43 +851,43 @@ EOF
 
     for crate in $(eval echo "{1..$nShelves}")
     do
-        cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
+        cat <<EOF >> /etc/sysmgr/ipconfig.xml
     <Crate number="$crate">
 EOF
-    cat <<EOF >> /tmp/sturdy/etc/hosts
+    cat <<EOF >> /etc/hosts
 
 EOF
         for slot in {1..12}
         do
-            cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
+            cat <<EOF >> /etc/sysmgr/ipconfig.xml
         <Slot number="${slot}">
             <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} $((slot+40)) 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
         </Slot>
 EOF
-    cat <<EOF >> /tmp/sturdy/etc/hosts
+    cat <<EOF >> /etc/hosts
 192.168.1.$((slot+40)) s$slot.c$crate.utca
 EOF
         done
-        cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
+        cat <<EOF >> /etc/sysmgr/ipconfig.xml
     </Crate>
 EOF
     done
-    cat <<EOF >> /tmp/sturdy/etc/sysmgr/ipconfig.xml
+    cat <<EOF >> /etc/sysmgr/ipconfig.xml
 </IVTable>
 EOF
 
     ## Set up host machine to act as time server
-    if [ -e /tmp/sturdy/etc/xinetd.d/time-stream ]
+    if [ -e /etc/xinetd.d/time-stream ]
     then
-        line=$(sed -n '/disable/=' /tmp/sturdy/etc/xinetd.d/time-stream)
-        cp /tmp/sturdy/etc/xinetd.d/{time-stream,time-stream.bak}
-        sed -i "$line s|yes|no|g" /tmp/sturdy/etc/xinetd.d/time-stream
+        line=$(sed -n '/disable/=' /etc/xinetd.d/time-stream)
+        cp /etc/xinetd.d/{time-stream,time-stream.bak}
+        sed -i "$line s|yes|no|g" /etc/xinetd.d/time-stream
         ## restart xinetd
         # new_service xinetd on
     fi
 
     ## Set up rsyslog
-    cat <<EOF > /tmp/sturdy/etc/logrotate.d/ctp7
+    cat <<EOF > /etc/logrotate.d/ctp7
 $ModLoad imudp
 
 $UDPServerAddress 192.168.0.180
@@ -894,7 +898,7 @@ $template RemoteLog,"/var/log/remote/%HOSTNAME%/messages.log"
 EOF
 
     ## Configure logrotate to rotate ctp7 logs
-    cat <<\EOF > /tmp/sturdy/etc/logrotate.d/ctp7
+    cat <<\EOF > /etc/logrotate.d/ctp7
 /var/log/remote/*/messages.log {
         sharedscripts
         missingok
@@ -914,9 +918,18 @@ EOF
     # new_service rsyslog on
 
     ## Set up dnsmasq
-    # Create configuration file /tmp/sturdy/etc/dnsmasq.d/ctp7, needs interface name
+    if [ -e /etc/xinetd.d/time-stream ]
+    then
+        cp /etc/{dnsmasq.conf,dnsmasq.conf.bak}
+        line=$(sed -n '/log-queries/=' /etc/dnsmasq.conf)
+        sed -i "$line s|#log-queries|log-queries|g" /etc/dnsmasq.conf
+        line=$(sed -n '/log-dhcp/=' /etc/dnsmasq.conf)
+        sed -i "$line s|#log-dhcp|log-dhcp|g" /etc/dnsmasq.conf
+    fi
+
+    # Create configuration file /etc/dnsmasq.d/ctp7, needs interface name
     setup_network
-    cat <<EOF >> /tmp/sturdy/etc/dnsmasq.d/ctp7
+    cat <<EOF >> /etc/dnsmasq.d/ctp7
 bind-interfaces
 dhcp-range=192.168.249.1,192.168.249.254,1h
 dhcp-option=option:ntp-server,0.0.0.0 # autotranslated to server ip
@@ -1000,36 +1013,36 @@ EOF
     ## Restart dnsmasq
     # new_service dnsmasq on
 
-    ## Update /tmp/sturdy/etc/hosts with CTP7-related dns (bird) names
-    cat <<EOF >> /tmp/sturdy/etc/hosts
+    ## Update /etc/hosts with CTP7-related dns (bird) names
+    cat <<EOF >> /etc/hosts
 
 # falcons
 EOF
     for bird in {1..2}
     do
-        cat <<EOF >> /tmp/sturdy/etc/hosts
+        cat <<EOF >> /etc/hosts
 192.168.250.$bird falcon$bird falcon$bird.utca
 EOF
     done
 
-    cat <<EOF >> /tmp/sturdy/etc/hosts
+    cat <<EOF >> /etc/hosts
 
 # ravens
 EOF
     for bird in {1..6}
     do
-        cat <<EOF >> /tmp/sturdy/etc/hosts
+        cat <<EOF >> /etc/hosts
 192.168.250.$((2+bird)) raven$bird raven$bird.utca
 EOF
     done
 
-    cat <<EOF >> /tmp/sturdy/etc/hosts
+    cat <<EOF >> /etc/hosts
 
 # eagles
 EOF
     for bird in {1..65}
     do
-        cat <<EOF >> /tmp/sturdy/etc/hosts
+        cat <<EOF >> /etc/hosts
 192.168.250.$((9+bird)) eagle$bird eagle$bird.utca
 EOF
     done
