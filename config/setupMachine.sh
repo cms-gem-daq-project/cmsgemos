@@ -820,7 +820,7 @@ cardmodule {
                 "poll_delay=30",
                 "support=WISC CTP-6",
                 "support=WISC CIOX",
-                # "support=WISC CIOZ",
+                "support=WISC CIOZ",
                 "support=BU AMC13"
         }
 }
@@ -860,23 +860,40 @@ EOF
 
     for crate in $(eval echo "{1..$nShelves}")
     do
+        cid=$(printf '%02d' ${crate})
         cat <<EOF >> /etc/sysmgr/ipconfig.xml
-    <Crate number="$crate">
+    <Crate number="${crate}">
 EOF
     cat <<EOF >> /etc/hosts
 
+192.168.${crate}.10 mch-c${cid} mch-c${cid}.utca
+192.168.1.13 amc-c${cid}-s13-t1 amc-c${cid}-s13-t1.utca
+192.168.1.14 amc-c${cid}-s13-t2 amc-c${cid}-s13-t2.utca
 EOF
         for slot in {1..12}
         do
+            sid=$(printf '%02d' $slot)
             cat <<EOF >> /etc/sysmgr/ipconfig.xml
         <Slot number="${slot}">
-            <Card type="WISC CTP-7"><FPGA id="0">1 192 168 ${crate} $((slot+40)) 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA></Card>
+            <Card type="WISC CTP-7">
+                <FPGA id="0">${slot} 192 168 ${crate} $((slot+40)) 255 255 0 0 192 168 0 180 192 168 0 180 0 0</FPGA>
+            </Card>
         </Slot>
 EOF
-    cat <<EOF >> /etc/hosts
-192.168.1.$((slot+40)) s$slot.c$crate.utca
+            cat <<EOF >> /etc/hosts
+192.168.1.$((slot+40)) amc-c${cid}-s${sid} amc-c${cid}-s${sid}.utca
 EOF
         done
+        cat <<EOF >> /etc/sysmgr/ipconfig.xml
+        <Slot number="13">
+            <Card type="BU AMC13">
+                <FPGA id="0">13 255 255 0 0 192 168 ${crate} 14</FPGA> <!-- T2 -->
+                <FPGA id="1">13 255 255 0 0 192 168 ${crate} 13</FPGA> <!-- T1 -->
+            </Card>
+        </Slot>
+EOF
+        cat <<EOF >> /etc/hosts
+EOF
         cat <<EOF >> /etc/sysmgr/ipconfig.xml
     </Crate>
 EOF
