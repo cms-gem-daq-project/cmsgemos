@@ -66,6 +66,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 
+%config(noreplace) {_prefix}/etc/maps/connections.xml
+
 %dir
 %{_prefix}/etc
 %{_prefix}/scripts
