@@ -847,9 +847,24 @@ EOF
         mv /etc/sysmgr/ipconfig.xml /etc/sysmgr/ipconfig.xml.bak
     fi
 
-    echo -e "\033[1;32mCreating ipconfig.xml assuming a 'local' network topology and only CTP7s, if this is not appropriate for your use case, please modify the resulting file found at /etc/sysmgr/ipconfig.xml\033[0m"
+    if [ -d /etc/cmsgemos ]
+    then
+        if [ -e /etc/cmsgemos/connections.xml ]
+        then
+            mv /etc/cmsgemos/connections.xml /etc/cmsgemos/connections.xml.bak
+        fi
+    else
+        mkdir /etc/cmsgemos
+    fi
+
+    echo -e "\033[1;32mCreating configuratinos assuming a 'local' network topology and only CTP7s, if this is not appropriate for your use case, please modify the resulting files found at /etc/sysmgr/ipconfig.xml,  /etc/cmsgemos/connections.xml\033[0m"
     authkey="Aij8kpjf"
 
+    cat <<EOF > /etc/cmsgemos/connections.xml
+<?xml version="1.0" encoding="UTF-8"?>
+
+<connections>
+EOF
     cat <<EOF > /etc/sysmgr/ipconfig.xml
 <IVTable>
 EOF
@@ -870,6 +885,13 @@ EOF
 192.168.1.13 amc-c${cid}-s13-t1 amc-c${cid}-s13-t1.utca
 192.168.1.14 amc-c${cid}-s13-t2 amc-c${cid}-s13-t2.utca
 EOF
+    cat <<EOF >> /etc/cmsgemos/connections.xml
+  <!-- uTCA shelf ${crate} -->
+  <connection id="gem.shelf${cid}.amc13.T1" uri="chtcp-2.0://localhost:10203?target=amc-c${cid}-13-t1:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T1.xml" />
+  <connection id="gem.shelf${cid}.amc13.T2" uri="chtcp-2.0://localhost:10203?target=amc-c${cid}-13-t2:50001"
+              address_table="file://${AMC13_ADDRESS_TABLE_PATH}/AMC13XG_T2.xml" />
+EOF
         for slot in {1..12}
         do
             sid=$(printf '%02d' $slot)
@@ -882,6 +904,22 @@ EOF
 EOF
             cat <<EOF >> /etc/hosts
 192.168.1.$((slot+40)) amc-c${cid}-s${sid} amc-c${cid}-s${sid}.utca
+EOF
+            cat <<EOF >> /etc/cmsgemos/connections.xml
+  <!-- AMC slot ${slot} shelf ${crate} -->
+  <connection id="gem.shelf${cid}.amc03" uri="ipbustcp-2.0://amc-c${cid}-s${sid}:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_amc.xml" />
+EOF
+            for lin in {0..11}
+            do
+                lid=$(printf '%02d' $lin)
+            cat <<EOF >> /etc/cmsgemos/connections.xml
+  <connection id="gem.shelf${cid}.amc03.optohybrid${lid}" uri="ipbustcp-2.0://amc-c${cid}-s${sid}:60002"
+	      address_table="file://${GEM_ADDRESS_TABLE_PATH}/uhal_gem_amc_ctp7_link${lid}.xml" />
+EOF
+                done
+            cat <<EOF >> /etc/cmsgemos/connections.xml
+
 EOF
         done
         cat <<EOF >> /etc/sysmgr/ipconfig.xml
@@ -897,9 +935,16 @@ EOF
         cat <<EOF >> /etc/sysmgr/ipconfig.xml
     </Crate>
 EOF
+        cat <<EOF >> /etc/cmsgemos/connections.xml
+
+EOF
     done
     cat <<EOF >> /etc/sysmgr/ipconfig.xml
 </IVTable>
+EOF
+
+    cat <<EOF >> /etc/cmsgemos/connections.xml
+</connections>
 EOF
 
     ## Set up host machine to act as time server
