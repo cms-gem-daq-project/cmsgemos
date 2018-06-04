@@ -187,8 +187,44 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
   //addMonitorable("TTC", "HWMonitoring",
   //               std::make_pair("TTC_CONTROL", "GLIB.TTC.CONTROL"),
   //               GEMUpdateType::HW32, "hex");
+  // addMonitorable("TTC", "HWMonitoring",
+  //                std::make_pair("TTC_SPY", "TTC.TTC_SPY_BUFFER"),
+  //                GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("TTC_SPY", "TTC.TTC_SPY_BUFFER"),
+                 std::make_pair("MMCM_LOCKED", "TTC.STATUS.CLK.MMCM_LOCKED"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("SYNC_DONE", "TTC.STATUS.CLK.SYNC_DONE"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("PHASE_LOCKED", "TTC.STATUS.CLK.PHASE_LOCKED"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("MMCM_UNLOCK_CNT", "TTC.STATUS.CLK.MMCM_UNLOCK_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("PHASE_UNLOCK_CNT", "TTC.STATUS.CLK.PHASE_UNLOCK_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("SYNC_DONE_TIME", "TTC.STATUS.CLK.SYNC_DONE_TIME"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("PHASE_UNLOCK_TIME", "TTC.STATUS.CLK.PHASE_UNLOCK_TIME"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("BC0_LOCKED", "TTC.STATUS.BC0.LOCKED"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("BC0_UNLOCK_CNT", "TTC.STATUS.BC0.UNLOCK_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("BC0_UNLOCK_CNT", "TTC.STATUS.BC0.UNLOCK_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("BC0_OVERFLOW_CNT", "TTC.STATUS.BC0.OVERFLOW_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("BC0_UNDERFLOW_CNT", "TTC.STATUS.BC0.UNDERFLOW_CNT"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
                  std::make_pair("BC0_CMD", "TTC.CONFIG.CMD_BC0"),

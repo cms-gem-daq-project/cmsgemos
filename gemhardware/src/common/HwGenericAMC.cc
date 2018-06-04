@@ -669,12 +669,14 @@ void gem::hw::HwGenericAMC::ttcReset()
 
 void gem::hw::HwGenericAMC::ttcMMCMReset()
 {
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_RESET", 0x1);
+  // writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_RESET", 0x1);
+  // writeReg(getDeviceBaseNode(), "TTC.CTRL.PHASE_ALIGNMENT_RESET", 0x1);
 }
 
 void gem::hw::HwGenericAMC::ttcMMCMPhaseShift()
- {
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_PHASE_SHIFT", 0x1);
+{
+  WARN("HwGenericAMC::ttcMMCMPhaseShift: TTC.CTRL.MMCM_PHASE_SHIFT is obsolete and will be removed in a future release");
+  // writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_PHASE_SHIFT", 0x1);
 }
 
 void gem::hw::HwGenericAMC::ttcCounterReset()
@@ -750,7 +752,9 @@ uint32_t gem::hw::HwGenericAMC::getL1AID()
 
 uint32_t gem::hw::HwGenericAMC::getTTCSpyBuffer()
 {
-  return readReg(getDeviceBaseNode(), "TTC.TTC_SPY_BUFFER");
+  WARN("HwGenericAMC::getTTCSpyBuffer: TTC.TTC_SPY_BUFFER is obsolete and will be removed in a future release");
+  return 0x0;
+  // return readReg(getDeviceBaseNode(), "TTC.TTC_SPY_BUFFER");
 }
 
 /********************************/

@@ -181,12 +181,18 @@ def printSystemTTCInfo(amc,debug=False):
     print "-> GEM SYSTEM TTC INFORMATION"
     print "--=======================================--"
     print
-    mmcmLck     = readRegister(amc,"GEM_AMC.TTC.STATUS.MMCM_LOCKED")
-    mmcmULckCnt = readRegister(amc,"GEM_AMC.TTC.STATUS.MMCM_UNLOCK_CNT")
+    mmcmLck      = readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.MMCM_LOCKED")
+    mmcmULckCnt  = readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.MMCM_UNLOCK_CNT")
+    phaseULckCnt = readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.PHASE_UNLOCK_CNT")
     print("MMCM_LOCKED          %s0x%08x%s"%(colors.GREEN if mmcmLck else colors.RED,mmcmLck,colors.ENDC))
     print("MMCM_UNLOCK_CNT      %s0x%08x%s"%(colors.RED if mmcmULckCnt > 0 else colors.GREEN,mmcmULckCnt,colors.ENDC))
+    print("PHASE_UNLOCK_CNT     %s0x%08x%s"%(colors.RED if phaseULckCnt > 0 else colors.GREEN,phaseULckCnt,colors.ENDC))
     print("TTC_SINGLE_ERROR_CNT %s0x%08x%s"%(colors.MAGENTA,readRegister(amc,"GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT"),colors.ENDC))
     print("TTC_DOUBLE_ERROR_CNT %s0x%08x%s"%(colors.MAGENTA,readRegister(amc,"GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT"),colors.ENDC))
+    print("SYNC_DONE %s0x%08x%s"%(colors.MAGENTA,readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.SYNC_DONE"),colors.ENDC))
+    print("PHASE_LOCKED %s0x%08x%s"%(colors.MAGENTA,readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.PHASE_LOCKED"),colors.ENDC))
+    print("PHASE_UNLOCK_TIME %s0x%08x%s"%(colors.MAGENTA,readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.PHASE_UNLOCK_TIME"),colors.ENDC))
+    print("SYNC_DONE_TIME %s0x%08x%s"%(colors.MAGENTA,readRegister(amc,"GEM_AMC.TTC.STATUS.CLK.SYNC_DONE_TIME"),colors.ENDC))
     bc0Lck     = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.LOCKED")
     bc0ULckCnt = readRegister(amc,"GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT")
     print("BC0.LOCKED           %s0x%08x%s"%(colors.GREEN if bc0Lck else colors.RED,bc0Lck,colors.ENDC))
