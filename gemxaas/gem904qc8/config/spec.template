@@ -30,7 +30,7 @@ License: BSD
 URL: %{_url}
 BuildRoot: %{_tmppath}/%{_packagename}-%{_version}-%{_release}-buildroot
 Prefix: %{_prefix}
-Requires: daq-xaas-%{_zonename}-zone
+# Requires: daq-xaas-%{_zonename}-zone
 %description
 __description__
 
@@ -69,6 +69,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir
 %{_prefix}/etc
 %{_prefix}/scripts
+
+%config(noreplace) %{_prefix}/etc/maps/connections.xml
 
 #%changelog
 

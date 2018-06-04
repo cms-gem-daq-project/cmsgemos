@@ -23,6 +23,7 @@ zones=(
     gem904
     gem904int
     gem904qc8
+    gem
     gemp5
     gemp5dev
     gemp5pro
@@ -32,6 +33,7 @@ modifiers=(
     "for 904 .cms904 setup"
     "for 904 integration setup"
     "for 904 QC8 setup"
+    "for GEM P5 .cms setup"
     "for GEM P5 .cms setup"
     "for GEM P5 development setup"
     "for GEM P5 production setup"
@@ -56,13 +58,19 @@ do
         for dir in "${dirs[@]}"
         do
             cp gembase/$dir/Makefile $zone/$dir/
+            if [ $dir = "config" ]
+            then
+                cp gembase/$dir/spec.template $zone/$dir/
+                mkdir -p $zone/$dir/etc/profile.d
+            fi
         done
         modifier="${modifiers[$idx]}"
         perl -pi -e "s|for generic GEM setup|${modifier}|g" ./*/Makefile
     fi
 
     cd $zone/config
-    make clean && make cleanrpm && make
+    make clean && make cleanrpm
+    make
     make rpm
     cd $basedir
     

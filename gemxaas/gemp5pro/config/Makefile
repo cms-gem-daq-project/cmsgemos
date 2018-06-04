@@ -58,21 +58,26 @@ all:
 	@echo PackageName $(PackageName)
 	@echo PackageType $(PackageType)
 	@echo Package $(Package)
-	cp $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh ./scripts/
-	cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./scripts/
-	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./tcds/
+	@cp $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh ./scripts/
+	@mkdir -p ./etc/profile.d
+	@cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./etc/profile.d/
+	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./etc/tcds/
+	perl -p -i -e 's#__zonename__#$(ZONE_NAME)#' spec.template
 
 basic:
 	echo ${PACKAGE_VER_MAJOR}_${PACKAGE_VER_MINOR}_${PACKAGE_VER_PATCH} > $(PackageName).release
-	cp $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh ./scripts/
-	cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./scripts/
-	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./tcds/
+	@cp $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh ./scripts/
+	@mkdir -p ./etc/profile.d
+	@cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./etc/profile.d/
+	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./etc/tcds/
+	perl -p -i -e 's#__zonename__#$(ZONE_NAME)#' spec.template
 
 _cleanall: clean
 
 clean:
 	-rm -f $(PackageName).release
 	-rm -f ./scripts/*.sh
-	-rm -f ./tcds/*.txt
+	-rm -f ./etc/profile.d/*.sh
+	-rm -f ./etc/tcds/*.txt
 
 include $(XDAQ_ROOT)/config/mfSetupRPM.rules

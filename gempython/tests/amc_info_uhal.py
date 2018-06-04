@@ -14,8 +14,8 @@ parser.add_option("--rd", type="int", dest="reset_daq",
                   help="reset daq", metavar="reset_daq", default=-1)
 parser.add_option("--l1a_block", action="store_true", dest="l1a_block",
                   help="Inhibit the L1As at the TTC backplane link", metavar="l1a_block")
-parser.add_option("--short", action="store_true", dest="short",
-                  help="Skip extended information", metavar="short")
+parser.add_option("--full", action="store_true", dest="full",
+                  help="Show extended information", metavar="full")
 parser.add_option("--invertTX", type="string", dest="invertTX",default="",
                   help="Flip polarity for SFPs in list", metavar="invertTX")
 parser.add_option("--user", action="store_true", dest="userOnly",
@@ -122,7 +122,7 @@ print
 print "-> RX Link Control :0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_RX_POLARITY"))
 print "-> TX Link Control :0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY"))
 
-if options.short:
+if not options.full:
     exit(0)
 
 nOHs = readRegister(amc,"GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")

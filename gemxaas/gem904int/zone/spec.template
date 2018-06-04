@@ -1,6 +1,6 @@
 %define _package __package__
 %define _packagename __packagename__
-%define _zonename gem904int
+%define _zonename __zonename__
 %define _version __version__
 %define _release __release__
 %define _prefix  __prefix__
