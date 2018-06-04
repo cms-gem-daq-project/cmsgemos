@@ -137,15 +137,32 @@ if ($isdirty) {
     }
 }
 
-# Extract the tag name
-$tag=extract_tag($packname);
-$uptag=$tag;
 
-$reltype=$opts->get_reltype;
-if (($reltype eq "maj") || ($reltype eq "major") ||
-    ($reltype eq "min") || ($reltype eq "minor") ||
-    ($reltype eq "pat") || ($reltype eq "patch")) {
-    $uptag=update_tag(${packname},${reltype});
+# Extract the tag name
+if ($packname eq "all" ) {
+    $reltype=$opts->get_reltype;
+    foreach (@gemospackages) {
+        if ( !( "all" ~~ "$_" ) ) {
+            $subname=$_;
+            print "updating the tag info for $subname\n";
+            $tag=extract_tag(${subname});
+            $uptag=$tag;
+            if (($reltype eq "maj") || ($reltype eq "major") ||
+                ($reltype eq "min") || ($reltype eq "minor") ||
+                ($reltype eq "pat") || ($reltype eq "patch")) {
+                $uptag=update_tag(${subname},${reltype});
+            }
+        }
+    }
+} else {
+    $tag=extract_tag(${packname});
+    $uptag=$tag;
+    $reltype=$opts->get_reltype;
+    if (($reltype eq "maj") || ($reltype eq "major") ||
+        ($reltype eq "min") || ($reltype eq "minor") ||
+        ($reltype eq "pat") || ($reltype eq "patch")) {
+        $uptag=update_tag(${packname},${reltype});
+    }
 }
 
 # Check that this tag doesn't exist already
@@ -211,6 +228,7 @@ $git->tag("${uptag}");
 
 sub extract_tag() {
     my ($subpackage)=@_;
+    print "looking for gem${subpackage}/Makefile\n";
     $file=glob("gem${subpackage}/Makefile");
     open(CFG,$file);
     while (<CFG>) {
@@ -308,7 +326,7 @@ sub update_tag() {
         }
         close(VERFILE);
         print "git add $file\n";
-        $git->add("$file");
+        # $git->add("$file");
     }
     print "git commit -m \"updating $subpackage version file with gemostag\" $file\n";
     # $git->commit("-m \"updating version with gemostag\" $file");
