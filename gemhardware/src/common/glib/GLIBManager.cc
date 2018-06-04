@@ -361,10 +361,10 @@ void gem::hw::glib::GLIBManager::configureAction()
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
       // }
-      INFO("GLIBManager::configureAction running amc_info_uhal after configuration");
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      INFO("GLIBManager::configureAction running " << statuscmd.str() << " after configuring");
       retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
@@ -419,10 +419,10 @@ void gem::hw::glib::GLIBManager::startAction()
       m_glibs.at(slot)->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
 
-      INFO("GLIBManager::startAction running amc_info_uhal after configuration");
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      INFO("GLIBManager::startAction running " << statuscmd.str() << " after starting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
@@ -546,10 +546,10 @@ void gem::hw::glib::GLIBManager::stopAction()
       m_glibs[slot]->setL1AEnable(false);
       m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
 
-      INFO("GLIBManager::stopAction running amc_info_uhal after configuration");
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      INFO("GLIBManager::stopAction running " << statuscmd.str() << " after configuration");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
@@ -584,10 +584,10 @@ void gem::hw::glib::GLIBManager::haltAction()
       m_glibs[slot]->setL1AEnable(false);
       m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
 
-      INFO("GLIBManager::haltAction running amc_info_uhal after configuration");
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      INFO("GLIBManager::haltAction running " << statuscmd.str() << " after halting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
@@ -624,10 +624,10 @@ void gem::hw::glib::GLIBManager::resetAction()
       m_glibs[slot]->setL1AEnable(false);
       m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
 
-      INFO("GLIBManager::resetAction running amc_info_uhal after configuration");
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1) << " --short";
+      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      INFO("GLIBManager::resetAction running " << statuscmd.str() << " after resetting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
