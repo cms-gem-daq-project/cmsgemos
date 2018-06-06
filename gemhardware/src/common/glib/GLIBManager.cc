@@ -739,7 +739,29 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
 
   // TTC registers
   // is_glib->createUInt32("TTC_CONTROL", glib->getTTCControl(),   NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("TTC_SPY",        glib->getTTCSpyBuffer(),                           NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_SPY"            , glib->getTTCSpyBuffer(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("MMCM_LOCKED"        , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0_LOCKED"         , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PHASE_LOCKED"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("SYNC_DONE"          , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("L1A_RATE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("MMCM_UNLOCK_CNT"    , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0_UNLOCK_CNT"     , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PHASE_UNLOCK_CNT"   , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PHASE_UNLOCK_TIME"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("SYNC_DONE_TIME"     , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0_OVERFLOW_CNT"   , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("BC0_UNDERFLOW_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PA_PLL_LOCK_WINDOW" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PA_PHASE_SHIFT_CNT" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PA_PLL_LOCK_CLOCKS" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PA_FSM_STATE"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PM_PHASE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PM_PHASE_JUMP_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PM_PHASE_JUMP_SIZE" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("PM_PHASE_JUMP_TIME" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+
+  // B-GO command words
   is_glib->createUInt32("BC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_BC0),        NULL, GEMUpdateType::NOUPDATE);
   is_glib->createUInt32("EC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_EC0),        NULL, GEMUpdateType::NOUPDATE);
   is_glib->createUInt32("RESYNC_CMD"    , glib->getTTCConfig(AMCTTCCommand::TTC_RESYNC),     NULL, GEMUpdateType::NOUPDATE);
