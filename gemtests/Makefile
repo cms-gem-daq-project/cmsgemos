@@ -10,8 +10,8 @@ ShortPackage=base
 PackageName=base
 
 GEMBASE_VER_MAJOR=0
-GEMBASE_VER_MINOR=3
-GEMBASE_VER_PATCH=1
+GEMBASE_VER_MINOR=0
+GEMBASE_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
