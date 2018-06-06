@@ -120,7 +120,6 @@ after_script: skip
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make rpm'" || travis_terminate 1
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/${REPO_NAME}/gem*/rpm/*.rpm"
-    - find ./gem*/rpm -iname '*.rpm' -o -iname '*.tar.gz' -o -iname '*.tbz2'
   after_success:
     - echo "Testing the installation of the package"
     - virtualenv building -p python --system-site-packages
@@ -142,10 +141,10 @@ after_script: skip
     - LICENSE
     - README.md
     - CHANGELOG.md
-    - "./gem*/rpm/*.tar.gz"
-    - "./gem*/rpm/*.tgz"
-    - "./gem*/rpm/*.tbz2"
-    - "./gem*/rpm/*.rpm"
+    - "./rpm/*.tar.gz"
+    - "./rpm/*.tgz"
+    - "./rpm/*.tbz2"
+    - "./rpm/*.rpm"
   ## pre-releases and draft releases for tags with pre/alpha/dev/gitHASH in the name
   # draft: true # for tags with dev/alpha in the name, or
   # prerelease: true # for tags with pre in the name
@@ -176,6 +175,20 @@ after_script: skip
     - if ! test -z ${CHANGELOG_GITHUB_TOKEN+x}; then github_changelog_generator; else echo "Not updating changelog"; fi
     - sudo chown :daqbuild -R .
     - ls -laZ CHANGELOG.md
+    - mkdir -p rpm/{slc6,cc7}/{RPMS,SRPMS,DEBUGRPMS,DEVERPMS}
+    - find ./gem*/rpm -iname '*centos7*.src.rpm'         -print0 -exec mv {} rpm/cc7/SRPMS \;
+    - find ./gem*/rpm -iname '*-devel-*centos7*.rpm'     -print0 -exec mv {} rpm/cc7/DEVELRPMS \;
+    - find ./gem*/rpm -iname '*-debuginfo-*centos7*.rpm' -print0 -exec mv {} rpm/cc7/DEBUGRPMS \;
+    - find ./gem*/rpm -iname '*centos7*.rpm'             -print0 -exec mv {} rpm/cc7/RPMS \;
+    - find ./gem*/rpm -iname '*slc6*.src.rpm'            -print0 -exec mv {} rpm/slc6/SRPMS \;
+    - find ./gem*/rpm -iname '*-devel-*slc6*.rpm'        -print0 -exec mv {} rpm/slc6/DEVELRPMS \;
+    - find ./gem*/rpm -iname '*-debuginfo-*slc6*.rpm'    -print0 -exec mv {} rpm/slc6/DEBUGRPMS \;
+    - find ./gem*/rpm -iname '*slc6*.rpm'                -print0 -exec mv {} rpm/slc6/RPMS \;
+    - find ./gem*/rpm -iname '*centos7*.rpm'             -print0 -exec tar cjf rpm/cc7/cmsgemos_${$TRAVIS_TAG}_centos7.tbz2 {} \;
+    - find ./gem*/rpm -iname '*centos7*.rpm'             -print0 -exec tar cxf rpm/cc7/cmsgemos_${$TRAVIS_TAG}_centos7.tgz  {} \;
+    - find ./gem*/rpm -iname '*slc6*.rpm'                -print0 -exec tar cjf rpm/slc6/cmsgemos_${$TRAVIS_TAG}_slc6.tbz2 {} \;
+    - find ./gem*/rpm -iname '*slc6*.rpm'                -print0 -exec tar cxf rpm/slc6/cmsgemos_${$TRAVIS_TAG}_slc6.tgz  {} \;
+    - find ./gem*/rpm \( -iname '*.tar.gz' -o -iname '*.tgz' -o -iname '*.tbz2' \) -print0 -exec mv {} rpm \;
   deploy:
     - <<: *release_template
       prerelease: false

@@ -1,6 +1,8 @@
 # Created with insights from
 ## amc13/config/mfPythonRPMRules.mk
 
+include $(BUILD_HOME)/$(Project)/config/mfCommonDefs.mk
+
 INSTALL_PATH = /opt/cmsgemos
 ProjectPath  = $(BUILD_HOME)/$(Project)
 PackagePath  = $(BUILD_HOME)/$(Project)/$(Package)
@@ -8,7 +10,7 @@ RPMBUILD_DIR = $(PackagePath)/rpm
 CMSGEMOS_OS ?= $(XDAQ_OS)
 
 ifndef PACKAGE_FULL_RELEASE
-PACKAGE_FULL_RELEASE = $(BUILD_VERSION).git$(GITREV).$(CMSGEMOS_OS)
+PACKAGE_FULL_RELEASE = $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS)
 endif
 
 # ifeq ($(VER_EXISTS),no)
@@ -44,9 +46,9 @@ _rpmsetup: _rpmprep _setup_update
 #	echo "include */*.so" > $(RPMBUILD_DIR)/MANIFEST.in
 
 _rpmbuild: _rpmsetup
-	@echo "Running _rpmbuild target"
+	@echo "Running _rpmbuild target for release: $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS).python$(PYTHON_VERSION)"
 	cd $(RPMBUILD_DIR) && python setup.py bdist_rpm \
-	--release python$(PYTHON_VERSION) \
+	--release $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS).python$(PYTHON_VERSION) \
 	--binary-only --force-arch=`uname -m`
 #	--release $(CMSGEMOS_OS).python$(PYTHON_VERSION)
 # Harvest the crop
