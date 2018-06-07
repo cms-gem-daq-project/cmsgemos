@@ -756,10 +756,20 @@ void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib
   is_glib->createUInt32("PA_PHASE_SHIFT_CNT" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("PA_PLL_LOCK_CLOCKS" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
   is_glib->createUInt32("PA_FSM_STATE"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PM_PHASE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PM_PHASE_JUMP_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PM_PHASE_JUMP_SIZE" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
-  is_glib->createUInt32("PM_PHASE_JUMP_TIME" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_PM_PHASE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_PM_PHASE_MEAN"      , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_PM_PHASE_MIN"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_PM_PHASE_MAX"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_PM_PHASE_JUMP_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_PM_PHASE_JUMP_SIZE" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("TTC_PM_PHASE_JUMP_TIME" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTH_PM_PHASE"           , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTH_PM_PHASE_MEAN"      , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTH_PM_PHASE_MIN"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTH_PM_PHASE_MAX"       , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTH_PM_PHASE_JUMP_CNT"  , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTH_PM_PHASE_JUMP_SIZE" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
+  is_glib->createUInt32("GTH_PM_PHASE_JUMP_TIME" , glib->getDAQLinkL1AID(), NULL, GEMUpdateType::HW32);
 
   // B-GO command words
   is_glib->createUInt32("BC0_CMD"       , glib->getTTCConfig(AMCTTCCommand::TTC_BC0),        NULL, GEMUpdateType::NOUPDATE);

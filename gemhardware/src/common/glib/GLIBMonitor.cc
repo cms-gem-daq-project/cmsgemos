@@ -239,16 +239,46 @@ void gem::hw::glib::GLIBMonitor::setupHwMonitoring()
                  std::make_pair("PA_FSM_STATE", "TTC.STATUS.CLK.PA_FSM_STATE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PM_PHASE", "TTC.STATUS.CLK.PM_PHASE"),
+                 std::make_pair("TTC_PM_PHASE", "TTC.STATUS.CLK.TTC_PM_PHASE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PM_PHASE_JUMP_CNT", "TTC.STATUS.CLK.PM_PHASE_JUMP_CNT"),
+                 std::make_pair("TTC_PM_PHASE_MEAN", "TTC.STATUS.CLK.TTC_PM_PHASE_MEAN"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PM_PHASE_JUMP_SIZE", "TTC.STATUS.CLK.PM_PHASE_JUMP_SIZE"),
+                 std::make_pair("TTC_PM_PHASE_MAX", "TTC.STATUS.CLK.TTC_PM_PHASE_MAX"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("TTC", "HWMonitoring",
-                 std::make_pair("PM_PHASE_JUMP_TIME", "TTC.STATUS.CLK.PM_PHASE_JUMP_TIME"),
+                 std::make_pair("TTC_PM_PHASE_MIN", "TTC.STATUS.CLK.TTC_PM_PHASE_MIN"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("TTC_PM_PHASE_JUMP_CNT", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("TTC_PM_PHASE_JUMP_SIZE", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_SIZE"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("TTC_PM_PHASE_JUMP_TIME", "TTC.STATUS.CLK.TTC_PM_PHASE_JUMP_TIME"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("GTH_PM_PHASE", "TTC.STATUS.CLK.GTH_PM_PHASE"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("GTH_PM_PHASE_MEAN", "TTC.STATUS.CLK.GTH_PM_PHASE_MEAN"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("GTH_PM_PHASE_MAX", "TTC.STATUS.CLK.GTH_PM_PHASE_MAX"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("GTH_PM_PHASE_MIN", "TTC.STATUS.CLK.GTH_PM_PHASE_MIN"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("GTH_PM_PHASE_JUMP_CNT", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_CNT"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("GTH_PM_PHASE_JUMP_SIZE", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_SIZE"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("TTC", "HWMonitoring",
+                 std::make_pair("GTH_PM_PHASE_JUMP_TIME", "TTC.STATUS.CLK.GTH_PM_PHASE_JUMP_TIME"),
                  GEMUpdateType::HW32, "hex");
   // addMonitorable("TTC", "HWMonitoring",
   //                std::make_pair("BC0_CMD", "TTC.CONFIG.CMD_BC0"),
