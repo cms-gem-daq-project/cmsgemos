@@ -27,11 +27,11 @@ stages:
   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))$
 .devrelease:   &devrelease_cond
   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))$
-.release:      &release_cond
+.releasecond:      &release_cond
   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)$
-# .deploy:       &deploy_cond
+# .deploycond:       &deploy_cond
 #   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
-.deploy:       &deploy_cond
+.deploycond:       &deploy_cond
   if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
 
 env:
@@ -41,7 +41,7 @@ env:
     ##  * CHANGELOG_GITHUB_TOKEN: for running github_changelog_generator without API rate limits
     - secure: "cWz6NmAZFtp30xIO8ieP10x7M8RLjjh1xNlu5qEgqrb9YhQLFxdIIObBw+3DcbaFBfwp0pzm4omZe8y2Lmda30ESBOrL2pX60r550Rx/JgqydFGfryRuKPLhtGyzQ3duVKIjRlKrKLUAoBzDhgM4v8rtGLaoiOrlK5JVgicrye3AgH7voOYys5sOJ/+TpAwa44690F+LCDLCOredryXMYmOo1ZNFRyq9HrEVSBeQ+1unBC6voY7NPtvGZYk8z0PeDOOX32nkZP5AEEOnQk4rl6CCALpnC5Y7ypBDi3AkFqCocomocmZUr4/m3QpERFxsZiYQD9uV93YHyqfCeDA/jA4Pgh6PiPdOvr7409z3H/CZWENInqtMMnvOPFxzO8CUxrtUamyuAgihq6VP6nKO++fX6ZfvwqxtJs8pqE0MorfIZo8vAFQ+SeiaIAEq1njL3b4/8hrQifb912KNB3ePnQSzDnxefYeu0dotK/ACUrkLxGl5Qa9USrpy6r7cVTVH8DJfqk10xIVX2tLlc6ydekLCtNnMFAAg0+PvEb9r/g+Hc1civfUg4mDGVji6N4kqkHuBUZfw+c4uSztSdNDNqQnQDYdrbJR1K2TkQhSP5ShWsfmz42lFiYbVbvmwojV1fH2RXARBy4f6IfMCbrGQec3O0VIPGl8MmW9ThfEfuqY="
     - secure: "TZ1l7ZB/nCsCm3HjzoVvQVm6nvN0NvvDVfCUvAkaZVdLtDARzkFAow8kXpcfm/dNBC/XtJaqHiRx3uJPiMdLYw48UpKfkAceWvumoiwyZf4YaymhA0W0lwX/Lqg1kNURv9nC0Zh+kKGMQrgSAYvuKpWrkspxOGbu7F7r1ZuDPS9MKPEgInLwgSZqyrzdxdw1IWQenSPoIbNs72S2avdOTsR7uuATKNyJCAreqyRBbJnqvl8omMd2ZNaz5w2meK07RyaQouIIFqhihbK+cR/CSKE98aEXTdYVNb/wM+LjelnXSUYSRT8FTcXFQ4y6xoSXybhJrrIZ/m2d1Ac9dP3wbYt1sljlbyefp93cOJtTXgCfwiBKCS0whC1MrSq9irgWJwRVctosrUIHtwDMYH6AKzdOhHGrCbL5nwG8CmeulN0GtRChjKk1REWxvwpMMxKSGlgCiSElkhNw7v2xCaWQDCd+N2HU7asuJtAOoTvpRqxYzzXywWgmDiEw7V2RHqNTGo/hrctIqwMdIS7sZWZZ0wC7GUC6dcTGqFlIqf7wH4pVhpBZzDwxItmJ3AXJuv3xmZBXNXhXJorBpOyBio3LcoWVaLBfXfX1rgYMR2IJOPx8en9GhEhpDkTyhymkyy+NOEIJBnfJh5zvzEX7Nz3WbEj3Bfp0mOAj85Jx4h7uko0="
-      
+
   matrix:
     # what are the realistic things we want to test against?
     # C/C++ compiler versions:
@@ -60,18 +60,16 @@ env:
       # CLANG_VERSON
       # GCC_VERSON
       # COMPILER = CLANG/GCC
-    - OS_TYPE=centos OS_VERSION=6 DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:slc6
-    - OS_TYPE=centos OS_VERSION=7 DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7
+    - OS_TYPE=slc OS_VERSION=6 DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:slc6
+    - OS_TYPE=cc  OS_VERSION=7 DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7
     # - OS_TYPE=centos OS_VERSION=8 DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc8
 
 services:
   - docker
 
 before_install:
-  - ls -l `which bash`
-  - ls -l `which sh`
   - ./.ci/docker.sh setup ${DOCKER_IMAGE}
-  - sleep 2
+  - sleep 1
   - ./.ci/docker.sh start ${DOCKER_IMAGE}
   - DOCKER_CONTAINER_ID=$(docker ps | grep ${DOCKER_IMAGE} | awk '{print $1}')
   - echo DOCKER_CONTAINER_ID=$DOCKER_CONTAINER_ID
@@ -91,24 +89,22 @@ after_script: skip
 # How to link the environments/outputs from above with the jobs below?
 .slc6_template: &slc6_template
   env:
-    - OS_TYPE=centos
+    - OS_TYPE=slc
     - PY_VER=python
     - OS_VERSION=6
     - DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:slc6
 
 .cc7_template: &cc7_template
   env:
-    - OS_TYPE=centos
+    - OS_TYPE=cc
     - PY_VER=python
     - OS_VERSION=7
     - DOCKER_IMAGE=gitlab-registry.cern.ch/cms-gem-daq-project/gemdaq_ci_worker/extrapy/devtoolsroot:cc7
 
 .rpmbuild: &rpmbuild_template
   before_install:
-    - ls -l `which bash`
-    - ls -l `which sh`
     - ./.ci/docker.sh setup ${DOCKER_IMAGE}
-    - sleep 2
+    - sleep 1
     - ./.ci/docker.sh start ${DOCKER_IMAGE}
     - DOCKER_CONTAINER_ID=$(docker ps | grep ${DOCKER_IMAGE} | awk '{print $1}')
     - echo DOCKER_CONTAINER_ID=$DOCKER_CONTAINER_ID
@@ -116,9 +112,10 @@ after_script: skip
     - gem install github_changelog_generator
   script:
     - echo 'Running build stage on docker container $DOCKER_CONTAINER_ID'
+    - export BUILD_RELEASE=$(.ci/tag2rel.sh $TRAVIS_TAG)
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make -j8'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make rpm'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "export BUILD_RELEASE=${BUILD_RELEASE}; /home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make rpm'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "export BUILD_RELEASE=${BUILD_RELEASE}; /home/daqbuild/${REPO_NAME}/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/${REPO_NAME}/gem*/rpm/*.rpm"
   after_success:
     - echo "Testing the installation of the package"
@@ -141,10 +138,11 @@ after_script: skip
     - LICENSE
     - README.md
     - CHANGELOG.md
-    - "./rpm/*.tar.gz"
-    - "./rpm/*.tgz"
-    - "./rpm/*.tbz2"
-    - "./rpm/*.rpm"
+    - "${RPMDIR}/*.tar.gz"
+    - "${RPMDIR}/*.tgz"
+    - "${RPMDIR}/*.tbz2"
+    # RPMs are now all packaged in a tarball, to not clutter the release
+    # - "./rpm/*.rpm"
   ## pre-releases and draft releases for tags with pre/alpha/dev/gitHASH in the name
   # draft: true # for tags with dev/alpha in the name, or
   # prerelease: true # for tags with pre in the name
@@ -171,24 +169,25 @@ after_script: skip
 
 .deploy: &deploy_template
   before_deploy:
+    - export RPMOS=${OS_TYPE}${OS_VERSION}
+    - export RPMDIR=/tmp/${REPO_NAME}/rpm
     - echo "Preparing ChangeLog"
     - if ! test -z ${CHANGELOG_GITHUB_TOKEN+x}; then github_changelog_generator; else echo "Not updating changelog"; fi
+    - mkdir -p ${RPMDIR}/${RPMOS}/{RPMS,SRPMS,DEBUGRPMS,DEVRPMS}
+    - sudo find ${RPMDIR} -type d -print0 -exec chmod a+rx {} \+
     - sudo chown :daqbuild -R .
     - ls -laZ CHANGELOG.md
-    - mkdir -p rpm/{slc6,cc7}/{RPMS,SRPMS,DEBUGRPMS,DEVERPMS}
-    - find ./gem*/rpm -iname '*centos7*.src.rpm'         -print0 -exec mv {} rpm/cc7/SRPMS \;
-    - find ./gem*/rpm -iname '*-devel-*centos7*.rpm'     -print0 -exec mv {} rpm/cc7/DEVELRPMS \;
-    - find ./gem*/rpm -iname '*-debuginfo-*centos7*.rpm' -print0 -exec mv {} rpm/cc7/DEBUGRPMS \;
-    - find ./gem*/rpm -iname '*centos7*.rpm'             -print0 -exec mv {} rpm/cc7/RPMS \;
-    - find ./gem*/rpm -iname '*slc6*.src.rpm'            -print0 -exec mv {} rpm/slc6/SRPMS \;
-    - find ./gem*/rpm -iname '*-devel-*slc6*.rpm'        -print0 -exec mv {} rpm/slc6/DEVELRPMS \;
-    - find ./gem*/rpm -iname '*-debuginfo-*slc6*.rpm'    -print0 -exec mv {} rpm/slc6/DEBUGRPMS \;
-    - find ./gem*/rpm -iname '*slc6*.rpm'                -print0 -exec mv {} rpm/slc6/RPMS \;
-    - find ./gem*/rpm -iname '*centos7*.rpm'             -print0 -exec tar cjf rpm/cc7/cmsgemos_${$TRAVIS_TAG}_centos7.tbz2 {} \;
-    - find ./gem*/rpm -iname '*centos7*.rpm'             -print0 -exec tar cxf rpm/cc7/cmsgemos_${$TRAVIS_TAG}_centos7.tgz  {} \;
-    - find ./gem*/rpm -iname '*slc6*.rpm'                -print0 -exec tar cjf rpm/slc6/cmsgemos_${$TRAVIS_TAG}_slc6.tbz2 {} \;
-    - find ./gem*/rpm -iname '*slc6*.rpm'                -print0 -exec tar cxf rpm/slc6/cmsgemos_${$TRAVIS_TAG}_slc6.tgz  {} \;
-    - find ./gem*/rpm \( -iname '*.tar.gz' -o -iname '*.tgz' -o -iname '*.tbz2' \) -print0 -exec mv {} rpm \;
+    - sudo find ./gem*/rpm -type f \( -iname '*.rpm' -o -iname '*.tar.gz' -o -iname '*.tgz' -o -iname '*.tbz2' -o -iname '*.zip' \) -print0 -exec chmod a+r {} \+
+    - find ./gem*/rpm -iname '*.src.rpm' -print0 -exec mv -t ${RPMDIR}/${RPMOS}/SRPMS {} \+
+    - find ./gem*/rpm -iname '*-devel-*.rpm' -print0 -exec mv -t ${RPMDIR}/${RPMOS}/DEVRPMS {} \+
+    - find ./gem*/rpm -iname '*-debuginfo-*.rpm' -print0 -exec mv -t ${RPMDIR}/${RPMOS}/DEBUGRPMS {} \+
+    - find ./gem*/rpm -iname '*.rpm' -print0 -exec mv -t ${RPMDIR}/${RPMOS}/RPMS {} \+
+    - find ./gem*/rpm \( -iname '*.tar.gz' -o -iname '*.tgz' -o -iname '*.tbz2' \) -print0 -exec mv -t ${RPMDIR}/ {} \+
+    - cd ${RPMDIR}
+    - tree
+    - find ./ -iname '*.rpm' -print0 -exec tar cjf cmsgemos_${TRAVIS_TAG}_${RPMOS}.tbz2 {} \+
+    - find ./ -iname '*.rpm' -print0 -exec tar cxf cmsgemos_${TRAVIS_TAG}_${RPMOS}.tgz  {} \+
+
   deploy:
     - <<: *release_template
       prerelease: false
@@ -222,30 +221,33 @@ after_script: skip
 
 jobs:
   include:
-    - stage: buildrpm
-      <<: *slc6_template
-      <<: *rpmbuild_template
+    # - stage: buildrpm
+    #   # if: NOT tag
+    #   <<: *slc6_template
+    #   <<: *rpmbuild_template
 
-    - stage: buildrpm
-      <<: *cc7_template
-      <<: *rpmbuild_template
+    # - stage: buildrpm
+    #   # if: NOT tag
+    #   <<: *cc7_template
+    #   <<: *rpmbuild_template
 
-    - stage: docs
-      before_script: skip
-      before_install: skip
-      script:
-        - ls -laZ
-      after_success: skip
+    # - stage: docs
+    #   before_script: skip
+    #   before_install: skip
+    #   script:
+    #     - ls -laZ
+    #   after_success: skip
 
-    - stage: coverage
-      before_script: skip
-      before_install: skip
-      script: skip
-      after_success:
-        - sudo pip install -U codecov
-        # - coverage run -a scripta.py
-        - codecov
-        - bash <(curl -s https://codecov.io/bash) && echo "Uploaded code coverage"
+    # - stage: coverage
+    #   # if: NOT tag
+    #   before_script: skip
+    #   before_install: skip
+    #   script: skip
+    #   after_success:
+    #     - sudo pip install -U codecov
+    #     # - coverage run -a scripta.py
+    #     - codecov
+    #     - bash <(curl -s https://codecov.io/bash) && echo "Uploaded code coverage"
 
     - stage: deployment
       <<: *slc6_template

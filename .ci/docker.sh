@@ -21,7 +21,7 @@ then
     sudo useradd daqbuild -g 2055 -u 2055
     sudo usermod -aG daqbuild $USER
     groups
-    sudo chmod g+s -R $HOME
+    sudo chmod g+srwX -R $HOME
     sudo apt-get install acl acl2
     sudo setfacl -Rdm u::rwX,g::rwX,o::rX $HOME
     sudo setfacl -Rm  u::rwX,g::rwX,o::rX $HOME
