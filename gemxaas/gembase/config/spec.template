@@ -45,8 +45,10 @@ __description__
 #
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/%{_prefix}/{etc,scripts}
-mkdir -p $RPM_BUILD_ROOT/%{_prefix}/etc/{tcds,maps}
+mkdir -p $RPM_BUILD_ROOT%{_prefix}/{etc,scripts}
+mkdir -p $RPM_BUILD_ROOT%{_prefix}/etc/{tcds,maps}
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/gemdaq
+touch $RPM_BUILD_ROOT%{_localstatedir}/log/gemdaq/gempython.log
 
 if [ -d %{_packagedir}/etc ]; then 
 	cd %{_packagedir}/etc; \
@@ -64,13 +66,16 @@ rm -rf $RPM_BUILD_ROOT
 # Files that go in the binary RPM
 #
 %files
-%defattr(-,root,root,-)
-
+%defattr(644,root,root,755)
+%attr(664,root,gempro) %ghost %{_localstatedir}/log/gemdaq/gempython.log
+%attr(664,root,gempro) %config(noreplace) %{_prefix}/etc/maps/connections.xml
+%attr(755,root,gempro) %{_prefix}/etc/profile.d/gemdaqenv.sh
+%attr(755,root,gempro) %{_prefix}/scripts/linkuhaltables.sh
 %dir
-%{_prefix}/etc
+%{_prefix}/etc/maps
+%{_prefix}/etc/tcds
+%{_prefix}/etc/profile.d
 %{_prefix}/scripts
-
-%config(noreplace) %{_prefix}/etc/maps/connections.xml
 
 #%changelog
 
