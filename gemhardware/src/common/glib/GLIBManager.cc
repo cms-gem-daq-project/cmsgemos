@@ -414,6 +414,7 @@ void gem::hw::glib::GLIBManager::startAction()
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       m_glibs.at(slot)->ttcReset();
+      m_glibs[slot]->resetDAQLink();
       m_glibs.at(slot)->enableZeroSuppression(0x1);
       m_glibs.at(slot)->enableDAQLink(0x4);  // FIXME
       m_glibs.at(slot)->setL1AEnable(true);
@@ -544,7 +545,7 @@ void gem::hw::glib::GLIBManager::stopAction()
       // what is required for stopping the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
       m_glibs[slot]->setL1AEnable(false);
-      m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+      // m_glibs[slot]->resetDAQLink();
 
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
