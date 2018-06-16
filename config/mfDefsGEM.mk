@@ -5,6 +5,7 @@ BUILD_HOME := $(shell cd $(BUILD_HOME); pwd)
 
 GIT_VERSION  := $(shell git describe --dirty --always --tags)
 GEMDEVELOPER := $(shell id --user --name)
+BUILD_VERSION:= $(shell $(BUILD_HOME)/cmsgemos/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[4];}' | awk '{split($$0,b,":"); print b[2];}')
 
 Project=cmsgemos
 ShortProject=gem
@@ -46,6 +47,8 @@ $(info PACKAGE_VER_MAJOR $(PACKAGE_VER_MAJOR))
 $(info PACKAGE_VER_MINOR $(PACKAGE_VER_MINOR))
 $(info PACKAGE_VER_PATCH $(PACKAGE_VER_PATCH))
 $(info LongPackageLoc $(LongPackageLoc))
+$(info BUILD_HOME $(BUILD_HOME))
+$(info BUILD_VERSION $(BUILD_VERSION))
 
 # Tools
 MakeDir=mkdir -p

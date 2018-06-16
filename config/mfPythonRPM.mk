@@ -27,9 +27,13 @@ ifndef PythonModules
 endif
 
 .PHONY: _all
-.PHONY: rpm _rpmall _rpmprep _setup_update _rpmbuild _rpmdevbuild _rpmsetup
-rpm: _rpmbuild
+.PHONY: pip rpm _rpmall _rpmprep _setup_update _rpmbuild _rpmdevbuild _rpmsetup _bdistbuild _sdistbuild _harvest
+pip: _sdistbuild _harvest
+	@echo "Running pip target"
+
+rpm: _rpmbuild _harvest
 	@echo "Running rpm target"
+	find $(RPMBUILD_DIR) -iname "*.rpm" -print0 -exec mv -t $(RPMBUILD_DIR) {} \+
 
 #_rpmall: _all _rpmprep _setup_update _rpmsetup _rpmbuild
 _rpm: _all _rpmbuild
@@ -41,21 +45,41 @@ _rpmsetup: _rpmprep _setup_update
 # Change directory into pkg and copy everything into rpm build dir
 	@echo "Running _rpmsetup target"
 	cd pkg && \
-	find . -iname 'setup.*' -prune -o -name "*" -exec install -D \{\} $(RPMBUILD_DIR)/\{\} \;
+	find . -iname 'setup.*' -prune -o -iname "*" -exec install -D {} $(RPMBUILD_DIR)/{} \;
 # Add a manifest file (may not be necessary
 #	echo "include */*.so" > $(RPMBUILD_DIR)/MANIFEST.in
 
 _rpmbuild: _rpmsetup
-	@echo "Running _rpmbuild target for release: $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS).python$(PYTHON_VERSION)"
-	cd $(RPMBUILD_DIR) && python setup.py bdist_rpm \
-	--release $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS).python$(PYTHON_VERSION) \
-	--binary-only --force-arch=`uname -m`
+	@echo "Running _rpmbuild target for release: $(PACKAGE_NOARCH_RELEASE).python$(PYTHON_VERSION)"
+	cd $(RPMBUILD_DIR) && python setup.py \
+	egg_info --tag-build=$(PREREL_VERSION) \
+	bdist_rpm \
+	--release $(PACKAGE_NOARCH_RELEASE).python$(PYTHON_VERSION) \
+	--force-arch=`uname -m`
+#	--binary-only  ## exclude to also build the srpm
+#	--tag-build $(PREREL_VERSION)
+#	-b "-${BUILD_VERSION##*.}"
+#	-b "-${BUILD_VERSION##*.}"
+#	-b "-${BUILD_VERSION##*.}"
+#	--release $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS).python$(PYTHON_VERSION) \
 #	--release $(CMSGEMOS_OS).python$(PYTHON_VERSION)
+
+_bdistbuild: _rpmsetup
+	@echo "Running _tarbuild target"
+	cd $(RPMBUILD_DIR) && python setup.py \
+	egg_info --tag-build=$(PREREL_VERSION) \
+	bdist --formats=bztar,gztar,zip
+
+_sdistbuild: _rpmsetup
+	@echo "Running _tarbuild target"
+	cd $(RPMBUILD_DIR) && python setup.py \
+	egg_info --tag-build=$(PREREL_VERSION) \
+	sdist --formats=bztar,gztar,zip
+
+_harvest:
 # Harvest the crop
-	find rpm -name "*.rpm"    -exec cp -a \{\} rpm/ \;
-	find rpm -name "*.tar.gz" -exec cp -a \{\} rpm/ \;
-	find rpm -name "*.tgz"    -exec cp -a \{\} rpm/ \;
-	find rpm -name "*.tbz2"   -exec cp -a \{\} rpm/ \;
+	find rpm/dist \( -iname "*.tar.gz" -o -iname "*.tar.bz2" -o -iname "*.tgz" -o -iname "*.zip" -o -iname "*.tbz2" \) -print0 -exec mv -t rpm/ {} \+
+	-rename tar. t rpm/*tar*
 
 _setup_update:
 	@echo "Running _setup_update target"
@@ -87,19 +111,21 @@ _setup_update:
 	sed -i 's#__author__#$(Packager)#'                $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__project__#$(Project)#'                $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__summary__#None#'                      $(RPMBUILD_DIR)/setup.py
-	sed -i 's#__gitrev__#$(GITREV)#'                  $(RPMBUILD_DIR)/setup.py
-	sed -i 's#__builddate__#$(BUILD_DATE)#'           $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__package__#$(Package)#'                $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__packagedir__#$(PackagePath)#'         $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__packagename__#$(PackageName)#'        $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__longpackage__#$(LongPackage)#'        $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__pythonmodules__#$(PythonModules)#'    $(RPMBUILD_DIR)/setup.py
-	sed -i 's#__version__#$(PACKAGE_FULL_VERSION)#'   $(RPMBUILD_DIR)/setup.py
-	sed -i 's#__release__#$(CMSGEMOS_OS)#'            $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__prefix__#$(GEMPYTHON_ROOT)#'          $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__os__#$(CMSGEMOS_OS)#'                 $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__platform__#$(CMSGEMOS_PLATFORM)#'     $(RPMBUILD_DIR)/setup.py
 	sed -i 's#__description__#None#'                  $(RPMBUILD_DIR)/setup.py
+	sed -i 's#___gitrev___#$(GITREV)#'                $(RPMBUILD_DIR)/setup.py
+	sed -i 's#___gitver___#$(GIT_VERSION)#'           $(RPMBUILD_DIR)/setup.py
+	sed -i 's#___version___#$(PACKAGE_FULL_VERSION)#' $(RPMBUILD_DIR)/setup.py
+	sed -i 's#___release___#$(BUILD_VERSION)#'        $(RPMBUILD_DIR)/setup.py
+	sed -i 's#___packager___#$(GEMDEVELOPER)#'        $(RPMBUILD_DIR)/setup.py
+	sed -i 's#___builddate___#$(BUILD_DATE)#'         $(RPMBUILD_DIR)/setup.py
 
 	if [ -e $(PackagePath)/pkg/setup.cfg ]; then \
 		echo Found $(PackagePath)/pkg/setup.cfg; \
@@ -127,19 +153,21 @@ _setup_update:
 	sed -i 's#__author__#$(Packager)#'                $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__project__#$(Project)#'                $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__summary__#None#'                      $(RPMBUILD_DIR)/setup.cfg
-	sed -i 's#__gitrev__#$(GITREV)#'                  $(RPMBUILD_DIR)/setup.cfg
-	sed -i 's#__builddate__#$(BUILD_DATE)#'           $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__package__#$(Package)#'                $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__packagedir__#$(PackagePath)#'         $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__packagename__#$(PackageName)#'        $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__longpackage__#$(LongPackage)#'        $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__pythonmodules__#$(PythonModules)#'    $(RPMBUILD_DIR)/setup.cfg
-	sed -i 's#__version__#$(PACKAGE_FULL_VERSION)#'   $(RPMBUILD_DIR)/setup.cfg
-	sed -i 's#__release__#$(CMSGEMOS_OS)#'            $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__prefix__#$(GEMPYTHON_ROOT)#'          $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__os__#$(CMSGEMOS_OS)#'                 $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__platform__#$(CMSGEMOS_PLATFORM)#'     $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#__description__#None#'                  $(RPMBUILD_DIR)/setup.cfg
+	sed -i 's#___gitrev___#$(GITREV)#'                $(RPMBUILD_DIR)/setup.cfg
+	sed -i 's#___gitver___#$(GIT_VERSION)#'           $(RPMBUILD_DIR)/setup.cfg
+	sed -i 's#___version___#$(PACKAGE_FULL_VERSION)#' $(RPMBUILD_DIR)/setup.cfg
+	sed -i 's#___release___#$(BUILD_VERSION)#'        $(RPMBUILD_DIR)/setup.cfg
+	sed -i 's#___packager___#$(GEMDEVELOPER)#'        $(RPMBUILD_DIR)/setup.cfg
+	sed -i 's#___builddate___#$(BUILD_DATE)#'         $(RPMBUILD_DIR)/setup.cfg
 
 
 .PHONY: cleanrpm _cleanrpm

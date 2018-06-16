@@ -50,10 +50,16 @@ PACKAGE_VER_MAJOR ?= $($(ShortPackageLoc)_VER_MAJOR)
 PACKAGE_VER_MINOR ?= $($(ShortPackageLoc)_VER_MINOR)
 PACKAGE_VER_PATCH ?= $($(ShortPackageLoc)_VER_PATCH)
 
-BUILD_VERSION ?= 1
+#BUILD_VERSION ?= 1
+BUILD_VERSION:= $(shell $(BUILD_HOME)/cmsgemos/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[4];}' | awk '{split($$0,b,":"); print b[2];}')
+PREREL_VERSION:= $(shell $(BUILD_HOME)/cmsgemos/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[6];}' | awk '{split($$0,b,":"); print b[2];}' | awk '{split($$0,c,"-"); print c[2];}' )
+
+$(info BUILD_VERSION $(BUILD_VERSION))
+$(info PREREL_VERSION $(PREREL_VERSION))
 
 PACKAGE_FULL_VERSION ?= $(PACKAGE_VER_MAJOR).$(PACKAGE_VER_MINOR).$(PACKAGE_VER_PATCH)
-PACKAGE_FULL_RELEASE ?= $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS)
+PACKAGE_NOARCH_RELEASE ?= $(BUILD_VERSION).$(GITREV)git
+PACKAGE_FULL_RELEASE ?= $(PACKAGE_NOARCH_RELEASE).$(CMSGEMOS_OS)
 
 .PHONY: default all _all
 

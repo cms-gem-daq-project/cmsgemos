@@ -348,7 +348,7 @@ install_misc_rpms() {
 
     yum -y install libuuid-devel e2fsprogs-devel readline-devel ncurses-devel curl-devel boost-devel \
         numactl-devel freeipmi-devel libusb libusbx libusb-devel libusbx-devel \
-        protobuf-devel protobuf-lite-devel
+        protobuf-devel protobuf-lite-devel pugixml pugixml-devel
 
     if [ "${osver}" = "6" ]
     then
