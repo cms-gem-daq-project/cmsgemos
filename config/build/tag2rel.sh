@@ -74,7 +74,7 @@ tagcommit=$(git rev-list --tags --max-count=1 2>/dev/null)
 lasttag=$(git describe --tags ${tagcommit}  2>/dev/null)
 
 revision=0
-if [ -z ${lasttag+x} ]
+if [ ! -z ${lasttag+x} ]
 then
     revision=$(git rev-list ${lasttag}.. --count  2>/dev/null)
 fi
