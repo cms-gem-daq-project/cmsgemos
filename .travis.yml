@@ -70,6 +70,9 @@ services:
   - docker
 
 before_install:
+  - git tag -l
+  - git rev-list --tags --max-count=1 2>/dev/null
+  - git describe --tags $(git rev-list --tags --max-count=1 2>/dev/null) 2>/dev/null
   - ./.ci/docker.sh setup ${DOCKER_IMAGE}
   - sleep 1
   - ./.ci/docker.sh start ${DOCKER_IMAGE}

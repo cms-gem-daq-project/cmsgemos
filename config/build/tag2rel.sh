@@ -29,27 +29,27 @@ Major:0 Minor:99 Patch:0 Release:0.3.pre10 Version:0.99.0 FullVersion:v0.99.0-pr
 #   list of tags and associated rpm/python release versions:
 ##  ** Examples:
 #        tag name       RPM Release               pre-release
-#        v0.2.2         0.2.2 1                   "-<hash>git"
-#         * commit 1    0.2.2 1.0.1.dev          "-final.dev1-<hash>git"
+#        v0.2.2         0.2.2 1                   "-git<hash>"
+#         * commit 1    0.2.2 1.0.1.dev          "-final.dev1-git<hash>"
 #       OR
-#         * commit 1    0.2.3 0.0.1.dev          "-dev1-<hash>git"
-#         * commit 2    0.2.3 0.0.2.dev          "-dev2-<hash>git"
-#         * commit 3    0.2.3 0.0.3.dev          "-dev3-<hash>git"
-#         * commit 4    0.2.3 0.0.4.dev          "-dev4-<hash>git"
-#        v0.2.3-alpha1  0.2.3 0.1.1.alpha1       "-alpha1-<hash>git"
-#         * commit 1    0.2.3 0.1.1.1.alpha1.dev "-alpha1.dev1-<hash>git"
-#         * commit 2    0.2.3 0.1.1.2.alpha1.dev "-alpha1.dev2-<hash>git"
-#         * commit 3    0.2.3 0.1.1.3.alpha1.dev "-alpha1.dev3-<hash>git"
-#        v0.2.3-alpha2  0.2.3 0.1.2.alpha2       "-alpha2-<hash>git"
-#        v0.2.3-alpha3  0.2.3 0.1.3.alpha3       "-alpha3-<hash>git"
-#        v0.2.3-beta1   0.2.3 0.2.1.beta1        "-beta1-<hash>git"
-#        v0.2.3-beta2   0.2.3 0.2.2.beta2        "-beta2-<hash>git"
-#        v0.2.3-pre1    0.2.3 0.3.1.pre1         "-pre1-<hash>git"
-#        v0.2.3-pre2    0.2.3 0.3.2.pre2         "-pre2-<hash>git"
-#        v0.2.3-pre3    0.2.3 0.3.3.pre3         "-pre3-<hash>git"
-#        v0.2.3-rc1     0.2.3 0.4.1.rc1          "-rc1-<hash>git"
-#        v0.2.3-rc2     0.2.3 0.4.2.rc2          "-rc2-<hash>git"
-#        v0.2.3         0.2.3 1                  "-<hash>git"
+#         * commit 1    0.2.3 0.0.1.dev          "-dev1-git<hash>"
+#         * commit 2    0.2.3 0.0.2.dev          "-dev2-git<hash>"
+#         * commit 3    0.2.3 0.0.3.dev          "-dev3-git<hash>"
+#         * commit 4    0.2.3 0.0.4.dev          "-dev4-git<hash>"
+#        v0.2.3-alpha1  0.2.3 0.1.1.alpha1       "-alpha1-git<hash>"
+#         * commit 1    0.2.3 0.1.1.1.alpha1.dev "-alpha1.dev1-git<hash>"
+#         * commit 2    0.2.3 0.1.1.2.alpha1.dev "-alpha1.dev2-git<hash>"
+#         * commit 3    0.2.3 0.1.1.3.alpha1.dev "-alpha1.dev3-git<hash>"
+#        v0.2.3-alpha2  0.2.3 0.1.2.alpha2       "-alpha2-git<hash>"
+#        v0.2.3-alpha3  0.2.3 0.1.3.alpha3       "-alpha3-git<hash>"
+#        v0.2.3-beta1   0.2.3 0.2.1.beta1        "-beta1-git<hash>"
+#        v0.2.3-beta2   0.2.3 0.2.2.beta2        "-beta2-git<hash>"
+#        v0.2.3-pre1    0.2.3 0.3.1.pre1         "-pre1-git<hash>"
+#        v0.2.3-pre2    0.2.3 0.3.2.pre2         "-pre2-git<hash>"
+#        v0.2.3-pre3    0.2.3 0.3.3.pre3         "-pre3-git<hash>"
+#        v0.2.3-rc1     0.2.3 0.4.1.rc1          "-rc1-git<hash>"
+#        v0.2.3-rc2     0.2.3 0.4.2.rc2          "-rc2-git<hash>"
+#        v0.2.3         0.2.3 1                  "-git<hash>"
 
 # if previuos tag is complete, e.g., v0.2.2, bump next version values:
 #    Major: 1.0.0
@@ -60,17 +60,24 @@ Major:0 Minor:99 Patch:0 Release:0.3.pre10 Version:0.99.0 FullVersion:v0.99.0-pr
 
 if [ -z ${1+x} ]
 then
-    version=$(git describe --abbrev=0 --tags --always)
+    version=$(git describe --abbrev=0 --tags --always 2>/dev/null)
 else
     version=$1
 fi
 
 relver=1
-gitrev=$(git rev-parse --short HEAD)
-gitver=$(git describe --abbrev=6 --dirty --always --tags)
-tagcommit=$(git rev-list --tags --max-count=1)
-lasttag=$(git describe --tags ${tagcommit} )
-revision=$(git rev-list ${lasttag}.. --count )
+gitrev=$(git rev-parse --short HEAD 2>/dev/null)
+gitver=$(git describe --abbrev=6 --dirty --always --tags 2>/dev/null)
+
+## can fail if no tags are present, robustify
+tagcommit=$(git rev-list --tags --max-count=1 2>/dev/null)
+lasttag=$(git describe --tags ${tagcommit}  2>/dev/null)
+
+revision=0
+if [ -z ${lasttag+x} ]
+then
+    revision=$(git rev-list ${lasttag}.. --count  2>/dev/null)
+fi
 
 # basic version unit is vX.Y.Z
 vre='^v?(.)?([0-9]+).([0-9]+).([0-9]+)'
@@ -149,6 +156,7 @@ then
     fi
 else
     basever=untagged
+    buildtag="-dev${revision}"
 fi
 
 if ! [[ ${basever} =~ "untagged" ]]
@@ -159,11 +167,13 @@ then
     minor=${version##*.}
     major=${version%.*}
     version=${basever##v}
-    
 else
+    ## maybe try to extract tag info from Makefile (whole point was to remove this from the makefile...)?
     version=${basever##v}
-    fullver=${version}-${gitrev}git
-
+    fullver=${version}-git${gitrev}
+    major=0
+    minor=0
+    patch=0
 fi
 
 NextMajorVer=$((major+1)).0.0
