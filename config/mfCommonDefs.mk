@@ -52,7 +52,8 @@ PACKAGE_VER_PATCH ?= $($(ShortPackageLoc)_VER_PATCH)
 
 #BUILD_VERSION ?= 1
 BUILD_VERSION:= $(shell $(BUILD_HOME)/cmsgemos/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[4];}' | awk '{split($$0,b,":"); print b[2];}')
-PREREL_VERSION:= $(shell $(BUILD_HOME)/cmsgemos/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[6];}' | awk '{split($$0,b,":"); print b[2];}' | awk '{split($$0,c,"-"); print c[2];}' )
+PREREL_VERSION:= $(shell $(BUILD_HOME)/cmsgemos/config/build/tag2rel.sh | awk '{split($$0,a," "); print a[8];}' | awk '{split($$0,b,":"); print b[2];}' )
+# | awk '{split($$0,c,"-"); print c[2];}' 
 
 $(info BUILD_VERSION $(BUILD_VERSION))
 $(info PREREL_VERSION $(PREREL_VERSION))

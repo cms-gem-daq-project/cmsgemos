@@ -49,13 +49,13 @@ _rpmsetup: _rpmprep _setup_update
 # Add a manifest file (may not be necessary
 #	echo "include */*.so" > $(RPMBUILD_DIR)/MANIFEST.in
 
-_rpmbuild: _rpmsetup
+_rpmbuild: _sdistbuild
 	@echo "Running _rpmbuild target for release: $(PACKAGE_NOARCH_RELEASE).python$(PYTHON_VERSION)"
 	cd $(RPMBUILD_DIR) && python setup.py \
-	egg_info --tag-build=$(PREREL_VERSION) \
 	bdist_rpm \
 	--release $(PACKAGE_NOARCH_RELEASE).python$(PYTHON_VERSION) \
 	--force-arch=`uname -m`
+#	egg_info --tag-build=$(PREREL_VERSION)
 #	--binary-only  ## exclude to also build the srpm
 #	--tag-build $(PREREL_VERSION)
 #	-b "-${BUILD_VERSION##*.}"

@@ -33,8 +33,32 @@ def getreqs():
         return [x.strip() for x in reqs]
     pass
 
+def getVersion():
+    __version__='___version___'
+    __release__='___release___'
+    if __release__.split('.')[2]:
+        __prerel__='-{0:s}'.format(__release__.split('.')[2])
+    else:
+        __prerel__=''
+    __gitrev__='___gitrev___'
+    __gitver__='___gitver___'
+    __packager__='___packager___'
+    __builddate__='___builddate___'
+    with open("gempython/core/_version.py","w") as verfile:
+        verfile.write("""
+## This file is generated automatically from cmsgemos_gempython setup.py
+__version__='{0:s}'
+__release__='{1:s}'
+__gitrev__='{2:s}'
+__gitver__='{3:s}'
+__packager__='{4:s}'
+__builddate__='{5:s}'
+""".format(__version__,__release__,__gitrev__,__gitver__,__builddate__,__packager__))
+    # return '{0:s}{1:s}'.format(__version__,__prerel__)
+    return '{0:s}'.format(__version__)
+
 setup(name             = '__packagename__',
-      version          = '__version__',
+      version          = getVersion(),
       # use_scm_version  = True,
       description      = '__description__',
       long_description = readme(),
@@ -54,6 +78,7 @@ setup(name             = '__packagename__',
       zip_safe         = False,
       setup_requires   = [
           'setuptools>=25.0'
+          # ,'setuptools_scm'
       ],
       install_requires = getreqs(),
       license          = 'MIT',

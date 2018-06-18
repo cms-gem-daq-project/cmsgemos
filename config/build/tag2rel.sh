@@ -123,18 +123,30 @@ then
         elif [[ "${prerel}" =~ ^rc ]]
         then
             pretag="-rc"
-            relnum=4
+            relnum=3
         fi
     fi
 
     tags=( $(git tag -l "*${basever}${pretag}*") )
     ntags=$((${#tags[@]}))
+
+    if  [[ "${prerel}" =~ ^rc ]]
+    then
+        # because setuptools rewrites 'pre' as 'rc', need to count the number of 'pre' tags prior to addign the number of 'rc' tags
+        # or we enforce that 'pre' and 'rc' are the "same" class, 'rc'>'pre',
+        # and must numerically increase e.g., pre1->pre2->pre3->rc4->rc5
+        pretags=( $(git tag -l "*${basever}-pre*") )
+        npretags=$((${#pretags[@]}))
+        ntags=$((ntags+npretags))
+    fi
+    
     if [ "${revision}" = "0" ]
     then
         relver=0.${relnum}.${ntags}.${prerel}
+        buildtag="-${pretag}${ntags}"
     else
         relver=0.${relnum}.${ntags}.${revision}.${prerel}
-        buildtag="-${prerel}.dev${revision}"
+        buildtag="-${pretag}${ntags}.dev${revision}"
     fi
 else
     basever=untagged

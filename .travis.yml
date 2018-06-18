@@ -9,30 +9,32 @@ stages:
   - test
   - coverage
   - name: docs
-    if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$ ) )
+    ## allowed tags: replace 'dev' from allowed tags (will be added for non-tagged releases) with 'beta
+    ## allowed tags: remove 'git12345678' from allowed tags
+    if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+$))? ) )
   - name: prerelease
     if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))$
   - name: devrelease
-    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))$
+    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(alpha|beta)([0-9]+))$
   - name: release
     if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)$
   - name: deployment
-    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
+    if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+$))?$
 
 .docs: &docs_cond
-  if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$ ) )
+  if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+$))? ) )
 .draftrelease: &draftrelease_cond
-  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|dev|alpha)([0-9]+))?(-git[0-9a-z]{6,8})$
+  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+))?$
 .prerelease:   &prerelease_cond
   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))$
 .devrelease:   &devrelease_cond
-  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(dev|alpha)([0-9]+))$
-.releasecond:      &release_cond
+  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(alpha|beta)([0-9]+))$
+.releasecond:  &release_cond
   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)$
 # .deploycond:       &deploy_cond
-#   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
+#   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+$))?$
 .deploycond:       &deploy_cond
-  if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|dev)([0-9]+$))?|(-git[0-9a-z]{6,8})?$
+  if: tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+$))?$
 
 env:
   global:
@@ -143,9 +145,9 @@ after_script: skip
     - "${RPMDIR}/*.tbz2"
     # RPMs are now all packaged in a tarball, to not clutter the release
     # - "./rpm/*.rpm"
-  ## pre-releases and draft releases for tags with pre/alpha/dev/gitHASH in the name
-  # draft: true # for tags with dev/alpha in the name, or
-  # prerelease: true # for tags with pre in the name
+  ## pre-releases and draft releases for tags with pre/alpha/beta in the name
+  # draft: true # for tags with alpha/beta in the name, or
+  # prerelease: true # for tags with pre/rc in the name
   ## only deploy full release when the tag exactly matches vX.Y.Z (with or without the v)
   prerelease: true
   draft: false

@@ -115,14 +115,15 @@ clean:
 	# -rm -rf pkg/tools
 	# -rm -rf pkg/bin
 
-rpm: _rpmbuild
-	$(info "Running overridden rpm target")
+# rpm: _rpmbuild
+# 	$(info "Running overridden rpm target")
 # rpmall: ${BINDINGS_LIB}
 # 	rm -rf /var/tmp/cactus*
 # 	python setup.py bdist_rpm --release ${PACKAGE_RELEASE}.${XDAQ_OS}.python${PYTHON_VERSION} --binary-only --force-arch=`uname -m`
 
 print-env:
 	@echo BUILD_HOME     $(BUILD_HOME)
+	@echo BUILD_VERSION  $(BUILD_VERSION)
 	@echo XDAQ_ROOT      $(XDAQ_ROOT)
 	@echo XDAQ_OS        $(XDAQ_OS)
 	@echo XDAQ_PLATFORM  $(XDAQ_PLATFORM)
