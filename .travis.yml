@@ -142,7 +142,8 @@ after_script: skip
     - LICENSE
     - README.md
     - CHANGELOG.md
-    - "${RPMDIR}/*.tar.gz"
+    # - "${RPMDIR}/*.tar.gz"
+    - "${RPMDIR}/*.zip"
     - "${RPMDIR}/*.tgz"
     - "${RPMDIR}/*.tbz2"
     # RPMs are now all packaged in a tarball, to not clutter the release
@@ -180,7 +181,10 @@ after_script: skip
     - mkdir -p ${RPMDIR}/${RPMOS}/{RPMS,SRPMS,DEBUGRPMS,DEVRPMS}
     - sudo find ${RPMDIR} -type d -print0 -exec chmod a+rx {} \+
     - sudo chown :daqbuild -R .
-    - sudo chown :daqbuild -R ${RPMDIR}
+    - sudo chown :daqbuild -R /tmp/${REPO_NAME}
+    - sudo chmod g+srwX -R ${RPMDIR}
+    - sudo setfacl -Rdm u::rwX,g::rwX,o::rX /tmp/${REPO_NAME}
+    - sudo setfacl -Rm  u::rwX,g::rwX,o::rX /tmp/${REPO_NAME}
     - sudo ls -laZ ${RPMDIR}
     - sudo ls -laZ ${RPMDIR}/../
     - sudo ls -laZ ${RPMDIR}/../../
