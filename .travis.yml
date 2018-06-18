@@ -23,8 +23,8 @@ stages:
 
 .docs: &docs_cond
   if: ( ( branch = master ) OR ( tag =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+$))? ) )
-.draftrelease: &draftrelease_cond
-  condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+))?$
+# .draftrelease: &draftrelease_cond
+#   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc|alpha|beta)([0-9]+))?$
 .prerelease:   &prerelease_cond
   condition: $TRAVIS_TAG =~ ^v?(.)?([0-9]+).([0-9]+).([0-9]+)(-(pre|rc)([0-9]+))$
 .devrelease:   &devrelease_cond
@@ -114,10 +114,9 @@ after_script: skip
     - gem install github_changelog_generator
   script:
     - echo 'Running build stage on docker container $DOCKER_CONTAINER_ID'
-    - export BUILD_RELEASE=$(.ci/tag2rel.sh $TRAVIS_TAG)
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make -j8'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "export BUILD_RELEASE=${BUILD_RELEASE}; /home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make rpm'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "export BUILD_RELEASE=${BUILD_RELEASE}; /home/daqbuild/${REPO_NAME}/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make rpm'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
     - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/${REPO_NAME}/gem*/rpm/*.rpm"
   after_success:
     - echo "Testing the installation of the package"
@@ -178,6 +177,7 @@ after_script: skip
     - mkdir -p ${RPMDIR}/${RPMOS}/{RPMS,SRPMS,DEBUGRPMS,DEVRPMS}
     - sudo find ${RPMDIR} -type d -print0 -exec chmod a+rx {} \+
     - sudo chown :daqbuild -R .
+    - sudo chown :daqbuild -R ${RPMDIR}
     - ls -laZ CHANGELOG.md
     - sudo find ./gem*/rpm -type f \( -iname '*.rpm' -o -iname '*.tar.gz' -o -iname '*.tgz' -o -iname '*.tbz2' -o -iname '*.zip' \) -print0 -exec chmod a+r {} \+
     - find ./gem*/rpm -iname '*.src.rpm' -print0 -exec mv -t ${RPMDIR}/${RPMOS}/SRPMS {} \+
@@ -205,14 +205,14 @@ after_script: skip
         <<: *prerelease_cond
       after_deploy:
         - echo "Successfully deployed prerelease"
-    - <<: *release_template
-      prerelease: false
-      draft: true
-      on:
-        tags: true
-        <<: *draftrelease_cond
-      after_deploy:
-        - echo "Successfully deployed draft release"
+    # - <<: *release_template
+    #   prerelease: false
+    #   draft: true
+    #   on:
+    #     tags: true
+    #     <<: *draftrelease_cond
+    #   after_deploy:
+    #     - echo "Successfully deployed draft release"
     - <<: *release_template
       prerelease: true
       on:
