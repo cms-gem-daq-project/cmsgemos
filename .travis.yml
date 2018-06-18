@@ -188,7 +188,7 @@ after_script: skip
     - cd ${RPMDIR}
     - tree
     - find ./ -iname '*.rpm' -print0 -exec tar cjf cmsgemos_${TRAVIS_TAG}_${RPMOS}.tbz2 {} \+
-    - find ./ -iname '*.rpm' -print0 -exec tar cxf cmsgemos_${TRAVIS_TAG}_${RPMOS}.tgz  {} \+
+    - find ./ -iname '*.rpm' -print0 -exec tar czf cmsgemos_${TRAVIS_TAG}_${RPMOS}.tgz  {} \+
 
   deploy:
     - <<: *release_template
