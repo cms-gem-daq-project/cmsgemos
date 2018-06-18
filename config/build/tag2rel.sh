@@ -91,7 +91,6 @@ then
         relver=1.0.${revision}.dev
         buildtag="-final.dev${revision}"
     fi
-    
 elif [[ $version =~ $vre ]]
 then
     pretag=""
@@ -143,10 +142,10 @@ then
     if [ "${revision}" = "0" ]
     then
         relver=0.${relnum}.${ntags}.${prerel}
-        buildtag="-${pretag}${ntags}"
+        buildtag="${pretag}${ntags}"
     else
         relver=0.${relnum}.${ntags}.${revision}.${prerel}
-        buildtag="-${pretag}${ntags}.dev${revision}"
+        buildtag="${pretag}${ntags}.dev${revision}"
     fi
 else
     basever=untagged
@@ -167,6 +166,10 @@ else
 
 fi
 
+NextMajorVer=$((major+1)).0.0
+NextMinorVer=${major}.$((minor+1)).0
+NextPatchVer=${major}.${minor}.$((patch+1))
+
 ## Output a single parseable line? or output multiple lines?
 echo Major:${major} \
      Minor:${minor} \
@@ -177,4 +180,7 @@ echo Major:${major} \
      TagVersion:${basever} \
      BuildTag:${buildtag} \
      Revision:${gitrev} \
-     GitVersion:${gitver}
+     GitVersion:${gitver} \
+     NextMajorVer:${NextMajorVer} \
+     NextMinorVer:${NextMinorVer} \
+     NextPatchVer:${NextPatchVer}

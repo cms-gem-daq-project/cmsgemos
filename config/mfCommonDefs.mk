@@ -21,17 +21,17 @@ ifeq ($(UNAME),Linux)
     else ifneq ($(findstring redhat-6,$(CMSGEMOS_PLATFORM)),)
         CMSGEMOS_OS=slc6
     else ifneq ($(findstring centos-6,$(CMSGEMOS_PLATFORM)),)
-        CMSGEMOS_OS=centos6
+        CMSGEMOS_OS=cc6
     else ifneq ($(findstring centos-7,$(CMSGEMOS_PLATFORM)),)
-        CMSGEMOS_OS=centos7
+        CMSGEMOS_OS=cc7
     else ifneq ($(findstring centos-8,$(CMSGEMOS_PLATFORM)),)
-        CMSGEMOS_OS=centos8
+        CMSGEMOS_OS=cc8
     else ifneq ($(findstring fedora-26,$(CMSGEMOS_PLATFORM)),)
-        CMSGEMOS_OS=fedora26
+        CMSGEMOS_OS=fc26
     else ifneq ($(findstring fedora-27,$(CMSGEMOS_PLATFORM)),)
-        CMSGEMOS_OS=fedora27
+        CMSGEMOS_OS=fc27
     else ifneq ($(findstring fedora-28,$(CMSGEMOS_PLATFORM)),)
-        CMSGEMOS_OS=fedora28
+        CMSGEMOS_OS=fc28
     endif
 endif
 ifeq ($(UNAME),Darwin)
@@ -43,6 +43,7 @@ $(info OS Detected: $(CMSGEMOS_OS))
 
 # Tools
 MakeDir=mkdir -p
+RemoveDir=rm -rf
 
 ## Version variables from Makefile and ShortPackage
 ShortPackageLoc := $(shell echo "$(ShortPackage)" | tr '[:lower:]' '[:upper:]')

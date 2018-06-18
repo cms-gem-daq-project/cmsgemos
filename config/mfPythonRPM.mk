@@ -10,17 +10,8 @@ RPMBUILD_DIR = $(PackagePath)/rpm
 CMSGEMOS_OS ?= $(XDAQ_OS)
 
 ifndef PACKAGE_FULL_RELEASE
-PACKAGE_FULL_RELEASE = $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS)
+PACKAGE_FULL_RELEASE = $(BUILD_VERSION).git$(GITREV).$(CMSGEMOS_OS)
 endif
-
-# ifeq ($(VER_EXISTS),no)
-# _rpmall: fail
-# fail:
-# 	$(error Unable to extract a valid version X.Y.Z from Makefile in package '$(Package)')
-# else
-# _rpmall: _all _rpmbuild
-# 	@echo "Running _rpmall target"
-# endif
 
 ifndef PythonModules
 	$(error Python module names missing "PythonModules")
@@ -33,16 +24,12 @@ pip: _sdistbuild _harvest
 
 rpm: _rpmbuild _harvest
 	@echo "Running rpm target"
-	find $(RPMBUILD_DIR) -iname "*.rpm" -print0 -exec mv -t $(RPMBUILD_DIR) {} \+
+	find $(RPMBUILD_DIR)/dist -iname "*.rpm" -print0 -exec mv -t $(RPMBUILD_DIR) {} \+
 
-#_rpmall: _all _rpmprep _setup_update _rpmsetup _rpmbuild
 _rpm: _all _rpmbuild
 	@echo "Running _rpmall target"
-# Copy the package skeleton
-# Ensure the existence of the module directory
-# Copy the libraries into python module
+
 _rpmsetup: _rpmprep _setup_update
-# Change directory into pkg and copy everything into rpm build dir
 	@echo "Running _rpmsetup target"
 	cd pkg && \
 	find . -iname 'setup.*' -prune -o -iname "*" -exec install -D {} $(RPMBUILD_DIR)/{} \;
@@ -50,19 +37,11 @@ _rpmsetup: _rpmprep _setup_update
 #	echo "include */*.so" > $(RPMBUILD_DIR)/MANIFEST.in
 
 _rpmbuild: _sdistbuild
-	@echo "Running _rpmbuild target for release: $(PACKAGE_NOARCH_RELEASE).python$(PYTHON_VERSION)"
+	@echo "Running _rpmbuild target for release: $(PACKAGE_NOARCH_RELEASE).$(CMSGEMOS).python$(PYTHON_VERSION)"
 	cd $(RPMBUILD_DIR) && python setup.py \
 	bdist_rpm \
-	--release $(PACKAGE_NOARCH_RELEASE).python$(PYTHON_VERSION) \
+	--release $(PACKAGE_NOARCH_RELEASE).$(CMSGEMOS_OS).python$(PYTHON_VERSION) \
 	--force-arch=`uname -m`
-#	egg_info --tag-build=$(PREREL_VERSION)
-#	--binary-only  ## exclude to also build the srpm
-#	--tag-build $(PREREL_VERSION)
-#	-b "-${BUILD_VERSION##*.}"
-#	-b "-${BUILD_VERSION##*.}"
-#	-b "-${BUILD_VERSION##*.}"
-#	--release $(BUILD_VERSION).$(GITREV)git.$(CMSGEMOS_OS).python$(PYTHON_VERSION) \
-#	--release $(CMSGEMOS_OS).python$(PYTHON_VERSION)
 
 _bdistbuild: _rpmsetup
 	@echo "Running _tarbuild target"
@@ -78,12 +57,17 @@ _sdistbuild: _rpmsetup
 
 _harvest:
 # Harvest the crop
-	find rpm/dist \( -iname "*.tar.gz" -o -iname "*.tar.bz2" -o -iname "*.tgz" -o -iname "*.zip" -o -iname "*.tbz2" \) -print0 -exec mv -t rpm/ {} \+
-	-rename tar. t rpm/*tar*
+	find $(RPMBUILD_DIR)/dist \( -iname "*.tar.gz" \
+	-o -iname "*.tar.bz2" \
+	-o -iname "*.tgz" \
+	-o -iname "*.zip" \
+	-o -iname "*.tbz2" \) -print0 -exec mv -t $(RPMBUILD_DIR)/ {} \+
+	-rename tar. t $(RPMBUILD_DIR)/*tar*
 
 _setup_update:
 	@echo "Running _setup_update target"
-	$(MakeDir) $(PackagePath)/rpm/RPMBUILD
+#	$(MakeDir) $(PackagePath)/rpm/RPMBUILD
+	$(MakeDir) $(RPMBUILD_DIR)
 
 	if [ -e $(PackagePath)/pkg/setup.py ]; then \
 		echo Found $(PackagePath)/pkg/setup.py; \
@@ -123,6 +107,7 @@ _setup_update:
 	sed -i 's#___gitrev___#$(GITREV)#'                $(RPMBUILD_DIR)/setup.py
 	sed -i 's#___gitver___#$(GIT_VERSION)#'           $(RPMBUILD_DIR)/setup.py
 	sed -i 's#___version___#$(PACKAGE_FULL_VERSION)#' $(RPMBUILD_DIR)/setup.py
+	sed -i 's#___buildtag___#$(PREREL_VERSION)#'      $(RPMBUILD_DIR)/setup.py
 	sed -i 's#___release___#$(BUILD_VERSION)#'        $(RPMBUILD_DIR)/setup.py
 	sed -i 's#___packager___#$(GEMDEVELOPER)#'        $(RPMBUILD_DIR)/setup.py
 	sed -i 's#___builddate___#$(BUILD_DATE)#'         $(RPMBUILD_DIR)/setup.py
@@ -165,6 +150,7 @@ _setup_update:
 	sed -i 's#___gitrev___#$(GITREV)#'                $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#___gitver___#$(GIT_VERSION)#'           $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#___version___#$(PACKAGE_FULL_VERSION)#' $(RPMBUILD_DIR)/setup.cfg
+	sed -i 's#___buildtag___#$(PREREL_VERSION)#'      $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#___release___#$(BUILD_VERSION)#'        $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#___packager___#$(GEMDEVELOPER)#'        $(RPMBUILD_DIR)/setup.cfg
 	sed -i 's#___builddate___#$(BUILD_DATE)#'         $(RPMBUILD_DIR)/setup.cfg
@@ -192,4 +178,4 @@ _installrpmall:
 .PHONY: _changelogall
 _changelogall:
 	@cd $(PackagePath); \
-	git log --full-diff --decorate=full < ChangeLog
+	git log --full-diff --decorate=full > ChangeLog

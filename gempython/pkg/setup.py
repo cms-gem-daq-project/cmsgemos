@@ -40,6 +40,7 @@ def getVersion():
         __prerel__='-{0:s}'.format(__release__.split('.')[2])
     else:
         __prerel__=''
+    __buildtag__='___buildtag___'
     __gitrev__='___gitrev___'
     __gitver__='___gitver___'
     __packager__='___packager___'
@@ -49,11 +50,12 @@ def getVersion():
 ## This file is generated automatically from cmsgemos_gempython setup.py
 __version__='{0:s}'
 __release__='{1:s}'
-__gitrev__='{2:s}'
-__gitver__='{3:s}'
-__packager__='{4:s}'
-__builddate__='{5:s}'
-""".format(__version__,__release__,__gitrev__,__gitver__,__builddate__,__packager__))
+__buildtag__='{2:s}'
+__gitrev__='{3:s}'
+__gitver__='{4:s}'
+__packager__='{5:s}'
+__builddate__='{6:s}'
+""".format(__version__,__release__,__buildtag__,__gitrev__,__gitver__,__packager__,__builddate__))
     # return '{0:s}{1:s}'.format(__version__,__prerel__)
     return '{0:s}'.format(__version__)
 
