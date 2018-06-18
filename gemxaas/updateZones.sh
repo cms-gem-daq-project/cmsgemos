@@ -78,4 +78,4 @@ do
 done
 
 mkdir -p $basedir/rpm
-find . -iname '*.rpm' -print0 -exec mv -t $basedir/rpm {} \+
+find $basedir/gem*/ -iname '*.rpm' -print0 -exec mv -t $basedir/rpm {} \+
