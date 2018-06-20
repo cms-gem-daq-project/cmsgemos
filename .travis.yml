@@ -81,7 +81,7 @@ before_install:
 
 script:
   - echo 'Running test stage on docker container $DOCKER_CONTAINER_ID'
-  # - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec ". /home/daqbuild/${REPO_NAME}/.ci/travis.sh ${OS_VERSION} ${PY_VER} ${ROOT_VER}"
+  # - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -eic ". /home/daqbuild/${REPO_NAME}/.ci/travis.sh ${OS_VERSION} ${PY_VER} ${ROOT_VER}"
 
 ## Defaults, applied to the 'test' stage
 after_success:
@@ -118,10 +118,10 @@ after_script: skip
   script:
     - echo 'Running build stage on docker container $DOCKER_CONTAINER_ID'
     - git status -sb
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make -j8'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make rpm'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
-    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -ec "rpm -q --filesbypkg -p /home/daqbuild/${REPO_NAME}/gem*/rpm/*.rpm"
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -eic "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make -j8'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -eic "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'make rpm'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -eic "/home/daqbuild/${REPO_NAME}/.ci/travis.sh 'gemxaas/updateZones.sh'" || travis_terminate 1
+    - docker exec -ti $DOCKER_CONTAINER_ID /bin/bash -eic "rpm -q --filesbypkg -p /home/daqbuild/${REPO_NAME}/gem*/rpm/*.rpm"
   after_success:
     - echo "Testing the installation of the package"
     - virtualenv building -p python --system-site-packages

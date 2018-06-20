@@ -1,4 +1,4 @@
-#!/bin/sh -xe
+#!/bin/sh -xie
 
 # Thanks to:
 # https://github.com/opensciencegrid/htcondor-ce/tree/master/tests
