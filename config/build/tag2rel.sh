@@ -78,6 +78,10 @@ if [ ! -z ${lasttag+x} ]
 then
     revision=$(git rev-list ${lasttag}.. --count  2>/dev/null)
 fi
+if [ -z ${revision+x} ]
+then
+    revision=0
+fi
 
 # basic version unit is vX.Y.Z
 vre='^v?(.)?([0-9]+).([0-9]+).([0-9]+)'

@@ -72,6 +72,17 @@ GCC50Flags = -std=c++17 -std=gnu++17
 GCC51Flags = -std=c++17 -std=gnu++17
 GCC60Flags = -std=c++17 -std=gnu++17
 GCC70Flags = -std=c++17 -std=gnu++17
+GCC80Flags = -std=c++2a -std=gnu++2a
+
+CLANG34Flags = -std=c++1y
+CLANG35Flags = -std=c++1z
+CLANG36Flags = -std=c++1z
+CLANG38Flags = -std=c++1z
+CLANG39Flags = -std=c++1z
+CLANG40Flags = -std=c++1z
+CLANG50Flags = -std=c++17
+CLANG60Flags = -std=c++17
+CLANG70Flags = -std=c++17
 
 # User C and CC flags
 UserCFlags =-DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
@@ -91,13 +102,17 @@ GCCGT500 := $(shell expr ${GCCNUM} \>= 50000)
 GCCGT510 := $(shell expr ${GCCNUM} \>= 50100)
 GCCGT600 := $(shell expr ${GCCNUM} \>= 60000)
 GCCGT700 := $(shell expr ${GCCNUM} \>= 70000)
+GCCGT800 := $(shell expr ${GCCNUM} \>= 80000)
 
 CLANGGT330 := $(shell expr ${CLANGNUM} \>= 30300)
 CLANGGT340 := $(shell expr ${CLANGNUM} \>= 30400)
 CLANGGT400 := $(shell expr ${CLANGNUM} \>= 40000)
 CLANGGT500 := $(shell expr ${CLANGNUM} \>= 50000)
 
-ifeq ($(GCCGT700), 1)
+ifeq ($(GCCGT800), 1)
+$(info Using GCC80Flags for GCC $(GCCNUM))
+UserCFlags+=${GCC80Flags}
+else ifeq ($(GCCGT700), 1)
 $(info Using GCC70Flags for GCC $(GCCNUM))
 UserCFlags+=${GCC70Flags}
 else ifeq ($(GCCGT600), 1)
