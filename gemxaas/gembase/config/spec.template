@@ -70,8 +70,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,gempro) %ghost %{_localstatedir}/log/gemdaq
 %attr(664,root,gempro) %ghost %{_localstatedir}/log/gemdaq/gempython.log
 %attr(664,root,gempro) %config(noreplace) %{_prefix}/etc/maps/connections.xml
-%attr(755,root,gempro) %{_prefix}
-%attr(755,root,gempro) %{_prefix}/etc
+# %attr(755,root,gempro) %ghost %{_prefix}
+# %attr(755,root,gempro) %ghost %{_prefix}/etc
 %attr(755,root,gempro) %{_prefix}/etc/maps
 %attr(755,root,gempro) %{_prefix}/etc/tcds
 %attr(755,root,gempro) %{_prefix}/etc/profile.d
@@ -81,11 +81,11 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,gempro) %{_prefix}/scripts
 %attr(755,root,gempro) %{_prefix}/scripts/linkuhaltables.sh
 %dir
-%{_prefix}/etc/maps
+# %{_prefix}/etc/maps
 %{_prefix}/etc/tcds
-%{_prefix}/etc/patches
-%{_prefix}/etc/profile.d
-%{_prefix}/scripts
+# %{_prefix}/etc/patches
+# %{_prefix}/etc/profile.d
+# %{_prefix}/scripts
 
 #%changelog
 
