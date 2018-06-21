@@ -14,10 +14,10 @@ perl -pi -e 's|/tmp/gempython.log|\/var\/log\/gemdaq\/gempython.log|g' $logcfg
 # set permissions
 cat <<EOF >>INSTALLED_FILES
 %attr(-,root,root) /opt/cmsgemos/bin/*.py
-%attr(0644,root,root) /usr/lib/python*/site-packages/gempython/**/*.py
-%attr(0644,root,root) /usr/lib/python*/site-packages/gempython/**/*.pyo
-%attr(0644,root,root) /usr/lib/python*/site-packages/gempython/**/*.pyc
-%attr(0755,root,root) /usr/lib/python*/site-packages/gempython/scripts/*.py
+%attr(0644,root,root) %{python2_sitelib}/gempython/**/*.py
+%attr(0644,root,root) %{python2_sitelib}/gempython/**/*.pyo
+%attr(0644,root,root) %{python2_sitelib}/gempython/**/*.pyc
+%attr(0755,root,root) %{python2_sitelib}/gempython/scripts/*.py
 %config(noreplace) ${logcfg##*x86_64}
 
 EOF
