@@ -46,7 +46,7 @@ __description__
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_prefix}/{etc,scripts}
-mkdir -p $RPM_BUILD_ROOT%{_prefix}/etc/{tcds,maps}
+mkdir -p $RPM_BUILD_ROOT%{_prefix}/etc/{maps,patches,profile.d,tcds}
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/gemdaq
 touch $RPM_BUILD_ROOT%{_localstatedir}/log/gemdaq/gempython.log
 
@@ -67,13 +67,23 @@ rm -rf $RPM_BUILD_ROOT
 #
 %files
 %defattr(644,root,root,755)
+%attr(755,root,gempro) %ghost %{_localstatedir}/log/gemdaq
 %attr(664,root,gempro) %ghost %{_localstatedir}/log/gemdaq/gempython.log
 %attr(664,root,gempro) %config(noreplace) %{_prefix}/etc/maps/connections.xml
+%attr(755,root,gempro) %{_prefix}
+%attr(755,root,gempro) %{_prefix}/etc
+%attr(755,root,gempro) %{_prefix}/etc/maps
+%attr(755,root,gempro) %{_prefix}/etc/tcds
+%attr(755,root,gempro) %{_prefix}/etc/profile.d
 %attr(755,root,gempro) %{_prefix}/etc/profile.d/gemdaqenv.sh
+%attr(755,root,gempro) %{_prefix}/etc/profile.d/gemdaqenv.sh
+%attr(755,root,gempro) %{_prefix}/etc/profile.d/gemdaqenv.sh
+%attr(755,root,gempro) %{_prefix}/scripts
 %attr(755,root,gempro) %{_prefix}/scripts/linkuhaltables.sh
 %dir
 %{_prefix}/etc/maps
 %{_prefix}/etc/tcds
+%{_prefix}/etc/patches
 %{_prefix}/etc/profile.d
 %{_prefix}/scripts
 
@@ -83,6 +93,7 @@ rm -rf $RPM_BUILD_ROOT
 #%doc MAINTAINER ChangeLog README
 
 %post
+# Run the patching here?
 
 %preun
 
