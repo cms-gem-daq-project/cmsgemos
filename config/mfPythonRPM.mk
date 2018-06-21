@@ -66,7 +66,6 @@ _harvest:
 
 _setup_update:
 	@echo "Running _setup_update target"
-#	$(MakeDir) $(PackagePath)/rpm/RPMBUILD
 	$(MakeDir) $(RPMBUILD_DIR)
 
 	if [ -e $(PackagePath)/pkg/setup.py ]; then \

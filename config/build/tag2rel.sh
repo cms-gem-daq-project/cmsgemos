@@ -84,7 +84,7 @@ then
 fi
 
 # basic version unit is vX.Y.Z
-vre='^v?(.)?([0-9]+).([0-9]+).([0-9]+)'
+vre='^v?(\.)?([0-9]+)\.([0-9]+)\.([0-9]+)'
 gre='(git[0-9a-fA-F]{6,8})'
 
 fullver=${version}
@@ -92,7 +92,7 @@ fullver=${version}
 if [[ $version =~ $vre$ ]]
 then
     basever=$version
-    if [ "${revision}" = "0" ]
+    if [ ${revision} = "0" ]
     then
         relver=1
     else
@@ -106,31 +106,43 @@ elif [[ $version =~ $vre ]]
 then
     pretag=""
 
-    if [[ "${version##*-}" =~ ^git ]]
+    if [[ ${version##*-} =~ ^git ]]
     then
+        ## only kept for legacy reason, don't put this in your tag
         basever=${version%-*}
+        prerel=${version##*-}
         version=${version%-*}
         pretag="-git"
-        relnum=
+        relnum=0
     fi
 
-    if [[ "${version##*-}" =~ ^(alpha|beta|pre|rc) ]]
+    if [[ ${version##*-} =~ ^dev ]]
+    then
+        ## only kept for legacy reason, don't put this in your tag
+        basever=${version%-*}
+        prerel=${version##*-}
+        version=${version%-*}
+        pretag="-dev"
+        relnum=0
+    fi
+
+    if [[ ${version##*-} =~ ^(alpha|beta|pre|rc) ]]
     then
         basever=${version%-*}
         prerel=${version##*-}
-        if [[ "${prerel}" =~ ^alpha ]]
+        if [[ ${prerel} =~ ^alpha ]]
         then
             pretag="-alpha"
             relnum=1
-        elif [[ "${prerel}" =~ ^beta ]]
+        elif [[ ${prerel} =~ ^beta ]]
         then
             pretag="-beta"
             relnum=2
-        elif [[ "${prerel}" =~ ^pre ]]
+        elif [[ ${prerel} =~ ^pre ]]
         then
             pretag="-pre"
             relnum=3
-        elif [[ "${prerel}" =~ ^rc ]]
+        elif [[ ${prerel} =~ ^rc ]]
         then
             pretag="-rc"
             relnum=3
@@ -140,7 +152,7 @@ then
     tags=( $(git tag -l "*${basever}${pretag}*") )
     ntags=$((${#tags[@]}))
 
-    if  [[ "${prerel}" =~ ^rc ]]
+    if  [[ ${prerel} =~ ^rc ]]
     then
         # because setuptools rewrites 'pre' as 'rc', need to count the number of 'pre' tags prior to addign the number of 'rc' tags
         # or we enforce that 'pre' and 'rc' are the "same" class, 'rc'>'pre',
@@ -150,7 +162,7 @@ then
         ntags=$((ntags+npretags))
     fi
     
-    if [ "${revision}" = "0" ]
+    if [ ${revision} = "0" ]
     then
         relver=0.${relnum}.${ntags}.${prerel}
         buildtag="${pretag}${ntags}"
