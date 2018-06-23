@@ -124,6 +124,18 @@ void gem::base::GEMMonitor::startMonitoring()
   updateMonitorables();
 }
 
+void gem::base::GEMMonitor::pauseMonitoring()
+{
+  DEBUG("GEMMonitor::pauseMonitoring");
+  p_timer->stop();
+}
+
+void gem::base::GEMMonitor::resumeMonitoring()
+{
+  DEBUG("GEMMonitor::resumeMonitoring");
+  p_timer->start();
+}
+
 void gem::base::GEMMonitor::stopMonitoring()
 {
   DEBUG("GEMMonitor::stopMonitoring");

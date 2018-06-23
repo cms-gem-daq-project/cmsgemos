@@ -47,7 +47,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   m_instance( 0),
   m_runNumber(0),
   m_runType("N/A"),
-
+  m_disableMonitoring(false),
   m_scanType(0),
   m_scanMin(0),
   m_scanMax(0),
@@ -124,6 +124,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpaceToolBox->createInteger64("RunNumber", m_runNumber.value_,   &m_runNumber, utils::GEMInfoSpaceToolBox::PROCESS);
   p_appInfoSpaceToolBox->createString(   "RunType",   m_runType.toString(), &m_runType,   utils::GEMInfoSpaceToolBox::PROCESS);
   p_appInfoSpaceToolBox->createString(   "CfgType",   m_cfgType.toString(), &m_cfgType,   utils::GEMInfoSpaceToolBox::PROCESS);
+  p_appInfoSpaceToolBox->createBool("DisableMonitoring", m_disableMonitoring.value_, &m_disableMonitoring, utils::GEMInfoSpaceToolBox::PROCESS);
   // p_appInfoSpaceToolBox->createString("reasonForFailure", &reasonForFailure_,utils::GEMInfoSpaceToolBox::PROCESS);
 
   p_appInfoSpace->fireItemAvailable("ScanInfo",    &m_scanInfo);

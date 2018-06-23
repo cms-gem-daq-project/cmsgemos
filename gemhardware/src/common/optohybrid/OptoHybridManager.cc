@@ -301,7 +301,8 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
         m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
         m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
         m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
-        m_optohybridMonitors.at(slot).at(link)->startMonitoring();
+        if (!m_disableMonitoring)
+          m_optohybridMonitors.at(slot).at(link)->startMonitoring();
 
         INFO("OptoHybridManager::initializeAction OptoHybrid connected on link "
              << link << " to AMC in slot " << (slot+1) << std::endl
@@ -345,6 +346,12 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     uint32_t inputMask = 0x0;
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -485,6 +492,12 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
+
   }
 
   INFO("OptoHybridManager::configureAction end");
@@ -507,6 +520,12 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     uint32_t inputMask = 0x0;
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -566,6 +585,12 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
+
   }
   INFO("OptoHybridManager::startAction end");
 }
@@ -577,6 +602,12 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -618,6 +649,12 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
+
   }
   // Update the scan parameters
   if (m_scanType.value_ == 2) {
@@ -649,6 +686,12 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     uint32_t inputMask = 0x0;
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -704,6 +747,12 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
+
   }
   INFO("OptoHybridManager::stopAction end");
 }
@@ -726,6 +775,12 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
     // usleep(10);
     DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     uint32_t inputMask = 0x0;
+
+    if (!m_disableMonitoring)
+      for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+        if (m_optohybridMonitors.at(slot).at(link))
+          m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10);
       DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");

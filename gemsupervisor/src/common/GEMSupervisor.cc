@@ -36,6 +36,7 @@ gem::supervisor::GEMSupervisor::TCDSConfig::TCDSConfig() {
   cpmHWConfig    = "";
   fedEnableMask  = "%";
   usePrimaryTCDS = true;
+  piSkipPLLReset = false;
 }
 
 void gem::supervisor::GEMSupervisor::TCDSConfig::registerFields(xdata::Bag<gem::supervisor::GEMSupervisor::TCDSConfig>* bag) {
@@ -419,6 +420,8 @@ void gem::supervisor::GEMSupervisor::configureAction()
                             (std::istreambuf_iterator<char>()    ) );
             // tcdsParams.addField("usePrimaryTCDS",m_tcdsConfig.bag.usePrimaryTCDS);
             // tcdsParams.addField("fedEnableMask",m_tcdsConfig.bag.fedEnableMask);
+            if (m_tcdsConfig.bag.piSkipPLLReset)
+              tcdsParams.insert(std::make_pair("skipPLLReset",&(m_tcdsConfig.bag.piSkipPLLReset)));
             tcdsParams.insert(std::make_pair("usePrimaryTCDS",&(m_tcdsConfig.bag.usePrimaryTCDS)));
             tcdsParams.insert(std::make_pair("fedEnableMask", &(m_tcdsConfig.bag.fedEnableMask)));
           } else if (((*j)->getClassName()).rfind("LPM") != std::string::npos) {
@@ -1398,11 +1401,11 @@ public:
     else if (classname == "tcds::ici::ICIController")               priority = 101; // must be second of TCDS!
     else if (classname == "tcds::pi::PIController")                 priority = 100; // must be first!?
     else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  95; // before AMC managers and before  AMC13
-    else if (classname == "gem::hw::glib::GLIBManager")             priority =  90; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  90; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::AMCManager")                    priority =  90; // before (or simultaneous with) OH manager and before  AMC13
+    else if (classname == "gem::hw::glib::GLIBManager")             priority =  90; // before (or simultaneous with) OH manager and before AMC13
+    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  90; // before (or simultaneous with) OH manager and before AMC13
+    else if (classname == "gem::hw::AMCManager")                    priority =  90; // before (or simultaneous with) OH manager and before AMC13
     else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  35; // after AMCManagers but not last
-    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  30; // after AMC13Manager but not last
+    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  30; // after AMC13Manager
     else if (classname == "gem::hw::gemPartitionViewer")            priority =  10; //
     return priority;
   }

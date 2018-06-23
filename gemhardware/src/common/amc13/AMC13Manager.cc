@@ -89,6 +89,7 @@ gem::hw::amc13::AMC13Manager::AMC13Info::AMC13Info()
   enableFakeData  = false;
   monBackPressure = false;
   enableLocalTTC  = false;
+  skipPLLReset    = true;
 
   // localTriggerConfig;
 
@@ -118,6 +119,7 @@ void gem::hw::amc13::AMC13Manager::AMC13Info::registerFields(xdata::Bag<AMC13Inf
   bag->addField("EnableFakeData",      &enableFakeData );
   bag->addField("MonitorBackPressure", &monBackPressure);
   bag->addField("EnableLocalTTC",      &enableLocalTTC );
+  bag->addField("SkipPLLReset",        &skipPLLReset   );
 
   bag->addField("LocalTriggerConfig",  &localTriggerConfig );
   bag->addField("PrescaleFactor", &prescaleFactor);
@@ -191,6 +193,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
     m_enableFakeData     = m_amc13Params.bag.enableFakeData.value_;
     m_monBackPressEnable = m_amc13Params.bag.monBackPressure.value_;
     m_enableLocalTTC     = m_amc13Params.bag.enableLocalTTC.value_;
+    m_skipPLLReset       = m_amc13Params.bag.skipPLLReset.value_;
     m_amc13TTCConfig     = m_amc13Params.bag.amc13TTCConfig;
 
     m_localTriggerConfig     = m_amc13Params.bag.localTriggerConfig;
@@ -377,6 +380,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   // reset the T1
   p_amc13->reset(::amc13::AMC13::T1);
 
+  // reset the PLL on the T1
+  if (!m_skipPLLReset)
+    p_amc13->write(::amc13::AMC13::T1, 0x0, 0x8);
+
   // reset the T1 counters
   p_amc13->resetCounters();
 
@@ -425,7 +432,9 @@ void gem::hw::amc13::AMC13Manager::startAction()
   DEBUG("AMC13Manager::Entering AMC13Manager::startAction()");
   // gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  p_amc13->reset(::amc13::AMC13::T1);
+  // p_amc13->reset(::amc13::AMC13::T1);
+  // reset the PLL on the T1 ?
+  // p_amc13->write(::amc13::AMC13::T1, 0x0, 0x1);
   usleep(10);
 
   p_amc13->resetCounters();

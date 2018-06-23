@@ -232,7 +232,9 @@ void gem::hw::glib::GLIBManager::initializeAction()
         m_glibMonitors.at(slot) = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs.at(slot), this, slot+1));
         m_glibMonitors.at(slot)->addInfoSpace("HWMonitoring", is_glibs.at(slot));
         m_glibMonitors.at(slot)->setupHwMonitoring();
-        m_glibMonitors.at(slot)->startMonitoring();
+
+        if (!m_disableMonitoring)
+          m_glibMonitors.at(slot)->startMonitoring();
       } else {
         std::stringstream msg;
         msg << "GLIBManager::initializeAction unable to communicate with GLIB in slot " << slot;
@@ -303,9 +305,27 @@ void gem::hw::glib::GLIBManager::configureAction()
       continue;
 
     if (m_glibs.at(slot)->isHwConnected()) {
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->pauseMonitoring();
+
       m_glibs.at(slot)->scaHardResetEnable(false);
       m_glibs.at(slot)->resetL1ACount();
       m_glibs.at(slot)->resetCalPulseCount();
+      // m_glibs.at(slot)->ttcMMCMPhaseShift();
+
+      std::stringstream pashiftcmd;
+      // FIXME hard coded for now, but super hacky garbage (only works at P5
+      pashiftcmd << "ssh -tq texas@eagle33 \"sh -lic"
+              << " /mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py\"";
+      int retval = std::system(pashiftcmd.str().c_str());
+      if (retval) {
+        std::stringstream msg;
+        msg << "GLIBManager::configureAction unable to shift phases: " << retval;
+        WARN(msg.str());
+        // fireEvent("Fail");
+        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+      }
 
       // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
       m_glibs.at(slot)->setL1AEnable(false);
@@ -351,7 +371,7 @@ void gem::hw::glib::GLIBManager::configureAction()
               << " --ztrim=" << 4.0
               << " --vt1bump=" << 10
               << " --config --run";
-      int retval = std::system(confcmd.str().c_str());
+      retval = std::system(confcmd.str().c_str());
       if (retval) {
         std::stringstream msg;
         msg << "GLIBManager::configureAction unable to configure chambers: " << retval;
@@ -374,6 +394,9 @@ void gem::hw::glib::GLIBManager::configureAction()
         XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
+
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->resumeMonitoring();
     } else {
       std::stringstream msg;
       msg << "GLIBManager::configureAction GLIB in slot " << (slot+1) << " is not connected";
@@ -411,6 +434,9 @@ void gem::hw::glib::GLIBManager::startAction()
       continue;
 
     if (m_glibs.at(slot)->isHwConnected()) {
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->pauseMonitoring();
+
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       m_glibs.at(slot)->ttcReset();
@@ -433,6 +459,9 @@ void gem::hw::glib::GLIBManager::startAction()
         XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
+
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->resumeMonitoring();
     } else {
       std::stringstream msg;
       msg << "GLIBManager::startAction GLIB in slot " << (slot+1) << " is not connected";
@@ -465,6 +494,9 @@ void gem::hw::glib::GLIBManager::pauseAction()
       continue;
 
     if (m_glibs.at(slot)->isHwConnected()) {
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->pauseMonitoring();
+
       DEBUG("connected a card in slot " << (slot+1));
 
       if (m_scanType.value_ == 2) {
@@ -498,6 +530,8 @@ void gem::hw::glib::GLIBManager::pauseAction()
       }
       // usleep(100); // just for testing the timing of different applications
 
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->resumeMonitoring();
     } else {
       std::stringstream msg;
       msg << "GLIBManager::pauseAction GLIB in slot " << (slot+1) << " is not connected";
@@ -542,6 +576,9 @@ void gem::hw::glib::GLIBManager::stopAction()
       continue;
 
     if (m_glibs[slot]->isHwConnected()) {
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->pauseMonitoring();
+
       // what is required for stopping the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
       m_glibs[slot]->setL1AEnable(false);
@@ -560,6 +597,9 @@ void gem::hw::glib::GLIBManager::stopAction()
         XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
+
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->resumeMonitoring();
     }
   }
   usleep(10);  // just for testing the timing of different applications
@@ -580,6 +620,9 @@ void gem::hw::glib::GLIBManager::haltAction()
       continue;
 
     if (m_glibs[slot]->isHwConnected()) {
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->pauseMonitoring();
+
       // what is required for halting the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
       m_glibs[slot]->setL1AEnable(false);
@@ -598,6 +641,9 @@ void gem::hw::glib::GLIBManager::haltAction()
         XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
+
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->resumeMonitoring();
     }
   }
   INFO("GLIBManager::haltAction end");
@@ -620,6 +666,9 @@ void gem::hw::glib::GLIBManager::resetAction()
       continue;
 
     if (m_glibs[slot]->isHwConnected()) {
+      if (!m_disableMonitoring)
+        m_glibMonitors.at(slot)->pauseMonitoring();
+
       // what is required for resetting the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
       m_glibs[slot]->setL1AEnable(false);
