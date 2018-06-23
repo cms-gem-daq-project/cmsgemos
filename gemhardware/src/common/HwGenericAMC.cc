@@ -677,6 +677,129 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift()
 {
   WARN("HwGenericAMC::ttcMMCMPhaseShift: TTC.CTRL.MMCM_PHASE_SHIFT is obsolete and will be removed in a future release");
   // writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_PHASE_SHIFT", 0x1);
+
+  // block these into one transaction
+  /*
+  register_pair_list regList = {
+    {"GEM_AMC.TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1},
+    {"GEM_AMC.TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1},
+    {"GEM_AMC.TTC.CTRL.PA_MANUAL_OVERRIDE",            0x1},
+    {"GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR",           0x1},
+    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_OVERRIDE",        0x1},
+    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR",       0x0},
+    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_STEP",      0x1},
+    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SEL_OVERRIDE",    0x1},
+    {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_COMBINED",        0x1},
+    {"GEM_AMC.TTC.CTRL.GTH_TXDLYBYPASS",               0x1},
+    {"GEM_AMC.TTC.CTRL.PA_MANUAL_PLL_RESET",           0x1},
+    {"GEM_AMC.TTC.CTRL.CNT_RESET",                     0x1}
+  };
+  writeRegs(regList);
+  */
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_OVERRIDE",            0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_SHIFT_DIR",           0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_OVERRIDE",        0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR",       0x0);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_STEP",      0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SEL_OVERRIDE",    0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_COMBINED",        0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.GTH_TXDLYBYPASS",               0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_PLL_RESET",           0x1);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.CNT_RESET",                     0x1);
+
+  // add readback of aforementioned registers
+
+  uint32_t mmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT") & 0xffff;
+  uint32_t gthShiftCnt  = (readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT") & 0xffff0000) >> 16;
+  bool pllLocked = false;
+  uint32_t phase = 0;
+  double phaseNs = 0.0;
+
+  bool mmcmShiftTable[] = {false, false, false, true, false, false, false,
+                           false, false, true, false, false, false, false,
+                           false, true, false, false, false, false, true,
+                           false, false, false, false, false, true, false,
+                           false, false, false, false, true, false, false,
+                           false, false, false, true, false, false};
+
+  for (int i = 0; i < 6*2560; ++i) {
+    /*
+    writeRegs({{"GEM_AMC.TTC.CTRL.CNT_RESET", 0x1},
+          {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1}});
+    */
+    writeReg(getDeviceBaseNode(), "TTC.CTRL.CNT_RESET", 0x1);
+    writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1);
+    if (gthShiftCnt == 39)
+      gthShiftCnt = 0;
+    else
+      gthShiftCnt += 1;
+
+    while (gthShiftCnt != ((readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT") & 0xffff0000) >> 16)) {
+      writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1);
+      WARN("HwGeneircAMC::ttcMMCMPhaseShift Repeating a GTH PI shift because the shift count doesn't match the expected value."
+           << " Expected shift cnt = "
+           << gthShiftCnt << ", ctp7 returned "
+           << ((readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT") & 0xffff0000) >> 16));
+
+      if (mmcmShiftTable[gthShiftCnt+1]) {
+        if (mmcmShiftCnt == 0xffff)
+          mmcmShiftCnt = 0;
+        else
+          mmcmShiftCnt += 1;
+
+        if (mmcmShiftCnt != (readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT") & 0xffff))
+          WARN("HwGeneircAMC::ttcMMCMPhaseShift Reported MMCM shift count doesn't match the expected MMCM shift count."
+               << " Expected shift cnt = "
+               << mmcmShiftCnt << " , ctp7 returned "
+               << (readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT") & 0xffff));
+      }
+
+      bool pllLocked    = checkPllLock();
+      uint32_t phase    = getMMCMPhaseMean();
+      double phaseNs    = phase * 0.01860119;
+      uint32_t gthPhase = getGTHPhaseMean();
+      double gthPhaseNs = gthPhase * 0.01860119;
+      INFO("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i << " (mmcm shift cnt = "
+           << mmcmShiftCnt
+           << "), mmcm phase counts = "
+           << phase
+           << ", mmcm phase = "
+           << phaseNs
+           << "ns, gth phase counts = "
+           << gthPhase
+           << ", gth phase = "
+           << gthPhaseNs
+           << ", PLL locked = "
+           << pllLocked);
+      // f.write("%d,%f,%f,%f,%f\n" % (i, phase, phaseNs, gthPhase, gthPhaseNs));
+
+      if (pllLocked)
+        break;
+    }
+  }
+}
+
+bool gem::hw::HwGenericAMC::checkPllLock()
+{
+  double PLL_LOCK_WAIT_TIME = 0.0001; // wait 100us to allow the PLL to lock
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_PLL_RESET", 0x1);
+  sleep(PLL_LOCK_WAIT_TIME);
+  if (((readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.PHASE_LOCKED") & 0x4) >> 2) == 0)
+    return false;
+  else
+    return true;
+}
+
+uint32_t gem::hw::HwGenericAMC::getMMCMPhaseMean()
+{
+  return readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.TTC_PM_PHASE_MEAN");
+}
+
+uint32_t gem::hw::HwGenericAMC::getGTHPhaseMean()
+{
+  return readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.GTH_PM_PHASE_MEAN");
 }
 
 void gem::hw::HwGenericAMC::ttcCounterReset()

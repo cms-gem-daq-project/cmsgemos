@@ -579,7 +579,25 @@ namespace gem {
         /**
          * @brief Shift the phase of the MMCM of the TTC module
          */
-        virtual void ttcMMCMPhaseShift();
+        void ttcMMCMPhaseShift();
+
+        /**
+         * @brief Check the lock status of the MMCM PLL
+         * @returns Lock state of the MMCM PLL
+         */
+        bool checkPllLock();
+
+        /**
+         * @brief Check the lock status of the MMCM PLL
+         * @returns Mean value (calculated in firmware) of the MMCH phase
+         */
+        uint32_t getMMCMPhaseMean();
+
+        /**
+         * @brief Check the lock status of the MMCM PLL
+         * @returns Mean value (calculated in firmware) of the GTH phase
+         */
+        uint32_t getGTHPhaseMean();
 
         /**
          * @brief Reset the counters of the TTC module
