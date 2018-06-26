@@ -1,5 +1,4 @@
 import os, signal, sys, time
-sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.tools.amc_user_functions_xhal import *
 from gempython.utils.gemlogger import colormsg
