@@ -1,28 +1,16 @@
 import os, signal, sys
-sys.path.append('${GEM_PYTHON_PATH}')
 
 from ctypes import *
-from gempython.utils.gemlogger import colormsg
+from gempython.utils.gemlogger import colors,colormsg
 from gempython.utils.nesteddict import nesteddict
-from gempython.utils.wrappers import envCheck
 from time import sleep
 
-from rw_reg import Node, parseInt, parseXML
+from reg_utils.reg_interface.common.reg_xml_parser import Node, parseXML, parseInt
 
 import logging
 
 gMAX_RETRIES = 5
 gRetries = 5
-
-class colors:
-        WHITE   = '\033[97m'
-        CYAN    = '\033[96m'
-        MAGENTA = '\033[95m'
-        BLUE    = '\033[94m'
-        YELLOW  = '\033[93m'
-        GREEN   = '\033[92m'
-        RED     = '\033[91m'
-        ENDC    = '\033[0m'
 
 class ctp7Params:
     # Key (shelf,slot); val = eagleXX
@@ -40,8 +28,6 @@ class HwAMC:
         """
         Initialize the HW board an open an RPC connection
         """
-        envCheck("XHAL_ROOT")
-        #self.addrTable = os.getenv("XHAL_ROOT")+'/etc/gem_amc_top.xml'
         
         # Debug flag
         self.debug = debug
@@ -55,7 +41,7 @@ class HwAMC:
         self.slot = slot
 
         # Define the connection
-        self.lib = CDLL(os.getenv("XHAL_ROOT")+"/lib/x86_64/librpcman.so")
+        self.lib = CDLL("librpcman.so")
         self.rpc_connect = self.lib.init
         self.rpc_connect.argtypes = [c_char_p]
         self.rpc_connect.restype = c_uint
