@@ -1,5 +1,4 @@
 import os, signal, sys, time
-sys.path.append('${GEM_PYTHON_PATH}')
 
 from gempython.utils.nesteddict import nesteddict
 from gempython.tools.optohybrid_user_functions_xhal import *
