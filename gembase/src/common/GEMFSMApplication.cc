@@ -531,15 +531,15 @@ bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
   m_wl_semaphore.take();
   INFO(msgBase << "Called, current state: " << m_gemfsm.getCurrentState());
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // pause timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
-    try {
-      p_gemMonitor->pauseMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to pause monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
 
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_CONFIGURING)) {  // deal with possible race condition
     DEBUG(msgBase << "Not in " << STATE_CONFIGURING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
@@ -594,15 +594,15 @@ bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // resume timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
-    try {
-      p_gemMonitor->resumeMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to resume monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
 
   std::stringstream msg;
   msg << "Firing 'IsConfigured' into the FSM";
@@ -619,15 +619,15 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
   m_wl_semaphore.take();
   INFO(msgBase << "start called, current state: " << m_gemfsm.getCurrentState());
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // pause timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
-    try {
-      p_gemMonitor->pauseMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to pause monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
 
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_STARTING)) {  // deal with possible race condition
     usleep(10);
@@ -696,15 +696,15 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
   m_wl_semaphore.take();
   INFO(msgBase << "pause called, current state: " << m_gemfsm.getCurrentState());
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // pause timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
-    try {
-      p_gemMonitor->pauseMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to pause monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
 
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_PAUSING)) {  // deal with possible race condition
     usleep(10);
@@ -758,15 +758,15 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // resume timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
-    try {
-      p_gemMonitor->resumeMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to resume monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
 
   std::stringstream msg;
   msg << "GEMFSMApplication::pause Firing 'IsPaused' into the FSM";
@@ -783,15 +783,15 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
   m_wl_semaphore.take();
   INFO(msgBase << "resume called, current state: " << m_gemfsm.getCurrentState());
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // pause timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
-    try {
-      p_gemMonitor->pauseMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to pause monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
 
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_RESUMING)) {  // deal with possible race condition
     usleep(10);
@@ -845,15 +845,15 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // resume timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
-    try {
-      p_gemMonitor->resumeMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to resume monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
 
   std::stringstream msg;
   msg << "GEMFSMApplication::resume Firing 'IsRunning' into the FSM";
@@ -870,15 +870,15 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
   m_wl_semaphore.take();
   INFO(msgBase << "stop called, current state: " << m_gemfsm.getCurrentState());
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // pause timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
-    try {
-      p_gemMonitor->pauseMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to pause monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
 
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_STOPPING)) {  // deal with possible race condition
     usleep(10);
@@ -932,15 +932,15 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // resume timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
-    try {
-      p_gemMonitor->resumeMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to resume monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
 
   std::stringstream msg;
   msg << "GEMFSMApplication::stop Firing 'IsConfigured' into the FSM";
@@ -957,15 +957,15 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
   m_wl_semaphore.take();
   INFO(msgBase << "halt called, current state: " << m_gemfsm.getCurrentState());
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // pause timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
-    try {
-      p_gemMonitor->pauseMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to pause monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
 
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_HALTING)) {  // deal with possible race condition
     usleep(10);
@@ -1019,15 +1019,15 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
     return false;
   }
 
-  if (p_gemMonitor && !m_disableMonitoring) {
-    // resume timers?
-    DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
-    try {
-      p_gemMonitor->resumeMonitoring();
-    } catch (toolbox::task::exception::Exception const& ex) {
-      WARN("Unable to resume monitoring " << ex.what());
-    }
-  }
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
 
   std::stringstream msg;
   msg << "GEMFSMApplication::halt Firing 'IsHalted' into the FSM";
@@ -1054,7 +1054,7 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     m_progress = 0.90;
 
     /*
-    if (p_gemMonitor && !m_disableMonitoring) {
+    if (p_gemMonitor) {
       // reset the monitor, check for validity?
       // stops timers, removes items from json updates?
       DEBUG(msgBase << "reset found p_gemMonitor pointer, stopping monitoring");

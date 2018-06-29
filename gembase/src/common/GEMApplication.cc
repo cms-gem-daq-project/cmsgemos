@@ -47,7 +47,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   m_instance( 0),
   m_runNumber(0),
   m_runType("N/A"),
-  m_disableMonitoring(false),
+  m_disableMonitoring(true),
   m_scanType(0),
   m_scanMin(0),
   m_scanMax(0),
@@ -138,6 +138,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->addItemRetrieveListener("RunNumber", this);
   p_appInfoSpace->addItemRetrieveListener("RunType",   this);
   p_appInfoSpace->addItemRetrieveListener("CfgType",   this);
+  p_appInfoSpace->addItemRetrieveListener("DisableMonitoring",   this);
 
   p_appInfoSpace->addItemRetrieveListener("ScanInfo",      this);
   p_appInfoSpace->addItemRetrieveListener("ScanType",      this);
@@ -149,6 +150,7 @@ gem::base::GEMApplication::GEMApplication(xdaq::ApplicationStub *stub)
   p_appInfoSpace->addItemChangedListener( "RunNumber", this);
   p_appInfoSpace->addItemChangedListener( "RunType",   this);
   p_appInfoSpace->addItemChangedListener( "CfgType",   this);
+  p_appInfoSpace->addItemChangedListener( "DisableMonitoring",   this);
 
   p_appInfoSpace->addItemChangedListener( "ScanInfo",      this);
   p_appInfoSpace->addItemChangedListener( "ScanType",      this);
