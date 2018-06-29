@@ -377,12 +377,13 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   // set the FED id
   p_amc13->setFEDid(m_fedID);
 
-  // reset the T1
-  p_amc13->reset(::amc13::AMC13::T1);
-
   // reset the PLL on the T1
   if (!m_skipPLLReset)
     p_amc13->write(::amc13::AMC13::T1, 0x0, 0x8);
+  usleep(200);
+
+  // reset the T1
+  p_amc13->reset(::amc13::AMC13::T1);
 
   // reset the T1 counters
   p_amc13->resetCounters();
@@ -432,9 +433,13 @@ void gem::hw::amc13::AMC13Manager::startAction()
   DEBUG("AMC13Manager::Entering AMC13Manager::startAction()");
   // gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-  // p_amc13->reset(::amc13::AMC13::T1);
-  // reset the PLL on the T1 ?
-  // p_amc13->write(::amc13::AMC13::T1, 0x0, 0x1);
+
+  // reset the T1?
+  p_amc13->reset(::amc13::AMC13::T1);
+
+  // reset the PLL on the T1
+  // if (!m_skipPLLReset)
+  //   p_amc13->write(::amc13::AMC13::T1, 0x0, 0x1);
   usleep(10);
 
   p_amc13->resetCounters();
