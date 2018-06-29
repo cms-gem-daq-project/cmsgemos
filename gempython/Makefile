@@ -20,7 +20,7 @@ $(info PythonModules=${PythonModules})
 
 GEMPYTHON_VER_MAJOR=0
 GEMPYTHON_VER_MINOR=99
-GEMPYTHON_VER_PATCH=0
+GEMPYTHON_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk

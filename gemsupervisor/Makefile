@@ -11,7 +11,7 @@ PackageName=supervisor
 
 GEMSUPERVISOR_VER_MAJOR=0
 GEMSUPERVISOR_VER_MINOR=99
-GEMSUPERVISOR_VER_PATCH=0
+GEMSUPERVISOR_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
