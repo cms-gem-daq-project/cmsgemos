@@ -454,13 +454,20 @@ void gem::hw::HwGenericAMC::enableDAQLink(uint32_t const& enableMask)
 {
   // move enabling of input mask to OH manager
   // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK", enableMask);
+  setLogLevelTo(uhal::Debug());
+  DEBUG("HwGenericAMC::enableDAQLink before write "
+        << std::hex << std::setw(8) << std::setfill('0') << readReg(getDeviceBaseNode(), "DAQ.CONTROL") << std::dec);
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE", 0x1);
+  usleep(50);
+  DEBUG("HwGenericAMC::enableDAQLink after write "
+        << std::hex << std::setw(8) << std::setfill('0') << readReg(getDeviceBaseNode(), "DAQ.CONTROL") << std::dec);
+  setLogLevelTo(uhal::Error());
 }
 
 void gem::hw::HwGenericAMC::disableDAQLink()
 {
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE",        0x0);
+  // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE",        0x0);
 }
 
 void gem::hw::HwGenericAMC::enableZeroSuppression(bool en)
@@ -477,7 +484,7 @@ void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& 
 {
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x1);
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.RESET", 0x0);
-  disableDAQLink();
+  // disableDAQLink();
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAV_TIMEOUT", davTO);
   setDAQLinkInputTimeout();  // default value is 0x100
   // setDAQLinkInputTimeout(davTO);
@@ -814,7 +821,8 @@ bool gem::hw::HwGenericAMC::getL1AEnable()
 
 void gem::hw::HwGenericAMC::setL1AEnable(bool enable)
 {
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.L1A_ENABLE", (uint32_t)enable);
+  // uint32_t safeEnable = 0xa4a2c200+int(enable);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.L1A_ENABLE", enable);
 }
 
 uint32_t gem::hw::HwGenericAMC::getTTCConfig(AMCTTCCommand const& cmd)
