@@ -1305,7 +1305,7 @@ void gem::supervisor::GEMSupervisor::pausePhaseMonitoring()
 //  throw (xoap::exception::Exception)
 {
   std::stringstream ctp7phasemoncmd;
-  // FIXME hard coded for now, but super hacky garbage (only works at P5
+  // FIXME hard coded for now, but super hacky garbage (only works at P5)
   ctp7phasemoncmd << "ssh -Tq texas@eagle33 \"ps | grep [c]tp7 | cut -d' ' -f2 | xargs kill\"";
   int retval = std::system(ctp7phasemoncmd.str().c_str());
   if (retval) {
@@ -1319,8 +1319,8 @@ void gem::supervisor::GEMSupervisor::resumePhaseMonitoring()
 //  throw (xoap::exception::Exception)
 {
   std::stringstream ctp7phasemoncmd;
-  // FIXME hard coded for now, but super hacky garbage (only works at P5
-  ctp7phasemoncmd << "ssh -Tq texas@eagle33 sh -lic \"apps/reg_interface/ctp7_phase_monitor.py &\"";
+  // FIXME hard coded for now, but super hacky garbage (only works at P5)
+  ctp7phasemoncmd << "ssh -Tq texas@eagle33 \"sh -lic 'apps/reg_interface/ctp7_phase_monitor.py &'\"";
   int retval = std::system(ctp7phasemoncmd.str().c_str());
   if (retval) {
     std::stringstream msg;

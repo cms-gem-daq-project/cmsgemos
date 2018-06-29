@@ -317,8 +317,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       // amc->ttcMMCMPhaseShift();
 
       std::stringstream pashiftcmd;
-      // FIXME hard coded for now, but super hacky garbage (only works at P5
-      pashiftcmd << "ssh -Tq texas@eagle33 sh -lic \"/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py\"";
+      // FIXME hard coded for now, but super hacky garbage (only works at P5)
+      pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py'\"";
       int retval = std::system(pashiftcmd.str().c_str());
       if (retval) {
         std::stringstream msg;
