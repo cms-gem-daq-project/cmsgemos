@@ -161,7 +161,21 @@ namespace gem {
          * @throws
          */
         void renewTCDSLease();
-          // throw (xoap::exception::Exception);
+        // throw (xoap::exception::Exception);
+
+        /**
+         * @brief Pause the phase monitoring of the CTP7
+         * @throws
+         */
+        void pausePhaseMonitoring();
+        // throw (xoap::exception::Exception);
+
+        /**
+         * @brief Resume the phase monitoring of the CTP7
+         * @throws
+         */
+        void resumePhaseMonitoring();
+        // throw (xoap::exception::Exception);
 
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
 
