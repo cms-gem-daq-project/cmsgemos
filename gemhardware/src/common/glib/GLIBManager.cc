@@ -221,20 +221,21 @@ void gem::hw::glib::GLIBManager::initializeAction()
     try {
       DEBUG("GLIBManager::obtaining pointer to HwGLIB");
       m_glibs.at(slot) = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
-      if (m_glibs.at(slot)->isHwConnected()) {
+      glib_shared_ptr amc = m_glibs.at(slot);
+      if (amc->isHwConnected()) {
         DEBUG("GLIBManager::Creating InfoSpace items for GLIB device " << deviceName);
 
-        m_glibs.at(slot)->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+        amc->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
 
         // maybe better to raise exception here and fail if not connected, as we expected the card to be here?
-        createGLIBInfoSpaceItems(is_glibs.at(slot), m_glibs.at(slot));
+        createGLIBInfoSpaceItems(is_glibs.at(slot), amc);
 
-        m_glibMonitors.at(slot) = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(m_glibs.at(slot), this, slot+1));
-        m_glibMonitors.at(slot)->addInfoSpace("HWMonitoring", is_glibs.at(slot));
-        m_glibMonitors.at(slot)->setupHwMonitoring();
-
-        if (!m_disableMonitoring)
+        if (!m_disableMonitoring) {
+          m_glibMonitors.at(slot) = std::shared_ptr<GLIBMonitor>(new GLIBMonitor(amc, this, slot+1));
+          m_glibMonitors.at(slot)->addInfoSpace("HWMonitoring", is_glibs.at(slot));
+          m_glibMonitors.at(slot)->setupHwMonitoring();
           m_glibMonitors.at(slot)->startMonitoring();
+        }
       } else {
         std::stringstream msg;
         msg << "GLIBManager::initializeAction unable to communicate with GLIB in slot " << slot;
@@ -277,7 +278,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (!info.present)
       continue;
 
-    if (m_glibs.at(slot)->isHwConnected()) {
+    glib_shared_ptr amc = m_glibs.at(slot);
+    if (amc->isHwConnected()) {
       DEBUG("GLIBManager::connected a card in slot " << (slot+1));
     } else {
       std::stringstream msg;
@@ -304,19 +306,19 @@ void gem::hw::glib::GLIBManager::configureAction()
     if (!info.present)
       continue;
 
-    if (m_glibs.at(slot)->isHwConnected()) {
-      if (!m_disableMonitoring)
+    glib_shared_ptr amc = m_glibs.at(slot);
+    if (amc->isHwConnected()) {
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
-      m_glibs.at(slot)->scaHardResetEnable(false);
-      m_glibs.at(slot)->resetL1ACount();
-      m_glibs.at(slot)->resetCalPulseCount();
-      // m_glibs.at(slot)->ttcMMCMPhaseShift();
+      amc->scaHardResetEnable(false);
+      amc->resetL1ACount();
+      amc->resetCalPulseCount();
+      // amc->ttcMMCMPhaseShift();
 
       std::stringstream pashiftcmd;
       // FIXME hard coded for now, but super hacky garbage (only works at P5
-      pashiftcmd << "ssh -tq texas@eagle33 \"sh -lic"
-              << " /mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py\"";
+      pashiftcmd << "ssh -Tq texas@eagle33 sh -lic \"/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py\"";
       int retval = std::system(pashiftcmd.str().c_str());
       if (retval) {
         std::stringstream msg;
@@ -328,31 +330,33 @@ void gem::hw::glib::GLIBManager::configureAction()
       }
 
       // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
-      m_glibs.at(slot)->setL1AEnable(false);
-      m_glibs.at(slot)->resetDAQLink();
-      m_glibs.at(slot)->enableZeroSuppression(0x1);
-      m_glibs.at(slot)->setDAQLinkRunType(0x0);
-      m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
+      amc->setL1AEnable(false);
+      amc->disableDAQLink();
+      amc->resetDAQLink();
+      amc->enableDAQLink(0x4);  // FIXME
+      amc->enableZeroSuppression(0x1);
+      amc->setDAQLinkRunType(0x0);
+      amc->setDAQLinkRunParameters(0xfaac);
 
       if (m_scanType.value_ == 2) {
 	INFO("GLIBManager::configureAction: FIRST  " << m_scanMin.value_);
 
-	m_glibs.at(slot)->setDAQLinkRunType(0x2);
-	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,m_scanMin.value_);
-	// m_glibs.at(slot)->setDAQLinkRunParameter(0x2,VT1);  // set these at start so DQM has them?
-	// m_glibs.at(slot)->setDAQLinkRunParameter(0x3,VT2);  // set these at start so DQM has them?
+	amc->setDAQLinkRunType(0x2);
+	amc->setDAQLinkRunParameter(0x1,m_scanMin.value_);
+	// amc->setDAQLinkRunParameter(0x2,VT1);  // set these at start so DQM has them?
+	// amc->setDAQLinkRunParameter(0x3,VT2);  // set these at start so DQM has them?
       } else if (m_scanType.value_ == 3) {
 	uint32_t initialVT1 = m_scanMin.value_;
 	uint32_t initialVT2 = 0;  // std::max(0,(uint32_t)m_scanMax.value_);
 	INFO("GLIBManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
 
-	m_glibs.at(slot)->setDAQLinkRunType(0x3);
-	// m_glibs.at(slot)->setDAQLinkRunParameter(0x1,latency);  // set this at start so DQM has it?
-	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,initialVT1);
-	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,initialVT2);
+	amc->setDAQLinkRunType(0x3);
+	// amc->setDAQLinkRunParameter(0x1,latency);  // set this at start so DQM has it?
+	amc->setDAQLinkRunParameter(0x2,initialVT1);
+	amc->setDAQLinkRunParameter(0x3,initialVT2);
       } else {
-	m_glibs.at(slot)->setDAQLinkRunType(0x1);
-	m_glibs.at(slot)->setDAQLinkRunParameters(0xfaac);
+	amc->setDAQLinkRunType(0x1);
+	amc->setDAQLinkRunParameters(0xfaac);
       }
 
       // what else is required for configuring the GLIB?
@@ -395,7 +399,7 @@ void gem::hw::glib::GLIBManager::configureAction()
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
 
-      if (!m_disableMonitoring)
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
     } else {
       std::stringstream msg;
@@ -433,17 +437,19 @@ void gem::hw::glib::GLIBManager::startAction()
     if (!info.present)
       continue;
 
-    if (m_glibs.at(slot)->isHwConnected()) {
-      if (!m_disableMonitoring)
+    glib_shared_ptr amc = m_glibs.at(slot);
+    if (amc->isHwConnected()) {
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
       DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
-      m_glibs.at(slot)->ttcReset();
-      m_glibs[slot]->resetDAQLink();
-      m_glibs.at(slot)->enableZeroSuppression(0x1);
-      m_glibs.at(slot)->enableDAQLink(0x4);  // FIXME
-      m_glibs.at(slot)->setL1AEnable(true);
+      amc->ttcReset();
+      amc->enableDAQLink(0x4);  // FIXME
+      amc->resetDAQLink();
+      amc->enableZeroSuppression(0x1);
+      amc->enableDAQLink(0x4);  // FIXME
+      amc->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
 
       std::stringstream statuscmd;
@@ -460,7 +466,7 @@ void gem::hw::glib::GLIBManager::startAction()
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
 
-      if (!m_disableMonitoring)
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
     } else {
       std::stringstream msg;
@@ -493,8 +499,9 @@ void gem::hw::glib::GLIBManager::pauseAction()
     if (!info.present)
       continue;
 
-    if (m_glibs.at(slot)->isHwConnected()) {
-      if (!m_disableMonitoring)
+    glib_shared_ptr amc = m_glibs.at(slot);
+    if (amc->isHwConnected()) {
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
       DEBUG("connected a card in slot " << (slot+1));
@@ -504,13 +511,13 @@ void gem::hw::glib::GLIBManager::pauseAction()
 	INFO("GLIBManager::pauseAction LatencyScan AMC" << (slot+1) << " Latency " << (int)updatedLatency);
 
         // wait for events to finish building
-        while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
+        while (!amc->l1aFIFOIsEmpty()) {
           DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
           usleep(10);
         }
         DEBUG("GLIBManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
               << (int)updatedLatency);
-	m_glibs.at(slot)->setDAQLinkRunParameter(0x1,updatedLatency);
+	amc->setDAQLinkRunParameter(0x1,updatedLatency);
       } else if (m_scanType.value_ == 3) {
 	uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
 	uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
@@ -519,18 +526,18 @@ void gem::hw::glib::GLIBManager::pauseAction()
              << " VT2 " << (int)updatedVT2);
 
         // wait for events to finish building
-        while (!m_glibs.at(slot)->l1aFIFOIsEmpty()) {
+        while (!amc->l1aFIFOIsEmpty()) {
           DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
           usleep(10);
         }
         DEBUG("GLIBManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
               << " and VT2 " << (int)updatedVT2);
-	m_glibs.at(slot)->setDAQLinkRunParameter(0x2,updatedVT1);
-	m_glibs.at(slot)->setDAQLinkRunParameter(0x3,updatedVT2);
+	amc->setDAQLinkRunParameter(0x2,updatedVT1);
+	amc->setDAQLinkRunParameter(0x3,updatedVT2);
       }
       // usleep(100); // just for testing the timing of different applications
 
-      if (!m_disableMonitoring)
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
     } else {
       std::stringstream msg;
@@ -575,14 +582,16 @@ void gem::hw::glib::GLIBManager::stopAction()
     if (!info.present)
       continue;
 
-    if (m_glibs[slot]->isHwConnected()) {
-      if (!m_disableMonitoring)
+    glib_shared_ptr amc = m_glibs.at(slot);
+    if (amc->isHwConnected()) {
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
       // what is required for stopping the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
-      m_glibs[slot]->setL1AEnable(false);
-      // m_glibs[slot]->resetDAQLink();
+      amc->setL1AEnable(false);
+      amc->disableDAQLink();
+      amc->resetDAQLink();
 
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
@@ -598,7 +607,7 @@ void gem::hw::glib::GLIBManager::stopAction()
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
 
-      if (!m_disableMonitoring)
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
     }
   }
@@ -619,14 +628,15 @@ void gem::hw::glib::GLIBManager::haltAction()
     if (!info.present)
       continue;
 
-    if (m_glibs[slot]->isHwConnected()) {
-      if (!m_disableMonitoring)
+    glib_shared_ptr amc = m_glibs.at(slot);
+    if (amc->isHwConnected()) {
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
       // what is required for halting the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
-      m_glibs[slot]->setL1AEnable(false);
-      m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+      amc->setL1AEnable(false);
+      amc->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
 
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
@@ -642,7 +652,7 @@ void gem::hw::glib::GLIBManager::haltAction()
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
 
-      if (!m_disableMonitoring)
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->resumeMonitoring();
     }
   }
@@ -665,14 +675,15 @@ void gem::hw::glib::GLIBManager::resetAction()
     if (!info.present)
       continue;
 
-    if (m_glibs[slot]->isHwConnected()) {
-      if (!m_disableMonitoring)
+    glib_shared_ptr amc = m_glibs.at(slot);
+    if (amc->isHwConnected()) {
+      if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
       // what is required for resetting the GLIB?
       // FIXME temporarily inhibit triggers at the GLIB
-      m_glibs[slot]->setL1AEnable(false);
-      m_glibs[slot]->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+      amc->setL1AEnable(false);
+      amc->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
 
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
