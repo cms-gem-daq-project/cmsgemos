@@ -1306,7 +1306,7 @@ void gem::supervisor::GEMSupervisor::pausePhaseMonitoring()
 {
   std::stringstream ctp7phasemoncmd;
   // FIXME hard coded for now, but super hacky garbage (only works at P5)
-  ctp7phasemoncmd << "ssh -Tq texas@eagle33 \"ps | grep [c]tp7 | cut -d' ' -f2 | xargs kill\"";
+  ctp7phasemoncmd << "ssh -Tq texas@eagle33 \"ps | grep [c]tp7 | cut -d' ' -f1 | xargs kill\"";
   int retval = std::system(ctp7phasemoncmd.str().c_str());
   if (retval) {
     std::stringstream msg;
