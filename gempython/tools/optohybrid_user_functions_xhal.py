@@ -6,16 +6,8 @@ from gempython.utils.nesteddict import nesteddict
 
 import logging
 
-#class scanmode:
-#    THRESHTRG = 0 # Threshold scan
-#    THRESHCH  = 1 # Threshold scan per channel
-#    LATENCY   = 2 # Latency scan
-#    SCURVE    = 3 # s-curve scan
-#    THRESHTRK = 4 # Threshold scan with tracking data
-#    pass
-
 class HwOptoHybrid:
-    def __init__(self, slot, link, shelf=1, debug=False):
+    def __init__(self, cardName, link, debug=False):
         """
         Initialize the HW board an open an RPC connection
         """
@@ -28,7 +20,7 @@ class HwOptoHybrid:
         # Store HW info
         self.link = link
         self.nVFATs = 24
-        self.parentAMC = HwAMC(slot, shelf, debug)
+        self.parentAMC = HwAMC(cardName, debug)
 
         # Define broadcast read
         self.bRead = self.parentAMC.lib.broadcastRead
