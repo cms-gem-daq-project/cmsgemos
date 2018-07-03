@@ -7,7 +7,7 @@ from gempython.utils.gemlogger import colors,colormsg
 import logging
 
 class HwVFAT:
-    def __init__(self, slot, link, shelf=1, debug=False):
+    def __init__(self, cardName, link, debug=False):
         """
         Initialize the HW board an open an RPC connection
         """
@@ -18,7 +18,7 @@ class HwVFAT:
         self.vfatlogger = logging.getLogger(__name__)
 
         # Optohybrid
-        self.parentOH = HwOptoHybrid(slot, link, shelf, debug)
+        self.parentOH = HwOptoHybrid(cardName, link, debug)
         
         # Define VFAT3 Configuration
         self.confVFAT3s = self.parentOH.parentAMC.lib.configureVFAT3s
@@ -65,10 +65,8 @@ class HwVFAT:
 
             # Run mode
             if(enable):
-                #self.parentOH.parentAMC.writeRegister("GEM_AMC.GEM_SYSTEM.VFAT3.VFAT3_RUN_MODE",0x1) #Doesn't seem to work
                 self.writeAllVFATs("CFG_RUN",0x1,mask)
             else:
-                #self.parentOH.parentAMC.writeRegister("GEM_AMC.GEM_SYSTEM.VFAT3.VFAT3_RUN_MODE",0x0) #Doesn't seem to work
                 self.writeAllVFATs("CFG_RUN",0x0,mask)
                 pass
         else:

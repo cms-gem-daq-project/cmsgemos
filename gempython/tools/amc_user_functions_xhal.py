@@ -5,26 +5,18 @@ from gempython.utils.gemlogger import colors,colormsg
 from gempython.utils.nesteddict import nesteddict
 from time import sleep
 
-from reg_utils.reg_interface.common.reg_xml_parser import Node, parseXML, parseInt
+from reg_utils.reg_interface.common.reg_base_ops import rpc_connect, rReg, writeReg
+from reg_utils.reg_interface.common.reg_xml_parser import getNode, Node, parseInt, parseXML
+
+from xhal.reg_interface_gem.core.reg_extra_ops import rBlock
 
 import logging
 
 gMAX_RETRIES = 5
 gRetries = 5
 
-class ctp7Params:
-    # Key (shelf,slot); val = eagleXX
-    # See: https://twiki.cern.ch/twiki/bin/view/CMS/GEMDAQExpert#List_of_CTP7_s
-    cardLocation = { 
-            (3,2):"eagle26", #QC8
-            (2,5):"eagle60",
-            #(?,?):"eagle61",
-            (1,3):"eagle33", #P5
-            (1,2):"eagle34"} #Coffin
-            #(1,?):"eagle64"}
-
 class HwAMC:
-    def __init__(self, slot, shelf=1, debug=False):
+    def __init__(self, cardName, debug=False):
         """
         Initialize the HW board an open an RPC connection
         """
@@ -36,29 +28,23 @@ class HwAMC:
         self.amclogger = logging.getLogger(__name__)
 
         # Store HW info
-        self.name = ctp7Params.cardLocation[(shelf,slot)]
-        self.shelf = shelf
-        self.slot = slot
+        self.name = cardName
 
         # Define the connection
         self.lib = CDLL("librpcman.so")
-        self.rpc_connect = self.lib.init
-        self.rpc_connect.argtypes = [c_char_p]
-        self.rpc_connect.restype = c_uint
+        #self.rpc_connect = self.lib.init
+        #self.rpc_connect.argtypes = [c_char_p]
+        #self.rpc_connect.restype = c_uint
        
         # Define read register
-        self.rReg = self.lib.getReg
-        self.rReg.restype = c_uint
-        self.rReg.argtypes=[c_uint]
+        #self.rReg = self.lib.getReg
+        #self.rReg.restype = c_uint
+        #self.rReg.argtypes=[c_uint]
         
         # Define read block
-        self.rBlock = self.lib.getBlock
-        self.rBlock.restype = c_uint
-        self.rBlock.argtypes=[c_uint,POINTER(c_uint32)]
-
-        # Define write register
-        self.wReg = self.lib.putReg
-        self.wReg.argtypes=[c_uint,c_uint]
+        #self.rBlock = self.lib.getBlock
+        #self.rBlock.restype = c_uint
+        #self.rBlock.argtypes=[c_uint,POINTER(c_uint32)]
 
         # Define TTC Functions
         self.ttcGenConf = self.lib.ttcGenConf
@@ -70,12 +56,14 @@ class HwAMC:
         self.ttcGenToggle.argtypes = [c_uint, c_bool]
 
         # Parse XML
-        #self.nodes = parseXML(self.addrTable)
-        self.nodes = parseXML()
+        #self.nodes = parseXML()
+        parseXML()
+        global nodes
 
         # Open RPC Connection
         print "Initializing AMC", self.name
-        self.rpc_connect(self.name)
+        #self.rpc_connect(self.name)
+        rpc_connect(self.name)
         self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR") 
         print "My FW release major = ", self.fwVersion
 
@@ -126,13 +114,13 @@ class HwAMC:
     def getL1ACount(self):
         return self.readRegister("GEM_AMC.TTC.CMD_COUNTERS.L1A")
 
-    def getNode(self,nodeName):
-        #return next((node for node in self.nodes if node.name == nodeName),None)
-        try: 
-            return self.nodes[nodeName]
-        except KeyError:
-            print "Node %s not found" %(nodeName)
-            return None
+    #def getNode(self,nodeName):
+    #    #return next((node for node in self.nodes if node.name == nodeName),None)
+    #    try: 
+    #        return self.nodes[nodeName]
+    #    except KeyError:
+    #        print "Node %s not found" %(nodeName)
+    #        return None
 
     def getTTCStatus(self, ohN, display=False):
         running = 0xdeaddead
@@ -157,10 +145,6 @@ class HwAMC:
                 print("\tENABLE: \t\t\t%i"%(running))
         return running
 
-    def readAddress(self,address):
-        output = self.rReg(address) 
-        return '{0:#010x}'.format(parseInt(str(output)))
-
     def readBlock(register, nwords, debug=False):
         """
         read block 'register'
@@ -168,27 +152,19 @@ class HwAMC:
         """
         global gRetries
         nRetries = 0
-        m_node = self.getNode(register)
+        #m_node = self.getNode(register)
+        m_node = getNode(register)
         if m_node is None:
             print colors.MAGENTA,"NODE %s NOT FOUND" %(register),colors.ENDC
             return 0x0
-    
-        #if debug:
-        #    print "Trying to read block of %d words\n" %(nwords)
-        #    print m_node.output()
      
         p = (c_uint32*nwords)()
         words = []
-        #while (nRetries < gMAX_RETRIES):
         if (debug):
             print "reading %d words from register %s"%(nwords,register)
             pass
-        #for i in range(nwords):
-        #   words.append(readRegister(device,register, False))
-        #if (debug):
-        #    print "reading result: %s" %(words)
-        #    pass
-        res = self.rBlock(m_node.real_address,p,len(p))
+        #res = self.rBlock(m_node.real_address,p,len(p))
+        res = rBlock(m_node.real_address,p,len(p))
         if (res == 0):
             words = list(p)
             if (debug):
@@ -208,7 +184,8 @@ class HwAMC:
         """
         global gRetries
         nRetries = 0
-        m_node = self.getNode(register)
+        #m_node = self.getNode(register)
+        m_node = getNode(register)
         if m_node is None:
             print colors.MAGENTA,"NODE %s NOT FOUND" %(register),colors.ENDC
             return 0x0
@@ -220,11 +197,11 @@ class HwAMC:
             print m_node.output()
             pass
         while (nRetries<gRetries):
-            res = self.rReg(parseInt(m_node.real_address))
+            #res = self.rReg(parseInt(m_node.real_address))
+            res = rReg(parseInt(m_node.real_address))
             if res == 0xdeaddead:
                 print colors.MAGENTA,"Bus error encountered while reading (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),colors.ENDC
                 continue
-                #return 0xdeaddead
             else:
                 if m_node.mask is not None:
                     shift_amount=0
@@ -246,49 +223,14 @@ class HwAMC:
 
         return self.ttcGenToggle(ohN, enable)
 
-    def writeReg(self, reg, value):
-        address = reg.real_address
-        if 'w' not in reg.permission:
-            return 'No write permission!'
-        
-        if self.debug:
-            print "Initial value to write: %s, register %s"% (value,reg.name)
-        
-        # Apply Mask if applicable
-        if reg.mask is not None:
-            shift_amount=0
-            for bit in reversed('{0:b}'.format(reg.mask)):
-                if bit=='0': shift_amount+=1
-                else: break
-            shifted_value = value << shift_amount
-            for i in range(10):
-                initial_value = self.readAddress(address)
-                try: initial_value = parseInt(initial_value) 
-                except ValueError: return 'Error reading initial value: '+str(initial_value)
-                if initial_value == 0xdeaddead:
-                    print "Writing masked reg %s : Error while reading, retry attempt (%s)"%(reg.name,i)
-                    sleep(0.1)
-                    continue
-                else: break
-            if initial_value == 0xdeaddead:
-                 print "Writing masked reg %s failed. Exiting..." %(reg.name)
-                 #sys.exit()
-            final_value = (shifted_value & reg.mask) | (initial_value & ~reg.mask)
-        else: final_value = value
-        output = self.wReg(parseInt(address),parseInt(final_value))
-        if output != final_value:
-            print "Writing masked reg %s failed. Exiting..." %(reg.name)
-            print "wReg output %s" % (output)
-            #sys.exit()
-        return str('{0:#010x}'.format(final_value)).rstrip('L')+'('+str(value)+')\twritten to '+reg.name
-
     def writeRegister(self, register, value, debug=False):
         """
         write value 'value' into register 'register' using remote procedure call
         """
         global gRetries
         nRetries = 0
-        m_node = self.getNode(register)
+        #m_node = self.getNode(register)
+        m_node = getNode(register)
         if m_node is None:
             print colors.MAGENTA,"NODE %s NOT FOUND"%(register),colors.ENDC
             return 0x0
@@ -299,7 +241,7 @@ class HwAMC:
             pass
      
         while (nRetries < gMAX_RETRIES):
-            rsp = self.writeReg(m_node, value)
+            rsp = writeReg(m_node, value)
             if "permission" in rsp:
                 print colors.MAGENTA,"NO WRITE PERMISSION",colors.ENDC
                 return
