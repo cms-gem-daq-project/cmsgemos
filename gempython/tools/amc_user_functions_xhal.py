@@ -1,12 +1,10 @@
-import os, signal, sys
+import os, sys
 
 from ctypes import *
-from gempython.utils.gemlogger import colors,colormsg
-from gempython.utils.nesteddict import nesteddict
-from time import sleep
+from gempython.utils.gemlogger import colors
 
 from reg_utils.reg_interface.common.reg_base_ops import rpc_connect, rReg, writeReg
-from reg_utils.reg_interface.common.reg_xml_parser import getNode, Node, parseInt, parseXML
+from reg_utils.reg_interface.common.reg_xml_parser import getNode, parseInt, parseXML
 
 from xhal.reg_interface_gem.core.reg_extra_ops import rBlock
 
@@ -15,7 +13,7 @@ import logging
 gMAX_RETRIES = 5
 gRetries = 5
 
-class HwAMC:
+class HwAMC(object):
     def __init__(self, cardName, debug=False):
         """
         Initialize the HW board an open an RPC connection
@@ -32,20 +30,7 @@ class HwAMC:
 
         # Define the connection
         self.lib = CDLL("librpcman.so")
-        #self.rpc_connect = self.lib.init
-        #self.rpc_connect.argtypes = [c_char_p]
-        #self.rpc_connect.restype = c_uint
        
-        # Define read register
-        #self.rReg = self.lib.getReg
-        #self.rReg.restype = c_uint
-        #self.rReg.argtypes=[c_uint]
-        
-        # Define read block
-        #self.rBlock = self.lib.getBlock
-        #self.rBlock.restype = c_uint
-        #self.rBlock.argtypes=[c_uint,POINTER(c_uint32)]
-
         # Define TTC Functions
         self.ttcGenConf = self.lib.ttcGenConf
         self.ttcGenConf.restype = c_uint
@@ -56,13 +41,11 @@ class HwAMC:
         self.ttcGenToggle.argtypes = [c_uint, c_bool]
 
         # Parse XML
-        #self.nodes = parseXML()
         parseXML()
-        global nodes
+        #global nodes
 
         # Open RPC Connection
         print "Initializing AMC", self.name
-        #self.rpc_connect(self.name)
         rpc_connect(self.name)
         self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR") 
         print "My FW release major = ", self.fwVersion
@@ -113,14 +96,6 @@ class HwAMC:
 
     def getL1ACount(self):
         return self.readRegister("GEM_AMC.TTC.CMD_COUNTERS.L1A")
-
-    #def getNode(self,nodeName):
-    #    #return next((node for node in self.nodes if node.name == nodeName),None)
-    #    try: 
-    #        return self.nodes[nodeName]
-    #    except KeyError:
-    #        print "Node %s not found" %(nodeName)
-    #        return None
 
     def getTTCStatus(self, ohN, display=False):
         running = 0xdeaddead
