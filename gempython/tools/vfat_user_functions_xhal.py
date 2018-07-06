@@ -1,19 +1,18 @@
-import os, signal, sys, time
+import os, sys, time
 
-from gempython.utils.nesteddict import nesteddict
 from gempython.tools.optohybrid_user_functions_xhal import *
-from gempython.utils.gemlogger import colors,colormsg
+from gempython.utils.gemlogger import colormsg
 
 import logging
 
-class HwVFAT:
+class HwVFAT(object):
     def __init__(self, cardName, link, debug=False):
         """
         Initialize the HW board an open an RPC connection
         """
         # Debug flag
         self.debug = debug
-        
+         
         # Logger
         self.vfatlogger = logging.getLogger(__name__)
 
@@ -68,7 +67,6 @@ class HwVFAT:
                 self.writeAllVFATs("CFG_RUN",0x1,mask)
             else:
                 self.writeAllVFATs("CFG_RUN",0x0,mask)
-                pass
         else:
             # Run Mode
             if (enable):
@@ -107,15 +105,15 @@ class HwVFAT:
         # do check on status
         if ((vfatVal >> 26) & 0x1) :
             msg = "error on VFAT transaction (chip %d, %s)"%(chip, reg)
-            #gemlogger.debug(msg)
+            self.vfatlogger.debug(colormsg(msg,logging.DEBUG))
             return -1
         elif ((vfatVal >> 25) & 0x0):
             msg = "invalid VFAT transaction (chip %d, %s)"%(chip, reg)
-            #gemlogger.debug(msg)
+            self.vfatlogger.debug(colormsg(msg,logging.DEBUG))
             return -1
         elif ((vfatVal >> 24) & 0x0):
             msg = "wrong type of VFAT transaction (chip %d, %s)"%(chip, reg)
-            #gemlogger.debug(msg)
+            self.vfatlogger.debug(colormsg(msg,logging.DEBUG))
             return -1
         else:
             return vfatVal

@@ -1,12 +1,10 @@
-import os, signal, sys, time
+import os, sys, time
 
 from gempython.tools.amc_user_functions_xhal import *
-from gempython.utils.gemlogger import colormsg
-from gempython.utils.nesteddict import nesteddict
 
 import logging
 
-class HwOptoHybrid:
+class HwOptoHybrid(object):
     def __init__(self, cardName, link, debug=False):
         """
         Initialize the HW board an open an RPC connection
