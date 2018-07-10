@@ -161,7 +161,7 @@ class HwOptoHybrid(object):
                 sys.exit(os.EX_USAGE)
         else:
             if "CFG_" in scanReg:
-                scanReg = str.replace("CFG_","")
+                scanReg = str.replace(scanReg,"CFG_","")
 
         return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, outData)
 
