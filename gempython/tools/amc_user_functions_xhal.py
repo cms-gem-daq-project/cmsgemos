@@ -137,7 +137,6 @@ class HwAMC(object):
         words = []
         if (debug):
             print "reading %d words from register %s"%(nwords,register)
-            pass
         #res = self.rBlock(m_node.real_address,p,len(p))
         res = rBlock(m_node.real_address,p,len(p))
         if (res == 0):
@@ -145,7 +144,6 @@ class HwAMC(object):
             if (debug):
                 print "ReadBlock result:\n"
                 print words
-                pass
             return words
         else:
             print colors.RED, "error encountered, retried read operation (%d)"%(nRetries),colors.ENDC
@@ -170,7 +168,6 @@ class HwAMC(object):
         if debug:
             print "Trying to read\n"
             print m_node.output()
-            pass
         while (nRetries<gRetries):
             #res = self.rReg(parseInt(m_node.real_address))
             res = rReg(parseInt(m_node.real_address))
@@ -213,7 +210,6 @@ class HwAMC(object):
         if debug:
             print "Trying to write\n"
             print m_node.output()
-            pass
      
         while (nRetries < gMAX_RETRIES):
             rsp = writeReg(m_node, value)
@@ -228,8 +224,6 @@ class HwAMC(object):
                 return
             else: 
                 return 
-            pass
-        pass
 
     def writeRegisterList(self, regs_with_vals, debug=False):
         """
@@ -241,6 +235,4 @@ class HwAMC(object):
         while (nRetries < gMAX_RETRIES):
             for reg in regs_with_vals.keys():
                 self.writeRegister(reg,regs_with_vals[reg],debug)
-                pass
             return
-        pass

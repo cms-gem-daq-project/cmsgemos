@@ -1,4 +1,4 @@
-import os, sys, time
+import os, sys
 
 from gempython.tools.amc_user_functions_xhal import *
 
