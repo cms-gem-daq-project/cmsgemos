@@ -1,5 +1,3 @@
-import os, sys
-
 from ctypes import *
 from gempython.utils.gemlogger import colors
 
@@ -47,7 +45,7 @@ class HwAMC(object):
         # Open RPC Connection
         print "Initializing AMC", self.name
         rpc_connect(self.name)
-        self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR") 
+        self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR")
         print "My FW release major = ", self.fwVersion
 
         return
@@ -127,7 +125,6 @@ class HwAMC(object):
         """
         global gRetries
         nRetries = 0
-        #m_node = self.getNode(register)
         m_node = getNode(register)
         if m_node is None:
             print colors.MAGENTA,"NODE %s NOT FOUND" %(register),colors.ENDC
@@ -137,7 +134,6 @@ class HwAMC(object):
         words = []
         if (debug):
             print "reading %d words from register %s"%(nwords,register)
-        #res = self.rBlock(m_node.real_address,p,len(p))
         res = rBlock(m_node.real_address,p,len(p))
         if (res == 0):
             words = list(p)
@@ -157,7 +153,6 @@ class HwAMC(object):
         """
         global gRetries
         nRetries = 0
-        #m_node = self.getNode(register)
         m_node = getNode(register)
         if m_node is None:
             print colors.MAGENTA,"NODE %s NOT FOUND" %(register),colors.ENDC
@@ -169,7 +164,6 @@ class HwAMC(object):
             print "Trying to read\n"
             print m_node.output()
         while (nRetries<gRetries):
-            #res = self.rReg(parseInt(m_node.real_address))
             res = rReg(parseInt(m_node.real_address))
             if res == 0xdeaddead:
                 print colors.MAGENTA,"Bus error encountered while reading (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),colors.ENDC
@@ -222,8 +216,8 @@ class HwAMC(object):
             elif "0xdeaddead" in rsp:
                 print colors.MAGENTA,"0xdeaddead found (%s), retrying operation (%d,%d)"%(register,nRetries,gRetries),colors.ENDC
                 return
-            else: 
-                return 
+            else:
+                return
 
     def writeRegisterList(self, regs_with_vals, debug=False):
         """
