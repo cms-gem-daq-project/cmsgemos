@@ -1,5 +1,3 @@
-import os, sys
-
 from gempython.tools.optohybrid_user_functions_xhal import *
 from gempython.utils.gemlogger import colormsg
 

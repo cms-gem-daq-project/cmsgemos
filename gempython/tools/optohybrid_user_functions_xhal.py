@@ -33,14 +33,14 @@ class HwOptoHybrid(object):
         # Define the scan module
         self.genScan = self.parentAMC.lib.genScan
         self.genScan.restype = c_uint
-        self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint, 
-                                 c_uint, c_uint, c_bool, c_bool, c_uint, c_uint, 
+        self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint,
+                                 c_uint, c_uint, c_bool, c_bool, c_uint, c_uint,
                                  c_char_p, c_bool, c_bool, POINTER(c_uint32)]
 
         # Define the trigger rate scan module
         self.sbitRateScan = self.parentAMC.lib.sbitRateScan
         self.sbitRateScan.restype = c_uint
-        self.sbitRateScan.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_bool, 
+        self.sbitRateScan.argtypes = [c_uint, c_uint, c_uint, c_uint, c_uint, c_uint, c_bool,
                                       c_char_p, c_uint, POINTER(c_uint32), POINTER(c_uint32),
                                       POINTER(c_uint32), c_bool]
 
@@ -134,10 +134,10 @@ class HwOptoHybrid(object):
                       etc...  If a VFAT is masked entries in the array
                       are still allocated but assigned a 0 value.
         enableCal   - V3 electronics only. Enable cal pulse
-        currentPulse- V3 electronics only. The calibration module uses 
+        currentPulse- V3 electronics only. The calibration module uses
                       the current pulse mode rather than the voltage
                       pulse mode.
-        calSF       - V3 electronics only.  The value of the 
+        calSF       - V3 electronics only.  The value of the
                       CFG_CAL_FS register to be used when operating in
                       current pulse mode.
         nevts       - Number of events for each dac value in scan
@@ -145,7 +145,7 @@ class HwOptoHybrid(object):
         dacMax      - Ending dac value of the scan
         stepSize    - Step size for moving from dacMin to dacMax
         mask        - VFAT mask to use
-        useUltra    - V2b electronics only, perform an ultra scan 
+        useUltra    - V2b electronics only, perform an ultra scan
                       instead of a FW scan.  Note if false the VFAT
                       to be scanned is taken as the first non-masked
                       VFAT defined in mask
@@ -166,17 +166,17 @@ class HwOptoHybrid(object):
         return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, outData)
 
     def performSBitRateScan(self, maskOh, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT,
-                            dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC", time=1000, 
+                            dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC", time=1000,
                             invertVFATPos=False, isParallel=True):
         """
         Measures the rate of sbits sent by unmasked VFATs in maskOh
         
-        chan                    - VFAT channel to be considered, for all channels 
+        chan                    - VFAT channel to be considered, for all channels
                                   set to 128
         scanReg                 - Name of register to be scanned.
         outDataDacVal           - Array of type c_uint32, array size must be:
                                   ((dacMax - dacMin + 1) / stepSize)
-                                  The i^th position here is the DAC value that 
+                                  The i^th position here is the DAC value that
                                   the i^th rate in outDataTrigRate was obtained at
         outDataTrigRate         - As outDataDacVal but for trigger rate
         outDataTrigRatePerVFAT  - As outDataTrigRate but for each VFAT, array size
@@ -186,7 +186,7 @@ class HwOptoHybrid(object):
         dacMax                  - Ending dac value of the scan
         stepSize                - Step size for moving from dacMin to dacMax
         time                    - Time to wait for each point in milliseconds
-        invertVFATPos           - Invert VFAT position, e.g. if maskOh corresponds to VFAT0, 
+        invertVFATPos           - Invert VFAT position, e.g. if maskOh corresponds to VFAT0,
                                   it will be treated as VFAT23, VFAT1 as VFAT22, etc...
         isParallel              - If true all VFATs are scanned in parallel
         """
@@ -196,7 +196,7 @@ class HwOptoHybrid(object):
             print("Only implemented for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
 
-        return self.sbitRateScan(self.link, dacMin, dacMax, stepSize, chan, maskOh, 
+        return self.sbitRateScan(self.link, dacMin, dacMax, stepSize, chan, maskOh,
                                  invertVFATPos, scanReg, time, outDataDacVal, outDataTrigRate,
                                  outDataTrigRatePerVFAT, isParallel)
 
