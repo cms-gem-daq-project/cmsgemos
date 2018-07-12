@@ -430,7 +430,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq
           ++dispatchcounter;
       }
 
-      INFO("GEMHwDevice::writeRegs dispatched " << dispatchcounter
+      INFO("GEMHwDevice::readRegs dispatched " << dispatchcounter
            << " calls for " << counter << " registers");
       // would like to have these local to the loop, how to do...?
       auto curVal = vals.begin();
@@ -480,7 +480,7 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int c
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
         vals.push_back(std::make_pair(curReg->first,hw.getClient().read(curReg->first)));
         ++counter;
-        ++counter;
+        ++counter;// WTF???
         if (freq > 0 && counter%freq == 0) {
           hw.dispatch();
           ++dispatchcounter;
@@ -491,7 +491,7 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int c
           ++dispatchcounter;
       }
 
-      INFO("GEMHwDevice::writeRegs dispatched " << dispatchcounter
+      INFO("GEMHwDevice::readRegs dispatched " << dispatchcounter
            << " calls for " << counter << " registers");
       // would like to have these local to the loop, how to do...?
       auto curVal = vals.begin();
@@ -552,7 +552,7 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int cons
           ++dispatchcounter;
       }
 
-      INFO("GEMHwDevice::writeRegs dispatched " << dispatchcounter
+      INFO("GEMHwDevice::readRegs dispatched " << dispatchcounter
            << " calls for " << counter << " registers");
       // would like to have these local to the loop, how to do...?
       auto curVal = vals.begin();
@@ -596,7 +596,13 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
     ++retryCount;
     try {
       hw.getNode(name).write(val);
+      uhal::ValWord<uint32_t> rval = hw.getNode(name).read();
       hw.dispatch();
+      if (hw.getNode(name).getPermission() != uhal::defs::WRITE && rval.value() != val) {
+        std::string msgBase = toolbox::toString("WriteValueMismatch write (0x%x) to register '%s' resulted in 0x%x (uHAL)",
+                                                name.c_str(),val,rval.value());
+        XCEPT_RAISE(gem::hw::exception::WriteValueMismatch, toolbox::toString("%s.", msgBase.c_str()));
+      }
       return;
     } catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
@@ -614,6 +620,11 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
         ERROR("GEMHwDevice::" << msg);
         // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
+    } catch (gem::hw::exception::WriteValueMismatch const& err) {
+      std::string msgBase = toolbox::toString("Could not write to register '%s' (uHAL)", name.c_str());
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      ERROR("GEMHwDevice::" << msg);
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '%s' (std)", name.c_str());
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
@@ -635,7 +646,13 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
     ++retryCount;
     try {
       hw.getClient().write(address, val);
+      uhal::ValWord<uint32_t> rval = hw.getClient().read(address);
       hw.dispatch();
+      if (rval.value() != val) {
+        std::string msgBase = toolbox::toString("WriteValueMismatch write (0x%x) to register '0x%08x' resulted in 0x%x (uHAL)",
+                                                address,val,rval.value());
+        XCEPT_RAISE(gem::hw::exception::WriteValueMismatch, toolbox::toString("%s.", msgBase.c_str()));
+      }
       return;
     } catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '0x%08x' (uHAL)", address);
@@ -654,6 +671,11 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
         ERROR("GEMHwDevice::" << msg);
         // XCEPT_RAISE(gem::hw::exception::HardwareProblem, toolbox::toString("%s.", msgBase.c_str()));
       }
+    } catch (gem::hw::exception::WriteValueMismatch const& err) {
+      std::string msgBase = toolbox::toString("Could not write to register '0x%08x' (uHAL)", address);
+      std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+      std::string errCode = toolbox::toString("%s",err.what());
+      ERROR("GEMHwDevice::" << msg);
     } catch (std::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to register '0x%08x' (std)", address);
       std::string msg     = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
