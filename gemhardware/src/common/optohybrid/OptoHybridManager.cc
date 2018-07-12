@@ -274,16 +274,13 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
       if (optohybrid->isHwConnected()) {
         // get connected VFATs
-        m_vfatMapping.at(slot).at(link)   = optohybrid->getConnectedVFATs();
+        m_vfatMapping.at(slot).at(link)   = optohybrid->getConnectedVFATs(true);
         INFO("OptoHybridManager::initializeAction Obtained vfatMapping");
         // all the rest of these are related to the first by bitwise logic, can avoid doing the 4 calls
-        // m_trackingMask.at(slot).at(link)  = optohybrid->getConnectedVFATMask();
-        m_trackingMask.at(slot).at(link)  = optohybrid->getConnectedVFATMask();
+        m_trackingMask.at(slot).at(link)  = optohybrid->getConnectedVFATMask(true);
         INFO("OptoHybridManager::initializeAction Obtained trackingMask");
-        // m_broadcastList.at(slot).at(link) = optohybrid->getConnectedVFATMask();
         m_broadcastList.at(slot).at(link) = m_trackingMask.at(slot).at(link);
         INFO("OptoHybridManager::initializeAction Obtained broadcastList");
-        // m_sbitMask.at(slot).at(link)      = optohybrid->getConnectedVFATMask();
         m_sbitMask.at(slot).at(link) = m_trackingMask.at(slot).at(link);
         INFO("OptoHybridManager::initializeAction Obtained sbitMask");
 
