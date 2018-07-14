@@ -81,7 +81,7 @@ class HwVFAT(object):
         return
 
     def getAllChipIDs(self, mask=0x0):
-        return readAllVFATs("HW_CHIP_ID",mask)
+        return self.readAllVFATs("HW_CHIP_ID",mask)
 
     def readAllVFATs(self, reg, mask=0x0):
         vfatVals = self.parentOH.broadcastRead(reg,mask)
