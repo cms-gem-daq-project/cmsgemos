@@ -80,6 +80,9 @@ class HwVFAT(object):
 
         return
 
+    def getAllChipIDs(self, mask=0x0):
+        return readAllVFATs("HW_CHIP_ID",mask)
+
     def readAllVFATs(self, reg, mask=0x0):
         vfatVals = self.parentOH.broadcastRead(reg,mask)
         if vfatVals:
@@ -131,12 +134,8 @@ class HwVFAT(object):
 
         # Write registers
         if self.parentOH.parentAMC.fwVersion > 2:
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ARM_TRIM_AMPLITUDE"%(chan), trimARM)
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ARM_TRIM_POLARITY"%(chan), trimARMPol)
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.CALPULSE_ENABLE"%(chan), pulse)
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.MASK"%(chan), mask)
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_AMPLITUDE"%(chan), trimZCC)
-            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d.ZCC_TRIM_POLARITY"%(chan), trimZCCPol)
+            chanReg = (pulse<<15)+(mask<<14)+(trimZCCPol<<13)+(trimZCC<<7)+(trimARMPol<<6)+trimARM
+            self.writeVFAT(chip, "VFAT_CHANNELS.CHANNEL%d"%(chan),chanReg)
         else:
             chanReg = ((pulse&0x1) << 6)|((mask&0x1) << 5)|(trimARM&0x1f)
             self.writeVFAT(chip, "VFATChannels.ChanReg%d"%(chan),chanReg)
