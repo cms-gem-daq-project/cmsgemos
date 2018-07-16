@@ -37,15 +37,14 @@ class AMC13manager:
     if self.localTrigger:
       self.device.configureLocalL1A(ena, mode, burst, rate, rules)
 
-  def configureCalPulse(self, delay=50, prescale=1, repeat=True)
-  ''' Configure BGO calibration pulse command on channel 0. 
-  Calibration pulse command code is 0x14 and can be verified by reading GEM_AMC.TTC.CONFIG.CMD_CALPULSE
+  def configureCalPulse(self, delay=50, prescale=1, repeat=True):
+    ''' Configure BGO calibration pulse command on channel 0. 
+    Calibration pulse command code is 0x14 and can be verified by reading GEM_AMC.TTC.CONFIG.CMD_CALPULSE
   
-  :param int delay: Delay relative to local L1A in mode 0, when L1A is sent on 500 BX of each orbit. Resembles latency in a given operation mode. Default value is 50
-  :param int prescale: Orbit prescale. Commands sent every prescale orbits. Default value is 1
-  :param bool repeat: True for periodic commands, False for single commands. Default value is True
-  
-  '''
+    :param int delay: Delay relative to local L1A in mode 0, when L1A is sent on 500 BX of each orbit. Resembles latency in a given operation mode. Default value is 50
+    :param int prescale: Orbit prescale. Commands sent every prescale orbits. Default value is 1
+    :param bool repeat: True for periodic commands, False for single commands. Default value is True
+    '''
     bx = 500+delay
     self.device.configureBGOShort(0,0x14,bx,prescale,repeat)
 
