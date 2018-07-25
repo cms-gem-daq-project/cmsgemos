@@ -374,6 +374,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
   INFO("GEMSupervisor::configureAction start");
 
   while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Configuring") ||
+           // (m_globalState.getStateName() == "Paused"     && getCurrentState() == "Configuring") || // FIXME do we allow this???
            (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configuring"))) {
     INFO("GEMSupervisor::configureAction global state not in " << gem::base::STATE_HALTED
 	 << " or "  << gem::base::STATE_CONFIGURED
