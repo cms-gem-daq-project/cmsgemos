@@ -52,7 +52,8 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
 
 gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
-  m_amcEnableMask(0)
+  m_amcEnableMask(0),
+  m_uhalPhaseShift(false)
 {
   m_glibInfo.setSize(MAX_AMCS_PER_CRATE);
 

@@ -473,9 +473,7 @@ void gem::hw::HwGenericAMC::disableDAQLink()
 
 void gem::hw::HwGenericAMC::enableZeroSuppression(bool en)
 {
-  setLogLevelTo(uhal::Debug());
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.ZERO_SUPPRESSION_EN", uint32_t(en));
-  setLogLevelTo(uhal::Error());
 }
 
 void gem::hw::HwGenericAMC::disableZeroSuppression()
@@ -690,10 +688,11 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
   const int PLL_LOCK_READ_ATTEMPTS  = 10;
   const double PLL_LOCK_WAIT_TIME   = 0.00001; // wait 100us to allow the PLL to lock
 
-  WARN("HwGenericAMC::ttcMMCMPhaseShift: TTC.CTRL.MMCM_PHASE_SHIFT is obsolete and will be removed in a future release");
+  INFO("HwGenericAMC::ttcMMCMPhaseShift: starting phase shifting procedure");
   // writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_PHASE_SHIFT", 0x1);
 
-  // block these into one transaction
+  /*
+  // FIXME block these into one transaction, handicapped by CTP7
   register_pair_list regList = {
     {"GEM_AMC.TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1},
     {"GEM_AMC.TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1},
@@ -709,8 +708,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
     {"GEM_AMC.TTC.CTRL.CNT_RESET",                     0x1}
   };
   writeRegs(regList);
-
-  /*
+  */
   // FIXME clean up with multiple dispatch
   writeReg(getDeviceBaseNode(), "TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1);
   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1);
@@ -724,7 +722,6 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
   writeReg(getDeviceBaseNode(), "TTC.CTRL.GTH_TXDLYBYPASS",               0x1);
   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_PLL_RESET",           0x1);
   writeReg(getDeviceBaseNode(), "TTC.CTRL.CNT_RESET",                     0x1);
-  */
 
   // add readback of aforementioned registers
 
@@ -830,8 +827,8 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
     }
 
     if ((pllLockCnt == PLL_LOCK_READ_ATTEMPTS) && (firstUnlockFound || !shiftOutOfLockFirst)) {
-      INFO("HwGenericAMC::ttcMMCMPhaseShift Lock found after"
-           << i+1 << "shifts, mmcm phase count = "
+      INFO("HwGenericAMC::ttcMMCMPhaseShift Lock found after "
+           << i+1 << " shifts, mmcm phase count = "
            << phase << ", mmcm phase ns = "
            << phaseNs << "ns, pllLockCnt = "
            << pllLockCnt << ", firstUnlockFound = "
