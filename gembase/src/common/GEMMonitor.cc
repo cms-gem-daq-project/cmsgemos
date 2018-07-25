@@ -102,7 +102,7 @@ gem::base::GEMMonitor::~GEMMonitor()
 
 void gem::base::GEMMonitor::startMonitoring()
 {
-  DEBUG("GEMMonitor::startMonitoring");
+  INFO("GEMMonitor::startMonitoring");
 
   try {
     p_timer->stop();
@@ -112,7 +112,6 @@ void gem::base::GEMMonitor::startMonitoring()
 
   p_timer->start();
 
-  DEBUG("GEMMonitor::startMonitoring");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
     toolbox::TimeVal startTime;
     startTime = toolbox::TimeVal::gettimeofday();
@@ -126,19 +125,21 @@ void gem::base::GEMMonitor::startMonitoring()
 
 void gem::base::GEMMonitor::pauseMonitoring()
 {
-  DEBUG("GEMMonitor::pauseMonitoring");
+  INFO("GEMMonitor::pauseMonitoring");
   p_timer->stop();
 }
 
 void gem::base::GEMMonitor::resumeMonitoring()
 {
-  DEBUG("GEMMonitor::resumeMonitoring");
-  p_timer->start();
+  INFO("GEMMonitor::resumeMonitoring");
+  // p_timer->start();
+  // updateMonitorables();
+  startMonitoring();
 }
 
 void gem::base::GEMMonitor::stopMonitoring()
 {
-  DEBUG("GEMMonitor::stopMonitoring");
+  INFO("GEMMonitor::stopMonitoring");
   p_timer->stop();
 }
 
