@@ -15,7 +15,8 @@ namespace gem {
       {
       public:
 
-        static const unsigned N_GTX = 9; ///< maximum number of GTX links on the GenericAMC
+        // FIXME, THIS SHOULD NOT BE HARDCODED
+        static const unsigned N_GTX = 12; ///< maximum number of GTX links on the GenericAMC
 
         /**
          * @struct AMCIPBusCounters
@@ -578,14 +579,15 @@ namespace gem {
 
         /**
          * @brief Shift the phase of the MMCM of the TTC module
+         * @param Whether to shift of lock before starting the procedure
          */
-        void ttcMMCMPhaseShift();
+        void ttcMMCMPhaseShift(bool shiftOutOfLockFirst=false);
 
         /**
          * @brief Check the lock status of the MMCM PLL
-         * @returns Lock state of the MMCM PLL
+         * @returns Lock count of the MMCM PLL
          */
-        bool checkPllLock();
+        int checkPllLock();
 
         /**
          * @brief Check the lock status of the MMCM PLL
@@ -786,8 +788,9 @@ namespace gem {
       protected:
         //GenericAMCMonitor *monGenericAMC_;
 
-        bool b_links[N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it...
-        uint32_t m_links;
+        bool b_links[N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it... FIXME
+        uint32_t m_links;    ///< Connected links mask
+        uint32_t m_maxLinks; ///< Maximum supported OptoHybrids as reported by the firmware
 
         std::vector<linkStatus> v_activeLinks;
 

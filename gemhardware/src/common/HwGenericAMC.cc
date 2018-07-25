@@ -5,6 +5,7 @@
 // gem::hw::HwGenericAMC::HwGenericAMC() :
 //   gem::hw::GEMHwDevice::GEMHwDevice("HwGenericAMC"),
 //   m_links(0),
+//   m_maxLinks(N_GTX),
 //   m_crate(-1),
 //   m_slot(-1)
 // {
@@ -22,6 +23,7 @@
 // gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
 //   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
 //   m_links(0),
+//   m_maxLinks(N_GTX),
 //   m_crate(-1),
 //   m_slot(-1)
 // {
@@ -41,6 +43,7 @@
 //                                     int const& slot) :
 //   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
 //   m_links(0),
+//   m_maxLinks(N_GTX),
 //   m_crate(crate),
 //   m_slot(slot)
 // {
@@ -59,6 +62,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionFile),
   m_links(0),
+  m_maxLinks(N_GTX),
   m_crate(-1),
   m_slot(-1)
 {
@@ -78,6 +82,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& addressTable) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionURI, addressTable),
   m_links(0),
+  m_maxLinks(N_GTX),
   m_crate(-1),
   m_slot(-1)
 
@@ -97,6 +102,7 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     uhal::HwInterface& uhalDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice,uhalDevice),
   m_links(0),
+  m_maxLinks(N_GTX),
   m_crate(-1),
   m_slot(-1)
 
@@ -116,16 +122,18 @@ gem::hw::HwGenericAMC::~HwGenericAMC()
 
 bool gem::hw::HwGenericAMC::isHwConnected()
 {
-  if ( b_is_connected ) {
+  // DO NOT LIKE THIS FUNCTION FIXME!!!
+  if (b_is_connected) {
     INFO("basic check: HwGenericAMC connection good");
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     INFO("basic check: HwGenericAMC pointer valid");
     std::vector<linkStatus> tmp_activeLinks;
-    tmp_activeLinks.reserve(this->getSupportedOptoHybrids());
+    m_maxLinks = this->getSupportedOptoHybrids();
+    tmp_activeLinks.reserve(m_maxLinks);
     if ((this->getBoardID()).rfind("GLIB") != std::string::npos ) {
       INFO("HwGenericAMC found boardID");
-      for (unsigned int gtx = 0; gtx < this->getSupportedOptoHybrids(); ++gtx) {
+      for (unsigned int gtx = 0; gtx < m_maxLinks; ++gtx) {
         // FIXME!!! somehow need to actually check that the specified link is present
         b_links[gtx] = true;
         INFO("m_links 0x" << std::hex << std::setw(8) << std::setfill('0')
@@ -245,9 +253,9 @@ bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opM
 {
   INFO("linkCheck:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
        << m_links << std::dec);
-  if (gtx > this->getSupportedOptoHybrids()) {
+  if (gtx > m_maxLinks) {
     std::string msg = toolbox::toString("%s requested for gtx (%d): outside expectation (0-%d)",
-                                        opMsg.c_str(), gtx, this->getSupportedOptoHybrids());
+                                        opMsg.c_str(), gtx, m_maxLinks);
     ERROR(msg);
     // XCEPT_RAISE(gem::hw::exception::InvalidLink,msg);
     return false;
@@ -454,25 +462,20 @@ void gem::hw::HwGenericAMC::enableDAQLink(uint32_t const& enableMask)
 {
   // move enabling of input mask to OH manager
   // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK", enableMask);
-  setLogLevelTo(uhal::Debug());
-  DEBUG("HwGenericAMC::enableDAQLink before write "
-        << std::hex << std::setw(8) << std::setfill('0') << readReg(getDeviceBaseNode(), "DAQ.CONTROL") << std::dec);
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE", 0x1);
-  usleep(50);
-  DEBUG("HwGenericAMC::enableDAQLink after write "
-        << std::hex << std::setw(8) << std::setfill('0') << readReg(getDeviceBaseNode(), "DAQ.CONTROL") << std::dec);
-  setLogLevelTo(uhal::Error());
 }
 
 void gem::hw::HwGenericAMC::disableDAQLink()
 {
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
-  // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE",        0x0);
+  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAQ_ENABLE",        0x0);
 }
 
 void gem::hw::HwGenericAMC::enableZeroSuppression(bool en)
 {
+  setLogLevelTo(uhal::Debug());
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.ZERO_SUPPRESSION_EN", uint32_t(en));
+  setLogLevelTo(uhal::Error());
 }
 
 void gem::hw::HwGenericAMC::disableZeroSuppression()
@@ -488,7 +491,7 @@ void gem::hw::HwGenericAMC::resetDAQLink(uint32_t const& davTO, uint32_t const& 
   writeReg(getDeviceBaseNode(), "DAQ.CONTROL.DAV_TIMEOUT", davTO);
   setDAQLinkInputTimeout();  // default value is 0x100
   // setDAQLinkInputTimeout(davTO);
-  writeReg(getDeviceBaseNode(), "DAQ.CONTROL.TTS_OVERRIDE", ttsOverride);/*HACK to be fixed?*/
+  // writeReg(getDeviceBaseNode(), "DAQ.CONTROL.TTS_OVERRIDE", ttsOverride);/*HACK to be fixed?*/
 }
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkControl()
@@ -635,9 +638,10 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkRunParameter(uint8_t const& parameter)
 
 void gem::hw::HwGenericAMC::setDAQLinkInputTimeout(uint32_t const& value)
 {
-  for (unsigned li = 0; li < this->getSupportedOptoHybrids(); ++li) {
-    writeReg(getDeviceBaseNode(), toolbox::toString("DAQ.OH%d.CONTROL.EOE_TIMEOUT", li), value);
-  }
+  // for (unsigned li = 0; li < m_maxLinks; ++li) {
+  // for (unsigned li =  m_maxLinks - 1; li > -1; --li) {
+  //   writeReg(getDeviceBaseNode(), toolbox::toString("DAQ.OH%d.CONTROL.EOE_TIMEOUT", li), value);
+  // }
   // return writeReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.INPUT_TIMEOUT",value);
 }
 
@@ -680,13 +684,16 @@ void gem::hw::HwGenericAMC::ttcMMCMReset()
   // writeReg(getDeviceBaseNode(), "TTC.CTRL.PHASE_ALIGNMENT_RESET", 0x1);
 }
 
-void gem::hw::HwGenericAMC::ttcMMCMPhaseShift()
+void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
 {
+  const int PHASE_CHECK_AVERAGE_CNT = 100;
+  const int PLL_LOCK_READ_ATTEMPTS  = 10;
+  const double PLL_LOCK_WAIT_TIME   = 0.00001; // wait 100us to allow the PLL to lock
+
   WARN("HwGenericAMC::ttcMMCMPhaseShift: TTC.CTRL.MMCM_PHASE_SHIFT is obsolete and will be removed in a future release");
   // writeReg(getDeviceBaseNode(), "TTC.CTRL.MMCM_PHASE_SHIFT", 0x1);
 
   // block these into one transaction
-  /*
   register_pair_list regList = {
     {"GEM_AMC.TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1},
     {"GEM_AMC.TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1},
@@ -702,7 +709,9 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift()
     {"GEM_AMC.TTC.CTRL.CNT_RESET",                     0x1}
   };
   writeRegs(regList);
-  */
+
+  /*
+  // FIXME clean up with multiple dispatch
   writeReg(getDeviceBaseNode(), "TTC.CTRL.DISABLE_PHASE_ALIGNMENT",       0x1);
   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_DISABLE_GTH_PHASE_TRACKING", 0x1);
   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_OVERRIDE",            0x1);
@@ -715,12 +724,21 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift()
   writeReg(getDeviceBaseNode(), "TTC.CTRL.GTH_TXDLYBYPASS",               0x1);
   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_PLL_RESET",           0x1);
   writeReg(getDeviceBaseNode(), "TTC.CTRL.CNT_RESET",                     0x1);
+  */
 
   // add readback of aforementioned registers
 
-  uint32_t mmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT") & 0xffff;
-  uint32_t gthShiftCnt  = (readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT") & 0xffff0000) >> 16;
-  bool pllLocked = false;
+  if (readReg(getDeviceBaseNode(),"TTC.CTRL.DISABLE_PHASE_ALIGNMENT") == 0x0) {
+    WARN("HwGeneircAMC::ttcMMCMPhaseShift  automatic phase alignment is turned off!!");
+    // EXCEPT_RAISE
+    return;
+  }
+
+
+  uint32_t mmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
+  uint32_t gthShiftCnt  = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
+  int  pllLockCnt = checkPllLock();
+  bool firstUnlockFound = false;
   uint32_t phase = 0;
   double phaseNs = 0.0;
 
@@ -731,72 +749,127 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift()
                            false, false, false, false, true, false, false,
                            false, false, false, true, false, false};
 
-  for (int i = 0; i < 6*2560; ++i) {
+  int nGoodLocks = 0;
+  // for (int i = 0; i < 6*2560; ++i) {
+  for (int i = 0; i < 7680; ++i) {
     /*
-    writeRegs({{"GEM_AMC.TTC.CTRL.CNT_RESET", 0x1},
-          {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1}});
+    writeRegs(register_pair_list({
+          {"GEM_AMC.TTC.CTRL.CNT_RESET", 0x1},
+            {"GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1}
+        })
+      );
     */
+
+    // FIXME clean up with multiple dispatch
     writeReg(getDeviceBaseNode(), "TTC.CTRL.CNT_RESET", 0x1);
     writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1);
+
     if (gthShiftCnt == 39)
       gthShiftCnt = 0;
     else
       gthShiftCnt += 1;
 
-    while (gthShiftCnt != ((readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT") & 0xffff0000) >> 16)) {
+    uint32_t tmpGthShiftCnt  = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
+    uint32_t tmpMmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
+    INFO("HwGeneircAMC::ttcMMCMPhaseShift tmpGthShiftCnt: " << tmpGthShiftCnt
+          << ", tmpMmcmShiftCnt: " << tmpMmcmShiftCnt);
+    while (gthShiftCnt != tmpGthShiftCnt) {
       writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1);
       WARN("HwGeneircAMC::ttcMMCMPhaseShift Repeating a GTH PI shift because the shift count doesn't match the expected value."
            << " Expected shift cnt = "
            << gthShiftCnt << ", ctp7 returned "
-           << ((readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT") & 0xffff0000) >> 16));
+           << tmpGthShiftCnt);
+      tmpGthShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
+    }
 
-      if (mmcmShiftTable[gthShiftCnt+1]) {
-        if (mmcmShiftCnt == 0xffff)
-          mmcmShiftCnt = 0;
-        else
-          mmcmShiftCnt += 1;
+    if (mmcmShiftTable[gthShiftCnt+1]) {
+      if (mmcmShiftCnt == 0xffff)
+        mmcmShiftCnt = 0;
+      else
+        mmcmShiftCnt += 1;
 
-        if (mmcmShiftCnt != (readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT") & 0xffff))
-          WARN("HwGeneircAMC::ttcMMCMPhaseShift Reported MMCM shift count doesn't match the expected MMCM shift count."
-               << " Expected shift cnt = "
-               << mmcmShiftCnt << " , ctp7 returned "
-               << (readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT") & 0xffff));
-      }
+      tmpMmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
+      if (mmcmShiftCnt != tmpMmcmShiftCnt)
+        WARN("HwGeneircAMC::ttcMMCMPhaseShift Reported MMCM shift count doesn't match the expected MMCM shift count."
+             << " Expected shift cnt = "
+             << mmcmShiftCnt << " , ctp7 returned "
+             << tmpMmcmShiftCnt);
+    }
 
-      bool pllLocked    = checkPllLock();
-      uint32_t phase    = getMMCMPhaseMean();
-      double phaseNs    = phase * 0.01860119;
-      uint32_t gthPhase = getGTHPhaseMean();
-      double gthPhaseNs = gthPhase * 0.01860119;
-      INFO("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i << " (mmcm shift cnt = "
-           << mmcmShiftCnt
-           << "), mmcm phase counts = "
-           << phase
-           << ", mmcm phase = "
-           << phaseNs
-           << "ns, gth phase counts = "
-           << gthPhase
-           << ", gth phase = "
-           << gthPhaseNs
-           << ", PLL locked = "
-           << pllLocked);
-      // f.write("%d,%f,%f,%f,%f\n" % (i, phase, phaseNs, gthPhase, gthPhaseNs));
+    // FIXME clean up with multiple dispatch
+    pllLockCnt = checkPllLock();
+    phase      = getMMCMPhaseMean();
+    phaseNs    = phase * 0.01860119;
+    uint32_t gthPhase = getGTHPhaseMean();
+    double gthPhaseNs = gthPhase * 0.01860119;
 
-      if (pllLocked)
+    DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i << " (mmcm shift cnt = "
+          << mmcmShiftCnt
+          << "), mmcm phase counts = "
+          << phase
+          << ", mmcm phase = "
+          << phaseNs
+          << "ns, gth phase counts = "
+          << gthPhase
+          << ", gth phase = "
+          << gthPhaseNs
+         << ", PLL lock count = "
+          << pllLockCnt);
+
+    // f.write("%d,%f,%f,%f,%f\n" % (i, phase, phaseNs, gthPhase, gthPhaseNs));
+
+    if (shiftOutOfLockFirst && (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) && !firstUnlockFound) {
+      firstUnlockFound = true;
+      WARN("HwGenericAMC::ttcMMCMPhaseShift Unlocked after"
+           << i+1 << "shifts, mmcm phase count = "
+           << phase << ", mmcm phase ns = "
+           << phaseNs << "ns, pllLockCnt = "
+           << pllLockCnt << ", firstUnlockFound = "
+           << firstUnlockFound << ", shiftOutOfLockFirst = "
+           << shiftOutOfLockFirst);
+    }
+
+    if ((pllLockCnt == PLL_LOCK_READ_ATTEMPTS) && (firstUnlockFound || !shiftOutOfLockFirst)) {
+      INFO("HwGenericAMC::ttcMMCMPhaseShift Lock found after"
+           << i+1 << "shifts, mmcm phase count = "
+           << phase << ", mmcm phase ns = "
+           << phaseNs << "ns, pllLockCnt = "
+           << pllLockCnt << ", firstUnlockFound = "
+           << firstUnlockFound << ", shiftOutOfLockFirst = "
+           << shiftOutOfLockFirst);
+      if (nGoodLocks > 2)
         break;
+      else
+        nGoodLocks += 1;
+    } else {
+      nGoodLocks = 0;
     }
   }
+  INFO("HwGeneircAMC::ttcMMCMPhaseShift Lock was found at phase count " << phase << ", phase " << phaseNs<< "ns");
 }
 
-bool gem::hw::HwGenericAMC::checkPllLock()
+int gem::hw::HwGenericAMC::checkPllLock()
 {
-  double PLL_LOCK_WAIT_TIME = 0.0001; // wait 100us to allow the PLL to lock
+  const int PHASE_CHECK_AVERAGE_CNT = 100;
+  const int PLL_LOCK_READ_ATTEMPTS  = 10;
+  const double PLL_LOCK_WAIT_TIME   = 0.00001; // wait 100us to allow the PLL to lock
+  int lockCnt = 0;
+  for (int i = 0; i < PLL_LOCK_READ_ATTEMPTS; ++i ) {
+    writeReg(getDeviceBaseNode(),"TTC.CTRL.PA_MANUAL_PLL_RESET", 0x1);
+    sleep(PLL_LOCK_WAIT_TIME);
+    if (readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PHASE_LOCKED") != 0)
+      lockCnt += 1;
+  }
+  return lockCnt;
+  /*
+  const double PLL_LOCK_WAIT_TIME = 0.0001; // wait 100us to allow the PLL to lock
   writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_MANUAL_PLL_RESET", 0x1);
   sleep(PLL_LOCK_WAIT_TIME);
   if (((readReg(getDeviceBaseNode(), "TTC.STATUS.CLK.PHASE_LOCKED") & 0x4) >> 2) == 0)
     return false;
   else
     return true;
+   */
 }
 
 uint32_t gem::hw::HwGenericAMC::getMMCMPhaseMean()
@@ -822,7 +895,7 @@ bool gem::hw::HwGenericAMC::getL1AEnable()
 void gem::hw::HwGenericAMC::setL1AEnable(bool enable)
 {
   // uint32_t safeEnable = 0xa4a2c200+int(enable);
-  writeReg(getDeviceBaseNode(), "TTC.CTRL.L1A_ENABLE", enable);
+  writeReg(getDeviceBaseNode(), "TTC.CTRL.L1A_ENABLE", uint32_t(enable));
 }
 
 uint32_t gem::hw::HwGenericAMC::getTTCConfig(AMCTTCCommand const& cmd)
@@ -984,7 +1057,7 @@ void gem::hw::HwGenericAMC::generalReset()
   // reset all counters
   counterReset();
 
-  for (unsigned gtx = 0; gtx < this->getSupportedOptoHybrids(); ++gtx)
+  for (unsigned gtx = 0; gtx < m_maxLinks; ++gtx)
     linkReset(gtx);
 
   // other resets
@@ -997,7 +1070,7 @@ void gem::hw::HwGenericAMC::counterReset()
   // reset all counters
   resetT1Counters();
 
-  for (unsigned gtx = 0; gtx < this->getSupportedOptoHybrids(); ++gtx)
+  for (unsigned gtx = 0; gtx < m_maxLinks; ++gtx)
     resetIPBusCounters(gtx, 0xff);
 
   resetLinkCounters();
