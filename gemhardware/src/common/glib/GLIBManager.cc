@@ -59,13 +59,16 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->fireItemAvailable("AllGLIBsInfo",   &m_glibInfo);
   p_appInfoSpace->fireItemAvailable("AMCSlots",       &m_amcSlots);
   p_appInfoSpace->fireItemAvailable("ConnectionFile", &m_connectionFile);
+  p_appInfoSpace->fireItemAvailable("UHALPhaseShift", &m_uhalPhaseShift);
 
   p_appInfoSpace->addItemRetrieveListener("AllGLIBsInfo",   this);
   p_appInfoSpace->addItemRetrieveListener("AMCSlots",       this);
   p_appInfoSpace->addItemRetrieveListener("ConnectionFile", this);
+  p_appInfoSpace->addItemRetrieveListener("UHALPhaseShift", this);
   p_appInfoSpace->addItemChangedListener( "AllGLIBsInfo",   this);
   p_appInfoSpace->addItemChangedListener( "AMCSlots",       this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile", this);
+  p_appInfoSpace->addItemChangedListener( "UHALPhaseShift", this);
 
   xgi::bind(this, &GLIBManager::dumpGLIBFIFO, "dumpGLIBFIFO");
 
@@ -225,7 +228,8 @@ void gem::hw::glib::GLIBManager::initializeAction()
       if (amc->isHwConnected()) {
         DEBUG("GLIBManager::Creating InfoSpace items for GLIB device " << deviceName);
 
-        amc->writeReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", 0x0);
+        // FIXME should not need this here?
+        amc-disableDAQLink();
 
         // maybe better to raise exception here and fail if not connected, as we expected the card to be here?
         createGLIBInfoSpaceItems(is_glibs.at(slot), amc);
@@ -314,19 +318,22 @@ void gem::hw::glib::GLIBManager::configureAction()
       amc->scaHardResetEnable(false);
       amc->resetL1ACount();
       amc->resetCalPulseCount();
-      // amc->ttcMMCMPhaseShift();
 
-      std::stringstream pashiftcmd;
-      // FIXME hard coded for now, but super hacky garbage (only works at P5)
-      pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py'\"";
-      int retval = std::system(pashiftcmd.str().c_str());
-      if (retval) {
-        std::stringstream msg;
-        msg << "GLIBManager::configureAction unable to shift phases: " << retval;
-        WARN(msg.str());
-        // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-        // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+      if (m_uhalPhaseShift.value_) {
+        amc->ttcMMCMPhaseShift();
+      } else {
+        std::stringstream pashiftcmd;
+        // FIXME hard coded for now, but super hacky garbage (only works at P5)
+        pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py'\"";
+        int retval = std::system(pashiftcmd.str().c_str());
+        if (retval) {
+          std::stringstream msg;
+          msg << "GLIBManager::configureAction unable to shift phases: " << retval;
+          WARN(msg.str());
+          // fireEvent("Fail");
+          // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+          // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+        }
       }
 
       // reset the DAQ (could move this to HwGenericAMC and eventually  a corresponding RPC module
@@ -375,13 +382,13 @@ void gem::hw::glib::GLIBManager::configureAction()
               << " --ztrim=" << 4.0
               << " --vt1bump=" << 10
               << " --config --run";
-      retval = std::system(confcmd.str().c_str());
+      int retval = std::system(confcmd.str().c_str());
       if (retval) {
         std::stringstream msg;
         msg << "GLIBManager::configureAction unable to configure chambers: " << retval;
         WARN(msg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
       // }
@@ -395,7 +402,7 @@ void gem::hw::glib::GLIBManager::configureAction()
         msg << "GLIBManager::configureAction unable to check AMC status: " << retval;
         WARN(msg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
 
@@ -448,7 +455,6 @@ void gem::hw::glib::GLIBManager::startAction()
       amc->enableDAQLink(0x4);  // FIXME
       amc->resetDAQLink();
       amc->enableZeroSuppression(0x1);
-      amc->enableDAQLink(0x4);  // FIXME
       amc->setL1AEnable(true);
       usleep(10); // just for testing the timing of different applications
 
@@ -462,7 +468,7 @@ void gem::hw::glib::GLIBManager::startAction()
         msg << "GLIBManager::startAction unable to check AMC status: " << retval;
         WARN(msg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
 
@@ -603,7 +609,7 @@ void gem::hw::glib::GLIBManager::stopAction()
         msg << "GLIBManager::stopAction unable to check AMC status: " << retval;
         WARN(msg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
 
@@ -648,7 +654,7 @@ void gem::hw::glib::GLIBManager::haltAction()
         msg << "GLIBManager::haltAction unable to check AMC status: " << retval;
         WARN(msg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
 
@@ -695,7 +701,7 @@ void gem::hw::glib::GLIBManager::resetAction()
         msg << "GLIBManager::resetAction unable to check AMC status: " << retval;
         WARN(msg.str());
         // fireEvent("Fail");
-        XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
+        // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
       }
     }
@@ -741,12 +747,12 @@ void gem::hw::glib::GLIBManager::resetAction(toolbox::Event::Reference e)
 void gem::hw::glib::GLIBManager::createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib)
 {
   // system registers
-  is_glib->createUInt32("BOARD_ID",      glib->getBoardIDRaw(),      NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_glib->createUInt32("SYSTEM_ID",     glib->getSystemIDRaw(),     NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
-  is_glib->createUInt32("FIRMWARE_VERSION",glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
-  is_glib->createUInt32("FIRMWARE_DATE", glib->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "date");
-  is_glib->createUInt32("AMC_FIRMWARE_VERSION",glib->getFirmwareVerRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "fwverglib");
-  is_glib->createUInt32("AMC_FIRMWARE_DATE", glib->getFirmwareDateRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "dateoh");
+  is_glib->createUInt32("BOARD_ID",      glib->getBoardIDRaw(),           NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_glib->createUInt32("SYSTEM_ID",     glib->getSystemIDRaw(),          NULL, GEMUpdateType::NOUPDATE, "docstring", "id");
+  is_glib->createUInt32("FIRMWARE_VERSION",glib->getFirmwareVerRaw(),     NULL, GEMUpdateType::PROCESS,  "docstring", "fwver");
+  is_glib->createUInt32("FIRMWARE_DATE", glib->getFirmwareDateRaw(),      NULL, GEMUpdateType::PROCESS,  "docstring", "date");
+  is_glib->createUInt32("AMC_FIRMWARE_VERSION",glib->getFirmwareVerRaw(), NULL, GEMUpdateType::PROCESS,  "docstring", "fwverglib");
+  is_glib->createUInt32("AMC_FIRMWARE_DATE", glib->getFirmwareDateRaw(),  NULL, GEMUpdateType::PROCESS,  "docstring", "dateoh");
   is_glib->createUInt32("IP_ADDRESS",    glib->getIPAddressRaw(),    NULL, GEMUpdateType::NOUPDATE, "docstring", "ip");
   is_glib->createUInt64("MAC_ADDRESS",   glib->getMACAddressRaw(),   NULL, GEMUpdateType::NOUPDATE, "docstring", "mac");
   is_glib->createUInt32("SFP1_STATUS",   glib->SFPStatus(1),         NULL, GEMUpdateType::HW32);
