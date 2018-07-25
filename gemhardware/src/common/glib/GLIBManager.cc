@@ -229,7 +229,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
         DEBUG("GLIBManager::Creating InfoSpace items for GLIB device " << deviceName);
 
         // FIXME should not need this here?
-        amc-disableDAQLink();
+        amc->disableDAQLink();
 
         // maybe better to raise exception here and fail if not connected, as we expected the card to be here?
         createGLIBInfoSpaceItems(is_glibs.at(slot), amc);
