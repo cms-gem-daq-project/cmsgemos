@@ -88,7 +88,7 @@ class HwVFAT(object):
     def getAllChipIDs(self, mask=0x0):
         return self.readAllVFATs("HW_CHIP_ID",mask)
 
-    def getAllChannelRegisters(self, mask=0x0)
+    def getAllChannelRegisters(self, mask=0x0):
         chanRegData = (c_uint32 * 3072)()
 
         rpcResp = self.getChannelRegistersVFAT3(self.parentOH.link, mask, chanRegData)
