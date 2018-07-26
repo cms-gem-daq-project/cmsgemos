@@ -22,6 +22,11 @@ class HwVFAT(object):
         self.confVFAT3s.argTypes = [ c_uint, c_uint ]
         self.confVFAT3s.restype = c_uint
 
+        # Get all channel regs
+        self.getChannelRegistersVFAT3 = self.parentOH.parentAMC.lib.getChannelRegistersVFAT3
+        self.getChannelRegistersVFAT3.argTypes = [ c_uint, c_uint, POINTER(c_uint32) ]
+        self.getChannelRegistersVFAT3.restype = c_uint
+
         # Turn off calpulses
         self.stopCalPulses2AllChannels = self.parentOH.parentAMC.lib.stopCalPulse2AllChannels
         self.stopCalPulses2AllChannels.argTypes = [ c_uint, c_uint, c_uint, c_uint ]
@@ -82,6 +87,14 @@ class HwVFAT(object):
 
     def getAllChipIDs(self, mask=0x0):
         return self.readAllVFATs("HW_CHIP_ID",mask)
+
+    def getAllChannelRegisters(self, mask=0x0)
+        chanRegData = (c_uint32 * 3072)()
+
+        rpcResp = self.getChannelRegistersVFAT3(self.parentOH.link, mask, chanRegData)
+        if rpcResp != 0:
+            raise Exception("RPC response was non-zero, failed to get channel data for OH{0}".format(self.parentOH.link))
+        return chanRegData
 
     def readAllVFATs(self, reg, mask=0x0):
         vfatVals = self.parentOH.broadcastRead(reg,mask)
