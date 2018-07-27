@@ -325,7 +325,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       } else {
         std::stringstream pashiftcmd;
         // FIXME hard coded for now, but super hacky garbage (only works at P5)
-        pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py'\"";
+        pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py --useBC0'\"";
         int retval = std::system(pashiftcmd.str().c_str());
         if (retval) {
           std::stringstream msg;

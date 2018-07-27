@@ -736,6 +736,8 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
   uint32_t gthShiftCnt  = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
   int  pllLockCnt = checkPllLock();
   bool firstUnlockFound = false;
+  bool nextLockFound    = false;
+  bool bestLockFound    = false;
   uint32_t phase = 0;
   double phaseNs = 0.0;
 
@@ -746,9 +748,10 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
                            false, false, false, false, true, false, false,
                            false, false, false, true, false, false};
 
+  int nBadLocks  = 0;
   int nGoodLocks = 0;
-  // for (int i = 0; i < 6*2560; ++i) {
-  for (int i = 0; i < 7680; ++i) {
+  for (int i = 0; i < 6*2560; ++i) {
+  // for (int i = 0; i < 7680; ++i) {
     /*
     writeRegs(register_pair_list({
           {"GEM_AMC.TTC.CTRL.CNT_RESET", 0x1},
@@ -771,11 +774,11 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
     INFO("HwGeneircAMC::ttcMMCMPhaseShift tmpGthShiftCnt: " << tmpGthShiftCnt
           << ", tmpMmcmShiftCnt: " << tmpMmcmShiftCnt);
     while (gthShiftCnt != tmpGthShiftCnt) {
-      writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1);
       WARN("HwGeneircAMC::ttcMMCMPhaseShift Repeating a GTH PI shift because the shift count doesn't match the expected value."
            << " Expected shift cnt = "
            << gthShiftCnt << ", ctp7 returned "
            << tmpGthShiftCnt);
+      writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1);
       tmpGthShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
     }
 
@@ -800,6 +803,12 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
     uint32_t gthPhase = getGTHPhaseMean();
     double gthPhaseNs = gthPhase * 0.01860119;
 
+    uhal::ValWord<uint32_t> bc0Locked  = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.BC0.LOCKED").read();
+    uhal::ValWord<uint32_t> bc0UnlkCnt = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT").read();
+    uhal::ValWord<uint32_t> sglErrCnt  = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT").read();
+    uhal::ValWord<uint32_t> dblErrCnt  = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT").read();
+    getGEMHwInterface().dispatch();
+
     DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i << " (mmcm shift cnt = "
           << mmcmShiftCnt
           << "), mmcm phase counts = "
@@ -810,11 +819,66 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
           << gthPhase
           << ", gth phase = "
           << gthPhaseNs
-         << ", PLL lock count = "
+          << ", PLL lock count = "
           << pllLockCnt);
 
-    // f.write("%d,%f,%f,%f,%f\n" % (i, phase, phaseNs, gthPhase, gthPhaseNs));
+    // 3840 full width of good + bad
+    // shift into bad region, not on the edge
+    if (!firstUnlockFound) {
+      bestLockFound = false;
+      if (bc0Locked == 0) {
+        nBadLocks += 1;
+        nGoodLocks = 0;
+      } else {
+        nBadLocks   = 0;
+        nGoodLocks += 1;
+      }
 
+      // * 100 bad in a row
+      if (nBadLocks > 100) {
+        firstUnlockFound = true;
+        INFO("HwGenericAMC::ttcMMCMPhaseShift 100 unlocks found after "
+            << (i+1) << " shifts: "
+            << "bad locks "    << nBadLocks
+            << ", good locks " << nGoodLocks
+            << ", mmcm phase count = " << phase
+            << ", mmcm phase ns = " << phaseNs << "ns");
+      }
+    } else { // * shift to first good BC0 locked
+        if (bc0Locked == 0) {
+          if (nextLockFound) {
+            DEBUG("Unexpected unlock after " << (i+1) << " shifts: "
+                  << "bad locks "    << nBadLocks
+                  << ", good locks " << nGoodLocks
+                  << ", mmcm phase count = " << phase
+                  << ", mmcm phase ns = " << phaseNs << "ns");
+          }
+          nBadLocks += 1;
+          // nGoodLocks = 0;
+        } else {
+            if (!nextLockFound) {
+              INFO("Found next lock after " << (i+1) << " shifts: "
+                << "bad locks "    << nBadLocks
+                << ", good locks " << nGoodLocks
+                << ", mmcm phase count = " << phase
+                << ", mmcm phase ns = " << phaseNs << "ns");
+            }
+            nextLockFound = true;
+            // nBadLocks   = 0;
+            nGoodLocks += 1;
+        }
+        // * shift 1920 additional GTH shifts to be in the middle of the "good" region (maybe too much?)
+        // maybe look for 200, 500 consecutive good locks and shift backwards half?, for the bc0Locked and not shfitOutOfLockFirst mode
+        if (nGoodLocks == 1920) {
+          INFO("Finished 1920 shifts after first good lock: "
+               << "bad locks " << nBadLocks
+               << " good locks " <<  nGoodLocks);
+          // for test, roll around 3 times, mark location of best lock, reset procedure
+          bestLockFound    = true;
+          break;
+        }
+    }
+    /*
     if (shiftOutOfLockFirst && (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) && !firstUnlockFound) {
       firstUnlockFound = true;
       WARN("HwGenericAMC::ttcMMCMPhaseShift Unlocked after"
@@ -841,6 +905,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
     } else {
       nGoodLocks = 0;
     }
+    */
   }
   INFO("HwGeneircAMC::ttcMMCMPhaseShift Lock was found at phase count " << phase << ", phase " << phaseNs<< "ns");
 }
