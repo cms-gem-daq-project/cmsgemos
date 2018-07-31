@@ -579,9 +579,10 @@ namespace gem {
 
         /**
          * @brief Shift the phase of the MMCM of the TTC module
-         * @param Whether to shift of lock before starting the procedure
+         * @param shiftOutOfLockFirst to shift of lock before looking for a good lock
+         * @param useBC0Locked to determine the good phase region, rather than the PLL lock status
          */
-        void ttcMMCMPhaseShift(bool shiftOutOfLockFirst=false);
+        void ttcMMCMPhaseShift(bool shiftOutOfLockFirst=false, bool useBC0Locked=false);
 
         /**
          * @brief Check the lock status of the MMCM PLL

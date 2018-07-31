@@ -682,7 +682,7 @@ void gem::hw::HwGenericAMC::ttcMMCMReset()
   // writeReg(getDeviceBaseNode(), "TTC.CTRL.PHASE_ALIGNMENT_RESET", 0x1);
 }
 
-void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
+void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool useBC0Locked)
 {
   const int PHASE_CHECK_AVERAGE_CNT = 100;
   const int PLL_LOCK_READ_ATTEMPTS  = 10;
@@ -772,12 +772,11 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
     uint32_t tmpGthShiftCnt  = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
     uint32_t tmpMmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
     INFO("HwGeneircAMC::ttcMMCMPhaseShift tmpGthShiftCnt: " << tmpGthShiftCnt
-          << ", tmpMmcmShiftCnt: " << tmpMmcmShiftCnt);
+         << ", tmpMmcmShiftCnt: " << tmpMmcmShiftCnt);
     while (gthShiftCnt != tmpGthShiftCnt) {
       WARN("HwGeneircAMC::ttcMMCMPhaseShift Repeating a GTH PI shift because the shift count doesn't match the expected value."
-           << " Expected shift cnt = "
-           << gthShiftCnt << ", ctp7 returned "
-           << tmpGthShiftCnt);
+           << " Expected shift cnt = " << gthShiftCnt
+           << ", ctp7 returned "       << tmpGthShiftCnt);
       writeReg(getDeviceBaseNode(), "TTC.CTRL.PA_GTH_MANUAL_SHIFT_EN", 0x1);
       tmpGthShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_GTH_SHIFT_CNT");
     }
@@ -791,9 +790,8 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
       tmpMmcmShiftCnt = readReg(getDeviceBaseNode(),"TTC.STATUS.CLK.PA_MANUAL_SHIFT_CNT");
       if (mmcmShiftCnt != tmpMmcmShiftCnt)
         WARN("HwGeneircAMC::ttcMMCMPhaseShift Reported MMCM shift count doesn't match the expected MMCM shift count."
-             << " Expected shift cnt = "
-             << mmcmShiftCnt << " , ctp7 returned "
-             << tmpMmcmShiftCnt);
+             << " Expected shift cnt = " << mmcmShiftCnt
+             << " , ctp7 returned "      << tmpMmcmShiftCnt);
     }
 
     // FIXME clean up with multiple dispatch
@@ -809,103 +807,99 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst)
     uhal::ValWord<uint32_t> dblErrCnt  = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT").read();
     getGEMHwInterface().dispatch();
 
-    DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i << " (mmcm shift cnt = "
-          << mmcmShiftCnt
-          << "), mmcm phase counts = "
-          << phase
-          << ", mmcm phase = "
-          << phaseNs
-          << "ns, gth phase counts = "
-          << gthPhase
-          << ", gth phase = "
-          << gthPhaseNs
-          << ", PLL lock count = "
-          << pllLockCnt);
+    DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i
+          << " (mmcm shift cnt = "     << mmcmShiftCnt
+          << ", mmcm phase counts = "  << phase
+          << ", mmcm phase = "         << phaseNs
+          << "ns, gth phase counts = " << gthPhase
+          << ", gth phase = "          << gthPhaseNs
+          << ", PLL lock count = "     << pllLockCnt);
 
-    // 3840 full width of good + bad
-    // shift into bad region, not on the edge
-    if (!firstUnlockFound) {
-      bestLockFound = false;
-      if (bc0Locked == 0) {
-        nBadLocks += 1;
-        nGoodLocks = 0;
-      } else {
-        nBadLocks   = 0;
-        nGoodLocks += 1;
-      }
+    if (useBC0Locked) {
+      // 3840 full width of good + bad
+      // shift into bad region, not on the edge
+      if (!firstUnlockFound) {
+        bestLockFound = false;
+        if (bc0Locked == 0) {
+          nBadLocks += 1;
+          nGoodLocks = 0;
+        } else {
+          nBadLocks   = 0;
+          nGoodLocks += 1;
+        }
 
-      // * 100 bad in a row
-      if (nBadLocks > 100) {
-        firstUnlockFound = true;
-        INFO("HwGenericAMC::ttcMMCMPhaseShift 100 unlocks found after "
-            << (i+1) << " shifts: "
-            << "bad locks "    << nBadLocks
-            << ", good locks " << nGoodLocks
-            << ", mmcm phase count = " << phase
-            << ", mmcm phase ns = " << phaseNs << "ns");
-      }
-    } else { // * shift to first good BC0 locked
+        /* 100 bad in a row*/
+        if (nBadLocks > 100) {
+          firstUnlockFound = true;
+          INFO("HwGenericAMC::ttcMMCMPhaseShift 100 unlocks found after " << (i+1) << " shifts:"
+               << " bad locks "           << nBadLocks
+               << ", good locks "         << nGoodLocks
+               << ", mmcm phase count = " << phase
+               << ", mmcm phase ns = "    << phaseNs << "ns");
+        }
+      } else { // * shift to first good BC0 locked
         if (bc0Locked == 0) {
           if (nextLockFound) {
-            DEBUG("Unexpected unlock after " << (i+1) << " shifts: "
-                  << "bad locks "    << nBadLocks
-                  << ", good locks " << nGoodLocks
+            DEBUG("Unexpected unlock after " << (i+1) << " shifts:"
+                  << " bad locks "            << nBadLocks
+                  << ", good locks "         << nGoodLocks
                   << ", mmcm phase count = " << phase
-                  << ", mmcm phase ns = " << phaseNs << "ns");
+                  << ", mmcm phase ns = "    << phaseNs << "ns");
           }
           nBadLocks += 1;
           // nGoodLocks = 0;
         } else {
-            if (!nextLockFound) {
-              INFO("Found next lock after " << (i+1) << " shifts: "
-                << "bad locks "    << nBadLocks
-                << ", good locks " << nGoodLocks
-                << ", mmcm phase count = " << phase
-                << ", mmcm phase ns = " << phaseNs << "ns");
-            }
-            nextLockFound = true;
-            // nBadLocks   = 0;
-            nGoodLocks += 1;
+          if (!nextLockFound) {
+            INFO("Found next lock after "  << (i+1) << " shifts:"
+                 << " bad locks "            << nBadLocks
+                 << ", good locks "         << nGoodLocks
+                 << ", mmcm phase count = " << phase
+                 << ", mmcm phase ns = "    << phaseNs << "ns");
+          }
+          nextLockFound = true;
+          // nBadLocks   = 0;
+          nGoodLocks += 1;
         }
         // * shift 1920 additional GTH shifts to be in the middle of the "good" region (maybe too much?)
         // maybe look for 200, 500 consecutive good locks and shift backwards half?, for the bc0Locked and not shfitOutOfLockFirst mode
         if (nGoodLocks == 1920) {
           INFO("Finished 1920 shifts after first good lock: "
-               << "bad locks " << nBadLocks
+               << "bad locks "   << nBadLocks
                << " good locks " <<  nGoodLocks);
           // for test, roll around 3 times, mark location of best lock, reset procedure
-          bestLockFound    = true;
+          bestLockFound = true;
           break;
         }
-    }
-    /*
-    if (shiftOutOfLockFirst && (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) && !firstUnlockFound) {
-      firstUnlockFound = true;
-      WARN("HwGenericAMC::ttcMMCMPhaseShift Unlocked after"
-           << i+1 << "shifts, mmcm phase count = "
-           << phase << ", mmcm phase ns = "
-           << phaseNs << "ns, pllLockCnt = "
-           << pllLockCnt << ", firstUnlockFound = "
-           << firstUnlockFound << ", shiftOutOfLockFirst = "
-           << shiftOutOfLockFirst);
-    }
-
-    if ((pllLockCnt == PLL_LOCK_READ_ATTEMPTS) && (firstUnlockFound || !shiftOutOfLockFirst)) {
-      INFO("HwGenericAMC::ttcMMCMPhaseShift Lock found after "
-           << i+1 << " shifts, mmcm phase count = "
-           << phase << ", mmcm phase ns = "
-           << phaseNs << "ns, pllLockCnt = "
-           << pllLockCnt << ", firstUnlockFound = "
-           << firstUnlockFound << ", shiftOutOfLockFirst = "
-           << shiftOutOfLockFirst);
-      if (nGoodLocks > 2)
-        break;
-      else
-        nGoodLocks += 1;
+      }
     } else {
-      nGoodLocks = 0;
+      if (shiftOutOfLockFirst && (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) && !firstUnlockFound) {
+        firstUnlockFound = true;
+        WARN("HwGenericAMC::ttcMMCMPhaseShift Unlocked after " << i+1 << "shifts:"
+             << " mmcm phase count = "     << phase
+             << ", mmcm phase ns = "       << phaseNs << "ns"
+             << ", pllLockCnt = "          << pllLockCnt
+             << ", firstUnlockFound = "    << firstUnlockFound
+             << ", shiftOutOfLockFirst = " << shiftOutOfLockFirst);
+      }
+
+      if ((pllLockCnt == PLL_LOCK_READ_ATTEMPTS) && (firstUnlockFound || !shiftOutOfLockFirst)) {
+        INFO("HwGenericAMC::ttcMMCMPhaseShift Lock found after " << i+1 << "shifts:"
+             << " mmcm phase count = "     << phase
+             << ", mmcm phase ns = "       << phaseNs << "ns"
+             << ", pllLockCnt = "          << pllLockCnt
+             << ", firstUnlockFound = "    << firstUnlockFound
+             << ", shiftOutOfLockFirst = " << shiftOutOfLockFirst);
+        if (nGoodLocks > 4) {
+          bestLockFound = true;
+          break;
+        } else {
+          nGoodLocks += 1;
+        }
+      } else {
+        bestLockFound = false;
+        nGoodLocks = 0;
+      }
     }
-    */
   }
   INFO("HwGeneircAMC::ttcMMCMPhaseShift Lock was found at phase count " << phase << ", phase " << phaseNs<< "ns");
 }

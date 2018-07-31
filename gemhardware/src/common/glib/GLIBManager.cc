@@ -53,7 +53,8 @@ void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::gl
 gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   m_amcEnableMask(0),
-  m_uhalPhaseShift(false)
+  m_uhalPhaseShift(false),
+  m_bc0LockPhaseShift(false)
 {
   m_glibInfo.setSize(MAX_AMCS_PER_CRATE);
 
@@ -61,15 +62,18 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->fireItemAvailable("AMCSlots",       &m_amcSlots);
   p_appInfoSpace->fireItemAvailable("ConnectionFile", &m_connectionFile);
   p_appInfoSpace->fireItemAvailable("UHALPhaseShift", &m_uhalPhaseShift);
+  p_appInfoSpace->fireItemAvailable("BC0LockPhaseShift", &m_bc0LockPhaseShift);
 
   p_appInfoSpace->addItemRetrieveListener("AllGLIBsInfo",   this);
   p_appInfoSpace->addItemRetrieveListener("AMCSlots",       this);
   p_appInfoSpace->addItemRetrieveListener("ConnectionFile", this);
   p_appInfoSpace->addItemRetrieveListener("UHALPhaseShift", this);
+  p_appInfoSpace->addItemRetrieveListener("BC0LockPhaseShift", this);
   p_appInfoSpace->addItemChangedListener( "AllGLIBsInfo",   this);
   p_appInfoSpace->addItemChangedListener( "AMCSlots",       this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile", this);
   p_appInfoSpace->addItemChangedListener( "UHALPhaseShift", this);
+  p_appInfoSpace->addItemChangedListener( "BC0LockPhaseShift", this);
 
   xgi::bind(this, &GLIBManager::dumpGLIBFIFO, "dumpGLIBFIFO");
 
@@ -321,11 +325,14 @@ void gem::hw::glib::GLIBManager::configureAction()
       amc->resetCalPulseCount();
 
       if (m_uhalPhaseShift.value_) {
-        amc->ttcMMCMPhaseShift();
+        amc->ttcMMCMPhaseShift(true, m_bc0LockPhaseShift.value_);
       } else {
         std::stringstream pashiftcmd;
         // FIXME hard coded for now, but super hacky garbage (only works at P5)
-        pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py --useBC0'\"";
+        pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py";
+        if (m_bc0LockPhaseShift.value_)
+          pashiftcmd << " --useBC0";
+        pashiftcmd << "'\"";
         int retval = std::system(pashiftcmd.str().c_str());
         if (retval) {
           std::stringstream msg;

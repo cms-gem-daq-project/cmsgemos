@@ -137,6 +137,7 @@ namespace gem {
           xdata::String                        m_amcSlots;
           xdata::String                        m_connectionFile;
           xdata::Boolean                       m_uhalPhaseShift;
+          xdata::Boolean                       m_bc0LockPhaseShift;
 
 	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
         };  // class GLIBManager
