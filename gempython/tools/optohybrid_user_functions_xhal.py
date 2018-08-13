@@ -31,17 +31,17 @@ class HwOptoHybrid(object):
         self.bWrite.restype = c_uint
        
         # Define the sbit mapping scan modules
-        self.checkSbitMappingWithCalPulse = self.parentAMC.lib.checkSbitMappingWithCalPulse
-        self.checkSbitMappingWithCalPulse.restype = c_uint
-        self.checkSbitMappingWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_uint,
-                                                      c_uint, c_uint, c_uint, POINTER(c_uint32)]
+        self.sbitMappingWithCalPulse = self.parentAMC.lib.checkSbitMappingWithCalPulse
+        self.sbitMappingWithCalPulse.restype = c_uint
+        self.sbitMappingWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_uint,
+                                                 c_uint, c_uint, c_uint, POINTER(c_uint32)]
 
-        self.checkSbitRateWithCalPulse = self.parentAMC.lib.checkSbitRateWithCalPulse
-        self.checkSbitRateWithCalPulse.restype = c_uint
-        self.checkSbitRateWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_uint,
-                                                   c_uint, c_uint, c_uint,
-                                                   POINTER(c_uint32), POINTER(c_uint32),
-                                                   POINTER(c_uint32)]
+        self.sbitRateWithCalPulse = self.parentAMC.lib.checkSbitRateWithCalPulse
+        self.sbitRateWithCalPulse.restype = c_uint
+        self.sbitRateWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_uint,
+                                              c_uint, c_uint, c_uint,
+                                              POINTER(c_uint32), POINTER(c_uint32),
+                                              POINTER(c_uint32)]
 
         # Define the generic scan modules
         self.genScan = self.parentAMC.lib.genScan
@@ -167,7 +167,7 @@ class HwOptoHybrid(object):
         if "pulseDelay" in kwargs:
             pulseDelay = kwargs["pulseDelay"]
 
-        return self.checkSbitMappingWithCalPulse(self.link, mask, currentPulse, calSF, nevts, L1AInterval, pulseDelay, kwargs["outData"])
+        return self.sbitMappingWithCalPulse(self.link, mask, currentPulse, calSF, nevts, L1AInterval, pulseDelay, kwargs["outData"])
 
     def checkSbitRateWithCalPulse(self, **kwargs):
         """
@@ -236,7 +236,7 @@ class HwOptoHybrid(object):
         if "waitTime" in kwargs:
             waitTime = kwargs["waitTime"]
 
-        return self.checkSbitRateWithCalPulse(self.link, mask, currentPulse, calSF, waitTime, pulseRate, pulseDelay, kwargs["outDataCTP7Rate"], kwargs["outDataFPGARate"], kwargs["outDataVFATRate"])
+        return self.sbitRateWithCalPulse(self.link, mask, currentPulse, calSF, waitTime, pulseRate, pulseDelay, kwargs["outDataCTP7Rate"], kwargs["outDataFPGARate"], kwargs["outDataVFATRate"])
 
     def getL1ACount(self):
         if self.parentAMC.fwVersion < 3:
