@@ -33,13 +33,14 @@ class HwOptoHybrid(object):
         # Define the sbit mapping scan modules
         self.sbitMappingWithCalPulse = self.parentAMC.lib.checkSbitMappingWithCalPulse
         self.sbitMappingWithCalPulse.restype = c_uint
-        self.sbitMappingWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_uint,
-                                                 c_uint, c_uint, c_uint, POINTER(c_uint32)]
+        self.sbitMappingWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_bool,
+                                                 c_bool, c_uint, c_uint, c_uint,
+                                                 c_uint, POINTER(c_uint32)]
 
         self.sbitRateWithCalPulse = self.parentAMC.lib.checkSbitRateWithCalPulse
         self.sbitRateWithCalPulse.restype = c_uint
-        self.sbitRateWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_uint,
-                                              c_uint, c_uint, c_uint,
+        self.sbitRateWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_bool,
+                                              c_bool, c_uint, c_uint, c_uint, c_uint,
                                               POINTER(c_uint32), POINTER(c_uint32),
                                               POINTER(c_uint32)]
 
@@ -52,7 +53,7 @@ class HwOptoHybrid(object):
         self.genChannelScan = self.parentAMC.lib.genChannelScan
         self.genChannelScan.restype = c_uint
         self.genChannelScan.argtypes = [c_uint, c_uint, c_uint, c_uint,
-                                        c_uint, c_uint, c_uint, c_uint,
+                                        c_uint, c_uint, c_bool, c_bool,
                                         c_uint, c_bool, c_char_p, c_bool,
                                         POINTER(c_uint32)]
 
@@ -114,7 +115,9 @@ class HwOptoHybrid(object):
         Only supported for v3 electronics.
 
         Sends a calpulse to a given channel and sees which
-        sbit is received by the OH, repeats for all channels.
+        sbit is received by the OH, repeats for all channels
+        on supplied vfat.
+
         Only the channel that is being pulsed is unmasked.
         Returns the RPC Message response code.
 
@@ -126,8 +129,9 @@ class HwOptoHybrid(object):
         currentPulse- V3 electronics only. The calibration module uses
                       the current pulse mode rather than the voltage
                       pulse mode.
+        enableCal   - If true the calpulse is used
         L1AInterval - Number of BX's inbetween L1A's
-        mask        - VFAT mask to use
+        mask        - VFAT mask to use for excluding vfats from the trigger
         nevts       - Number of events for each dac value in scan
         outData     - Pointer to an array of size (24*128*8*nevts) which
                       stores the results of the scan:
@@ -138,11 +142,13 @@ class HwOptoHybrid(object):
                             bit 26 isValid.
                             bits [27,29] are the cluster size
         pulseDelay  - Delay between Calpulse and L1A in BX's
+        vfat        - VFAT to pulse
         """
 
         # Set Defaults
         calSF=0x0
         currentPulse=True
+        enableCal=False
         L1AInterval=250
         mask=0x0
         nevts=100
@@ -153,11 +159,18 @@ class HwOptoHybrid(object):
             print("HwOptoHybrid::checkSbitMappingWithCalPulse(): You must supply an outData Pointer")
             exit(os.EX_USAGE)
 
+        # Check if vfat is present
+        if("vfat" not in kwargs):
+            print("HwOptoHybrid::checkSbitMappingWithCalPulse(): You must supply the vfat to pulse")
+            exit(os.EX_USAGE)
+
         # Get Parameters
         if "calSF" in kwargs:
             calSF = kwargs["calSF"]
         if "currentPulse" in kwargs:
             currentPulse = kwargs["currentPulse"]
+        if "enableCal" in kwargs:
+            enableCal = kwargs["enableCal"]
         if "L1AInterval" in kwargs:
             L1AInterval = kwargs["L1AInterval"]
         if "mask" in kwargs:
@@ -167,14 +180,16 @@ class HwOptoHybrid(object):
         if "pulseDelay" in kwargs:
             pulseDelay = kwargs["pulseDelay"]
 
-        return self.sbitMappingWithCalPulse(self.link, mask, currentPulse, calSF, nevts, L1AInterval, pulseDelay, kwargs["outData"])
+        return self.sbitMappingWithCalPulse(self.link, kwargs["vfat"], mask, enableCal, currentPulse, calSF, nevts, L1AInterval, pulseDelay, kwargs["outData"])
 
     def checkSbitRateWithCalPulse(self, **kwargs):
         """
         Only supported for v3 electronics.
 
         Sends cyclic calpulses to a given channel and records
-        the rate of sbits measures by the OH, repeats for all channels.
+        the rate of sbits measures by the OH, repeats for all
+        channels on the supplied vfat.
+
         Only the channel being pulsed is unmasked.
         Returns the RPC Message response code.
 
@@ -186,7 +201,8 @@ class HwOptoHybrid(object):
         currentPulse    - V3 electronics only. The calibration module uses
                           the current pulse mode rather than the voltage
                           pulse mode.
-        mask            - VFAT mask to use
+        enableCal       - If true the calpulse is used
+        mask            - VFAT mask to use for excluding vfats from the trigger
         outDataCTP7Rate - Pointer to an array of size 3072 where the index
                           is defined as idx = 128 * vfat + chan; this array
                           stores the value of GEM_AMC.TRIGGER.OHX.TRIGGER_RATE
@@ -200,12 +216,14 @@ class HwOptoHybrid(object):
                           idx convention
         pulseDelay      - Delay between Calpulse and L1A in BX's
         pulseRate       - Rate of calpulses to be sent in Hz
+        vfat            - VFAT to pulse
         waitTime        - Time to wait before measuring sbit rate in milliseconds
         """
 
         # Set Defaults
         calSF=0x0
         currentPulse=True
+        enableCal=False
         mask=0x0
         pulseDelay=40
         pulseRate=10000
@@ -222,11 +240,18 @@ class HwOptoHybrid(object):
             print("HwOptoHybrid::checkSbitRateWithCalPulse(): You must supply an outDataVFATRate Pointer")
             exit(os.EX_USAGE)
 
+        # Check if vfat is present
+        if("vfat" not in kwargs):
+            print("HwOptoHybrid::checkSbitMappingWithCalPulse(): You must supply the vfat to pulse")
+            exit(os.EX_USAGE)
+
         # Get Parameters
         if "calSF" in kwargs:
             calSF = kwargs["calSF"]
         if "currentPulse" in kwargs:
             currentPulse = kwargs["currentPulse"]
+        if "enableCal" in kwargs:
+            enableCal = kwargs["enableCal"]
         if "mask" in kwargs:
             mask = kwargs["mask"]
         if "pulseDelay" in kwargs:
@@ -236,7 +261,7 @@ class HwOptoHybrid(object):
         if "waitTime" in kwargs:
             waitTime = kwargs["waitTime"]
 
-        return self.sbitRateWithCalPulse(self.link, mask, currentPulse, calSF, waitTime, pulseRate, pulseDelay, kwargs["outDataCTP7Rate"], kwargs["outDataFPGARate"], kwargs["outDataVFATRate"])
+        return self.sbitRateWithCalPulse(self.link, kwargs["vfat"], mask, enableCal, currentPulse, calSF, waitTime, pulseRate, pulseDelay, kwargs["outDataCTP7Rate"], kwargs["outDataFPGARate"], kwargs["outDataVFATRate"])
 
     def getL1ACount(self):
         if self.parentAMC.fwVersion < 3:
