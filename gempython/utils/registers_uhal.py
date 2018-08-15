@@ -166,7 +166,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             # else:
             #     print colors.MAGENTA, "other error",register, "-> Error : ", e, colors.ENDC
             if ((nRetries % 10) == 1):
-                msg = "%s: read (%) error encountered (%s), retrying operation (%d,%d)"%(device,register,str(e),nRetries,gRetries)
+                msg = "%s: read (%s) error encountered (%s), retrying operation (%d,%d)"%(device,register,str(e),nRetries,gRetries)
                 reglogger.warning(msg)
             continue
         pass
