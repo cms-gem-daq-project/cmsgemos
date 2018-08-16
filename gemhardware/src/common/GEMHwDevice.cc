@@ -487,7 +487,6 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int c
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
         vals.push_back(std::make_pair(curReg->first,hw.getClient().read(curReg->first)));
         ++counter;
-        ++counter;// WTF???
         if (freq > 0 && counter%freq == 0) {
           hw.dispatch();
           ++dispatchcounter;
