@@ -581,14 +581,16 @@ namespace gem {
          * @brief Shift the phase of the MMCM of the TTC module
          * @param shiftOutOfLockFirst to shift of lock before looking for a good lock
          * @param useBC0Locked to determine the good phase region, rather than the PLL lock status
+         * @param doScan whether to roll around multiple times for monitoring purposes
          */
-        void ttcMMCMPhaseShift(bool shiftOutOfLockFirst=false, bool useBC0Locked=false);
+        void ttcMMCMPhaseShift(bool shiftOutOfLockFirst=false, bool useBC0Locked=false, bool doScan=false);
 
         /**
          * @brief Check the lock status of the MMCM PLL
+         * @param Number of times to read the PLL lock status
          * @returns Lock count of the MMCM PLL
          */
-        int checkPllLock();
+        int checkPllLock(int readAttempts);
 
         /**
          * @brief Check the lock status of the MMCM PLL
