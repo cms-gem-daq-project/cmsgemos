@@ -556,7 +556,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         // FIXME, should not be here or done like this
         uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
         std::stringstream msg;
-        msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
+        msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " found, INPUT_ENABLE_MASK changed from "
             << std::hex << gtxMask << std::dec;
         gtxMask   |= (0x1<<link);
