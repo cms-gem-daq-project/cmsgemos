@@ -86,6 +86,16 @@ namespace gem {
         void startMonitoring();
 
         /**
+         * Pause the monitoring
+         */
+        void pauseMonitoring();
+
+        /**
+         * Pause the monitoring
+         */
+        void resumeMonitoring();
+
+        /**
          * Stop the monitoring
          */
         void stopMonitoring();

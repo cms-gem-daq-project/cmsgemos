@@ -186,6 +186,7 @@ namespace gem {
             xdata::Boolean enableFakeData;
             xdata::Boolean monBackPressure;
             xdata::Boolean enableLocalTTC;
+            xdata::Boolean skipPLLReset;
 
 	    xdata::Bag<L1AInfo> localTriggerConfig;
 	    xdata::Bag<TTCInfo> amc13TTCConfig;
@@ -212,6 +213,7 @@ namespace gem {
                  << "enableFakeData:     " << enableFakeData.toString()         << std::endl
                  << "monBackPressure:    " << monBackPressure.toString()        << std::endl
                  << "enableLocalTTC:     " << enableLocalTTC.toString()         << std::endl
+                 << "skipPLLReset:       " << skipPLLReset.toString()           << std::endl
                  << "localTriggerConfig: " << localTriggerConfig.bag.toString() << std::endl
                  << "amc13TTCConfig:     " << amc13TTCConfig.bag.toString()     << std::endl;
               // can configure up to 4 BGO channels
@@ -248,7 +250,7 @@ namespace gem {
           std::string m_connectionFile, m_cardName, m_amcInputEnableList, m_slotEnableList, m_amcIgnoreTTSList;
           bool m_enableDAQLink, m_enableFakeData;
           bool m_monBackPressEnable, m_megaMonitorScale;
-          bool m_enableLocalTTC, m_enableLocalL1A,
+          bool m_enableLocalTTC, m_skipPLLReset, m_enableLocalL1A,
             m_sendL1ATriburst, m_startL1ATricont, // need to remove
 	    m_bgoRepeat, m_bgoIsLong, m_enableLEMO;
           int m_localTriggerMode, m_localTriggerPeriod, m_localTriggerRate, m_L1Amode, m_L1Arules;

@@ -138,6 +138,7 @@ namespace gem {
           xdata::String  cpmHWConfig;
           xdata::String  fedEnableMask;
           xdata::Boolean usePrimaryTCDS;
+          xdata::Boolean piSkipPLLReset;
 
           inline std::string toString() {
             // write obj to stream
@@ -149,6 +150,7 @@ namespace gem {
                << "cpmHWConfig:   " << cpmHWConfig.toString()    << std::endl
                << "fedEnableMask: " << fedEnableMask.toString()  << std::endl
                << "usePrimaryTCDS:" << usePrimaryTCDS.toString() << std::endl
+               << "piSkipPLLReset:" << piSkipPLLReset.toString() << std::endl
                << std::endl;
             return os.str();
           };
@@ -159,7 +161,21 @@ namespace gem {
          * @throws
          */
         void renewTCDSLease();
-          // throw (xoap::exception::Exception);
+        // throw (xoap::exception::Exception);
+
+        /**
+         * @brief Pause the phase monitoring of the CTP7
+         * @throws
+         */
+        void pausePhaseMonitoring();
+        // throw (xoap::exception::Exception);
+
+        /**
+         * @brief Resume the phase monitoring of the CTP7
+         * @throws
+         */
+        void resumePhaseMonitoring();
+        // throw (xoap::exception::Exception);
 
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
 

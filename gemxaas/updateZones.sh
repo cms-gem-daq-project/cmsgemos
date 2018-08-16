@@ -60,7 +60,7 @@ do
             cp gembase/$dir/Makefile $zone/$dir/
             if [ $dir = "config" ]
             then
-                cp gembase/$dir/spec.template $zone/$dir/
+                cp gembase/$dir/spec.template $zone/$dir/spec.template
                 mkdir -p $zone/$dir/etc/profile.d
             fi
         done
@@ -78,4 +78,4 @@ do
 done
 
 mkdir -p $basedir/rpm
-find . -iname '*.rpm' -print0 -exec mv {} $basedir/rpm \;
+find $basedir/gem*/ -iname '*.rpm' -print0 -exec mv -t $basedir/rpm {} \+

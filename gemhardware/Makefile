@@ -10,8 +10,8 @@ ShortPackage=hw
 PackageName=hw
 
 GEMHARDWARE_VER_MAJOR=0
-GEMHARDWARE_VER_MINOR=3
-GEMHARDWARE_VER_PATCH=2
+GEMHARDWARE_VER_MINOR=99
+GEMHARDWARE_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk

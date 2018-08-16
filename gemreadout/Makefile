@@ -10,7 +10,7 @@ ShortPackage=readout
 PackageName=readout
 
 GEMREADOUT_VER_MAJOR=0
-GEMREADOUT_VER_MINOR=3
+GEMREADOUT_VER_MINOR=99
 GEMREADOUT_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk

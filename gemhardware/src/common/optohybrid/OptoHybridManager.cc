@@ -271,37 +271,36 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
       // p_gemWebInterface->optohybridInSlot(slot);
 
       DEBUG("OptoHybridManager::initializeAction grabbing pointer to hardware device");
-      // optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
-      if (m_optohybrids.at(slot).at(link)->isHwConnected()) {
+      optohybrid_shared_ptr optohybrid = m_optohybrids.at(slot).at(link);
+      if (optohybrid->isHwConnected()) {
         // get connected VFATs
-        m_vfatMapping.at(slot).at(link)   = m_optohybrids.at(slot).at(link)->getConnectedVFATs();
+        m_vfatMapping.at(slot).at(link)   = optohybrid->getConnectedVFATs(true);
         INFO("OptoHybridManager::initializeAction Obtained vfatMapping");
         // all the rest of these are related to the first by bitwise logic, can avoid doing the 4 calls
-        // m_trackingMask.at(slot).at(link)  = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
-        m_trackingMask.at(slot).at(link)  = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
+        m_trackingMask.at(slot).at(link)  = optohybrid->getConnectedVFATMask(true);
         INFO("OptoHybridManager::initializeAction Obtained trackingMask");
-        // m_broadcastList.at(slot).at(link) = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
         m_broadcastList.at(slot).at(link) = m_trackingMask.at(slot).at(link);
         INFO("OptoHybridManager::initializeAction Obtained broadcastList");
-        // m_sbitMask.at(slot).at(link)      = m_optohybrids.at(slot).at(link)->getConnectedVFATMask();
         m_sbitMask.at(slot).at(link) = m_trackingMask.at(slot).at(link);
         INFO("OptoHybridManager::initializeAction Obtained sbitMask");
 
-        createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), m_optohybrids.at(slot).at(link));
+        createOptoHybridInfoSpaceItems(is_optohybrids.at(slot).at(link), optohybrid);
         INFO("OptoHybridManager::initializeAction looping over created VFAT devices");
         for (auto mapit = m_vfatMapping.at(slot).at(link).begin();
              mapit != m_vfatMapping.at(slot).at(link).end(); ++mapit) {
           INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
                << std::hex << (int)mapit->second << std::dec << " (from map)");
-          // gem::hw::vfat::HwVFAT2& vfatDevice = m_optohybrids.at(slot).at(link)->getVFATDevice(mapit->first);
+          // gem::hw::vfat::HwVFAT2& vfatDevice = optohybrid->getVFATDevice(mapit->first);
           // INFO("OptoHybridManager::initializeAction VFAT" << (int)mapit->first << " has chipID "
           //      << std::hex << (int)vfatDevice.getChipID() << std::dec << " (from HW device) ");
         }
 
-        m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(m_optohybrids.at(slot).at(link), this, index));
-        m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
-        m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
-        m_optohybridMonitors.at(slot).at(link)->startMonitoring();
+        if (!m_disableMonitoring) {
+          m_optohybridMonitors.at(slot).at(link) = std::shared_ptr<OptoHybridMonitor>(new OptoHybridMonitor(optohybrid, this, index));
+          m_optohybridMonitors.at(slot).at(link)->addInfoSpace("HWMonitoring", is_optohybrids.at(slot).at(link));
+          m_optohybridMonitors.at(slot).at(link)->setupHwMonitoring();
+          m_optohybridMonitors.at(slot).at(link)->startMonitoring();
+        }
 
         INFO("OptoHybridManager::initializeAction OptoHybrid connected on link "
              << link << " to AMC in slot " << (slot+1) << std::endl
@@ -315,8 +314,8 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
              << m_sbitMask.at(slot).at(link)
              << std::dec << std::endl
              );
-        m_optohybrids.at(slot).at(link)->setVFATMask(m_trackingMask.at(slot).at(link));
-        m_optohybrids.at(slot).at(link)->setSBitMask(m_sbitMask.at(slot).at(link));
+        optohybrid->setVFATMask(m_trackingMask.at(slot).at(link));
+        optohybrid->setSBitMask(m_sbitMask.at(slot).at(link));
         // turn off any that are excluded by the additional mask?
       } else {
         std::stringstream msg;
@@ -345,6 +344,11 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     uint32_t inputMask = 0x0;
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -485,6 +489,10 @@ void gem::hw::optohybrid::OptoHybridManager::configureAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
   }
 
   INFO("OptoHybridManager::configureAction end");
@@ -507,6 +515,11 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     uint32_t inputMask = 0x0;
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -543,7 +556,7 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         // FIXME, should not be here or done like this
         uint32_t gtxMask = optohybrid->readReg("GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK");
         std::stringstream msg;
-        msg << "OptoHybridManager::configureAction::OptoHybrid connected on link " << (int)link
+        msg << "OptoHybridManager::startAction::OptoHybrid connected on link " << (int)link
             << " to AMC in slot " << (int)(slot+1) << " found, INPUT_ENABLE_MASK changed from "
             << std::hex << gtxMask << std::dec;
         gtxMask   |= (0x1<<link);
@@ -566,6 +579,10 @@ void gem::hw::optohybrid::OptoHybridManager::startAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
   }
   INFO("OptoHybridManager::startAction end");
 }
@@ -577,6 +594,11 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -618,6 +640,10 @@ void gem::hw::optohybrid::OptoHybridManager::pauseAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
   }
   // Update the scan parameters
   if (m_scanType.value_ == 2) {
@@ -649,6 +675,11 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10); // just for testing the timing of different applications
     uint32_t inputMask = 0x0;
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10); // just for testing the timing of different applications
       unsigned int index = (slot*MAX_OPTOHYBRIDS_PER_AMC)+link;
@@ -704,6 +735,10 @@ void gem::hw::optohybrid::OptoHybridManager::stopAction()
         XCEPT_RAISE(gem::hw::optohybrid::exception::Exception, msg.str());
       }
     }
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->resumeMonitoring();
   }
   INFO("OptoHybridManager::stopAction end");
 }
@@ -726,6 +761,11 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
     // usleep(10);
     DEBUG("OptoHybridManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     uint32_t inputMask = 0x0;
+
+    for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link)
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->pauseMonitoring();
+
     for (unsigned link = 0; link < MAX_OPTOHYBRIDS_PER_AMC; ++link) {
       // usleep(10);
       DEBUG("OptoHybridManager::looping over links(" << link << ") and finding expected cards");
@@ -738,9 +778,9 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
       // set up the info space here rather than in initialize (where it can then get unset in reset?
       // should a value be set up for all of them by default?
 
-    // reset the hw monitor
-    if (m_optohybridMonitors.at(slot).at(link))
-      m_optohybridMonitors.at(slot).at(link)->reset();
+      // reset the hw monitor
+      if (m_optohybridMonitors.at(slot).at(link))
+        m_optohybridMonitors.at(slot).at(link)->reset();
 
       DEBUG("OptoHybridManager::revoking hwCfgInfoSpace items for board connected on link "
             << link << " to AMC in slot " << (slot+1));

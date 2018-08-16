@@ -117,7 +117,7 @@ print "-> AMC LAST_DAV_TIMER:0x%08x"%(readRegister(amc,"GEM_AMC.DAQ.EXT_STATUS.L
 
 print
 print "-> TTC Control :0x%08x"%(readRegister(amc,"GEM_AMC.TTC.CTRL"))
-print "-> TTC Spy     :0x%08x"%(readRegister(amc,"GEM_AMC.TTC.TTC_SPY_BUFFER"))
+# print "-> TTC Spy     :0x%08x"%(readRegister(amc,"GEM_AMC.TTC.TTC_SPY_BUFFER"))
 print
 print "-> RX Link Control :0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_RX_POLARITY"))
 print "-> TX Link Control :0x%08x"%(readRegister(amc,"GEM_AMC.GEM_SYSTEM.TK_LINK_TX_POLARITY"))

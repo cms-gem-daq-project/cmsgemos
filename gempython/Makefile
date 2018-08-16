@@ -19,8 +19,8 @@ PythonModules = ["gempython.core", \
 $(info PythonModules=${PythonModules})
 
 GEMPYTHON_VER_MAJOR=0
-GEMPYTHON_VER_MINOR=3
-GEMPYTHON_VER_PATCH=2
+GEMPYTHON_VER_MINOR=99
+GEMPYTHON_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
@@ -61,7 +61,6 @@ DependentLibraries+=xdata mimetic xoap
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
-#include $(BUILD_HOME)/$(Project)/config/mfPythonRPMGEM.mk
 
 # need to ensure that the python only stuff is packaged into RPMs
 #.PHONY: default
@@ -76,8 +75,6 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonRPM.mk
 # 	@cp -rf __init__.py $(PackageDir)
 
 .PHONY: clean preprpm
-#_rpmprep: preprpm
-# prep_rpm: default
 _rpmprep: _all
 	$(info "Running preprpm")
 	$(MakeDir) $(PackageDir)/core
@@ -88,7 +85,6 @@ _rpmprep: _all
 	@cp -rf tests/*.py $(ScriptDir)
 	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt $(PackageDir)
 	-cp -rf README.md LICENSE CHANGELOG.md MANIFEST.in requirements.txt pkg
-	# @touch $(ScriptDir)/__init__.py
 	@echo "__path__ = __import__('pkgutil').extend_path(__path__, __name__)" > pkg/$(Namespace)/__init__.py
 #	@echo "include */*.so" > $(PackageDir)/MANIFEST.in
 
@@ -98,7 +94,6 @@ clean:
 	-rm -rf $(PackageDir)/utils
 	-rm -rf $(PackageDir)/tools
 	-rm -rf $(ScriptDir)
-	# -rm -rf $(PackageDir)/tests
 	-rm -f  $(PackageDir)/README.md
 	-rm -f  $(PackageDir)/LICENSE
 	-rm -f  $(PackageDir)/MANIFEST.in
@@ -110,19 +105,16 @@ clean:
 	-rm -f  pkg/MANIFEST.in
 	-rm -f  pkg/CHANGELOG.md
 	-rm -f  pkg/requirements.txt
-	# -rm -rf pkg/core
-	# -rm -rf pkg/utils
-	# -rm -rf pkg/tools
-	# -rm -rf pkg/bin
 
-rpm: _rpmbuild
-	$(info "Running overridden rpm target")
+# rpm: _rpmbuild
+# 	$(info "Running overridden rpm target")
 # rpmall: ${BINDINGS_LIB}
 # 	rm -rf /var/tmp/cactus*
 # 	python setup.py bdist_rpm --release ${PACKAGE_RELEASE}.${XDAQ_OS}.python${PYTHON_VERSION} --binary-only --force-arch=`uname -m`
 
 print-env:
 	@echo BUILD_HOME     $(BUILD_HOME)
+	@echo BUILD_VERSION  $(BUILD_VERSION)
 	@echo XDAQ_ROOT      $(XDAQ_ROOT)
 	@echo XDAQ_OS        $(XDAQ_OS)
 	@echo XDAQ_PLATFORM  $(XDAQ_PLATFORM)

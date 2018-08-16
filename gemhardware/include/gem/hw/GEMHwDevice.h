@@ -17,9 +17,9 @@
 #include "toolbox/mem/Pool.h"
 
 #include "uhal/uhal.hpp"
-#include "uhal/Utilities.hpp"  /* removed in 2.5 or 2.6 */
-/* #include "uhal/utilities/bits.hpp" */
-/* #include "uhal/utilities/files.hpp" */
+/* #include "uhal/Utilities.hpp"  /\* removed in 2.5 or 2.6 *\/ */
+#include "uhal/utilities/bits.hpp"
+#include "uhal/utilities/files.hpp"
 
 #include "gem/utils/GEMLogging.h"
 #include "gem/utils/GEMRegisterUtils.h"

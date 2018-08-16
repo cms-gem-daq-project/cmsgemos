@@ -136,6 +136,9 @@ namespace gem {
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
           xdata::String                        m_amcSlots;
           xdata::String                        m_connectionFile;
+          xdata::Boolean                       m_uhalPhaseShift;
+          xdata::Boolean                       m_bc0LockPhaseShift;
+          xdata::Boolean                       m_relockPhase;
 
 	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
         };  // class GLIBManager

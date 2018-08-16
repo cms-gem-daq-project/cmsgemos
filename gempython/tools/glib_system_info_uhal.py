@@ -12,6 +12,8 @@ def getBoardID(amc,debug=False):
         "GEM_AMC.GLIB_SYSTEM.SYSTEM.BOARD_ID.CHAR4",
         ]
     brd_result = readRegisterList(amc,reg_list,debug)
+    if brd_result == 0:
+        return 'dead'
     board_id = ''.join([chr(brd_result[reg_list[0]]),
                         chr(brd_result[reg_list[1]]),
                         chr(brd_result[reg_list[2]]),
@@ -26,6 +28,8 @@ def getSystemID(amc,debug=False):
         "GEM_AMC.GLIB_SYSTEM.SYSTEM.SYSTEM_ID.CHAR4",
         ]
     sys_result = readRegisterList(amc,reg_list,debug)
+    if sys_result == 0:
+        return 'dead'
     system_id = ''.join([chr(sys_result[reg_list[0]]),
                          chr(sys_result[reg_list[1]]),
                          chr(sys_result[reg_list[2]]),
@@ -43,6 +47,8 @@ def getSystemFWVer(amc,debug=False):
         "GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE.BUILD",
         ]
     fw_result = readRegisterList(amc,reg_list,debug)
+    if fw_result == 0:
+        return 'dead'
     fwver = '.'.join([fwformat%(fw_result[reg_list[0]]),
                       fwformat%(fw_result[reg_list[1]]),
                       fwformat%(fw_result[reg_list[2]])])
@@ -55,6 +61,8 @@ def getSystemFWDate(amc,debug=False):
         "GEM_AMC.GLIB_SYSTEM.SYSTEM.FIRMWARE.DD",
         ]
     fw_result = readRegisterList(amc,reg_list,debug)
+    if fw_result == 0:
+        return 'dead'
     fwdate = '/'.join([str(fw_result[reg_list[2]]),
                        str(fw_result[reg_list[1]]),
                        str(2000+fw_result[reg_list[0]])])
@@ -71,6 +79,8 @@ def getSystemMACAddress(amc,debug=False):
         "GEM_AMC.GLIB_SYSTEM.SYSTEM.MAC.B0",
         ]
     mac_result = readRegisterList(amc,reg_list,debug)
+    if mac_result == 0:
+        return 'dead'
     mac_addr = ':'.join([macformat%mac_result[reg_list[5]],
                          macformat%mac_result[reg_list[4]],
                          macformat%mac_result[reg_list[3]],
@@ -88,6 +98,8 @@ def getSystemIPAddress(amc,debug=False):
         "GEM_AMC.GLIB_SYSTEM.SYSTEM.IP_INFO.B0",
         ]
     ip_result = readRegisterList(amc,reg_list,debug)
+    if ip_result == 0:
+        return 'dead'
     ip_addr = '.'.join([ipformat%ip_result[reg_list[3]],
                         ipformat%ip_result[reg_list[2]],
                         ipformat%ip_result[reg_list[1]],
@@ -105,6 +117,8 @@ def getSystemHWAddress(amc,debug=False):
         "GEM_AMC.GLIB_SYSTEM.SYSTEM.HW_ID.B1",
         ]
     hw_result = readRegisterList(amc,reg_list,debug)
+    if hw_result == 0:
+        return 'dead'
     hw_addr = ':'.join([hwformat%hw_result[reg_list[5]],
                         hwformat%hw_result[reg_list[4]],
                         hwformat%hw_result[reg_list[3]],

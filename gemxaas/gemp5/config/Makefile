@@ -21,17 +21,18 @@
 # Packages to be built
 #
 BUILD_HOME:=$(shell pwd)/../../../..
-INSTALL_PATH=/opt/$(Project)
-ZONE_NAME=$(PackageName)
 
 include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
-Project=cmsgemos
+Project:=cmsgemos
 PackageName=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-1]}')
 SubPackageName=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-0]}')
 PackageType=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-2]}')
 Package=$(PackageType)/$(PackageName)/$(SubPackageName)
+
+INSTALL_PATH=/opt/$(Project)
+ZONE_NAME=$(PackageName)
 
 Summary=GEM DAQ machine configuration for $(ZONE_NAME) service
 

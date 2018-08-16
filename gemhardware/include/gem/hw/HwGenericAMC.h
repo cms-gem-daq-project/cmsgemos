@@ -15,7 +15,8 @@ namespace gem {
       {
       public:
 
-        static const unsigned N_GTX = 9; ///< maximum number of GTX links on the GenericAMC
+        // FIXME, THIS SHOULD NOT BE HARDCODED
+        static const unsigned N_GTX = 12; ///< maximum number of GTX links on the GenericAMC
 
         /**
          * @struct AMCIPBusCounters
@@ -578,8 +579,30 @@ namespace gem {
 
         /**
          * @brief Shift the phase of the MMCM of the TTC module
+         * @param shiftOutOfLockFirst to shift of lock before looking for a good lock
+         * @param useBC0Locked to determine the good phase region, rather than the PLL lock status
+         * @param doScan whether to roll around multiple times for monitoring purposes
          */
-        virtual void ttcMMCMPhaseShift();
+        void ttcMMCMPhaseShift(bool shiftOutOfLockFirst=false, bool useBC0Locked=false, bool doScan=false);
+
+        /**
+         * @brief Check the lock status of the MMCM PLL
+         * @param Number of times to read the PLL lock status
+         * @returns Lock count of the MMCM PLL
+         */
+        int checkPllLock(int readAttempts);
+
+        /**
+         * @brief Check the lock status of the MMCM PLL
+         * @returns Mean value (calculated in firmware) of the MMCH phase
+         */
+        uint32_t getMMCMPhaseMean();
+
+        /**
+         * @brief Check the lock status of the MMCM PLL
+         * @returns Mean value (calculated in firmware) of the GTH phase
+         */
+        uint32_t getGTHPhaseMean();
 
         /**
          * @brief Reset the counters of the TTC module
@@ -768,8 +791,9 @@ namespace gem {
       protected:
         //GenericAMCMonitor *monGenericAMC_;
 
-        bool b_links[N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it...
-        uint32_t m_links;
+        bool b_links[N_GTX]; // have to figure out how to make this dynamic, or if we can just drop it... FIXME
+        uint32_t m_links;    ///< Connected links mask
+        uint32_t m_maxLinks; ///< Maximum supported OptoHybrids as reported by the firmware
 
         std::vector<linkStatus> v_activeLinks;
 

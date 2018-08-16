@@ -65,6 +65,7 @@
 
 // The gem::hw exceptions.
 GEM_HW_DEFINE_EXCEPTION(Exception)
+GEM_HW_DEFINE_EXCEPTION(WriteValueMismatch)
 GEM_HW_DEFINE_EXCEPTION(ConfigurationParseProblem)
 GEM_HW_DEFINE_EXCEPTION(ConfigurationProblem)
 GEM_HW_DEFINE_EXCEPTION(ConfigurationValidationProblem)

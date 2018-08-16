@@ -36,6 +36,7 @@ gem::supervisor::GEMSupervisor::TCDSConfig::TCDSConfig() {
   cpmHWConfig    = "";
   fedEnableMask  = "%";
   usePrimaryTCDS = true;
+  piSkipPLLReset = false;
 }
 
 void gem::supervisor::GEMSupervisor::TCDSConfig::registerFields(xdata::Bag<gem::supervisor::GEMSupervisor::TCDSConfig>* bag) {
@@ -46,6 +47,7 @@ void gem::supervisor::GEMSupervisor::TCDSConfig::registerFields(xdata::Bag<gem::
   bag->addField("CPMHardwareConfig",    &cpmHWConfig   );
   bag->addField("FEDEnableMask",        &fedEnableMask );
   bag->addField("UsePrimaryTCDS",       &usePrimaryTCDS);
+  bag->addField("PISkipPLLReset",       &piSkipPLLReset);
 }
 
 gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
@@ -372,6 +374,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
   INFO("GEMSupervisor::configureAction start");
 
   while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Configuring") ||
+           // (m_globalState.getStateName() == "Paused"     && getCurrentState() == "Configuring") || // FIXME do we allow this???
            (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configuring"))) {
     INFO("GEMSupervisor::configureAction global state not in " << gem::base::STATE_HALTED
 	 << " or "  << gem::base::STATE_CONFIGURED
@@ -380,6 +383,8 @@ void gem::supervisor::GEMSupervisor::configureAction()
     usleep(10);
     m_globalState.update();
   }
+
+  pausePhaseMonitoring();
 
   try {
     for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
@@ -419,6 +424,8 @@ void gem::supervisor::GEMSupervisor::configureAction()
                             (std::istreambuf_iterator<char>()    ) );
             // tcdsParams.addField("usePrimaryTCDS",m_tcdsConfig.bag.usePrimaryTCDS);
             // tcdsParams.addField("fedEnableMask",m_tcdsConfig.bag.fedEnableMask);
+            if (m_tcdsConfig.bag.piSkipPLLReset)
+              tcdsParams.insert(std::make_pair("skipPLLReset",&(m_tcdsConfig.bag.piSkipPLLReset)));
             tcdsParams.insert(std::make_pair("usePrimaryTCDS",&(m_tcdsConfig.bag.usePrimaryTCDS)));
             tcdsParams.insert(std::make_pair("fedEnableMask", &(m_tcdsConfig.bag.fedEnableMask)));
           } else if (((*j)->getClassName()).rfind("LPM") != std::string::npos) {
@@ -530,6 +537,8 @@ void gem::supervisor::GEMSupervisor::configureAction()
     m_globalState.update();
   }
 
+  resumePhaseMonitoring();
+
   // SHOULD ONLY REPORT "CONFIGURED" TO RCMS HERE
   m_globalState.update();
   INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName()
@@ -547,6 +556,8 @@ void gem::supervisor::GEMSupervisor::startAction()
     usleep(10);
     m_globalState.update();
   }
+
+  pausePhaseMonitoring();
 
   try {
     updateRunNumber();
@@ -660,6 +671,8 @@ void gem::supervisor::GEMSupervisor::startAction()
     m_globalState.update();
   }
 
+  resumePhaseMonitoring();
+
   // SHOULD ONLY REPORT "RUNNING" TO RCMS HERE
   m_globalState.update();
   INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName()
@@ -677,6 +690,8 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     usleep(10);
     m_globalState.update();
   }
+
+  pausePhaseMonitoring();
 
   try {
     auto disableorder = getDisableOrder();
@@ -737,6 +752,8 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     m_globalState.update();
   }
 
+  resumePhaseMonitoring();
+
   // SHOULD ONLY REPORT "PAUSED" TO RCMS HERE
   m_globalState.update();
   INFO("GEMSupervisor::pauseAction GlobalState = " << m_globalState.getStateName()
@@ -754,6 +771,8 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     usleep(10);
     m_globalState.update();
   }
+
+  pausePhaseMonitoring();
 
   try {
     auto resumeorder = getEnableOrder();
@@ -814,6 +833,8 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     m_globalState.update();
   }
 
+  resumePhaseMonitoring();
+
   // SHOULD ONLY REPORT "RUNNING" TO RCMS HERE
   m_globalState.update();
   INFO("GEMSupervisor::resumeAction GlobalState = " << m_globalState.getStateName()
@@ -833,6 +854,8 @@ void gem::supervisor::GEMSupervisor::stopAction()
     usleep(10);
     m_globalState.update();
   }
+
+  pausePhaseMonitoring();
 
   try {
     auto disableorder = getDisableOrder();
@@ -892,6 +915,8 @@ void gem::supervisor::GEMSupervisor::stopAction()
     fireEvent("Fail");
     m_globalState.update();
   }
+
+  resumePhaseMonitoring();
 
   // SHOULD ONLY REPORT "CONFIGURED" TO RCMS HERE
   m_globalState.update();
@@ -1277,6 +1302,34 @@ void gem::supervisor::GEMSupervisor::renewTCDSLease()
   }
 }
 
+void gem::supervisor::GEMSupervisor::pausePhaseMonitoring()
+//  throw (xoap::exception::Exception)
+{
+  std::stringstream ctp7phasemoncmd;
+  // FIXME hard coded for now, but super hacky garbage (only works at P5)
+  ctp7phasemoncmd << "ssh -Tq texas@eagle33 sh -lic '\"phasemonctl.sh stop\"'";
+  int retval = std::system(ctp7phasemoncmd.str().c_str());
+  if (retval) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::configureAction unable to kill phase monitoring: " << retval;
+    WARN(msg.str());
+  }
+}
+
+void gem::supervisor::GEMSupervisor::resumePhaseMonitoring()
+//  throw (xoap::exception::Exception)
+{
+  std::stringstream ctp7phasemoncmd;
+  // FIXME hard coded for now, but super hacky garbage (only works at P5)
+  ctp7phasemoncmd << "ssh -Tq texas@eagle33 sh -lic '\"phasemonctl.sh start\"'";
+  int retval = std::system(ctp7phasemoncmd.str().c_str());
+  if (retval) {
+    std::stringstream msg;
+    msg << "GEMSupervisor::configureAction unable to start phase monitoring: " << retval;
+    WARN(msg.str());
+  }
+}
+
 void gem::supervisor::GEMSupervisor::sendScanParameters(xdaq::ApplicationDescriptor* ad)
 //  throw (xoap::exception::Exception)
 {
@@ -1397,12 +1450,14 @@ public:
     else if (classname == "tcds::lpm::LPMController")               priority = 102; // must be first of TCDS!
     else if (classname == "tcds::ici::ICIController")               priority = 101; // must be second of TCDS!
     else if (classname == "tcds::pi::PIController")                 priority = 100; // must be first!?
-    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  95; // before AMC managers and before  AMC13
-    else if (classname == "gem::hw::glib::GLIBManager")             priority =  90; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  90; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::AMCManager")                    priority =  90; // before (or simultaneous with) OH manager and before  AMC13
-    else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  35; // after AMCManagers but not last
-    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  30; // after AMC13Manager but not last
+    else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  95; // after AMCManagers but not last
+    // else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  95; // before AMC managers and before  AMC13
+    else if (classname == "gem::hw::glib::GLIBManager")             priority =  90; // before (or simultaneous with) OH manager and before AMC13
+    else if (classname == "gem::hw::ctp7::CTP7Manager")             priority =  90; // before (or simultaneous with) OH manager and before AMC13
+    else if (classname == "gem::hw::AMCManager")                    priority =  90; // before (or simultaneous with) OH manager and before AMC13
+    else if (classname == "gem::hw::optohybrid::OptoHybridManager") priority =  55; // before AMC managers and before  AMC13
+    // else if (classname == "gem::hw::amc13::AMC13Manager")           priority =  35; // after AMCManagers but not last
+    else if (classname == "gem::hw::amc13::AMC13Readout")           priority =  30; // after AMC13Manager
     else if (classname == "gem::hw::gemPartitionViewer")            priority =  10; //
     return priority;
   }

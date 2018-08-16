@@ -10,8 +10,8 @@ ShortPackage=utils
 PackageName=utils
 
 GEMUTILS_VER_MAJOR=0
-GEMUTILS_VER_MINOR=2
-GEMUTILS_VER_PATCH=2
+GEMUTILS_VER_MINOR=99
+GEMUTILS_VER_PATCH=1
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk

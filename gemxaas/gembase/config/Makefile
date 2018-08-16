@@ -21,17 +21,18 @@
 # Packages to be built
 #
 BUILD_HOME:=$(shell pwd)/../../../..
-INSTALL_PATH=/opt/$(Project)
-ZONE_NAME=$(PackageName)
 
 include $(XDAQ_ROOT)/config/mfAutoconf.rules
 include $(XDAQ_ROOT)/config/mfDefs.$(XDAQ_OS)
 
-Project=cmsgemos
+Project:=cmsgemos
 PackageName=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-1]}')
 SubPackageName=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-0]}')
 PackageType=$(shell pwd | awk -F"/" '{split($$0,a,"/");  print a[NF-2]}')
 Package=$(PackageType)/$(PackageName)/$(SubPackageName)
+
+INSTALL_PATH=/opt/$(Project)
+ZONE_NAME=$(PackageName)
 
 Summary=GEM DAQ machine configuration for $(ZONE_NAME) service
 
@@ -39,42 +40,52 @@ Description=This package provides machine configurations for cmsgemos on zone $(
 
 Link=https://gitlab.cern.ch/cms-gem-daq-project/cmsgemos
 
-ifndef BUILD_VERSION
-BUILD_VERSION=1
-endif
-
 PACKAGE_VER_MAJOR=1
 PACKAGE_VER_MINOR=0
 PACKAGE_VER_PATCH=0
 
+include $(BUILD_HOME)/$(Project)/config/mfCommonDefs.mk
+
+ifndef BUILD_VERSION
+BUILD_VERSION=1
+endif
+
 _all: basic
+	@echo Executing '_all' target
 
 default: basic
+	@echo Executing 'default' target
 
 all:
+	@echo Executing 'all' target
 	@echo PackagePath $(BUILD_HOME)/$(Project)/$(Package)
 	@echo ${PACKAGE_VER_MAJOR}_${PACKAGE_VER_MINOR}_${PACKAGE_VER_PATCH} > $(PackageName).release
 	@echo Project $(Project)
 	@echo PackageName $(PackageName)
 	@echo PackageType $(PackageType)
 	@echo Package $(Package)
-	@cp $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh ./scripts/
+	@mkdir -p ./scripts
+	@cp -t ./scripts $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh
 	@mkdir -p ./etc/profile.d
-	@cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./etc/profile.d/
-	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./etc/tcds/
+	@cp -t ./etc/profile.d $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh
+	-cp -t ./etc/tcds $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt
 	perl -p -i -e 's#__zonename__#$(ZONE_NAME)#' spec.template
 
 basic:
+	@echo Executing 'basic' target
 	echo ${PACKAGE_VER_MAJOR}_${PACKAGE_VER_MINOR}_${PACKAGE_VER_PATCH} > $(PackageName).release
-	@cp $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh ./scripts/
+	@mkdir -p ./scripts
+	@cp -t ./scripts $(BUILD_HOME)/$(Project)/setup/etc/addresstables/linkuhaltables.sh
 	@mkdir -p ./etc/profile.d
-	@cp $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh ./etc/profile.d/
-	-cp $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt ./etc/tcds/
+	@cp -t ./etc/profile.d $(BUILD_HOME)/$(Project)/setup/etc/profile.d/gemdaqenv.sh
+	-cp -t ./etc/tcds $(TCDS_CONFIG_PATH)/$(PackageName)/*.txt
 	perl -p -i -e 's#__zonename__#$(ZONE_NAME)#' spec.template
 
 _cleanall: clean
+	@echo Executing '_cleanall' target
 
 clean:
+	@echo Executing 'clean' target
 	-rm -f $(PackageName).release
 	-rm -f ./scripts/*.sh
 	-rm -f ./etc/profile.d/*.sh

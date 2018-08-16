@@ -50,8 +50,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10) == 1):
-                msg = "%s: read error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
-                msg+= str(e)
+                msg = "%s: read (%s) error encountered (%s), retrying operation (%d,%d)"%(device,register,str(e),nRetries,gRetries)
                 reglogger.warning(msg)
                 continue
         pass
@@ -104,8 +103,7 @@ def readRegisterList(device, registers, debug=False):
             return results
 
         except uhal.exception, e:
-            msg ="%s: read error encountered, retrying operation (%d,%d)"%(device,nRetries,gRetries),
-            msg+= str(e)
+            msg ="%s: read error encountered (%s), retrying operation (%d,%d)"%(device,str(e),nRetries,gRetries),
             reglogger.warning(msg)
             nRetries += 1
             gRetries += 1
@@ -168,8 +166,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             # else:
             #     print colors.MAGENTA, "other error",register, "-> Error : ", e, colors.ENDC
             if ((nRetries % 10) == 1):
-                msg = "%s: read error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
-                msg+= str(e)
+                msg = "%s: read (%s) error encountered (%s), retrying operation (%d,%d)"%(device,register,str(e),nRetries,gRetries)
                 reglogger.warning(msg)
             continue
         pass
@@ -216,8 +213,7 @@ address 0x%08x  mask 0x%08x  permission %s  mode 0x%08x  size 0x%08x
             nRetries += 1
             gRetries += 1
             if ((nRetries % 10) == 1) and debug:
-                msg = "%s: write error encountered (%s), retrying operation (%d,%d)"%(device,register,nRetries,gRetries)
-                msg+= str(e)
+                msg = "%s: write (%s) error encountered (%s), retrying operation (%d,%d)"%(device,register,str(e),nRetries,gRetries)
                 reglogger.warning(msg)
                 pass
             continue
@@ -248,8 +244,7 @@ def writeRegisterList(device, regs_with_vals, debug=False):
             msg = "%s: write error encountered ["%(device)
             for reg in regs_with_vals:
                 msg+= "%s:0x%x,"%(reg,regs_with_vals[reg])
-            msg+= "], retrying operation (%d,%d)"%(nRetries,gRetries)
-            msg+= str(e)
+            msg+= "], (%s) retrying operation (%d,%d)"%(str(e),nRetries,gRetries)
             reglogger.warning(msg)
             nRetries += 1
             gRetries += 1
