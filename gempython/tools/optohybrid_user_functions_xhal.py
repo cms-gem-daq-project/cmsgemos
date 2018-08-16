@@ -30,12 +30,32 @@ class HwOptoHybrid(object):
         self.bWrite.argtypes = [c_uint, c_char_p, c_uint, c_uint]
         self.bWrite.restype = c_uint
        
-        # Define the scan module
+        # Define the sbit mapping scan modules
+        self.sbitMappingWithCalPulse = self.parentAMC.lib.checkSbitMappingWithCalPulse
+        self.sbitMappingWithCalPulse.restype = c_uint
+        self.sbitMappingWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_bool,
+                                                 c_bool, c_uint, c_uint, c_uint,
+                                                 c_uint, POINTER(c_uint32)]
+
+        self.sbitRateWithCalPulse = self.parentAMC.lib.checkSbitRateWithCalPulse
+        self.sbitRateWithCalPulse.restype = c_uint
+        self.sbitRateWithCalPulse.argtypes = [c_uint, c_uint, c_uint, c_bool,
+                                              c_bool, c_uint, c_uint, c_uint, c_uint,
+                                              POINTER(c_uint32), POINTER(c_uint32),
+                                              POINTER(c_uint32)]
+
+        # Define the generic scan modules
         self.genScan = self.parentAMC.lib.genScan
         self.genScan.restype = c_uint
         self.genScan.argtypes = [c_uint, c_uint, c_uint, c_uint,
                                  c_uint, c_uint, c_bool, c_bool, c_uint, c_uint,
                                  c_char_p, c_bool, c_bool, POINTER(c_uint32)]
+        self.genChannelScan = self.parentAMC.lib.genChannelScan
+        self.genChannelScan.restype = c_uint
+        self.genChannelScan.argtypes = [c_uint, c_uint, c_uint, c_uint,
+                                        c_uint, c_uint, c_bool, c_bool,
+                                        c_uint, c_bool, c_char_p, c_bool,
+                                        POINTER(c_uint32)]
 
         # Define the trigger rate scan module
         self.sbitRateScan = self.parentAMC.lib.sbitRateScan
@@ -90,6 +110,159 @@ class HwOptoHybrid(object):
 
         return rpcResp
 
+    def checkSbitMappingWithCalPulse(self, **kwargs):
+        """
+        Only supported for v3 electronics.
+
+        Sends a calpulse to a given channel and sees which
+        sbit is received by the OH, repeats for all channels
+        on supplied vfat.
+
+        Only the channel that is being pulsed is unmasked.
+        Returns the RPC Message response code.
+
+        List of supported arguments:
+
+        calSF       - V3 electronics only.  The value of the
+                      CFG_CAL_FS register to be used when operating in
+                      current pulse mode.
+        currentPulse- V3 electronics only. The calibration module uses
+                      the current pulse mode rather than the voltage
+                      pulse mode.
+        enableCal   - If true the calpulse is used
+        L1AInterval - Number of BX's inbetween L1A's
+        mask        - VFAT mask to use for excluding vfats from the trigger
+        nevts       - Number of events for each dac value in scan
+        outData     - Pointer to an array of size (24*128*8*nevts) which
+                      stores the results of the scan:
+                            bits [0,7] channel pulsed,
+                            bits [8:15] sbit observed,
+                            bits [16:20] vfat pulsed,
+                            bits [21,25] vfat observed,
+                            bit 26 isValid.
+                            bits [27,29] are the cluster size
+        pulseDelay  - Delay between Calpulse and L1A in BX's
+        vfat        - VFAT to pulse
+        """
+
+        # Set Defaults
+        calSF=0x0
+        currentPulse=True
+        enableCal=False
+        L1AInterval=250
+        mask=0x0
+        nevts=100
+        pulseDelay=40
+
+        # Check if outData is present
+        if("outData" not in kwargs):
+            print("HwOptoHybrid::checkSbitMappingWithCalPulse(): You must supply an outData Pointer")
+            exit(os.EX_USAGE)
+
+        # Check if vfat is present
+        if("vfat" not in kwargs):
+            print("HwOptoHybrid::checkSbitMappingWithCalPulse(): You must supply the vfat to pulse")
+            exit(os.EX_USAGE)
+
+        # Get Parameters
+        if "calSF" in kwargs:
+            calSF = kwargs["calSF"]
+        if "currentPulse" in kwargs:
+            currentPulse = kwargs["currentPulse"]
+        if "enableCal" in kwargs:
+            enableCal = kwargs["enableCal"]
+        if "L1AInterval" in kwargs:
+            L1AInterval = kwargs["L1AInterval"]
+        if "mask" in kwargs:
+            mask = kwargs["mask"]
+        if "nevts" in kwargs:
+            nevts = kwargs["nevts"]
+        if "pulseDelay" in kwargs:
+            pulseDelay = kwargs["pulseDelay"]
+
+        return self.sbitMappingWithCalPulse(self.link, kwargs["vfat"], mask, enableCal, currentPulse, calSF, nevts, L1AInterval, pulseDelay, kwargs["outData"])
+
+    def checkSbitRateWithCalPulse(self, **kwargs):
+        """
+        Only supported for v3 electronics.
+
+        Sends cyclic calpulses to a given channel and records
+        the rate of sbits measures by the OH, repeats for all
+        channels on the supplied vfat.
+
+        Only the channel being pulsed is unmasked.
+        Returns the RPC Message response code.
+
+        List of supported arguments:
+
+        calSF           - V3 electronics only.  The value of the
+                          CFG_CAL_FS register to be used when operating in
+                          current pulse mode.
+        currentPulse    - V3 electronics only. The calibration module uses
+                          the current pulse mode rather than the voltage
+                          pulse mode.
+        enableCal       - If true the calpulse is used
+        mask            - VFAT mask to use for excluding vfats from the trigger
+        outDataCTP7Rate - Pointer to an array of size 3072 where the index
+                          is defined as idx = 128 * vfat + chan; this array
+                          stores the value of GEM_AMC.TRIGGER.OHX.TRIGGER_RATE
+                          for each (vfat,channel) after waitTime
+        outDataFPGARate - As outDataCTP7Rate but for the value of the
+                          GEM_AMC.OH.OHX.FPGA.TRIG.CNT.CLUSTER_COUNT
+                          register for X = self.link
+        outDataVFATRate - As outDataCTP7Rate but for the value of the
+                          GEM_AMC.OH.OHX.FPGA.TRIG.CNT.VFATY_SBITS register
+                          for X = self.link and Y = vfat defined by the array
+                          idx convention
+        pulseDelay      - Delay between Calpulse and L1A in BX's
+        pulseRate       - Rate of calpulses to be sent in Hz
+        vfat            - VFAT to pulse
+        waitTime        - Time to wait before measuring sbit rate in milliseconds
+        """
+
+        # Set Defaults
+        calSF=0x0
+        currentPulse=True
+        enableCal=False
+        mask=0x0
+        pulseDelay=40
+        pulseRate=10000
+        waitTime=1000
+
+        # Check if outData pointers are present
+        if("outDataCTP7Rate" not in kwargs):
+            print("HwOptoHybrid::checkSbitRateWithCalPulse(): You must supply an outDataCTP7Rate Pointer")
+            exit(os.EX_USAGE)
+        if("outDataFPGARate" not in kwargs):
+            print("HwOptoHybrid::checkSbitRateWithCalPulse(): You must supply an outDataFPGARate Pointer")
+            exit(os.EX_USAGE)
+        if("outDataVFATRate" not in kwargs):
+            print("HwOptoHybrid::checkSbitRateWithCalPulse(): You must supply an outDataVFATRate Pointer")
+            exit(os.EX_USAGE)
+
+        # Check if vfat is present
+        if("vfat" not in kwargs):
+            print("HwOptoHybrid::checkSbitMappingWithCalPulse(): You must supply the vfat to pulse")
+            exit(os.EX_USAGE)
+
+        # Get Parameters
+        if "calSF" in kwargs:
+            calSF = kwargs["calSF"]
+        if "currentPulse" in kwargs:
+            currentPulse = kwargs["currentPulse"]
+        if "enableCal" in kwargs:
+            enableCal = kwargs["enableCal"]
+        if "mask" in kwargs:
+            mask = kwargs["mask"]
+        if "pulseDelay" in kwargs:
+            pulseDelay = kwargs["pulseDelay"]
+        if "pulseRate" in kwargs:
+            pulseRate = kwargs["pulseRate"]
+        if "waitTime" in kwargs:
+            waitTime = kwargs["waitTime"]
+
+        return self.sbitRateWithCalPulse(self.link, kwargs["vfat"], mask, enableCal, currentPulse, calSF, waitTime, pulseRate, pulseDelay, kwargs["outDataCTP7Rate"], kwargs["outDataFPGARate"], kwargs["outDataVFATRate"])
+
     def getL1ACount(self):
         if self.parentAMC.fwVersion < 3:
             return self.parentAMC.readRegister("GEM_AMC.OH.OH%s.COUNTERS.T1.SENT.L1A"%(self.link))
@@ -118,33 +291,43 @@ class HwOptoHybrid(object):
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
     
-    def performCalibrationScan(self, chan, scanReg, outData, enableCal=True, currentPulse=True, calSF=0x0, nevts=1000, dacMin=0, dacMax=254, stepSize=1, mask=0x0, useUltra=True, useExtTrig=False):
+    def performCalibrationScan(self, **kwargs):
         """
-        Performs either a v2b ultra scan or a v3 generic scan
+        Performs either a v2b ultra scan or a v3 generic scan of either a single
+        channel or all channels depending on input arguments.  Returns the RPC
+        response code.
 
-        chan        - VFAT channel to be scanned
-        scanReg     - Name of register to be scanned.  For v3
-                      electronics consult the address table.
-                      For v2b electronics see self.KnownV2bElScanRegs
-        outData     - Array of type c_uint32, array size must be:
-                      ((dacMax - dacMin + 1) / stepSize) * 24.
+        List of supported arguments is:
+
+        calSF       - V3 electronics only.  The value of the
+                      CFG_CAL_FS register to be used when operating in
+                      current pulse mode.
+        chan        - VFAT channel to be scanned. If not supplied
+                      Or a number less than 0 the scan will be performed
+                      for all channels, one after another
+        currentPulse- V3 electronics only. The calibration module uses
+                      the current pulse mode rather than the voltage
+                      pulse mode.
+        dacMin      - Starting dac value of the scan
+        dacMax      - Ending dac value of the scan
+        enableCal   - V3 electronics only. Enable cal pulse
+        mask        - VFAT mask to use
+        nevts       - Number of events for each dac value in scan
+        outData     - Array of type c_uint32, if chan >= 0 array size
+                      must be: ((dacMax - dacMin + 1) / stepSize) * 24.
                       The first ((dacMax - dacMin + 1) / stepSize)
                       array positions are for VFAT0, the next
                       ((dacMax - dacMin + 1) / stepSize) are for VFAT1,
                       etc...  If a VFAT is masked entries in the array
                       are still allocated but assigned a 0 value.
-        enableCal   - V3 electronics only. Enable cal pulse
-        currentPulse- V3 electronics only. The calibration module uses
-                      the current pulse mode rather than the voltage
-                      pulse mode.
-        calSF       - V3 electronics only.  The value of the
-                      CFG_CAL_FS register to be used when operating in
-                      current pulse mode.
-        nevts       - Number of events for each dac value in scan
-        dacMin      - Starting dac value of the scan
-        dacMax      - Ending dac value of the scan
+                      However if chan < 0 the array size must be:
+                      (self.nVFATs * 128 * (dacMax - dacMin + 1) / stepSize)
+                      Where the array includes data from all channels in
+                      sequence.
+        scanReg     - Name of register to be scanned.  For v3
+                      electronics consult the address table.
+                      For v2b electronics see self.KnownV2bElScanRegs
         stepSize    - Step size for moving from dacMin to dacMax
-        mask        - VFAT mask to use
         useUltra    - V2b electronics only, perform an ultra scan
                       instead of a FW scan.  Note if false the VFAT
                       to be scanned is taken as the first non-masked
@@ -152,6 +335,33 @@ class HwOptoHybrid(object):
         useExtTrig  - Scan is performed using L1A's from backplane
         """
 
+        # Set Defaults
+        chan=-1
+        calSF=0x0
+        currentPulse=True
+        dacMin=0
+        dacMax=254
+        enableCal=True
+        mask=0x0
+        nevts=1000
+        stepSize=1
+        useUltra=True
+        useExtTrig=False
+
+        # Check if outData is present
+        if("outData" not in kwargs):
+            print("HwOptoHybrid::performCalibrationScan(): You must supply an outData Pointer")
+            exit(os.EX_USAGE)
+
+        # Check for scanReg
+        scanReg=""
+        if("scanReg" not in kwargs):
+            print("HwOptoHybrid::performCalibrationScan(): You must supply the name of the scan register scanReg")
+            exit(os.EX_USAGE)
+        else:
+            scanReg = kwargs["scanReg"]
+
+        # Check scan reg validity
         if self.parentAMC.fwVersion < 3:
             if scanReg not in self.KnownV2bElScanRegs:
                 print("Parent AMC Major FW Version: %i"%(self.parentAMC.fwVersion))
@@ -163,7 +373,34 @@ class HwOptoHybrid(object):
             if "CFG_" in scanReg:
                 scanReg = str.replace(scanReg,"CFG_","")
 
-        return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, outData)
+        #Get Parameters
+        if "chan" in kwargs:
+            chan = kwargs["chan"]
+        if "calSF" in kwargs:
+            calSF = kwargs["calSF"]
+        if "currentPulse" in kwargs:
+            currentPulse = kwargs["currentPulse"]
+        if "dacMin" in kwargs:
+            dacMin = kwargs["dacMin"]
+        if "dacMax" in kwargs:
+            dacMax = kwargs["dacMax"]
+        if "enableCal" in kwargs:
+            enableCal = kwargs["enableCal"]
+        if "mask" in kwargs:
+            mask = kwargs["mask"]
+        if "nevts" in kwargs:
+            nevts = kwargs["nevts"]
+        if "stepSize" in kwargs:
+            stepSize = kwargs["stepSize"]
+        if "useUltra" in kwargs:
+            useUltra = kwargs["useUltra"]
+        if "useExtTrig" in kwargs:
+            useExtTrig = kwargs["useExtTrig"]
+
+        if chan < 0:
+            return self.genChannelScan(nevts, self.link, mask, dacMin, dacMax, stepSize, enableCal, currentPulse, calSF, useExtTrig, scanReg, useUltra, kwargs["outData"])
+        else:
+            return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, kwargs["outData"])
 
     def performSBitRateScan(self, maskOh, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT,
                             dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC", time=1000,
