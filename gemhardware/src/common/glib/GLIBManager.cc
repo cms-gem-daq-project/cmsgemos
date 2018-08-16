@@ -54,7 +54,8 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   gem::base::GEMFSMApplication(stub),
   m_amcEnableMask(0),
   m_uhalPhaseShift(false),
-  m_bc0LockPhaseShift(false)
+  m_bc0LockPhaseShift(false),
+  m_relockPhase(true)
 {
   m_glibInfo.setSize(MAX_AMCS_PER_CRATE);
 
@@ -63,17 +64,20 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->fireItemAvailable("ConnectionFile", &m_connectionFile);
   p_appInfoSpace->fireItemAvailable("UHALPhaseShift", &m_uhalPhaseShift);
   p_appInfoSpace->fireItemAvailable("BC0LockPhaseShift", &m_bc0LockPhaseShift);
+  p_appInfoSpace->fireItemAvailable("RelockPhase",       &m_relockPhase);
 
   p_appInfoSpace->addItemRetrieveListener("AllGLIBsInfo",   this);
   p_appInfoSpace->addItemRetrieveListener("AMCSlots",       this);
   p_appInfoSpace->addItemRetrieveListener("ConnectionFile", this);
   p_appInfoSpace->addItemRetrieveListener("UHALPhaseShift", this);
   p_appInfoSpace->addItemRetrieveListener("BC0LockPhaseShift", this);
+  p_appInfoSpace->addItemRetrieveListener("RelockPhase",       this);
   p_appInfoSpace->addItemChangedListener( "AllGLIBsInfo",   this);
   p_appInfoSpace->addItemChangedListener( "AMCSlots",       this);
   p_appInfoSpace->addItemChangedListener( "ConnectionFile", this);
   p_appInfoSpace->addItemChangedListener( "UHALPhaseShift", this);
   p_appInfoSpace->addItemChangedListener( "BC0LockPhaseShift", this);
+  p_appInfoSpace->addItemChangedListener( "RelockPhase",       this);
 
   xgi::bind(this, &GLIBManager::dumpGLIBFIFO, "dumpGLIBFIFO");
 
@@ -325,13 +329,15 @@ void gem::hw::glib::GLIBManager::configureAction()
       amc->resetCalPulseCount();
 
       if (m_uhalPhaseShift.value_) {
-        amc->ttcMMCMPhaseShift(true, m_bc0LockPhaseShift.value_);
+        amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
       } else {
         std::stringstream pashiftcmd;
         // FIXME hard coded for now, but super hacky garbage (only works at P5)
         pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py";
         if (m_bc0LockPhaseShift.value_)
           pashiftcmd << " --useBC0";
+        if (m_relockPhase.value_)
+          pashiftcmd << " --relock";
         pashiftcmd << "'\"";
         int retval = std::system(pashiftcmd.str().c_str());
         if (retval) {
@@ -340,7 +346,7 @@ void gem::hw::glib::GLIBManager::configureAction()
           WARN(msg.str());
           // fireEvent("Fail");
           // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
-          // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
+          XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
         }
       }
 
