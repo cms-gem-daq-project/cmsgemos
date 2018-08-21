@@ -971,7 +971,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
         if (shiftOutOfLockFirst) {
           if (nBadLocks > 500) {
             firstUnlockFound = true;
-            DEBUG("HwGenericAMC::ttcMMCMPhaseShift 500 unlocks found after " << i+1 << " shifts:" +
+            DEBUG("HwGenericAMC::ttcMMCMPhaseShift 500 unlocks found after " << i+1 << " shifts:"
                   << " bad locks "           << nBadLocks
                   << ", good locks "         << nGoodLocks
                   << ", mmcm phase count = " << phase
@@ -993,7 +993,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
               INFO("HwGenericAMC::ttcMMCMPhaseShift 50 consecutive good PLL locks found:"
                    << " phase count = " << phase
                    << ", phase ns = "   << phaseNs << "ns"
-                   << ", reversing scan direction")
+                   << ", reversing scan direction");
               getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
               getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
               getGEMHwInterface().dispatch();
@@ -1019,7 +1019,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
       } else { // shift to first good PLL locked
         if (pllLockCnt < PLL_LOCK_READ_ATTEMPTS) {
           if (nextLockFound) {
-            WARN("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << i+1 << " shifts:" +
+            WARN("HwGenericAMC::ttcMMCMPhaseShift Unexpected unlock after " << i+1 << " shifts:"
                  << " bad locks "           << nBadLocks
                  << ", good locks "         << nGoodLocks
                  << ", mmcm phase count = " << phase
@@ -1028,7 +1028,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
             // nGoodLocks = 0;
           } else {
             if (!nextLockFound) {
-              INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:" +
+              INFO("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
                    << " bad locks "           << nBadLocks
                    << ", good locks "         << nGoodLocks
                    << ", mmcm phase count = " << phase
@@ -1080,7 +1080,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
           if (reversingForLock && (nGoodLocks == 75)) {
             INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
                  << " phase count = " << phase
-                 << ", phase ns = "   << phaseNs << "ns.")
+                 << ", phase ns = "   << phaseNs << "ns.");
             bestLockFound    = true;
             if (doScan) {
               getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
@@ -1095,7 +1095,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
           }
         } else if (firstUnlockFound || !shiftOutOfLockFirst) {
           if (!nextLockFound) {
-            DEBUG("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:" +
+            DEBUG("HwGenericAMC::ttcMMCMPhaseShift Found next lock after " << i+1 << " shifts:"
                   << " bad locks "           << nBadLocks
                   << ", good locks "         << nGoodLocks
                   << ", mmcm phase count = " << phase
