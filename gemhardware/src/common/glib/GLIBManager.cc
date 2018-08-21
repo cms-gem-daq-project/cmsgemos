@@ -32,22 +32,22 @@ XDAQ_INSTANTIATOR_IMPL(gem::hw::glib::GLIBManager);
 
 gem::hw::glib::GLIBManager::GLIBInfo::GLIBInfo()
 {
-  present  = false;
-  crateID  = -1;
-  slotID   = -1;
-  cardName = "";
-
-  sbitSource    = 0;
+  present    = false;
+  crateID    = -1;
+  slotID     = -1;
+  cardName   = "";
+  birdName   = "";
+  sbitSource = 0;
 }
 
 void gem::hw::glib::GLIBManager::GLIBInfo::registerFields(xdata::Bag<gem::hw::glib::GLIBManager::GLIBInfo>* bag)
 {
-  bag->addField("crateID", &crateID);
-  bag->addField("slot",    &slotID);
-  bag->addField("present", &present);
-  bag->addField("CardName", &cardName);
-
-  bag->addField("sbitSource",    &sbitSource);
+  bag->addField("crateID",    &crateID);
+  bag->addField("slot",       &slotID);
+  bag->addField("present",    &present);
+  bag->addField("CardName",   &cardName);
+  bag->addField("BirdName",   &birdName);
+  bag->addField("sbitSource", &sbitSource);
 }
 
 gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
@@ -59,23 +59,23 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
 {
   m_glibInfo.setSize(MAX_AMCS_PER_CRATE);
 
-  p_appInfoSpace->fireItemAvailable("AllGLIBsInfo",   &m_glibInfo);
-  p_appInfoSpace->fireItemAvailable("AMCSlots",       &m_amcSlots);
-  p_appInfoSpace->fireItemAvailable("ConnectionFile", &m_connectionFile);
-  p_appInfoSpace->fireItemAvailable("UHALPhaseShift", &m_uhalPhaseShift);
+  p_appInfoSpace->fireItemAvailable("AllGLIBsInfo",      &m_glibInfo);
+  p_appInfoSpace->fireItemAvailable("AMCSlots",          &m_amcSlots);
+  p_appInfoSpace->fireItemAvailable("ConnectionFile",    &m_connectionFile);
+  p_appInfoSpace->fireItemAvailable("UHALPhaseShift",    &m_uhalPhaseShift);
   p_appInfoSpace->fireItemAvailable("BC0LockPhaseShift", &m_bc0LockPhaseShift);
   p_appInfoSpace->fireItemAvailable("RelockPhase",       &m_relockPhase);
 
-  p_appInfoSpace->addItemRetrieveListener("AllGLIBsInfo",   this);
-  p_appInfoSpace->addItemRetrieveListener("AMCSlots",       this);
-  p_appInfoSpace->addItemRetrieveListener("ConnectionFile", this);
-  p_appInfoSpace->addItemRetrieveListener("UHALPhaseShift", this);
+  p_appInfoSpace->addItemRetrieveListener("AllGLIBsInfo",      this);
+  p_appInfoSpace->addItemRetrieveListener("AMCSlots",          this);
+  p_appInfoSpace->addItemRetrieveListener("ConnectionFile",    this);
+  p_appInfoSpace->addItemRetrieveListener("UHALPhaseShift",    this);
   p_appInfoSpace->addItemRetrieveListener("BC0LockPhaseShift", this);
   p_appInfoSpace->addItemRetrieveListener("RelockPhase",       this);
-  p_appInfoSpace->addItemChangedListener( "AllGLIBsInfo",   this);
-  p_appInfoSpace->addItemChangedListener( "AMCSlots",       this);
-  p_appInfoSpace->addItemChangedListener( "ConnectionFile", this);
-  p_appInfoSpace->addItemChangedListener( "UHALPhaseShift", this);
+  p_appInfoSpace->addItemChangedListener( "AllGLIBsInfo",      this);
+  p_appInfoSpace->addItemChangedListener( "AMCSlots",          this);
+  p_appInfoSpace->addItemChangedListener( "ConnectionFile",    this);
+  p_appInfoSpace->addItemChangedListener( "UHALPhaseShift",    this);
   p_appInfoSpace->addItemChangedListener( "BC0LockPhaseShift", this);
   p_appInfoSpace->addItemChangedListener( "RelockPhase",       this);
 
@@ -333,17 +333,19 @@ void gem::hw::glib::GLIBManager::configureAction()
       } else {
         std::stringstream pashiftcmd;
         // FIXME hard coded for now, but super hacky garbage (only works at P5)
-        pashiftcmd << "ssh -Tq texas@eagle33 \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py";
+        pashiftcmd << "ssh -Tq texas@" << info.birdName.toString()
+                   << " \"sh -lic '/mnt/persistent/texas/apps/reg_interface/test_phase_shifting.py";
         if (m_bc0LockPhaseShift.value_)
           pashiftcmd << " --useBC0";
         if (m_relockPhase.value_)
           pashiftcmd << " --relock";
         pashiftcmd << "'\"";
+        INFO("GLIBManager::configureAction executing " << pashiftcmd.str());
         int retval = std::system(pashiftcmd.str().c_str());
         if (retval) {
           std::stringstream msg;
           msg << "GLIBManager::configureAction unable to shift phases: " << retval;
-          WARN(msg.str());
+          ERROR(msg.str());
           // fireEvent("Fail");
           // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
           XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
@@ -393,9 +395,11 @@ void gem::hw::glib::GLIBManager::configureAction()
       std::stringstream confcmd;
       // FIXME hard coded for now, but super hacky garbage
       confcmd << "confAllChambers.py -s" << (slot+1)
-              << " --ztrim=" << 4.0
+              << " --shelf="   << info.crateID.toString()
+              << " --ztrim="   << 4.0
               << " --vt1bump=" << 10
               << " --config --run";
+      INFO("GLIBManager::configureAction executing " << confcmd.str());
       int retval = std::system(confcmd.str().c_str());
       if (retval) {
         std::stringstream msg;
@@ -408,7 +412,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       // }
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      statuscmd << "amc_info_uhal.py -s" << (slot+1)
+                << " --shelf="           << info.crateID.toString();
       INFO("GLIBManager::configureAction running " << statuscmd.str() << " after configuring");
       retval = std::system(statuscmd.str().c_str());
       if (retval) {
@@ -474,7 +479,8 @@ void gem::hw::glib::GLIBManager::startAction()
 
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      statuscmd << "amc_info_uhal.py -s" << (slot+1)
+                << " --shelf="           << info.crateID.toString();
       INFO("GLIBManager::startAction running " << statuscmd.str() << " after starting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
@@ -615,7 +621,8 @@ void gem::hw::glib::GLIBManager::stopAction()
 
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      statuscmd << "amc_info_uhal.py -s" << (slot+1)
+                << " --shelf="           << info.crateID.toString();
       INFO("GLIBManager::stopAction running " << statuscmd.str() << " after configuration");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
@@ -660,7 +667,8 @@ void gem::hw::glib::GLIBManager::haltAction()
 
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      statuscmd << "amc_info_uhal.py -s" << (slot+1)
+                << " --shelf="           << info.crateID.toString();
       INFO("GLIBManager::haltAction running " << statuscmd.str() << " after halting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
@@ -707,7 +715,8 @@ void gem::hw::glib::GLIBManager::resetAction()
 
       std::stringstream statuscmd;
       // FIXME hard coded for now, but super hacky garbage
-      statuscmd << "amc_info_uhal.py -s" << (slot+1);
+      statuscmd << "amc_info_uhal.py -s" << (slot+1)
+                << " --shelf="           << info.crateID.toString();
       INFO("GLIBManager::resetAction running " << statuscmd.str() << " after resetting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {

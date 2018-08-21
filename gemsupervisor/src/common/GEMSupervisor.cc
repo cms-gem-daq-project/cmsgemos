@@ -384,8 +384,6 @@ void gem::supervisor::GEMSupervisor::configureAction()
     m_globalState.update();
   }
 
-  pausePhaseMonitoring();
-
   try {
     for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
       sendCfgType("testCfgType", (*i));
@@ -537,8 +535,6 @@ void gem::supervisor::GEMSupervisor::configureAction()
     m_globalState.update();
   }
 
-  resumePhaseMonitoring();
-
   // SHOULD ONLY REPORT "CONFIGURED" TO RCMS HERE
   m_globalState.update();
   INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName()
@@ -556,8 +552,6 @@ void gem::supervisor::GEMSupervisor::startAction()
     usleep(10);
     m_globalState.update();
   }
-
-  pausePhaseMonitoring();
 
   try {
     updateRunNumber();
@@ -671,8 +665,6 @@ void gem::supervisor::GEMSupervisor::startAction()
     m_globalState.update();
   }
 
-  resumePhaseMonitoring();
-
   // SHOULD ONLY REPORT "RUNNING" TO RCMS HERE
   m_globalState.update();
   INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName()
@@ -690,8 +682,6 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     usleep(10);
     m_globalState.update();
   }
-
-  pausePhaseMonitoring();
 
   try {
     auto disableorder = getDisableOrder();
@@ -752,8 +742,6 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     m_globalState.update();
   }
 
-  resumePhaseMonitoring();
-
   // SHOULD ONLY REPORT "PAUSED" TO RCMS HERE
   m_globalState.update();
   INFO("GEMSupervisor::pauseAction GlobalState = " << m_globalState.getStateName()
@@ -771,8 +759,6 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     usleep(10);
     m_globalState.update();
   }
-
-  pausePhaseMonitoring();
 
   try {
     auto resumeorder = getEnableOrder();
@@ -833,8 +819,6 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     m_globalState.update();
   }
 
-  resumePhaseMonitoring();
-
   // SHOULD ONLY REPORT "RUNNING" TO RCMS HERE
   m_globalState.update();
   INFO("GEMSupervisor::resumeAction GlobalState = " << m_globalState.getStateName()
@@ -854,8 +838,6 @@ void gem::supervisor::GEMSupervisor::stopAction()
     usleep(10);
     m_globalState.update();
   }
-
-  pausePhaseMonitoring();
 
   try {
     auto disableorder = getDisableOrder();
@@ -915,8 +897,6 @@ void gem::supervisor::GEMSupervisor::stopAction()
     fireEvent("Fail");
     m_globalState.update();
   }
-
-  resumePhaseMonitoring();
 
   // SHOULD ONLY REPORT "CONFIGURED" TO RCMS HERE
   m_globalState.update();
@@ -1305,29 +1285,17 @@ void gem::supervisor::GEMSupervisor::renewTCDSLease()
 void gem::supervisor::GEMSupervisor::pausePhaseMonitoring()
 //  throw (xoap::exception::Exception)
 {
-  std::stringstream ctp7phasemoncmd;
-  // FIXME hard coded for now, but super hacky garbage (only works at P5)
-  ctp7phasemoncmd << "ssh -Tq texas@eagle33 sh -lic '\"phasemonctl.sh stop\"'";
-  int retval = std::system(ctp7phasemoncmd.str().c_str());
-  if (retval) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::configureAction unable to kill phase monitoring: " << retval;
-    WARN(msg.str());
-  }
+  std::stringstream msg;
+  msg << "GEMSupervisor::pausePhaseMonitoring is obsolete";
+  WARN(msg.str());
 }
 
 void gem::supervisor::GEMSupervisor::resumePhaseMonitoring()
 //  throw (xoap::exception::Exception)
 {
-  std::stringstream ctp7phasemoncmd;
-  // FIXME hard coded for now, but super hacky garbage (only works at P5)
-  ctp7phasemoncmd << "ssh -Tq texas@eagle33 sh -lic '\"phasemonctl.sh start\"'";
-  int retval = std::system(ctp7phasemoncmd.str().c_str());
-  if (retval) {
-    std::stringstream msg;
-    msg << "GEMSupervisor::configureAction unable to start phase monitoring: " << retval;
-    WARN(msg.str());
-  }
+  std::stringstream msg;
+  msg << "GEMSupervisor::resumePhaseMonitoring is obsolete";
+  WARN(msg.str());
 }
 
 void gem::supervisor::GEMSupervisor::sendScanParameters(xdaq::ApplicationDescriptor* ad)

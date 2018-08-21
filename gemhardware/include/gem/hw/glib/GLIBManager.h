@@ -87,6 +87,7 @@ namespace gem {
             xdata::Integer crateID;
             xdata::Integer slotID;
             xdata::String  cardName;
+            xdata::String  birdName;
 
             //configuration parameters
             xdata::String controlHubAddress;
@@ -110,6 +111,7 @@ namespace gem {
                  << "crateID:"  << crateID.toString()  << std::endl
                  << "slotID:"   << slotID.toString()   << std::endl
                  << "cardName:" << cardName.toString() << std::endl
+                 << "birdName:" << birdName.toString() << std::endl
 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
