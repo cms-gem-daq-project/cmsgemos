@@ -38,6 +38,11 @@ class HwAMC(object):
         self.ttcGenToggle.restype = c_uint
         self.ttcGenToggle.argtypes = [c_uint, c_bool]
 
+        # Define SBIT Local Readout
+        self.readSBits = self.lib.sbitReadOut
+        self.readSBits.restype = c_uint
+        self.readSBits.argtypes = [c_uint, c_uint, c_char_p]
+
         # Parse XML
         parseXML()
         #global nodes
@@ -49,6 +54,18 @@ class HwAMC(object):
         print "My FW release major = ", self.fwVersion
 
         return
+
+    def acquireSBits(self, ohN, outFilePath, acquireTime=300):
+        """
+        Using the SBIT_MONITOR acquire sbit data for time in seconds given
+        by acquireTime and write the data to the directory specified by outFilePath
+
+        ohN - optohybrid to monitor
+        outFilePath - filepath created data files will be written too
+        acquireTime - time in seconds to acquire data for
+        """
+
+        return self.readSBits(ohN, acquireTime, outFilePath)
 
     def blockL1A(self):
         """
