@@ -16,7 +16,16 @@ class HwVFAT(object):
 
         # Optohybrid
         self.parentOH = HwOptoHybrid(cardName, link, debug)
-        
+
+        # Define VFAT3 DAC Monitoring
+        self.confDacMonitor = self.parentOH.parentAMC.lib.configureVFAT3DacMonitor
+        self.confDacMonitor.argTypes = [ c_uint, c_uint, c_uint ]
+        self.confDacMonitor.restype = c_uint
+
+        self.readADCs = self.parentOH.parentAMC.lib.readVFAT3ADC
+        self.readADCs.argTypes = [ c_uint, POINTER(c_uint32), c_uint, c_uint ]
+        self.readADCs.restype = c_uint
+
         # Define VFAT3 Configuration
         self.confVFAT3s = self.parentOH.parentAMC.lib.configureVFAT3s
         self.confVFAT3s.argTypes = [ c_uint, c_uint ]
@@ -85,6 +94,16 @@ class HwVFAT(object):
 
         return
 
+    def configureDACMonitor(self, dacSelect, mask=0x0):
+        """
+        Configure the DAC Monitoring to monitor the register defined by dacSelect on all unmasked VFATs.
+
+        dacSelect - An integer defining the monitored register.  See VFAT3 Manual GLB_CFG_CTR_4 for details.
+        mask - VFAT mask
+        """
+
+        return self.confDacMonitor(self.parentOH.link, mask, dacSelect)
+
     def getAllChipIDs(self, mask=0x0):
         return self.readAllVFATs("HW_CHIP_ID",mask)
 
@@ -95,6 +114,17 @@ class HwVFAT(object):
         if rpcResp != 0:
             raise Exception("RPC response was non-zero, failed to get channel data for OH{0}".format(self.parentOH.link))
         return chanRegData
+
+    def readAllADCs(self, adcData, useExtRefADC=False, mask=0x0):
+        """
+        Reads the ADC value from all unmasked VFATs
+
+        adcData - Array of type c_uint32 of size 24
+        useExtRefADC - True (False) use the externally (internally) referenced ADC
+        mask - VFAT Mask
+        """
+
+        return self.readADCs(self.parentOH.link, adcData, useExtRefADC, mask)
 
     def readAllVFATs(self, reg, mask=0x0):
         vfatVals = self.parentOH.broadcastRead(reg,mask)
