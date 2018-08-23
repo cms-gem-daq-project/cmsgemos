@@ -25,10 +25,30 @@ class HwAMC(object):
 
         # Store HW info
         self.name = cardName
+        #self.nOHs = 12
+        self.nOHs = 4
 
-        # Define the connection
+        # Open the foreign function library
         self.lib = CDLL("librpcman.so")
        
+        # Define VFAT3 DAC Monitoring
+        self.confDacMonitorMulti = self.lib.configureVFAT3DacMonitorMultiLink
+        self.confDacMonitorMulti.argTypes = [ c_uint, POINTER(c_uint32), c_uint ]
+        self.confDacMonitorMulti.restype = c_uint
+
+        self.readADCsMulti = self.lib.readVFAT3ADCMultiLink
+        self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), c_uint, c_uint ]
+        self.readADCsMulti.restype = c_uint
+
+        # Define Get OH Mask functionality
+        self.self.lib.getOHVFATMask = self.lib.getOHVFATMask
+        self.self.lib.getOHVFATMask.argTypes = [ c_uint ]
+        self.self.lib.getOHVFATMask.restype = c_uint
+
+        self.getOHVFATMaskMultiLink = self.lib.getOHVFATMaskMultiLink
+        self.getOHVFATMaskMultiLink.argTypes = [ c_uint, POINTER(c_uint32) ]
+        self.getOHVFATMaskMultiLink.restype = c_uint
+
         # Define TTC Functions
         self.ttcGenConf = self.lib.ttcGenConf
         self.ttcGenConf.restype = c_uint
@@ -45,7 +65,6 @@ class HwAMC(object):
 
         # Parse XML
         parseXML()
-        #global nodes
 
         # Open RPC Connection
         print "Initializing AMC", self.name
@@ -101,6 +120,14 @@ class HwAMC(object):
 
         return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, enable)
 
+    def configureVFAT3DacMonitorMulti(self, dacSelect, ohMask=0xFFF):
+        ohVFATMaskArray = (c_uint32 * self.nOHs)()
+        for ohN in range(0,self.nOHs):
+            if ((ohMask >> ohN) & 0x0):
+                continue
+
+            ohVFATMaskArray[ohN] = self.getOHVFATMask(ohN)
+
     def enableL1A(self):
         """
         enables L1A's from backplane for this AMC
@@ -134,6 +161,46 @@ class HwAMC(object):
                 print("\tCYCLIC_CALPULSE_TO_L1A_GAP: \t%i"%(self.readRegister("%s.CYCLIC_CALPULSE_TO_L1A_GAP"%(contBase))))
                 print("\tENABLE: \t\t\t%i"%(running))
         return running
+
+    def getLinkVFATMask(self,ohN):
+        """
+        V3 electronics only
+
+        Returns a 24 bit number that can be used as the VFAT Mask
+        for the Optohybrid ohN
+        """
+        if self.fwVersion < 3:
+            print("HwAMC::getLinkVFATMask() - No support in v2b FW")
+            return os.EX_USAGE
+
+        mask = self.getOHVFATMask(ohN)
+        if mask = 0xffffffff:
+            raise Exception("RPC response was overflow, failed to determine VFAT mask for OH{0}".format(ohN))
+        else:
+            return mask
+
+    def getMultiLinkVFATMask(self,ohMask=0xfff):
+        """
+        v3 electronics only
+
+        Returns a ctypes array of c_uint32 of size 12.  Each element of the
+        array is the vfat mask for the ohN defined by the array index
+
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        """
+
+        if self.fwVersion < 3:
+            print("HwAMC::getLinkVFATMask() - No support in v2b FW")
+            return os.EX_USAGE
+
+        vfatMaskArray = (c_uint32 * 12)()
+        rpcResp = self.getOHVFATMaskMultiLink(ohMask, vfatMaskArray)
+
+        if rpcResp != 0:
+            raise Exception("RPC response was non-zero, failed to determine VFAT masks for ohMask {0}".format(hex(ohMask)))
+        else:
+            return vfatMaskArray
 
     def readBlock(register, nwords, debug=False):
         """
