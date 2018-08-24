@@ -121,12 +121,20 @@ class HwAMC(object):
         return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, enable)
 
     def configureVFAT3DacMonitorMulti(self, dacSelect, ohMask=0xFFF):
-        ohVFATMaskArray = (c_uint32 * self.nOHs)()
-        for ohN in range(0,self.nOHs):
-            if ((ohMask >> ohN) & 0x0):
-                continue
+        """
+        Configure the DAC Monitoring to monitor the register defined by dacSelect
+        on all unmasked VFATs for optohybrids given by ohMask.
 
-            ohVFATMaskArray[ohN] = self.getOHVFATMask(ohN)
+        Will automatically determine the vfatmask for *each* optohybrid
+
+        dacSelect - An integer defining the monitored register.
+                    See VFAT3 Manual GLB_CFG_CTR_4 for details.
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        """
+
+        ohVFATMaskArray = self.getMultiLinkVFATMask(ohMask)
+        return self.confDacMonitorMulti(ohMask, ohVFATMaskArray, dacSelect)
 
     def enableL1A(self):
         """
@@ -201,6 +209,19 @@ class HwAMC(object):
             raise Exception("RPC response was non-zero, failed to determine VFAT masks for ohMask {0}".format(hex(ohMask)))
         else:
             return vfatMaskArray
+
+    def readAllADCsMulti(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF):
+        """
+        Reads the ADC value from all unmasked VFATs
+
+        adcDataAll - Array of type c_uint32 of size 24*12=288
+        useExtRefADC - True (False) use the externally (internally) referenced ADC
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        """
+
+        ohVFATMaskArray = self.getMultiLinkVFATMask(ohMask)
+        return self.readADCsMulti(ohMask,ohVFATMaskArray, adcDataAll, useExtRefADC)
 
     def readBlock(register, nwords, debug=False):
         """
