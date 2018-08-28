@@ -60,6 +60,7 @@ class AMC13manager:
       self.device.startRun()
       self.device.enableLocalL1A(True)
     #submit work loop here
+    self.device.fakeDataEnable(True)
     self.isRunning = True
     datastring = ''
     packer = struct.Struct('Q')
@@ -85,5 +86,6 @@ class AMC13manager:
       self.device.stopContinuousL1A()
     elif self.t3trig:
       self.device.enableLocalL1A(False)
+    self.device.fakeDataEnable(False)
     #submit work loop here
     self.isRunning = False
