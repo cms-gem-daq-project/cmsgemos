@@ -11,6 +11,8 @@ import time
 
 class AMC13manager:
   def __init__(self):
+    self.localTrigger = False
+    self.tr3trig = False
     pass
 
   def connect(self,cardname,verbosity):
@@ -31,9 +33,10 @@ class AMC13manager:
     mask = self.device.parseInputEnableList(inlist, True)
     self.device.AMCInputEnable(mask)
 
-  def configureTrigger(self, ena, mode = 0, burst = 1, rate = 10, rules = 0):
+  def configureTrigger(self, ena, t3trig=False, mode = 0, burst = 1, rate = 10, rules = 0):
   # see http://cactus.web.cern.ch/cactus/release/amc13/1.1/api/html/d5/df6/classamc13_1_1_a_m_c13.html#a800843bf6119f6aaeb470e406778a9b2
     self.localTrigger = ena
+    self.tr3trig = t3trig
     if self.localTrigger:
       self.device.configureLocalL1A(ena, mode, burst, rate, rules)
 
@@ -52,6 +55,10 @@ class AMC13manager:
   def startDataTaking(self, ofile):
     if self.localTrigger:
       self.device.startContinuousL1A()
+    elif self.t3trig:
+      self.device.write(self.device.Board.T1, 'CONF.TTC.T3_TRIG', 0x1)
+      self.device.startRun()
+      self.device.enableLocalL1A(True)
     #submit work loop here
     self.isRunning = True
     datastring = ''
@@ -76,5 +83,7 @@ class AMC13manager:
   def stopDataTaking(self):
     if self.localTrigger:
       self.device.stopContinuousL1A()
+    elif self.t3trig:
+      self.device.enableLocalL1A(False)
     #submit work loop here
     self.isRunning = False
