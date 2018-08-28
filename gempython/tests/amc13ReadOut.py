@@ -14,7 +14,7 @@ def readAllL1ACounters(amc13board, amcs, key="Initial", trigCounts=None):
     if trigCounts is None:
         trigCounts = nesteddict()
 
-    trigCounts[key]["AMC13"] = (amc13board.device.read(amc13board.Board.T1, "STATUS.GENERAL.L1A_COUNT_HI") << 32) | (amc13board.device.read(amc13board.Board.T1, "STATUS.GENERAL.L1A_COUNT_LO"))
+    trigCounts[key]["AMC13"] = (amc13board.device.read(amc13board.device.Board.T1, "STATUS.GENERAL.L1A_COUNT_HI") << 32) | (amc13board.device.read(amc13board.device.Board.T1, "STATUS.GENERAL.L1A_COUNT_LO"))
 
     from gempython.tools.amc_user_functions_uhal import getL1ACount
     for slot,amc in amcs.iteritems():
@@ -68,7 +68,7 @@ if __name__ == '__main__':
             help="print additional debugging information")
     parserTrigGroup = parser.add_mutually_exclusive_group()
     parserTrigGroup.add_argument("--t3trig", action="store_true", dest="t3trig",
-            help="Set up for using AMC13 T3 trigger inpiut")
+            help="Set up for using AMC13 T3 trigger input")
     parserTrigGroup.add_argument("--internal", action="store_true", dest="internal",
             help="Configure the amc13 to generate local triggers")
 
@@ -76,9 +76,15 @@ if __name__ == '__main__':
     options = vars(args)
     
     # Get the amc13
+    import uhal
+    if args.debug:
+        uhal.setLogLevelTo(uhal.LogLevel.INFO)
+    else:
+        uhal.setLogLevelTo(uhal.LogLevel.ERROR)
     from gempython.tools.xdaq.amc13manager import AMC13manager
     amc13base  = "gem.shelf%02d.amc13"%(args.shelf)
-    amc13board = AMC13manager(amc13base,args.debug)
+    amc13board = AMC13manager()
+    amc13board.connect(amc13base,args.debug)
     
     # Get the slots
     from gempython.tools.amc_user_functions_uhal import *
@@ -90,7 +96,7 @@ if __name__ == '__main__':
             for slot in range(min(slotsInRange),max(slotsInRange)+1):
                 dict_amcs[slot] = getAMCObject(slot,shelf=args.shelf,debug=args.debug)
         else:
-            dict_amcs[slotRange] = getAMCObject(slotRange,shelf=args.shelf,debug=args.debug)
+            dict_amcs[slotRange] = getAMCObject(int(slotRange),shelf=args.shelf,debug=args.debug)
 
     # Define the parallel processes
     from multiprocessing import Process
@@ -99,18 +105,17 @@ if __name__ == '__main__':
 
     # Stop Triggers
     for slot,amc in dict_amcs.iteritems():
-        amc.blockL1A()
+        blockL1A(amc)
     amc13board.device.enableLocalL1A(False)
 
     # Setup for data-taking and get L1A counters
     amc13board.reset()
     amc13board.configureInputs(args.slotList)
     trigCount = readAllL1ACounters(amc13board, dict_amcs, "INITIAL")
-    
 
     # Enable triggers to amc's
     for slot,amc in dict_amcs.iteritems():
-        amc.enableL1A()
+        enableL1A(amc)
     amc13board.device.enableLocalL1A(True)
     amc13board.configureTrigger(ena=args.internal,t3trig=args.t3trig)
     if args.internal:
@@ -118,17 +123,19 @@ if __name__ == '__main__':
 
     # Take data
     try:
-        dataTaking.start()
-        halt.start()
+        #dataTaking.start()
+        dataTaking.run()
+        #halt.start()
+        halt.run()
         halt.join()
         print("Data Taking has completed")
     except KeyboardInterrupt:
         amc13board.stopDataTaking()
-        halt.terminate()
+        #halt.terminate()
 
         # Disable triggers & get final L1A counters
         for slot,amc in dict_amcs.iteritems():
-            amc.blockL1A()
+            blockL1A(amc)
         amc13board.device.enableLocalL1A(False)
         trigCount = readAllL1ACounters(amc13board, dict_amcs, "FINAL", trigCount)
 
@@ -144,11 +151,11 @@ if __name__ == '__main__':
     except Exception as e:
         print("Caught Exception {0}, terminating workers".format(e))
         amc13board.stopDataTaking()
-        halt.terminate()
+        #halt.terminate()
 
         # Disable triggers & get final L1A counters
         for slot,amc in dict_amcs.iteritems():
-            amc.blockL1A()
+            blockL1A(amc)
         amc13board.device.enableLocalL1A(False)
         trigCount = readAllL1ACounters(amc13board, dict_amcs, "FINAL", trigCount)
 
@@ -164,7 +171,7 @@ if __name__ == '__main__':
 
     # Disable triggers & get final L1A counters
     for slot,amc in dict_amcs.iteritems():
-        amc.blockL1A()
+        blockL1A(amc)
     amc13board.device.enableLocalL1A(False)
     trigCount = readAllL1ACounters(amc13board, dict_amcs, "FINAL", trigCount)
 
