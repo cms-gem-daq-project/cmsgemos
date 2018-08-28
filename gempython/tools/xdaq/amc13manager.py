@@ -12,11 +12,11 @@ import time
 class AMC13manager:
   def __init__(self):
     self.localTrigger = False
-    self.tr3trig = False
+    self.t3trig = False
     pass
 
   def connect(self,cardname,verbosity):
-    self.connection = os.getenv("GEM_ADDRESS_TABLE_PATH")+"connections.xml"
+    self.connection = "{0}/connections.xml".format(os.getenv("GEM_ADDRESS_TABLE_PATH"))
     self.verbosity = verbosity
     self.device = amc13.AMC13(self.connection, cardname+".T1", cardname+".T2") # connect to amc13. Should work like this, but has to be tested
     #reset amc13
@@ -36,7 +36,7 @@ class AMC13manager:
   def configureTrigger(self, ena, t3trig=False, mode = 0, burst = 1, rate = 10, rules = 0):
   # see http://cactus.web.cern.ch/cactus/release/amc13/1.1/api/html/d5/df6/classamc13_1_1_a_m_c13.html#a800843bf6119f6aaeb470e406778a9b2
     self.localTrigger = ena
-    self.tr3trig = t3trig
+    self.t3trig = t3trig
     if self.localTrigger:
       self.device.configureLocalL1A(ena, mode, burst, rate, rules)
 
