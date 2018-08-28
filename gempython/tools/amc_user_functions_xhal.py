@@ -41,9 +41,9 @@ class HwAMC(object):
         self.readADCsMulti.restype = c_uint
 
         # Define Get OH Mask functionality
-        self.self.lib.getOHVFATMask = self.lib.getOHVFATMask
-        self.self.lib.getOHVFATMask.argTypes = [ c_uint ]
-        self.self.lib.getOHVFATMask.restype = c_uint
+        self.getOHVFATMask = self.lib.getOHVFATMask
+        self.getOHVFATMask.argTypes = [ c_uint ]
+        self.getOHVFATMask.restype = c_uint
 
         self.getOHVFATMaskMultiLink = self.lib.getOHVFATMaskMultiLink
         self.getOHVFATMaskMultiLink.argTypes = [ c_uint, POINTER(c_uint32) ]
@@ -182,7 +182,7 @@ class HwAMC(object):
             return os.EX_USAGE
 
         mask = self.getOHVFATMask(ohN)
-        if mask = 0xffffffff:
+        if mask == 0xffffffff:
             raise Exception("RPC response was overflow, failed to determine VFAT mask for OH{0}".format(ohN))
         else:
             return mask
