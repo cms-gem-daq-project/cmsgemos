@@ -115,6 +115,7 @@ if __name__ == '__main__':
     amc13board.reset()
     amc13board.configureInputs(args.slotList)
     trigCount = readAllL1ACounters(amc13board, dict_amcs, "INITIAL")
+    amc13board.device.monBufBackPressEnable(False)
 
     # Enable triggers to amc's
     for slot,amc in dict_amcs.iteritems():

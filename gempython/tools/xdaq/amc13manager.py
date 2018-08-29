@@ -25,7 +25,7 @@ class AMC13manager:
 
   def reset(self):
     self.device.reset(self.device.Board.T1)
-    self.device.reset(self.device.Board.T2)
+    #self.device.reset(self.device.Board.T2)
     self.device.resetCounters()
     self.device.resetDAQ()
 
@@ -59,7 +59,8 @@ class AMC13manager:
       #self.device.startRun()
       self.device.enableLocalL1A(True)
     #submit work loop here
-    #self.device.fakeDataEnable(True)
+    self.device.fakeDataEnable(True)
+    self.device.startRun()
     self.isRunning = True
     datastring = ''
     packer = struct.Struct('Q')
@@ -83,6 +84,7 @@ class AMC13manager:
       self.device.stopContinuousL1A()
     elif self.t3trig:
       self.device.enableLocalL1A(False)
-    #self.device.fakeDataEnable(False)
+    self.device.fakeDataEnable(False)
     #submit work loop here
+    self.device.endRun()
     self.isRunning = False
