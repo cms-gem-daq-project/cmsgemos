@@ -162,7 +162,11 @@ def enableDAQLink(device, linkEnableMask=0x1, doReset=False):
     writeRegister(device, "GEM_AMC.DAQ.CONTROL.TTS_OVERRIDE",      0x8)
     writeRegister(device, "GEM_AMC.DAQ.CONTROL.INPUT_ENABLE_MASK", linkEnableMask)
     writeRegister(device, "GEM_AMC.DAQ.CONTROL.DAV_TIMEOUT",       0x30D40)
+
+    NGTX = readRegister(device,"GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
     for olink in range(NGTX):
+        if( (linkEnableMask >> olink) & 0x0):
+            continue
         # in 160MHz clock cycles, so multiply by 4 to get in terms of BX
         # 0xc35 -> 781 BX
         writeRegister(device,"GEM_AMC.DAQ.OH%d.CONTROL.EOE_TIMEOUT"%(olink),0x30D4)
