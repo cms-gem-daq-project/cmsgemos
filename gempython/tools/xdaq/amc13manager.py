@@ -56,10 +56,8 @@ class AMC13manager:
       self.device.startContinuousL1A()
     elif self.t3trig:
       self.device.write(self.device.Board.T1, 'CONF.TTC.T3_TRIG', 0x1)
-      #self.device.startRun()
       self.device.enableLocalL1A(True)
     #submit work loop here
-    self.device.fakeDataEnable(True)
     self.device.startRun()
     self.isRunning = True
     datastring = ''
@@ -84,7 +82,6 @@ class AMC13manager:
       self.device.stopContinuousL1A()
     elif self.t3trig:
       self.device.enableLocalL1A(False)
-    self.device.fakeDataEnable(False)
     #submit work loop here
     self.device.endRun()
     self.isRunning = False
