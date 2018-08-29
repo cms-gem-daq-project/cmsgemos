@@ -74,6 +74,7 @@ class AMC13manager:
         datastring += packer.pack(word)
       with open (ofile+"_chunk_"+str(cnt)+".dat", "wb") as compdata:
         compdata.write(datastring)
+      compdata.close()
       cnt += 1;
       time.sleep(5)
 
