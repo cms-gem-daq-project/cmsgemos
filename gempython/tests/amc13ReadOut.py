@@ -140,6 +140,7 @@ if __name__ == '__main__':
         amc13board.configureCalPulse()
 
     # Take data
+    import sys
     try:
         #dataTaking.start()
         dataTaking.run()
@@ -166,6 +167,7 @@ if __name__ == '__main__':
                 trigCount["FINAL"][slot] - trigCount["INITIAL"][slot]))
         
         print("Data Taking has completed")
+        sys.exit()
     except Exception as e:
         print("Caught Exception {0}, terminating workers".format(e))
         amc13board.stopDataTaking()
