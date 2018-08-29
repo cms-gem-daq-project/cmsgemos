@@ -23,13 +23,16 @@ def readAllL1ACounters(amc13board, amcs, key="Initial", trigCounts=None):
     return trigCounts
 
 def startDataTaking(amc13board, outFile):
+#def startDataTaking(queue, outFile):
     """
     Start data taking
 
-    amc13board - instance of the AMC13manager class
+    #amc13board - instance of the AMC13manager class
+    queue - instance of multiprocessing.Queue which contains an amc13board
     outFile - filename to use for data taking
     """
 
+    #amc13board = queue.get()
     amc13board.startDataTaking(outFile)
     return
 
@@ -183,4 +186,6 @@ if __name__ == '__main__':
             slot,
             trigCount["FINAL"][slot] - trigCount["INITIAL"][slot]))
 
+    print("dataTaking.is_alive() = {0}".format(dataTaking.is_alive()))
+    print("halt.is_alive() = {0}".format(halt.is_alive()))
     print("amc13ReadOut.py has exited successfully")
