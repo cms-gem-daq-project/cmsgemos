@@ -51,16 +51,15 @@ class AMC13manager:
     bx = 500+delay
     self.device.configureBGOShort(0,0x14,bx,prescale,repeat)
 
-  #def startDataTaking(self, ofile, nevents):
   def startDataTaking(self, ofile):
     if self.localTrigger:
       self.device.startContinuousL1A()
     elif self.t3trig:
       self.device.write(self.device.Board.T1, 'CONF.TTC.T3_TRIG', 0x1)
-      self.device.startRun()
+      #self.device.startRun()
       self.device.enableLocalL1A(True)
     #submit work loop here
-    self.device.fakeDataEnable(True)
+    #self.device.fakeDataEnable(True)
     self.isRunning = True
     datastring = ''
     packer = struct.Struct('Q')
@@ -69,13 +68,11 @@ class AMC13manager:
     cnt = 0
     while self.isRunning:
       nevt = self.device.read(self.device.Board.T1, 'STATUS.MONITOR_BUFFER.UNREAD_BLOCKS')
-      #nevt = self.device.read(self.device.Board.T1, 'STATUS.MONITOR_BUFFER.UNREAD_EVENTS')
       print "Trying to read %s events" % nevt
       for i in range(nevt):
         pEvt += read_event()
       for word in pEvt:
         datastring += packer.pack(word)
-      #if nevt > 0:
       with open (ofile+"_chunk_"+str(cnt)+".dat", "wb") as compdata:
         compdata.write(datastring)
       cnt += 1;
@@ -86,6 +83,6 @@ class AMC13manager:
       self.device.stopContinuousL1A()
     elif self.t3trig:
       self.device.enableLocalL1A(False)
-    self.device.fakeDataEnable(False)
+    #self.device.fakeDataEnable(False)
     #submit work loop here
     self.isRunning = False
