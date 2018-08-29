@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     # create the parser
     import argparse
-    parser = argparse.ArgumentParser(description="Arguments to supply to amc13ReadOut.py")
+    parser = argparse.ArgumentParser(description="Script to readout data with the AMC13.  Presently uFEDKIT is not used. Arguments to supply to amc13ReadOut.py are given below")
     
     # Positional arguments
     from reg_utils.reg_interface.common.reg_xml_parser import parseInt
@@ -67,8 +67,12 @@ if __name__ == '__main__':
     parser.add_argument("filename", type=str, help="Filename to write data too", metavar="filename")
     
     # Optional arguments
-    parser.add_argument("--debug", action="store_true", dest="debug",
+    parser.add_argument("-d","--debug", action="store_true", dest="debug",
             help="print additional debugging information")
+    parser.add_argument("--ohMask", type=parseInt, dest="ohMask", default=-1, metavar="ohMask",
+            help="DAQ Link Enable mask to apply to all AMCs in slotList. If less than 0 (default) this is determined automatically. Otherwise provide a bit mask where a 1 in the N^th bit indicates to readout the N^th OH")
+    parser.add_argument("-z","--zeroSup", action="store_true", dest="zeroSup",
+            help="Enable zero suppression in each AMC given by slotList")
     parserTrigGroup = parser.add_mutually_exclusive_group()
     parserTrigGroup.add_argument("--t3trig", action="store_true", dest="t3trig",
             help="Set up for using AMC13 T3 trigger input")
@@ -115,7 +119,17 @@ if __name__ == '__main__':
     amc13board.reset()
     amc13board.configureInputs(args.slotList)
     trigCount = readAllL1ACounters(amc13board, dict_amcs, "INITIAL")
-    amc13board.device.monBufBackPressEnable(False)
+    #amc13board.device.monBufBackPressEnable(False)
+
+    # Update DAQ Input Enable Mask for each AMC and turn on ZS if requested
+    for slot,amc in dict_amcs.iteritems():
+        if args.zeroSup:
+            writeRegister(amc,"GEM_AMC.DAQ.CONTROL.ZERO_SUPPRESSION_EN",0x1)
+        if args.ohMask < 0:
+            scaRdy = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
+            enableDAQLink(amc,scaRdy)
+        else:
+            enableDAQLink(amc,args.ohMask)
 
     # Enable triggers to amc's
     for slot,amc in dict_amcs.iteritems():
@@ -155,23 +169,8 @@ if __name__ == '__main__':
     except Exception as e:
         print("Caught Exception {0}, terminating workers".format(e))
         amc13board.stopDataTaking()
-        #halt.terminate()
 
-        # Disable triggers & get final L1A counters
-        for slot,amc in dict_amcs.iteritems():
-            blockL1A(amc)
-        amc13board.device.enableLocalL1A(False)
-        trigCount = readAllL1ACounters(amc13board, dict_amcs, "FINAL", trigCount)
-
-        # Calculate difference in L1A Counters
-        print("| Board | L1A Count |")
-        print("| :---: | :-------: |")
-        for slot in trigCount["INITIAL"].keys():
-            print("| {0} | {1} |".format(
-                slot,
-                trigCount["FINAL"][slot] - trigCount["INITIAL"][slot]))
-        
-        print("Data Taking has completed")
+    print("Data Taking has completed")
 
     # Disable triggers & get final L1A counters
     for slot,amc in dict_amcs.iteritems():
@@ -189,4 +188,4 @@ if __name__ == '__main__':
 
     print("dataTaking.is_alive() = {0}".format(dataTaking.is_alive()))
     print("halt.is_alive() = {0}".format(halt.is_alive()))
-    print("amc13ReadOut.py has exited successfully")
+    #print("amc13ReadOut.py has exited successfully")
