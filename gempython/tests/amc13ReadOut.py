@@ -123,8 +123,13 @@ if __name__ == '__main__':
 
     # Update DAQ Input Enable Mask for each AMC and turn on ZS if requested
     for slot,amc in dict_amcs.iteritems():
+        # Zero suppression
         if args.zeroSup:
             writeRegister(amc,"GEM_AMC.DAQ.CONTROL.ZERO_SUPPRESSION_EN",0x1)
+        else:
+            writeRegister(amc,"GEM_AMC.DAQ.CONTROL.ZERO_SUPPRESSION_EN",0x0)
+
+        # DAQ Link Enable and input mask
         if args.ohMask < 0:
             scaRdy = readRegister(amc,"GEM_AMC.SLOW_CONTROL.SCA.STATUS.READY")
             enableDAQLink(amc,scaRdy)
