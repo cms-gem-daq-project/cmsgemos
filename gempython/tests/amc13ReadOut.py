@@ -58,7 +58,7 @@ if __name__ == '__main__':
     # create the parser
     import argparse
     parser = argparse.ArgumentParser(description="Script to readout data with the AMC13.  Presently uFEDKIT is not used. Arguments to supply to amc13ReadOut.py are given below")
-    
+
     # Positional arguments
     from reg_utils.reg_interface.common.reg_xml_parser import parseInt
     parser.add_argument("shelf", type=int, help="uTCA shelf number", metavar="shelf")
