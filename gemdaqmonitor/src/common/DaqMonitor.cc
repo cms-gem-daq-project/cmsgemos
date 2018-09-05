@@ -174,7 +174,6 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
                  GEMUpdateType::HW32, "hex");
   }
   //end of OH_MAIN monitorables
-
 }
 
 void gem::daqmon::DaqMonitor::updateMonitorables()
@@ -193,4 +192,171 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
 void gem::daqmon::DaqMonitor::updateDAQmain()
 {
   DEBUG("DaqMonitor: Update DAQ main table");
+  req = wisc::RPCMsg("amc.getmonDAQmain");
+  try {
+    rsp = rpc.call_method(req);
+  }
+  STANDARD_CATCH;
+  try{
+    if (rsp.get_key_exists("error")) {
+      ERROR("DAQ_MAIN update error:" << rsp.get_string("error").c_str());
+      throw xhal::utils::XHALException("DAQ_MAIN update failed");
+    } else {
+      auto monlist = m_monitorableSetsMap->find("DAQ_MAIN")
+      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
+      }
+    }
+  }
+  STANDARD_CATCH;
+}
+
+void gem::daqmon::DaqMonitor::updateDAQOHmain()
+{
+  DEBUG("DaqMonitor: Update DAQ OH main table");
+  req = wisc::RPCMsg("amc.getmonDAQOHmain");
+  try {
+    rsp = rpc.call_method(req);
+  }
+  STANDARD_CATCH;
+  try{
+    if (rsp.get_key_exists("error")) {
+      ERROR("DAQ_OH_MAIN update error:" << rsp.get_string("error").c_str());
+      throw xhal::utils::XHALException("DAQ_OH_MAIN update failed");
+    } else {
+      auto monlist = m_monitorableSetsMap->find("DAQ_OH_MAIN")
+      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
+      }
+    }
+  }
+  STANDARD_CATCH;
+}
+
+void gem::daqmon::DaqMonitor::updateTTCmain()
+{
+  DEBUG("DaqMonitor: Update TTC main table");
+  req = wisc::RPCMsg("amc.getmonTTCmain");
+  try {
+    rsp = rpc.call_method(req);
+  }
+  STANDARD_CATCH;
+  try{
+    if (rsp.get_key_exists("error")) {
+      ERROR("DAQ_TTC_MAIN update error:" << rsp.get_string("error").c_str());
+      throw xhal::utils::XHALException("DAQ_TTC_MAIN update failed");
+    } else {
+      auto monlist = m_monitorableSetsMap->find("DAQ_TTC_MAIN")
+      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
+      }
+    }
+  }
+  STANDARD_CATCH;
+}
+
+void gem::daqmon::DaqMonitor::updateTRIGGERmain()
+{
+  DEBUG("DaqMonitor: Update TRIGGER main table");
+  req = wisc::RPCMsg("amc.getmonTRIGGERmain");
+  try {
+    rsp = rpc.call_method(req);
+  }
+  STANDARD_CATCH;
+  try{
+    if (rsp.get_key_exists("error")) {
+      ERROR("DAQ_TRIGGER_MAIN update error:" << rsp.get_string("error").c_str());
+      throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
+    } else {
+      auto monlist = m_monitorableSetsMap->find("DAQ_TRIGGER_MAIN")
+      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
+      }
+    }
+  }
+  STANDARD_CATCH;
+}
+
+void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
+{
+  DEBUG("DaqMonitor: Update TRIGGER OH main table");
+  req = wisc::RPCMsg("amc.getmonTRIGGEROHmain");
+  try {
+    rsp = rpc.call_method(req);
+  }
+  STANDARD_CATCH;
+  try{
+    if (rsp.get_key_exists("error")) {
+      ERROR("DAQ_TRIGGER_OH_MAIN update error:" << rsp.get_string("error").c_str());
+      throw xhal::utils::XHALException("DAQ_TRIGGER_OH_MAIN update failed");
+    } else {
+      auto monlist = m_monitorableSetsMap->find("DAQ_TRIGGER_OH_MAIN")
+      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
+      }
+    }
+  }
+  STANDARD_CATCH;
+}
+
+void gem::daqmon::DaqMonitor::updateOHmain()
+{
+  DEBUG("DaqMonitor: Update OH main table");
+  req = wisc::RPCMsg("amc.getmonOHmain");
+  try {
+    rsp = rpc.call_method(req);
+  }
+  STANDARD_CATCH;
+  try{
+    if (rsp.get_key_exists("error")) {
+      ERROR("OH_MAIN update error:" << rsp.get_string("error").c_str());
+      throw xhal::utils::XHALException("OH_MAIN update failed");
+    } else {
+      auto monlist = m_monitorableSetsMap->find("OH_MAIN")
+      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
+      }
+    }
+  }
+  STANDARD_CATCH;
+}
+
+void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out);
+{
+  out << "<div class=\"col-lg-6\">" << std::endl;
+  out << "<div class=\"panel panel-default\">" << std::endl;
+  out << "<div class=\"panel-heading\">" << std::endl;
+  out << "<h4 align=\"center\">" << std::endl;
+  out << "DAQ" << std::endl;
+  out << "</h4>" << std::endl;
+//FIXME add IEMASK later
+  out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
+  auto daqlist = NULL; //FIXME
+  for (auto daq: daqlist){
+    out << "    <tr>" << std::endl;
+    out << "    <td style=\"width:10%\">{{daq.0}}</td>" << std::endl;
+    out << "    {{daq.1}}" << std::endl;
+    out << "    </tr>" << std::endl;
+  }//FIXME: define the daqlist format, add a method to retrieve it, implement displaying in the loop
+  out << "</table>" << std::endl;
+  out << "<small>" << std::endl;
+  out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
+
+  out << "</div>" << std::endl; // end panel head
+  // There could be a panel body here
+  out << "</div>" << std::endl; // end panel
+  // There could be other elements in the column...
+  out << "</div>" << std::endl; // end column
+
+
+/*
+  out << "{% for daqoh in daqohlist %}" << std::endl;
+  out << "    <tr>" << std::endl;
+  out << "    <td style=\"width:10%\">{{daqoh.0}}</td>" << std::endl;
+  out << "    {{daqoh.1}}" << std::endl;
+  out << "    </tr>" << std::endl;
+  out << "{% endfor %}" << std::endl;
+  out << "</table>" << std::endl;
+  out << "</small>" << std::endl;
+*/
 }

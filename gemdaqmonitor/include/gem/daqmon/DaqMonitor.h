@@ -24,6 +24,12 @@ namespace gem {
       virtual ~DaqMonitor();
     
       virtual void updateMonitorables();
+      void updateDAQmain();
+      void updateDAQOHmain();
+      void updateTTCmain();
+      void updateTRIGGERmain();
+      void updateTRIGGEROHmain();
+      void updateOHmain();
       virtual void reset();
       void setupDaqMonitoring();
     
