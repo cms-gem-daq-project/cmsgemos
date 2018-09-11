@@ -321,7 +321,38 @@ void gem::daqmon::DaqMonitor::updateOHmain()
   STANDARD_CATCH;
 }
 
-void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out);
+void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
+{
+  DEBUG("DaqMonitor: Build DAQ main table");
+  std::vector<std::array<std::string,5>> daqlist;
+  daqlist.push_back({{"DAQ_ENABLE","YES","NO","success","warning"}});
+  daqlist.push_back({{"DAQ_LINK_READY","YES","NO","success","warning"}});
+  daqlist.push_back({{"DAQ_LINK_AFULL","YES","NO","warning","success"}});
+  daqlist.push_back({{"DAQ_OFIFO_HAD_OFLOW","YES","NO","danger","success"}});
+  daqlist.push_back({{"L1A_OFIFO_HAD_OFLOW","YES","NO","danger","success"}});
+
+  int val = 0;
+  auto daqmon_is = m_infoSpaceMap.find("DAQ_MONITORING")->first;
+  //auto monsets = m_infoSpaceMonitorableSetMap.find("DAQ_MONITORING")->second;
+  //auto monset  = m_monitorableSetsMap.find("DAQ_MAIN")->second;
+
+  out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
+  for (auto daq: daqlist) {
+    out << "    <tr>" << std::endl;
+    out << "    <td style=\"width:10%\">"<< daq[0] << "</td>" << std::endl;
+    val = daqmon_is->getInteger(daq[0]);
+    if (val>0) {
+      out << "<td><span class=\"label label-" << daq[3] << "\">" << daq[1] << "</span></td>\"" << std::endl;
+    } else {
+      out << "<td><span class=\"label label-" << daq[4] << "\">" << daq[2] << "</span></td>\"" << std::endl;
+    }
+    out << "    </tr>" << std::endl;
+  }
+
+  out << "</table>" << std::endl;
+}
+
+void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out)
 {
   out << "<div class=\"col-lg-6\">" << std::endl;
   out << "<div class=\"panel panel-default\">" << std::endl;
@@ -329,18 +360,10 @@ void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out);
   out << "<h4 align=\"center\">" << std::endl;
   out << "DAQ" << std::endl;
   out << "</h4>" << std::endl;
-//FIXME add IEMASK later
-  out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
-  auto daqlist = NULL; //FIXME
-  for (auto daq: daqlist){
-    out << "    <tr>" << std::endl;
-    out << "    <td style=\"width:10%\">{{daq.0}}</td>" << std::endl;
-    out << "    {{daq.1}}" << std::endl;
-    out << "    </tr>" << std::endl;
-  }//FIXME: define the daqlist format, add a method to retrieve it, implement displaying in the loop
-  out << "</table>" << std::endl;
-  out << "<small>" << std::endl;
-  out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
+  //FIXME add IEMASK later
+  buildDAQmainTable(out);
+  //out << "<small>" << std::endl;
+  //out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
 
   out << "</div>" << std::endl; // end panel head
   // There could be a panel body here
