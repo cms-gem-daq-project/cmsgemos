@@ -37,6 +37,8 @@ namespace gem {
        * @brief display the monitor items
        */
       void buildMonitorPage(xgi::Output* out);
+
+      void buildDAQmainTable(xgi::Output* out);
     
     protected:
       void init();
