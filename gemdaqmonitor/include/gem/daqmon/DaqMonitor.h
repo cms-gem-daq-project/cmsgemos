@@ -19,7 +19,7 @@ namespace gem {
        * @param optohybrid the HwOptoHybrid uhal device which is to be monitored
        * @param optohybridManager the manager application for the OptoHybrid to be monitored
        */
-      DaqMonitor(const std::string& board_domain_name);
+      DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, GEMApplication* gemApp, int const& index);
     
       virtual ~DaqMonitor();
     
@@ -39,9 +39,13 @@ namespace gem {
       void buildMonitorPage(xgi::Output* out);
 
       void buildDAQmainTable(xgi::Output* out);
+
+      typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
     
     protected:
       void init();
+    private:
+      is_toolbox_ptr is_daqmon;
     
     };  // class DaqMonitor
 
