@@ -1,50 +1,29 @@
 #
-# Makefile for gemhardware package
+# Makefile for gemdaqmonitor package
 #
 
+#Project=gem
 Project=cmsgemos
 ShortProject=gem
-Package=gemhardware
-LongPackage=gemhardware
-ShortPackage=hw
-PackageName=hw
+Package=gemdaqmonitor
+LongPackage=gemdaqmonitor
+ShortPackage=daqmon
+PackageName=daqmonitor
 
-GEMHARDWARE_VER_MAJOR=0
-GEMHARDWARE_VER_MINOR=99
-GEMHARDWARE_VER_PATCH=1
+GEMDAQMONITOR_VER_MAJOR=0
+GEMDAQMONITOR_VER_MINOR=2
+GEMDAQMONITOR_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
-include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
+
+Sources =version.cc
+
+DynamicLibrary=gemdaqmonitor
+
+IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
-
-.PHONY: devices managers _hackery
-
-_hackery:
-	if [[ -L Makefile ]]; \
-	then \
-	unlink Makefile; \
-	cp Makefile.progress Makefile; \
-	fi
-
-devices:
-	$(MAKE) _hackery
-	cp Makefile Makefile.progress
-	ln -sf Makefile.devices Makefile
-	$(MAKE); ret=$$?; \
-	$(MAKE) -f Makefile.progress _hackery; \
-	exit $$ret
-
-managers: devices
-	$(MAKE) _hackery
-	cp Makefile Makefile.progress
-	ln -sf Makefile.managers Makefile; \
-	$(MAKE); ret=$$?; \
-	$(MAKE) -f Makefile.progress _hackery; \
-	exit $$ret
-
-_all: devices managers
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
@@ -57,14 +36,3 @@ print-env:
 	@echo ROOTGLIBS     $(ROOTGLIBS)
 	@echo GIT_VERSION   $(GIT_VERSION)
 	@echo GEMDEVELOPER  $(GEMDEVELOPER)
-	@echo CC            $(CC)
-	@echo CPP           $(CPP)
-	@echo CXX           $(CXX)
-	@echo LD            $(LD)
-	@echo AR            $(AR)
-	@echo NM            $(NM)
-	@echo RANLIB        $(RANLIB)
-	@echo UserCFlags    $(UserCFlags)
-	@echo CCVERSION     $(CCVERSION)
-	@echo CLANGNUM      $(CLANGNUM)
-	@echo GCCNUM        $(GCCNUM)

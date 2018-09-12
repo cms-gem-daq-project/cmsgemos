@@ -11,11 +11,19 @@
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 //FIXME establish required arguments, eventually retrieve from the config
-gem::daqmon::DaqMonitor::DaqMonitor():
-  xhal::XHALInterface(board_domain_name),
+gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, GEMApplication* gemApp, int const& index):
+  xhal::XHALInterface(board_domain_name, logger),
+  gem::base::GEMMonitor::GEMMonitor(logger, gemApp, index)
 {
   this->loadModule("amc", "amc v1.0.1");
-  //updateMonitorables();
+  toolbox::net::URN hwCfgURN("urn:gem:hw:"+board_domain_name);
+  DEBUG("DaqMonitor::DaqMonitor:: infospace " << hwCfgURN.toString() << " does not exist, creating");
+  is_daqmon =  is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
+                                                                                   xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
+                                                                                   true));
+  addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(1,  0));
+  setupDaqMonitoring();
+  updateMonitorables();
 }
 
 void gem::daqmon::DaqMonitor::reconnect()
