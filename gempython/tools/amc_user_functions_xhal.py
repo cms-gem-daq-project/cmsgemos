@@ -11,6 +11,25 @@ import logging
 gMAX_RETRIES = 5
 gRetries = 5
 
+ohBoardTempArray = c_uint32 * 9 # Temperature Array
+class SCAMonitorParams(Structure):
+    _fields_ = [
+            ("ohBoardTemp", ohBoardTempArray),
+            ("ohFPGACoreTemp", c_uint32),
+            ("scaTemp", c_uint32),
+            ("AVCCN", c_uint32),
+            ("AVTTN", c_uint32),
+            ("voltage1V0_INT", c_uint32),
+            ("voltage1V8F", c_uint32),
+            ("voltage1V5", c_uint32),
+            ("voltage2V5_IO", c_uint32),
+            ("voltage3V0", c_uint32),
+            ("voltage1V8", c_uint32),
+            ("VTRX_RSSI2", c_uint32),
+            ("VTRX_RSSI1", c_uint32)
+            ]
+SCAMonitorArrayType = SCAMonitorParams * 12 # SCA Monitor Array
+
 class HwAMC(object):
     def __init__(self, cardName, debug=False):
         """
@@ -39,6 +58,11 @@ class HwAMC(object):
         self.readADCsMulti = self.lib.readVFAT3ADCMultiLink
         self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool ]
         self.readADCsMulti.restype = c_uint
+
+        # Define SCA Monitoring
+        self.getmonOHSCAmain = self.lib.getmonOHSCAmain
+        self.getmonOHSCAmain.argTypes = [ SCAMonitorArrayType, c_uint, c_uint ]
+        self.getmonOHSCAmain.restype = c_uint
 
         # Define Get OH Mask functionality
         self.getOHVFATMask = self.lib.getOHVFATMask
@@ -210,7 +234,7 @@ class HwAMC(object):
         else:
             return vfatMaskArray
 
-    def readAllADCsMulti(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF, debug=False):
+    def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF, debug=False):
         """
         Reads the ADC value from all unmasked VFATs
 
@@ -295,6 +319,32 @@ class HwAMC(object):
                 if debug: print "Read register result: %s" %(fin_res)
                 return fin_res
         return 0xdeaddead
+
+    def scaMonitorToggle(self, ohMask=0x0, debug=False):
+        """
+        Toggle the SCA Monitoring for OH's on this AMC
+
+        ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will suspend ADC monitoring on that SCA
+        """
+
+        self.writeRegister("GEM_AMC.SLOW_CONTROL.SCA.ADC_MONITORING.MONITORING_OFF",ohMask,debug)
+
+    def scaMonitorMultiLink(self, NOH=12, ohMask=0xfff):
+        """
+        v3 electronics only.
+        Reads SCA monitoring data for multiple links on the AMC
+
+        NOH - number of OH's on this AMC
+        ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will cause the SCA data to be monitored for this OH.
+        """
+
+        scaMonData = SCAMonitorArrayType()
+        rpcResp = self.getmonOHSCAmain(scaMonData, NOH, ohMask)
+
+        if rpcResp != 0:
+            raise Exception("RPC response was non-zero, reading SCA Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
+
+        return scaMonData
 
     def toggleTTCGen(self, ohN, enable):
         """
