@@ -37,7 +37,7 @@ class HwAMC(object):
         self.confDacMonitorMulti.restype = c_uint
 
         self.readADCsMulti = self.lib.readVFAT3ADCMultiLink
-        self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), c_uint, c_uint ]
+        self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool ]
         self.readADCsMulti.restype = c_uint
 
         # Define Get OH Mask functionality
@@ -210,7 +210,7 @@ class HwAMC(object):
         else:
             return vfatMaskArray
 
-    def readAllADCsMulti(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF):
+    def readAllADCsMulti(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF, debug=False):
         """
         Reads the ADC value from all unmasked VFATs
 
@@ -220,7 +220,17 @@ class HwAMC(object):
                  having a 1 in the N^th bit means to query the N^th optohybrid
         """
 
+        if debug:
+            print("getting vfatmasks for each OH")
+
         ohVFATMaskArray = self.getMultiLinkVFATMask(ohMask)
+        if debug:
+            print("| ohN | vfatmask |")
+            print("| :-: | :------: |")
+            for ohN in range(0,12):
+                mask = str(hex(ohVFATMaskArray[ohN])).strip('L')
+                print("| {0} | {1} |".format(ohN, mask))
+
         return self.readADCsMulti(ohMask,ohVFATMaskArray, adcDataAll, useExtRefADC)
 
     def readBlock(register, nwords, debug=False):
