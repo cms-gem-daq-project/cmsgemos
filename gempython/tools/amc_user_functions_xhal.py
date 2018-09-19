@@ -380,7 +380,7 @@ class HwAMC(object):
         if rpcResp != 0:
             raise Exception("RPC response was non-zero, reading Sysmon Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
 
-        return scaMonData
+        return sysmonData
 
     def toggleTTCGen(self, ohN, enable):
         """
