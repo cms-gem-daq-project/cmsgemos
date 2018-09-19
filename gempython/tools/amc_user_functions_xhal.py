@@ -30,6 +30,20 @@ class SCAMonitorParams(Structure):
             ]
 SCAMonitorArrayType = SCAMonitorParams * 12 # SCA Monitor Array
 
+class SysmonMonitorParams(Structure):
+    _fields_ = [
+            ("isOverTemp", c_bool),
+            ("isInVCCAuxAlarm", c_bool),
+            ("isInVCCIntAlarm", c_bool),
+            ("cntOverTemp", c_uint32),
+            ("cntVCCAuxAlarm", c_uint32),
+            ("cntVCCIntAlarm", c_uint32),
+            ("fpgaCoreTemp", c_uint32),
+            ("fpgaCore1V0", c_uint32),
+            ("fpgaCore2V5_IO", c_uint32)
+            ]
+SysmonMonitorArrayType = SysmonMonitorParams * 12 # Sysmon Monitor Array
+
 class HwAMC(object):
     def __init__(self, cardName, debug=False):
         """
@@ -59,10 +73,14 @@ class HwAMC(object):
         self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool ]
         self.readADCsMulti.restype = c_uint
 
-        # Define SCA Monitoring
+        # Define SCA & Sysmon Monitoring
         self.getmonOHSCAmain = self.lib.getmonOHSCAmain
         self.getmonOHSCAmain.argTypes = [ SCAMonitorArrayType, c_uint, c_uint ]
         self.getmonOHSCAmain.restype = c_uint
+
+        self.getmonOHSysmon = self.lib.getmonOHSysmon
+        self.getmonOHSysmon.argTypes = [ SysmonMonitorArrayType, c_uint, c_uint, c_bool ]
+        self.getmonOHSysmon.restype = c_uint
 
         # Define Get OH Mask functionality
         self.getOHVFATMask = self.lib.getOHVFATMask
@@ -343,6 +361,24 @@ class HwAMC(object):
 
         if rpcResp != 0:
             raise Exception("RPC response was non-zero, reading SCA Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
+
+        return scaMonData
+
+    def sysmonMonitorMultiLink(self, NOH=12, ohMask=0xfff, doReset=False):
+        """
+        v3 eletronics only.
+        Reads FPGA sysmon data for multiple links on the AMC
+
+        NOH - number of OH's on this AMC
+        ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will cause the SCA data to be monitored for this OH.
+        doReset - Resets the sysmon alarm counters (generally unwise)
+        """
+
+        sysmonData = SysmonMonitorArrayType()
+        rpcResp = self.getmonOHSysmon(sysmonData, NOH, ohMask, doReset)
+
+        if rpcResp != 0:
+            raise Exception("RPC response was non-zero, reading Sysmon Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
 
         return scaMonData
 
