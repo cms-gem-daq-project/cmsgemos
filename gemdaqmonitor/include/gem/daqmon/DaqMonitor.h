@@ -4,13 +4,17 @@
 #define GEM_DAQMON_DAQMONITOR_H
 
 #include "gem/base/GEMMonitor.h"
+#include "gem/base/GEMApplication.h"
 #include "xhal/rpc/utils.h"
 #include "xhal/XHALInterface.h"
 
 namespace gem {
+  namespace base {
+    class GEMApplication;
+  }
   namespace daqmon {
 
-    class DaqMonitor : public gem::base::GEMMonitor public xhal::XHALInterface
+    class DaqMonitor : public gem::base::GEMMonitor, public xhal::XHALInterface
     {
     public:
     
@@ -19,9 +23,11 @@ namespace gem {
        * @param optohybrid the HwOptoHybrid uhal device which is to be monitored
        * @param optohybridManager the manager application for the OptoHybrid to be monitored
        */
-      DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, GEMApplication* gemApp, int const& index);
+      DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, base::GEMApplication* gemApp, int const& index);
     
       virtual ~DaqMonitor();
+
+      virtual void reconnect();
     
       virtual void updateMonitorables();
       void updateDAQmain();
@@ -44,6 +50,7 @@ namespace gem {
     
     protected:
       void init();
+      static const int NOH=12;
     private:
       is_toolbox_ptr is_daqmon;
     
