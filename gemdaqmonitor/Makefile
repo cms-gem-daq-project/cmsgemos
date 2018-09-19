@@ -15,12 +15,19 @@ GEMDAQMONITOR_VER_MINOR=2
 GEMDAQMONITOR_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
-Sources =version.cc
+Sources =DaqMonitor.cc version.cc
 
 DynamicLibrary=gemdaqmonitor
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
+IncludeDirs+=/opt/xhal/include
+
+DependentLibraryDirs+=/opt/xhal/lib
+DependentLibraries+=xhal
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk

@@ -11,16 +11,16 @@
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 //FIXME establish required arguments, eventually retrieve from the config
-gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, GEMApplication* gemApp, int const& index):
+gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, gem::base::GEMApplication* gemApp, int const& index):
   xhal::XHALInterface(board_domain_name, logger),
   gem::base::GEMMonitor::GEMMonitor(logger, gemApp, index)
 {
   this->loadModule("amc", "amc v1.0.1");
   toolbox::net::URN hwCfgURN("urn:gem:hw:"+board_domain_name);
   DEBUG("DaqMonitor::DaqMonitor:: infospace " << hwCfgURN.toString() << " does not exist, creating");
-  is_daqmon =  is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
-                                                                                   xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
-                                                                                   true));
+  is_daqmon =  is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(p_gemApp,
+                                                                        xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
+                                                                        true));
   addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(1,  0));
   setupDaqMonitoring();
   updateMonitorables();
@@ -210,7 +210,7 @@ void gem::daqmon::DaqMonitor::updateDAQmain()
       ERROR("DAQ_MAIN update error:" << rsp.get_string("error").c_str());
       throw xhal::utils::XHALException("DAQ_MAIN update failed");
     } else {
-      auto monlist = m_monitorableSetsMap->find("DAQ_MAIN")
+      auto monlist = m_monitorableSetsMap.find("DAQ_MAIN");
       for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
       }
@@ -232,7 +232,7 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
       ERROR("DAQ_OH_MAIN update error:" << rsp.get_string("error").c_str());
       throw xhal::utils::XHALException("DAQ_OH_MAIN update failed");
     } else {
-      auto monlist = m_monitorableSetsMap->find("DAQ_OH_MAIN")
+      auto monlist = m_monitorableSetsMap.find("DAQ_OH_MAIN");
       for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
       }
@@ -254,7 +254,7 @@ void gem::daqmon::DaqMonitor::updateTTCmain()
       ERROR("DAQ_TTC_MAIN update error:" << rsp.get_string("error").c_str());
       throw xhal::utils::XHALException("DAQ_TTC_MAIN update failed");
     } else {
-      auto monlist = m_monitorableSetsMap->find("DAQ_TTC_MAIN")
+      auto monlist = m_monitorableSetsMap.find("DAQ_TTC_MAIN");
       for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
       }
@@ -276,7 +276,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
       ERROR("DAQ_TRIGGER_MAIN update error:" << rsp.get_string("error").c_str());
       throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
     } else {
-      auto monlist = m_monitorableSetsMap->find("DAQ_TRIGGER_MAIN")
+      auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_MAIN");
       for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
       }
@@ -298,7 +298,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
       ERROR("DAQ_TRIGGER_OH_MAIN update error:" << rsp.get_string("error").c_str());
       throw xhal::utils::XHALException("DAQ_TRIGGER_OH_MAIN update failed");
     } else {
-      auto monlist = m_monitorableSetsMap->find("DAQ_TRIGGER_OH_MAIN")
+      auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_OH_MAIN");
       for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
       }
@@ -320,7 +320,7 @@ void gem::daqmon::DaqMonitor::updateOHmain()
       ERROR("OH_MAIN update error:" << rsp.get_string("error").c_str());
       throw xhal::utils::XHALException("OH_MAIN update failed");
     } else {
-      auto monlist = m_monitorableSetsMap->find("OH_MAIN")
+      auto monlist = m_monitorableSetsMap.find("OH_MAIN");
       for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
       }
@@ -340,54 +340,55 @@ void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
   daqlist.push_back({{"L1A_OFIFO_HAD_OFLOW","YES","NO","danger","success"}});
 
   int val = 0;
-  auto daqmon_is = m_infoSpaceMap.find("DAQ_MONITORING")->first;
+  //auto daqmon_is = m_infoSpaceMap.find("DAQ_MONITORING")->first;
+  //auto daqmon_is = m_infoSpaceMap.find("DAQ_MONITORING")->second.first->infoSpace;
   //auto monsets = m_infoSpaceMonitorableSetMap.find("DAQ_MONITORING")->second;
   //auto monset  = m_monitorableSetsMap.find("DAQ_MAIN")->second;
 
-  out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
+  *out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
   for (auto daq: daqlist) {
-    out << "    <tr>" << std::endl;
-    out << "    <td style=\"width:10%\">"<< daq[0] << "</td>" << std::endl;
-    val = daqmon_is->getInteger(daq[0]);
+    *out << "    <tr>" << std::endl;
+    *out << "    <td style=\"width:10%\">"<< daq[0] << "</td>" << std::endl;
+    val = is_daqmon->getInteger(daq[0]);
     if (val>0) {
-      out << "<td><span class=\"label label-" << daq[3] << "\">" << daq[1] << "</span></td>\"" << std::endl;
+      *out << "<td><span class=\"label label-" << daq[3] << "\">" << daq[1] << "</span></td>\"" << std::endl;
     } else {
-      out << "<td><span class=\"label label-" << daq[4] << "\">" << daq[2] << "</span></td>\"" << std::endl;
+      *out << "<td><span class=\"label label-" << daq[4] << "\">" << daq[2] << "</span></td>\"" << std::endl;
     }
-    out << "    </tr>" << std::endl;
+    *out << "    </tr>" << std::endl;
   }
 
-  out << "</table>" << std::endl;
+  *out << "</table>" << std::endl;
 }
 
 void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out)
 {
-  out << "<div class=\"col-lg-6\">" << std::endl;
-  out << "<div class=\"panel panel-default\">" << std::endl;
-  out << "<div class=\"panel-heading\">" << std::endl;
-  out << "<h4 align=\"center\">" << std::endl;
-  out << "DAQ" << std::endl;
-  out << "</h4>" << std::endl;
+  *out << "<div class=\"col-lg-6\">" << std::endl;
+  *out << "<div class=\"panel panel-default\">" << std::endl;
+  *out << "<div class=\"panel-heading\">" << std::endl;
+  *out << "<h4 align=\"center\">" << std::endl;
+  *out << "DAQ" << std::endl;
+  *out << "</h4>" << std::endl;
   //FIXME add IEMASK later
   buildDAQmainTable(out);
   //out << "<small>" << std::endl;
   //out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
 
-  out << "</div>" << std::endl; // end panel head
+  *out << "</div>" << std::endl; // end panel head
   // There could be a panel body here
-  out << "</div>" << std::endl; // end panel
+  *out << "</div>" << std::endl; // end panel
   // There could be other elements in the column...
-  out << "</div>" << std::endl; // end column
+  *out << "</div>" << std::endl; // end column
 
 
 /*
-  out << "{% for daqoh in daqohlist %}" << std::endl;
-  out << "    <tr>" << std::endl;
-  out << "    <td style=\"width:10%\">{{daqoh.0}}</td>" << std::endl;
-  out << "    {{daqoh.1}}" << std::endl;
-  out << "    </tr>" << std::endl;
-  out << "{% endfor %}" << std::endl;
-  out << "</table>" << std::endl;
-  out << "</small>" << std::endl;
+  *out << "{% for daqoh in daqohlist %}" << std::endl;
+  *out << "    <tr>" << std::endl;
+  *out << "    <td style=\"width:10%\">{{daqoh.0}}</td>" << std::endl;
+  *out << "    {{daqoh.1}}" << std::endl;
+  *out << "    </tr>" << std::endl;
+  *out << "{% endfor %}" << std::endl;
+  *out << "</table>" << std::endl;
+  *out << "</small>" << std::endl;
 */
 }
