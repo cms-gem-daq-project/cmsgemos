@@ -12,18 +12,27 @@ typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
 //FIXME establish required arguments, eventually retrieve from the config
 gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, gem::base::GEMApplication* gemApp, int const& index):
-  xhal::XHALInterface(board_domain_name, logger),
-  gem::base::GEMMonitor::GEMMonitor(logger, gemApp, index)
+  gem::base::GEMMonitor::GEMMonitor(logger, gemApp, index),
+  //xhal::XHALInterface(board_domain_name, logger)
+  xhal::XHALInterface(board_domain_name)
 {
+  DEBUG("DaqMonitor::DaqMonitor:: entering constructor");
   this->loadModule("amc", "amc v1.0.1");
   toolbox::net::URN hwCfgURN("urn:gem:hw:"+board_domain_name);
   DEBUG("DaqMonitor::DaqMonitor:: infospace " << hwCfgURN.toString() << " does not exist, creating");
   is_daqmon =  is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(p_gemApp,
-                                                                        xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
+                                                                        hwCfgURN.toString(),
                                                                         true));
   addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(1,  0));
   setupDaqMonitoring();
   updateMonitorables();
+  DEBUG("gem::daqmon::DaqMonitor : constructor done");
+}
+
+gem::daqmon::DaqMonitor::~DaqMonitor()
+{
+  DEBUG("gem::daqmon::DaqMonitor : destructor called");
+//TODO
 }
 
 void gem::daqmon::DaqMonitor::reconnect()
@@ -37,6 +46,11 @@ void gem::daqmon::DaqMonitor::reconnect()
   }
 }
 
+void gem::daqmon::DaqMonitor::reset()
+{
+//TODO
+}
+
 void gem::daqmon::DaqMonitor::setupDaqMonitoring()
 {
   // create the values to be monitored in the info space
@@ -44,35 +58,45 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
   addMonitorableSet("DAQ_MAIN","DAQ_MONITORING");
   //FIXME review GEMUpdateType for the set
   //DAQ_MAIN monitorables
+  is_daqmon->createUInt32("DAQ_ENABLE",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("DAQ_ENABLE","GEM_AMC.DAQ.CONTROL.DAQ_ENABLE"),
                  GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("DAQ_LINK_READY",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("DAQ_LINK_READY","GEM_AMC.DAQ.STATUS.DAQ_LINK_RDY"),
                  GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("DAQ_LINK_AFULL",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("DAQ_LINK_AFULL","GEM_AMC.DAQ.STATUS.DAQ_LINK_AFULL"),
                  GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("DAQ_OFIFO_HAD_OFLOW",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("DAQ_OFIFO_HAD_OFLOW","GEM_AMC.DAQ.STATUS.DAQ_OUTPUT_FIFO_HAD_OVERFLOW"),
                  GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("L1A_FIFO_HAD_OFLOW",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("L1A_FIFO_HAD_OFLOW","GEM_AMC.DAQ.STATUS.L1A_FIFO_HAD_OVERFLOW"),
                  GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("L1A_FIFO_DATA_COUNT",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("L1A_FIFO_DATA_COUNT","GEM_AMC.DAQ.EXT_STATUS.L1A_FIFO_DATA_CNT"),
                  GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("DAQ_FIFO_DATA_COUNT",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("DAQ_FIFO_DATA_COUNT","GEM_AMC.DAQ.EXT_STATUS.DAQ_FIFO_DATA_CNT"),
                  GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("EVENT_SENT",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("EVENT_SENT","GEM_AMC.DAQ.EXT_STATUS.EVT_SENT"),
                  GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("TTS_STATE",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_MAIN", "DAQ_MONITORING",
                  std::make_pair("TTS_STATE","GEM_AMC.DAQ.STATUS.TTS_STATE"),
                  GEMUpdateType::HW32, "hex");
   //end of DAQ_MAIN monitorables
 
+/*----------------------------------------------------------------------------------------------------------
   addMonitorableSet("DAQ_OH_MAIN","DAQ_MONITORING");
   //DAQ_OH_MAIN monitorables
   //FIXME Putting "DUMMY" as reg full name at the moment. May want to define all tables here and pass as a list to RPC
@@ -182,6 +206,7 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
                  GEMUpdateType::HW32, "hex");
   }
   //end of OH_MAIN monitorables
+----------------------------------------------------------------------------------------------------------*/
 }
 
 void gem::daqmon::DaqMonitor::updateMonitorables()
@@ -189,11 +214,11 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
   DEBUG("DaqMonitor: Updating Monitorables");
   try {
     updateDAQmain();
-    updateDAQOHmain();
-    updateTTCmain();
-    updateTRIGGERmain();
-    updateTRIGGEROHmain();
-    updateOHmain();
+    //updateDAQOHmain();
+    //updateTTCmain();
+    //updateTRIGGERmain();
+    //updateTRIGGEROHmain();
+    //updateOHmain();
   } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
 }
 
@@ -337,7 +362,7 @@ void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
   daqlist.push_back({{"DAQ_LINK_READY","YES","NO","success","warning"}});
   daqlist.push_back({{"DAQ_LINK_AFULL","YES","NO","warning","success"}});
   daqlist.push_back({{"DAQ_OFIFO_HAD_OFLOW","YES","NO","danger","success"}});
-  daqlist.push_back({{"L1A_OFIFO_HAD_OFLOW","YES","NO","danger","success"}});
+  daqlist.push_back({{"L1A_FIFO_HAD_OFLOW","YES","NO","danger","success"}});
 
   int val = 0;
   //auto daqmon_is = m_infoSpaceMap.find("DAQ_MONITORING")->first;
@@ -349,11 +374,11 @@ void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
   for (auto daq: daqlist) {
     *out << "    <tr>" << std::endl;
     *out << "    <td style=\"width:10%\">"<< daq[0] << "</td>" << std::endl;
-    val = is_daqmon->getInteger(daq[0]);
+    val = is_daqmon->getUInt32(daq[0]);
     if (val>0) {
-      *out << "<td><span class=\"label label-" << daq[3] << "\">" << daq[1] << "</span></td>\"" << std::endl;
+      *out << "<td><span class=\"label label-" << daq[3] << "\">" << daq[1] << "</span></td>" << std::endl;
     } else {
-      *out << "<td><span class=\"label label-" << daq[4] << "\">" << daq[2] << "</span></td>\"" << std::endl;
+      *out << "<td><span class=\"label label-" << daq[4] << "\">" << daq[2] << "</span></td>" << std::endl;
     }
     *out << "    </tr>" << std::endl;
   }
