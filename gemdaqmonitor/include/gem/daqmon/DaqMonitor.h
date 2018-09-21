@@ -19,9 +19,11 @@ namespace gem {
     public:
     
       /**
-       * Constructor from GEMFSMApplication derived classes
-       * @param optohybrid the HwOptoHybrid uhal device which is to be monitored
-       * @param optohybridManager the manager application for the OptoHybrid to be monitored
+       * Constructor from GEMMonitor derived class
+       * @param board_domain_name The domain name of the AMC card
+       * @param optohybridManager logger Log4cplus logger
+       * @param gemApp Calling GEMApplication instance
+       * @param index Index
        */
       DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, base::GEMApplication* gemApp, int const& index);
     
@@ -53,6 +55,7 @@ namespace gem {
       static const int NOH=12;
     private:
       is_toolbox_ptr is_daqmon;
+      std::string is_name;
     
     };  // class DaqMonitor
 

@@ -17,7 +17,7 @@ GEMDAQMONITOR_VER_PATCH=0
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
-Sources =DaqMonitor.cc version.cc
+Sources =DaqMonitor.cc ShelfMonitor.cc ShelfMonitorWeb.cc version.cc
 
 DynamicLibrary=gemdaqmonitor
 
