@@ -161,7 +161,8 @@ bool gem::hw::optohybrid::HwOptoHybrid::isHwConnected()
     // FIXME IN FIRMWARE, need better check of connectivity...
     if ((this->getFirmwareDateString()).rfind("15") != std::string::npos ||
         (this->getFirmwareDateString()).rfind("16") != std::string::npos ||
-        (this->getFirmwareDateString()).rfind("17") != std::string::npos) {
+        (this->getFirmwareDateString()).rfind("17") != std::string::npos ||
+        (this->getFirmwareDateString()).rfind("18") != std::string::npos) {
       b_is_connected = true;
       INFO("OptoHybrid present ("
            << this->getFirmwareVersionString() << "/0x"
