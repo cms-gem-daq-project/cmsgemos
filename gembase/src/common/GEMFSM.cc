@@ -275,8 +275,8 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
 
   // the HCAL way
   std::string newStateName = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
-  // Once we get here, the state transition has been triggered. Notify
-  // the requestor of the new state.
+  // Once we get here, the state transition has been triggered.
+  // Notify the requestor of the new state.
   try {
     INFO("changeState::sending command " << commandName << " newStateName " << newStateName);
     return
