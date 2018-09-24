@@ -13,11 +13,16 @@ typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 //FIXME establish required arguments, eventually retrieve from the config
 gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, gem::base::GEMApplication* gemApp, int const& index):
   gem::base::GEMMonitor::GEMMonitor(logger, gemApp, index),
-  //xhal::XHALInterface(board_domain_name, logger)
-  xhal::XHALInterface(board_domain_name)
+  //xhal::XHALInterface(board_domain_name, logger) //FIXME: if using shared logger, then XHALInterface overtakes everything and logging from XDAQ doesn't go through
+  xhal::XHALInterface(board_domain_name) //Works as is, providing a bit messy logging, but with all info in place
 {
   DEBUG("DaqMonitor::DaqMonitor:: entering constructor");
-  this->loadModule("amc", "amc v1.0.1");
+  if (isConnected) { //TODO Add to the app monitoring space? Need to know in order to mask in web interface the boards which failed to connect
+    this->loadModule("amc", "amc v1.0.1");
+    DEBUG("DaqMonitor::DaqMonitor:: amc module loaded");
+  } else {
+    INFO("DaqMonitor::DaqMonitor:: RPC interface failed to connect");
+  }
   toolbox::net::URN hwCfgURN("urn:gem:hw:"+board_domain_name);
   DEBUG("DaqMonitor::DaqMonitor:: infospace " << hwCfgURN.toString() << " does not exist, creating");
   is_daqmon =  is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(p_gemApp,
