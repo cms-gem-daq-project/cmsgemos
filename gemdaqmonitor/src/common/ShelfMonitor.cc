@@ -76,13 +76,11 @@ void gem::daqmon::ShelfMonitor::init()
 {
   v_daqmon.clear();
   v_daqmon.reserve(NAMC);
-  //for (int i = 1; i <= 12; ++i)
-  for (int i = 3; i <= 3; ++i)
+  for (int i = 1; i <= 12; ++i)
   {
     char t_board_name[20];
     sprintf(t_board_name, "gem.shelf%02d.amc%02d", m_shelfID.value_, i);
     DEBUG("gem::daqmon::ShelfMonitor::init :  Domain name for the board " << std::dec << i << " : " << t_board_name);
-    //gem::daqmon::DaqMonitor tmp = gem::daqmon::DaqMonitor(t_board_name, this->getApplicationLogger(), this, i);
     v_daqmon.push_back(new gem::daqmon::DaqMonitor(t_board_name, this->getApplicationLogger(), this, i));
     DEBUG("gem::daqmon::ShelfMonitor::init : DaqMonitor pointer created");
   }

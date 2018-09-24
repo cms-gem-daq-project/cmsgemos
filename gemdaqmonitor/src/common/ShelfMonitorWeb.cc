@@ -34,12 +34,10 @@ void gem::daqmon::ShelfMonitorWeb::applicationPage(xgi::Input* in, xgi::Output* 
 {
   INFO("ShelfMonitorWeb::applicationPage");
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-  //for (unsigned int i = 0; i < NAMC; ++i){
-  for (unsigned int i = 3; i < 4; ++i){
-    //auto daqmon = dynamic_cast<gem::daqmon::ShelfMonitor*>(p_gemApp)->v_daqmon.at(i);
-    auto daqmon = dynamic_cast<gem::daqmon::ShelfMonitor*>(p_gemApp)->v_daqmon.at(0);
+  for (unsigned int i = 0; i < NAMC; ++i){
+    auto daqmon = dynamic_cast<gem::daqmon::ShelfMonitor*>(p_gemApp)->v_daqmon.at(i);
     if (daqmon) {
-      *out << "<div class=\"xdaq-tab\" title=\"AMC-" << i << "\" >"  << std::endl;
+      *out << "<div class=\"xdaq-tab\" title=\"AMC-" << i+1 << "\" >"  << std::endl;
       daqmon->buildMonitorPage(out);
       *out << "</div>" << std::endl;
     }
