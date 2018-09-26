@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<node id="top">
-  <node id="PULSE"  address="0x00"  mask="0x40"  permission="rw"
-	description="Bit 6 enables a calibration pulse to the channel"/>
-  <node id="MASK"   address="0x00"  mask="0x20"  permission="rw"
-	description="Bit 5 corresponds to the mask"/>
-  <node id="TRIM"   address="0x00"  mask="0x1f"  permission="rw"
-	description="Bits [4:0] correspond to the trimDAC setting"/>
-</node>

@@ -9,36 +9,42 @@ LongPackage=gemutils
 ShortPackage=utils
 PackageName=utils
 
-GEMUTILS_VER_MAJOR=0
-GEMUTILS_VER_MINOR=2
-GEMUTILS_VER_PATCH=1
+GEMUTILS_VER_MAJOR=1
+GEMUTILS_VER_MINOR=0
+GEMUTILS_VER_PATCH=0
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
-Sources+=Lock.cc gemXMLparser.cc GEMRegisterUtils.cc
+Sources+=Lock.cc GEMRegisterUtils.cc
 Sources+=soap/GEMSOAPToolBox.cc
 Sources+=db/GEMDatabaseUtils.cc
+# Sources+=gemXMLparser.cc
 
 DynamicLibrary=gemutils
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
-# MySQL Config
-MySQLCFLAGS = $(shell mysql_config --cflags)
-MySQLLIBS   = $(shell mysql_config --libs)
-MySQLGLIBS  = $(shell mysql_config --glibs)
-
 UserCFlags  +=$(MySQLCFLAGS)
 UserCCFlags +=$(MySQLCFLAGS)
+
+UserCFlags  +=$(PYTHONCFLAGS)
+UserCCFlags +=$(PYTHONCFLAGS)
 
 LibraryDirs+=$(MySQLLIBS)
 LibraryDirs+=$(MySQLGLIBS)
 
+LibraryDirs+=$(PYTHONLIBS)
+LibraryDirs+=$(PYTHONGLIBS)
+
 UserDynamicLinkFlags+=$(MySQLLIBS)
 
+UserDynamicLinkFlags+=$(PYTHONLIBS)
+
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

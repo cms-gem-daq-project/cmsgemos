@@ -144,6 +144,7 @@ namespace gem {
             xdata::Integer crateID;
             xdata::Integer slotID;
             xdata::Integer linkID;
+            xdata::String  cardName;
 
             // configuration parameters
             xdata::String controlHubAddress;
@@ -156,6 +157,7 @@ namespace gem {
 
             xdata::String            vfatBroadcastList;
             xdata::UnsignedInteger32 vfatBroadcastMask;
+
             xdata::String            vfatSBitList;
             xdata::UnsignedInteger32 vfatSBitMask;
 
@@ -177,6 +179,7 @@ namespace gem {
                  << "crateID:" << crateID.toString() << std::endl
                  << "slotID:"  << slotID.toString()  << std::endl
                  << "linkID:"  << linkID.toString()  << std::endl
+                 << "cardName:" << cardName.toString() << std::endl
 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
@@ -187,6 +190,8 @@ namespace gem {
 
                  << "vfatBroadcastList:"   << vfatBroadcastList.toString() << std::endl
                  << "vfatBroadcastMask:0x" << std::hex << vfatBroadcastMask.value_ << std::dec << std::endl
+                 << "vfatSBitList:"        << vfatSBitList.toString() << std::endl
+                 << "vfatSBitMask:0x"      << std::hex << vfatSBitMask.value_ << std::dec << std::endl
 
                  << "vfatSBitList:"   << vfatSBitList.toString() << std::endl
                  << "vfatSBitMask:0x" << std::hex << vfatSBitMask.value_ << std::dec << std::endl
@@ -237,6 +242,7 @@ namespace gem {
 	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
 
           std::map<int,std::set<int> > m_hwMapping;
+          std::map<std::string, uint8_t > m_vfatSettings;
         };  // class OptoHybridManager
 
     }  // namespace gem::hw::optohybrid

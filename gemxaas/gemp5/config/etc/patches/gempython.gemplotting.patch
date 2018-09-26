@@ -1,0 +1,37 @@
+diff --git a/mapping/chamberInfo.py b/mapping/chamberInfo.py
+index ffdd132..3b0d0d4 100644
+--- a/mapping/chamberInfo.py
++++ b/mapping/chamberInfo.py
+@@ -4,8 +4,8 @@ chamber_config = {
+     #Cosmic Stand
+     #0:"GE11-VI-L-CERN-0001"
+     #Point 5
+-    0:"GEMINIm01L1",
+-    1:"GEMINIm01L2",
++    # 0:"GEMINIm01L1",
++    # 1:"GEMINIm01L2",
+     2:"GEMINIm27L1",
+     3:"GEMINIm27L2",
+     4:"GEMINIm28L1",
+@@ -22,8 +22,8 @@ GEBtype = {
+     #Cosmic Stand
+     #0:"long"
+     #Point 5
+-    0:"short",
+-    1:"short",
++    # 0:"short",
++    # 1:"short",
+     2:"short",
+     3:"short",
+     4:"long",
+@@ -40,8 +40,8 @@ chamber_vfatMask = {
+     #Cosmic Stand
+     #0:0xF40400
+     #Point 5
+-    0:0x0,
+-    1:0x0,
++    # 0:0x0,
++    # 1:0x0,
+     2:0x0,
+     3:0x0,
+     4:0x0,

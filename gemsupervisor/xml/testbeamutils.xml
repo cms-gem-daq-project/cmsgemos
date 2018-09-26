@@ -3,11 +3,11 @@
 	      xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
 	      xmlns:xc="http://xdaq.web.cern.ch/xdaq/xsd/2004/XMLConfiguration-30">
 
-<xc:Context url="http://gem904daq01:5044">
+<xc:Context url="http://gem904daq01:4444">
 
     <xc:Application class="gem::supervisor::tbutils::ThresholdScan" id="254" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:ThresholdScan" xsi:type="soapenc:Struct">
-	<ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	<ipAddr xsi:type="xsd:string">192.168.0.171</ipAddr>
       </properties>
     </xc:Application>
 
@@ -21,7 +21,7 @@
 
     <xc:Application class="gem::supervisor::tbutils::LatencyScan" id="256" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:LatencyScan" xsi:type="soapenc:Struct">
-	  <ipAddr xsi:type="xsd:string">192.168.0.170</ipAddr>
+	  <ipAddr xsi:type="xsd:string">192.168.0.171</ipAddr>
 	  <confParams xsi:type="soapenc:Struct">
 	    <slotFileName xsi:type="xsd:string">slot_table.csv</slotFileName>
 	  </confParams>
@@ -34,15 +34,46 @@
 	<AMCSlots       xsi:type="xsd:string">10</AMCSlots>
 	<ConnectionFile xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	<AllGLIBsInfo xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[12]">
+          <!--
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="1"> <!- - position must be slot-1 - ->
+            <!- -GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"- ->
+            <crateID xsi:type="xsd:integer">1</crateID>
+            <slot    xsi:type="xsd:integer">2</slot>
+            <present xsi:type="xsd:boolean">true</present>
+            
+	    <CardName          xsi:type="xsd:string">gem.shelf01.ctp7-02</CardName>
+            <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.2.42</DeviceIPAddress>
+            <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
+            <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
+            <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
+            <IPBusPort         xsi:type="xsd:unsignedInt">50001</IPBusPort>
+          </GLIBInfo>
+          -->
+          <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="9"> <!-- position must be slot-1 -->
+            <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
+            <crateID xsi:type="xsd:integer">1</crateID>
+            <slot    xsi:type="xsd:integer">2</slot>
+            <present xsi:type="xsd:boolean">true</present>
+            
+	    <CardName          xsi:type="xsd:string">gem.shelf01.ctp7-02</CardName>
+            <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.2.42</DeviceIPAddress>
+            <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
+            <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
+            <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
+            <IPBusPort         xsi:type="xsd:unsignedInt">50001</IPBusPort>
+          </GLIBInfo>
+          -->
           <GLIBInfo   xsi:type="soapenc:Struct" soapenc:position="9"> <!-- position must be slot-1 -->
             <!--GLIBInfo xsi:type="xsd:Struct" soapenc:arrayType="xsd:Bag" soapenc:position="2"-->
             <crateID xsi:type="xsd:integer">1</crateID>
             <slot    xsi:type="xsd:integer">10</slot>
             <present xsi:type="xsd:boolean">true</present>
-            
+
 	    <!-- <CardName          xsi:type="xsd:string"></CardName> -->
             <ControlHubAddress xsi:type="xsd:string">localhost</ControlHubAddress>
-            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.170</DeviceIPAddress>
+            <DeviceIPAddress   xsi:type="xsd:string">192.168.0.171</DeviceIPAddress>
             <IPBusProtocol     xsi:type="xsd:string">2.0</IPBusProtocol>
             <AddressTable      xsi:type="xsd:string">glib_address_table.xml</AddressTable>
             <ControlHubPort    xsi:type="xsd:unsignedInt">10203</ControlHubPort>
@@ -78,14 +109,14 @@
         <amc13ConfigParams xsi:type="soapenc:Struct">
           <ConnectionFile     xsi:type="xsd:string">connections_ch.xml</ConnectionFile>
 	  <CardName     xsi:type="xsd:string">gem.shelf01.amc13</CardName>
-          <AMCInputEnableList xsi:type="xsd:string">10</AMCInputEnableList>
-          <AMCIgnoreTTSList   xsi:type="xsd:string">1-19,11-15 </AMCIgnoreTTSList>
-          
+          <AMCInputEnableList xsi:type="xsd:string">2</AMCInputEnableList>
+          <AMCIgnoreTTSList   xsi:type="xsd:string">1,3-15 </AMCIgnoreTTSList>
+
           <EnableDAQLink       xsi:type="xsd:boolean">false</EnableDAQLink>
           <EnableFakeData      xsi:type="xsd:boolean">false</EnableFakeData>
           <MonitorBackPressure xsi:type="xsd:boolean">false</MonitorBackPressure>
           <EnableLocalTTC      xsi:type="xsd:boolean">false</EnableLocalTTC>
-          
+
           <LocalTriggerConfig xsi:type="soapenc:Struct">
             <EnableLocalL1A         xsi:type="xsd:boolean">false</EnableLocalL1A>
             <InternalPeriodicPeriod xsi:type="xsd:unsignedInt">1000</InternalPeriodicPeriod>
@@ -95,7 +126,7 @@
 	    <sendL1ATriburst        xsi:type="xsd:boolean">false</sendL1ATriburst>
 	    <startL1ATricont        xsi:type="xsd:boolean">false</startL1ATricont>
           </LocalTriggerConfig>
-          
+
           <BGOConfig xsi:type="soapenc:Array"  soapenc:arrayType="xsd:ur-type[4]">
             <BGOInfo xsi:type="soapenc:Struct" soapenc:position="0">
 	      <BGOChannel  xsi:type="xsd:integer">0</BGOChannel>
@@ -105,14 +136,14 @@
 	      <BGOrepeat   xsi:type="xsd:boolean">true</BGOrepeat>
             </BGOInfo>
           </BGOConfig>
-          
+
           <PrescaleFactor xsi:type="xsd:integer">0</PrescaleFactor>
           <BCOffset       xsi:type="xsd:integer">1</BCOffset>
-          
+
           <FEDID    xsi:type="xsd:unsignedInt">1</FEDID>
           <SFPMask  xsi:type="xsd:unsignedInt">1</SFPMask>
           <SlotMask xsi:type="xsd:unsignedInt">1</SlotMask>
-          
+
           <!--LocalL1AMask xsi:type="xsd:unsignedLong">1</LocalL1AMask-->
         </amc13ConfigParams>
       </properties>
@@ -140,10 +171,6 @@
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemsupervisor/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemsupervisor.so</xc:Module>
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemhardware/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemhardware.so</xc:Module>
     <xc:Module>${BUILD_HOME}/${GEM_OS_PROJECT}/gemreadout/lib/${XDAQ_OS}/${XDAQ_PLATFORM}/libgemreadout.so</xc:Module>
-
-
-   
-
 
   </xc:Context>
 </xc:Partition>

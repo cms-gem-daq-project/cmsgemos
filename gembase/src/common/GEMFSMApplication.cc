@@ -164,20 +164,27 @@ gem::base::GEMFSMApplication::GEMFSMApplication(xdaq::ApplicationStub* stub)
 
 gem::base::GEMFSMApplication::~GEMFSMApplication()
 {
-  DEBUG("GEMFSMApplication::dtor begin");
-  DEBUG("GEMFSMApplication::dtor end");
+  std::string msgBase = "[GEMFSMApplication::~GEMFSMApplication] ";
+  DEBUG(msgBase << "Begin");
+  DEBUG(msgBase << "End");
 }
 
 /**hyperdaq callbacks*/
 void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* out)
 {
-  DEBUG("GEMFSMApplication::xgiInitialize begin");
+  std::string msgBase = "[GEMFSMApplication::xgiInitialize] ";
+  DEBUG(msgBase << "Begin");
   if (b_accept_web_commands) {
     try {
       DEBUG("GEMFSMApplication::xgiInitialize::Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
-      XCEPT_RETHROW( xgi::exception::Exception, "Initialize failed", e );
+      std::stringstream msg, errmsg;
+      // msg << read in soap fault?
+      m_stateMessage = msg.str();
+      errmsg << "GEMFSMApplication::xgiInitialize Initialize failed: " << msg;
+      ERROR(errmsg.str());
+      XCEPT_RETHROW(xgi::exception::Exception, errmsg.str(), e);
     }
   }
   DEBUG("GEMFSMApplication::xgiInitialize end");
@@ -185,9 +192,10 @@ void gem::base::GEMFSMApplication::xgiInitialize(xgi::Input* in, xgi::Output* ou
 
 void gem::base::GEMFSMApplication::xgiConfigure(xgi::Input* in, xgi::Output* out)
 {
+  std::string msgBase = "[GEMFSMApplication::xgiConfigure] ";
   if (b_accept_web_commands) {
     try {
-      DEBUG("GEMFSMApplication::Sending SOAP command to application");
+      DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Configure", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
       XCEPT_RETHROW( xgi::exception::Exception, "Configure failed", e );
@@ -197,9 +205,10 @@ void gem::base::GEMFSMApplication::xgiConfigure(xgi::Input* in, xgi::Output* out
 
 void gem::base::GEMFSMApplication::xgiStart(xgi::Input* in, xgi::Output* out)
 {
+  std::string msgBase = "[GEMFSMApplication::xgiStart] ";
   if (b_accept_web_commands) {
     try {
-      DEBUG("GEMFSMApplication::Sending SOAP command to application");
+      DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Start", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
       XCEPT_RETHROW( xgi::exception::Exception, "Start failed", e );
@@ -209,9 +218,10 @@ void gem::base::GEMFSMApplication::xgiStart(xgi::Input* in, xgi::Output* out)
 
 void gem::base::GEMFSMApplication::xgiStop(xgi::Input* in, xgi::Output* out)
 {
+  std::string msgBase = "[GEMFSMApplication::xgiStop] ";
   if (b_accept_web_commands) {
     try {
-      DEBUG("GEMFSMApplication::Sending SOAP command to application");
+      DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
       XCEPT_RETHROW( xgi::exception::Exception, "Stop failed", e );
@@ -221,9 +231,10 @@ void gem::base::GEMFSMApplication::xgiStop(xgi::Input* in, xgi::Output* out)
 
 void gem::base::GEMFSMApplication::xgiPause(xgi::Input* in, xgi::Output* out)
 {
+  std::string msgBase = "[GEMFSMApplication::xgiPause] ";
   if (b_accept_web_commands) {
     try {
-      DEBUG("GEMFSMApplication::Sending SOAP command to application");
+      DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Pause", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
       XCEPT_RETHROW( xgi::exception::Exception, "Pause failed", e );
@@ -233,9 +244,10 @@ void gem::base::GEMFSMApplication::xgiPause(xgi::Input* in, xgi::Output* out)
 
 void gem::base::GEMFSMApplication::xgiResume(xgi::Input* in, xgi::Output* out)
 {
+  std::string msgBase = "[GEMFSMApplication::xgiResume] ";
   if (b_accept_web_commands) {
     try {
-      DEBUG("GEMFSMApplication::Sending SOAP command to application");
+      DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
       XCEPT_RETHROW( xgi::exception::Exception, "Resume failed", e );
@@ -245,9 +257,10 @@ void gem::base::GEMFSMApplication::xgiResume(xgi::Input* in, xgi::Output* out)
 
 void gem::base::GEMFSMApplication::xgiHalt(xgi::Input* in, xgi::Output* out)
 {
+  std::string msgBase = "[GEMFSMApplication::xgiHalt] ";
   if (b_accept_web_commands) {
     try {
-      DEBUG("GEMFSMApplication::Sending SOAP command to application");
+      DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
       XCEPT_RETHROW( xgi::exception::Exception, "Halt failed", e );
@@ -257,9 +270,10 @@ void gem::base::GEMFSMApplication::xgiHalt(xgi::Input* in, xgi::Output* out)
 
 void gem::base::GEMFSMApplication::xgiReset(xgi::Input* in, xgi::Output* out)
 {
+  std::string msgBase = "[GEMFSMApplication::xgiReset] ";
   if (b_accept_web_commands) {
     try {
-      DEBUG("GEMFSMApplication::Sending SOAP command to application");
+      DEBUG(msgBase << "Sending SOAP command to application");
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset", p_appContext, p_appDescriptor, p_appDescriptor);
     } catch (toolbox::fsm::exception::Exception& e ) {
       XCEPT_RETHROW( xgi::exception::Exception, "Reset failed", e );
@@ -277,13 +291,14 @@ void gem::base::GEMFSMApplication::jsonStateUpdate(xgi::Input* in, xgi::Output* 
 /**state transitions*/
 void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference event)
 {
+  std::string msgBase = "[GEMFSMApplication::transitionDriver] ";
   // set a transition message to ""
-  DEBUG("GEMFSMApplication::transitionDriver(" << event->type() << ")");
+  DEBUG(msgBase << "(" << event->type() << ")");
   try {
     if (event->type() == "Initialize" || event->type() == "Configure" || event->type() == "Start"  ||
         event->type() == "Stop"       || event->type() == "Pause"     || event->type() == "Resume" ||
         event->type() == "Halt"       || event->type() == "Reset" ) {
-      DEBUG("GEMFSMApplication::transitionDriver::submitting workloopDriver(" << event->type() << ")");
+      DEBUG(msgBase << "submitting workloopDriver(" << event->type() << ")");
       workloopDriver(event->type());
       // does this preclude the future "success" message at the end of the catch block?
       return;
@@ -291,16 +306,16 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
                event->type() == "IsRunning" || event->type() == "IsPaused"     ||
                event->type() == "IsHalted") {
       // report success
-      DEBUG("GEMFSMApplication::transitionDriver::Recieved confirmation that state changed to " << event->type());
+      DEBUG(msgBase << "Recieved confirmation that state changed to " << event->type());
     } else if (event->type() == "Fail" || event->type() == "fail") {
       // do nothing for the fail action
-      DEBUG("GEMFSMApplication::Recieved fail event type");
+      DEBUG(msgBase << "Recieved fail event type");
     } else {
-      DEBUG("GEMFSMApplication::Unknown transition command");
+      DEBUG(msgBase << "Unknown transition command");
       XCEPT_RAISE(toolbox::fsm::exception::Exception, "Unknown transition command");
     }
   } catch (gem::utils::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::Caught gem::utils::exception::Exception");
+    ERROR(msgBase << "Caught gem::utils::exception::Exception");
     fireEvent("Fail");
     // set a transition message to ex.what()
     XCEPT_RETHROW(toolbox::fsm::exception::Exception, "State Transition Failed", ex);
@@ -320,13 +335,14 @@ void gem::base::GEMFSMApplication::transitionDriver(toolbox::Event::Reference ev
 
 void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
 {
-  DEBUG("GEMFSMApplication::workloopDriver begin");
+  std::string msgBase = "[GEMFSMApplication::workloopDriver] ";
+  DEBUG(msgBase << "workloopDriver begin");
   try {
     toolbox::task::WorkLoopFactory* wlf  = toolbox::task::WorkLoopFactory::getInstance();
-    DEBUG("GEMFSMApplication::Trying to access the workloop with name " << workLoopName);
+    DEBUG(msgBase << "Trying to access the workloop with name " << workLoopName);
     toolbox::task::WorkLoop*        loop = wlf->getWorkLoop(workLoopName, "waiting");
     if (!loop->isActive()) loop->activate();
-    DEBUG("GEMFSMApplication::Workloop should now be active");
+    DEBUG(msgBase << "Workloop should now be active");
 
     if      (command == "Initialize") loop->submit(m_initSig  );
     else if (command == "Configure")  loop->submit(m_confSig  );
@@ -336,7 +352,7 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
     else if (command == "Resume")     loop->submit(m_resumeSig);
     else if (command == "Halt")       loop->submit(m_haltSig  );
     else if (command == "Reset")      loop->submit(m_resetSig );
-    DEBUG("GEMFSMApplication::Workloop should now be submitted");
+    DEBUG(msgBase << "Workloop should now be submitted");
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMFSMApplication::workloopDriver Workloop failure (gem::utils::exception)";
@@ -350,13 +366,14 @@ void gem::base::GEMFSMApplication::workloopDriver(std::string const& command)
   }
   updateState();
   // gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace, "State", m_stateName.toString());
-  DEBUG("GEMFSMApplication::workloopDriver end");
+  DEBUG(msgBase << "workloopDriver end");
 }
 
 void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
 {
+  std::string msgBase = "[GEMFSMApplication::resetAction] ";
   // need to ensure that this is called from every derived class?
-  DEBUG("GEMFSMApplication::resetAction(" << event->type() << ")");
+  DEBUG(msgBase << "resetAction(" << event->type() << ")");
   // should only enter this function on reciept of a "Reset" event
 
   // reset the monitor, check for validity?
@@ -370,7 +387,7 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
 
   // should probably do much more than this...
   // really, doe we need this here?
-  INFO("GEMFSMApplication::Firing 'IsInitial' into the FSM");
+  INFO(msgBase << "Firing 'IsInitial' into the FSM");
   fireEvent("IsInitial");
   updateState();
   // gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace, "State", m_stateName.toString());
@@ -384,21 +401,24 @@ void gem::base::GEMFSMApplication::resetAction(toolbox::Event::Reference event)
 
 void gem::base::GEMFSMApplication::stateChanged(toolbox::fsm::FiniteStateMachine &fsm)
 {
-  INFO("GEMFSMApplication::stateChanged");
+  std::string msgBase = "[GEMFSMApplication::stateChanged] ";
+  INFO(msgBase << "stateChanged");
   updateState();
   // gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace, "State", m_stateName.toString());
 }
 
 void gem::base::GEMFSMApplication::transitionFailed(toolbox::Event::Reference event)
 {
-  WARN("GEMFSMApplication::transitionFailed(" <<event->type() << ")");
+  std::string msgBase = "[GEMFSMApplication::transitionFailed] ";
+  WARN(msgBase << "transitionFailed(" <<event->type() << ")");
   updateState();
   // gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace, "State", m_stateName.toString());
 }
 
 void gem::base::GEMFSMApplication::fireEvent(std::string event)
 {
-  INFO("GEMFSMApplication::fireEvent(" << event << ")");
+  std::string msgBase = "[GEMFSMApplication::fireEvent] ";
+  INFO(msgBase << "fireEvent(" << event << ")");
   try {
     toolbox::Event::Reference e(new toolbox::Event(event, this));
     m_gemfsm.fireEvent(e);
@@ -416,7 +436,8 @@ void gem::base::GEMFSMApplication::fireEvent(std::string event)
 // xdaq::Application.
 xoap::MessageReference gem::base::GEMFSMApplication::changeState(xoap::MessageReference msg)
 {
-  DEBUG("GEMFSMApplication::changeState");
+  std::string msgBase = "[GEMFSMApplication::changeState] ";
+  DEBUG(msgBase << "changeState");
   updateState();
   // gem::base::utils::GEMInfoSpaceToolBox::setString(p_appInfoSpace, "State", m_stateName.toString());
   return m_gemfsm.changeState(msg);
@@ -425,60 +446,79 @@ xoap::MessageReference gem::base::GEMFSMApplication::changeState(xoap::MessageRe
 /** workloop driven transitions*/
 bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
 {
+  std::string msgBase = "[GEMFSMApplication::initialize] ";
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::initialize called, current state: " << m_gemfsm.getCurrentState());
+  INFO(msgBase << "initialize called, current state: " << m_gemfsm.getCurrentState());
   // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_INITIALIZING)) {  // deal with possible race condition
   while ((m_gemfsm.getCurrentFSMState()) != STATE_INITIALIZING) {  // deal with possible race condition
-    DEBUG("GEMFSMApplication::not in " << STATE_INITIALIZING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
-    usleep(100);
+    DEBUG(msgBase << "not in " << STATE_INITIALIZING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
+    usleep(10);
   }
-  DEBUG("GEMFSMApplication::initialize called, current state: " << m_gemfsm.getCurrentState());
+  DEBUG(msgBase << "initialize called, current state: " << m_gemfsm.getCurrentState());
 
   p_gemWebInterface->buildCfgWebpage();  // Set up the basic config web page from the GEMWebApplication
 
   m_progress = 0.0;
   try {
-    DEBUG("GEMFSMApplication::Calling initializeAction");
+    DEBUG(msgBase << "Calling initializeAction");
     this->initializeAction();
-    DEBUG("GEMFSMApplication::Finished initializeAction");
+    DEBUG(msgBase << "Finished initializeAction");
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in initialize gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "Caught gem::utils::exception: " << ex.what();
+    ERROR(msgBase << msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::initialize caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "Caught toolbox::task::exception: " << ex.what();
+    ERROR(msgBase << msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in initialize, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "Malformed URN: " << ex.what();
+    ERROR(msgBase << msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in initialize, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "Caught std::exception: " << ex.what();
+    ERROR(msgBase << msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (...) {
-    ERROR("GEMFSMApplication::Error in initialize, unknown exception");
+    std::stringstream msg;
+    msg << "Caught other exception";
+    ERROR(msgBase << msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  if (p_gemMonitor) {
+  if (p_gemMonitor && !m_disableMonitoring) {
     // start timers?
-    DEBUG("GEMFSMApplication::initialize found p_gemMonitor pointer, starting monitoring");
+    DEBUG(msgBase << "initialize found p_gemMonitor pointer, starting monitoring");
     try {
       p_gemMonitor->startMonitoring();
     } catch (toolbox::task::exception::Exception const& ex) {
       WARN("Unable to start monitoring " << ex.what());
     }
   }
-  INFO("GEMFSMApplication::Firing 'IsHalted' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::initialize Firing 'IsHalted' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   m_progress = 1.0;
   fireEvent("IsHalted");
   m_wl_semaphore.give();
@@ -487,13 +527,25 @@ bool gem::base::GEMFSMApplication::initialize(toolbox::task::WorkLoop *wl)
 
 bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
 {
+  std::string msgBase = "[GEMFSMApplication::configure] ";
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::configure called, current state: " << m_gemfsm.getCurrentState());
+  INFO(msgBase << "Called, current state: " << m_gemfsm.getCurrentState());
+
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
+
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_CONFIGURING)) {  // deal with possible race condition
-    DEBUG("GEMFSMApplication::not in " << STATE_CONFIGURING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
-    usleep(100);
+    DEBUG(msgBase << "Not in " << STATE_CONFIGURING << " sleeping (" << m_gemfsm.getCurrentState() << ")");
+    usleep(10);
   }
-  DEBUG("GEMFSMApplication::configure called, current state: " << m_gemfsm.getCurrentState());
+  DEBUG(msgBase << "Called, current state: " << m_gemfsm.getCurrentState());
 
   try {
     m_progress = 0.0;
@@ -501,28 +553,61 @@ bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in configure gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "Caught gem::utils::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::configure caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "Caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in configure, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in configure, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsConfigured' into the FSM");
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
+
+  std::stringstream msg;
+  msg << "Firing 'IsConfigured' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsConfigured");
   m_wl_semaphore.give();
   return false;
@@ -530,12 +615,24 @@ bool gem::base::GEMFSMApplication::configure(toolbox::task::WorkLoop *wl)
 
 bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
 {
+  std::string msgBase = "[GEMFSMApplication::start] ";
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::start called, current state: " << m_gemfsm.getCurrentState());
+  INFO(msgBase << "start called, current state: " << m_gemfsm.getCurrentState());
+
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
+
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_STARTING)) {  // deal with possible race condition
-    usleep(100);
+    usleep(10);
   }
-  DEBUG("GEMFSMApplication::start called, current state: " << m_gemfsm.getCurrentState());
+  DEBUG(msgBase << "start called, current state: " << m_gemfsm.getCurrentState());
 
   try {
     m_progress = 0.0;
@@ -543,28 +640,51 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in start gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start caught gem::utils::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::start caught toolbox::task::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in start, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in start, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::start caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsRunning' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::start Firing 'IsRunning' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsRunning");
   m_wl_semaphore.give();
   return false;
@@ -572,12 +692,24 @@ bool gem::base::GEMFSMApplication::start(toolbox::task::WorkLoop *wl)
 
 bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
 {
+  std::string msgBase = "[GEMFSMApplication::pause] ";
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::pause called, current state: " << m_gemfsm.getCurrentState());
+  INFO(msgBase << "pause called, current state: " << m_gemfsm.getCurrentState());
+
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
+
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_PAUSING)) {  // deal with possible race condition
-    usleep(100);
+    usleep(10);
   }
-  DEBUG("GEMFSMApplication::pause called, current state: " << m_gemfsm.getCurrentState());
+  DEBUG(msgBase << "pause called, current state: " << m_gemfsm.getCurrentState());
 
   try {
     m_progress = 0.0;
@@ -585,28 +717,61 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in pause gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause gem::utils::exception " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::pause caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in pause, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in pause, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::pause caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsPaused' into the FSM");
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
+
+  std::stringstream msg;
+  msg << "GEMFSMApplication::pause Firing 'IsPaused' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsPaused");
   m_wl_semaphore.give();
   return false;
@@ -614,12 +779,24 @@ bool gem::base::GEMFSMApplication::pause(toolbox::task::WorkLoop *wl)
 
 bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
 {
+  std::string msgBase = "[GEMFSMApplication::resume] ";
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::resume called, current state: " << m_gemfsm.getCurrentState());
+  INFO(msgBase << "resume called, current state: " << m_gemfsm.getCurrentState());
+
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
+
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_RESUMING)) {  // deal with possible race condition
-    usleep(100);
+    usleep(10);
   }
-  DEBUG("GEMFSMApplication::resume called, current state: " << m_gemfsm.getCurrentState());
+  DEBUG(msgBase << "resume called, current state: " << m_gemfsm.getCurrentState());
 
   try {
     m_progress = 0.0;
@@ -627,28 +804,61 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in resume gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume gem::utils::exception " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::resume caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in resume, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in resume, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::resume caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsRunning' into the FSM");
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
+
+  std::stringstream msg;
+  msg << "GEMFSMApplication::resume Firing 'IsRunning' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsRunning");
   m_wl_semaphore.give();
   return false;
@@ -656,12 +866,24 @@ bool gem::base::GEMFSMApplication::resume(toolbox::task::WorkLoop *wl)
 
 bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
 {
+  std::string msgBase = "[GEMFSMApplication::stop] ";
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::stop called, current state: " << m_gemfsm.getCurrentState());
+  INFO(msgBase << "stop called, current state: " << m_gemfsm.getCurrentState());
+
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
+
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_STOPPING)) {  // deal with possible race condition
-    usleep(100);
+    usleep(10);
   }
-  DEBUG("GEMFSMApplication::stop called, current state: " << m_gemfsm.getCurrentState());
+  DEBUG(msgBase << "stop called, current state: " << m_gemfsm.getCurrentState());
 
   try {
     m_progress = 0.0;
@@ -669,28 +891,61 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in stop gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop gem::utils::exception " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::stop caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in stop, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in stop, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::stop caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsConfigured' into the FSM");
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
+
+  std::stringstream msg;
+  msg << "GEMFSMApplication::stop Firing 'IsConfigured' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsConfigured");
   m_wl_semaphore.give();
   return false;
@@ -698,12 +953,24 @@ bool gem::base::GEMFSMApplication::stop(toolbox::task::WorkLoop *wl)
 
 bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
 {
+  std::string msgBase = "[GEMFSMApplication::halt] ";
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::halt called, current state: " << m_gemfsm.getCurrentState());
+  INFO(msgBase << "halt called, current state: " << m_gemfsm.getCurrentState());
+
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // pause timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, pausing monitoring");
+  //   try {
+  //     p_gemMonitor->pauseMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to pause monitoring " << ex.what());
+  //   }
+  // }
+
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_HALTING)) {  // deal with possible race condition
-    usleep(100);
+    usleep(10);
   }
-  DEBUG("GEMFSMApplication::halt called, current state: " << m_gemfsm.getCurrentState());
+  DEBUG(msgBase << "halt called, current state: " << m_gemfsm.getCurrentState());
 
   try {
     m_progress = 0.0;
@@ -711,28 +978,61 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in halt gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt gem::utils::exception " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::halt caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in halt, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in halt, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::halt caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsHalted' into the FSM");
+  // if (p_gemMonitor && !m_disableMonitoring) {
+  //   // resume timers?
+  //   DEBUG(msgBase << "initialize found p_gemMonitor pointer, resuming monitoring");
+  //   try {
+  //     p_gemMonitor->resumeMonitoring();
+  //   } catch (toolbox::task::exception::Exception const& ex) {
+  //     WARN("Unable to resume monitoring " << ex.what());
+  //   }
+  // }
+
+  std::stringstream msg;
+  msg << "GEMFSMApplication::halt Firing 'IsHalted' into the FSM";
+  INFO(msg.str());
+  m_stateMessage = msg.str();
   fireEvent("IsHalted");
   m_wl_semaphore.give();
   return false;
@@ -740,12 +1040,13 @@ bool gem::base::GEMFSMApplication::halt(toolbox::task::WorkLoop *wl)
 
 bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
 {
+  std::string msgBase = "[GEMFSMApplication::reset] ";
   m_wl_semaphore.take();
-  DEBUG("GEMFSMApplication::reset called, current state: " << m_gemfsm.getCurrentState());
+  INFO(msgBase << "reset called, current state: " << m_gemfsm.getCurrentState());
   while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(STATE_RESETTING)) {  // deal with possible race condition
-    usleep(100);
+    usleep(10);
   }
-  DEBUG("GEMFSMApplication::reset called, current state: " << m_gemfsm.getCurrentState());
+  DEBUG(msgBase << "reset called, current state: " << m_gemfsm.getCurrentState());
 
   try {
     m_progress = 0.0;
@@ -756,7 +1057,7 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     if (p_gemMonitor) {
       // reset the monitor, check for validity?
       // stops timers, removes items from json updates?
-      DEBUG("GEMFSMApplication::reset found p_gemMonitor pointer, stopping monitoring");
+      DEBUG(msgBase << "reset found p_gemMonitor pointer, stopping monitoring");
       try {
         // even this prevents the state table from being updated, so either need a
         // separate monitor for the supervisor, or remove this call
@@ -776,28 +1077,50 @@ bool gem::base::GEMFSMApplication::reset(toolbox::task::WorkLoop *wl)
     p_gemWebInterface->buildCfgWebpage();  // complete, so re render the config web page
     m_progress = 1.0;
   } catch (gem::utils::exception::Exception const& ex) {
-    ERROR("GEMFSMApplication::Error in reset gem::utils::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset gem::utils::exception " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::task::exception::Exception& ex) {
-    ERROR("GEMFSMApplication::reset caught exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset caught toolbox::task::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GEMFSMApplication::Error in reset, malformed URN " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset malformed URN: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   } catch (std::exception const& ex) {
-    ERROR("GEMFSMApplication::Error in reset, std::exception " << ex.what());
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset caught std::exception: " << ex.what();
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
+    fireEvent("Fail");
+    m_wl_semaphore.give();
+    return false;
+  } catch (...) {
+    std::stringstream msg;
+    msg << "GEMFSMApplication::reset caught unknown exception";
+    ERROR(msg.str());
+    m_stateMessage = msg.str();
     fireEvent("Fail");
     m_wl_semaphore.give();
     return false;
   }
 
-  INFO("GEMFSMApplication::Firing 'IsInitial' into the FSM");
+  std::stringstream msg;
+  msg << "GEMFSMApplication::reset Firing 'IsInitial' into the FSM";
+  INFO(msg.str());
   fireEvent("IsInitial");
   // maybe do a m_gemfsm.reset()?
   m_wl_semaphore.give();

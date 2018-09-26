@@ -1,0 +1,9 @@
+[Unit]
+Description=gem904qc8 XDAQ service failure notifier
+After=network.target
+[Service]
+Type=oneshot
+SyslogIdentifier=gem904qc8.notify
+StandardOutput=journal
+StandardError=journal
+ExecStart=/etc/xdaq.d/notifyqualified http://cosmicstandtif.cern.ch:XAAS_MACRO_BRIDGE2G_SENTINEL_HTTP_PORT "automatic restart of service %i after crash" warning gem904qc8 xdaqd::alarm::AutoRestartAfterCrash %i 0

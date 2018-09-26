@@ -65,6 +65,7 @@ namespace gem {
                           HW64,     //!< Combines two 32-bit registers into a 64-bit value
                           I2CSTAT,  //!< Takes care of registers which have a strobe/acknowlege counter
                           PROCESS,  //!< Copied from Ferol, not sure of the use case
+                          SOAP,     //!< Do a ParameterGet request on update
                           TRACKER,  //!< Copied from Ferol, not sure of the use case
                           NOUPDATE  //!< Value is not to be updated
         };

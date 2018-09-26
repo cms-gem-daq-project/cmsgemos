@@ -1156,7 +1156,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
       hw_semaphore_.take();
       optohybridDevice_->sendResync();
       for (unsigned int com = 0; com < 15; ++com)
-	optohybridDevice_->sendL1ACal(10, delay,1);
+	optohybridDevice_->sendL1ACalPulse(10, delay,1);
 	hw_semaphore_.give();
     }
 
@@ -1248,7 +1248,6 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
                                                 getApplicationContext(),this->getApplicationDescriptor(),
                                                 getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Readout", 0));  // this should not be hard coded
 
-
   // this all needs to be removed and be made generic
   std::stringstream tmpURI;
   tmpURI << "chtcp-2.0://localhost:10203?target=" << confParams_.bag.deviceIP.toString() << ":50001";
@@ -1264,7 +1263,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, "connections_ch.xml"));
 
   if (glibDevice_->isHwConnected()) {
-    DEBUG("GLIB device connected");
+    INFO("GLIB device connected");
 
     glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
     disableTriggers();
@@ -1284,10 +1283,11 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
 	vfat_shared_ptr tmpVFATDevice(new gem::hw::vfat::HwVFAT2(vfat, tmpURI.str(),
                                                                  "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-	if (tmpVFATDevice->isHwConnected()) {
-          tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
-                                                             confParams_.bag.ohGTXLink.value_,
-                                                             vfat.c_str()));
+
+	if(tmpVFATDevice->isHwConnected()){
+	tmpVFATDevice->setDeviceBaseNode(toolbox::toString("GLIB.OptoHybrid_%d.OptoHybrid.GEB.VFATS.%s",
+							   confParams_.bag.ohGTXLink.value_,
+							   vfat.c_str()));
 
 	  tmpVFATDevice->setDeviceIPAddress(confParams_.bag.deviceIP);
 	  tmpVFATDevice->setRunMode(0);
@@ -1320,8 +1320,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
       }// end for
    }//end if OH connected
     else {
-      DEBUG("OptoHybrid device not connected, breaking out");
-
+      INFO("OptoHybrid device not connected, breaking out");
       is_configured_  = false;
       is_working_     = false;
       hw_semaphore_.give();

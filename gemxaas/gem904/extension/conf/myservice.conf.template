@@ -1,0 +1,7 @@
+#include "extension/settings.include"
+XDAQ_SETUP_ROOT=/opt/xdaq/share
+XDAQ_DOCUMENT_ROOT=/opt/xdaq/htdocs
+XDAQ_PORT=XAAS_MACRO_MYSERVICE_HTTP_PORT
+XDAQ_USER=root
+XDAQ_LOG=/var/log/${XDAQ_ZONE}.${CONFIGURATION}.log
+XDAQ_PROFILE=${XDAQ_SETUP_ROOT}/${XDAQ_ZONE}/profile/${CONFIGURATION}.profile

@@ -100,10 +100,10 @@ void gem::hw::vfat::VFATManager::initializeAction()
 {
   DEBUG("VFATManager::initializeAction begin");
   for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(1000);
+    // usleep(10);
     DEBUG("VFATManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     for (int link = 0; link < MAX_VFATS_PER_AMC; ++link) {
-      usleep(1000);
+      // usleep(10);
       DEBUG("VFATManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_VFATS_PER_AMC)+link;
       VFATInfo& info = m_vfatInfo[index].bag;
@@ -245,9 +245,9 @@ void gem::hw::vfat::VFATManager::configureAction()
   DEBUG("VFATManager::configureAction");
   //will the manager operate for all connected vfats, or only those connected to certain GLIBs?
   for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(1000);
+    // usleep(10);
     for (int link = 0; link < MAX_VFATS_PER_AMC; ++link) {
-      usleep(1000);
+      // usleep(10);
       unsigned int index = (slot*MAX_VFATS_PER_AMC)+link;
       VFATInfo& info = m_vfatInfo[index].bag;
 
@@ -280,31 +280,31 @@ void gem::hw::vfat::VFATManager::configureAction()
 void gem::hw::vfat::VFATManager::startAction()
   throw (gem::hw::vfat::exception::Exception)
 {
-  usleep(1000);
+  usleep(10);
 }
 
 void gem::hw::vfat::VFATManager::pauseAction()
   throw (gem::hw::vfat::exception::Exception)
 {
-  usleep(1000);
+  usleep(10);
 }
 
 void gem::hw::vfat::VFATManager::resumeAction()
   throw (gem::hw::vfat::exception::Exception)
 {
-  usleep(1000);
+  usleep(10);
 }
 
 void gem::hw::vfat::VFATManager::stopAction()
   throw (gem::hw::vfat::exception::Exception)
 {
-  usleep(1000);
+  usleep(10);
 }
 
 void gem::hw::vfat::VFATManager::haltAction()
   throw (gem::hw::vfat::exception::Exception)
 {
-  usleep(1000);
+  usleep(10);
 }
 
 void gem::hw::vfat::VFATManager::resetAction()
@@ -313,10 +313,10 @@ void gem::hw::vfat::VFATManager::resetAction()
   //unregister listeners and items in info spaces
   DEBUG("VFATManager::resetAction begin");
   for (int slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    usleep(1000);
+    // usleep(10);
     DEBUG("VFATManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     for (int link = 0; link < MAX_VFATS_PER_AMC; ++link) {
-      usleep(1000);
+      // usleep(10);
       DEBUG("VFATManager::looping over links(" << link << ") and finding expected cards");
       unsigned int index = (slot*MAX_VFATS_PER_AMC)+link;
       VFATInfo& info = m_vfatInfo[index].bag;

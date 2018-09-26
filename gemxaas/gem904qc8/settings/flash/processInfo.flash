@@ -1,0 +1,10 @@
+<?xml version='1.0'?>
+<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:processInfo" version="$Revision: 15125 $" key="timestamp,context">
+	<xmas:item name="sessionid" function="session()" type="string"/>
+		<xmas:item name="timestamp" function="systime()" type="time"/>
+		<xmas:item name="context" function="context()" type="string" />
+		<xmas:item name="cpuUsage" infospace="urn:executive-sysinfo:" type="double" />
+		<xmas:item name="pid" infospace="urn:executive-sysinfo:" type="int" />
+		<xmas:item name="residentSize" infospace="urn:executive-sysinfo:" type="unsigned int 32" />
+		<xmas:item name="virtualSize" infospace="urn:executive-sysinfo:" type="unsigned int 32" />		
+</xmas:flash>

@@ -5,6 +5,7 @@
 
 // using the SOAP toolbox defined in the TCDS code base with extra functionality from the EMU codebase
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -62,7 +63,23 @@ namespace gem {
                                 xdaq::ApplicationDescriptor* destDsc
                                 // log4cplus::Logger* logger
                                 )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
+
+        /**
+         * @param cmd command to send to a TCDS application (which requires a special header)
+         * @param appCxt context in which the source/receiver applications are running
+         * @param srcDsc source application descriptor
+         * @param destDsc destination application descriptor
+         * @param logger logger object
+         * @returns true if successful/completed
+         */
+        static bool sendTCDSCommand(std::string const& cmd,
+                                    xdaq::ApplicationContext* appCxt,
+                                    xdaq::ApplicationDescriptor* srcDsc,
+                                    xdaq::ApplicationDescriptor* destDsc
+                                    // log4cplus::Logger* logger
+                                    )
+          throw (gem::utils::exception::SOAPException);
 
         /**
          * @param parameter is a vector of strings, contaning the parameter name, value, and the xsd type for the SOAP transaction
@@ -80,7 +97,7 @@ namespace gem {
                                   // log4cplus::Logger* logger,
                                   // std::string const& param
                                   )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
 
         static std::pair<std::string,std::string> extractCommandWithParameter(xoap::MessageReference const& msg);
 
@@ -97,12 +114,28 @@ namespace gem {
                                              xdaq::ApplicationDescriptor* srcDsc,
                                              xdaq::ApplicationDescriptor* destDsc
                                              )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
+
+         /**
+         * @param cmd Name of the Command to send to the destination application
+         * @param bag map of values (keyed by string) to send with the SOAP message
+         * @param appCxt context in which the source/receiver applications are running
+         * @param srcDsc source application descriptor
+         * @param destDsc destination application descriptor
+         * returns true if successful/completed
+         */
+        static bool sendCommandWithParameterBag(std::string const& cmd,
+                                                std::unordered_map<std::string, xdata::Serializable*> const& bag,
+                                                xdaq::ApplicationContext* appCxt,
+                                                xdaq::ApplicationDescriptor* srcDsc,
+                                                xdaq::ApplicationDescriptor* destDsc
+                                                )
+          throw (gem::utils::exception::SOAPException);
 
          /**
          * @param parName Name of the parameter in the destination application info space
          * @param parType xsd type of the specified parameter
-         * @param parValue parameter value (as string) to send in SOAP message
+         * @param parValue parameter value (as string) to send with the SOAP message
          * @param appCxt context in which the source/receiver applications are running
          * @param srcDsc source application descriptor
          * @param destDsc destination application descriptor
@@ -115,11 +148,11 @@ namespace gem {
                                              xdaq::ApplicationDescriptor* srcDsc,
                                              xdaq::ApplicationDescriptor* destDsc
                                              )
-          throw (gem::utils::exception::Exception);
+          throw (gem::utils::exception::SOAPException);
 
          /**
-         * @param parName Name of the parameter in the destination application info space
-         * @param parValue parameter value (as string) to send in SOAP message
+         * @param bagName Name of the parameter bag in the destination application info space
+         * @param bag bag of parameter values to send with the SOAP message
          * @param appCxt context in which the source/receiver applications are running
          * @param srcDsc source application descriptor
          * @param destDsc destination application descriptor
@@ -132,7 +165,7 @@ namespace gem {
                                                   xdaq::ApplicationDescriptor* srcDsc,
                                                   xdaq::ApplicationDescriptor* destDsc
                                                   )
-          throw (gem::utils::exception::Exception) {
+          throw (gem::utils::exception::SOAPException) {
           log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMSOAPToolBoxLogger"));
           try {
             xoap::MessageReference msg = xoap::createMessage(), answer;
@@ -194,16 +227,32 @@ namespace gem {
                                                                 std::string const& appURN,
                                                                 bool const& isGEMApp);
 
+        /**
+         * @brief Returns the FSM state from the given application
+         * @param appCxt context in which the source/receiver applications are running
+         * @param srcDsc source application descriptor
+         * @param destDsc destination application descriptor
+         * returns xoap::MessageReference to calling application
+         */
+        static std::string getApplicationState(xdaq::ApplicationContext*    appCxt,
+                                               xdaq::ApplicationDescriptor* srcDsc,
+                                               xdaq::ApplicationDescriptor* destDsc);
+
+        /**
+         * @brief Sends a bag of configuration parameters via SOAP to an AMC13
+         * @param appCxt context in which the source/receiver applications are running
+         * @param srcDsc source application descriptor
+         * @param destDsc destination application descriptor
+         * returns xoap::MessageReference to calling application
+         */
         static void sendAMC13Config(xdaq::ApplicationContext* appCxt,
                                     xdaq::ApplicationDescriptor* src,
                                     xdaq::ApplicationDescriptor* dest);
 
         /**
-         * @brief Creates a SOAP message requesting informtion about an application FSM state
-         * @param nstag Namespace tag to append to the parameter request
-         * @param appURN URN of the application to send the request to
-         * @param isGEMApp whether to query additional parameters that are only in GEM applications
-         * returns xoap::MessageReference to calling application
+         * @brief Obtain the correct XSD type identifier for a given xdata::Serializable object
+         * @param item is an xdata::Serializable object
+         * returns std::string corresponding to the xsd:<type> for creating a proper SOAP message
          */
         static std::string getXSDType(xdata::Serializable const& item);
 

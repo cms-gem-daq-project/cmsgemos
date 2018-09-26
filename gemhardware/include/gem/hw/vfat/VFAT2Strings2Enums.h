@@ -1,3 +1,5 @@
+/** @file VFAT2Strings2Enums.h */
+
 #ifndef GEM_HW_VFAT_VFAT2STRINGS2ENUMS_H
 #define GEM_HW_VFAT_VFAT2STRINGS2ENUMS_H
 

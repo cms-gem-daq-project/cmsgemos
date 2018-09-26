@@ -28,9 +28,9 @@ namespace gem {
     class GEMFSMApplication : public GEMApplication
     {
     public:
-      static const unsigned MAX_AMCS_PER_CRATE      = 12;  ///<
-      static const unsigned MAX_OPTOHYBRIDS_PER_AMC = 2;   ///<
-      static const unsigned MAX_VFATS_PER_GEB       = 24;  ///<
+      static const unsigned MAX_AMCS_PER_CRATE      = 12;  ///< I SHOULD PROBABLY NOT BE HARD CODED
+      static const unsigned MAX_OPTOHYBRIDS_PER_AMC = 12;  ///< I SHOULD PROBABLY NOT BE HARD CODED
+      static const unsigned MAX_VFATS_PER_GEB       = 24;  ///< I SHOULD PROBABLY NOT BE HARD CODED
 
       friend class GEMFSM;
       friend class GEMWebApplication;
@@ -267,6 +267,7 @@ namespace gem {
        * @brief
        */
       virtual std::string getCurrentState() {
+        updateState();
         return m_stateName.toString();
       };
 
@@ -282,7 +283,6 @@ namespace gem {
     private:
       GEMFSM m_gemfsm;
 
-      xdata::Double m_progress;    // just to see the progress of the various transitions
       bool b_accept_web_commands;  // should we allow state transition commands from the web interface
 
       toolbox::BSem m_wl_semaphore;      // do we need a semaphore for the workloop?
@@ -303,6 +303,7 @@ namespace gem {
 
       xdata::InfoSpace* p_appStateInfoSpace;
 
+      xdata::Double  m_progress;
       xdata::String  m_stateName;
       xdata::String  m_stateMessage;
     };
