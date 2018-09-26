@@ -715,8 +715,16 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
         isLatency = True
         print "At link %s: %d/%d L1As processed, %d%% done" %(gtx, getL1ACount(device,gtx)-ohnL1A_0, numpoints*numtrigs, (getL1ACount(device,gtx)-ohnL1A_0)*100./(numpoints*numtrigs))
     else:
-        isLatency = False    
+        isLatency = False
+
+    results = [[] for x in range(24)]
+    foundResults = 0
     while (readRegister(device,"%s.MONITOR.STATUS"%(scanBase)) > 0):
+        if (readRegister(device,"%s.MONITOR.READY"%(scanBase)) > 0):
+            foundResults += 1
+            for chip in range(24):
+                results[chip].append(readRegister(device,"%s.RESULTS.VFAT%d"%(scanBase,chip)))
+            print("found %d results so far, still looping..."%(foundResults))
         msg = "%s: Ultra scan still running (0x%x), not returning results"%(device,
                                                                             readRegister(device,"%s.MONITOR.STATUS"%(scanBase)))
         ohlogger.debug(colormsg(msg,logging.DEBUG))
@@ -734,11 +742,16 @@ def getUltraScanResults(device, gtx, numpoints, debug=False):
     msg+= "Ultra scan results available (0x%06x)"%(readRegister(device,"%s.MONITOR.READY"%(scanBase)))
     ohlogger.debug(colormsg(msg,logging.DEBUG))
 
-    results = []
+    # results = []
 
-    for chip in range(24):
-        results.append(readBlock(device,"%s.RESULTS.VFAT%d"%(scanBase,chip),numpoints))
+    # for chip in range(24):
+    #     results.append(readBlock(device,"%s.RESULTS.VFAT%d"%(scanBase,chip),numpoints))
+    while (readRegister(device,"%s.MONITOR.READY"%(scanBase)) > 0):
+        foundResults += 1
+        for chip in range(24):
+            results[chip].append(readRegister(device,"%s.RESULTS.VFAT%d"%(scanBase,chip)))
 
+    print("found %d total results, was this expected?"%(foundResults))
     return results
 
 def getADCValue(device, gtx, adc, debug=False):
