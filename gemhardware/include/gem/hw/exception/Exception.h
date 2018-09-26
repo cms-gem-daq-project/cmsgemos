@@ -1,3 +1,5 @@
+/** @file Exception.h */
+
 #ifndef GEM_HW_EXCEPTION_EXCEPTION_H
 #define GEM_HW_EXCEPTION_EXCEPTION_H
 
@@ -63,6 +65,7 @@
 
 // The gem::hw exceptions.
 GEM_HW_DEFINE_EXCEPTION(Exception)
+GEM_HW_DEFINE_EXCEPTION(WriteValueMismatch)
 GEM_HW_DEFINE_EXCEPTION(ConfigurationParseProblem)
 GEM_HW_DEFINE_EXCEPTION(ConfigurationProblem)
 GEM_HW_DEFINE_EXCEPTION(ConfigurationValidationProblem)
@@ -72,6 +75,7 @@ GEM_HW_DEFINE_EXCEPTION(UninitializedDevice)
 
 GEM_HW_DEFINE_EXCEPTION(RCMSNotificationError)
 GEM_HW_DEFINE_EXCEPTION(SOAPTransitionProblem)
+GEM_HW_DEFINE_EXCEPTION(NULLReadoutPointer)
 
 GEM_HW_DEFINE_EXCEPTION(SoftwareProblem)
 GEM_HW_DEFINE_EXCEPTION(TransitionProblem)

@@ -1,4 +1,4 @@
-#include <Python.h>
+//#include <Python.h>
 
 #include <gem/utils/db/GEMDatabaseUtils.h>
 
@@ -62,7 +62,7 @@ bool gem::utils::db::GEMDatabaseUtils::connect(std::string const& database)
     p_db = 0;
     ERROR(message);
     XCEPT_RAISE(gem::utils::exception::DBConnectionError,message);
-    return false;
+    // return false;
   }
   return true;
 }
@@ -109,14 +109,16 @@ unsigned int gem::utils::db::GEMDatabaseUtils::query(const std::string& query)
 
 void gem::utils::db::GEMDatabaseUtils::configure(const std::string& station,
                                                  const std::string& setuptype,
-                                                 const std::string& runperiod)
+                                                 const std::string& runperiod,
+                                                 const int& runnumber)
 {
   Py_Initialize();
   std::stringstream cmd;
-  cmd << "from query import configure_db" << std::endl;
+  cmd << "from gempython.utils.db.query import configure_db" << std::endl;
   cmd << "configure_db(station=\"" << station
       << "\",setuptype=\"" << setuptype
       << "\",runperiod=\"" << runperiod
+      << "\",runnumber=\"" << runnumber
       << "\")" << std::endl;
 
   int retval = PyRun_SimpleString(cmd.str().c_str());

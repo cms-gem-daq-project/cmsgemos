@@ -204,7 +204,7 @@ namespace gem {
           };
         };
 
-          // should these be protected?
+          // should these be protected/const?
         /**
          * various application properties
          */
@@ -222,6 +222,7 @@ namespace gem {
         xdata::Integer64 m_runNumber;
         xdata::String    m_runType;
         xdata::String    m_cfgType;
+        xdata::Boolean   m_disableMonitoring;
 
         xdata::Bag<ScanInfo>     m_scanInfo;
 

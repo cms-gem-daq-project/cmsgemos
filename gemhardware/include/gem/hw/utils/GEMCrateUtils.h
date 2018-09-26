@@ -1,3 +1,5 @@
+/** @file GEMCrateUtils.h */
+
 #ifndef GEM_HW_UTILS_GEMCRATEUTILS_H
 #define GEM_HW_UTILS_GEMCRATEUTILS_H
 

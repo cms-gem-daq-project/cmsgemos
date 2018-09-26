@@ -1,6 +1,7 @@
+/** @file GLIBManager.h */
+
 #ifndef GEM_HW_GLIB_GLIBMANAGER_H
 #define GEM_HW_GLIB_GLIBMANAGER_H
-/** @file GLIBManager.h */
 
 #include <array>
 
@@ -80,16 +81,23 @@ namespace gem {
           public:
             GLIBInfo();
             void registerFields(xdata::Bag<GLIBManager::GLIBInfo>* bag);
+
             //monitoring information
             xdata::Boolean present;
             xdata::Integer crateID;
             xdata::Integer slotID;
+            xdata::String  cardName;
+            xdata::String  birdName;
 
             //configuration parameters
             xdata::String controlHubAddress;
             xdata::String deviceIPAddress;
             xdata::String ipBusProtocol;
             xdata::String addressTable;
+
+            // list of GTX links to enable in the DAQ
+            xdata::String            gtxLinkEnableList;
+            xdata::UnsignedInteger32 gtxLinkEnableMask;
 
             xdata::UnsignedInteger32 controlHubPort;
             xdata::UnsignedInteger32 ipBusPort;
@@ -99,9 +107,11 @@ namespace gem {
 
             inline std::string toString() {
               std::stringstream os;
-              os << "present:" << present.toString() << std::endl
-                 << "crateID:" << crateID.toString() << std::endl
-                 << "slotID:"  << slotID.toString()  << std::endl
+              os << "present:"  << present.toString()  << std::endl
+                 << "crateID:"  << crateID.toString()  << std::endl
+                 << "slotID:"   << slotID.toString()   << std::endl
+                 << "cardName:" << cardName.toString() << std::endl
+                 << "birdName:" << birdName.toString() << std::endl
 
                  << "controlHubAddress:" << controlHubAddress.toString() << std::endl
                  << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
@@ -109,7 +119,11 @@ namespace gem {
                  << "addressTable:"      << addressTable.toString()      << std::endl
                  << "controlHubPort:"    << controlHubPort.value_        << std::endl
                  << "ipBusPort:"         << ipBusPort.value_             << std::endl
-                 << "sbitSource:0x"      << std::hex << sbitSource.value_    << std::dec << std::endl
+
+                 << "gtxLinkEnableList:" << gtxLinkEnableList.toString() << std::endl
+                 << "gtxLinkEnableMask:" << std::hex << gtxLinkEnableMask.value_ << std::dec << std::endl
+
+                 << "sbitSource:0x"      << std::hex << sbitSource.value_ << std::dec << std::endl
                  << std::endl;
               return os.str();
             };
@@ -124,6 +138,9 @@ namespace gem {
           xdata::Vector<xdata::Bag<GLIBInfo> > m_glibInfo;  // [MAX_AMCS_PER_CRATE];
           xdata::String                        m_amcSlots;
           xdata::String                        m_connectionFile;
+          xdata::Boolean                       m_uhalPhaseShift;
+          xdata::Boolean                       m_bc0LockPhaseShift;
+          xdata::Boolean                       m_relockPhase;
 
 	  uint32_t m_lastLatency, m_lastVT1, m_lastVT2;
         };  // class GLIBManager

@@ -82,8 +82,9 @@ gem::base::GEMFSM::GEMFSM(GEMFSMApplication* const gemAppP) :
                                &gem::base::GEMFSMApplication::transitionDriver);
   /*p_gemfsm->addStateTransition(STATE_RUNNING,    STATE_CONFIGURING, "Configure", p_gemApp,
     &gem::base::GEMFSMApplication::transitionDriver);*/
-  p_gemfsm->addStateTransition(STATE_PAUSED,     STATE_CONFIGURING, "Configure", p_gemApp,
-                               &gem::base::GEMFSMApplication::transitionDriver);
+  // FIXME do we really allow Configure to be called from Paused?
+  /*p_gemfsm->addStateTransition(STATE_PAUSED,     STATE_CONFIGURING, "Configure", p_gemApp,
+    &gem::base::GEMFSMApplication::transitionDriver);*/
 
   // Start: C -> e., enable links for data to flow from front ends to back ends
   p_gemfsm->addStateTransition(STATE_CONFIGURED, STATE_STARTING, "Start", p_gemApp,
@@ -274,8 +275,8 @@ xoap::MessageReference gem::base::GEMFSM::changeState(xoap::MessageReference msg
 
   // the HCAL way
   std::string newStateName = p_gemfsm->getStateName(p_gemfsm->getCurrentState());
-  // Once we get here, the state transition has been triggered. Notify
-  // the requestor of the new state.
+  // Once we get here, the state transition has been triggered.
+  // Notify the requestor of the new state.
   try {
     INFO("changeState::sending command " << commandName << " newStateName " << newStateName);
     return

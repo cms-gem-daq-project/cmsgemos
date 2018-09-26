@@ -1,0 +1,31 @@
+<?xml version='1.0'?>
+<!-- Order of specification will determine the sequence of installation. all modules are loaded prior instantiation of plugins -->
+<xp:Profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xp="http://xdaq.web.cern.ch/xdaq/xsd/2005/XMLProfile-11">
+
+#include "addon/settings.include"
+
+#include "module/executive.module"
+#include "module/peertransport.module"
+#include "module/modules.module"
+#include "module/discovery.module"
+#include "module/probesep.module"
+#include "module/heartbeatprobe.module"
+#include "module/sensorprobe.module"
+#include "module/sentinelprobe.module"
+<!-- include "module/access.module" -->
+
+#include "module/slimnetendpoint.module"
+
+    <xp:Application heartbeat="true" class="tstore::TStore" id=SLIM_MACRO_TOSTR(SLIM_MACRO_TSTORE_LID) publish="true"  group="xmas,database1" service="tstore" network="local">
+        <properties xmlns="urn:xdaq-application:tstore::TStore" xsi:type="soapenc:Struct">
+            <configurationRootDirectory xsi:type="xsd:string">${XDAQ_SETUP_ROOT}/${XDAQ_ZONE}/store</configurationRootDirectory>
+        </properties>
+    </xp:Application>
+    <xp:Module>${XDAQ_ROOT}/lib/libxalanMsg.so</xp:Module>
+    <xp:Module>${XDAQ_ROOT}/lib/libxalan-c.so</xp:Module>
+    <xp:Module>${XDAQ_ROOT}/lib/libxoapfilter.so</xp:Module>
+    <xp:Module>${XDAQ_ROOT}/lib/libtstoreutils.so</xp:Module>
+    <xp:Module>${XDAQ_ROOT}/lib/libtstoreclient.so</xp:Module>
+    <xp:Module>${XDAQ_ROOT}/lib/libtstore.so</xp:Module>
+
+</xp:Profile>

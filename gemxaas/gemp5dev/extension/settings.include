@@ -1,0 +1,7 @@
+#include "extension/defaultsettings.include"
+
+#undef XAAS_MACRO_MYSERVICE_HTTP_PORT
+#define XAAS_MACRO_MYSERVICE_HTTP_PORT 9191
+
+#undef SLIM_MACRO_MYSERVICE_LID
+#define SLIM_MACRO_MYSERVICE_LID 100

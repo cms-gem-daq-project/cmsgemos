@@ -1,3 +1,5 @@
+/** @file GLIBSettingsEnums.h */
+
 #ifndef GEM_HW_GLIB_GLIBSETTINGSENUMS_H
 #define GEM_HW_GLIB_GLIBSETTINGSENUMS_H
 

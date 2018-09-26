@@ -1,0 +1,8 @@
+x#include "addon/defaultsettings.include"
+#include "service/settings.include"
+
+#undef SLIM_MACRO_TSTORE_HTTP_PORT
+#define SLIM_MACRO_TSTORE_HTTP_PORT 9939
+
+#undef SLIM_MACRO_TSTORE_LID 
+#define SLIM_MACRO_TSTORE_LID 11

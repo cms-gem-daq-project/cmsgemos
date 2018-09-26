@@ -1,3 +1,5 @@
+/** @file VFATManager.h */
+
 #ifndef GEM_HW_VFAT_VFATMANAGER_H
 #define GEM_HW_VFAT_VFATMANAGER_H
 

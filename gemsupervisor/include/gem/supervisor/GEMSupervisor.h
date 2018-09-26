@@ -123,10 +123,74 @@ namespace gem {
         void sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad);
           // throw (xoap::exception::Exception);
 
+        // TCDS configuration
+        class TCDSConfig {
+
+        public:
+          TCDSConfig();
+          void registerFields(xdata::Bag<GEMSupervisor::TCDSConfig>* bag);
+
+          xdata::Boolean handleTCDS;
+          // configuration parameters
+          xdata::String  iciHWConfig;
+          xdata::String  piHWConfig;
+          xdata::String  lpmHWConfig;
+          xdata::String  cpmHWConfig;
+          xdata::String  fedEnableMask;
+          xdata::Boolean usePrimaryTCDS;
+          xdata::Boolean piSkipPLLReset;
+
+          inline std::string toString() {
+            // write obj to stream
+            std::stringstream os;
+            os << "handleTCDS:    " << handleTCDS.toString()     << std::endl
+               << "iciHWConfig:   " << iciHWConfig.toString()    << std::endl
+               << "piHWConfig:    " << piHWConfig.toString()     << std::endl
+               << "lpmHWConfig:   " << lpmHWConfig.toString()    << std::endl
+               << "cpmHWConfig:   " << cpmHWConfig.toString()    << std::endl
+               << "fedEnableMask: " << fedEnableMask.toString()  << std::endl
+               << "usePrimaryTCDS:" << usePrimaryTCDS.toString() << std::endl
+               << "piSkipPLLReset:" << piSkipPLLReset.toString() << std::endl
+               << std::endl;
+            return os.str();
+          };
+        };
+
+        /**
+         * @brief Renew the hardware lease on any TCDS applications
+         * @throws
+         */
+        void renewTCDSLease();
+        // throw (xoap::exception::Exception);
+
+        /**
+         * @brief Pause the phase monitoring of the CTP7
+         * @throws
+         */
+        void pausePhaseMonitoring();
+        // throw (xoap::exception::Exception);
+
+        /**
+         * @brief Resume the phase monitoring of the CTP7
+         * @throws
+         */
+        void resumePhaseMonitoring();
+        // throw (xoap::exception::Exception);
+
         std::shared_ptr<GEMSupervisorMonitor> m_supervisorMonitor;
 
         mutable gem::utils::Lock m_deviceLock;
+        mutable gem::utils::Lock m_tcdsLock;
         std::vector<xdaq::ApplicationDescriptor*> v_supervisedApps;
+        std::vector<xdaq::ApplicationDescriptor*> v_leasedTCDSApps;
+        // std::multimap<int, std::vector<xdaq::ApplicationDescriptor*, std::greater<int>> > m_orderedAppGroups;
+
+        /* std::unordered_map<std::string, std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> > mp_tcdsAppsInfoSpaceToolBox;   ///< */
+        /* std::unordered_map<std::string, xdata::InfoSpace*>                                       mp_tcdsAppsInfoSpace; */
+        /* std::unordered_map<std::string, xdata::Double>  m_tcdsProgress; */
+        /* std::unordered_map<std::string, xdata::String>  m_tcdsStateName; */
+        /* std::unordered_map<std::string, xdata::String>  m_tcdsStateMessage; */
+
         xdaq::ApplicationDescriptor* readoutApp;
 
         /**
@@ -135,6 +199,11 @@ namespace gem {
          */
 
 	void sendScanParameters(xdaq::ApplicationDescriptor* ad);
+
+        std::vector<std::vector<xdaq::ApplicationDescriptor*> > getInitializationOrder();
+        std::vector<std::vector<xdaq::ApplicationDescriptor*> > getConfigureOrder();
+        std::vector<std::vector<xdaq::ApplicationDescriptor*> > getEnableOrder();
+        std::vector<std::vector<xdaq::ApplicationDescriptor*> > getDisableOrder();
 
 	GEMGlobalState m_globalState;
 
@@ -150,8 +219,15 @@ namespace gem {
 
 	uint32_t m_scanParameter;
 
+        xdata::Boolean             m_useLocalDBInstance;
+        xdata::Boolean             m_useLocalRunNumber;
+        xdata::Boolean             m_handleTCDS;
+        xdata::Bag<TCDSConfig>     m_tcdsConfig;
+        xdata::Boolean             m_useLocalReadout;
+        xdata::Boolean             m_useFedKitReadout;
         xdata::Boolean             m_reportToRCMS;
         xdata::String              m_rcmsStateListenerUrl;
+
         xdaq2rc::RcmsStateNotifier m_gemRCMSNotifier;
 
       };

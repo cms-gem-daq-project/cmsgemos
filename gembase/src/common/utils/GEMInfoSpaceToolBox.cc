@@ -942,18 +942,44 @@ std::string gem::base::utils::GEMInfoSpaceToolBox::getFormattedItem(std::string 
       result << "0x" << std::setw(8) << std::setfill('0') << std::hex << val;
     } else if ( format == "ip" ) {
       result << std::dec << gem::utils::uint32ToDottedQuad(val);
-    } else if ( format == "date" ) {
-      result <<         std::setfill('0') << std::setw(2) << (val&0x1f)
-             << "-"  << std::setfill('0') << std::setw(2) << ((val>>5)&0x0f)
-             << "-"  << std::setw(4) << 2000+((val>>9)&0x7f);
     } else if ( format == "id" ) {
       // expects four 8-bit chars
       result << std::dec << gem::utils::uint32ToString(val);
+    } else if ( format == "date" ) {
+      result <<         std::setfill('0') << std::setw(2) << (val&0x1f)
+             << "/"  << std::setfill('0') << std::setw(2) << ((val>>5)&0x0f)
+             << "/"  << std::setw(4) << 2000+((val>>9)&0x7f);
+    } else if ( format == "dateglib" ) {
+      result <<         std::setfill('0') << std::setw(2) << (val&0x1f)
+             << "/"  << std::setfill('0') << std::setw(2) << ((val>>5)&0x0f)
+             << "/"  << std::setw(4) << 2000+((val>>9)&0x7f);
+    } else if ( format == "dateoh" ) {
+      // 0x20161124
+      result << std::hex
+             <<         std::setfill('0') << std::setw(2)  << (val&0xff)
+             << "/"  << std::setfill('0') << std::setw(2)  << ((val>>8)&0xff)
+             << "/"  << std::setw(4) << ((val>>16)&0xffff)
+             << std::dec;
     } else if ( format == "fwver" ) {
       // expects Major(4).Minor(4).Build(8)
-      result << ((val>>12)&0x0f) << "."
-             << ((val>>8) &0x0f) << "."
-             << ((val)    &0xff);
+      result << ((val>>12) & 0x0f) << "."
+             << ((val>>8)  & 0x0f) << "."
+             << ((val)     & 0xff);
+    } else if ( format == "fwverglib" ) {
+      // expects Major(8).Minor(8).Build(8)
+      result << std::hex
+             << ((val>>16) & 0xff) << "."
+             << ((val>>8)  & 0xff) << "."
+             << ((val)     & 0xff)
+             << std::dec;
+    } else if ( format == "fwveroh" ) {
+      // expects Major(8).Minor(8).Version(8).Patch(8)
+      result << std::hex
+             << ((val>>24) & 0xff) << "."
+             << ((val>>16) & 0xff) << "."
+             << ((val>>8)  & 0xff) << "."
+             << ((val)     & 0xff)
+             << std::dec;
     }
   } else if (type == UINT64) {  // end of type == UINT32
     uint64_t val = this->getUInt64(itemName);

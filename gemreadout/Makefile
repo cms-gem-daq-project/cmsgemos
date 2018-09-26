@@ -9,11 +9,12 @@ LongPackage=gemreadout
 ShortPackage=readout
 PackageName=readout
 
-GEMREADOUT_VER_MAJOR=0
-GEMREADOUT_VER_MINOR=3
+GEMREADOUT_VER_MAJOR=1
+GEMREADOUT_VER_MINOR=0
 GEMREADOUT_VER_PATCH=0
 
-include $(BUILD_HOME)/$(Project)/config/mfDefs.gem
+include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
+include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
 #Sources+=GEMDataParker.cc
@@ -29,11 +30,11 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 
-
 DependentLibraries+=gemutils gembase
 
 include $(XDAQ_ROOT)/config/Makefile.rules
-include $(BUILD_HOME)/$(Project)/config/mfRPM_gem.rules
+include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)

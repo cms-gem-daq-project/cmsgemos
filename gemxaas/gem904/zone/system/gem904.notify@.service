@@ -1,0 +1,9 @@
+[Unit]
+Description=gem904 XDAQ service failure notifier
+After=network.target
+[Service]
+Type=oneshot
+SyslogIdentifier=gem904.notify
+StandardOutput=journal
+StandardError=journal
+ExecStart=/etc/xdaq.d/notifyqualified http://gem904-daq02.cms904:XAAS_MACRO_BRIDGE2G_SENTINEL_HTTP_PORT "automatic restart of service %i after crash" warning gem904 xdaqd::alarm::AutoRestartAfterCrash %i 0

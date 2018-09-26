@@ -102,7 +102,7 @@ gem::base::GEMMonitor::~GEMMonitor()
 
 void gem::base::GEMMonitor::startMonitoring()
 {
-  DEBUG("GEMMonitor::startMonitoring");
+  INFO("GEMMonitor::startMonitoring");
 
   try {
     p_timer->stop();
@@ -112,7 +112,6 @@ void gem::base::GEMMonitor::startMonitoring()
 
   p_timer->start();
 
-  DEBUG("GEMMonitor::startMonitoring");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
     toolbox::TimeVal startTime;
     startTime = toolbox::TimeVal::gettimeofday();
@@ -124,9 +123,23 @@ void gem::base::GEMMonitor::startMonitoring()
   updateMonitorables();
 }
 
+void gem::base::GEMMonitor::pauseMonitoring()
+{
+  INFO("GEMMonitor::pauseMonitoring");
+  p_timer->stop();
+}
+
+void gem::base::GEMMonitor::resumeMonitoring()
+{
+  INFO("GEMMonitor::resumeMonitoring");
+  // p_timer->start();
+  // updateMonitorables();
+  startMonitoring();
+}
+
 void gem::base::GEMMonitor::stopMonitoring()
 {
-  DEBUG("GEMMonitor::stopMonitoring");
+  INFO("GEMMonitor::stopMonitoring");
   p_timer->stop();
 }
 
@@ -164,7 +177,7 @@ void gem::base::GEMMonitor::addInfoSpace(std::string const& name,
     std::pair<std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>,
     toolbox::TimeInterval> >::const_iterator it = m_infoSpaceMap.find(name);
   if (it != m_infoSpaceMap.end()) {
-    INFO("GEMMonitor::addInfoSpace infospace " << name << " already exists in monitor!");
+    DEBUG("GEMMonitor::addInfoSpace infospace " << name << " already exists in monitor!");
     return;
   }
   DEBUG("GEMMonitor::addInfoSpace adding infospace " << name);
@@ -175,14 +188,19 @@ void gem::base::GEMMonitor::addInfoSpace(std::string const& name,
 
 void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::string const& infoSpaceName)
 {
-  std::unordered_map<std::string,
-    std::list<std::pair<std::string, GEMMonitorable> > >::const_iterator it;
-  it = m_monitorableSetsMap.find(setname);
-  if (it != m_monitorableSetsMap.end()) {
-    INFO("GEMMonitor::addMonitorableSet monitorable set " << setname << " already exists in monitor!");
+  // std::unordered_map<std::string,
+  //   std::unordered_map<std::string, GEMMonitorable> >::const_iterator it;
+    // std::list<std::pair<std::string, GEMMonitorable> > >::const_iterator it;
+  // it = m_monitorableSetsMap.find(setname);
+  // if (it != m_monitorableSetsMap.end()) {
+  if (m_monitorableSetsMap.count(setname)) {
+    DEBUG("GEMMonitor::addMonitorableSet monitorable set '" << setname << "' already exists in monitor!");
     return;
   }
-  std::list<std::pair<std::string, GEMMonitorable> > emptySet;
+
+  DEBUG("GEMMonitor::addInfoSpace adding monitorable set '" << setname << "' to infospace '" << infoSpaceName << "'");
+  std::unordered_map<std::string, GEMMonitorable> emptySet;
+  // std::list<std::pair<std::string, GEMMonitorable> > emptySet;
   m_monitorableSetsMap.insert(std::make_pair(setname, emptySet));
 
   m_infoSpaceMonitorableSetMap.find(infoSpaceName)->second.push_back(setname);
@@ -197,23 +215,26 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
                                            std::string const& format)
 {
   if (m_infoSpaceMap.find(infoSpaceName) == m_infoSpaceMap.end()) {
-    ERROR("GEMMonitor::addMonitorable infoSpace " << infoSpaceName << " does not exist in monitor!");
+    ERROR("GEMMonitor::addMonitorable infoSpace '" << infoSpaceName << "' does not exist in monitor!");
     return;
   } else if (m_monitorableSetsMap.find(setname) == m_monitorableSetsMap.end()) {
-    ERROR("GEMMonitor::addMonitorable monitorable set " << setname << " does not exist in monitor!");
+    ERROR("GEMMonitor::addMonitorable monitorable set '" << setname << "' does not exist in monitor!");
     return;
   }
+  DEBUG("GEMMonitor::addMonitorable monitorable set '" << setname << "' exists in monitor!");
 
   std::shared_ptr<utils::GEMInfoSpaceToolBox> infoSpace = m_infoSpaceMap.find(infoSpaceName)->second.first;
   if (infoSpace->find(monpair.first)) {
     std::unordered_map<std::string,
-      std::list<std::pair<std::string, GEMMonitorable> > >::iterator it;
+      std::unordered_map<std::string, GEMMonitorable> >::iterator it;
+      // std::list<std::pair<std::string, GEMMonitorable> > >::iterator it;
     it = m_monitorableSetsMap.find(setname);
     GEMMonitorable monitem = {monpair.first, monpair.second, infoSpace, type, format};
-    (*it).second.push_back(std::make_pair(monpair.first, monitem));
+    (*it).second.insert(std::make_pair(monpair.first, monitem));
+    // (*it).second.push_back(std::make_pair(monpair.first, monitem));
   } else {
-    ERROR("GEMMonitor::addMonitorable monitorable " << monpair.first << " does not exist in infospace "
-           << infoSpaceName << "!");
+    ERROR("GEMMonitor::addMonitorable monitorable '" << monpair.first << "' does not exist in infospace '"
+           << infoSpaceName << "'!");
     return;
   }
 
@@ -238,7 +259,8 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
     return result;
   }
 
-  std::list<std::pair<std::string, GEMMonitorable> > itemList = itemSet->second;
+  std::unordered_map<std::string, GEMMonitorable> itemList = itemSet->second;
+  // std::list<std::pair<std::string, GEMMonitorable> > itemList = itemSet->second;
   for (auto item = itemList.begin(); item != itemList.end(); ++item) {
     auto gemItem = item->second;
     std::vector<std::string> itl;

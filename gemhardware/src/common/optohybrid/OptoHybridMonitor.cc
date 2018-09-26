@@ -41,36 +41,43 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   // create the values to be monitored in the info space
   addMonitorableSet("Status and Control", "HWMonitoring");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("VFAT_Mask",   "CONTROL.VFAT.TRK_MASK"),
+                 std::make_pair("VFAT_Mask",        "CONTROL.VFAT.TRK_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("TrgSource",   "CONTROL.TRIGGER.SOURCE"),
+                 std::make_pair("SBit_Mask",        "CONTROL.VFAT.SBIT_MASK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitLoopback","CONTROL.TRIGGER.LOOPBACK"),
+                 std::make_pair("Drop Bad CRC",     "CONTROL.VFAT.DROP_BAD_CRC"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("Ref_clk",     "CONTROL.CLOCK.REF_CLK"),
-                 GEMUpdateType::HW32, "bit");
-  addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBit_Mask",   "CONTROL.VFAT.SBIT_MASK"),
+                 std::make_pair("TrgSource",        "CONTROL.TRIGGER.SOURCE"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitsOut",    "CONTROL.HDMI_OUTPUT.SBITS"),
+                 std::make_pair("SBitLoopback",     "CONTROL.TRIGGER.LOOPBACK"),
                  GEMUpdateType::HW32, "hex");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("SBitOutMode","CONTROL.HDMI_OUTPUT.SBIT_MODE"),
-                 GEMUpdateType::HW32, "hex");
-  addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("TrgThrottle", "CONTROL.THROTTLE"),
+                 std::make_pair("TrgThrottle",      "CONTROL.TRIGGER.THROTTLE"),
                  GEMUpdateType::HW32, "dec");
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("ZS",          "CONTROL.ZS"),
+                 std::make_pair("HDMI SBitsOut",    "CONTROL.HDMI_OUTPUT.SBITS"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("Status and Control", "HWMonitoring",
+                 std::make_pair("HDMI SBitMode",     "CONTROL.HDMI_OUTPUT.SBIT_MODE"),
+                 GEMUpdateType::HW32, "hex");
+  addMonitorable("Status and Control", "HWMonitoring",
+                 std::make_pair("ZS",                "CONTROL.ZS"),
+                 GEMUpdateType::HW32, "bit");
+  addMonitorable("Status and Control", "HWMonitoring",
+                 std::make_pair("REF_CLK",           "CONTROL.CLOCK.REF_CLK"),
                  GEMUpdateType::HW32, "bit");
 
   addMonitorable("Status and Control", "HWMonitoring",
-                 std::make_pair("FIRMWARE_ID",  "STATUS.FW"),
-                 GEMUpdateType::HW32, "hex");
+                 std::make_pair("FIRMWARE_DATE",  "STATUS.FW.DATE"),
+                 GEMUpdateType::HW32, "dateoh");
+  addMonitorable("Status and Control", "HWMonitoring",
+                 std::make_pair("FIRMWARE_VERSION",  "STATUS.FW.VERSION"),
+                 GEMUpdateType::HW32, "fwveroh");
+
   addMonitorable("Status and Control", "HWMonitoring",
                  std::make_pair("FPGA_PLL_IS_LOCKED","STATUS.FPGA_PLL_LOCK"),
                  GEMUpdateType::HW32, "bit");
@@ -91,7 +98,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
                  GEMUpdateType::HW32, "bit");
 
   addMonitorableSet("Wishbone Counters", "HWMonitoring");
-  std::array<std::string, 4> wbMasters = {{"GTX","ExtI2C","Scan","DAC"}};
+  std::array<std::string, 5> wbMasters = {{"GTX","GBT","ExtI2C","Scan","DAC"}};
   for (auto master = wbMasters.begin(); master != wbMasters.end(); ++master) {
     addMonitorable("Wishbone Counters", "HWMonitoring",
                    std::make_pair("Master:"+(*master)+"Strobe",   "COUNTERS.WB.MASTER.Strobe."+(*master)),
@@ -135,7 +142,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
   }
 
   addMonitorableSet("T1 Counters", "HWMonitoring");
-  std::array<std::string, 5> t1sources = {{"TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT"}};
+  std::array<std::string, 6> t1sources = {{"SENT","GBT_TTC","GTX_TTC","INTERNAL","EXTERNAL","LOOPBACK"}};
   for (auto t1src = t1sources.begin(); t1src != t1sources.end(); ++t1src) {
     addMonitorable("T1 Counters", "HWMonitoring",
                    std::make_pair((*t1src)+"L1A",     "COUNTERS.T1."+(*t1src)+".L1A"),
@@ -153,13 +160,20 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
 
   addMonitorableSet("Other Counters", "HWMonitoring");
   addMonitorable("Other Counters", "HWMonitoring",
-                 std::make_pair("TrackingLinkErrors","COUNTERS.GTX.TRK_ERR"),
+                 std::make_pair("GTX_TrackingLinkErrors","COUNTERS.GTX_LINK.TRK_ERR"),
                  GEMUpdateType::PROCESS, "raw/rate");
   addMonitorable("Other Counters", "HWMonitoring",
-                 std::make_pair("TriggerLinkErrors", "COUNTERS.GTX.TRG_ERR"),
+                 std::make_pair("GTX_TriggerLinkErrors", "COUNTERS.GTX_LINK.TRG_ERR"),
                  GEMUpdateType::PROCESS, "raw/rate");
   addMonitorable("Other Counters", "HWMonitoring",
-                 std::make_pair("DataPackets",       "COUNTERS.GTX.DATA_Packets"),
+                 std::make_pair("GTX_DataPackets",       "COUNTERS.GTX_LINK.DATA_Packets"),
+                 GEMUpdateType::PROCESS, "raw/rate");
+
+  addMonitorable("Other Counters", "HWMonitoring",
+                 std::make_pair("GBT_TrackingLinkErrors","COUNTERS.GBT_LINK.TRK_ERR"),
+                 GEMUpdateType::PROCESS, "raw/rate");
+  addMonitorable("Other Counters", "HWMonitoring",
+                 std::make_pair("GBT_DataPackets",       "COUNTERS.GBT_LINK.DATA_Packets"),
                  GEMUpdateType::PROCESS, "raw/rate");
 
   addMonitorable("Other Counters", "HWMonitoring",
@@ -200,11 +214,15 @@ void gem::hw::optohybrid::OptoHybridMonitor::setupHwMonitoring()
         continue;
       if (scan->second == "ULTRA" && (*scanreg) == "CHIP")
         addMonitorable("Firmware Scan Controller", "HWMonitoring",
-                       std::make_pair(scan->first+"MASK","ScanController."+scan->second+".MASK"),
+                       std::make_pair(scan->first+"MASK","ScanController."+scan->second+".CONF.MASK"),
+                       GEMUpdateType::HW32, "hex");
+      else if (*scanreg == "MONITOR")
+        addMonitorable("Firmware Scan Controller", "HWMonitoring",
+                       std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
                        GEMUpdateType::HW32, "hex");
       else
         addMonitorable("Firmware Scan Controller", "HWMonitoring",
-                       std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+"."+(*scanreg)),
+                       std::make_pair(scan->first+(*scanreg),"ScanController."+scan->second+".CONF."+(*scanreg)),
                        GEMUpdateType::HW32, "hex");
     }
   }
@@ -283,6 +301,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
 
   auto monsets = m_infoSpaceMonitorableSetMap.find("HWMonitoring")->second;
 
+  // IMPROVEMENT make the tables dynamically with something like angular/react
   // loop over the list of monitor sets and grab the monitorables from each one
   // create a div tab for each set, and a table for each set of values
   // for I2C request counters, put strobe/ack in separate columns in same table, rows are the specific request
@@ -294,7 +313,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
     if ((*monset).rfind("Firmware Scan Controller") == std::string::npos) {
       *out << "<table class=\"xdaq-table\" id=\"" << *monset << "_table\">" << std::endl
            << cgicc::thead() << std::endl
-           << cgicc::tr()    << std::endl //open
+           << cgicc::tr()    << std::endl // open
            << cgicc::th()    << "Register name"    << cgicc::th() << std::endl;
       if ((*monset).rfind("Wishbone Counters") != std::string::npos) {
         *out << cgicc::th() << "Strobes" << cgicc::th() << std::endl
@@ -303,11 +322,12 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
         *out << cgicc::th() << "Valid"   << cgicc::th() << std::endl
              << cgicc::th() << "Incorrect" << cgicc::th() << std::endl;
       } else if ((*monset).rfind("T1 Counters") != std::string::npos) {
-        *out << cgicc::th() << "TTC"      << cgicc::th() << std::endl
-             << cgicc::th() << "Internal" << cgicc::th() << std::endl
-             << cgicc::th() << "External" << cgicc::th() << std::endl
-             << cgicc::th() << "Loopback" << cgicc::th() << std::endl
-             << cgicc::th() << "Sent"     << cgicc::th() << std::endl;
+        * out << cgicc::th() << "Sent"     << cgicc::th() << std::endl
+              << cgicc::th() << "GBT_TTC"  << cgicc::th() << std::endl
+              << cgicc::th() << "GTX_TTC"  << cgicc::th() << std::endl
+              << cgicc::th() << "Internal" << cgicc::th() << std::endl
+              << cgicc::th() << "External" << cgicc::th() << std::endl
+              << cgicc::th() << "Loopback" << cgicc::th() << std::endl;
       } else if ((*monset).rfind("Other Counters") != std::string::npos) {
         *out << cgicc::th() << "Count" << cgicc::th() << std::endl
              << cgicc::th() << "Rate"  << cgicc::th() << std::endl;
@@ -316,7 +336,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildMonitorPage(xgi::Output* out)
       }
       *out << cgicc::th()    << "Register address" << cgicc::th() << std::endl
            << cgicc::th()    << "Description"      << cgicc::th() << std::endl
-           << cgicc::tr()    << std::endl //close
+           << cgicc::tr()    << std::endl // close
            << cgicc::thead() << std::endl
            << "<tbody>" << std::endl;
     }
@@ -500,6 +520,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildVFATCRCCounterTable(xgi::Outpu
          << "</td>"   << std::endl;
 
     for (auto crc = crcs.begin(); crc != crcs.end(); ++crc) {
+      // IMPROVEMENT make the tables dynamically with something like angular/react
       // loop over all items in the list and find the right key?
       // auto monitem = std::find(monset.begin(), monset.end(), ss.str()+"_"+(*crc));
       // if (monitem == monset.end()) {
@@ -555,7 +576,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildT1CounterTable(xgi::Output* ou
   // get the list of pairs of monitorables in the T1 Counters monset
   auto monset = m_monitorableSetsMap.find("T1 Counters")->second;
 
-  std::array<std::string, 5> t1sources = {{"TTC","INTERNAL","EXTERNAL","LOOPBACK","SENT"}};
+  std::array<std::string, 6> t1sources = {{"SENT","GBT_TTC","GTX_TTC","INTERNAL","EXTERNAL","LOOPBACK"}};
   std::array<std::string, 4> t1signals = {{"L1A","CalPulse","Resync","BC0"}};
 
   for (auto t1signal = t1signals.begin(); t1signal != t1signals.end(); ++t1signal) {
@@ -676,17 +697,18 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
 
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
 
+  // for (auto const& scan : scans) {
   for (auto scan = scans.begin(); scan != scans.end(); ++scan) {
     *out << "<div class=\"xdaq-tab\" title=\""  << scan->first << "\" >" << std::endl;
 
     *out << "<table class=\"xdaq-table\" id=\"" << scan->first << "_table\">" << std::endl
          << cgicc::thead() << std::endl
-         << cgicc::tr()    << std::endl //open
+         << cgicc::tr()    << std::endl // open
          << cgicc::th()    << "Register name"    << cgicc::th() << std::endl
          << cgicc::th()    << "Value"            << cgicc::th() << std::endl
          << cgicc::th()    << "Register address" << cgicc::th() << std::endl
          << cgicc::th()    << "Description"      << cgicc::th() << std::endl
-         << cgicc::tr()    << std::endl //close
+         << cgicc::tr()    << std::endl // close
          << cgicc::thead() << std::endl
          << "<tbody>" << std::endl;
 
@@ -703,9 +725,9 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
         *out << "<tr>"    << std::endl;
 
         std::string formatted = (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format);
-
+        std::string monname = monitem->first;
         *out << "<td>"    << std::endl
-             << (monitem->first).erase(0,scan->first.length())
+             << monname.erase(0,scan->first.length())
              << "</td>"   << std::endl;
 
         DEBUG("OptoHybridMonitor::" << monitem->first << " formatted to " << formatted);
@@ -728,7 +750,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
     }  // should have found all items in the list
     *out << "</tbody>"  << std::endl
          << "</table>"  << std::endl;
-    //}  //
+    // }  //
     *out << "</div>"   << std::endl;
   }  // done looping over types of firmware scans
   *out << "</div>"   << std::endl;
@@ -736,7 +758,7 @@ void gem::hw::optohybrid::OptoHybridMonitor::buildFirmwareScanTable(xgi::Output*
 
 void gem::hw::optohybrid::OptoHybridMonitor::reset()
 {
-  //have to get rid of the timer
+  // have to get rid of the timer
   DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
     DEBUG("OptoHybridMonitor::reset removing " << infoSpace->first << " from p_timer");

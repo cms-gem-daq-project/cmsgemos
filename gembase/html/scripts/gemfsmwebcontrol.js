@@ -43,7 +43,7 @@ function showTable( )
     var state = document.getElementById("fsmState").innerHTML;
     if (state == "Failed" || state == "Error") {
         // hide all buttons except for 'reset'
-        $("tr.hide#initconf").hide();
+        $("tr.hide#initconf" ).hide();
         $("tr.hide#startstop").hide();
         $("tr.hide#haltreset").show();
         $("button.hide#halt" ).hide();
@@ -79,6 +79,7 @@ function showTable( )
             $("button.hide#pause" ).hide();
             $("button.hide#resume").hide();
         } else if (state == "Running") {
+            $("tr.hide#initconf"  ).hide();
             // hide stop/resume buttons
             $("tr.hide#startstop" ).show();
             $("button.hide#start" ).hide();
