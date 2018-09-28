@@ -1,4 +1,24 @@
 from collections import defaultdict as cdict
+from collections import MutableMapping
+
+def flatten(ndict, parent_key='', sep='_'):
+    """
+    flattens a nesteddict to one dimension, allows for easily
+    determining the number of elements in the nesteddict
+
+    keys of the dictionary and all it's nested dictionaries
+    must be convertable to strings
+
+    ## from https://stackoverflow.com/questions/6027558/flatten-nested-python-dictionaries-compressing-keys
+    """
+    items = []
+    for key, value in ndict.items():
+        new_key = parent_key + sep + str(key) if parent_key else str(key)
+        if isinstance(value, MutableMapping):
+            items.extend(flatten(value, new_key, sep=sep).items())
+        else:
+            items.append((new_key, value))
+    return dict(items)
 
 class nesteddict(dict):
     """

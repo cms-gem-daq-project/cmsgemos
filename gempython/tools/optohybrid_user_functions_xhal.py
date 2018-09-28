@@ -1,8 +1,7 @@
-import os, sys
-
 from gempython.tools.amc_user_functions_xhal import *
 
 import logging
+import os, sys
 
 class HwOptoHybrid(object):
     def __init__(self, cardName, link, debug=False):
@@ -17,6 +16,8 @@ class HwOptoHybrid(object):
 
         # Store HW info
         self.link = link
+        #self.mask = self.getVFATMask()
+        self.mask = 0x0
         self.nVFATs = 24
         self.parentAMC = HwAMC(cardName, debug)
 
@@ -273,6 +274,20 @@ class HwOptoHybrid(object):
             #return -1
             sys.exit(os.EX_USAGE)
 
+    def getSBitMask(self):
+        """
+        v3 electronics only
+
+        Gets the sbit mask in the OH FPGA
+        """
+
+        if self.parentAMC.fwVersion < 3:
+            print("Parent AMC Major FW Version: %i"%(self.parentAMC.fwVersion))
+            print("Only implemented for v3 electronics, exiting")
+            sys.exit(os.EX_USAGE)
+
+        return self.parentAMC.readRegister("GEM_AMC.OH.OH%i.TRIG.CTRL.VFAT_MASK"%(self.link))
+
     def getTriggerSource(self):
         """
         v2b electronics only
@@ -291,6 +306,15 @@ class HwOptoHybrid(object):
             print("HwOptoHybrid.getTriggerSource() - No support for v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
     
+    def getVFATMask(self):
+        """
+        V3 electronics only
+
+        Returns a 24 bit number that should be used as the VFAT Mask
+        """
+
+        return self.parentAMC.getLinkVFATMask(self.link)
+
     def performCalibrationScan(self, **kwargs):
         """
         Performs either a v2b ultra scan or a v3 generic scan of either a single
@@ -483,3 +507,9 @@ class HwOptoHybrid(object):
         else:
             print("HwOptoHybrid.setTriggerThrottle() - There is no way to presecale the L1As being sent in v3 electronics, exiting")
             sys.exit(os.EX_USAGE)
+
+    def setVFATMask(self, mask=None):
+        if mask is None:
+            self.mask = self.parentAMC.getVFATMask(self.link)
+        else:
+            self.mask = mask

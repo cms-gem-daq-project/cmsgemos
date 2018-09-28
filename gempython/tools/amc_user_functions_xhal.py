@@ -11,6 +11,39 @@ import logging
 gMAX_RETRIES = 5
 gRetries = 5
 
+ohBoardTempArray = c_uint32 * 9 # Temperature Array
+class SCAMonitorParams(Structure):
+    _fields_ = [
+            ("ohBoardTemp", ohBoardTempArray),
+            ("ohFPGACoreTemp", c_uint32),
+            ("scaTemp", c_uint32),
+            ("AVCCN", c_uint32),
+            ("AVTTN", c_uint32),
+            ("voltage1V0_INT", c_uint32),
+            ("voltage1V8F", c_uint32),
+            ("voltage1V5", c_uint32),
+            ("voltage2V5_IO", c_uint32),
+            ("voltage3V0", c_uint32),
+            ("voltage1V8", c_uint32),
+            ("VTRX_RSSI2", c_uint32),
+            ("VTRX_RSSI1", c_uint32)
+            ]
+SCAMonitorArrayType = SCAMonitorParams * 12 # SCA Monitor Array
+
+class SysmonMonitorParams(Structure):
+    _fields_ = [
+            ("isOverTemp", c_bool),
+            ("isInVCCAuxAlarm", c_bool),
+            ("isInVCCIntAlarm", c_bool),
+            ("cntOverTemp", c_uint32),
+            ("cntVCCAuxAlarm", c_uint32),
+            ("cntVCCIntAlarm", c_uint32),
+            ("fpgaCoreTemp", c_uint32),
+            ("fpgaCore1V0", c_uint32),
+            ("fpgaCore2V5_IO", c_uint32)
+            ]
+SysmonMonitorArrayType = SysmonMonitorParams * 12 # Sysmon Monitor Array
+
 class HwAMC(object):
     def __init__(self, cardName, debug=False):
         """
@@ -25,10 +58,39 @@ class HwAMC(object):
 
         # Store HW info
         self.name = cardName
+        #self.nOHs = 12
+        self.nOHs = 4
 
-        # Define the connection
+        # Open the foreign function library
         self.lib = CDLL("librpcman.so")
        
+        # Define VFAT3 DAC Monitoring
+        self.confDacMonitorMulti = self.lib.configureVFAT3DacMonitorMultiLink
+        self.confDacMonitorMulti.argTypes = [ c_uint, POINTER(c_uint32), c_uint ]
+        self.confDacMonitorMulti.restype = c_uint
+
+        self.readADCsMulti = self.lib.readVFAT3ADCMultiLink
+        self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool ]
+        self.readADCsMulti.restype = c_uint
+
+        # Define SCA & Sysmon Monitoring
+        self.getmonOHSCAmain = self.lib.getmonOHSCAmain
+        self.getmonOHSCAmain.argTypes = [ SCAMonitorArrayType, c_uint, c_uint ]
+        self.getmonOHSCAmain.restype = c_uint
+
+        self.getmonOHSysmon = self.lib.getmonOHSysmon
+        self.getmonOHSysmon.argTypes = [ SysmonMonitorArrayType, c_uint, c_uint, c_bool ]
+        self.getmonOHSysmon.restype = c_uint
+
+        # Define Get OH Mask functionality
+        self.getOHVFATMask = self.lib.getOHVFATMask
+        self.getOHVFATMask.argTypes = [ c_uint ]
+        self.getOHVFATMask.restype = c_uint
+
+        self.getOHVFATMaskMultiLink = self.lib.getOHVFATMaskMultiLink
+        self.getOHVFATMaskMultiLink.argTypes = [ c_uint, POINTER(c_uint32) ]
+        self.getOHVFATMaskMultiLink.restype = c_uint
+
         # Define TTC Functions
         self.ttcGenConf = self.lib.ttcGenConf
         self.ttcGenConf.restype = c_uint
@@ -38,9 +100,13 @@ class HwAMC(object):
         self.ttcGenToggle.restype = c_uint
         self.ttcGenToggle.argtypes = [c_uint, c_bool]
 
+        # Define SBIT Local Readout
+        self.readSBits = self.lib.sbitReadOut
+        self.readSBits.restype = c_uint
+        self.readSBits.argtypes = [c_uint, c_uint, c_char_p]
+
         # Parse XML
         parseXML()
-        #global nodes
 
         # Open RPC Connection
         print "Initializing AMC", self.name
@@ -49,6 +115,18 @@ class HwAMC(object):
         print "My FW release major = ", self.fwVersion
 
         return
+
+    def acquireSBits(self, ohN, outFilePath, acquireTime=300):
+        """
+        Using the SBIT_MONITOR acquire sbit data for time in seconds given
+        by acquireTime and write the data to the directory specified by outFilePath
+
+        ohN - optohybrid to monitor
+        outFilePath - filepath created data files will be written too
+        acquireTime - time in seconds to acquire data for
+        """
+
+        return self.readSBits(ohN, acquireTime, outFilePath)
 
     def blockL1A(self):
         """
@@ -84,6 +162,22 @@ class HwAMC(object):
 
         return self.ttcGenConf(ohN, mode, t1type, pulseDelay, L1Ainterval, nPulses, enable)
 
+    def configureVFAT3DacMonitorMulti(self, dacSelect, ohMask=0xFFF):
+        """
+        Configure the DAC Monitoring to monitor the register defined by dacSelect
+        on all unmasked VFATs for optohybrids given by ohMask.
+
+        Will automatically determine the vfatmask for *each* optohybrid
+
+        dacSelect - An integer defining the monitored register.
+                    See VFAT3 Manual GLB_CFG_CTR_4 for details.
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        """
+
+        ohVFATMaskArray = self.getMultiLinkVFATMask(ohMask)
+        return self.confDacMonitorMulti(ohMask, ohVFATMaskArray, dacSelect)
+
     def enableL1A(self):
         """
         enables L1A's from backplane for this AMC
@@ -117,6 +211,69 @@ class HwAMC(object):
                 print("\tCYCLIC_CALPULSE_TO_L1A_GAP: \t%i"%(self.readRegister("%s.CYCLIC_CALPULSE_TO_L1A_GAP"%(contBase))))
                 print("\tENABLE: \t\t\t%i"%(running))
         return running
+
+    def getLinkVFATMask(self,ohN):
+        """
+        V3 electronics only
+
+        Returns a 24 bit number that can be used as the VFAT Mask
+        for the Optohybrid ohN
+        """
+        if self.fwVersion < 3:
+            print("HwAMC::getLinkVFATMask() - No support in v2b FW")
+            return os.EX_USAGE
+
+        mask = self.getOHVFATMask(ohN)
+        if mask == 0xffffffff:
+            raise Exception("RPC response was overflow, failed to determine VFAT mask for OH{0}".format(ohN))
+        else:
+            return mask
+
+    def getMultiLinkVFATMask(self,ohMask=0xfff):
+        """
+        v3 electronics only
+
+        Returns a ctypes array of c_uint32 of size 12.  Each element of the
+        array is the vfat mask for the ohN defined by the array index
+
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        """
+
+        if self.fwVersion < 3:
+            print("HwAMC::getLinkVFATMask() - No support in v2b FW")
+            return os.EX_USAGE
+
+        vfatMaskArray = (c_uint32 * 12)()
+        rpcResp = self.getOHVFATMaskMultiLink(ohMask, vfatMaskArray)
+
+        if rpcResp != 0:
+            raise Exception("RPC response was non-zero, failed to determine VFAT masks for ohMask {0}".format(hex(ohMask)))
+        else:
+            return vfatMaskArray
+
+    def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF, debug=False):
+        """
+        Reads the ADC value from all unmasked VFATs
+
+        adcDataAll - Array of type c_uint32 of size 24*12=288
+        useExtRefADC - True (False) use the externally (internally) referenced ADC
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        """
+
+        if debug:
+            print("getting vfatmasks for each OH")
+
+        ohVFATMaskArray = self.getMultiLinkVFATMask(ohMask)
+        if debug:
+            print("| ohN | vfatmask |")
+            print("| :-: | :------: |")
+            for ohN in range(0,12):
+                mask = str(hex(ohVFATMaskArray[ohN])).strip('L')
+                print("| {0} | {1} |".format(ohN, mask))
+
+        return self.readADCsMulti(ohMask,ohVFATMaskArray, adcDataAll, useExtRefADC)
 
     def readBlock(register, nwords, debug=False):
         """
@@ -180,6 +337,50 @@ class HwAMC(object):
                 if debug: print "Read register result: %s" %(fin_res)
                 return fin_res
         return 0xdeaddead
+
+    def scaMonitorToggle(self, ohMask=0x0, debug=False):
+        """
+        Toggle the SCA Monitoring for OH's on this AMC
+
+        ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will suspend ADC monitoring on that SCA
+        """
+
+        self.writeRegister("GEM_AMC.SLOW_CONTROL.SCA.ADC_MONITORING.MONITORING_OFF",ohMask,debug)
+
+    def scaMonitorMultiLink(self, NOH=12, ohMask=0xfff):
+        """
+        v3 electronics only.
+        Reads SCA monitoring data for multiple links on the AMC
+
+        NOH - number of OH's on this AMC
+        ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will cause the SCA data to be monitored for this OH.
+        """
+
+        scaMonData = SCAMonitorArrayType()
+        rpcResp = self.getmonOHSCAmain(scaMonData, NOH, ohMask)
+
+        if rpcResp != 0:
+            raise Exception("RPC response was non-zero, reading SCA Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
+
+        return scaMonData
+
+    def sysmonMonitorMultiLink(self, NOH=12, ohMask=0xfff, doReset=False):
+        """
+        v3 eletronics only.
+        Reads FPGA sysmon data for multiple links on the AMC
+
+        NOH - number of OH's on this AMC
+        ohMask - 12 bit number where N^th bit corresponds to N^th OH.  Setting a bit to 1 will cause the SCA data to be monitored for this OH.
+        doReset - Resets the sysmon alarm counters (generally unwise)
+        """
+
+        sysmonData = SysmonMonitorArrayType()
+        rpcResp = self.getmonOHSysmon(sysmonData, NOH, ohMask, doReset)
+
+        if rpcResp != 0:
+            raise Exception("RPC response was non-zero, reading Sysmon Monitoring Data from OH's in ohMask = {0} failed".format(str(hex(args.ohMask)).strip('L')))
+
+        return sysmonData
 
     def toggleTTCGen(self, ohN, enable):
         """
