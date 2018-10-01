@@ -1,8 +1,8 @@
 /**
- * class: GEMSupervisor
- * description: Supervisor application for GEM system
- *              structure borrowed from TCDS core, with nods to HCAL (hcalSupervisor)
- * author: J. Sturdy
+ * class: ShelfMonitor
+ * description: Shelf monitoring application for GEM system
+ *              structure borrowed from gemSupervisor
+ * author: M. Dalchenko
  * date:
  */
 
@@ -31,13 +31,13 @@ gem::daqmon::ShelfMonitor::ShelfMonitor(xdaq::ApplicationStub* stub) :
   gem::base::GEMApplication(stub),
   m_shelfID(-1) 
 {
-  DEBUG("Creating the ShelfMonitorWeb interface");
+  DEBUG("gem::daqmon::ShelfMonitor : Creating the ShelfMonitorWeb interface");
   p_gemWebInterface = new gem::daqmon::ShelfMonitorWeb(this);
-  DEBUG("Retrieving configuration");
+  DEBUG("gem::daqmon::ShelfMonitor : Retrieving configuration");
   p_appInfoSpace->fireItemAvailable("shelfID",     &m_shelfID);
   p_appInfoSpace->addItemRetrieveListener("shelfID", this);
   p_appInfoSpace->addItemChangedListener("shelfID", this);
-  DEBUG("done");
+  DEBUG("gem::daqmon::ShelfMonitor : configuration retrieved");
   //init();
 }
 
@@ -52,7 +52,7 @@ gem::daqmon::ShelfMonitor::~ShelfMonitor()
 void gem::daqmon::ShelfMonitor::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("GEMSupervisor::actionPerformed() setDefaultValues" <<
+    DEBUG("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     importConfigurationParameters();
     importMonitoringParameters();
@@ -65,7 +65,7 @@ void gem::daqmon::ShelfMonitor::actionPerformed(xdata::Event& event)
 
   // item is changed, update it
   if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
-    DEBUG("GEMSupervisor::actionPerformed() ItemChangedEvent");
+    DEBUG("gem::daqmon::ShelfMonitor::actionPerformed() ItemChangedEvent");
   }
 
   // update monitoring variables
