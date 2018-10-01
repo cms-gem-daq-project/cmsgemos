@@ -1,4 +1,4 @@
-/** @file GEMSupervisor.h */
+/** @file ShelfMonitor.h */
 
 #ifndef GEM_DAQMON_SHELFMONITOR_H
 #define GEM_DAQMON_SHELFMONITOR_H
