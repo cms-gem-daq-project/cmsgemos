@@ -48,6 +48,8 @@ namespace gem {
 
       void buildDAQmainTable(xgi::Output* out);
 
+      void buildTTCmainTable(xgi::Output* out);
+
       typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
     
     protected:

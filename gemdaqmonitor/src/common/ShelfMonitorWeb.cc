@@ -24,6 +24,8 @@ void gem::daqmon::ShelfMonitorWeb::webDefault(xgi::Input * in, xgi::Output * out
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemsupervisor/html/scripts/gemsupervisor.js") //let it be here for the moment, update with the relevant scripts later
        << cgicc::script() << std::endl;
+  //*out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gemdaqmonitor/html/css/bootstrap.css'\">" << std::endl;
+  *out << "<link  rel=\"stylesheet\" href=\"./html/css/bootstrap.css'\">" << std::endl;
 
   GEMWebApplication::webDefault(in, out);
 }

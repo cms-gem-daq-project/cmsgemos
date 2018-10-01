@@ -101,26 +101,31 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
                  GEMUpdateType::HW32, "hex");
   //end of DAQ_MAIN monitorables
 
-/*----------------------------------------------------------------------------------------------------------
   addMonitorableSet("DAQ_OH_MAIN","DAQ_MONITORING");
   //DAQ_OH_MAIN monitorables
   //FIXME Putting "DUMMY" as reg full name at the moment. May want to define all tables here and pass as a list to RPC
   for (unsigned int i = 0; i < NOH; ++i) {
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".STATUS.EVT_SIZE_ERR",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".STATUS.EVT_SIZE_ERR","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".STATUS.EVENT_FIFO_HAD_OFLOW",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".STATUS.EVENT_FIFO_HAD_OFLOW","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".STATUS.INPUT_FIFO_HAD_OFLOW",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".STATUS.INPUT_FIFO_HAD_OFLOW","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".STATUS.INPUT_FIFO_HAD_UFLOW",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".STATUS.INPUT_FIFO_HAD_UFLOW","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".STATUS.VFAT_TOO_MANY",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".STATUS.VFAT_TOO_MANY","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".STATUS.VFAT_NO_MARKER",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".STATUS.VFAT_NO_MARKER","DUMMY"),
                  GEMUpdateType::HW32, "hex");
@@ -129,18 +134,23 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
 
   addMonitorableSet("DAQ_TTC_MAIN","DAQ_MONITORING");
   //DAQ_TTC_MAIN monitorables
+  is_daqmon->createUInt32("MMCM_LOCKED",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_TTC_MAIN", "DAQ_MONITORING",
                std::make_pair("MMCM_LOCKED","DUMMY"),
                GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("TTC_SINGLE_ERROR_CNT",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_TTC_MAIN", "DAQ_MONITORING",
                std::make_pair("TTC_SINGLE_ERROR_CNT","DUMMY"),
                GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("BC0_LOCKED",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_TTC_MAIN", "DAQ_MONITORING",
                std::make_pair("BC0_LOCKED","DUMMY"),
                GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("L1A_ID",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_TTC_MAIN", "DAQ_MONITORING",
                std::make_pair("L1A_ID","DUMMY"),
                GEMUpdateType::HW32, "hex");
+  is_daqmon->createUInt32("L1A_RATE",    0,        NULL, GEMUpdateType::HW32);
   addMonitorable("DAQ_TTC_MAIN", "DAQ_MONITORING",
                std::make_pair("L1A_RATE","DUMMY"),
                GEMUpdateType::HW32, "hex");
@@ -149,8 +159,9 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
   addMonitorableSet("DAQ_TRIGGER_MAIN","DAQ_MONITORING");
   //DAQ_TRIGGER_MAIN monitorables
   for (unsigned int i = 0; i < NOH; ++i) {
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".TRIGGER_RATE",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_MAIN", "DAQ_MONITORING",
-                 std::make_pair("OH"+std::to_string(i)+"TRIGGER_RATE","DUMMY"),
+                 std::make_pair("OH"+std::to_string(i)+".TRIGGER_RATE","DUMMY"),
                  GEMUpdateType::HW32, "hex");
   }
   //end of DAQ_TRIGGER_MAIN monitorables
@@ -158,27 +169,35 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
   addMonitorableSet("DAQ_TRIGGER_OH_MAIN","DAQ_MONITORING");
   //DAQ_TRIGGER_OH_MAIN monitorables
   for (unsigned int i = 0; i < NOH; ++i) {
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK0_MISSED_COMMA_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
-                 std::make_pair("OH"+std::to_string(i)+"LINK0_MISSED_COMMA_CNT","DUMMY"),
+                 std::make_pair("OH"+std::to_string(i)+".LINK0_MISSED_COMMA_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK1_MISSED_COMMA_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK1_MISSED_COMMA_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK0_OVERFLOW_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK0_OVERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK1_OVERFLOW_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK1_OVERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK0_UNDERFLOW_CNy",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK0_UNDERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK1_UNDERFLOW_CNy",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK1_UNDERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK0_SBIT_OVERFLOW_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK0_SBIT_OVERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK1_SBIT_OVERFLOW_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK1_SBIT_OVERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
@@ -188,30 +207,36 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
   addMonitorableSet("OH_MAIN","DAQ_MONITORING");
   //OH_MAIN monitorables
   for (unsigned int i = 0; i < NOH; ++i) {
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".FW_VERSION",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+"FW_VERSION","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".EVENT_COUNTER",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".EVENT_COUNTER","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".EVENT_RATE",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".EVENT_RATE","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".GTX.TRK_ERR",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".GTX.TRK_ERR","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".GTX.TRG_ERR",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".GTX.TRG_ERR","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".GBT.TRK_ERR",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".GBT.TRK_ERR","DUMMY"),
                  GEMUpdateType::HW32, "hex");
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".CORR_VFAT_BLK_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".CORR_VFAT_BLK_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
   }
   //end of OH_MAIN monitorables
-----------------------------------------------------------------------------------------------------------*/
 }
 
 void gem::daqmon::DaqMonitor::updateMonitorables()
@@ -219,11 +244,11 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
   DEBUG("DaqMonitor: Updating Monitorables");
   try {
     updateDAQmain();
-    //updateDAQOHmain();
-    //updateTTCmain();
-    //updateTRIGGERmain();
-    //updateTRIGGEROHmain();
-    //updateOHmain();
+    updateDAQOHmain();
+    updateTTCmain();
+    updateTRIGGERmain();
+    updateTRIGGEROHmain();
+    updateOHmain();
   } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
 }
 
@@ -370,10 +395,6 @@ void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
   daqlist.push_back({{"L1A_FIFO_HAD_OFLOW","YES","NO","danger","success"}});
 
   int val = 0;
-  //auto daqmon_is = m_infoSpaceMap.find("DAQ_MONITORING")->first;
-  //auto daqmon_is = m_infoSpaceMap.find("DAQ_MONITORING")->second.first->infoSpace;
-  //auto monsets = m_infoSpaceMonitorableSetMap.find("DAQ_MONITORING")->second;
-  //auto monset  = m_monitorableSetsMap.find("DAQ_MAIN")->second;
 
   *out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
   for (auto daq: daqlist) {
@@ -391,23 +412,70 @@ void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
   *out << "</table>" << std::endl;
 }
 
+void gem::daqmon::DaqMonitor::buildTTCmainTable(xgi::Output* out)
+{
+  DEBUG("DaqMonitor: Build TTC main table");
+  std::vector<std::array<std::string,5>> ttclist;
+  ttclist.push_back({{"MMCM_LOCKED","YES","NO","success","danger"}});
+  ttclist.push_back({{"TTC_SINGLE_ERROR_CNT","YES","NO","success","warning"}});
+  ttclist.push_back({{"BC0_LOCKED","YES","NO","success","danger"}});
+  ttclist.push_back({{"L1A_ID","YES","NO","danger","success"}});
+  ttclist.push_back({{"L1A_RATE","YES","NO","danger","success"}});
+
+  int val = 0;
+
+  *out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
+  for (auto ttc: ttclist) {
+    *out << "    <tr>" << std::endl;
+    *out << "    <td style=\"width:10%\">"<< ttc[0] << "</td>" << std::endl;
+    val = is_daqmon->getUInt32(ttc[0]);
+    if ((ttc[0].find("L1A") != std::string::npos) || (ttc[0].find("TTC") != std::string::npos)){
+      ttc[1] = std::to_string(val);
+      ttc[2] = std::to_string(val);
+    }
+    if (val>0) {
+      *out << "<td><span class=\"label label-" << ttc[3] << "\">" << ttc[1] << "</span></td>" << std::endl;
+    } else {
+      *out << "<td><span class=\"label label-" << ttc[4] << "\">" << ttc[2] << "</span></td>" << std::endl;
+    }
+    *out << "    </tr>" << std::endl;
+  }
+
+  *out << "</table>" << std::endl;
+
+}
+
 void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out)
 {
   *out << "<div class=\"col-lg-6\">" << std::endl;
-  *out << "<div class=\"panel panel-default\">" << std::endl;
-  *out << "<div class=\"panel-heading\">" << std::endl;
-  *out << "<h4 align=\"center\">" << std::endl;
-  *out << "DAQ" << std::endl;
-  *out << "</h4>" << std::endl;
-  //FIXME add IEMASK later
-  buildDAQmainTable(out);
-  //out << "<small>" << std::endl;
-  //out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
+    *out << "<div class=\"panel panel-default\">" << std::endl;
+      *out << "<div class=\"panel-heading\">" << std::endl;
+        *out << "<div class=\"row\">" << std::endl;
+          *out << "<div class=\"col-lg-3\">" << std::endl;
+            *out << "<h4 align=\"center\">" << std::endl;
+              *out << "DAQ" << std::endl;
+            *out << "</h4>" << std::endl;
+            //FIXME add IEMASK later
+            buildDAQmainTable(out);
+            //out << "<small>" << std::endl;
+            //out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
 
-  *out << "</div>" << std::endl; // end panel head
-  // There could be a panel body here
-  *out << "</div>" << std::endl; // end panel
-  // There could be other elements in the column...
+          *out << "</div>" << std::endl; // end DAQ column
+
+          *out << "<div class=\"col-lg-3\">" << std::endl;
+            *out << "<h4 align=\"center\">" << std::endl;
+              *out << "TTC" << std::endl;
+            *out << "</h4>" << std::endl;
+            buildTTCmainTable(out);
+
+          *out << "</div>" << std::endl; // end TTC column
+
+        *out << "</div>" << std::endl; // end div row
+
+      *out << "</div>" << std::endl; // end panel head
+      // There could be a panel body here
+    *out << "</div>" << std::endl; // end panel
+    // There could be other elements in the column...
   *out << "</div>" << std::endl; // end column
 
 
