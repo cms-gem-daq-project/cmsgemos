@@ -11,7 +11,6 @@ gem::daqmon::ShelfMonitorWeb::ShelfMonitorWeb(gem::daqmon::ShelfMonitor* shelfMo
   gem::base::GEMWebApplication(shelfMonitorApp)
 {
   level = 5;
-  // p_gemMonitor = dynamic_cast<gem::supervisor::GEMSupervisorMonitor*> gemSupervisorApp->getMonitor();
 }
 
 gem::daqmon::ShelfMonitorWeb::~ShelfMonitorWeb()
@@ -23,7 +22,7 @@ void gem::daqmon::ShelfMonitorWeb::webDefault(xgi::Input * in, xgi::Output * out
   throw (xgi::exception::Exception)
 {
   *out << cgicc::script().set("type", "text/javascript")
-    .set("src", "/gemdaq/gemsupervisor/html/scripts/gemsupervisor.js")
+    .set("src", "/gemdaq/gemsupervisor/html/scripts/gemsupervisor.js") //let it be here for the moment, update with the relevant scripts later
        << cgicc::script() << std::endl;
 
   GEMWebApplication::webDefault(in, out);
