@@ -58,6 +58,10 @@ class HwOptoHybrid(object):
                                         c_uint, c_bool, c_char_p, c_bool,
                                         POINTER(c_uint32)]
 
+        self.dacScan = self.parentAMC.lib.dacScan
+        self.dacScan.restype = c_uint
+        self.dacScan.argtypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint32) ]
+
         # Define the trigger rate scan module
         self.sbitRateScan = self.parentAMC.lib.sbitRateScan
         self.sbitRateScan.restype = c_uint
@@ -425,6 +429,38 @@ class HwOptoHybrid(object):
             return self.genChannelScan(nevts, self.link, mask, dacMin, dacMax, stepSize, enableCal, currentPulse, calSF, useExtTrig, scanReg, useUltra, kwargs["outData"])
         else:
             return self.genScan(nevts, self.link, dacMin, dacMax, stepSize, chan, enableCal, currentPulse, calSF, mask, scanReg, useUltra, useExtTrig, kwargs["outData"])
+
+    def performDacScan(self, outData, dacSelect, dacStep=1, mask=0x0, useExtRefADC=False):
+        """
+        Scans the DAC defined by dacSelect, see VFAT3 Manual
+
+        V3 Electronics only
+
+        outData - Array of type c_uint32,
+        dacSelect - Integer which specifies the DAC to scan against the ADC.  See VFAT3 Manual
+        dacStep - Step size to scan the DAC with
+        mask - VFAT mask
+        useExtRefADC - If true the DAC scan will be made using the externally referenced ADC on the VFAT3s
+        """
+
+        # Check we are v3 electronics
+        if self.parentAMC.fwVersion < 3:
+            print("HwOptoHybrid::performDacScan(): No support for v2b electronics")
+            exit(os.EX_USAGE)
+
+        # Check if dacSelect is valid
+        if dacSelect not in maxVfat3DACSize.keys():
+            print("HwOptoHybrid::performDacScan(): Invalid dacSelect {0} value.  Valid values are:".format(dacScan))
+            print(maxVfat3DACSize.keys())
+            exit(os.EX_USAGE)
+
+        #Check length of results container
+        lenExpected = (maxVfat3DACSize[dacSelect][0] - 0+1)*24 / dacStep
+        if (len(outData) != lenExpected):
+            print("HwOptoHybrid::performDacScan(): I expected container of lenght {0} but provided 'outData' has length {1}",format(lenExpected, len(outData)))
+            exit(os.EX_USAGE)
+
+        return self.dacScan(self.link, dacSelect, dacStep, mask, useExtRefADC, outData)
 
     def performSBitRateScan(self, maskOh, outDataDacVal, outDataTrigRate, outDataTrigRatePerVFAT,
                             dacMin=0, dacMax=254, stepSize=2, chan=128, scanReg="THR_ARM_DAC", time=1000,
