@@ -453,6 +453,7 @@ void gem::daqmon::DaqMonitor::buildTTCmainTable(xgi::Output* out)
   ttclist.push_back({{"BC0_LOCKED","YES","NO","success","danger"}});
   ttclist.push_back({{"L1A_ID","YES","NO","info","info"}});
   ttclist.push_back({{"L1A_RATE","YES","NO","info","info"}});
+
   int val = 0;
 
   *out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
