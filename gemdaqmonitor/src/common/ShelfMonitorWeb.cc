@@ -21,11 +21,11 @@ gem::daqmon::ShelfMonitorWeb::~ShelfMonitorWeb()
 void gem::daqmon::ShelfMonitorWeb::webDefault(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  *out << cgicc::script().set("type", "text/javascript")
-    .set("src", "/gemdaq/gemsupervisor/html/scripts/gemsupervisor.js") //let it be here for the moment, update with the relevant scripts later
-       << cgicc::script() << std::endl;
-  //*out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gemdaqmonitor/html/css/bootstrap.css'\">" << std::endl;
-  *out << "<link  rel=\"stylesheet\" href=\"./html/css/bootstrap.css'\">" << std::endl;
+  //*out << cgicc::script().set("type", "text/javascript")
+  //  .set("src", "/gemdaq/gemsupervisor/html/scripts/gemsupervisor.js") //let it be here for the moment, update with the relevant scripts later
+  //     << cgicc::script() << std::endl;
+  *out << "<link  rel=\"stylesheet\" href=\"/gemdaq/gemdaqmonitor/html/css/bootstrap.css\" type=\"text/css\">" << std::endl;
+  *out << "<script src=\"/gemdaq/gemdaqmonitor/html/js/bootstrap.min.js\"></script>" << std::endl;
 
   GEMWebApplication::webDefault(in, out);
 }

@@ -7,6 +7,7 @@
  */
 
 #include "gem/daqmon/DaqMonitor.h"
+#include <iomanip>
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
@@ -185,11 +186,11 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK1_OVERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
-    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK0_UNDERFLOW_CNy",    0,        NULL, GEMUpdateType::HW32);
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK0_UNDERFLOW_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK0_UNDERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
-    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK1_UNDERFLOW_CNy",    0,        NULL, GEMUpdateType::HW32);
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".LINK1_UNDERFLOW_CNT",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING",
                  std::make_pair("OH"+std::to_string(i)+".LINK1_UNDERFLOW_CNT","DUMMY"),
                  GEMUpdateType::HW32, "hex");
@@ -207,9 +208,9 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
   addMonitorableSet("OH_MAIN","DAQ_MONITORING");
   //OH_MAIN monitorables
   for (unsigned int i = 0; i < NOH; ++i) {
-    is_daqmon->createUInt32("OH"+std::to_string(i)+".FW_VERSION",    0,        NULL, GEMUpdateType::HW32);
+    is_daqmon->createUInt32("OH"+std::to_string(i)+".FW_VERSION",    0xdeaddead,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
-                 std::make_pair("OH"+std::to_string(i)+"FW_VERSION","DUMMY"),
+                 std::make_pair("OH"+std::to_string(i)+".FW_VERSION","DUMMY"),
                  GEMUpdateType::HW32, "hex");
     is_daqmon->createUInt32("OH"+std::to_string(i)+".EVENT_COUNTER",    0,        NULL, GEMUpdateType::HW32);
     addMonitorable("OH_MAIN", "DAQ_MONITORING",
@@ -387,12 +388,17 @@ void gem::daqmon::DaqMonitor::updateOHmain()
 void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
 {
   DEBUG("DaqMonitor: Build DAQ main table");
+  *out << "<font size=\"1\">" << std::endl;
+  *out << "<small>" << std::endl;
   std::vector<std::array<std::string,5>> daqlist;
   daqlist.push_back({{"DAQ_ENABLE","YES","NO","success","warning"}});
   daqlist.push_back({{"DAQ_LINK_READY","YES","NO","success","warning"}});
   daqlist.push_back({{"DAQ_LINK_AFULL","YES","NO","warning","success"}});
   daqlist.push_back({{"DAQ_OFIFO_HAD_OFLOW","YES","NO","danger","success"}});
   daqlist.push_back({{"L1A_FIFO_HAD_OFLOW","YES","NO","danger","success"}});
+  daqlist.push_back({{"L1A_FIFO_DATA_COUNT","YES","NO","info","info"}});
+  daqlist.push_back({{"DAQ_FIFO_DATA_COUNT","YES","NO","info","info"}});
+  daqlist.push_back({{"EVENT_SENT","YES","NO","info","info"}});
 
   int val = 0;
 
@@ -401,6 +407,10 @@ void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
     *out << "    <tr>" << std::endl;
     *out << "    <td style=\"width:10%\">"<< daq[0] << "</td>" << std::endl;
     val = is_daqmon->getUInt32(daq[0]);
+    if ((daq[0].find("DATA_COUNT") != std::string::npos) || (daq[0].find("EVENT_SENT") != std::string::npos)){
+      daq[1] = std::to_string(val);
+      daq[2] = std::to_string(val);
+    }
     if (val>0) {
       *out << "<td><span class=\"label label-" << daq[3] << "\">" << daq[1] << "</span></td>" << std::endl;
     } else {
@@ -408,19 +418,41 @@ void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
     }
     *out << "    </tr>" << std::endl;
   }
+  *out << "    <tr>" << std::endl;
+  *out << "    <td style=\"width:10%\">"<< "TTS_STATE" << "</td>" << std::endl;
+  val = is_daqmon->getUInt32("TTS_STATE");
+  switch (val) {
+    case 1:
+      *out << "<td><span class=\"label label-info\" style=\"min-width:5em;\">BUSY</span></td>" << std::endl;
+    case 2:
+      *out << "<td><span class=\"label label-danger\" style=\"min-width:5em;\">ERROR</span></td>" << std::endl;
+    case 3:
+      *out << "<td><span class=\"label label-warning\" style=\"min-width:5em;\">WARN</span></td>" << std::endl;
+    case 4:
+      *out << "<td><span class=\"label label-danger\" style=\"min-width:5em;\">OOS</span></td>" << std::endl;
+    case 8:
+      *out << "<td><span class=\"label label-success\" style=\"min-width:5em;\">READY</span></td>" << std::endl;
+    default:
+      *out << "<td><span class=\"label label-default\" style=\"min-width:5em;\">NDF</span></td>" << std::endl;
+  }
+  *out << "    </tr>" << std::endl;
 
   *out << "</table>" << std::endl;
+  *out << "</small>" << std::endl;
+  *out << "</font>" << std::endl;
 }
 
 void gem::daqmon::DaqMonitor::buildTTCmainTable(xgi::Output* out)
 {
   DEBUG("DaqMonitor: Build TTC main table");
+  *out << "<font size=\"1\">" << std::endl;
+  *out << "<small>" << std::endl;
   std::vector<std::array<std::string,5>> ttclist;
   ttclist.push_back({{"MMCM_LOCKED","YES","NO","success","danger"}});
-  ttclist.push_back({{"TTC_SINGLE_ERROR_CNT","YES","NO","success","warning"}});
+  ttclist.push_back({{"TTC_SINGLE_ERROR_CNT","YES","NO","danger","success"}});
   ttclist.push_back({{"BC0_LOCKED","YES","NO","success","danger"}});
-  ttclist.push_back({{"L1A_ID","YES","NO","danger","success"}});
-  ttclist.push_back({{"L1A_RATE","YES","NO","danger","success"}});
+  ttclist.push_back({{"L1A_ID","YES","NO","info","info"}});
+  ttclist.push_back({{"L1A_RATE","YES","NO","info","info"}});
 
   int val = 0;
 
@@ -442,51 +474,152 @@ void gem::daqmon::DaqMonitor::buildTTCmainTable(xgi::Output* out)
   }
 
   *out << "</table>" << std::endl;
+  *out << "</small>" << std::endl;
+  *out << "</font>" << std::endl;
+}
 
+void gem::daqmon::DaqMonitor::buildOHmainTable(xgi::Output* out)
+{
+  DEBUG("DaqMonitor: Build OH main table");
+
+  *out << "<font size=\"1\">" << std::endl;
+  *out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
+  *out << "    <tr>" << std::endl;
+  *out << "    <td style=\"width:10%\">"<< "REGISTER|OH" << "</td>" << std::endl;
+  for (int i=0; i<12; ++i) {
+    *out << "<td>" << std::to_string(i) << "</td>";
+  }
+  *out << "    </tr>" << std::endl;
+
+  std::vector<std::string> ohlist;
+  ohlist.push_back("FW_VERSION");
+  ohlist.push_back("EVENT_COUNTER");
+  ohlist.push_back("EVENT_RATE");
+  ohlist.push_back("GTX.TRK_ERR");
+  ohlist.push_back("GTX.TRG_ERR");
+  ohlist.push_back("GBT.TRK_ERR");
+  ohlist.push_back("CORR_VFAT_BLK_CNT");
+  ohlist.push_back("LINK0_MISSED_COMMA_CNT");
+  ohlist.push_back("LINK1_MISSED_COMMA_CNT");
+  ohlist.push_back("LINK0_OVERFLOW_CNT");
+  ohlist.push_back("LINK1_OVERFLOW_CNT");
+  ohlist.push_back("LINK0_UNDERFLOW_CNT");
+  ohlist.push_back("LINK1_UNDERFLOW_CNT");
+  ohlist.push_back("LINK0_SBIT_OVERFLOW_CNT");
+  ohlist.push_back("LINK1_SBIT_OVERFLOW_CNT");
+  
+  int val = -1;
+
+  for (auto oh: ohlist) {
+    *out << "    <tr>" << std::endl;
+    *out << "<small>" << std::endl;
+    *out << "    <td style=\"width:10%\">"<< oh << "</td>" << std::endl;
+    *out << "</small>" << std::endl;
+    for (int j = 0; j < NOH; ++j) {
+      val = is_daqmon->getUInt32("OH"+std::to_string(j)+"."+oh);
+      if (val == -1) {
+        *out << "<td><span class=\"label label-danger\">" << val << "</span></td>" << std::endl;
+      } else {
+        if ((val > 0) and (oh.find("FW") == std::string::npos) and (oh.find("EVENT") == std::string::npos)) {
+          *out << "<td><span class=\"label label-warning\">" << val << "</span></td>" << std::endl;
+        } else {
+          if (oh.find("FW") != std::string::npos) {
+            if (val == 0xdeaddead) {
+              *out << "<td><span class=\"label label-danger\">ERROR</span></td>" << std::endl;
+            } else {
+              //FIXME eventually overlook the FW version representation
+              *out << "<td><span class=\"label label-info\">" << std::uppercase << std::setfill('0') << std::setw(8) << std::hex << val << std::dec << "</span></td>" << std::endl;
+            }
+          } else {
+            *out << "<td><span class=\"label label-info\">" << val << "</span></td>" << std::endl;
+          }
+        }
+      }
+    }
+    *out << "    </tr>" << std::endl;
+  }
+
+  std::vector<std::string> ohlist_flags;
+  ohlist_flags.push_back("EVT_SIZE_ERR");
+  ohlist_flags.push_back("EVENT_FIFO_HAD_OFLOW");
+  ohlist_flags.push_back("INPUT_FIFO_HAD_OFLOW");
+  ohlist_flags.push_back("INPUT_FIFO_HAD_UFLOW");
+  ohlist_flags.push_back("VFAT_TOO_MANY");
+  ohlist_flags.push_back("VFAT_NO_MARKER");
+  for (auto oh: ohlist_flags) {
+    *out << "    <tr>" << std::endl;
+    *out << "<small>" << std::endl;
+    *out << "    <td style=\"width:10%\">"<< oh << "</td>" << std::endl;
+    *out << "</small>" << std::endl;
+    for (int j = 0; j < NOH; ++j) {
+      val = is_daqmon->getUInt32("OH"+std::to_string(j)+".STATUS."+oh);
+      if (val == -1) {
+        *out << "<td><span class=\"label label-default\">" << "X" << "</span></td>" << std::endl;
+      } else {
+        if (val == 0) {
+          *out << "<td><span class=\"label label-success\">" << "N" << "</span></td>" << std::endl;
+        } else {
+          *out << "<td><span class=\"label label-danger\">" << "Y" << "</span></td>" << std::endl;
+        }
+      }
+    }
+    *out << "    </tr>" << std::endl;
+  }
+  
+  *out << "</table>" << std::endl;
+  *out << "</font>" << std::endl;
 }
 
 void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out)
 {
-  *out << "<div class=\"col-lg-6\">" << std::endl;
+  *out << "<div class=\"col-lg-3\">" << std::endl;
     *out << "<div class=\"panel panel-default\">" << std::endl;
       *out << "<div class=\"panel-heading\">" << std::endl;
-        *out << "<div class=\"row\">" << std::endl;
-          *out << "<div class=\"col-lg-3\">" << std::endl;
-            *out << "<h4 align=\"center\">" << std::endl;
-              *out << "DAQ" << std::endl;
-            *out << "</h4>" << std::endl;
-            //FIXME add IEMASK later
-            buildDAQmainTable(out);
-            //out << "<small>" << std::endl;
-            //out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
-
-          *out << "</div>" << std::endl; // end DAQ column
-
-          *out << "<div class=\"col-lg-3\">" << std::endl;
-            *out << "<h4 align=\"center\">" << std::endl;
-              *out << "TTC" << std::endl;
-            *out << "</h4>" << std::endl;
-            buildTTCmainTable(out);
-
-          *out << "</div>" << std::endl; // end TTC column
-
-        *out << "</div>" << std::endl; // end div row
-
+        *out << "<h4 align=\"center\">" << std::endl;
+          *out << "DAQ" << std::endl;
+        *out << "</h4>" << std::endl;
+        //FIXME add IEMASK later
+        buildDAQmainTable(out);
+      *out << "</div>" << std::endl; // end panel head
+      // There could be a panel body here
+    *out << "</div>" << std::endl; // end panel
+    // There could be other elements in the column...
+    *out << "<div class=\"panel panel-default\">" << std::endl;
+      *out << "<div class=\"panel-heading\">" << std::endl;
+        *out << "<h4 align=\"center\">" << std::endl;
+          *out << "TTC" << std::endl;
+        *out << "</h4>" << std::endl;
+        buildTTCmainTable(out);
+      *out << "</div>" << std::endl; // end panel head
+      // There could be a panel body here
+    *out << "</div>" << std::endl; // end panel
+   *out << "</div>" << std::endl; // end column
+/*
+  *out << "<div class=\"col-lg-2\">" << std::endl;
+    *out << "<div class=\"panel panel-default\">" << std::endl;
+      *out << "<div class=\"panel-heading\">" << std::endl;
+        *out << "<h4 align=\"center\">" << std::endl;
+          *out << "TTC" << std::endl;
+        *out << "</h4>" << std::endl;
+        buildTTCmainTable(out);
       *out << "</div>" << std::endl; // end panel head
       // There could be a panel body here
     *out << "</div>" << std::endl; // end panel
     // There could be other elements in the column...
   *out << "</div>" << std::endl; // end column
-
-
-/*
-  *out << "{% for daqoh in daqohlist %}" << std::endl;
-  *out << "    <tr>" << std::endl;
-  *out << "    <td style=\"width:10%\">{{daqoh.0}}</td>" << std::endl;
-  *out << "    {{daqoh.1}}" << std::endl;
-  *out << "    </tr>" << std::endl;
-  *out << "{% endfor %}" << std::endl;
-  *out << "</table>" << std::endl;
-  *out << "</small>" << std::endl;
+  *out << "<div class=\"col-lg-8\">" << std::endl;
 */
+  *out << "<div class=\"col-lg-9\">" << std::endl;
+    *out << "<div class=\"panel panel-default\">" << std::endl;
+      *out << "<div class=\"panel-heading\">" << std::endl;
+        *out << "<h4 align=\"center\">" << std::endl;
+          *out << "OPTICAL LINKS" << std::endl;
+        *out << "</h4>" << std::endl;
+        //FIXME add IEMASK later
+        buildOHmainTable(out);
+      *out << "</div>" << std::endl; // end panel head
+      // There could be a panel body here
+    *out << "</div>" << std::endl; // end panel
+    // There could be other elements in the column...
+  *out << "</div>" << std::endl; // end column
 }

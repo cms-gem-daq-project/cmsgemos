@@ -50,6 +50,8 @@ namespace gem {
 
       void buildTTCmainTable(xgi::Output* out);
 
+      void buildOHmainTable(xgi::Output* out);
+
       typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
     
     protected:
