@@ -11,6 +11,37 @@ import logging
 gMAX_RETRIES = 5
 gRetries = 5
 
+maxVfat3DACSize = {
+        #ADC Measures Current
+        0:(0x3f, "CFG_IREF"),
+        #1:???
+        2:(0xff,"CFG_BIAS_PRE_I_BIT"),
+        3:(0x3f,"CFG_BIAS_PRE_I_BLCC"),
+        #4:???
+        5:(0xff,"CFG_BIAS_SH_I_BFCAS"),
+        6:(0xff,"CFG_BIAS_SH_I_BDIFF"),
+        7:(0xff,"CFG_BIAS_SD_I_BDIFF"),
+        8:(0xff,"CFG_BIAS_SD_I_BFCAS"),
+        9:(0x3f,"CFG_BIAS_SD_I_BSF"),
+        10:(0x3f,"CFG_BIAS_CFD_DAC_1"),
+        11:(0x3f,"CFG_BIAS_CFD_DAC_2"),
+        12:(0x3f,"CFG_HYST"),
+        #13:???
+        14:(0xff,"CFG_THR_ARM_DAC"),
+        15:(0xff,"CFG_THR_ZCC_DAC"),
+        #16:???
+
+        #ADC Measures Voltage
+        #32:???
+        #33:???
+        34:(0xff,"CFG_BIAS_PRE_VREF"),
+        35:(0xff,"CFG_THR_ARM_DAC"),
+        36:(0xff,"CFG_THR_ZCC_DAC"),
+        39:(0x3,"CFG_ADC_VREF")
+        #40:???
+        #41:???
+        }
+
 ohBoardTempArray = c_uint32 * 9 # Temperature Array
 class SCAMonitorParams(Structure):
     _fields_ = [
@@ -72,6 +103,10 @@ class HwAMC(object):
         self.readADCsMulti = self.lib.readVFAT3ADCMultiLink
         self.readADCsMulti.argTypes = [ c_uint, POINTER(c_uint32), POINTER(c_uint), c_bool ]
         self.readADCsMulti.restype = c_uint
+
+        self.dacScanMulti = self.lib.dacScanMultiLink
+        self.dacScanMulti.argTypes = [ c_uint, c_uint, c_uint, c_uint, c_bool, POINTER(c_uint) ]
+        self.dacScanMulti.restype = c_uint
 
         # Define SCA & Sysmon Monitoring
         self.getmonOHSCAmain = self.lib.getmonOHSCAmain
