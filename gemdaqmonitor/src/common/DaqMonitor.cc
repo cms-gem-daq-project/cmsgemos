@@ -279,6 +279,7 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
 {
   DEBUG("DaqMonitor: Update DAQ OH main table");
   req = wisc::RPCMsg("amc.getmonDAQOHmain");
+  req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
   }
@@ -323,6 +324,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
 {
   DEBUG("DaqMonitor: Update TRIGGER main table");
   req = wisc::RPCMsg("amc.getmonTRIGGERmain");
+  req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
   }
@@ -345,6 +347,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
 {
   DEBUG("DaqMonitor: Update TRIGGER OH main table");
   req = wisc::RPCMsg("amc.getmonTRIGGEROHmain");
+  req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
   }
@@ -367,6 +370,7 @@ void gem::daqmon::DaqMonitor::updateOHmain()
 {
   DEBUG("DaqMonitor: Update OH main table");
   req = wisc::RPCMsg("amc.getmonOHmain");
+  req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
   }
@@ -424,16 +428,22 @@ void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
   switch (val) {
     case 1:
       *out << "<td><span class=\"label label-info\" style=\"min-width:5em;\">BUSY</span></td>" << std::endl;
+      break;
     case 2:
       *out << "<td><span class=\"label label-danger\" style=\"min-width:5em;\">ERROR</span></td>" << std::endl;
+      break;
     case 3:
       *out << "<td><span class=\"label label-warning\" style=\"min-width:5em;\">WARN</span></td>" << std::endl;
+      break;
     case 4:
       *out << "<td><span class=\"label label-danger\" style=\"min-width:5em;\">OOS</span></td>" << std::endl;
+      break;
     case 8:
       *out << "<td><span class=\"label label-success\" style=\"min-width:5em;\">READY</span></td>" << std::endl;
+      break;
     default:
       *out << "<td><span class=\"label label-default\" style=\"min-width:5em;\">NDF</span></td>" << std::endl;
+      break;
   }
   *out << "    </tr>" << std::endl;
 
