@@ -55,15 +55,15 @@ namespace gem {
        */
       void buildMonitorPage(xgi::Output* out);
 
-      void buildDAQmainTable(xgi::Output* out);
-
-      void buildTTCmainTable(xgi::Output* out);
-
-      void buildOHmainTable(xgi::Output* out);
+      void buildTable(const std::string& table_name, xgi::Output* out);
 
       typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
     
       void updateDAQmainTableContent();
+
+      void updateTTCmainTableContent();
+
+      void updateOHmainTableContent();
 
     protected:
       void init();
