@@ -25,6 +25,14 @@ namespace gem {
        * @param gemApp Calling GEMApplication instance
        * @param index Index
        */
+     
+      struct LabelData
+      {
+        std::string labelId;
+        std::string labelClass;
+        std::string labelValue;
+      };
+
       DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, base::GEMApplication* gemApp, int const& index);
     
       virtual ~DaqMonitor();
@@ -40,6 +48,7 @@ namespace gem {
       void updateOHmain();
       virtual void reset();
       void setupDaqMonitoring();
+      void addDaqMonitorable(const std::string& m_name, const std::string& m_monset, const std::string& m_spacename);
     
       /**
        * @brief display the monitor items
@@ -60,7 +69,7 @@ namespace gem {
     private:
       is_toolbox_ptr is_daqmon;
       std::string is_name;
-    
+      std::vector<LabelData*> v_LabelData;
     };  // class DaqMonitor
 
   }  // namespace gem::daqmon
