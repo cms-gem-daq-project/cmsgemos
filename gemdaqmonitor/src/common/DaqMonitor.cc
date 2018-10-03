@@ -311,41 +311,67 @@ void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
   {
     val = is_daqmon->getUInt32(monname);
     ld = m_LabelData.find(monname)->second;
-    if (val>0) {
-      ld->labelValue="Y";
-      ld->labelClass="label label-success";
-    } else {
-      ld->labelValue="N";
-      ld->labelClass="label label-warning";
+    switch (val) {
+      case 0:
+        ld->labelValue="N";
+        ld->labelClass="label label-warning";
+        break;
+      case 0xFFFFFFFF:
+        ld->labelValue="X";
+        ld->labelClass="label label-default";
+        break;
+      default:
+        ld->labelValue="Y";
+        ld->labelClass="label label-success";
+        break;
     }
   }
   val = is_daqmon->getUInt32("DAQ_LINK_AFULL");
   ld = m_LabelData.find("DAQ_LINK_AFULL")->second;
-  if (val>0) {
-    ld->labelValue="Y";
-    ld->labelClass="label label-warning";
-  } else {
-    ld->labelValue="N";
-    ld->labelClass="label label-success";
+  switch (val) {
+    case 0:
+      ld->labelValue="N";
+      ld->labelClass="label label-success";
+      break;
+    case 0xFFFFFFFF:
+      ld->labelValue="X";
+      ld->labelClass="label label-default";
+      break;
+    default:
+      ld->labelValue="Y";
+      ld->labelClass="label label-warning";
+      break;
   }
   for (auto monname: {"DAQ_OFIFO_HAD_OFLOW","L1A_FIFO_HAD_OFLOW"})
   {
     val = is_daqmon->getUInt32(monname);
     ld = m_LabelData.find(monname)->second;
-    if (val>0) {
-      ld->labelValue="Y";
-      ld->labelClass="label label-danger";
-    } else {
-      ld->labelValue="N";
-      ld->labelClass="label label-success";
+    switch (val) {
+      case 0:
+        ld->labelValue="N";
+        ld->labelClass="label label-success";
+        break;
+      case 0xFFFFFFFF:
+        ld->labelValue="X";
+        ld->labelClass="label label-default";
+        break;
+      default:
+        ld->labelValue="Y";
+        ld->labelClass="label label-danger";
+        break;
     }
   }
   for (auto monname: {"L1A_FIFO_DATA_COUNT","DAQ_FIFO_DATA_COUNT","EVENT_SENT"})
   {
     val = is_daqmon->getUInt32(monname);
     ld = m_LabelData.find(monname)->second;
-    ld->labelValue=std::to_string(val);
-    ld->labelClass="label label-info";
+    if (val == 0xFFFFFFFF) {
+      ld->labelValue="X";
+      ld->labelClass="label label-default";
+    } else {
+      ld->labelValue=std::to_string(val);
+      ld->labelClass="label label-info";
+    }
   }
   val = is_daqmon->getUInt32("TTS_STATE");
   ld = m_LabelData.find("TTS_STATE")->second;
