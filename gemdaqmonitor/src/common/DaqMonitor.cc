@@ -64,7 +64,7 @@ void gem::daqmon::DaqMonitor::addDaqMonitorable(const std::string& m_name, const
   addMonitorable(m_monset, m_spacename,
                  std::make_pair(m_name,"DUMMY"),
                  GEMUpdateType::HW32, "hex");
-  v_LabelData.push_back(new LabelData{m_name, "label label-default", "FFFFFFFF"});
+  m_LabelData.insert(std::make_pair(m_name,new LabelData{m_name, "label label-default", "FFFFFFFF"}));
 }
 
 void gem::daqmon::DaqMonitor::setupDaqMonitoring()
@@ -72,15 +72,15 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
   // create the values to be monitored in the info space
   addMonitorableSet("DAQ_MAIN","DAQ_MONITORING");
   //DAQ_MAIN monitorables
-  std::vector<std::string> v_daq_main = { "DAQ_ENABLE",
-                                          "DAQ_LINK_READY",
-                                          "DAQ_LINK_AFULL",
-                                          "DAQ_OFIFO_HAD_OFLOW",
-                                          "L1A_FIFO_HAD_OFLOW",
-                                          "L1A_FIFO_DATA_COUNT",
-                                          "DAQ_FIFO_DATA_COUNT",
-                                          "EVENT_SENT",
-                                          "TTS_STATE"};
+  v_daq_main = { "DAQ_ENABLE",
+                 "DAQ_LINK_READY",
+                 "DAQ_LINK_AFULL",
+                 "DAQ_OFIFO_HAD_OFLOW",
+                 "L1A_FIFO_HAD_OFLOW",
+                 "L1A_FIFO_DATA_COUNT",
+                 "DAQ_FIFO_DATA_COUNT",
+                 "EVENT_SENT",
+                 "TTS_STATE"};
   for (auto monname: v_daq_main) {
     addDaqMonitorable(monname, "DAQ_MAIN", "DAQ_MONITORING");
   }
@@ -88,12 +88,12 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
 
   addMonitorableSet("DAQ_OH_MAIN","DAQ_MONITORING");
   //DAQ_OH_MAIN monitorables
-  std::vector<std::string> v_daq_oh_main = { ".STATUS.EVT_SIZE_ERR",
-                                             ".STATUS.EVENT_FIFO_HAD_OFLOW",
-                                             ".STATUS.INPUT_FIFO_HAD_OFLOW",
-                                             ".STATUS.INPUT_FIFO_HAD_UFLOW",
-                                             ".STATUS.VFAT_TOO_MANY",
-                                             ".STATUS.VFAT_NO_MARKER"};
+  v_daq_oh_main = { ".STATUS.EVT_SIZE_ERR",
+                    ".STATUS.EVENT_FIFO_HAD_OFLOW",
+                    ".STATUS.INPUT_FIFO_HAD_OFLOW",
+                    ".STATUS.INPUT_FIFO_HAD_UFLOW",
+                    ".STATUS.VFAT_TOO_MANY",
+                    ".STATUS.VFAT_NO_MARKER"};
   for (unsigned int i = 0; i < NOH; ++i) {
     for (auto monname: v_daq_oh_main) {
       addDaqMonitorable("OH"+std::to_string(i)+monname, "DAQ_OH_MAIN", "DAQ_MONITORING");
@@ -103,11 +103,11 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
 
   addMonitorableSet("DAQ_TTC_MAIN","DAQ_MONITORING");
   //DAQ_TTC_MAIN monitorables
-  std::vector<std::string> v_daq_ttc_main = { "MMCM_LOCKED",
-                                              "TTC_SINGLE_ERROR_CNT",
-                                              "BC0_LOCKED",
-                                              "L1A_ID",
-                                              "L1A_RATE"};
+  v_daq_ttc_main = { "MMCM_LOCKED",
+                     "TTC_SINGLE_ERROR_CNT",
+                     "BC0_LOCKED",
+                     "L1A_ID",
+                     "L1A_RATE"};
   for (auto monname: v_daq_ttc_main) {
     addDaqMonitorable(monname, "DAQ_TTC_MAIN", "DAQ_MONITORING");
   }
@@ -122,31 +122,30 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
 
   addMonitorableSet("DAQ_TRIGGER_OH_MAIN","DAQ_MONITORING");
   //DAQ_TRIGGER_OH_MAIN monitorables
-  std::vector<std::string> v_daq_trigger_oh_main = { ".LINK0_MISSED_COMMA_CNT",
-                                                     ".LINK1_MISSED_COMMA_CNT",
-                                                     ".LINK0_OVERFLOW_CNT",
-                                                     ".LINK1_OVERFLOW_CNT",
-                                                     ".LINK0_UNDERFLOW_CNT",
-                                                     ".LINK1_UNDERFLOW_CNT",
-                                                     ".LINK0_SBIT_OVERFLOW_CNT",
-                                                     ".LINK1_SBIT_OVERFLOW_CNT"};
+  v_daq_trigger_oh_main = { ".LINK0_MISSED_COMMA_CNT",
+                            ".LINK1_MISSED_COMMA_CNT",
+                            ".LINK0_OVERFLOW_CNT",
+                            ".LINK1_OVERFLOW_CNT",
+                            ".LINK0_UNDERFLOW_CNT",
+                            ".LINK1_UNDERFLOW_CNT",
+                            ".LINK0_SBIT_OVERFLOW_CNT",
+                            ".LINK1_SBIT_OVERFLOW_CNT"};
   for (unsigned int i = 0; i < NOH; ++i) {
     for (auto monname: v_daq_trigger_oh_main) {
       addDaqMonitorable("OH"+std::to_string(i)+monname, "DAQ_TRIGGER_OH_MAIN", "DAQ_MONITORING");
     }
   }
-
   //end of DAQ_TRIGGER_OH_MAIN monitorables
 
   addMonitorableSet("OH_MAIN","DAQ_MONITORING");
   //OH_MAIN monitorables
-  std::vector<std::string> v_oh_main = { ".FW_VERSION",
-                                             ".EVENT_COUNTER",
-                                             ".EVENT_RATE",
-                                             ".GTX.TRK_ERR",
-                                             ".GTX.TRG_ERR",
-                                             ".GBT.TRK_ERR",
-                                             ".CORR_VFAT_BLK_CNT"};
+  v_oh_main = { ".FW_VERSION",
+                    ".EVENT_COUNTER",
+                    ".EVENT_RATE",
+                    ".GTX.TRK_ERR",
+                    ".GTX.TRG_ERR",
+                    ".GBT.TRK_ERR",
+                    ".CORR_VFAT_BLK_CNT"};
   for (unsigned int i = 0; i < NOH; ++i) {
     for (auto monname: v_oh_main) {
       addDaqMonitorable("OH"+std::to_string(i)+monname, "OH_MAIN", "DAQ_MONITORING");
@@ -304,64 +303,95 @@ void gem::daqmon::DaqMonitor::updateOHmain()
   STANDARD_CATCH;
 }
 
+void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
+{
+  uint32_t val;
+  LabelData * ld;
+  for (auto monname: {"DAQ_ENABLE","DAQ_LINK_READY"})
+  {
+    val = is_daqmon->getUInt32(monname);
+    ld = m_LabelData.find(monname)->second;
+    if (val>0) {
+      ld->labelValue="Y";
+      ld->labelClass="label label-success";
+    } else {
+      ld->labelValue="N";
+      ld->labelClass="label label-warning";
+    }
+  }
+  val = is_daqmon->getUInt32("DAQ_LINK_AFULL");
+  ld = m_LabelData.find("DAQ_LINK_AFULL")->second;
+  if (val>0) {
+    ld->labelValue="Y";
+    ld->labelClass="label label-warning";
+  } else {
+    ld->labelValue="N";
+    ld->labelClass="label label-success";
+  }
+  for (auto monname: {"DAQ_OFIFO_HAD_OFLOW","L1A_FIFO_HAD_OFLOW"})
+  {
+    val = is_daqmon->getUInt32(monname);
+    ld = m_LabelData.find(monname)->second;
+    if (val>0) {
+      ld->labelValue="Y";
+      ld->labelClass="label label-danger";
+    } else {
+      ld->labelValue="N";
+      ld->labelClass="label label-success";
+    }
+  }
+  for (auto monname: {"L1A_FIFO_DATA_COUNT","DAQ_FIFO_DATA_COUNT","EVENT_SENT"})
+  {
+    val = is_daqmon->getUInt32(monname);
+    ld = m_LabelData.find(monname)->second;
+    ld->labelValue=std::to_string(val);
+    ld->labelClass="label label-info";
+  }
+  val = is_daqmon->getUInt32("TTS_STATE");
+  ld = m_LabelData.find("TTS_STATE")->second;
+  switch (val) {
+    case 1:
+      ld->labelValue="BUSY";
+      ld->labelClass="label label-warning";
+      break;
+    case 2:
+      ld->labelValue="ERROR";
+      ld->labelClass="label label-danger";
+      break;
+    case 3:
+      ld->labelValue="WARN";
+      ld->labelClass="label label-warning";
+      break;
+    case 4:
+      ld->labelValue="OOS";
+      ld->labelClass="label label-danger";
+      break;
+    case 8:
+      ld->labelValue="READY";
+      ld->labelClass="label label-success";
+      break;
+    default:
+      ld->labelValue="NDF";
+      ld->labelClass="label label-default";
+      break;
+  }
+}
+
 void gem::daqmon::DaqMonitor::buildDAQmainTable(xgi::Output* out)
 {
   DEBUG("DaqMonitor: Build DAQ main table");
+  updateDAQmainTableContent();
   *out << "<font size=\"1\">" << std::endl;
   *out << "<small>" << std::endl;
-  std::vector<std::array<std::string,5>> daqlist;
-  daqlist.push_back({{"DAQ_ENABLE","YES","NO","success","warning"}});
-  daqlist.push_back({{"DAQ_LINK_READY","YES","NO","success","warning"}});
-  daqlist.push_back({{"DAQ_LINK_AFULL","YES","NO","warning","success"}});
-  daqlist.push_back({{"DAQ_OFIFO_HAD_OFLOW","YES","NO","danger","success"}});
-  daqlist.push_back({{"L1A_FIFO_HAD_OFLOW","YES","NO","danger","success"}});
-  daqlist.push_back({{"L1A_FIFO_DATA_COUNT","YES","NO","info","info"}});
-  daqlist.push_back({{"DAQ_FIFO_DATA_COUNT","YES","NO","info","info"}});
-  daqlist.push_back({{"EVENT_SENT","YES","NO","info","info"}});
-
-  int val = 0;
-
   *out << "<table align=\"center\" class=\"table table-bordered table-condensed\" style=\"width:100%\">" << std::endl;
-  for (auto daq: daqlist) {
+  LabelData * ld;
+  for (auto monname: v_daq_main){
+    ld = m_LabelData.find(monname)->second;
     *out << "    <tr>" << std::endl;
-    *out << "    <td style=\"width:10%\">"<< daq[0] << "</td>" << std::endl;
-    val = is_daqmon->getUInt32(daq[0]);
-    if ((daq[0].find("DATA_COUNT") != std::string::npos) || (daq[0].find("EVENT_SENT") != std::string::npos)){
-      daq[1] = std::to_string(val);
-      daq[2] = std::to_string(val);
-    }
-    if (val>0) {
-      *out << "<td><span class=\"label label-" << daq[3] << "\">" << daq[1] << "</span></td>" << std::endl;
-    } else {
-      *out << "<td><span class=\"label label-" << daq[4] << "\">" << daq[2] << "</span></td>" << std::endl;
-    }
+    *out << "    <td style=\"width:10%\">"<< monname << "</td>" << std::endl;
+    *out << "<td><span class=\"" << ld->labelClass << "\">" << ld->labelValue << "</span></td>" << std::endl;
     *out << "    </tr>" << std::endl;
   }
-  *out << "    <tr>" << std::endl;
-  *out << "    <td style=\"width:10%\">"<< "TTS_STATE" << "</td>" << std::endl;
-  val = is_daqmon->getUInt32("TTS_STATE");
-  switch (val) {
-    case 1:
-      *out << "<td><span class=\"label label-info\" style=\"min-width:5em;\">BUSY</span></td>" << std::endl;
-      break;
-    case 2:
-      *out << "<td><span class=\"label label-danger\" style=\"min-width:5em;\">ERROR</span></td>" << std::endl;
-      break;
-    case 3:
-      *out << "<td><span class=\"label label-warning\" style=\"min-width:5em;\">WARN</span></td>" << std::endl;
-      break;
-    case 4:
-      *out << "<td><span class=\"label label-danger\" style=\"min-width:5em;\">OOS</span></td>" << std::endl;
-      break;
-    case 8:
-      *out << "<td><span class=\"label label-success\" style=\"min-width:5em;\">READY</span></td>" << std::endl;
-      break;
-    default:
-      *out << "<td><span class=\"label label-default\" style=\"min-width:5em;\">NDF</span></td>" << std::endl;
-      break;
-  }
-  *out << "    </tr>" << std::endl;
-
   *out << "</table>" << std::endl;
   *out << "</small>" << std::endl;
   *out << "</font>" << std::endl;

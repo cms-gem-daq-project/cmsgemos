@@ -63,13 +63,20 @@ namespace gem {
 
       typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
     
+      void updateDAQmainTableContent();
+
     protected:
       void init();
       static const int NOH=12;
     private:
       is_toolbox_ptr is_daqmon;
       std::string is_name;
-      std::vector<LabelData*> v_LabelData;
+      std::unordered_map<std::string,LabelData*> m_LabelData;
+      std::vector<std::string> v_daq_main;
+      std::vector<std::string> v_daq_oh_main;
+      std::vector<std::string> v_daq_ttc_main;
+      std::vector<std::string> v_daq_trigger_oh_main;
+      std::vector<std::string> v_oh_main;
     };  // class DaqMonitor
 
   }  // namespace gem::daqmon
