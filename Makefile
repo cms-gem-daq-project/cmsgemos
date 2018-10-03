@@ -9,6 +9,7 @@ SUBPACKAGES := \
         gemreadout \
         gemsupervisor \
         gempython \
+        gemdaqmonitor \
         # gemHwMonitor \
 
 SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
