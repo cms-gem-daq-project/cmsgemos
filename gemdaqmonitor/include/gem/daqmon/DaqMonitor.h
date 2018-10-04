@@ -25,6 +25,14 @@ namespace gem {
        * @param gemApp Calling GEMApplication instance
        * @param index Index
        */
+     
+      struct LabelData
+      {
+        std::string labelId;
+        std::string labelClass;
+        std::string labelValue;
+      };
+
       DaqMonitor(const std::string& board_domain_name,log4cplus::Logger& logger, base::GEMApplication* gemApp, int const& index);
     
       virtual ~DaqMonitor();
@@ -40,27 +48,35 @@ namespace gem {
       void updateOHmain();
       virtual void reset();
       void setupDaqMonitoring();
+      void addDaqMonitorable(const std::string& m_name, const std::string& m_monset, const std::string& m_spacename);
     
       /**
        * @brief display the monitor items
        */
       void buildMonitorPage(xgi::Output* out);
 
-      void buildDAQmainTable(xgi::Output* out);
-
-      void buildTTCmainTable(xgi::Output* out);
-
-      void buildOHmainTable(xgi::Output* out);
+      void buildTable(const std::string& table_name, xgi::Output* out);
 
       typedef std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox> is_toolbox_ptr;
     
+      void updateDAQmainTableContent();
+
+      void updateTTCmainTableContent();
+
+      void updateOHmainTableContent();
+
     protected:
       void init();
       static const int NOH=12;
     private:
       is_toolbox_ptr is_daqmon;
       std::string is_name;
-    
+      std::unordered_map<std::string,LabelData*> m_LabelData;
+      std::vector<std::string> v_daq_main;
+      std::vector<std::string> v_daq_oh_main;
+      std::vector<std::string> v_daq_ttc_main;
+      std::vector<std::string> v_daq_trigger_oh_main;
+      std::vector<std::string> v_oh_main;
     };  // class DaqMonitor
 
   }  // namespace gem::daqmon
