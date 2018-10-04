@@ -64,7 +64,7 @@ void gem::daqmon::DaqMonitor::addDaqMonitorable(const std::string& m_name, const
   addMonitorable(m_monset, m_spacename,
                  std::make_pair(m_name,"DUMMY"),
                  GEMUpdateType::HW32, "hex");
-  m_LabelData.insert(std::make_pair(m_name,new LabelData{m_name, "label label-default", "FFFFFFFF"}));
+  m_LabelData.insert(std::make_pair(m_name,new LabelData{m_board_domain_name+"."+m_name, "label label-default", "FFFFFFFF"}));
 }
 
 void gem::daqmon::DaqMonitor::setupDaqMonitoring()
@@ -571,7 +571,7 @@ void gem::daqmon::DaqMonitor::buildTable(const std::string& table_name, xgi::Out
       *out << "    <td style=\"width:10%\">"<< monname.substr(1) << "</td>" << std::endl;
       for (int i = 0; i < NOH; ++i) {
         ld = m_LabelData.find("OH"+std::to_string(i)+monname)->second;
-        *out << "<td><span class=\"" << ld->labelClass << "\">" << ld->labelValue << "</span></td>" << std::endl;
+        *out << "<td><span id=\"" << ld->labelId << "\" class=\"" << ld->labelClass << "\">" << ld->labelValue << "</span></td>" << std::endl;
       }
       *out << "    </tr>" << std::endl;
     }
@@ -580,7 +580,7 @@ void gem::daqmon::DaqMonitor::buildTable(const std::string& table_name, xgi::Out
       ld = m_LabelData.find(monname)->second;
       *out << "    <tr>" << std::endl;
       *out << "    <td style=\"width:10%\">"<< monname << "</td>" << std::endl;
-      *out << "<td><span class=\"" << ld->labelClass << "\">" << ld->labelValue << "</span></td>" << std::endl;
+      *out << "<td><span id=\"" << ld->labelId << "\" class=\"" << ld->labelClass << "\">" << ld->labelValue << "</span></td>" << std::endl;
       *out << "    </tr>" << std::endl;
     }
   }
@@ -626,4 +626,14 @@ void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out)
     *out << "</div>" << std::endl; // end panel
     // There could be other elements in the column...
   *out << "</div>" << std::endl; // end column
+}
+
+void gem::daqmon::DaqMonitor::jsonContentUpdate(xgi::Output* out)
+{
+  *out << " { " << std::endl;
+  for (auto ld = m_LabelData.begin(); ld != m_LabelData.end();) {
+    *out << "\"" << ld->second->labelId << "\" : { \"class_name\" : \"" << ld->second->labelClass << "\", \"value\" : \"" << ld->second->labelValue << "\" }";
+    if (++ld == m_LabelData.end()) *out << std::endl; else *out << "," << std::endl;
+  }
+  *out << " } " << std::endl;
 }

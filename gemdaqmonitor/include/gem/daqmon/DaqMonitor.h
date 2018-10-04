@@ -65,6 +65,8 @@ namespace gem {
 
       void updateOHmainTableContent();
 
+      void jsonContentUpdate(xgi::Output* out);
+
     protected:
       void init();
       static const int NOH=12;
