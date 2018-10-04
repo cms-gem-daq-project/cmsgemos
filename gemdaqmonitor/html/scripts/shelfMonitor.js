@@ -36,12 +36,14 @@ function updateDaqMonitorables( shelfjson )
     var monitorset = shelfjson[amc];
     for ( var monitem in monitorset ) {
       try {
-        document.getElementById( monitem ).className = monitem.class_name;
-        document.getElementById( monitem ).innerHTML = monitem.value;
+        //console.error("monitem.class_name: " + monitorset[monitem].class_name );
+        //console.error("monitem.value: " + monitorset[monitem].value );
+        document.getElementById( monitem ).className = monitorset[monitem].class_name;
+        document.getElementById( monitem ).innerHTML = monitorset[monitem].value;
       } catch (err) {
         console.error(err.message);
+        //console.error(monitem);
       }
-     }
     }
   }
 };

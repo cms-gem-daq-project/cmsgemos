@@ -164,6 +164,9 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
     updateTRIGGERmain();
     updateTRIGGEROHmain();
     updateOHmain();
+    updateDAQmainTableContent();
+    updateTTCmainTableContent();
+    updateOHmainTableContent();
   } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
 }
 
