@@ -30,17 +30,17 @@ namespace gem {
 //        virtual void controlPanel(  xgi::Input *in, xgi::Output *out )
 //          throw (xgi::exception::Exception);
 //
-//        virtual void monitorPage(xgi::Input *in, xgi::Output *out)
-//          throw (xgi::exception::Exception);
+        virtual void monitorPage(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
 //
-//        virtual void expertPage(xgi::Input *in, xgi::Output *out)
-//          throw (xgi::exception::Exception);
+        virtual void expertPage(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
 //
         virtual void applicationPage(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
 //
-//        virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
-//          throw (xgi::exception::Exception);
+        virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
 //
 //        void displayManagedStateTable(xgi::Input *in, xgi::Output *out)
 //          throw (xgi::exception::Exception);
