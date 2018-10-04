@@ -144,7 +144,7 @@ class HwAMC(object):
         # Open RPC Connection
         print "Initializing AMC", self.name
         rpc_connect(self.name)
-        self.nOHs = readRegister("GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
+        self.nOHs = self.readRegister("GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
         self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR")
         if debug:
             print "My FW release major = ", self.fwVersion
