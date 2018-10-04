@@ -89,8 +89,6 @@ class HwAMC(object):
 
         # Store HW info
         self.name = cardName
-        #self.nOHs = 12
-        self.nOHs = 4
 
         # Open the foreign function library
         self.lib = CDLL("librpcman.so")
@@ -146,8 +144,10 @@ class HwAMC(object):
         # Open RPC Connection
         print "Initializing AMC", self.name
         rpc_connect(self.name)
+        self.nOHs = readRegister("GEM_AMC.GEM_SYSTEM.CONFIG.NUM_OF_OH")
         self.fwVersion = self.readRegister("GEM_AMC.GEM_SYSTEM.RELEASE.MAJOR")
-        print "My FW release major = ", self.fwVersion
+        if debug:
+            print "My FW release major = ", self.fwVersion
 
         return
 
@@ -286,6 +286,46 @@ class HwAMC(object):
             raise Exception("RPC response was non-zero, failed to determine VFAT masks for ohMask {0}".format(hex(ohMask)))
         else:
             return vfatMaskArray
+
+    def performDacScanMultiLink(self, dacDataAll, dacSelect, dacStep=1, ohMask=0x3ff, useExtRefADC=False):
+        """
+        Scans the DAC defined by dacSelect for all links on this AMC.  See VFAT3 manual for more details
+        on the available DAC selection.
+
+        V3 electronics only.
+
+        dacDataAll - Array of type c_uint32
+        dacSelect - Integer which specifies the DAC to scan against the ADC.  See VFAT3 Manual
+        dacStep - Step size to scan the DAC with
+        ohMask - Mask which defines which OH's to query; 12 bit number where
+                 having a 1 in the N^th bit means to query the N^th optohybrid
+        useExtRefADC - If true the DAC scan will be made using the externally referenced ADC on the VFAT3s
+        """
+
+        # Check we are v3 electronics
+        if self.parentAMC.fwVersion < 3:
+            print("HwAMC::performDacScanMultiLink(): No support for v2b electronics")
+            exit(os.EX_USAGE)
+
+        # Check if dacSelect is valid
+        if dacSelect not in maxVfat3DACSize.keys():
+            print("HwAMC::performDacScanMultiLink(): Invalid dacSelect {0} value.  Valid values are:".format(dacScan))
+            print(maxVfat3DACSize.keys())
+            exit(os.EX_USAGE)
+
+        # Check number of nonzero bits doesn't exceed NOH's
+        nUnmaskedOHs = bin(ohMask).count("1")
+        if nUnmaskedOHs > self.nOHs:
+            print("HwAMC::performDacScanMultiLink(): Number of unmasked OH's {0} exceeds max number of OH's {1}".format(nUnmaskedOHs,self.nOHs))
+            exit(os.EX_USAGE)
+
+        # Check length of results container
+        lenExpected = nUnmaskedOHs * (maxVfat3DACSize[dacSelect][0] - 0+1)*24 / dacStep
+        if (len(outData) != lenExpected):
+            print("HwAMC::performDacScanMultiLink(): I expected container of lenght {0} but provided 'outData' has length {1}",format(lenExpected, len(outData)))
+            exit(os.EX_USAGE)
+
+        return self.dacScanMulti(ohMask, nUnmaskedOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
 
     def readADCsMultiLink(self, adcDataAll, useExtRefADC=False, ohMask=0xFFF, debug=False):
         """
