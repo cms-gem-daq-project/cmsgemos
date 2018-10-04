@@ -8,6 +8,7 @@
 
 #include "gem/daqmon/DaqMonitor.h"
 #include <iomanip>
+#include <bitset>
 
 typedef gem::base::utils::GEMInfoSpaceToolBox::UpdateType GEMUpdateType;
 
@@ -19,8 +20,8 @@ gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cpl
 {
   DEBUG("DaqMonitor::DaqMonitor:: entering constructor");
   if (isConnected) { //TODO Add to the app monitoring space? Need to know in order to mask in web interface the boards which failed to connect
-    this->loadModule("amc", "amc v1.0.1");
-    DEBUG("DaqMonitor::DaqMonitor:: amc module loaded");
+    this->loadModule("daq_monitor", "daq_monitor v1.0.1");
+    DEBUG("DaqMonitor::DaqMonitor:: daq_monitor module loaded");
   } else {
     INFO("DaqMonitor::DaqMonitor:: RPC interface failed to connect");
   }
@@ -45,7 +46,7 @@ void gem::daqmon::DaqMonitor::reconnect()
 {
   if (!isConnected){
     this->connect();
-    this->loadModule("amc", "amc v1.0.1");
+    this->loadModule("daq_monitor", "daq_monitor v1.0.1");
   } else {
     ERROR("Interface already connected. Reconnection failed");
     throw xhal::utils::XHALRPCException("RPC exception: Interface already connected. Reconnection failed");
@@ -80,7 +81,9 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
                  "L1A_FIFO_DATA_COUNT",
                  "DAQ_FIFO_DATA_COUNT",
                  "EVENT_SENT",
-                 "TTS_STATE"};
+                 "TTS_STATE",
+                 "INPUT_ENABLE_MASK",
+                 "INPUT_AUTOKILL_MASK"};
   for (auto monname: v_daq_main) {
     addDaqMonitorable(monname, "DAQ_MAIN", "DAQ_MONITORING");
   }
@@ -145,7 +148,9 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
                 ".GTX.TRK_ERR",
                 ".GTX.TRG_ERR",
                 ".GBT.TRK_ERR",
-                ".CORR_VFAT_BLK_CNT"};
+                ".CORR_VFAT_BLK_CNT",
+                ".COUNTERS.SEU",
+                ".STATUS.SEU"};
   for (unsigned int i = 0; i < NOH; ++i) {
     for (auto monname: v_oh_main) {
       addDaqMonitorable("OH"+std::to_string(i)+monname, "OH_MAIN", "DAQ_MONITORING");
@@ -173,7 +178,7 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
 void gem::daqmon::DaqMonitor::updateDAQmain()
 {
   DEBUG("DaqMonitor: Update DAQ main table");
-  req = wisc::RPCMsg("amc.getmonDAQmain");
+  req = wisc::RPCMsg("daq_monitor.getmonDAQmain");
   try {
     rsp = rpc.call_method(req);
   }
@@ -195,7 +200,7 @@ void gem::daqmon::DaqMonitor::updateDAQmain()
 void gem::daqmon::DaqMonitor::updateDAQOHmain()
 {
   DEBUG("DaqMonitor: Update DAQ OH main table");
-  req = wisc::RPCMsg("amc.getmonDAQOHmain");
+  req = wisc::RPCMsg("daq_monitor.getmonDAQOHmain");
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
@@ -218,7 +223,7 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
 void gem::daqmon::DaqMonitor::updateTTCmain()
 {
   DEBUG("DaqMonitor: Update TTC main table");
-  req = wisc::RPCMsg("amc.getmonTTCmain");
+  req = wisc::RPCMsg("daq_monitor.getmonTTCmain");
   try {
     rsp = rpc.call_method(req);
   }
@@ -240,7 +245,7 @@ void gem::daqmon::DaqMonitor::updateTTCmain()
 void gem::daqmon::DaqMonitor::updateTRIGGERmain()
 {
   DEBUG("DaqMonitor: Update TRIGGER main table");
-  req = wisc::RPCMsg("amc.getmonTRIGGERmain");
+  req = wisc::RPCMsg("daq_monitor.getmonTRIGGERmain");
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
@@ -263,7 +268,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
 void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
 {
   DEBUG("DaqMonitor: Update TRIGGER OH main table");
-  req = wisc::RPCMsg("amc.getmonTRIGGEROHmain");
+  req = wisc::RPCMsg("daq_monitor.getmonTRIGGEROHmain");
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
@@ -286,7 +291,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
 void gem::daqmon::DaqMonitor::updateOHmain()
 {
   DEBUG("DaqMonitor: Update OH main table");
-  req = wisc::RPCMsg("amc.getmonOHmain");
+  req = wisc::RPCMsg("daq_monitor.getmonOHmain");
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
@@ -403,6 +408,18 @@ void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
       ld->labelValue="NDF";
       ld->labelClass="label label-default";
       break;
+  }
+  for (auto monname: {"INPUT_ENABLE_MASK","INPUT_AUTOKILL_MASK"})
+  {
+    val = is_daqmon->getUInt32(monname);
+    ld = m_LabelData.find(monname)->second;
+    if (val == 0xFFFFFFFF) {
+      ld->labelValue="X";
+      ld->labelClass="label label-default";
+    } else {
+      ld->labelValue=std::bitset<12>(val).to_string();
+      ld->labelClass="label label-info";
+    }
   }
 }
 
