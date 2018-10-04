@@ -36,6 +36,13 @@ void gem::daqmon::ShelfMonitorWeb::applicationPage(xgi::Input* in, xgi::Output* 
 {
   DEBUG("ShelfMonitoringWeb::applicationPage : Do nothing for the moment, will be eventually filled later");
 }
+
+void gem::daqmon::ShelfMonitorWeb::expertPage(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+  DEBUG("ShelfMonitoringWeb::expertPage : Do nothing for the moment, will be eventually filled later");
+}
+
 void gem::daqmon::ShelfMonitorWeb::monitorPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
