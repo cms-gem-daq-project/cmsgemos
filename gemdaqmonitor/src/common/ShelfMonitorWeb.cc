@@ -5,6 +5,7 @@
 #include "gem/daqmon/exception/Exception.h"
 #include "gem/daqmon/ShelfMonitor.h"
 #include "gem/daqmon/DaqMonitor.h"
+#include <iomanip>
 
 
 gem::daqmon::ShelfMonitorWeb::ShelfMonitorWeb(gem::daqmon::ShelfMonitor* shelfMonitorApp) :
@@ -33,12 +34,17 @@ void gem::daqmon::ShelfMonitorWeb::webDefault(xgi::Input * in, xgi::Output * out
 void gem::daqmon::ShelfMonitorWeb::applicationPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  INFO("ShelfMonitorWeb::applicationPage");
+  DEBUG("ShelfMonitoringWeb::applicationPage : Do nothing for the moment, will be eventually filled later");
+}
+void gem::daqmon::ShelfMonitorWeb::monitorPage(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+  INFO("ShelfMonitorWeb::monitorPage");
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < NAMC; ++i){
     auto daqmon = dynamic_cast<gem::daqmon::ShelfMonitor*>(p_gemApp)->v_daqmon.at(i);
     if (daqmon) {
-      *out << "<div class=\"xdaq-tab\" title=\"AMC-" << i+1 << "\" >"  << std::endl;
+      *out << "<div class=\"xdaq-tab\" title=\"AMC" << std::setfill('0') << std::setw(2) << i+1 << "\" >"  << std::endl;
       daqmon->buildMonitorPage(out);
       *out << "</div>" << std::endl;
     }
