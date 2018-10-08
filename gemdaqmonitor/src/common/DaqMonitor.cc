@@ -30,7 +30,7 @@ gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cpl
   is_daqmon =  is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(p_gemApp,
                                                                         hwCfgURN.toString(),
                                                                         true));
-  addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(1,  0));
+  addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(2,  0));
   setupDaqMonitoring();
   updateMonitorables();
   DEBUG("gem::daqmon::DaqMonitor : constructor done");
@@ -157,6 +157,38 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
     }
   }
   //end of OH_MAIN monitorables
+  addMonitorableSet("OH_SCA","DAQ_MONITORING");
+  //OH_SCA monitorables
+  v_oh_sca = { ".AVCCN",
+               ".AVTTN",
+               ".1V0_INT",
+               ".1V8F",
+               ".1V5",
+               ".2V5_IO",
+               ".3V0",
+               ".1V8",
+               ".VTRX_RSSI2",
+               ".VTRX_RSSI1",
+               ".SCA_TEMP"};
+  for (int i = 1; i < 10; ++i) {
+    v_oh_sca.push_back(".BOARD_TEMP"+std::to_string(i));
+  }
+  for (unsigned int i = 0; i < NOH; ++i) {
+    for (auto monname: v_oh_sca) {
+      addDaqMonitorable("OH"+std::to_string(i)+monname, "OH_SCA", "DAQ_MONITORING");
+    }
+  }
+  //end of OH_SCA monitorables
+  addMonitorableSet("OH_Sysmon","DAQ_MONITORING");
+  //OH_Sysmon monitorables
+  v_oh_sysmon = { ".FPGA_CORE_TEMP",
+                  ".FPGA_CORE_1V0",
+                  ".FPGA_CORE_2V5_IO"};
+  for (unsigned int i = 0; i < NOH; ++i) {
+    for (auto monname: v_oh_sysmon) {
+      addDaqMonitorable("OH"+std::to_string(i)+monname, "OH_Sysmon", "DAQ_MONITORING");
+    }
+  }
 }
 
 void gem::daqmon::DaqMonitor::updateMonitorables()
@@ -169,6 +201,8 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
     updateTRIGGERmain();
     updateTRIGGEROHmain();
     updateOHmain();
+    updateOHSCA();
+    updateOHSysmon();
     updateDAQmainTableContent();
     updateTTCmainTableContent();
     updateOHmainTableContent();
@@ -309,6 +343,78 @@ void gem::daqmon::DaqMonitor::updateOHmain()
     }
   }
   STANDARD_CATCH;
+}
+
+void gem::daqmon::DaqMonitor::updateOHSCA()
+{
+  DEBUG("DaqMonitor: Update OH SCA table");
+  req = wisc::RPCMsg("daq_monitor.getmonOHSCAmain");
+  req.set_word("NOH",NOH);
+  try {
+    rsp = rpc.call_method(req);
+  }
+  STANDARD_CATCH;
+  try{
+    if (rsp.get_key_exists("error")) {
+      ERROR("OH_SCA update error:" << rsp.get_string("error").c_str());
+      throw xhal::utils::XHALException("OH_SCA update failed");
+    } else {
+      auto monlist = m_monitorableSetsMap.find("OH_SCA");
+      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
+      }
+    }
+  }
+  STANDARD_CATCH;
+}
+
+void gem::daqmon::DaqMonitor::updateOHSysmon()
+{
+  DEBUG("DaqMonitor: Update OH Sysmon table");
+  req = wisc::RPCMsg("daq_monitor.getmonOHSysmon");
+  req.set_word("NOH",NOH);
+  req.set_word("doReset",0);
+  try {
+    rsp = rpc.call_method(req);
+  }
+  STANDARD_CATCH;
+  try{
+    if (rsp.get_key_exists("error")) {
+      ERROR("OH_Sysmon update error:" << rsp.get_string("error").c_str());
+      throw xhal::utils::XHALException("OH_Sysmon update failed");
+    } else {
+      auto monlist = m_monitorableSetsMap.find("OH_Sysmon");
+      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
+      }
+    }
+  }
+  STANDARD_CATCH;
+}
+
+double gem::daqmon::DaqMonitor::scaVconv(uint32_t val)
+{
+  return static_cast<double>(val*(0.244/1000)*3.0);
+}
+
+double gem::daqmon::DaqMonitor::scaTconv(uint32_t val)
+{
+  return static_cast<double>(val*(-0.53)+381.2);
+}
+
+double gem::daqmon::DaqMonitor::scaPTconv(uint32_t val)
+{
+  return static_cast<double>(0.2597*(9891.8-2.44*val));
+}
+
+double gem::daqmon::DaqMonitor::sysmonTconv(uint32_t val)
+{
+  return static_cast<double>(val*0.49-273.15);
+}
+
+double gem::daqmon::DaqMonitor::sysmonVconv(uint32_t val)
+{
+  return static_cast<double>(val*2.93/1000);
 }
 
 void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
@@ -551,6 +657,49 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
         }
       }
     }
+    for (auto monname: v_oh_sca)
+    {
+      val = is_daqmon->getUInt32("OH"+std::to_string(i)+monname);
+      ld = m_LabelData.find("OH"+std::to_string(i)+monname)->second;
+      if (val == 0xFFFFFFFF) {
+        ld->labelValue="X";
+        ld->labelClass="label label-default";
+      } else {
+        ld->labelClass="label label-info";
+        std::stringstream ss;
+        if (monname.find("SCA_TEMP") != std::string::npos){
+          ss << std::setprecision(2) << scaTconv(val);
+          ld->labelValue=ss.str();
+        } else {
+          if (monname.find("BOARD_TEMP") != std::string::npos){
+            ss << std::setprecision(2) << scaPTconv(val);
+            ld->labelValue=ss.str();
+          } else {
+            ss << std::setprecision(2) << scaVconv(val);
+            ld->labelValue=ss.str();
+          }
+        }
+      }
+    }    
+    for (auto monname: v_oh_sysmon)
+    {
+      val = is_daqmon->getUInt32("OH"+std::to_string(i)+monname);
+      ld = m_LabelData.find("OH"+std::to_string(i)+monname)->second;
+      if (val == 0xFFFFFFFF) {
+        ld->labelValue="X";
+        ld->labelClass="label label-default";
+      } else {
+        ld->labelClass="label label-info";
+        std::stringstream ss;
+        if (monname.find("TEMP") != std::string::npos){
+          ss << std::setprecision(2) << sysmonTconv(val);
+          ld->labelValue=ss.str();
+        } else {
+          ss << std::setprecision(2) << sysmonVconv(val);
+          ld->labelValue=ss.str();
+        }
+      }
+    }
   }
 }
 
@@ -571,6 +720,8 @@ void gem::daqmon::DaqMonitor::buildTable(const std::string& table_name, xgi::Out
     v_daq = v_oh_main;
     v_daq.insert(v_daq.end(),v_daq_trigger_oh_main.begin(),v_daq_trigger_oh_main.end());
     v_daq.insert(v_daq.end(),v_daq_oh_main.begin(),v_daq_oh_main.end());
+    v_daq.insert(v_daq.end(),v_oh_sysmon.begin(),v_oh_sysmon.end());
+    v_daq.insert(v_daq.end(),v_oh_sca.begin(),v_oh_sca.end());
   }
   *out << "<font size=\"1\">" << std::endl;
   *out << "<small>" << std::endl;
