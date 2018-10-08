@@ -303,7 +303,7 @@ class HwAMC(object):
         """
 
         # Check we are v3 electronics
-        if self.parentAMC.fwVersion < 3:
+        if self.fwVersion < 3:
             print("HwAMC::performDacScanMultiLink(): No support for v2b electronics")
             exit(os.EX_USAGE)
 
@@ -321,8 +321,8 @@ class HwAMC(object):
 
         # Check length of results container
         lenExpected = nUnmaskedOHs * (maxVfat3DACSize[dacSelect][0] - 0+1)*24 / dacStep
-        if (len(outData) != lenExpected):
-            print("HwAMC::performDacScanMultiLink(): I expected container of lenght {0} but provided 'outData' has length {1}",format(lenExpected, len(outData)))
+        if (len(dacDataAll) != lenExpected):
+            print("HwAMC::performDacScanMultiLink(): I expected container of lenght {0} but provided 'dacDataAll' has length {1}",format(lenExpected, len(dacDataAll)))
             exit(os.EX_USAGE)
 
         return self.dacScanMulti(ohMask, nUnmaskedOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
