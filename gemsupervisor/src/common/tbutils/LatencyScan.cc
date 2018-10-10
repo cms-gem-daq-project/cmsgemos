@@ -126,7 +126,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.take();
     //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
     hw_semaphore_.give();
-    TRACE(" ******IT IS NOT RUNNIG ***** ");
+    CMSGEMOS_TRACE(" ******IT IS NOT RUNNIG ***** ");
     wl_semaphore_.give(); // give work loop if it is not running
     return false;
   }
@@ -144,7 +144,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
   confParams_.bag.triggersSeen =  optohybridDevice_->getL1ACount(0x0);
   CalPulseCount_[0] = optohybridDevice_->getCalPulseCount(0x0);
 
-  TRACE("ABC TriggersSeen " << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
+  CMSGEMOS_TRACE("ABC TriggersSeen " << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 
   hw_semaphore_.give();//give hw to set the trigger source, send L1A+Cal pulses,
 
@@ -163,7 +163,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    TRACE("ABC Scan point TriggersSeen "
+    CMSGEMOS_TRACE("ABC Scan point TriggersSeen "
          << confParams_.bag.triggersSeen << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0));
 
     hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs
@@ -180,7 +180,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
     /*    int counter = 3;
     while (counter > 0) {
       confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-      TRACE(" ABC Scan point TriggersSeen "
+      CMSGEMOS_TRACE(" ABC Scan point TriggersSeen "
            << confParams_.bag.triggersSeen
            << " Calpulse " << optohybridDevice_->getCalPulseCount(0x0)
            << " counter = " << counter);
@@ -191,8 +191,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       while ((glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
 				   toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
 						     confParams_.bag.ohGTXLink.value_))))
-	TRACE("waiting for FIFO is empty: "
-	      << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+        CMSGEMOS_TRACE("waiting for FIFO is empty: "
+              << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
                                       toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
                                                         confParams_.bag.ohGTXLink.value_));
 	      sleep(0.005);
@@ -214,7 +214,7 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
 
       hw_semaphore_.take();// vfat set latency
 
-      TRACE("ABC run: Latency= "
+      CMSGEMOS_TRACE("ABC run: Latency= "
            << (int)currentLatency_ << " VT1= "
            << scanParams_.bag.deviceVT1 << " VT2= "
            << scanParams_.bag.deviceVT2
@@ -240,8 +240,8 @@ bool gem::supervisor::tbutils::LatencyScan::run(toolbox::task::WorkLoop* wl)
       while ((glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
                                     toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
                                                       confParams_.bag.ohGTXLink.value_))))
-	TRACE("waiting for FIFO is empty: "
-	      << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+        CMSGEMOS_TRACE("waiting for FIFO is empty: "
+              << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
                                       toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
                                                         confParams_.bag.ohGTXLink.value_))
 	      );
@@ -356,10 +356,10 @@ void gem::supervisor::tbutils::LatencyScan::scanParameters(xgi::Output *out)
 	 << cgicc::br()
 	 << cgicc::span() << std::endl; //end span
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying VFATS(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying VFATS(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying VFATS(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying VFATS(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -593,10 +593,10 @@ void gem::supervisor::tbutils::LatencyScan::webDefault(xgi::Input *in, xgi::Outp
 	 << cgicc::script() << std::endl;
 
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying LatencyScan control panel(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying LatencyScan control panel(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying LatencyScan control panel(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying LatencyScan control panel(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -645,10 +645,10 @@ void gem::supervisor::tbutils::LatencyScan::webConfigure(xgi::Input *in, xgi::Ou
 
 
   } catch (const xgi::exception::Exception & e) {
-    ERROR("Something went wrong: " << e.what());
+    CMSGEMOS_ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception & e) {
-    ERROR("Something went wrong: " << e.what());
+    CMSGEMOS_ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 
@@ -695,7 +695,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
   confParams_.bag.triggercount = 0;
 
   hw_semaphore_.take();
-  DEBUG( "attempting to configure device");
+  CMSGEMOS_DEBUG( "attempting to configure device");
 
   //make sure device is not running
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
@@ -704,7 +704,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
     (*chip)->setDeviceIPAddress(confParams_.bag.deviceIP);
     (*chip)->setRunMode(0);
 
-    TRACE("loading default settings");
+    CMSGEMOS_TRACE("loading default settings");
     //default settings for the frontend
     (*chip)->setTriggerMode(    0x3); //set to S1 to S8
     (*chip)->setCalibrationMode(0x0); //set to normal
@@ -739,26 +739,26 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
     (*chip)->setVThreshold1(scanParams_.bag.deviceVT1);
     (*chip)->setVThreshold2(scanParams_.bag.deviceVT2);
 
-    TRACE( "setting DAC mode to normal");
+    CMSGEMOS_TRACE( "setting DAC mode to normal");
     (*chip)->setDACMode(gem::hw::vfat::StringToDACMode.at("OFF"));
 
-    TRACE( "setting starting latency value");
+    CMSGEMOS_TRACE( "setting starting latency value");
     (*chip)->setLatency(    scanParams_.bag.minLatency);
 
-    TRACE( "reading back current latency value");
+    CMSGEMOS_TRACE( "reading back current latency value");
     currentLatency_ = (*chip)->getLatency();
 
-    TRACE( "Threshold " << scanParams_.bag.deviceVT1);
+    CMSGEMOS_TRACE( "Threshold " << scanParams_.bag.deviceVT1);
 
-    TRACE( "VCal " << scanParams_.bag.VCal);
+    CMSGEMOS_TRACE( "VCal " << scanParams_.bag.VCal);
 
-    TRACE( "device configured");
+    CMSGEMOS_TRACE( "device configured");
     is_configured_ = true;
   }
 
   //flush fifo
-  TRACE("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  TRACE("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  CMSGEMOS_TRACE("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  CMSGEMOS_TRACE("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);
@@ -781,7 +781,7 @@ void gem::supervisor::tbutils::LatencyScan::configureAction(toolbox::Event::Refe
 
   hw_semaphore_.give();
 
-  DEBUG( "configure routine completed");
+  CMSGEMOS_DEBUG( "configure routine completed");
 
   is_working_    = false;
 }
@@ -825,8 +825,8 @@ void gem::supervisor::tbutils::LatencyScan::startAction(toolbox::Event::Referenc
   hw_semaphore_.take();//oh reset counters
 
   //flush fifo
-  TRACE("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  TRACE("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  CMSGEMOS_TRACE("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  CMSGEMOS_TRACE("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);

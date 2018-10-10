@@ -97,14 +97,14 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     wl_semaphore_.give(); // give work loop if it is not running
     //uint32_t bufferDepth = 0;
     //bufferDepth = glibDevice_->getFIFOVFATBlockOccupancy(readout_mask);
-    TRACE(" ******IT IS NOT RUNNIG ***** ");
+    CMSGEMOS_TRACE(" ******IT IS NOT RUNNIG ***** ");
     return false;
   }
 
   //send triggers
   hw_semaphore_.take(); //take hw to send the trigger
 
-  TRACE("scan point " << scanpoint_ );
+  CMSGEMOS_TRACE("scan point " << scanpoint_ );
 
   optohybridDevice_->setTrigSource(0x0);// trigger sources
 
@@ -114,7 +114,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
   }
   //count triggers
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-  TRACE("ABC TriggersSeen " << confParams_.bag.triggersSeen);
+  CMSGEMOS_TRACE("ABC TriggersSeen " << confParams_.bag.triggersSeen);
 
   confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
 
@@ -135,7 +135,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    TRACE("ABC Scan point TriggersSeen "
+    CMSGEMOS_TRACE("ABC Scan point TriggersSeen "
           << confParams_.bag.triggersSeen );
 
     hw_semaphore_.take(); //take hw to set Runmode 0 on VFATs
@@ -150,7 +150,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
     hw_semaphore_.give();  // give hw to reset counters
 
     confParams_.bag.triggersSeen = optohybridDevice_->getL1ACount(0x0);
-    TRACE("ABC Scan point TriggersSeen "
+    CMSGEMOS_TRACE("ABC Scan point TriggersSeen "
           << confParams_.bag.triggersSeen );
 
     if ( (unsigned)scanParams_.bag.deviceVT1 == (unsigned)0x0 ) {
@@ -164,7 +164,7 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
 
       hw_semaphore_.take(); // take hw to set threshold values
 
-      TRACE("ABC run: Latency= "
+      CMSGEMOS_TRACE("ABC run: Latency= "
             << scanParams_.bag.latency << " VT1= "
             << scanParams_.bag.deviceVT1 << " VT2= "
             << scanParams_.bag.deviceVT2 <<
@@ -199,8 +199,8 @@ bool gem::supervisor::tbutils::ThresholdScan::run(toolbox::task::WorkLoop* wl)
       while ((glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
                                     toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
                                                       confParams_.bag.ohGTXLink.value_))))
-	TRACE("waiting for FIFO is empty: "
-	      << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
+        CMSGEMOS_TRACE("waiting for FIFO is empty: "
+              << glibDevice_->readReg(glibDevice_->getDeviceBaseNode(),
                                       toolbox::toString("DAQ.GTX%d.STATUS.EVENT_FIFO_IS_EMPTY",
                                                         confParams_.bag.ohGTXLink.value_))
 	      );
@@ -304,10 +304,10 @@ void gem::supervisor::tbutils::ThresholdScan::scanParameters(xgi::Output *out)
 	 << cgicc::br() << std::endl
 	 << cgicc::span()   << std::endl;
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying VFATS(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying VFATS(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying VFATS(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying VFATS(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -541,10 +541,10 @@ void gem::supervisor::tbutils::ThresholdScan::webDefault(xgi::Input *in, xgi::Ou
 	 << cgicc::script() << std::endl;
 
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying ThresholdScan control panel(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying ThresholdScan control panel(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying ThresholdScan control panel(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying ThresholdScan control panel(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -582,10 +582,10 @@ void gem::supervisor::tbutils::ThresholdScan::webConfigure(xgi::Input *in, xgi::
     if (element != cgi.getElements().end())
       confParams_.bag.nTriggers  = element->getIntegerValue();
   } catch (const xgi::exception::Exception & e) {
-    ERROR("Something went wrong (xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong (xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception & e) {
-    ERROR("Something went wrong (std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong (std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 
@@ -621,10 +621,10 @@ void gem::supervisor::tbutils::ThresholdScan::webStart(xgi::Input *in, xgi::Outp
     if (element != cgi.getElements().end())
       confParams_.bag.nTriggers  = element->getIntegerValue();
   } catch (const xgi::exception::Exception & e) {
-    ERROR("Something went wrong (xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong (xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception & e) {
-    ERROR("Something went wrong (std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong (std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 
@@ -669,7 +669,7 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
     (*chip)->setRunMode(0);
 
 
-    DEBUG("loading default settings");
+    CMSGEMOS_DEBUG("loading default settings");
     //default settings for the frontend
     (*chip)->setTriggerMode(    0x3); //set to S1 to S8
     (*chip)->setCalibrationMode(0x0); //set to normal
@@ -708,8 +708,8 @@ void gem::supervisor::tbutils::ThresholdScan::configureAction(toolbox::Event::Re
   }
 
   // flush FIFO, how to disable a specific, misbehaving, chip
-  DEBUG("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  CMSGEMOS_DEBUG("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  CMSGEMOS_DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);
@@ -779,8 +779,8 @@ void gem::supervisor::tbutils::ThresholdScan::startAction(toolbox::Event::Refere
   //start readout
 
   //flush fifo
-  DEBUG("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  CMSGEMOS_DEBUG("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  CMSGEMOS_DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);

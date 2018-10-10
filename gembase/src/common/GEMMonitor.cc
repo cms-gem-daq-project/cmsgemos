@@ -27,7 +27,7 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, xdaq::Application* 
   m_timerName = timerName.str();
 
   try {
-    DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
+    CMSGEMOS_DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
       p_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
@@ -55,7 +55,7 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMApplication* gem
   m_timerName = timerName.str();
 
   try {
-    DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
+    CMSGEMOS_DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
       p_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
@@ -85,7 +85,7 @@ gem::base::GEMMonitor::GEMMonitor(log4cplus::Logger& logger, GEMFSMApplication* 
   m_timerName = timerName.str();
 
   try {
-    DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
+    CMSGEMOS_DEBUG("GEMMonitor::Creating timer with name " << m_timerName);
     if (toolbox::task::getTimerFactory()->hasTimer(m_timerName))
       p_timer = toolbox::task::getTimerFactory()->getTimer(m_timerName);
     else
@@ -102,12 +102,12 @@ gem::base::GEMMonitor::~GEMMonitor()
 
 void gem::base::GEMMonitor::startMonitoring()
 {
-  INFO("GEMMonitor::startMonitoring");
+  CMSGEMOS_INFO("GEMMonitor::startMonitoring");
 
   try {
     p_timer->stop();
   } catch (toolbox::task::exception::NotActive const& ex) {
-    WARN("GEMMonitor::startMonitoring could not stop timer " << ex.what());
+    CMSGEMOS_WARN("GEMMonitor::startMonitoring could not stop timer " << ex.what());
   }
 
   p_timer->start();
@@ -125,13 +125,13 @@ void gem::base::GEMMonitor::startMonitoring()
 
 void gem::base::GEMMonitor::pauseMonitoring()
 {
-  INFO("GEMMonitor::pauseMonitoring");
+  CMSGEMOS_INFO("GEMMonitor::pauseMonitoring");
   p_timer->stop();
 }
 
 void gem::base::GEMMonitor::resumeMonitoring()
 {
-  INFO("GEMMonitor::resumeMonitoring");
+  CMSGEMOS_INFO("GEMMonitor::resumeMonitoring");
   // p_timer->start();
   // updateMonitorables();
   startMonitoring();
@@ -139,7 +139,7 @@ void gem::base::GEMMonitor::resumeMonitoring()
 
 void gem::base::GEMMonitor::stopMonitoring()
 {
-  INFO("GEMMonitor::stopMonitoring");
+  CMSGEMOS_INFO("GEMMonitor::stopMonitoring");
   p_timer->stop();
 }
 
@@ -164,7 +164,7 @@ void gem::base::GEMMonitor::setupMonitoring(bool isFSMApp)
 
 void gem::base::GEMMonitor::timeExpired(toolbox::task::TimerEvent& event)
 {
-  DEBUG("GEMMonitor::timeExpired received event:" << event.type());
+  CMSGEMOS_DEBUG("GEMMonitor::timeExpired received event:" << event.type());
   updateMonitorables();
 }
 
@@ -177,10 +177,10 @@ void gem::base::GEMMonitor::addInfoSpace(std::string const& name,
     std::pair<std::shared_ptr<gem::base::utils::GEMInfoSpaceToolBox>,
     toolbox::TimeInterval> >::const_iterator it = m_infoSpaceMap.find(name);
   if (it != m_infoSpaceMap.end()) {
-    DEBUG("GEMMonitor::addInfoSpace infospace " << name << " already exists in monitor!");
+    CMSGEMOS_DEBUG("GEMMonitor::addInfoSpace infospace " << name << " already exists in monitor!");
     return;
   }
-  DEBUG("GEMMonitor::addInfoSpace adding infospace " << name);
+  CMSGEMOS_DEBUG("GEMMonitor::addInfoSpace adding infospace " << name);
   m_infoSpaceMap.insert(std::make_pair(name, std::make_pair(infoSpace, interval)));
   std::list<std::string> emptyList;
   m_infoSpaceMonitorableSetMap.insert(std::make_pair(name, emptyList));
@@ -194,11 +194,11 @@ void gem::base::GEMMonitor::addMonitorableSet(std::string const& setname, std::s
   // it = m_monitorableSetsMap.find(setname);
   // if (it != m_monitorableSetsMap.end()) {
   if (m_monitorableSetsMap.count(setname)) {
-    DEBUG("GEMMonitor::addMonitorableSet monitorable set '" << setname << "' already exists in monitor!");
+    CMSGEMOS_DEBUG("GEMMonitor::addMonitorableSet monitorable set '" << setname << "' already exists in monitor!");
     return;
   }
 
-  DEBUG("GEMMonitor::addInfoSpace adding monitorable set '" << setname << "' to infospace '" << infoSpaceName << "'");
+  CMSGEMOS_DEBUG("GEMMonitor::addInfoSpace adding monitorable set '" << setname << "' to infospace '" << infoSpaceName << "'");
   std::unordered_map<std::string, GEMMonitorable> emptySet;
   // std::list<std::pair<std::string, GEMMonitorable> > emptySet;
   m_monitorableSetsMap.insert(std::make_pair(setname, emptySet));
@@ -215,13 +215,13 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
                                            std::string const& format)
 {
   if (m_infoSpaceMap.find(infoSpaceName) == m_infoSpaceMap.end()) {
-    ERROR("GEMMonitor::addMonitorable infoSpace '" << infoSpaceName << "' does not exist in monitor!");
+    CMSGEMOS_ERROR("GEMMonitor::addMonitorable infoSpace '" << infoSpaceName << "' does not exist in monitor!");
     return;
   } else if (m_monitorableSetsMap.find(setname) == m_monitorableSetsMap.end()) {
-    ERROR("GEMMonitor::addMonitorable monitorable set '" << setname << "' does not exist in monitor!");
+    CMSGEMOS_ERROR("GEMMonitor::addMonitorable monitorable set '" << setname << "' does not exist in monitor!");
     return;
   }
-  DEBUG("GEMMonitor::addMonitorable monitorable set '" << setname << "' exists in monitor!");
+  CMSGEMOS_DEBUG("GEMMonitor::addMonitorable monitorable set '" << setname << "' exists in monitor!");
 
   std::shared_ptr<utils::GEMInfoSpaceToolBox> infoSpace = m_infoSpaceMap.find(infoSpaceName)->second.first;
   if (infoSpace->find(monpair.first)) {
@@ -233,7 +233,7 @@ void gem::base::GEMMonitor::addMonitorable(std::string const& setname,
     (*it).second.insert(std::make_pair(monpair.first, monitem));
     // (*it).second.push_back(std::make_pair(monpair.first, monitem));
   } else {
-    ERROR("GEMMonitor::addMonitorable monitorable '" << monpair.first << "' does not exist in infospace '"
+    CMSGEMOS_ERROR("GEMMonitor::addMonitorable monitorable '" << monpair.first << "' does not exist in infospace '"
            << infoSpaceName << "'!");
     return;
   }
@@ -255,7 +255,7 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
   std::list< std::vector<std::string> > result;
   auto itemSet = m_monitorableSetsMap.find(setname);
   if (itemSet == m_monitorableSetsMap.end()) {
-    ERROR("GEMMonitor::Set named " << setname << " does not exist in monitor");
+    CMSGEMOS_ERROR("GEMMonitor::Set named " << setname << " does not exist in monitor");
     return result;
   }
 
@@ -272,7 +272,7 @@ std::list<std::vector<std::string> > gem::base::GEMMonitor::getFormattedItemSet(
     itl.push_back(doc);
     itl.push_back(gemItem.regname);
     result.push_back(itl);
-    DEBUG("GEMMonitor::Set named " << setname << " has members"
+    CMSGEMOS_DEBUG("GEMMonitor::Set named " << setname << " has members"
           << " name: "    << itl.at(0)
           << " val: "     << itl.at(1)
           << " doc: "     << itl.at(2)
@@ -307,20 +307,20 @@ void gem::base::GEMMonitor::jsonUpdateItemSets(xgi::Output *out)
     *out << "\"" << iset->first << "\" : [ " << std::endl;
 
     if (m_monitorableSetsMap.find(iset->first) == m_monitorableSetsMap.end()) {
-      DEBUG("GEMMonitor::Monitorable set " << iset->first << " not found, not exporting as JSON");
+      CMSGEMOS_DEBUG("GEMMonitor::Monitorable set " << iset->first << " not found, not exporting as JSON");
     } else if (m_monitorableSetsMap.find(iset->first)->second.empty()) {
-      DEBUG("GEMMonitor::Monitorable set " << iset->first << " is empty, not exporting as JSON");
+      CMSGEMOS_DEBUG("GEMMonitor::Monitorable set " << iset->first << " is empty, not exporting as JSON");
     } else {
-      DEBUG("GEMMonitor::Found monitorable set " << iset->first << " while updating for JSON export");
+      CMSGEMOS_DEBUG("GEMMonitor::Found monitorable set " << iset->first << " while updating for JSON export");
 
       jsonUpdateItemSet(iset->first, out);
     }
     // can't have a trailing comma for the last entry...
     if (std::distance(iset, end) == 1) {
-      DEBUG("GEMMonitor::Found last monitorable set " << iset->first << ", no trailing comma (])");
+      CMSGEMOS_DEBUG("GEMMonitor::Found last monitorable set " << iset->first << ", no trailing comma (])");
       *out << " ]"  << std::endl;
     } else {
-      DEBUG("GEMMonitor::Found monitorable set " << iset->first << ", trailing comma (],)");
+      CMSGEMOS_DEBUG("GEMMonitor::Found monitorable set " << iset->first << ", trailing comma (],)");
       *out << " ]," << std::endl;
     }
   }
@@ -336,28 +336,28 @@ void gem::base::GEMMonitor::jsonUpdateInfoSpaces(xgi::Output *out)
 void gem::base::GEMMonitor::reset()
 {
   // have to get rid of the timer
-  DEBUG("GEMMonitor::reset");
+  CMSGEMOS_DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from p_timer");
+    CMSGEMOS_DEBUG("GEMMonitor::reset removing " << infoSpace->first << " from p_timer");
     try {
       p_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
-      ERROR("GEMMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+      CMSGEMOS_ERROR("GEMMonitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }
   }
   stopMonitoring();
-  DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
+  CMSGEMOS_DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
   } catch (toolbox::task::exception::Exception& te) {
-    ERROR("GEMMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
+    CMSGEMOS_ERROR("GEMMonitor::Caught exception while removing timer " << m_timerName << " " << te.what());
   }
 
   // is this necessary? how to do for some applications and not others?
   // make this simply an interface and force every derived application to implement it properly
   // without this, then the json updates will continue and eventually fail
   /*
-  DEBUG("GEMMonitor::reset - clearing all maps");
+  CMSGEMOS_DEBUG("GEMMonitor::reset - clearing all maps");
   m_infoSpaceMap.clear();
   m_infoSpaceMonitorableSetMap.clear();
   m_monitorableSetInfoSpaceMap.clear();

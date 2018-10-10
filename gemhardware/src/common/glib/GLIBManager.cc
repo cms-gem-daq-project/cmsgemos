@@ -82,10 +82,10 @@ gem::hw::glib::GLIBManager::GLIBManager(xdaq::ApplicationStub* stub) :
   xgi::bind(this, &GLIBManager::dumpGLIBFIFO, "dumpGLIBFIFO");
 
   // initialize the GLIB application objects
-  DEBUG("GLIBManager::Connecting to the GLIBManagerWeb interface");
+  CMSGEMOS_DEBUG("GLIBManager::Connecting to the GLIBManagerWeb interface");
   p_gemWebInterface = new gem::hw::glib::GLIBManagerWeb(this);
   // p_gemMonitor      = new gem::hw::glib::GLIBHwMonitor(this);
-  DEBUG("GLIBManager::done");
+  CMSGEMOS_DEBUG("GLIBManager::done");
 
   // set up the info hwCfgInfoSpace
   init();
@@ -102,38 +102,38 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
 {
   std::vector<uint32_t> dump;
   if (glib < 0 || glib > 11) {
-    WARN("GLIBManager::dumpGLIBFIFO Specified invalid GLIB card " << glib+1);
+    CMSGEMOS_WARN("GLIBManager::dumpGLIBFIFO Specified invalid GLIB card " << glib+1);
     return dump;
   } else if (!m_glibs.at(glib)) {
-    WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib+1
+    CMSGEMOS_WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib+1
          << " is not connected");
     return dump;
     //} else if (!(m_glibs.at(glib)->hasTrackingData(0))) {
-    //  WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib
+    //  CMSGEMOS_WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib
     //       << " has no tracking data in the FIFO");
     //  return dump;
   }
 
   try {
-    INFO("GLIBManager::dumpGLIBFIFO Dumping FIFO for specified GLIB card " << glib+1);
+    CMSGEMOS_INFO("GLIBManager::dumpGLIBFIFO Dumping FIFO for specified GLIB card " << glib+1);
     return m_glibs.at(glib)->getTrackingData(0, 24);
   } catch (gem::hw::glib::exception::Exception const& e) {
     std::stringstream msg;
     msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught exception " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     return dump;
   } catch (std::exception const& e) {
     std::stringstream msg;
     msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught exception " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     return dump;
   } catch (...) {
     std::stringstream msg;
     msg << "GLIBManager::dumpGLIBFIFO Unable to read tracking data from AMC" << glib+1
         << " FIFO, caught unknown exception ";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     return dump;
   }
 }
@@ -142,10 +142,10 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
 void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("GLIBManager::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("GLIBManager::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     m_amcEnableMask = gem::hw::utils::parseAMCEnableList(m_amcSlots.toString());
-    INFO("GLIBManager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
+    CMSGEMOS_INFO("GLIBManager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
          << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
 
     // how to handle passing in various values nested in a vector in a bag
@@ -155,7 +155,7 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
       // if (slot->bag.present.value_)
       if (slot->bag.crateID.value_ > -1) {
         slot->bag.present = true;
-        DEBUG("GLIBManager::Found attribute:" << slot->bag.toString());
+        CMSGEMOS_DEBUG("GLIBManager::Found attribute:" << slot->bag.toString());
       }
     }
     // p_gemMonitor->startMonitoring();
@@ -173,20 +173,20 @@ void gem::hw::glib::GLIBManager::init()
 void gem::hw::glib::GLIBManager::initializeAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  DEBUG("GLIBManager::initializeAction begin");
+  CMSGEMOS_DEBUG("GLIBManager::initializeAction begin");
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding expected cards");
+    CMSGEMOS_DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding expected cards");
     GLIBInfo& info = m_glibInfo[slot].bag;
     if ((m_amcEnableMask >> (slot)) & 0x1) {
-      DEBUG("GLIBManager::info:" << info.toString());
-      DEBUG("GLIBManager::expect a card in slot " << (slot+1));
-      DEBUG("GLIBManager::bag"
+      CMSGEMOS_DEBUG("GLIBManager::info:" << info.toString());
+      CMSGEMOS_DEBUG("GLIBManager::expect a card in slot " << (slot+1));
+      CMSGEMOS_DEBUG("GLIBManager::bag"
             << "crate " << info.crateID.value_
             << " slot " << info.slotID.value_);
       // this maybe shouldn't be done?
       info.slotID  = slot+1;
-      DEBUG("GLIBManager::bag"
+      CMSGEMOS_DEBUG("GLIBManager::bag"
             << "crate " << info.crateID.value_
             << " slot " << info.slotID.value_);
       // this maybe shouldn't be done?
@@ -208,7 +208,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     if (!info.present)
       continue;
 
-    DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
+    CMSGEMOS_DEBUG("GLIBManager::creating pointer to card in slot " << (slot+1));
 
     // create the cfgInfoSpace object (qualified vs non?)
     std::string deviceName = info.cardName.toString();
@@ -219,23 +219,23 @@ void gem::hw::glib::GLIBManager::initializeAction()
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      DEBUG("GLIBManager::initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
+      CMSGEMOS_DEBUG("GLIBManager::initializeAction::infospace " << hwCfgURN.toString() << " already exists, getting");
       is_glibs.at(slot) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
                                                                                    xdata::getInfoSpaceFactory()->get(hwCfgURN.toString()),
                                                                                    true));
     } else {
-      DEBUG("GLIBManager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
+      CMSGEMOS_DEBUG("GLIBManager::initializeAction::infospace " << hwCfgURN.toString() << " does not exist, creating");
       is_glibs.at(slot) = is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(this,
                                                                                    hwCfgURN.toString(),
                                                                                    true));
     }
 
     try {
-      DEBUG("GLIBManager::obtaining pointer to HwGLIB");
+      CMSGEMOS_DEBUG("GLIBManager::obtaining pointer to HwGLIB");
       m_glibs.at(slot) = glib_shared_ptr(new gem::hw::glib::HwGLIB(deviceName, m_connectionFile.toString()));
       glib_shared_ptr amc = m_glibs.at(slot);
       if (amc->isHwConnected()) {
-        DEBUG("GLIBManager::Creating InfoSpace items for GLIB device " << deviceName);
+        CMSGEMOS_DEBUG("GLIBManager::Creating InfoSpace items for GLIB device " << deviceName);
 
         // FIXME should not need this here?
         amc->disableDAQLink();
@@ -252,31 +252,31 @@ void gem::hw::glib::GLIBManager::initializeAction()
       } else {
         std::stringstream msg;
         msg << "GLIBManager::initializeAction unable to communicate with GLIB in slot " << slot;
-        ERROR(msg.str());
+        CMSGEMOS_ERROR(msg.str());
         XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
       }
     } catch (uhalException const& e) {
       std::stringstream msg;
       msg << "GLIBManager::initializeAction caught uHAL exception " << e.what();
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     } catch (gem::hw::glib::exception::Exception const& e) {
       std::stringstream msg;
       msg << "GLIBManager::initializeAction caught exception " << e.what();
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     } catch (toolbox::net::exception::MalformedURN const& e) {
       std::stringstream msg;
       msg << "GLIBManager::initializeAction caught exception " << e.what();
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     } catch (std::exception const& e) {
       std::stringstream msg;
       msg << "GLIBManager::initializeAction caught exception " << e.what();
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
-    DEBUG("GLIBManager::connected");
+    CMSGEMOS_DEBUG("GLIBManager::connected");
     // set the web view to be empty or grey
     // if (!info.present.value_) continue;
     // p_gemWebInterface->glibInSlot(slot);
@@ -293,23 +293,23 @@ void gem::hw::glib::GLIBManager::initializeAction()
 
     glib_shared_ptr amc = m_glibs.at(slot);
     if (amc->isHwConnected()) {
-      DEBUG("GLIBManager::connected a card in slot " << (slot+1));
+      CMSGEMOS_DEBUG("GLIBManager::connected a card in slot " << (slot+1));
     } else {
       std::stringstream msg;
       msg << "GLIBManager::initializeAction GLIB in slot " << (slot+1) << " is not connected";
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       // fireEvent("Fail");
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
   }
   // usleep(10); // just for testing the timing of different applications
-  INFO("GLIBManager::initializeAction end");
+  CMSGEMOS_INFO("GLIBManager::initializeAction end");
 }
 
 void gem::hw::glib::GLIBManager::configureAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  DEBUG("GLIBManager::configureAction");
+  CMSGEMOS_DEBUG("GLIBManager::configureAction");
 
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
@@ -340,12 +340,12 @@ void gem::hw::glib::GLIBManager::configureAction()
         if (m_relockPhase.value_)
           pashiftcmd << " --relock";
         pashiftcmd << "'\"";
-        INFO("GLIBManager::configureAction executing " << pashiftcmd.str());
+        CMSGEMOS_INFO("GLIBManager::configureAction executing " << pashiftcmd.str());
         int retval = std::system(pashiftcmd.str().c_str());
         if (retval) {
           std::stringstream msg;
           msg << "GLIBManager::configureAction unable to shift phases: " << retval;
-          ERROR(msg.str());
+          CMSGEMOS_ERROR(msg.str());
           // fireEvent("Fail");
           // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
           XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
@@ -362,7 +362,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       amc->setDAQLinkRunParameters(0xfaac);
 
       if (m_scanType.value_ == 2) {
-	INFO("GLIBManager::configureAction: FIRST  " << m_scanMin.value_);
+        CMSGEMOS_INFO("GLIBManager::configureAction: FIRST  " << m_scanMin.value_);
 
 	amc->setDAQLinkRunType(0x2);
 	amc->setDAQLinkRunParameter(0x1,m_scanMin.value_);
@@ -371,7 +371,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       } else if (m_scanType.value_ == 3) {
 	uint32_t initialVT1 = m_scanMin.value_;
 	uint32_t initialVT2 = 0;  // std::max(0,(uint32_t)m_scanMax.value_);
-	INFO("GLIBManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
+        CMSGEMOS_INFO("GLIBManager::configureAction FIRST VT1 " << initialVT1 << " VT2 " << initialVT2);
 
 	amc->setDAQLinkRunType(0x3);
 	// amc->setDAQLinkRunParameter(0x1,latency);  // set this at start so DQM has it?
@@ -391,7 +391,7 @@ void gem::hw::glib::GLIBManager::configureAction()
       // temp workaround, call confAllChambers python script?
       // if P5 config?
       // if (m_setupLocation.toString().rfind("P5") != std::string::npos) {
-      INFO("GLIBManager::configureAction running confAllChambers for P5 setup");
+      CMSGEMOS_INFO("GLIBManager::configureAction running confAllChambers for P5 setup");
       std::stringstream confcmd;
       // FIXME hard coded for now, but super hacky garbage
       confcmd << "confAllChambers.py -s" << (slot+1)
@@ -399,12 +399,12 @@ void gem::hw::glib::GLIBManager::configureAction()
               << " --ztrim="   << 4.0
               << " --vt1bump=" << 10
               << " --config --run";
-      INFO("GLIBManager::configureAction executing " << confcmd.str());
+      CMSGEMOS_INFO("GLIBManager::configureAction executing " << confcmd.str());
       int retval = std::system(confcmd.str().c_str());
       if (retval) {
         std::stringstream msg;
         msg << "GLIBManager::configureAction unable to configure chambers: " << retval;
-        WARN(msg.str());
+        CMSGEMOS_WARN(msg.str());
         // fireEvent("Fail");
         // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
@@ -414,12 +414,12 @@ void gem::hw::glib::GLIBManager::configureAction()
       // FIXME hard coded for now, but super hacky garbage
       statuscmd << "amc_info_uhal.py -s" << (slot+1)
                 << " --shelf="           << info.crateID.toString();
-      INFO("GLIBManager::configureAction running " << statuscmd.str() << " after configuring");
+      CMSGEMOS_INFO("GLIBManager::configureAction running " << statuscmd.str() << " after configuring");
       retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
         msg << "GLIBManager::configureAction unable to check AMC status: " << retval;
-        WARN(msg.str());
+        CMSGEMOS_WARN(msg.str());
         // fireEvent("Fail");
         // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
@@ -430,34 +430,34 @@ void gem::hw::glib::GLIBManager::configureAction()
     } else {
       std::stringstream msg;
       msg << "GLIBManager::configureAction GLIB in slot " << (slot+1) << " is not connected";
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       // fireEvent("Fail");
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
   }
 
-  INFO("GLIBManager::configureAction end");
+  CMSGEMOS_INFO("GLIBManager::configureAction end");
 }
 
 void gem::hw::glib::GLIBManager::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
   if (m_scanType.value_ == 2) {
-    INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
+    CMSGEMOS_INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
     m_lastLatency = m_scanMin.value_;
     m_lastVT1 = 0;
   } else if (m_scanType.value_ == 3) {
-    INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
+    CMSGEMOS_INFO("GLIBManager::startAction() " << std::endl << m_scanInfo.bag.toString());
     m_lastLatency = 0;
     m_lastVT1 = m_scanMin.value_;
   }
 
-  INFO("GLIBManager::startAction begin");
+  CMSGEMOS_INFO("GLIBManager::startAction begin");
   // what is required for starting the GLIB?
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
-    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    CMSGEMOS_DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -468,7 +468,7 @@ void gem::hw::glib::GLIBManager::startAction()
       if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
-      DEBUG("connected a card in slot " << (slot+1));
+      CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
       // enable the DAQ
       amc->ttcReset();
       amc->enableDAQLink(0x4);  // FIXME
@@ -481,12 +481,12 @@ void gem::hw::glib::GLIBManager::startAction()
       // FIXME hard coded for now, but super hacky garbage
       statuscmd << "amc_info_uhal.py -s" << (slot+1)
                 << " --shelf="           << info.crateID.toString();
-      INFO("GLIBManager::startAction running " << statuscmd.str() << " after starting");
+      CMSGEMOS_INFO("GLIBManager::startAction running " << statuscmd.str() << " after starting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
         msg << "GLIBManager::startAction unable to check AMC status: " << retval;
-        WARN(msg.str());
+        CMSGEMOS_WARN(msg.str());
         // fireEvent("Fail");
         // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
@@ -497,7 +497,7 @@ void gem::hw::glib::GLIBManager::startAction()
     } else {
       std::stringstream msg;
       msg << "GLIBManager::startAction GLIB in slot " << (slot+1) << " is not connected";
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       // fireEvent("Fail");
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
@@ -509,7 +509,7 @@ void gem::hw::glib::GLIBManager::startAction()
     */
   }
   // usleep(10);
-  INFO("GLIBManager::startAction end");
+  CMSGEMOS_INFO("GLIBManager::startAction end");
 }
 
 void gem::hw::glib::GLIBManager::pauseAction()
@@ -519,7 +519,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
-    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    CMSGEMOS_DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -530,33 +530,33 @@ void gem::hw::glib::GLIBManager::pauseAction()
       if (m_glibMonitors.at(slot))
         m_glibMonitors.at(slot)->pauseMonitoring();
 
-      DEBUG("connected a card in slot " << (slot+1));
+      CMSGEMOS_DEBUG("connected a card in slot " << (slot+1));
 
       if (m_scanType.value_ == 2) {
 	uint8_t updatedLatency = m_lastLatency + m_stepSize.value_;
-	INFO("GLIBManager::pauseAction LatencyScan AMC" << (slot+1) << " Latency " << (int)updatedLatency);
+        CMSGEMOS_INFO("GLIBManager::pauseAction LatencyScan AMC" << (slot+1) << " Latency " << (int)updatedLatency);
 
         // wait for events to finish building
         while (!amc->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
+          CMSGEMOS_DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
           usleep(10);
         }
-        DEBUG("GLIBManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
+        CMSGEMOS_DEBUG("GLIBManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
               << (int)updatedLatency);
-	amc->setDAQLinkRunParameter(0x1,updatedLatency);
+        amc->setDAQLinkRunParameter(0x1,updatedLatency);
       } else if (m_scanType.value_ == 3) {
-	uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
-	uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
-	INFO("GLIBManager::pauseAction ThresholdScan AMC" << (slot+1) << ""
+        uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
+        uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
+        CMSGEMOS_INFO("GLIBManager::pauseAction ThresholdScan AMC" << (slot+1) << ""
              << " VT1 " << (int)updatedVT1
              << " VT2 " << (int)updatedVT2);
 
         // wait for events to finish building
         while (!amc->l1aFIFOIsEmpty()) {
-          DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
+          CMSGEMOS_DEBUG("GLIBManager::pauseAction waiting for AMC" << (slot+1) << " to finish building events");
           usleep(10);
         }
-        DEBUG("GLIBManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
+        CMSGEMOS_DEBUG("GLIBManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
               << " and VT2 " << (int)updatedVT2);
 	amc->setDAQLinkRunParameter(0x2,updatedVT1);
 	amc->setDAQLinkRunParameter(0x3,updatedVT2);
@@ -568,7 +568,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
     } else {
       std::stringstream msg;
       msg << "GLIBManager::pauseAction GLIB in slot " << (slot+1) << " is not connected";
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       // fireEvent("Fail");
       XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
     }
@@ -576,15 +576,15 @@ void gem::hw::glib::GLIBManager::pauseAction()
 
   // Update the scan parameters
   if (m_scanType.value_ == 2) {
-    INFO("GLIBManager::pauseAction LatencyScan old Latency " << (int)m_lastLatency);
+    CMSGEMOS_INFO("GLIBManager::pauseAction LatencyScan old Latency " << (int)m_lastLatency);
     m_lastLatency += m_stepSize.value_;
-    INFO("GLIBManager::pauseAction LatencyScan new Latency " << (int)m_lastLatency);
+    CMSGEMOS_INFO("GLIBManager::pauseAction LatencyScan new Latency " << (int)m_lastLatency);
   } else if (m_scanType.value_ == 3) {
-    INFO("GLIBManager::pauseAction ThresholdScan old VT1 " << (int)m_lastVT1);
+    CMSGEMOS_INFO("GLIBManager::pauseAction ThresholdScan old VT1 " << (int)m_lastVT1);
     m_lastVT1 += m_stepSize.value_;
-    INFO("GLIBManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
+    CMSGEMOS_INFO("GLIBManager::pauseAction ThresholdScan new VT1 " << (int)m_lastVT1);
   }
-  INFO("GLIBManager::pauseAction end");
+  CMSGEMOS_INFO("GLIBManager::pauseAction end");
 }
 
 void gem::hw::glib::GLIBManager::resumeAction()
@@ -592,17 +592,17 @@ void gem::hw::glib::GLIBManager::resumeAction()
 {
   // what is required for resuming the GLIB?
   usleep(10);  // just for testing the timing of different applications
-  INFO("GLIBManager::resumeAction end");
+  CMSGEMOS_INFO("GLIBManager::resumeAction end");
 }
 
 void gem::hw::glib::GLIBManager::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBManager::stopAction begin");
+  CMSGEMOS_INFO("GLIBManager::stopAction begin");
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);
-    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    CMSGEMOS_DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -623,12 +623,12 @@ void gem::hw::glib::GLIBManager::stopAction()
       // FIXME hard coded for now, but super hacky garbage
       statuscmd << "amc_info_uhal.py -s" << (slot+1)
                 << " --shelf="           << info.crateID.toString();
-      INFO("GLIBManager::stopAction running " << statuscmd.str() << " after configuration");
+      CMSGEMOS_INFO("GLIBManager::stopAction running " << statuscmd.str() << " after configuration");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
         msg << "GLIBManager::stopAction unable to check AMC status: " << retval;
-        WARN(msg.str());
+        CMSGEMOS_WARN(msg.str());
         // fireEvent("Fail");
         // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
@@ -639,17 +639,17 @@ void gem::hw::glib::GLIBManager::stopAction()
     }
   }
   usleep(10);  // just for testing the timing of different applications
-  INFO("GLIBManager::stopAction end");
+  CMSGEMOS_INFO("GLIBManager::stopAction end");
 }
 
 void gem::hw::glib::GLIBManager::haltAction()
   throw (gem::hw::glib::exception::Exception)
 {
   // what is required for halting the GLIB?
-  DEBUG("GLIBManager::resetAction begin");
+  CMSGEMOS_DEBUG("GLIBManager::resetAction begin");
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
-    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    CMSGEMOS_DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -669,12 +669,12 @@ void gem::hw::glib::GLIBManager::haltAction()
       // FIXME hard coded for now, but super hacky garbage
       statuscmd << "amc_info_uhal.py -s" << (slot+1)
                 << " --shelf="           << info.crateID.toString();
-      INFO("GLIBManager::haltAction running " << statuscmd.str() << " after halting");
+      CMSGEMOS_INFO("GLIBManager::haltAction running " << statuscmd.str() << " after halting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
         msg << "GLIBManager::haltAction unable to check AMC status: " << retval;
-        WARN(msg.str());
+        CMSGEMOS_WARN(msg.str());
         // fireEvent("Fail");
         // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
@@ -684,7 +684,7 @@ void gem::hw::glib::GLIBManager::haltAction()
         m_glibMonitors.at(slot)->resumeMonitoring();
     }
   }
-  INFO("GLIBManager::haltAction end");
+  CMSGEMOS_INFO("GLIBManager::haltAction end");
 }
 
 void gem::hw::glib::GLIBManager::resetAction()
@@ -693,11 +693,11 @@ void gem::hw::glib::GLIBManager::resetAction()
   // what is required for resetting the GLIB?
   // unregister listeners and items in info spaces
 
-  DEBUG("GLIBManager::resetAction begin");
+  CMSGEMOS_DEBUG("GLIBManager::resetAction begin");
   // FIXME make me more streamlined
   for (unsigned slot = 0; slot < MAX_AMCS_PER_CRATE; ++slot) {
     // usleep(10);  // just for testing the timing of different applications
-    DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
+    CMSGEMOS_DEBUG("GLIBManager::looping over slots(" << (slot+1) << ") and finding infospace items");
     GLIBInfo& info = m_glibInfo[slot].bag;
 
     if (!info.present)
@@ -717,12 +717,12 @@ void gem::hw::glib::GLIBManager::resetAction()
       // FIXME hard coded for now, but super hacky garbage
       statuscmd << "amc_info_uhal.py -s" << (slot+1)
                 << " --shelf="           << info.crateID.toString();
-      INFO("GLIBManager::resetAction running " << statuscmd.str() << " after resetting");
+      CMSGEMOS_INFO("GLIBManager::resetAction running " << statuscmd.str() << " after resetting");
       int retval = std::system(statuscmd.str().c_str());
       if (retval) {
         std::stringstream msg;
         msg << "GLIBManager::resetAction unable to check AMC status: " << retval;
-        WARN(msg.str());
+        CMSGEMOS_WARN(msg.str());
         // fireEvent("Fail");
         // XCEPT_RAISE(gem::hw::glib::exception::Exception, msg.str());
         // XCEPT_RAISE(gem::hw::glib::exception::ConfigurationProblem, msg.str());
@@ -732,23 +732,23 @@ void gem::hw::glib::GLIBManager::resetAction()
     if (m_glibMonitors.at(slot))
       m_glibMonitors.at(slot)->reset();
 
-    DEBUG("GLIBManager::looking for hwCfgInfoSpace items for GLIB in slot " << (slot+1));
+    CMSGEMOS_DEBUG("GLIBManager::looking for hwCfgInfoSpace items for GLIB in slot " << (slot+1));
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.amc%02d",
                                                                info.crateID.value_,
                                                                info.slotID.value_));
 
     if (xdata::getInfoSpaceFactory()->hasItem(hwCfgURN.toString())) {
-      DEBUG("GLIBManager::revoking config parameters infospace");
+      CMSGEMOS_DEBUG("GLIBManager::revoking config parameters infospace");
 
       // reset the hw infospace toolbox
       is_glibs.at(slot)->reset();
     } else {
-      DEBUG("GLIBManager::resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
+      CMSGEMOS_DEBUG("GLIBManager::resetAction::infospace " << hwCfgURN.toString() << " does not exist, no further action");
       continue;
     }
   }
   // gem::base::GEMFSMApplication::resetAction();
-  INFO("GLIBManager::resetAction end");
+  CMSGEMOS_INFO("GLIBManager::resetAction end");
 }
 
 /*

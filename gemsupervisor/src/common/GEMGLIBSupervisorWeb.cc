@@ -163,7 +163,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::actionPerformed(xdata::Event& event)
       chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
         ss << "Device name: " << chip->toString() << std::endl;
       }
-    INFO(ss.str());
+    CMSGEMOS_INFO(ss.str());
     slotInfo = std::unique_ptr<gem::readout::GEMslotContents>(new gem::readout::GEMslotContents(confParams_.bag.slotFileName.toString()));
   }
 
@@ -523,8 +523,8 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
         // can consider using this as the tracking/broadcast mask (initializing to 0xffffffff (everything masked off)
         // readout_mask &= (0xffffffff & 0x0 <<;
         readout_mask |= 0x1 << islot;
-        INFO(" webConfigure : DeviceName " << VfatName );
-        INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec );
+        CMSGEMOS_INFO(" webConfigure : DeviceName " << VfatName );
+        CMSGEMOS_INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec );
       }
     }// end if VfatName
   }// end for chip
@@ -536,7 +536,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webConfigure(xgi::Input * in, xgi::O
   // Initiate configure workloop
   wl_->submit(configure_signature_);
 
-  INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec);
+  CMSGEMOS_INFO(" webConfigure : readout_mask 0x" << std::hex << (int)readout_mask << std::dec);
   // Go back to main web interface
   this->webRedirect(in, out);
 }
@@ -569,7 +569,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO(" webTrigger: sending L1A");
+  CMSGEMOS_INFO(" webTrigger: sending L1A");
   cgicc::Cgicc cgi(in);
   optohybridDevice_->sendL1A(cgi["NTrigs"]->getIntegerValue(),
                              cgi["Rate"]->getIntegerValue());
@@ -587,7 +587,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webTrigger(xgi::Input * in, xgi::Out
 void gem::supervisor::GEMGLIBSupervisorWeb::webL1ACalPulse(xgi::Input * in, xgi::Output * out ) {
   // Send L1A signal
   hw_semaphore_.take();
-  INFO("webCalPulse: CalPulses with L1As delayed");
+  CMSGEMOS_INFO("webCalPulse: CalPulses with L1As delayed");
   cgicc::Cgicc cgi(in);
   optohybridDevice_->sendL1ACal(cgi["NTrigs"]->getIntegerValue(),
                                 cgi["Delay"]->getIntegerValue(),
@@ -607,7 +607,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webResync(xgi::Input * in, xgi::Outp
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO("webResync: sending Resync");
+  CMSGEMOS_INFO("webResync: sending Resync");
   cgicc::Cgicc cgi(in);
   optohybridDevice_->sendResync(cgi["NResyncs"]->getIntegerValue(),
                                 cgi["Rate"]->getIntegerValue());
@@ -625,7 +625,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::webBC0(xgi::Input * in, xgi::Output 
   // Send L1A signal
   hw_semaphore_.take();
 
-  INFO("webBC0: sending BC0");
+  CMSGEMOS_INFO("webBC0: sending BC0");
   cgicc::Cgicc cgi(in);
   optohybridDevice_->sendBC0(cgi["NBC0s"]->getIntegerValue(),
                              cgi["Rate"]->getIntegerValue());
@@ -688,7 +688,7 @@ bool gem::supervisor::GEMGLIBSupervisorWeb::runAction(toolbox::task::WorkLoop *w
   wl_semaphore_.give();
   hw_semaphore_.give();
 
-  DEBUG("Combined bufferDepth = 0x" << std::hex << bufferDepth << std::dec);
+  CMSGEMOS_DEBUG("Combined bufferDepth = 0x" << std::hex << bufferDepth << std::dec);
 
   // If GLIB data buffer has non-zero size, initiate read workloop
   if (bufferDepth>3) {
@@ -757,7 +757,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, tmpURI.str(),
   //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid("HwOptoHybrid0", tmpURI.str(),
                                                                                   "file://${GEM_ADDRESS_TABLE_PATH}/glib_address_table.xml"));
-  INFO("setTrigSource OH mode 1");
+  CMSGEMOS_INFO("setTrigSource OH mode 1");
   optohybridDevice_->setTrigSource(0x1);
 
   // Times for output files
@@ -774,7 +774,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
   std::replace(SetupFileName.begin(), SetupFileName.end(), ' ', '_' );
   std::replace(SetupFileName.begin(), SetupFileName.end(), ':', '-');
 
-  INFO("::configureAction Created Setup file " << SetupFileName );
+  CMSGEMOS_INFO("::configureAction Created Setup file " << SetupFileName );
 
   std::ofstream SetupFile(SetupFileName.c_str(), std::ios::app );
   if (SetupFile.is_open()){
@@ -867,15 +867,15 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       Failure of any of the conditions at the moment does't take the FSM to error, should it? J.S. Sep 13
   */
   if (glibDevice_->isHwConnected()) {
-    INFO("GLIB device connected");
+    CMSGEMOS_INFO("GLIB device connected");
     if (optohybridDevice_->isHwConnected()) {
-      INFO("OptoHybrid device connected");
+      CMSGEMOS_INFO("OptoHybrid device connected");
       for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
         if ((*chip)->isHwConnected()) {
-          INFO("VFAT device connected: chip ID = 0x"
+          CMSGEMOS_INFO("VFAT device connected: chip ID = 0x"
                << std::setw(4) << std::setfill('0') << std::hex
                << (uint32_t)((*chip)->getChipID())  << std::dec);
-          INFO((*chip)->printErrorCounts());
+          CMSGEMOS_INFO((*chip)->printErrorCounts());
 
           int islot = slotInfo->GEBslotIndex( (uint32_t)((*chip)->getChipID()));
 
@@ -888,7 +888,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
           }
           is_configured_  = true;
         } else {
-          INFO("VFAT device not connected, breaking out");
+          CMSGEMOS_INFO("VFAT device not connected, breaking out");
           is_configured_  = false;
           is_working_     = false;
           hw_semaphore_.give();
@@ -898,7 +898,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
         }
       }
     } else {
-      INFO("OptoHybrid device not connected, breaking out");
+      CMSGEMOS_INFO("OptoHybrid device not connected, breaking out");
       is_configured_  = false;
       is_working_     = false;
       hw_semaphore_.give();
@@ -907,7 +907,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::configureAction(toolbox::Event::Refe
       return;
     }
   } else {
-    INFO("GLIB device not connected, breaking out");
+    CMSGEMOS_INFO("GLIB device not connected, breaking out");
     is_configured_  = false;
     is_working_     = false;
     hw_semaphore_.give();
@@ -932,16 +932,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
 
   hw_semaphore_.take();
 
-  INFO("setTrigSource OH mode 0");
+  CMSGEMOS_INFO("setTrigSource OH mode 0");
   optohybridDevice_->setTrigSource(0x0);
 
-  INFO("Enabling run mode for selected VFATs");
+  CMSGEMOS_INFO("Enabling run mode for selected VFATs");
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip)
     (*chip)->setRunMode(1);
 
   // flush FIFO, how to disable a specific, misbehaving, chip
-  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
-  DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
+  CMSGEMOS_INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  CMSGEMOS_DEBUG("Flushing FIFO" << readout_mask << " (depth " << glibDevice_->getFIFOOccupancy(readout_mask));
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);
@@ -952,11 +952,11 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
   glibDevice_->flushFIFO(readout_mask);
 
   // send resync
-  INFO("Sending a resync");
+  CMSGEMOS_INFO("Sending a resync");
   optohybridDevice_->sendResync();
 
   // reset counters
-  INFO("Resetting counters");
+  CMSGEMOS_INFO("Resetting counters");
   optohybridDevice_->resetL1ACount(0x5);
   optohybridDevice_->resetResyncCount(0x5);
   optohybridDevice_->resetBC0Count(0x5);
@@ -970,7 +970,7 @@ void gem::supervisor::GEMGLIBSupervisorWeb::startAction(toolbox::Event::Referenc
     m_bc0Count[count]      = optohybridDevice_->getBC0Count(count);
   }
 
-  INFO("setTrigSource OH Trigger source 0x" << std::hex << confParams_.bag.triggerSource << std::dec);
+  CMSGEMOS_INFO("setTrigSource OH Trigger source 0x" << std::hex << confParams_.bag.triggerSource << std::dec);
   glibDevice_->flushFIFO(readout_mask);
   optohybridDevice_->sendResync();
   optohybridDevice_->sendBC0();
@@ -995,16 +995,16 @@ void gem::supervisor::GEMGLIBSupervisorWeb::stopAction(toolbox::Event::Reference
   sumVFAT_  = 0;
   //m_counter = {0,0,0,0,0}; do not reset displaying counters
 
-  INFO("setTrigSource GLIB, OH mode 0");
+  CMSGEMOS_INFO("setTrigSource GLIB, OH mode 0");
   optohybridDevice_->setTrigSource(0x1);
 
   // turn off all chips?
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);
-    INFO((*chip)->printErrorCounts());
+    CMSGEMOS_INFO((*chip)->printErrorCounts());
   }
   // flush FIFO, how to disable a specific, misbehaving, chip
-  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  CMSGEMOS_INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);
@@ -1024,10 +1024,10 @@ void gem::supervisor::GEMGLIBSupervisorWeb::haltAction(toolbox::Event::Reference
 
   for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
     (*chip)->setRunMode(0);
-    INFO((*chip)->printErrorCounts());
+    CMSGEMOS_INFO((*chip)->printErrorCounts());
   }
   // flush FIFO, how to disable a specific, misbehaving, chip
-  INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
+  CMSGEMOS_INFO("Flushing the FIFOs, readout_mask 0x" <<std::hex << (int)readout_mask << std::dec);
   glibDevice_->flushFIFO(readout_mask);
   while (glibDevice_->hasTrackingData(readout_mask)) {
     glibDevice_->flushFIFO(readout_mask);

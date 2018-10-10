@@ -24,7 +24,7 @@ void gem::hw::amc13::AMC13ManagerWeb::webDefault(xgi::Input *in, xgi::Output *ou
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    DEBUG("AMC13ManagerWeb::current state is" << dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState());
+    CMSGEMOS_DEBUG("AMC13ManagerWeb::current state is" << dynamic_cast<gem::hw::amc13::AMC13Manager*>(p_gemFSMApp)->getCurrentState());
 
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemhardware/html/scripts/amc13/amc13.js")
@@ -41,12 +41,12 @@ void gem::hw::amc13::AMC13ManagerWeb::webDefault(xgi::Input *in, xgi::Output *ou
 void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("AMC13ManagerWeb::monitorPage");
+  CMSGEMOS_DEBUG("AMC13ManagerWeb::monitorPage");
 
   // process the form for the debug level, how do we set the default of 2 for the first load?
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "      <div class=\"xdaq-tab\" title=\"AMC13 Status Page\" >"  << std::endl;
-  DEBUG("AMC13ManagerWeb::current level is "      << level);
+  CMSGEMOS_DEBUG("AMC13ManagerWeb::current level is "      << level);
 
   std::string method = toolbox::toString("/%s/setDisplayLevel", (p_gemApp->m_urn).c_str());
   *out << cgicc::form().set("method","POST")
@@ -109,13 +109,13 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *o
         s->Report(level,*out);
       } else {
         std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
-        WARN("AMC13ManagerWeb:: " << msg);
+        CMSGEMOS_WARN("AMC13ManagerWeb:: " << msg);
         XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg);
       }
     } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
-      WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+      CMSGEMOS_WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
     } catch (const std::exception& e) {
-      WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+      CMSGEMOS_WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
     }
 
   *out << "        </span>" << std::endl;
@@ -127,19 +127,19 @@ void gem::hw::amc13::AMC13ManagerWeb::monitorPage(xgi::Input *in, xgi::Output *o
 void gem::hw::amc13::AMC13ManagerWeb::expertPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("AMC13ManagerWeb::expertPage");
+  CMSGEMOS_DEBUG("AMC13ManagerWeb::expertPage");
 }
 
 void gem::hw::amc13::AMC13ManagerWeb::applicationPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("AMC13ManagerWeb::applicationPage");
+  CMSGEMOS_DEBUG("AMC13ManagerWeb::applicationPage");
 }
 
 void gem::hw::amc13::AMC13ManagerWeb::jsonUpdate(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("AMC13ManagerWeb::jsonUpdate");
+  CMSGEMOS_DEBUG("AMC13ManagerWeb::jsonUpdate");
   updateStatus(out);
 }
 
@@ -150,20 +150,20 @@ void gem::hw::amc13::AMC13ManagerWeb::setDisplayLevel(xgi::Input *in)
   try {
     cgicc::Cgicc cgi(in);
     int radio_i       = cgi["amc13statuslevel"]->getIntegerValue();
-    DEBUG("AMC13ManagerWeb::radio button value is " << radio_i);
+    CMSGEMOS_DEBUG("AMC13ManagerWeb::radio button value is " << radio_i);
     level = static_cast<size_t>(radio_i);
-    DEBUG("AMC13ManagerWeb::setting AMC13 display status info to " << level);
+    CMSGEMOS_DEBUG("AMC13ManagerWeb::setting AMC13 display status info to " << level);
   } catch (const xgi::exception::Exception& e) {
     level = 2;
-    WARN("AMC13ManagerWeb::Caught xgi::exception " << e.what());
+    CMSGEMOS_WARN("AMC13ManagerWeb::Caught xgi::exception " << e.what());
     // XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
     level = 2;
-    WARN("AMC13ManagerWeb::Caught std::exception " << e.what());
+    CMSGEMOS_WARN("AMC13ManagerWeb::Caught std::exception " << e.what());
     // XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (...) {
     level = 2;
-    WARN("AMC13ManagerWeb::Caught unknown exception");
+    CMSGEMOS_WARN("AMC13ManagerWeb::Caught unknown exception");
     // XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -182,14 +182,14 @@ void gem::hw::amc13::AMC13ManagerWeb::updateStatus(xgi::Output *out)
         s->Report(level,*out);
       } else {
         std::string msg = "Unable to obtain pointer to AMC13 device: " + currentState;
-        WARN("AMC13ManagerWeb:: " << msg);
+        CMSGEMOS_WARN("AMC13ManagerWeb:: " << msg);
         XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg);
       }
     } catch (const gem::hw::amc13::exception::HardwareProblem& e) {
-      WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+      CMSGEMOS_WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
       *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
     } catch (const std::exception& e) {
-      WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
+      CMSGEMOS_WARN("AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what());
       *out << "AMC13ManagerWeb::Unable to display the AMC13 status page: " << e.what();
     }
 }

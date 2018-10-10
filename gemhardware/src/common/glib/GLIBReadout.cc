@@ -43,13 +43,13 @@ gem::hw::glib::GLIBReadout::GLIBReadout(xdaq::ApplicationStub* stub) :
 
 gem::hw::glib::GLIBReadout::~GLIBReadout()
 {
-  DEBUG("GLIBReadout::destructor called");
+  CMSGEMOS_DEBUG("GLIBReadout::destructor called");
 }
 
 void gem::hw::glib::GLIBReadout::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("GLIBReadout::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("GLIBReadout::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
   }
   // update monitoring variables
@@ -59,20 +59,20 @@ void gem::hw::glib::GLIBReadout::actionPerformed(xdata::Event& event)
 void gem::hw::glib::GLIBReadout::initializeAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBReadout::initializeAction begin");
+  CMSGEMOS_INFO("GLIBReadout::initializeAction begin");
   try {
     p_glib = glib_shared_ptr(new gem::hw::glib::HwGLIB(m_deviceName.toString(), m_connectionFile.toString()));
   } catch (gem::hw::glib::exception::Exception const& ex) {
-    ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
+    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
     XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
   } catch (toolbox::net::exception::MalformedURN const& ex) {
-    ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
+    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
     XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
   } catch (std::exception const& ex) {
-    ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
+    CMSGEMOS_ERROR("GLIBReadout::initializeAction caught exception " << ex.what());
     XCEPT_RAISE(gem::hw::glib::exception::Exception, "initializeAction failed");
   }
-  DEBUG("GLIBReadout::initializeAction connected");
+  CMSGEMOS_DEBUG("GLIBReadout::initializeAction connected");
 
 }
 
@@ -80,7 +80,7 @@ void gem::hw::glib::GLIBReadout::initializeAction()
 void gem::hw::glib::GLIBReadout::configureAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBReadout::configureAction begin");
+  CMSGEMOS_INFO("GLIBReadout::configureAction begin");
   // grab these from the config, updated through SOAP too
   m_outFileName  = m_readoutSettings.bag.fileName.toString();
   m_errFileName  = m_outFileName + "_ERR";
@@ -95,48 +95,48 @@ void gem::hw::glib::GLIBReadout::configureAction()
 void gem::hw::glib::GLIBReadout::startAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBReadout::startAction begin");
+  CMSGEMOS_INFO("GLIBReadout::startAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::pauseAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBReadout::pauseAction begin");
+  CMSGEMOS_INFO("GLIBReadout::pauseAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::resumeAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBReadout::resumeAction begin");
+  CMSGEMOS_INFO("GLIBReadout::resumeAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::stopAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBReadout::stopAction begin");
+  CMSGEMOS_INFO("GLIBReadout::stopAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::haltAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBReadout::haltAction begin");
+  CMSGEMOS_INFO("GLIBReadout::haltAction begin");
 }
 
 void gem::hw::glib::GLIBReadout::resetAction()
   throw (gem::hw::glib::exception::Exception)
 {
-  INFO("GLIBReadout::resetAction begin");
+  CMSGEMOS_INFO("GLIBReadout::resetAction begin");
 }
 
 uint32_t* gem::hw::glib::GLIBReadout::dumpData(uint8_t const& readout_mask)
 {
 
-  INFO("info dump data parker");
-  DEBUG("Reading out dumpData(" << (int)readout_mask << ")");
+  CMSGEMOS_INFO("info dump data parker");
+  CMSGEMOS_DEBUG("Reading out dumpData(" << (int)readout_mask << ")");
   uint32_t *point = &m_counter[0];
   m_contvfats = 0;
   uint32_t* pDu = getGLIBData(readout_mask, m_counter);
-  DEBUG("point 0x" << std::hex << point << " pDu 0x" << pDu << std::dec);
+  CMSGEMOS_DEBUG("point 0x" << std::hex << point << " pDu 0x" << pDu << std::dec);
   if (pDu)
     for (unsigned count = 0; count < 5; ++count) m_counter[count] = *(pDu+count);
 
@@ -147,17 +147,17 @@ uint32_t* gem::hw::glib::GLIBReadout::getGLIBData(uint8_t const& gtx, uint32_t c
 {
   uint32_t *point = &counter[0];
 
-  DEBUG("GLIBReadout::getGLIBData Starting while loop readout "
+  CMSGEMOS_DEBUG("GLIBReadout::getGLIBData Starting while loop readout "
         << std::endl << "FIFO VFAT block depth 0x" << std::hex
         << p_glib->getFIFOVFATBlockOccupancy(gtx)
         << std::endl << "FIFO depth 0x" << std::hex
         << p_glib->getFIFOOccupancy(gtx)
         );
   while ( p_glib->getFIFOVFATBlockOccupancy(gtx) ) {
-    DEBUG("GLIBReadout::getGLIBData initiating call to getTrackingData(gtx,"
+    CMSGEMOS_DEBUG("GLIBReadout::getGLIBData initiating call to getTrackingData(gtx,"
           << p_glib->getFIFOVFATBlockOccupancy(gtx) << ")");
     std::vector<uint32_t> data = p_glib->getTrackingData(gtx, p_glib->getFIFOVFATBlockOccupancy(gtx));
-    DEBUG("GLIBReadout::getGLIBData"
+    CMSGEMOS_DEBUG("GLIBReadout::getGLIBData"
           << std::endl << "FIFO VFAT block depth 0x" << std::hex
           << p_glib->getFIFOVFATBlockOccupancy(gtx)
           << std::endl << "FIFO depth 0x" << std::hex
@@ -168,23 +168,23 @@ uint32_t* gem::hw::glib::GLIBReadout::getGLIBData(uint8_t const& gtx, uint32_t c
     for (auto iword = data.begin(); iword != data.end(); ++iword) {
       contqueue++;
       //gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_queueLock);
-      DEBUG(" ::getGLIBData pushing into queue 0x"
+      CMSGEMOS_DEBUG(" ::getGLIBData pushing into queue 0x"
             << std::setfill('0') << std::setw(8) << std::hex << *iword << std::dec );
       m_dataque.push(*iword);
       if (contqueue%kUPDATE7 == 0 &&  contqueue != 0) {
         m_contvfats++;
-        DEBUG(" ::getGLIBData counter " << contqueue << " contvfats " << m_contvfats
+        CMSGEMOS_DEBUG(" ::getGLIBData counter " << contqueue << " contvfats " << m_contvfats
               << " m_dataque.size " << m_dataque.size());
       }
     }
-    DEBUG(" ::getGLIBData end of while loop do we go again?" << std::endl
+    CMSGEMOS_DEBUG(" ::getGLIBData end of while loop do we go again?" << std::endl
           << " FIFO VFAT block occupancy  0x" << std::hex << p_glib->getFIFOVFATBlockOccupancy(gtx)
           << std::endl
           << " FIFO occupancy             0x" << std::hex << p_glib->getFIFOOccupancy(gtx) << std::endl
           << " hasTrackingData            0x" << std::hex << p_glib->hasTrackingData(gtx)  << std::endl
           );
   }// while(p_glib->getFIFOVFATBlockOccupancy(gtx))
-  DEBUG("GLIBReadout::getGLIBData"
+  CMSGEMOS_DEBUG("GLIBReadout::getGLIBData"
         << std::endl
         << " FIFO VFAT block occupancy  0x" << std::hex << p_glib->getFIFOVFATBlockOccupancy(gtx)
         << std::endl
@@ -197,10 +197,10 @@ uint32_t* gem::hw::glib::GLIBReadout::getGLIBData(uint8_t const& gtx, uint32_t c
 uint32_t* gem::hw::glib::GLIBReadout::selectData(uint32_t counter[5])
 {
   for(int j = 0; j < 5; j++) {
-    INFO("GLIBReadout::selectData counter " << j <<  " "<< counter[j] );
+    CMSGEMOS_INFO("GLIBReadout::selectData counter " << j <<  " "<< counter[j] );
   }
   uint32_t *point = &counter[0];
-  DEBUG("GLIBReadout::selectData point  " << std::hex << point );
+  CMSGEMOS_DEBUG("GLIBReadout::selectData point  " << std::hex << point );
   uint32_t* pDQ = GEMEventMaker(counter);
   for (unsigned count = 0; count < 5; ++count) counter[count] = *(pDQ+count);
   return point;
@@ -220,9 +220,9 @@ uint32_t* gem::hw::glib::GLIBReadout::GEMEventMaker(uint32_t counter[5])
   uint64_t msVFAT, lsVFAT;
   uint32_t ES;
 
-  DEBUG("GLIBReadout::GEMEventMaker  " << std::hex << point );
+  CMSGEMOS_DEBUG("GLIBReadout::GEMEventMaker  " << std::hex << point );
   if (m_dataque.empty()) return point;
-  DEBUG(" ::GEMEventMaker m_dataque.size " << m_dataque.size() );
+  CMSGEMOS_DEBUG(" ::GEMEventMaker m_dataque.size " << m_dataque.size() );
 
   this->readVFATblock(m_dataque);
 
@@ -237,7 +237,7 @@ uint32_t* gem::hw::glib::GLIBReadout::GEMEventMaker(uint32_t counter[5])
 
   // GEM Event selector
   ES = ( evn << 12 ) | bcn;
-  DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << " evn 0x"<< evn
+  CMSGEMOS_DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << " evn 0x"<< evn
         << " bcn 0x" << std::hex << bcn << std::dec << " vftas.size "
         << m_vfats.size() << " m_erros.size " << m_erros.size()
         << " chip ID 0x" << std::hex << (int)chipid << std::dec <<
@@ -261,7 +261,7 @@ uint32_t* gem::hw::glib::GLIBReadout::GEMEventMaker(uint32_t counter[5])
     m_isFirst = true;
 
     if ( m_vfats.size() != 0 || m_erros.size() != 0 ) {
-      DEBUG(" ::GEMEventMaker m_isFirst GEMevSelector ");
+      CMSGEMOS_DEBUG(" ::GEMEventMaker m_isFirst GEMevSelector ");
       GEMevSelector(m_ESexp);
     }
 
@@ -271,15 +271,15 @@ uint32_t* gem::hw::glib::GLIBReadout::GEMEventMaker(uint32_t counter[5])
     m_erros.reserve(MaxERRS);
     m_ESexp = ES;
   }
-  DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " bool " << m_isFirst );
+  CMSGEMOS_DEBUG(" ::GEMEventMaker ES 0x" << std::hex << ES << std::dec << " bool " << m_isFirst );
   //if (islot < 0 || islot > 23) {
   //  if ( int(m_erros.size()) <MaxERRS ) m_erros.push_back(vfat);
-  //  DEBUG(" ::GEMEventMaker warning !!! islot is undefined " << islot << " m_erros.size " << int(m_erros.size()) );
+  //  CMSGEMOS_DEBUG(" ::GEMEventMaker warning !!! islot is undefined " << islot << " m_erros.size " << int(m_erros.size()) );
   //} else {
   // VFATs Pay Load
   if ( int(m_vfats.size()) <= MaxVFATS )
     m_vfats.push_back(vfat);
-  DEBUG(" ::GEMEventMaker m_event " << m_event << " m_vfats.size " << m_vfats.size() << std::hex << " ES 0x" << ES << std::dec );
+  CMSGEMOS_DEBUG(" ::GEMEventMaker m_event " << m_event << " m_vfats.size " << m_vfats.size() << std::hex << " ES 0x" << ES << std::dec );
   //}//end of event selection
 
   m_queueDepth = m_dataque.size();
@@ -302,7 +302,7 @@ void gem::hw::glib::GLIBReadout::GEMevSelector(const  uint32_t& ES)
   AMCGEBData  geb;
   AMCVFATData vfat;
 
-  DEBUG(" ::GEMEventMaker m_vfats.size " << int(m_vfats.size()) << " m_rvent " << m_rvent << " event " << m_event);
+  CMSGEMOS_DEBUG(" ::GEMEventMaker m_vfats.size " << int(m_vfats.size()) << " m_rvent " << m_rvent << " event " << m_event);
 
   uint32_t locEvent = 0;
   uint32_t locError = 0;
@@ -316,7 +316,7 @@ void gem::hw::glib::GLIBReadout::GEMevSelector(const  uint32_t& ES)
     uint8_t ECff = ( (0x0ff0 & (*iVFAT).EC ) >> 4);
     uint32_t localEvent = ( ECff << 12 ) | ( 0x0fff & (*iVFAT).BC );
 
-    DEBUG(" ::GEMEventMaker vfats ES 0x" << std::hex << ( 0x00ffffff & ES) << " and from vfat 0x" <<
+    CMSGEMOS_DEBUG(" ::GEMEventMaker vfats ES 0x" << std::hex << ( 0x00ffffff & ES) << " and from vfat 0x" <<
           ( 0x00ffffff & localEvent ) << " EC 0x" << (int)ECff << " BC 0x" << ( 0x0fff & (*iVFAT).BC ) << std::dec );
 
     if ( ES == localEvent ) {
@@ -332,7 +332,7 @@ void gem::hw::glib::GLIBReadout::GEMevSelector(const  uint32_t& ES)
           GEMfillHeaders(m_event, nChip, gem, geb);
           GEMfillTrailers(gem, geb);
           // GEM Event Writing
-          DEBUG(" ::GEMEventMaker writing...  geb.vfats.size " << int(geb.vfats.size()) );
+          CMSGEMOS_DEBUG(" ::GEMEventMaker writing...  geb.vfats.size " << int(geb.vfats.size()) );
           TypeDataFlag = "PayLoad";
           if(int(geb.vfats.size()) != 0) writeGEMevent(m_outFileName, false, TypeDataFlag,
                                                        gem, geb, vfat);
@@ -348,18 +348,18 @@ void gem::hw::glib::GLIBReadout::GEMevSelector(const  uint32_t& ES)
   TypeDataFlag = "Errors";
 
   // contents all local events (one buffer, all links):
-  DEBUG(" ::GEMEventMaker END ES 0x" << std::hex << ES << std::dec << " errES " <<  m_erros.size() << " m_rvent " << m_rvent );
+  CMSGEMOS_DEBUG(" ::GEMEventMaker END ES 0x" << std::hex << ES << std::dec << " errES " <<  m_erros.size() << " m_rvent " << m_rvent );
 
   uint32_t nErro = 0;
   for (auto iErr=m_erros.begin(); iErr != m_erros.end(); ++iErr) {
 
     uint8_t ECff = ( (0x0ff0 & (*iErr).EC ) >> 4);
     uint32_t localErr = ( ECff << 12 ) | ( 0x0fff & (*iErr).BC );
-    DEBUG(" ::GEMEventMaker ERROR vfats ES 0x" << ES << " EC " << localErr );
+    CMSGEMOS_DEBUG(" ::GEMEventMaker ERROR vfats ES 0x" << ES << " EC " << localErr );
 
     if( ES == localErr ) {
       nErro++;
-      DEBUG(" ::GEMEventMaker " << " nErro " << nErro << " ES 0x" << std::hex << ES << std::dec );
+      CMSGEMOS_DEBUG(" ::GEMEventMaker " << " nErro " << nErro << " ES 0x" << std::hex << ES << std::dec );
       // VFATs Errors
       geb.vfats.push_back(*iErr);
       if ( m_erros.size() == nErro ) {
@@ -380,7 +380,7 @@ void gem::hw::glib::GLIBReadout::GEMevSelector(const  uint32_t& ES)
   geb.vfats.clear();
 
   if (m_event%kUPDATE == 0 &&  m_event != 0) {
-    DEBUG(" ::GEMEventMaker m_vfats.size " << std::setfill(' ') << std::setw(7) << int(m_vfats.size()) <<
+    CMSGEMOS_DEBUG(" ::GEMEventMaker m_vfats.size " << std::setfill(' ') << std::setw(7) << int(m_vfats.size()) <<
           " m_erros.size " << std::setfill(' ') << std::setw(3) << int(m_erros.size()) <<
           " locEvent   " << std::setfill(' ') << std::setw(6) << locEvent <<
           " locError   " << std::setfill(' ') << std::setw(3) << locError << " event " << m_event
@@ -406,7 +406,7 @@ bool gem::hw::glib::GLIBReadout::VFATfillData(/*int const& islot, */AMCGEBData& 
   ChamID =  (0x000000fff0000000 & geb.header) >> 28;
   sumVFAT=  (0x000000000fffffff & geb.header);
 
-  DEBUG(" ::VFATfillData ChamID 0x" << ChamID << std::dec
+  CMSGEMOS_DEBUG(" ::VFATfillData ChamID 0x" << ChamID << std::dec
         //<< " islot " << islot
         << " sumVFAT " << sumVFAT);
 
@@ -425,7 +425,7 @@ void gem::hw::glib::GLIBReadout::writeGEMevent(std::string  outFile, bool const&
                                                AMCGEMData&  gem, AMCGEBData&  geb, AMCVFATData& vfat)
 {
   if(OKprint) {
-    DEBUG(" ::writeGEMevent m_vfat " << m_vfat << " event " << m_event << " sumVFAT " << (0x000000000fffffff & geb.header) <<
+    CMSGEMOS_DEBUG(" ::writeGEMevent m_vfat " << m_vfat << " event " << m_event << " sumVFAT " << (0x000000000fffffff & geb.header) <<
           " geb.vfats.size " << int(geb.vfats.size()) );
   }
   // GEM Chamber's Data
@@ -493,7 +493,7 @@ void gem::hw::glib::GLIBReadout::GEMfillHeaders(uint32_t const& event, uint32_t 
   BXID     =  (0x00000000ffffffff & gem.header1) >> 20;
   DataLgth =  (0x00000000000fffff & gem.header1);
 
-  DEBUG(" ::GEMfillHeaders event " << event << " LV1ID " << LV1ID << " BXID " << BXID);
+  CMSGEMOS_DEBUG(" ::GEMfillHeaders event " << event << " LV1ID " << LV1ID << " BXID " << BXID);
 
   // GEM Event Headers [2]
   uint64_t User        = BOOST_BINARY( 1 );    // :32
@@ -519,7 +519,7 @@ void gem::hw::glib::GLIBReadout::GEMfillHeaders(uint32_t const& event, uint32_t 
   uint64_t MP7BordStat = BOOST_BINARY( 1 );    // :8
 
   gem.header3 = (BufStat << 40)|(DAVList << 16)|(DAVCount << 11)|(FormatVer << 8)|(MP7BordStat);
-  DEBUG("GEM HEADER 3 " << std::hex << gem.header3 << "\n");
+  CMSGEMOS_DEBUG("GEM HEADER 3 " << std::hex << gem.header3 << "\n");
 
   DAVList     = (0xffffff0000000000 & gem.header3) >> 40;
   BufStat     = (0x000000ffffff0000 & gem.header3) >> 16;
@@ -528,13 +528,13 @@ void gem::hw::glib::GLIBReadout::GEMfillHeaders(uint32_t const& event, uint32_t 
   FormatVer   = (0x0000000000000f00 & gem.header3) >> 8;
   MP7BordStat = (0x00000000000000ff & gem.header3);
 
-  DEBUG("DAVCount " << std::hex << DAVCount_check << "\n");
+  CMSGEMOS_DEBUG("DAVCount " << std::hex << DAVCount_check << "\n");
 
   // last geb header:
   uint64_t runhed;
   //geb.runhed = (m_runType << 24)|(m_latency << 16)|(m_VT1 << 8)|(m_VT2);
   geb.runhed = (m_runType << 24)|(m_runParams);
-  INFO("GEMfillHeadres" << geb.runhed);
+  CMSGEMOS_INFO("GEMfillHeadres" << geb.runhed);
 }// end GEMfillHeaders
 
 void gem::hw::glib::GLIBReadout::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  geb)
@@ -569,7 +569,7 @@ void gem::hw::glib::GLIBReadout::GEMfillTrailers(AMCGEMData&  gem,AMCGEBData&  g
   OHwCount   = (0x0000ffff00000000 & geb.trailer) >> 32;
   ChamStatus = (0x00000000ffff0000 & geb.trailer) >> 16;
 
-  DEBUG(" OHcrc 0x" << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec);
+  CMSGEMOS_DEBUG(" OHcrc 0x" << std::hex << OHcrc << " OHwCount " << OHwCount << " ChamStatus " << ChamStatus << std::dec);
 }
 
 void gem::hw::glib::GLIBReadout::readVFATblock(std::queue<uint32_t>& dataque)
@@ -577,7 +577,7 @@ void gem::hw::glib::GLIBReadout::readVFATblock(std::queue<uint32_t>& dataque)
   uint32_t datafront = 0;
   for (int iQue = 0; iQue < 7; iQue++){
     datafront = dataque.front();
-    DEBUG(" ::GEMEventMaker iQue " << iQue << " 0x"
+    CMSGEMOS_DEBUG(" ::GEMEventMaker iQue " << iQue << " 0x"
           << std::setfill('0') << std::setw(8) << std::hex << datafront << std::dec );
     //this never seems to get reset? maybe iQue%7 to read the words after the first block?
     if ((iQue%7) == 5 ) {
@@ -615,7 +615,7 @@ void gem::hw::glib::GLIBReadout::readVFATblock(std::queue<uint32_t>& dataque)
              since iQue stays the same and we removed 7 blocks
              -MD
           */
-          INFO(" ::GEMEventMaker found misaligned word 0x"
+          CMSGEMOS_INFO(" ::GEMEventMaker found misaligned word 0x"
                << std::setfill('0') << std::hex << datafront << std::dec
                << " queue m_dataque.size " << dataque.size() );
           dataque.pop();
@@ -631,9 +631,9 @@ void gem::hw::glib::GLIBReadout::readVFATblock(std::queue<uint32_t>& dataque)
     } else if ( (iQue%7) == 6 ) {
       BX      = datafront;
     }
-    DEBUG(" ::GEMEventMaker (pre pop) m_dataque.size " << dataque.size() );
+    CMSGEMOS_DEBUG(" ::GEMEventMaker (pre pop) m_dataque.size " << dataque.size() );
     dataque.pop();
-    DEBUG(" ::GEMEventMaker (post pop)  m_dataque.size " << dataque.size() );
+    CMSGEMOS_DEBUG(" ::GEMEventMaker (post pop)  m_dataque.size " << dataque.size() );
   }// end queue
 }
 
@@ -644,13 +644,13 @@ void gem::hw::glib::GLIBReadout::ScanRoutines(uint8_t latency, uint8_t VT1, uint
   m_latency = latency;
   m_VT1 = VT1;
   m_VT2 = VT2;
-  DEBUG("GLIBReadout::ScanRoutines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
+  CMSGEMOS_DEBUG("GLIBReadout::ScanRoutines Latency = " << (int)m_latency  << " VT1 = " << (int)m_VT1 << " VT2 = " << (int)m_VT2);
 }
 
 xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
-  INFO("GLIBReadout::updateScanParameters()");
+  CMSGEMOS_INFO("GLIBReadout::updateScanParameters()");
   if (msg.isNull()) {
     XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
   }
@@ -662,10 +662,10 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::Me
       = gem::utils::soap::GEMSOAPToolBox::extractCommandWithParameter(msg);
     commandName = command.first;
     parameterValue = command.second;
-    INFO("GLIBReadout received command " << commandName);
+    CMSGEMOS_INFO("GLIBReadout received command " << commandName);
   } catch(xoap::exception::Exception& err) {
     std::string msgBase = toolbox::toString("Unable to extract command from CommandWithParameter SOAP message");
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top,
                          toolbox::toString("%s.", msgBase.c_str()), err);
     //p_gemApp->notifyQualified("error", top);
@@ -682,7 +682,7 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::Me
   }
   //this has to be injected into the GEM header
   m_runParams = std::stoi(parameterValue);
-  DEBUG(toolbox::toString("GLIBReadout::updateScanParameters() received command '%s' with value. %s",
+  CMSGEMOS_DEBUG(toolbox::toString("GLIBReadout::updateScanParameters() received command '%s' with value. %s",
                           commandName.c_str(), parameterValue.c_str()));
   return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
 }
@@ -691,7 +691,7 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::updateScanParameters(xoap::Me
 xoap::MessageReference gem::hw::glib::GLIBReadout::queueDepth(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
-  INFO("GLIBReadout::queueDepth()");
+  CMSGEMOS_INFO("GLIBReadout::queueDepth()");
   if (msg.isNull()) {
     XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
   }
@@ -703,10 +703,10 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::queueDepth(xoap::MessageRefer
       = gem::utils::soap::GEMSOAPToolBox::extractCommandWithParameter(msg);
     commandName = command.first;
     parameterValue = command.second;
-    INFO("GLIBReadout received command " << commandName);
+    CMSGEMOS_INFO("GLIBReadout received command " << commandName);
   } catch(xoap::exception::Exception& err) {
     std::string msgBase = toolbox::toString("Unable to extract command from CommandWithParameter SOAP message");
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception_history(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::readout::exception::SOAPCommandParameterProblem, top,
                          toolbox::toString("%s.", msgBase.c_str()), err);
     //p_gemApp->notifyQualified("error", top);
@@ -722,7 +722,7 @@ xoap::MessageReference gem::hw::glib::GLIBReadout::queueDepth(xoap::MessageRefer
     return reply;
   }
   //this has to be injected into the GEM header
-  DEBUG(toolbox::toString("GLIBReadout::queueDepth() received command '%s' with value. %s",
+  CMSGEMOS_DEBUG(toolbox::toString("GLIBReadout::queueDepth() received command '%s' with value. %s",
                           commandName.c_str(), parameterValue.c_str()));
   return gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(commandName, "ParametersUpdated");
 }

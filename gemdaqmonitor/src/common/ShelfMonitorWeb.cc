@@ -35,7 +35,7 @@ void gem::daqmon::ShelfMonitorWeb::webDefault(xgi::Input * in, xgi::Output * out
 void gem::daqmon::ShelfMonitorWeb::applicationPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("ShelfMonitoringWeb::applicationPage : Do nothing for the moment, will be eventually filled later");
+  CMSGEMOS_DEBUG("ShelfMonitoringWeb::applicationPage : Do nothing for the moment, will be eventually filled later");
   //*out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   //*out << "Hello World" << std::endl;
   //*out << "</div>" << std::endl;
@@ -44,10 +44,10 @@ void gem::daqmon::ShelfMonitorWeb::applicationPage(xgi::Input* in, xgi::Output* 
 void gem::daqmon::ShelfMonitorWeb::expertPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("ShelfMonitoringWeb::expertPage");
+  CMSGEMOS_DEBUG("ShelfMonitoringWeb::expertPage");
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
     *out << "<div align=\"center\">" << std::endl;
-    *out<< "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: " 
+    *out<< "<h1><span class=\"label label-info\" id=\"mon_state\">MONITORING STATE: "
         << dynamic_cast<gem::daqmon::ShelfMonitor*>(p_gemApp)->monitoringState() << "</span></h1>" << std::endl;
     *out << "<button class=\"btn btn-danger\" type=\"button\" onclick=\"expert_action(this.id)\" id=\"stop\" name=\"stop\">STOP MONITORING</button>" << std::endl;
     *out << "<button class=\"btn btn-warning\" type=\"button\" onclick=\"expert_action(this.id)\" id=\"pause\" name=\"pause\">PAUSE MONITORING</button>" << std::endl;
@@ -65,7 +65,7 @@ void gem::daqmon::ShelfMonitorWeb::expertPage(xgi::Input* in, xgi::Output* out)
 void gem::daqmon::ShelfMonitorWeb::monitorPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  INFO("ShelfMonitorWeb::monitorPage");
+  CMSGEMOS_INFO("ShelfMonitorWeb::monitorPage");
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < NAMC; ++i){
     auto daqmon = dynamic_cast<gem::daqmon::ShelfMonitor*>(p_gemApp)->v_daqmon.at(i);
@@ -81,7 +81,7 @@ void gem::daqmon::ShelfMonitorWeb::monitorPage(xgi::Input* in, xgi::Output* out)
 void gem::daqmon::ShelfMonitorWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("ShelfMonitorWeb::jsonUpdate");
+  CMSGEMOS_DEBUG("ShelfMonitorWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < NAMC; ++i){
@@ -94,4 +94,3 @@ void gem::daqmon::ShelfMonitorWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   }
   *out << " } " << std::endl;
 }
-

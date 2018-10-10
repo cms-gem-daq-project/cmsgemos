@@ -55,28 +55,28 @@ xoap::MessageReference gem::utils::soap::GEMSOAPToolBox::makeFSMSOAPReply(std::s
   xoap::SOAPEnvelope     envelope        = reply->getSOAPPart().getEnvelope();
   xoap::SOAPBody         body            = envelope.getBody();
   std::string            responseString  = event + "Response";
-  TRACE("GEMSOAPToolBox::makeFSMSOAPReply responseString "
+  CMSGEMOS_TRACE("GEMSOAPToolBox::makeFSMSOAPReply responseString "
             << responseString);
   xoap::SOAPName         responseName    = envelope.createName(responseString, "xdaq", XDAQ_NS_URI);
-  TRACE("GEMSOAPToolBox::makeFSMSOAPReply responseName "
+  CMSGEMOS_TRACE("GEMSOAPToolBox::makeFSMSOAPReply responseName "
             << responseName.getLocalName());
   xoap::SOAPBodyElement  responseElement = body.addBodyElement(responseName);
-  TRACE("GEMSOAPToolBox::makeFSMSOAPReply responseElement "
+  CMSGEMOS_TRACE("GEMSOAPToolBox::makeFSMSOAPReply responseElement "
             << responseElement.getTextContent());
   xoap::SOAPName         stateName       = envelope.createName("state", "xdaq", XDAQ_NS_URI);
-  TRACE("GEMSOAPToolBox::makeFSMSOAPReply stateName "
+  CMSGEMOS_TRACE("GEMSOAPToolBox::makeFSMSOAPReply stateName "
             << stateName.getLocalName());
   xoap::SOAPElement      stateElement    = responseElement.addChildElement(stateName);
-  TRACE("GEMSOAPToolBox::makeFSMSOAPReply stateElement"
+  CMSGEMOS_TRACE("GEMSOAPToolBox::makeFSMSOAPReply stateElement"
             << stateElement.getTextContent());
   xoap::SOAPName         attributeName   = envelope.createName("stateName", "xdaq", XDAQ_NS_URI);
-  TRACE("GEMSOAPToolBox::makeFSMSOAPReplyattributeName "
+  CMSGEMOS_TRACE("GEMSOAPToolBox::makeFSMSOAPReplyattributeName "
             << attributeName.getLocalName());
   stateElement.addAttribute(attributeName, state);
-  DEBUG("GEMSOAPToolBox::makeFSMSOAPReply reply ");
+  CMSGEMOS_DEBUG("GEMSOAPToolBox::makeFSMSOAPReply reply ");
   std::string tool;
   reply->writeTo(tool);
-  DEBUG(tool);
+  CMSGEMOS_DEBUG(tool);
   return reply;
 }
 
@@ -119,7 +119,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
     xoap::SOAPName soapcmd = env.createName(cmd, "xdaq", XDAQ_NS_URI);
     xoap::SOAPElement cont = env.getBody().addBodyElement(soapcmd);
 
-    DEBUG("GEMSOAPToolBox::sendCommand '" << cmd << "'"
+    CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommand '" << cmd << "'"
           << " in '"   << appCxt->getContextDescriptor()->getURL() << "'"
           << " from '" << srcDsc->getClassName() << "'"
           << " to '"   << destDsc->getClassName() << "'");
@@ -129,21 +129,21 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommand(std::string const& cmd,
       std::stringstream tcdscmd;
       tcdscmd << cmd << " xdaq:actionRequestorId=\""
               << srcDsc->getClassName() << "\"";
-      DEBUG("GEMSOAPToolBox::sendTCDSCommand '" << tcdscmd.str() << "'" << " to '" << destDsc->getClassName() << "'");
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendTCDSCommand '" << tcdscmd.str() << "'" << " to '" << destDsc->getClassName() << "'");
       cont.addAttribute(cmdtype,srcDsc->getClassName());
     }
 
     std::string tool;
     // xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
     msg->writeTo(tool);
-    DEBUG("GEMSOAPToolBox::sendCommand '" << cmd << "': SOAP msg " << tool);
+    CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommand '" << cmd << "': SOAP msg " << tool);
     // BUG FIXME: if this throws, we get a terminate, why???
     tool.clear();
 
     xoap::MessageReference reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     reply->writeTo(tool);
-    DEBUG("GEMSOAPToolBox::sendCommand '" << cmd << "': SOAP reply " << tool);
+    CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommand '" << cmd << "': SOAP reply " << tool);
   } catch (xdaq::exception::Exception& e) {
     std::string errMsg = toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
@@ -177,7 +177,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendTCDSCommand(std::string const& cmd,
     xoap::SOAPName soapcmd = env.createName(cmd, "xdaq", XDAQ_NS_URI);
     xoap::SOAPElement cont = env.getBody().addBodyElement(soapcmd);
 
-    DEBUG("GEMSOAPToolBox::sendTCDSCommand '" << cmd << "'"
+    CMSGEMOS_DEBUG("GEMSOAPToolBox::sendTCDSCommand '" << cmd << "'"
           << " in '"   << appCxt->getContextDescriptor()->getURL() << "'"
           << " from '" << srcDsc->getClassName() << "'"
           << " to '"   << destDsc->getClassName() << "'");
@@ -187,20 +187,20 @@ bool gem::utils::soap::GEMSOAPToolBox::sendTCDSCommand(std::string const& cmd,
       std::stringstream tcdscmd;
       tcdscmd << cmd << " xdaq:actionRequestorId=\""
               << srcDsc->getClassName() << "\"";
-      DEBUG("GEMSOAPToolBox::sendTCDSCommand '" << tcdscmd.str() << "'" << " to '" << destDsc->getClassName() << "'");
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendTCDSCommand '" << tcdscmd.str() << "'" << " to '" << destDsc->getClassName() << "'");
       cont.addAttribute(cmdtype,"");
     }
 
     std::string tool;
     // xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
     msg->writeTo(tool);
-    INFO("GEMSOAPToolBox::sendTCDSCommand '" << cmd << "': SOAP msg " << tool);
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendTCDSCommand '" << cmd << "': SOAP msg " << tool);
     tool.clear();
 
     xoap::MessageReference reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     reply->writeTo(tool);
-    INFO("GEMSOAPToolBox::sendTCDSCommand '" << cmd << "': SOAP reply " << tool);
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendTCDSCommand '" << cmd << "': SOAP reply " << tool);
   } catch (xdaq::exception::Exception& e) {
     std::string errMsg = toolbox::toString("Command %s failed [%s]", cmd.c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
@@ -254,13 +254,13 @@ bool gem::utils::soap::GEMSOAPToolBox::sendParameter(std::vector<std::string> co
     std::string tool;
     // xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
     msg->writeTo(tool);
-    INFO("GEMSOAPToolBox::sendParameter SOAP msg " << tool);
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendParameter SOAP msg " << tool);
     tool.clear();
 
     xoap::MessageReference reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     reply->writeTo(tool);
-    INFO("GEMSOAPToolBox::sendParameter SOAP msg " << tool);
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendParameter SOAP msg " << tool);
   } catch (xdaq::exception::Exception& e) {
     std::string errMsg = toolbox::toString("Send Parameter %s failed [%s]", parameter.at(0).c_str(), e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
@@ -318,13 +318,13 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameter(std::string cons
     std::string tool;
     // xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
     msg->writeTo(tool);
-    INFO("GEMSOAPToolBox::sendCommandWithParameter SOAP msg " << tool);
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendCommandWithParameter SOAP msg " << tool);
     tool.clear();
 
     xoap::MessageReference reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
     // xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     reply->writeTo(tool);
-    INFO("GEMSOAPToolBox::sendCommandWithParameter SOAP msg " << tool);
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendCommandWithParameter SOAP msg " << tool);
   } catch (xdaq::exception::Exception& e) {
     std::string errMsg = toolbox::toString("Sending parameter %s (value %d) failed [%s]", cmd.c_str(), parameter, e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException,errMsg, e);
@@ -366,7 +366,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag(std::string c
       xoap::SOAPName cmdtype = env.createName("actionRequestorId", "xdaq", srcDsc->getClassName());
       container.addAttribute(cmdtype,srcDsc->getClassName());
 
-      DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag: '" << cmd << "' adding attribute " << cmdtype.getQualifiedName());
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag: '" << cmd << "' adding attribute " << cmdtype.getQualifiedName());
     }
 
     for (auto b = bag.begin(); b != bag.end(); ++b) {
@@ -378,7 +378,7 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag(std::string c
       cs.addTextNode(s->toString());
     }
     // std::vector<xoap::SOAPElement> paramsFound = container.getChildElements();
-    DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag Inspecting command elements with qualified name "
+    CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag Inspecting command elements with qualified name "
           << container.getElementName().getQualifiedName() << " with memory address "
           << std::hex << &container << std::dec << " has value "
           << container.getValue() << " and has "
@@ -387,33 +387,33 @@ bool gem::utils::soap::GEMSOAPToolBox::sendCommandWithParameterBag(std::string c
     std::vector<xoap::SOAPElement> elems = container.getChildElements();
     // for (auto elem = elems.begin(); elem != elems.end(); ++elem) {
     for (std::vector<xoap::SOAPElement>::iterator elem = elems.begin(); elem != elems.end(); ++elem) {
-      DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag found element elem != elems.end() ? " << (elem != elems.end()));
-      DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  qualifiedName: "
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag found element elem != elems.end() ? " << (elem != elems.end()));
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  qualifiedName: "
             << elem->getElementName().getQualifiedName());
-      DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  prefix: "
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  prefix: "
             << elem->getElementName().getPrefix());
-      DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  localName: "
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  localName: "
             << elem->getElementName().getLocalName());
-      DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  URI: "
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  URI: "
             << elem->getElementName().getURI());
-      // // DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag memory address: "
+      // // CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag memory address: "
       // //       << std::hex << elem << std::dec);
-      DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  has value: "
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag  has value: "
             << elem->getValue());
-      DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag and has "
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::sendCommandWithParameterBag and has "
             << elem->getChildElements().size() << " subchildren");
     }
 
     std::string tool;
     xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
     // msg->writeTo(tool);
-    INFO("GEMSOAPToolBox::sendCommandWithParameterBag: SOAP message is: " << tool);
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendCommandWithParameterBag: SOAP message is: " << tool);
     tool.clear();
 
     reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
     xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
     // reply->writeTo(tool);
-    INFO("GEMSOAPToolBox::sendCommandWithParameterBag: SOAP reply is" << tool);
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendCommandWithParameterBag: SOAP reply is" << tool);
   } catch (gem::utils::exception::Exception& e) {
     std::string errMsg = toolbox::toString("Send command with parameter bag failed [%s]", e.what());
     XCEPT_RETHROW(gem::utils::exception::SOAPException, errMsg, e);
@@ -464,15 +464,15 @@ bool gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter(std::string cons
     cs.addTextNode(parValue);
 
     std::string tool;
-    INFO("GEMSOAPToolBox::sendApplicationParameter message:");
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendApplicationParameter message:");
     msg->writeTo(tool);
-    INFO(tool);
+    CMSGEMOS_INFO(tool);
     tool.clear();
 
     reply = appCxt->postSOAP(msg, *srcDsc, *destDsc);
-    INFO("GEMSOAPToolBox::sendApplicationParameter reply:");
+    CMSGEMOS_INFO("GEMSOAPToolBox::sendApplicationParameter reply:");
     reply->writeTo(tool);
-    INFO(tool);
+    CMSGEMOS_INFO(tool);
   } catch (gem::utils::exception::Exception& e) {
     std::string errMsg = toolbox::toString("Send application parameter %s[%s,%s] failed [%s]",
                                            parName.c_str(), parType.c_str(), parValue.c_str(), e.what());
@@ -620,7 +620,7 @@ std::string gem::utils::soap::GEMSOAPToolBox::getApplicationState(xdaq::Applicat
 
     if (basic.size() == 1) {
       std::string stateString = basic[0].getValue();
-      DEBUG("GEMSOAPToolBox::createStateRequestMessage application " << destDsc->getClassName()
+      CMSGEMOS_DEBUG("GEMSOAPToolBox::createStateRequestMessage application " << destDsc->getClassName()
             << " returned state " << stateString);
       return stateString;
     } else {

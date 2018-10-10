@@ -132,10 +132,10 @@ gem::supervisor::tbutils::GEMTBUtil::GEMTBUtil(xdaq::ApplicationStub *s)
   resetSig_ = toolbox::task::bind(this, &GEMTBUtil::reset,      "reset"     );
 
   std::string className = getApplicationDescriptor()->getClassName();
-  DEBUG("className " << className);
+  CMSGEMOS_DEBUG("className " << className);
   className =
     className.substr(className.rfind("gem::supervisor::"),std::string::npos);
-  DEBUG("className " << className);
+  CMSGEMOS_DEBUG("className " << className);
 
   fsmP_ = new
     toolbox::fsm::AsynchronousFiniteStateMachine("GEMTButilFSM:" + className);
@@ -195,7 +195,7 @@ void gem::supervisor::tbutils::GEMTBUtil::actionPerformed(xdata::Event& event)
     std::stringstream ss;
     ss << "ipAddr_=[" << ipAddr_.toString() << "]" << std::endl;
 
-    DEBUG(ss.str());
+    CMSGEMOS_DEBUG(ss.str());
     confParams_.bag.deviceIP = ipAddr_;
   }
 }
@@ -210,10 +210,10 @@ void gem::supervisor::tbutils::GEMTBUtil::stateChanged(toolbox::fsm::FiniteState
 {
   //keep_refresh_ = false;
 
-  DEBUG("Current state is: [" << fsm.getStateName (fsm.getCurrentState()) << "]");
+  CMSGEMOS_DEBUG("Current state is: [" << fsm.getStateName (fsm.getCurrentState()) << "]");
   std::string state_=fsm.getStateName (fsm.getCurrentState());
 
-  DEBUG( "StateChanged: " << (std::string)state_);
+  CMSGEMOS_DEBUG( "StateChanged: " << (std::string)state_);
 
 }
 
@@ -232,7 +232,7 @@ void gem::supervisor::tbutils::GEMTBUtil::transitionFailed(toolbox::Event::Refer
          << std::endl
          << "]]>";
 
-  ERROR(reason.str());
+  CMSGEMOS_ERROR(reason.str());
 }
 
 //Actions (defined in the base class, not in the derived class)
@@ -536,10 +536,10 @@ void gem::supervisor::tbutils::GEMTBUtil::showCounterLayout(xgi::Output *out)
 
     }
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying showCounterLayout(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying showCounterLayout(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying showCounterLayout(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying showCounterLayout(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 } //end showCounterLayout
@@ -566,10 +566,10 @@ void gem::supervisor::tbutils::GEMTBUtil::showBufferLayout(xgi::Output *out)
 	   << cgicc::br()   << std::endl;
     }
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying showBufferLayout(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying showBufferLayout(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying showBufferLayout(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying showBufferLayout(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 } //end showBufferLayout
@@ -686,10 +686,10 @@ void gem::supervisor::tbutils::GEMTBUtil::fastCommandLayout(xgi::Output *out)
 	   << cgicc::form()  << std::endl;
     }
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying fastCommandLayout(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying fastCommandLayout(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying fastCommandLayout(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying fastCommandLayout(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -922,10 +922,10 @@ void gem::supervisor::tbutils::GEMTBUtil::webDefault(xgi::Input *in, xgi::Output
       .set("src","http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js")
 	 << cgicc::script() << std::endl;
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying GEMTBUtil control panel(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying GEMTBUtil control panel(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying GEMTBUtil control panel(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying GEMTBUtil control panel(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -937,20 +937,20 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> vfat2FormEntries = cgi.getElements();
-    TRACE( "debugging form entries");
+    CMSGEMOS_TRACE( "debugging form entries");
     std::vector<cgicc::FormEntry>::const_iterator myiter = vfat2FormEntries.begin();
 
     //OH Devices
     cgicc::form_iterator oh = cgi.getElement("SetOH");
     if (strcmp((**oh).c_str(),"OH_0") == 0) {
       confParams_.bag.ohGTXLink.value_= 0;
-      INFO("OH_0 has been selected " << confParams_.bag.ohGTXLink);
+      CMSGEMOS_INFO("OH_0 has been selected " << confParams_.bag.ohGTXLink);
     } else if (strcmp((**oh).c_str(),"OH_1") == 0) {
       confParams_.bag.ohGTXLink.value_= 1;
-      INFO("OH_1 has been selected " << confParams_.bag.ohGTXLink);
+      CMSGEMOS_INFO("OH_1 has been selected " << confParams_.bag.ohGTXLink);
     } else if (strcmp((**oh).c_str(),"OH_2") == 0) {
       confParams_.bag.ohGTXLink.value_= 2;
-      INFO("OH_2 has been selected " << confParams_.bag.ohGTXLink);
+      CMSGEMOS_INFO("OH_2 has been selected " << confParams_.bag.ohGTXLink);
     }//if OH_1
 
     m_vfatMask = 0x0;
@@ -964,11 +964,11 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
       std::string tmpDeviceName = confParams_.bag.deviceName[i].toString();
       cgicc::const_form_iterator name = cgi.getElement(form.str());
       if (name != cgi.getElements().end()) {
-        DEBUG( "found form element::" << form.str());
-        DEBUG( "has value::" << name->getValue());
+        CMSGEMOS_DEBUG( "found form element::" << form.str());
+        CMSGEMOS_DEBUG( "has value::" << name->getValue());
 	tmpDeviceName = name->getValue();
 	confParams_.bag.deviceName[i] = tmpDeviceName;
-	DEBUG( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
+        CMSGEMOS_DEBUG( "Web_deviceName::"             << confParams_.bag.deviceName[i].toString());
         m_vfatMask |= (0x1<<i);
       }
 
@@ -983,10 +983,10 @@ void gem::supervisor::tbutils::GEMTBUtil::webInitialize(xgi::Input *in, xgi::Out
     m_vfatMask = ~m_vfatMask;
     //change the status to initializing and make sure the page displays this information
   } catch (const xgi::exception::Exception & e) {
-    ERROR("Something went wrong: " << e.what());
+    CMSGEMOS_ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception & e) {
-    ERROR("Something went wrong: " << e.what());
+    CMSGEMOS_ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 
@@ -1052,11 +1052,11 @@ void gem::supervisor::tbutils::GEMTBUtil::webResetCounters(xgi::Input *in, xgi::
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> resetCounters = cgi.getElements();
-    DEBUG( "resetting counters entries");
+    CMSGEMOS_DEBUG( "resetting counters entries");
 
     hw_semaphore_.take();
 
-    DEBUG("GEMTBUtil::webResetCounters Reseting counters");
+    CMSGEMOS_DEBUG("GEMTBUtil::webResetCounters Reseting counters");
 
     if (cgi.queryCheckbox("RstL1ATTC") )
       optohybridDevice_->resetL1ACount(0x0);
@@ -1097,10 +1097,10 @@ void gem::supervisor::tbutils::GEMTBUtil::webResetCounters(xgi::Input *in, xgi::
     hw_semaphore_.give();
 
   } catch (const xgi::exception::Exception & e) {
-    ERROR("Something went wrong: " << e.what());
+    CMSGEMOS_ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception & e) {
-    ERROR("Something went wrong: " << e.what());
+    CMSGEMOS_ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 
@@ -1115,12 +1115,12 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
   try {
     cgicc::Cgicc cgi(in);
     std::vector<cgicc::FormEntry> resetCounters = cgi.getElements();
-    DEBUG( "resetting counters entries");
+    CMSGEMOS_DEBUG( "resetting counters entries");
 
     std::string fastCommand = cgi["SendFastCommand"]->getValue();
 
     if (strcmp(fastCommand.c_str(),"FlushFIFO") == 0) {
-      DEBUG("FlushFIFO button pressed");
+      CMSGEMOS_DEBUG("FlushFIFO button pressed");
       hw_semaphore_.take();
       for (int i = 0; i < 2; ++i){
 	glibDevice_->flushFIFO(i);
@@ -1129,7 +1129,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }
 
     if (strcmp(fastCommand.c_str(),"SendTestPackets") == 0) {
-      DEBUG("SendTestPackets button pressed");
+      CMSGEMOS_DEBUG("SendTestPackets button pressed");
       hw_semaphore_.take();
       if (!is_running_) {
 	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip){
@@ -1148,7 +1148,7 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }
 
     else if (strcmp(fastCommand.c_str(),"Send L1A+CalPulse") == 0) {
-      DEBUG("Send L1A+CalPulse button pressed");
+      CMSGEMOS_DEBUG("Send L1A+CalPulse button pressed");
       cgicc::const_form_iterator element = cgi.getElement("CalPulseDelay");
       uint8_t delay = 4;
       if (element != cgi.getElements().end())
@@ -1161,35 +1161,35 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }
 
     else if (strcmp(fastCommand.c_str(),"Send L1A") == 0) {
-      DEBUG("Send L1A button pressed");
+      CMSGEMOS_DEBUG("Send L1A button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendL1A(10,1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send CalPulse") == 0) {
-      DEBUG("Send CalPulse button pressed");
+      CMSGEMOS_DEBUG("Send CalPulse button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendCalPulse(0x1,1);
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send Resync") == 0) {
-      DEBUG("Send Resync button pressed");
+      CMSGEMOS_DEBUG("Send Resync button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendResync();
       hw_semaphore_.give();
     }
 
     else if (strcmp(fastCommand.c_str(),"Send BC0") == 0) {
-      DEBUG("Send BC0 button pressed");
+      CMSGEMOS_DEBUG("Send BC0 button pressed");
       hw_semaphore_.take();
       optohybridDevice_->sendBC0();
       hw_semaphore_.give();
     }
     /*
     else if (strcmp(fastCommand.c_str(),"SetTriggerSource") == 0) {
-      DEBUG("SetTriggerSource button pressed");
+      CMSGEMOS_DEBUG("SetTriggerSource button pressed");
       hw_semaphore_.take();
       cgicc::form_iterator fi = cgi.getElement("trgSrc");
       if( !fi->isEmpty() && fi != (*cgi).end()) {
@@ -1214,10 +1214,10 @@ void gem::supervisor::tbutils::GEMTBUtil::webSendFastCommands(xgi::Input *in, xg
     }*/
 
   } catch (const xgi::exception::Exception & e) {
-    ERROR("Something went wrong: " << e.what());
+    CMSGEMOS_ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception & e) {
-    ERROR("Something went wrong: " << e.what());
+    CMSGEMOS_ERROR("Something went wrong: " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 
@@ -1263,12 +1263,12 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
   //optohybridDevice_ = optohybrid_shared_ptr(new gem::hw::optohybrid::HwOptoHybrid(ohDeviceName, "connections_ch.xml"));
 
   if (glibDevice_->isHwConnected()) {
-    INFO("GLIB device connected");
+    CMSGEMOS_INFO("GLIB device connected");
 
     glibDevice_->writeReg("GLIB.TTC.CONTROL.INHIBIT_L1A",0x1);
     disableTriggers();
     if (optohybridDevice_->isHwConnected()) {
-      DEBUG("OptoHybrid device connected");
+      CMSGEMOS_DEBUG("OptoHybrid device connected");
 
       optohybridDevice_->setVFATMask(m_vfatMask);
 
@@ -1297,11 +1297,11 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 	  if (VfatName != "") {
 	    readout_mask = confParams_.bag.ohGTXLink;
 
-	    DEBUG(" webInitialize : DeviceName " << VfatName );
-	    DEBUG(" webInitialize : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
+	    CMSGEMOS_DEBUG(" webInitialize : DeviceName " << VfatName );
+	    CMSGEMOS_DEBUG(" webInitialize : readout_mask 0x"  << std::hex << (int)readout_mask << std::dec );
 
 	    confParams_.bag.deviceChipID = tmpVFATDevice->getChipID();
-	    DEBUG(" CHIPID   :: " << confParams_.bag.deviceChipID);
+	    CMSGEMOS_DEBUG(" CHIPID   :: " << confParams_.bag.deviceChipID);
 	    // need to put all chips in sleep mode to start off
 	    vfatDevice_.push_back(tmpVFATDevice);
 	  }//end if VfatName
@@ -1310,17 +1310,17 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 	for (auto chip = VFATdeviceConnected.begin(); chip != VFATdeviceConnected.end(); ++chip) {
 	  if ((*chip)->isHwConnected()) {
 	    (*chip)->setRunMode(0);
-	    DEBUG( "vfatDevice Conected::" << (*chip)->getSlot());
+	    CMSGEMOS_DEBUG( "vfatDevice Conected::" << (*chip)->getSlot());
 	  }
 	}// end for
 
 	for (auto chip = vfatDevice_.begin(); chip != vfatDevice_.end(); ++chip) {
-	  DEBUG( "vfatDevice selected::" << (*chip)->getSlot());
+	  CMSGEMOS_DEBUG( "vfatDevice selected::" << (*chip)->getSlot());
 	}
       }// end for
    }//end if OH connected
     else {
-      INFO("OptoHybrid device not connected, breaking out");
+      CMSGEMOS_INFO("OptoHybrid device not connected, breaking out");
       is_configured_  = false;
       is_working_     = false;
       hw_semaphore_.give();
@@ -1329,7 +1329,7 @@ void gem::supervisor::tbutils::GEMTBUtil::initializeAction(toolbox::Event::Refer
 
   }// end if glib connected
   else {
-    DEBUG("GLIB device not connected, breaking out");
+    CMSGEMOS_DEBUG("GLIB device not connected, breaking out");
     is_configured_  = false;
     is_working_     = false;
     hw_semaphore_.give();
@@ -1359,7 +1359,7 @@ void gem::supervisor::tbutils::GEMTBUtil::configureAction(toolbox::Event::Refere
        chip != confParams_.bag.deviceName.end(); ++chip, ++num) {
     ss << "Device name: " << chip->toString() << std::endl;
   }
-  DEBUG(ss.str());
+  CMSGEMOS_DEBUG(ss.str());
 
   hw_semaphore_.give();
 
@@ -1570,10 +1570,10 @@ void gem::supervisor::tbutils::GEMTBUtil::selectMultipleVFAT(xgi::Output *out)
     *out << cgicc::tr()    << std::endl;
     *out << cgicc::table() << std::endl;
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong displaying VFATS(xgi): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying VFATS(xgi): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong displaying VFATS(std): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong displaying VFATS(std): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }
@@ -1617,10 +1617,10 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
 	    << "<td class=\"form\">"*/
 
   } catch (const xgi::exception::Exception& e) {
-    ERROR("Something went wrong setting the trigger source): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong setting the trigger source): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   } catch (const std::exception& e) {
-    ERROR("Something went wrong setting the trigger source): " << e.what());
+    CMSGEMOS_ERROR("Something went wrong setting the trigger source): " << e.what());
     XCEPT_RAISE(xgi::exception::Exception, e.what());
   }
 }// end void selectoptohybrid
@@ -1628,7 +1628,7 @@ void gem::supervisor::tbutils::GEMTBUtil::selectOptohybridDevice(xgi::Output *ou
 void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
   throw (xgi::exception::Exception)
 {
-  DEBUG("-----------start SOAP message modify paramteres AMC13------ ");
+  CMSGEMOS_DEBUG("-----------start SOAP message modify paramteres AMC13------ ");
 
   xdaq::ApplicationDescriptor *d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
   xdaq::ApplicationDescriptor *o = this->getApplicationDescriptor();
@@ -1659,28 +1659,28 @@ void gem::supervisor::tbutils::GEMTBUtil::NTriggersAMC13()
 
   std::string tool;
   xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
-  DEBUG("msg: " << tool);
+  CMSGEMOS_DEBUG("msg: " << tool);
 
   try {
-    DEBUG("trying to send parameters");
+    CMSGEMOS_DEBUG("trying to send parameters");
     xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
     std::string tool;
     xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
-    DEBUG("reply: " << tool);
+    CMSGEMOS_DEBUG("reply: " << tool);
   } catch (xoap::exception::Exception& e) {
-    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    CMSGEMOS_ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
     XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
   } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    CMSGEMOS_ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
     XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
   } catch (std::exception& e) {
-    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    CMSGEMOS_ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
     //XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
   } catch (...) {
-    ERROR("------------------Fail  AMC13 configuring parameters message ");
+    CMSGEMOS_ERROR("------------------Fail  AMC13 configuring parameters message ");
     XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
   }
-  DEBUG("-----------The message to AMC13 configuring parameters has been sent------------");
+  CMSGEMOS_DEBUG("-----------The message to AMC13 configuring parameters has been sent------------");
 }
 
 void gem::supervisor::tbutils::GEMTBUtil::enableTriggers()
@@ -1713,7 +1713,7 @@ void gem::supervisor::tbutils::GEMTBUtil::sendTriggers()
 void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
   throw (xgi::exception::Exception)
 {
-  DEBUG("-----------start SOAP message modify paramteres AMC13------ ");
+  CMSGEMOS_DEBUG("-----------start SOAP message modify paramteres AMC13------ ");
 
   xdaq::ApplicationDescriptor *d = getApplicationContext()->getDefaultZone()->getApplicationDescriptor("gem::hw::amc13::AMC13Manager", 0);  // this should not be hard coded
   xdaq::ApplicationDescriptor *o = this->getApplicationDescriptor();
@@ -1818,26 +1818,26 @@ void gem::supervisor::tbutils::GEMTBUtil::AMC13TriggerSetup()
 
   std::string tool;
   xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
-  DEBUG("msg: " << tool);
+  CMSGEMOS_DEBUG("msg: " << tool);
 
   try {
-    DEBUG("trying to send parameters");
+    CMSGEMOS_DEBUG("trying to send parameters");
     xoap::MessageReference reply = getApplicationContext()->postSOAP(msg, *o,  *d);
     std::string tool;
     xoap::dumpTree(reply->getSOAPPart().getEnvelope().getDOMNode(),tool);
-    DEBUG("reply: " << tool);
+    CMSGEMOS_DEBUG("reply: " << tool);
   } catch (xoap::exception::Exception& e) {
-    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    CMSGEMOS_ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
     XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
   } catch (xdaq::exception::Exception& e) {
-    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    CMSGEMOS_ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
     XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
   } catch (std::exception& e) {
-    ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
+    CMSGEMOS_ERROR("------------------Fail  AMC13 configuring parameters message " << e.what());
     //XCEPT_RETHROW (xoap::exception::Exception, "Cannot send message", e);
   } catch (...) {
-    ERROR("------------------Fail  AMC13 configuring parameters message ");
+    CMSGEMOS_ERROR("------------------Fail  AMC13 configuring parameters message ");
     XCEPT_RAISE (xoap::exception::Exception, "Cannot send message");
   }
-  DEBUG("-----------The message to AMC13 configuring parameters has been sent------------");
+  CMSGEMOS_DEBUG("-----------The message to AMC13 configuring parameters has been sent------------");
 }

@@ -29,15 +29,15 @@ XDAQ_INSTANTIATOR_IMPL(gem::daqmon::ShelfMonitor);
 
 gem::daqmon::ShelfMonitor::ShelfMonitor(xdaq::ApplicationStub* stub) :
   gem::base::GEMApplication(stub),
-  m_shelfID(-1) 
+  m_shelfID(-1)
 {
-  DEBUG("gem::daqmon::ShelfMonitor : Creating the ShelfMonitorWeb interface");
+  CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor : Creating the ShelfMonitorWeb interface");
   p_gemWebInterface = new gem::daqmon::ShelfMonitorWeb(this);
-  DEBUG("gem::daqmon::ShelfMonitor : Retrieving configuration");
+  CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor : Retrieving configuration");
   p_appInfoSpace->fireItemAvailable("shelfID",     &m_shelfID);
   p_appInfoSpace->addItemRetrieveListener("shelfID", this);
   p_appInfoSpace->addItemChangedListener("shelfID", this);
-  DEBUG("gem::daqmon::ShelfMonitor : configuration retrieved");
+  CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor : configuration retrieved");
   xgi::bind(this, &ShelfMonitor::stopAction, "stopAction");
   xgi::bind(this, &ShelfMonitor::resumeAction, "resumeAction");
   xgi::bind(this, &ShelfMonitor::pauseAction, "pauseAction");
@@ -46,7 +46,7 @@ gem::daqmon::ShelfMonitor::ShelfMonitor(xdaq::ApplicationStub* stub) :
 
 gem::daqmon::ShelfMonitor::~ShelfMonitor()
 {
-  DEBUG("gem::daqmon::ShelfMonitor : Destructor called");
+  CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor : Destructor called");
   // make sure to empty the v_supervisedApps  vector and free the pointers
 }
 
@@ -55,7 +55,7 @@ gem::daqmon::ShelfMonitor::~ShelfMonitor()
 void gem::daqmon::ShelfMonitor::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     importConfigurationParameters();
     importMonitoringParameters();
@@ -65,7 +65,7 @@ void gem::daqmon::ShelfMonitor::actionPerformed(xdata::Event& event)
 
   // item is changed, update it
   if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
-    DEBUG("gem::daqmon::ShelfMonitor::actionPerformed() ItemChangedEvent");
+    CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::actionPerformed() ItemChangedEvent");
   }
 
   // update monitoring variables
@@ -80,9 +80,9 @@ void gem::daqmon::ShelfMonitor::init()
   {
     char t_board_name[20];
     sprintf(t_board_name, "gem-shelf%02d-amc%02d", m_shelfID.value_, i);
-    DEBUG("gem::daqmon::ShelfMonitor::init :  Domain name for the board " << std::dec << i << " : " << t_board_name);
+    CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::init :  Domain name for the board " << std::dec << i << " : " << t_board_name);
     v_daqmon.push_back(new gem::daqmon::DaqMonitor(t_board_name, this->getApplicationLogger(), this, i));
-    DEBUG("gem::daqmon::ShelfMonitor::init : DaqMonitor pointer created");
+    CMSGEMOS_DEBUG("gem::daqmon::ShelfMonitor::init : DaqMonitor pointer created");
   }
 }
 
@@ -97,8 +97,8 @@ bool gem::daqmon::ShelfMonitor::isGEMApplication(const std::string& classname) c
   return false;
 }
 
-void gem::daqmon::ShelfMonitor::startMonitoring() 
-{ 
+void gem::daqmon::ShelfMonitor::startMonitoring()
+{
     int cnt = 0;
     for (auto daqmon: v_daqmon)
     {
@@ -106,21 +106,21 @@ void gem::daqmon::ShelfMonitor::startMonitoring()
         daqmon->startMonitoring();
         ++cnt;
       } else {
-        INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board " << daqmon->boardName() 
+        INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board " << daqmon->boardName()
         << " cannot be established. Monitoring for this board is OFF");
       }
     }
     (cnt>0)?m_state="RUNNING":"FAILED";
 }
 
-void gem::daqmon::ShelfMonitor::stopMonitoring() 
-{ 
+void gem::daqmon::ShelfMonitor::stopMonitoring()
+{
     for (auto daqmon: v_daqmon)
     {
       if (daqmon->is_connected()) {
         daqmon->stopMonitoring();
       } else {
-        INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board " << daqmon->boardName() 
+        INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board " << daqmon->boardName()
         << " cannot be established. Monitoring for this board is OFF");
       }
     }

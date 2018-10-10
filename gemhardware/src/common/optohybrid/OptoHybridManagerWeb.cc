@@ -26,7 +26,7 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::webDefault(xgi::Input * in, xgi:
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    DEBUG("current state is" << dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->getCurrentState());
+    CMSGEMOS_DEBUG("current state is" << dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->getCurrentState());
   *out << cgicc::style().set("type", "text/css")
     .set("src", "/gemdaq/gemhardware/html/css/optohybrid/optohybrid.css")
        << cgicc::style() << std::endl;
@@ -42,7 +42,7 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::webDefault(xgi::Input * in, xgi:
 void gem::hw::optohybrid::OptoHybridManagerWeb::monitorPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("OptoHybridManagerWeb::monitorPage");
+  CMSGEMOS_INFO("OptoHybridManagerWeb::monitorPage");
   //fill this page with the generic views for the OptoHybridManager
   //different tabs for certain functions
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
@@ -54,7 +54,7 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::monitorPage(xgi::Input * in, xgi
 void gem::hw::optohybrid::OptoHybridManagerWeb::expertPage(xgi::Input * in, xgi::Output * out)
   throw (xgi::exception::Exception)
 {
-  INFO("OptoHybridManagerWeb::expertPage");
+  CMSGEMOS_INFO("OptoHybridManagerWeb::expertPage");
   //fill this page with the expert views for the OptoHybridManager
   *out << "expertPage</br>" << std::endl;
 }
@@ -63,7 +63,7 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::expertPage(xgi::Input * in, xgi:
 void gem::hw::optohybrid::OptoHybridManagerWeb::applicationPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  INFO("OptoHybridManagerWeb::applicationPage");
+  CMSGEMOS_INFO("OptoHybridManagerWeb::applicationPage");
   std::string cardURL = "/" + p_gemApp->getApplicationDescriptor()->getURN() + "/boardPage";
   *out << "  <div class=\"xdaq-tab\" title=\"Board page\"/>"  << std::endl;
   boardPage(in, out);
@@ -74,7 +74,7 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::applicationPage(xgi::Input* in, 
 void gem::hw::optohybrid::OptoHybridManagerWeb::boardPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  INFO("OptoHybridManagerWeb::boardPage");
+  CMSGEMOS_INFO("OptoHybridManagerWeb::boardPage");
   // fill this page with the card views for the OptoHybridManager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
@@ -93,7 +93,7 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::boardPage(xgi::Input* in, xgi::O
 void gem::hw::optohybrid::OptoHybridManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("OptoHybridManagerWeb::jsonUpdate");
+  CMSGEMOS_DEBUG("OptoHybridManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
