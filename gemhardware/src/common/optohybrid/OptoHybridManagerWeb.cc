@@ -77,8 +77,8 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::boardPage(xgi::Input* in, xgi::O
   CMSGEMOS_INFO("OptoHybridManagerWeb::boardPage");
   // fill this page with the card views for the OptoHybridManager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
-  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    for (unsigned int j = 0; j < gem::base::GEMFSMApplication::MAX_OPTOHYBRIDS_PER_AMC; ++j) {
+  for (unsigned int i = 0; i < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++i) {
+    for (unsigned int j = 0; j < gem::base::GEMApplication::MAX_OPTOHYBRIDS_PER_AMC; ++j) {
       auto card = dynamic_cast<gem::hw::optohybrid::OptoHybridManager*>(p_gemFSMApp)->m_optohybridMonitors.at(i).at(j);
       if (card) {
         *out << "<div class=\"xdaq-tab\" title=\"" << card->getDeviceID() << "\" >"  << std::endl;
@@ -96,8 +96,8 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::jsonUpdate(xgi::Input* in, xgi::
   CMSGEMOS_DEBUG("OptoHybridManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
-  for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
-    for (unsigned int j = 0; j < gem::base::GEMFSMApplication::MAX_OPTOHYBRIDS_PER_AMC; ++j) {
+  for (unsigned int i = 0; i < gem::base::GEMApplication::MAX_AMCS_PER_CRATE; ++i) {
+    for (unsigned int j = 0; j < gem::base::GEMApplication::MAX_OPTOHYBRIDS_PER_AMC; ++j) {
       *out << "\"amcslot"   << std::setw(2) << std::setfill('0') << (i+1)
            << ".optohybrid" << std::setw(2) << std::setfill('0') << (j)
            << "\"  : { "    << std::endl;
@@ -106,8 +106,8 @@ void gem::hw::optohybrid::OptoHybridManagerWeb::jsonUpdate(xgi::Input* in, xgi::
         card->jsonUpdateItemSets(out);
       }
       // can't have a trailing comma for the last entry...
-      if (i == (gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE-1) &&
-          j == (gem::base::GEMFSMApplication::MAX_OPTOHYBRIDS_PER_AMC-1))
+      if (i == (gem::base::GEMApplication::MAX_AMCS_PER_CRATE-1) &&
+          j == (gem::base::GEMApplication::MAX_OPTOHYBRIDS_PER_AMC-1))
         *out << " }" << std::endl;
       else
         *out << " }," << std::endl;
