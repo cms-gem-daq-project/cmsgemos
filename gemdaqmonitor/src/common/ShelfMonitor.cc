@@ -76,7 +76,7 @@ void gem::daqmon::ShelfMonitor::init()
 {
   v_daqmon.clear();
   v_daqmon.reserve(NAMC);
-  for (int i = 1; i <= 12; ++i)
+  for (int i = 1; i <= NAMC; ++i)
   {
     char t_board_name[20];
     sprintf(t_board_name, "gem.shelf%02d.amc%02d", m_shelfID.value_, i);

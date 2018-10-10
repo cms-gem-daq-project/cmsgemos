@@ -196,13 +196,29 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
   DEBUG("DaqMonitor: Updating Monitorables");
   try {
     updateDAQmain();
+  } catch (...) {return;} //FIXME Define meaningful exceptions and intercept here or eventually at a different level... If even a updateDAQmain fails, do not attempt to do anything else for this AMC board
+  try {
     updateDAQOHmain();
+  } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
+  try {
     updateTTCmain();
+  } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
+  try {
     updateTRIGGERmain();
+  } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
+  try {
     updateTRIGGEROHmain();
+  } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
+  try {
     updateOHmain();
+  } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
+  try {
     updateOHSCA();
+  } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
+  try {
     updateOHSysmon();
+  } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
+  try {
     updateDAQmainTableContent();
     updateTTCmainTableContent();
     updateOHmainTableContent();
@@ -219,13 +235,12 @@ void gem::daqmon::DaqMonitor::updateDAQmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_MAIN update error:" << rsp.get_string("error").c_str());
-      throw xhal::utils::XHALException("DAQ_MAIN update failed");
-    } else {
-      auto monlist = m_monitorableSetsMap.find("DAQ_MAIN");
-      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
-      }
+      ERROR("DAQ_MAIN update error: " << rsp.get_string("error").c_str());
+      //throw xhal::utils::XHALException("DAQ_MAIN update failed");
+    }
+    auto monlist = m_monitorableSetsMap.find("DAQ_MAIN");
+    for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+      (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
   }
   STANDARD_CATCH;
@@ -242,13 +257,12 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_OH_MAIN update error:" << rsp.get_string("error").c_str());
-      throw xhal::utils::XHALException("DAQ_OH_MAIN update failed");
-    } else {
-      auto monlist = m_monitorableSetsMap.find("DAQ_OH_MAIN");
-      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
-      }
+      ERROR("DAQ_OH_MAIN update error: " << rsp.get_string("error").c_str());
+      //throw xhal::utils::XHALException("DAQ_OH_MAIN update failed");
+    }
+    auto monlist = m_monitorableSetsMap.find("DAQ_OH_MAIN");
+    for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+      (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
   }
   STANDARD_CATCH;
@@ -264,13 +278,12 @@ void gem::daqmon::DaqMonitor::updateTTCmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_TTC_MAIN update error:" << rsp.get_string("error").c_str());
-      throw xhal::utils::XHALException("DAQ_TTC_MAIN update failed");
-    } else {
-      auto monlist = m_monitorableSetsMap.find("DAQ_TTC_MAIN");
-      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
-      }
+      ERROR("DAQ_TTC_MAIN update error: " << rsp.get_string("error").c_str());
+      //throw xhal::utils::XHALException("DAQ_TTC_MAIN update failed");
+    }
+    auto monlist = m_monitorableSetsMap.find("DAQ_TTC_MAIN");
+    for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+      (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
   }
   STANDARD_CATCH;
@@ -287,13 +300,12 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_TRIGGER_MAIN update error:" << rsp.get_string("error").c_str());
-      throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
-    } else {
-      auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_MAIN");
-      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
-      }
+      ERROR("DAQ_TRIGGER_MAIN update error: " << rsp.get_string("error").c_str());
+      //throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
+    }
+    auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_MAIN");
+    for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+      (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
   }
   STANDARD_CATCH;
@@ -310,13 +322,12 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_TRIGGER_OH_MAIN update error:" << rsp.get_string("error").c_str());
-      throw xhal::utils::XHALException("DAQ_TRIGGER_OH_MAIN update failed");
-    } else {
-      auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_OH_MAIN");
-      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
-      }
+      ERROR("DAQ_TRIGGER_OH_MAIN update error: " << rsp.get_string("error").c_str());
+      //throw xhal::utils::XHALException("DAQ_TRIGGER_OH_MAIN update failed");
+    }
+    auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_OH_MAIN");
+    for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+      (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
   }
   STANDARD_CATCH;
@@ -333,13 +344,12 @@ void gem::daqmon::DaqMonitor::updateOHmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("OH_MAIN update error:" << rsp.get_string("error").c_str());
-      throw xhal::utils::XHALException("OH_MAIN update failed");
-    } else {
-      auto monlist = m_monitorableSetsMap.find("OH_MAIN");
-      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
-      }
+      ERROR("OH_MAIN update error: " << rsp.get_string("error").c_str());
+      //throw xhal::utils::XHALException("OH_MAIN update failed");
+    }
+    auto monlist = m_monitorableSetsMap.find("OH_MAIN");
+    for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+      (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
   }
   STANDARD_CATCH;
@@ -356,13 +366,12 @@ void gem::daqmon::DaqMonitor::updateOHSCA()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("OH_SCA update error:" << rsp.get_string("error").c_str());
-      throw xhal::utils::XHALException("OH_SCA update failed");
-    } else {
-      auto monlist = m_monitorableSetsMap.find("OH_SCA");
-      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
-      }
+      ERROR("OH_SCA update error: " << rsp.get_string("error").c_str());
+      //throw xhal::utils::XHALException("OH_SCA update failed"); FIXME instead of throwing an exception there should be an alert propagating
+    }
+    auto monlist = m_monitorableSetsMap.find("OH_SCA");
+    for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+      (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
   }
   STANDARD_CATCH;
@@ -380,13 +389,12 @@ void gem::daqmon::DaqMonitor::updateOHSysmon()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("OH_Sysmon update error:" << rsp.get_string("error").c_str());
-      throw xhal::utils::XHALException("OH_Sysmon update failed");
-    } else {
-      auto monlist = m_monitorableSetsMap.find("OH_Sysmon");
-      for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-        (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
-      }
+      ERROR("OH_Sysmon update error: " << rsp.get_string("error").c_str());
+      //throw xhal::utils::XHALException("OH_Sysmon update failed"); FIXME instead of throwing an exception there should be an alert propagating
+    } 
+    auto monlist = m_monitorableSetsMap.find("OH_Sysmon");
+    for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
+      (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
   }
   STANDARD_CATCH;
@@ -419,6 +427,7 @@ double gem::daqmon::DaqMonitor::sysmonVconv(uint32_t val)
 
 void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
 {
+  DEBUG("DaqMonitor::updateDAQmainTableContent");
   uint32_t val;
   LabelData * ld;
   for (auto monname: {"DAQ_ENABLE","DAQ_LINK_READY"})
@@ -431,6 +440,10 @@ void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
         ld->labelClass="label label-warning";
         break;
       case 0xFFFFFFFF:
+        ld->labelValue="X";
+        ld->labelClass="label label-default";
+        break;
+      case 0xDEADDEAD:
         ld->labelValue="X";
         ld->labelClass="label label-default";
         break;
@@ -448,6 +461,10 @@ void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
       ld->labelClass="label label-success";
       break;
     case 0xFFFFFFFF:
+      ld->labelValue="X";
+      ld->labelClass="label label-default";
+      break;
+    case 0xDEADDEAD:
       ld->labelValue="X";
       ld->labelClass="label label-default";
       break;
@@ -469,6 +486,10 @@ void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
         ld->labelValue="X";
         ld->labelClass="label label-default";
         break;
+      case 0xDEADDEAD:
+        ld->labelValue="X";
+        ld->labelClass="label label-default";
+        break;
       default:
         ld->labelValue="Y";
         ld->labelClass="label label-danger";
@@ -479,7 +500,7 @@ void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
   {
     val = is_daqmon->getUInt32(monname);
     ld = m_LabelData.find(monname)->second;
-    if (val == 0xFFFFFFFF) {
+    if (val == 0xFFFFFFFF || val == 0xDEADDEAD) {
       ld->labelValue="X";
       ld->labelClass="label label-default";
     } else {
@@ -519,7 +540,7 @@ void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
   {
     val = is_daqmon->getUInt32(monname);
     ld = m_LabelData.find(monname)->second;
-    if (val == 0xFFFFFFFF) {
+    if (val == 0xFFFFFFFF || val == 0xDEADDEAD) {
       ld->labelValue="X";
       ld->labelClass="label label-default";
     } else {
@@ -546,6 +567,10 @@ void gem::daqmon::DaqMonitor::updateTTCmainTableContent()
         ld->labelValue="X";
         ld->labelClass="label label-default";
         break;
+      case 0xDEADDEAD:
+        ld->labelValue="X";
+        ld->labelClass="label label-default";
+        break;
       default:
         ld->labelValue="Y";
         ld->labelClass="label label-success";
@@ -563,6 +588,10 @@ void gem::daqmon::DaqMonitor::updateTTCmainTableContent()
       ld->labelValue="X";
       ld->labelClass="label label-default";
       break;
+    case 0xDEADDEAD:
+      ld->labelValue="X";
+      ld->labelClass="label label-default";
+      break;
     default:
       ld->labelValue=std::to_string(val);
       ld->labelClass="label label-danger";
@@ -572,7 +601,7 @@ void gem::daqmon::DaqMonitor::updateTTCmainTableContent()
   {
     val = is_daqmon->getUInt32(monname);
     ld = m_LabelData.find(monname)->second;
-    if (val == 0xFFFFFFFF) {
+    if (val == 0xFFFFFFFF || val == 0xDEADDEAD) {
       ld->labelValue="X";
       ld->labelClass="label label-default";
     } else {
@@ -596,6 +625,10 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
         ld->labelValue="ERROR";
         ld->labelClass="label label-danger";
         break;
+      case 0xADADADAD:// erroneous return in case of V3
+        ld->labelValue="ERROR";
+        ld->labelClass="label label-danger";
+        break;
       case 0xFFFFFFFF:
         ld->labelValue="X";
         ld->labelClass="label label-default";
@@ -612,7 +645,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
     {
       val = is_daqmon->getUInt32("OH"+std::to_string(i)+monname);
       ld = m_LabelData.find("OH"+std::to_string(i)+monname)->second;
-      if (val == 0xFFFFFFFF) {
+      if (val == 0xFFFFFFFF || val == 0xDEADDEAD) {
         ld->labelValue="X";
         ld->labelClass="label label-default";
       } else {
@@ -626,7 +659,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
     {
       val = is_daqmon->getUInt32("OH"+std::to_string(i)+monname);
       ld = m_LabelData.find("OH"+std::to_string(i)+monname)->second;
-      if (val == 0xFFFFFFFF) {
+      if (val == 0xFFFFFFFF || val == 0xDEADDEAD) {
         ld->labelValue="X";
         ld->labelClass="label label-default";
       } else {
@@ -644,7 +677,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
       //DEBUG("Monitorable name : " << monname);
       val = is_daqmon->getUInt32("OH"+std::to_string(i)+monname);
       ld = m_LabelData.find("OH"+std::to_string(i)+monname)->second;
-      if (val == 0xFFFFFFFF) {
+      if (val == 0xFFFFFFFF || val == 0xDEADDEAD) {
         ld->labelValue="X";
         ld->labelClass="label label-default";
       } else {
@@ -661,7 +694,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
     {
       val = is_daqmon->getUInt32("OH"+std::to_string(i)+monname);
       ld = m_LabelData.find("OH"+std::to_string(i)+monname)->second;
-      if (val == 0xFFFFFFFF) {
+      if (val == 0xFFFFFFFF || val == 0xDEADDEAD) {
         ld->labelValue="X";
         ld->labelClass="label label-default";
       } else {
@@ -685,7 +718,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
     {
       val = is_daqmon->getUInt32("OH"+std::to_string(i)+monname);
       ld = m_LabelData.find("OH"+std::to_string(i)+monname)->second;
-      if (val == 0xFFFFFFFF) {
+      if (val == 0xFFFFFFFF || val == 0xDEADDEAD) {
         ld->labelValue="X";
         ld->labelClass="label label-default";
       } else {
@@ -801,6 +834,7 @@ void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out)
 
 void gem::daqmon::DaqMonitor::jsonContentUpdate(xgi::Output* out)
 {
+  DEBUG("DaqMonitor::jsonContentUpdate");
   *out << " { " << std::endl;
   for (auto ld = m_LabelData.begin(); ld != m_LabelData.end();) {
     *out << "\"" << ld->second->labelId << "\" : { \"class_name\" : \"" << ld->second->labelClass << "\", \"value\" : \"" << ld->second->labelValue << "\" }";
