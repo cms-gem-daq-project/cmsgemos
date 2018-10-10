@@ -192,6 +192,13 @@ find ./ -type d -exec chmod 755 {} \;
 %files
 %defattr(-,%{_username},%{_groupname},-)
 # %defattr(0644,%{_username},%{_groupname},0755)
+%{_prefix}/lib/lib%{_longpackagename}*.so
+%{_prefix}/share/%{_package}/xml
+#%{_xdaqprefix}/htdocs/%{_project}/%{_package}/images
+%{_xdaqprefix}/htdocs/%{_project}/%{_package}/html
+#%{_xdaqprefix}/htdocs/%{_project}/%{_package}/xml
+# /usr/share/doc/%{_package}-%{_version}
+# /usr/share/%{_project}/%{_longpackagename}-%{_version}
 
 # 
 # Files required by Quattor
@@ -200,16 +207,10 @@ find ./ -type d -exec chmod 755 {} \;
 
 %dir
 # /var%{_prefix}/%{_package}
-%{_prefix}/bin
-%{_prefix}/lib
-%{_prefix}/etc
-%{_prefix}/share/%{_package}/xml
-#%{_xdaqprefix}/htdocs/%{_project}/%{_package}/images
-%{_xdaqprefix}/htdocs/%{_project}/%{_package}/html
-#%{_xdaqprefix}/htdocs/%{_project}/%{_package}/xml
-# /usr/share/doc/%{_package}-%{_version}
-# /usr/share/%{_project}/%{_longpackagename}-%{_version}
-/etc%{_prefix}.d
+%dir %{_prefix}/bin
+%dir %{_prefix}/lib
+%dir %{_prefix}/etc
+%dir /etc%{_prefix}.d
 
 #
 # Files that go in the devel RPM
