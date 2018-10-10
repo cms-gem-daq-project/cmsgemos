@@ -25,7 +25,7 @@ void gem::readout::GEMReadoutWebApplication::webDefault(xgi::Input* in, xgi::Out
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    DEBUG("current state is" << dynamic_cast<gem::readout::GEMReadoutApplication*>(p_gemFSMApp)->getCurrentState());
+    CMSGEMOS_DEBUG("current state is" << dynamic_cast<gem::readout::GEMReadoutApplication*>(p_gemFSMApp)->getCurrentState());
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemreadout/html/scripts/readout.js")
        << cgicc::script() << std::endl;
@@ -37,21 +37,21 @@ void gem::readout::GEMReadoutWebApplication::webDefault(xgi::Input* in, xgi::Out
 void gem::readout::GEMReadoutWebApplication::monitorPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMReadoutWebApplication::monitorPage");
+  CMSGEMOS_DEBUG("GEMReadoutWebApplication::monitorPage");
 }
 
 /*To be filled in with the expert page code*/
 void gem::readout::GEMReadoutWebApplication::expertPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMReadoutWebApplication::expertPage");
+  CMSGEMOS_DEBUG("GEMReadoutWebApplication::expertPage");
 }
 
 /*To be filled in with the application page code*/
 void gem::readout::GEMReadoutWebApplication::applicationPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMReadoutWebApplication::applicationPage");
+  CMSGEMOS_DEBUG("GEMReadoutWebApplication::applicationPage");
   *out << "  <div class=\"xdaq-tab\" title=\"Application page\"/>"  << std::endl;
   *out << "  </div>" << std::endl;
 }
@@ -59,7 +59,7 @@ void gem::readout::GEMReadoutWebApplication::applicationPage(xgi::Input* in, xgi
 void gem::readout::GEMReadoutWebApplication::jsonUpdate(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GEMReadoutWebApplication::jsonUpdate");
+  CMSGEMOS_DEBUG("GEMReadoutWebApplication::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   *out << " } " << std::endl;

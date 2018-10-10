@@ -60,7 +60,7 @@ bool gem::utils::db::GEMDatabaseUtils::connect(std::string const& database)
     message += "' : ";
     message += mysql_error(p_db);
     p_db = 0;
-    ERROR(message);
+    CMSGEMOS_ERROR(message);
     XCEPT_RAISE(gem::utils::exception::DBConnectionError,message);
     // return false;
   }
@@ -79,9 +79,9 @@ void gem::utils::db::GEMDatabaseUtils::command(const std::string& command)
 {
   int rv = mysql_query(p_db,command.c_str());
   if (rv)
-    ERROR("MySQL comand error: " << std::string(mysql_error(p_db)));
+    CMSGEMOS_ERROR("MySQL comand error: " << std::string(mysql_error(p_db)));
   else
-    INFO("MySQL command success: " << command);
+    CMSGEMOS_INFO("MySQL command success: " << command);
   MYSQL_RES* res = mysql_use_result(p_db);
   mysql_free_result(res);
 }
@@ -90,14 +90,14 @@ unsigned int gem::utils::db::GEMDatabaseUtils::query(const std::string& query)
 {
   int rv = mysql_query(p_db,query.c_str());
   if (rv)
-    ERROR("MySQL query error: " << std::string(mysql_error(p_db)));
+    CMSGEMOS_ERROR("MySQL query error: " << std::string(mysql_error(p_db)));
   else
-    INFO("MySQL query success: " << query);
+    CMSGEMOS_INFO("MySQL query success: " << query);
   MYSQL_RES* res = mysql_use_result(p_db);
   MYSQL_ROW  row = mysql_fetch_row(res);
   if (row == 0) {
     std::string errMsg = "Query result " + query + " empty";
-    ERROR("GEMDatabaseUtils::query " << errMsg);
+    CMSGEMOS_ERROR("GEMDatabaseUtils::query " << errMsg);
     XCEPT_RAISE(gem::utils::exception::DBEmptyQueryResult, errMsg);
   }
 
@@ -123,12 +123,12 @@ void gem::utils::db::GEMDatabaseUtils::configure(const std::string& station,
 
   int retval = PyRun_SimpleString(cmd.str().c_str());
 
-  INFO("GEMDatabaseUtils::configure_db had return value " << retval);
+  CMSGEMOS_INFO("GEMDatabaseUtils::configure_db had return value " << retval);
 
   if (retval) {
     std::string errMsg = "configure_db call failed";
     PyErr_Print();
-    ERROR("GEMDatabaseUtils::configure " << errMsg);
+    CMSGEMOS_ERROR("GEMDatabaseUtils::configure " << errMsg);
     XCEPT_RAISE(gem::utils::exception::DBPythonError, errMsg);
   }
 

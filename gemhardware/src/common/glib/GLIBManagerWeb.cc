@@ -26,7 +26,7 @@ void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
   if (p_gemFSMApp)
-    DEBUG("current state is" << dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->getCurrentState());
+    CMSGEMOS_DEBUG("current state is" << dynamic_cast<gem::hw::glib::GLIBManager*>(p_gemFSMApp)->getCurrentState());
   *out << cgicc::script().set("type", "text/javascript")
     .set("src", "/gemdaq/gemhardware/html/scripts/glib/glib.js")
        << cgicc::script() << std::endl;
@@ -38,7 +38,7 @@ void gem::hw::glib::GLIBManagerWeb::webDefault(xgi::Input* in, xgi::Output* out)
 void gem::hw::glib::GLIBManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::monitorPage");
+  CMSGEMOS_DEBUG("GLIBManagerWeb::monitorPage");
 
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "      <div class=\"xdaq-tab\" title=\"DAQ Link Monitoring\" >"  << std::endl;
@@ -55,7 +55,7 @@ void gem::hw::glib::GLIBManagerWeb::monitorPage(xgi::Input* in, xgi::Output* out
 void gem::hw::glib::GLIBManagerWeb::expertPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::expertPage");
+  CMSGEMOS_DEBUG("GLIBManagerWeb::expertPage");
   // fill this page with the expert views for the GLIBManager
   *out << "    <div class=\"xdaq-tab-wrapper\">" << std::endl;
   *out << "      <div class=\"xdaq-tab\" title=\"Register dump page\"/>"  << std::endl;
@@ -124,7 +124,7 @@ void gem::hw::glib::GLIBManagerWeb::buildCardSummaryTable(xgi::Input* in, xgi::O
 void gem::hw::glib::GLIBManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::cardPage");
+  CMSGEMOS_DEBUG("GLIBManagerWeb::cardPage");
   // fill this page with the card views for the GLIBManager
   *out << "<div class=\"xdaq-tab-wrapper\">" << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
@@ -142,7 +142,7 @@ void gem::hw::glib::GLIBManagerWeb::cardPage(xgi::Input* in, xgi::Output* out)
 void gem::hw::glib::GLIBManagerWeb::registerDumpPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::registerDumpPage");
+  CMSGEMOS_DEBUG("GLIBManagerWeb::registerDumpPage");
   // dump registers for a given GLIB and display
 }
 
@@ -150,7 +150,7 @@ void gem::hw::glib::GLIBManagerWeb::registerDumpPage(xgi::Input* in, xgi::Output
 void gem::hw::glib::GLIBManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::fifoDumpPage");
+  CMSGEMOS_DEBUG("GLIBManagerWeb::fifoDumpPage");
   // dump tracking fifo for given number of blocks
   //*out << cgicc::form() << std::endl;//.set("method","POST").set("action",);
   // input vs. button?
@@ -196,7 +196,7 @@ void gem::hw::glib::GLIBManagerWeb::fifoDumpPage(xgi::Input* in, xgi::Output* ou
 void gem::hw::glib::GLIBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::jsonUpdate");
+  CMSGEMOS_DEBUG("GLIBManagerWeb::jsonUpdate");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {
@@ -217,7 +217,7 @@ void gem::hw::glib::GLIBManagerWeb::jsonUpdate(xgi::Input* in, xgi::Output* out)
 void gem::hw::glib::GLIBManagerWeb::dumpGLIBFIFO(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  DEBUG("GLIBManagerWeb::dumpGLIBFIFO");
+  CMSGEMOS_DEBUG("GLIBManagerWeb::dumpGLIBFIFO");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   *out << " { " << std::endl;
   for (unsigned int i = 0; i < gem::base::GEMFSMApplication::MAX_AMCS_PER_CRATE; ++i) {

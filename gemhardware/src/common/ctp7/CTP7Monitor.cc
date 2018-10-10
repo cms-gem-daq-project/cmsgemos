@@ -208,11 +208,11 @@ void gem::hw::ctp7::CTP7Monitor::updateMonitorables()
   // define how to update the desired values
   // get SYSTEM monitorables
   // can this be split into two loops, one just to do a list read, the second to fill the InfoSpace with the returned values
-  DEBUG("CTP7Monitor: Updating monitorables");
+  CMSGEMOS_DEBUG("CTP7Monitor: Updating monitorables");
   for (auto monlist = m_monitorableSetsMap.begin(); monlist != m_monitorableSetsMap.end(); ++monlist) {
-    DEBUG("CTP7Monitor: Updating monitorables in set " << monlist->first);
+    CMSGEMOS_DEBUG("CTP7Monitor: Updating monitorables in set " << monlist->first);
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
-      DEBUG("CTP7Monitor: Updating monitorable " << monitem->first);
+      CMSGEMOS_DEBUG("CTP7Monitor: Updating monitorable " << monitem->first);
       std::stringstream regName;
       regName << monitem->second.regname;
       uint32_t address = p_ctp7->getGEMHwInterface().getNode(regName.str()).getAddress();
@@ -252,7 +252,7 @@ void gem::hw::ctp7::CTP7Monitor::updateMonitorables()
       } else if (monitem->second.updatetype == GEMUpdateType::NOUPDATE) {
         continue;
       } else {
-        ERROR("CTP7Monitor: Unknown update type encountered");
+        CMSGEMOS_ERROR("CTP7Monitor: Unknown update type encountered");
         continue;
       }
     } // end loop over items in list
@@ -261,9 +261,9 @@ void gem::hw::ctp7::CTP7Monitor::updateMonitorables()
 
 void gem::hw::ctp7::CTP7Monitor::buildMonitorPage(xgi::Output* out)
 {
-  DEBUG("CTP7Monitor::buildMonitorPage");
+  CMSGEMOS_DEBUG("CTP7Monitor::buildMonitorPage");
   if (m_infoSpaceMonitorableSetMap.find("HWMonitoring") == m_infoSpaceMonitorableSetMap.end()) {
-    WARN("Unable to find item set HWMonitoring in monitor");
+    CMSGEMOS_WARN("Unable to find item set HWMonitoring in monitor");
     return;
   }
 
@@ -293,7 +293,7 @@ void gem::hw::ctp7::CTP7Monitor::buildMonitorPage(xgi::Output* out)
            << monitem->first
            << "</td>"   << std::endl;
 
-      DEBUG("CTP7Monitor::" << monitem->first << " formatted to "
+      CMSGEMOS_DEBUG("CTP7Monitor::" << monitem->first << " formatted to "
             << (monitem->second.infoSpace)->getFormattedItem(monitem->first,monitem->second.format));
       //this will be repeated for every CTP7Monitor in the CTP7Manager..., need a better unique ID
       *out << "<td id=\"" << monitem->second.infoSpace->name() << "-" << monitem->first << "\">" << std::endl
@@ -320,24 +320,24 @@ void gem::hw::ctp7::CTP7Monitor::buildMonitorPage(xgi::Output* out)
 void gem::hw::ctp7::CTP7Monitor::reset()
 {
   //have to get rid of the timer
-  DEBUG("GEMMonitor::reset");
+  CMSGEMOS_DEBUG("GEMMonitor::reset");
   for (auto infoSpace = m_infoSpaceMap.begin(); infoSpace != m_infoSpaceMap.end(); ++infoSpace) {
-    DEBUG("CTP7Monitor::reset removing " << infoSpace->first << " from p_timer");
+    CMSGEMOS_DEBUG("CTP7Monitor::reset removing " << infoSpace->first << " from p_timer");
     try {
       p_timer->remove(infoSpace->first);
     } catch (toolbox::task::exception::Exception& te) {
-      ERROR("CTP7Monitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
+      CMSGEMOS_ERROR("CTP7Monitor::Caught exception while removing timer task " << infoSpace->first << " " << te.what());
     }
   }
   stopMonitoring();
-  DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
+  CMSGEMOS_DEBUG("GEMMonitor::reset removing timer " << m_timerName << " from timerFactory");
   try {
     toolbox::task::getTimerFactory()->removeTimer(m_timerName);
   } catch (toolbox::task::exception::Exception& te) {
-    ERROR("CTP7Monitor::Caught exception while removing timer " << m_timerName << " " << te.what());
+    CMSGEMOS_ERROR("CTP7Monitor::Caught exception while removing timer " << m_timerName << " " << te.what());
   }
 
-  DEBUG("CTP7Monitor::reset - clearing all maps");
+  CMSGEMOS_DEBUG("CTP7Monitor::reset - clearing all maps");
   m_infoSpaceMap.clear();
   m_infoSpaceMonitorableSetMap.clear();
   m_monitorableSetInfoSpaceMap.clear();

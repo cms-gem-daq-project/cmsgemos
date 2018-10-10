@@ -42,7 +42,7 @@ gem::supervisor::GEMGlobalState::~GEMGlobalState()
 
 void gem::supervisor::GEMGlobalState::addApplication(xdaq::ApplicationDescriptor* app)
 {
-  DEBUG("GEMGlobalState::addApplication");
+  CMSGEMOS_DEBUG("GEMGlobalState::addApplication");
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_mutex);
 
   m_states.insert(std::pair<xdaq::ApplicationDescriptor*, GEMApplicationState>(app, GEMApplicationState()));
@@ -57,13 +57,13 @@ void gem::supervisor::GEMGlobalState::addApplication(xdaq::ApplicationDescriptor
 
 void gem::supervisor::GEMGlobalState::clear()
 {
-  DEBUG("GEMGlobalState::clear");
+  CMSGEMOS_DEBUG("GEMGlobalState::clear");
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_mutex);
 }
 
 void gem::supervisor::GEMGlobalState::update()
 {
-  DEBUG("GEMGlobalState::update");
+  CMSGEMOS_DEBUG("GEMGlobalState::update");
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_mutex);
   for (auto i = m_states.begin(); i != m_states.end(); ++i) {
     updateApplication(i->first);
@@ -71,7 +71,7 @@ void gem::supervisor::GEMGlobalState::update()
   toolbox::fsm::State before = m_globalState;
   calculateGlobals();
   m_globalStateName = getStateName(m_globalState);
-  DEBUG("GEMGlobalState::update before=" << before << " after=" << m_globalState);
+  CMSGEMOS_DEBUG("GEMGlobalState::update before=" << before << " after=" << m_globalState);
   if (before != m_globalState) {
     p_gemSupervisor->globalStateChanged(before, m_globalState);
     setGlobalStateMessage("Reached terminal state: " + m_globalState);
@@ -92,7 +92,7 @@ void gem::supervisor::GEMGlobalState::startTimer()
 
 void gem::supervisor::GEMGlobalState::timeExpired(toolbox::task::TimerEvent& event)
 {
-  DEBUG("GEMGlobalState::timeExpired received event:" << event.type());
+  CMSGEMOS_DEBUG("GEMGlobalState::timeExpired received event:" << event.type());
   p_gemSupervisor->renewTCDSLease();
   update();
 }
@@ -100,7 +100,7 @@ void gem::supervisor::GEMGlobalState::timeExpired(toolbox::task::TimerEvent& eve
 
 void gem::supervisor::GEMGlobalState::calculateGlobals()
 {
-  DEBUG("GEMGlobalState::calculateGlobalState");
+  CMSGEMOS_DEBUG("GEMGlobalState::calculateGlobalState");
   // special treatment for TCDS : no Initial
   //  - Halted -> Configured -> Enabled (-> Paused) | Failed
   toolbox::fsm::State initialGlobalState = m_globalState;
@@ -117,7 +117,7 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
       if (initialGlobalState == gem::base::STATE_INITIAL ||
           initialGlobalState == gem::base::STATE_INITIALIZING ||
           initialGlobalState == gem::base::STATE_RESETTING) {
-        DEBUG("GEMGlobalState::calculateGlobalState: ignoring " << classname
+        CMSGEMOS_DEBUG("GEMGlobalState::calculateGlobalState: ignoring " << classname
               << " in state '" << appState->second.state << "'"
               << " for initial global state '" << initialGlobalState << "'");
         continue;
@@ -135,7 +135,7 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
                                               classname.c_str(),
                                               appState->first->getInstance(),
                                               appState->second.stateMessage.c_str());
-    DEBUG("GEMGlobalState::calculateGlobalState:" << classname << ":"
+    CMSGEMOS_DEBUG("GEMGlobalState::calculateGlobalState:" << classname << ":"
           << appState->first->getInstance() << " has state message '"
           << appState->second.stateMessage.c_str() << "' and state: '"
           << appState->second.state << "'");
@@ -153,7 +153,7 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
 
     statesString << appState->second.state;
 
-    DEBUG("GEMGlobalState::calculateGlobalState: Current global state is " << tmpGlobalState
+    CMSGEMOS_DEBUG("GEMGlobalState::calculateGlobalState: Current global state is " << tmpGlobalState
           << " and current statesString is " << statesString.str());
   }
 
@@ -179,7 +179,7 @@ void gem::supervisor::GEMGlobalState::calculateGlobals()
   }
 
   // statesString << ":" << m_globalState;
-  TRACE("GEMGlobalState::calculateGlobals statesString is '"
+  CMSGEMOS_TRACE("GEMGlobalState::calculateGlobals statesString is '"
         << initialGlobalState << ":"
         << statesString.str().c_str() << ":"
         << tmpGlobalState << ":"
@@ -269,51 +269,51 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
   msg->writeTo(debugstream);
   try {
     // what about sending a message to a different context?
-    TRACE("GEMGlobalState::updateApplication::p_appContext " << p_appContext->getSessionId());
+    CMSGEMOS_TRACE("GEMGlobalState::updateApplication::p_appContext " << p_appContext->getSessionId());
          // << " p_srcAppContext " << p_srcApp->getApplicationContext()->getSessionId()
          // << " appContext "      << app->getApplicationContext()->getSessionId());
-    TRACE("GEMGlobalState::updateApplication::p_appContext " << std::endl
+    CMSGEMOS_TRACE("GEMGlobalState::updateApplication::p_appContext " << std::endl
          << p_appContext->getContextDescriptor()->getURL()  << std::endl
          << " p_srcAppContext " << p_srcApp->getContextDescriptor()->getURL() << std::endl
          << " appContext "      << app->getContextDescriptor()->getURL());
     answer = p_appContext->postSOAP(msg, *p_srcApp, *app);
     // answer = static_cast<xdaq::Application>(app)->getApplicationContext()->postSOAP(msg, *p_srcApp, *app);
   } catch (xoap::exception::Exception& e) {
-    WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
+    CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED"
          << " (xoap::exception::Exception)" << e.what());
-    INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
+    CMSGEMOS_INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
     i->second.state        = gem::base::STATE_FAILED;
     i->second.stateMessage = "Communication failure, assuming state is FAILED, may mean application/executive crash.";
     return;
   } catch (xdaq::exception::Exception& e) {
-    WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
+    CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED"
          << " (xdaq::exception::Exception)" << e.what());
-    INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
+    CMSGEMOS_INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
     i->second.state        = gem::base::STATE_FAILED;
     i->second.stateMessage = "Communication failure, assuming state is FAILED, may mean application/executive crash.";
     return;
   } catch (xcept::Exception& e) {
-    WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
+    CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED"
          << " (xcept::Exception)" << e.what());
-    INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
+    CMSGEMOS_INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
     i->second.state        = gem::base::STATE_FAILED;
     i->second.stateMessage = "Communication failure, assuming state is FAILED, may mean application/executive crash.";
     return;
   } catch (std::exception& e) {
-    WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
+    CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED"
          << " (std::exception)" << e.what());
-    INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
+    CMSGEMOS_INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
     i->second.state        = gem::base::STATE_FAILED;
     i->second.stateMessage = "Communication failure, assuming state is FAILED, may mean application/executive crash.";
     return;
   } catch (...) {
-    WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
+    CMSGEMOS_WARN("GEMGlobalState::updateApplication caught exception communicating with " << app->getClassName() << ":" << app->getInstance()
          << ". Applcation probably crashed, setting state to FAILED");
-    INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
+    CMSGEMOS_INFO("GEMGlobalState::updateApplication tried sending SOAP [" << debugstream.str() << "]");
     i->second.state        = gem::base::STATE_FAILED;
     i->second.stateMessage = "Communication failure, assuming state is FAILED, may mean application/executive crash.";
     return;
@@ -330,7 +330,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
     std::vector<xoap::SOAPElement> basic = props.getChildElements(stateReply);
     if (basic.size() == 1) {
       std::string stateMessage = basic[0].getValue();
-      DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
+      CMSGEMOS_DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
             << " returned state message " << stateMessage);
       i->second.stateMessage = stateMessage;
     }
@@ -345,7 +345,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
   std::vector<xoap::SOAPElement> basic = props.getChildElements(stateReply);
   if (basic.size() == 1) {
     std::string stateString = basic[0].getValue();
-    DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
+    CMSGEMOS_DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
           << " returned state " << stateString);
 
     if (!strcasecmp(stateString.c_str(), "Uninitialized"))
@@ -392,7 +392,7 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
     else if (!strcasecmp(stateString.c_str(), "Error"))
       i->second.state = gem::base::STATE_FAILED;
     else
-      WARN("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
+      CMSGEMOS_WARN("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
            << " " << stateString);
   } else {
     std::string toolInput;
@@ -401,12 +401,12 @@ void gem::supervisor::GEMGlobalState::updateApplication(xdaq::ApplicationDescrip
     xoap::dumpTree(answer->getSOAPPart().getEnvelope().getDOMNode(), tool);
 
     if (answer->getSOAPPart().getEnvelope().getBody().hasFault()) {
-      ERROR("SOAP fault getting state: " << std::endl << "SOAP request:" << std::endl << toolInput);
-      ERROR("SOAP fault getting state: " << std::endl << "SOAP reply:"   << std::endl
+      CMSGEMOS_ERROR("SOAP fault getting state: " << std::endl << "SOAP request:" << std::endl << toolInput);
+      CMSGEMOS_ERROR("SOAP fault getting state: " << std::endl << "SOAP reply:"   << std::endl
             << answer->getSOAPPart().getEnvelope().getBody().getFault().getFaultString()
             << std::endl << tool);
     }
-    DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
+    CMSGEMOS_DEBUG("GEMGlobalState::updateApplication " << app->getClassName() << ":" << static_cast<int>(app->getInstance())
           << std::endl << static_cast<int>(basic.size())
           << std::endl << tool);
   }
@@ -427,7 +427,7 @@ toolbox::fsm::State gem::supervisor::GEMGlobalState::compositeState(std::vector<
       continue; // ignore this priority for the compositeState
 
     std::string classname = app->first->getClassName().c_str();
-    DEBUG("GEMGlobalState::compositeState: " << classname << " is in state '" << appState
+    CMSGEMOS_DEBUG("GEMGlobalState::compositeState: " << classname << " is in state '" << appState
           << "' for composite state '" << compState << "'");
 
     if (getStatePriority(appState) < getStatePriority(compState))
@@ -524,7 +524,7 @@ int gem::supervisor::GEMGlobalState::getStatePriority(toolbox::fsm::State state)
     {}
 
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMGlobalState"));
-  DEBUG("GEMGlobalState::getStatePriority state " << state << " has priority " << i);
+  CMSGEMOS_DEBUG("GEMGlobalState::getStatePriority state " << state << " has priority " << i);
 
   return i;
 };

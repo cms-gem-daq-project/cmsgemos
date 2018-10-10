@@ -64,7 +64,7 @@ gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub
   m_usecPerEvent(0.0),
   m_usecUsed(0.0)
 {
-  DEBUG("GEMReadoutApplication ctor begin");
+  CMSGEMOS_DEBUG("GEMReadoutApplication ctor begin");
   //i2o::bind(this,&ReadoutApplication::onReadoutNotify,I2O_READOUT_NOTIFY,XDAQ_ORGANIZATION_ID);
   //xoap::bind(this,&ReadoutApplication::getReadoutCredits,"GetReadoutCredits","urn:GEMReadoutApplication-soap:1");
   p_appInfoSpace->fireItemAvailable("ReadoutSettings",&m_readoutSettings);
@@ -89,12 +89,12 @@ gem::readout::GEMReadoutApplication::GEMReadoutApplication(xdaq::ApplicationStub
 
   ////set up the info hwCfgInfoSpace
   //init();
-  DEBUG("GEMReadoutApplication::GEMReadoutApplication() "      << std::endl
+  CMSGEMOS_DEBUG("GEMReadoutApplication::GEMReadoutApplication() "      << std::endl
         << " m_deviceName:"     << m_deviceName.toString()     << std::endl
         << " m_connectionFile:" << m_connectionFile.toString() << std::endl
         << " m_eventsReadout:"  << m_eventsReadout.toString()  << std::endl
         );
-  DEBUG("GEMReadoutApplication ctor end");
+  CMSGEMOS_DEBUG("GEMReadoutApplication ctor end");
 }
 
 gem::readout::GEMReadoutApplication::~GEMReadoutApplication()
@@ -105,14 +105,14 @@ gem::readout::GEMReadoutApplication::~GEMReadoutApplication()
 void gem::readout::GEMReadoutApplication::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("GEMReadoutApplication::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("GEMReadoutApplication::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     importConfigurationParameters();
     importMonitoringParameters();
     //p_gemMonitor->startMonitoring();
   }
   // update monitoring variables
-  DEBUG("GEMReadoutApplication::actionPerformed() " << event.type() << std::endl
+  CMSGEMOS_DEBUG("GEMReadoutApplication::actionPerformed() " << event.type() << std::endl
         << " m_connectionFile:" << m_connectionFile.toString()      << std::endl
         << " m_deviceName:"     << m_deviceName.toString()          << std::endl
         << " m_eventsReadout:"  << m_eventsReadout.toString()       << std::endl
@@ -125,7 +125,7 @@ void gem::readout::GEMReadoutApplication::actionPerformed(xdata::Event& event)
 void gem::readout::GEMReadoutApplication::initializeAction()
   /*throw (gem::readout::exception::Exception)*/
 {
-  DEBUG("gem::readout::GEMReadoutApplication::initializeAction begin");
+  CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::initializeAction begin");
   if (!m_task) {
     m_task = std::make_shared<gem::readout::GEMReadoutTask>(this);
     m_task->activate();
@@ -156,13 +156,13 @@ void gem::readout::GEMReadoutApplication::initializeAction()
 void gem::readout::GEMReadoutApplication::configureAction()
   /*throw (gem::readout::exception::Exception)*/
 {
-  DEBUG("gem::readout::GEMReadoutApplication::configureAction begin");
+  CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::configureAction begin");
 }
 
 void gem::readout::GEMReadoutApplication::startAction()
   /*throw (gem::readout::exception::Exception)*/
 {
-  DEBUG("gem::readout::GEMReadoutApplication::startAction begin");
+  CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::startAction begin");
   // build output filename
 
   // Times for output files
@@ -199,28 +199,28 @@ void gem::readout::GEMReadoutApplication::startAction()
 void gem::readout::GEMReadoutApplication::pauseAction()
   /*throw (gem::readout::exception::Exception)*/
 {
-  DEBUG("gem::readout::GEMReadoutApplication::pauseAction begin");
+  CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::pauseAction begin");
   m_cmdQueue.push(ReadoutCommands::CMD_PAUSE);
 }
 
 void gem::readout::GEMReadoutApplication::resumeAction()
   /*throw (gem::readout::exception::Exception)*/
 {
-  DEBUG("gem::readout::GEMReadoutApplication::resumeAction begin");
+  CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::resumeAction begin");
   m_cmdQueue.push(ReadoutCommands::CMD_RESUME);
 }
 
 void gem::readout::GEMReadoutApplication::stopAction()
   /*throw (gem::readout::exception::Exception)*/
 {
-  DEBUG("gem::readout::GEMReadoutApplication::stopAction begin");
+  CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::stopAction begin");
   m_cmdQueue.push(ReadoutCommands::CMD_STOP);
 }
 
 void gem::readout::GEMReadoutApplication::haltAction()
   /*throw (gem::readout::exception::Exception)*/
 {
-  DEBUG("gem::readout::GEMReadoutApplication::haltAction begin");
+  CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::haltAction begin");
   if (m_task)
     m_cmdQueue.push(ReadoutCommands::CMD_STOP);
 }
@@ -228,7 +228,7 @@ void gem::readout::GEMReadoutApplication::haltAction()
 void gem::readout::GEMReadoutApplication::resetAction()
   /*throw (gem::readout::exception::Exception)*/
 {
-  DEBUG("gem::readout::GEMReadoutApplication::resetAction begin");
+  CMSGEMOS_DEBUG("gem::readout::GEMReadoutApplication::resetAction begin");
 }
 
 void gem::readout::GEMReadoutApplication::failAction(toolbox::Event::Reference e)
@@ -285,27 +285,27 @@ int gem::readout::GEMReadoutApplication::readoutTask()
         std::stringstream msg;
         msg << "GEMReadoutApplication::readoutTask error "
             << xcept::stdformat_exception_history(e);
-        ERROR(msg.str());
+        CMSGEMOS_ERROR(msg.str());
       } catch (xcept::Exception& e) {
         std::stringstream msg;
         msg << "GEMReadoutApplication::readoutTask error "
             << xcept::stdformat_exception_history(e);
-        ERROR(msg.str());
+        CMSGEMOS_ERROR(msg.str());
       } catch (std::exception& e) {
         std::stringstream msg;
         msg << "GEMReadoutApplication::readoutTask error "
             << e.what();
-        ERROR(msg.str());
+        CMSGEMOS_ERROR(msg.str());
       } catch (...) {
         std::stringstream msg;
         msg << "GEMReadoutApplication::readoutTask error (unknown exception)";
-        ERROR(msg.str());
+        CMSGEMOS_ERROR(msg.str());
       }
 
-      DEBUG("GEMReadoutApplication::readoutTask read " << nevtsRead << " events");
+      CMSGEMOS_DEBUG("GEMReadoutApplication::readoutTask read " << nevtsRead << " events");
       /*
       for (int i = 0; i < nevtsRead; i++) {
-        DEBUG("GEMReadoutApplication::readoutTask releaseing data[" << i << "]");
+        CMSGEMOS_DEBUG("GEMReadoutApplication::readoutTask releaseing data[" << i << "]");
         data[i]->release();
       }
       */

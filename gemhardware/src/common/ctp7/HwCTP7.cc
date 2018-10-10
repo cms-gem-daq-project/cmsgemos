@@ -9,7 +9,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7() :
   m_crate(-1),
   m_slot(-1)
 {
-  INFO("HwCTP7 ctor");
+  CMSGEMOS_INFO("HwCTP7 ctor");
   // use a connection file and connection manager?
   setDeviceID("CTP7Hw");
   setAddressTableFileName("ctp7_address_table.xml");
@@ -22,7 +22,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7() :
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
@@ -39,7 +39,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
@@ -51,7 +51,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
   m_slot(-1)
 
 {
-  INFO("trying to create HwCTP7(" << ctp7Device << "," << connectionURI << "," <<addressTable);
+  CMSGEMOS_INFO("trying to create HwCTP7(" << ctp7Device << "," << connectionURI << "," <<addressTable);
   setDeviceBaseNode("CTP7");
   for (unsigned li = 0; li < N_GTX; ++li) {
     b_links[li] = false;
@@ -59,7 +59,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
@@ -77,7 +77,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(std::string const& ctp7Device,
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::HwCTP7(const int& crate, const int& slot) :
@@ -87,17 +87,17 @@ gem::hw::ctp7::HwCTP7::HwCTP7(const int& crate, const int& slot) :
   m_crate(crate),
   m_slot(slot)
 {
-  INFO("HwCTP7 ctor");
+  CMSGEMOS_INFO("HwCTP7 ctor");
   // use a connection file and connection manager?
   setDeviceID(toolbox::toString("gem.shelf%02d.ctp7%02d",crate,slot));
 
   // uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml" );
-  INFO("getting the ConnectionManager pointer");
+  CMSGEMOS_INFO("getting the ConnectionManager pointer");
   p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections_ch.xml"));
   // p_gemConnectionManager.reset(new uhal::ConnectionManager("file://../data/connections_ch.xml"));
-  INFO("getting HwInterface " << getDeviceID() << " pointer from ConnectionManager");
+  CMSGEMOS_INFO("getting HwInterface " << getDeviceID() << " pointer from ConnectionManager");
   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
-  INFO("setting the device base node");
+  CMSGEMOS_INFO("setting the device base node");
   setDeviceBaseNode("CTP7");
   // gem::hw::ctp7::HwCTP7::initDevice();
   //
@@ -114,7 +114,7 @@ gem::hw::ctp7::HwCTP7::HwCTP7(const int& crate, const int& slot) :
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwCTP7 ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::ctp7::HwCTP7::~HwCTP7()
@@ -124,7 +124,7 @@ gem::hw::ctp7::HwCTP7::~HwCTP7()
 bool gem::hw::ctp7::HwCTP7::isHwConnected()
 {
   if ( b_is_connected ) {
-    INFO("basic check: HwCTP7 connection good");
+    CMSGEMOS_INFO("basic check: HwCTP7 connection good");
     return true;
   } else if (gem::hw::GEMHwDevice::isHwConnected()) {
     std::vector<linkStatus> tmp_activeLinks;
@@ -134,11 +134,11 @@ bool gem::hw::ctp7::HwCTP7::isHwConnected()
       if ((this->getBoardID()).rfind("CTP7") != std::string::npos ) {
         // somehow need to actually check that the specified link is present
         b_links[gtx] = true;
-        DEBUG("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
+        CMSGEMOS_DEBUG("gtx" << gtx << " present(" << this->getFirmwareVer() << ")");
         tmp_activeLinks.push_back(std::make_pair(gtx,this->LinkStatus(gtx)));
       } else {
         b_links[gtx] = false;
-        INFO("gtx" << gtx << " not reachable (unable to find 2 or 5 or 201 in the firmware string, "
+        CMSGEMOS_INFO("gtx" << gtx << " not reachable (unable to find 2 or 5 or 201 in the firmware string, "
              << "or 'CTP7' in the board ID)"
              << " board ID "              << this->getBoardID()
              << " user firmware version " << this->getFirmwareVer());
@@ -148,12 +148,12 @@ bool gem::hw::ctp7::HwCTP7::isHwConnected()
     if (!v_activeLinks.empty()) {
       b_is_connected = true;
       // m_controlLink = (v_activeLinks.begin())->first;
-      // INFO("connected - control gtx" << (int)m_controlLink);
-      INFO("checked gtxs: HwCTP7 connection good");
+      // CMSGEMOS_INFO("connected - control gtx" << (int)m_controlLink);
+      CMSGEMOS_INFO("checked gtxs: HwCTP7 connection good");
       return true;
     } else {
       b_is_connected = false;
-      // INFO("not connected - control gtx" << (int)m_controlLink);
+      // CMSGEMOS_INFO("not connected - control gtx" << (int)m_controlLink);
       return false;
     }
   } else {
@@ -282,14 +282,14 @@ void gem::hw::ctp7::HwCTP7::XPointControl(bool xpoint2, uint8_t const& input, ui
 {
   if (xpoint2 && (input > 2 || output > 0)) {
     std::string msg = toolbox::toString("Invalid clock routing for XPoint2 %d -> %d",input,output);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::ctp7::exception::InvalidXPoint2Routing,msg);
     return;
   }
 
   if ((input > 3 || output > 3)) {
     std::string msg = toolbox::toString( "Invalid clock routing for XPoint%d %d -> %d",xpoint2,input,output);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::ctp7::exception::InvalidXPointRouting,msg);
     return;
   }
@@ -326,7 +326,7 @@ uint8_t gem::hw::ctp7::HwCTP7::XPointControl(bool xpoint2, uint8_t const& output
   /*
     if (xpoint2 && output > 0) {
     std::string msg = toolbox::toString("Invalid clock output for XPoint2 %d",output);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::ctp7::exception::InvalidXPoint2Routing,msg);
     return output;
     }
@@ -334,7 +334,7 @@ uint8_t gem::hw::ctp7::HwCTP7::XPointControl(bool xpoint2, uint8_t const& output
 
   if (output > 3) {
     std::string msg = toolbox::toString( "Invalid clock output for XPoint%d %d",xpoint2,output);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::ctp7::exception::InvalidXPointRouting,msg);
     return output;
   }
@@ -367,7 +367,7 @@ uint8_t gem::hw::ctp7::HwCTP7::SFPStatus(uint8_t const& sfpcage)
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   if (sfpcage < 1 || sfpcage > 4) {
     std::string msg = toolbox::toString("Status requested for SFP (%d): outside expectation (1,4)", sfpcage);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::ctp7::exception::InvalidLink,msg);
     return 0;
   }
@@ -436,12 +436,12 @@ bool gem::hw::ctp7::HwCTP7::linkCheck(uint8_t const& gtx, std::string const& opM
   if (gtx > N_GTX) {
     std::string msg = toolbox::toString("%s requested for gtx (%d): outside expectation (0-%d)",
                                         opMsg.c_str(), gtx, N_GTX);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::ctp7::exception::InvalidLink,msg);
     return false;
   } else if (!b_links[gtx]) {
     std::string msg = toolbox::toString("%s requested inactive gtx (%d)",opMsg.c_str(), gtx);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::ctp7::exception::InvalidLink,msg);
     return false;
   }
@@ -533,7 +533,7 @@ uint32_t gem::hw::ctp7::HwCTP7::getFIFOOccupancy(uint8_t const& gtx)
     std::stringstream regName;
     regName << "TRK_DATA.OptoHybrid_" << (int)gtx;
     fifocc = readReg(getDeviceBaseNode(),regName.str()+".DEPTH");
-    DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", gtx, getDeviceBaseNode().c_str(),
+    CMSGEMOS_DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", gtx, getDeviceBaseNode().c_str(),
                             regName.str().c_str(), ".DEPTH", fifocc));
   }
   // the fifo occupancy is in number of 32 bit words
@@ -578,7 +578,7 @@ uint32_t gem::hw::ctp7::HwCTP7::getTrackingData(uint8_t const& gtx, uint32_t* da
 {
   if (data==NULL) {
     std::string msg = toolbox::toString("Block read requested for null pointer");
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     XCEPT_RAISE(gem::hw::ctp7::exception::NULLReadoutPointer,msg);
   } else if (!linkCheck(gtx, "Tracking data")) {
     return 0;
@@ -612,12 +612,12 @@ void gem::hw::ctp7::HwCTP7::flushFIFO(uint8_t const& gtx)
   if (linkCheck(gtx, "Flush FIFO")) {
     std::stringstream regName;
     regName << "TRK_DATA.OptoHybrid_" << (int)gtx;
-    INFO("Tracking FIFO" << (int)gtx << ":"
+    CMSGEMOS_INFO("Tracking FIFO" << (int)gtx << ":"
          << " ISFULL  0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")  << std::dec
          << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
          << " Depth   0x" << std::hex << getFIFOOccupancy(gtx) << std::dec);
     writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
-    INFO("Tracking FIFO" << (int)gtx << ":"
+    CMSGEMOS_INFO("Tracking FIFO" << (int)gtx << ":"
          << " ISFULL  0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")  << std::dec
          << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
          << " Depth   0x" << std::hex << getFIFOOccupancy(gtx) << std::dec);
@@ -797,7 +797,7 @@ void gem::hw::ctp7::HwCTP7::setDAQLinkRunParameter(uint8_t const& parameter, uin
   if (parameter < 1 || parameter > 3) {
     std::string msg = toolbox::toString("Attempting to set DAQ link run parameter %d: outside expectation (1-%d)",
                                         (int)parameter,3);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     return;
   }
   std::stringstream regBase;

@@ -6,7 +6,7 @@
 //   gem::hw::HwGenericAMC::HwGenericAMC("HwGLIB")
 //   // monGLIB_(0),
 // {
-//   INFO("HwGLIB ctor");
+//   CMSGEMOS_INFO("HwGLIB ctor");
 
 //   // use a connection file and connection manager?
 //   setDeviceID("GLIBHw");
@@ -14,19 +14,19 @@
 //   setDeviceBaseNode("GEM_AMC");
 //   setExpectedBoardID("GLIB");
 
-//   INFO("HwGLIB ctor done " << isHwConnected());
+//   CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
 // }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
                               std::string const& connectionFile) :
   gem::hw::HwGenericAMC::HwGenericAMC(glibDevice, connectionFile)
 {
-  INFO("HwGLIB::trying to create HwGLIB(" << glibDevice << "," << connectionFile);
+  CMSGEMOS_INFO("HwGLIB::trying to create HwGLIB(" << glibDevice << "," << connectionFile);
 
   setDeviceBaseNode("GEM_AMC");
   setExpectedBoardID("GLIB");
 
-  INFO("HwGLIB ctor done " << isHwConnected());
+  CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
@@ -35,41 +35,41 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
   gem::hw::HwGenericAMC::HwGenericAMC(glibDevice, connectionURI, addressTable)
 
 {
-  INFO("trying to create HwGLIB(" << glibDevice << "," << connectionURI << "," <<addressTable);
+  CMSGEMOS_INFO("trying to create HwGLIB(" << glibDevice << "," << connectionURI << "," <<addressTable);
 
   setDeviceBaseNode("GEM_AMC");
   setExpectedBoardID("GLIB");
 
-  INFO("HwGLIB ctor done " << isHwConnected());
+  CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
 }
 
 gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
                               uhal::HwInterface& uhalDevice) :
   gem::hw::HwGenericAMC::HwGenericAMC(glibDevice,uhalDevice)
 {
-  INFO("HwGLIB ctor");
+  CMSGEMOS_INFO("HwGLIB ctor");
 
   setDeviceBaseNode("GEM_AMC");
   setExpectedBoardID("GLIB");
 
-  INFO("HwGLIB ctor done " << isHwConnected());
+  CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
 }
 
 // gem::hw::glib::HwGLIB::HwGLIB(const int& crate, const int& slot) :
 //   gem::hw::HwGenericAMC(toolbox::toString("gem.shelf%02d.glib%02d",crate,slot),crate,slot)
 //   // monGLIB_(0),
 // {
-//   INFO("HwGLIB ctor");
+//   CMSGEMOS_INFO("HwGLIB ctor");
 
 //   // use a connection file and connection manager?
 //   setDeviceID(toolbox::toString("gem.shelf%02d.glib%02d",crate,slot));
 
 //   // uhal::ConnectionManager manager ( "file://${GEM_ADDRESS_TABLE_PATH}/connections.xml" );
-//   INFO("getting the ConnectionManager pointer");
+//   CMSGEMOS_INFO("getting the ConnectionManager pointer");
 //   p_gemConnectionManager.reset(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/connections.xml"));
-//   INFO("getting HwInterface " << getDeviceID() << " pointer from ConnectionManager");
+//   CMSGEMOS_INFO("getting HwInterface " << getDeviceID() << " pointer from ConnectionManager");
 //   p_gemHW.reset(new uhal::HwInterface(p_gemConnectionManager->getDevice(this->getDeviceID())));
-//   INFO("setting the device base node");
+//   CMSGEMOS_INFO("setting the device base node");
 //   setDeviceBaseNode("GEM_AMC");
 //   setExpectedBoardID("GLIB");
 
@@ -81,7 +81,7 @@ gem::hw::glib::HwGLIB::HwGLIB(std::string const& glibDevice,
 //     m_ipBusCounters.push_back(tmpGTXCounter);
 //   }
 
-//   INFO("HwGLIB ctor done " << isHwConnected());
+//   CMSGEMOS_INFO("HwGLIB ctor done " << isHwConnected());
 // }
 
 gem::hw::glib::HwGLIB::~HwGLIB()
@@ -162,14 +162,14 @@ void gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& input, ui
 {
   if (xpoint2 && (input > 2 || output > 0)) {
     std::string msg = toolbox::toString("Invalid clock routing for XPoint2 %d -> %d",input,output);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::glib::exception::InvalidXPoint2Routing,msg);
     return;
   }
 
   if ((input > 3 || output > 3)) {
     std::string msg = toolbox::toString( "Invalid clock routing for XPoint%d %d -> %d",xpoint2,input,output);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::glib::exception::InvalidXPointRouting,msg);
     return;
   }
@@ -206,7 +206,7 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output
   /*
     if (xpoint2 && output > 0) {
     std::string msg = toolbox::toString("Invalid clock output for XPoint2 %d",output);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::glib::exception::InvalidXPoint2Routing,msg);
     return output;
     }
@@ -214,7 +214,7 @@ uint8_t gem::hw::glib::HwGLIB::XPointControl(bool xpoint2, uint8_t const& output
 
   if (output > 3) {
     std::string msg = toolbox::toString( "Invalid clock output for XPoint%d %d",xpoint2,output);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::glib::exception::InvalidXPointRouting,msg);
     return output;
   }
@@ -247,7 +247,7 @@ uint8_t gem::hw::glib::HwGLIB::SFPStatus(uint8_t const& sfpcage)
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   if (sfpcage < 1 || sfpcage > 4) {
     std::string msg = toolbox::toString("Status requested for SFP (%d): outside expectation (1,4)", sfpcage);
-    ERROR(msg);
+    CMSGEMOS_ERROR(msg);
     // XCEPT_RAISE(gem::hw::glib::exception::InvalidLink,msg);
     return 0;
   }

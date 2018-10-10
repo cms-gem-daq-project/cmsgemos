@@ -18,30 +18,30 @@ gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cpl
   //xhal::XHALInterface(board_domain_name, logger) //FIXME: if using shared logger, then XHALInterface overtakes everything and logging from XDAQ doesn't go through
   xhal::XHALInterface(board_domain_name) //Works as is, providing a bit messy logging, but with all info in place
 {
-  DEBUG("DaqMonitor::DaqMonitor:: entering constructor");
+  CMSGEMOS_DEBUG("DaqMonitor::DaqMonitor:: entering constructor");
   if (isConnected) { //TODO Add to the app monitoring space? Need to know in order to mask in web interface the boards which failed to connect
     this->loadModule("daq_monitor", "daq_monitor v1.0.1");
-    DEBUG("DaqMonitor::DaqMonitor:: daq_monitor module loaded");
+    CMSGEMOS_DEBUG("DaqMonitor::DaqMonitor:: daq_monitor module loaded");
   } else {
-    INFO("DaqMonitor::DaqMonitor:: RPC interface failed to connect");
+    CMSGEMOS_INFO("DaqMonitor::DaqMonitor:: RPC interface failed to connect");
   }
   toolbox::net::URN hwCfgURN("urn:gem:hw:"+board_domain_name);
-  DEBUG("DaqMonitor::DaqMonitor:: infospace " << hwCfgURN.toString() << " does not exist, creating");
+  CMSGEMOS_DEBUG("DaqMonitor::DaqMonitor:: infospace " << hwCfgURN.toString() << " does not exist, creating");
   is_daqmon =  is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(p_gemApp,
                                                                         hwCfgURN.toString(),
                                                                         true));
   addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(2,  0));
 
   setupDaqMonitoring();
-  
+
   logCnt = 0;
-  
-  DEBUG("gem::daqmon::DaqMonitor : constructor done");
+
+  CMSGEMOS_DEBUG("gem::daqmon::DaqMonitor : constructor done");
 }
 
 gem::daqmon::DaqMonitor::~DaqMonitor()
 {
-  DEBUG("gem::daqmon::DaqMonitor : destructor called");
+  CMSGEMOS_DEBUG("gem::daqmon::DaqMonitor : destructor called");
 //TODO
 }
 
@@ -51,7 +51,7 @@ void gem::daqmon::DaqMonitor::reconnect()
     this->connect();
     this->loadModule("daq_monitor", "daq_monitor v1.0.1");
   } else {
-    ERROR("Interface already connected. Reconnection failed");
+    CMSGEMOS_ERROR("Interface already connected. Reconnection failed");
     throw xhal::utils::XHALRPCException("RPC exception: Interface already connected. Reconnection failed");
   }
 }
@@ -196,7 +196,7 @@ void gem::daqmon::DaqMonitor::setupDaqMonitoring()
 
 void gem::daqmon::DaqMonitor::updateMonitorables()
 {
-  DEBUG("DaqMonitor: Updating Monitorables");
+  CMSGEMOS_DEBUG("DaqMonitor: Updating Monitorables");
   try {
     updateDAQmain();
   } catch (...) {return;} //FIXME Define meaningful exceptions and intercept here or eventually at a different level... If even a updateDAQmain fails, do not attempt to do anything else for this AMC board
@@ -239,8 +239,8 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
 
       std::ofstream logfile(logfilename, std::ios_base::out | std::ios_base::binary);
       bo::filtering_ostream m_out;
-      m_out.push(bo::gzip_compressor()); 
-      m_out.push(logfile); 
+      m_out.push(bo::gzip_compressor());
+      m_out.push(logfile);
       m_out << "Timestamp: " << buffer << std::endl;
 
       m_out << " { " << std::endl;
@@ -251,13 +251,13 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
       m_out << " } " << std::endl;
     }
     ++logCnt;
-    
+
   } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
 }
 
 void gem::daqmon::DaqMonitor::updateDAQmain()
 {
-  DEBUG("DaqMonitor: Update DAQ main table");
+  CMSGEMOS_DEBUG("DaqMonitor: Update DAQ main table");
   req = wisc::RPCMsg("daq_monitor.getmonDAQmain");
   try {
     rsp = rpc.call_method(req);
@@ -265,7 +265,7 @@ void gem::daqmon::DaqMonitor::updateDAQmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_MAIN update error: " << rsp.get_string("error").c_str());
+      CMSGEMOS_ERROR("DAQ_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_MAIN");
@@ -278,7 +278,7 @@ void gem::daqmon::DaqMonitor::updateDAQmain()
 
 void gem::daqmon::DaqMonitor::updateDAQOHmain()
 {
-  DEBUG("DaqMonitor: Update DAQ OH main table");
+  CMSGEMOS_DEBUG("DaqMonitor: Update DAQ OH main table");
   req = wisc::RPCMsg("daq_monitor.getmonDAQOHmain");
   req.set_word("NOH",NOH);
   try {
@@ -287,7 +287,7 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_OH_MAIN update error: " << rsp.get_string("error").c_str());
+      CMSGEMOS_ERROR("DAQ_OH_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_OH_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_OH_MAIN");
@@ -300,7 +300,7 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
 
 void gem::daqmon::DaqMonitor::updateTTCmain()
 {
-  DEBUG("DaqMonitor: Update TTC main table");
+  CMSGEMOS_DEBUG("DaqMonitor: Update TTC main table");
   req = wisc::RPCMsg("daq_monitor.getmonTTCmain");
   try {
     rsp = rpc.call_method(req);
@@ -308,7 +308,7 @@ void gem::daqmon::DaqMonitor::updateTTCmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_TTC_MAIN update error: " << rsp.get_string("error").c_str());
+      CMSGEMOS_ERROR("DAQ_TTC_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_TTC_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_TTC_MAIN");
@@ -321,7 +321,7 @@ void gem::daqmon::DaqMonitor::updateTTCmain()
 
 void gem::daqmon::DaqMonitor::updateTRIGGERmain()
 {
-  DEBUG("DaqMonitor: Update TRIGGER main table");
+  CMSGEMOS_DEBUG("DaqMonitor: Update TRIGGER main table");
   req = wisc::RPCMsg("daq_monitor.getmonTRIGGERmain");
   req.set_word("NOH",NOH);
   try {
@@ -330,7 +330,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_TRIGGER_MAIN update error: " << rsp.get_string("error").c_str());
+      CMSGEMOS_ERROR("DAQ_TRIGGER_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_MAIN");
@@ -343,7 +343,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
 
 void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
 {
-  DEBUG("DaqMonitor: Update TRIGGER OH main table");
+  CMSGEMOS_DEBUG("DaqMonitor: Update TRIGGER OH main table");
   req = wisc::RPCMsg("daq_monitor.getmonTRIGGEROHmain");
   req.set_word("NOH",NOH);
   try {
@@ -352,7 +352,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("DAQ_TRIGGER_OH_MAIN update error: " << rsp.get_string("error").c_str());
+      CMSGEMOS_ERROR("DAQ_TRIGGER_OH_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_TRIGGER_OH_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("DAQ_TRIGGER_OH_MAIN");
@@ -365,7 +365,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
 
 void gem::daqmon::DaqMonitor::updateOHmain()
 {
-  DEBUG("DaqMonitor: Update OH main table");
+  CMSGEMOS_DEBUG("DaqMonitor: Update OH main table");
   req = wisc::RPCMsg("daq_monitor.getmonOHmain");
   req.set_word("NOH",NOH);
   try {
@@ -374,7 +374,7 @@ void gem::daqmon::DaqMonitor::updateOHmain()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("OH_MAIN update error: " << rsp.get_string("error").c_str());
+      CMSGEMOS_ERROR("OH_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("OH_MAIN update failed");
     }
     auto monlist = m_monitorableSetsMap.find("OH_MAIN");
@@ -388,7 +388,7 @@ void gem::daqmon::DaqMonitor::updateOHmain()
 
 void gem::daqmon::DaqMonitor::updateOHSCA()
 {
-  DEBUG("DaqMonitor: Update OH SCA table");
+  CMSGEMOS_DEBUG("DaqMonitor: Update OH SCA table");
   req = wisc::RPCMsg("daq_monitor.getmonOHSCAmain");
   req.set_word("NOH",NOH);
   try {
@@ -397,7 +397,7 @@ void gem::daqmon::DaqMonitor::updateOHSCA()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("OH_SCA update error: " << rsp.get_string("error").c_str());
+      CMSGEMOS_ERROR("OH_SCA update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("OH_SCA update failed"); FIXME instead of throwing an exception there should be an alert propagating
     }
     auto monlist = m_monitorableSetsMap.find("OH_SCA");
@@ -410,7 +410,7 @@ void gem::daqmon::DaqMonitor::updateOHSCA()
 
 void gem::daqmon::DaqMonitor::updateOHSysmon()
 {
-  DEBUG("DaqMonitor: Update OH Sysmon table");
+  CMSGEMOS_DEBUG("DaqMonitor: Update OH Sysmon table");
   req = wisc::RPCMsg("daq_monitor.getmonOHSysmon");
   req.set_word("NOH",NOH);
   req.set_word("doReset",0);
@@ -420,9 +420,9 @@ void gem::daqmon::DaqMonitor::updateOHSysmon()
   STANDARD_CATCH;
   try{
     if (rsp.get_key_exists("error")) {
-      ERROR("OH_Sysmon update error: " << rsp.get_string("error").c_str());
+      CMSGEMOS_ERROR("OH_Sysmon update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("OH_Sysmon update failed"); FIXME instead of throwing an exception there should be an alert propagating
-    } 
+    }
     auto monlist = m_monitorableSetsMap.find("OH_Sysmon");
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
@@ -458,7 +458,7 @@ double gem::daqmon::DaqMonitor::sysmonVconv(uint32_t val)
 
 void gem::daqmon::DaqMonitor::updateDAQmainTableContent()
 {
-  DEBUG("DaqMonitor::updateDAQmainTableContent");
+  CMSGEMOS_DEBUG("DaqMonitor::updateDAQmainTableContent");
   uint32_t val;
   LabelData * ld;
   for (auto monname: {"DAQ_ENABLE","DAQ_LINK_READY"})
@@ -666,7 +666,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
         break;
       default:
         std::stringstream ss;
-        ss << std::uppercase << std::setfill('0') 
+        ss << std::uppercase << std::setfill('0')
            << std::setw(8) << std::hex << val << std::dec;
         ld->labelValue=ss.str();
         ld->labelClass="label label-info";
@@ -683,7 +683,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
         ld->labelValue=std::to_string(val);
         ld->labelClass="label label-info";
       }
-    }    
+    }
     std::vector<std::string> v_daq(v_oh_main.begin()+3,v_oh_main.end());
     v_daq.insert(v_daq.end(),v_daq_trigger_oh_main.begin(),v_daq_trigger_oh_main.end());
     for (auto monname: v_daq)
@@ -744,7 +744,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
           }
         }
       }
-    }    
+    }
     for (auto monname: v_oh_sysmon)
     {
       val = is_daqmon->getUInt32("OH"+std::to_string(i)+monname);
@@ -769,7 +769,7 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
 
 void gem::daqmon::DaqMonitor::buildTable(const std::string& table_name, xgi::Output* out)
 {
-  DEBUG("DaqMonitor: Build DAQ main table");
+  CMSGEMOS_DEBUG("DaqMonitor: Build DAQ main table");
   std::vector<std::string> v_daq;
   if (table_name == "DAQ_MAIN") {
     updateDAQmainTableContent();
@@ -865,12 +865,12 @@ void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out)
 
 void gem::daqmon::DaqMonitor::jsonContentUpdate(xgi::Output* out)
 {
-  DEBUG("DaqMonitor::jsonContentUpdate");
+  CMSGEMOS_DEBUG("DaqMonitor::jsonContentUpdate");
   *out << " { " << std::endl;
   for (auto ld = m_LabelData.begin(); ld != m_LabelData.end();) {
     *out << "\"" << ld->second->labelId << "\" : { \"class_name\" : \"" << ld->second->labelClass << "\", \"value\" : \"" << ld->second->labelValue << "\" }";
     if (++ld == m_LabelData.end()) *out << std::endl; else *out << "," << std::endl;
   }
   *out << " } " << std::endl;
-  
+
 }

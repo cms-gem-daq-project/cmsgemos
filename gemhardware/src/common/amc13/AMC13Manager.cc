@@ -154,14 +154,14 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
   uhal::setLogLevelTo(uhal::Error);
 
   // initialize the AMC13Manager application objects
-  DEBUG("AMC13Manager::connecting to the AMC13ManagerWeb interface");
+  CMSGEMOS_DEBUG("AMC13Manager::connecting to the AMC13ManagerWeb interface");
   p_gemWebInterface = new gem::hw::amc13::AMC13ManagerWeb(this);
   // p_gemMonitor      = new gem::hw::amc13::AMC13HwMonitor(this);
-  DEBUG("AMC13Manager::done");
+  CMSGEMOS_DEBUG("AMC13Manager::done");
 
-  // DEBUG("AMC13Manager::executing preInit for AMC13Manager");
+  // CMSGEMOS_DEBUG("AMC13Manager::executing preInit for AMC13Manager");
   // preInit();
-  // DEBUG("AMC13Manager::done");
+  // CMSGEMOS_DEBUG("AMC13Manager::done");
   p_appDescriptor->setAttribute("icon","/gemdaq/gemhardware/html/images/amc13/AMC13Manager.png");
 
   xoap::bind(this, &gem::hw::amc13::AMC13Manager::sendTriggerBurst,"sendtriggerburst", XDAQ_NS_URI );
@@ -174,14 +174,14 @@ gem::hw::amc13::AMC13Manager::AMC13Manager(xdaq::ApplicationStub* stub)
 }
 
 gem::hw::amc13::AMC13Manager::~AMC13Manager() {
-  DEBUG("AMC13Manager::dtor called");
+  CMSGEMOS_DEBUG("AMC13Manager::dtor called");
 }
 
 // This is the callback used for handling xdata:Event objects
 void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("AMC13Manager::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("AMC13Manager::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     // p_gemMonitor->startMonitoring();
     // update configuration variables
@@ -206,10 +206,10 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
     m_startL1ATricont        = m_localTriggerConfig.bag.startl1ATricont.value_;
     m_enableLEMO             = m_localTriggerConfig.bag.enableLEMO.value_;
 
-    DEBUG("AMC13Manager::actionPerformed m_enableLocalL1A " << std::endl
+    CMSGEMOS_DEBUG("AMC13Manager::actionPerformed m_enableLocalL1A " << std::endl
          << m_localTriggerConfig.bag.toString());
 
-    DEBUG("AMC13Manager::actionPerformed BGO channels "
+    CMSGEMOS_DEBUG("AMC13Manager::actionPerformed BGO channels "
           << m_amc13Params.bag.bgoConfig.size());
 
     for (auto bconf = m_amc13Params.bag.bgoConfig.begin(); bconf != m_amc13Params.bag.bgoConfig.end(); ++bconf)
@@ -235,7 +235,7 @@ void gem::hw::amc13::AMC13Manager::actionPerformed(xdata::Event& event)
 
   // item is changed, update it
   if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
-    DEBUG("AMC13Manager::actionPerformed() ItemChangedEvent");
+    CMSGEMOS_DEBUG("AMC13Manager::actionPerformed() ItemChangedEvent");
   }
 
   gem::base::GEMApplication::actionPerformed(event);
@@ -271,35 +271,35 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   // std::string cardname    = toolbox::toString("gem.shelf%02d.amc13",m_crateID);
   std::string cardname    = m_cardName;
 
-  INFO("AMC13Manager::initializeAction m_amc13Params is:" << std::endl << m_amc13Params.bag.toString());
+  CMSGEMOS_INFO("AMC13Manager::initializeAction m_amc13Params is:" << std::endl << m_amc13Params.bag.toString());
 
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
-    DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
+    CMSGEMOS_DEBUG("Trying to create connection to " << m_cardName << " in " << connection);
     p_amc13 = std::make_shared< ::amc13::AMC13>(connection, cardname+".T1", cardname+".T2");
   } catch (::amc13::Exception::exBase & e) {
     std::stringstream msg;
     msg << "AMC13Manager::AMC13::AMC13() failed, caught amc13::Exception: " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (uhal::exception::exception & e) {
     std::stringstream msg;
     msg << "AMC13Manager::AMC13::AMC13() failed, caught uhal::exception: " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "AMC13Manager::AMC13::AMC13() failed, caught std::exception: " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   } catch (...) {
     std::stringstream msg;
     msg << "AMC13Manager::AMC13::AMC13() failed (unknown exception)";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem, msg.str());
   }
 
-  DEBUG("AMC13Manager::initializeAction finished with AMC13::AMC13()");
+  CMSGEMOS_DEBUG("AMC13Manager::initializeAction finished with AMC13::AMC13()");
 
   try {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
@@ -318,10 +318,10 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
 
     p_amc13->enableAllTTC();
   } catch (uhal::exception::exception & e) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception " << e.what());
+    CMSGEMOS_ERROR("AMC13Manager::AMC13::AMC13() failed, caught uhal::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   } catch (std::exception& e) {
-    ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception " << e.what());
+    CMSGEMOS_ERROR("AMC13Manager::AMC13::AMC13() failed, caught std::exception " << e.what());
     XCEPT_RAISE(gem::hw::amc13::exception::HardwareProblem,std::string("Problem during preinit : ")+e.what());
   }
 
@@ -335,7 +335,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   // enable daq link (if SFP mask is non-zero
-  DEBUG("AMC13Manager::initializeAction Enabling DAQLink with settings: fake data:" << m_enableFakeData
+  CMSGEMOS_DEBUG("AMC13Manager::initializeAction Enabling DAQLink with settings: fake data:" << m_enableFakeData
         << ", sfpMask:" << m_sfpMask);
 
   p_amc13->fakeDataEnable(m_enableFakeData);
@@ -345,9 +345,9 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->sfpOutputEnable(m_sfpMask);
 
   // ignore AMC tts state per mask
-  INFO("AMC13Manager::initializeAction m_amcIgnoreTTSList " << m_amcIgnoreTTSList);
+  CMSGEMOS_INFO("AMC13Manager::initializeAction m_amcIgnoreTTSList " << m_amcIgnoreTTSList);
   m_ignoreAMCTTS = p_amc13->parseInputEnableList(m_amcIgnoreTTSList,true);
-  INFO("AMC13Manager::initializeAction m_amcIgnoreTTSList " << m_amcIgnoreTTSList
+  CMSGEMOS_INFO("AMC13Manager::initializeAction m_amcIgnoreTTSList " << m_amcIgnoreTTSList
        << " parsed as m_ignoreAMCTTS: " << std::hex << m_ignoreAMCTTS << std::dec);
   if (m_ignoreAMCTTS) {
     p_amc13->ttsDisableMask(m_ignoreAMCTTS);
@@ -389,7 +389,7 @@ void gem::hw::amc13::AMC13Manager::initializeAction()
   p_amc13->resetCounters();
 
   // unlock the access
-  INFO("AMC13Manager::initializeAction end");
+  CMSGEMOS_INFO("AMC13Manager::initializeAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::configureAction()
@@ -406,10 +406,10 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
 
   if (m_enableLocalTTC) {
-    DEBUG("AMC13Manager::configureAction configuring BGO channels "
+    CMSGEMOS_DEBUG("AMC13Manager::configureAction configuring BGO channels "
           << m_bgoConfig.size());
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan) {
-      DEBUG("AMC13Manager::configureAction channel "
+      CMSGEMOS_DEBUG("AMC13Manager::configureAction channel "
             << bchan->bag.channel.value_);
       if (bchan->bag.channel.value_ > -1) {
         if (bchan->bag.isLong.value_)
@@ -425,12 +425,12 @@ void gem::hw::amc13::AMC13Manager::configureAction()
   }
   // set the settings from the config options
   // usleep(10); // just for testing the timing of different applications
-  INFO("AMC13Manager::configureAction end");
+  CMSGEMOS_INFO("AMC13Manager::configureAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::startAction()
 {
-  DEBUG("AMC13Manager::Entering AMC13Manager::startAction()");
+  CMSGEMOS_DEBUG("AMC13Manager::Entering AMC13Manager::startAction()");
   // gem::base::GEMFSMApplication::enable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
@@ -450,7 +450,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   if (m_enableLocalTTC) {
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
       if (bchan->bag.channel.value_ > -1) {
-        INFO("AMC13Manager::startAction enabling BGO channel " << bchan->bag.channel.value_);
+        CMSGEMOS_INFO("AMC13Manager::startAction enabling BGO channel " << bchan->bag.channel.value_);
 	if (bchan->bag.repeat.value_)
           p_amc13->enableBGORepeat(bchan->bag.channel.value_);
 	else
@@ -461,7 +461,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
 
   if (m_enableLocalL1A) {
     if (m_enableLEMO) {
-      DEBUG("AMC13Manager::startAction enabling LEMO trigger " << m_enableLEMO);
+      CMSGEMOS_DEBUG("AMC13Manager::startAction enabling LEMO trigger " << m_enableLEMO);
       p_amc13->write(::amc13::AMC13::T1,"CONF.TTC.T3_TRIG",0x1);
     } else {
       p_amc13->startContinuousL1A();
@@ -475,7 +475,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
   }
 
   if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-    DEBUG("AMC13Manager::startAction Sending continuous triggers for ScanRoutines ");
+    CMSGEMOS_DEBUG("AMC13Manager::startAction Sending continuous triggers for ScanRoutines ");
     // p_amc13->enableLocalL1A(m_enableLocalL1A);
 
     // if (m_enableLocalL1A) {
@@ -491,7 +491,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
     try {
       p_timer->stop();
     } catch (toolbox::task::exception::NotActive const& ex) {
-      WARN("AMC13Manager::start could not stop timer " << ex.what());
+      CMSGEMOS_WARN("AMC13Manager::start could not stop timer " << ex.what());
     }
     p_timer->start();
     toolbox::TimeInterval interval(0.1,0);  // period of 0.1 secs
@@ -499,7 +499,7 @@ void gem::hw::amc13::AMC13Manager::startAction()
     start = toolbox::TimeVal::gettimeofday();
     p_timer->scheduleAtFixedRate(start, this, interval, 0, "" );
   }  // end scan type
-  INFO("AMC13Manager::startAction end");
+  CMSGEMOS_INFO("AMC13Manager::startAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::pauseAction()
@@ -508,10 +508,10 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   // if local triggers are enabled, do we have a separate trigger application?
   // we can just disable them here maybe?
   if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-    INFO("AMC13Manager::pauseAction disabling triggers for scan, triggers seen this point = "
+    CMSGEMOS_INFO("AMC13Manager::pauseAction disabling triggers for scan, triggers seen this point = "
 	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
     m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
+    CMSGEMOS_INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
   }
 
   if (m_enableLocalL1A) {
@@ -532,7 +532,7 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   if (m_enableLocalTTC)
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
       if (bchan->bag.channel.value_ > -1) {
-        DEBUG("AMC13Manager::pauseAction disabling BGO channel " << bchan->bag.channel.value_);
+        CMSGEMOS_DEBUG("AMC13Manager::pauseAction disabling BGO channel " << bchan->bag.channel.value_);
         p_amc13->disableBGO(bchan->bag.channel.value_);
       }
 
@@ -540,7 +540,7 @@ void gem::hw::amc13::AMC13Manager::pauseAction()
   for (int bchan = 0; bchan < 4; ++bchan)
     p_amc13->disableBGO(bchan);
 
-  INFO("AMC13Manager::pauseAction end");
+  CMSGEMOS_INFO("AMC13Manager::pauseAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::resumeAction()
@@ -551,7 +551,7 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
       if (bchan->bag.channel.value_ > -1) {
         sendLocalBGO = true;
-        DEBUG("AMC13Manager::resumeAction enabling BGO channel " << bchan->bag.channel.value_);
+        CMSGEMOS_DEBUG("AMC13Manager::resumeAction enabling BGO channel " << bchan->bag.channel.value_);
 	if (bchan->bag.repeat.value_)
           p_amc13->enableBGORepeat(bchan->bag.channel.value_);
 	else
@@ -579,7 +579,7 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   }
 
   // if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-  //   DEBUG("AMC13Manager::resumeAction enabling triggers for scan");
+  //   CMSGEMOS_DEBUG("AMC13Manager::resumeAction enabling triggers for scan");
 
   //   if (m_enableLocalL1A) {
   //     p_amc13->configureLocalL1A(m_enableLocalL1A, m_L1Amode, m_L1Aburst, m_internalPeriodicPeriod, m_L1Arules);
@@ -594,17 +594,17 @@ void gem::hw::amc13::AMC13Manager::resumeAction()
   //   }
   // }
   // usleep(10);
-  INFO("AMC13Manager::resumeAction end");
+  CMSGEMOS_INFO("AMC13Manager::resumeAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::stopAction()
 {
-  DEBUG("AMC13Manager::Entering AMC13Manager::stopAction()");
+  CMSGEMOS_DEBUG("AMC13Manager::Entering AMC13Manager::stopAction()");
   // gem::base::GEMFSMApplication::disable();
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_amc13Lock);
 
   if (m_scanType.value_ == 2 || m_scanType.value_ == 3) {
-    DEBUG("AMC13Manager::stopAction Sending continuous triggers for ScanRoutines ");
+    CMSGEMOS_DEBUG("AMC13Manager::stopAction Sending continuous triggers for ScanRoutines ");
     p_timer->stop();
   }
 
@@ -627,7 +627,7 @@ void gem::hw::amc13::AMC13Manager::stopAction()
   if (m_enableLocalTTC)
     for (auto bchan = m_bgoConfig.begin(); bchan != m_bgoConfig.end(); ++bchan)
       if (bchan->bag.channel.value_ > -1) {
-        DEBUG("AMC13Manager::stopAction disabling BGO channel " << bchan->bag.channel.value_);
+        CMSGEMOS_DEBUG("AMC13Manager::stopAction disabling BGO channel " << bchan->bag.channel.value_);
         p_amc13->disableBGO(bchan->bag.channel.value_);
       }
 
@@ -637,33 +637,33 @@ void gem::hw::amc13::AMC13Manager::stopAction()
 
  // usleep(10);
   p_amc13->endRun();
-  INFO("AMC13Manager::stopAction end");
+  CMSGEMOS_INFO("AMC13Manager::stopAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::haltAction()
 {
   // what is necessary for a halt on the AMC13?
   usleep(10);  // just for testing the timing of different applications
-  INFO("AMC13Manager::haltAction end");
+  CMSGEMOS_INFO("AMC13Manager::haltAction end");
 }
 
 void gem::hw::amc13::AMC13Manager::resetAction()
 {
   // what is necessary for a reset on the AMC13?
-  DEBUG("Entering AMC13Manager::resetAction()");
+  CMSGEMOS_DEBUG("Entering AMC13Manager::resetAction()");
 
   if (p_timer) {
     try {
       p_timer->stop();
     } catch (toolbox::task::exception::NotActive const& ex) {
-      WARN("AMC13Manager::start could not stop timer " << ex.what());
+      CMSGEMOS_WARN("AMC13Manager::start could not stop timer " << ex.what());
     }
   }
 
   // maybe ensure triggers are disabled as well as BGO commands?
   usleep(10);
   // gem::base::GEMFSMApplication::resetAction();
-  INFO("AMC13Manager::resetAction end");
+  CMSGEMOS_INFO("AMC13Manager::resetAction end");
 }
 
 /*These should maybe only be implemented in GEMFSMApplication,
@@ -682,7 +682,7 @@ void gem::hw::amc13::AMC13Manager::resetAction(toolbox::Event::Reference e)
 xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::MessageReference msg)
 {
   // set to send a burst of trigger
-  INFO("Entering AMC13Manager::sendTriggerBurst()");
+  CMSGEMOS_INFO("Entering AMC13Manager::sendTriggerBurst()");
 
   if (msg.isNull()) {
     XCEPT_RAISE(xoap::exception::Exception,"Null message received!");
@@ -709,13 +709,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
     return reply;
   }
   try {
-    INFO("AMC13Manager::sendTriggerBurst command " << commandName << " succeeded ");
+    CMSGEMOS_INFO("AMC13Manager::sendTriggerBurst command " << commandName << " succeeded ");
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& err) {
     std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
                                             commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
                          top, toolbox::toString("%s.",msgBase.c_str()), err);
     this->notifyQualified("error", top);
@@ -728,7 +728,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::sendTriggerBurst(xoap::Mess
 
 xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::MessageReference msg)
 {
-  DEBUG("AMC13Manager::enableTriggers");
+  CMSGEMOS_DEBUG("AMC13Manager::enableTriggers");
   // gem::base::GEMFSMApplication::disable();
 
   std::string commandName = "enableTriggers";
@@ -736,7 +736,7 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
   if (!p_amc13) {
     std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s', AMC13 not yet connected",
                                             commandName.c_str());
-    ERROR(toolbox::toString("%s", msgBase.c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s", msgBase.c_str()));
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
@@ -752,13 +752,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
   }
 
   try {
-    INFO("AMC13Manager::enableTriggers command " << commandName << " succeeded ");
+    CMSGEMOS_INFO("AMC13Manager::enableTriggers command " << commandName << " succeeded ");
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& err) {
     std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
                                             commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
                          top, toolbox::toString("%s.",msgBase.c_str()), err);
     this->notifyQualified("error", top);
@@ -770,14 +770,14 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::enableTriggers(xoap::Messag
 
 xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::MessageReference msg)
 {
-  DEBUG("AMC13Manager::disableTriggers");
+  CMSGEMOS_DEBUG("AMC13Manager::disableTriggers");
   // gem::base::GEMFSMApplication::disable();
   std::string commandName = "disableTriggers";
 
   if (!p_amc13) {
     std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s', AMC13 not yet connected",
                                             commandName.c_str());
-    ERROR(toolbox::toString("%s", msgBase.c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s", msgBase.c_str()));
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "Failed");
   }
@@ -793,13 +793,13 @@ xoap::MessageReference gem::hw::amc13::AMC13Manager::disableTriggers(xoap::Messa
   }
 
   try {
-    INFO("AMC13Manager::disableTriggers " << commandName << " succeeded ");
+    CMSGEMOS_INFO("AMC13Manager::disableTriggers " << commandName << " succeeded ");
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& err) {
     std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
                                             commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
                          top, toolbox::toString("%s.",msgBase.c_str()), err);
     this->notifyQualified("error", top);
@@ -813,7 +813,7 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
 {
   uint64_t currentTrigger = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount;
 
-  DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " << m_nScanTriggers.value_
+  CMSGEMOS_DEBUG("AMC13Manager::timeExpried, NTriggerRequested = " << m_nScanTriggers.value_
         << " currentT = " << currentTrigger << " triggercounter final =  " << m_updatedL1ACount );
 
   if (currentTrigger >=  m_nScanTriggers.value_){
@@ -832,17 +832,17 @@ void gem::hw::amc13::AMC13Manager::timeExpired(toolbox::task::TimerEvent& event)
       p_amc13->enableLocalL1A(true);  // is this fine to switch to local L1A as a way to fake turning off upstream?
       */
     }
-    INFO("AMC13Manager::timeExpried, triggers seen this point = "
+    CMSGEMOS_INFO("AMC13Manager::timeExpried, triggers seen this point = "
 	 << p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO") - m_updatedL1ACount);
     // m_updatedL1ACount = p_amc13->read(::amc13::AMC13::T1,"STATUS.GENERAL.L1A_COUNT_LO");
-    // INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
+    // CMSGEMOS_INFO("AMC13Manager::timeExpried, total triggers seen = " << m_updatedL1ACount);
     endScanPoint();
   }
 }
 
 void gem::hw::amc13::AMC13Manager::endScanPoint()
 {
-  INFO("AMC13Manager::endScanPoint");
+  CMSGEMOS_INFO("AMC13Manager::endScanPoint");
   gem::utils::soap::GEMSOAPToolBox::sendCommand("EndScanPoint",
                                                 p_appContext,p_appDescriptor,//getApplicationContext(),this->getApplicationDescriptor(),
                                                 const_cast<xdaq::ApplicationDescriptor*>(p_appZone->getApplicationDescriptor("gem::supervisor::GEMSupervisor", 0)));  // this should not be hard coded

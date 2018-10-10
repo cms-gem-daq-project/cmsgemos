@@ -65,11 +65,11 @@ gem::supervisor::GEMSupervisor::GEMSupervisor(xdaq::ApplicationStub* stub) :
   xoap::bind(this, &gem::supervisor::GEMSupervisor::EndScanPoint, "EndScanPoint",  XDAQ_NS_URI);
   // xgi::framework::deferredbind(this, this, &GEMSupervisor::xgiDefault, "Default");
 
-  DEBUG("Creating the GEMSupervisorWeb interface");
+  CMSGEMOS_DEBUG("Creating the GEMSupervisorWeb interface");
   p_gemMonitor      = new gem::supervisor::GEMSupervisorMonitor(this);
   // p_gemMonitor      = new gem::supervisor::GEMSupervisorMonitor(this->getApplicationLogger(),this);
   p_gemWebInterface = new gem::supervisor::GEMSupervisorWeb(this);
-  DEBUG("done");
+  CMSGEMOS_DEBUG("done");
   //p_gemMonitor      = new gem generic system monitor
 
   p_appInfoSpace->fireItemAvailable("DatabaseInfo",&m_dbInfo);
@@ -143,7 +143,7 @@ gem::supervisor::GEMSupervisor::~GEMSupervisor()
 void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    DEBUG("GEMSupervisor::actionPerformed() setDefaultValues" <<
+    CMSGEMOS_DEBUG("GEMSupervisor::actionPerformed() setDefaultValues" <<
           "Default configuration values have been loaded from xml profile");
     importConfigurationParameters();
     importMonitoringParameters();
@@ -159,12 +159,12 @@ void gem::supervisor::GEMSupervisor::actionPerformed(xdata::Event& event)
     m_setupLocation = m_dbInfo.bag.setupLocation.toString();
 
     m_handleTCDS    = m_tcdsConfig.bag.handleTCDS.value_;
-    DEBUG("GEMSupervisor::actionPerformed m_dbInfo = " << m_dbInfo.bag.toString());
+    CMSGEMOS_DEBUG("GEMSupervisor::actionPerformed m_dbInfo = " << m_dbInfo.bag.toString());
   }
 
   // item is changed, update it
   if (event.type() == "ItemChangedEvent" || event.type() == "urn:xdata-event:ItemChangedEvent") {
-    DEBUG("GEMSupervisor::actionPerformed() ItemChangedEvent");
+    CMSGEMOS_DEBUG("GEMSupervisor::actionPerformed() ItemChangedEvent");
   }
 
   // update monitoring variables
@@ -178,7 +178,7 @@ void gem::supervisor::GEMSupervisor::init()
 
   // put a mutex on this
   m_tcdsLock.lock();
-  DEBUG("GEMSupervisor::init clearing TCDS leased applications list");
+  CMSGEMOS_DEBUG("GEMSupervisor::init clearing TCDS leased applications list");
   v_leasedTCDSApps.clear();
   v_leasedTCDSApps.reserve(0);
   m_tcdsLock.unlock();
@@ -186,11 +186,11 @@ void gem::supervisor::GEMSupervisor::init()
 
   m_globalState.clear();
 
-  DEBUG("GEMSupervisor::init:: looping over " << p_appZone->getGroupNames().size() << " groups");
+  CMSGEMOS_DEBUG("GEMSupervisor::init:: looping over " << p_appZone->getGroupNames().size() << " groups");
   std::set<xdaq::ApplicationDescriptor*> used;
   std::set<std::string> groups = p_appZone->getGroupNames();
   for (auto i =groups.begin(); i != groups.end(); ++i) {
-    DEBUG("GEMSupervisor::init::xDAQ group: " << *i
+    CMSGEMOS_DEBUG("GEMSupervisor::init::xDAQ group: " << *i
           << "getApplicationGroup() " << p_appZone->getApplicationGroup(*i)->getName());
 
     xdaq::ApplicationGroup* ag = const_cast<xdaq::ApplicationGroup*>(p_appZone->getApplicationGroup(*i));
@@ -199,10 +199,10 @@ void gem::supervisor::GEMSupervisor::init()
 #else
     std::set<xdaq::ApplicationDescriptor*> allApps = ag->getApplicationDescriptors();
 #endif
-    DEBUG("GEMSupervisor::init::getApplicationDescriptors() " << allApps.size());
+    CMSGEMOS_DEBUG("GEMSupervisor::init::getApplicationDescriptors() " << allApps.size());
     for (auto j = allApps.begin(); j != allApps.end(); ++j) {
       std::string classname = (*j)->getClassName();
-      DEBUG("GEMSupervisor::init::xDAQ application descriptor " << *j << " " << classname << " we are " << p_appDescriptor);
+      CMSGEMOS_DEBUG("GEMSupervisor::init::xDAQ application descriptor " << *j << " " << classname << " we are " << p_appDescriptor);
 
       if (used.find(const_cast<xdaq::ApplicationDescriptor*>(*j)) != used.end())
         continue;  // no duplicates
@@ -214,7 +214,7 @@ void gem::supervisor::GEMSupervisor::init()
       // avoids the problem of picking up all the xDAQ related processes
       // if (isGEMSupervised(*j))
       if (manageApplication(classname)) {
-        INFO("GEMSupervisor::init::pushing " << classname << "(" << *j << ") to list of supervised applications");
+        CMSGEMOS_INFO("GEMSupervisor::init::pushing " << classname << "(" << *j << ") to list of supervised applications");
         v_supervisedApps.push_back(const_cast<xdaq::ApplicationDescriptor*>(*j));
         std::stringstream managedAppStateName;
         managedAppStateName << classname << ":lid:" << (*j)->getLocalId();
@@ -230,13 +230,13 @@ void gem::supervisor::GEMSupervisor::init()
 
         m_globalState.addApplication(const_cast<xdaq::ApplicationDescriptor*>(*j));
       }
-      DEBUG("done");
+      CMSGEMOS_DEBUG("done");
     }  // done iterating over applications in group
-    DEBUG("GEMSupervisor::init::done iterating over applications in group");
+    CMSGEMOS_DEBUG("GEMSupervisor::init::done iterating over applications in group");
   }  // done iterating over groups in zone
-  DEBUG("GEMSupervisor::init::done iterating over groups in zone");
+  CMSGEMOS_DEBUG("GEMSupervisor::init::done iterating over groups in zone");
 
-  DEBUG("GEMSupervisor::init::starting the monitoring");
+  CMSGEMOS_DEBUG("GEMSupervisor::init::starting the monitoring");
 
   // borrowed from hcalSupervisor
   if (m_reportToRCMS /*&& !m_hasDoneStandardInit*/) {
@@ -246,7 +246,7 @@ void gem::supervisor::GEMSupervisor::init()
     m_rcmsStateListenerUrl = getApplicationContext()->getDefaultZone()
       ->getApplicationDescriptor(classname, instance)
       ->getContextDescriptor()->getURL();
-    INFO("RCMSStateListener found with url: " << m_rcmsStateListenerUrl.toString());
+    CMSGEMOS_INFO("RCMSStateListener found with url: " << m_rcmsStateListenerUrl.toString());
   }
 
   // when to do this, have to make sure that all applications have been loaded...
@@ -259,8 +259,8 @@ void gem::supervisor::GEMSupervisor::init()
 // state transitions
 void gem::supervisor::GEMSupervisor::initializeAction()
 {
-  INFO("GEMSupervisor::initializeAction start");
-  DEBUG("GEMSupervisor::initializeAction:: HandleTCDS is " << m_handleTCDS.value_);
+  CMSGEMOS_INFO("GEMSupervisor::initializeAction start");
+  CMSGEMOS_DEBUG("GEMSupervisor::initializeAction:: HandleTCDS is " << m_handleTCDS.value_);
 
   // moved here from constructor, this is not what i want but it's how XDAQ works with setDefaultParameters,
   // as i need to know about handleTCDS before the init function...
@@ -272,7 +272,7 @@ void gem::supervisor::GEMSupervisor::initializeAction()
 
   // while ((m_gemfsm.getCurrentState()) != m_gemfsm.getStateName(gem::base::STATE_CONFIGURING)) {  // deal with possible race condition
   while (!(m_globalState.getStateName() == "Initial" && getCurrentState() == "Initializing")) {
-    INFO("GEMSupervisor::initializeAction global state not in " << gem::base::STATE_INITIAL
+    CMSGEMOS_INFO("GEMSupervisor::initializeAction global state not in " << gem::base::STATE_INITIAL
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
     usleep(100);
@@ -296,22 +296,22 @@ void gem::supervisor::GEMSupervisor::initializeAction()
     for (auto i = initorder.begin(); i != initorder.end(); ++i) {
       // if (!m_gemRCMSNotifier.getFoundRcmsStateListenerParameter()) {
       if (true) {
-        INFO("GEMSupervisor::initializeAction No RCMS state listener found, continuing to initialize children ");
+        CMSGEMOS_INFO("GEMSupervisor::initializeAction No RCMS state listener found, continuing to initialize children ");
         for (auto j = i->begin(); j != i->end(); ++j) {
           if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
-            INFO("GEMSupervisor::initializeAction Halting " << (*j)->getClassName()
+            CMSGEMOS_INFO("GEMSupervisor::initializeAction Halting " << (*j)->getClassName()
                  << " in case it is not in 'Halted'");
             // need to ensure leases are properly respected
             gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, *j);
           } else {
-            INFO("GEMSupervisor::initializeAction Initializing " << (*j)->getClassName());
+            CMSGEMOS_INFO("GEMSupervisor::initializeAction Initializing " << (*j)->getClassName());
             gem::utils::soap::GEMSOAPToolBox::sendCommand("Initialize", p_appContext, p_appDescriptor, *j);
           }
         }
       }
       // check that group state of *i has moved to desired state before continuing
       while (m_globalState.compositeState(*i) != gem::base::STATE_HALTED) {
-        DEBUG("GEMSupervisor::initializeAction waiting for group to reach Halted: "
+        CMSGEMOS_DEBUG("GEMSupervisor::initializeAction waiting for group to reach Halted: "
               << m_globalState.compositeState(*i));
         usleep(10);
         m_globalState.update();
@@ -322,61 +322,61 @@ void gem::supervisor::GEMSupervisor::initializeAction()
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::initializeAction unable to initialize";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   }
 
   // SHOULD ONLY REPORT "INITIALIZED" TO RCMS HERE
   m_globalState.update();
-  INFO("GEMSupervisor::initializeAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::initializeAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::configureAction()
 {
-  INFO("GEMSupervisor::configureAction start");
+  CMSGEMOS_INFO("GEMSupervisor::configureAction start");
 
   while (!((m_globalState.getStateName() == "Halted"     && getCurrentState() == "Configuring") ||
            // (m_globalState.getStateName() == "Paused"     && getCurrentState() == "Configuring") || // FIXME do we allow this???
            (m_globalState.getStateName() == "Configured" && getCurrentState() == "Configuring"))) {
-    INFO("GEMSupervisor::configureAction global state not in " << gem::base::STATE_HALTED
+    CMSGEMOS_INFO("GEMSupervisor::configureAction global state not in " << gem::base::STATE_HALTED
 	 << " or "  << gem::base::STATE_CONFIGURED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
@@ -394,7 +394,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
         continue;
 
       if (m_scanInfo.bag.scanType.value_ == 2 || m_scanInfo.bag.scanType.value_ == 3) {
-	INFO("GEMSupervisor::configureAction Setting ScanParameters " << (*i)->getClassName());
+        CMSGEMOS_INFO("GEMSupervisor::configureAction Setting ScanParameters " << (*i)->getClassName());
 	sendScanParameters(*i);
       }
     }
@@ -402,7 +402,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
     auto configorder = getConfigureOrder();
     for (auto i = configorder.begin(); i != configorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
-        INFO("GEMSupervisor::configureAction Configuring " << (*j)->getClassName());
+        CMSGEMOS_INFO("GEMSupervisor::configureAction Configuring " << (*j)->getClassName());
         m_globalState.setGlobalStateMessage("Configuring " + (*j)->getClassName());
         if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
           // if (tcdsState() == gem::base::STATE_CONFIGURED)
@@ -414,7 +414,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
             std::ifstream ifs(m_tcdsConfig.bag.iciHWConfig.toString());
             content.assign( (std::istreambuf_iterator<char>(ifs) ),
                             (std::istreambuf_iterator<char>()    ) );
-            INFO("GEMSupervisor::configureAction ICI HW config " << m_tcdsConfig.bag.iciHWConfig.toString()
+            CMSGEMOS_INFO("GEMSupervisor::configureAction ICI HW config " << m_tcdsConfig.bag.iciHWConfig.toString()
                  << " (0x" << std::hex << ifs << std::dec << ") is:" << std::endl << content);
           } else if (((*j)->getClassName()).rfind("PI") != std::string::npos) {
             std::ifstream ifs(m_tcdsConfig.bag.piHWConfig.toString());
@@ -449,13 +449,13 @@ void gem::supervisor::GEMSupervisor::configureAction()
 
           // put a mutex around this
           m_tcdsLock.lock();
-          DEBUG("GEMSupervisor::configureAction adding " << (*j)->getClassName() << " to TCDS leased applications list");
+          CMSGEMOS_DEBUG("GEMSupervisor::configureAction adding " << (*j)->getClassName() << " to TCDS leased applications list");
           v_leasedTCDSApps.push_back(*j);
           m_tcdsLock.unlock();
           // until here
         } else {
           if (((*j)->getClassName()).rfind("AMC13") != std::string::npos) {
-            INFO("GEMSupervisor::configureAction Sending AMC13 Parameters to " << (*j)->getClassName());
+            CMSGEMOS_INFO("GEMSupervisor::configureAction Sending AMC13 Parameters to " << (*j)->getClassName());
             gem::utils::soap::GEMSOAPToolBox::sendAMC13Config(p_appContext, p_appDescriptor, *j);
           }
 
@@ -464,7 +464,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
       }
       // check that group state of *i has moved to desired state before continuing
       while (m_globalState.compositeState(*i) != gem::base::STATE_CONFIGURED) {
-        DEBUG("GEMSupervisor::configureAction waiting for group to reach Configured: "
+        CMSGEMOS_DEBUG("GEMSupervisor::configureAction waiting for group to reach Configured: "
               << m_globalState.compositeState(*i));
         usleep(10);
         m_globalState.update();
@@ -475,7 +475,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
     // temp workaround, call confAllChambers python script?
     // if P5 config?
     if (m_setupLocation.toString().rfind("P5") != std::string::npos) {
-      INFO("GEMSupervisor::configureAction running confAllChambers for P5 setup");
+      CMSGEMOS_INFO("GEMSupervisor::configureAction running confAllChambers for P5 setup");
       std::stringstream confcmd;
       // FIXME hard coded for now, but super hacky garbage
       confcmd << "confAllChambers.py -s" << 3
@@ -486,7 +486,7 @@ void gem::supervisor::GEMSupervisor::configureAction()
       if (retval) {
         std::stringstream msg;
         msg << "GEMSupervisor::configureAction unable to configure chambers: " << retval;
-        WARN(msg.str());
+        CMSGEMOS_WARN(msg.str());
         XCEPT_RAISE(gem::supervisor::exception::ConfigurationProblem, msg.str());
       }
     }
@@ -494,59 +494,59 @@ void gem::supervisor::GEMSupervisor::configureAction()
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (gem::supervisor::exception) " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (gem::utils::exception::SOAPException)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (gem::utils::exception::DBConnectionError)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (gem::utils::exception)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (xcept)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (std)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::configureAction unable to configure (unknown exception)";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   }
 
   // SHOULD ONLY REPORT "CONFIGURED" TO RCMS HERE
   m_globalState.update();
-  INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::configureAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::startAction()
 {
-  INFO("GEMSupervisor::startAction start");
+  CMSGEMOS_INFO("GEMSupervisor::startAction start");
 
   while (!(m_globalState.getStateName() == "Configured" && getCurrentState() == "Starting")) {
-    INFO("GEMSupervisor::startAction global state not in " << gem::base::STATE_CONFIGURED
+    CMSGEMOS_INFO("GEMSupervisor::startAction global state not in " << gem::base::STATE_CONFIGURED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
     usleep(10);
@@ -558,7 +558,7 @@ void gem::supervisor::GEMSupervisor::startAction()
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     m_globalState.update();
     XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
     return;
@@ -566,30 +566,30 @@ void gem::supervisor::GEMSupervisor::startAction()
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     m_globalState.update();
     XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction updateRunNumber failed:" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     m_globalState.update();
     XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction updateRunNumber failed: unknown exception";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     m_globalState.update();
     XCEPT_RAISE(gem::supervisor::exception::Exception, msg.str());
   }
 
   if (m_scanType.value_ == 2 || (m_scanType.value_ == 3)){
     m_scanParameter = m_scanInfo.bag.scanMin.value_;
-    INFO("GEMSupervisor::startAction Scan");
+    CMSGEMOS_INFO("GEMSupervisor::startAction Scan");
     if (m_scanType.value_ == 2) {
-      INFO(" Latency " << m_scanMin.value_);
+      CMSGEMOS_INFO(" Latency " << m_scanMin.value_);
     } else if(m_scanType.value_ == 3) {
-      INFO(" VT1 " << m_scanMin.value_);
+      CMSGEMOS_INFO(" VT1 " << m_scanMin.value_);
     }
   }
 
@@ -600,11 +600,11 @@ void gem::supervisor::GEMSupervisor::startAction()
     auto startorder = getEnableOrder();
     for (auto i = startorder.begin(); i != startorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
-        INFO("GEMSupervisor::startAction Starting " << (*j)->getClassName());
+        CMSGEMOS_INFO("GEMSupervisor::startAction Starting " << (*j)->getClassName());
         if (((*j)->getClassName()).rfind("tcds::") != std::string::npos) {
           std::unordered_map<std::string, xdata::Serializable*> tcdsParams;
           xdata::UnsignedInteger tcdsRunNumber(m_runNumber);
-          DEBUG("GEMSupervisor::startAction sending TCDS application " << (*j)->getClassName()
+          CMSGEMOS_DEBUG("GEMSupervisor::startAction sending TCDS application " << (*j)->getClassName()
                 << " run number: " << m_runNumber.value_ << "(" << m_runNumber.toString() << ")"
                 << " as: " << tcdsRunNumber.value_ << "(" << tcdsRunNumber.toString() << ")");
           tcdsParams.insert(std::make_pair("runNumber", &(tcdsRunNumber)));
@@ -615,7 +615,7 @@ void gem::supervisor::GEMSupervisor::startAction()
       }
       // check that group state of *i has moved to desired state before continuing
       while (m_globalState.compositeState(*i) != gem::base::STATE_RUNNING) {
-        DEBUG("GEMSupervisor::startAction waiting for group to reach Running: "
+        CMSGEMOS_DEBUG("GEMSupervisor::startAction waiting for group to reach Running: "
               << m_globalState.compositeState(*i));
         usleep(10);
         m_globalState.update();
@@ -624,59 +624,59 @@ void gem::supervisor::GEMSupervisor::startAction()
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (gem::supervisor::exception) " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (gem::utils::exception::SOAPException)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (gem::utils::exception::DBConnectionError)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (gem::utils::exception)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (xcept)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (std)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::startAction unable to start (unknown exception)";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   }
 
   // SHOULD ONLY REPORT "RUNNING" TO RCMS HERE
   m_globalState.update();
-  INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::startAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::pauseAction()
 {
-  INFO("GEMSupervisor::pauseAction start");
+  CMSGEMOS_INFO("GEMSupervisor::pauseAction start");
 
   while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Pausing")) {
-    INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
+    CMSGEMOS_INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
     usleep(10);
@@ -687,12 +687,12 @@ void gem::supervisor::GEMSupervisor::pauseAction()
     auto disableorder = getDisableOrder();
     for (auto i = disableorder.begin(); i != disableorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
-        INFO("GEMSupervisor::pauseAction Pausing " << (*j)->getClassName());
+        CMSGEMOS_INFO("GEMSupervisor::pauseAction Pausing " << (*j)->getClassName());
         gem::utils::soap::GEMSOAPToolBox::sendCommand("Pause", p_appContext, p_appDescriptor, *j);
       }
       // check that group state of *i has moved to desired state before continuing
       while (m_globalState.compositeState(*i) != gem::base::STATE_PAUSED) {
-        DEBUG("GEMSupervisor::pauseAction waiting for group to reach Paused: "
+        CMSGEMOS_DEBUG("GEMSupervisor::pauseAction waiting for group to reach Paused: "
               << m_globalState.compositeState(*i));
         usleep(10);
         m_globalState.update();
@@ -701,59 +701,59 @@ void gem::supervisor::GEMSupervisor::pauseAction()
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (gem::supervisor::exception) " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (gem::utils::exception::SOAPException)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (gem::utils::exception::DBConnectionError)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (gem::utils::exception)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (xcept)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (std)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::pauseAction unable to pause (unknown exception)";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   }
 
   // SHOULD ONLY REPORT "PAUSED" TO RCMS HERE
   m_globalState.update();
-  INFO("GEMSupervisor::pauseAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::pauseAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::resumeAction()
 {
-  INFO("GEMSupervisor::resumeAction start");
+  CMSGEMOS_INFO("GEMSupervisor::resumeAction start");
 
   while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Resuming")) {
-    INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
+    CMSGEMOS_INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_PAUSED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
     usleep(10);
@@ -764,12 +764,12 @@ void gem::supervisor::GEMSupervisor::resumeAction()
     auto resumeorder = getEnableOrder();
     for (auto i = resumeorder.begin(); i != resumeorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
-        INFO("GEMSupervisor::resumeAction Resuming " << (*j)->getClassName());
+        CMSGEMOS_INFO("GEMSupervisor::resumeAction Resuming " << (*j)->getClassName());
         gem::utils::soap::GEMSOAPToolBox::sendCommand("Resume", p_appContext, p_appDescriptor, *j);
       }
       // check that group state of *i has moved to desired state before continuing
       while (m_globalState.compositeState(*i) != gem::base::STATE_RUNNING) {
-        DEBUG("GEMSupervisor::resumeAction waiting for group to reach Running: "
+        CMSGEMOS_DEBUG("GEMSupervisor::resumeAction waiting for group to reach Running: "
               << m_globalState.compositeState(*i));
         usleep(10);
         m_globalState.update();
@@ -778,60 +778,60 @@ void gem::supervisor::GEMSupervisor::resumeAction()
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (gem::supervisor::exception) " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (gem::utils::exception::SOAPException)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (gem::utils::exception::DBConnectionError)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (gem::utils::exception)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (xcept)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (std)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::resumeAction unable to resume (unknown exception)";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   }
 
   // SHOULD ONLY REPORT "RUNNING" TO RCMS HERE
   m_globalState.update();
-  INFO("GEMSupervisor::resumeAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::resumeAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::stopAction()
 {
-  INFO("GEMSupervisor::stopAction start");
+  CMSGEMOS_INFO("GEMSupervisor::stopAction start");
 
   while (!((m_globalState.getStateName() == "Running" && getCurrentState() == "Stopping") ||
            (m_globalState.getStateName() == "Paused"  && getCurrentState() == "Stopping"))) {
-    INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
+    CMSGEMOS_INFO("GEMSupervisor::pauseAction global state not in " << gem::base::STATE_RUNNING
 	 << " or " << gem::base::STATE_PAUSED
 	 << " sleeping (" << m_globalState.getStateName() << ","
 	 << getCurrentState() << ")");
@@ -843,12 +843,12 @@ void gem::supervisor::GEMSupervisor::stopAction()
     auto disableorder = getDisableOrder();
     for (auto i = disableorder.begin(); i != disableorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
-        INFO("GEMSupervisor::stopAction Stopping " << (*j)->getClassName());
+        CMSGEMOS_INFO("GEMSupervisor::stopAction Stopping " << (*j)->getClassName());
         gem::utils::soap::GEMSOAPToolBox::sendCommand("Stop", p_appContext, p_appDescriptor, *j);
       }
       // check that group state of *i has moved to desired state before continuing
       while (m_globalState.compositeState(*i) != gem::base::STATE_CONFIGURED) {
-        DEBUG("GEMSupervisor::stopAction waiting for group to reach Configured: "
+        CMSGEMOS_DEBUG("GEMSupervisor::stopAction waiting for group to reach Configured: "
               << m_globalState.compositeState(*i));
         usleep(10);
         m_globalState.update();
@@ -857,67 +857,67 @@ void gem::supervisor::GEMSupervisor::stopAction()
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (gem::supervisor::exception) " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (gem::utils::exception::SOAPException)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (gem::utils::exception::DBConnectionError)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (gem::utils::exception)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (xcept)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (std)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::stopAction unable to stop (unknown exception)";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   }
 
   // SHOULD ONLY REPORT "CONFIGURED" TO RCMS HERE
   m_globalState.update();
-  INFO("GEMSupervisor::stopAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::stopAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::haltAction()
 {
-  INFO("GEMSupervisor::haltAction start");
+  CMSGEMOS_INFO("GEMSupervisor::haltAction start");
 
   try {
     auto disableorder = getDisableOrder();
     for (auto i = disableorder.begin(); i != disableorder.end(); ++i) {
       for (auto j = i->begin(); j != i->end(); ++j) {
-        INFO("GEMSupervisor::haltAction Halting " << (*j)->getClassName());
+        CMSGEMOS_INFO("GEMSupervisor::haltAction Halting " << (*j)->getClassName());
         gem::utils::soap::GEMSOAPToolBox::sendCommand("Halt", p_appContext, p_appDescriptor, *j);
       }
       // check that group state of *i has moved to desired state before continuing
       while (m_globalState.compositeState(*i) != gem::base::STATE_HALTED) {
-        DEBUG("GEMSupervisor::haltAction waiting for group to reach Halted: "
+        CMSGEMOS_DEBUG("GEMSupervisor::haltAction waiting for group to reach Halted: "
               << m_globalState.compositeState(*i));
         usleep(10);
         m_globalState.update();
@@ -926,112 +926,112 @@ void gem::supervisor::GEMSupervisor::haltAction()
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (gem::supervisor::exception) " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (gem::utils::exception::SOAPException)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (gem::utils::exception::DBConnectionError)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (gem::utils::exception)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (xcept)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (std)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::haltAction unable to halt (unknown exception)";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   }
 
   // SHOULD ONLY REPORT "HALTED" TO RCMS HERE
   m_globalState.update();
-  INFO("GEMSupervisor::haltAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::haltAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::resetAction()
 {
-  INFO("GEMSupervisor::resetAction start");
+  CMSGEMOS_INFO("GEMSupervisor::resetAction start");
 
   try {
     for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
       if (((*i)->getClassName()).rfind("tcds::") != std::string::npos)
         continue;  // Don't send reset to TCDS
-      INFO("GEMSupervisor::resetAction Resetting " << (*i)->getClassName());
+      CMSGEMOS_INFO("GEMSupervisor::resetAction Resetting " << (*i)->getClassName());
       gem::utils::soap::GEMSOAPToolBox::sendCommand("Reset", p_appContext, p_appDescriptor, *i);
     }
     // gem::base::GEMFSMApplication::resetAction();
   } catch (gem::supervisor::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (gem::supervisor::exception) " << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::SOAPException& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (gem::utils::exception::SOAPException)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::DBConnectionError& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (gem::utils::exception::DBConnectionError)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (gem::utils::exception::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (gem::utils::exception)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (xcept::Exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (xcept)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (std::exception& e) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (std)" << e.what();
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   } catch (...) {
     std::stringstream msg;
     msg << "GEMSupervisor::resetAction unable to reset (unknown exception)";
-    ERROR(msg.str());
+    CMSGEMOS_ERROR(msg.str());
     fireEvent("Fail");
     m_globalState.update();
   }
 
   // SHOULD ONLY REPORT "INITIAL" TO RCMS HERE
   m_globalState.update();
-  INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
@@ -1044,14 +1044,14 @@ void gem::supervisor::GEMSupervisor::resetAction()
 void gem::supervisor::GEMSupervisor::failAction(toolbox::Event::Reference e)
 {
   m_globalState.update();
-  INFO("GEMSupervisor::failAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::failAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
 void gem::supervisor::GEMSupervisor::resetAction(toolbox::Event::Reference e)
 {
   m_globalState.update();
-  INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName()
+  CMSGEMOS_INFO("GEMSupervisor::resetAction GlobalState = " << m_globalState.getStateName()
        << " with GlobalStateMessage = " << m_globalState.getStateMessage());
 }
 
@@ -1080,7 +1080,7 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
   if (classname.find("PeerTransport") != std::string::npos)
     return false;  // ignore all peer transports
 
-  DEBUG("GEMSupervisor::manageApplication:: classname is '"
+  CMSGEMOS_DEBUG("GEMSupervisor::manageApplication:: classname is '"
         << classname << "' HandleTCDS is " << m_handleTCDS.value_);
   if (classname.find("tcds::") != std::string::npos && m_handleTCDS.value_)
     return true;
@@ -1096,7 +1096,7 @@ bool gem::supervisor::GEMSupervisor::manageApplication(const std::string& classn
 
 void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State before, toolbox::fsm::State after)
 {
-  INFO("GEMSupervisor::globalStateChanged(" << before << "," << after << ")");
+  CMSGEMOS_INFO("GEMSupervisor::globalStateChanged(" << before << "," << after << ")");
 
   // Notify RCMS of a state change.
   m_stateName = GEMGlobalState::getStateName(after);
@@ -1106,13 +1106,13 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
   if (std::string("UBHCEPF").rfind(after) != std::string::npos) {
     try {
       if (m_reportToRCMS)
-        INFO("GEMSupervisor::globalStateChanged::Notifying RCMS of state change: ("
+        CMSGEMOS_INFO("GEMSupervisor::globalStateChanged::Notifying RCMS of state change: ("
              << before << "," << after << "), "
              << m_globalState.getStateMessage());
       m_gemRCMSNotifier.stateChanged(GEMGlobalState::getStateName(after), "GEM global state changed: "
                                      + (m_globalState.getStateMessage()));
     } catch(xcept::Exception& err) {
-      ERROR("GEMSupervisor::globalStateChanged::Failed to notify RCMS of state change: "
+      CMSGEMOS_ERROR("GEMSupervisor::globalStateChanged::Failed to notify RCMS of state change: "
             << xcept::stdformat_exception_history(err));
       XCEPT_DECLARE_NESTED(gem::base::utils::exception::RCMSNotificationError, top,
                            "Failed to notify RCMS of state change.", err);
@@ -1134,7 +1134,7 @@ void gem::supervisor::GEMSupervisor::globalStateChanged(toolbox::fsm::State befo
 
 void gem::supervisor::GEMSupervisor::updateRunNumber()
 {
-  INFO("GEMSupervisor::updateRunNumber called");
+  CMSGEMOS_INFO("GEMSupervisor::updateRunNumber called");
   // should be able to find the run number from the run number service, or some other source
   // get the last entry
   // query parameter
@@ -1166,12 +1166,12 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
     std::string   period = m_runPeriod.toString();
     std::string location = m_setupLocation.toString();
     try {
-      INFO("GEMSupervisor::updateRunNumber trying to configure the local DB");
+      CMSGEMOS_INFO("GEMSupervisor::updateRunNumber trying to configure the local DB");
       p_gemDBHelper->configure(location,setup,period, m_runNumber.value_);
     } catch (gem::utils::exception::DBPythonError& e) {
       std::stringstream msg;
       msg << "GEMSupervisor::updateRunNumber python DB Configure call failed";
-      ERROR(msg.str());
+      CMSGEMOS_ERROR(msg.str());
       m_globalState.update();
       // fireEvent("Fail");
       XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
@@ -1179,7 +1179,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
 
     if (m_useLocalRunNumber) {
       try {
-        INFO("GEMSupervisor::updateRunNumber trying to connect to the local DB");
+        CMSGEMOS_INFO("GEMSupervisor::updateRunNumber trying to connect to the local DB");
         p_gemDBHelper->connect(m_dbName.toString());
 
         std::string lastRunNumberQuery = "SELECT Number FROM ldqm_db_run WHERE Station LIKE '";
@@ -1187,30 +1187,30 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
         lastRunNumberQuery += "' ORDER BY Number DESC LIMIT 1;";
 
         try {
-          INFO("GEMSupervisor::updateRunNumber trying to get the latest run number");
+          CMSGEMOS_INFO("GEMSupervisor::updateRunNumber trying to get the latest run number");
           m_runNumber.value_ = p_gemDBHelper->query(lastRunNumberQuery);
         } catch (gem::utils::exception::DBEmptyQueryResult& e) {
-          ERROR("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
+          CMSGEMOS_ERROR("GEMSupervisor::updateRunNumber caught gem::utils::DBEmptyQueryResult " << e.what());
           m_globalState.update();
           XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
         } catch (xcept::Exception& e) {
-          ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
+          CMSGEMOS_ERROR("GEMSupervisor::updateRunNumber caught xcept::Exception " << e.what());
           m_globalState.update();
           XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
         } catch (std::exception& e) {
-          ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
+          CMSGEMOS_ERROR("GEMSupervisor::updateRunNumber caught std::exception " << e.what());
           m_globalState.update();
           XCEPT_RAISE(gem::utils::exception::DBConnectionError, e.what());
         }
 
-        INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
+        CMSGEMOS_INFO("GEMSupervisor::updateRunNumber, run number from database is : " << m_runNumber.toString());
         //parse and increment by 1, if it is a new station, start at 1
         //m_runNumber.value_ += 1;
-        INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
+        CMSGEMOS_INFO("GEMSupervisor::updateRunNumber, new run number is: " << m_runNumber.toString());
       } catch (gem::utils::exception::DBConnectionError& e) {
         std::stringstream msg;
         msg << "GEMSupervisor::updateRunNumber unable to connect to the database (DBConnectionError)" << e.what();
-        ERROR(msg.str());
+        CMSGEMOS_ERROR(msg.str());
         fireEvent("Fail");
         m_globalState.update();
         // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
@@ -1219,7 +1219,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       } catch (xcept::Exception& e) {
         std::stringstream msg;
         msg << "GEMSupervisor::updateRunNumber unable to connect to the database (xcept)" << e.what();
-        ERROR(msg.str());
+        CMSGEMOS_ERROR(msg.str());
         fireEvent("Fail");
         m_globalState.update();
         // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
@@ -1228,7 +1228,7 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       } catch (std::exception& e) {
         std::stringstream msg;
         msg << "GEMSupervisor::updateRunNumber unable to connect to the database (std)" << e.what();
-        ERROR(msg.str());
+        CMSGEMOS_ERROR(msg.str());
         fireEvent("Fail");
         m_globalState.update();
         // XCEPT_RETHROW(gem::supervisor::exception::Exception, msg.str(), e);
@@ -1237,13 +1237,13 @@ void gem::supervisor::GEMSupervisor::updateRunNumber()
       }
     }
   }
-  INFO("GEMSupervisor::updateRunNumber done");
+  CMSGEMOS_INFO("GEMSupervisor::updateRunNumber done");
 }
 
 void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xdaq::ApplicationDescriptor* ad)
 //  throw (xoap::exception::Exception)
 {
-  INFO("GEMSupervisor::sendCfgType to " << ad->getClassName());
+  CMSGEMOS_INFO("GEMSupervisor::sendCfgType to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("CfgType", "xsd:string", m_cfgType.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 }
@@ -1251,7 +1251,7 @@ void gem::supervisor::GEMSupervisor::sendCfgType(std::string const& cfgType, xda
 void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xdaq::ApplicationDescriptor* ad)
 //  throw (xoap::exception::Exception)
 {
-  INFO("GEMSupervisor::sendRunType to " << ad->getClassName());
+  CMSGEMOS_INFO("GEMSupervisor::sendRunType to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunType", "xsd:string", m_runType.toString(),
                                                              p_appContext, p_appDescriptor, ad);
 }
@@ -1259,7 +1259,7 @@ void gem::supervisor::GEMSupervisor::sendRunType(std::string const& runType, xda
 void gem::supervisor::GEMSupervisor::sendRunNumber(int64_t const& runNumber, xdaq::ApplicationDescriptor* ad)
 //  throw (xoap::exception::Exception)
 {
-  INFO("GEMSupervisor::sendRunNumber " << m_runNumber.toString() << " to " << ad->getClassName());
+  CMSGEMOS_INFO("GEMSupervisor::sendRunNumber " << m_runNumber.toString() << " to " << ad->getClassName());
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameter("RunNumber", "xsd:long",
                                                              m_runNumber.toString(),
                                                              p_appContext, p_appDescriptor, ad);
@@ -1276,7 +1276,7 @@ void gem::supervisor::GEMSupervisor::renewTCDSLease()
   if (m_handleTCDS) {
     gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_tcdsLock);
     for (auto tcdsApp = v_leasedTCDSApps.begin(); tcdsApp != v_leasedTCDSApps.end(); ++tcdsApp) {
-      DEBUG("GEMSupervisor::renewTCDSLease renewing lease for " <<  (*tcdsApp)->getClassName());
+      CMSGEMOS_DEBUG("GEMSupervisor::renewTCDSLease renewing lease for " <<  (*tcdsApp)->getClassName());
       gem::utils::soap::GEMSOAPToolBox::sendCommand("RenewHardwareLease", p_appContext, p_appDescriptor, *tcdsApp);
     }
   }
@@ -1287,7 +1287,7 @@ void gem::supervisor::GEMSupervisor::pausePhaseMonitoring()
 {
   std::stringstream msg;
   msg << "GEMSupervisor::pausePhaseMonitoring is obsolete";
-  WARN(msg.str());
+  CMSGEMOS_WARN(msg.str());
 }
 
 void gem::supervisor::GEMSupervisor::resumePhaseMonitoring()
@@ -1295,14 +1295,14 @@ void gem::supervisor::GEMSupervisor::resumePhaseMonitoring()
 {
   std::stringstream msg;
   msg << "GEMSupervisor::resumePhaseMonitoring is obsolete";
-  WARN(msg.str());
+  CMSGEMOS_WARN(msg.str());
 }
 
 void gem::supervisor::GEMSupervisor::sendScanParameters(xdaq::ApplicationDescriptor* ad)
 //  throw (xoap::exception::Exception)
 {
 
-  INFO("GEMSupervisor::sendScanParameter ScanInfo " << std::endl
+  CMSGEMOS_INFO("GEMSupervisor::sendScanParameter ScanInfo " << std::endl
        << m_scanInfo.bag.toString());
   // needs try/catch block
   gem::utils::soap::GEMSOAPToolBox::sendApplicationParameterBag("ScanInfo", m_scanInfo, p_appContext, p_appDescriptor, ad);
@@ -1316,7 +1316,7 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
 
   uint32_t updatedParameter = m_scanParameter + m_stepSize.value_;
 
-  INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
+  CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName() << std::endl
        << " GlobalStateMessage  = " << m_globalState.getStateName()  << std::endl
        << " m_scanParameter  = " << m_scanParameter  << std::endl
        << " updatedParameter = " << updatedParameter << std::endl
@@ -1325,45 +1325,45 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
        );
   if (updatedParameter <= m_scanMax.value_) {
     if (m_scanType.value_ == 2) {
-      INFO("GEMSupervisor::EndScanPoint LatencyScan Latency " << updatedParameter);
+      CMSGEMOS_INFO("GEMSupervisor::EndScanPoint LatencyScan Latency " << updatedParameter);
     } else if (m_scanType.value_ == 3) {
-      INFO("GEMSupervisor::EndScanPoint ThresholdScan VT1 " << updatedParameter);
+      CMSGEMOS_INFO("GEMSupervisor::EndScanPoint ThresholdScan VT1 " << updatedParameter);
     }
 
     while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
-      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+      CMSGEMOS_TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	    << " FSM state " << getCurrentState());
       usleep(10);
       m_globalState.update();
     }
 
-    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	  << " FSM state " << getCurrentState()
 	  << " calling pauseAction");
     fireEvent("Pause");
 
     while (!(m_globalState.getStateName() == "Paused" && getCurrentState() == "Paused")) {
-      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+      CMSGEMOS_TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	    << " FSM state " << getCurrentState());
       usleep(10);
       m_globalState.update();
     }
 
-    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	  << " FSM state " << getCurrentState()
 	  << " calling resumeAction");
     fireEvent("Resume");
 
     m_scanParameter = updatedParameter;
     while (!(m_globalState.getStateName() == "Running" && getCurrentState() == "Running")) {
-      TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+      CMSGEMOS_TRACE("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	    << " FSM state " << getCurrentState());
       usleep(10);
       m_globalState.update();
     }
   } else {
-    INFO("GEMSupervisor::EndScanPoint Scan Finished " << updatedParameter);
-    INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
+    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint Scan Finished " << updatedParameter);
+    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint GlobalState = " << m_globalState.getStateName()
 	  << " FSM state " << getCurrentState()
           << " calling stopAction");
 
@@ -1372,13 +1372,13 @@ xoap::MessageReference gem::supervisor::GEMSupervisor::EndScanPoint(xoap::Messag
   }
 
   try {
-    INFO("GEMSupervisor::EndScanPoint " << commandName << " succeeded ");
+    CMSGEMOS_INFO("GEMSupervisor::EndScanPoint " << commandName << " succeeded ");
     return
       gem::utils::soap::GEMSOAPToolBox::makeSOAPReply(commandName, "SentTriggers");
   } catch(xcept::Exception& err) {
     std::string msgBase = toolbox::toString("Failed to create SOAP reply for command '%s'",
                                             commandName.c_str());
-    ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
+    CMSGEMOS_ERROR(toolbox::toString("%s: %s.", msgBase.c_str(), xcept::stdformat_exception(err).c_str()));
     XCEPT_DECLARE_NESTED(gem::base::utils::exception::SoftwareProblem,
                          top, toolbox::toString("%s.",msgBase.c_str()), err);
     this->notifyQualified("error", top);
@@ -1436,11 +1436,11 @@ std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSup
   std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
     // if ((*i)->getClassName().find("tcds") != std::string::npos) {
-    //   INFO("GEMSupervisor::getInitializationOrder::Skipping " << (*i)->getClassName()
+    //   CMSGEMOS_INFO("GEMSupervisor::getInitializationOrder::Skipping " << (*i)->getClassName()
     //        << " for initialization");
     //   continue;
     // }
-    INFO("GEMSupervisor::getInitializationOrder: application "
+    CMSGEMOS_INFO("GEMSupervisor::getInitializationOrder: application "
          << (*i)->getClassName() << " has priority "
          << InitCompare::initPriority((*i)->getClassName()));
     tool.insert(std::make_pair(InitCompare::initPriority((*i)->getClassName()), *i));
@@ -1463,7 +1463,7 @@ std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSup
 {
   std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO("GEMSupervisor::getConfigureOrder: application "
+    CMSGEMOS_INFO("GEMSupervisor::getConfigureOrder: application "
          << (*i)->getClassName() << " has priority "
          << InitCompare::initPriority((*i)->getClassName()));
     tool.insert(std::make_pair(InitCompare::initPriority((*i)->getClassName()), *i));
@@ -1520,7 +1520,7 @@ std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSup
 {
   std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO("GEMSupervisor::getEnableOrder: application "
+    CMSGEMOS_INFO("GEMSupervisor::getEnableOrder: application "
          << (*i)->getClassName() << " has priority "
          << EnableCompare::enablePriority((*i)->getClassName()));
     tool.insert(std::make_pair(EnableCompare::enablePriority((*i)->getClassName()), *i));
@@ -1590,7 +1590,7 @@ std::vector<std::vector<xdaq::ApplicationDescriptor* > > gem::supervisor::GEMSup
 {
   std::multimap<int, xdaq::ApplicationDescriptor*, std::greater<int> > tool;
   for (auto i = v_supervisedApps.begin(); i != v_supervisedApps.end(); ++i) {
-    INFO("GEMSupervisor::getDisableOrder: application "
+    CMSGEMOS_INFO("GEMSupervisor::getDisableOrder: application "
          << (*i)->getClassName() << " has priority "
          << DisableCompare::disablePriority((*i)->getClassName()));
 

@@ -194,7 +194,7 @@ namespace gem {
             }
             std::string tool;
             xoap::dumpTree(msg->getSOAPPart().getEnvelope().getDOMNode(),tool);
-            DEBUG("GEMSOAPToolBox::sendApplicationParameterBag: " << tool);
+            CMSGEMOS_DEBUG("GEMSOAPToolBox::sendApplicationParameterBag: " << tool);
             answer = appCxt->postSOAP(msg, *srcDsc, *destDsc);
           } catch (gem::utils::exception::Exception& e) {
             std::string errMsg = toolbox::toString("Send application parameter bag %s failed [%s] (gem::utils::exception::Exception)",

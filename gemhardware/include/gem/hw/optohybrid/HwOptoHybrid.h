@@ -234,7 +234,7 @@ namespace gem {
 
           uint32_t getFirmwareVersion() {
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW.VERSION");
-            TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
+            CMSGEMOS_TRACE("OH has firmware version 0x" << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 
@@ -260,7 +260,7 @@ namespace gem {
            */
           uint32_t getFirmwareDate() {
             uint32_t fwver = readReg(getDeviceBaseNode(),"STATUS.FW.DATE");
-            TRACE("OH has firmware date 0x" << std::hex << fwver << std::dec << std::endl);
+            CMSGEMOS_TRACE("OH has firmware date 0x" << std::hex << fwver << std::dec << std::endl);
             return fwver;
           };
 
@@ -361,7 +361,7 @@ namespace gem {
            *  a 1 means the VFAT WILL be masked, and it's data packets will NOT go to the AMC
            */
           void setVFATMask(uint32_t const mask) {
-            DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
+            CMSGEMOS_DEBUG("HwOptoHybrid::setVFATMask setting tracking mask to "
                   << std::hex << std::setw(8) << std::setfill('0') << mask << std::dec);
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.TRK_MASK"),mask&0x00ffffff); };
 
@@ -399,7 +399,7 @@ namespace gem {
            *  a 1 means the OptoHybrid WILL drop bad packets
            */
           void setDropBadCRCStatus(bool const drop) {
-            DEBUG("HwOptoHybrid::setVFATMask setting DROP_BAD_CRC to "
+            CMSGEMOS_DEBUG("HwOptoHybrid::setVFATMask setting DROP_BAD_CRC to "
                   << std::hex << drop << std::dec);
             return writeReg(getDeviceBaseNode(),toolbox::toString("CONTROL.VFAT.DROP_BAD_CRC"),drop); };
 
