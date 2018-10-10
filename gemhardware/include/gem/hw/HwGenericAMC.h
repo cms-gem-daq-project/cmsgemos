@@ -795,7 +795,7 @@ namespace gem {
         uint32_t m_links;    ///< Connected links mask
         uint32_t m_maxLinks; ///< Maximum supported OptoHybrids as reported by the firmware
 
-        std::vector<linkStatus> v_activeLinks;
+        std::vector<linkStatus> v_activeLinks; ///< vector keeping track of the active links
 
         /**
          * @brief sets the expected board ID string to be matched when reading from the firmware
@@ -810,12 +810,12 @@ namespace gem {
 
       private:
         // Do Not use default constructor. HwGenericAMC object should only be made using
-        // either connection file method or with a list of URIs and Address Tables
+        // either connection file method or with a list of URIs and address tables
         HwGenericAMC();
 
         // Prevent copying of HwGenericAMC objects
-        HwGenericAMC( const HwGenericAMC& other) ; // prevents construction-copy
-        HwGenericAMC& operator=( const HwGenericAMC&) ; // prevents copying
+        HwGenericAMC(const HwGenericAMC& other);      // prevents construction-copy
+        HwGenericAMC& operator=(const HwGenericAMC&); // prevents copying
 
       };  // class HwGenericAMC
   }  // namespace gem::hw

@@ -10,29 +10,31 @@
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionFile) :
+  xhal::XHALInterface(deviceName),
+  uhal::HwInterface(std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile))->getDevice(deviceName)),
   b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
   m_hwLock(toolbox::BSem::FULL, true)
 {
   CMSGEMOS_DEBUG("GEMHwDevice(std::string, std::string) ctor");
   setLogLevelTo(uhal::Error());
-  p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile));
-  try {
-    p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(p_gemConnectionManager->getDevice(deviceName)));
-  } catch (uhal::exception::FileNotFound const& err) {
-    std::string msg = toolbox::toString("Could not find uhal connection file '%s' ",
-                                        connectionFile.c_str());
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  } catch (uhal::exception::exception const& err) {
-    std::string msgBase = "Could not obtain the uhal device from the connection manager";
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  } catch (std::exception const& err) {
-    CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
-    std::string msgBase = "Could not connect to the hardware";
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  }
+  // p_gemConnectionManager = std::shared_ptr<uhal::ConnectionManager>(new uhal::ConnectionManager("file://${GEM_ADDRESS_TABLE_PATH}/"+connectionFile));
+  // try {
+  //   // p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(p_gemConnectionManager->getDevice(deviceName)));
+  // } catch (uhal::exception::FileNotFound const& err) {
+  //   std::string msg = toolbox::toString("Could not find uhal connection file '%s' ",
+  //                                       connectionFile.c_str());
+  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+  // } catch (uhal::exception::exception const& err) {
+  //   std::string msgBase = "Could not obtain the uhal device from the connection manager";
+  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+  // } catch (std::exception const& err) {
+  //   CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
+  //   std::string msgBase = "Could not connect to the hardware";
+  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+  // }
   // should have pointer to device by here
   setup(deviceName);
   CMSGEMOS_DEBUG("GEMHwDevice::ctor done");
@@ -40,58 +42,62 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
                                   std::string const& connectionURI,
                                   std::string const& addressTable) :
+  xhal::XHALInterface(deviceName),
+  uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName, connectionURI, addressTable)),
   b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
   m_hwLock(toolbox::BSem::FULL, true)
 {
   CMSGEMOS_DEBUG("GEMHwDevice(std::string, std::string, std::string) ctor");
   setLogLevelTo(uhal::Error());
-  try {
-    p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName,
-                                                                                                          connectionURI,
-                                                                                                          addressTable)));
-  } catch (uhal::exception::FileNotFound const& err) {
-    std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
-                                        "(or one of its included address table modules).",
-                                        addressTable.c_str());
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  } catch (uhal::exception::exception const& err) {
-    std::string msgBase = "Could not obtain the uhal device from the connection manager";
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  } catch (std::exception const& err) {
-    CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
-    std::string msgBase = "Could not connect to th e hardware";
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  }
+  // try {
+  //   p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName,
+  //                                                                                                         connectionURI,
+  //                                                                                                         addressTable)));
+  // } catch (uhal::exception::FileNotFound const& err) {
+  //   std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
+  //                                       "(or one of its included address table modules).",
+  //                                       addressTable.c_str());
+  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+  // } catch (uhal::exception::exception const& err) {
+  //   std::string msgBase = "Could not obtain the uhal device from the connection manager";
+  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+  // } catch (std::exception const& err) {
+  //   CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
+  //   std::string msgBase = "Could not connect to th e hardware";
+  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+  // }
   // should have pointer to device by here
   setup(deviceName);
   CMSGEMOS_DEBUG("GEMHwDevice::ctor done");
 }
 
 gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
-                                  uhal::HwInterface& uhalDevice) :
+                                  uhal::HwInterface const& uhalDevice) :
+  xhal::XHALInterface(deviceName),
+  uhal::HwInterface(uhalDevice),
   b_is_connected(false),
   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
   m_hwLock(toolbox::BSem::FULL, true)
 {
   CMSGEMOS_DEBUG("GEMHwDevice(std::string, uhal::HwInterface) ctor");
   setLogLevelTo(uhal::Error());
-  try {
-    p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice));
-    // maybe get specific node, or pass this in as an argument?
-    // p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice->getNode("someNode")));
-  } catch (uhal::exception::exception const& err) {
-    std::string msgBase = "Could not obtain the uhal device from the passed device";
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  } catch (std::exception const& err) {
-    CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
-    std::string msgBase = "Could not connect to th e hardware";
-    std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-  }
+  // try {
+  //   p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice));
+  //   // maybe get specific node, or pass this in as an argument?
+  //   // p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhalDevice->getNode("someNode")));
+  // } catch (uhal::exception::exception const& err) {
+  //   std::string msgBase = "Could not obtain the uhal device from the passed device";
+  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+  // } catch (std::exception const& err) {
+  //   CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
+  //   std::string msgBase = "Could not connect to th e hardware";
+  //   std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
+  //   CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+  // }
   // should have pointer to device by here
   setup(deviceName);
   CMSGEMOS_DEBUG("GEMHwDevice::ctor done");
@@ -234,39 +240,39 @@ void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
   setLogLevelTo(uhal::Error());
 }
 
-uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
-{
-  if (p_gemHW == NULL) {
-    std::string msg = "Trying to access hardware before connecting!";
-    CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-    XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
-  } else {
-    uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
-    return hw;
-  }
-  //have to fix the return value for failed access, better to return a pointer?
-}
+// uhal::HwInterface& gem::hw::GEMHwDevice::getGEMHwInterface() const
+// {
+//   if (p_gemHW == NULL) {
+//     std::string msg = "Trying to access hardware before connecting!";
+//     CMSGEMOS_ERROR("GEMHwDevice::" << msg);
+//     XCEPT_RAISE(gem::hw::exception::UninitializedDevice, msg);
+//   } else {
+//     uhal::HwInterface& hw = static_cast<uhal::HwInterface&>(*p_gemHW);
+//     return hw;
+//   }
+//   //have to fix the return value for failed access, better to return a pointer?
+// }
 
 uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
   uint32_t res = 0x0;
-  CMSGEMOS_DEBUG("GEMHwDevice::gem::hw::GEMHwDevice::readReg "  << name << std::endl
-        << "Path  "      << hw.getNode(name).getPath() << std::endl
-        << "Address 0x"  << std::hex << hw.getNode(name).getAddress() << std::dec << std::endl
-        << "Mask 0x"     << std::hex << hw.getNode(name).getMask()    << std::dec << std::endl
-        << "Permission " << hw.getNode(name).getPermission() << std::endl
-        << "Mode "       << hw.getNode(name).getMode() << std::endl
-        << "Size "       << hw.getNode(name).getSize() << std::endl
+  CMSGEMOS_DEBUG("GEMHwDevice::readReg " << name << std::endl
+                 << "Path  "      << this->getNode(name).getPath() << std::endl
+                 << "Address 0x"  << std::hex << this->getNode(name).getAddress() << std::dec << std::endl
+                 << "Mask 0x"     << std::hex << this->getNode(name).getMask()    << std::dec << std::endl
+                 << "Permission " << this->getNode(name).getPermission() << std::endl
+                 << "Mode "       << this->getNode(name).getMode() << std::endl
+                 << "Size "       << this->getNode(name).getSize() << std::endl
         << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
-      uhal::ValWord<uint32_t> val = hw.getNode(name).read();
-      hw.dispatch();
+      uhal::ValWord<uint32_t> val = this->getNode(name).read();
+      this->dispatch();
       res = val.value();
       CMSGEMOS_TRACE("GEMHwDevice::Successfully read register " << name.c_str() << " with value 0x"
             << std::setfill('0') << std::setw(8) << std::hex << res << std::dec
@@ -304,7 +310,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
 uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
   uint32_t res = 0x0;
@@ -313,8 +319,8 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
-      uhal::ValWord<uint32_t> val = hw.getClient().read(address);
-      hw.dispatch();
+      uhal::ValWord<uint32_t> val = this->getClient().read(address);
+      this->dispatch();
       res = val.value();
       CMSGEMOS_TRACE("GEMHwDevice::Successfully read register 0x" << std::setfill('0') << std::setw(8)
             << std::hex << address << std::dec << " with value 0x"
@@ -355,7 +361,7 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address)
 uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& mask)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
   uint32_t res = 0x0;
@@ -364,8 +370,8 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& 
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
-      uhal::ValWord<uint32_t> val = hw.getClient().read(address,mask);
-      hw.dispatch();
+      uhal::ValWord<uint32_t> val = this->getClient().read(address,mask);
+      this->dispatch();
       res = val.value();
       CMSGEMOS_TRACE("GEMHwDevice::Successfully read register 0x" << std::setfill('0') << std::setw(8)
             << std::hex << address << std::dec << " with mask "
@@ -407,15 +413,15 @@ uint32_t gem::hw::GEMHwDevice::readReg(uint32_t const& address, uint32_t const& 
 
 uint32_t gem::hw::GEMHwDevice::readMaskedAddress(std::string const& name)
 {
-  uint32_t address = getGEMHwInterface().getNode(name).getAddress();
-  uint32_t mask    = getGEMHwInterface().getNode(name).getMask();
+  uint32_t address = this->getNode(name).getAddress();
+  uint32_t mask    = this->getNode(name).getMask();
   return readReg(address,mask);
 }
 
 void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -425,15 +431,15 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq
       // vals.reserve(regList.size());
       int counter{0}, dispatchcounter{0};
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
-        vals.push_back(std::make_pair(curReg->first,hw.getNode(curReg->first).read()));
+        vals.push_back(std::make_pair(curReg->first,this->getNode(curReg->first).read()));
         ++counter;
         if (freq > 0 && counter%freq == 0) {
-          hw.dispatch();
+          this->dispatch();
           ++dispatchcounter;
         }
       }
       if (freq < 0 || counter%freq != 0) {
-        hw.dispatch();
+        this->dispatch();
           ++dispatchcounter;
       }
 
@@ -475,7 +481,7 @@ void gem::hw::GEMHwDevice::readRegs(register_pair_list &regList, int const& freq
 void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int const& freq)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -485,15 +491,15 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int c
       // vals.reserve(regList.size());
       int counter{0}, dispatchcounter{0};
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
-        vals.push_back(std::make_pair(curReg->first,hw.getClient().read(curReg->first)));
+        vals.push_back(std::make_pair(curReg->first,this->getClient().read(curReg->first)));
         ++counter;
         if (freq > 0 && counter%freq == 0) {
-          hw.dispatch();
+          this->dispatch();
           ++dispatchcounter;
         }
       }
       if (freq < 0 || counter%freq != 0) {
-        hw.dispatch();
+        this->dispatch();
           ++dispatchcounter;
       }
 
@@ -535,7 +541,7 @@ void gem::hw::GEMHwDevice::readRegs(addressed_register_pair_list &regList, int c
 void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int const& freq)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
 
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
@@ -546,15 +552,15 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int cons
       int counter{0}, dispatchcounter{0};
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
         vals.push_back(std::make_pair(std::make_pair(curReg->first.first,curReg->first.second),
-                                      hw.getClient().read(curReg->first.first,curReg->second)));
+                                      this->getClient().read(curReg->first.first,curReg->second)));
         ++counter;
         if (freq > 0 && counter%freq == 0) {
-          hw.dispatch();
+          this->dispatch();
           ++dispatchcounter;
         }
       }
       if (freq < 0 || counter%freq != 0) {
-        hw.dispatch();
+        this->dispatch();
           ++dispatchcounter;
       }
 
@@ -596,34 +602,35 @@ void gem::hw::GEMHwDevice::readRegs(masked_register_pair_list &regList, int cons
 void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
+
   unsigned retryCount = 0;
-  CMSGEMOS_DEBUG("gem::hw::GEMHwDevice::writeReg " << name << std::endl
-        << "Path  "      << hw.getNode(name).getPath() << std::endl
-        << "Address 0x"  << std::hex << hw.getNode(name).getAddress() << std::dec << std::endl
-        << "Mask 0x"     << std::hex << hw.getNode(name).getMask()    << std::dec << std::endl
-        << "Permission " << hw.getNode(name).getPermission() << std::endl
-        << "Mode "       << hw.getNode(name).getMode() << std::endl
-        << "Size "       << hw.getNode(name).getSize() << std::endl
-        << std::endl);
+  CMSGEMOS_DEBUG("GEMHwDevice::writeReg " << name << std::endl
+                 << "Path  "      << this->getNode(name).getPath() << std::endl
+                 << "Address 0x"  << std::hex << this->getNode(name).getAddress() << std::dec << std::endl
+                 << "Mask 0x"     << std::hex << this->getNode(name).getMask()    << std::dec << std::endl
+                 << "Permission " << this->getNode(name).getPermission() << std::endl
+                 << "Mode "       << this->getNode(name).getMode() << std::endl
+                 << "Size "       << this->getNode(name).getSize() << std::endl
+                 << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
       uhal::ValWord<uint32_t> ival;
-      if (hw.getNode(name).getPermission() != uhal::defs::WRITE)
-        ival = hw.getNode(name).read();
-      hw.getNode(name).write(val);
+      if (this->getNode(name).getPermission() != uhal::defs::WRITE)
+        ival = this->getNode(name).read();
+      this->getNode(name).write(val);
       uhal::ValWord<uint32_t> rval;
-      if (hw.getNode(name).getPermission() != uhal::defs::WRITE)
-        rval = hw.getNode(name).read();
-      hw.dispatch();
-      if (hw.getNode(name).getPermission() != uhal::defs::WRITE)
-        CMSGEMOS_DEBUG("gem::hw::GEMHwDevice::writeReg initial: "
-              << std::hex << ival.value() << std::dec
-              << ", write val: " << std::hex << val << std::dec
-              << ", readback: "  << std::hex << rval.value() << std::dec
-              << std::endl);
-      if (hw.getNode(name).getPermission() != uhal::defs::WRITE)
+      if (this->getNode(name).getPermission() != uhal::defs::WRITE)
+        rval = this->getNode(name).read();
+      this->dispatch();
+      if (this->getNode(name).getPermission() != uhal::defs::WRITE)
+        CMSGEMOS_DEBUG("GEMHwDevice::writeReg initial: "
+                       << std::hex << ival.value() << std::dec
+                       << ", write val: " << std::hex << val << std::dec
+                       << ", readback: "  << std::hex << rval.value() << std::dec
+                       << std::endl);
+      if (this->getNode(name).getPermission() != uhal::defs::WRITE)
         if (rval.value() != val) {
           std::string msgBase = toolbox::toString("WriteValueMismatch write (0x%x) to register '%s' resulted in 0x%x (uHAL)",
                                                   val, name.c_str(),rval.value());
@@ -666,20 +673,21 @@ void gem::hw::GEMHwDevice::writeReg(std::string const& name, uint32_t const val)
 void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
+
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
-      uhal::ValWord<uint32_t> ival = hw.getClient().read(address);
-      hw.getClient().write(address, val);
-      uhal::ValWord<uint32_t> rval = hw.getClient().read(address);
-      hw.dispatch();
-      CMSGEMOS_DEBUG("gem::hw::GEMHwDevice::writeReg initial: "
-            << std::hex << ival.value() << std::dec
-            << ", write val: " << std::hex << val << std::dec
-            << ", readback: "  << std::hex << rval.value() << std::dec
-            << std::endl);
+      uhal::ValWord<uint32_t> ival = this->getClient().read(address);
+      this->getClient().write(address, val);
+      uhal::ValWord<uint32_t> rval = this->getClient().read(address);
+      this->dispatch();
+      CMSGEMOS_DEBUG("GEMHwDevice::writeReg initial: "
+                     << std::hex << ival.value() << std::dec
+                     << ", write val: " << std::hex << val << std::dec
+                     << ", readback: "  << std::hex << rval.value() << std::dec
+                     << std::endl);
       if (rval.value() != val) {
         std::string msgBase = toolbox::toString("WriteValueMismatch write (0x%x) to register '0x%08x' resulted in 0x%x (uHAL)",
                                                 val,address,rval.value());
@@ -724,22 +732,23 @@ void gem::hw::GEMHwDevice::writeReg(uint32_t const& address, uint32_t const val)
 void gem::hw::GEMHwDevice::writeRegs(register_pair_list const& regList, int const& freq)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
+
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
       int counter{0}, dispatchcounter{0};
       for (auto curReg = regList.begin(); curReg != regList.end(); ++curReg) {
-        hw.getNode(curReg->first).write(curReg->second);
+        this->getNode(curReg->first).write(curReg->second);
         ++counter;
         if (freq > 0 && counter%freq == 0) {
-          hw.dispatch();
+          this->dispatch();
           ++dispatchcounter;
         }
       }
       if (freq < 0 || counter%freq != 0) {
-        hw.dispatch();
+        this->dispatch();
           ++dispatchcounter;
       }
       CMSGEMOS_DEBUG("GEMHwDevice::writeRegs dispatched " << dispatchcounter
@@ -795,8 +804,8 @@ void gem::hw::GEMHwDevice::zeroRegs(std::vector<std::string> const& regNames, in
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
-  size_t numWords       = hw.getNode(name).getSize();
+  // uhal::HwInterface& hw = getGEMHwInterface();
+  size_t numWords = this->getNode(name).getSize();
   CMSGEMOS_TRACE("GEMHwDevice::reading block " << name << " which has size "<<numWords);
   return readBlock(name, numWords);
 }
@@ -804,7 +813,7 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name)
 std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, size_t const& numWords)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
 
   std::vector<uint32_t> res(numWords);
 
@@ -815,8 +824,8 @@ std::vector<uint32_t> gem::hw::GEMHwDevice::readBlock(std::string const& name, s
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
-      uhal::ValVector<uint32_t> values = hw.getNode(name).readBlock(numWords);
-      hw.dispatch();
+      uhal::ValVector<uint32_t> values = this->getNode(name).readBlock(numWords);
+      this->dispatch();
       std::copy(values.begin(), values.end(), res.begin());
       return res;
     } catch (uhal::exception::exception const& err) {
@@ -869,13 +878,14 @@ void gem::hw::GEMHwDevice::writeBlock(std::string const& name, std::vector<uint3
   if (values.size() < 1)
     return;
 
-  uhal::HwInterface& hw = getGEMHwInterface();
+  // uhal::HwInterface& hw = getGEMHwInterface();
+
   unsigned retryCount = 0;
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
-      hw.getNode(name).writeBlock(values);
-      hw.dispatch();
+      this->getNode(name).writeBlock(values);
+      this->dispatch();
       return;
     } catch (uhal::exception::exception const& err) {
       std::string msgBase = toolbox::toString("Could not write to block '%s' (uHAL)", name.c_str());
@@ -964,8 +974,9 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
 void gem::hw::GEMHwDevice::zeroBlock(std::string const& name)
 {
   gem::utils::LockGuard<gem::utils::Lock> guardedLock(m_hwLock);
-  uhal::HwInterface& hw = getGEMHwInterface();
-  size_t numWords = hw.getNode(name).getSize();
+  // uhal::HwInterface& hw = getGEMHwInterface();
+
+  size_t numWords = this->getNode(name).getSize();
   std::vector<uint32_t> zeros(numWords, 0);
   return writeBlock(name, zeros);
 }

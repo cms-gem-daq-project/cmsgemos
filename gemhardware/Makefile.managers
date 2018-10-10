@@ -27,6 +27,7 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemreadout/include
 IncludeDirs+=$(uHALROOT)/include
+IncludeDirs+=$(XHALROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/$(Package)/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
@@ -42,6 +43,11 @@ LibraryDirs+=$(uHALROOT)/lib
 
 DependentLibraries+=cactus_amc13_tools
 DependentLibraries+=gemutils gembase gemreadout gemhardware_devices
+
+UserCFlags+=-O0 -g3 -fno-inline
+UserCCFlags+=-O0 -g3 -fno-inline
+CFlags+=-O0 -g3 -fno-inline
+CCFlags+=-O0 -g3 -fno-inline
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk

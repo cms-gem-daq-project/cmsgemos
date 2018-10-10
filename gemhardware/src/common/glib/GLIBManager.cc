@@ -106,7 +106,7 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
     return dump;
   } else if (!m_glibs.at(glib)) {
     CMSGEMOS_WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib+1
-         << " is not connected");
+                  << " is not connected");
     return dump;
     //} else if (!(m_glibs.at(glib)->hasTrackingData(0))) {
     //  CMSGEMOS_WARN("GLIBManager::dumpGLIBFIFO Specified GLIB card " << glib
@@ -142,11 +142,13 @@ std::vector<uint32_t> gem::hw::glib::GLIBManager::dumpGLIBFIFO(int const& glib)
 void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
 {
   if (event.type() == "setDefaultValues" || event.type() == "urn:xdaq-event:setDefaultValues") {
-    CMSGEMOS_DEBUG("GLIBManager::actionPerformed() setDefaultValues" <<
-          "Default configuration values have been loaded from xml profile");
-    m_amcEnableMask = gem::hw::utils::parseAMCEnableList(m_amcSlots.toString());
+    CMSGEMOS_DEBUG("GLIBManager::actionPerformed() setDefaultValues"
+                   << "Default configuration values have been loaded from xml profile");
+    m_amcEnableMask = gem::hw::utils::parseAMCEnableList(m_amcSlots.toString(),
+                                                         &m_gemLogger);
+                                                         // m_gemLogger);
     CMSGEMOS_INFO("GLIBManager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
-         << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
+                  << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
 
     // how to handle passing in various values nested in a vector in a bag
     for (auto slot = m_glibInfo.begin(); slot != m_glibInfo.end(); ++slot) {
@@ -182,13 +184,13 @@ void gem::hw::glib::GLIBManager::initializeAction()
       CMSGEMOS_DEBUG("GLIBManager::info:" << info.toString());
       CMSGEMOS_DEBUG("GLIBManager::expect a card in slot " << (slot+1));
       CMSGEMOS_DEBUG("GLIBManager::bag"
-            << "crate " << info.crateID.value_
-            << " slot " << info.slotID.value_);
+                     << "crate " << info.crateID.value_
+                     << " slot " << info.slotID.value_);
       // this maybe shouldn't be done?
       info.slotID  = slot+1;
       CMSGEMOS_DEBUG("GLIBManager::bag"
-            << "crate " << info.crateID.value_
-            << " slot " << info.slotID.value_);
+                     << "crate " << info.crateID.value_
+                     << " slot " << info.slotID.value_);
       // this maybe shouldn't be done?
       info.present = true;
       // actually check presence? this just says that we expect it to be there
@@ -213,7 +215,7 @@ void gem::hw::glib::GLIBManager::initializeAction()
     // create the cfgInfoSpace object (qualified vs non?)
     std::string deviceName = info.cardName.toString();
     if (deviceName.empty())
-      deviceName = toolbox::toString("gem.shelf%02d.amc%02d",
+      deviceName = toolbox::toString("gem-shelf%02d-amc%02d",
                                      info.crateID.value_,
                                      info.slotID.value_);
     toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
@@ -542,14 +544,14 @@ void gem::hw::glib::GLIBManager::pauseAction()
           usleep(10);
         }
         CMSGEMOS_DEBUG("GLIBManager::pauseAction AMC" << (slot+1) << " finished building events, updating run parameter "
-              << (int)updatedLatency);
+                       << (int)updatedLatency);
         amc->setDAQLinkRunParameter(0x1,updatedLatency);
       } else if (m_scanType.value_ == 3) {
         uint8_t updatedVT1 = m_lastVT1 + m_stepSize.value_;
         uint8_t updatedVT2 = 0; //std::max(0,(int)m_scanMax.value_);
         CMSGEMOS_INFO("GLIBManager::pauseAction ThresholdScan AMC" << (slot+1) << ""
-             << " VT1 " << (int)updatedVT1
-             << " VT2 " << (int)updatedVT2);
+                      << " VT1 " << (int)updatedVT1
+                      << " VT2 " << (int)updatedVT2);
 
         // wait for events to finish building
         while (!amc->l1aFIFOIsEmpty()) {
@@ -557,7 +559,7 @@ void gem::hw::glib::GLIBManager::pauseAction()
           usleep(10);
         }
         CMSGEMOS_DEBUG("GLIBManager::pauseAction finished AMC" << (slot+1) << " building events, updating VT1 " << (int)updatedVT1
-              << " and VT2 " << (int)updatedVT2);
+                       << " and VT2 " << (int)updatedVT2);
 	amc->setDAQLinkRunParameter(0x2,updatedVT1);
 	amc->setDAQLinkRunParameter(0x3,updatedVT2);
       }
@@ -733,7 +735,7 @@ void gem::hw::glib::GLIBManager::resetAction()
       m_glibMonitors.at(slot)->reset();
 
     CMSGEMOS_DEBUG("GLIBManager::looking for hwCfgInfoSpace items for GLIB in slot " << (slot+1));
-    toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.amc%02d",
+    toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem-shelf%02d-amc%02d",
                                                                info.crateID.value_,
                                                                info.slotID.value_));
 

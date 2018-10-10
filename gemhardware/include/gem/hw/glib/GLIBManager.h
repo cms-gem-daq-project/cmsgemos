@@ -71,8 +71,6 @@ namespace gem {
           void dumpGLIBFIFO(xgi::Input* in, xgi::Output* out);
 
         private:
-	  //uint16_t parseAMCEnableList(std::string const&);
-	  //bool     isValidSlotNumber( std::string const&);
           void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
           uint16_t m_amcEnableMask;
 

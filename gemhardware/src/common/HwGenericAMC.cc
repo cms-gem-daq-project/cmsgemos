@@ -85,7 +85,6 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
   m_maxLinks(N_GTX),
   m_crate(-1),
   m_slot(-1)
-
 {
   CMSGEMOS_INFO("trying to create HwGenericAMC(" << amcDevice << "," << connectionURI << "," <<addressTable);
   setDeviceBaseNode(amcDevice);
@@ -105,15 +104,21 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
   m_maxLinks(N_GTX),
   m_crate(-1),
   m_slot(-1)
-
 {
+  if (isConnected) {
+    this->loadModule("amc", "amc v1.0.1");
+    DEBUG("HwGenericAMC::HwGenericAMC amc module loaded");
+  } else {
+    WARN("HwGenericAMC::HwGenericAMC RPC interface failed to connect");
+  }
+
   for (unsigned li = 0; li < N_GTX; ++li) {
     b_links[li] = false;
     AMCIPBusCounters tmpGTXCounter;
     m_ipBusCounters.push_back(tmpGTXCounter);
   }
 
-  CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
+  CMSGEMOS_INFO("HwGenericAMC::HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
 }
 
 gem::hw::HwGenericAMC::~HwGenericAMC()
@@ -293,6 +298,18 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_
 
 void gem::hw::HwGenericAMC::LinkReset(uint8_t const& gtx, uint8_t const& resets)
 {
+  // req = wisc::RPCMsg("amc.linkReset");
+  // req.set_word("NOH",NOH);
+  // try {
+  //   rsp = rpc.call_method(req);
+  // } STANDARD_CATCH;
+
+  // try {
+  //   if (rsp.get_key_exists("error")) {
+  //     ERROR("LinkReset error: " << rsp.get_string("error").c_str());
+  //     //throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
+  //   }
+  // } STANDARD_CATCH;
 
   // right now this just resets the counters, but we need to be able to "reset" the link too
   if (linkCheck(gtx, "Link reset")) {
@@ -846,11 +863,11 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
     uint32_t gthPhase = getGTHPhaseMean();
     double gthPhaseNs = gthPhase * 0.01860119;
 
-    uhal::ValWord<uint32_t> bc0Locked  = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.BC0.LOCKED").read();
-    uhal::ValWord<uint32_t> bc0UnlkCnt = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT").read();
-    uhal::ValWord<uint32_t> sglErrCnt  = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT").read();
-    uhal::ValWord<uint32_t> dblErrCnt  = getGEMHwInterface().getNode("GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT").read();
-    getGEMHwInterface().dispatch();
+    uhal::ValWord<uint32_t> bc0Locked  = this->getNode("GEM_AMC.TTC.STATUS.BC0.LOCKED").read();
+    uhal::ValWord<uint32_t> bc0UnlkCnt = this->getNode("GEM_AMC.TTC.STATUS.BC0.UNLOCK_CNT").read();
+    uhal::ValWord<uint32_t> sglErrCnt  = this->getNode("GEM_AMC.TTC.STATUS.TTC_SINGLE_ERROR_CNT").read();
+    uhal::ValWord<uint32_t> dblErrCnt  = this->getNode("GEM_AMC.TTC.STATUS.TTC_DOUBLE_ERROR_CNT").read();
+    this->dispatch();
 
     CMSGEMOS_DEBUG("HwGeneircAMC::ttcMMCMPhaseShift GTH shift #" << i
           << ": mmcm shift cnt = "     << mmcmShiftCnt
@@ -886,9 +903,9 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
                   << " phase count = " << phase
                   << ", phase ns = "   << phaseNs << "ns"
                   << ", returning to normal search");
-            getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-            getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-            getGEMHwInterface().dispatch();
+            this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+            this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+            this->dispatch();
             bestLockFound    = false;
             reversingForLock = false;
             nGoodLocks       = 0;
@@ -898,9 +915,9 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
                  << " phase count = " << phase
                  << ", phase ns = "   << phaseNs << "ns"
                  << ", reversing scan direction");
-            getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
-            getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
-            getGEMHwInterface().dispatch();
+            this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
+            this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
+            this->dispatch();
           }
           if (reversingForLock && (nGoodLocks == 300)) {
             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
@@ -908,9 +925,9 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
                  << ", phase ns = "   << phaseNs << "ns");
             bestLockFound    = true;
             if (doScan) {
-              getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-              getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-              getGEMHwInterface().dispatch();
+              this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+              this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+              this->dispatch();
               bestLockFound    = false;
               reversingForLock = false;
               nGoodLocks       = 0;
@@ -982,9 +999,9 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
                     << " phase count = " << phase
                     << ", phase ns = "   << phaseNs << "ns"
                     << ", returning to normal search");
-              getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-              getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-              getGEMHwInterface().dispatch();
+              this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+              this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+              this->dispatch();
               bestLockFound    = false;
               reversingForLock = false;
               nGoodLocks       = 0;
@@ -994,9 +1011,9 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
                    << " phase count = " << phase
                    << ", phase ns = "   << phaseNs << "ns"
                    << ", reversing scan direction");
-              getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
-              getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
-              getGEMHwInterface().dispatch();
+              this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
+              this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
+              this->dispatch();
             }
             if (reversingForLock &&(nGoodLocks == 75)) {
               CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
@@ -1004,9 +1021,9 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
                    << ", phase ns = "   << phaseNs << "ns.");
               bestLockFound = true;
               if (doScan) {
-                getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-                getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
-                getGEMHwInterface().dispatch();
+                this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+                this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+                this->dispatch();
                 bestLockFound    = false;
                 reversingForLock = false;
                 nGoodLocks       = 0;
@@ -1074,8 +1091,8 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
                  << " phase count = " << phase
                  << ", phase ns = "   << phaseNs << "ns"
                  << ", reversing scan direction");
-            getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
-            getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
+            this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(0);
+            this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(1);
           }
           if (reversingForLock && (nGoodLocks == 75)) {
             CMSGEMOS_INFO("HwGenericAMC::ttcMMCMPhaseShift Best lock found after reversing:"
@@ -1083,8 +1100,8 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
                  << ", phase ns = "   << phaseNs << "ns.");
             bestLockFound    = true;
             if (doScan) {
-              getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
-              getGEMHwInterface().getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
+              this->getNode("GEM_AMC.TTC.CTRL.PA_MANUAL_SHIFT_DIR").write(1);
+              this->getNode("GEM_AMC.TTC.CTRL.PA_GTH_MANUAL_SHIFT_DIR").write(0);
               bestLockFound    = false;
               reversingForLock = false;
               nGoodLocks       = 0;

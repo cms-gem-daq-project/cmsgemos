@@ -39,7 +39,7 @@ gem::hw::vfat::HwVFAT2::HwVFAT2(std::string const& vfatDevice,
 gem::hw::vfat::HwVFAT2::HwVFAT2(gem::hw::optohybrid::HwOptoHybrid const& ohDevice,
                                 uint8_t const& vfatDevice) :
   gem::hw::GEMHwDevice::GEMHwDevice(toolbox::toString("%s.VFAT%d",(ohDevice.getLoggerName()).c_str(),(int)vfatDevice),
-                                    ohDevice.getOptoHybridHwInterface()),
+                                    dynamic_cast<uhal::HwInterface const&>(ohDevice)),
   m_slot((int)vfatDevice)
 {
   CMSGEMOS_INFO("HwVFAT2 ctor");

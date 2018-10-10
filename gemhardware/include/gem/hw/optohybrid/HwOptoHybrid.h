@@ -1236,8 +1236,8 @@ namespace gem {
                                   uint32_t const& broadcastMask);
 
 
-          uhal::HwInterface& getOptoHybridHwInterface() const {
-            return getGEMHwInterface(); };
+          const uhal::HwInterface& getOptoHybridHwInterface() const {
+            return dynamic_cast<const uhal::HwInterface&>(*this); };
 
           std::vector<linkStatus> getActiveLinks() { return v_activeLinks; }
           bool isLinkActive(int i) { return b_links[i]; }

@@ -177,13 +177,16 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
       if (board->bag.crateID.value_ > -1) {
         board->bag.present = true;
         CMSGEMOS_INFO("OptoHybridManager::Found attribute:" << board->bag.toString());
-        uint32_t tmpBroadcastMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatBroadcastList.toString());
+        uint32_t tmpBroadcastMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatBroadcastList.toString()
+                                                                      m_gemLogger);
         CMSGEMOS_INFO("OptoHybridManager::Parsed vfatBroadcastList = " << board->bag.vfatBroadcastList.toString()
              << " to broadcastMask 0x" << std::hex << tmpBroadcastMask << std::dec);
         board->bag.vfatBroadcastMask = tmpBroadcastMask;
-        // board->bag.vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()));
+        // board->bag.vfatBroadcastMask.push_back(parseVFATMaskList(board->bag.vfatBroadcastList.toString()),
+        //                                                          m_gemLogger);
 
-        uint32_t tmpSBitMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatSBitList.toString());
+        uint32_t tmpSBitMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatSBitList.toString(),
+                                                                 m_gemLogger);
         CMSGEMOS_INFO("OptoHybridManager::Parsed vfatSBitList = " << board->bag.vfatSBitList.toString()
              << " to sbitMask 0x" << std::hex << tmpSBitMask << std::dec);
         board->bag.vfatSBitMask = tmpSBitMask;
@@ -225,7 +228,7 @@ void gem::hw::optohybrid::OptoHybridManager::initializeAction()
             << link << " to AMC in slot " << (slot+1));
       std::string deviceName = info.cardName.toString();
       if (deviceName.empty())
-        deviceName = toolbox::toString("gem.shelf%02d.amc%02d.optohybrid%02d",
+        deviceName = toolbox::toString("gem-shelf%02d-amc%02d-optohybrid%02d",
                                        info.crateID.value_,
                                        info.slotID.value_,
                                        info.linkID.value_);
@@ -784,7 +787,7 @@ void gem::hw::optohybrid::OptoHybridManager::resetAction()
 
       CMSGEMOS_DEBUG("OptoHybridManager::revoking hwCfgInfoSpace items for board connected on link "
             << link << " to AMC in slot " << (slot+1));
-      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem.shelf%02d.amc%02d.optohybrid%02d",
+      toolbox::net::URN hwCfgURN("urn:gem:hw:"+toolbox::toString("gem-shelf%02d-amc%02d-optohybrid%02d",
                                                                  info.crateID.value_,
                                                                  info.slotID.value_,
                                                                  info.linkID.value_));

@@ -376,8 +376,8 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
       CMSGEMOS_DEBUG("GLIBMonitor: Updating monitorable " << monitem->first);
       std::stringstream regName;
       regName << p_glib->getDeviceBaseNode() << "." << monitem->second.regname;
-      uint32_t address = p_glib->getGEMHwInterface().getNode(regName.str()).getAddress();
-      uint32_t mask    = p_glib->getGEMHwInterface().getNode(regName.str()).getMask();
+      uint32_t address = p_glib->getNode(regName.str()).getAddress();
+      uint32_t mask    = p_glib->getNode(regName.str()).getMask();
       if (monitem->second.updatetype == GEMUpdateType::HW8) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,p_glib->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW16) {
@@ -387,23 +387,23 @@ void gem::hw::glib::GLIBMonitor::updateMonitorables()
       } else if (monitem->second.updatetype == GEMUpdateType::HW32) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,p_glib->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW64) {
-        address = p_glib->getGEMHwInterface().getNode(regName.str()+".LOWER").getAddress();
-        mask    = p_glib->getGEMHwInterface().getNode(regName.str()+".LOWER").getMask();
+        address = p_glib->getNode(regName.str()+".LOWER").getAddress();
+        mask    = p_glib->getNode(regName.str()+".LOWER").getMask();
         uint32_t lower = p_glib->readReg(address,mask);
-        address = p_glib->getGEMHwInterface().getNode(regName.str()+".UPPER").getAddress();
-        mask    = p_glib->getGEMHwInterface().getNode(regName.str()+".UPPER").getMask();
+        address = p_glib->getNode(regName.str()+".UPPER").getAddress();
+        mask    = p_glib->getNode(regName.str()+".UPPER").getMask();
         uint32_t upper = p_glib->readReg(address,mask);
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)upper) << 32) + lower);
       } else if (monitem->second.updatetype == GEMUpdateType::I2CSTAT) {
         std::stringstream strobeReg;
         strobeReg << regName.str() << ".Strobe." << monitem->first;
-        address = p_glib->getGEMHwInterface().getNode(strobeReg.str()).getAddress();
-        mask    = p_glib->getGEMHwInterface().getNode(strobeReg.str()).getMask();
+        address = p_glib->getNode(strobeReg.str()).getAddress();
+        mask    = p_glib->getNode(strobeReg.str()).getMask();
         uint32_t strobe = p_glib->readReg(address,mask);
         std::stringstream ackReg;
         ackReg << regName.str() << ".Ack." << monitem->first;
-        address = p_glib->getGEMHwInterface().getNode(ackReg.str()).getAddress();
-        mask    = p_glib->getGEMHwInterface().getNode(ackReg.str()).getMask();
+        address = p_glib->getNode(ackReg.str()).getAddress();
+        mask    = p_glib->getNode(ackReg.str()).getMask();
         uint32_t ack = p_glib->readReg(address,mask);
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)ack) << 32) + strobe);
       } else if (monitem->second.updatetype == GEMUpdateType::PROCESS) {

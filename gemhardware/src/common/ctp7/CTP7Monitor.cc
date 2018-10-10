@@ -215,8 +215,8 @@ void gem::hw::ctp7::CTP7Monitor::updateMonitorables()
       CMSGEMOS_DEBUG("CTP7Monitor: Updating monitorable " << monitem->first);
       std::stringstream regName;
       regName << monitem->second.regname;
-      uint32_t address = p_ctp7->getGEMHwInterface().getNode(regName.str()).getAddress();
-      uint32_t mask    = p_ctp7->getGEMHwInterface().getNode(regName.str()).getMask();
+      uint32_t address = p_ctp7->getNode(regName.str()).getAddress();
+      uint32_t mask    = p_ctp7->getNode(regName.str()).getMask();
       if (monitem->second.updatetype == GEMUpdateType::HW8) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,p_ctp7->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW16) {
@@ -226,23 +226,23 @@ void gem::hw::ctp7::CTP7Monitor::updateMonitorables()
       } else if (monitem->second.updatetype == GEMUpdateType::HW32) {
         (monitem->second.infoSpace)->setUInt32(monitem->first,p_ctp7->readReg(address,mask));
       } else if (monitem->second.updatetype == GEMUpdateType::HW64) {
-        address = p_ctp7->getGEMHwInterface().getNode(regName.str()+".LOWER").getAddress();
-        mask    = p_ctp7->getGEMHwInterface().getNode(regName.str()+".LOWER").getMask();
+        address = p_ctp7->getNode(regName.str()+".LOWER").getAddress();
+        mask    = p_ctp7->getNode(regName.str()+".LOWER").getMask();
         uint32_t lower = p_ctp7->readReg(address,mask);
-        address = p_ctp7->getGEMHwInterface().getNode(regName.str()+".UPPER").getAddress();
-        mask    = p_ctp7->getGEMHwInterface().getNode(regName.str()+".UPPER").getMask();
+        address = p_ctp7->getNode(regName.str()+".UPPER").getAddress();
+        mask    = p_ctp7->getNode(regName.str()+".UPPER").getMask();
         uint32_t upper = p_ctp7->readReg(address,mask);
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)upper) << 32) + lower);
       } else if (monitem->second.updatetype == GEMUpdateType::I2CSTAT) {
         std::stringstream strobeReg;
         strobeReg << regName.str() << ".Strobe." << monitem->first;
-        address = p_ctp7->getGEMHwInterface().getNode(strobeReg.str()).getAddress();
-        mask    = p_ctp7->getGEMHwInterface().getNode(strobeReg.str()).getMask();
+        address = p_ctp7->getNode(strobeReg.str()).getAddress();
+        mask    = p_ctp7->getNode(strobeReg.str()).getMask();
         uint32_t strobe = p_ctp7->readReg(address,mask);
         std::stringstream ackReg;
         ackReg << regName.str() << ".Ack." << monitem->first;
-        address = p_ctp7->getGEMHwInterface().getNode(ackReg.str()).getAddress();
-        mask    = p_ctp7->getGEMHwInterface().getNode(ackReg.str()).getMask();
+        address = p_ctp7->getNode(ackReg.str()).getAddress();
+        mask    = p_ctp7->getNode(ackReg.str()).getMask();
         uint32_t ack = p_ctp7->readReg(address,mask);
         (monitem->second.infoSpace)->setUInt64(monitem->first, (((uint64_t)ack) << 32) + strobe);
       } else if (monitem->second.updatetype == GEMUpdateType::PROCESS) {

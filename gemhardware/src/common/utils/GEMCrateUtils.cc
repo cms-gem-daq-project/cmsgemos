@@ -2,20 +2,35 @@
  *
  */
 
-#include <bitset>
-
 #include "gem/hw/utils/GEMCrateUtils.h"
+
+#include <bitset>
 
 #include "boost/algorithm/string.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/format.hpp"
 
-#include "gem/utils/GEMLogging.h"
+// #include "gem/utils/GEMLogging.h"
 
 uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMCrateUtilsLogger"));
+  return parseAMCEnableList(enableList, m_gemLogger);
+}
 
+// uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList, log4cplus::Logger* logger=nullptr)
+// {
+//   if (logger == nullptr) {
+//     std::cout << "parseAMCEnableList creating m_gemLogger anew" << std::endl;
+//     log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMCrateUtilsLogger"));
+//   } else {
+//     std::cout << "parseAMCEnableList creating m_gemLogger from " << std::hex << logger << std::dec
+//               << ", with name " << logger->getName() << std::endl;
+//     log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance(logger->getName()+".child"));
+//   }
+  
+uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList, log4cplus::Logger logger)
+  log4cplus::Logger m_gemLogger(logger);
   uint16_t slotMask = 0x0;
   std::vector<std::string> slots;
 
@@ -77,6 +92,12 @@ uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList)
 uint32_t gem::hw::utils::parseVFATMaskList(std::string const& enableList)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMCrateUtilsLogger"));
+  return parseVFATMaskList(enableList, m_gemLogger);
+}
+
+uint32_t gem::hw::utils::parseVFATMaskList(std::string const& enableList, log4cplus::Logger logger)
+{
+  log4cplus::Logger m_gemLogger(logger);
 
   // nothing masked, return the negation of the mask that includes the enable list
   uint32_t broadcastMask = 0x00000000;
@@ -140,14 +161,20 @@ uint32_t gem::hw::utils::parseVFATMaskList(std::string const& enableList)
   return ~broadcastMask;
 }
 
+
 bool gem::hw::utils::isValidSlotNumber(HWType const& type, std::string const& s)
 {
   log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance("GEMCrateUtilsLogger"));
+  return isValidSlotNumber(type, s, m_gemLogger);
+}
+
+bool gem::hw::utils::isValidSlotNumber(HWType const& type, std::string const& s, log4cplus::Logger logger)
+{
+  log4cplus::Logger m_gemLogger(logger);
 
   try {
     int i_val;
-
-    int rangeMin,rangeMax;
+    int rangeMin, rangeMax;
 
     if (type == HWType::uTCA) {
       rangeMin = 1;
@@ -175,4 +202,24 @@ bool gem::hw::utils::isValidSlotNumber(HWType const& type, std::string const& s)
   }
   // if you get here, should be possible to parse as an integer in the range [rangeMin, rangeMax]
   return true;
+}
+
+
+double gem::hw::utils::scaConversion(gem::hw::utils::SCAType const& type,
+                                     uint32_t const& val)
+{
+  switch(type) {
+  case(gem::hw::utils::SCAType::ADC_V):
+    return static_cast<double>(val*(0.244/1000)*3.0);
+  case(gem::hw::utils::SCAType::ADC_T):
+    return static_cast<double>(val*(-0.53)+381.2);
+  case(gem::hw::utils::SCAType::PT100):
+    return static_cast<double>(0.2597*(9891.8-2.44*val));
+  case(gem::hw::utils::SCAType::SYSMON_V):
+    return static_cast<double>(val*0.49-273.15);
+  case(gem::hw::utils::SCAType::SYSMON_T):
+    return static_cast<double>(val*2.93/1000);
+  default:
+    return -1.0;
+  }
 }

@@ -608,8 +608,8 @@ namespace gem {
           void    setChannelTrimDAC(uint8_t channel, uint8_t trimDAC);
           //void    setChannelTrimDAC(uint8_t channel, double trimDAC);
 
-          uhal::HwInterface& getVFAT2HwInterface() {
-            return gem::hw::GEMHwDevice::getGEMHwInterface();
+          const uhal::HwInterface& getVFAT2HwInterface() {
+            return dynamic_cast<const uhal::HwInterface&>(*this);
           }
 
           gem::hw::vfat::VFAT2ControlParams getVFAT2Params() {

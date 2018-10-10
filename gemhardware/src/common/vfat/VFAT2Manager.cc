@@ -130,18 +130,18 @@ void gem::hw::vfat::VFAT2Manager::readVFAT2Registers(gem::hw::vfat::VFAT2Control
   }
 
   try {
-    uhal::HwInterface hw = p_vfatDevice->getVFAT2HwInterface();
+    // uhal::HwInterface hw = p_vfatDevice->getVFAT2HwInterface();
     std::string deviceBaseNode = p_vfatDevice->getDeviceBaseNode();
     // this conflicts with setting the base node in the HwVFAT device, need to reset
     //  p_vfatDevice->setDeviceBaseNode("");
     // this doesn't fix the problem as HwVFATw or GEMHwDevice needs to be smarter
     // better to strip away the search string from these node names
-    //  std::vector<std::string> m_nodes = hw.getNodes(deviceBaseNode+".*");
-    m_nodes = hw.getNodes(deviceBaseNode+".*");
+    //  std::vector<std::string> m_nodes = p_vfatDevice->getNodes(deviceBaseNode+".*");
+    m_nodes = p_vfatDevice->getNodes(deviceBaseNode+".*");
     m_nodes.erase( std::remove(m_nodes.begin(),
-                              m_nodes.end(),
-                              deviceBaseNode),
-                  m_nodes.end());
+                               m_nodes.end(),
+                               deviceBaseNode),
+                   m_nodes.end());
 
     std::vector<std::string>::iterator cleannode  = m_nodes.begin();
     LOG4CPLUS_DEBUG(this->getApplicationLogger(), "before removal::getNodes(): " << std::endl

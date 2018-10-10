@@ -6,9 +6,6 @@
 #include <iomanip>
 #include <memory>
 
-//#include "xdata/InfoSpace.h"
-/* #include "xdata/InfoSpaceFactory.h" */
-
 #include "xdata/String.h"
 #include "xdata/UnsignedLong.h"
 #include "xdata/UnsignedInteger32.h"
@@ -20,6 +17,9 @@
 /* #include "uhal/Utilities.hpp"  /\* removed in 2.5 or 2.6 *\/ */
 #include "uhal/utilities/bits.hpp"
 #include "uhal/utilities/files.hpp"
+
+#include "xhal/XHALInterface.h"
+/* #include "xhal/XHALDevice.h" */
 
 #include "gem/utils/GEMLogging.h"
 #include "gem/utils/GEMRegisterUtils.h"
@@ -47,14 +47,18 @@ typedef std::pair<std::string, uhal::ValWord<uint32_t> > register_value;
 typedef std::vector<register_value>                      register_val_list;
 
 
-namespace uhal {
-  class HwInterface;
-}
+/* namespace uhal { */
+/*   class HwInterface; */
+/* } */
+
+/* namespace xhal { */
+/*   class XHALInterface; */
+/* } */
 
 namespace gem {
   namespace hw {
 
-    class GEMHwDevice
+    class GEMHwDevice : public xhal::XHALInterface, public uhal::HwInterface
     {
 
     public:
@@ -140,16 +144,17 @@ namespace gem {
                   std::string const& addressTable);
 
       GEMHwDevice(std::string const& deviceName,
-                  uhal::HwInterface& uhalDevice);
+                  uhal::HwInterface const& uhalDevice);
 
       virtual ~GEMHwDevice();
 
-      virtual bool isHwConnected() { return p_gemHW != 0; };
+      /* virtual bool isHwConnected() { return p_gemHW != 0; }; */
+      virtual bool isHwConnected() { return true; };
 
       /**
-       * Generic read/write functions or IPBus devices
-       * operation will be the same for the GLIB, MP7, VFAT2/3,
-       * and AMC13 (we should use the already defined AMC13, rather than write our own,
+       * Generic read/write functions on uhal/IPBus devices.
+       * The operations will be the same for the GLIB, CTP7, MP7, VFAT2/3, OptoHybrid2/3 and AMC13
+       * (we should use the already defined AMC13, rather than write our own,
        * unless there are GEM specific functions we need to implement)
        */
 
@@ -387,7 +392,7 @@ namespace gem {
       void setIPBusPort(uint32_t const& port) {
         m_ipBusPort = port; };
 
-      uhal::HwInterface& getGEMHwInterface() const;
+      /* uhal::HwInterface& getGEMHwInterface() const; */
 
       std::string getLoggerName() const {
         return m_gemLogger.getName(); };
@@ -419,8 +424,8 @@ namespace gem {
       /* xdata::InfoSpace* getHwInfoSpace() { return p_hwCfgInfoSpace; }; */
 
     protected:
-      std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager;
-      std::shared_ptr<uhal::HwInterface> p_gemHW;
+      /* std::shared_ptr<uhal::ConnectionManager> p_gemConnectionManager; */
+      /* std::shared_ptr<uhal::HwInterface> p_gemHW; */
 
       /* xdata::InfoSpace *p_hwCfgInfoSpace;       /\* Infospace for configuration values *\/ */
 
