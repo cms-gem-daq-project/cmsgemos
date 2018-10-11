@@ -64,8 +64,9 @@ dbgprofile: $(SUBPACKAGES)
 
 doc:  $(SUBPACKAGES)
 	@echo "Generating doxygen"
-	@rm -fr ./doc/html 2> /dev/null
-	@doxygen -s ./doc/cmsgemos.cfg  > /dev/null 2>&1
+	@mkdir ./doc/build
+	@rm -fr ./doc/build/* 2> /dev/null
+	@doxygen -s ./doc/cmsgemos.cfg
 	#@git checkout gh-pages  > /dev/null 2>&1
 	#@git add -f ./doc/html  > /dev/null 2>&1
 	#@git commit -m "generating doxygen" ./doc/html  > /dev/null 2>&1
