@@ -32,7 +32,7 @@ gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cpl
                                                                         true));
   addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(2,  0));
   setupDaqMonitoring();
-  updateMonitorables();
+  //updateMonitorables();
   DEBUG("gem::daqmon::DaqMonitor : constructor done");
 }
 

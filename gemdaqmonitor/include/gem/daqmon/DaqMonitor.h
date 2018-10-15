@@ -77,6 +77,10 @@ namespace gem {
       void updateOHmainTableContent();
 
       void jsonContentUpdate(xgi::Output* out);
+     
+      bool is_connected(){return isConnected;}
+
+      std::string boardName(){return m_board_domain_name;}
 
     protected:
       void init();
