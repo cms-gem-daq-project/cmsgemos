@@ -28,6 +28,7 @@ IncludeDirs+=/opt/xhal/include
 
 DependentLibraryDirs+=/opt/xhal/lib
 DependentLibraries+=xhal
+DependentLibraries+=boost_iostreams
 
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk

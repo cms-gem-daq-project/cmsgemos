@@ -8,6 +8,18 @@
 #include "xhal/rpc/utils.h"
 #include "xhal/XHALInterface.h"
 
+#include <iostream>
+#include <fstream>
+#include <time.h>
+
+#include <boost/iostreams/filtering_stream.hpp>    
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+
+namespace bo = boost::iostreams;
+
+
 namespace gem {
   namespace base {
     class GEMApplication;
@@ -96,6 +108,9 @@ namespace gem {
       std::vector<std::string> v_oh_main;
       std::vector<std::string> v_oh_sca;
       std::vector<std::string> v_oh_sysmon;
+    
+      int logCnt; 
+
     };  // class DaqMonitor
 
   }  // namespace gem::daqmon
