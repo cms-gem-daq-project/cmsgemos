@@ -13,7 +13,7 @@ gRetries = 5
 
 maxVfat3DACSize = {
         #ADC Measures Current
-        0:(0x3f, "CFG_IREF"),
+        #0:(0x3f, "CFG_IREF"), # This should never be scanned per VFAT3 Team's Instructions
         #1:???
         2:(0xff,"CFG_BIAS_PRE_I_BIT"),
         3:(0x3f,"CFG_BIAS_PRE_I_BLCC"),
