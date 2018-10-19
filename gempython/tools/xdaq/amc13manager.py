@@ -71,7 +71,8 @@ class AMC13manager:
       for i in range(nevt):
         pEvt += read_event()
       for word in pEvt:
-        datastring += packer.pack(word)
+        #datastring += packer.pack(word) # pretty sure "+=" duplicates events...
+        datastring = packer.pack(word)
       with open (ofile+"_chunk_"+str(cnt)+".dat", "wb") as compdata:
         compdata.write(datastring)
       compdata.close()
