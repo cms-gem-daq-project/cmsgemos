@@ -44,16 +44,20 @@ IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
 IncludeDirs+=$(uHALROOT)/include
+IncludeDirs+=$(XHALROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(uHALROOT)/lib
+DependentLibraryDirs+=$(XHALROOT)/lib
 
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(BUILD_HOME)/$(Project)/gemhardware/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 LibraryDirs+=$(uHALROOT)/lib
+LibraryDirs+=$(XHALROOT)/lib
 
-DependentLibraries+=boost_python cactus_uhal_uhal gemhardware_devices gemutils
+DependentLibraries+=boost_python cactus_uhal_uhal xhal gemhardware_devices
+# DependentLibraries+=gemutils
 ### UGGH, I WANT TO BE FREE, minimal gemutils works with this, and in this order
 # remove dependencies on xdata and things will be better
 DependentLibraries+=xdata mimetic xoap
