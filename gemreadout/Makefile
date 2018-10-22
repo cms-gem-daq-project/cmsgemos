@@ -26,9 +26,16 @@ DynamicLibrary=gemreadout
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
+# IncludeDirs+=$(uHALROOT)/include
+# IncludeDirs+=$(XHALROOT)/include
 
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gemutils/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
 DependentLibraryDirs+=$(BUILD_HOME)/$(Project)/gembase/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)
+# DependentLibraryDirs+=$(uHALROOT)/lib
+# DependentLibraryDirs+=$(xHALROOT)/lib
+
+# LibraryDirs+=$(uHALROOT)/lib
+# LibraryDirs+=$(XHALROOT)/lib
 
 DependentLibraries+=gemutils gembase
 
