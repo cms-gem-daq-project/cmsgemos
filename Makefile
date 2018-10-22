@@ -13,6 +13,7 @@ SUBPACKAGES := \
         gemonlinedb \
         # gemHwMonitor \
 
+SUBPACKAGES.CHECK    := $(patsubst %,%.check,    ${SUBPACKAGES})
 SUBPACKAGES.DEBUG    := $(patsubst %,%.debug,    ${SUBPACKAGES})
 SUBPACKAGES.INSTALL  := $(patsubst %,%.install,  ${SUBPACKAGES})
 SUBPACKAGES.RPM      := $(patsubst %,%.rpm,      ${SUBPACKAGES})
@@ -90,6 +91,10 @@ run-tests: $(SUBPACKAGES.RUNTESTS)
 
 run-tests-ci: $(SUBPACKAGES.RUNTESTSCI)
 
+debug: $(SUBPACKAGES.DEBUG)
+
+check: $(SUBPACKAGES.CHECK)
+
 $(LIBDIR):
 	mkdir -p $(LIBDIR)
 
@@ -101,6 +106,12 @@ $(SUBPACKAGES.RPM):
 
 $(SUBPACKAGES.CLEANRPM):
 	$(MAKE) -C $(patsubst %.cleanrpm,%, $@) cleanrpm
+
+$(SUBPACKAGES.DEBUG):
+	$(MAKE) -C $(patsubst %.debug,%, $@) debug
+
+$(SUBPACKAGES.CHECK):
+	$(MAKE) -C $(patsubst %.check,%, $@) check
 
 $(SUBPACKAGES.INSTALL):
 	-find  $(patsubst %.install,%, $@)/lib -name *.so -print -exec cp {} ${LIBDIR} \;
@@ -117,7 +128,7 @@ $(SUBPACKAGES.RUNTESTS): tests
 $(SUBPACKAGES.RUNTESTSCI): tests
 	$(MAKE) -C $(patsubst %.run-tests-ci,%, $@) run-tests-ci
 
-.PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN)
+.PHONY: $(SUBPACKAGES) $(SUBPACKAGES.INSTALL) $(SUBPACKAGES.CLEAN) $(SUBPACKAGES.CHECK) $(SUBPACKAGES.DEBUG)
 
 
 .phony: gemhwmanagers gemhwdevices

@@ -24,9 +24,10 @@ DynamicLibrary=gemdaqmonitor
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gembase/include
 IncludeDirs+=$(BUILD_HOME)/$(Project)/gemutils/include
-IncludeDirs+=/opt/xhal/include
+IncludeDirs+=$(BUILD_HOME)/$(Project)/gemhardware/include
+IncludeDirs+=$(XHALROOT)/include
 
-DependentLibraryDirs+=/opt/xhal/lib
+DependentLibraryDirs+=$(XHALROOT)/lib
 DependentLibraries+=xhal
 DependentLibraries+=boost_iostreams
 

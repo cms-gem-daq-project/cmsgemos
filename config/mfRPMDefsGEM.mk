@@ -134,7 +134,8 @@ makerpm:
 	@tar -P -X $(XDAQ_ROOT)/config/src.exclude --exclude="*.tbz2" -jcf \
 		$(PackagePath)/rpm/RPMBUILD/SOURCES/$(Project)-$(PackageName)-$(PACKAGE_FULL_VERSION)-$(PACKAGE_FULL_RELEASE).tbz2 \
 		$(PackagePath)
-	@rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" --define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
+	@rpmbuild  --quiet -ba -bl --define "_requires $(REQUIRES_LIST)" \
+		--define  "_topdir $(PackagePath)/rpm/RPMBUILD" \
 		$(PackagePath)/rpm/$(LongPackage).spec
 	@find  $(PackagePath)/rpm/RPMBUILD -name "*.rpm" -exec mv {} $(PackagePath)/rpm \;
 

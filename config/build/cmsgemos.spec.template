@@ -63,6 +63,7 @@ __description__
 %package -n %{_project}-%{_longpackagename}-devel
 Summary:  Development package for %{_summary}
 Group:    Applications/DAQ
+Requires: %{_project}-%{_longpackagename}
 
 %description -n %{_project}-%{_longpackagename}-devel
 __description__
@@ -73,6 +74,7 @@ __description__
 %package -n %{_project}-%{_longpackagename}-debuginfo
 Summary:  Debuginfo package for %{_summary}
 Group:    Applications/DAQ
+Requires: %{_project}-%{_longpackagename}
 
 %description -n %{_project}-%{_longpackagename}-debuginfo
 __description__

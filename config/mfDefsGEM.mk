@@ -147,6 +147,7 @@ else
 $(info Unable to determine flags for gcc($(GCCNUM))/clang($(CLANGNUM)))
 endif
 
+UserCFlags+=-O0 -g3 -fno-inline
 UserCCFlags =${UserCFlags}
 #UserCCFlags =-std=c++0x -std=gnu++0x -DGIT_VERSION=\"$(GIT_VERSION)\" -DGEMDEVELOPER=\"$(GEMDEVELOPER)\"
 
@@ -239,3 +240,5 @@ GCCVERSION = $(shell $(CC) -dumpversion)
 CLANGVERSION = $(shell $(CC) -dumpversion)
 
 CCVERSION = $(shell $(CC) -dumpversion)
+CPPCHECK  = cppcheck
+CPPCHECKFLAGS = --quiet --verbose --inconclusive --force --enable=information,unusedFunction,warning --suppress=purgedConfiguration

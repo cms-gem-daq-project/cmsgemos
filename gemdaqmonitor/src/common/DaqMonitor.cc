@@ -7,6 +7,7 @@
  */
 
 #include "gem/daqmon/DaqMonitor.h"
+#include "gem/hw/utils/GEMCrateUtils.h"
 #include <iomanip>
 #include <bitset>
 
@@ -261,9 +262,9 @@ void gem::daqmon::DaqMonitor::updateDAQmain()
   req = wisc::RPCMsg("daq_monitor.getmonDAQmain");
   try {
     rsp = rpc.call_method(req);
-  }
-  STANDARD_CATCH;
-  try{
+  } STANDARD_CATCH;
+
+  try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_MAIN update failed");
@@ -272,8 +273,7 @@ void gem::daqmon::DaqMonitor::updateDAQmain()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
-  }
-  STANDARD_CATCH;
+  } STANDARD_CATCH;
 }
 
 void gem::daqmon::DaqMonitor::updateDAQOHmain()
@@ -283,9 +283,9 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
-  }
-  STANDARD_CATCH;
-  try{
+  } STANDARD_CATCH;
+
+  try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_OH_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_OH_MAIN update failed");
@@ -294,8 +294,7 @@ void gem::daqmon::DaqMonitor::updateDAQOHmain()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
-  }
-  STANDARD_CATCH;
+  } STANDARD_CATCH;
 }
 
 void gem::daqmon::DaqMonitor::updateTTCmain()
@@ -304,9 +303,9 @@ void gem::daqmon::DaqMonitor::updateTTCmain()
   req = wisc::RPCMsg("daq_monitor.getmonTTCmain");
   try {
     rsp = rpc.call_method(req);
-  }
-  STANDARD_CATCH;
-  try{
+  } STANDARD_CATCH;
+
+  try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_TTC_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_TTC_MAIN update failed");
@@ -315,8 +314,7 @@ void gem::daqmon::DaqMonitor::updateTTCmain()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
-  }
-  STANDARD_CATCH;
+  } STANDARD_CATCH;
 }
 
 void gem::daqmon::DaqMonitor::updateTRIGGERmain()
@@ -326,9 +324,9 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
-  }
-  STANDARD_CATCH;
-  try{
+  } STANDARD_CATCH;
+
+  try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_TRIGGER_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_TRIGGER_MAIN update failed");
@@ -337,8 +335,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGERmain()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
-  }
-  STANDARD_CATCH;
+  } STANDARD_CATCH;
 }
 
 void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
@@ -348,9 +345,9 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
-  }
-  STANDARD_CATCH;
-  try{
+  } STANDARD_CATCH;
+
+  try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("DAQ_TRIGGER_OH_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("DAQ_TRIGGER_OH_MAIN update failed");
@@ -359,8 +356,7 @@ void gem::daqmon::DaqMonitor::updateTRIGGEROHmain()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
-  }
-  STANDARD_CATCH;
+  } STANDARD_CATCH;
 }
 
 void gem::daqmon::DaqMonitor::updateOHmain()
@@ -370,9 +366,9 @@ void gem::daqmon::DaqMonitor::updateOHmain()
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
-  }
-  STANDARD_CATCH;
-  try{
+  } STANDARD_CATCH;
+
+  try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("OH_MAIN update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("OH_MAIN update failed");
@@ -381,8 +377,7 @@ void gem::daqmon::DaqMonitor::updateOHmain()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
-  }
-  STANDARD_CATCH;
+  } STANDARD_CATCH;
 }
 
 
@@ -393,9 +388,9 @@ void gem::daqmon::DaqMonitor::updateOHSCA()
   req.set_word("NOH",NOH);
   try {
     rsp = rpc.call_method(req);
-  }
-  STANDARD_CATCH;
-  try{
+  } STANDARD_CATCH;
+
+  try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("OH_SCA update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("OH_SCA update failed"); FIXME instead of throwing an exception there should be an alert propagating
@@ -404,8 +399,7 @@ void gem::daqmon::DaqMonitor::updateOHSCA()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
-  }
-  STANDARD_CATCH;
+  } STANDARD_CATCH;
 }
 
 void gem::daqmon::DaqMonitor::updateOHSysmon()
@@ -416,9 +410,9 @@ void gem::daqmon::DaqMonitor::updateOHSysmon()
   req.set_word("doReset",0);
   try {
     rsp = rpc.call_method(req);
-  }
-  STANDARD_CATCH;
-  try{
+  } STANDARD_CATCH;
+
+  try {
     if (rsp.get_key_exists("error")) {
       CMSGEMOS_ERROR("OH_Sysmon update error: " << rsp.get_string("error").c_str());
       //throw xhal::utils::XHALException("OH_Sysmon update failed"); FIXME instead of throwing an exception there should be an alert propagating
@@ -427,8 +421,7 @@ void gem::daqmon::DaqMonitor::updateOHSysmon()
     for (auto monitem = monlist->second.begin(); monitem != monlist->second.end(); ++monitem) {
       (monitem->second.infoSpace)->setUInt32(monitem->first,rsp.get_word(monitem->first));
     }
-  }
-  STANDARD_CATCH;
+  } STANDARD_CATCH;
 }
 
 double gem::daqmon::DaqMonitor::scaVconv(uint32_t val)
@@ -732,14 +725,20 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
         ld->labelClass="label label-info";
         std::stringstream ss;
         if (monname.find("SCA_TEMP") != std::string::npos){
-          ss << std::setprecision(2) << scaTconv(val);
+          // ss << std::setprecision(2) << scaTconv(val);
+          ss << std::setprecision(2)
+             << gem::hw::utils::scaConversion(gem::hw::utils::ADC_T,val);
           ld->labelValue=ss.str();
         } else {
           if (monname.find("BOARD_TEMP") != std::string::npos){
-            ss << std::setprecision(2) << scaPTconv(val);
+            // ss << std::setprecision(2) << scaPTconv(val);
+            ss << std::setprecision(2)
+               << gem::hw::utils::scaConversion(gem::hw::utils::PT100,val);
             ld->labelValue=ss.str();
           } else {
-            ss << std::setprecision(2) << scaVconv(val);
+            // ss << std::setprecision(2) << scaVconv(val);
+            ss << std::setprecision(2)
+               << gem::hw::utils::scaConversion(gem::hw::utils::ADC_V,val);
             ld->labelValue=ss.str();
           }
         }
@@ -756,10 +755,14 @@ void gem::daqmon::DaqMonitor::updateOHmainTableContent()
         ld->labelClass="label label-info";
         std::stringstream ss;
         if (monname.find("TEMP") != std::string::npos){
-          ss << std::setprecision(2) << sysmonTconv(val);
+          // ss << std::setprecision(2) << sysmonTconv(val);
+          ss << std::setprecision(2)
+             << gem::hw::utils::scaConversion(gem::hw::utils::SYSMON_T,val);
           ld->labelValue=ss.str();
         } else {
-          ss << std::setprecision(2) << sysmonVconv(val);
+          // ss << std::setprecision(2) << sysmonVconv(val);
+          ss << std::setprecision(2)
+             << gem::hw::utils::scaConversion(gem::hw::utils::SYSMON_V,val);
           ld->labelValue=ss.str();
         }
       }
@@ -826,41 +829,41 @@ void gem::daqmon::DaqMonitor::buildTable(const std::string& table_name, xgi::Out
 
 void gem::daqmon::DaqMonitor::buildMonitorPage(xgi::Output* out)
 {
-  *out << "<div class=\"col-lg-3\">" << std::endl;
-    *out << "<div class=\"panel panel-default\">" << std::endl;
-      *out << "<div class=\"panel-heading\">" << std::endl;
-        *out << "<h4 align=\"center\">" << std::endl;
-          *out << "DAQ" << std::endl;
-        *out << "</h4>" << std::endl;
+  *out << "<div class=\"col-lg-3\">" << std::endl
+       << "  <div class=\"panel panel-default\">" << std::endl
+       << "    <div class=\"panel-heading\">" << std::endl
+       << "      <h4 align=\"center\">" << std::endl
+       << "        DAQ" << std::endl
+       << "      </h4>" << std::endl;
         //FIXME add IEMASK later
-        buildTable("DAQ_MAIN",out);
-      *out << "</div>" << std::endl; // end panel head
-      // There could be a panel body here
-    *out << "</div>" << std::endl; // end panel
+  buildTable("DAQ_MAIN",out);
+  *out << "    </div>" << std::endl // end panel head
+    // There could be a panel body here
+       << "  </div>" << std::endl // end panel
     // There could be other elements in the column...
-    *out << "<div class=\"panel panel-default\">" << std::endl;
-      *out << "<div class=\"panel-heading\">" << std::endl;
-        *out << "<h4 align=\"center\">" << std::endl;
-          *out << "TTC" << std::endl;
-        *out << "</h4>" << std::endl;
-        buildTable("DAQ_TTC_MAIN",out);
-      *out << "</div>" << std::endl; // end panel head
-      // There could be a panel body here
-    *out << "</div>" << std::endl; // end panel
-   *out << "</div>" << std::endl; // end column
-  *out << "<div class=\"col-lg-9\">" << std::endl;
-    *out << "<div class=\"panel panel-default\">" << std::endl;
-      *out << "<div class=\"panel-heading\">" << std::endl;
-        *out << "<h4 align=\"center\">" << std::endl;
-          *out << "OPTICAL LINKS" << std::endl;
-        *out << "</h4>" << std::endl;
+       << "  <div class=\"panel panel-default\">" << std::endl
+       << "    <div class=\"panel-heading\">" << std::endl
+       << "      <h4 align=\"center\">" << std::endl
+       << "        TTC" << std::endl
+       << "      </h4>" << std::endl;
+  buildTable("DAQ_TTC_MAIN",out);
+  *out << "    </div>" << std::endl // end panel head
+    // There could be a panel body here
+       << "  </div>" << std::endl // end panel
+       << "</div>" << std::endl // end column
+       << "<div class=\"col-lg-9\">" << std::endl
+       << "  <div class=\"panel panel-default\">" << std::endl
+       << "    <div class=\"panel-heading\">" << std::endl
+       << "      <h4 align=\"center\">" << std::endl
+       << "        OPTICAL LINKS" << std::endl
+       << "      </h4>" << std::endl;
         //FIXME add IEMASK later
-        buildTable("OH_MAIN",out);
-      *out << "</div>" << std::endl; // end panel head
-      // There could be a panel body here
-    *out << "</div>" << std::endl; // end panel
+  buildTable("OH_MAIN",out);
+  *out << "    </div>" << std::endl // end panel head
+    // There could be a panel body here
+       << "  </div>" << std::endl // end panel
     // There could be other elements in the column...
-  *out << "</div>" << std::endl; // end column
+       << "</div>" << std::endl; // end column
 }
 
 void gem::daqmon::DaqMonitor::jsonContentUpdate(xgi::Output* out)

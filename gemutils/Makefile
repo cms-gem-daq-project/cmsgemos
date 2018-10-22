@@ -17,7 +17,8 @@ include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 
 Sources =version.cc
-Sources+=Lock.cc GEMRegisterUtils.cc
+Sources+=Lock.cc
+# Sources+=GEMRegisterUtils.cc
 Sources+=soap/GEMSOAPToolBox.cc
 Sources+=db/GEMDatabaseUtils.cc
 # Sources+=gemXMLparser.cc
