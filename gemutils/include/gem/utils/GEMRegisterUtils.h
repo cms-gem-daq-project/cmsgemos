@@ -64,6 +64,30 @@ namespace gem {
         return res.str();
       };
 
+    static std::string uint64ToGroupedHex(uint64_t const& val)
+    {
+      std::stringstream res;
+      res << std::setfill('0') << std::setw(2) << std::hex
+          << static_cast<uint64_t>((val>> 40) & 0xff)
+          << std::dec << ":";
+      res << std::setfill('0') << std::setw(2) << std::hex
+          << static_cast<uint64_t>((val>> 32) & 0xff)
+          << std::dec << ":";
+      res << std::setfill('0') << std::setw(2) << std::hex
+          << static_cast<uint64_t>((val>>24) & 0xff)
+          << std::dec << ":";
+      res << std::setfill('0') << std::setw(2) << std::hex
+          << static_cast<uint64_t>((val>>16) & 0xff)
+          << std::dec << ":";
+      res << std::setfill('0') << std::setw(2) << std::hex
+          << static_cast<uint64_t>((val>> 8) & 0xff)
+          << std::dec << ":";
+      res << std::setfill('0') << std::setw(2) << std::hex
+          << static_cast<uint64_t>((val>> 0) & 0xff)
+          << std::dec;
+      return res.str();
+      };
+
   }  // namespace gem::utils
 }  // namespace gem
 

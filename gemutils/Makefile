@@ -19,8 +19,8 @@ include $(BUILD_HOME)/$(Project)/config/mfPythonDefsGEM.mk
 Sources =version.cc
 Sources+=Lock.cc
 # Sources+=GEMRegisterUtils.cc
-Sources+=soap/GEMSOAPToolBox.cc
 Sources+=db/GEMDatabaseUtils.cc
+Sources+=soap/GEMSOAPToolBox.cc
 # Sources+=gemXMLparser.cc
 
 DynamicLibrary=gemutils
@@ -43,9 +43,14 @@ UserDynamicLinkFlags+=$(MySQLLIBS)
 
 UserDynamicLinkFlags+=$(PYTHONLIBS)
 
+$(info Parsing config/Makefile.rules)
+
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
+check:
+	$(CPPCHECK) $(CPPCHECKFLAGS) --xml $(addprefix -I,$(IncludeDirs)) src/common 2> cppcheck.gembase.xml; \
+	$(CPPCHECK) $(CPPCHECKFLAGS) $(addprefix -I,$(IncludeDirs)) src/common 2> cppcheck.gembase.log
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
