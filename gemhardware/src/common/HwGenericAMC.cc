@@ -2,62 +2,6 @@
 
 #include <iomanip>
 
-// gem::hw::HwGenericAMC::HwGenericAMC() :
-//   gem::hw::GEMHwDevice::GEMHwDevice("HwGenericAMC"),
-//   m_links(0),
-//   m_maxLinks(N_GTX),
-//   m_crate(-1),
-//   m_slot(-1)
-// {
-//   CMSGEMOS_INFO("HwGenericAMC ctor");
-
-//   for (unsigned li = 0; li < N_GTX; ++li) {
-//     b_links[li] = false;
-//     AMCIPBusCounters tmpGTXCounter;
-//     m_ipBusCounters.push_back(tmpGTXCounter);
-//   }
-
-//   CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
-// }
-
-// gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice) :
-//   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
-//   m_links(0),
-//   m_maxLinks(N_GTX),
-//   m_crate(-1),
-//   m_slot(-1)
-// {
-//   CMSGEMOS_INFO("HwGenericAMC ctor");
-
-//   for (unsigned li = 0; li < N_GTX; ++li) {
-//     b_links[li] = false;
-//     AMCIPBusCounters tmpGTXCounter;
-//     m_ipBusCounters.push_back(tmpGTXCounter);
-//   }
-
-//   CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
-// }
-
-// gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
-//                                     int const& crate,
-//                                     int const& slot) :
-//   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice),
-//   m_links(0),
-//   m_maxLinks(N_GTX),
-//   m_crate(crate),
-//   m_slot(slot)
-// {
-//   CMSGEMOS_INFO("HwGenericAMC ctor");
-
-//   for (unsigned li = 0; li < N_GTX; ++li) {
-//     b_links[li] = false;
-//     AMCIPBusCounters tmpGTXCounter;
-//     m_ipBusCounters.push_back(tmpGTXCounter);
-//   }
-
-//   CMSGEMOS_INFO("HwGenericAMC ctor done, deviceBaseNode is " << getDeviceBaseNode());
-// }
-
 gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
                                     std::string const& connectionFile) :
   gem::hw::GEMHwDevice::GEMHwDevice(amcDevice, connectionFile),
@@ -179,8 +123,7 @@ std::string gem::hw::HwGenericAMC::getBoardID()
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   // The board ID consists of four characters encoded as a 32-bit unsigned int
   std::string res = "???";
-  uint32_t val = readReg(getDeviceBaseNode(), "GEM_SYSTEM.BOARD_ID");
-  res = gem::utils::uint32ToString(val);
+  res = gem::utils::uint32ToString(getBoardIDRaw());
   return res;
 }
 
@@ -197,10 +140,13 @@ std::string gem::hw::HwGenericAMC::getFirmwareDate(bool const& system)
   // gem::utils::LockGuard<gem::utils::Lock> guardedLock(hwLock_);
   std::stringstream res;
   std::stringstream regName;
-  uint32_t fwid = readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE.DATE");
+  uint32_t fwid = getFirmwareDateRaw(system);
+
+  // GLIB system FW 0x1f0222b7
   res <<         std::setfill('0') <<std::setw(2) << (fwid&0x1f)       // day
       << "-"  << std::setfill('0') <<std::setw(2) << ((fwid>>5)&0x0f)  // month
       << "-"  << std::setw(4) << 2000+((fwid>>9)&0x7f);                // year
+  // GEM system FW date 0xYYYYMMDD
   return res.str();
 }
 
@@ -220,13 +166,12 @@ std::string gem::hw::HwGenericAMC::getFirmwareVer(bool const& system)
   std::stringstream regName;
   uint32_t fwid;
 
-  if (system)
-    fwid = readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE");
-  else
-    fwid = readReg(getDeviceBaseNode(), "GEM_SYSTEM.RELEASE");
+  // GLIB system FW 0x1f0222b7
+  fwid = getFirmwareVerRaw(system);
   res << ((fwid>>16)&0xff) << "."
       << ((fwid>>8) &0xff) << "."
       << ((fwid)    &0xff);
+  // GEM system FW version 0xMMmmpppp
   return res.str();
 }
 
@@ -281,7 +226,7 @@ bool gem::hw::HwGenericAMC::linkCheck(uint8_t const& gtx, std::string const& opM
 gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_t const& gtx)
 {
   gem::hw::GEMHwDevice::OpticalLinkStatus linkStatus;
-
+  // FIXME moved to OH GEM_AMC.OH.OH0.FPGA.GBT.RX.CNT_LINK_ERR
   CMSGEMOS_INFO("LinkStatus:: m_links 0x" << std::hex <<std::setw(8) << std::setfill('0')
        << m_links << std::dec);
   if (linkCheck(gtx, "Link status")) {
@@ -298,6 +243,7 @@ gem::hw::GEMHwDevice::OpticalLinkStatus gem::hw::HwGenericAMC::LinkStatus(uint8_
 
 void gem::hw::HwGenericAMC::LinkReset(uint8_t const& gtx, uint8_t const& resets)
 {
+  // FIXME changed in V3 firmware
   // req = wisc::RPCMsg("amc.linkReset");
   // req.set_word("NOH",NOH);
   // try {
@@ -326,7 +272,7 @@ void gem::hw::HwGenericAMC::LinkReset(uint8_t const& gtx, uint8_t const& resets)
 gem::hw::HwGenericAMC::AMCIPBusCounters gem::hw::HwGenericAMC::getIPBusCounters(uint8_t const& gtx,
                                                                                 uint8_t const& mode)
 {
-
+  // FIXME removed in V3 firmware
   if (linkCheck(gtx, "IPBus counter")) {
     if (mode&0x01)
       m_ipBusCounters.at(gtx).OptoHybridStrobe = readReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d",gtx));
@@ -346,6 +292,7 @@ gem::hw::HwGenericAMC::AMCIPBusCounters gem::hw::HwGenericAMC::getIPBusCounters(
 
 void gem::hw::HwGenericAMC::resetIPBusCounters(uint8_t const& gtx, uint8_t const& resets)
 {
+  // FIXME removed in V3 firmware
   if (linkCheck(gtx, "Reset IPBus counters")) {
     if (resets&0x01)
       writeReg(getDeviceBaseNode(),toolbox::toString("COUNTERS.IPBus.Strobe.OptoHybrid_%d.Reset",gtx), 0x1);
@@ -373,106 +320,6 @@ void gem::hw::HwGenericAMC::flushTriggerFIFO(uint8_t const& gtx)
   // V2 firmware hasn't got trigger fifo yet
   return;
 }
-
-/** obsolete in generic AMC firmware **
-uint32_t gem::hw::HwGenericAMC::getFIFOOccupancy(uint8_t const& gtx)
-{
-  uint32_t fifocc = 0;
-  if (linkCheck(gtx, "FIFO occupancy")) {
-    std::stringstream regName;
-    regName << "TRK_DATA.OptoHybrid_" << (int)gtx;
-    fifocc = readReg(getDeviceBaseNode(),regName.str()+".DEPTH");
-    CMSGEMOS_DEBUG(toolbox::toString("getFIFOOccupancy(%d) %s.%s%s:: %d", gtx, getDeviceBaseNode().c_str(),
-                            regName.str().c_str(), ".DEPTH", fifocc));
-  }
-  // the fifo occupancy is in number of 32 bit words
-  return fifocc;
-}
-
-uint32_t gem::hw::HwGenericAMC::getFIFOVFATBlockOccupancy(uint8_t const& gtx)
-{
-  // what to return when the occupancy is not a full VFAT block?
-  return getFIFOOccupancy(gtx)/7;
-}
-
-bool gem::hw::HwGenericAMC::hasTrackingData(uint8_t const& gtx)
-{
-  bool hasData = false;
-  if (linkCheck(gtx, "Tracking data")) {
-    std::stringstream regName;
-    regName << "TRK_DATA.OptoHybrid_" << (int)gtx << ".ISEMPTY";
-    hasData = !readReg(getDeviceBaseNode(),regName.str());
-  }
-  // if the FIFO is fragmented, this will return true but we won't read a full block
-  // what to do in this case?
-  return hasData;
-}
-
-std::vector<uint32_t> gem::hw::HwGenericAMC::getTrackingData(uint8_t const& gtx, size_t const& nBlocks)
-{
-  if (!linkCheck(gtx, "Tracking data")) {
-    // do we really want to return a huge vector of 0s in the case that the link is not up?
-    std::vector<uint32_t> data(7*nBlocks,0x0);
-    return data;
-  }
-
-  std::stringstream regName;
-  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";
-  // best way to read a real block? make getTrackingData ask for N blocks?
-  // can we return the memory another way, rather than a vector?
-  return readBlock(regName.str(),7*nBlocks);
-}
-
-uint32_t gem::hw::HwGenericAMC::getTrackingData(uint8_t const& gtx, uint32_t* data, size_t const& nBlocks)
-{
-  if (data==NULL) {
-    std::string msg = toolbox::toString("Block read requested for null pointer");
-    CMSGEMOS_ERROR(msg);
-    XCEPT_RAISE(gem::hw::exception::NULLReadoutPointer,msg);
-  } else if (!linkCheck(gtx, "Tracking data")) {
-    return 0;
-  }
-
-  std::stringstream regName;
-  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";
-  // best way to read a real block? make getTrackingData ask for N blocks?
-  // can we return the memory another way, rather than a vector?
-  // readBlock(regName.str(),7*nBlocks);
-  return nBlocks;
-}
-
-uint32_t gem::hw::HwGenericAMC::getTrackingData(uint8_t const& gtx, std::vector<toolbox::mem::Reference*>& data,
-                                                size_t const& nBlocks)
-{
-  if (!linkCheck(gtx, "Tracking data")) {
-    return 0;
-  }
-
-  std::stringstream regName;
-  regName << getDeviceBaseNode() << ".TRK_DATA.OptoHybrid_" << (int)gtx << ".FIFO";
-  // best way to read a real block? make getTrackingData ask for N blocks?
-  // can we return the memory another way, rather than a vector?
-  // readBlock(regName.str(),7*nBlocks);
-  return nBlocks;
-}
-
-void gem::hw::HwGenericAMC::flushFIFO(uint8_t const& gtx)
-{
-  if (linkCheck(gtx, "Flush FIFO")) {
-    std::stringstream regName;
-    regName << "TRK_DATA.OptoHybrid_" << (int)gtx;
-    CMSGEMOS_INFO("Tracking FIFO" << (int)gtx << ":"
-         << " ISFULL  0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")  << std::dec
-         << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
-         << " Depth   0x" << std::hex << getFIFOOccupancy(gtx) << std::dec);
-    writeReg(getDeviceBaseNode(),regName.str()+".FLUSH",0x1);
-    CMSGEMOS_INFO("Tracking FIFO" << (int)gtx << ":"
-         << " ISFULL  0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISFULL")  << std::dec
-         << " ISEMPTY 0x" << std::hex << readReg(getDeviceBaseNode(),regName.str()+".ISEMPTY") << std::dec
-         << " Depth   0x" << std::hex << getFIFOOccupancy(gtx) << std::dec);
-  }
-}
-**/
 
 /** DAQ link module functions **/
 void gem::hw::HwGenericAMC::enableDAQLink(uint32_t const& enableMask)
@@ -630,7 +477,7 @@ uint32_t gem::hw::HwGenericAMC::getDAQLinkLastBlock(uint8_t const& gtx)
 
 uint32_t gem::hw::HwGenericAMC::getDAQLinkInputTimeout()
 {
-  // OBSOLETE, but will likely be recovered post 1.11.3
+  // OBSOLETE, NO LONGER PRESENT
   return readReg(getDeviceBaseNode(), "DAQ.EXT_CONTROL.INPUT_TIMEOUT");
 }
 
@@ -701,6 +548,7 @@ void gem::hw::HwGenericAMC::ttcMMCMReset()
 
 void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool useBC0Locked, bool doScan)
 {
+  // FIXME CANDIDATE for CTP7 module
   /** Description of phase alignment algorithm
       shiftOutOfLockFirst controls whether the procedure will force a relock
       useBC0Locked controls whether the procedure will use the BC0_LOCKED or the PLL_LOCKED register
@@ -1172,6 +1020,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
 
 int gem::hw::HwGenericAMC::checkPllLock(int readAttempts)
 {
+  // FIXME CANDIDATE for CTP7 module
   const int PHASE_CHECK_AVERAGE_CNT = 100;
   const int PLL_LOCK_READ_ATTEMPTS  = 10;
   const double PLL_LOCK_WAIT_TIME   = 0.00001; // wait 100us to allow the PLL to lock
@@ -1222,17 +1071,20 @@ void gem::hw::HwGenericAMC::setL1AEnable(bool enable)
 
 uint32_t gem::hw::HwGenericAMC::getTTCConfig(AMCTTCCommand const& cmd)
 {
+  WARN("HwGenericAMC::getTTCConfig: not implemented");
   return 0x0;
 }
 
 void gem::hw::HwGenericAMC::setTTCConfig(AMCTTCCommand const& cmd, uint8_t const& value)
 {
+  WARN("HwGenericAMC::setTTCConfig: not implemented");
   return;
 }
 
 uint32_t gem::hw::HwGenericAMC::getTTCStatus()
 {
-  return readReg(getDeviceBaseNode(), "TTC.STATUS.MODULE");
+  WARN("HwGenericAMC::getTTCStatus: not fully implemented");
+  return readReg(getDeviceBaseNode(), "TTC.STATUS");
 }
 
 uint32_t gem::hw::HwGenericAMC::getTTCErrorCount(bool const& single)
@@ -1395,13 +1247,14 @@ void gem::hw::HwGenericAMC::counterReset()
   for (unsigned gtx = 0; gtx < m_maxLinks; ++gtx)
     resetIPBusCounters(gtx, 0xff);
 
-  resetLinkCounters();
+  linkCounterReset();
 
   return;
 }
 
 void gem::hw::HwGenericAMC::resetT1Counters()
 {
+  WARN("HwGenericAMC::resetT1Counters is obsolete and will be removed in a future release");
   writeReg(getDeviceBaseNode(), "T1.L1A.RESET",      0x1);
   writeReg(getDeviceBaseNode(), "T1.CalPulse.RESET", 0x1);
   writeReg(getDeviceBaseNode(), "T1.Resync.RESET",   0x1);
@@ -1409,12 +1262,15 @@ void gem::hw::HwGenericAMC::resetT1Counters()
   return;
 }
 
-void gem::hw::HwGenericAMC::resetLinkCounters()
+void gem::hw::HwGenericAMC::linkCounterReset()
 {
+  WARN("HwGenericAMC::linkCounterReset: not yet implemented");
   return;
 }
 
 void gem::hw::HwGenericAMC::linkReset(uint8_t const& gtx)
 {
+  WARN("HwGenericAMC::linkReset: not yet implemented");
+  linkCounterReset();
   return;
 }

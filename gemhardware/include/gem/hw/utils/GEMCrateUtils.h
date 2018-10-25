@@ -50,7 +50,7 @@ namespace gem {
       /**
        * parseAMCEnableList converts a string listing ranges of slot numbers to a bitmask
        * @param enableList is a , or - delineated list of active slots
-       * @param logger is the parent logger 
+       * @param logger is the parent logger
        * @returns bitmask of active slots
        **/
       uint16_t parseAMCEnableList(std::string const&, log4cplus::Logger);
@@ -104,7 +104,7 @@ namespace gem {
        * @param logger is the parent logger
        * @returns Converted value
        **/
-      double scaConversion(SCAType const& type, uint32_t const& val, log4cplus::Logger);
+      /* double scaConversion(SCAType const& type, uint32_t const& val, log4cplus::Logger); */
       /* { */
       /*   switch(type) { */
       /*   case(gem::hw::utils::SCAType::ADC_V): */

@@ -103,76 +103,6 @@ gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName,
   CMSGEMOS_DEBUG("GEMHwDevice::ctor done");
 }
 
-// gem::hw::GEMHwDevice::GEMHwDevice(std::string const& deviceName):
-//   b_is_connected(false),
-//   m_gemLogger(log4cplus::Logger::getInstance(deviceName)),
-//   m_hwLock(toolbox::BSem::FULL, true),
-//   m_controlHubIPAddress("localhost"),
-//   m_addressTable("uhal_gem_amc_glib.xml"),
-//   m_ipBusProtocol("2.0"),
-//   m_deviceIPAddress("192.168.0.115"),
-//   m_controlHubPort(10203),
-//   m_ipBusPort(50001)
-//   // monGEMHw_(0)
-// {
-//   CMSGEMOS_DEBUG("GEMHwDevice(std::string) ctor");
-//   setLogLevelTo(uhal::Error());
-
-//   toolbox::net::URN hwCfgURN("urn:gem:hw:"+deviceName);
-//   CMSGEMOS_INFO("GEMHwDevice::Getting hwCfgInfoSpace with urn " << hwCfgURN.toString());
-//   p_hwCfgInfoSpace = xdata::getInfoSpaceFactory()->get(hwCfgURN.toString());
-
-//   setParametersFromInfoSpace();
-
-//   // time for these to come from a configuration setup
-//   std::string const addressTable      = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "AddressTable");
-//   std::string const controlhubAddress = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "ControlHubAddress");
-//   std::string const deviceIPAddress   = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "DeviceIPAddress");
-//   std::string const ipBusProtocol     = gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "IPBusProtocol");
-//   uint32_t    const controlhubPort    = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "ControlHubPort");
-//   uint32_t    const ipBusPort         = gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "IPBusPort");
-
-//   std::stringstream tmpUri;
-//   if (controlhubAddress.size() > 0) {
-//     CMSGEMOS_DEBUG("GEMHwDevice::Using control hub at address '" << controlhubAddress
-//           << ", port number "              << controlhubPort << "'.");
-//     tmpUri << "chtcp-"<< ipBusProtocol << "://"
-//            << controlhubAddress << ":" << controlhubPort
-//            << "?target=" << deviceIPAddress << ":" << ipBusPort;
-//   } else {
-//     CMSGEMOS_DEBUG("GEMHwDevice::No control hub address specified -> "
-//           "continuing with a direct connection.");
-//     tmpUri << "ipbusudp-" << ipBusProtocol << "://"
-//            << deviceIPAddress << ":" << ipBusPort;
-//   }
-//   std::string const uri = tmpUri.str();
-//   // std::string const addressTable = getAddressTableFileName();
-
-//   CMSGEMOS_INFO("GEMHwDevice::uri, deviceName, address table : " << uri << " " << deviceName << " " << addressTable);
-//   try {
-//     p_gemHW = std::shared_ptr<uhal::HwInterface>(new uhal::HwInterface(uhal::ConnectionManager::getDevice(deviceName,
-//                                                                                                           uri,
-//                                                                                                           addressTable)));
-//   } catch (uhal::exception::FileNotFound const& err) {
-//     std::string msg = toolbox::toString("Could not find uhal address table file '%s' "
-//                                         "(or one of its included address table modules).",
-//                                         addressTable.c_str());
-//     CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-//   } catch (uhal::exception::exception const& err) {
-//     std::string msgBase = "Could not obtain the uhal device from the connection manager";
-//     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-//     CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-//   } catch (std::exception const& err) {
-//     CMSGEMOS_ERROR("GEMHwDevice::Unknown std::exception caught from uhal");
-//     std::string msgBase = "Could not connect to th e hardware";
-//     std::string msg = toolbox::toString("%s: %s.", msgBase.c_str(), err.what());
-//     CMSGEMOS_ERROR("GEMHwDevice::" << msg);
-//   }
-//   //should have pointer to device by here
-//   setup(deviceName);
-//   CMSGEMOS_DEBUG("GEMHwDevice::ctor done");
-// }
-
 gem::hw::GEMHwDevice::~GEMHwDevice()
 {
   // if (p_gemHW)
@@ -184,48 +114,14 @@ gem::hw::GEMHwDevice::~GEMHwDevice()
 
 std::string gem::hw::GEMHwDevice::printErrorCounts() const {
   std::stringstream errstream;
-  errstream << "errors while accessing registers:"               << std::endl
-            << "Bad header:  "       <<m_ipBusErrs.BadHeader     << std::endl
-            << "Read errors: "       <<m_ipBusErrs.ReadError     << std::endl
-            << "Timeouts:    "       <<m_ipBusErrs.Timeout       << std::endl
-            << "Controlhub errors: " <<m_ipBusErrs.ControlHubErr << std::endl;
+  errstream << "errors while accessing registers:"                << std::endl
+            << "Bad header:  "       << m_ipBusErrs.BadHeader     << std::endl
+            << "Read errors: "       << m_ipBusErrs.ReadError     << std::endl
+            << "Timeouts:    "       << m_ipBusErrs.Timeout       << std::endl
+            << "Controlhub errors: " << m_ipBusErrs.ControlHubErr << std::endl;
   CMSGEMOS_TRACE(errstream);
   return errstream.str();
 }
-
-// void gem::hw::GEMHwDevice::setParametersFromInfoSpace()
-// {
-//   CMSGEMOS_DEBUG("GEMHwDevice::setParametersFromInfoSpace");
-//   try {
-//     CMSGEMOS_DEBUG("GEMHwDevice::trying to get parameters from the hwCfgInfoSpace");
-//     setControlHubIPAddress( gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "ControlHubIPAddress"));
-//     setIPBusProtocolVersion(gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "IPBusProtocol"));
-//     setDeviceIPAddress(     gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "DeviceIPAddress"));
-//     setAddressTableFileName(gem::base::utils::GEMInfoSpaceToolBox::getString(p_hwCfgInfoSpace, "AddressTable"));
-
-//     setControlHubPort(gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "ControlHubPort"));
-//     setIPBusPort(     gem::base::utils::GEMInfoSpaceToolBox::getUInt32(p_hwCfgInfoSpace, "IPBusPort"));
-//     return;
-//   } catch (gem::base::utils::exception::InfoSpaceProblem const& err) {
-//     CMSGEMOS_ERROR("GEMHwDevice::Could not set the device parameters from the InfoSpace " <<
-//           "(gem::utils::exception::InfoSpacePRoblem)::"
-//           << err.what());
-//   } catch (std::exception const& err) {
-//     CMSGEMOS_ERROR("GEMHwDevice::Could not set the device parameters from the InfoSpace " <<
-//           "(std::exception)"
-//           << err.what());
-//   }
-//   // if we catch an exception, need to execute this, as successful operation will return in the try block
-//   CMSGEMOS_DEBUG("GEMHwDevice::Setting default values as InfoSpace setting failed");
-//   setControlHubIPAddress("localhost");
-//   setAddressTableFileName("uhal_gem_amc_glib.xml");
-//   setIPBusProtocolVersion("2.0");
-//   setDeviceIPAddress("192.168.0.115");
-
-//   setControlHubPort(10203);
-//   setIPBusPort(50001);
-//   return;
-// }
 
 void gem::hw::GEMHwDevice::setup(std::string const& deviceName)
 {
@@ -261,13 +157,13 @@ uint32_t gem::hw::GEMHwDevice::readReg(std::string const& name)
   unsigned retryCount = 0;
   uint32_t res = 0x0;
   CMSGEMOS_DEBUG("GEMHwDevice::readReg " << name << std::endl
-                 << "Path  "      << this->getNode(name).getPath() << std::endl
+                 << "Path  "      << this->getNode(name).getPath()                << std::endl
                  << "Address 0x"  << std::hex << this->getNode(name).getAddress() << std::dec << std::endl
                  << "Mask 0x"     << std::hex << this->getNode(name).getMask()    << std::dec << std::endl
-                 << "Permission " << this->getNode(name).getPermission() << std::endl
-                 << "Mode "       << this->getNode(name).getMode() << std::endl
-                 << "Size "       << this->getNode(name).getSize() << std::endl
-        << std::endl);
+                 << "Permission " << this->getNode(name).getPermission()          << std::endl
+                 << "Mode "       << this->getNode(name).getMode()                << std::endl
+                 << "Size "       << this->getNode(name).getSize()                << std::endl
+                 << std::endl);
   while (retryCount < MAX_IPBUS_RETRIES) {
     ++retryCount;
     try {
@@ -962,9 +858,7 @@ void gem::hw::GEMHwDevice::updateErrorCounters(std::string const& errCode) {
   if ((errCode.find("INFO CODE = 0x6L") != std::string::npos) ||
       (errCode.find("timed out")        != std::string::npos))
     ++m_ipBusErrs.Timeout;
-  if (errCode.find("ControlHub error code is: 3") != std::string::npos)
-    ++m_ipBusErrs.ControlHubErr;
-  if (errCode.find("ControlHub error code is: 4") != std::string::npos)
+  if (errCode.find("ControlHub error code") != std::string::npos)
     ++m_ipBusErrs.ControlHubErr;
   if ((errCode.find("had response field = 0x04") != std::string::npos) ||
       (errCode.find("had response field = 0x06") != std::string::npos))

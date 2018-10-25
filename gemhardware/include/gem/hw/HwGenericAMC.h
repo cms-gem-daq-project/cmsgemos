@@ -62,10 +62,15 @@ namespace gem {
         /* HwGenericAMC(); */
         /* HwGenericAMC(std::string const& amcDevice); */
         /* HwGenericAMC(std::string const& amcDevice, int const& crate, int const& slot); */
-        HwGenericAMC(std::string const& amcDevice, std::string const& connectionFile);
-        HwGenericAMC(std::string const& amcDevice, std::string const& connectionURI,
+        HwGenericAMC(std::string const& amcDevice,
+                     std::string const& connectionFile);
+
+        HwGenericAMC(std::string const& amcDevice,
+                     std::string const& connectionURI,
                      std::string const& addressTable);
-        HwGenericAMC(std::string const& amcDevice, uhal::HwInterface& uhalDevice);
+
+        HwGenericAMC(std::string const& amcDevice,
+                     uhal::HwInterface& uhalDevice);
 
         virtual ~HwGenericAMC();
 
@@ -778,7 +783,7 @@ namespace gem {
         /**
          * @brief performs a reset of the GenericAMC GTX link counters
          */
-        virtual void resetLinkCounters();
+        virtual void linkCounterReset();
 
         /**
          * @brief performs a reset of the GenericAMC link
@@ -809,7 +814,7 @@ namespace gem {
         int m_slot;   ///< Slot number in the uTCA shelf the AMC is sitting in
 
       private:
-        // Do Not use default constructor. HwGenericAMC object should only be made using
+        // Do not use default constructor. HwGenericAMC object should only be made using
         // either connection file method or with a list of URIs and address tables
         HwGenericAMC();
 

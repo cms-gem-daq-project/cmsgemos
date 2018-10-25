@@ -28,8 +28,9 @@ uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList)
 //               << ", with name " << logger->getName() << std::endl;
 //     log4cplus::Logger m_gemLogger(log4cplus::Logger::getInstance(logger->getName()+".child"));
 //   }
-  
+
 uint16_t gem::hw::utils::parseAMCEnableList(std::string const& enableList, log4cplus::Logger logger)
+{
   log4cplus::Logger m_gemLogger(logger);
   uint16_t slotMask = 0x0;
   std::vector<std::string> slots;

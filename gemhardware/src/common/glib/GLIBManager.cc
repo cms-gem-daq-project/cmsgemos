@@ -145,9 +145,9 @@ void gem::hw::glib::GLIBManager::actionPerformed(xdata::Event& event)
     CMSGEMOS_DEBUG("GLIBManager::actionPerformed() setDefaultValues"
                    << "Default configuration values have been loaded from xml profile");
     m_amcEnableMask = gem::hw::utils::parseAMCEnableList(m_amcSlots.toString(),
-                                                         &m_gemLogger);
-                                                         // m_gemLogger);
-    CMSGEMOS_INFO("GLIBManager::Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
+                                                         // &m_gemLogger);
+                                                         m_gemLogger);
+    CMSGEMOS_INFO("GLIBManager::actionPerformed() Parsed AMCEnableList m_amcSlots = " << m_amcSlots.toString()
                   << " to slotMask 0x" << std::hex << m_amcEnableMask << std::dec);
 
     // how to handle passing in various values nested in a vector in a bag

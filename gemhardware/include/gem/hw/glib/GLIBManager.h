@@ -59,20 +59,25 @@ namespace gem {
           virtual void resetAction(toolbox::Event::Reference e)
             throw (toolbox::fsm::exception::Exception);
 
-	  bool is_initialized_, is_configured_, is_running_, is_paused_, is_resumed_;
+	  /* bool is_initialized_, is_configured_, is_running_, is_paused_, is_resumed_; */ ///< FIXME REMOVE UNUSED
 
         protected:
           /**
+           * OBSOLETE not present in generic AMC FW
            */
           std::vector<uint32_t> dumpGLIBFIFO(int const& glib);
 
           /**
+           * OBSOLETE not present in generic AMC FW
            */
           void dumpGLIBFIFO(xgi::Input* in, xgi::Output* out);
 
         private:
           void     createGLIBInfoSpaceItems(is_toolbox_ptr is_glib, glib_shared_ptr glib);
           uint16_t m_amcEnableMask;
+
+          toolbox::task::WorkLoop *p_amc_wl; ///< paralelize the calls to different AMCs
+          toolbox::BSem m_amc_wl_semaphore[MAX_AMCS_PER_CRATE]; // do we need a semaphore for the workloop or each of them?
 
           class GLIBInfo {
 
@@ -84,21 +89,21 @@ namespace gem {
             xdata::Boolean present;
             xdata::Integer crateID;
             xdata::Integer slotID;
-            xdata::String  cardName;
-            xdata::String  birdName;
+            xdata::String  cardName; ///< FIXME USAGE cardname shoule be gem-shelfXX-amcYY from crateID and slotID
+            xdata::String  birdName; ///< FIXME REMOVE TEMPORARY
 
             //configuration parameters
-            xdata::String controlHubAddress;
-            xdata::String deviceIPAddress;
-            xdata::String ipBusProtocol;
-            xdata::String addressTable;
+            /* xdata::String controlHubAddress; */ ///< FIXME REMOVE OBSOLETE
+            /* xdata::String deviceIPAddress; */   ///< FIXME REMOVE OBSOLETE
+            /* xdata::String ipBusProtocol; */     ///< FIXME REMOVE OBSOLETE
+            /* xdata::String addressTable; */      ///< FIXME REMOVE OBSOLETE
 
             // list of GTX links to enable in the DAQ
             xdata::String            gtxLinkEnableList;
             xdata::UnsignedInteger32 gtxLinkEnableMask;
 
-            xdata::UnsignedInteger32 controlHubPort;
-            xdata::UnsignedInteger32 ipBusPort;
+            /* xdata::UnsignedInteger32 controlHubPort; */ ///< FIXME REMOVE OBSOLETE
+            /* xdata::UnsignedInteger32 ipBusPort; */      ///< FIXME REMOVE OBSOLETE
 
             //registers to set
             xdata::Integer sbitSource;
@@ -111,12 +116,12 @@ namespace gem {
                  << "cardName:" << cardName.toString() << std::endl
                  << "birdName:" << birdName.toString() << std::endl
 
-                 << "controlHubAddress:" << controlHubAddress.toString() << std::endl
-                 << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl
-                 << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl
-                 << "addressTable:"      << addressTable.toString()      << std::endl
-                 << "controlHubPort:"    << controlHubPort.value_        << std::endl
-                 << "ipBusPort:"         << ipBusPort.value_             << std::endl
+                 /* << "controlHubAddress:" << controlHubAddress.toString() << std::endl */ ///< FIXME REMOVE OBSOLETE
+                 /* << "deviceIPAddress:"   << deviceIPAddress.toString()   << std::endl */ ///< FIXME REMOVE OBSOLETE
+                 /* << "ipBusProtocol:"     << ipBusProtocol.toString()     << std::endl */ ///< FIXME REMOVE OBSOLETE
+                 /* << "addressTable:"      << addressTable.toString()      << std::endl */ ///< FIXME REMOVE OBSOLETE
+                 /* << "controlHubPort:"    << controlHubPort.value_        << std::endl */ ///< FIXME REMOVE OBSOLETE
+                 /* << "ipBusPort:"         << ipBusPort.value_             << std::endl */ ///< FIXME REMOVE OBSOLETE
 
                  << "gtxLinkEnableList:" << gtxLinkEnableList.toString() << std::endl
                  << "gtxLinkEnableMask:" << std::hex << gtxLinkEnableMask.value_ << std::dec << std::endl

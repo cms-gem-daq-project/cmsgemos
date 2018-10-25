@@ -861,13 +861,14 @@ void gem::hw::ctp7::HwCTP7::counterReset()
   for (unsigned gtx = 0; gtx < N_GTX; ++gtx)
     resetIPBusCounters(gtx, 0xff);
 
-  resetLinkCounters();
+  linkCounterReset();
 
   return;
 }
 
 void gem::hw::ctp7::HwCTP7::resetT1Counters()
 {
+  WARN("HwCTP7::resetT1Counters is obsolete and will be removed in a future release");
   writeReg(getDeviceBaseNode(), "T1.L1A.RESET",      0x1);
   writeReg(getDeviceBaseNode(), "T1.CalPulse.RESET", 0x1);
   writeReg(getDeviceBaseNode(), "T1.Resync.RESET",   0x1);
@@ -875,7 +876,7 @@ void gem::hw::ctp7::HwCTP7::resetT1Counters()
   return;
 }
 
-void gem::hw::ctp7::HwCTP7::resetLinkCounters()
+void gem::hw::ctp7::HwCTP7::linkCounterReset()
 {
   return;
 }
@@ -884,4 +885,3 @@ void gem::hw::ctp7::HwCTP7::linkReset(uint8_t const& gtx)
 {
   return;
 }
-

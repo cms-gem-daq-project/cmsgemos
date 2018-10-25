@@ -130,19 +130,35 @@ namespace gem {
       typedef std::pair<uint8_t, OpticalLinkStatus>  linkStatus;
       //typedef std::vector<linkStatus>                linkStatus;
 
+      // /**
+      //  * GEMHwDevice constructor
+      //  * @param deviceName string to put into the logger
+      //  */
+      // /* GEMHwDevice(std::string const& deviceName); */
+
       /**
        * GEMHwDevice constructor
-       * @param deviceName string to put into the logger
+       * @param deviceName card name (connection file and IP resolveable)
+       * @param connectionFile name of the connection file to find the `uhal` device endpoint
        */
-      /* GEMHwDevice(std::string const& deviceName); */
-
       GEMHwDevice(std::string const& deviceName,
                   std::string const& connectionFile);
 
+      /**
+       * GEMHwDevice constructor
+       * @param deviceName card name (connection file and IP resolveable)
+       * @param connectionURI `uhal` device endpoint
+       * @param addressTable address table to be used with `uhal` register access
+       */
       GEMHwDevice(std::string const& deviceName,
                   std::string const& connectionURI,
                   std::string const& addressTable);
 
+      /**
+       * GEMHwDevice constructor
+       * @param deviceName card name (connection file and IP resolveable)
+       * @param uhalDevice already created uhal::HwInterface to use for connection
+       */
       GEMHwDevice(std::string const& deviceName,
                   uhal::HwInterface const& uhalDevice);
 
@@ -358,7 +374,7 @@ namespace gem {
 
 
       // These methods provide access to the member variables
-      // specifying the uhal address table name and the IPbus protocol
+      // specifying the `uhal` address table name and the IPbus protocol
       // version.
       //getters
       const std::string getControlHubIPAddress()  const { return m_controlHubIPAddress;};
