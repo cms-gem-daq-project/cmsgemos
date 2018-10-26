@@ -177,7 +177,7 @@ void gem::hw::optohybrid::OptoHybridManager::actionPerformed(xdata::Event& event
       if (board->bag.crateID.value_ > -1) {
         board->bag.present = true;
         CMSGEMOS_INFO("OptoHybridManager::Found attribute:" << board->bag.toString());
-        uint32_t tmpBroadcastMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatBroadcastList.toString()
+        uint32_t tmpBroadcastMask = gem::hw::utils::parseVFATMaskList(board->bag.vfatBroadcastList.toString(),
                                                                       m_gemLogger);
         CMSGEMOS_INFO("OptoHybridManager::Parsed vfatBroadcastList = " << board->bag.vfatBroadcastList.toString()
              << " to broadcastMask 0x" << std::hex << tmpBroadcastMask << std::dec);

@@ -51,9 +51,9 @@ gem::hw::HwGenericAMC::HwGenericAMC(std::string const& amcDevice,
 {
   if (isConnected) {
     this->loadModule("amc", "amc v1.0.1");
-    DEBUG("HwGenericAMC::HwGenericAMC amc module loaded");
+    CMSGEMOS_DEBUG("HwGenericAMC::HwGenericAMC amc module loaded");
   } else {
-    WARN("HwGenericAMC::HwGenericAMC RPC interface failed to connect");
+    CMSGEMOS_WARN("HwGenericAMC::HwGenericAMC RPC interface failed to connect");
   }
 
   for (unsigned li = 0; li < N_GTX; ++li) {
@@ -1071,19 +1071,19 @@ void gem::hw::HwGenericAMC::setL1AEnable(bool enable)
 
 uint32_t gem::hw::HwGenericAMC::getTTCConfig(AMCTTCCommand const& cmd)
 {
-  WARN("HwGenericAMC::getTTCConfig: not implemented");
+  CMSGEMOS_WARN("HwGenericAMC::getTTCConfig: not implemented");
   return 0x0;
 }
 
 void gem::hw::HwGenericAMC::setTTCConfig(AMCTTCCommand const& cmd, uint8_t const& value)
 {
-  WARN("HwGenericAMC::setTTCConfig: not implemented");
+  CMSGEMOS_WARN("HwGenericAMC::setTTCConfig: not implemented");
   return;
 }
 
 uint32_t gem::hw::HwGenericAMC::getTTCStatus()
 {
-  WARN("HwGenericAMC::getTTCStatus: not fully implemented");
+  CMSGEMOS_WARN("HwGenericAMC::getTTCStatus: not fully implemented");
   return readReg(getDeviceBaseNode(), "TTC.STATUS");
 }
 
@@ -1254,7 +1254,7 @@ void gem::hw::HwGenericAMC::counterReset()
 
 void gem::hw::HwGenericAMC::resetT1Counters()
 {
-  WARN("HwGenericAMC::resetT1Counters is obsolete and will be removed in a future release");
+  CMSGEMOS_WARN("HwGenericAMC::resetT1Counters is obsolete and will be removed in a future release");
   writeReg(getDeviceBaseNode(), "T1.L1A.RESET",      0x1);
   writeReg(getDeviceBaseNode(), "T1.CalPulse.RESET", 0x1);
   writeReg(getDeviceBaseNode(), "T1.Resync.RESET",   0x1);
@@ -1264,13 +1264,13 @@ void gem::hw::HwGenericAMC::resetT1Counters()
 
 void gem::hw::HwGenericAMC::linkCounterReset()
 {
-  WARN("HwGenericAMC::linkCounterReset: not yet implemented");
+  CMSGEMOS_WARN("HwGenericAMC::linkCounterReset: not yet implemented");
   return;
 }
 
 void gem::hw::HwGenericAMC::linkReset(uint8_t const& gtx)
 {
-  WARN("HwGenericAMC::linkReset: not yet implemented");
+  CMSGEMOS_WARN("HwGenericAMC::linkReset: not yet implemented");
   linkCounterReset();
   return;
 }
