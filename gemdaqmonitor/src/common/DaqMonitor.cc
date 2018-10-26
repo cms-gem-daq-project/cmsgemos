@@ -30,7 +30,8 @@ gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cpl
   is_daqmon =  is_toolbox_ptr(new gem::base::utils::GEMInfoSpaceToolBox(p_gemApp,
                                                                         hwCfgURN.toString(),
                                                                         true));
-  addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(20,  0));
+  addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(2,  0));
+
   setupDaqMonitoring();
   
   logCnt = 0;
@@ -383,6 +384,7 @@ void gem::daqmon::DaqMonitor::updateOHmain()
   }
   STANDARD_CATCH;
 }
+
 
 void gem::daqmon::DaqMonitor::updateOHSCA()
 {
