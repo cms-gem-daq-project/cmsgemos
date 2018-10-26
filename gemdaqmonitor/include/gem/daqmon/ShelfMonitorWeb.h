@@ -41,6 +41,7 @@ namespace gem {
 //
         virtual void jsonUpdate(xgi::Input *in, xgi::Output *out)
           throw (xgi::exception::Exception);
+
 //
 //        void displayManagedStateTable(xgi::Input *in, xgi::Output *out)
 //          throw (xgi::exception::Exception);

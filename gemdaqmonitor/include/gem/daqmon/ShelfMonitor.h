@@ -35,6 +35,22 @@ namespace gem {
 
         virtual void actionPerformed(xdata::Event& event);
 
+        void startMonitoring();
+
+        void stopMonitoring();
+
+        std::string monitoringState(){return m_state;}
+
+        void stopAction(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
+
+        void resumeAction(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
+
+        void pauseAction(xgi::Input *in, xgi::Output *out)
+          throw (xgi::exception::Exception);
+
+
         std::vector<DaqMonitor*> v_daqmon;
       protected:
         /* virtual bool calibrationAction(toolbox::task::WorkLoop *wl); */
@@ -48,7 +64,7 @@ namespace gem {
         bool isGEMApplication(const std::string& classname) const;
         xdata::Integer m_shelfID;
         log4cplus::Logger m_logger; //FIXME should be removed!
-
+        std::string m_state;
       };
   }  // namespace gem::daqmon
 }  // namespace gem

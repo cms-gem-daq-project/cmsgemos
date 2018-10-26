@@ -31,8 +31,11 @@ gem::daqmon::DaqMonitor::DaqMonitor(const std::string& board_domain_name,log4cpl
                                                                         hwCfgURN.toString(),
                                                                         true));
   addInfoSpace("DAQ_MONITORING", is_daqmon, toolbox::TimeInterval(2,  0));
+
   setupDaqMonitoring();
-  updateMonitorables();
+  
+  logCnt = 0;
+  
   DEBUG("gem::daqmon::DaqMonitor : constructor done");
 }
 
@@ -222,6 +225,33 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
     updateDAQmainTableContent();
     updateTTCmainTableContent();
     updateOHmainTableContent();
+
+    // dump the monitorables every ten updates
+    if ( logCnt % 10 == 0) {
+      INFO("gem::daqmon::DaqMonitor Logging monitorables");
+      time_t t = time(0);   // get time now
+      struct tm * now = localtime( & t );
+      char buffer [80];
+      strftime (buffer,80,"%Y-%m-%d-%H:%M:%S",now);
+      std::string logfilename = "/var/log/gemdaq/daqmon_log_";
+      logfilename += buffer;
+      logfilename += ".gz";
+
+      std::ofstream logfile(logfilename, std::ios_base::out | std::ios_base::binary);
+      bo::filtering_ostream m_out;
+      m_out.push(bo::gzip_compressor()); 
+      m_out.push(logfile); 
+      m_out << "Timestamp: " << buffer << std::endl;
+
+      m_out << " { " << std::endl;
+      for (auto ld = m_LabelData.begin(); ld != m_LabelData.end();) {
+        m_out << "\"" << ld->second->labelId << "\" : { \"class_name\" : \"" << ld->second->labelClass << "\", \"value\" : \"" << ld->second->labelValue << "\" }";
+        if (++ld == m_LabelData.end()) m_out << std::endl; else m_out << "," << std::endl;
+      }
+      m_out << " } " << std::endl;
+    }
+    ++logCnt;
+    
   } catch (...) {} //FIXME Define meaningful exceptions and intercept here or eventually at a different level...
 }
 
@@ -354,6 +384,7 @@ void gem::daqmon::DaqMonitor::updateOHmain()
   }
   STANDARD_CATCH;
 }
+
 
 void gem::daqmon::DaqMonitor::updateOHSCA()
 {
@@ -841,4 +872,5 @@ void gem::daqmon::DaqMonitor::jsonContentUpdate(xgi::Output* out)
     if (++ld == m_LabelData.end()) *out << std::endl; else *out << "," << std::endl;
   }
   *out << " } " << std::endl;
+  
 }

@@ -38,6 +38,9 @@ gem::daqmon::ShelfMonitor::ShelfMonitor(xdaq::ApplicationStub* stub) :
   p_appInfoSpace->addItemRetrieveListener("shelfID", this);
   p_appInfoSpace->addItemChangedListener("shelfID", this);
   DEBUG("gem::daqmon::ShelfMonitor : configuration retrieved");
+  xgi::bind(this, &ShelfMonitor::stopAction, "stopAction");
+  xgi::bind(this, &ShelfMonitor::resumeAction, "resumeAction");
+  xgi::bind(this, &ShelfMonitor::pauseAction, "pauseAction");
   //init();
 }
 
@@ -57,10 +60,7 @@ void gem::daqmon::ShelfMonitor::actionPerformed(xdata::Event& event)
     importConfigurationParameters();
     importMonitoringParameters();
     init();
-    for (auto daqmon: v_daqmon)
-    {
-      daqmon->startMonitoring();
-    }
+    startMonitoring();
   }
 
   // item is changed, update it
@@ -79,7 +79,7 @@ void gem::daqmon::ShelfMonitor::init()
   for (int i = 1; i <= NAMC; ++i)
   {
     char t_board_name[20];
-    sprintf(t_board_name, "gem.shelf%02d.amc%02d", m_shelfID.value_, i);
+    sprintf(t_board_name, "gem-shelf%02d-amc%02d", m_shelfID.value_, i);
     DEBUG("gem::daqmon::ShelfMonitor::init :  Domain name for the board " << std::dec << i << " : " << t_board_name);
     v_daqmon.push_back(new gem::daqmon::DaqMonitor(t_board_name, this->getApplicationLogger(), this, i));
     DEBUG("gem::daqmon::ShelfMonitor::init : DaqMonitor pointer created");
@@ -95,4 +95,62 @@ bool gem::daqmon::ShelfMonitor::isGEMApplication(const std::string& classname) c
     return true;  // include from list
   */
   return false;
+}
+
+void gem::daqmon::ShelfMonitor::startMonitoring() 
+{ 
+    int cnt = 0;
+    for (auto daqmon: v_daqmon)
+    {
+      if (daqmon->is_connected()) {
+        daqmon->startMonitoring();
+        ++cnt;
+      } else {
+        INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board " << daqmon->boardName() 
+        << " cannot be established. Monitoring for this board is OFF");
+      }
+    }
+    (cnt>0)?m_state="RUNNING":"FAILED";
+}
+
+void gem::daqmon::ShelfMonitor::stopMonitoring() 
+{ 
+    for (auto daqmon: v_daqmon)
+    {
+      if (daqmon->is_connected()) {
+        daqmon->stopMonitoring();
+      } else {
+        INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board " << daqmon->boardName() 
+        << " cannot be established. Monitoring for this board is OFF");
+      }
+    }
+    m_state="STOPPED";
+}
+
+void gem::daqmon::ShelfMonitor::stopAction(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+  INFO("ShelfMonitor::stopAction");
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  this->stopMonitoring();
+  *out << " { \"mon_state\":\"STOPPED\"}" << std::endl;
+
+}
+
+void gem::daqmon::ShelfMonitor::resumeAction(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+  INFO("ShelfMonitor::startAction");
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  this->startMonitoring();
+  *out << " { \"mon_state\":\"RUNNING\"}" << std::endl;
+}
+
+void gem::daqmon::ShelfMonitor::pauseAction(xgi::Input* in, xgi::Output* out)
+  throw (xgi::exception::Exception)
+{
+  INFO("ShelfMonitor::pauseAction");
+  out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
+  this->stopMonitoring();
+  *out << " { \"mon_state\":\"PAUSED\"}" << std::endl;
 }
