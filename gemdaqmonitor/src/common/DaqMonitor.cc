@@ -228,7 +228,7 @@ void gem::daqmon::DaqMonitor::updateMonitorables()
 
     // dump the monitorables every ten updates
     if ( logCnt % 10 == 0) {
-      INFO("gem::daqmon::DaqMonitor Logging monitorables");
+      CMSGEMOS_INFO("gem::daqmon::DaqMonitor Logging monitorables");
       time_t t = time(0);   // get time now
       struct tm * now = localtime( & t );
       char buffer [80];
