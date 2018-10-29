@@ -106,7 +106,8 @@ void gem::daqmon::ShelfMonitor::startMonitoring()
         daqmon->startMonitoring();
         ++cnt;
       } else {
-        INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board " << daqmon->boardName()
+        CMSGEMOS_INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board "
+                      << daqmon->boardName()
         << " cannot be established. Monitoring for this board is OFF");
       }
     }
@@ -120,7 +121,8 @@ void gem::daqmon::ShelfMonitor::stopMonitoring()
       if (daqmon->is_connected()) {
         daqmon->stopMonitoring();
       } else {
-        INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board " << daqmon->boardName()
+        CMSGEMOS_INFO("gem::daqmon::ShelfMonitor::actionPerformed() setDefaultValues : Connection to the board "
+                      << daqmon->boardName()
         << " cannot be established. Monitoring for this board is OFF");
       }
     }
@@ -130,7 +132,7 @@ void gem::daqmon::ShelfMonitor::stopMonitoring()
 void gem::daqmon::ShelfMonitor::stopAction(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  INFO("ShelfMonitor::stopAction");
+  CMSGEMOS_INFO("ShelfMonitor::stopAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   this->stopMonitoring();
   *out << " { \"mon_state\":\"STOPPED\"}" << std::endl;
@@ -140,7 +142,7 @@ void gem::daqmon::ShelfMonitor::stopAction(xgi::Input* in, xgi::Output* out)
 void gem::daqmon::ShelfMonitor::resumeAction(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  INFO("ShelfMonitor::startAction");
+  CMSGEMOS_INFO("ShelfMonitor::startAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   this->startMonitoring();
   *out << " { \"mon_state\":\"RUNNING\"}" << std::endl;
@@ -149,7 +151,7 @@ void gem::daqmon::ShelfMonitor::resumeAction(xgi::Input* in, xgi::Output* out)
 void gem::daqmon::ShelfMonitor::pauseAction(xgi::Input* in, xgi::Output* out)
   throw (xgi::exception::Exception)
 {
-  INFO("ShelfMonitor::pauseAction");
+  CMSGEMOS_INFO("ShelfMonitor::pauseAction");
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/json");
   this->stopMonitoring();
   *out << " { \"mon_state\":\"PAUSED\"}" << std::endl;
