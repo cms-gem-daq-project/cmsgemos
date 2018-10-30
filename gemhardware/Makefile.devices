@@ -16,6 +16,7 @@ Sources =utils/GEMCrateUtils.cc
 Sources+=GEMHwDevice.cc HwGenericAMC.cc
 Sources+=vfat/HwVFAT2.cc
 Sources+=glib/HwGLIB.cc
+# Sources+=ctp7/HwCTP7.cc
 Sources+=optohybrid/HwOptoHybrid.cc
 
 DynamicLibrary=gemhardware_devices
