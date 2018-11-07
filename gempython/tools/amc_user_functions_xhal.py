@@ -14,7 +14,7 @@ gRetries = 5
 maxVfat3DACSize = {
         #ADC Measures Current
         #0:(0x3f, "CFG_IREF"), # This should never be scanned per VFAT3 Team's Instructions
-        #1:???
+        1:(0xff,"CFG_CAL_DAC"), # as current
         2:(0xff,"CFG_BIAS_PRE_I_BIT"),
         3:(0x3f,"CFG_BIAS_PRE_I_BLCC"),
         4:(0x3f,"CFG_BIAS_PRE_I_BSF"),
@@ -31,7 +31,7 @@ maxVfat3DACSize = {
         #16:(0xff,""),Don't know reg in CTP7 address space
 
         #ADC Measures Voltage
-        #33:???
+        33:(0xff,"CFG_CAL_DAC"), # as voltage
         34:(0xff,"CFG_BIAS_PRE_VREF"),
         35:(0xff,"CFG_THR_ARM_DAC"),
         36:(0xff,"CFG_THR_ZCC_DAC"),
