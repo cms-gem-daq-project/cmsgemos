@@ -17,7 +17,7 @@ maxVfat3DACSize = {
         #1:???
         2:(0xff,"CFG_BIAS_PRE_I_BIT"),
         3:(0x3f,"CFG_BIAS_PRE_I_BLCC"),
-        #4:???
+        4:(0x3f,"CFG_BIAS_PRE_I_BSF"),
         5:(0xff,"CFG_BIAS_SH_I_BFCAS"),
         6:(0xff,"CFG_BIAS_SH_I_BDIFF"),
         7:(0xff,"CFG_BIAS_SD_I_BDIFF"),
@@ -26,20 +26,17 @@ maxVfat3DACSize = {
         10:(0x3f,"CFG_BIAS_CFD_DAC_1"),
         11:(0x3f,"CFG_BIAS_CFD_DAC_2"),
         12:(0x3f,"CFG_HYST"),
-        #13:???
         14:(0xff,"CFG_THR_ARM_DAC"),
         15:(0xff,"CFG_THR_ZCC_DAC"),
-        #16:???
+        #16:(0xff,""),Don't know reg in CTP7 address space
 
         #ADC Measures Voltage
-        #32:???
         #33:???
         34:(0xff,"CFG_BIAS_PRE_VREF"),
         35:(0xff,"CFG_THR_ARM_DAC"),
         36:(0xff,"CFG_THR_ZCC_DAC"),
         39:(0x3,"CFG_ADC_VREF")
-        #40:???
-        #41:???
+        #41:(0x3f,""))Don't know reg in CTP7 address space
         }
 
 ohBoardTempArray = c_uint32 * 9 # Temperature Array
