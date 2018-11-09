@@ -331,7 +331,8 @@ void gem::hw::glib::GLIBManager::configureAction()
       amc->resetCalPulseCount();
 
       if (m_uhalPhaseShift.value_) {
-        amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
+        CMSGEMOS_INFO("GLIBManager::configureAction uhal phase shifting disabled");
+        // amc->ttcMMCMPhaseShift(m_relockPhase.value_, m_bc0LockPhaseShift.value_);
       } else {
         std::stringstream pashiftcmd;
         // FIXME hard coded for now, but super hacky garbage (only works at P5)
