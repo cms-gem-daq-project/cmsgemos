@@ -1,9 +1,0 @@
-[Unit]
-Description=gemp5 XDAQ service failure notifier
-After=network.target
-[Service]
-Type=oneshot
-SyslogIdentifier=gemp5.notify
-StandardOutput=journal
-StandardError=journal
-ExecStart=/etc/xdaq.d/notifyqualified http://pc-c2e11-23-01.cms:XAAS_MACRO_BRIDGE2G_SENTINEL_HTTP_PORT "automatic restart of service %i after crash" warning gemp5 xdaqd::alarm::AutoRestartAfterCrash %i 0

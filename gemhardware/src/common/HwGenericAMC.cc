@@ -1029,7 +1029,7 @@ void gem::hw::HwGenericAMC::ttcMMCMPhaseShift(bool shiftOutOfLockFirst, bool use
     ttcMMCMReset();
     CMSGEMOS_INFO("HwGeneircAMC::ttcMMCMPhaseShift Lock was found:"
                   << " phase count " << phase
-                  << ", phase "      << phaseNs<< "ns");
+                  << ", phase "      << phaseNs << "ns");
   } else {
     std::stringstream msg;
     msg << "HwGeneircAMC::ttcMMCMPhaseShift Unable to find lock";
