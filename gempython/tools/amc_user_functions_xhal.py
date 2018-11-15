@@ -31,7 +31,7 @@ maxVfat3DACSize = {
         #16:(0xff,""),Don't know reg in CTP7 address space
 
         #ADC Measures Voltage
-        33:(0xff,"CFG_CAL_DAC"), # as voltage
+        #33:(0xff,"CFG_CAL_DAC"), # as voltage; removing, harder to convert to charge
         34:(0xff,"CFG_BIAS_PRE_VREF"),
         35:(0xff,"CFG_THR_ARM_DAC"),
         36:(0xff,"CFG_THR_ZCC_DAC"),
