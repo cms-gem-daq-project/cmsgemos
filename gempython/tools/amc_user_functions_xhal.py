@@ -319,7 +319,7 @@ class HwAMC(object):
         # Check length of results container
         lenExpected = self.nOHs * (maxVfat3DACSize[dacSelect][0] - 0+1)*24 / dacStep
         if (len(dacDataAll) != lenExpected):
-            print("HwAMC::performDacScanMultiLink(): I expected container of lenght {0} but provided 'dacDataAll' has length {1}",format(lenExpected, len(dacDataAll)))
+            print("HwAMC::performDacScanMultiLink(): I expected container of length {0} but provided 'dacDataAll' has length {1}",format(lenExpected, len(dacDataAll)))
             exit(os.EX_USAGE)
 
         return self.dacScanMulti(ohMask, self.nOHs, dacSelect, dacStep, useExtRefADC, dacDataAll)
