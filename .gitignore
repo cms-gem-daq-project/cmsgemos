@@ -52,6 +52,9 @@ __init__.py
 # Don't ignore gemonlinedb common xsd definitions
 !gemonlinedb/schema/common.xsd
 
+# Do ignore gemonlinedb auto-generated files
+gemonlinedb/**/*Gen.[h,cpp]
+
 # Ignore garbage files
 *~
 *.#*

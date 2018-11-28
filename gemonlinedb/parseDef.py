@@ -111,6 +111,50 @@ def _makeXml(config):
 
     return ET.ElementTree(schema)
 
+def _makeHeader(config, className):
+    template = '''/*
+ * THIS FILE WAS GENERATED
+ *
+ * Changes will be overwritten. Modify parseDef.py instead.
+ */
+
+#include <cstdint>
+
+namespace gem {{
+    namespace onlinedb {{
+        namespace detail {{
+            class {baseName}Gen
+            {{
+            private:{privateMembers}
+
+            public:
+                virtual ~{baseName}Gen() = 0;
+{publicMembers}
+            }};
+
+            {baseName}Gen::~{baseName}Gen() {{ }}
+        }} /* namespace detail */
+    }} /* namespace onlinedb */
+}} /* namespace gem */
+'''
+    fields = [ Field(f) for f in _checkedJsonGet(config, 'fields', list) ]
+
+    privateMembers = ''
+    for f in fields:
+        privateMembers += '''
+                std::int32_t {};'''.format(f.cppName())
+
+    publicMembers = ''
+    for f in fields:
+        publicMembers += '''
+                std::int32_t get{1}() {{ return {0}; }}
+                void set{1}(std::int32_t value) {{ {0} = value; }}
+                '''.format(f.cppName(False), f.cppName(True))
+
+    return template.format(baseName = className,
+                           privateMembers = privateMembers,
+                           publicMembers = publicMembers)
+
 if __name__ == '__main__':
     import argparse
     import json
@@ -127,4 +171,10 @@ if __name__ == '__main__':
     # Get the file name without extension nor base path (ie bar in /foo/bar.ext)
     baseFileName = os.path.splitext(os.path.basename(args.inputFile.name))[0]
 
+    print('-- Generating: schema/{}.xsd'.format(baseFileName))
     _makeXml(config).write('schema/{}.xsd'.format(baseFileName), encoding='UTF-8')
+
+    headerFileName = 'include/gem/onlinedb/detail/{}Gen.h'.format(baseFileName)
+    with open(headerFileName, 'w') as f:
+        f.write(_makeHeader(config, baseFileName))
+        print('-- Generating: {}'.format(f.name))

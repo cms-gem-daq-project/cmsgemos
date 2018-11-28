@@ -27,7 +27,7 @@ default: xsd test
 clean: clean-xsd
 test: test-xsd
 
-schema/%.xsd: defs/%.json parseDef.py
+schema/%.xsd include/gem/onlinedb/%Gen.h: defs/%.json parseDef.py
 	python parseDef.py $<
 
 .PHONY: xsd
