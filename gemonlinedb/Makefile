@@ -22,8 +22,36 @@ DynamicLibrary=gemonlinedb
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
+# Targets with additional dependencies. Keep "default" first
+.PHONY: default clean tests
+default: xsd
+clean: clean-xsd clean-gen-headers
+tests: default test-xsd
+
+# Common definitions
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
+
+# Auto-generated files
+schema/%.xsd include/gem/onlinedb/%Gen.h: defs/%.json parseDef.py
+	python parseDef.py $<
+
+# XML schemas
+.PHONY: xsd
+xsd: schema/VFAT3ChipConfiguration.xsd
+
+.PHONY: clean-xsd
+clean-xsd:
+	$(RM) schema/VFAT3ChipConfiguration.xsd
+
+.PHONY: test-xsd
+test-xsd:
+	xmllint --noout --schema schema/VFAT3ChipConfiguration.xsd xml/VFAT3_Chip_Configuration.xml
+
+# Auto-generated headers
+.PHONY: clean-gen-headers
+clean-gen-headers:
+	$(RM) include/gem/onlinedb/detail/*Gen.h
 
 print-env:
 	@echo BUILD_HOME    $(BUILD_HOME)
