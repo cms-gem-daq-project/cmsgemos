@@ -46,6 +46,12 @@ __init__.py
 !setup/etc/profile.d/*sh
 !setup/etc/yum.repos.d/*.repo
 
+# Don't ignore gemonlinedb definition files
+!gemonlinedb/defs/*.json
+
+# Don't ignore gemonlinedb common xsd definitions
+!gemonlinedb/schema/common.xsd
+
 # Ignore garbage files
 *~
 *.#*

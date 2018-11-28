@@ -22,6 +22,26 @@ DynamicLibrary=gemonlinedb
 
 IncludeDirs+=$(BUILD_HOME)/$(Project)/$(Package)/include
 
+# XML schemas
+default: xsd test
+clean: clean-xsd
+test: test-xsd
+
+schema/%.xsd: defs/%.json parseDef.py
+	python parseDef.py $<
+
+.PHONY: xsd
+xsd: schema/VFAT3ChipConfiguration.xsd
+
+.PHONY: clean-xsd
+clean-xsd:
+	$(RM) schema/VFAT3ChipConfiguration.xsd
+
+.PHONY: test-xsd
+test-xsd:
+	xmllint --noout --schema schema/VFAT3ChipConfiguration.xsd xml/VFAT3_Chip_Configuration.xml
+
+# Common definitions
 include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
