@@ -16,7 +16,9 @@ GEMONLINEDB_VER_PATCH=0
 
 include $(BUILD_HOME)/$(Project)/config/mfDefsGEM.mk
 
-Sources =version.cc
+Sources = \
+    VFAT3ChipConfigurationGen.cc \
+    version.cc \
 
 DynamicLibrary=gemonlinedb
 
@@ -33,7 +35,7 @@ include $(XDAQ_ROOT)/config/Makefile.rules
 include $(BUILD_HOME)/$(Project)/config/mfRPMDefsGEM.mk
 
 # Auto-generated files
-schema/%.xsd include/gem/onlinedb/%Gen.h: defs/%.json parseDef.py
+schema/%.xsd include/gem/onlinedb/%Gen.h src/common/%Gen.cc: defs/%.json parseDef.py
 	python parseDef.py $<
 
 # XML schemas
