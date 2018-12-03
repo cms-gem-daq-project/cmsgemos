@@ -48,7 +48,7 @@
     <!-- This group can be redefined to change rules with BARCODE and SERIAL_NUMBER. The default is to require exactly one of them. -->
     <xs:group name="KindOfPartIdentifier">
         <xs:choice>
-            <xs:element name="BARCODE" type="xs:unsignedInt"/>
+            <xs:element name="BARCODE" type="xs:string"/>
             <xs:element name="SERIAL_NUMBER" type="xs:string"/>
         </xs:choice>
     </xs:group>
@@ -77,7 +77,7 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="COMMENT_DESCRIPTION" type="xs:string"/>
-                            <xs:element name="VERSION" type="xs:positiveInteger"/>
+                            <xs:element name="VERSION" type="xs:string"/>
                             <xs:element ref="PART"/>
                             <xs:element name="DATA" type="Data" maxOccurs="unbounded"/>
                         </xs:sequence>
